@@ -385,7 +385,7 @@ static bool wscbor_skip_next_item_internal(wmem_allocator_t *alloc, tvbuff_t *tv
             break;
         case CBOR_TYPE_BYTESTRING:
         case CBOR_TYPE_STRING:
-            // wscbor_read_chunk() sets offset past string value
+            // wscbor_chunk_read() sets offset past string value
             break;
         case CBOR_TYPE_ARRAY: {
             if (chunk->type_minor == 31) {
@@ -642,7 +642,7 @@ proto_item * proto_tree_add_cbor_int64(proto_tree *tree, int hfindex, packet_inf
 }
 
 proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const int ett, int *const *fields, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const uint64_t *value) {
-    header_field_info *field = proto_registrar_get_nth(hfindex);
+    const header_field_info *field = proto_registrar_get_nth(hfindex);
     int flagsize = 0;
     switch (field->type) {
         case FT_UINT8:

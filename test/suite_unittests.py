@@ -41,6 +41,10 @@ class TestUnitTests:
         '''wscbor_test'''
         subprocess.check_call(program('wscbor_test'), env=base_env)
 
+    def test_unit_wscbor_enc_test(self, program, base_env):
+        '''wscbor_enc_test'''
+        subprocess.check_call(program('wscbor_enc_test'), env=base_env)
+
     def test_unit_epan(self, program, base_env):
         '''epan unit tests'''
         subprocess.check_call((program('test_epan'),

@@ -14,7 +14,13 @@
 #ifndef __PACKET_COSE_H__
 #define __PACKET_COSE_H__
 
+#include <ws_symbol_export.h>
 #include <glib.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * COSE message dissectors are registered multiple ways:
@@ -52,14 +58,17 @@ typedef struct {
 
 /** Compatible with GHashFunc signature.
  */
+WS_DLL_PUBLIC
 unsigned cose_param_key_hash(const void *ptr);
 
 /** Compatible with GEqualFunc signature.
  */
+WS_DLL_PUBLIC
 gboolean cose_param_key_equal(const void *a, const void *b);
 
 /** Compatible with GDestroyNotify signature.
  */
+WS_DLL_PUBLIC
 void cose_param_key_free(void *ptr);
 
 /// User data for header/key-parameter dissectors
@@ -69,5 +78,70 @@ typedef struct {
     /// Current label being processed
     GVariant *label;
 } cose_header_context_t;
+
+/// Derived properties of hash algorithm
+typedef struct {
+    /// The algorithm code point
+    int64_t value;
+    /// GCrypt hash enumeration
+    int gcry_hash;
+    /** Output length in bytes.
+     * This can be shorter than the native output from the hash algorithm
+     * to indicate truncated output.
+     */
+    unsigned out_len;
+} cose_hash_props_t;
+
+/** Get properties for a specific algorithm code point.
+ *
+ * @param alg The code point from "COSE Algorithms" IANA registry.
+ * @return The algorithm properties, or NULL if not a hash code point.
+ */
+WS_DLL_PUBLIC
+const cose_hash_props_t * cose_get_hash_props(int64_t alg);
+
+/// Derived properties of AEAD encryption algorithm
+typedef struct {
+    /// The algorithm code point
+    int64_t value;
+    /// GCrypt cipher enumeration
+    int gcry_cipher;
+    /// GCrypt mode enumeration
+    int gcry_mode;
+    /// Key length in bytes
+    unsigned key_len;
+    /// IV length in bytes
+    unsigned iv_len;
+    /// Tag length in bytes
+    unsigned tag_len;
+} cose_aead_props_t;
+
+/** Get properties for a specific algorithm code point.
+ *
+ * @param alg The code point from "COSE Algorithms" IANA registry.
+ * @return The algorithm properties, or NULL if not an AEAD code point.
+ */
+WS_DLL_PUBLIC
+const cose_aead_props_t * cose_get_aead_props(int64_t alg);
+
+/// Derived properties of AEAD encryption algorithm
+typedef struct {
+    /// The algorithm code point
+    int64_t value;
+    /// Public key encoded size in bytes
+    unsigned pubkey_len;
+} cose_ecc_props_t;
+
+/** Get properties for a specific algorithm code point.
+ *
+ * @param crv The code point from "COSE Elliptic Curves" IANA registry.
+ * @return The curve properties, or NULL if not a known code point.
+ */
+WS_DLL_PUBLIC
+const cose_ecc_props_t * cose_get_ecc_props(int64_t crv);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PACKET_COSE_H__ */

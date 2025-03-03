@@ -161,6 +161,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	value_string.h
 	wmem_scopes.h
 	wscbor.h
+	wscbor_enc.h
 	x264_prt_id.h
 	xdlc.h
 )
@@ -268,6 +269,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	uat.c
 	value_string.c
 	wscbor.c
+	wscbor_enc.c
 	unit_strings.c
 	wmem_scopes.c
 	xdlc.c
@@ -451,6 +453,14 @@ set_target_properties(tvbtest PROPERTIES
 add_executable(wscbor_test EXCLUDE_FROM_ALL wscbor_test.c)
 target_link_libraries(wscbor_test epan)
 set_target_properties(wscbor_test PROPERTIES
+    FOLDER "Tests"
+    EXCLUDE_FROM_DEFAULT_BUILD True
+    COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
+add_executable(wscbor_enc_test EXCLUDE_FROM_ALL wscbor_enc_test.c)
+target_link_libraries(wscbor_enc_test epan)
+set_target_properties(wscbor_enc_test PROPERTIES
     FOLDER "Tests"
     EXCLUDE_FROM_DEFAULT_BUILD True
     COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"

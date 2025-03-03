@@ -22,23 +22,15 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>    /* Include only as needed */
 #include <epan/to_str.h>
+#include <epan/wscbor_enc.h>
 
 #include <wsutil/wsgcrypt.h>
 #include "packet-ieee802154.h" /* We use CCM implementation available as part of 802.15.4 dissector */
+#include "packet-cose.h"
 #include "packet-coap.h" /* packet-coap.h includes packet-oscore.h */
 
 /* Prototypes */
-static unsigned oscore_alg_get_key_len(cose_aead_alg_t);
-static unsigned oscore_alg_get_iv_len(cose_aead_alg_t);
-static unsigned oscore_alg_get_tag_len(cose_aead_alg_t);
 static bool oscore_context_derive_params(oscore_context_t *);
-
-/* CBOR encoder prototypes */
-static uint8_t cborencoder_put_text(uint8_t *buffer, const char *text, uint8_t text_len);
-static uint8_t cborencoder_put_null(uint8_t *buffer);
-static uint8_t cborencoder_put_unsigned(uint8_t *buffer, uint8_t value);
-static uint8_t cborencoder_put_bytes(uint8_t *buffer, const uint8_t *bytes, uint8_t bytes_len);
-static uint8_t cborencoder_put_array(uint8_t *buffer, uint8_t elements);
 
 /* (Required to prevent [-Wmissing-prototypes] warnings */
 void proto_reg_handoff_oscore(void);
@@ -154,8 +146,6 @@ static void oscore_context_free_byte_arrays(oscore_context_t *rec) {
 
 static void oscore_context_post_update_cb(void) {
     unsigned i;
-    unsigned key_len;
-    unsigned iv_len;
 
     for (i = 0; i < num_oscore_contexts; i++) {
 
@@ -176,13 +166,13 @@ static void oscore_context_post_update_cb(void) {
         hex_str_to_bytes(oscore_contexts[i].master_salt_prefs, oscore_contexts[i].master_salt, false);
 
         /* Algorithm-dependent key and IV length */
-        key_len = oscore_alg_get_key_len(oscore_contexts[i].algorithm);
-        iv_len = oscore_alg_get_iv_len(oscore_contexts[i].algorithm);
+        const cose_aead_props_t *aead_props = cose_get_aead_props(oscore_contexts[i].algorithm);
+        DISSECTOR_ASSERT(aead_props);
 
         /* Allocate memory for derived parameters */
-        oscore_contexts[i].request_decryption_key = g_byte_array_sized_new(key_len);
-        oscore_contexts[i].response_decryption_key = g_byte_array_sized_new(key_len);
-        oscore_contexts[i].common_iv = g_byte_array_sized_new(iv_len);
+        oscore_contexts[i].request_decryption_key = g_byte_array_sized_new(aead_props->key_len);
+        oscore_contexts[i].response_decryption_key = g_byte_array_sized_new(aead_props->key_len);
+        oscore_contexts[i].common_iv = g_byte_array_sized_new(aead_props->iv_len);
 
         oscore_context_derive_params(&oscore_contexts[i]);
     }
@@ -304,14 +294,10 @@ static bool oscore_context_derive_params(oscore_context_t *context) {
     const char *iv_label = "IV";
     const char *key_label = "Key";
     uint8_t prk[32]; /* Pseudo-random key from HKDF-Extract step. 32 for SHA256. */
-    unsigned key_len;
-    unsigned iv_len;
-    uint8_t info_buf[OSCORE_INFO_MAX_LEN];
-    unsigned info_len;
     GByteArray *info;
 
-    key_len = oscore_alg_get_key_len(context->algorithm);
-    iv_len = oscore_alg_get_iv_len(context->algorithm);
+    const cose_aead_props_t *aead_props = cose_get_aead_props(context->algorithm);
+    DISSECTOR_ASSERT(aead_props);
 
     info = g_byte_array_new();
 
@@ -319,97 +305,61 @@ static bool oscore_context_derive_params(oscore_context_t *context) {
     hkdf_extract(GCRY_MD_SHA256, context->master_salt->data, context->master_salt->len, context->master_secret->data, context->master_secret->len, prk);
 
     /* Request Decryption Key */
-    info_len = 0;
-    info_len += cborencoder_put_array(&info_buf[info_len], 5);
-    info_len += cborencoder_put_bytes(&info_buf[info_len], context->sender_id->data, context->sender_id->len);
+    wscbor_enc_array_head(info, 5);
+    wscbor_enc_bstr(info, context->sender_id->data, context->sender_id->len);
     if (context->id_context->len) {
-        info_len += cborencoder_put_bytes(&info_buf[info_len], context->id_context->data, context->id_context->len);
+        wscbor_enc_bstr(info, context->id_context->data, context->id_context->len);
     } else {
-        info_len += cborencoder_put_null(&info_buf[info_len]);
+        wscbor_enc_null(info);
     }
-    info_len += cborencoder_put_unsigned(&info_buf[info_len], context->algorithm);
-    info_len += cborencoder_put_text(&info_buf[info_len], key_label, 3);
-    info_len += cborencoder_put_unsigned(&info_buf[info_len], key_len);
+    wscbor_enc_uint64(info, context->algorithm);
+    wscbor_enc_tstr(info, key_label);
+    wscbor_enc_uint64(info, aead_props->key_len);
     /* sender_id->len comes from user input, it is validated by the UAT callback and the max length is accounted for
      * in OSCORE_INFO_MAX_LEN */
-    DISSECTOR_ASSERT(info_len < OSCORE_INFO_MAX_LEN);
-    g_byte_array_append(info, info_buf, info_len);
-    g_byte_array_set_size(context->request_decryption_key, key_len);
-    hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->request_decryption_key->data, key_len); /* 32 for SHA256 */
+    DISSECTOR_ASSERT(info->len < OSCORE_INFO_MAX_LEN);
+    g_byte_array_set_size(context->request_decryption_key, aead_props->key_len);
+    hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->request_decryption_key->data, aead_props->key_len); /* 32 for SHA256 */
 
 
 
     /* Response Decryption Key */
-    info_len = 0;
     g_byte_array_set_size(info, 0);
-    info_len += cborencoder_put_array(&info_buf[info_len], 5);
-    info_len += cborencoder_put_bytes(&info_buf[info_len], context->recipient_id->data, context->recipient_id->len);
+    wscbor_enc_array_head(info, 5);
+    wscbor_enc_bstr(info, context->recipient_id->data, context->recipient_id->len);
     if (context->id_context->len) {
-        info_len += cborencoder_put_bytes(&info_buf[info_len], context->id_context->data, context->id_context->len);
+        wscbor_enc_bstr(info, context->id_context->data, context->id_context->len);
     } else {
-        info_len += cborencoder_put_null(&info_buf[info_len]);
+        wscbor_enc_null(info);
     }
-    info_len += cborencoder_put_unsigned(&info_buf[info_len], context->algorithm);
-    info_len += cborencoder_put_text(&info_buf[info_len], key_label, 3);
-    info_len += cborencoder_put_unsigned(&info_buf[info_len], key_len);
+    wscbor_enc_uint64(info, context->algorithm);
+    wscbor_enc_tstr(info, key_label);
+    wscbor_enc_uint64(info, aead_props->key_len);
     /* recipient_id->len comes from user input, it is validated by the UAT callback and the max length is accounted for
      * in OSCORE_INFO_MAX_LEN */
-    DISSECTOR_ASSERT(info_len < OSCORE_INFO_MAX_LEN);
-    g_byte_array_append(info, info_buf, info_len);
-    g_byte_array_set_size(context->response_decryption_key, key_len);
-    hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->response_decryption_key->data, key_len); /* 32 for SHA256 */
+    DISSECTOR_ASSERT(info->len < OSCORE_INFO_MAX_LEN);
+    g_byte_array_set_size(context->response_decryption_key, aead_props->key_len);
+    hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->response_decryption_key->data, aead_props->key_len); /* 32 for SHA256 */
 
     /* Common IV */
-    info_len = 0;
     g_byte_array_set_size(info, 0);
-    info_len += cborencoder_put_array(&info_buf[info_len], 5);
-    info_len += cborencoder_put_bytes(&info_buf[info_len], NULL, 0);
+    wscbor_enc_array_head(info, 5);
+    wscbor_enc_bstr(info, NULL, 0);
     if (context->id_context->len) {
-        info_len += cborencoder_put_bytes(&info_buf[info_len], context->id_context->data, context->id_context->len);
+        wscbor_enc_bstr(info, context->id_context->data, context->id_context->len);
     } else {
-        info_len += cborencoder_put_null(&info_buf[info_len]);
+        wscbor_enc_null(info);
     }
-    info_len += cborencoder_put_unsigned(&info_buf[info_len], context->algorithm);
-    info_len += cborencoder_put_text(&info_buf[info_len], iv_label, 2);
-    info_len += cborencoder_put_unsigned(&info_buf[info_len], iv_len);
+    wscbor_enc_uint64(info, context->algorithm);
+    wscbor_enc_tstr(info, iv_label);
+    wscbor_enc_uint64(info, aead_props->iv_len);
     /* all static lengths, accounted for in OSCORE_INFO_MAX_LEN */
-    DISSECTOR_ASSERT(info_len < OSCORE_INFO_MAX_LEN);
-    g_byte_array_append(info, info_buf, info_len);
-    g_byte_array_set_size(context->common_iv, iv_len);
-    hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->common_iv->data, iv_len); /* 32 for SHA256 */
+    DISSECTOR_ASSERT(info->len < OSCORE_INFO_MAX_LEN);
+    g_byte_array_set_size(context->common_iv, aead_props->iv_len);
+    hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->common_iv->data, aead_props->iv_len); /* 32 for SHA256 */
 
     g_byte_array_free(info, true);
     return true;
-}
-
-static unsigned oscore_alg_get_key_len(cose_aead_alg_t algorithm) {
-    switch(algorithm) {
-        case COSE_AES_CCM_16_64_128:
-            return 16; /* RFC8152 */
-        /* unsupported */
-        default:
-            return 0;
-    }
-}
-
-static unsigned oscore_alg_get_tag_len(cose_aead_alg_t algorithm) {
-    switch(algorithm) {
-        case COSE_AES_CCM_16_64_128:
-            return 8; /* RFC8152 */
-        /* unsupported */
-        default:
-            return 0;
-    }
-}
-
-static unsigned oscore_alg_get_iv_len(cose_aead_alg_t algorithm) {
-    switch(algorithm) {
-        case COSE_AES_CCM_16_64_128:
-            return 13; /* RFC8152 */
-        /* unsupported */
-        default:
-            return 0;
-    }
 }
 
 static oscore_context_t * oscore_find_context(oscore_info_t *info) {
@@ -426,83 +376,6 @@ static oscore_context_t * oscore_find_context(oscore_info_t *info) {
     return NULL;
 }
 
-/**
-CBOR encoding functions needed to construct HKDF info and aad.
-Author Martin Gunnarsson <martin.gunnarsson@ri.se>
-Modified by Malisa Vucinic <malishav@gmail.com>
-*/
-static uint8_t
-cborencoder_put_text(uint8_t *buffer, const char *text, uint8_t text_len) {
-    uint8_t ret = 0;
-
-    if(text_len > 23 ){
-        buffer[ret++] = 0x78;
-        buffer[ret++] = text_len;
-    } else {
-        buffer[ret++] = (0x60 | text_len);
-    }
-
-    if (text_len != 0 && text != NULL) {
-        memcpy(&buffer[ret], text, text_len);
-        ret += text_len;
-    }
-
-    return ret;
-}
-
-static uint8_t
-cborencoder_put_array(uint8_t *buffer, uint8_t elements) {
-    uint8_t ret = 0;
-
-    if(elements > 15){
-        return 0;
-    }
-
-    buffer[ret++] = (0x80 | elements);
-    return ret;
-}
-
-static uint8_t
-cborencoder_put_bytes(uint8_t *buffer, const uint8_t *bytes, uint8_t bytes_len) {
-    uint8_t ret = 0;
-
-    if(bytes_len > 23){
-        buffer[ret++] = 0x58;
-        buffer[ret++] = bytes_len;
-    } else {
-        buffer[ret++] = (0x40 | bytes_len);
-    }
-
-    if (bytes_len != 0 && bytes != NULL){
-        memcpy(&buffer[ret], bytes, bytes_len);
-        ret += bytes_len;
-    }
-
-    return ret;
-}
-
-static uint8_t
-cborencoder_put_unsigned(uint8_t *buffer, uint8_t value) {
-    uint8_t ret = 0;
-
-    if(value > 0x17 ){
-        buffer[ret++] = 0x18;
-        buffer[ret++] = value;
-        return ret;
-    }
-
-    buffer[ret++] = value;
-    return ret;
-}
-
-static uint8_t
-cborencoder_put_null(uint8_t *buffer) {
-    uint8_t ret = 0;
-
-    buffer[ret++] = 0xf6;
-    return ret;
-}
-
 /* out should hold NONCE_MAX_LEN bytes at most */
 static void
 oscore_create_nonce(uint8_t *out,
@@ -511,7 +384,6 @@ oscore_create_nonce(uint8_t *out,
 
     unsigned i = 0;
     char piv_extended[NONCE_MAX_LEN] = { 0 };
-    unsigned nonce_len;
     uint8_t *piv;
     uint8_t piv_len;
     GByteArray *piv_generator;
@@ -520,8 +392,9 @@ oscore_create_nonce(uint8_t *out,
     DISSECTOR_ASSERT(context != NULL);
     DISSECTOR_ASSERT(info != NULL);
 
-    nonce_len = oscore_alg_get_iv_len(context->algorithm);
-    DISSECTOR_ASSERT(nonce_len <= NONCE_MAX_LEN);
+    const cose_aead_props_t *aead_props = cose_get_aead_props(context->algorithm);
+    DISSECTOR_ASSERT(aead_props);
+    DISSECTOR_ASSERT(aead_props->iv_len <= NONCE_MAX_LEN);
 
     /* Recipient ID is the PIV generator ID if the PIV is present in the response */
     if (info->response && info->piv_len) {
@@ -542,17 +415,17 @@ oscore_create_nonce(uint8_t *out,
 
     /* Step 1 */
     DISSECTOR_ASSERT(piv_len <= OSCORE_PIV_MAX_LEN);
-    memcpy(&piv_extended[nonce_len - piv_len], piv, piv_len);
+    memcpy(&piv_extended[aead_props->iv_len - piv_len], piv, piv_len);
 
     /* Step 2 */
-    DISSECTOR_ASSERT(piv_generator->len <= nonce_len - 6);
-    memcpy(&piv_extended[nonce_len - OSCORE_PIV_MAX_LEN - piv_generator->len], piv_generator->data, piv_generator->len);
+    DISSECTOR_ASSERT(piv_generator->len <= aead_props->iv_len - 6);
+    memcpy(&piv_extended[aead_props->iv_len - OSCORE_PIV_MAX_LEN - piv_generator->len], piv_generator->data, piv_generator->len);
 
     /* Step 3 */
     piv_extended[0] = piv_generator->len;
 
     /* Now XOR with Common IV */
-    for (i = 0; i < nonce_len; i++) {
+    for (i = 0; i < aead_props->iv_len; i++) {
         out[i] = piv_extended[i] ^ context->common_iv->data[i];
     }
 
@@ -572,21 +445,19 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
     uint8_t tmp[AES_128_BLOCK_LEN];
     uint8_t *text;
     uint8_t rx_tag[TAG_MAX_LEN];
-    unsigned tag_len = 0;
     uint8_t gen_tag[TAG_MAX_LEN];
-    uint8_t external_aad[OSCORE_EXTERNAL_AAD_MAX_LEN];
-    uint8_t external_aad_len = 0;
-    uint8_t aad[OSCORE_AAD_MAX_LEN];
-    uint8_t aad_len = 0;
+    GByteArray *external_aad;
+    GByteArray *aad;
     uint8_t *decryption_key;
     int ciphertext_captured_len;
     int ciphertext_reported_len;
     const char *encrypt0 = "Encrypt0";
     proto_item *item = NULL;
 
-    tag_len = oscore_alg_get_tag_len(context->algorithm);
+    const cose_aead_props_t *aead_props = cose_get_aead_props(context->algorithm);
+    DISSECTOR_ASSERT(aead_props);
 
-    ciphertext_reported_len = tvb_reported_length_remaining(tvb_ciphertext, *offset + tag_len);
+    ciphertext_reported_len = tvb_reported_length_remaining(tvb_ciphertext, *offset + aead_props->tag_len);
 
     if (ciphertext_reported_len == 0) {
         return STATUS_ERROR_MESSAGE_TOO_SMALL;
@@ -601,10 +472,10 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
     }
 
     /* Check if the tag is present in the captured data. */
-    have_tag = tvb_bytes_exist(tvb_ciphertext, *offset + ciphertext_reported_len, tag_len);
+    have_tag = tvb_bytes_exist(tvb_ciphertext, *offset + ciphertext_reported_len, aead_props->tag_len);
     if (have_tag) {
-        DISSECTOR_ASSERT(tag_len <= sizeof(rx_tag));
-        tvb_memcpy(tvb_ciphertext, rx_tag, *offset + ciphertext_reported_len, tag_len);
+        DISSECTOR_ASSERT(aead_props->tag_len <= sizeof(rx_tag));
+        tvb_memcpy(tvb_ciphertext, rx_tag, *offset + ciphertext_reported_len, aead_props->tag_len);
     }
 
     if (info->response) {
@@ -645,33 +516,36 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
 
     if (have_tag) {
         /* Construct external_aad to be able to verify the tag */
+        external_aad = g_byte_array_sized_new(OSCORE_EXTERNAL_AAD_MAX_LEN);
 
         /* Note that OSCORE_EXTERNAL_AAD_MAX_LEN calculation depends on the following construct.
          * If this is updated - e.g. due to spec changes, added support for Class I options, or added
          * support for other algorithms which would change max length of KID - do not forget to update the macro.
          * */
-        external_aad_len += cborencoder_put_array(&external_aad[external_aad_len], 5); /* 5 elements in the array */
-        external_aad_len += cborencoder_put_unsigned(&external_aad[external_aad_len], OSCORE_VERSION);
-        external_aad_len += cborencoder_put_array(&external_aad[external_aad_len], 1);
-        external_aad_len += cborencoder_put_unsigned(&external_aad[external_aad_len], context->algorithm);
-        external_aad_len += cborencoder_put_bytes(&external_aad[external_aad_len], info->kid, info->kid_len);
-        external_aad_len += cborencoder_put_bytes(&external_aad[external_aad_len], info->request_piv, info->request_piv_len);
-        external_aad_len += cborencoder_put_bytes(&external_aad[external_aad_len], NULL, 0); // Class I options not implemented/standardized yet
+        wscbor_enc_array_head(external_aad, 5); /* 5 elements in the array */
+        wscbor_enc_uint64(external_aad, OSCORE_VERSION);
+        wscbor_enc_array_head(external_aad, 1);
+        wscbor_enc_uint64(external_aad, context->algorithm);
+        wscbor_enc_bstr(external_aad, info->kid, info->kid_len);
+        wscbor_enc_bstr(external_aad, info->request_piv, info->request_piv_len);
+        wscbor_enc_bstr(external_aad, NULL, 0); // Class I options not implemented/standardized yet
 
         /* info->kid_len and info->piv_len come from the lower layer, other parameters are local.
          * we end up here only if kid_len is matched to the one from the configured context through oscore_find_context()
          * and piv_len is verified in the main dissection routine */
-        DISSECTOR_ASSERT(external_aad_len < OSCORE_EXTERNAL_AAD_MAX_LEN);
+        DISSECTOR_ASSERT(external_aad->len < OSCORE_EXTERNAL_AAD_MAX_LEN);
 
         /* Note that OSCORE_AAD_MAX_LEN calculation depends on the following construct.
          * If the construct below is modified, do not forget to update the macro.
          * */
-        aad_len += cborencoder_put_array(&aad[aad_len], 3); // COSE Encrypt0 structure with 3 elements
-        aad_len += cborencoder_put_text(&aad[aad_len], encrypt0, 8); /* Text string "Encrypt0" */
-        aad_len += cborencoder_put_bytes(&aad[aad_len], NULL, 0);  /* Empty byte string */
-        aad_len += cborencoder_put_bytes(&aad[aad_len], external_aad, external_aad_len); /* OSCORE external_aad */
+        aad = g_byte_array_sized_new(OSCORE_AAD_MAX_LEN);
+        wscbor_enc_array_head(aad, 3); // COSE Encrypt0 structure with 3 elements
+        wscbor_enc_tstr(aad, encrypt0); /* Text string "Encrypt0" */
+        wscbor_enc_bstr(aad, NULL, 0);  /* Empty byte string */
+        wscbor_enc_bstr_bytearray(aad, external_aad); /* OSCORE external_aad */
+        g_byte_array_unref(external_aad);
 
-        DISSECTOR_ASSERT(aad_len < OSCORE_AAD_MAX_LEN);
+        DISSECTOR_ASSERT(aad->len < OSCORE_AAD_MAX_LEN);
 
         /* Compute CBC-MAC authentication tag. */
 
@@ -679,20 +553,22 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         * Create the CCM* initial block for authentication (Adata!=0, M!=0, counter=l(m)).
         * XXX: This only handles AES-CCM-16-64-128, add generic algorithm handling
         * */
-        DISSECTOR_ASSERT(tag_len <= sizeof(gen_tag));
-        ccm_init_block(tmp, true, tag_len, 0, 0, 0, ciphertext_captured_len, nonce);
+        DISSECTOR_ASSERT(aead_props->tag_len <= sizeof(gen_tag));
+        ccm_init_block(tmp, true, aead_props->tag_len, 0, 0, 0, ciphertext_captured_len, nonce);
         /* text is already a raw buffer containing the plaintext since we just decrypted it in-place */
-        if (!ccm_cbc_mac(decryption_key, tmp, aad, aad_len, text, ciphertext_captured_len, gen_tag)) {
+        int mac_res = ccm_cbc_mac(decryption_key, tmp, aad->data, aad->len, text, ciphertext_captured_len, gen_tag);
+        g_byte_array_unref(aad);
+        if (!mac_res) {
             return STATUS_ERROR_CBCMAC_FAILED;
         }
         /* Compare the received tag with the one we generated. */
-        else if (memcmp(gen_tag, rx_tag, tag_len) != 0) {
+        else if (memcmp(gen_tag, rx_tag, aead_props->tag_len) != 0) {
             return STATUS_ERROR_TAG_CHECK_FAILED;
         }
 
         /* Display the tag. */
-        if (tag_len) {
-            item = proto_tree_add_bytes(tree, hf_oscore_tag, tvb_ciphertext, ciphertext_captured_len, tag_len, rx_tag);
+        if (aead_props->tag_len) {
+            item = proto_tree_add_bytes(tree, hf_oscore_tag, tvb_ciphertext, ciphertext_captured_len, aead_props->tag_len, rx_tag);
             proto_item_set_generated(item);
         }
 

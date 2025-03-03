@@ -324,6 +324,8 @@ static const value_string vals_ctype[] = {
 	{ 61, "application/cwt" },
 	{ 62, "application/multipart-core" },
 	{ 63, "application/cbor-seq" },
+	{ 64, "application/edhoc+cbor-seq" },
+	{ 65, "application/cid-edhoc+cbor-seq" },
 	{ 96, "application/cose; cose-type=\"cose-encrypt\"" },
 	{ 97, "application/cose; cose-type=\"cose-mac\"" },
 	{ 98, "application/cose; cose-type=\"cose-sign\"" },
@@ -1229,7 +1231,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 	proto_item_set_generated(length_item);
 	payload_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
-	content_info.type = MEDIA_CONTAINER_HTTP_OTHERS;
+	content_info.type = (code_class == 0) ? MEDIA_CONTAINER_HTTP_REQUEST : MEDIA_CONTAINER_HTTP_RESPONSE;
 	content_info.media_str = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 	/*
 	 * The Thread protocol uses application/octet-stream for its
@@ -1552,11 +1554,11 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	/* dissect the payload */
+	/* dissect the payload after info column updates below */
+	tvbuff_t *payload_tvb = NULL;
 	if (coap_length > offset) {
 		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
-			dissect_coap_payload(tvb, pinfo, coap_tree, parent_tree, offset, coap_length,
-					     code_class, coinfo, &dissect_coap_hf, false);
+			payload_tvb = tvb_new_subset_remaining(tvb, offset);
 		} else {
 			proto_tree_add_bytes_format(coap_tree, hf_block_payload, tvb, offset,
 						    coap_length - offset, NULL, "Block Payload");
@@ -1566,13 +1568,8 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			fragment_head *frag_msg = fragment_add_seq_check(&coap_block_reassembly_table, tvb, offset,
 									 pinfo, 0, NULL, coinfo->block_number,
 									 coap_length - offset, coinfo->block_mflag);
-			tvbuff_t *frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CoAP blocks",
+			payload_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CoAP blocks",
 								      frag_msg, &coap_block_frag_items, NULL, coap_tree);
-
-			if (frag_tvb) {
-				dissect_coap_payload(frag_tvb, pinfo, coap_tree, parent_tree, 0, tvb_reported_length(frag_tvb),
-						     code_class, coinfo, &dissect_coap_hf, false);
-			}
 		}
 	}
 
@@ -1652,6 +1649,11 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				proto_item_set_generated(pi);
 			}
 		}
+	}
+
+	if (payload_tvb) {
+		dissect_coap_payload(payload_tvb, pinfo, coap_tree, parent_tree, 0, tvb_reported_length(payload_tvb),
+							 code_class, coinfo, &dissect_coap_hf, false);
 	}
 
 	return coap_length;

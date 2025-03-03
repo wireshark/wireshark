@@ -367,6 +367,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-e164.h
 	packet-e212.h
 	packet-eapol.h
+	packet-edhoc.h
 	packet-edonkey.h
 	packet-eigrp.h
 	packet-epl.h
@@ -1091,6 +1092,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecpri.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp-oui.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-edhoc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-edonkey.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-egd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eero.c

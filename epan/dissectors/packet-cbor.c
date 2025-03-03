@@ -926,6 +926,8 @@ bool cbor_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         CATCH_BOUNDS_AND_DISSECTOR_ERRORS {}
         ENDTRY;
         if (!valid) {
+            // A failure in any one item is a failure of the heuristic
+            count = 0;
             break;
         }
         ++count;

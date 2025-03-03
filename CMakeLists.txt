@@ -4387,6 +4387,7 @@ add_custom_target(test-programs
 		tvbtest
 		wmem_test
 		wscbor_test
+		wscbor_enc_test
 		test_epan
 		test_wsutil
 	COMMENT "Building unit test programs and wrapper"

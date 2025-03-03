@@ -1,5 +1,5 @@
 /* wscbor_test.c
- * Wireshark CBOR API tests
+ * Wireshark CBOR decoder API tests
  * Copyright 2021, Brian Sipos <brian.sipos@gmail.com>
  *
  * Wireshark - Network traffic analyzer
