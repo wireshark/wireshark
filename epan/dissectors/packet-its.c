@@ -124,6 +124,8 @@ static dissector_handle_t its_handle;
 
 static expert_field ei_its_no_sub_dis;
 
+static bool wrappedcontainers_as_extended;
+
 // TAP
 static int its_tap;
 
@@ -7730,6 +7732,7 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     data_offset = call_data_dissector(next_tvb, actx->pinfo, tree);
   }
   offset += data_offset;
+
 
   return offset;
 }
@@ -22187,9 +22190,21 @@ static const per_sequence_t cpm_WrappedCpmContainers_sequence_of[1] = {
 
 static int
 dissect_cpm_WrappedCpmContainers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+
+
+  if(wrappedcontainers_as_extended == true){
+    offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                    ett_cpm_WrappedCpmContainers, cpm_WrappedCpmContainers_sequence_of,
+                                                    1, 8, true);
+  } else {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_cpm_WrappedCpmContainers, cpm_WrappedCpmContainers_sequence_of,
-                                                  1, 8, true);
+                                                  1, 8, false);
+
+  }
+
+
 
   return offset;
 }
@@ -32052,6 +32067,7 @@ void proto_register_its(void)
     };
 
     expert_module_t* expert_its;
+    module_t* its_module;
 
     proto_its = proto_register_protocol("Intelligent Transport Systems", "ITS", "its");
 
@@ -32105,6 +32121,14 @@ void proto_register_its(void)
     register_decode_as(&its_da);
 
     its_tap = register_tap("its");
+
+    its_module = prefs_register_protocol(proto_its,
+        proto_reg_handoff_its);
+
+    prefs_register_bool_preference(its_module, "wrappedcontainers_as_extended",
+        "Dissect WrappedCpmContainers as extendable",
+        "Some asn1 compilers generates cod as if WrappedCpmContainers was extensible(Wrong)",
+        &wrappedcontainers_as_extended);
 }
 
 #define BTP_SUBDISS_SZ 2
