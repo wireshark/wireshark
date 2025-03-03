@@ -28,6 +28,8 @@
 #include "packet-llc.h"
 #include <epan/oui.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-bluetooth.h"
 
 static dissector_handle_t bluetooth_handle;
@@ -79,6 +81,8 @@ typedef struct _bt_uuid_t {
 } bt_uuid_t;
 static bt_uuid_t *bt_uuids;
 static unsigned num_bt_uuids;
+
+static bluetooth_uuid_t get_bluetooth_uuid_from_str(const char *str);
 
 // Registery updated to published status of 17 July 2024
 
@@ -5171,6 +5175,7 @@ static bool
 bt_uuids_update_cb(void *r, char **err)
 {
     bt_uuid_t *rec = (bt_uuid_t *)r;
+    bluetooth_uuid_t uuid;
 
     if (rec->uuid == NULL) {
         *err = g_strdup("UUID can't be empty");
@@ -5181,6 +5186,15 @@ bt_uuids_update_cb(void *r, char **err)
         *err = g_strdup("UUID can't be empty");
         return false;
     }
+
+    uuid = get_bluetooth_uuid_from_str(rec->uuid);
+    if (uuid.size == 0) {
+        *err = g_strdup("UUID must be 16, 32, or 128-bit, with the latter formatted as XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX");
+        return false;
+    }
+    /* print_numeric_bluetooth_uuid uses bytes_to_hexstr, which uses
+     * lowercase hex digits. */
+    rec->uuid = ascii_strdown_inplace(rec->uuid);
 
     if (rec->label == NULL) {
         *err = g_strdup("UUID Name can't be empty");
@@ -5481,6 +5495,79 @@ get_conversation(packet_info *pinfo,
     return conversation;
 }
 
+static bluetooth_uuid_t
+get_bluetooth_uuid_from_str(const char *str)
+{
+    bluetooth_uuid_t  uuid;
+    char digits[3];
+    const char *p = str;
+
+    memset(&uuid, 0, sizeof(uuid));
+
+    ws_return_val_if(!str, uuid);
+
+    static const char fmt[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+    const size_t fmtchars = sizeof(fmt) - 1;
+
+    size_t size = strlen(str);
+    if (size != 4 && size != 8 && size != fmtchars) {
+        return uuid;
+    }
+
+    for (size_t i = 0; i < size; i++) {
+        if (fmt[i] == 'X') {
+            if (!g_ascii_isxdigit(str[i]))
+                return uuid;
+        } else {
+            if (str[i] != fmt[i])
+                return uuid;
+        }
+    }
+
+    if (size == 4) {
+        size = 2;
+    } else if (size == 8) {
+        size = 4;
+    } else if (size == fmtchars) {
+        size = 16;
+    } else {
+        ws_assert_not_reached();
+    }
+
+    for (size_t i = 0; i < size; i++) {
+        if (*p == '-') ++p;
+        digits[0] = *(p++);
+        digits[1] = *(p++);
+        digits[2] = '\0';
+        uuid.data[i] = (uint8_t)strtoul(digits, NULL, 16);
+    }
+
+    if (size == 4) {
+        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00) {
+            uuid.data[0] = uuid.data[2];
+            uuid.data[1] = uuid.data[3];
+            size = 2;
+        }
+    } else if (size == 16) {
+        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00 &&
+            uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
+            uuid.data[7]  == 0x00 && uuid.data[8]  == 0x80 && uuid.data[9]  == 0x00 &&
+            uuid.data[10] == 0x00 && uuid.data[11] == 0x80 && uuid.data[12] == 0x5F &&
+            uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB) {
+
+            uuid.data[0] = uuid.data[2];
+            uuid.data[1] = uuid.data[3];
+            size = 2;
+        }
+    }
+
+    if (size == 2) {
+        uuid.bt_uuid = uuid.data[1] | uuid.data[0] << 8;
+    }
+    uuid.size = (uint8_t)size;
+    return uuid;
+}
+
 bluetooth_uuid_t
 get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size)
 {
@@ -5546,6 +5633,9 @@ print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid)
         return NULL;
 
     if (uuid->size != 16) {
+        /* XXX - This is not right for UUIDs that were 32 or 128-bit in a
+         * tvb and converted to 16-bit UUIDs by get_bluetooth_uuid.
+         */
         return bytes_to_str(pool, uuid->data, uuid->size);
     } else {
         char *text;
