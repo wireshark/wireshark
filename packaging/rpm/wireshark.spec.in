@@ -8,6 +8,7 @@
 %bcond_with	toolchain_clang
 %bcond_with	ninja
 %bcond_with	ccache
+%bcond_with	stratoshark
 # In rpm 4.17.1 it's possible to define these so that
 # the one is set, the default is the inverse of the other
 %if 0%{?fedora} || 0%{?rhel} >= 9
@@ -53,6 +54,21 @@
 # of in order to run dumpcap.  Only used if setuid_dumpcap or setcap_dumpcap
 # are set.
 %global use_wireshark_group 1
+
+%if %{with stratoshark}
+# Stratoshark captures system calls locally using falcodump, which is linked
+# to libscap. libscap can capture system calls from a device (/dev/scap0) or
+# via an eBPF probe.
+%global setuid_falcodump 0
+# Requires the capabilities described at
+# https://falco.org/docs/setup/container/#docker-least-privileged-modern-ebpf
+%global setcap_falcodump 1
+
+# Set to 1 if you want a group called 'stratoshark' which users must be a member
+# of in order to run falcodump.  Only used if setuid_falcodump or setcap_falcodump
+# are set.
+%global use_stratoshark_group 1
+%endif
 
 # RPM 4.11.2 and higher errors out on double dash in versions by default.
 # Some, but not all, distros make this a warning instead; ensure that it is.
@@ -192,7 +208,7 @@ BuildRequires:	libssh-devel
 BuildRequires:	libmaxminddb-devel
 %endif
 
-%if %{use_wireshark_group}
+%if %{use_wireshark_group} || %{use_stratoshark_group}
 %if 0%{?suse_version}
 # SUSE's groupadd is in this package:
 Requires(pre):	pwdutils
@@ -268,6 +284,58 @@ Requires(post):	desktop-file-utils
 This package contains the Qt Wireshark GUI and desktop integration files.
 %endif
 
+%if %{with stratoshark}
+%package	-n stratoshark
+Summary:	Stratoshark
+Version:	@STRATOSHARK_RPM_VERSION@
+Group:		Applications/System
+Requires:	%{name} = %{version}-%{release}
+BuildRequires:	falcosecurity-libs-devel
+Requires:	falcosecurity-libs
+%if %{with qt5}
+%if 0%{?suse_version}
+BuildRequires:	libQt5Core-devel
+BuildRequires:	libQt5Gui-devel
+BuildRequires:	libQt5Widgets-devel
+BuildRequires:	libQt5PrintSupport-devel
+BuildRequires:	libQt5Concurrent-devel
+BuildRequires:	libqt5-qtmultimedia-devel
+BuildRequires:	libqt5-linguist-devel
+Requires:	libQt5Svg5
+# Need this for SUSE's suse_update_desktop_file macro
+BuildRequires:	update-desktop-files
+%else
+BuildRequires:	qt5-qtbase-devel
+BuildRequires:	qt5-qtmultimedia-devel
+BuildRequires:	qt5-linguist
+Requires:	qt5-qtsvg
+%endif
+%endif
+%if %{with qt6}
+%if 0%{?suse_version}
+BuildRequires:	qt6-base-devel
+BuildRequires:	qt6-multimedia-devel
+BuildRequires:	qt6-tools-devel
+BuildRequires:	qt6-linguist-devel
+%else
+BuildRequires:	qt6-qtbase-devel
+BuildRequires:	qt6-qtmultimedia-devel
+BuildRequires:	qt6-qttools-devel
+%endif
+BuildRequires:	qt6-qt5compat-devel
+BuildRequires:	libxkbcommon-devel
+%endif
+Requires:	xdg-utils
+Requires:	hicolor-icon-theme
+BuildRequires:	desktop-file-utils
+Requires(post):	desktop-file-utils
+# Add this for more readable fonts on some distributions/versions
+#Requires:	dejavu-sans-mono-fonts
+
+%description -n stratoshark
+This package contains the Stratoshark GUI and desktop integration files.
+%endif
+
 %package	devel
 Summary:	Development headers for Wireshark
 Group:		Applications/Internet
@@ -322,6 +390,11 @@ development of Wireshark scripts and plugins.
 %endif
 %else
   -DBUILD_wireshark=OFF \
+%endif
+%if %{with stratoshark}
+  -DBUILD_stratoshark=ON -DBUILD_falcodump=ON \
+%else
+  -DBUILD_stratoshark=OFF -DBUILD_falcodump=OFF \
 %endif
 %if %{with lua}
   -DENABLE_LUA=ON \
@@ -456,6 +529,28 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/org.wireshark.Wiresha
 %endif
 %endif
 
+%if %{with stratoshark}
+%if 0%{?suse_version}
+# SUSE's packaging conventions
+# (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
+# require this:
+%if "%{_prefix}" != "/usr"
+install -Dm 0644 %{buildroot}%{_prefix}/share/applications/org.wireshark.Stratoshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Stratoshark.desktop
+%endif
+%suse_update_desktop_file org.wireshark.Stratoshark
+%else
+# Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
+# require this (at least if desktop-file-install was not used to install it).
+desktop-file-validate %{buildroot}%{_datadir}/applications/org.wireshark.Stratoshark.desktop
+%endif
+
+%if %{use_stratoshark_group}
+%pre
+getent group stratoshark >/dev/null || groupadd -r stratoshark
+%endif
+
+%endif
+
 %if %{use_wireshark_group}
 %pre
 getent group wireshark >/dev/null || groupadd -r wireshark
@@ -472,6 +567,17 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun qt
+update-desktop-database %{_datadir}/applications &> /dev/null ||:
+update-mime-database %{_datadir}/mime &> /dev/null || :
+%endif
+
+%if %{with statoshark}
+%post -n stratoshark
+update-desktop-database %{_datadir}/applications &> /dev/null || :
+update-mime-database %{_datadir}/mime &> /dev/null || :
+touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+
+%postun -n stratoshark
 update-desktop-database %{_datadir}/applications &> /dev/null ||:
 update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
@@ -548,6 +654,59 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_datadir}/mime/packages/org.wireshark.Wireshark.xml
 %{_bindir}/wireshark
 %{_mandir}/man1/wireshark.*
+%endif
+
+%if %{with stratoshark}
+%files -n stratoshark
+%defattr(-,root,root)
+%{_datadir}/applications/org.wireshark.Stratoshark.desktop
+%if 0%{?suse_version}
+%if "%{_prefix}" != "/usr"
+/usr/share/applications/org.wireshark.Stratoshark.desktop
+%endif
+%endif
+%{_datadir}/stratoshark
+
+%{_datadir}/metainfo/org.wireshark.Stratoshark.metainfo.xml
+%{_datadir}/icons/hicolor/*/apps/*
+%{_datadir}/icons/hicolor/*/mimetypes/*
+%{_datadir}/mime/packages/org.wireshark.Stratoshark.xml
+%{_bindir}/stratoshark
+%{_libdir}/stratoshark
+%{_mandir}/man1/stratoshark.*
+%{_mandir}/man1/falcodump.*
+%{_mandir}/man1/sshdig.*
+
+# The note above about generating a warning because dumpcap is listed twice
+# applies here as well.
+# The minimum set of capabibilities we need for syscall capture are
+# CAP_SYS_PTRACE, CAP_SYS_RESOURCE, CAP_BPF, and CAP_PERFMON.
+# However, Docker doesn't support CAP_BPF and CAP_PERFMON so we use
+# CAP_SYS_ADMIN instead.
+# https://falco.org/docs/setup/container/#docker-least-privileged-modern-ebpf
+%if %{use_stratoshark_group} && %{setuid_falcodump}
+# Setuid but only executable by members of the 'stratoshark' group
+%attr(4750, root, stratoshark) %{_libdir}/stratoshark/extcap/falcodump
+%else
+%if %{use_stratoshark_group} && %{setcap_falcodump}
+# Setcap but only executable by members of the 'stratoshark' group
+%attr(0750, root, stratoshark) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libdir}/stratoshark/extcap/falcodump
+%else
+%if %{setuid_falcodump}
+# Setuid and executable by all
+%attr(4755, root, root) %{_libdir}/stratoshark/extcap/falcodump
+%else
+%if %{setcap_falcodump}
+# Setcap and executable by all
+%attr(0755, root, root) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libdir}/stratoshark/extcap/falcodump
+%else
+# Executable by all but with no special permissions
+%attr(0755, root, root) %{_libdir}/stratoshark/extcap/falcodump
+%endif
+%endif
+%endif
+%endif
+
 %endif
 
 %files devel
