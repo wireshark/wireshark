@@ -13,29 +13,28 @@ To build everything, build the `all_guides` target, e.g. `ninja
 all_guides` or `msbuild all_guides.vcxproj`. Requirements are listed
 below.
 
-The guides and release notes are written in
+All of the documentation in this directory is written in
 https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
 For more information see https://asciidoctor.org.
 
 == Requirements
 
-Ultimately we'd like to reduce the toolchain requirements to AsciidoctorJ alone, but that's not yet possible.
-Additional tooling is required for the HTML and HTMLHelp targets.
 See the https://www.wireshark.org/docs/wsdg_html_chunked/ChToolsDocumentationToolchain.html[Developer's Guide] for instructions on installing required packages for your platform.
+Ultimately we'd like to reduce the toolchain requirements to Asciidoctor alone, but that's not yet possible.
+Additional tooling is required for the HTML targets.
 
-== Asciidoctor Markup
+== Markup and Typographic Conventions
 
-The User’s and Developer’s Guides were originally written in DocBook and
-were later converted to https://asciidoc.org/[AsciiDoc]. We subsequently
-switched from AsciiDoc to Asciidoctor.
+In order to keep the markup for filenames, commands, and other content consistent, please follow the guidelines in __common_src/typographic_conventions.adoc__.
+
 We currently use Asciidoctor’s modern (>= 1.5.0) syntax.
 
 Please use the following conventions when writing documentation:
 
 - Window and dialog box names should be in “curly quotes”.
 
-- Use Asciidoctor macros for buttons, keys, and menus. Note that these
-  are currently experimental:
+- Use Asciidoctor macros for buttons, keys, and menus.
+  Note that these require the `:experimental:` attribute:
 
 ** The btn:[Start] button
 ** Press kbd:[Shift+Ctrl+P] to open the preferences dialog.
@@ -91,3 +90,8 @@ across several files, and only the top-level _user-guide.adoc_ and
 _developer-guide.adoc_ include _attributes.adoc_. As a result,
 some markup will be incomplete. You can work around this somewhat by
 adding the `experimental` attribute to your Live Preview settings.
+
+== Historical Notes
+
+The User’s and Developer’s Guides were originally written in DocBook and were later converted to https://asciidoc.org/[AsciiDoc].
+The AsciiDoc markup has been modernized over time and we migrated our documentation toolchain to Asciidoctor.
