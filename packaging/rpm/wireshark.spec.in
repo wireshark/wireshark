@@ -435,7 +435,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %files
 
 %defattr(-,root,root)
-%doc AUTHORS COPYING README.md
+%doc AUTHORS README.md
+%license COPYING
 %if %{with guides}
 %exclude %{_docdir}/wireshark/wsdg_html_chunked
 %endif
