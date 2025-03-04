@@ -24,7 +24,7 @@
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
  * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-07 (and also draft-04/05)
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
- * https://tools.ietf.org/html/draft-ietf-quic-multipath-12 (and also >= draft-07)
+ * https://tools.ietf.org/html/draft-ietf-quic-multipath-13 (and also >= draft-07)
 
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
@@ -200,6 +200,7 @@ static int hf_quic_mp_ps_path_status;
 static int hf_quic_mp_maximum_paths;
 static int hf_quic_mp_maximum_path_identifier;
 static int hf_quic_mp_pcb_path_identifier;
+static int hf_quic_mp_pcb_next_sequence_number;
 
 static expert_field ei_quic_connection_unknown;
 static expert_field ei_quic_ft_unknown;
@@ -2922,6 +2923,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             col_append_str(pinfo->cinfo, COL_INFO, ", PCB");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pcb_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pcb_next_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (uint32_t)length;
         }
         break;
         default:
@@ -5232,6 +5236,11 @@ proto_register_quic(void)
         },
        { &hf_quic_mp_pcb_path_identifier,
           { "Path identifier", "quic.mp_pcb_path_id",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_mp_pcb_next_sequence_number,
+          { "Next Sequence Number", "quic.mp_pcb_next_sequence_number",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
