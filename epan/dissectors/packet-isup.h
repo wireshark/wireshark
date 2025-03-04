@@ -159,7 +159,8 @@ WS_DLL_PUBLIC value_string_ext isup_calling_partys_category_value_ext;
 /*
  * Export dissection of some parameters
  */
-void dissect_nsap(tvbuff_t *parameter_tvb,int offset,int len, proto_tree *parameter_tree);
+WS_DLL_PUBLIC
+void dissect_nsap(tvbuff_t *parameter_tvb, int offset, int len, proto_tree *parameter_tree);
 WS_DLL_PUBLIC
 void dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 WS_DLL_PUBLIC
