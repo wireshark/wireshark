@@ -22,6 +22,7 @@
 %bcond_with	lz4_and_snappy
 %bcond_with	spandsp
 %bcond_with	bcg729
+%bcond_with	amrnb
 %bcond_with	libxml2
 %bcond_with	nghttp2
 %bcond_with	nghttp3
@@ -31,6 +32,7 @@
 %bcond_with	zstd
 %bcond_with	ilbc
 %bcond_with	opus
+%bcond_with	libssh
 
 # Fedora options to use clang as the compiler
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/#compiler
@@ -121,6 +123,18 @@ BuildRequires:	(lz4-devel or liblz4-devel)
 BuildRequires:	snappy-devel
 %endif
 
+%if %{with spandsp}
+BuildRequires:	spandsp-devel
+%endif
+
+%if %{with bcg729}
+BuildRequires:	bcg729-devel
+%endif
+
+%if %{with amrnb}
+BuildRequires:	opencore-amr-devel
+%endif
+
 BuildRequires:	(c-ares-devel or libcares-devel)
 # On SUSE speex-devel requires speexdsp-devel, but that
 # is not the case on RH/Fedora. I believe we only need
@@ -129,6 +143,10 @@ BuildRequires:	speexdsp-devel
 
 %if %{with lua}
 BuildRequires:	(lua-devel or lua53-devel or compat-lua-devel or lua52-devel or lua51-devel)
+%endif
+
+%if %{with libxml2}
+BuildRequires:	libxml2-devel
 %endif
 
 %if %{with nghttp2}
@@ -151,10 +169,21 @@ BuildRequires:	(brotli-devel or libbrotli-devel)
 BuildRequires:	libzstd-devel
 %endif
 
+%if %{with ilbc}
+BuildRequires:	ilbc-devel
+%endif
+
+%if %{with opus}
+BuildRequires:	(opus-devel or libopus-devel)
+%endif
+
+%if %{with libssh}
+BuildRequires:	libssh-devel
+%endif
+
 # Uncomment these if you want to be sure you get them...
 #BuildRequires:	krb5-devel
 #BuildRequires:	libsmi-devel
-#BuildRequires:	pcre-devel
 #BuildRequires:	libselinux
 #BuildRequires:	gnutls-devel
 #BuildRequires:	libcap-devel
@@ -280,6 +309,9 @@ development of Wireshark scripts and plugins.
 %if 0%{?fedora} && ( "%{_prefix}" != "/usr" )
   -DENABLE_RPATH_ORIGIN=ON \
 %endif
+%if %{with ninja}
+  -G Ninja \
+%endif
 %if %{with ccache}
   -DENABLE_CCACHE=ON \
 %endif
@@ -318,6 +350,11 @@ development of Wireshark scripts and plugins.
 %else
   -DENABLE_BCG729=OFF \
 %endif
+%if %{with amrnb}
+  -DENABLE_AMRNB=ON \
+%else
+  -DENABLE_AMRNB=OFF \
+%endif
 %if %{with libxml2}
   -DENABLE_LIBXML2=ON \
 %else
@@ -344,8 +381,10 @@ development of Wireshark scripts and plugins.
   -DENABLE_BROTLI=OFF \
 %endif
   -DENABLE_WERROR=OFF \
-%if %{with ninja}
-  -G Ninja \
+%if %{with zstd}
+  -DENABLE_ZSTD=ON \
+%else
+  -DENABLE_ZSTD=OFF \
 %endif
 %if %{with ilbc}
   -DENABLE_ILBC=ON \
@@ -356,6 +395,11 @@ development of Wireshark scripts and plugins.
   -DENABLE_OPUS=ON \
 %else
   -DENABLE_OPUS=OFF \
+%endif
+%if %{with libssh}
+  -DENABLE_LIBSSH=ON \
+%else
+  -DENABLE_LIBSSH=OFF \
 %endif
 
 # Fedora and SUSE 15 do out of source builds by default, but they store
