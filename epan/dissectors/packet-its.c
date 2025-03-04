@@ -32127,7 +32127,7 @@ void proto_register_its(void)
 
     prefs_register_bool_preference(its_module, "wrappedcontainers_as_extended",
         "Dissect WrappedCpmContainers as extendable",
-        "Some asn1 compilers generates cod as if WrappedCpmContainers was extensible(Wrong)",
+        "Some asn1 compilers generates code as if WrappedCpmContainers was extensible(Wrong)",
         &wrappedcontainers_as_extended);
 }
 
