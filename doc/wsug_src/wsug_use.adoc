@@ -719,6 +719,9 @@ Each menu item shows specific telephony related statistics.
 |menu:SCTP[]||See <<ChTelSCTP>>
 |menu:SMPP Operations[]||See <<ChTelSMPPOperations>>
 |menu:UCP Messages[]||See <<ChTelUCPMessages>>
+|menu:F1AP Messages[]||See <<ChTelF1APMessages>>
+|menu:NGAP Messages[]||See <<ChTelNGAPMessages>>
+|menu:E2AP Messages[]||See <<ChTelE2APMessages>>
 |menu:H.225[]||See <<ChTelH225>>
 |menu:SIP Flows[]||See <<ChTelSIPFlows>>
 |menu:SIP Statistics[]||See <<ChTelSIPStatistics>>

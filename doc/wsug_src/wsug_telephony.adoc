@@ -79,7 +79,7 @@ Same approach with set/add/remove actions is used for RTP Stream Analysis window
 
 ==== Playing audio during live capture
 
-Decoding RTP payload and showing waveforms is time consuming task. To speedup it RTP Player window uses copy of packet payload for all streams in the playlist. During live capture the dialog is not refreshed automatically as other Wireshark dialogs, but user must initiate it.
+Decoding RTP payload and showing waveforms is a time consuming task. To speed it up, the RTP Player window uses a copy of packet payload for all streams in the playlist. During live capture the dialog is not refreshed automatically as other Wireshark dialogs - the user must initiate it.
 
 The copy is created or refreshed and dialog updated:
 
@@ -94,7 +94,7 @@ When live capture is running, streams are read only till "now" and are shown. Wh
 
 [NOTE]
 ====
-RTP Player dialog stays open even live capture is stopped and then started again. Play list stays unchanged. Therefore, btn:[Refresh stream] tries to read same streams as before and shows them if they are still running. Past part of them (from previous live capture) is lost.
+RTP Player dialog stays open even when live capture is stopped and then started again. Play list stays unchanged. Therefore, btn:[Refresh stream] tries to read same streams as before and shows them if they are still running. Past part of them (from previous live capture) is lost.
 ====
 
 ==== RTP Decoding Settings
@@ -103,7 +103,7 @@ RTP is carried usually in UDP packets with random source and destination ports. 
 
 You can use <<ChAdvDecodeAsFig,Decode As...>> function from menu:Analyze[Decode As...] menu or in mouse context menu. Here you can set that traffic on specific source or destination should be decoded as RTP. You can save settings for later use.
 
-Use of menu:Decode As...[] menu works fine, but is arduous for many streams.
+Use of menu:Decode As...[] menu works fine, but is arduous if you have many streams.
 
 You can enable heuristic dissector menu:rtp_udp[] in menu:Analyze[Enabled Protocols...]. See <<ChCustProtocolDissectionSection>> for details. Once menu:rtp_udp[] is enabled, Wireshark tries to decode every UDP packet as RTP. If decoding is possible, packet (and entire UDP stream) is decoded as RTP.
 
@@ -111,17 +111,17 @@ When an RTP stream uses a well-known port, the heuristic dissector ignores it. S
 
 [NOTE]
 ====
-Take into account that heuristics is just simple "test" whether packet can be read as RTP. It can be false positive and you can see decoded as RTP more UDP packets than expected.
+Take into account that heuristics is just a simple "test" of whether a packet can be read as RTP. Because of false positives, you can see decoded as RTP more UDP packets than expected.
 
-When you enable menu:udp[Try heuristic sub-dissectors first], it increases possibility of false positives. If you capture all traffic in network, false positives rate can be quite high.
+When you enable menu:udp[Try heuristic sub-dissectors first], it increases the possibility of false positives. If you capture all traffic in network, false positives rate can be quite high.
 ====
 
-RTP Player must store decoded data somewhere to be able to play it. When data are decoded, there are audio samples and dictionary for fast navigation. Both types of data are stored in memory for default, but you can configure Wireshark to store it on disk. There are two settings:
+RTP Player must store decoded data somewhere to be able to play it. When data are decoded, there are audio samples and dictionary for fast navigation. Both types of data are stored in memory for default, but you can configure Wireshark to store it on disk. There are two settings (which you may access from menu:Edit[Preferences] Advanced from the main menu).
 
 * ui.rtp_player_use_disk1 - When set to FALSE (default), audio samples are kept in memory. When set to TRUE, audio samples are stored on temporary file.
 * ui.rtp_player_use_disk2 - When set to FALSE (default), dictionary is kept in memory. When set to TRUE, dictionary is stored on temporary file.
 
-When any data are configured to be stored on disk, one file is created for each stream. Therefore, there might be up to two files for one RTP stream (audio samples and dictionary). If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you can see fewer streams that was added to playlist. Warnings are printed on console in this case and you will see fewer streams in the playlist than you send to it from other tools.
+When any data are configured to be stored on disk, one file is created for each stream. Therefore, there might be up to two files for one RTP stream (audio samples and dictionary). If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you may see fewer streams than were added to playlist. Warnings are printed on console - in this case and you will see fewer streams in the playlist than you send to it from other tools.
 
 For common use you can use default settings - store everything in memory. When you will be out of memory, switch ui.rtp_player_use_disk1 to TRUE first - it saves much more memory than ui.rtp_player_use_disk2.
 
@@ -240,7 +240,7 @@ The bottom pane shows statistics for common channels, and controls to apply more
 The RLC Graph menu launches a graph which shows LTE/NR Radio Link Control protocol sequence numbers changing over time along with (for AM) acknowledgements
 received in the opposite direction.
 
-NOTE: That graph shows data of a single bearer and direction. This graph may also be launched from the `RLC Statistics` window.
+NOTE: That graph shows data of a single bearer and direction. This graph may also be launched from the “RLC Statistics” window.
 
 .The RLC Graph window
 image::images/ws-rlc-graph.png[{screenshot-attrs}]
@@ -588,6 +588,24 @@ Short Message Peer-to-Peer (SMPP) protocol uses TCP protocol as its transfer for
 === UCP Messages Window
 
 The Universal Computer Protocol (UCP) plays role in transferring Short Messages between a Short Message Service Centre (SMSC) and an application, which is using transport protocol, such as TCP or X.25. The UCP Messages window displays the related statistical data. The user can filter, copy or save the data into a file.
+
+[#ChTelF1APMessages]
+
+=== F1AP Messages Window
+
+F1AP is used to exchange signaling and user-plane data between CU and DU nodes as part of an O-RAN network.  This window counts how many messages of each type are seen.
+
+[#ChTelNGAPMessages]
+
+=== NGAP Messages Window
+
+NGAP messages are exchanged between a gNB and core network.  This window counts how many messages of each type are seen.
+
+[#ChTelE2APMessages]
+
+=== E2AP Messages Window
+
+E2AP is used to configure and query nodes in an O-RAN network.  This window counts how many messages of each type are seen.
 
 [#ChTelH225]
 
