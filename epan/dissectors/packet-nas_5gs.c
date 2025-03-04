@@ -10565,9 +10565,11 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                     case 2: /* WLAN location */
                         /* Length of WLAN location field */
                         proto_tree_add_item_ret_uint(loc_tree, hf_nas_5gs_wlansp_loc_wlan_sub_ent_len, tvb, current_offset, 2, ENC_BIG_ENDIAN, &wlan_sub_ent_len);
+                        offset += 2;
                         /* WLAN location field type */
-                        proto_tree_add_item_ret_uint(loc_tree, hf_nas_5gs_wlansp_loc_wlan_sub_ent_type, tvb, current_offset, 2, ENC_BIG_ENDIAN, &wlan_sub_ent_type);
-                        current_offset += wlan_sub_ent_len;
+                        proto_tree_add_item_ret_uint(loc_tree, hf_nas_5gs_wlansp_loc_wlan_sub_ent_type, tvb, current_offset, 1, ENC_BIG_ENDIAN, &wlan_sub_ent_type);
+                        offset++;
+                        current_offset += wlan_sub_ent_len - 3;
                         break;
                     case 3: /* Geo location */
                         /* Anchor latitude  */
