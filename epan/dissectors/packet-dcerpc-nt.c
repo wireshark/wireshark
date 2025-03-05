@@ -1243,7 +1243,16 @@ static void cb_str_postprocess_options(packet_info *pinfo,
 
 	/* Append string to COL_INFO */
 
-	if (options & CB_STR_COL_INFO) {
+	if ((options & CB_STR_COL_INFO) && (!di->conformant_run)) {
+		/*
+		 * kludge, ugly, but this is called twice for all
+		 * dcerpc interfaces due to how we chase pointers
+		 * and putting the sid twice on the summary line
+		 * looks even worse.
+		 * Real solution would be to block updates to col_info
+		 * while we just do a conformance run, this might
+		 * have sideeffects so it needs some more thoughts first.
+		 */
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
 	}
 
@@ -1464,7 +1473,6 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, dcerpc_info *di, uint8_t *drep, uint32_t options, int hf_index)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	int levels = CB_STR_ITEM_LEVELS(options);
 
 	di->hf_index = hf_index;
 	offset=dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
@@ -1473,35 +1481,16 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		char *s=(char *)dcv->private_data;
 		proto_item *item=(proto_item *)tree;
 
-		if ((options & CB_STR_COL_INFO)&&(!di->conformant_run)) {
-			/* kludge, ugly,   but this is called twice for all
-			   dcerpc interfaces due to how we chase pointers
-			   and putting the sid twice on the summary line
-			   looks even worse.
-			   Real solution would be to block updates to col_info
-			   while we just do a conformance run,	 this might
-			   have sideeffects so it needs some more thoughts first.
-			*/
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
-		}
+		/*
+		 * The string is already saved by dissect_ndr_nt_SID()
+		 */
+		options &= ~CB_STR_SAVE;
 
-		/* Append string to upper-level proto_items */
-
-		if (levels > 0 && item && s && s[0]) {
-			proto_item_append_text(item, ": %s", s);
-			item = GET_ITEM_PARENT(item);
-			levels--;
-			if (levels > 0) {
-				proto_item_append_text(item, ": %s", s);
-				item = GET_ITEM_PARENT(item);
-				levels--;
-				while (levels > 0) {
-					proto_item_append_text(item, " %s", s);
-					item = GET_ITEM_PARENT(item);
-					levels--;
-				}
-			}
-		}
+		cb_str_postprocess_options(pinfo,
+					   item,
+					   di,
+					   options,
+					   s);
 	}
 
 	return offset;
@@ -1814,6 +1803,29 @@ dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static void dissect_propagate_SID_to_parent_callback(packet_info *pinfo,
+						     proto_tree *tree _U_,
+						     proto_item *item _U_,
+						     dcerpc_info *di,
+						     tvbuff_t *tvb _U_,
+						     int start_offset _U_,
+						     int end_offset _U_,
+						     void *callback_args)
+{
+	proto_item *parent_item = (proto_item *)callback_args;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (parent_item && dcv && dcv->private_data) {
+		const char *s = (const char *)dcv->private_data;
+
+		cb_str_postprocess_options(pinfo,
+					   parent_item,
+					   di,
+					   CB_STR_ITEM_LEVELS(1),
+					   s);
+	}
+}
+
 int
 dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -1823,9 +1835,10 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 	proto_tree *tree;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
-			ett_nt_sid_and_attributes, &item, "SID_AND_ATTRIBUTES:");
+			ett_nt_sid_and_attributes, &item, "SID_AND_ATTRIBUTES");
 
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_ndr_nt_PSID_cb(tvb, offset, pinfo, tree, di, drep,
+					dissect_propagate_SID_to_parent_callback, item);
 
 	offset = dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvb, offset, pinfo, tree, di, drep);
 
