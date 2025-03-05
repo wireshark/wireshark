@@ -8718,8 +8718,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
         parameter_end_offset = offset + parameter_length;
 
-        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_value,
-                            tvb, offset, parameter_length, ENC_NA);
+        /* Omit the value field if the parameter's length is 0. */
+        if (parameter_length != 0) {
+            proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_value,
+                                tvb, offset, parameter_length, ENC_NA);
+        }
 
         switch (parameter_type) {
             case SSL_HND_QUIC_TP_ORIGINAL_DESTINATION_CONNECTION_ID:
