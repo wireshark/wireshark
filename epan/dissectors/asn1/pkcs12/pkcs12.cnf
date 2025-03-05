@@ -2,7 +2,6 @@
 # PKCS12 conformation file
 
 #.MODULE_IMPORT
-PKCS-5	x509af
 PKCS-7	cms
 PKCS-8	akp
 
@@ -10,6 +9,11 @@ PKCS-8	akp
 #.IMPORT ../cms/cms-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
+
+#.OMIT_ASSIGNMENT
+RC2-CBC-Parameter
+RC5-CBC-Parameters
+#.END
 
 #.EXPORTS
 
@@ -39,16 +43,16 @@ PBEParameter		B "1.2.840.113549.1.5.6" "pbeWithMD5AndRC2-CBC"
 PBEParameter		B "1.2.840.113549.1.5.10" "pbeWithSHA1AndDES-CBC"
 PBEParameter		B "1.2.840.113549.1.5.11" "pbeWithSHA1AndRC2-CBC"
 
-PBKDF2Params		B "1.2.840.113549.1.5.12" "id-PBKDF2"
-PBES2Params			B "1.2.840.113549.1.5.13" "id-PBES2"
-PBMAC1Params		B "1.2.840.113549.1.5.14" "id-PBMAC1"
+PBKDF2-params		B "1.2.840.113549.1.5.12" "id-PBKDF2"
+PBES2-params		B "1.2.840.113549.1.5.13" "id-PBES2"
+PBMAC1-params		B "1.2.840.113549.1.5.14" "id-PBMAC1"
 
 #.NO_EMIT
 
 #.TYPE_RENAME
 
 #.FIELD_RENAME
-PBKDF2Params/salt		saltChoice
+PBKDF2-params/salt		saltChoice
 
 #.PDU
 #AuthenticatedSafe

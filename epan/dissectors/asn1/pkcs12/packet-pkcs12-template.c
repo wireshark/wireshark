@@ -473,5 +473,12 @@ void proto_reg_handoff_pkcs12(void) {
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 
+	register_ber_oid_dissector("1.2.840.113549.2.7", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA1");
+	register_ber_oid_dissector("1.2.840.113549.2.8", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA224");
+	register_ber_oid_dissector("1.2.840.113549.2.9", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA256");
+	register_ber_oid_dissector("1.2.840.113549.2.10", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA384");
+	register_ber_oid_dissector("1.2.840.113549.2.11", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA512");
+	register_ber_oid_dissector("1.2.840.113549.2.12", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA512-224");
+	register_ber_oid_dissector("1.2.840.113549.2.13", dissect_ber_oid_NULL_callback, proto_pkcs12, "id-hmacWithSHA512-256");
 }
 

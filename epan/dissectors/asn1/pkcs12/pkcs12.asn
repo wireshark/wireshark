@@ -26,15 +26,9 @@ PrivateKeyInfo, EncryptedPrivateKeyInfo
 	FROM PKCS-8 {iso(1) member-body(2) us(840) rsadsi(113549)
 	pkcs(1) pkcs-8(8) modules(1) pkcs-8(1)}
 
---pkcs-9, friendlyName, localKeyId, certTypes, crlTypes
---	FROM PKCS-9 {iso(1) member-body(2) us(840) rsadsi(113549)
---	pkcs(1) pkcs-9(9) modules(0) pkcs-9(1) };--
-
--- A PKCS#8 IMPORT from below
-AlgorithmIdentifier, ALGORITHM-IDENTIFIER
-        FROM PKCS-5 {iso(1) member-body(2) us(840) rsadsi(113549)
-        pkcs(1) pkcs-5(5) modules(16) pkcs-5(1)};
-
+pkcs-9, friendlyName, localKeyId, certTypes, crlTypes
+	FROM PKCS-9 {iso(1) member-body(2) us(840) rsadsi(113549)
+	pkcs(1) pkcs-9(9) modules(0) pkcs-9(1) };
 
 -- Object identifiers
 
@@ -175,33 +169,4 @@ PKCS12Attribute ::= SEQUENCE {
 --	... - - Other attributes are allowed
 --}
 
---END
-
--- From RFC 2898
-PBEParameter ::= SEQUENCE {
-    salt		OCTET STRING,
-    iterationCount 	INTEGER
-}
-
-
-PBKDF2Params ::= SEQUENCE {
-    salt CHOICE {
-        specified OCTET STRING,
-	otherSource AlgorithmIdentifier --{{PBKDF2-SaltSources}}--
-	},
-    iterationCount INTEGER --(1..MAX)--,
-    keyLength INTEGER (1..MAX) OPTIONAL,
-    prf AlgorithmIdentifier --{{PBKDF2-PRFs}} DEFAULT algid-hmacWithSHA1-- OPTIONAL }
-
-PBES2Params ::= SEQUENCE {
-    keyDerivationFunc AlgorithmIdentifier --{{PBES2-KDFs}}--,
-    encryptionScheme AlgorithmIdentifier --{{PBES2-Encs}}-- }
-
-PBMAC1Params ::=  SEQUENCE {
-    keyDerivationFunc AlgorithmIdentifier --{{PBMAC1-KDFs}}--,
-    messageAuthScheme AlgorithmIdentifier --{{PBMAC1-MACs}}-- }
-
-
 END
-
-

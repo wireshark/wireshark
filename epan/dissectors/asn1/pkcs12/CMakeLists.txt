@@ -16,6 +16,7 @@ set( EXT_ASN_FILE_LIST
 
 set( ASN_FILE_LIST
 	${PROTOCOL_NAME}.asn
+	PKCS5v2-1.asn
 )
 
 set( EXTRA_DIST
