@@ -1665,6 +1665,7 @@ netlogon_dissect_GROUP_MEMBERSHIP(tvbuff_t *tvb, int offset,
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
+    uint32_t rid = 0;
 
     if(parent_tree){
         tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
@@ -1672,7 +1673,10 @@ netlogon_dissect_GROUP_MEMBERSHIP(tvbuff_t *tvb, int offset,
     }
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_group_rid, NULL);
+                                hf_netlogon_group_rid, &rid);
+    if (tree) {
+        proto_item_append_text(item, " RID=%"PRIu32"", rid);
+    }
 
     offset = dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvb, offset, pinfo, tree, di, drep);
 
