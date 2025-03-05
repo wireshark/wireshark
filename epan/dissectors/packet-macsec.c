@@ -13,8 +13,14 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/uat.h>
 #include <epan/tfs.h>
-#include <wsutil/array.h>
+
+#include "packet-mka.h"
+
+#define WS_LOG_DOMAIN "MACsec"
+
+#include <wireshark.h>
 #include <wsutil/wsgcrypt.h>
 
 void proto_register_macsec(void);
@@ -31,9 +37,14 @@ static dissector_handle_t ethertype_handle;
 #define TCI_SCB_MASK 0x10
 #define TCI_E_MASK   0x08
 #define TCI_C_MASK   0x04
+
 #define AN_MASK      0x03
 
-#define AES_KEY_LEN           (16)
+#define SAK128_LEN            (16)
+#define PSK128_LEN            (16)
+#define SAK256_LEN            (32)
+#define PSK256_LEN            (32)
+
 #define ICV_LEN               (16)
 #define IV_LEN                (12)
 
@@ -64,13 +75,21 @@ static int hf_macsec_SCI_system_identifier;
 static int hf_macsec_SCI_port_identifier;
 static int hf_macsec_etype;
 static int hf_macsec_eth_padding;
-static int hf_macsec_ICV;
-static int hf_macsec_ICV_check_success;
 static int hf_macsec_decrypted_data;
+static int hf_macsec_ICV;
+static int hf_macsec_verify_info;
+static int hf_macsec_ICV_check_success;
+static int hf_macsec_ckn_info;
+static int hf_macsec_sak;
+static int hf_macsec_psk_info;
+static int hf_macsec_psk;
+static int hf_macsec_ckn_table_index;
+static int hf_macsec_psk_table_index;
 
 /* Initialize the subtree pointers */
 static int ett_macsec;
 static int ett_macsec_tci;
+static int ett_macsec_verify;
 
 /* Decrypting payload buffer */
 static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
@@ -78,90 +97,165 @@ static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
 /* AAD buffer */
 static uint8_t aad[MAX_PAYLOAD_LEN];
 
-static const char *psk = NULL;
-static unsigned char *psk_bin = NULL;
+/* if set, try to use the EAPOL-MKA CKN table as well */
+static bool try_mka = false;
 
-/* convert a 0-terminated preference key_string that contains a hex number
- *  into its binary representation
- * e.g. key_string "abcd" will be converted into two bytes 0xab, 0xcd
- * return the number of binary bytes or -1 for error */
-static int
-pref_key_string_to_bin(const char *key_string, unsigned char **key_bin)
-{
-    int key_string_len;
-    int i, j;
-    char input[3];
+/* PSK key config data */
+typedef struct _psk_info {
+    unsigned char *key;
+    unsigned  key_len;
+} psk_info_t;
 
-    ws_return_val_if(key_bin == NULL, -1);
+typedef struct _psk_config {
+  psk_info_t keydata;
+  unsigned char *name;
+  unsigned name_len;
+} psk_config_t;
 
-    if (NULL == key_string) {
-        *key_bin = NULL;
-        return -1;
+static psk_config_t *psk_config_data = NULL;
+static unsigned psk_config_data_count = 0;
+
+UAT_BUFFER_CB_DEF(psk_config_data, key, psk_config_t, keydata.key, keydata.key_len)
+UAT_LSTRING_CB_DEF(psk_config_data, name, psk_config_t, name, name_len)
+
+static void *
+copy_psk_config_cb(void *n, const void *o, size_t size _U_) {
+    psk_config_t *new_rec = (psk_config_t *)n;
+    const psk_config_t *old_rec = (const psk_config_t *)o;
+
+    new_rec->keydata.key = (guchar *)g_memdup2(old_rec->keydata.key, old_rec->keydata.key_len);
+    new_rec->keydata.key_len = old_rec->keydata.key_len;
+
+    new_rec->name = g_strdup(old_rec->name);
+    new_rec->name_len = old_rec->name_len;
+
+    return new_rec;
+}
+
+static bool
+update_psk_config(void *r, char **err) {
+    psk_config_t *rec = (psk_config_t *)r;
+
+    ws_debug("update_psk_config\n");
+    ws_debug("psk_config_data_count :%d\n", psk_config_data_count);
+
+    // Validate the key input
+    if ((PSK128_LEN != rec->keydata.key_len) && (PSK256_LEN != rec->keydata.key_len)) {
+        *err = ws_strdup_printf("Only AES-128 (16 byte) or AES-256 (32 byte) keys are supported");
+        return false;
     }
 
-    key_string_len = (int)strlen(key_string);
-    if (key_string_len != 2 * AES_KEY_LEN) {
-        *key_bin = NULL;
-        return (key_string_len / 2);
+    if (0 == rec->name_len) {
+        *err = ws_strdup_printf("Missing PSK ID!");
+        return false;
     }
 
-    *key_bin = (unsigned char *)g_malloc(key_string_len / 2);
+    return true;
+}
 
-    input[2] = '\0';
-    for (i = 0, j = 0; i < (key_string_len - 1); i += 2, j++) {
-        input[0] = key_string[0 + i];
-        input[1] = key_string[1 + i];
+static void
+free_psk_config_cb(void *r) {
+    psk_config_t *rec = (psk_config_t *)r;
 
-        /* attention, brackets are required */
-        (*key_bin)[j] = (unsigned char)strtoul((const char *)&input, NULL, 16);
+    ws_debug("free_psk_config_cb\n");
+    ws_debug("psk_config_data_count :%d\n", psk_config_data_count);
+
+    g_free(rec->keydata.key);
+    g_free(rec->name);
+}
+
+static void
+post_update_psk_config_cb(void) {
+    ws_debug("post_update_psk_config_cb\n");
+    ws_debug("psk_config_data_count :%d\n", psk_config_data_count);
+
+    if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+        uint8_t i;
+
+        for (i = 0; i < psk_config_data_count; i++) {
+            psk_config_t *c = &psk_config_data[i];
+            unsigned char *key = c->keydata.key;
+            ws_debug("id: %s\n", c->name);
+
+            if (PSK256_LEN == c->keydata.key_len) {
+                ws_debug("psk: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7],
+                                key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15],
+                                key[16], key[17], key[18], key[19], key[20], key[21], key[22], key[23],
+                                key[24], key[25], key[26], key[27], key[28], key[29], key[30], key[31]);
+            } else {
+                ws_debug("psk: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                        key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7],
+                        key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]);
+            }
+        }
+    }
+}
+
+static psk_config_t *
+get_psk_config_table(void) {
+    return psk_config_data;
+}
+
+static guint
+get_psk_config_table_count(void) {
+    return psk_config_data_count;
+}
+
+/* test if a SAK has all 0s (invalid )*/
+bool
+macsec_is_valid_sak(const guint8 *sak) {
+    /* memcmp of 0 against previous byte over the range of the SAK length is an easy test for all 0s */
+    if ((0 == sak[0]) && (0 == memcmp(sak, sak + 1, (MKA_MAX_SAK_LEN - 1))) ) {
+        return FALSE;
     }
 
-    return (key_string_len / 2);
+    return TRUE;
 }
 
 /* Code to actually dissect the packets */
-static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    unsigned    sectag_length, data_length, short_length, icv_length;
-    unsigned    fcs_length = 0;
-    unsigned    data_offset, icv_offset;
-    uint8_t     tci_an_field;
-
-    int         icv_check_success = PROTO_CHECKSUM_E_BAD;
-    bool        key_provided = false;
-    bool        encrypted = false;
-    unsigned    payload_len;
-    unsigned    offset;
-
-    gcry_cipher_hd_t handle = 0;
-
-    proto_item *macsec_item;
-    proto_tree *macsec_tree = NULL;
-
-    tvbuff_t *next_tvb;
-
-    /* Construct the 14-byte ethernet header (6-byte dst MAC, 6-byte src MAC, 2-byte ethernet type)(part of aad) */
+static int
+dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    // Construct the 14-byte ethernet header (6-byte dst MAC, 6-byte src MAC, 2-byte ethernet type)(part of aad)
+    // Maybe there's a better way to get the header directly from pinfo
     uint8_t header[ETHHDR_LEN] = {0};
-    if (pinfo->dl_dst.data != NULL)
-    {
+    if (pinfo->dl_dst.data != NULL) {
         memcpy(header, pinfo->dl_dst.data, HWADDR_LEN);
     }
-    if (pinfo->dl_src.data != NULL)
-    {
+    if (pinfo->dl_src.data != NULL) {
         memcpy((header + HWADDR_LEN), pinfo->dl_src.data, HWADDR_LEN);
     }
 
     uint8_t e_type[ETHERTYPE_LEN] = {(uint8_t)(ETHERTYPE_MACSEC >> 8), (uint8_t)(ETHERTYPE_MACSEC & 0xff)};
     memcpy(header + (ETHHDR_LEN - ETHERTYPE_LEN), &e_type, ETHERTYPE_LEN);
 
-    /* Parse the encryption key, and set the flag to indicate if the key is provided*/
-    if (pref_key_string_to_bin(psk, &psk_bin) == AES_KEY_LEN) {
-        key_provided = true;
-    }
+    unsigned    sectag_length, data_length, short_length, icv_length;
+    unsigned    fcs_length = 0;
+    unsigned    data_offset, icv_offset;
+    uint8_t     tci_an_field;
+    uint8_t     an = 0;
+
+    int         icv_check_success = PROTO_CHECKSUM_E_BAD;
+    bool        encrypted = false;
+    unsigned    payload_len;
+
+    gcry_cipher_hd_t handle = 0;
+
+    proto_item *macsec_item;
+    proto_tree *macsec_tree = NULL;
+
+    proto_item *verify_item;
+    proto_tree *verify_tree = NULL;
+
+    tvbuff_t   *next_tvb;
 
     tci_an_field = tvb_get_uint8(tvb, 0);
+    an = tci_an_field & AN_MASK;
+    ws_debug("an : %u", an);
 
     /* if the frame is an encrypted MACsec frame, remember that */
     if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
+        ws_debug("MACsec encrypted frame");
         encrypted = true;
     }
 
@@ -206,6 +300,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
          */
         data_length = tvb_reported_length(tvb) - sectag_length - icv_length;
     }
+
     data_offset = sectag_length;
     icv_offset  = data_length + data_offset;
 
@@ -213,12 +308,15 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     col_set_str(pinfo->cinfo, COL_INFO, "MACsec frame");
 
     if (tree) {
-        if (encrypted) {
+        unsigned offset;
+
+        if (true == encrypted) {
             macsec_item = proto_tree_add_item(tree, proto_macsec, tvb, 0, sectag_length, ENC_NA);
         } else {
             /* Add the EtherType too since this is authentication only. */
             macsec_item = proto_tree_add_item(tree, proto_macsec, tvb, 0, sectag_length + ETHERTYPE_LEN, ENC_NA);
         }
+
         macsec_tree = proto_item_add_subtree(macsec_item, ett_macsec);
 
         static int * const flags[] = {
@@ -254,95 +352,246 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
 
-    /* Try to decrypt/authenticate the data if a key is provided */
-    if (key_provided) {
-        /* Build the IV */
-        uint8_t iv[IV_LEN] = {0};
+    /* Build the IV. */
+    uint8_t iv[IV_LEN] = {0};
+
+    /* fetch packet number */
+    tvb_memcpy(tvb, iv + 8, 2,  4);
+
+    /* If there is an SCI, use it; if not, fill out the default */
+    if (SECTAG_LEN_WITH_SC == sectag_length) {
         tvb_memcpy(tvb, iv,     6,  HWADDR_LEN); // SI System identifier (source MAC)
         tvb_memcpy(tvb, iv + 6, 12, 2);          // PI Port identifier
-        tvb_memcpy(tvb, iv + 8, 2,  4);          // PN Packet number
-
-        if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_GCM, 0))
-        {
-            ws_warning("gcry_cipher_open fail");
-            goto out;
-        }
-
-        if (gcry_cipher_setkey(handle, psk_bin, AES_KEY_LEN))
-        {
-            ws_warning("gcry_cipher_setkey fail");
-            goto out;
-        }
-
-        if (gcry_cipher_setiv(handle, iv, sizeof(iv)))
-        {
-            ws_warning("gcry_cipher_setiv fail");
-            goto out;
-        }
-
-        if (encrypted) {
-            payload_len = tvb_captured_length(next_tvb);
-
-            /* For authenticated and encrypted data, the AAD is always 28 bytes and consists of the
-            header data and security tag. */
-            const uint8_t *buf = tvb_get_ptr(tvb, 0, SECTAG_LEN_WITH_SC);
-
-            memcpy(aad, header, ETHHDR_LEN);
-            memcpy(aad + ETHHDR_LEN, buf, SECTAG_LEN_WITH_SC);
-
-            /* Authenticate with the AAD. */
-            if (gcry_cipher_authenticate(handle, aad, AAD_ENCRYPTED_LEN))
-            {
-                ws_warning("gcry_cipher_authenticate fail");
-                goto out;
-            }
-
-            tvb_memcpy(next_tvb, macsec_payload, 0, payload_len);
-
-            /* Attempt to decrypt into the local buffer. */
-            if (gcry_cipher_decrypt(handle, macsec_payload, payload_len, NULL, 0))
-            {
-                ws_warning("gcry_cipher_decrypt fail");
-                goto out;
-            }
-
+    } else {
+        /* With no SC, fetch the eth src address and set the PI to the Common Port identifier of 0x0001 */
+        if (pinfo->dl_src.data != NULL) {
+            memcpy(iv, pinfo->dl_src.data, HWADDR_LEN);
         } else {
-            /* the frame length for the AAD is the complete frame including ethernet header but without the ICV */
-            unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
-
-            // For authenticated-only data, the aad is the frame minus the ICV
-            // We have to build the AAD since the incoming TVB payload does not have the Ethernet header.
-            payload_len = frame_len - ETHHDR_LEN;
-
-            // Copy the header we built previously, then the frame data up to the ICV.
-            memcpy(aad, header, ETHHDR_LEN);
-            memcpy((aad + ETHHDR_LEN), tvb_get_ptr(tvb, 0, payload_len), payload_len);
-
-            /* Authenticate with the AAD. */
-            if (gcry_cipher_authenticate(handle, aad, frame_len))
-            {
-                ws_warning("gcry_cipher_authenticate fail");
-                goto out;
-            }
+            ws_warning("No Ethernet source address");
         }
 
-        /* Fetch the ICV and use it to verify the decrypted data. */
-        uint8_t icv[ICV_LEN] = {0};
-        tvb_memcpy(tvb, icv, icv_offset, icv_length);
-        if (gcry_cipher_checktag(handle, icv, sizeof(icv)))
-        {
-            ws_info("gcry_cipher_checktag fail");
-            goto out;
-        }
-
-        /* Everything checks out! */
-        icv_check_success = PROTO_CHECKSUM_E_GOOD;
+        iv[6] = 0x00;
+        iv[7] = 0x01;
     }
 
-out:
+    ws_debug("iv: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", iv[0], iv[1], iv[2], iv[3], iv[4], iv[5], iv[6], iv[7], iv[8], iv[9], iv[10], iv[11]);
+
+    int total_count = 0;
+    bool use_mka_table = false;
+
+    const uint8_t *sak = NULL;
+    const uint8_t *name = NULL;
+    unsigned name_len = 0;
+    unsigned key_len = 0;
+    int table_index = 0;
+
+    /* Get the PSK table and its size. */
+    const psk_config_t *psk_table = get_psk_config_table();
+    int psk_table_count = get_psk_config_table_count();
+    ws_debug("PSK table size: %u", psk_table_count);
+
+    if ((true == try_mka) && (0 == psk_table_count)) {
+        /* If the PSK table is empty, and EAPOL-MKA usage is requested, start there. */
+        ws_debug("psk table is empty, using mka table");
+        use_mka_table = true;
+    } else {
+        ws_debug("starting with psk table");
+    }
+
+    total_count = psk_table_count;
+
+    /* If EAPOL-MKA usage is requested, fetch its table and size and add to the total entries to check. */
+    const mka_ckn_info_t *ckn_table = NULL;
+    if (true == try_mka) {
+        int ckn_table_count = 0;
+
+        ws_debug("also using MKA for decode");
+
+        ckn_table = get_mka_ckn_table();
+        ckn_table_count = get_mka_ckn_table_count();
+
+        ws_debug("CKN table size: %u", ckn_table_count);
+        total_count += ckn_table_count;
+    }
+
+    /* Cannot decode if there are no keys. */
+    if (0 == total_count) {
+        ws_debug("tables are empty");
+        goto skip_decode;
+    }
+
+    if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_GCM, 0)) {
+        ws_warning("failed to open cipher context");
+    } else {
+        /* Start at the first index of the first table to use. */
+        table_index = 0;
+
+        /* Iterate through the tables until the packet authenticates successfully or we run out of entries. */
+        for (int tc = 1; tc <= total_count; tc++) {
+            if (true == use_mka_table) {
+                /* If using the CKN table, fetch the SAK at this CKN table index. */
+                const mka_ckn_info_key_t *key = &ckn_table[table_index].key;
+
+                sak = key->saks[an];
+                name = ckn_table[table_index].name;
+                name_len = ckn_table[table_index].name_len;
+                key_len = ckn_table[table_index].cak_len;
+            } else {
+                /* If using the PSK table, fetch the PSK at this PSK table index. */
+                const psk_info_t *info = &psk_table[table_index].keydata;
+
+                sak = info->key;
+                name = psk_table[table_index].name;
+                name_len = psk_table[table_index].name_len;
+                key_len = psk_table[table_index].keydata.key_len;
+            }
+
+            if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
+                if (PSK256_LEN == key_len) {
+                    ws_debug("key: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                    sak[0], sak[1], sak[2], sak[3], sak[4], sak[5], sak[6], sak[7],
+                                    sak[8], sak[9], sak[10], sak[11], sak[12], sak[13], sak[14], sak[15],
+                                    sak[16], sak[17], sak[18], sak[19], sak[20], sak[21], sak[22], sak[23],
+                                    sak[24], sak[25], sak[26], sak[27], sak[28], sak[29], sak[30], sak[31]);
+                } else {
+                    ws_debug("key: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                            sak[0], sak[1], sak[2], sak[3], sak[4], sak[5], sak[6], sak[7],
+                            sak[8], sak[9], sak[10], sak[11], sak[12], sak[13], sak[14], sak[15]);
+                }
+            }
+
+            if (false == macsec_is_valid_sak(sak)) {
+                ws_debug("skipping invalid sak");
+                goto next_index;
+            }
+
+            if (gcry_cipher_setkey(handle, sak, key_len)) {
+                ws_warning("failed to set cipher key");
+                goto next_index;
+            }
+
+            if (gcry_cipher_setiv(handle, iv, sizeof(iv))) {
+                ws_warning("failed to set cipher IV");
+                goto next_index;
+            }
+
+            /* For authenticated and encrypted data, we try to decrypt the data if a key is supplied. */
+            if (true == encrypted) {
+                payload_len = tvb_captured_length(next_tvb);
+
+                /* For authenticated and encrypted data, the AAD consists of the header data and security tag. */
+                const uint8_t *buf = tvb_get_ptr(tvb, 0, sectag_length);
+
+                memcpy(aad, header, ETHHDR_LEN);
+                memcpy(aad + ETHHDR_LEN, buf, sectag_length);
+
+                /* Authenticate with the AAD. */
+                if (gcry_cipher_authenticate(handle, aad, (ETHHDR_LEN + sectag_length))) {
+                    ws_debug("failed to authenticate with key at index %u", table_index);
+                    goto next_index;
+                }
+
+                tvb_memcpy(next_tvb, macsec_payload, 0, payload_len);
+
+                /* Attempt to decrypt into the local buffer. */
+                if (gcry_cipher_decrypt(handle, macsec_payload, payload_len, NULL, 0)) {
+                    ws_debug("failed to decrypt with key at index %u", table_index);
+                    goto next_index;
+                }
+
+            } else {
+                /* The frame length for the AAD is the complete frame including ethernet header but without the ICV */
+                unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
+
+                /* For authenticated-only data, the AAD is the entire frame minus the ICV.
+                   We have to build the AAD since the incoming TVB payload does not have the Ethernet header. */
+                payload_len = frame_len - ETHHDR_LEN;
+
+                /* Copy the header we built previously, then the frame data up to the ICV. */
+                memcpy(aad, header, ETHHDR_LEN);
+                memcpy((aad + ETHHDR_LEN), tvb_get_ptr(tvb, 0, payload_len), payload_len);
+
+                /* Authenticate with the AAD. */
+                if (gcry_cipher_authenticate(handle, aad, frame_len)) {
+                    ws_debug("failed to authenticate with key at index %u", table_index);
+                    goto next_index;
+                }
+            }
+
+            /* Fetch the ICV and use it to verify the decrypted data. */
+            uint8_t icv[ICV_LEN] = {0};
+            tvb_memcpy(tvb, icv, icv_offset, icv_length);
+            if (gcry_cipher_checktag(handle, icv, sizeof(icv))) {
+                ws_debug("failed to verify ICV with key at index %u", table_index);
+                goto next_index;
+            }
+
+            /* Everything checks out! */
+            icv_check_success = PROTO_CHECKSUM_E_GOOD;
+            ws_debug("ICV verified with key at index %u", table_index);
+            break;
+
+next_index:
+            if (tc == psk_table_count) {
+                /* Switch to the MKA table. */
+                use_mka_table = true;
+                table_index = 0;
+                ws_debug("using mka table");
+            } else {
+                /* Move to the next table index. */
+                table_index++;
+            }
+        }
+    }
+
     if (0 != handle) {
         gcry_cipher_close(handle);
     }
+
+skip_decode:
+    verify_item = proto_tree_add_item(macsec_tree, hf_macsec_verify_info, tvb, 0, 0, ENC_NA);
+    proto_item_set_generated(verify_item);
+
+    /* add a subtree for verification information. */
+    verify_tree = proto_item_add_subtree(verify_item, ett_macsec_verify);
+
+    /* add a flag indicating the frame is or is not verified. */
+    verify_item = proto_tree_add_boolean(verify_tree, hf_macsec_ICV_check_success, tvb, 0, 0, icv_check_success);
+    proto_item_set_generated(verify_item);
+
+    if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
+        unsigned char *namestr = g_malloc(name_len + 1);
+        memcpy(namestr, name, name_len);
+        namestr[name_len] = 0;
+
+        if (true == use_mka_table) {
+            /* add the SAK and name identifier. */
+            verify_item = proto_tree_add_bytes_with_length(verify_tree, hf_macsec_sak, tvb, 0, 0, sak, key_len);
+            proto_item_set_generated(verify_item);
+
+            verify_item = proto_tree_add_string(verify_tree, hf_macsec_ckn_info, tvb, 0, 0, namestr);
+            proto_item_set_generated(verify_item);
+
+            /* add the table index for filtering. */
+            verify_item = proto_tree_add_int(verify_tree, hf_macsec_ckn_table_index, tvb, 0, 0, table_index);
+            proto_item_set_generated(verify_item);
+
+        } else {
+            /* add the PSK and name identifier. */
+            verify_item = proto_tree_add_bytes_with_length(verify_tree, hf_macsec_psk, tvb, 0, 0, sak, key_len);
+            proto_item_set_generated(verify_item);
+
+            verify_item = proto_tree_add_string(verify_tree, hf_macsec_psk_info, tvb, 0, 0, namestr);
+            proto_item_set_generated(verify_item);
+
+            /* add the table index for filtering. */
+            verify_item = proto_tree_add_int(verify_tree, hf_macsec_psk_table_index, tvb, 0, 0, table_index);
+            proto_item_set_generated(verify_item);
+        }
+
+        g_free(namestr);
+    }
+
     // Show the original data.
     call_data_dissector(next_tvb, pinfo, tree);
 
@@ -353,13 +602,12 @@ out:
     next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
     ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
 
-    // If the data are ok, attempt to continue dissection.
-    if (PROTO_CHECKSUM_E_GOOD == icv_check_success)
-    {
-        if (encrypted) {
+    /* If the data's ok, attempt to continue dissection. */
+    if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
+        if (true == encrypted) {
             tvbuff_t *plain_tvb;
 
-            plain_tvb = tvb_new_child_real_data(next_tvb, (uint8_t *)wmem_memdup(pinfo->pool, macsec_payload, payload_len),
+            plain_tvb = tvb_new_child_real_data(next_tvb, (guint8 *)wmem_memdup(pinfo->pool, macsec_payload, payload_len),
                                                 payload_len, payload_len);
             ethertype_data.etype = tvb_get_ntohs(plain_tvb, 0);
 
@@ -367,7 +615,7 @@ out:
             next_tvb = tvb_new_subset_length(plain_tvb, 2, payload_len - 2);
 
             /* show the decrypted data and original ethertype */
-            proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, payload_len, ENC_NA);
+            proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, payload_len, ENC_BIG_ENDIAN);
 
             /* add the decrypted data as a data source for the next dissectors */
             add_new_data_source(pinfo, plain_tvb, "Decrypted Data");
@@ -409,21 +657,12 @@ out:
         pinfo->fd->pkt_len = pkt_len_saved;
     }
 
-    /* Set icv_check_success to the correct status */
-    if (!key_provided) {
-        icv_check_success = PROTO_CHECKSUM_E_UNVERIFIED;
-    }
-
     /* If the frame was not verified correctly, append this string to the info line
      * after dissection completes.
      */
-    if (PROTO_CHECKSUM_E_BAD == icv_check_success) {
-        col_append_str(pinfo->cinfo, COL_INFO, " [Authentication fail]");
+    if (PROTO_CHECKSUM_E_GOOD != icv_check_success) {
+        col_append_str(pinfo->cinfo, COL_INFO, " [UNVERIFIED]");
     }
-
-    /* add a flag indicating the frame is or is not verified. */
-    macsec_item = proto_tree_add_uint(macsec_tree, hf_macsec_ICV_check_success, tvb, 0, 0, icv_check_success);
-    proto_item_set_generated(macsec_item);
 
     /* We called set_actual length if fcs_length !=0, so length is adjusted. */
     return tvb_captured_length(tvb);
@@ -432,6 +671,8 @@ out:
 void
 proto_register_macsec(void)
 {
+    uat_t *psk_config_uat = NULL;
+
     module_t *module;
     static hf_register_info hf[] = {
         { &hf_macsec_TCI,
@@ -483,8 +724,8 @@ proto_register_macsec(void)
               NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_etype,
-            { "Ethertype", "macsec.etype", FT_UINT16, BASE_HEX,
-              NULL, 0, NULL, HFILL }
+            { "Ethertype", "macsec.etype", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+              NULL, HFILL }
         },
         { &hf_macsec_eth_padding,
             { "Padding", "macsec.eth_padding", FT_BYTES, BASE_NONE,
@@ -494,15 +735,43 @@ proto_register_macsec(void)
             { "ICV", "macsec.ICV", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }
         },
+        { &hf_macsec_verify_info,
+            { "Verification Info", "macsec.verify_info", FT_NONE, BASE_NONE,
+            NULL, 0, NULL, HFILL }
+        },
         { &hf_macsec_ICV_check_success,
-            { "Frame authentication status", "macsec.auth_status", FT_UINT8, BASE_DEC,
+            { "Frame Verified", "macsec.verify_info.verified", FT_BOOLEAN, BASE_NONE,
               NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_ckn_info,
+            { "CAK Name Info", "macsec.verify_info.cak_name.info", FT_STRING, BASE_NONE,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_ckn_table_index,
+            { "CKN Table Index", "macsec.verify_info.cak_name.index", FT_INT16, BASE_DEC,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_sak,
+            { "SAK", "macsec.verify_info.sak", FT_BYTES, BASE_NONE,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_psk_info,
+            { "PSK Name Info", "macsec.verify_info.psk_name.info", FT_STRING, BASE_NONE,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_psk_table_index,
+            { "PSK Table Index", "macsec.verify_info.psk_name.index", FT_INT16, BASE_DEC,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_macsec_psk,
+            { "PSK", "macsec.verify_info.psk", FT_BYTES, BASE_NONE,
+            NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_decrypted_data,
             { "Decrypted Data", "macsec.decrypted_data", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }
         },
-    };
+   };
 
     /* Setup protocol subtree array */
     static int *ett[] = {
@@ -511,7 +780,7 @@ proto_register_macsec(void)
     };
 
     /* Register the protocol name and description */
-    proto_macsec = proto_register_protocol("802.1AE Security tag", "MACsec", "macsec");
+    proto_macsec = proto_register_protocol("802.1AE Security Tag", "MACsec", "macsec");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_macsec, hf, array_length(hf));
@@ -520,11 +789,40 @@ proto_register_macsec(void)
     /* Register the dissector */
     macsec_handle = register_dissector("macsec", dissect_macsec, proto_macsec);
 
-    /* Register the text box to enter the pre-shared key */
+    /* Register the UAT to enter the pre-shared keys */
     module = prefs_register_protocol(proto_macsec, NULL);
-    prefs_register_string_preference(module, "psk", "MACsec Pre-Shared Key",
-                                     "Pre-Shared AES-GCM-128 Key as a HEX string (16 bytes).",
-                                     &psk);
+
+    static uat_field_t psk_macsec_uat_fields[] = {
+        UAT_FLD_BUFFER(psk_config_data, key, "Key", "Pre-Shared Key (AES-GCM-128 only) as byte array"),
+        UAT_FLD_CSTRING(psk_config_data, name, "Info", "PSK info to display"),
+        UAT_END_FIELDS
+    };
+
+    psk_config_uat = uat_new("Pre-Shared Key List",
+        sizeof(psk_config_t),   /* record size           */
+        "psk_config_data",      /* filename              */
+        true,                   /* from profile          */
+        &psk_config_data,       /* data_ptr              */
+        &psk_config_data_count, /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION, /* but not fields        */
+        NULL,                   /* help                  */
+        copy_psk_config_cb,     /* copy callback         */
+        update_psk_config,      /* update callback       */
+        free_psk_config_cb,     /* free callback         */
+        post_update_psk_config_cb, /* post update callback  */
+        NULL,                   /* reset callback        */
+        psk_macsec_uat_fields   /* UAT field definitions */
+    );
+
+    /* The PSK entry is obsolete in favor of the PSK table */
+    prefs_register_obsolete_preference(module, "psk");
+
+    prefs_register_uat_preference(module, "psk_list", "Pre-Shared Key List",
+        "A list of AES-GCM Pre-Shared Keys (PSKs) as HEX (16 or 32 bytes).", psk_config_uat);
+
+    prefs_register_bool_preference(module, "mka", "Also Use MKA For Decode",
+                                     "Also attempt to use EAPOL-MKA Distributed SAKs to decode MACsec packets.",
+                                     &try_mka);
 }
 
 void
