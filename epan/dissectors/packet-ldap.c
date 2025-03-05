@@ -5692,6 +5692,8 @@ void proto_register_ldap(void) {
 void
 proto_reg_handoff_ldap(void)
 {
+  dissector_handle_t ldap_sid_handle = NULL;
+
   dissector_add_uint_with_preference("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector_add_dependency("gssapi", proto_ldap);
@@ -5804,11 +5806,20 @@ proto_reg_handoff_ldap(void)
   oid_add_from_string("iPlanet Replication Modrdn Extra Mods Control",                              "2.16.840.1.113730.3.4.999");
 
 
+  ldap_sid_handle = create_dissector_handle(dissect_ldap_sid, proto_ldap);
   dissector_add_string("ldap.name", "netlogon", create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
   dissector_add_string("ldap.name", "objectGUID", create_dissector_handle(dissect_ldap_guid, proto_ldap));
   dissector_add_string("ldap.name", "supportedControl", create_dissector_handle(dissect_ldap_oid, proto_ldap));
   dissector_add_string("ldap.name", "supportedCapabilities", create_dissector_handle(dissect_ldap_oid, proto_ldap));
-  dissector_add_string("ldap.name", "objectSid", create_dissector_handle(dissect_ldap_sid, proto_ldap));
+  dissector_add_string("ldap.name", "mS-DS-CreatorSID", ldap_sid_handle);
+  dissector_add_string("ldap.name", "msDS-QuotaTrustee", ldap_sid_handle);
+  dissector_add_string("ldap.name", "objectSid", ldap_sid_handle);
+  dissector_add_string("ldap.name", "securityIdentifier", ldap_sid_handle);
+  dissector_add_string("ldap.name", "sIDHistory", ldap_sid_handle);
+  dissector_add_string("ldap.name", "syncWithSID", ldap_sid_handle);
+  dissector_add_string("ldap.name", "tokenGroups", ldap_sid_handle);
+  dissector_add_string("ldap.name", "tokenGroupsGlobalAndUniversal", ldap_sid_handle);
+  dissector_add_string("ldap.name", "tokenGroupsNoGCAcceptable", ldap_sid_handle);
   dissector_add_string("ldap.name", "nTSecurityDescriptor", create_dissector_handle(dissect_ldap_nt_sec_desc, proto_ldap));
 
   register_ber_oid_dissector("1.2.840.113556.1.4.319", dissect_SearchControlValue_PDU, proto_ldap, "LDAP_PAGED_RESULT_OID_STRING");
