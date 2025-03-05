@@ -166,7 +166,7 @@ public:
     explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter = QString(),
                            io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS,
                            QString yfield = QString(),
-                           gboolean is_sibling_dialog = false,
+                           bool is_sibling_dialog = false,
                            const QVector<QString> convFilters = QVector<QString>() );
     ~IOGraphDialog();
 

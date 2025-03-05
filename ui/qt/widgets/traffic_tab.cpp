@@ -137,7 +137,7 @@ QTreeView * TrafficTab::createTree(int protoId)
          * for I/O Graph facility
          */
         QString protoname = proto_get_protocol_short_name(find_protocol_by_id(protoId));
-        gboolean useExtendedSelection = protoname.toUtf8().data()== QString("TCP") ||
+        bool useExtendedSelection = protoname.toUtf8().data()== QString("TCP") ||
                                         protoname.toUtf8().data()== QString("UDP") ||
                                         protoname.toUtf8().data()== QString("IPv4") ||
                                         protoname.toUtf8().data()== QString("IPv6") ||

@@ -384,7 +384,7 @@ static void io_graph_post_update_cb() {
 
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter,
         io_graph_item_unit_t value_units, QString yfield,
-        gboolean is_sibling_dialog, QVector<QString> convFilters):
+        bool is_sibling_dialog, QVector<QString> convFilters):
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
     uat_model_(nullptr),
@@ -2276,7 +2276,7 @@ IOGraph::IOGraph(QCustomPlot *parent) :
 //        QMessageBox::critical(this, tr("%1 failed to register tap listener").arg(name_),
 //                             error_string->str);
 //        config_err_ = error_string->str;
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         tap_registered_ = false;
     }
 }
@@ -2327,7 +2327,7 @@ bool IOGraph::setFilter(const QString &filter)
     error_string = check_field_unit(vu_field_.toUtf8().constData(), NULL, val_units_);
     if (error_string) {
         config_err_ = error_string->str;
-        g_string_free(error_string, TRUE);
+        g_string_free(error_string, true);
         return false;
     }
 
@@ -2345,7 +2345,7 @@ bool IOGraph::setFilter(const QString &filter)
         error_string = set_tap_dfilter(this, full_filter.toUtf8().constData());
         if (error_string) {
             config_err_ = error_string->str;
-            g_string_free(error_string, TRUE);
+            g_string_free(error_string, true);
             return false;
         }
 
