@@ -208,7 +208,7 @@ BuildRequires:	libssh-devel
 BuildRequires:	libmaxminddb-devel
 %endif
 
-%if %{use_wireshark_group} || %{use_stratoshark_group}
+%if %{use_wireshark_group} || 0%{use_stratoshark_group}
 %if 0%{?suse_version}
 # SUSE's groupadd is in this package:
 Requires(pre):	pwdutils
@@ -544,16 +544,15 @@ install -Dm 0644 %{buildroot}%{_prefix}/share/applications/org.wireshark.Stratos
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.wireshark.Stratoshark.desktop
 %endif
 
-%if %{use_stratoshark_group}
-%pre
+%if %{use_wireshark_group} || 0%{use_stratoshark_group}
+%if %{use_wireshark_group}
+getent group wireshark >/dev/null || groupadd -r wireshark
+%endif
+%if 0%{use_stratoshark_group}
 getent group stratoshark >/dev/null || groupadd -r stratoshark
 %endif
-
 %endif
 
-%if %{use_wireshark_group}
-%pre
-getent group wireshark >/dev/null || groupadd -r wireshark
 %endif
 
 %post -p /sbin/ldconfig

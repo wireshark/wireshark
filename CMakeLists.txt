@@ -3993,7 +3993,7 @@ if(RPMBUILD_EXECUTABLE)
 			-ba SPECS/wireshark.spec
 		DEPENDS copy-dist
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
-		COMMENT "Create a rpm from the current git commit."
+		COMMENT "Create an RPM package from the current git commit."
 	)
 endif()
 
