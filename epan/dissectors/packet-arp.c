@@ -92,6 +92,7 @@ static int ett_arp_duplicate_address;
 
 static expert_field ei_seq_arp_dup_ip;
 static expert_field ei_seq_arp_storm;
+static expert_field ei_arp_dst_nonzero_probe;
 static expert_field ei_atmarp_src_atm_unknown_afi;
 
 static dissector_handle_t arp_handle;
@@ -1577,7 +1578,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
   else {
     is_gratuitous = false;
-    if ((ar_op == ARPOP_REQUEST) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0) && (tvb_get_ipv4(tvb, spa_offset) == 0))
+    if ((ar_op == ARPOP_REQUEST) && (tvb_get_ipv4(tvb, spa_offset) == 0))
       is_probe = true;
   }
   switch (ar_op) {
@@ -1776,11 +1777,14 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                           tvb, spa_offset, ar_pln, ENC_BIG_ENDIAN);
     }
     if (ar_hln != 0) {
-      proto_tree_add_item(arp_tree,
+      item = proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
                           hf_arp_dst_hw_mac :
                           hf_arp_dst_hw,
                           tvb, tha_offset, ar_hln, ENC_BIG_ENDIAN);
+      if (is_probe && (tvb_memeql(tvb, tha_offset, mac_allzero, MIN(6, ar_hln)) != 0)) {
+        expert_add_info(pinfo, item, &ei_arp_dst_nonzero_probe);
+      }
     }
     if (ar_pln != 0 && ar_op != ARPOP_DRARPERROR) {     /*DISPLAYING ERROR NUMBER FOR DRARPERROR*/
       proto_tree_add_item(arp_tree,
@@ -2023,6 +2027,7 @@ proto_register_arp(void)
   static ei_register_info ei[] = {
      { &ei_seq_arp_dup_ip, { "arp.duplicate-address-detected", PI_SEQUENCE, PI_WARN, "Duplicate IP address configured", EXPFILL }},
      { &ei_seq_arp_storm, { "arp.packet-storm-detected", PI_SEQUENCE, PI_NOTE, "ARP packet storm detected", EXPFILL }},
+     { &ei_arp_dst_nonzero_probe, { "arp.dst.nonzero.probe", PI_PROTOCOL, PI_WARN, "Target Hardware Address field SHOULD be set to all zeroes in an ARP Probe (RFC 5227)", EXPFILL }},
      { &ei_atmarp_src_atm_unknown_afi, { "arp.src.atm_afi.unknown", PI_PROTOCOL, PI_WARN, "Unknown AFI", EXPFILL }},
   };
 
