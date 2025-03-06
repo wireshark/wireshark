@@ -6087,6 +6087,8 @@ static int hf_ieee80211_tag_cisco_ccx1_name;
 static int hf_ieee80211_tag_cisco_ccx1_clients;
 static int hf_ieee80211_tag_cisco_ccx1_unknown2;
 
+static int hf_ieee80211_vs_cisco_ap_name_v2;
+
 static int hf_ieee80211_vht_cap;
 static int hf_ieee80211_vht_max_mpdu_length;
 static int hf_ieee80211_vht_supported_chan_width_set;
@@ -20993,7 +20995,8 @@ typedef enum {
   AIRONET_IE_QOS,
   AIRONET_IE_UNKNOWN11 = 11,
   AIRONET_IE_QBSS_V2 = 14,
-  AIRONET_IE_CLIENT_MFP = 20
+  AIRONET_IE_CLIENT_MFP = 20,
+  AIRONET_IE_APNAME_V2 = 47
 } aironet_ie_type_t;
 
 static const value_string aironet_ie_type_vals[] = {
@@ -21004,6 +21007,7 @@ static const value_string aironet_ie_type_vals[] = {
   { AIRONET_IE_UNKNOWN11, "Unknown (11)"},
   { AIRONET_IE_QBSS_V2,   "QBSS V2 - CCA"},
   { AIRONET_IE_CLIENT_MFP, "Client MFP"},
+  { AIRONET_IE_APNAME_V2, "AP NAME v2"},
   { 0,                    NULL }
 };
 
@@ -21015,11 +21019,12 @@ static const value_string aironet_mfp_vals[] = {
 
 static void
 dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
-                          tvbuff_t *tvb, int offset, uint32_t tag_len)
+                          tvbuff_t *tvb, int offset, uint32_t tag_len,packet_info *pinfo)
 {
-  uint8_t type;
+  uint8_t type,length;
   int i;
   bool dont_change = false; /* Don't change the IE item text to default */
+  const uint8_t* apname;
 
   type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -21075,6 +21080,22 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
       val_to_str_const(1 & tvb_get_uint8(tvb, offset), aironet_mfp_vals, "Unknown"));
     dont_change = true;
     break;
+  case AIRONET_IE_APNAME_V2:
+  /* Adds support for the new AP name v2 format; 
+this supports:
+- 32 character long AP names (vs 16 in v1/ccx)
+- is used on both WLC and Meraki
+- does not require CCX to be enabled. 
+ */
+    tag_len -= 1;
+    length = tag_len;
+     
+    proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_cisco_ap_name_v2, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool,&apname);
+    proto_item_append_text(ietree, ": AP name v2: %s", apname);
+    // Set to true, so we dont append "Aironet type"
+    dont_change = true;
+  break;  
+
   default:
     proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_data, tvb, offset,
       tag_len - 1, ENC_NA);
@@ -33452,7 +33473,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* Normal IEEE vendor ids (from oui.h) */
     case OUI_CISCOWL:  /* Cisco Wireless (Aironet) */
-      dissect_vendor_ie_aironet(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+      dissect_vendor_ie_aironet(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_MARVELL:
       dissect_vendor_ie_marvell(field_data->item_tag, tree, tvb, offset, tag_vs_len);
@@ -54519,6 +54540,12 @@ proto_register_ieee80211(void)
      {"Data", "wlan.vs.mist.data",
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
+
+    /* Vendor Specific: Cisco */
+      {&hf_ieee80211_vs_cisco_ap_name_v2,
+     {"AP Name", "wlan.vs.cisco.apname_v2",
+       FT_STRING, BASE_NONE, NULL, 0,
+       NULL, HFILL }}, 
 
     /* Vendor Specific : Ruckus */
     {&hf_ieee80211_vs_ruckus_ap_name,
