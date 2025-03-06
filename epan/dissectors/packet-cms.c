@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cms.c                                                               */
-/* asn2wrs.py -b -C -q -L -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn */
+/* asn2wrs.py -b -C -q -L -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn CMSAlgorithmProtectionAttribute.asn */
 
 /* packet-cms.c
  * Routines for RFC5652 Cryptographic Message Syntax packet dissection
@@ -78,6 +78,7 @@ static int hf_cms_FirmwarePackageLoadReceipt_PDU;  /* FirmwarePackageLoadReceipt
 static int hf_cms_FirmwarePackageLoadError_PDU;   /* FirmwarePackageLoadError */
 static int hf_cms_HardwareModuleName_PDU;         /* HardwareModuleName */
 static int hf_cms_FirmwarePackageMessageDigest_PDU;  /* FirmwarePackageMessageDigest */
+static int hf_cms_CMSAlgorithmProtection_PDU;     /* CMSAlgorithmProtection */
 static int hf_cms_contentType;                    /* ContentType */
 static int hf_cms_content;                        /* T_content */
 static int hf_cms_version;                        /* CMSVersion */
@@ -309,6 +310,7 @@ static int ett_cms_SEQUENCE_OF_CurrentFWConfig;
 static int ett_cms_CurrentFWConfig;
 static int ett_cms_HardwareModuleName;
 static int ett_cms_FirmwarePackageMessageDigest;
+static int ett_cms_CMSAlgorithmProtection;
 
 static dissector_handle_t cms_handle;
 
@@ -2431,6 +2433,22 @@ dissect_cms_FirmwarePackageMessageDigest(bool implicit_tag _U_, tvbuff_t *tvb _U
   return offset;
 }
 
+
+static const ber_sequence_t CMSAlgorithmProtection_sequence[] = {
+  { &hf_cms_digestAlgorithm , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cms_DigestAlgorithmIdentifier },
+  { &hf_cms_signatureAlgorithm, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cms_SignatureAlgorithmIdentifier },
+  { &hf_cms_macAlgorithm    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cms_MessageAuthenticationCodeAlgorithm },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_CMSAlgorithmProtection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CMSAlgorithmProtection_sequence, hf_index, ett_cms_CMSAlgorithmProtection);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_ContentInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -2678,6 +2696,13 @@ static int dissect_FirmwarePackageMessageDigest_PDU(tvbuff_t *tvb _U_, packet_in
   offset = dissect_cms_FirmwarePackageMessageDigest(false, tvb, offset, &asn1_ctx, tree, hf_cms_FirmwarePackageMessageDigest_PDU);
   return offset;
 }
+static int dissect_CMSAlgorithmProtection_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_cms_CMSAlgorithmProtection(false, tvb, offset, &asn1_ctx, tree, hf_cms_CMSAlgorithmProtection_PDU);
+  return offset;
+}
 
 
 /*--- proto_register_cms ----------------------------------------------*/
@@ -2827,6 +2852,10 @@ void proto_register_cms(void) {
         NULL, HFILL }},
     { &hf_cms_FirmwarePackageMessageDigest_PDU,
       { "FirmwarePackageMessageDigest", "cms.FirmwarePackageMessageDigest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_cms_CMSAlgorithmProtection_PDU,
+      { "CMSAlgorithmProtection", "cms.CMSAlgorithmProtection_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cms_contentType,
@@ -3509,6 +3538,7 @@ void proto_register_cms(void) {
     &ett_cms_CurrentFWConfig,
     &ett_cms_HardwareModuleName,
     &ett_cms_FirmwarePackageMessageDigest,
+    &ett_cms_CMSAlgorithmProtection,
   };
 
   /* Register protocol */
@@ -3594,6 +3624,7 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.18", dissect_FirmwarePackageLoadError_PDU, proto_cms, "id-ct-firmwareLoadError");
   register_ber_oid_dissector("1.3.6.1.5.5.7.8.4", dissect_HardwareModuleName_PDU, proto_cms, "id-on-hardwareModuleName");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.41", dissect_FirmwarePackageMessageDigest_PDU, proto_cms, "id-aa-fwPkgMessageDigest");
+  register_ber_oid_dissector("1.2.840.113549.1.9.52", dissect_CMSAlgorithmProtection_PDU, proto_cms, "id-aa-cmsAlgorithmProtect");
 
 
   /* RFC 3370 [CMS-ASN} section 4.3.1 */

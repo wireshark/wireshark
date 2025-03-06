@@ -120,6 +120,9 @@ FirmwarePackageLoadError		    B "1.2.840.113549.1.9.16.1.18"	"id-ct-firmwareLoad
 HardwareModuleName		          B "1.3.6.1.5.5.7.8.4"	          "id-on-hardwareModuleName"
 FirmwarePackageMessageDigest		B "1.2.840.113549.1.9.16.2.41"	"id-aa-fwPkgMessageDigest"
 
+# RFC 6211 Attribute (in CMSAlgorithmProtectionAttribute.asn)
+CMSAlgorithmProtection  B "1.2.840.113549.1.9.52" "id-aa-cmsAlgorithmProtect"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
