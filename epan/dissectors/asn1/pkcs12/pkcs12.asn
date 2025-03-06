@@ -169,4 +169,12 @@ PKCS12Attribute ::= SEQUENCE {
 --	... - - Other attributes are allowed
 --}
 
+-- Wireshark note: this type is missing from the original module,
+-- but is defined in Appendix C of RFC 7292.
+
+Pkcs-12PbeParams ::= SEQUENCE {
+    salt        OCTET STRING,
+    iterations  INTEGER
+}
+
 END

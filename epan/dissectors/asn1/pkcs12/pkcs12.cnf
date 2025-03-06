@@ -29,12 +29,12 @@ SafeContents		B "1.2.840.113549.1.12.10.1.6"	"safeContentsBag"
 PFX			B "2.16.840.1.113730.3.1.216"   "pkcs-9-at-PKCS12"
 
 # Password Based Encryption
-PBEParameter		B "1.2.840.113549.1.12.1.1" "pbeWithSHAAnd128BitRC4"
-PBEParameter		B "1.2.840.113549.1.12.1.2" "pbeWithSHAAnd40BitRC4"
-PBEParameter		B "1.2.840.113549.1.12.1.3" "pbeWithSHAAnd3-KeyTripleDES-CBC"
-PBEParameter		B "1.2.840.113549.1.12.1.4" "pbeWithSHAAnd2-KeyTripleDES-CBC"
-PBEParameter		B "1.2.840.113549.1.12.1.5" "pbeWithSHAAnd128BitRC2-CBC"
-PBEParameter		B "1.2.840.113549.1.12.1.6" "pbeWithSHAAnd40BitRC2-CBC"
+Pkcs-12PbeParams	B "1.2.840.113549.1.12.1.1" "pbeWithSHAAnd128BitRC4"
+Pkcs-12PbeParams	B "1.2.840.113549.1.12.1.2" "pbeWithSHAAnd40BitRC4"
+Pkcs-12PbeParams	B "1.2.840.113549.1.12.1.3" "pbeWithSHAAnd3-KeyTripleDES-CBC"
+Pkcs-12PbeParams	B "1.2.840.113549.1.12.1.4" "pbeWithSHAAnd2-KeyTripleDES-CBC"
+Pkcs-12PbeParams	B "1.2.840.113549.1.12.1.5" "pbeWithSHAAnd128BitRC2-CBC"
+Pkcs-12PbeParams	B "1.2.840.113549.1.12.1.6" "pbeWithSHAAnd40BitRC2-CBC"
 
 PBEParameter		B "1.2.840.113549.1.5.1" "pbeWithMD2AndDES-CBC"
 PBEParameter		B "1.2.840.113549.1.5.3" "pbeWithMD5AndDES-CBC"
@@ -127,11 +127,11 @@ PBKDF2-params/salt		saltChoice
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
-#.FN_HDR PBEParameter
+#.FN_HDR Pkcs-12PbeParams
 	/* initialise the encryption parameters */
 	PBE_reset_parameters();
 
 #.END
 
 #.FN_PARS OCTET_STRING VAL_PTR = (hf_index == hf_pkcs12_salt ? &salt : NULL)
-#.FN_PARS INTEGER VAL_PTR = (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL)
+#.FN_PARS INTEGER VAL_PTR = (hf_index == hf_pkcs12_iterations ? &iteration_count : NULL)

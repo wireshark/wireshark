@@ -73,6 +73,7 @@ static int hf_pkcs12_PKCS8ShroudedKeyBag_PDU;     /* PKCS8ShroudedKeyBag */
 static int hf_pkcs12_CertBag_PDU;                 /* CertBag */
 static int hf_pkcs12_CRLBag_PDU;                  /* CRLBag */
 static int hf_pkcs12_SecretBag_PDU;               /* SecretBag */
+static int hf_pkcs12_Pkcs_12PbeParams_PDU;        /* Pkcs_12PbeParams */
 static int hf_pkcs12_PBKDF2_params_PDU;           /* PBKDF2_params */
 static int hf_pkcs12_PBEParameter_PDU;            /* PBEParameter */
 static int hf_pkcs12_PBES2_params_PDU;            /* PBES2_params */
@@ -98,13 +99,13 @@ static int hf_pkcs12_secretValue;                 /* T_secretValue */
 static int hf_pkcs12_attrId;                      /* T_attrId */
 static int hf_pkcs12_attrValues;                  /* T_attrValues */
 static int hf_pkcs12_attrValues_item;             /* T_attrValues_item */
+static int hf_pkcs12_salt;                        /* OCTET_STRING */
 static int hf_pkcs12_saltChoice;                  /* T_saltChoice */
 static int hf_pkcs12_specified;                   /* OCTET_STRING */
 static int hf_pkcs12_otherSource;                 /* AlgorithmIdentifier */
 static int hf_pkcs12_iterationCount;              /* INTEGER */
 static int hf_pkcs12_keyLength;                   /* INTEGER_1_MAX */
 static int hf_pkcs12_prf;                         /* AlgorithmIdentifier */
-static int hf_pkcs12_salt;                        /* OCTET_STRING */
 static int hf_pkcs12_keyDerivationFunc;           /* AlgorithmIdentifier */
 static int hf_pkcs12_encryptionScheme;            /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme;           /* AlgorithmIdentifier */
@@ -121,6 +122,7 @@ static int ett_pkcs12_CRLBag;
 static int ett_pkcs12_SecretBag;
 static int ett_pkcs12_PKCS12Attribute;
 static int ett_pkcs12_T_attrValues;
+static int ett_pkcs12_Pkcs_12PbeParams;
 static int ett_pkcs12_PBKDF2_params;
 static int ett_pkcs12_T_saltChoice;
 static int ett_pkcs12_PBEParameter;
@@ -439,7 +441,7 @@ dissect_pkcs12_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_pkcs12_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL));
+                                                (hf_index == hf_pkcs12_iterations ? &iteration_count : NULL));
 
   return offset;
 }
@@ -751,6 +753,24 @@ dissect_pkcs12_SecretBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const ber_sequence_t Pkcs_12PbeParams_sequence[] = {
+  { &hf_pkcs12_salt         , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs12_OCTET_STRING },
+  { &hf_pkcs12_iterations   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs12_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs12_Pkcs_12PbeParams(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	/* initialise the encryption parameters */
+	PBE_reset_parameters();
+
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Pkcs_12PbeParams_sequence, hf_index, ett_pkcs12_Pkcs_12PbeParams);
+
+  return offset;
+}
+
+
 static const value_string pkcs12_T_saltChoice_vals[] = {
   {   0, "specified" },
   {   1, "otherSource" },
@@ -808,9 +828,6 @@ static const ber_sequence_t PBEParameter_sequence[] = {
 
 static int
 dissect_pkcs12_PBEParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	/* initialise the encryption parameters */
-	PBE_reset_parameters();
-
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PBEParameter_sequence, hf_index, ett_pkcs12_PBEParameter);
 
@@ -896,6 +913,13 @@ static int dissect_SecretBag_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkcs12_SecretBag(false, tvb, offset, &asn1_ctx, tree, hf_pkcs12_SecretBag_PDU);
+  return offset;
+}
+static int dissect_Pkcs_12PbeParams_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_pkcs12_Pkcs_12PbeParams(false, tvb, offset, &asn1_ctx, tree, hf_pkcs12_Pkcs_12PbeParams_PDU);
   return offset;
 }
 static int dissect_PBKDF2_params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -1030,6 +1054,10 @@ void proto_register_pkcs12(void) {
       { "SecretBag", "pkcs12.SecretBag_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pkcs12_Pkcs_12PbeParams_PDU,
+      { "Pkcs-12PbeParams", "pkcs12.Pkcs_12PbeParams_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkcs12_PBKDF2_params_PDU,
       { "PBKDF2-params", "pkcs12.PBKDF2_params_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1130,6 +1158,10 @@ void proto_register_pkcs12(void) {
       { "attrValues item", "pkcs12.attrValues_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pkcs12_salt,
+      { "salt", "pkcs12.salt",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_pkcs12_saltChoice,
       { "salt", "pkcs12.saltChoice",
         FT_UINT32, BASE_DEC, VALS(pkcs12_T_saltChoice_vals), 0,
@@ -1154,10 +1186,6 @@ void proto_register_pkcs12(void) {
       { "prf", "pkcs12.prf_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "AlgorithmIdentifier", HFILL }},
-    { &hf_pkcs12_salt,
-      { "salt", "pkcs12.salt",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
     { &hf_pkcs12_keyDerivationFunc,
       { "keyDerivationFunc", "pkcs12.keyDerivationFunc_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1186,6 +1214,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_SecretBag,
     &ett_pkcs12_PKCS12Attribute,
     &ett_pkcs12_T_attrValues,
+    &ett_pkcs12_Pkcs_12PbeParams,
     &ett_pkcs12_PBKDF2_params,
     &ett_pkcs12_T_saltChoice,
     &ett_pkcs12_PBEParameter,
@@ -1236,12 +1265,12 @@ void proto_reg_handoff_pkcs12(void) {
   register_ber_oid_dissector("1.2.840.113549.1.12.10.1.5", dissect_CRLBag_PDU, proto_pkcs12, "crlBag");
   register_ber_oid_dissector("1.2.840.113549.1.12.10.1.6", dissect_SafeContents_PDU, proto_pkcs12, "safeContentsBag");
   register_ber_oid_dissector("2.16.840.1.113730.3.1.216", dissect_PFX_PDU, proto_pkcs12, "pkcs-9-at-PKCS12");
-  register_ber_oid_dissector("1.2.840.113549.1.12.1.1", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithSHAAnd128BitRC4");
-  register_ber_oid_dissector("1.2.840.113549.1.12.1.2", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithSHAAnd40BitRC4");
-  register_ber_oid_dissector("1.2.840.113549.1.12.1.3", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithSHAAnd3-KeyTripleDES-CBC");
-  register_ber_oid_dissector("1.2.840.113549.1.12.1.4", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithSHAAnd2-KeyTripleDES-CBC");
-  register_ber_oid_dissector("1.2.840.113549.1.12.1.5", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithSHAAnd128BitRC2-CBC");
-  register_ber_oid_dissector("1.2.840.113549.1.12.1.6", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithSHAAnd40BitRC2-CBC");
+  register_ber_oid_dissector("1.2.840.113549.1.12.1.1", dissect_Pkcs_12PbeParams_PDU, proto_pkcs12, "pbeWithSHAAnd128BitRC4");
+  register_ber_oid_dissector("1.2.840.113549.1.12.1.2", dissect_Pkcs_12PbeParams_PDU, proto_pkcs12, "pbeWithSHAAnd40BitRC4");
+  register_ber_oid_dissector("1.2.840.113549.1.12.1.3", dissect_Pkcs_12PbeParams_PDU, proto_pkcs12, "pbeWithSHAAnd3-KeyTripleDES-CBC");
+  register_ber_oid_dissector("1.2.840.113549.1.12.1.4", dissect_Pkcs_12PbeParams_PDU, proto_pkcs12, "pbeWithSHAAnd2-KeyTripleDES-CBC");
+  register_ber_oid_dissector("1.2.840.113549.1.12.1.5", dissect_Pkcs_12PbeParams_PDU, proto_pkcs12, "pbeWithSHAAnd128BitRC2-CBC");
+  register_ber_oid_dissector("1.2.840.113549.1.12.1.6", dissect_Pkcs_12PbeParams_PDU, proto_pkcs12, "pbeWithSHAAnd40BitRC2-CBC");
   register_ber_oid_dissector("1.2.840.113549.1.5.1", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithMD2AndDES-CBC");
   register_ber_oid_dissector("1.2.840.113549.1.5.3", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithMD5AndDES-CBC");
   register_ber_oid_dissector("1.2.840.113549.1.5.4", dissect_PBEParameter_PDU, proto_pkcs12, "pbeWithMD2AndRC2-CBC");
