@@ -87,6 +87,7 @@ static int hf_spnego_thisMech;                    /* MechType */
 static int hf_spnego_innerContextToken;           /* InnerContextToken */
 static int hf_spnego_target_realm;                /* T_target_realm */
 static int hf_spnego_cookie;                      /* OCTET_STRING */
+static int hf_spnego_header_flags;                /* HeaderFlags */
 /* named bits */
 static int hf_spnego_ContextFlags_delegFlag;
 static int hf_spnego_ContextFlags_mutualFlag;
@@ -95,6 +96,38 @@ static int hf_spnego_ContextFlags_sequenceFlag;
 static int hf_spnego_ContextFlags_anonFlag;
 static int hf_spnego_ContextFlags_confFlag;
 static int hf_spnego_ContextFlags_integFlag;
+static int hf_spnego_HeaderFlags_unused0;
+static int hf_spnego_HeaderFlags_return_dns_name;
+static int hf_spnego_HeaderFlags_unused2;
+static int hf_spnego_HeaderFlags_unused3;
+static int hf_spnego_HeaderFlags_unused4;
+static int hf_spnego_HeaderFlags_ds_12_required;
+static int hf_spnego_HeaderFlags_ds_13_required;
+static int hf_spnego_HeaderFlags_key_list_support_required;
+static int hf_spnego_HeaderFlags_ds_10_required;
+static int hf_spnego_HeaderFlags_ds_9_required;
+static int hf_spnego_HeaderFlags_ds_8_required;
+static int hf_spnego_HeaderFlags_web_service_required;
+static int hf_spnego_HeaderFlags_ds_6_required;
+static int hf_spnego_HeaderFlags_try_next_closest_site;
+static int hf_spnego_HeaderFlags_is_dns_name;
+static int hf_spnego_HeaderFlags_is_flat_name;
+static int hf_spnego_HeaderFlags_only_ldap_needed;
+static int hf_spnego_HeaderFlags_avoid_self;
+static int hf_spnego_HeaderFlags_good_timeserv_pref;
+static int hf_spnego_HeaderFlags_writable_required;
+static int hf_spnego_HeaderFlags_timeserv_required;
+static int hf_spnego_HeaderFlags_kdc_required;
+static int hf_spnego_HeaderFlags_ip_required;
+static int hf_spnego_HeaderFlags_background_only;
+static int hf_spnego_HeaderFlags_pdc_required;
+static int hf_spnego_HeaderFlags_gc_server_required;
+static int hf_spnego_HeaderFlags_ds_preferred;
+static int hf_spnego_HeaderFlags_ds_required;
+static int hf_spnego_HeaderFlags_unused28;
+static int hf_spnego_HeaderFlags_unused29;
+static int hf_spnego_HeaderFlags_unused30;
+static int hf_spnego_HeaderFlags_force_rediscovery;
 
 /* Global variables */
 static const char *MechType_oid;
@@ -116,6 +149,7 @@ static int ett_spnego_NegTokenInit2;
 static int ett_spnego_ContextFlags;
 static int ett_spnego_NegTokenTarg;
 static int ett_spnego_InitialContextToken_U;
+static int ett_spnego_HeaderFlags;
 static int ett_spnego_IAKERB_HEADER;
 
 static expert_field ei_spnego_decrypted_keytype;
@@ -554,6 +588,52 @@ dissect_spnego_InitialContextToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
+static int * const HeaderFlags_bits[] = {
+  &hf_spnego_HeaderFlags_unused0,
+  &hf_spnego_HeaderFlags_return_dns_name,
+  &hf_spnego_HeaderFlags_unused2,
+  &hf_spnego_HeaderFlags_unused3,
+  &hf_spnego_HeaderFlags_unused4,
+  &hf_spnego_HeaderFlags_ds_12_required,
+  &hf_spnego_HeaderFlags_ds_13_required,
+  &hf_spnego_HeaderFlags_key_list_support_required,
+  &hf_spnego_HeaderFlags_ds_10_required,
+  &hf_spnego_HeaderFlags_ds_9_required,
+  &hf_spnego_HeaderFlags_ds_8_required,
+  &hf_spnego_HeaderFlags_web_service_required,
+  &hf_spnego_HeaderFlags_ds_6_required,
+  &hf_spnego_HeaderFlags_try_next_closest_site,
+  &hf_spnego_HeaderFlags_is_dns_name,
+  &hf_spnego_HeaderFlags_is_flat_name,
+  &hf_spnego_HeaderFlags_only_ldap_needed,
+  &hf_spnego_HeaderFlags_avoid_self,
+  &hf_spnego_HeaderFlags_good_timeserv_pref,
+  &hf_spnego_HeaderFlags_writable_required,
+  &hf_spnego_HeaderFlags_timeserv_required,
+  &hf_spnego_HeaderFlags_kdc_required,
+  &hf_spnego_HeaderFlags_ip_required,
+  &hf_spnego_HeaderFlags_background_only,
+  &hf_spnego_HeaderFlags_pdc_required,
+  &hf_spnego_HeaderFlags_gc_server_required,
+  &hf_spnego_HeaderFlags_ds_preferred,
+  &hf_spnego_HeaderFlags_ds_required,
+  &hf_spnego_HeaderFlags_unused28,
+  &hf_spnego_HeaderFlags_unused29,
+  &hf_spnego_HeaderFlags_unused30,
+  &hf_spnego_HeaderFlags_force_rediscovery,
+  NULL
+};
+
+static int
+dissect_spnego_HeaderFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    HeaderFlags_bits, 32, hf_index, ett_spnego_HeaderFlags,
+                                    NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_spnego_T_target_realm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -596,6 +676,7 @@ dissect_spnego_T_target_realm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static const ber_sequence_t IAKERB_HEADER_sequence[] = {
   { &hf_spnego_target_realm , BER_CLASS_CON, 1, 0, dissect_spnego_T_target_realm },
   { &hf_spnego_cookie       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
+  { &hf_spnego_header_flags , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_HeaderFlags },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1976,6 +2057,10 @@ void proto_register_spnego(void) {
       { "cookie", "spnego.cookie",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_spnego_header_flags,
+      { "header-flags", "spnego.header_flags",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HeaderFlags", HFILL }},
     { &hf_spnego_ContextFlags_delegFlag,
       { "delegFlag", "spnego.ContextFlags.delegFlag",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2004,6 +2089,134 @@ void proto_register_spnego(void) {
       { "integFlag", "spnego.ContextFlags.integFlag",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused0,
+      { "unused0", "spnego.HeaderFlags.unused0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_return_dns_name,
+      { "return-dns-name", "spnego.HeaderFlags.return.dns.name",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused2,
+      { "unused2", "spnego.HeaderFlags.unused2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused3,
+      { "unused3", "spnego.HeaderFlags.unused3",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused4,
+      { "unused4", "spnego.HeaderFlags.unused4",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_12_required,
+      { "ds-12-required", "spnego.HeaderFlags.ds.12.required",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_13_required,
+      { "ds-13-required", "spnego.HeaderFlags.ds.13.required",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_key_list_support_required,
+      { "key-list-support-required", "spnego.HeaderFlags.key.list.support.required",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_10_required,
+      { "ds-10-required", "spnego.HeaderFlags.ds.10.required",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_9_required,
+      { "ds-9-required", "spnego.HeaderFlags.ds.9.required",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_8_required,
+      { "ds-8-required", "spnego.HeaderFlags.ds.8.required",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_web_service_required,
+      { "web-service-required", "spnego.HeaderFlags.web.service.required",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_6_required,
+      { "ds-6-required", "spnego.HeaderFlags.ds.6.required",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_try_next_closest_site,
+      { "try-next-closest-site", "spnego.HeaderFlags.try.next.closest.site",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_is_dns_name,
+      { "is-dns-name", "spnego.HeaderFlags.is.dns.name",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_is_flat_name,
+      { "is-flat-name", "spnego.HeaderFlags.is.flat.name",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_only_ldap_needed,
+      { "only-ldap-needed", "spnego.HeaderFlags.only.ldap.needed",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_avoid_self,
+      { "avoid-self", "spnego.HeaderFlags.avoid.self",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_good_timeserv_pref,
+      { "good-timeserv-pref", "spnego.HeaderFlags.good.timeserv.pref",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_writable_required,
+      { "writable-required", "spnego.HeaderFlags.writable.required",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_timeserv_required,
+      { "timeserv-required", "spnego.HeaderFlags.timeserv.required",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_kdc_required,
+      { "kdc-required", "spnego.HeaderFlags.kdc.required",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ip_required,
+      { "ip-required", "spnego.HeaderFlags.ip.required",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_background_only,
+      { "background-only", "spnego.HeaderFlags.background.only",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_pdc_required,
+      { "pdc-required", "spnego.HeaderFlags.pdc.required",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_gc_server_required,
+      { "gc-server-required", "spnego.HeaderFlags.gc.server.required",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_preferred,
+      { "ds-preferred", "spnego.HeaderFlags.ds.preferred",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_ds_required,
+      { "ds-required", "spnego.HeaderFlags.ds.required",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused28,
+      { "unused28", "spnego.HeaderFlags.unused28",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused29,
+      { "unused29", "spnego.HeaderFlags.unused29",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_unused30,
+      { "unused30", "spnego.HeaderFlags.unused30",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_spnego_HeaderFlags_force_rediscovery,
+      { "force-rediscovery", "spnego.HeaderFlags.force.rediscovery",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -2021,6 +2234,7 @@ void proto_register_spnego(void) {
     &ett_spnego_ContextFlags,
     &ett_spnego_NegTokenTarg,
     &ett_spnego_InitialContextToken_U,
+    &ett_spnego_HeaderFlags,
     &ett_spnego_IAKERB_HEADER,
   };
 

@@ -101,6 +101,42 @@ InnerContextToken ::= ANY
 
 -- END GSS-API DEFINITIONS
 
+-- DC discovery flags
+HeaderFlags ::= BIT STRING {
+        unused0(0),
+        return-dns-name(1),
+        unused2(2),
+        unused3(3),
+        unused4(4),
+        ds-12-required(5),
+        ds-13-required(6),
+        key-list-support-required(7),
+        ds-10-required(8),
+        ds-9-required(9),
+        ds-8-required(10),
+        web-service-required(11),
+        ds-6-required(12),
+        try-next-closest-site(13),
+        is-dns-name(14),
+        is-flat-name(15),
+        only-ldap-needed(16),
+        avoid-self(17),
+        good-timeserv-pref(18),
+        writable-required(19),
+        timeserv-required(20),
+        kdc-required(21),
+        ip-required(22),
+        background-only(23),
+        pdc-required(24),
+        gc-server-required(25),
+        ds-preferred(26),
+        ds-required(27),
+        unused28(28),
+        unused29(29),
+        unused30(30),
+        force-rediscovery(31)
+}
+
 
 -- https://datatracker.ietf.org/doc/html/draft-ietf-kitten-iakerb-03#section-3
 --
@@ -115,6 +151,8 @@ IAKERB-HEADER ::= SEQUENCE {
        -- Opaque data, if sent by the server,
        -- MUST be copied by the client verbatim into
        -- the next IAKRB_PROXY message.
+    header-flags      [3] HeaderFlags OPTIONAL,
+       -- Leveraged by Microsoft implementation of IAKerb
     ...
 }
 
