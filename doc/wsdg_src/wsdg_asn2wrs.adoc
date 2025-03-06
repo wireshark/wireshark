@@ -939,7 +939,7 @@ The following directives can be used in conformance (.cnf) files:
 
 Some of the other directives in the Asn2wrs conformance file consists of multiple lines.
 The #.END directive is used to terminate such a directive.
-All other “#.” directives (except #.INCLUDE) automatically act as an implicit #.END directive which is why you will not see many #.END directives in the conformance files for the dissectors shipped with Wireshark.
+All other “#.” directives (except #.INCLUDE and #.IMPORT) automatically act as an implicit #.END directive which is why you will not see many #.END directives in the conformance files for the dissectors shipped with Wireshark.
 
 [#ASN1CnfDirectiveEXPORTS]
 ==== #.EXPORTS
@@ -1038,9 +1038,9 @@ for more examples on how to do this.
 
 
 [#ASN1CnfDirectiveMODULE_IMPORTAndINCLUDE]
-==== #.MODULE_IMPORT And #.INCLUDE
+==== #.MODULE_IMPORT, #.INCLUDE and #.IMPORT
 
-These directive in the Asn2wrs conformation file are used to manage references to external type definitions, i.e. IMPORTS.
+These directives in the Asn2wrs conformation file are used to manage references to external type definitions, i.e. IMPORTS.
 The examples below are all from the X.509 Authentication Framework (x509af) dissector source code in Wireshark.
 
 [#ASN1CnfDirectiveMODULE_IMPORTAndINCLUDEExample]
@@ -1091,17 +1091,18 @@ dissect Name would be dissect_x509if_Name(...). Without this knowledge
 Asn2wrs would not know which function name to generate. +
 
 [#ASN1CnfDirectiveINCLUDE]
-==== #.INCLUDE
+==== #.INCLUDE and #.IMPORT
 
 Second, in order for Asn2wrs to generate correct code it
 also needs to know the BER type and class of these types that are
 imported, since that would affect how they are to be encoded on the
 wire. +
 This information about what kind of BER attributes these imported types
-have are done using the #.INCLUDE directive in the conformance file:
+have are done using the #.INCLUDE and/or #.IMPORT directives in the conformance file:
 
 ----
 #.INCLUDE ../x509if/x509if_exp.cnf
+#.IMPORT ../pkix1implicit/pkix1implicit_exp.cnf
 ----
 
 See #.EXPORTS for a description and examples of these types of include
