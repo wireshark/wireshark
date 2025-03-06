@@ -47,6 +47,8 @@ PBKDF2-params		B "1.2.840.113549.1.5.12" "id-PBKDF2"
 PBES2-params		B "1.2.840.113549.1.5.13" "id-PBES2"
 PBMAC1-params		B "1.2.840.113549.1.5.14" "id-PBMAC1"
 
+Scrypt-params		B "1.3.6.1.4.1.11591.4.11" "id-scrypt"
+
 #.NO_EMIT
 
 #.TYPE_RENAME

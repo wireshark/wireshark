@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkcs12.c                                                            */
-/* asn2wrs.py -b -q -L -p pkcs12 -c ./pkcs12.cnf -s ./packet-pkcs12-template -D . -O ../.. pkcs12.asn PKCS5v2-1.asn */
+/* asn2wrs.py -b -q -L -p pkcs12 -c ./pkcs12.cnf -s ./packet-pkcs12-template -D . -O ../.. pkcs12.asn PKCS5v2-1.asn Module-scrypt-0.asn */
 
 /* packet-pkcs12.c
  * Routines for PKCS#12: Personal Information Exchange packet dissection
@@ -78,6 +78,7 @@ static int hf_pkcs12_PBKDF2_params_PDU;           /* PBKDF2_params */
 static int hf_pkcs12_PBEParameter_PDU;            /* PBEParameter */
 static int hf_pkcs12_PBES2_params_PDU;            /* PBES2_params */
 static int hf_pkcs12_PBMAC1_params_PDU;           /* PBMAC1_params */
+static int hf_pkcs12_Scrypt_params_PDU;           /* Scrypt_params */
 static int hf_pkcs12_version;                     /* T_version */
 static int hf_pkcs12_authSafe;                    /* ContentInfo */
 static int hf_pkcs12_macData;                     /* MacData */
@@ -109,6 +110,9 @@ static int hf_pkcs12_prf;                         /* AlgorithmIdentifier */
 static int hf_pkcs12_keyDerivationFunc;           /* AlgorithmIdentifier */
 static int hf_pkcs12_encryptionScheme;            /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme;           /* AlgorithmIdentifier */
+static int hf_pkcs12_costParameter;               /* INTEGER_1_MAX */
+static int hf_pkcs12_blockSize;                   /* INTEGER_1_MAX */
+static int hf_pkcs12_parallelizationParameter;    /* INTEGER_1_MAX */
 
 /* Initialize the subtree pointers */
 static int ett_pkcs12_PFX;
@@ -128,6 +132,7 @@ static int ett_pkcs12_T_saltChoice;
 static int ett_pkcs12_PBEParameter;
 static int ett_pkcs12_PBES2_params;
 static int ett_pkcs12_PBMAC1_params;
+static int ett_pkcs12_Scrypt_params;
 
 static void append_oid(wmem_allocator_t *pool, proto_tree *tree, const char *oid)
 {
@@ -864,6 +869,24 @@ dissect_pkcs12_PBMAC1_params(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   return offset;
 }
 
+
+static const ber_sequence_t Scrypt_params_sequence[] = {
+  { &hf_pkcs12_salt         , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs12_OCTET_STRING },
+  { &hf_pkcs12_costParameter, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs12_INTEGER_1_MAX },
+  { &hf_pkcs12_blockSize    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs12_INTEGER_1_MAX },
+  { &hf_pkcs12_parallelizationParameter, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs12_INTEGER_1_MAX },
+  { &hf_pkcs12_keyLength    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkcs12_INTEGER_1_MAX },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs12_Scrypt_params(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Scrypt_params_sequence, hf_index, ett_pkcs12_Scrypt_params);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_PFX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -948,6 +971,13 @@ static int dissect_PBMAC1_params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_pkcs12_PBMAC1_params(false, tvb, offset, &asn1_ctx, tree, hf_pkcs12_PBMAC1_params_PDU);
+  return offset;
+}
+static int dissect_Scrypt_params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_pkcs12_Scrypt_params(false, tvb, offset, &asn1_ctx, tree, hf_pkcs12_Scrypt_params_PDU);
   return offset;
 }
 
@@ -1074,6 +1104,10 @@ void proto_register_pkcs12(void) {
       { "PBMAC1-params", "pkcs12.PBMAC1_params_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pkcs12_Scrypt_params_PDU,
+      { "Scrypt-params", "pkcs12.Scrypt_params_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkcs12_version,
       { "version", "pkcs12.version",
         FT_UINT32, BASE_DEC, VALS(pkcs12_T_version_vals), 0,
@@ -1198,6 +1232,18 @@ void proto_register_pkcs12(void) {
       { "messageAuthScheme", "pkcs12.messageAuthScheme_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "AlgorithmIdentifier", HFILL }},
+    { &hf_pkcs12_costParameter,
+      { "costParameter", "pkcs12.costParameter",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "INTEGER_1_MAX", HFILL }},
+    { &hf_pkcs12_blockSize,
+      { "blockSize", "pkcs12.blockSize",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "INTEGER_1_MAX", HFILL }},
+    { &hf_pkcs12_parallelizationParameter,
+      { "parallelizationParameter", "pkcs12.parallelizationParameter",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "INTEGER_1_MAX", HFILL }},
   };
 
   /* List of subtrees */
@@ -1220,6 +1266,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBEParameter,
     &ett_pkcs12_PBES2_params,
     &ett_pkcs12_PBMAC1_params,
+    &ett_pkcs12_Scrypt_params,
   };
   static ei_register_info ei[] = {
       { &ei_pkcs12_octet_string_expected, { "pkcs12.octet_string_expected", PI_PROTOCOL, PI_WARN, "BER Error: OCTET STRING expected", EXPFILL }},
@@ -1280,6 +1327,7 @@ void proto_reg_handoff_pkcs12(void) {
   register_ber_oid_dissector("1.2.840.113549.1.5.12", dissect_PBKDF2_params_PDU, proto_pkcs12, "id-PBKDF2");
   register_ber_oid_dissector("1.2.840.113549.1.5.13", dissect_PBES2_params_PDU, proto_pkcs12, "id-PBES2");
   register_ber_oid_dissector("1.2.840.113549.1.5.14", dissect_PBMAC1_params_PDU, proto_pkcs12, "id-PBMAC1");
+  register_ber_oid_dissector("1.3.6.1.4.1.11591.4.11", dissect_Scrypt_params_PDU, proto_pkcs12, "id-scrypt");
 
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");

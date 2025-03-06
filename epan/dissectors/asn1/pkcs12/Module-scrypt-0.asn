@@ -1,0 +1,28 @@
+-- Extracted from RFC 7914
+
+-- scrypt ASN.1 Module
+
+Module-scrypt-0 {1 3 6 1 4 1 11591 4 10}
+
+DEFINITIONS ::= BEGIN
+
+IMPORTS
+  ALGORITHM-IDENTIFIER
+    FROM PKCS5v2-1 -- [RFC2898]
+      { iso(1) member-body(2) us(840) rsadsi(113549)
+        pkcs(1) pkcs-5(5) modules(16) pkcs5v2-0(1) } ;
+
+id-scrypt OBJECT IDENTIFIER ::= {1 3 6 1 4 1 11591 4 11}
+
+Scrypt-params ::= SEQUENCE {
+    salt OCTET STRING,
+    costParameter INTEGER (1..MAX),
+    blockSize INTEGER (1..MAX),
+    parallelizationParameter INTEGER (1..MAX),
+    keyLength INTEGER (1..MAX) OPTIONAL
+}
+
+PBES2-KDFs ALGORITHM-IDENTIFIER ::=
+       { {Scrypt-params IDENTIFIED BY id-scrypt}, ... }
+
+END
