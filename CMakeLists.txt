@@ -79,8 +79,12 @@ include( CMakeOptions.txt )
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# We require minimum C++11
-set(CMAKE_CXX_STANDARD 11)
+# We require minimum C++11. libscap and libsinsp require C++ 17.
+if(BUILD_stratoshark OR BUILD_falcodump)
+	set(CMAKE_CXX_STANDARD 17)
+else()
+	set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
