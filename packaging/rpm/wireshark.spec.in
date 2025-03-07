@@ -284,12 +284,21 @@ Requires(post):	desktop-file-utils
 This package contains the Qt Wireshark GUI and desktop integration files.
 %endif
 
+%package	devel
+Summary:	Development headers for Wireshark
+Group:		Applications/Internet
+Requires:	%{name} = %{version}-%{release}
+
+%description devel
+The wireshark-devel package contains the header and other files required for
+development of Wireshark scripts and plugins.
+
 %if %{with stratoshark}
 %package	-n stratoshark
 Summary:	Stratoshark
 Version:	@STRATOSHARK_RPM_VERSION@
 Group:		Applications/System
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = @RPM_VERSION@-%{release}
 BuildRequires:	falcosecurity-libs-devel
 Requires:	falcosecurity-libs
 %if %{with qt5}
@@ -335,16 +344,6 @@ Requires(post):	desktop-file-utils
 %description -n stratoshark
 This package contains the Stratoshark GUI and desktop integration files.
 %endif
-
-%package	devel
-Summary:	Development headers for Wireshark
-Group:		Applications/Internet
-Requires:	%{name} = %{version}-%{release}
-
-%description devel
-The wireshark-devel package contains the header and other files required for
-development of Wireshark scripts and plugins.
-
 
 %prep
 %setup -q -n %{name}-%{package_version}
