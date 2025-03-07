@@ -533,6 +533,7 @@ static int ett_gtp_lst_set_up_pfc;
 static int ett_gtp_rrc_cont;
 static int ett_gtp_rim_routing_adr;
 
+static expert_field ei_gtp_hdr_length_bad;
 static expert_field ei_gtp_ext_hdr_pdcpsn;
 static expert_field ei_gtp_ext_length_mal;
 static expert_field ei_gtp_ext_length_warn;
@@ -10347,9 +10348,11 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
     proto_tree      *ran_cont_tree = NULL;
-    proto_item      *ti = NULL, *tf, *ext_hdr_len_item, *message_item;
+    proto_item      *ti = NULL, *tf, *hdr_len_item, *ext_hdr_len_item, *message_item;
     int              i, offset = 0, checked_field, mandatory;
     bool             gtp_prime, has_SN;
+    unsigned         reported_len     = 0;
+    unsigned         expected_gtp_payload_len = 0;
     unsigned         seq_no           = 0;
     unsigned         flow_label       = 0;
     unsigned         pdu_no, next_hdr = 0;
@@ -10362,6 +10365,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_conv_info_t *gtp_info;
     session_args_t  *args             = NULL;
     ie_decoder      *decoder          = NULL;
+
+    reported_len = tvb_reported_length(tvb);
 
     /* Do we have enough bytes for the version and message type? */
     if (!tvb_bytes_exist(tvb, 0, 2)) {
@@ -10513,7 +10518,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     message_item = proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, offset, 1, gtp_hdr->message);
     offset++;
 
-    proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, ENC_BIG_ENDIAN, &gtp_hdr->length);
+    hdr_len_item = proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, ENC_BIG_ENDIAN, &gtp_hdr->length);
     offset += 2;
 
     /* We initialize the sequence number*/
@@ -10546,6 +10551,21 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
             offset += 8;
 
+            /* GTP header length stops at the end of the TID field */
+            expected_gtp_payload_len = reported_len - offset;
+            if ((gtp_hdr->length > expected_gtp_payload_len) && (!pinfo->fragmented) && (!pinfo->flags.in_error_pkt)) {
+                /* Bogus length - it goes past the end of the UDP payload */
+                proto_item_append_text(hdr_len_item, " (bogus, expected payload length %u)", expected_gtp_payload_len);
+                expert_add_info_format(pinfo, hdr_len_item, &ei_gtp_hdr_length_bad, "Bad length value %u + GTP header offset %d > UDP payload length %u", gtp_hdr->length, offset, reported_len);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD GTP LENGTH %u + GTP HEADER OFFSET %d > UDP PAYLOAD LENGTH %u]", gtp_hdr->length, offset, reported_len);
+            }
+            if ((gtp_hdr->length < expected_gtp_payload_len) && (!pinfo->fragmented) && (!pinfo->flags.in_error_pkt)) {
+                /* Bogus length - GTP payload is too small */
+                proto_item_append_text(hdr_len_item, " (bogus, expected payload length %u)", expected_gtp_payload_len);
+                expert_add_info_format(pinfo, hdr_len_item, &ei_gtp_hdr_length_bad, "Bad length value %u + GTP header offset %d < UDP payload length %u", gtp_hdr->length, offset, reported_len);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD GTP LENGTH %u + GTP HEADER OFFSET %d < UDP PAYLOAD LENGTH %u]", gtp_hdr->length, offset, reported_len);
+            }
+
             set_actual_length(tvb, offset + gtp_hdr->length);
 
             break;
@@ -10553,6 +10573,23 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             proto_tree_add_item_ret_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
             gtp_hdr->teid = value;
             offset += 4;
+
+            /* GTPv1-C header offset stops at the end of the TEID field, the following
+               Sequence Number/N-PDU Number/Extension headers are not included in the length count.
+            */
+            expected_gtp_payload_len = reported_len - offset;
+            if ((gtp_hdr->length > expected_gtp_payload_len) && (!pinfo->fragmented) && (!pinfo->flags.in_error_pkt)) {
+                /* Bogus length - it goes past the end of the UDP payload */
+                proto_item_append_text(hdr_len_item, " (bogus, expected payload length %u)", expected_gtp_payload_len);
+                expert_add_info_format(pinfo, hdr_len_item, &ei_gtp_hdr_length_bad, "Bad length value %u + GTPv1-C header offset %d > UDP payload length %u", gtp_hdr->length, offset, reported_len);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD GTP-C LENGTH %u + GTPV1-C HEADER OFFSET %d > UDP PAYLOAD LENGTH %u]", gtp_hdr->length, offset, reported_len);
+            }
+            if ((gtp_hdr->length < expected_gtp_payload_len) && (!pinfo->fragmented) && (!pinfo->flags.in_error_pkt)) {
+                /* Bogus length - GTPv1-C payload is too small */
+                proto_item_append_text(hdr_len_item, " (bogus, expected payload length %u)", expected_gtp_payload_len);
+                expert_add_info_format(pinfo, hdr_len_item, &ei_gtp_hdr_length_bad, "Bad length value %u + GTPv1-C header offset %d < UDP payload length %u", gtp_hdr->length, offset, reported_len);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD GTP-C LENGTH %u + GTPV1-C HEADER OFFSET %d < UDP PAYLOAD LENGTH %u]", gtp_hdr->length, offset, reported_len);
+            }
 
             set_actual_length(tvb, offset + gtp_hdr->length);
 
@@ -12968,6 +13005,7 @@ proto_register_gtp(void)
 
 
     static ei_register_info ei[] = {
+        { &ei_gtp_hdr_length_bad, { "gtp.length.invalid", PI_MALFORMED, PI_ERROR, "Bad length value", EXPFILL }},
         { &ei_gtp_ext_length_mal, { "gtp.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
         { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bit 8 of octet 2 is spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
         { &ei_gtp_ext_length_warn, { "gtp.ext_length.invalid", PI_PROTOCOL, PI_WARN, "Length warning", EXPFILL }},
