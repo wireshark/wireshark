@@ -68,13 +68,13 @@ topic_action_url(topic_action_e action)
 
     switch(action) {
     /* pages online at www.wireshark.org */
-    case(ONLINEPAGE_HOME):
+    case(ONLINEPAGE_WIRESHARK_HOME):
         url = g_strdup(WS_HOME_PAGE_URL);
         break;
-    case(ONLINEPAGE_WIKI):
+    case(ONLINEPAGE_WIRESHARK_WIKI):
         url = g_strdup(WS_WIKI_HOME_URL);
         break;
-    case(ONLINEPAGE_DOWNLOAD):
+    case(ONLINEPAGE_WIRESHARK_DOWNLOAD):
         url = g_strdup(WS_DOWNLOAD_URL);
         break;
     case(ONLINEPAGE_DOCS):
@@ -106,6 +106,17 @@ topic_action_url(topic_action_e action)
         break;
     case(ONLINEPAGE_DFILTER_REF):
         url = g_strdup(WS_DOCS_URL "dfref/");
+        break;
+
+    /* pages online at stratoshark.org */
+    case(ONLINEPAGE_STRATOSHARK_HOME):
+        url = g_strdup(SS_HOME_PAGE_URL);
+        break;
+    case(ONLINEPAGE_STRATOSHARK_WIKI):
+        url = g_strdup(SS_WIKI_HOME_URL);
+        break;
+    case(ONLINEPAGE_STRATOSHARK_DOWNLOAD):
+        url = g_strdup(SS_DOWNLOAD_URL);
         break;
 
     /* local manual pages */
