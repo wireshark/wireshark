@@ -39,12 +39,6 @@ register_plugin_files(plugin.c
 
 add_stratoshark_plugin_library(falco-bridge epan)
 
-# XXX Hacks; need to fix in falcosecurity-libs.
-target_compile_definitions(falco-bridge PRIVATE
-	HAVE_STRLCPY=1
-	)
-# target_compile_options(falco-bridge PRIVATE -Wno-address-of-packed-member)
-
 target_include_directories(falco-bridge SYSTEM PRIVATE
 	${SINSP_INCLUDE_DIRS}
 )
