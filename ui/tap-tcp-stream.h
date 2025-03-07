@@ -83,6 +83,7 @@ struct tcp_graph {
     uint32_t         stream;
     /* Should this be a map or tree instead? */
     struct segment  *segments;
+    struct segment  *last;
 };
 
 /** Fill in the segment list for a TCP graph

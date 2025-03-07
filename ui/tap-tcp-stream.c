@@ -27,18 +27,10 @@
 
 #include "tap-tcp-stream.h"
 
-typedef struct _tcp_scan_t {
-    int                     direction;
-    struct tcp_graph       *tg;
-    struct segment         *last;
-} tcp_scan_t;
-
-
 static tap_packet_status
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
-    tcp_scan_t   *ts = (tcp_scan_t *)pct;
-    struct tcp_graph *tg  = ts->tg;
+    struct tcp_graph *tg  = (struct tcp_graph *)pct;
     const struct tcpheader *tcphdr = (const struct tcpheader *)vip;
 
     if (tg->stream == tcphdr->th_stream
@@ -77,7 +69,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
                         tg->src_port, tg->dst_port,
                         &tcphdr->ip_src, &tcphdr->ip_dst,
                         tcphdr->th_sport, tcphdr->th_dport,
-                        ts->direction)
+                        COMPARE_ANY_DIR)
         && tg->stream == tcphdr->th_stream)
     {
         struct segment *segment = g_new(struct segment, 1);
@@ -123,12 +115,12 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
             memcpy(&segment->sack_right_edge, &tcphdr->sack_right_edge, sizeof(segment->sack_right_edge));
         }
 
-        if (ts->tg->segments) {
-            ts->last->next = segment;
+        if (tg->segments) {
+            tg->last->next = segment;
         } else {
-            ts->tg->segments = segment;
+            tg->segments = segment;
         }
-        ts->last = segment;
+        tg->last = segment;
     }
 
     return TAP_PACKET_DONT_REDRAW;
@@ -139,7 +131,6 @@ void
 graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
 {
     GString    *error_string;
-    tcp_scan_t  ts;
 
     if (!cf || !tg) {
         return;
@@ -149,10 +140,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
      * we only filter for TCP here for speed and do the actual compare
      * in the tap listener
      */
-    ts.direction = COMPARE_ANY_DIR;
-    ts.tg      = tg;
-    ts.last    = NULL;
-    error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL, NULL);
+    error_string = register_tap_listener("tcp", tg, "tcp", 0, NULL, tapall_tcpip_packet, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
@@ -160,7 +148,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
         exit(1);   /* XXX: fix this */
     }
     cf_retap_packets(cf);
-    remove_tap_listener(&ts);
+    remove_tap_listener(tg);
 }
 
 void
@@ -178,6 +166,7 @@ graph_segment_list_free(struct tcp_graph *tg)
         g_free(tg->segments);
         tg->segments = segment;
     }
+    tg->last = NULL;
 }
 
 int
