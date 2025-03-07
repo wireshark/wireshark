@@ -10594,15 +10594,15 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                             current_offset++;
                             switch (loc_field_type) {
                             case 1: /* TAC */
-                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_3gpp_loc_tac, tvb, offset, loc_field_len - 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_3gpp_loc_tac, tvb, current_offset, loc_field_len - 1, ENC_BIG_ENDIAN);
                                 current_offset += loc_field_len - 1;
                                 break;
                             case 2: /* EUTRA CI */
-                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_3gpp_loc_eutra_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_3gpp_loc_eutra_ci, tvb, current_offset, 2, ENC_BIG_ENDIAN);
                                 current_offset += 2;
                                 break;
                             case 4: /* NR CI */
-                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_3gpp_loc_nr_ci, tvb, offset, 3, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_3gpp_loc_nr_ci, tvb, current_offset, 3, ENC_BIG_ENDIAN);
                                 current_offset += 3;
                                 break;
                             default:
@@ -15944,17 +15944,17 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_wlansp_loc_3gpp_loc_tac,
         { "TAC", "nas-5gs.andsp.wlansp.3gpp_loc_tac",
-            FT_UINT24, BASE_DEC, NULL, 0x0,
+            FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_wlansp_loc_3gpp_loc_eutra_ci,
         { "EUTRA CI", "nas-5gs.andsp.wlansp.3gpp_loc_eutra_ci",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_wlansp_loc_3gpp_loc_nr_ci,
         { "NR CI", "nas-5gs.andsp.wlansp.3gpp_loc_nr_ci",
-            FT_UINT24, BASE_DEC, NULL, 0x0,
+            FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_wlansp_loc_sub_ent_len,
