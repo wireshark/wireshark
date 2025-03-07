@@ -3599,9 +3599,8 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 
 void WiresharkMainWindow::openTcpStreamDialog(int graph_type)
 {
-    TCPStreamDialog *stream_dialog = new TCPStreamDialog(this, capture_file_.capFile(), (tcp_graph_type)graph_type);
+    TCPStreamDialog *stream_dialog = new TCPStreamDialog(this, capture_file_, (tcp_graph_type)graph_type);
     connect(stream_dialog, &TCPStreamDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
-    connect(this, &WiresharkMainWindow::setCaptureFile, stream_dialog, &TCPStreamDialog::setCaptureFile);
     if (stream_dialog->result() == QDialog::Accepted) {
         stream_dialog->show();
     }

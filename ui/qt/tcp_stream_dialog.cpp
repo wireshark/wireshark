@@ -96,10 +96,12 @@ double QCPErrorBarsNotSelectable::selectTest(const QPointF &pos, bool onlySelect
     return -1.0;
 }
 
-TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
+TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_graph_type graph_type) :
     GeometryStateDialog(parent),
     ui(new Ui::TCPStreamDialog),
     cap_file_(cf),
+    file_closed_(false),
+    tapping_(false),
     ts_offset_(0),
     ts_origin_conn_(true),
     seq_offset_(0),
@@ -138,7 +140,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
     ui->streamNumberSpinBox->setStyleSheet("QSpinBox { min-width: 2em; }");
 
-    uint32_t th_stream = select_tcpip_session(cap_file_);
+    uint32_t th_stream = select_tcpip_session(cap_file_.capFile());
     if (th_stream == UINT32_MAX) {
         done(QDialog::Rejected);
         return;
@@ -208,6 +210,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     sp->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(sp, &QCustomPlot::customContextMenuRequested, this, &TCPStreamDialog::showContextMenu);
 
+    // Watch for captureEvents before the first time we tap
+    connect(&cap_file_, &CaptureFile::captureEvent, this, &TCPStreamDialog::captureEvent);
+
     graph_.type = graph_type;
     graph_.stream = th_stream;
     findStream();
@@ -245,7 +250,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     ui->showBytesOutCheckBox->setChecked(true);
     ui->showBytesOutCheckBox->blockSignals(false);
 
-    QCPTextElement *file_title = new QCPTextElement(sp, gchar_free_to_qstring(cf_get_display_name(cap_file_)));
+    QCPTextElement *file_title = new QCPTextElement(sp, gchar_free_to_qstring(cf_get_display_name(cap_file_.capFile())));
     file_title->setFont(sp->xAxis->labelFont());
     title_ = new QCPTextElement(sp);
     sp->plotLayout()->insertRow(0);
@@ -391,6 +396,10 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
 
 TCPStreamDialog::~TCPStreamDialog()
 {
+    if (tapping_) {
+        remove_tap_listener(&graph_);
+    }
+
     graph_segment_list_free(&graph_);
 
     delete ui;
@@ -530,24 +539,67 @@ void TCPStreamDialog::mouseReleaseEvent(QMouseEvent *event)
     mouseReleased(event);
 }
 
+void TCPStreamDialog::captureEvent(CaptureEvent e)
+{
+    switch (e.captureContext()) {
+    case CaptureEvent::Retap:
+        switch (e.eventType())
+        {
+        case CaptureEvent::Started:
+            // This Dialog might not have retapped, but we can't retap while another
+            // tap is going on anyway (it produces a console warning about nested
+            // process_specified_records) so don't allow it.
+            ui->streamNumberSpinBox->setReadOnly(true);
+            if (tapping_) {
+                disconnect(ui->streamPlot, &QCustomPlot::mouseMove, this, &TCPStreamDialog::mouseMoved);
+            }
+            break;
+        case CaptureEvent::Finished:
+            if (tapping_) {
+                fillGraph(true, /*set_focus =*/false);
+                connect(ui->streamPlot, &QCustomPlot::mouseMove, this, &TCPStreamDialog::mouseMoved);
+                tapping_ = false;
+            }
+            ui->streamNumberSpinBox->setReadOnly(false);
+            break;
+        default:
+            break;
+        }
+        break;
+    case CaptureEvent::File:
+        switch (e.eventType())
+        {
+        case CaptureEvent::Closing:
+            ui->streamNumberSpinBox->setEnabled(false);
+            break;
+        case CaptureEvent::Closed:
+            // Once the initial file is closed, don't allow tapping,
+            // click to go to packet, etc. The existing graph information
+            // is valid (can switch graph type or direction, just not streams.)
+            // XXX - Likely having an internal CaptureFile instead of a
+            // reference to the main one would work instead, but we'd have to
+            // remove the captureFileCallback listener from it here so that
+            // it didn't switch to any newly opened files later.
+            file_closed_ = true;
+            disconnect(&cap_file_, &CaptureFile::captureEvent, this, &TCPStreamDialog::captureEvent);
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 void TCPStreamDialog::findStream()
 {
-    QCustomPlot *sp = ui->streamPlot;
+    if (file_closed_ || !cap_file_.isValid()) {
+        return;
+    }
 
-    disconnect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
-    // if streamNumberSpinBox has focus -
-    //   first clear focus, then disable/enable, then restore focus
-    bool spin_box_focused = ui->streamNumberSpinBox->hasFocus();
-    if (spin_box_focused)
-        ui->streamNumberSpinBox->clearFocus();
-    ui->streamNumberSpinBox->setEnabled(false);
-    graph_segment_list_free(&graph_);
-    graph_segment_list_get(cap_file_, &graph_);
-    ui->streamNumberSpinBox->setEnabled(true);
-    if (spin_box_focused)
-        ui->streamNumberSpinBox->setFocus();
-
-    connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
+    tapping_ = true;
+    graph_segment_list_get(cap_file_.capFile(), &graph_);
 }
 
 void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
@@ -596,7 +648,8 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
     /* For graphs other than receive window, the axes are not in sync. */
     disconnect(sp->yAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), sp->yAxis2, QOverload<const QCPRange&>::of(&QCPAxis::setRange));
 
-    if (!cap_file_) {
+#if 0
+    if (!cap_file_.capFile()) {
         QString dlg_title = tr("No Capture Data");
         setWindowTitle(dlg_title);
         title_->setText(dlg_title);
@@ -605,6 +658,7 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
         sp->replot();
         return;
     }
+#endif
 
     ts_offset_ = 0;
     seq_offset_ = 0;
@@ -1966,7 +2020,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
         // number for the other direction so the th_ack can also be adjusted
         // to a relative sequence number.
         hint += tr("%1 %2 (%3s len %4 seq %5 ack %6 win %7)")
-                .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
+                .arg((!file_closed_ && cap_file_.isValid()) ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
                 .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
                 .arg(packet_seg->th_seglen)
@@ -2077,13 +2131,6 @@ void TCPStreamDialog::on_graphTypeComboBox_currentIndexChanged(int index)
 void TCPStreamDialog::on_resetButton_clicked()
 {
     resetAxes();
-}
-
-void TCPStreamDialog::setCaptureFile(capture_file *cf)
-{
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-    }
 }
 
 void TCPStreamDialog::updateGraph()
@@ -2337,7 +2384,7 @@ void TCPStreamDialog::on_actionSwitchDirection_triggered()
 
 void TCPStreamDialog::on_actionGoToPacket_triggered()
 {
-    if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
+    if (tracer_->visible() && !file_closed_ && cap_file_.isValid() && packet_num_ > 0) {
         emit goToPacket(packet_num_);
     }
 }
@@ -2416,13 +2463,17 @@ void TCPStreamDialog::GraphUpdater::doUpdate()
         bool reset_axes = reset_axes_;
         clearPendingUpdate();
         // if the stream has changed, update the data here
+        // XXX - Unhandled edge case - if live capturing, arguably retapping
+        // is correct even if the stream has not changed.
         int new_stream = dialog_->ui->streamNumberSpinBox->value();
         if ((int(dialog_->graph_.stream) != new_stream) &&
             (new_stream >= 0 && new_stream < int(get_tcp_stream_count()))) {
             dialog_->graph_.stream = new_stream;
             dialog_->findStream();
+            // findStream() will retap and fill the graph when it finishes.
+        } else {
+            dialog_->fillGraph(reset_axes, /*set_focus =*/false);
         }
-        dialog_->fillGraph(reset_axes, /*set_focus =*/false);
     }
 }
 

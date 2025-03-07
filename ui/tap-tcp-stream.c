@@ -27,6 +27,13 @@
 
 #include "tap-tcp-stream.h"
 
+static void
+tapall_tcpip_reset(void *tapdata)
+{
+    struct tcp_graph *tg = (struct tcp_graph *)tapdata;
+    graph_segment_list_free(tg);
+}
+
 static tap_packet_status
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags _U_)
 {
@@ -140,7 +147,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
      * we only filter for TCP here for speed and do the actual compare
      * in the tap listener
      */
-    error_string = register_tap_listener("tcp", tg, "tcp", 0, NULL, tapall_tcpip_packet, NULL, NULL);
+    error_string = register_tap_listener("tcp", tg, "tcp", 0, tapall_tcpip_reset, tapall_tcpip_packet, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
