@@ -583,6 +583,7 @@ wtap_dump_params_init_no_idbs(wtap_dump_params *params, wtap *wth)
 	params->shb_iface_to_global = wth->shb_iface_to_global;
 	params->nrbs_growing = wth->nrbs;
 	params->dsbs_growing = wth->dsbs;
+	params->mevs_growing = wth->meta_events;
 	params->dont_copy_idbs = true;
 }
 

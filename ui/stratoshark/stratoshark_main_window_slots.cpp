@@ -2199,7 +2199,7 @@ void StratosharkMainWindow::deleteAllPacketComments()
     connect(msg_dialog, &QMessageBox::finished, this, &StratosharkMainWindow::deleteAllPacketCommentsFinished);
 
     msg_dialog->setIcon(QMessageBox::Question);
-    msg_dialog->setText(tr("Are you sure you want to remove all packet comments?"));
+    msg_dialog->setText(tr("Are you sure you want to remove all event comments?"));
 
     msg_dialog->setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msg_dialog->setDefaultButton(QMessageBox::Ok);

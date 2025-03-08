@@ -196,7 +196,7 @@ frame_data_init(frame_data *fdata, uint32_t num, const wtap_rec *rec,
      */
     fdata->pkt_len = rec->rec_header.syscall_header.event_len;
     fdata->cum_bytes = cum_bytes + rec->rec_header.syscall_header.event_len;
-    fdata->cap_len = rec->rec_header.syscall_header.event_filelen;
+    fdata->cap_len = rec->rec_header.syscall_header.event_len;
     break;
 
   case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:

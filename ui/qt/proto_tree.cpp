@@ -59,10 +59,9 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     edt_(edt_fixed)
 {
     setAccessibleName(tr("Packet details"));
-    // Leave the uniformRowHeights property as-is (false) since items might
-    // have multiple lines (e.g. packet comments). If this slows things down
-    // too much we should add a custom delegate which handles SizeHintRole
-    // similar to PacketListModel::data.
+    // Leave the uniformRowHeights property as-is (false) since items might have
+    // have multiple lines (e.g. packet or event comments). If this slows things
+    // down too much we should add a custom delegate which handles SizeHintRole.
     setHeaderHidden(true);
 
 #if !defined(Q_OS_WIN)

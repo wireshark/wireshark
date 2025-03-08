@@ -1379,9 +1379,9 @@ typedef struct {
     uint64_t  timestamp;        /* ns since epoch - XXX dup of ts */
     uint64_t  thread_id;
     uint32_t  event_len;        /* length of the event */
-    uint32_t  event_filelen;    /* event data length in the file */
-    uint16_t  event_type;
     uint32_t  nparams;          /* number of parameters of the event */
+    uint32_t  flags;
+    uint16_t  event_type;
     uint16_t  cpu_id;
     /* ... Event ... */
 } wtap_syscall_header;

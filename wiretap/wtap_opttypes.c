@@ -626,7 +626,7 @@ bool wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func,
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
         opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
-        if (!func(block, opt->option_id, opttype->data_type, &opt->value, user_data))
+        if (func && !func(block, opt->option_id, opttype->data_type, &opt->value, user_data))
             return false;
     }
     return true;
@@ -1898,6 +1898,12 @@ static void pkt_create(wtap_block_t block)
     block->mandatory_data = NULL;
 }
 
+static void sysdig_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
 static void sjeb_create(wtap_block_t block)
 {
     /* Ensure this is null, so when g_free is called on it, it simply returns */
@@ -2160,6 +2166,16 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 
+    static wtap_blocktype_t sysdig_block = {
+        WTAP_BLOCK_SYSDIG_EVENT,
+        "Sysdig event",
+        "Sysdig Event Block",
+        sysdig_create,
+        NULL,
+        NULL,
+        NULL
+    };
+
     static wtap_blocktype_t journal_block = {
         WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, /* block_type */
         "SJEB",                         /* name */
@@ -2245,6 +2261,11 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&pkt_block, OPT_PKT_QUEUE, &pkt_queue);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_HASH, &pkt_hash);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_VERDICT, &pkt_verdict);
+
+    /*
+     * Register the Sysdig block and the (no) options that can appear in it.
+     */
+    wtap_opttype_block_register(&sysdig_block);
 
     /*
      * Register the SJEB and the (no) options that can appear in it.
