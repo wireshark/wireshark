@@ -45,6 +45,8 @@ The following bugs have been fixed since version 0.9.1:
 
 * Stratoshark help message has Wiresharkisms in it. wsbuglink:20229[].
 
+* Stratoshark and editcap could write incorrect block types. https://gitlab.com/wireshark/wireshark/-/merge_requests/19238[Merge request 19238].
+
 The following bugs have been fixed since version 0.9.0:
 
 * Falco Bridge: Empty frame.protocols field. wsbuglink:20248[].

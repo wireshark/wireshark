@@ -5570,7 +5570,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
 #endif
 
     /* write sysdig event block header */
-    bh.block_type = BLOCK_TYPE_SYSDIG_EVENT;
+    bh.block_type = rec->rec_header.syscall_header.record_type;
     bh.block_total_length = (uint32_t)sizeof(bh) + SYSDIG_EVENT_HEADER_SIZE + rec->rec_header.syscall_header.event_filelen + pad_len + 4;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
