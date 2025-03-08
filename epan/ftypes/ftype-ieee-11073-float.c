@@ -1,4 +1,6 @@
 /* FLOATs as specified by ISO/IEEE Std. 11073-20601-2014
+ * Annex F.6 Floating point data structure - FLOAT-Type and
+ * Annex F.7 Floating point data structure - SFLOAT-Type
  *
  * Personal Health Devices Transcoding White Paper v1.5
  * https://www.bluetooth.org/DocMan/handlers/DownloadDoc.ashx?doc_id=272346
@@ -514,7 +516,55 @@ sfloat_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 static bool
 sfloat_ieee_11073_is_zero(const fvalue_t *a)
 {
-    return a->value.sfloat_ieee_11073 == 0;
+    // Test if the mantissa is zero (none of the reserved values
+    // have a zero mantissa).
+    return ((a->value.sfloat_ieee_11073 & 0x0FFF) == 0);
+}
+
+static bool
+sfloat_ieee_11073_is_negative(const fvalue_t *a)
+{
+    switch (a->value.sfloat_ieee_11073) {
+    case SFLOAT_VALUE_INFINITY_PLUS:
+    case SFLOAT_VALUE_NAN:
+    case SFLOAT_VALUE_NRES:
+    case SFLOAT_VALUE_RFU:
+        return false;
+    case SFLOAT_VALUE_INFINITY_MINUS:
+        return true;
+    default:
+        return ((a->value.sfloat_ieee_11073 & 0x0800) != 0);
+    }
+}
+
+static enum ft_result
+sfloat_ieee_11073_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr _U_)
+{
+    uint32_t src_mantissa, dst_mantissa;
+    switch (src->value.sfloat_ieee_11073) {
+    case SFLOAT_VALUE_INFINITY_PLUS:
+        dst->value.sfloat_ieee_11073 = SFLOAT_VALUE_INFINITY_MINUS;
+        break;
+    case SFLOAT_VALUE_NAN:
+    case SFLOAT_VALUE_NRES:
+    case SFLOAT_VALUE_RFU:
+        dst->value.sfloat_ieee_11073 = src->value.sfloat_ieee_11073;
+        break;
+    case SFLOAT_VALUE_INFINITY_MINUS:
+        dst->value.sfloat_ieee_11073 = SFLOAT_VALUE_INFINITY_PLUS;
+        break;
+    default:
+        src_mantissa = src->value.sfloat_ieee_11073 & 0x0FFF;
+        if (src_mantissa == 0x0800) {
+            dst->value.sfloat_ieee_11073 = SFLOAT_VALUE_NRES;
+            // XXX - return FT_OVERFLOW or allow to propagate?
+        } else {
+            dst_mantissa = (~src_mantissa + 1) & 0x0FFF;
+            dst->value.sfloat_ieee_11073 = (src->value.sfloat_ieee_11073 & 0xF000) |
+                dst_mantissa;
+        }
+    }
+    return FT_OK;
 }
 
 static unsigned
@@ -989,7 +1039,55 @@ float_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
 static bool
 float_ieee_11073_is_zero(const fvalue_t *a)
 {
-    return a->value.float_ieee_11073 == 0;
+    // Test if the mantissa is zero (none of the reserved values
+    // have a zero mantissa).
+    return ((a->value.float_ieee_11073 & 0x00FFFFFF) == 0);
+}
+
+static bool
+float_ieee_11073_is_negative(const fvalue_t *a)
+{
+    switch (a->value.float_ieee_11073) {
+    case FLOAT_VALUE_INFINITY_PLUS:
+    case FLOAT_VALUE_NAN:
+    case FLOAT_VALUE_NRES:
+    case FLOAT_VALUE_RFU:
+        return false;
+    case FLOAT_VALUE_INFINITY_MINUS:
+        return true;
+    default:
+        return ((a->value.float_ieee_11073 & 0x00800000) != 0);
+    }
+}
+
+static enum ft_result
+float_ieee_11073_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr _U_)
+{
+    uint32_t src_mantissa, dst_mantissa;
+    switch (src->value.float_ieee_11073) {
+    case FLOAT_VALUE_INFINITY_PLUS:
+        dst->value.float_ieee_11073 = FLOAT_VALUE_INFINITY_MINUS;
+        break;
+    case FLOAT_VALUE_NAN:
+    case FLOAT_VALUE_NRES:
+    case FLOAT_VALUE_RFU:
+        dst->value.float_ieee_11073 = src->value.float_ieee_11073;
+        break;
+    case FLOAT_VALUE_INFINITY_MINUS:
+        dst->value.float_ieee_11073 = FLOAT_VALUE_INFINITY_PLUS;
+        break;
+    default:
+        src_mantissa = src->value.float_ieee_11073 & 0x00FFFFFF;
+        if (src_mantissa == 0x00800000) {
+            dst->value.float_ieee_11073 = FLOAT_VALUE_NRES;
+            // XXX - return FT_OVERFLOW or allow to propagate?
+        } else {
+            dst_mantissa = (~src_mantissa + 1) & 0x00FFFFFF;
+            dst->value.float_ieee_11073 = (src->value.float_ieee_11073 & 0xFF000000) |
+                dst_mantissa;
+        }
+    }
+    return FT_OK;
 }
 
 static unsigned
@@ -1024,7 +1122,14 @@ Special values:
     - INFINITY [exponent 0, mantissa -(2^11 -2) = 0x0802]
 
 Note:
-be carefour when comparing: 1e == 10e-1 == 10e-2 == ... (solution: compare only if the lowest mantissa % 10 != 0)
+The primary purpose for using this encoding (as opposed to standard IEEE-754
+floats) is to indicate the precision of the measurement. It is possible, e.g.,
+to distinguish between, 1e0, 10e-1 (1.0), and 100e-2 (1.00) - the last indicates
+that the value has precision to the hundredths.
+
+When comparing values, we convert to a normalized form (mantissa % 10 != 0),
+but when displaying a value preserve the precision.
+Arithmetic operations, if they were supported, should preserve precision too.
 
 Example: 114 is 0x0072
 
@@ -1057,11 +1162,11 @@ Example: 114 is 0x0072
 
         sfloat_ieee_11073_hash,               /* hash */
         sfloat_ieee_11073_is_zero,            /* is_zero */
-        NULL,                                 /* is_negative */
+        sfloat_ieee_11073_is_negative,        /* is_negative */
         NULL,                                 /* len */
         NULL,                                 /* slice */
         NULL,                                 /* bitwise_and */
-        NULL,                                 /* unary_minus */
+        sfloat_ieee_11073_unary_minus,        /* unary_minus */
         NULL,                                 /* add */
         NULL,                                 /* subtract */
         NULL,                                 /* multiply */
@@ -1089,7 +1194,14 @@ Special values:
     - INFINITY [exponent 0, mantissa -(2^23 -2) = 0x00800002]
 
 Note:
-be carefour when comparing: 1e == 10e-1 == 10e-2 == ... (solution: compare only if the lowest mantissa % 10 != 0)
+The primary purpose for using this encoding (as opposed to standard IEEE-754
+floats) is to indicate the precision of the measurement. It is possible, e.g.,
+to distinguish between, 1e0, 10e-1 (1.0), and 100e-2 (1.00) - the last indicates
+that the value has precision to the hundredths.
+
+When comparing values, we convert to a normalized form (mantissa % 10 != 0),
+but when displaying a value preserve the precision.
+Arithmetic operations, if they were supported, should preserve precision too.
 
 Example: 36.4 is 0xFF00016C
 
@@ -1123,11 +1235,11 @@ Example: 36.4 is 0xFF00016C
 
         float_ieee_11073_hash,               /* hash */
         float_ieee_11073_is_zero,            /* is_zero */
-        NULL,                                /* is_negative */
+        float_ieee_11073_is_negative,        /* is_negative */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
-        NULL,                                /* unary_minus */
+        float_ieee_11073_unary_minus,        /* unary_minus */
         NULL,                                /* add */
         NULL,                                /* subtract */
         NULL,                                /* multiply */
@@ -1151,11 +1263,11 @@ ftype_register_pseudofields_ieee_11073_float(int proto)
                 FT_IEEE_11073_SFLOAT, BASE_NONE, NULL, 0x00,
                 NULL, HFILL }
             },
-            { &hf_ft_ieee_11073_float,
-                { "FT_IEEE_11073_FLOAT", "_ws.ftypes.ieee_11073_float",
-                    FT_IEEE_11073_FLOAT, BASE_NONE, NULL, 0x00,
-                    NULL, HFILL }
-            },
+        { &hf_ft_ieee_11073_float,
+            { "FT_IEEE_11073_FLOAT", "_ws.ftypes.ieee_11073_float",
+                FT_IEEE_11073_FLOAT, BASE_NONE, NULL, 0x00,
+                NULL, HFILL }
+        },
     };
 
     proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
