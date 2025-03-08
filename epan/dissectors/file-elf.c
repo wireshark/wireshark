@@ -2528,6 +2528,7 @@ proto_reg_handoff_elf(void)
     dissector_add_uint("ftap_encap", 1234, elf_handle);
 
     heur_dissector_add("wtap_file", dissect_elf_heur, "ELF file", "elf_wtap", proto_elf, HEURISTIC_ENABLE);
+    heur_dissector_add("http", dissect_elf_heur, "ELF file in HTTP", "elf_http", proto_elf, HEURISTIC_ENABLE);
 }
 
 /*
