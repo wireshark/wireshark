@@ -5383,7 +5383,6 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     const uint32_t zero_pad = 0;
     uint32_t pad_len;
     uint32_t phdr_len;
-    uint32_t options_total_length = 0;
     wtap_block_t int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
 
@@ -5471,7 +5470,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* write (enhanced) packet block header */
     bh.block_type = BLOCK_TYPE_EPB;
-    bh.block_total_length = (uint32_t)sizeof(bh) + (uint32_t)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + options_size + 4;
+    bh.block_total_length = (uint32_t)sizeof(bh) + (uint32_t)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_size + 4;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return false;
@@ -5533,7 +5532,6 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     struct pcapng_option option_hdr;
     uint32_t comment_len = 0, comment_pad_len = 0;
 #endif
-    uint32_t options_total_length = 0;
     uint16_t cpu_id;
     uint64_t hdr_ts;
     uint64_t ts;
@@ -5573,7 +5571,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* write sysdig event block header */
     bh.block_type = BLOCK_TYPE_SYSDIG_EVENT;
-    bh.block_total_length = (uint32_t)sizeof(bh) + SYSDIG_EVENT_HEADER_SIZE + rec->rec_header.syscall_header.event_filelen + pad_len + options_total_length + 4;
+    bh.block_total_length = (uint32_t)sizeof(bh) + SYSDIG_EVENT_HEADER_SIZE + rec->rec_header.syscall_header.event_filelen + pad_len + 4;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return false;
