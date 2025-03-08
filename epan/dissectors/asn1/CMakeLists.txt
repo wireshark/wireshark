@@ -9,6 +9,8 @@
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
+project(Asn1 NONE)
+
 set(ASN1_SRC_DIRS
 	lix2
 	HI2Operations
