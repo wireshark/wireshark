@@ -249,7 +249,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-		if (!dissector_try_uint(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree))
+		if (!dissector_try_uint_with_data(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree, true, GINT_TO_POINTER(control)))
 			{
 			call_data_dissector(next_tvb, pinfo, parent_tree);
 			}
