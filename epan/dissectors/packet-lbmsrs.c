@@ -1049,7 +1049,7 @@ static bool check_lbmsrs_packet(tvbuff_t *tvb, unsigned offset)
     }
 
     /*get the rsocket frame type*/
-    uint64_t rsocket_frame_type = tvb_get_bits64(tvb, offset * 8, 6, ENC_BIG_ENDIAN);
+    uint8_t rsocket_frame_type = tvb_get_bits8(tvb, offset * 8, 6);
 
     /*read the rsocket metadata flag*/
     uint8_t rsocket_metadata_flag = tvb_get_bits8(tvb, (offset * 8) + 6, 2);

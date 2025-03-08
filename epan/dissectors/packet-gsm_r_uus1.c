@@ -373,16 +373,15 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     uint32_t	curr_offset;
     unsigned   bit_offset;
 
-    uint32_t val;
     uint32_t lat_deg_val;
     uint32_t lat_min_val;
     uint32_t lat_sec_val;
-    uint32_t lat_hem_val;
+    bool     lat_hem_val;
 
     uint32_t long_deg_val;
     uint32_t long_min_val;
     uint32_t long_sec_val;
-    uint32_t long_hem_val;
+    bool     long_hem_val;
 
     uint32_t t_val;
 
@@ -393,6 +392,7 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     proto_item *long_item;
     proto_tree *lat_tree;
     proto_tree *long_tree;
+    proto_item *lat_sec, *long_sec;
 
     curr_offset = offset;
 
@@ -402,55 +402,41 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elem_len, tvb, curr_offset+1, 1, ENC_NA);
     curr_offset += 2;
 
-    bit_offset = curr_offset * 8;
-
-    /* Latitude */
+    /* Latitude (in subtree) - 27 bits */
     lat_item = proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elda_lat, tvb, curr_offset, 4, ENC_NA);
     lat_tree = proto_item_add_subtree(lat_item, ett_gsm_r_uus1_elda_lat);
 
-    val = tvb_get_uint32(tvb, curr_offset, ENC_NA);
-    lat_deg_val = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
-    bit_offset += 7;
-    lat_min_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN);
-    bit_offset += 6;
-    lat_sec_val = tvb_get_bits32(tvb, bit_offset, 13, ENC_BIG_ENDIAN);
-    bit_offset += 13;
-    lat_hem_val = tvb_get_bits32(tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
+    proto_tree_add_item_ret_uint(lat_tree, hf_gsm_r_uus1_elda_lat_deg, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &lat_deg_val);
+    proto_tree_add_item_ret_uint(lat_tree, hf_gsm_r_uus1_elda_lat_min, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &lat_min_val);
+    lat_sec = proto_tree_add_item_ret_uint(lat_tree, hf_gsm_r_uus1_elda_lat_sec, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &lat_sec_val);
+    proto_item_append_text(lat_sec, " (%.2f)", (float)(lat_sec_val)/100);
+    proto_tree_add_item_ret_boolean(lat_tree, hf_gsm_r_uus1_elda_lat_hem, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &lat_hem_val);
 
-    proto_tree_add_uint(lat_tree, hf_gsm_r_uus1_elda_lat_deg, tvb, curr_offset, 4, val);
-    proto_tree_add_uint(lat_tree, hf_gsm_r_uus1_elda_lat_min, tvb, curr_offset, 4, val);
-    proto_tree_add_uint_format_value(lat_tree, hf_gsm_r_uus1_elda_lat_sec, tvb, curr_offset, 4, val, "%.2f", (float)(lat_sec_val)/100);
-    proto_tree_add_boolean(lat_tree, hf_gsm_r_uus1_elda_lat_hem, tvb, curr_offset, 4, val);
-
+    /* Add details to subtree */
     proto_item_set_text(lat_item, "Latitude: %d %d\'%.2f\"%s", lat_deg_val, lat_min_val, (float)(lat_sec_val)/100,
         lat_hem_val ? "N" : "S");
 
+    /* Move past 3 bytes */
     curr_offset += 3;
 
-    /* Longitude */
+    /* Longitude (in subtree) - 28 bits */
     long_item = proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elda_long, tvb, curr_offset, 4, ENC_NA);
     long_tree = proto_item_add_subtree(long_item, ett_gsm_r_uus1_elda_long);
 
-    val = tvb_get_uint32(tvb, curr_offset, ENC_NA);
-    long_deg_val = tvb_get_bits32(tvb, bit_offset, 8, ENC_BIG_ENDIAN);
-    bit_offset += 8;
-    long_min_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN);
-    bit_offset += 6;
-    long_sec_val = tvb_get_bits32(tvb, bit_offset, 13, ENC_BIG_ENDIAN);
-    bit_offset += 13;
-    long_hem_val = tvb_get_bits32(tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
+    proto_tree_add_item_ret_uint(long_tree, hf_gsm_r_uus1_elda_long_deg, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &long_deg_val);
+    proto_tree_add_item_ret_uint(long_tree, hf_gsm_r_uus1_elda_long_min, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &long_min_val);
+    long_sec = proto_tree_add_item_ret_uint(long_tree, hf_gsm_r_uus1_elda_long_sec, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &long_sec_val);
+    proto_item_append_text(long_sec, " (%.2f)", (float)(long_sec_val)/100);
+    proto_tree_add_item_ret_boolean(long_tree, hf_gsm_r_uus1_elda_long_hem, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &long_hem_val);
 
-    proto_tree_add_uint(long_tree, hf_gsm_r_uus1_elda_long_deg, tvb, curr_offset, 4, val);
-    proto_tree_add_uint(long_tree, hf_gsm_r_uus1_elda_long_min, tvb, curr_offset, 4, val);
-    proto_tree_add_uint_format_value(long_tree, hf_gsm_r_uus1_elda_long_sec, tvb, curr_offset, 4, val, "%.2f", (float)(long_sec_val)/100);
-    proto_tree_add_boolean(long_tree, hf_gsm_r_uus1_elda_long_hem, tvb, curr_offset, 4, val);
-
+    /* Add details to subtree */
     proto_item_set_text(long_item, "Longitude: %d %d\'%.2f\"%s", long_deg_val, long_min_val, (float)(long_sec_val)/100,
         long_hem_val ? "W" : "E");
 
     curr_offset += 3;
+
+    /* TODO: would be nice to add masks to the items below and dispense with messy calls to get bit values with explicit offsets */
+    bit_offset = 55;
 
     /* Height, Speed, Heading */
 

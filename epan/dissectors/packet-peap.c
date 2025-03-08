@@ -71,7 +71,7 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   }
 
   if (!(   len >= 5
-        && tvb_get_bits32(tvb, offset, 16, ENC_BIG_ENDIAN) == tvb_get_bits32(eap_tvb, 0, 16, ENC_BIG_ENDIAN)
+        && tvb_get_bits16(tvb, offset, 16, ENC_BIG_ENDIAN) == tvb_get_bits16(eap_tvb, 0, 16, ENC_BIG_ENDIAN)
         && tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN) <= tvb_get_uint16(eap_tvb, 2, ENC_BIG_ENDIAN)
         && (
                 (tvb_get_uint8(eap_tvb, 0) == EAP_REQUEST && tvb_get_uint8(tvb, offset + 4) == EAP_TYPE_ID)

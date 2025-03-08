@@ -5403,7 +5403,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                          ENC_BIG_ENDIAN);
   offset += 1;
 
-  bg_queue_supported = (bool)tvb_get_bits32(tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
+  bg_queue_supported = (bool)tvb_get_bits8(tvb, offset*8+6, 1);
   proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_poll_reply_status3,
                          ett_artnet_poll_reply_status3,
                          artnet_poll_reply_status3_fields,

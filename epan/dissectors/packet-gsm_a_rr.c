@@ -1557,9 +1557,10 @@ int f_k(int k, int *w, int range)
 
 static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, int range)
 {
-    int         curr_offset = offset, bit_offset, f0, arfcn_orig, w[64], wsize, i;
+    int         curr_offset = offset, bit_offset, f0, w[64], wsize, i;
     int         octet, nwi  = 1, jwi=0, imax, iused, arfcn;
     uint8_t     list[1024];
+    uint64_t    arfcn_orig;
     proto_tree *subtree;
 
     memset((void*)list,0,sizeof(list));
@@ -1579,10 +1580,10 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
     }
     else {
         bit_offset = curr_offset*8 + 7;
-        arfcn_orig = tvb_get_bits32(tvb, bit_offset, 10, ENC_BIG_ENDIAN);
-        proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_ret_val(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, &arfcn_orig, ENC_BIG_ENDIAN);
         bit_offset+=10;
 
+        /* N.B. cannot go out of bounds as read only 10 bits */
         list[arfcn_orig] = 1;
 
         switch (range) {

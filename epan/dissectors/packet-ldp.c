@@ -2575,15 +2575,14 @@ dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, unsigned offset, 
 static void
 dissect_tlv_ldp_p2mp_lsp(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    uint16_t addr_length = tvb_get_bits16(tvb, ((offset+3)*8), 8, ENC_BIG_ENDIAN);
-    uint16_t opcode_length = tvb_get_bits16(tvb, ((offset + 4 + addr_length)*8), 16, ENC_BIG_ENDIAN);
+    uint32_t addr_length, opcode_length;
 
-    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_lsptype, tvb,offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_addrfam, tvb,offset + 1, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_addrlen, tvb,offset + 3, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_rtnodeaddr, tvb,offset + 4, addr_length, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_oplength, tvb,offset + 4 + addr_length, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_opvalue, tvb,offset + 4 + addr_length + 2, opcode_length, ENC_NA);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_lsptype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_addrfam, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_ldp_tlv_ldp_p2mp_addrlen, tvb, offset + 3, 1, ENC_BIG_ENDIAN, &addr_length);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_rtnodeaddr, tvb, offset + 4, addr_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_ldp_tlv_ldp_p2mp_oplength, tvb,offset + 4 + addr_length, 2, ENC_BIG_ENDIAN, &opcode_length);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_opvalue, tvb, offset + 4 + addr_length + 2, opcode_length, ENC_NA);
 }
 
 static void

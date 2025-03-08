@@ -164,7 +164,7 @@ static int dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     col_clear(pinfo->cinfo, COL_INFO);
 
     while (offset != total_length) {
-        ext_flag = tvb_get_bits32(tvb, (offset+2)*8, 1, ENC_BIG_ENDIAN) == 0x01;
+        ext_flag = tvb_get_bits8(tvb, (offset+2)*8, 1) == 0x01;
         header_length = ext_flag ? 4 : 3;
 
         /* Adding another FP Mux tree */

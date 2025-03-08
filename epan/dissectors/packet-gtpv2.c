@@ -6692,7 +6692,7 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
     int     offset     = 0;
     int     bit_offset = 0;
-    uint32_t days;
+    uint8_t  days;
     uint32_t hours;
     uint32_t minutes;
     uint32_t seconds;
@@ -6704,7 +6704,7 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     durations_seconds = tvb_get_bits32(tvb, bit_offset, 17, ENC_BIG_ENDIAN);
     bit_offset += 17;
 
-    days = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
+    days = tvb_get_bits8(tvb, bit_offset, 7);
 
     /* The lowest value of this AVP (i.e. all 0:s) is reserved to indicate an indefinite value to denote sessions that are expected to be always-on. */
     if ((durations_seconds == 0) && (days == 0)) {
