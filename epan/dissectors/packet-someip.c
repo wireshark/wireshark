@@ -2247,14 +2247,13 @@ static void
 deregister_dynamic_hf_data(hf_register_info **hf_array, unsigned *hf_size) {
     if (*hf_array) {
         proto_deregister_all_fields_with_prefix(proto_someip, SOMEIP_NAME_PREFIX);
-        proto_free_deregistered_fields();
         for (unsigned i = 0; i < *hf_size; i++) {
             if ((*hf_array)[i].p_id != NULL) {
                 g_free((*hf_array)[i].p_id);
                 (*hf_array)[i].p_id = NULL;
             }
         }
-        g_free(*hf_array);
+        proto_add_deregistered_data(*hf_array);
         *hf_array = NULL;
         *hf_size = 0;
     }

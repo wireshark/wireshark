@@ -875,7 +875,7 @@ deregister_user_data_hfarray_free(hf_register_info **hf_array, unsigned *number_
                 dynamic_hf[i].p_id = NULL;
             }
         }
-        g_free(dynamic_hf);
+        proto_add_deregistered_data(dynamic_hf);
 
         *hf_array = NULL;
         *number_of_entries = 0;
@@ -890,7 +890,6 @@ deregister_user_data(void) {
     deregister_user_data_hfarray_prepare_for_deregister(&dynamic_hf_agg_int, &dynamic_hf_agg_int_number);
 
     proto_deregister_all_fields_with_prefix(proto_signal_pdu, SPDU_NAME_SIGNAL_PREFIX);
-    proto_free_deregistered_fields();
 
     deregister_user_data_hfarray_free(&dynamic_hf_base_raw, &dynamic_hf_base_raw_number);
     deregister_user_data_hfarray_free(&dynamic_hf_agg_sum, &dynamic_hf_agg_sum_number);
@@ -1028,6 +1027,10 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, unsigned
         for (unsigned i = 0; i < data_num; i++) {
             spdu_signal_list_t *list = (spdu_signal_list_t *)g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
             if (list == NULL) {
+                /* This doesn't leak per se, but it won't be freed until program
+                 * shutdown. Ideally this list and its items should be allocated
+                 * with an wmem_allocator that is freed when the prefs are reset.
+                 */
                 list = wmem_new(wmem_epan_scope(), spdu_signal_list_t);
 
                 list->id = data[i].id;
@@ -1043,7 +1046,7 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, unsigned
                 spdu_signal_item_t *item = &(list->items[data[i].pos]);
 
                 /* we do not care if we overwrite param */
-                item->name = g_strdup(data[i].name);
+                item->name = wmem_strdup(wmem_epan_scope(), data[i].name);
                 item->pos = data[i].pos;
 
                 item->encoding = ENC_ASCII;
