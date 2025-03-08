@@ -73,7 +73,7 @@ const double pkt_point_size_ = 3.0;
 const int min_zoom_pixels_ = 20;
 
 const QString average_throughput_label_ = QObject::tr("Average Throughput");
-const QString round_trip_time_ms_label_ = QObject::tr("Round Trip Time");
+const QString round_trip_time_label_ = QObject::tr("Round Trip Time");
 const QString segment_length_label_ = QObject::tr("Segment Length");
 const QString sequence_number_label_ = QObject::tr("Sequence Number");
 const QString time_s_label_ = QObject::tr("Time");
@@ -97,6 +97,44 @@ double QCPErrorBarsNotSelectable::selectTest(const QPointF &pos, bool onlySelect
     return -1.0;
 }
 
+void QCPErrorBarsNotSelectable::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
+{
+    applyDefaultAntialiasingHint(painter);
+    painter->setPen(mPen);
+    if (mErrorType == etValueError && mValueAxis && mValueAxis->orientation() == Qt::Vertical)
+    {
+        painter->drawLine(QLineF(rect.center().x(), rect.top()+2, rect.center().x(), rect.bottom()-2));
+        if (mWhiskerWidth) {
+            painter->drawLine(QLineF(rect.center().x()-4, rect.top()+2, rect.center().x()+4, rect.top()+2));
+            painter->drawLine(QLineF(rect.center().x()-4, rect.bottom()-2, rect.center().x()+4, rect.bottom()-2));
+        }
+    } else
+    {
+        painter->drawLine(QLineF(rect.left()+2, rect.center().y(), rect.right()-2, rect.center().y()));
+        if (mWhiskerWidth) {
+            painter->drawLine(QLineF(rect.left()+2, rect.center().y()-4, rect.left()+2, rect.center().y()+4));
+            painter->drawLine(QLineF(rect.right()-2, rect.center().y()-4, rect.right()-2, rect.center().y()+4));
+        }
+    }
+}
+
+DupAckGraph::DupAckGraph(QCPAxis *keyAxis, QCPAxis *valueAxis) :
+    QCPGraph(keyAxis, valueAxis)
+{
+}
+
+DupAckGraph::~DupAckGraph()
+{
+}
+
+void DupAckGraph::drawLegendIcon(QCPPainter *painter, const QRectF &rect) const
+{
+    QCPGraph::drawLegendIcon(painter, rect);
+    // Add a small line segment representing the bordering cumulative ACK line
+    painter->drawLine(QLineF(rect.center().x()-4, rect.center().y(), rect.center().x()+4, rect.center().y()));
+
+}
+
 TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_graph_type graph_type) :
     GeometryStateDialog(parent),
     ui(new Ui::TCPStreamDialog),
@@ -108,6 +146,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     seq_offset_(0),
     seq_origin_zero_(true),
     si_units_(true),
+    legend_visible_(true),
     title_(nullptr),
     base_graph_(nullptr),
     tput_graph_(nullptr),
@@ -195,6 +234,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     ctx_menu_.addAction(ui->actionGoToPacket);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionDragZoom);
+    ctx_menu_.addAction(ui->actionLegend);
+    ui->actionLegend->setChecked(legend_visible_);
+    connect(ui->actionLegend, &QAction::triggered, this, &TCPStreamDialog::toggleLegend);
     ctx_menu_.addAction(ui->actionToggleSequenceNumbers);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
     ctx_menu_.addAction(ui->actionToggleUnits);
@@ -271,80 +313,85 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
     tput_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     tput_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    tput_graph_->setName(tr("Throughput"));
 
     // Goodput Graph - rate of ACKed bytes
     goodput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
     goodput_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     goodput_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    goodput_graph_->setName(tr("Goodput"));
 
     // Seg Graph - displays forward data segments on tcptrace graph
     seg_graph_ = sp->addGraph();
     seg_graph_->setLineStyle(QCPGraph::lsNone);
-    seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+    seg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+    seg_graph_->setName(tr("Segments"));
     seg_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     seg_eb_->setErrorType(QCPErrorBars::etValueError);
     seg_eb_->setPen(QPen(QBrush(graph_color_1), pen_width));
     seg_eb_->setSymbolGap(0.0); // draw error spine as single line
     seg_eb_->setWhiskerWidth(pkt_point_size_);
-    seg_eb_->removeFromLegend();
+    seg_eb_->setName(tr("Segments"));
     seg_eb_->setDataPlottable(seg_graph_);
 
     // Ack Graph - displays ack numbers from reverse packets
     ack_graph_ = sp->addGraph();
     ack_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    ack_graph_->setName(tr("ACK"));
+
+    // Duplicate ACK Graph - displays duplicate ack ticks
+    // QCustomPlot doesn't have QCPScatterStyle::ssTick so we have to make our own.
+    int tick_len = 3;
+    tick_len *= devicePixelRatio();
+    QPainterPath da_path;
+    da_path.lineTo(0, tick_len);
+    QPen da_tick_pen;
+    da_tick_pen.setColor(graph_color_2);
+    da_tick_pen.setWidthF(pen_width);
+    QCPScatterStyle da_ss = QCPScatterStyle(da_path, da_tick_pen);
+    dup_ack_graph_ = new DupAckGraph(sp->xAxis, sp->yAxis);
+    dup_ack_graph_->setLineStyle(QCPGraph::lsNone);
+    dup_ack_graph_->setScatterStyle(da_ss);
+    dup_ack_graph_->setName(tr("Dup ACKs"));
 
     // Sack Graph - displays highest number (most recent) SACK block
     sack_graph_ = sp->addGraph();
     sack_graph_->setLineStyle(QCPGraph::lsNone);
-    sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+    sack_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+    sack_graph_->setName(tr("SACK"));
     sack_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     sack_eb_->setErrorType(QCPErrorBars::etValueError);
     sack_eb_->setPen(QPen(QBrush(graph_color_4), pen_width));
     sack_eb_->setSymbolGap(0.0); // draw error spine as single line
     sack_eb_->setWhiskerWidth(0.0);
-    sack_eb_->removeFromLegend();
+    sack_eb_->setName(tr("Most recent SACK"));
     sack_eb_->setDataPlottable(sack_graph_);
 
     // Sack Graph 2 - displays subsequent SACK blocks
     sack2_graph_ = sp->addGraph();
     sack2_graph_->setLineStyle(QCPGraph::lsNone);
-    sack2_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot, Qt::transparent, 0));
+    sack2_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+    sack2_graph_->setName(tr("SACK 2"));
     sack2_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     sack2_eb_->setErrorType(QCPErrorBars::etValueError);
     sack2_eb_->setPen(QPen(QBrush(graph_color_5), pen_width));
     sack2_eb_->setSymbolGap(0.0); // draw error spine as single line
     sack2_eb_->setWhiskerWidth(0.0);
-    sack2_eb_->removeFromLegend();
+    sack2_eb_->setName(tr("Subsequent SACKs"));
     sack2_eb_->setDataPlottable(sack2_graph_);
 
     // RWin graph - displays upper extent of RWIN advertised on reverse packets
     rwin_graph_ = sp->addGraph();
     rwin_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
-
-    // Duplicate ACK Graph - displays duplicate ack ticks
-    // QCustomPlot doesn't have QCPScatterStyle::ssTick so we have to make our own.
-    int tick_len = 3;
-    tick_len *= devicePixelRatio();
-    QPixmap da_tick_pm = QPixmap(1, tick_len * 2);
-    da_tick_pm.fill(Qt::transparent);
-    QPainter painter(&da_tick_pm);
-    QPen da_tick_pen;
-    da_tick_pen.setColor(graph_color_2);
-    da_tick_pen.setWidthF(pen_width);
-    painter.setPen(da_tick_pen);
-    painter.drawLine(0, tick_len, 0, tick_len * 2);
-    dup_ack_graph_ = sp->addGraph();
-    dup_ack_graph_->setLineStyle(QCPGraph::lsNone);
-    QCPScatterStyle da_ss = QCPScatterStyle(QCPScatterStyle::ssPixmap, graph_color_2, 0);
-    da_ss.setPixmap(da_tick_pm);
-    dup_ack_graph_->setScatterStyle(da_ss);
+    rwin_graph_->setName(tr("Receive Window"));
 
     // Zero Window Graph - displays zero window crosses (x)
     zero_win_graph_ = sp->addGraph();
     zero_win_graph_->setLineStyle(QCPGraph::lsNone);
     zero_win_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, graph_color_1, 5));
+    zero_win_graph_->setName(tr("Zero Window"));
 
     // Most graphs have Seconds as the x-Axis
     sp->xAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_SECONDS)));
@@ -362,6 +409,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     sp->yAxis2->setNumberPrecision(9);
 
     tracer_ = new QCPItemTracer(sp);
+
+    // Default the legend to the top left
+    sp->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignLeft);
 
     // Triggers fillGraph() [ UNLESS the index is already graph_idx!! ]
     if (graph_idx != ui->graphTypeComboBox->currentIndex())
@@ -395,6 +445,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     connect(sp, SIGNAL(axisClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)),
             this, SLOT(axisClicked(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)));
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(transformYRange(QCPRange)));
+
+    connect(sp, &QCustomPlot::beforeReplot, this, &TCPStreamDialog::fillLegend);
+
     this->setResult(QDialog::Accepted);
 }
 
@@ -919,6 +972,53 @@ void TCPStreamDialog::setAxisUnits(QCPAxis *axis, format_size_units_e units)
         }
     }
 }
+
+void TCPStreamDialog::fillLegend()
+{
+    QCustomPlot *sp = ui->streamPlot;
+
+    sp->legend->clearItems();
+
+    /* Add all plottables, inc. QCPErrorBarsNotSelectable to legend */
+    for (int i = 0; i < sp->plottableCount(); ++i) {
+        if (sp->plottable(i)->visible()) {
+            QCPGraph *graph = dynamic_cast<QCPGraph*>(sp->plottable(i));
+            if (graph) {
+                // Don't add graphs which would have no icon (these are
+                // only used by the tcptrace graph for the error bars.)
+                if ((graph->scatterStyle().shape() != QCPScatterStyle::ssNone) ||
+                    (graph->lineStyle() != QCPGraph::LineStyle::lsNone)) {
+
+                    sp->plottable(i)->addToLegend();
+                }
+            } else {
+                sp->plottable(i)->addToLegend();
+            }
+        }
+    }
+    sp->legend->setVisible(legend_visible_);
+}
+
+void TCPStreamDialog::moveLegend()
+{
+    if (QAction *contextAction = qobject_cast<QAction*>(sender())) {
+        if (contextAction->data().canConvert<Qt::Alignment::Int>()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+            ui->streamPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::Alignment::fromInt(contextAction->data().value<Qt::Alignment::Int>()));
+#else
+            ui->streamPlot->axisRect()->insetLayout()->setInsetAlignment(0, static_cast<Qt::Alignment>(contextAction->data().value<Qt::Alignment::Int>()));
+#endif
+            ui->streamPlot->replot();
+        }
+    }
+}
+
+void TCPStreamDialog::toggleLegend()
+{
+    legend_visible_ = !legend_visible_;
+    ui->streamPlot->replot();
+}
+
 void TCPStreamDialog::fillStevens()
 {
     QString dlg_title = tr("Sequence Numbers (Stevens)") + streamDescription();
@@ -930,6 +1030,7 @@ void TCPStreamDialog::fillStevens()
 
     // True Stevens-style graphs don't have lines but I like them - gcc
     base_graph_->setLineStyle(QCPGraph::lsStepLeft);
+    base_graph_->setName(sequence_number_label_);
 
     QVector<double> rel_time, seq;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
@@ -955,7 +1056,8 @@ void TCPStreamDialog::fillTcptrace()
     QCustomPlot *sp = ui->streamPlot;
     sp->yAxis->setLabel(sequence_number_label_);
 
-    base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot));
+    base_graph_->setName(sequence_number_label_);
+    base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
 
     seg_graph_->setVisible(true);
     seg_eb_->setVisible(true);
@@ -1328,6 +1430,7 @@ void TCPStreamDialog::fillThroughput()
     setAxisUnits(sp->yAxis2, FORMAT_SIZE_UNIT_BITS_S);
     sp->yAxis2->setVisible(true);
 
+    base_graph_->setName(segment_length_label_);
     base_graph_->setVisible(ui->showSegLengthCheckBox->isChecked());
     tput_graph_->setVisible(ui->showThroughputCheckBox->isChecked());
     goodput_graph_->setVisible(ui->showGoodputCheckBox->isChecked());
@@ -1596,9 +1699,10 @@ void TCPStreamDialog::fillRoundTripTime()
         sp->xAxis->setLabel(sequence_number_label_);
         setAxisUnits(sp->xAxis, FORMAT_SIZE_UNIT_BYTES);
     }
-    sp->yAxis->setLabel(round_trip_time_ms_label_);
+    sp->yAxis->setLabel(round_trip_time_label_);
     setAxisUnits(sp->yAxis, FORMAT_SIZE_UNIT_SECONDS);
 
+    base_graph_->setName(round_trip_time_label_);
     base_graph_->setLineStyle(QCPGraph::lsLine);
 
     QVector<double> x_vals, rtt;
@@ -1801,6 +1905,7 @@ void TCPStreamDialog::fillWindowScale()
      *
      * We'll put the graphs on the same axis so they'll use the same scale.
      */
+    base_graph_->setName(window_size_label_);
     base_graph_->setData(cwnd_time, cwnd_size);
     rwin_graph_->setValueAxis(sp->yAxis);
     rwin_graph_->setData(rel_time, win_size);
@@ -1892,7 +1997,32 @@ QRectF TCPStreamDialog::getZoomRanges(QRect zoom_rect)
 
 void TCPStreamDialog::showContextMenu(const QPoint& pos)
 {
-    ctx_menu_.popup(ui->streamPlot->mapToGlobal(pos));
+    if (ui->streamPlot->legend->selectTest(pos, false) >= 0) {
+        // XXX - Should we check if the legend is visible before showing
+        // its context menu instead of the main context menu?
+        QMenu *menu = new QMenu(this);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        menu->addAction(ui->actionLegend);
+        menu->addSeparator();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+        menu->addAction(tr("Move to top left"), this, &TCPStreamDialog::moveLegend)->setData((Qt::AlignTop|Qt::AlignLeft).toInt());
+        menu->addAction(tr("Move to top center"), this, &TCPStreamDialog::moveLegend)->setData((Qt::AlignTop|Qt::AlignHCenter).toInt());
+        menu->addAction(tr("Move to top right"), this, &TCPStreamDialog::moveLegend)->setData((Qt::AlignTop|Qt::AlignRight).toInt());
+        menu->addAction(tr("Move to bottom left"), this, &TCPStreamDialog::moveLegend)->setData((Qt::AlignBottom|Qt::AlignLeft).toInt());
+        menu->addAction(tr("Move to bottom center"), this, &TCPStreamDialog::moveLegend)->setData((Qt::AlignBottom|Qt::AlignHCenter).toInt());
+        menu->addAction(tr("Move to bottom right"), this, &TCPStreamDialog::moveLegend)->setData((Qt::AlignBottom|Qt::AlignRight).toInt());
+#else
+        menu->addAction(tr("Move to top left"), this, &TCPStreamDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignTop|Qt::AlignLeft));
+        menu->addAction(tr("Move to top center"), this, &TCPStreamDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignTop|Qt::AlignHCenter));
+        menu->addAction(tr("Move to top right"), this, &TCPStreamDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignTop|Qt::AlignRight));
+        menu->addAction(tr("Move to bottom left"), this, &TCPStreamDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignBottom|Qt::AlignLeft));
+        menu->addAction(tr("Move to bottom center"), this, &TCPStreamDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignBottom|Qt::AlignHCenter));
+        menu->addAction(tr("Move to bottom right"), this, &TCPStreamDialog::moveLegend)->setData(static_cast<Qt::Alignment::Int>(Qt::AlignBottom|Qt::AlignRight));
+#endif
+        menu->popup(ui->streamPlot->mapToGlobal(pos));
+    } else {
+        ctx_menu_.popup(ui->streamPlot->mapToGlobal(pos));
+    }
 }
 
 void TCPStreamDialog::graphClicked(QMouseEvent *event)
