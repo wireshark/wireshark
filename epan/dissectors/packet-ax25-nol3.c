@@ -36,6 +36,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 
 #define STRLEN	80
@@ -135,13 +136,16 @@ isaprs( uint8_t dti )
 }
 
 static int
-dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
+dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	proto_item *ti;
 	proto_tree *ax25_nol3_tree;
 	char       *info_buffer;
 	int         offset;
 	tvbuff_t   *next_tvb = NULL;
+	int         control  = GPOINTER_TO_INT(data);
+	bool        ax25_ui_frame = (((control & XDLC_S_U_MASK) == XDLC_U) &&
+	                             ((control & XDLC_U_MODIFIER_MASK) == XDLC_UI));
 	uint8_t     dti      = 0;
 	bool        dissected;
 
@@ -155,7 +159,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	offset = 0;
 	snprintf( info_buffer, STRLEN, "Text" );
 
-	if ( gPREF_APRS )
+	if ( gPREF_APRS && ax25_ui_frame )
 		{
 		dti = tvb_get_uint8( tvb, offset );
 		if ( isaprs( dti ) )
@@ -182,7 +186,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	dissected = false;
-	if ( gPREF_APRS )
+	if ( gPREF_APRS && ax25_ui_frame )
 		{
 		if ( isaprs( dti ) )
 			{
