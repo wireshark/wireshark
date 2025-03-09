@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 4.5.0 (v4.5.0rc0-1205-gef12db5df104)
+Dumpcap (Wireshark) 4.5.0 (v4.5.0rc0-1954-gf0e43e21168b)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -55,6 +55,8 @@ Output (files):
                                           an exact multiple of NUM secs
                           printname:FILE - print filename to FILE when written
                                            (can use 'stdout' or 'stderr')
+  -F                       output file type (default: pcapng)
+                           an empty "-F" option will list the file types
   -n                       use pcapng format instead of pcap (default)
   -P                       use libpcap format instead of pcapng
   --capture-comment <comment>
@@ -79,6 +81,7 @@ Miscellaneous:
                            within dumpcap
   -t                       use a separate thread per interface
   -q                       don't report packet capture counts
+  -Q                       suppress all non-error status messages to stderr
   --application-flavor <flavor>
                            set the application flavor
   -v, --version            print version information and exit
