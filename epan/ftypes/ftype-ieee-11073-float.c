@@ -750,7 +750,7 @@ float_ieee_11073_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr
     mantissa = fv->value.float_ieee_11073 & 0x007FFFFF;
     mantissa_sign = (fv->value.float_ieee_11073 & 0x00800000);
     if (mantissa_sign)
-        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF000000)));
+        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF800000)));
 
     if (mantissa == 0) {
         return wmem_strdup(scope, "0");
@@ -835,7 +835,7 @@ float_ieee_11073_val_to_double(const fvalue_t *fv, double *repr)
 
     mantissa_sign = (fv->value.float_ieee_11073 & 0x00800000);
     if (mantissa_sign)
-        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF000000)));
+        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF800000)));
 
     exponent = fv->value.float_ieee_11073 >> 24;
 
@@ -865,9 +865,9 @@ static uint32_t float_to_normal_form(uint32_t value)
     if (value >= 0x007FFFFE && value <= 0x00800002) /* Save special values */
         return value;
 
-    mantissa = value & 0x907FFFFF;
+    mantissa = value & 0x007FFFFF;
     if (value & 0x00800000) {
-        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF000000)));
+        mantissa = (uint32_t)(-((int32_t)(mantissa | 0xFF800000)));
         mantissa_sign = 1;
     } else {
         mantissa_sign = 0;
