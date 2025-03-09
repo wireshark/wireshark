@@ -665,7 +665,7 @@ fvalue_from_uinteger64(ftenum_t ftype, const char *s, uint64_t num, char **err_m
 	}
 	else {
 		if (err_msg != NULL && *err_msg == NULL) {
-			*err_msg = ws_strdup_printf("Unsigned integer 0x%"PRIu64" cannot be converted to %s.",
+			*err_msg = ws_strdup_printf("Unsigned integer %"PRIu64" cannot be converted to %s.",
 						num, ftype_pretty_name(ftype));
 		}
 	}
