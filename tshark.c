@@ -3901,6 +3901,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
     epan_dissect_t *edt = NULL;
     int64_t         data_offset;
     pass_status_t   status = PASS_SUCCEEDED;
+    bool            visible = false;
 
     wtap_rec_init(&rec, 1514);
 
@@ -3943,7 +3944,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
            ("print_packet_info" is true) and we're in verbose mode
            ("packet_details" is true). But if we specified certain fields with
            "-e", we'll prime those directly later. */
-        bool visible = print_packet_info && print_details && output_fields_num_fields(output_fields) == 0;
+        visible = print_packet_info && print_details && output_fields_num_fields(output_fields) == 0;
         edt = epan_dissect_new(cf->epan, create_proto_tree, visible);
     }
 
@@ -3973,7 +3974,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
         ws_debug("tshark: processing packet #%d", framenum);
 
-        reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
+        reset_epan_mem(cf, edt, create_proto_tree, visible);
 
         if (process_packet_single_pass(cf, edt, data_offset, &rec, tap_flags)) {
             /* Either there's no read filtering or this packet passed the
@@ -5045,7 +5046,7 @@ show_print_file_io_error(void)
 static void
 reset_epan_mem(capture_file *cf,epan_dissect_t *edt, bool tree, bool visual)
 {
-    if (!epan_auto_reset || (cf->count < epan_auto_reset_count))
+    if (!epan_auto_reset || (cf->count < epan_auto_reset_count) || !edt)
         return;
 
     fprintf(stderr, "resetting session.\n");
