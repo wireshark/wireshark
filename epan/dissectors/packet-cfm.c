@@ -893,11 +893,11 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* Dissect 16 octets reserved for Y.1731, samples of the wrap-around frame counters */
 	wi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_ccm_itu_t_y1731, tvb, offset, 16, ENC_NA);
 	cfm_ccm_itu_tree = proto_item_add_subtree(wi, ett_cfm_ccm_itu);
-	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_TxFCf, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_TxFCf, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_RxFCb, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_RxFCb, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_TxFCb, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_TxFCb, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_ccm_itu_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
@@ -1550,11 +1550,11 @@ static int dissect_cfm_lmm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item_ret_uint(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_NA, &first_tlv_offset);
 	offset += 1;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCf, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCf, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_RxFCf, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_RxFCf, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCb, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCb, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	length_remaining = first_tlv_offset - (offset - (start_offset + 2));
@@ -1590,11 +1590,11 @@ static int dissect_cfm_lmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item_ret_uint(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_NA, &first_tlv_offset);
 	offset += 1;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCf, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCf, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_RxFCf, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_RxFCf, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCb, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCb, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	length_remaining = first_tlv_offset - (offset - (start_offset + 2));

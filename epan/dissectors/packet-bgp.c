@@ -7041,7 +7041,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
                 return -1;
             }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
-                                4, ENC_NA);
+                                4, ENC_BIG_ENDIAN);
             reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
@@ -7122,7 +7122,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
                 return -1;
             }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
-                                4, ENC_NA);
+                                4, ENC_BIG_ENDIAN);
             reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
@@ -7184,7 +7184,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
                 return -1;
             }
             proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
-                                4, ENC_NA);
+                                4, ENC_BIG_ENDIAN);
             reader_offset += 4;
         } else if (ip_len == 16) {
             /*IPv6 address*/
@@ -7249,11 +7249,11 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
             case 34 :
                 /* IPv4 address */
                 proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ip_addr, tvb, reader_offset,
-                                    4, ENC_NA);
+                                    4, ENC_BIG_ENDIAN);
                 reader_offset += 4;
 
                 proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_ipv4_gtw, tvb, reader_offset,
-                                    4, ENC_NA);
+                                    4, ENC_BIG_ENDIAN);
                 reader_offset += 4;
 
                 data = load_path_attr_data(pinfo);
@@ -7508,7 +7508,7 @@ static int decode_bgp_mup_nlri_type1_st_route(proto_tree *tree, tvbuff_t *tvb, i
         reader_offset++;
 
         if (endpoint_address_length==32) {
-            proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_ep_ip_addr, tvb, reader_offset, 4, ENC_NA);
+            proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_ep_ip_addr, tvb, reader_offset, 4, ENC_BIG_ENDIAN);
             reader_offset += 4;
         } else if (endpoint_address_length==128) {
             proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_ep_ipv6_addr, tvb, reader_offset, 16, ENC_NA);
@@ -7522,7 +7522,7 @@ static int decode_bgp_mup_nlri_type1_st_route(proto_tree *tree, tvbuff_t *tvb, i
         if (source_address_length==0) {
             reader_offset++;
         } else if (source_address_length==32) {
-            proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_source_ip_addr, tvb, reader_offset, 4, ENC_NA);
+            proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_source_ip_addr, tvb, reader_offset, 4, ENC_BIG_ENDIAN);
             reader_offset += 4;
         } else if (source_address_length==128) {
             proto_tree_add_item(arch_spec_tree, hf_bgp_mup_nlri_3gpp_5g_source_ipv6_addr, tvb, reader_offset, 16, ENC_NA);
@@ -7715,7 +7715,7 @@ static int decode_bgp_mup_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, pack
         reader_offset += 8;
         switch (afi) {
         case AFNUM_INET:
-            proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_ip_addr, tvb, reader_offset, 4, ENC_NA);
+            proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_ip_addr, tvb, reader_offset, 4, ENC_BIG_ENDIAN);
             break;
         case AFNUM_INET6:
             proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_ipv6_addr, tvb, reader_offset, 16, ENC_NA);
@@ -7930,7 +7930,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
                 offset += 1;
 
-                proto_tree_add_item(tree, hf_bgp_endpoint_address, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(tree, hf_bgp_endpoint_address, tvb, offset, 4, ENC_BIG_ENDIAN);
 
                 total_length = 5; /* length(1 octet) + address(4 octets) */
                 break;
@@ -8257,7 +8257,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 */
                 if(plen == 12) /* BGP-AD */
                 {
-                    proto_tree_add_item(tree, hf_bgp_bgpad_pe_addr, tvb, offset+10, 4, ENC_NA);
+                    proto_tree_add_item(tree, hf_bgp_bgpad_pe_addr, tvb, offset+10, 4, ENC_BIG_ENDIAN);
                 }else{ /* VPLS-BGP */
 
                     proto_tree_add_item(tree, hf_bgp_vplsbgp_ce_id, tvb, offset+10, 2, ENC_BIG_ENDIAN);
@@ -8876,7 +8876,7 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     proto_tree_add_item(tree, hf_bgp_open_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_bgp_open_identifier, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_bgp_open_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_bgp_open_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -9681,7 +9681,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EXP_2_FLOW_RED:
                         {
-                                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_NA);
+                                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
                         }
                         break;
@@ -9895,9 +9895,9 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_not_present, tvb, offset+1, 1, ENC_NA);
             break;
         case PMSI_TUNNEL_RSVPTE_P2MP:
-            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_id, tvb, offset+5, 4, ENC_NA);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_id, tvb, offset+5, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id, tvb, offset+11, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4, tvb, offset+13, 4, ENC_NA);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4, tvb, offset+13, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(tunnel_id_item, ": Id %u, Ext Id %s",
                                 tvb_get_ntohs(tvb, offset+11), tvb_ip_to_str(pinfo->pool, tvb, offset+13));
             break;

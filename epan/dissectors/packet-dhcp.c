@@ -7292,7 +7292,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	}
 	flags = tvb_get_ntohs(tvb, 10);
 	fi = proto_tree_add_bitmask(bp_tree, tvb, 10, hf_dhcp_flags,
-			       ett_dhcp_flags, dhcp_flags, ENC_NA);
+			       ett_dhcp_flags, dhcp_flags, ENC_BIG_ENDIAN);
 	proto_item_append_text(fi, " (%s)",
 	    (flags & BOOTP_BC) ? "Broadcast" : "Unicast");
 

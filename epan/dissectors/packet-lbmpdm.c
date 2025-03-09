@@ -1208,7 +1208,7 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     subtree = proto_item_add_subtree(subtree_item, ett_lbmpdm);
     proto_tree_add_item(subtree, hf_lbmpdm_magic, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC, encoding);
     pi = proto_tree_add_string(subtree, hf_lbmpdm_encoding, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC,
-        ((encoding == ENC_BIG_ENDIAN) ? "Big-Endian" : "Little-Endian"));
+        (!(encoding & ENC_LITTLE_ENDIAN) ? "Big-Endian" : "Little-Endian"));
     proto_item_set_generated(pi);
     proto_tree_add_item(subtree, hf_lbmpdm_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);

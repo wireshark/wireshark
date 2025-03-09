@@ -734,7 +734,7 @@ decode_identifier_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     len += 4;
 
     proto_tree_add_item(do_irp_record_tree, hf_do_irp_identrecord_ts, tvb, offset + len, 4, ENC_BIG_ENDIAN);
-    proto_item *ts = proto_tree_add_item(do_irp_record_tree, hf_do_irp_identrecord_ts_utc, tvb, offset + len, 4, ENC_TIME_SECS);
+    proto_item *ts = proto_tree_add_item(do_irp_record_tree, hf_do_irp_identrecord_ts_utc, tvb, offset + len, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     proto_item_set_generated(ts);
     len += 4;
 
@@ -744,7 +744,7 @@ decode_identifier_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     proto_tree_add_item(do_irp_record_tree, hf_do_irp_identrecord_ttl, tvb, offset + len, 4, ENC_BIG_ENDIAN);
     if(ttl_type == DO_IRP_TTL_ABSOLUTE) {
-        proto_item *ttl = proto_tree_add_item(do_irp_record_tree, hf_do_irp_identrecord_ttl_absolute, tvb, offset + len, 4, ENC_TIME_SECS);
+        proto_item *ttl = proto_tree_add_item(do_irp_record_tree, hf_do_irp_identrecord_ttl_absolute, tvb, offset + len, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
         proto_item_set_generated(ttl);
     }
     len += 4;
@@ -936,7 +936,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(do_irp_header_tree, hf_do_irp_rcount, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2; /* One byte empty */
 
-    proto_tree_add_item(do_irp_header_tree, hf_do_irp_expiration, tvb, offset, 4, ENC_TIME_SECS);
+    proto_tree_add_item(do_irp_header_tree, hf_do_irp_expiration, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(do_irp_header_tree, hf_do_irp_bodylen, tvb, offset, 4, ENC_BIG_ENDIAN);

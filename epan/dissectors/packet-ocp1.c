@@ -887,7 +887,7 @@ decode_params_OcaVersion(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 static int
 decode_params_OcaTimeNTP(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_ocp1_params_time_ntp, tvb, offset, 8, ENC_TIME_NTP);
+    proto_tree_add_item(tree, hf_ocp1_params_time_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
     return 8;
 }
 
@@ -901,7 +901,7 @@ decode_params_OcaTimePTP(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
     proto_tree_add_item(tree, hf_ocp1_params_time_ptp_negative, tvb, offset_m, 1, ENC_BIG_ENDIAN);
     offset_m += 1;
 
-    ti = proto_tree_add_item(tree, hf_ocp1_params_time_ptp, tvb, offset_m, 12, ENC_TIME_SECS_NSECS);
+    ti = proto_tree_add_item(tree, hf_ocp1_params_time_ptp, tvb, offset_m, 12, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 
     pt = proto_item_add_subtree(ti, ett_ocp1_params_ptp);
     proto_tree_add_item(pt, hf_ocp1_params_time_ptp_seconds, tvb, offset_m, 8, ENC_BIG_ENDIAN);

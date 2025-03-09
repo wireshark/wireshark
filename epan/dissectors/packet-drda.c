@@ -2057,7 +2057,7 @@ dissect_drda_monitor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
 static int
 dissect_drda_etime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_drda_etime, tvb, 0, 8, ENC_TIME_USECS);
+    proto_tree_add_item(tree, hf_drda_etime, tvb, 0, 8, ENC_TIME_USECS|ENC_BIG_ENDIAN);
     return 8;
 }
 

@@ -2885,7 +2885,7 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	offset = dissect_smb_access_mask(tvb, tree, offset);
 
 	/* Position Information */
-	proto_tree_add_item(tree, hf_smb2_position_information, tvb, offset, 8, ENC_NA);
+	proto_tree_add_item(tree, hf_smb2_position_information, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* Mode Information */
@@ -2893,7 +2893,7 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	offset += 4;
 
 	/* Alignment Information */
-	proto_tree_add_item(tree, hf_smb2_alignment_information, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(tree, hf_smb2_alignment_information, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset +=4;
 
 	/* file name length */
@@ -9281,7 +9281,7 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 	/* flags: reserved: must be zero */
-	proto_tree_add_item(tree, hf_smb2_flags, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(tree, hf_smb2_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* reserved */
@@ -11131,7 +11131,7 @@ dissect_smb2_server_to_client_notification(tvbuff_t *tvb, packet_info *pinfo, pr
 	offset += 2;
 
 	/* notification type */
-	proto_tree_add_item_ret_uint(tree, hf_smb2_notification_type, tvb, offset, 4, ENC_NA, &notification_type);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_notification_type, tvb, offset, 4, ENC_BIG_ENDIAN, &notification_type);
 	offset += 4;
 
 	switch(notification_type) {

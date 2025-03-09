@@ -295,7 +295,7 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(samis_type_1_tree, hf_ipdr_rec_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(samis_type_1_tree, hf_ipdr_rec_creation_time, tvb, offset, 8, ENC_TIME_MSECS);
+    proto_tree_add_item(samis_type_1_tree, hf_ipdr_rec_creation_time, tvb, offset, 8, ENC_TIME_MSECS|ENC_BIG_ENDIAN);
     offset += 8;
 
     len = tvb_get_ntohl(tvb, offset);

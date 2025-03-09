@@ -349,7 +349,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   proto_tree_add_item(basic_param_set_tree, hf_mka_actor_mn, tvb, offset, 4, ENC_NA);
   offset += 4;
 
-  proto_tree_add_item(basic_param_set_tree, hf_mka_algo_agility, tvb, offset, 4, ENC_NA);
+  proto_tree_add_item(basic_param_set_tree, hf_mka_algo_agility, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   cak_len = basic_param_set_len - 28;

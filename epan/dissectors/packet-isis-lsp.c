@@ -1976,7 +1976,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         i = 0;
         while (i < sublen) {
             local_offset = offset + i;
-            proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_cap_range, tvb, local_offset, 3, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_cap_range, tvb, local_offset, 3, ENC_BIG_ENDIAN);
             tlv_type = tvb_get_uint8(tvb, local_offset+3);
             tlv_len = tvb_get_uint8(tvb, local_offset+4);
             if (tlv_type == ISIS_SR_SID_LABEL) {

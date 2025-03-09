@@ -373,24 +373,6 @@ static int round_to_8byte(int current_offset,
  * This define is used for error checking. */
 #define MAX_ROUND_TO_BYTES 7
 
-/* Gets a 32-bit unsigned integer from the packet buffer with
- * the proper byte-swap.
- * @param tvb is the incoming network data buffer.
- * @param offset is the offset into the buffer.
- * @param encoding is ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
- * @return The 32-bit unsigned int interpretation of the bits
- *         in the buffer.
- */
-static uint32_t
-get_uint32(tvbuff_t *tvb,
-           int32_t   offset,
-           int       encoding)
-{
-    return (ENC_BIG_ENDIAN == encoding) ?
-        tvb_get_ntohl(tvb, offset) :
-        tvb_get_letohl(tvb, offset);
-}
-
 /* This is called by dissect_AllJoyn_message() to handle the initial byte for
  * a connect message.
  * If it was the initial byte for a connect message and was handled then return
@@ -927,7 +909,7 @@ parse_arg(tvbuff_t      *tvb,
             add_padding_item(padding_start, offset, tvb, field_tree);
 
             /* This is the length of the entire array in bytes but does not include the length field. */
-            length = (int)get_uint32(tvb, offset, encoding);
+            length = (int)tvb_get_uint32(tvb, offset, encoding);
 
             padding_start = offset + 4;
             starting_offset = pad_according_to_type(padding_start, field_starting_offset, packet_length, *sig_saved); /* Advance to the data elements. */
@@ -1061,7 +1043,7 @@ parse_arg(tvbuff_t      *tvb,
         break;
 
     case ARG_OBJ_PATH:   /* AllJoyn Name of an AllJoyn object instance basic type */
-        length = get_uint32(tvb, offset, encoding) + 1;
+        length = tvb_get_uint32(tvb, offset, encoding) + 1;
 
         /* The + 4 is for the length specifier. Object paths may be of "any length"
            according to D-Bus spec. But there are practical limits. */
@@ -1098,7 +1080,7 @@ parse_arg(tvbuff_t      *tvb,
         proto_tree_add_item(field_tree, hf_alljoyn_string_size_32bit, tvb, offset, 4, encoding);
 
         /* Get the length so we can display the string. */
-        length = (int)get_uint32(tvb, offset, encoding);
+        length = (int)tvb_get_uint32(tvb, offset, encoding);
 
         if(length < 0 || length > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: String length is %d. Remaining packet length is %d.",
@@ -1137,7 +1119,7 @@ parse_arg(tvbuff_t      *tvb,
             static const char format[] = " Replies to: %09u";
             uint32_t replies_to;
 
-            replies_to = get_uint32(tvb, offset, encoding);
+            replies_to = tvb_get_uint32(tvb, offset, encoding);
             col_append_fstr(pinfo->cinfo, COL_INFO, format, replies_to);
 
             if(header_item) {
@@ -1530,8 +1512,8 @@ handle_message_header_body(tvbuff_t    *tvb,
         return offset + remaining_packet_length;
     }
 
-    header_length = get_uint32(tvb, offset + HEADER_LENGTH_OFFSET, encoding);
-    body_length = get_uint32(tvb, offset + BODY_LENGTH_OFFSET, encoding);
+    header_length = tvb_get_uint32(tvb, offset + HEADER_LENGTH_OFFSET, encoding);
+    body_length = tvb_get_uint32(tvb, offset + BODY_LENGTH_OFFSET, encoding);
     packet_length_needed = ROUND_TO_8BYTE(header_length) + body_length + MESSAGE_HEADER_LENGTH;
 
     /* ARDP (UDP) packets can't be desegmented by Wireshark and it is normal to see them in
@@ -1588,7 +1570,7 @@ handle_message_header_body(tvbuff_t    *tvb,
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_body_length,          tvb, offset + BODY_LENGTH_OFFSET, 4, encoding);
 
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_serial,               tvb, offset + SERIAL_OFFSET, 4, encoding);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Message %010u: '%s'", get_uint32(tvb, offset + SERIAL_OFFSET, encoding),
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Message %010u: '%s'", tvb_get_uint32(tvb, offset + SERIAL_OFFSET, encoding),
             val_to_str_const(tvb_get_uint8(tvb, offset + TYPE_OFFSET), message_header_encoding_vals, "Unexpected message type"));
 
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_header_length, tvb, offset + HEADER_LENGTH_OFFSET, 4, encoding);

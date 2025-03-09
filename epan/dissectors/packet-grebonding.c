@@ -431,7 +431,7 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
                 case GREB_ATTRB_TIME:
                     proto_tree_add_item(attrb_tree, hf_greb_attr_val_time, tvb, offset, attrb_length,
-                        ENC_TIME_TIMEVAL);
+                        ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN);
                     break;
 
                 case GREB_ATTRB_FILTER_LIST:

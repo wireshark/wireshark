@@ -69,7 +69,7 @@ dissect_at_rl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree_add_item(at_rl_tree, hf_at_rl_vcsid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(at_rl_tree, hf_at_rl_role_change, tvb, offset, 4, ENC_TIME_SECS);
+    proto_tree_add_item(at_rl_tree, hf_at_rl_role_change, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 
     return AT_RL_FRAME_LEN;
 }

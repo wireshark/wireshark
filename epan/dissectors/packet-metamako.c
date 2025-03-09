@@ -527,7 +527,7 @@ proto_register_metamako(void)
 
     { &hf_metamako_time_rel, {
         "Timestamp", "metamako.time.rel",
-        FT_RELATIVE_TIME, ENC_BIG_ENDIAN, NULL, 0x0,
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_metamako_time_diff, {

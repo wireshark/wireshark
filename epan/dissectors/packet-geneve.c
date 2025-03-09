@@ -227,7 +227,7 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
             // PTPv2 timestamp has more resolution than NStime supports/displays,
             // but parse appropriate subsection of into NStime for user convenience
             proto_tree_add_time_item(opt_tree, hf_geneve_opt_cpkt_timestamp, tvb, offset+2, 8,
-                                     ENC_TIME_SECS_NSECS, NULL, NULL, NULL);
+                                     ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN, NULL, NULL, NULL);
             proto_tree_add_item(opt_tree, hf_geneve_opt_cpkt_ts_sec, tvb, offset,
                                 6, ENC_BIG_ENDIAN);
             offset += 6;

@@ -1184,7 +1184,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		ip_encapsulated = false;
 	}
 	if(!ip_encapsulated) {
-		mitel_eth_len = tvb_get_uint16(tvb, offset, 2);
+		mitel_eth_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 		proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		if (mitel_eth_len < 3)
 			return tvb_captured_length(tvb);

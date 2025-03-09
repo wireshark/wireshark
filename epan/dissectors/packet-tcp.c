@@ -6264,7 +6264,7 @@ dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       proto_item* syncookie_ti = proto_item_add_subtree(tsval_ti, ett_tcp_syncookie_option);
       uint32_t timestamp = tvb_get_bits32(tvb, offset * 8, 26, ENC_NA) << 6;
       proto_tree_add_uint_bits_format_value(syncookie_ti, hf_tcp_syncookie_option_timestamp, tvb, offset * 8,
-        26, timestamp, ENC_TIME_SECS, "%s", abs_time_secs_to_str(pinfo->pool, timestamp, ABSOLUTE_TIME_LOCAL, true));
+        26, timestamp, ENC_TIME_SECS|ENC_BIG_ENDIAN, "%s", abs_time_secs_to_str(pinfo->pool, timestamp, ABSOLUTE_TIME_LOCAL, true));
       proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_option_ecn, tvb, offset * 8 + 26, 1, ENC_NA);
       proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_option_sack, tvb, offset * 8 + 27, 1, ENC_NA);
       proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_option_wscale, tvb, offset * 8 + 28, 4, ENC_NA);

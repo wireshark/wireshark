@@ -5251,9 +5251,9 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   if (length >= 12 && memcmp(pVID, VID_FORTINET_FORTIGATE, 12) == 0)
   {
     offset += 12;
-    proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_release, tvb, offset, 2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_release, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_build, tvb, offset, 2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_build, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
   return offset;

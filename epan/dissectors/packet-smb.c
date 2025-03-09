@@ -3212,7 +3212,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			   for GUIDs? */
 			CHECK_BYTE_COUNT(16);
 			proto_tree_add_item(tree, hf_smb_server_guid,
-				tvb, offset, 16, ENC_NA);
+				tvb, offset, 16, ENC_BIG_ENDIAN);
 			COUNT_BYTES(16);
 
 			/* security blob */
@@ -9804,7 +9804,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 
 			/* The first field is a Volume GUID ... */
 			proto_tree_add_item(tree, hf_smb_volume_guid,
-					    tvb, offset, 16, ENC_NA);
+					    tvb, offset, 16, ENC_BIG_ENDIAN);
 			offset += 16;
 
 			/* The file ID comes next */
@@ -10836,7 +10836,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		/* The first field is a Volume GUID ... */
 		proto_tree_add_item(tree, hf_smb_volume_guid,
-				    tvb, offset, 16, ENC_NA);
+				    tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
 
 		/* The file ID comes next */
@@ -12101,7 +12101,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 		/* service site guid */
 		CHECK_BYTE_COUNT_TRANS_SUBR(16);
-		proto_tree_add_item(tree, hf_smb_dfs_referral_server_guid, tvb, offset, 16, ENC_NA);
+		proto_tree_add_item(tree, hf_smb_dfs_referral_server_guid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(16);
 
 		/* path */

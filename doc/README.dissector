@@ -1513,9 +1513,9 @@ and ENC_BIG_ENDIAN if it is big-endian.
 
 For FT_IPv4 fields, the encoding also specifies the byte order of the
 value. In almost all cases, the encoding is in network byte order,
-hence big-endian, but in at least one protocol dissected by Wireshark,
+hence ENC_BIG_ENDIAN, but in at least one protocol dissected by Wireshark,
 at least one IPv4 address is byte-swapped, so it's in little-endian
-order.
+order, i.e. ENC_LITTLE_ENDIAN.
 
 For string fields, the encoding specifies the character set used for the
 string and the way individual code points in that character set are

@@ -6300,7 +6300,7 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 	}
 
 	/* Add the item for the specific address type */
-	ret_val = proto_tree_add_item(tree, *list_specific->hf_addr, tvb, offset, 6, ENC_NA);
+	ret_val = proto_tree_add_item(tree, *list_specific->hf_addr, tvb, offset, 6, ENC_BIG_ENDIAN);
 	if (idx >= 0) {
 		addr_tree = proto_item_add_subtree(ret_val, idx);
 	}
@@ -6316,7 +6316,7 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 	}
 
 	if (list_specific->hf_oui != NULL) {
-		addr_item = proto_tree_add_item(addr_tree, *list_specific->hf_oui, tvb, offset, 3, ENC_NA);
+		addr_item = proto_tree_add_item(addr_tree, *list_specific->hf_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 		proto_item_set_generated(addr_item);
 		proto_item_set_hidden(addr_item);
 
@@ -6339,7 +6339,7 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 		return ret_val;
 	}
 
-	addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_addr, tvb, offset, 6, ENC_NA);
+	addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_addr, tvb, offset, 6, ENC_BIG_ENDIAN);
 	proto_item_set_hidden(addr_item);
 
 	if (list_generic->hf_addr_resolved != NULL) {
@@ -6350,7 +6350,7 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 	}
 
 	if (list_generic->hf_oui != NULL) {
-		addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_oui, tvb, offset, 3, ENC_NA);
+		addr_item = proto_tree_add_item(addr_tree, *list_generic->hf_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 		proto_item_set_generated(addr_item);
 		proto_item_set_hidden(addr_item);
 

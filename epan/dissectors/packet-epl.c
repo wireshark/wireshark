@@ -1747,7 +1747,7 @@ static const struct epl_datatype {
 	{ "Time_of_Day",    &hf_epl_od_time,    ENC_NA },
 	{ "Time_Diff",      &hf_epl_od_time_difference, ENC_NA  },
 #endif
-	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_SECS_NSECS, 8 },
+	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN, 8 },
 
 	{ 0, 0, 0, 0 }
 };

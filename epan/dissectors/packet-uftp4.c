@@ -962,7 +962,7 @@ static void dissect_uftp_announce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 1;
     proto_tree_add_item(announce_tree, hf_uftp_announce_blocksize, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(announce_tree, hf_uftp_announce_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS);
+    proto_tree_add_item(announce_tree, hf_uftp_announce_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
     offset += 8;
     if (flags & FLAG_IPV6) {
         iplen = 16;
@@ -1038,7 +1038,7 @@ static void dissect_uftp_register(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 1;
     proto_tree_add_item(register_tree, hf_uftp_register_keyinfo_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(register_tree, hf_uftp_register_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS);
+    proto_tree_add_item(register_tree, hf_uftp_register_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
     offset += 8;
     proto_tree_add_item(register_tree, hf_uftp_register_rand2, tvb, offset, RAND_LEN, ENC_NA);
     offset += RAND_LEN;
@@ -1286,9 +1286,9 @@ static void dissect_uftp_fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 1;
     proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_fsize, tvb, offset, 6, ENC_BIG_ENDIAN);
     offset += 6;
-    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_ftstamp, tvb, offset, 4, ENC_TIME_SECS);
+    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_ftstamp, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS);
+    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
     offset += 8;
     proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, namelen, ENC_ASCII);
     offset += namelen;
@@ -1348,7 +1348,7 @@ static void dissect_uftp_fileinfoack(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 1;
     proto_tree_add_item(fileinfoack_tree, hf_uftp_fileinfoack_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
-    proto_tree_add_item(fileinfoack_tree, hf_uftp_fileinfoack_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS);
+    proto_tree_add_item(fileinfoack_tree, hf_uftp_fileinfoack_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
 
     destcount = (tvb_reported_length(tvb) - hlen) / 4;
     offset = hlen;
@@ -1556,7 +1556,7 @@ static int dissect_uftp_tfmccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 2;
     proto_tree_add_item(tfmccack_tree, hf_uftp_tfmccack_client_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tfmccack_tree, hf_uftp_tfmccack_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS);
+    proto_tree_add_item(tfmccack_tree, hf_uftp_tfmccack_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
 
     return TFMCC_ACK_LEN;
 }
@@ -2006,7 +2006,7 @@ static void dissect_uftp_congctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 2;
     proto_tree_add_uint(congctrl_tree, hf_uftp_congctrl_cc_rate, tvb, offset, 2, rate);
     offset += 2;
-    proto_tree_add_item(congctrl_tree, hf_uftp_congctrl_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS);
+    proto_tree_add_item(congctrl_tree, hf_uftp_congctrl_tstamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
 
     itemcount = (tvb_reported_length(tvb) - hlen) / CC_ITEM_LEN;
     offset = hlen;

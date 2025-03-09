@@ -527,11 +527,11 @@ static int dissect_sftp_attrs(tvbuff_t *packet_tvb, packet_info *pinfo,
             offset += 4;
         }
         if(flags & SSH_FILEXFER_ATTR_ACMODTIME){
-            proto_tree_add_item(sftp_attrs_tree, hf_ssh_sftp_attrs_atime, packet_tvb, offset, 4, ENC_TIME_SECS);
+            proto_tree_add_item(sftp_attrs_tree, hf_ssh_sftp_attrs_atime, packet_tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
             offset += 4;
         }
         if(flags & SSH_FILEXFER_ATTR_ACMODTIME){
-            proto_tree_add_item(sftp_attrs_tree, hf_ssh_sftp_attrs_mtime, packet_tvb, offset, 4, ENC_TIME_SECS);
+            proto_tree_add_item(sftp_attrs_tree, hf_ssh_sftp_attrs_mtime, packet_tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
             offset += 4;
         }
         if(flags & SSH_FILEXFER_ATTR_EXTENDED){

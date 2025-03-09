@@ -10676,7 +10676,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 196):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_request_time,
-                                     tvb, offset, length, ENC_TIME_SECS);
+                                     tvb, offset, length, ENC_TIME_SECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 197):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_records,
@@ -10714,7 +10714,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 205):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_message_timestamp,
-                                     tvb, offset, length, ENC_TIME_SECS_NSECS);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 206):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_message_type,
@@ -10722,7 +10722,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 207):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_lease_duration,
-                                     tvb, offset, length, ENC_TIME_SECS);
+                                     tvb, offset, length, ENC_TIME_SECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 208):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_servername,
@@ -10735,11 +10735,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 210):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_timestamp,
-                                     tvb, offset, length, ENC_TIME_SECS_NSECS);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 211):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_event_timestamp,
-                                     tvb, offset, length, ENC_TIME_SECS_NSECS);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 212):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_username,
@@ -10933,7 +10933,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 258):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_record_ttl,
-                                     tvb, offset, length, ENC_TIME_SECS);
+                                     tvb, offset, length, ENC_TIME_SECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 259):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_raw_rdata,

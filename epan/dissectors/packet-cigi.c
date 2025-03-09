@@ -7056,7 +7056,7 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset++;
 
     if (select1 == 9) {
-        if (cigi_byte_order == ENC_BIG_ENDIAN) {
+        if (!(cigi_byte_order & ENC_LITTLE_ENDIAN)) {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red1, tvb, offset, 1, cigi_byte_order);
             offset++;
 
@@ -7091,7 +7091,7 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 
     if (select2 == 9) {
-        if (cigi_byte_order == ENC_BIG_ENDIAN) {
+        if (!(cigi_byte_order & ENC_LITTLE_ENDIAN)) {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_red2, tvb, offset, 1, cigi_byte_order);
             offset++;
 
