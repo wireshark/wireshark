@@ -2675,7 +2675,12 @@ proto_add_deregistered_slice (size_t block_size, void *mem_block);
 WS_DLL_PUBLIC void
 proto_free_field_strings (ftenum_t field_type, unsigned int field_display, const void *field_strings);
 
-/** Free fields deregistered in proto_deregister_field(). */
+/** Free fields deregistered in proto_deregister_field().
+ @note Dissectors should not call this function (including in preference
+ callbacks) because something might hold a reference to a field. This will
+ be automatically called when it is safe to do so. If there is other data
+ that needs to be freed along with the fields, e.g. a dynamically allocated
+ array of hf_id pointers, add it with proto_add_deregistered_data. */
 WS_DLL_PUBLIC void
 proto_free_deregistered_fields (void);
 
