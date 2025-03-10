@@ -188,6 +188,8 @@ static int hf_smb2_file_endoffile_info;
 static int hf_smb2_file_alternate_name_info;
 static int hf_smb2_file_stream_info;
 static int hf_smb2_file_pipe_info;
+static int hf_smb2_file_pipe_local_info;
+static int hf_smb2_file_pipe_remote_info;
 static int hf_smb2_file_compression_info;
 static int hf_smb2_file_network_open_info;
 static int hf_smb2_file_attribute_tag_info;
@@ -706,6 +708,8 @@ static int ett_smb2_file_endoffile_info;
 static int ett_smb2_file_alternate_name_info;
 static int ett_smb2_file_stream_info;
 static int ett_smb2_file_pipe_info;
+static int ett_smb2_file_pipe_local_info;
+static int ett_smb2_file_pipe_remote_info;
 static int ett_smb2_file_compression_info;
 static int ett_smb2_file_network_open_info;
 static int ett_smb2_file_attribute_tag_info;
@@ -904,14 +908,14 @@ static const value_string smb2_share_type_vals[] = {
 #define SMB2_FILE_ALTERNATE_NAME_INFO 0x15
 #define SMB2_FILE_STREAM_INFO	      0x16
 #define SMB2_FILE_PIPE_INFO	      0x17
+#define SMB2_FILE_PIPE_LOCAL_INFO     0x18
+#define SMB2_FILE_PIPE_REMOTE_INFO    0x19
 #define SMB2_FILE_COMPRESSION_INFO    0x1c
 #define SMB2_FILE_NETWORK_OPEN_INFO   0x22
 #define SMB2_FILE_ATTRIBUTE_TAG_INFO  0x23
 #define SMB2_FILE_NORMALIZED_NAME_INFO 0x30
 #define SMB2_FILE_POSIX_INFO          0x64
 #define SMB2_FILE_ID_INFO	      0x3b
-#define SMB2_FILE_PIPE_LOCAL_INFO     0x18
-#define SMB2_FILE_PIPE_REMOTE_INFO    0x19
 #define SMB2_FILE_BOTH_DIRECTORY_INFO 0x03
 #define SMB2_FILE_DIRECTORY_INFO      0x01
 #define SMB2_FILE_FULL_DIRECTORY_INFO 0x02
@@ -3189,6 +3193,45 @@ dissect_smb2_file_pipe_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 
 	return offset;
 }
+
+static int
+dissect_smb2_file_pipe_local_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	uint16_t    bc;
+	bool        trunc;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_pipe_local_info, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_file_pipe_local_info);
+	}
+
+	bc = tvb_captured_length_remaining(tvb, offset);
+	offset = dissect_qfi_SMB_FILE_PIPE_LOCAL_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+
+	return offset;
+}
+
+static int
+dissect_smb2_file_pipe_remote_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	uint16_t    bc;
+	bool        trunc;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_smb2_file_pipe_remote_info, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_file_pipe_remote_info);
+	}
+
+	bc = tvb_captured_length_remaining(tvb, offset);
+	offset = dissect_qfi_SMB_FILE_PIPE_REMOTE_INFO(tvb, pinfo, tree, offset, &bc, &trunc);
+
+	return offset;
+}
+
 
 static int
 dissect_smb2_file_compression_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
@@ -6607,6 +6650,12 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			break;
 		case SMB2_FILE_PIPE_INFO:
 			offset = dissect_smb2_file_pipe_info(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FILE_PIPE_LOCAL_INFO:
+			offset = dissect_smb2_file_pipe_local_info(tvb, pinfo, tree, offset, si);
+			break;
+		case SMB2_FILE_PIPE_REMOTE_INFO:
+			offset = dissect_smb2_file_pipe_remote_info(tvb, pinfo, tree, offset, si);
 			break;
 		case SMB2_FILE_COMPRESSION_INFO:
 			offset = dissect_smb2_file_compression_info(tvb, pinfo, tree, offset, si);
@@ -13534,6 +13583,14 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_file_pipe_local_info,
+			{ "SMB2_FILE_LOCAL_PIPE_INFO", "smb2.file_local_pipe_info", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_smb2_file_pipe_remote_info,
+			{ "SMB2_FILE_REMOTE_PIPE_INFO", "smb2.file_remote_pipe_info", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_smb2_file_compression_info,
 			{ "SMB2_FILE_COMPRESSION_INFO", "smb2.file_compression_info", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
@@ -15891,6 +15948,8 @@ proto_register_smb2(void)
 		&ett_smb2_file_alternate_name_info,
 		&ett_smb2_file_stream_info,
 		&ett_smb2_file_pipe_info,
+		&ett_smb2_file_pipe_local_info,
+		&ett_smb2_file_pipe_remote_info,
 		&ett_smb2_file_compression_info,
 		&ett_smb2_file_network_open_info,
 		&ett_smb2_file_attribute_tag_info,
