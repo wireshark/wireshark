@@ -10612,6 +10612,8 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         }
                         break;
                     case 2: /* WLAN location */
+                        /* Fall trough */
+                    case 3: /* Geo location */
                         /* Figure 5.3.2.10a: Location sub entry {entry type= WLAN location or Geo location} */
                         /* Length of location sub entry */
                         proto_tree_add_item_ret_uint(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_sub_ent_len, tvb, current_offset, 2, ENC_BIG_ENDIAN, &wlan_sub_ent_len);
@@ -10622,43 +10624,45 @@ de_nas_5gs_ue_policies_andsp_wlansp_rule(tvbuff_t* tvb, packet_info* pinfo _U_, 
                         current_offset++;
                         uint32_t o;
                         for (o = 0; o < num_loc_fields; o++) {
-                            /* Length of WLAN location field */
-                            proto_tree_add_item_ret_uint(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_wlan_loc_field_len, tvb, current_offset, 1, ENC_BIG_ENDIAN, &wlan_sub_ent_len);
-                            current_offset++;
-                            /* WLAN location field type */
-                            proto_tree_add_item_ret_uint(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_wlan_sub_ent_type, tvb, current_offset, 1, ENC_BIG_ENDIAN, &wlan_sub_ent_type);
-                            current_offset++;
-                            /* WLAN location field contents */
-                            switch (wlan_sub_ent_type) {
-                            case 0x81: /* HESSID */
-                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_hessid, tvb, current_offset, 6, ENC_BIG_ENDIAN);
-                                current_offset += 6;
-                                break;
-                            case 0x82: /* SSID */
-                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_ssid, tvb, current_offset, wlan_sub_ent_len - 1, ENC_NA);
-                                current_offset += wlan_sub_ent_len - 1;
-                                break;
-                            case 0x84: /* BSSID */
-                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_bssid, tvb, current_offset, 6, ENC_BIG_ENDIAN);
-                                current_offset += 6;
-                                break;
-                            default:
-                                current_offset += wlan_sub_ent_len - 3;
-                                break;
+                            if (loc_entry_type == 2) {
+                                    /* WLAN location */
+                                    /* Length of WLAN location field */
+                                proto_tree_add_item_ret_uint(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_wlan_loc_field_len, tvb, current_offset, 1, ENC_BIG_ENDIAN, &wlan_sub_ent_len);
+                                current_offset++;
+                                /* WLAN location field type */
+                                proto_tree_add_item_ret_uint(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_wlan_sub_ent_type, tvb, current_offset, 1, ENC_BIG_ENDIAN, &wlan_sub_ent_type);
+                                current_offset++;
+                                /* WLAN location field contents */
+                                switch (wlan_sub_ent_type) {
+                                case 0x81: /* HESSID */
+                                    proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_hessid, tvb, current_offset, 6, ENC_BIG_ENDIAN);
+                                    current_offset += 6;
+                                    break;
+                                case 0x82: /* SSID */
+                                    proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_ssid, tvb, current_offset, wlan_sub_ent_len - 1, ENC_NA);
+                                    current_offset += wlan_sub_ent_len - 1;
+                                    break;
+                                case 0x84: /* BSSID */
+                                    proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_wlansp_loc_bssid, tvb, current_offset, 6, ENC_BIG_ENDIAN);
+                                    current_offset += 6;
+                                    break;
+                                default:
+                                    current_offset += wlan_sub_ent_len - 3;
+                                    break;
+                                }
+                            } else {
+                                /* Geo location */
+                                /* Anchor latitude  */
+                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_geo_loc_anc_lat, tvb, current_offset, 4, ENC_BIG_ENDIAN);
+                                current_offset += 4;
+                                /* Anchor longitude */
+                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_geo_loc_anc_long, tvb, current_offset, 4, ENC_BIG_ENDIAN);
+                                current_offset += 4;
+                                /* Radius */
+                                proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_geo_loc_rad, tvb, current_offset, 2, ENC_BIG_ENDIAN);
+                                current_offset += 2;
                             }
                         }
-                        break;
-                    case 3: /* Geo location */
-                        proto_item_set_len(item, 10 + 2);
-                        /* Anchor latitude  */
-                        proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_geo_loc_anc_lat, tvb, current_offset, 4, ENC_BIG_ENDIAN);
-                        current_offset += 4;
-                        /* Anchor longitude */
-                        proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_geo_loc_anc_long, tvb, current_offset, 4, ENC_BIG_ENDIAN);
-                        current_offset += 4;
-                        /* Radius */
-                        proto_tree_add_item(loc_tree_sub_tree, hf_nas_5gs_geo_loc_rad, tvb, current_offset, 2, ENC_BIG_ENDIAN);
-                        current_offset += 2;
                         break;
                     default:
                         break;
