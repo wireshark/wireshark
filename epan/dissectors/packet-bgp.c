@@ -4505,7 +4505,7 @@ decode_sr_policy_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t afi)
        proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_endpoint_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
        return 13;
    } else {
-       proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_endpoint_v6, tvb, offset, 4, ENC_NA);
+       proto_tree_add_item(tree, hf_bgp_sr_policy_nlri_endpoint_v6, tvb, offset, 16, ENC_NA);
        return 25;
    }
 }
