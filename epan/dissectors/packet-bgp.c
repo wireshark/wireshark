@@ -904,6 +904,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_NLRI_TLV_AREA_ID                        514
 #define BGP_NLRI_TLV_IGP_ROUTER_ID                  515
 #define BGP_NLRI_TLV_BGP_ROUTER_ID                  516
+#define BGP_NLRI_TLV_BGP_CONFEDERATION_MEMBER       517
 #define BGP_NLRI_TLV_SRV6_SID_INFO                  518
 
 #define BGP_NLRI_TLV_NODE_FLAG_BITS                 1024
@@ -2934,6 +2935,8 @@ static int hf_bgp_ls_tlv_igp_router;                          /* 515 */
 static int hf_bgp_ls_tlv_igp_router_id;
 static int hf_bgp_ls_tlv_bgp_router_id;                       /* 516 */
 static int hf_bgp_ls_tlv_bgp_router_id_id;
+static int hf_bgp_ls_tlv_bgp_confederation_member;            /* 517 */
+static int hf_bgp_ls_tlv_bgp_confederation_member_as;
 static int hf_bgp_ls_tlv_srv6_sid_info;                       /* 518 */
 static int hf_bgp_ls_tlv_srv6_sid_info_sid;
 
@@ -5141,6 +5144,13 @@ static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, int 
               proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
               proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
               proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_router_id_id, tvb, offset + 4, sub_length, ENC_NA);
+          break;
+          case BGP_NLRI_TLV_BGP_CONFEDERATION_MEMBER:
+              tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_bgp_confederation_member, tvb, offset, sub_length+4, ENC_NA);
+              tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_mp_reach_nlri);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_confederation_member_as, tvb, offset + 4, sub_length, ENC_BIG_ENDIAN);
           break;
           default:
               expert_add_info_format(pinfo, tree, &ei_bgp_ls_warn, "Undefined node Descriptor Sub-TLV type (%u)!", type);
@@ -13723,6 +13733,12 @@ proto_register_bgp(void)
       { &hf_bgp_ls_tlv_bgp_router_id_id,
         { "BGP Router-ID", "bgp.ls.tlv.bgp_router_id.id", FT_IPv4,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_bgp_confederation_member,
+        { "BGP Confederation Member", "bgp.confederation_member", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_ls_tlv_bgp_confederation_member_as,
+        { "BGP Confederation Member AS", "bgp.confederation_member.as", FT_UINT32,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ls_tlv_srv6_sid_info,
         { "SRv6 SID Information TLV", "bgp.ls.tlv.srv6_sid_info", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
