@@ -12745,7 +12745,7 @@ static const value_string pipe_end_vals[] = {
 /*  FILE_PIPE_LOCAL_INFO FilePipeLocalInformation - [MS-FSCC]-v20240708 2.4.37
     SMB2 QUERY_INFO FilePipeLocalInformation      - [MS-SMB2]-v20240708 2.2.37
 */
-int
+static int
 dissect_qfi_SMB_FILE_PIPE_LOCAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		    int offset, uint16_t *bcp, bool *trunc)
 {
@@ -12806,7 +12806,7 @@ dissect_qfi_SMB_FILE_PIPE_LOCAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 /*  FILE_PIPE_REMOTE_INFO PipeRemoteInformation - [MS-FSCC]-v20240708  [MS-SMB2]-v20140124.4.38
     SMB2 QUERY_INFO File  PipeRemoteInformation - [MS-SMB2]-v20240729 2.2.37
 */
-int
+static int
 dissect_qfi_SMB_FILE_PIPE_REMOTE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		    int offset, uint16_t *bcp, bool *trunc)
 {
