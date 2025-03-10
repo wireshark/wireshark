@@ -4236,7 +4236,7 @@ static const range_string bcc_call_state_vals[] = {
 static uint16_t
 de_bcc_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_state, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_state, tvb, offset, 1, ENC_NA);
 
     return 1;
 }
@@ -7783,7 +7783,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_bcc_call_state,
           { "Call state", "gsm_a.dtap.bcc.call_state",
-            FT_UINT24, BASE_DEC|BASE_RANGE_STRING, RVALS(bcc_call_state_vals), 0x0,
+            FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(bcc_call_state_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_bcc_cause_structure,
