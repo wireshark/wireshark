@@ -225,6 +225,7 @@ static const value_string vnc_server_message_types_vs[] = {
 #define VNC_ENCODING_TYPE_TRLE	             15
 #define VNC_ENCODING_TYPE_RLE	             16
 #define VNC_ENCODING_TYPE_HITACHI_ZYWRLE     17
+#define VNC_ENCODING_TYPE_OPEN_H264          50
 #define VNC_ENCODING_TYPE_JPEG_0             -32
 #define VNC_ENCODING_TYPE_JPEG_1             -31
 #define VNC_ENCODING_TYPE_JPEG_2             -30
@@ -245,7 +246,10 @@ static const value_string vnc_server_message_types_vs[] = {
 #define VNC_ENCODING_TYPE_COMPRESSION_7      0xFFFFFF07
 #define VNC_ENCODING_TYPE_COMPRESSION_8      0xFFFFFF08
 #define VNC_ENCODING_TYPE_COMPRESSION_9      0xFFFFFF09
-#define VNC_ENCODING_TYPE_WMVi               0x574D5669
+#define VNC_ENCODING_TYPE_VMWARE_CURSOR      0x574D5664
+#define VNC_ENCODING_TYPE_VMWARE_CURSOR_POS  0x574D5666
+#define VNC_ENCODING_TYPE_VMWARE_LED_STATE   0x574D5668
+#define VNC_ENCODING_TYPE_VMWARE_DISPLAY_MODE_CHANGE 0x574D5669
 #define VNC_ENCODING_TYPE_CACHE              0xFFFF0000
 #define VNC_ENCODING_TYPE_CACHE_ENABLE       0xFFFF0001
 #define VNC_ENCODING_TYPE_XOR_ZLIB           0xFFFF0002
@@ -262,8 +266,12 @@ static const value_string vnc_server_message_types_vs[] = {
 #define VNC_ENCODING_TYPE_POINTER_CHANGE     -257
 #define VNC_ENCODING_TYPE_EXT_KEY_EVENT      -258
 #define VNC_ENCODING_TYPE_AUDIO              -259
+#define VNC_ENCODING_TYPE_QEMU_LED_STATE     -261
 #define VNC_ENCODING_TYPE_DESKTOP_NAME       -307
 #define VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE -308
+#define VNC_ENCODING_TYPE_FENCE              -312
+#define VNC_ENCODING_TYPE_CONTINUOUS_UPDATES -313
+#define VNC_ENCODING_TYPE_CURSOR_WITH_ALPHA  -314
 #define VNC_ENCODING_TYPE_KEYBOARD_LED_STATE 0XFFFE0000
 #define VNC_ENCODING_TYPE_SUPPORTED_MESSAGES 0XFFFE0001
 #define VNC_ENCODING_TYPE_SUPPORTED_ENCODINGS 0XFFFE0002
@@ -293,6 +301,7 @@ static const value_string encoding_types_vs[] = {
 	{ VNC_ENCODING_TYPE_TRLE,		"Tiled Run-Length"     },
 	{ VNC_ENCODING_TYPE_RLE,		"ZRLE"                 },
 	{ VNC_ENCODING_TYPE_HITACHI_ZYWRLE,	"Hitachi ZYWRLE"       },
+	{ VNC_ENCODING_TYPE_OPEN_H264, 		"Open H.264" },
 	{ VNC_ENCODING_TYPE_JPEG_0,		"JPEG quality level 0" },
 	{ VNC_ENCODING_TYPE_JPEG_1,		"JPEG quality level 1" },
 	{ VNC_ENCODING_TYPE_JPEG_2,		"JPEG quality level 2" },
@@ -313,6 +322,10 @@ static const value_string encoding_types_vs[] = {
 	{ VNC_ENCODING_TYPE_COMPRESSION_7, 	"Compression level 7"  },
 	{ VNC_ENCODING_TYPE_COMPRESSION_8, 	"Compression level 8"  },
 	{ VNC_ENCODING_TYPE_COMPRESSION_9, 	"Compression level 9"  },
+	{ VNC_ENCODING_TYPE_VMWARE_CURSOR, 	"VMware Cursor (pseudo)" },
+	{ VNC_ENCODING_TYPE_VMWARE_CURSOR_POS, 	"VMware Cursor Position (pseudo)" },
+	{ VNC_ENCODING_TYPE_VMWARE_LED_STATE, 	"VMware LED State (pseudo)" },
+	{ VNC_ENCODING_TYPE_VMWARE_DISPLAY_MODE_CHANGE, "VMWare Display Mode Change (pseudo)" },
 	/* FIXME understand for real what the below mean. Taken from Ultra VNC source code */
 /*	{ VNC_ENCODING_TYPE_CACHE,     */
 	{ VNC_ENCODING_TYPE_CACHE_ENABLE, 	"Enable Caching"},
@@ -329,7 +342,11 @@ static const value_string encoding_types_vs[] = {
 	{ VNC_ENCODING_TYPE_FTP_PROTO_VER, 	"FTP protocol version" },
 	{ VNC_ENCODING_TYPE_POINTER_CHANGE,	"QEMU Pointer Motion Change (pseudo)" },
 	{ VNC_ENCODING_TYPE_EXT_KEY_EVENT, 	"QEMU Extended Key Event (pseudo)" },
+	{ VNC_ENCODING_TYPE_FENCE, 		"Fence (pseudo)" },
+	{ VNC_ENCODING_TYPE_CONTINUOUS_UPDATES, "Continuous Updates (pseudo)" },
+	{ VNC_ENCODING_TYPE_CURSOR_WITH_ALPHA, 	"Cursor With Alpha (pseudo)" },
 	{ VNC_ENCODING_TYPE_AUDIO,		"QEMU Audio (pseudo)" },
+	{ VNC_ENCODING_TYPE_QEMU_LED_STATE, 	"QEMU LED State (pseudo)" },
 	{ VNC_ENCODING_TYPE_DESKTOP_NAME,	"Desktop Name"         },
 	{ VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE,	"Extended Desktop Size"},
 	{ VNC_ENCODING_TYPE_KEYBOARD_LED_STATE,	"Keyboard LED State"   },
