@@ -261,7 +261,7 @@ static const value_string vnc_server_message_types_vs[] = {
 #define VNC_ENCODING_TYPE_FTP_PROTO_VER      0xFFFF8002
 #define VNC_ENCODING_TYPE_POINTER_CHANGE     -257
 #define VNC_ENCODING_TYPE_EXT_KEY_EVENT      -258
-#define VNC_ENCODING_TYPE_AUDIO               259
+#define VNC_ENCODING_TYPE_AUDIO              -259
 #define VNC_ENCODING_TYPE_DESKTOP_NAME       -307
 #define VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE -308
 #define VNC_ENCODING_TYPE_KEYBOARD_LED_STATE 0XFFFE0000
@@ -290,6 +290,7 @@ static const value_string encoding_types_vs[] = {
 	{ VNC_ENCODING_TYPE_TIGHT,		"Tight"                },
 	{ VNC_ENCODING_TYPE_ZLIBHEX,		"ZlibHex"              },
 	{ VNC_ENCODING_TYPE_ULTRA,		"Ultra"		       },
+	{ VNC_ENCODING_TYPE_TRLE,		"Tiled Run-Length"     },
 	{ VNC_ENCODING_TYPE_RLE,		"ZRLE"                 },
 	{ VNC_ENCODING_TYPE_HITACHI_ZYWRLE,	"Hitachi ZYWRLE"       },
 	{ VNC_ENCODING_TYPE_JPEG_0,		"JPEG quality level 0" },
@@ -326,8 +327,11 @@ static const value_string encoding_types_vs[] = {
 */	{ VNC_ENCODING_TYPE_SERVER_STATE, 	"Server State"	       },
 	{ VNC_ENCODING_TYPE_ENABLE_KEEP_ALIVE, 	"Enable Keep Alive"    },
 	{ VNC_ENCODING_TYPE_FTP_PROTO_VER, 	"FTP protocol version" },
-	{ VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE,	"Extended Desktop Size"},
+	{ VNC_ENCODING_TYPE_POINTER_CHANGE,	"QEMU Pointer Motion Change (pseudo)" },
+	{ VNC_ENCODING_TYPE_EXT_KEY_EVENT, 	"QEMU Extended Key Event (pseudo)" },
+	{ VNC_ENCODING_TYPE_AUDIO,		"QEMU Audio (pseudo)" },
 	{ VNC_ENCODING_TYPE_DESKTOP_NAME,	"Desktop Name"         },
+	{ VNC_ENCODING_TYPE_EXTENDED_DESK_SIZE,	"Extended Desktop Size"},
 	{ VNC_ENCODING_TYPE_KEYBOARD_LED_STATE,	"Keyboard LED State"   },
 	{ VNC_ENCODING_TYPE_SUPPORTED_MESSAGES,	"Supported Messages"   },
 	{ VNC_ENCODING_TYPE_SUPPORTED_ENCODINGS, "Supported Encodings" },
