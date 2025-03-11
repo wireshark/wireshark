@@ -29,20 +29,9 @@
 #include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/zlib_compat.h>
 #include "file_wrappers.h"
 #include "wtap-int.h"
-
-#ifdef HAVE_ZLIBNG
-#include <zlib-ng.h>
-#define ZLIB_PREFIX(x) zng_ ## x
-typedef zng_stream zlib_stream;
-#else
-#ifdef HAVE_ZLIB
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
-#endif
 
 static const uint8_t blf_magic[] = { 'L', 'O', 'G', 'G' };
 static const uint8_t blf_obj_magic[] = { 'L', 'O', 'B', 'J' };
@@ -819,7 +808,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
 
     }
     else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
         unsigned char *compressed_data = g_try_malloc((size_t)data_length);
         if (compressed_data == NULL) {
             *err = WTAP_ERR_INTERNAL;
@@ -963,12 +952,12 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         g_free(compressed_data);
         container->real_data = buf;
         return true;
-#else
+#else /* USE_ZLIB_OR_ZLIBNG */
         (void) params;
         *err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
         *err_info = ws_strdup("blf_pull_logcontainer_into_memory: reading gzip-compressed containers isn't supported");
         return false;
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
     }
 
     return false;

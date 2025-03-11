@@ -22,18 +22,8 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include "proto_data.h"
+#include <wsutil/zlib_compat.h>
 
-#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
-
-#ifdef HAVE_ZLIBNG
-#define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
-typedef zng_stream zlib_stream;
-#endif /* HAVE_ZLIBNG */
 void proto_reg_handoff_blip(void);
 void proto_register_blip(void);
 
@@ -57,7 +47,7 @@ typedef struct {
 #endif
 } blip_conversation_entry_t;
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 typedef enum
 {
 	no_error = 0,
@@ -127,7 +117,7 @@ static const val64_string msg_types[] = {
 };
 
 // Preferences
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 static unsigned max_uncompressed_size = 64; // Max uncompressed body size in Kb
 #endif
 
@@ -263,7 +253,7 @@ get_blip_conversation(packet_info* pinfo)
 	return conversation_entry_ptr;
 }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 static bool
 z_stream_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
@@ -394,7 +384,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, int offset, int 
 
 	return decompressedChild;
 }
-#endif /* HAVE_ZLIB */
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 static int
 dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data)
@@ -477,16 +467,16 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	bool compressed = is_compressed(value_frame_flags);
 
 	if(compressed) {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 		tvb_to_use = decompress(pinfo, blip_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
 		if(!tvb_to_use) {
 			return tvb_reported_length(tvb);
 		}
 		offset = 0;
-#else /* ! HAVE_ZLIB */
+#else /* USE_ZLIB_OR_ZLIBNG */
 		proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<decompression support is not available>");
 		return tvb_reported_length(tvb);
-#endif /* ! HAVE_ZLIB */
+#endif /* USE_ZLIB_OR_ZLIBNG */
 	}
 
 	// Is this the first frame in a message?
@@ -612,7 +602,7 @@ proto_register_blip(void)
 
 	blip_handle = register_dissector("blip", dissect_blip, proto_blip);
 
-#ifdef HAVE_ZLIB
+#ifdef USE_ZLIB_OR_ZLIBNG
 	module_t *blip_module = prefs_register_protocol(proto_blip, NULL);
 	prefs_register_uint_preference(blip_module, "max_uncompressed_size",
 						"Maximum uncompressed message size (Kb)",
@@ -620,7 +610,7 @@ proto_register_blip(void)
 						"If a message is larger than this, then the packet containing "
 						"the message, as well as subsequent packets, will fail to "
 						"decompress", 10, &max_uncompressed_size);
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 }
 
 void

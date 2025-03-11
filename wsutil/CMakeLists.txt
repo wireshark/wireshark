@@ -154,6 +154,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	wsjson.h
 	wslog.h
 	xtea.h
+	zlib_compat.h
 )
 
 set(WSUTIL_COMMON_FILES

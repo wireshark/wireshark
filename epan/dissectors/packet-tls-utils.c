@@ -14,19 +14,6 @@
 
 #include "config.h"
 
-#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
-#define ZLIB_CONST
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
-
-#ifdef HAVE_ZLIBNG
-#define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
-typedef zng_stream zlib_stream;
-#endif /* HAVE_ZLIBNG */
-
 #include <stdlib.h>
 #include <errno.h>
 
@@ -49,6 +36,7 @@ typedef zng_stream zlib_stream;
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/rsa.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/zlib_compat.h>
 #include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
@@ -2797,7 +2785,7 @@ quic_transport_parameter_id_base_custom(char *result, uint64_t parameter_id)
 */
 struct _SslDecompress {
     int compression;
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     zlib_stream istream;
 #endif
 };
@@ -4374,7 +4362,7 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret,
 /* HMAC and the Pseudorandom function }}} */
 
 /* Record Decompression (after decryption) {{{ */
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 /* memory allocation functions for zlib initialization */
 static void* ssl_zalloc(void* opaque _U_, unsigned int no, unsigned int size)
 {
@@ -4384,13 +4372,13 @@ static void ssl_zfree(void* opaque _U_, void* addr)
 {
     g_free(addr);
 }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 static SslDecompress*
 ssl_create_decompressor(int compression)
 {
     SslDecompress *decomp;
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     int err;
 #endif
 
@@ -4399,7 +4387,7 @@ ssl_create_decompressor(int compression)
     decomp = wmem_new(wmem_file_scope(), SslDecompress);
     decomp->compression = compression;
     switch (decomp->compression) {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
         case 1:  /* DEFLATE */
             decomp->istream.zalloc = ssl_zalloc;
             decomp->istream.zfree = ssl_zfree;
@@ -4414,7 +4402,7 @@ ssl_create_decompressor(int compression)
                 return NULL;
             }
             break;
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
         default:
             ssl_debug_printf("ssl_create_decompressor: unsupported compression method %d\n", decomp->compression);
             return NULL;
@@ -4422,7 +4410,7 @@ ssl_create_decompressor(int compression)
     return decomp;
 }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 static int
 ssl_decompress_record(SslDecompress* decomp, const unsigned char* in, unsigned inl, StringInfo* out_str, unsigned* outl)
 {
@@ -4458,14 +4446,14 @@ DIAG_ON(cast-qual)
     }
     return 0;
 }
-#else
+#else /* USE_ZLIB_OR_ZLIBNG */
 int
 ssl_decompress_record(SslDecompress* decomp _U_, const unsigned char* in _U_, unsigned inl _U_, StringInfo* out_str _U_, unsigned* outl _U_)
 {
     ssl_debug_printf("ssl_decompress_record: unsupported compression method %d\n", decomp->compression);
     return -1;
 }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 /* Record Decompression (after decryption) }}} */
 
 /* Create a new structure to store decrypted chunks. {{{ */
@@ -4573,7 +4561,7 @@ ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U
     if (dec->sn_evp)
       ssl_cipher_cleanup(&dec->sn_evp);
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
     if (dec->decomp != NULL && dec->decomp->compression == 1 /* DEFLATE */)
         ZLIB_PREFIX(inflateEnd)(&dec->decomp->istream);
 #endif

@@ -22,21 +22,10 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/zlib_compat.h>
 
 #include "packet-http.h"
 #include "packet-tcp.h"
-
-#ifdef HAVE_ZLIBNG
-#define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
-typedef zng_stream zlib_stream;
-#else
-#ifdef HAVE_ZLIB
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
-#endif
 
 /*
  * The information used comes from:
@@ -70,33 +59,25 @@ typedef struct {
   const char   *subprotocol;
   uint16_t      server_port;
   bool          permessage_deflate;
-#ifdef HAVE_ZLIBNG
+#ifdef USE_ZLIB_OR_ZLIBNG
   bool          permessage_deflate_ok;
   int8_t        server_wbits;
   int8_t        client_wbits;
-  zng_streamp     server_take_over_context;
-  zng_streamp     client_take_over_context;
-#else
-#ifdef HAVE_ZLIB
-  bool          permessage_deflate_ok;
-  int8_t        server_wbits;
-  int8_t        client_wbits;
-  z_streamp     server_take_over_context;
-  z_streamp     client_take_over_context;
-#endif
-#endif
+  zlib_streamp  server_take_over_context;
+  zlib_streamp  client_take_over_context;
+#endif /* USE_ZLIB_OR_ZLIBNG */
   uint32_t      frag_id;
   /* The following two parameters are only valid on the first linear pass. */
   uint8_t       first_frag_opcode;
   bool          first_frag_pmc;
 } websocket_conv_t;
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 typedef struct {
   uint8_t *decompr_payload;
   unsigned decompr_len;
 } websocket_packet_t;
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 static int websocket_follow_tap;
 
@@ -234,7 +215,7 @@ tvb_unmasked(tvbuff_t *tvb, packet_info *pinfo, const unsigned offset, unsigned 
   return tvb_new_child_real_data(tvb, data_unmask, unmasked_length, payload_length);
 }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 static int8_t
 websocket_extract_wbits(const char *str)
 {
@@ -265,17 +246,10 @@ websocket_zfree(void *opaque _U_, void *addr)
 {
   wmem_free(wmem_file_scope(), addr);
 }
-#ifdef HAVE_ZLIBNG
-static zng_streamp
+static zlib_streamp
 websocket_init_z_stream_context(int8_t wbits)
 {
-  zng_streamp z_strm = wmem_new0(wmem_file_scope(), zlib_stream);
-#else
-static z_streamp
-websocket_init_z_stream_context(int8_t wbits)
-{
-  z_streamp z_strm = wmem_new0(wmem_file_scope(), zlib_stream);
-#endif
+  zlib_streamp z_strm = wmem_new0(wmem_file_scope(), zlib_stream);
   z_strm->zalloc = websocket_zalloc;
   z_strm->zfree = websocket_zfree;
 
@@ -293,11 +267,7 @@ websocket_init_z_stream_context(int8_t wbits)
  * Otherwise false is returned.
  */
 static bool
-#ifdef HAVE_ZLIBNG
-websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zng_streamp z_strm, tvbuff_t** uncompressed_tvb, uint32_t key)
-#else
-websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff_t **uncompressed_tvb, uint32_t key)
-#endif
+websocket_uncompress(tvbuff_t* tvb, packet_info* pinfo, zlib_streamp z_strm, tvbuff_t** uncompressed_tvb, uint32_t key)
 {
   /*
    * Decompression a message: append "0x00 0x00 0xff 0xff" to the end of
@@ -354,7 +324,7 @@ websocket_uncompress(tvbuff_t *tvb, packet_info *pinfo, z_streamp z_strm, tvbuff
     return false;
   }
 }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 static void
 dissect_websocket_control_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t opcode)
@@ -411,17 +381,13 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     handle = dissector_get_uint_handle(port_subdissector_table, websocket_conv->server_port);
   }
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
   if (websocket_conv->permessage_deflate_ok && pmc) {
     tvbuff_t   *uncompressed = NULL;
     bool        uncompress_ok = false;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-#ifdef HAVE_ZLIBNG
-      zng_streamp z_strm;
-#else
-      z_streamp z_strm;
-#endif
+      zlib_streamp z_strm;
       int8_t wbits;
 
       if (pinfo->destport == websocket_conv->server_port) {
@@ -462,7 +428,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       tvb = uncompressed;
     }
   }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
   if (have_tap_listener(websocket_follow_tap)) {
     tap_queue_packet(websocket_follow_tap, pinfo, tvb);
@@ -535,7 +501,7 @@ websocket_parse_extensions(websocket_conv_t *websocket_conv, const char *str)
 
   websocket_conv->permessage_deflate = !!strstr(str, "permessage-deflate")
       || !!strstr(str, "x-webkit-deflate-frame");
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
   websocket_conv->permessage_deflate_ok = pref_decompress &&
        websocket_conv->permessage_deflate;
   if (websocket_conv->permessage_deflate_ok) {
@@ -552,7 +518,7 @@ websocket_parse_extensions(websocket_conv_t *websocket_conv, const char *str)
           websocket_init_z_stream_context(websocket_conv->client_wbits);
     }
   }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 }
 
 static void

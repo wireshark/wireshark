@@ -16,25 +16,12 @@
 
 #include <string.h>
 #include <wsutil/glib-compat.h>
-
-
-#ifdef HAVE_ZLIBNG
-#define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
-typedef zng_stream zlib_stream;
-#else
-#ifdef HAVE_ZLIB
-#define ZLIB_CONST
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* HAVE_ZLIB */
-#endif
+#include <wsutil/zlib_compat.h>
 
 #include "tvbuff.h"
 #include <wsutil/wslog.h>
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+#ifdef USE_ZLIB_OR_ZLIBNG
 /*
  * Uncompresses a zlib compressed packet inside a message of tvb at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
@@ -51,11 +38,7 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 	uint8_t   *compr;
 	uint8_t   *uncompr        = NULL;
 	tvbuff_t  *uncompr_tvb    = NULL;
-#ifdef HAVE_ZLIBNG
-	zng_streamp  strm;
-#else
-	z_streamp  strm;
-#endif
+	zlib_streamp  strm;
 	Bytef     *strmbuf;
 	unsigned   inits_done     = 0;
 	int        wbits          = MAX_WBITS;
@@ -314,13 +297,13 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 	wmem_free(NULL, compr);
 	return uncompr_tvb;
 }
-#else
+#else /* USE_ZLIB_OR_ZLIBNG */
 tvbuff_t *
 tvb_uncompress_zlib(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
 {
 	return NULL;
 }
-#endif
+#endif /* USE_ZLIB_OR_ZLIBNG */
 
 tvbuff_t *
 tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)

@@ -26,22 +26,7 @@
 #include "wtap-int.h"
 
 #include <wsutil/file_util.h>
-
-#if defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG)
-#define USE_ZLIB_OR_ZLIBNG
-#define ZLIB_CONST
-#define ZLIB_PREFIX(x) x
-#include <zlib.h>
-typedef z_stream zlib_stream;
-#endif /* defined(HAVE_ZLIB) && !defined(HAVE_ZLIBNG) */
-
-#ifdef HAVE_ZLIBNG
-#define USE_ZLIB_OR_ZLIBNG
-#define HAVE_INFLATEPRIME 1
-#define ZLIB_PREFIX(x) zng_ ## x
-#include <zlib-ng.h>
-typedef zng_stream zlib_stream;
-#endif /* HAVE_ZLIBNG */
+#include <wsutil/zlib_compat.h>
 
 #ifdef HAVE_ZSTD
 #include <zstd.h>
@@ -720,11 +705,7 @@ zlib_fill_out_buffer(FILE_T state)
 {
     int ret = 0;        /* XXX */
     uint32_t crc, len;
-#ifdef HAVE_ZLIBNG
-    zng_streamp strm = &(state->strm);
-#else /* HAVE_ZLIBNG */
-    z_streamp strm = &(state->strm);
-#endif /* HAVE_ZLIBNG */
+    zlib_streamp strm = &(state->strm);
     unsigned char *buf = state->out.buf;
     unsigned int count = state->size << 1;
 
@@ -2652,11 +2633,7 @@ static int
 gz_init(GZWFILE_T state)
 {
     int ret;
-#ifdef HAVE_ZLIBNG
-    zng_streamp strm = &(state->strm);
-#else /* HAVE_ZLIBNG */
-    z_streamp strm = &(state->strm);
-#endif /* HAVE_ZLIBNG */
+    zlib_streamp strm = &(state->strm);
 
     /* allocate input and output buffers */
     state->in = (unsigned char *)g_try_malloc(state->want);
@@ -2709,11 +2686,7 @@ gz_comp(GZWFILE_T state, int flush)
     int ret;
     ssize_t got;
     ptrdiff_t have;
-#ifdef HAVE_ZLIBNG
-    zng_streamp strm = &(state->strm);
-#else /* HAVE_ZLIBNG */
-    z_streamp strm = &(state->strm);
-#endif /* HAVE_ZLIBNG */
+    zlib_streamp strm = &(state->strm);
     /* allocate memory if this is the first time through */
     if (state->size == 0 && gz_init(state) == -1)
         return -1;
@@ -2772,11 +2745,7 @@ gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
 {
     unsigned put = len;
     unsigned n;
-#ifdef HAVE_ZLIBNG
-    zng_streamp strm;
-#else /* HAVE_ZLIBNG */
-    z_streamp strm;
-#endif /* HAVE_ZLIBNG */
+    zlib_streamp strm;
 
     strm = &(state->strm);
 
