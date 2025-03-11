@@ -1441,6 +1441,7 @@ static const range_string dns_dso_type_rvals[] = {
 #define DNS_SVCB_KEY_ECH              5 /* draft-ietf-tls-svcb-ech-00 */
 #define DNS_SVCB_KEY_IPV6HINT         6
 #define DNS_SVCB_KEY_DOHPATH          7 /* draft-ietf-add-svcb-dns-08 */
+#define DNS_SVCB_KEY_OHTTP            8 /* rfc9540 */
 #define DNS_SVCB_KEY_ODOHCONFIG   32769 /* draft-pauly-dprive-oblivious-doh-02 */
 #define DNS_SVCB_KEY_RESERVED     65535
 
@@ -1457,6 +1458,7 @@ static const value_string dns_svcb_param_key_vals[] = {
   { DNS_SVCB_KEY_ECH,           "ech" },
   { DNS_SVCB_KEY_IPV6HINT,      "ipv6hint" },
   { DNS_SVCB_KEY_DOHPATH,       "dohpath" },
+  { DNS_SVCB_KEY_OHTTP,         "ohttp" },
   { DNS_SVCB_KEY_ODOHCONFIG,    "odohconfig" },
   { DNS_SVCB_KEY_RESERVED,      "key65535" },
   { 0,                          NULL }
@@ -4063,6 +4065,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               proto_tree_add_item_ret_string(svcb_param_tree, hf_dns_svcb_param_dohpath, tvb, cur_offset, svc_param_length, ENC_UTF_8|ENC_NA, pinfo->pool, &dohpath);
               cur_offset += svc_param_length;
               proto_item_append_text(svcb_param_ti, "=%s", dohpath);
+              break;
+            case DNS_SVCB_KEY_OHTTP:
               break;
             case DNS_SVCB_KEY_ODOHCONFIG:
               dissect_dns_svcparam_base64(svcb_param_tree, svcb_param_ti, hf_dns_svcb_param_odohconfig, tvb, cur_offset, svc_param_length);
