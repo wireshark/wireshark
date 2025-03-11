@@ -322,7 +322,7 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *
              */
             proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
             offset += 4;
-        } else if ((min >= INT64_MIN) && (max <= INT64_C(9223372036854775807))) {
+        } else if (max <= INT64_C(9223372036854775807)) {
             /* if the lower bound is greater than or equal to –2^63 (–9223372036854775808) and the upper bound is less than or equal to 2^63 – 1 (9223372036854775807),
              * then every value of the integer type shall be encoded as a fixed-size signed number in an eight-octet words
              */
@@ -550,6 +550,8 @@ static tvbuff_t *dissect_oer_bit_string_display(tvbuff_t *tvb, uint32_t offset, 
     tvbuff_t *out_tvb = NULL;
     uint32_t pad_length=0;
     uint64_t value;
+
+    DISSECTOR_ASSERT(length > 0);
 
     uint32_t byte_length = (length + 7) / 8;
     out_tvb = oer_tvb_new_subset_length(tvb, offset, byte_length);
