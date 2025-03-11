@@ -1668,7 +1668,12 @@ static const value_string initiator_vals[] = {
 
 static void freq_compensation(char *buf, int16_t value) {
     if (value != -16384)
+    {
+        /* Sign-extend the 15-bit signed integer */
+        if (value & 0x4000)
+            value |= 0x8000;
         snprintf(buf, ITEM_LABEL_LENGTH, "%g ppm", 0.01 * value);
+    }
     else
         snprintf(buf, ITEM_LABEL_LENGTH, "Not Available");
 }
@@ -3080,7 +3085,7 @@ dissect_bthci_evt_cs_result_steps(tvbuff_t *tvb, int offset, packet_info *pinfo 
         return offset;
     }
 
-    if (step_mode != 2) {
+    if (step_mode != 2 && step_data_length) {
         pq_item = proto_tree_add_item(step_tree, hf_bthci_evt_packet_quality, tvb, offset, 1, ENC_NA);
         pq_tree = proto_item_add_subtree(pq_item, ett_packet_quality);
         proto_tree_add_item(pq_tree, hf_bthci_evt_packet_quality_aa_check, tvb, offset, 1, ENC_NA);
@@ -3089,7 +3094,7 @@ dissect_bthci_evt_cs_result_steps(tvbuff_t *tvb, int offset, packet_info *pinfo 
         offset += 1;
     }
 
-    if (step_mode == 0) {
+    if (step_mode == 0 && step_data_length) {
         proto_tree_add_item(step_tree, hf_bthci_evt_rssi, tvb, offset, 1, ENC_NA);
         offset += 1;
         proto_tree_add_item(step_tree, hf_bthci_evt_antenna_id, tvb, offset, 1, ENC_NA);
@@ -3099,13 +3104,13 @@ dissect_bthci_evt_cs_result_steps(tvbuff_t *tvb, int offset, packet_info *pinfo 
             offset += 2;
         }
     }
-    else if (step_mode == 1) {
+    else if (step_mode == 1 && step_data_length) {
         offset = dissect_bthci_evt_cs_mode1_step(tvb, offset, pinfo, step_tree, initiator, sounding_seq);
     }
-    else if (step_mode == 2) {
+    else if (step_mode == 2 && step_data_length) {
         offset = dissect_bthci_evt_cs_mode2_step(tvb, offset, pinfo, step_tree, step_data_length);
     }
-    else {
+    else if (step_mode == 3 && step_data_length){
         int mode1_step_data_offset = offset;
         offset = dissect_bthci_evt_cs_mode1_step(tvb, offset, pinfo, step_tree, initiator, sounding_seq);
         offset = dissect_bthci_evt_cs_mode2_step(tvb, offset, pinfo, step_tree, step_data_length - (offset - mode1_step_data_offset));
