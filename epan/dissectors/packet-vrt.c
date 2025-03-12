@@ -117,6 +117,7 @@ static int hf_vrt_cif0_cif4; /* 1-bit CIF4 */
 static int hf_vrt_cif0_cif3; /* 1-bit CIF3 */
 static int hf_vrt_cif0_cif2; /* 1-bit CIF2 */
 static int hf_vrt_cif0_cif1; /* 1-bit CIF1 */
+static int hf_vrt_cif0_cif0; /* Spare */
 /* TODO: complete CIF1 support (have partial CIF1 support) */
 static int hf_vrt_cif1_phase_offset; /* 1-bit phase offset */
 static int hf_vrt_cif1_polarization; /* 1-bit polarization */
@@ -814,19 +815,19 @@ static int dissect_context_cif0(proto_tree *tree, tvbuff_t *tvb, int offset) {
         &hf_vrt_cif0_rel_ephemeris,
         &hf_vrt_cif0_ephemeris_ref_id,
         &hf_vrt_cif0_gps_ascii,
-        &hf_vrt_cif0_context_assoc_lists,
+        & hf_vrt_cif0_context_assoc_lists,
         NULL
     };
 
     static int* const oct4_flags[] = {
-        &hf_vrt_cif0_signal_data_format,
-        &hf_vrt_cif0_gps,
-        &hf_vrt_cif0_ins,
-        &hf_vrt_cif0_ecef_ephemeris,
-        &hf_vrt_cif0_rel_ephemeris,
-        &hf_vrt_cif0_ephemeris_ref_id,
-        &hf_vrt_cif0_gps_ascii,
-        &hf_vrt_cif0_context_assoc_lists,
+        &hf_vrt_cif0_cif7,
+        &hf_vrt_cif0_cif6,
+        &hf_vrt_cif0_cif5,
+        &hf_vrt_cif0_cif4,
+        &hf_vrt_cif0_cif3,
+        &hf_vrt_cif0_cif2,
+        &hf_vrt_cif0_cif1,
+        &hf_vrt_cif0_cif0,
         NULL
     };
 
@@ -1488,6 +1489,12 @@ proto_register_vrt(void)
             { "CIF1", "vrt.cif0.cif1",
             FT_BOOLEAN, 8,
             NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_vrt_cif0_cif0,
+            { "CIF0(Spare)", "vrt.cif0.cif0",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_vrt_cif1_phase_offset,
