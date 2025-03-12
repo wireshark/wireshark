@@ -33,6 +33,7 @@ typedef struct _diam_sub_dis_t {
 	uint32_t cmd_code;
 	uint32_t feature_list_id;
 	bool dis_gouped;       /**< Set during dissection of grouped AVP */
+	uint32_t group_avp_code; /* Set AVP code for current dissected grouped AVP */
 	uint32_t vendor_id;
 	char *avp_str;
 	proto_item* item;          /**< The item created for this AVP*/

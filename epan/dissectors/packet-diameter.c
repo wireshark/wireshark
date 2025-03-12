@@ -285,6 +285,9 @@ static int hf_diameter_user_equipment_info_mac;
 static int hf_diameter_user_equipment_info_eui64;
 static int hf_diameter_user_equipment_info_modified_eui64;
 
+static int hf_diameter_result_code_cmd_level;
+static int hf_diameter_result_code_mscc_level;
+
 static int ett_diameter;
 static int ett_diameter_flags;
 static int ett_diameter_avp_flags;
@@ -656,6 +659,31 @@ dissect_diameter_mip6_feature_vector(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	}
 
 	return 8;
+}
+
+/* AVP Code: 268 Result-Code */
+static int
+dissect_diameter_result_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+	proto_item *pi;
+	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+
+	if (!diam_sub_dis_inf->dis_gouped) {
+		// Do not check length. This is done in function "unsigned32_avp"
+		pi = proto_tree_add_item(tree, hf_diameter_result_code_cmd_level, tvb, 0, 4, ENC_BIG_ENDIAN);
+		proto_item_set_generated(pi);
+		return 4;
+	}
+
+	/* AVP: Multiple-Services-Credit-Control(456) */
+	if (diam_sub_dis_inf->group_avp_code == 456) {
+		// Do not check length. This is done in function "unsigned32_avp"
+		pi = proto_tree_add_item(tree, hf_diameter_result_code_mscc_level, tvb, 0, 4, ENC_BIG_ENDIAN);
+		proto_item_set_generated(pi);
+		return 4;
+	}
+
+	return 0;
 }
 
 /* AVP Code: 443 Subscription-Id */
@@ -1392,12 +1420,14 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 
 	/* Set the flag that we are dissecting a grouped AVP */
 	diam_sub_dis_inf->dis_gouped = true;
+	diam_sub_dis_inf->group_avp_code = a->code;
 	while (offset < len) {
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
 	}
 	/* Clear info collected in grouped AVP */
 	diam_sub_dis_inf->vendor_id  = 0;
 	diam_sub_dis_inf->dis_gouped = false;
+	diam_sub_dis_inf->group_avp_code = 0;
 	diam_sub_dis_inf->avp_str = NULL;
 
 	c->tree = pt;
@@ -2560,7 +2590,11 @@ real_register_diameter_fields(void)
 	{ &hf_diameter_user_equipment_info_eui64,
 		{ "EUI64","diameter.user_equipment_info.eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_diameter_user_equipment_info_modified_eui64,
-		{ "Modified EUI64","diameter.user_equipment_info.modified_eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+		{ "Modified EUI64","diameter.user_equipment_info.modified_eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ &hf_diameter_result_code_cmd_level,
+		{ "Result-Code-Command-Level", "diameter.Result-Code.Command-Level", FT_UINT32, BASE_DEC, NULL, 0x0,	NULL, HFILL }},
+	{ &hf_diameter_result_code_mscc_level,
+		{ "Result-Code-MSCC-Level", "diameter.Result-Code.MSCC-Level", FT_UINT32, BASE_DEC, NULL, 0x0,	NULL, HFILL }}
 	};
 
 	int *ett_base[] = {
@@ -2708,6 +2742,9 @@ proto_reg_handoff_diameter(void)
 
 	/* AVP Code: 266 Vendor-Id */
 	dissector_add_uint("diameter.base", 266, create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
+
+	/* AVP Code: 268 Result-Code */
+	dissector_add_uint("diameter.base", 268, create_dissector_handle(dissect_diameter_result_code, proto_diameter));
 
 	/* AVP Code: 443 Subscription-Id */
 	dissector_add_uint("diameter.base", 443, create_dissector_handle(dissect_diameter_subscription_id, proto_diameter));
