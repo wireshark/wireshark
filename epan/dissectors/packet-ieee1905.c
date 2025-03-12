@@ -610,9 +610,14 @@ static int hf_ieee1905_service_prio_rule_dest_mac;
 static int hf_ieee1905_dscp_mapping_table_val;
 static int hf_ieee1905_r2_error_reason_code;
 static int hf_ieee1905_r2_error_bssid;
-static int hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep;
-static int hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul;
-static int hf_ieee1905_ap_radio_advance_capa_reserved;
+static int hf_ieee1905_ap_radio_advanced_capa_backhaul_bss_traffic_sep;
+static int hf_ieee1905_ap_radio_advanced_capa_combined_r1_r2_backhaul;
+static int hf_ieee1905_ap_radio_advanced_capa_mscs;
+static int hf_ieee1905_ap_radio_advanced_capa_scs;
+static int hf_ieee1905_ap_radio_advanced_capa_qos_map;
+static int hf_ieee1905_ap_radio_advanced_capa_dscp_policy;
+static int hf_ieee1905_ap_radio_advanced_capa_qm_scs_traffic_descr;
+static int hf_ieee1905_ap_radio_advanced_capa_reserved;
 static int hf_ieee1905_assoc_status_notif_num_bssid;
 static int hf_ieee1905_assoc_status_notif_bssid;
 static int hf_ieee1905_assoc_status_notif_status;
@@ -7080,9 +7085,14 @@ dissect_r2_error_code(tvbuff_t *tvb, packet_info *pinfo _U_,
  */
 
 static int * const ap_radio_advanced_capa_flags[] = {
-    &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
-    &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
-    &hf_ieee1905_ap_radio_advance_capa_reserved,
+    &hf_ieee1905_ap_radio_advanced_capa_backhaul_bss_traffic_sep,
+    &hf_ieee1905_ap_radio_advanced_capa_combined_r1_r2_backhaul,
+    &hf_ieee1905_ap_radio_advanced_capa_mscs,
+    &hf_ieee1905_ap_radio_advanced_capa_scs,
+    &hf_ieee1905_ap_radio_advanced_capa_qos_map,
+    &hf_ieee1905_ap_radio_advanced_capa_dscp_policy,
+    &hf_ieee1905_ap_radio_advanced_capa_qm_scs_traffic_descr,
+    &hf_ieee1905_ap_radio_advanced_capa_reserved,
     NULL
 };
 
@@ -12243,21 +12253,51 @@ proto_register_ieee1905(void)
           { "BSSID", "ieee1905.profile_2_error.bssid",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_ap_radio_advance_capa_backhaul_bss_traffic_sep,
+        { &hf_ieee1905_ap_radio_advanced_capa_backhaul_bss_traffic_sep,
           { "Traffic Separation on combined fronthaul and R1-only backhaul",
             "ieee1905.ap_advanced_capabilities.traffic_sep_on_combined_fronthaul_and_r1_only_backhaul",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
             0x80, NULL, HFILL }},
 
-        { &hf_ieee1905_ap_radio_advance_capa_combined_r1_r2_backhaul,
+        { &hf_ieee1905_ap_radio_advanced_capa_combined_r1_r2_backhaul,
           { "Traffic Separation on combined R1 and R2 and above backhaul",
             "ieee1905.ap_advanced_capabilities.traffic_sep_on_combined_r1_and_r2_and_backhaul",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
             0x40, NULL, HFILL }},
 
-        { &hf_ieee1905_ap_radio_advance_capa_reserved,
+        { &hf_ieee1905_ap_radio_advanced_capa_mscs,
+          { "MSCS and EasyMesh configuration of extensions to MSCS",
+            "ieee1905.ap_advanced_capabilities.mscs",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advanced_capa_scs,
+          { "SCS and EasyMesh configuration of extensions to SCS",
+            "ieee1905.ap_advanced_capabilities.scs",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advanced_capa_qos_map,
+          { "DSCP Mapping Table TLV based DSCP-to-UP mapping and distribution of QoS Map elements to associated STAs",
+            "ieee1905.ap_advanced_capabilities.qos_map",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x08, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advanced_capa_dscp_policy,
+          { "Sending DSCP Policy Requests to associated STAs, and EasyMesh configuration of such policies",
+            "ieee1905.ap_advanced_capabilities.dscp_policy",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x04, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advanced_capa_qm_scs_traffic_descr,
+          { "Qos Management SCS Traffic Description and EasyMesh configuration of and/or extensions to SCS using traffic descriptions",
+            "ieee1905.ap_advanced_capabilities.qm_scs_traffic_descr",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported),
+            0x02, NULL, HFILL }},
+
+        { &hf_ieee1905_ap_radio_advanced_capa_reserved,
           { "Reserved", "ieee1905.ap_advanced_capabilities.reserved",
-            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+            FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
 
         { &hf_ieee1905_assoc_status_notif_num_bssid,
           { "Number of BSSIDs",
