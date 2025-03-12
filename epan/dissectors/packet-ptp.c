@@ -1848,7 +1848,7 @@ typedef struct ptp_frame_info_sync {
 
     bool syncRateRatio_valid;
     double   syncRateRatio;
-    int32_t  syncRateRatio_ppm;
+    double   syncRateRatio_ppm;
 } ptp_frame_info_sync_t;
 
 typedef struct ptp_frame_info_pdelay {
@@ -4211,8 +4211,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                         if (frame_info->sync.syncInterval_valid) {
                             frame_info->sync.syncRateRatio = nstime_to_sec(&delta_sync_ts) / nstime_to_sec(&delta_capture_ts);
                             frame_info->sync.syncRateRatio_valid = true;
-                            frame_info->sync.syncRateRatio_ppm =
-                                (int32_t)((1.0 - frame_info->sync.syncRateRatio) * 1000 * 1000);
+                            frame_info->sync.syncRateRatio_ppm = ((double)1.0 - frame_info->sync.syncRateRatio) * 1000 * 1000;
                         }
                     }
                 }
@@ -4509,7 +4508,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                             if (frame_info->sync.syncRateRatio_valid) {
                                 ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio, tvb, 0, 0, frame_info->sync.syncRateRatio);
                                 proto_item_set_generated(ti);
-                                ti = proto_tree_add_int(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio_ppm, tvb, 0, 0, frame_info->sync.syncRateRatio_ppm);
+                                ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio_ppm, tvb, 0, 0, frame_info->sync.syncRateRatio_ppm);
                                 proto_item_set_generated(ti);
                             }
                         }
@@ -4564,7 +4563,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                             if (frame_info->sync.syncRateRatio_valid) {
                                 ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio, tvb, 0, 0, frame_info->sync.syncRateRatio);
                                 proto_item_set_generated(ti);
-                                ti = proto_tree_add_int(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio_ppm, tvb, 0, 0, frame_info->sync.syncRateRatio_ppm);
+                                ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_rateRatio_ppm, tvb, 0, 0, frame_info->sync.syncRateRatio_ppm);
                                 proto_item_set_generated(ti);
                             }
 
@@ -7263,7 +7262,7 @@ proto_register_ptp(void) {
         },
         { &hf_ptp_v2_analysis_sync_rateRatio_ppm,
           { "calculatedSyncRateRatio PPM", "ptp.v2.analysis.sync.calculatedRateRatio_ppm",
-            FT_INT32, BASE_DEC, NULL, 0x00,
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_analysis_pdelay_mpd_unscaled,
