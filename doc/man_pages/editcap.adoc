@@ -35,6 +35,7 @@ editcap - Edit and/or translate the format of capture files
 [ *--capture-comment* <comment> ]
 [ *--discard-capture-comment* ]
 [ *--discard-packet-comments* ]
+[ *--preserve-packet-comments* ]
 __infile__
 __outfile__
 [ __packet#__[-__packet#__] ... ]
@@ -119,8 +120,14 @@ formats like *pcapng* that contain them, in lieu of writing a capture file.
 +
 --
 For the specified frame number, assign the given comment string.
-Can be repeated for multiple frames.  Quotes should be used with comment
-strings that include spaces.
+Can be repeated for multiple frames.  Only the last comment
+string for each unique frame number specified in the command line
+will be saved. Quotes should be used with comment strings that
+include spaces.
+
+By default the *-a* option will replace any and all packet comments
+for the given frame number.  Add the *--preserve-packet-comment* option
+to the command line to preserve any pre-existing packet comments.
 --
 
 -A  <start time>::
@@ -556,6 +563,22 @@ for bonded interfaces on Linux for example.
 Discard all packet comments from the input file when writing the output
 file. Does not discard comments added by *-a* in the same
 command line.
+
+This option takes precedence over the *--preserve-packet-comments* option.
+--
+
+--preserve-packet-comments::
++
+--
+When adding a new packet comment with the *-a* option preserve from the input
+file any packet comments for the specified frame when writing the output file.
+Without this option, any *-a* options will replace any and all pre-existing
+packet comments for the given frame number.
+
+This option does not allow for the *-a* option to add multiple packet comments
+for same frame number in the same command line`.
+
+The *--discard-packet-comments* option takes precedence over this option.
 --
 
 --compress <type>::
@@ -665,6 +688,12 @@ in a single pass, use any of the 8 possible methods provided below:
 To add comment strings to the first 2 input frames, use:
 
     editcap -a "1:1st frame" -a 2:Second capture.pcapng capture-comments.pcapng
+
+To add an additional comment to the first frame, use:
+
+    editcap --preserve-packet-comments -a "1:This is another comment" \
+        capture-comments.pcapng more-capture-comments.pcapng
+
 
 == SEE ALSO
 

@@ -161,6 +161,7 @@ static bool                   discard_all_secrets;
 static bool                   discard_cap_comments;
 static bool                   set_unused;
 static bool                   discard_pkt_comments;
+static bool                   preserve_pkt_comments;
 static bool                   do_extract_secrets;
 
 static int                    do_strict_time_adjustment;
@@ -991,7 +992,20 @@ print_usage(FILE *output)
     fprintf(output, "                         example).\n");
     fprintf(output, "                         e.g. -I 26 in case of Ether/IP will ignore\n");
     fprintf(output, "                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).\n");
-    fprintf(output, "  -a <framenum>:<comment> Add or replace comment for given frame number\n");
+    fprintf(output, "  -a <framenum>:<comment> Add or replace packet comment for given frame number.\n");
+    fprintf(output, "                         Any pre-existing packet comments from the input file\n");
+    fprintf(output, "                         for the specified frame will be replaced unless used\n");
+    fprintf(output, "                         in conjunction with \"--preserve-packet-comments\".\n");
+    fprintf(output, "  --discard-packet-comments\n");
+    fprintf(output, "                         Discard all pre-existing packet comments from the input\n");
+    fprintf(output, "                         file when writing the output file.  Does not discard\n");
+    fprintf(output, "                         new comments added by \"-a\" in the same command line.\n");
+    fprintf(output, "  --preserve-packet-comments\n");
+    fprintf(output, "                         Preserve from the input file all pre-existing packet\n");
+    fprintf(output, "                         comments when adding a new packet comment with \"-a\".\n");
+    fprintf(output, "                         Without this option each \"-a\" will cause to be\n");
+    fprintf(output, "                         discarded any pre-existing comments for the specified\n");
+    fprintf(output, "                         frame.\n");
     fprintf(output, "\n");
     fprintf(output, "Output File(s):\n");
     fprintf(output, "                         if the output file(s) have the .gz extension, then\n");
@@ -1022,10 +1036,6 @@ print_usage(FILE *output)
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         comments added by \"--capture-comment\" in the same\n");
     fprintf(output, "                         command line.\n");
-    fprintf(output, "  --discard-packet-comments\n");
-    fprintf(output, "                         Discard all packet comments from the input file\n");
-    fprintf(output, "                         when writing the output file.  Does not discard\n");
-    fprintf(output, "                         comments added by \"-a\" in the same command line.\n");
     fprintf(output, "  --compress <type>      Compress the output file using the type compression format.\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
@@ -1375,17 +1385,18 @@ main(int argc, char *argv[])
     char         *read_err_info, *write_err_info;
     int           opt;
 
-#define LONGOPT_NO_VLAN                 LONGOPT_BASE_APPLICATION+1
-#define LONGOPT_SKIP_RADIOTAP_HEADER    LONGOPT_BASE_APPLICATION+2
-#define LONGOPT_SEED                    LONGOPT_BASE_APPLICATION+3
-#define LONGOPT_INJECT_SECRETS          LONGOPT_BASE_APPLICATION+4
-#define LONGOPT_DISCARD_ALL_SECRETS     LONGOPT_BASE_APPLICATION+5
-#define LONGOPT_CAPTURE_COMMENT         LONGOPT_BASE_APPLICATION+6
-#define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
-#define LONGOPT_SET_UNUSED              LONGOPT_BASE_APPLICATION+8
-#define LONGOPT_DISCARD_PACKET_COMMENTS LONGOPT_BASE_APPLICATION+9
-#define LONGOPT_EXTRACT_SECRETS         LONGOPT_BASE_APPLICATION+10
-#define LONGOPT_COMPRESS                LONGOPT_BASE_APPLICATION+11
+#define LONGOPT_NO_VLAN                  LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_SKIP_RADIOTAP_HEADER     LONGOPT_BASE_APPLICATION+2
+#define LONGOPT_SEED                     LONGOPT_BASE_APPLICATION+3
+#define LONGOPT_INJECT_SECRETS           LONGOPT_BASE_APPLICATION+4
+#define LONGOPT_DISCARD_ALL_SECRETS      LONGOPT_BASE_APPLICATION+5
+#define LONGOPT_CAPTURE_COMMENT          LONGOPT_BASE_APPLICATION+6
+#define LONGOPT_DISCARD_CAPTURE_COMMENT  LONGOPT_BASE_APPLICATION+7
+#define LONGOPT_SET_UNUSED               LONGOPT_BASE_APPLICATION+8
+#define LONGOPT_DISCARD_PACKET_COMMENTS  LONGOPT_BASE_APPLICATION+9
+#define LONGOPT_PRESERVE_PACKET_COMMENTS LONGOPT_BASE_APPLICATION+10
+#define LONGOPT_EXTRACT_SECRETS          LONGOPT_BASE_APPLICATION+11
+#define LONGOPT_COMPRESS                 LONGOPT_BASE_APPLICATION+12
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1399,6 +1410,7 @@ main(int argc, char *argv[])
         {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {"set-unused", ws_no_argument, NULL, LONGOPT_SET_UNUSED},
         {"discard-packet-comments", ws_no_argument, NULL, LONGOPT_DISCARD_PACKET_COMMENTS},
+        {"preserve-packet-comments", ws_no_argument, NULL, LONGOPT_PRESERVE_PACKET_COMMENTS},
         {"extract-secrets", ws_no_argument, NULL, LONGOPT_EXTRACT_SECRETS},
         {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
         {0, 0, 0, 0 }
@@ -1587,6 +1599,12 @@ main(int argc, char *argv[])
         case LONGOPT_DISCARD_PACKET_COMMENTS:
         {
             discard_pkt_comments = true;
+            break;
+        }
+
+        case LONGOPT_PRESERVE_PACKET_COMMENTS:
+        {
+            preserve_pkt_comments = true;
             break;
         }
 
@@ -2522,9 +2540,12 @@ main(int argc, char *argv[])
                 const char *comment =
                     (const char*)g_tree_lookup(frames_user_comments, &read_count);
                 if (comment != NULL) {
-                    /* Erase any existing comments before adding the new one */
-                    while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(read_rec.block, OPT_COMMENT, 0)) {
-                        read_rec.block_was_modified = true;
+
+                    if(!preserve_pkt_comments) {
+                        /* Erase any existing comments before adding the new one */
+                        while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(read_rec.block, OPT_COMMENT, 0)) {
+                            read_rec.block_was_modified = true;
+                        }
                     }
 
                     /* The comment is not modified by dumper, cast away. */
