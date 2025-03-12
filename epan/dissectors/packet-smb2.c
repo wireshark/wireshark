@@ -9078,7 +9078,7 @@ dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, 
 	offset += 8;
 
 	proto_tree_add_item(tree, hf_smb2_dupext_byte_count, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-	offset += 8;
+	/*offset += 8;*/
 }
 
 void
