@@ -1020,6 +1020,37 @@ static const value_string nas_5gs_epd_vals[] = {
     { 0,    NULL }
 };
 
+
+
+/* Format functions  XXXX Should these be in a common file in epan? */
+/* Copied from gsm_a_common dissector */
+
+static void
+nas_5gs_degreesLatitude_fmt(char* s, uint32_t v)
+{
+    snprintf(s, ITEM_LABEL_LENGTH, "%s%f degrees (%u)",
+        (v & 0x00800000) ? "-" : "",
+        ((float)(v & 0x7fffff) / 8388607.0) * 90, v);
+}
+
+static void
+nas_5gs_degreesLongitude_fmt(char* s, uint32_t v)
+{
+    int32_t longitude = (int32_t)v;
+
+    longitude |= (longitude & 0x800000) ? 0xff000000 : 0x00000000;
+    /* (X/0xffffff) *360 = degrees */
+
+    snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%d)",
+        ((float)longitude / 16777215.0) * 360, longitude);
+}
+
+static void
+nas_5gs_radius_fmt(char* s, uint32_t v)
+{
+    snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", 5 * v, v);
+}
+
 struct nas5gs_private_data {
     uint8_t sec_hdr_type;
     uint32_t payload_container_type;
@@ -15998,17 +16029,17 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_geo_loc_anc_lat,
         { "Anchor latitude", "nas-5gs.andsp.wlansp.geo_loc_anc_lat",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(nas_5gs_degreesLatitude_fmt), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_geo_loc_anc_long,
         { "Anchor longitude", "nas-5gs.andsp.wlansp.geo_loc_anc_long",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(nas_5gs_degreesLongitude_fmt), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_geo_loc_rad,
         { "Radius", "nas-5gs.andsp.wlansp.geo_loc_rad",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(nas_5gs_radius_fmt), 0x0,
             NULL, HFILL }
         },
     };
