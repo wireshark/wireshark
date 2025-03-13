@@ -158,6 +158,15 @@ typedef enum {
 	VNC_CLIENT_MESSAGE_TYPE_QEMU			  = 255
 } vnc_client_message_types_e;
 
+typedef enum {
+	QEMU_CLIENT_MESSAGE_SUBTYPE_EXTENDED_KEY_EVENTS = 0
+} qemu_client_message_subtypes_e;
+
+static const value_string qemu_subtype_vals[] = {
+      { QEMU_CLIENT_MESSAGE_SUBTYPE_EXTENDED_KEY_EVENTS, "QEMU Extended Key Event" },
+      { 0, NULL								    }
+};
+
 static const value_string vnc_client_message_types_vs[] = {
 	/* Required */
 	{ VNC_CLIENT_MESSAGE_TYPE_SET_PIXEL_FORMAT,	     "Set Pixel Format"		  },
@@ -590,6 +599,10 @@ static unsigned vnc_server_identity(tvbuff_t *tvb, int *offset,
 
 static unsigned vnc_fence(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 			    proto_tree *tree);
+static void vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+			    proto_tree *tree);
+static void vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+			    proto_tree *tree);
 static unsigned vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 			    proto_tree *tree);
 static unsigned vnc_context_information(tvbuff_t *tvb, int *offset,
@@ -695,6 +708,14 @@ static int hf_vnc_client_set_encodings_encoding_type;
 /* Client Cut Text */
 static int hf_vnc_client_cut_text_len;
 static int hf_vnc_client_cut_text;
+
+/* Client QEMU Message SubType */
+static int hf_vnc_qemu_subtype;
+
+/* Client QEMU Extended Key Event */
+static int hf_vnc_qemu_extended_key_down_flag;
+static int hf_vnc_qemu_extended_key_keysum;
+static int hf_vnc_qemu_extended_key_keycode;
 
 /********** Server Message Types **********/
 
@@ -1834,6 +1855,11 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 
 	case VNC_CLIENT_MESSAGE_TYPE_FENCE :
 		vnc_fence(tvb, pinfo, offset,
+			  vnc_client_message_type_tree);
+		break;
+
+	case VNC_CLIENT_MESSAGE_TYPE_QEMU :
+		vnc_qemu(tvb, pinfo, offset,
 			  vnc_client_message_type_tree);
 		break;
 
@@ -2985,6 +3011,42 @@ vnc_fence(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 		*offset += payload_length;
 	}
 	return 0;
+}
+
+static void
+vnc_qemu(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+	  proto_tree *tree)
+{
+	uint8_t message_subtype;
+	message_subtype = tvb_get_uint8(tvb, *offset);
+	proto_tree_add_item(tree, hf_vnc_qemu_subtype, tvb, *offset, 1, ENC_BIG_ENDIAN);
+	*offset += 1;
+	switch(message_subtype) {
+		case QEMU_CLIENT_MESSAGE_SUBTYPE_EXTENDED_KEY_EVENTS :
+			vnc_qemu_extended_key_event(tvb, pinfo, offset, tree);
+			break;
+		default :
+			col_append_sep_str(
+				pinfo->cinfo, COL_INFO, "; ", "Unknown QEMU message subtype");
+			*offset = tvb_reported_length(tvb);  /* Skip the rest of the segment */
+			break;
+	}
+}
+
+static void
+vnc_qemu_extended_key_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+	  proto_tree *tree)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "QEMU Extended Key Event");
+	proto_tree_add_item(tree, hf_vnc_qemu_extended_key_down_flag,
+		tvb, *offset, 2, ENC_BIG_ENDIAN);
+	*offset += 2;
+	proto_tree_add_item(tree, hf_vnc_qemu_extended_key_keysum,
+		tvb, *offset, 4, ENC_BIG_ENDIAN);
+	*offset += 4;
+	proto_tree_add_item(tree, hf_vnc_qemu_extended_key_keycode,
+		tvb, *offset, 4, ENC_BIG_ENDIAN);
+	*offset += 4;
 }
 
 static unsigned
@@ -4206,6 +4268,29 @@ proto_register_vnc(void)
 		    "Text string in the client's copy/cut text (clipboard)", HFILL }
 		},
 
+		/* Client QEMU Message SubType */
+		{ &hf_vnc_qemu_subtype,
+		  { "Subtype", "vnc.qemu.msg_subtype",
+		    FT_UINT8, BASE_DEC, VALS(qemu_subtype_vals), 0x0,
+		    "QEMU message subtype", HFILL }
+		},
+
+		/* QEMU Extended Key Event */
+		{ &hf_vnc_qemu_extended_key_down_flag,
+		  { "Key pressed", "vnc.qemu.key_event.down_flag",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Key status (pressed or released)", HFILL }
+		},
+		{ &hf_vnc_qemu_extended_key_keysum,
+		  { "KeySum", "vnc.qemu.key_event.keysum",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "Pressed or released key KeySum", HFILL }
+		},
+		{ &hf_vnc_qemu_extended_key_keycode,
+		  { "KeyCode", "vnc.qemu.key_event.keycode",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "Pressed or released key KeyCode", HFILL }
+		},
 
 		/********** Server Message Types **********/
 		{ &hf_vnc_server_message_type,
