@@ -1330,6 +1330,8 @@ mk_length(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg)
 static const char *
 try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 {
+	/* Note: The return value might be a pointer to buf (e.g., in the case
+	 * of BASE_CUSTOM). */
 	uint64_t val;
 
 	if (fvalue_to_uinteger64(fv_num, &val) != FT_OK)
@@ -1374,6 +1376,13 @@ try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf)
 			((custom_fmt_func_64_t)hfinfo->strings)(buf, val);
 		else
 			ws_assert_not_reached();
+		/* XXX - This is ok because the caller immediately calls
+		 * fvalue_set_string on the return value, which copies it,
+		 * before the buffer passes out of scope. It might be safer
+		 * to declare the buffer on the stack here and have this
+		 * function return the fvalue_t* or NULL.
+		 */
+		return buf;
 	}
 	else if (hfinfo->display & BASE_UNIT_STRING) {
 		/* Not supported yet. We would need to create the string

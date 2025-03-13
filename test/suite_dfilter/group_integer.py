@@ -202,3 +202,10 @@ class TestDfilterUint64:
     def test_uint64_2(self, checkDFilterCount):
         dfilter = "nfs.fattr3.size == 264000"
         checkDFilterCount(dfilter, 0)
+
+class TestDfilterCustom:
+    trace_file = "dhcp.pcapng"
+
+    def test_base_custom_1(self, checkDFilterCount):
+        dfilter = 'dhcp.option.renewal_time_value == "30 minutes (1800)"'
+        checkDFilterCount(dfilter, 2)
