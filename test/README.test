@@ -18,3 +18,4 @@ TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark --global-profile -T
 TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark --global-profile -T jsonraw -r test/captures/dhcp.pcap > test/baseline/dhcp.jsonraw
 TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark --global-profile -T ek -r test/captures/dhcp.pcap -x > test/baseline/dhcp-raw.ek
 TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark --global-profile -T ek -j dhcp -r test/captures/dhcp.pcap > test/baseline/dhcp-filter.ek
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark --global-profile -G elastic-mapping --elastic-mapping-filter ip > test/baseline/elastic-mapping-ip-subset.json

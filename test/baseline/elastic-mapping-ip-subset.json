@@ -1,4 +1,7 @@
 {
+  "index_patterns": [
+    "packets-*"
+  ],
   "settings": {
     "index.mapping.total_fields.limit": 1000000
   },

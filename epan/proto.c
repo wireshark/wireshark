@@ -11930,6 +11930,12 @@ proto_registrar_dump_fieldcount(void)
 static void
 elastic_add_base_mapping(json_dumper *dumper)
 {
+	json_dumper_set_member_name(dumper, "index_patterns");
+	json_dumper_begin_array(dumper);
+	// The index names from write_json_index() in print.c
+	json_dumper_value_string(dumper, "packets-*");
+	json_dumper_end_array(dumper);
+
 	json_dumper_set_member_name(dumper, "settings");
 	json_dumper_begin_object(dumper);
 	json_dumper_set_member_name(dumper, "index.mapping.total_fields.limit");
@@ -11992,6 +11998,9 @@ dot_to_underscore(char* str)
 }
 
 /* Dumps a mapping file for ElasticSearch
+ * This is the v1 (legacy) _template API.
+ * At some point it may need to be updated with the composable templates
+ * introduced in Elasticsearch 7.8 (_index_template)
  */
 void
 proto_registrar_dump_elastic(const char* filter)
@@ -12029,7 +12038,7 @@ proto_registrar_dump_elastic(const char* filter)
 	json_dumper_set_member_name(&dumper, "mappings");
 	json_dumper_begin_object(&dumper); // 2.mappings
 	json_dumper_set_member_name(&dumper, "dynamic");
-	json_dumper_value_anyf(&dumper, "false");
+	json_dumper_value_anyf(&dumper, "false"); // XXX - Should this be "true"? (#15780)
 
 	json_dumper_set_member_name(&dumper, "properties");
 	json_dumper_begin_object(&dumper); // 3.properties
