@@ -112,6 +112,7 @@
 
 #ifdef _WIN32
 #include "wsutil/win32-utils.h"
+#include "wsutil/console_win32.h"
 #ifdef DEBUG_DUMPCAP
 #include <conio.h>          /* _getch() */
 #endif
@@ -5233,6 +5234,14 @@ main(int argc, char *argv[])
 
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init_with_writer(dumpcap_log_writer, vcmdarg_err);
+
+#ifdef _WIN32
+    /* If running as a capture child, under no circumstances attempt to wait
+     * for the user to press a key before detaching from a console. */
+    if (capture_child) {
+        set_console_wait(false);
+    }
+#endif
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
