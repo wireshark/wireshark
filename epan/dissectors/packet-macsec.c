@@ -615,7 +615,7 @@ skip_decode:
             next_tvb = tvb_new_subset_length(plain_tvb, 2, payload_len - 2);
 
             /* show the decrypted data and original ethertype */
-            proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, payload_len, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, payload_len, ENC_NA);
 
             /* add the decrypted data as a data source for the next dissectors */
             add_new_data_source(pinfo, plain_tvb, "Decrypted Data");

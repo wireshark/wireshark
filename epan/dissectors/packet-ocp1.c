@@ -1248,7 +1248,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, int offset, int length, uint16_t m
             plen += 4; /* ono */
             plen += tvb_get_uint16(tvb, offset_m + plen, ENC_BIG_ENDIAN) + 2;   /* string length + length field (uint16) */
             plen += tvb_get_uint16(tvb, offset_m + plen, ENC_BIG_ENDIAN)*2 + 2; /* ClassID field count (uint16) + count x ID (uint16) */
-            plen += 2; /* OcaClassVersioNumber */
+            plen += 2; /* OcaClassVersionNumber */
             list_tree = proto_tree_add_subtree_format(p1_tree, tvb, offset_m, plen, ett_ocp1_params_manager_desc, NULL, "Manager Descriptor Item %d", i+1 );
             offset_m += decode_params_OcaManagerDescriptor(tvb, offset_m, list_tree);
         }
