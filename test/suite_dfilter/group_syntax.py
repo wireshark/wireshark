@@ -534,3 +534,39 @@ class TestDfilterTFSValueString:
         error = 'expected "True" or "False", not "Unset"'
         dfilter = 'frame.ignored == "Unset"'
         checkDFilterFail(dfilter, error)
+
+class TestDfilterValueString:
+    trace_file = "tls-over-tls.pcapng.gz"
+    # This file has VLAN. vlan.priority has multiple hfinfo with the same
+    # abbrev but different value strings (for different versions).
+    # This means that value string tests cannot be optimized, and must
+    # match against the entire string.
+
+    def test_value_string(self, checkDFilterCount):
+        dfilter = 'vlan.priority == "Best Effort (default)"'
+        checkDFilterCount(dfilter, 24)
+
+    def test_value_string_layer(self, checkDFilterCount):
+        dfilter = 'vlan.priority#1 == "Best Effort (default)"'
+        checkDFilterCount(dfilter, 24)
+
+    def test_value_string_layer_2(self, checkDFilterCount):
+        dfilter = 'vlan.priority#2 == "Best Effort (default)"'
+        checkDFilterCount(dfilter, 0)
+
+    # To use "contains" with a value string we must explicitly
+    # convert with the "vals" function. Note that this never
+    # optimizes, so it's always a string comparison.
+    def test_value_string_func(self, checkDFilterCount):
+        dfilter = 'vals(tls.handshake.type) contains "Client"'
+        checkDFilterCount(dfilter, 2)
+
+    # A Client Hello appears in tls layer 1 in one packet...
+    # In the other packet, it's the second TLS PDU, but the TLS
+    # dissector is only called once - but it gets called layer 5
+    # because that's the layer of the last successfully called
+    # dissector, as x509ce gets called 5 times by the previous
+    # Handshake PDU. This seems like a bug.
+    def test_value_string_func_layer(self, checkDFilterCount):
+        dfilter = 'vals(tls.handshake.type#1) contains "Client"'
+        checkDFilterCount(dfilter, 1)

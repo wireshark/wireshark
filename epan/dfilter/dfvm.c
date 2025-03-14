@@ -815,8 +815,31 @@ dfvm_get_raw_fvalue(const field_info *fi)
 	return fv;
 }
 
+static const char *
+try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf);
+
+static fvalue_t *
+dfvm_get_vs_fvalue(const field_info *fi, const header_field_info *hfinfo)
+{
+	char label_buf[ITEM_LABEL_LENGTH];
+	fvalue_t *fv = NULL;
+	const char	*str;
+
+	str = try_value_string(hfinfo, fi->value, label_buf);
+	if (str) {
+		fv = fvalue_new(FT_STRING);
+		fvalue_set_string(fv, str);
+	}
+	/* XXX - If there's no match instead of not appending
+	 * to the cell we could use a string like "Unknown".
+	 * We could fall back to a string representation of
+	 * the value if BASE_SPECIAL_VALS is set.
+	 */
+	return fv;
+}
+
 static size_t
-filter_finfo_fvalues(df_cell_t *rp, GPtrArray *finfos, drange_t *range, bool raw)
+filter_finfo_fvalues(df_cell_t *rp, const header_field_info *hfinfo, GPtrArray *finfos, drange_t *range, bool raw, bool val_str)
 {
 	int length; /* maximum proto layer number. The numbers are sequential. */
 	field_info *last_finfo, *finfo;
@@ -836,11 +859,15 @@ filter_finfo_fvalues(df_cell_t *rp, GPtrArray *finfos, drange_t *range, bool raw
 		if (cookie == layer) {
 			if (cookie_matches) {
 				if (rp != NULL) {
-					if (raw)
+					if (val_str) {
+						fv = dfvm_get_vs_fvalue(finfo, hfinfo);
+					} else if (raw) {
 						fv = dfvm_get_raw_fvalue(finfo);
-					else
+					} else {
 						fv = finfo->value;
-					df_cell_append(rp, fv);
+					}
+					if (fv)
+						df_cell_append(rp, fv);
 				}
 				count++;
 			}
@@ -850,11 +877,15 @@ filter_finfo_fvalues(df_cell_t *rp, GPtrArray *finfos, drange_t *range, bool raw
 			cookie_matches = drange_contains_layer(range, layer, length);
 			if (cookie_matches) {
 				if (rp != NULL) {
-					if (raw)
+					if (val_str) {
+						fv = dfvm_get_vs_fvalue(finfo, hfinfo);
+					} else if (raw) {
 						fv = dfvm_get_raw_fvalue(finfo);
-					else
+					} else {
 						fv = finfo->value;
-					df_cell_append(rp, fv);
+					}
+					if (fv)
+						df_cell_append(rp, fv);
 				}
 				count++;
 			}
@@ -862,9 +893,6 @@ filter_finfo_fvalues(df_cell_t *rp, GPtrArray *finfos, drange_t *range, bool raw
 	}
 	return count;
 }
-
-static const char *
-try_value_string(const header_field_info *hfinfo, fvalue_t *fv_num, char *buf);
 
 static bool
 read_tree_finfos(df_cell_t *rp, proto_tree *tree,
@@ -874,8 +902,6 @@ read_tree_finfos(df_cell_t *rp, proto_tree *tree,
 	GPtrArray	*finfos;
 	field_info	*finfo;
 	fvalue_t	*fv = NULL;
-	const char	*str;
-	char label_buf[ITEM_LABEL_LENGTH];
 
 	/* The caller should NOT free the GPtrArray. */
 	finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
@@ -883,24 +909,13 @@ read_tree_finfos(df_cell_t *rp, proto_tree *tree,
 		return false;
 	}
 	if (range) {
-		return filter_finfo_fvalues(rp, finfos, range, raw) > 0;
+		return filter_finfo_fvalues(rp, hfinfo, finfos, range, raw, val_str) > 0;
 	}
 
 	for (unsigned i = 0; i < finfos->len; i++) {
 		finfo = g_ptr_array_index(finfos, i);
 		if (val_str) {
-			str = try_value_string(hfinfo, finfo->value, label_buf);
-			if (str) {
-				fv = fvalue_new(FT_STRING);
-				fvalue_set_string(fv, str);
-			} else {
-				fv = NULL;
-			}
-			/* XXX - If there's no match instead of not appending
-			 * to the cell we could use a string like "Unknown".
-			 * We could fall back to a string representation of
-			 * the value if BASE_SPECIAL_VALS is set.
-			 */
+			fv = dfvm_get_vs_fvalue(finfo, hfinfo);
 		} else if (raw) {
 			fv = dfvm_get_raw_fvalue(finfo);
 		} else {
@@ -1645,7 +1660,7 @@ check_exists_finfos(proto_tree *tree, header_field_info *hfinfo, drange_t *range
 	if (range == NULL) {
 		return true;
 	}
-	return filter_finfo_fvalues(NULL, finfos, range, false) > 0;
+	return filter_finfo_fvalues(NULL, hfinfo, finfos, range, false, false) > 0;
 }
 
 static bool
