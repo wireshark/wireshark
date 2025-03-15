@@ -388,28 +388,28 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	flags = tvb_get_ntohs(tvb, 2);
+	flags = tvb_get_ntohs(tvb, 0);
 
 	quake_item = proto_tree_add_item(tree, proto_quake, tvb, 0, -1, ENC_NA);
 	quake_tree = proto_item_add_subtree(quake_item, ett_quake);
 
 	flags_item = proto_tree_add_item(quake_tree, hf_quake_header_flags,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	flags_tree = proto_item_add_subtree(flags_item, ett_quake_flags);
 	proto_tree_add_item(flags_tree, hf_quake_header_flags_data,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_quake_header_flags_ack,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_quake_header_flags_no_ack,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_quake_header_flags_endmsg,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_quake_header_flags_unreliable,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_quake_header_flags_control,
-			tvb, 2, 2, ENC_BIG_ENDIAN);
+			tvb, 0, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(quake_tree, hf_quake_header_length, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(quake_tree, hf_quake_header_length, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 	if (flags == NETFLAG_CTL) {
 		next_tvb = tvb_new_subset_remaining(tvb, 4);
