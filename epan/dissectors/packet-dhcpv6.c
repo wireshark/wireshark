@@ -724,9 +724,10 @@ static const value_string opttype_vals[] = {
     { OPTION_S46_BIND_IPV6_PREFIX,   "Softwire Source Binding Prefix Hint" },
     { OPTION_IPv6_ADDRESS_ANDSF,     "ANDSF IPv6 Address" },
     { OPTION_V6_DNR,                 "Discovery of Network DNS Resolvers" },
+    { OPTION_ADDR_REG_ENABLE,        "Address Registration Enable" },
+    /* temporary value until defined by IETF */
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
-    { OPTION_ADDR_REG_ENABLE,        "Address Registration Enable" },
     { OPTION_NAI,                    "Network Access Identifier" },
     { 0,        NULL }
 };
