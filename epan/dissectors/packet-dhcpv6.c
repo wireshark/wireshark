@@ -32,6 +32,8 @@
  * RFC7598 (Configuration of Softwire Address and Port-Mapped Clients)
  * RFC8415 (Dynamic Host Configuration Protocol for IPv6 (DHCPv6))
  * RFC8520 (Manufacturer Usage Descriptions) replaces "draft-ietf-opsawg-mud-02"
+ * RFC9463 (Discovery of Network-designated Resolvers - DoT, DoH, DoQ)
+ * RFC9686 (Registering self-generated addresses)
  * CL-SP-CANN-DHCP-Reg-I15-180509 (CableLabs' DHCP Options Registry) latest
  *
  * Note that protocol constants are still subject to change, based on IANA
@@ -380,6 +382,8 @@ static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 
 #define DHCPV4_QUERY            20  /* [RFC7341] */
 #define DHCPV4_RESPONSE         21  /* [RFC7341] */
+#define ADDR_REG_INFORM         36  /* [RFC9686] */
+#define ADDR_REG_REPLY          37  /* [RFC9686] */
 /* TODO: add support the following message types
 #define ACTIVELEASEQUERY        22  [RFC7653]
 #define STARTTLS                23  [RFC7653]
@@ -395,7 +399,7 @@ static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 #define DISCONNECT              33  [RFC8156]
 #define STATE                   34  [RFC8156]
 #define CONTACT                 35  [RFC8156]
-                                36-255 Unassigned
+                                38-255 Unassigned
 *********************************************************************************************/
 
 /********************************************************************************************/
@@ -540,6 +544,7 @@ static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 #define OPTION_S46_BIND_IPV6_PREFIX    137  /* RFC 8539 */
 #define OPTION_IPv6_ADDRESS_ANDSF      143  /* RFC 6153 */
 #define OPTION_V6_DNR                  144  /* RFC 9463 */
+#define OPTION_ADDR_REG_ENABLE         148  /* RFC 9686 */
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA                 165
@@ -574,6 +579,8 @@ static const value_string msgtype_vals[] = {
     { RECONFIGURE_REPLY,             "Reconfigure-reply" },
     { DHCPV4_QUERY,                  "4o6 Query" },
     { DHCPV4_RESPONSE,               "4o6 Response" },
+    { ADDR_REG_INFORM,               "Address Registration Inform" },
+    { ADDR_REG_REPLY,                "Address Registration Reply" },
     { 0, NULL }
 };
 static value_string_ext msgtype_vals_ext = VALUE_STRING_EXT_INIT(msgtype_vals);
@@ -719,6 +726,7 @@ static const value_string opttype_vals[] = {
     { OPTION_V6_DNR,                 "Discovery of Network DNS Resolvers" },
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
+    { OPTION_ADDR_REG_ENABLE,        "Address Registration Enable" },
     { OPTION_NAI,                    "Network Access Identifier" },
     { 0,        NULL }
 };
