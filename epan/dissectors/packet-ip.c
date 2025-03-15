@@ -279,6 +279,7 @@ static expert_field ei_ip_bogus_ip_version;
 static expert_field ei_ip_bogus_header_length;
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t ipv4_handle;
 static dissector_table_t ip_option_table;
 
 static int ett_geoip_info;
@@ -2481,6 +2482,23 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   return tvb_captured_length(tvb);
 }
 
+/*
+ * Dissector that doesn't assume the packet is IPv4, it looks at the
+ * upper 4 bits of the first octet and:
+ *
+ *    if they're 4, dissects the packet as IPv4;
+ *
+ *    if they're 6, dissects the packet as IPv6;
+ *
+ *    otherwise, reports it as an error.
+ *
+ * This handles some strange cases where IPv6 packets are encapsulated
+ * with a header that indicates an IPv4 packet (see commit
+ * a784b121502575a8930de9a34accb85c29ce9b80, which, as I remember, was
+ * done to handle such a case), as well as cases where there is no
+ * header to distinguish between IPv4 and IPv6 (e.g., LINKTYPE_RAW
+ * packets in pcap and pcapng files).
+ */
 static int
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3173,6 +3191,7 @@ proto_register_ip(void)
   register_init_routine(ip_init);
 
   ip_handle = register_dissector("ip", dissect_ip, proto_ip);
+  ipv4_handle = register_dissector("ipv4", dissect_ip_v4, proto_ip);
   reassembly_table_register(&ip_reassembly_table,
                         &addresses_reassembly_table_functions);
   ip_tap = register_tap("ip");
@@ -3208,12 +3227,10 @@ proto_register_ip(void)
 void
 proto_reg_handoff_ip(void)
 {
-  dissector_handle_t ipv4_handle;
   capture_dissector_handle_t clip_cap_handle;
   int proto_clip;
 
   ipv6_handle = find_dissector("ipv6");
-  ipv4_handle = create_dissector_handle(dissect_ip_v4, proto_ip);
 
   dissector_add_uint("ethertype", ETHERTYPE_IP, ipv4_handle);
   dissector_add_uint("erf.types.type", ERF_TYPE_IPV4, ip_handle);
@@ -3239,7 +3256,6 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("l2tp.pw_type", L2TPv3_PW_IP, ip_handle);
   dissector_add_for_decode_as_with_preference("udp.port", ip_handle);
   dissector_add_for_decode_as("pcli.payload", ip_handle);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
   dissector_add_uint("enc", BSD_AF_INET, ip_handle);
   dissector_add_uint("vxlan.next_proto", VXLAN_IPV4, ip_handle);
   dissector_add_uint("nsh.next_proto", NSH_IPV4, ip_handle);

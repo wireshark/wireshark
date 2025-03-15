@@ -27,6 +27,7 @@ static const unsigned char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 
 static dissector_handle_t raw_handle;
 static dissector_handle_t ip_handle;
+static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
@@ -147,7 +148,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        * the top-level tvbuff isn't modified and shows all the data.
        */
       next_tvb = tvb_new_subset_remaining(tvb, 0);
-      call_dissector(ip_handle, next_tvb, pinfo, tree);
+      call_dissector(ipv4_handle, next_tvb, pinfo, tree);
       break;
 
     case 0x60:
@@ -171,6 +172,56 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   return tvb_captured_length(tvb);
 }
 
+static int
+dissect_raw_ip4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  tvbuff_t      *next_tvb;
+
+  /* load the top pane info. This should be overwritten by
+     the next protocol in the stack */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
+  col_set_str(pinfo->cinfo, COL_INFO, "Raw packet data");
+
+  /* populate a tree in the second pane with the status of the link
+     layer (ie none) */
+  proto_tree_add_item(tree, proto_raw, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+  /*
+   * OK, hand this to the IPv4 dissector.
+   *
+   * Create a new tvbuff, so that if the dissector sets the length
+   * (e.g., because the packet has extra stuff after the datagram),
+   * the top-level tvbuff isn't modified and shows all the data.
+   */
+  next_tvb = tvb_new_subset_remaining(tvb, 0);
+  call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_raw_ip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  tvbuff_t      *next_tvb;
+
+  /* load the top pane info. This should be overwritten by
+     the next protocol in the stack */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
+  col_set_str(pinfo->cinfo, COL_INFO, "Raw packet data");
+
+  /* populate a tree in the second pane with the status of the link
+     layer (ie none) */
+  proto_tree_add_item(tree, proto_raw, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+  /*
+   * OK, hand this to the IPv6 dissector.
+   *
+   * Create a new tvbuff, so that if the dissector sets the length
+   * (e.g., because the packet has extra stuff after the datagram),
+   * the top-level tvbuff isn't modified and shows all the data.
+   */
+  next_tvb = tvb_new_subset_remaining(tvb, 0);
+  call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
+}
+
 void
 proto_register_raw(void)
 {
@@ -187,16 +238,23 @@ proto_register_raw(void)
 void
 proto_reg_handoff_raw(void)
 {
+  dissector_handle_t raw_ip4_handle;
+  dissector_handle_t raw_ip6_handle;
   capture_dissector_handle_t raw_cap_handle;
 
   /*
-   * Get handles for the IP, IPv6, undissected-data, and
+   * Get handles for the IPv{4,6}, IPv4, IPv6, undissected-data, and
    * PPP-in-HDLC-like-framing dissectors.
    */
   ip_handle = find_dissector_add_dependency("ip", proto_raw);
+  ipv4_handle = find_dissector_add_dependency("ipv4", proto_raw);
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_raw);
   ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_raw);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
+  raw_ip4_handle = create_dissector_handle(dissect_raw_ip4, proto_raw);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, raw_ip4_handle);
+  raw_ip6_handle = create_dissector_handle(dissect_raw_ip6, proto_raw);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP6, raw_ip6_handle);
   raw_cap_handle = create_capture_dissector_handle(capture_raw, proto_raw);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_cap_handle);
 
