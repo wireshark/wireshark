@@ -313,6 +313,7 @@ static dissector_handle_t pcep_handle;
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_T  0x00000008
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_D  0x00000010
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_F  0x00000020
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_COLOR  0x00000800
 
 /* Mask for the flags of ASSOCIATION Object */
 #define PCEP_OBJ_ASSOCIATION_FLAGS_R 0x0001
@@ -688,6 +689,7 @@ static int hf_pcep_lsp_instantiation_capability;
 static int hf_pcep_triggered_resync;
 static int hf_pcep_delta_lsp_sync_capability;
 static int hf_pcep_triggered_initial_sync;
+static int hf_pcep_color_capability;
 static int hf_pcep_obj_lsp_flags;
 static int hf_pcep_obj_lsp_plsp_id;
 static int hf_pcep_obj_lsp_flags_d;
@@ -1836,6 +1838,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
         &hf_pcep_triggered_resync,
         &hf_pcep_delta_lsp_sync_capability,
         &hf_pcep_triggered_initial_sync,
+        &hf_pcep_color_capability,
         NULL
     };
 
@@ -5020,6 +5023,11 @@ proto_register_pcep(void)
           { "TRIGGERED-INITIAL-SYNC (F)", "pcep.stateful-pce-capability.triggered-initial-sync",
             FT_BOOLEAN, 32, NULL, PCEP_TLV_STATEFUL_PCE_CAPABILITY_F,
             NULL, HFILL }
+        },
+        { &hf_pcep_color_capability,
+            { "COLOR-CAPABILITY", "pcep.stateful-pce-capability.color-capability",
+              FT_BOOLEAN, 32, NULL, PCEP_TLV_STATEFUL_PCE_CAPABILITY_COLOR,
+              NULL, HFILL }
         },
         { &hf_pcep_sr_pce_capability_reserved,
           { "Reserved", "pcep.tlv.sr-pce-capability.reserved",
