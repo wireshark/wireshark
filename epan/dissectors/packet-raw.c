@@ -92,8 +92,6 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
-  col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
   col_set_str(pinfo->cinfo, COL_INFO, "Raw packet data");
 
