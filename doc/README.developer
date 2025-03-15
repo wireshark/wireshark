@@ -419,7 +419,7 @@ as that's not supported by all compilers.
 Prefer the C99 output functions from <stdio.h> instead of their GLib
 replacements (note that positional format parameters are not part of C99).
 In the past we used to recommend using g_snprintf() and g_vsnprintf()
-instead but since Visual Studio 2015 native C99 implementations are
+instead, but since Visual Studio 2015 native C99 implementations are
 available on all platforms we support. These are optimized better than
 the gnulib (GLib) implementation and on hot codepaths that can be a
 noticeable difference in execution speed.
@@ -499,7 +499,7 @@ that accidentally writes beyond the end of the buffer.
 If you write a routine that will create and return a pointer to a filled in
 string and if that buffer will not be further processed or appended to after
 the routine returns (except being added to the proto tree),
-do not preallocate the buffer to fill in and pass as a parameter instead
+do not preallocate the buffer to fill in and pass as a parameter. Instead,
 pass a pointer to a pointer to the function and return a pointer to a
 wmem-allocated buffer that will be automatically freed. (see README.wmem)
 

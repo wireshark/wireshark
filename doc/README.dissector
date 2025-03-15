@@ -1319,7 +1319,7 @@ be used as the tooltip text.
 1.5.1 Field Registration.
 
 Protocol registration is handled by creating an instance of the
-header_field_info struct (or an array of such structs), and
+hf_register_info struct (or an array of such structs), and
 calling the registration function along with the registration ID of
 the protocol that is the parent of the fields. Here is a complete example:
 
