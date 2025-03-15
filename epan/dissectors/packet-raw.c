@@ -124,7 +124,12 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
-   * instead of a fake MAC address and PPP header. */
+   * instead of a fake MAC address and PPP header.
+   *
+   * XXX - in at least one capture, I've seen 10 bytes of non-zero
+   * values before the initial 0x45 of an IP packet without options.
+   * However, just skipping the first 10 bytes if there's a 0x4x
+   * byte after it breaks the parsing of some other captures. */
   else if (tvb_memeql(tvb, 0, zeroes,10) == 0) {
     next_tvb = tvb_new_subset_remaining(tvb, 10);
     call_dissector(ip_handle, next_tvb, pinfo, tree);
@@ -136,13 +141,27 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     switch (tvb_get_uint8(tvb, 0) & 0xF0) {
 
     case 0x40:
-      /* IPv4 */
-      call_dissector(ip_handle, tvb, pinfo, tree);
+      /*
+       * IPv4.
+       *
+       * Create a new tvbuff, so that if the dissector sets the length
+       * (e.g., because the packet has extra stuff after the datagram),
+       * the top-level tvbuff isn't modified and shows all the data.
+       */
+      next_tvb = tvb_new_subset_remaining(tvb, 0);
+      call_dissector(ip_handle, next_tvb, pinfo, tree);
       break;
 
     case 0x60:
-      /* IPv6 */
-      call_dissector(ipv6_handle, tvb, pinfo, tree);
+      /*
+       * IPv6.
+       *
+       * Create a new tvbuff, so that if the dissector sets the length
+       * (e.g., because the packet has extra stuff after the datagram),
+       * the top-level tvbuff isn't modified and shows all the data.
+       */
+      next_tvb = tvb_new_subset_remaining(tvb, 0);
+      call_dissector(ipv6_handle, next_tvb, pinfo, tree);
       break;
 
     default:
