@@ -42,8 +42,6 @@
 #define BITS_PER_BYTE 8
 
 static const uint8_t CHUNKED_END[] = { 0x30, 0x0d, 0x0a, 0x0d, 0x0a };
-static const uint8_t RETURN_NEWLINE[] = { 0x0d, 0x0a };
-static tvbuff_t *return_newline_tvb;
 
 void proto_register_ippusb(void);
 void proto_reg_handoff_ippusb(void);
@@ -197,7 +195,6 @@ static int
 dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     int offset = 0;
-    int ret = 0;
     unsigned first_linelen;
     const unsigned char *first_line;
     int next_offset;
@@ -248,7 +245,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ippusb_last_pdu = -1;
         }
 
-        ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, data);
+        dissector_try_uint_with_data(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, data);
     }
     else if (global_ippusb_reassemble) {
         /* If reassembly is wanted */
@@ -310,13 +307,6 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                             GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, true);
                         }
 
-                        if (last != NEWLINE) {
-                            fragment_add_check(&ippusb_reassembly_table, return_newline_tvb, offset, pinfo, new_msp->first_frame,
-                                            GUINT_TO_POINTER(new_msp->first_frame), new_msp->running_size, sizeof(RETURN_NEWLINE), true);
-
-                            new_msp->running_size += sizeof(RETURN_NEWLINE);
-                        }
-
                         ippusb_last_pdu = pinfo->num;
                     }
                     else {
@@ -333,7 +323,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         pinfo->can_desegment = 0;
 
                         if(processed_tvb){
-                            ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                            dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
                             col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
                         }
                     }
@@ -396,7 +386,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                    dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     if (current_msp->document & MSP_DOCUMENT_TRUNCATED) {
                         col_append_str(pinfo->cinfo, COL_INFO, " Document Truncated");
@@ -415,7 +405,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                    dissector_try_uint_with_data(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
 
@@ -430,12 +420,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
     }
 
-    if (ret) {
-        return tvb_captured_length(tvb);
-    }
-    else {
-        return 0;
-    }
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -449,11 +434,6 @@ is_http_header(unsigned first_linelen, const unsigned char *first_line) {
     else {
         return false;
     }
-}
-
-static void
-ippusb_shutdown(void) {
-    tvb_free(return_newline_tvb);
 }
 
 void
@@ -525,17 +505,18 @@ proto_register_ippusb(void)
     /* Reassembly, made an option due to memory costs */
     prefs_register_bool_preference(ippusb_module, "attempt_reassembly", "Reassemble payload", "", &global_ippusb_reassemble);
 
-    return_newline_tvb = tvb_new_real_data(RETURN_NEWLINE, sizeof(RETURN_NEWLINE), sizeof(RETURN_NEWLINE));
-
-    register_shutdown_routine(ippusb_shutdown);
-
     ippusb_handle = register_dissector("ippusb", dissect_ippusb, proto_ippusb);
 }
 
 void
 proto_reg_handoff_ippusb(void)
 {
-    dissector_add_uint("usb.bulk", IF_CLASS_PRINTER, ippusb_handle);
+    dissector_add_uint("usb.protocol", 0x070104, ippusb_handle);
+
+    /* Seen on old HP printers (should possibly check for vendor id 0x03f0) */
+    dissector_add_uint("usb.protocol", 0xff0901, ippusb_handle);
+
+    dissector_add_for_decode_as("usb.protocol", ippusb_handle);
 }
 
 /*
