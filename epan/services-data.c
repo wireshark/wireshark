@@ -5255,6 +5255,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 44553, "rbr-debug",       "REALbasic Remote Debug" },
     { 44818, "EtherNet-IP-2",   "EtherNet/IP messaging" },
     { 45054, "invision-ag",     "InVision AG" },
+    { 45185, "witsnet",         "Wire and Wireless transfer on synchroniz" },
     { 45678, "eba",             "EBA PRISE" },
     { 45825, "qdb2service",     "Qpuncture Data Access Service" },
     { 45966, "ssr-servermgr",   "SSRServerMgr" },
