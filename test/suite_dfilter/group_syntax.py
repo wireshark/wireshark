@@ -561,12 +561,9 @@ class TestDfilterValueString:
         dfilter = 'vals(tls.handshake.type) contains "Client"'
         checkDFilterCount(dfilter, 2)
 
-    # A Client Hello appears in tls layer 1 in one packet...
-    # In the other packet, it's the second TLS PDU, but the TLS
-    # dissector is only called once - but it gets called layer 5
-    # because that's the layer of the last successfully called
-    # dissector, as x509ce gets called 5 times by the previous
-    # Handshake PDU. This seems like a bug.
+    # A Client Hello appears in TLS layer 1 in one packet, and
+    # Client Key Exchange appears in TLS layer 1 in another (as
+    # the second record at that layer).
     def test_value_string_func_layer(self, checkDFilterCount):
         dfilter = 'vals(tls.handshake.type#1) contains "Client"'
-        checkDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 2)

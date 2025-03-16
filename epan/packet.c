@@ -846,15 +846,6 @@ remove_last_layer(packet_info *pinfo, bool reduce_count)
 			(*proto_layer_num_ptr)--;
 		}
 	}
-
-	/* Restore count for new last (protocol) layer. */
-	frame = wmem_list_tail(pinfo->layers);
-	if (frame) {
-		proto_id = GPOINTER_TO_INT(wmem_list_frame_data(frame));
-		proto_layer_num_ptr = wmem_map_lookup(pinfo->proto_layers, GINT_TO_POINTER(proto_id));
-		ws_assert(proto_layer_num_ptr);
-		pinfo->curr_proto_layer_num = *proto_layer_num_ptr;
-	}
 }
 
 
@@ -872,9 +863,11 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 			      packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const char *saved_proto;
+	int	    saved_proto_layer_num;
 	int         len;
 
 	saved_proto = pinfo->current_proto;
+	saved_proto_layer_num = pinfo->curr_proto_layer_num;
 
 	if ((handle->protocol != NULL) && (!proto_is_pino(handle->protocol))) {
 		pinfo->current_proto =
@@ -895,6 +888,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 		ws_assert_not_reached();
 	}
 	pinfo->current_proto = saved_proto;
+	pinfo->curr_proto_layer_num = saved_proto_layer_num;
 
 	return len;
 }
@@ -917,6 +911,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		    proto_tree *tree, bool add_proto_name, void *data)
 {
 	const char  *saved_proto;
+	int          saved_proto_layer_num;
 	uint16_t     saved_can_desegment;
 	int          len;
 	unsigned     saved_layers_len = 0;
@@ -933,6 +928,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	}
 
 	saved_proto = pinfo->current_proto;
+	saved_proto_layer_num = pinfo->curr_proto_layer_num;
 	saved_can_desegment = pinfo->can_desegment;
 	saved_layers_len = wmem_list_count(pinfo->layers);
 	DISSECTOR_ASSERT(saved_layers_len < prefs.gui_max_tree_depth);
@@ -1006,6 +1002,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		}
 	}
 	pinfo->current_proto = saved_proto;
+	pinfo->curr_proto_layer_num = saved_proto_layer_num;
 	pinfo->can_desegment = saved_can_desegment;
 	return len;
 }
@@ -2994,6 +2991,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 {
 	bool               status;
 	const char        *saved_curr_proto;
+	int                saved_proto_layer_num;
 	const char        *saved_heur_list_name;
 	GSList            *entry;
 	GSList            *prev_entry = NULL;
@@ -3021,6 +3019,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 
 	status      = false;
 	saved_curr_proto = pinfo->current_proto;
+	saved_proto_layer_num = pinfo->curr_proto_layer_num;
 	saved_heur_list_name = pinfo->heur_list_name;
 
 	saved_layers_len = wmem_list_count(pinfo->layers);
@@ -3097,6 +3096,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	}
 
 	pinfo->current_proto = saved_curr_proto;
+	pinfo->curr_proto_layer_num = saved_proto_layer_num;
 	pinfo->heur_list_name = saved_heur_list_name;
 	pinfo->can_desegment = saved_can_desegment;
 	return status;
@@ -3663,6 +3663,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	packet_info *pinfo, proto_tree *tree, void *data)
 {
 	const char        *saved_curr_proto;
+	unsigned           saved_proto_layer_num;
 	const char        *saved_heur_list_name;
 	uint16_t           saved_can_desegment;
 	unsigned           saved_layers_len = 0;
@@ -3683,6 +3684,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	pinfo->can_desegment       = saved_can_desegment-(saved_can_desegment>0);
 
 	saved_curr_proto = pinfo->current_proto;
+	saved_proto_layer_num = pinfo->curr_proto_layer_num;
 	saved_heur_list_name = pinfo->heur_list_name;
 
 	saved_layers_len = wmem_list_count(pinfo->layers);
@@ -3725,6 +3727,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	/* Restore info from caller */
 	pinfo->can_desegment = saved_can_desegment;
 	pinfo->current_proto = saved_curr_proto;
+	pinfo->curr_proto_layer_num = saved_proto_layer_num;
 	pinfo->heur_list_name = saved_heur_list_name;
 
 }
