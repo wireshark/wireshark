@@ -6,6 +6,7 @@
  * (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  * (c) 2007, Tamas Regos <tamas.regos@ericsson.com>
  * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
+ * (c) 2025, Bartis Csaba <bracsek@bracsek.eu>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -37,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <epan/uat.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
@@ -175,6 +177,7 @@ typedef enum {
     PREF_STRING,
     PREF_RANGE,
     PREF_STATIC_TEXT,
+    PREF_UAT,
     PREF_OBSOLETE
 } pref_type_t;
 
@@ -200,6 +203,9 @@ typedef struct _wslua_pref_t {
                          option menu or combo box in
                          the preferences tab */
       } enum_info;            /**< for PREF_ENUM */
+      struct {
+          uat_field_t *uat_field_list; /**< list of field configurations */
+      } uat_field_list_info; /**< for PREF_UAT */
       char* default_s;       /**< default value for value.s */
     } info;                    /**< display/text file information */
 
