@@ -1,4 +1,4 @@
-Editcap (Wireshark) 4.5.0 (v4.5.0rc0-48-g7b7ca8210417)
+Editcap (Wireshark) 4.5.0 (v4.5.0rc0-2007-gb95179da6871)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -13,7 +13,7 @@ Packet selection:
                          to) the given time.
   -B <stop time>         only read packets whose timestamp is before the
                          given time.
-                         Time format for -A/-B options is
+                         Time format for -A/-B/-R options is
                          YYYY-MM-DDThh:mm:ss[.nnnnnnnnn][Z|+-hh:mm]
                          Unix epoch timestamps are also supported.
 
@@ -50,6 +50,8 @@ Packet manipulation:
                          choplen is positive and at least 1 is negative.
   -L                     adjust the frame (i.e. reported) length when chopping
                          and/or snapping.
+  -R <framenum>:<time>   replace the timestamp for given frame number.
+                         Accept the same time format as used for -A/-B options.
   -t <time adjustment>   adjust the timestamp of each packet.
                          <time adjustment> is in relative seconds (e.g. -0.5).
   -S <strict adjustment> adjust timestamp of packets if necessary to ensure
@@ -76,7 +78,20 @@ Packet manipulation:
                          example).
                          e.g. -I 26 in case of Ether/IP will ignore
                          ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
-  -a <framenum>:<comment> Add or replace comment for given frame number
+  -a <framenum>:<comment> Add or replace packet comment for given frame number.
+                         Any pre-existing packet comments from the input file
+                         for the specified frame will be replaced unless used
+                         in conjunction with "--preserve-packet-comments".
+  --discard-packet-comments
+                         Discard all pre-existing packet comments from the input
+                         file when writing the output file.  Does not discard
+                         new comments added by "-a" in the same command line.
+  --preserve-packet-comments
+                         Preserve from the input file all pre-existing packet
+                         comments when adding a new packet comment with "-a".
+                         Without this option each "-a" will cause to be
+                         discarded any pre-existing comments for the specified
+                         frame.
 
 Output File(s):
                          if the output file(s) have the .gz extension, then
@@ -107,10 +122,6 @@ Output File(s):
                          when writing the output file.  Does not discard
                          comments added by "--capture-comment" in the same
                          command line.
-  --discard-packet-comments
-                         Discard all packet comments from the input file
-                         when writing the output file.  Does not discard
-                         comments added by "-a" in the same command line.
   --compress <type>      Compress the output file using the type compression format.
 
 Miscellaneous:
