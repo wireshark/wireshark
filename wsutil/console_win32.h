@@ -42,7 +42,7 @@ void restore_pipes(void);
 WS_DLL_PUBLIC
 void destroy_console(void);
 
-/** Set console wait. GTK+ only.
+/** Set console wait.
  * @param console_wait set/no set console wait
  */
 WS_DLL_PUBLIC
