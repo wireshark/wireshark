@@ -3931,20 +3931,20 @@ prefs_register_modules(void)
             "system is sorted.",
             &prefs.st_sort_defcolflag, st_sort_col_vals, false);
 
-     prefs_register_bool_preference(stats_module, "st_sort_defdescending",
+    prefs_register_bool_preference(stats_module, "st_sort_defdescending",
             "Default stats_tree sort order is descending",
             "When selected, statistics based on the stats_tree system will by default "
             "be sorted in descending order.",
             &prefs.st_sort_defdescending);
 
-     prefs_register_bool_preference(stats_module, "st_sort_casesensitve",
+    prefs_register_bool_preference(stats_module, "st_sort_casesensitve",
             "Case sensitive sort of stats_tree item names",
             "When selected, the item/node names of statistics based on the stats_tree "
             "system will be sorted taking case into account. Else the case of the name "
             "will be ignored.",
             &prefs.st_sort_casesensitve);
 
-     prefs_register_bool_preference(stats_module, "st_sort_rng_nameonly",
+    prefs_register_bool_preference(stats_module, "st_sort_rng_nameonly",
             "Always sort 'range' nodes by name",
             "When selected, the stats_tree nodes representing a range of values "
             "(0-49, 50-100, etc.) will always be sorted by name (the range of the "
@@ -3952,7 +3952,7 @@ prefs_register_modules(void)
             " the tree.",
             &prefs.st_sort_rng_nameonly);
 
-     prefs_register_bool_preference(stats_module, "st_sort_rng_fixorder",
+    prefs_register_bool_preference(stats_module, "st_sort_rng_fixorder",
             "Always sort 'range' nodes in ascending order",
             "When selected, the stats_tree nodes representing a range of values "
             "(0-49, 50-100, etc.) will always be sorted ascending; else it follows "
@@ -3960,12 +3960,22 @@ prefs_register_modules(void)
             "'range' nodes by name\" is also selected.",
             &prefs.st_sort_rng_fixorder);
 
-     prefs_register_bool_preference(stats_module, "st_sort_showfullname",
+    prefs_register_bool_preference(stats_module, "st_sort_showfullname",
             "Display the full stats_tree plug-in name",
             "When selected, the full name (including menu path) of the stats_tree "
             "plug-in is show in windows. If cleared the plug-in name is shown "
             "without menu path (only the part of the name after last '/' character.)",
             &prefs.st_sort_showfullname);
+
+    module_t *conv_module;
+    // avoid using prefs_register_stat to prevent lint complaint about recursion
+    conv_module = prefs_register_module(stats_module, "conv", "Conversations",
+            "Conversations & Endpoints", NULL, NULL, true);
+    prefs_register_bool_preference(conv_module, "machine_readable",
+            "Display exact (machine-readable) byte counts",
+            "When enabled, exact machine-readable byte counts are displayed. "
+            "When disabled, human readable numbers with SI prefixes are displayed.",
+            &prefs.conv_machine_readable);
 
     /* Protocols */
     protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
@@ -4455,6 +4465,7 @@ pre_init_prefs(void)
     prefs.st_sort_defcolflag = ST_SORT_COL_COUNT;
     prefs.st_sort_defdescending = true;
     prefs.st_sort_showfullname = false;
+    prefs.conv_machine_readable = false;
 
     /* protocols */
     prefs.display_hidden_proto_items = false;

@@ -75,6 +75,7 @@ TrafficTab::TrafficTab(QWidget * parent) :
     _absoluteTime = false;
     _limitToDisplayFilter = false;
     _nanoseconds = false;
+    _machineReadable = false;
     setTabBasename(QString());
 }
 
@@ -126,6 +127,7 @@ QTreeView * TrafficTab::createTree(int protoId)
         connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
 
         model->enableTap();
+        model->setMachineReadable(_machineReadable);
 
         if (_createDelegate)
         {
@@ -228,6 +230,20 @@ void TrafficTab::limitToDisplayFilter(bool limit)
         ATapDataModel * atdm = dataModelForTabIndex(idx);
         if (atdm)
             atdm->limitToDisplayFilter(limit);
+    }
+}
+
+void TrafficTab::setMachineReadable(bool machine)
+{
+    if (machine == _machineReadable)
+        return;
+
+    _machineReadable = machine;
+    for(int idx = 0; idx < count(); idx++)
+    {
+        ATapDataModel * atdm = dataModelForTabIndex(idx);
+        if (atdm)
+            atdm->setMachineReadable(machine);
     }
 }
 

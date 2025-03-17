@@ -15,6 +15,7 @@
 
 #include <string.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/timestamp.h>
 #include <wsutil/str_util.h>
 #include <wsutil/cmdarg_err.h>
@@ -98,10 +99,6 @@ iousers_draw(void *arg)
 			if (tot_frames == last_frames) {
 				char *rx_bytes, *tx_bytes, *total_bytes;
 
-				rx_bytes = format_size(iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
-				tx_bytes = format_size(iui->tx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
-				total_bytes = format_size(iui->tx_bytes + iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
-
 				/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
 				src_addr = get_conversation_address(NULL, &iui->src_address, true);
 				dst_addr = get_conversation_address(NULL, &iui->dst_address, true);
@@ -111,36 +108,48 @@ iousers_draw(void *arg)
 					dst_port = get_conversation_port(NULL, iui->dst_port, iui->ctype, true);
 					src = wmem_strconcat(NULL, src_addr, ":", src_port, NULL);
 					dst = wmem_strconcat(NULL, dst_addr, ":", dst_port, NULL);
-					printf("%-26s <-> %-26s  %6" PRIu64 " %-9s"
-					       "  %6" PRIu64 " %-9s"
-					       "  %6" PRIu64 " %-9s  ",
-						src, dst,
-						iui->rx_frames, rx_bytes,
-						iui->tx_frames, tx_bytes,
-						iui->tx_frames+iui->rx_frames,
-						total_bytes
-					);
+					printf("%-26s <-> %-26s",
+							src, dst
+						);
 					wmem_free(NULL, src_port);
 					wmem_free(NULL, dst_port);
 					wmem_free(NULL, src);
 					wmem_free(NULL, dst);
 				} else {
-					printf("%-20s <-> %-20s  %6" PRIu64 " %-9s"
+					printf("%-20s <-> %-20s",
+						src_addr, dst_addr
+					);
+				}
+
+				if (!prefs.conv_machine_readable) {
+					// XXX: format_size can return a string of up to 11 characters:
+					// "X,XXX bytes" We should maybe widen the columns.
+					rx_bytes = format_size(iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
+					tx_bytes = format_size(iui->tx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
+					total_bytes = format_size(iui->tx_bytes + iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
+					printf("  %6" PRIu64 " %-9s"
 					       "  %6" PRIu64 " %-9s"
 					       "  %6" PRIu64 " %-9s  ",
-						src_addr, dst_addr,
 						iui->rx_frames, rx_bytes,
 						iui->tx_frames, tx_bytes,
 						iui->tx_frames+iui->rx_frames,
 						total_bytes
 					);
+					wmem_free(NULL, rx_bytes);
+					wmem_free(NULL, tx_bytes);
+					wmem_free(NULL, total_bytes);
+				} else {
+					printf("  %6" PRIu64 " %9"  PRIu64
+					       "  %6" PRIu64 " %9" PRIu64
+					       "  %6" PRIu64 " %9" PRIu64 "  ",
+						iui->rx_frames, iui->rx_bytes,
+						iui->tx_frames, iui->tx_bytes,
+						iui->tx_frames+iui->rx_frames,
+						iui->tx_bytes+iui->rx_bytes
+					);
 				}
-
 				wmem_free(NULL, src_addr);
 				wmem_free(NULL, dst_addr);
-				wmem_free(NULL, rx_bytes);
-				wmem_free(NULL, tx_bytes);
-				wmem_free(NULL, total_bytes);
 
 				switch (timestamp_get_type()) {
 				case TS_ABSOLUTE:

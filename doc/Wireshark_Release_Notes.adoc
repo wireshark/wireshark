@@ -169,6 +169,12 @@ The following features are either new or have been significantly updated since v
   formats as the "-T json -x" and "-T jsonraw" output modes, respectively,
   of TShark.
 
+* The Conversations and Endpoints dialogs have an option to display byte counts
+  and bit rates in exact counts instead of human-readable numbers with SI units.
+  The default setting when opening a dialog is controlled by a Statistics
+  preference, "conv.machine_readable". The same preference controls whether
+  precise byte counts are used in the TShark "-z conv" and "-z endpoints" taps.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

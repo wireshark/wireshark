@@ -162,6 +162,8 @@ public:
      */
     virtual void useNanosecondTimestamps(bool nanoseconds) = 0;
 
+    void setMachineReadable(bool machineReadable);
+
     void limitToDisplayFilter(bool limit);
 
     /**
@@ -243,6 +245,7 @@ protected:
     // 100 ns, and pcapng can have one of many values.
     bool _nanoseconds;
     bool _resolveNames;
+    bool _machineReadable;
     bool _disableTap;
 
     double _minRelStartTime;

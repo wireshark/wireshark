@@ -55,6 +55,9 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
         ui->trafficTab->limitToDisplayFilter(true);
     }
 
+    connect(ui->machineReadableCheckBox, &QCheckBox::toggled, ui->trafficTab, &TrafficTab::setMachineReadable);
+    ui->machineReadableCheckBox->setChecked(prefs.conv_machine_readable);
+
     ui->trafficTab->setFocus();
     ui->trafficTab->useNanosecondTimestamps(cf.timestampPrecision() == WTAP_TSPREC_NSEC || cf.timestampPrecision() == WTAP_TSPREC_PER_PACKET);
     connect(ui->displayFilterCheckBox, &QCheckBox::toggled, this, &TrafficTableDialog::displayFilterCheckBoxToggled);

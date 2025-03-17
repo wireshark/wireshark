@@ -49,6 +49,16 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="machineReadableCheckBox">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display exact numbers instead of rounding with SI prefixes. (Exact numbers always used when sorting.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Display raw data</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="displayFilterCheckBox">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
