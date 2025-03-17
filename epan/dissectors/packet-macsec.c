@@ -203,14 +203,14 @@ get_psk_config_table_count(void) {
 }
 
 /* test if a SAK has all 0s (invalid )*/
-bool
+static bool
 macsec_is_valid_sak(const guint8 *sak) {
     /* memcmp of 0 against previous byte over the range of the SAK length is an easy test for all 0s */
     if ((0 == sak[0]) && (0 == memcmp(sak, sak + 1, (MKA_MAX_SAK_LEN - 1))) ) {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* Code to actually dissect the packets */
