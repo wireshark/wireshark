@@ -1048,7 +1048,7 @@ static hf_register_info hf_prism[] = {
       NULL, HFILL }}
 };
 
-static int *tree_array[] = {
+static int *ett_array[] = {
     &ett_prism,
     &ett_prism_did,
     &ett_sig_ab
@@ -1059,7 +1059,7 @@ void proto_register_ieee80211_prism(void)
     proto_prism = proto_register_protocol("Prism capture header", "Prism",
                                           "prism");
     proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
-    proto_register_subtree_array(tree_array, array_length(tree_array));
+    proto_register_subtree_array(ett_array, array_length(ett_array));
 
     prism_handle = register_dissector("prism", dissect_prism, proto_prism);
 }

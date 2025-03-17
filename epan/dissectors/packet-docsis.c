@@ -1191,7 +1191,7 @@ proto_register_docsis (void)
   };
 
   static ei_register_info ei[] = {
-      { &ei_docsis_hcs_bad, { "docsis.hcs_bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+      { &ei_docsis_hcs_bad, { "docsis.hcs_bad", PI_CHECKSUM, PI_ERROR, "Bad header check sequence", EXPFILL }},
       { &ei_docsis_len, { "docsis.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
       { &ei_docsis_frag_fcs_bad, { "docsis.frag.fcs_bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
       { &ei_docsis_eh_len, { "docsis.ehdr.len.past_end", PI_MALFORMED, PI_ERROR, "Extended Header Length Invalid!", EXPFILL }}

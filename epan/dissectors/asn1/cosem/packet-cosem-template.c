@@ -2410,6 +2410,7 @@ void proto_register_cosem(void) {
 
     static int* ett_dlms_array[] = {
             &ett_dlms,
+            &ett_dlms_hdlc,
             &ett_dlms_hdlc_format,
             &ett_dlms_hdlc_address,
             &ett_dlms_hdlc_control,
