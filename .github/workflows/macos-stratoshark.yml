@@ -40,7 +40,7 @@ jobs:
       - name: Build libcloudtrail
         shell: bash
         run: |
-          CLOUDTRAIL_VERSION="0.12.0"
+          CLOUDTRAIL_VERSION="0.12.5"
           curl -OL --remote-header-name "https://github.com/falcosecurity/plugins/archive/refs/tags/cloudtrail-${CLOUDTRAIL_VERSION?}.tar.gz"
           tar xzf plugins-cloudtrail-${CLOUDTRAIL_VERSION?}.tar.gz
           cd plugins-cloudtrail-${CLOUDTRAIL_VERSION?}/plugins/cloudtrail
