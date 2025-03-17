@@ -26,11 +26,43 @@ extern "C" {
 #endif
 
 /**
- * Check if a buffer is json an returns true if it is.
+ * Check if a buffer is JSON and returns true if it is.
+ *
+ * @note This requires that the buffer be complete valid JSON that requires
+ * no more than 1024 tokens. For larger objects, or to parse what may be an
+ * incomplete string, call json_parse[_len] and check the return value.
  */
 WS_DLL_PUBLIC bool json_validate(const uint8_t *buf, const size_t len);
 
+/**
+ * Parse a JSON string and put the location of tokens into the tokens array.
+ *
+ * @param buf - A null-terminated string containing JSON.
+ * @param tokens - An array of tokens. Can be NULL, to validate only.
+ * @param max_tokens - The length of tokens. Ignored if tokens is NULL.
+ * @return The number of tokens needed, or a jsmnerr (which are negative).
+ *
+ * @note This calls strlen() and requires that buf be a null-terminated string.
+ * This can be called with NULL tokens in order to determine the number of
+ * tokens necessary.
+ */
 WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
+
+/**
+ * Parse a JSON buffer and put the location of tokens into the tokens array.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param len - The length of the JSON data in the buffer.
+ * @param tokens - An array of tokens. Can be NULL, to validate only.
+ * @param max_tokens - The length of tokens. Ignored if tokens is NULL.
+ * @return The number of tokens needed, or a jsmnerr (which are negative).
+ *
+ * @note This still stops parsing after the first '\0' byte, if any. It's
+ * useful if a buffer is not null-terminated or if the length is already
+ * known. This can be called with NULL tokens in order to determine the number
+ * of tokens necessary.
+ */
+WS_DLL_PUBLIC int json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_tokens);
 
 /**
  * Get the pointer to an object belonging to parent object and named as the name variable.

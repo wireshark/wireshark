@@ -46,7 +46,14 @@ wtap_open_return_val json_open(wtap *wth, int *err, char **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
-    if (json_validate(filebuf, bytes_read) == false) {
+    /* We could reduce the maximum size to read and accept if the parser
+     * returns JSMN_ERROR_PART (i.e., only fail on JSMN_ERROR_INVAL as we
+     * shouldn't get JSMN_ERROR_NOMEM if tokens is NULL.) That way we
+     * could handle bigger files without testing the entire file.
+     * packet-json shows excess unparsed data at the end with the
+     * data-text-lines dissector.
+     */
+    if (json_parse_len(filebuf, bytes_read, NULL, 0) < 0) {
         g_free(filebuf);
         return WTAP_OPEN_NOT_MINE;
     }

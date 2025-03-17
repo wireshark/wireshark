@@ -48,6 +48,11 @@ json_validate(const uint8_t *buf, const size_t len)
         return false;
     }
 
+    /*
+     * XXX - We create the token array and have jsmn_parse fill it in, only
+     * to free it. It might make more sense to pass in NULL for tokens, and
+     * for our sanity check just check that len isn't too big.
+     */
     t = g_new0(jsmntok_t, max_tokens);
 
     if (!t)
@@ -85,6 +90,15 @@ json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
 
     jsmn_init(&p);
     return jsmn_parse(&p, buf, strlen(buf), tokens, max_tokens);
+}
+
+int
+json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_tokens)
+{
+    jsmn_parser p;
+
+    jsmn_init(&p);
+    return jsmn_parse(&p, buf, len, tokens, max_tokens);
 }
 
 static
