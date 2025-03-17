@@ -223,6 +223,9 @@ static const value_string szl_partial_list_names[] = {
     { 0x0071,                               "H CPU group information" },
     { 0x0074,                               "Status of the module LEDs" },
     { 0x0075,                               "Switched DP slaves in the H-system" },
+    { 0x0076,                               "DNN tree’s root node" },
+    { 0x0077,                               "DNN node - all linked objects" },
+    { 0x0078,                               "DNN node data" },
     { 0x0081,                               "Start information list" },
     { 0x0082,                               "Start event list" },
     { 0x0090,                               "DP Master System Information" },
@@ -1829,6 +1832,953 @@ static const value_string szl_xy74_0000_led_blink_names[] = {
     { 0,                                    NULL }
 };
 
+static int hf_s7comm_szl_xy76_0000_version;
+static int hf_s7comm_szl_xy76_0000_top_dnn_id;
+
+static int hf_s7comm_szl_xy77_xxxx_version;
+static int hf_s7comm_szl_xy77_xxxx_num_parent;
+static int hf_s7comm_szl_xy77_xxxx_obj_parent;
+static int hf_s7comm_szl_xy77_xxxx_num_child;
+static int hf_s7comm_szl_xy77_xxxx_obj_child;
+static int hf_s7comm_szl_xy77_xxxx_num_redundancy_links;
+static int hf_s7comm_szl_xy77_xxxx_obj_redundancy;
+static int hf_s7comm_szl_xy77_xxxx_num_iodevice_agent_links;
+static int hf_s7comm_szl_xy77_xxxx_obj_iodevice_agent;
+
+static int hf_s7comm_szl_xy78_xxxx_version;
+static int hf_s7comm_szl_xy78_xxxx_unknown_version_data;
+static int hf_s7comm_szl_xy78_xxxx_geo_addr;
+static int hf_s7comm_szl_xy78_xxxx_geo_addr_subsys;
+static int hf_s7comm_szl_xy78_xxxx_geo_addr_station;
+static int hf_s7comm_szl_xy78_xxxx_geo_addr_rack;
+static int hf_s7comm_szl_xy78_xxxx_geo_addr_slot;
+static int hf_s7comm_szl_xy78_xxxx_geo_addr_subslot;
+static int hf_s7comm_szl_xy78_xxxx_name;
+static int hf_s7comm_szl_xy78_xxxx_short_name;
+static int hf_s7comm_szl_xy78_xxxx_dnn_mode;
+static int hf_s7comm_szl_xy78_xxxx_dis;
+static int hf_s7comm_szl_xy78_xxxx_dis_num_cdiag;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiags;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_ch_nr;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_ch_prop;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat;
+static const value_string s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat_names[] = {
+    {0x0001, "ALCAT_CH_MSG"},
+    {0x0002, "ALCAT_SUBMODUL_MSG"},
+    {0x0003, "ALCAT_MODUL_MSG"},
+    {0x0004, "ALCAT_RACK_MSG"},
+    {0x0005, "ALCAT_DEVICE_MSG"},
+    {0x0006, "ALCAT_IOSYSTEM_MSG"},
+    {0x0007, "ALCAT_DREPEAT_A_MSG"},
+    {0x0008, "ALCAT_DREPEAT_B_MSG"},
+    {0x0009, "ALCAT_DREPEAT_C_MSG"},
+    {0x000A, "ALCAT_DREPEAT_D_MSG"},
+    {0x000B, "ALCAT_DREPEAT_E_MSG"},
+    {0x000C, "ALCAT_CPU_MSG"},
+    {0x000D, "ALCAT_CPU_OST_MSG"},
+    {0x000F, "ALCAT_CPU_INFO_MSG"},
+    {0x0010, "ALCAT_CPU_ERR_MSG"},
+    {0x0011, "ALCAT_CPU_MD_MSG"},
+    {0x0012, "ALCAT_CPU_MR_MSG"},
+    {0x0013, "ALCAT_CPU_TMPERR_MSG"},
+    {0x0014, "ALCAT_CPU_INTERN_MSG"},
+    {0x0015, "ALCAT_CH_ERR_MSG"},
+    {0x0016, "ALCAT_ECH_ERR_MSG"},
+    {0x0017, "ALCAT_QCH_ERR_MSG"},
+    {0x0018, "ALCAT_CH_MD_MSG"},
+    {0x0019, "ALCAT_ECH_MD_MSG"},
+    {0x001A, "ALCAT_QCH_MDMSG"},
+    {0x001B, "ALCAT_CH_MR_MSG"},
+    {0x001C, "ALCAT_ECH_MR_MSG"},
+    {0x001D, "ALCAT_QCH_MR_MSG"},
+    {0x001E, "ALCAT_SUB_ERR_MSG"},
+    {0x001F, "ALCAT_ESUB_ERR_MSG"},
+    {0x0020, "ALCAT_QSUB_ERR_MSG"},
+    {0x0021, "ALCAT_SUB_MD_MSG"},
+    {0x0022, "ALCAT_ESUB_MD_MSG"},
+    {0x0023, "ALCAT_QSUB_MDMSG"},
+    {0x0024, "ALCAT_SUB_MR_MSG"},
+    {0x0025, "ALCAT_ESUB_MR_MSG"},
+    {0x0026, "ALCAT_QSUB_MR_MSG"},
+    {0x0028, "ALCAT_CONFIG_INFO"},
+    {0, NULL}
+};
+
+static value_string_ext s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat_names_ext =
+    VALUE_STRING_EXT_INIT(s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat_names);
+
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_res;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_qualifier;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_chet;
+static const value_string s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_names[] = {
+    {0x0001, "ErrTextLib"},
+    {0x0002, "CPUTextlib"},
+    {0x0003, "ErrTextLibEx"},
+    {0x0004, "DS1TextLib"},
+    {0x0005, "OSTTextLib (S7classic)"},
+    {0x0006, "IOTextLib"},
+    {0x0007, "DR"},
+    {0x0008, "IOTextLibFlat"},
+    {0x000D, "FS_TextLib"},
+    {0x000F, "CPTextlib"},
+    {0x0020, "AddHCPUTextLib"},
+    {0x0040, "PCStationTextlib"},
+    {0x0042, "PCCPTextlib"},
+    {0x0043, "PCDiagBase"},
+    {0x0064, "Domain0TextLib"},
+    {0x00F0, "MotionControlTextLib"},
+    {0x00F1, "SINAUT"},
+    {0x00F2, "SINUMERIK"},
+    {0x00FC, "AlarmCatEvid"},
+    {0x00FD, "AlarmCatShort"},
+    {0x00FE, "AlarmCatLong"},
+    {0x00FF, "AlarmCat"},
+    {0x0100, "CmpPlcName"},
+    {0x0101, "CmpRackName"},
+    {0x0102, "CmpModuleName"},
+    {0x0103, "CmpSubModuleName"},
+    {0x0104, "CmpTypeName"},
+    {0x0105, "CmpComment"},
+    {0x0106, "CmpTagFunction"},
+    {0x0107, "CmpTagLocation"},
+    {0x0108, "CmpLogAddress"},
+    {0x0109, "CmpOrderNo"},
+    {0x010A, "CmpSubsystemNo"},
+    {0x010B, "CmpRackNo"},
+    {0x010C, "CmpSlotNo"},
+    {0x010D, "CmpSubslotNo"},
+    {0x010E, "CmpHtmlPath"},
+    {0x010F, "CmpVendorName"},
+    {0x0110, "CmpFirmwareVersion"},
+    {0x0111, "CmpAdditionalInfo"},
+    {0x0112, "CmpInstallDate"},
+    {0x0113, "CmpName"},
+    {0x0114, "CmpIOSystemName"},
+    {0x0118, "CmpSymbolRedirection"},
+    {0x0119, "CmpSymbolInput"},
+    {0x011A, "CmpSymbolOutput"},
+    {0x011B, "CmpSymbolChannel_IN00"},
+    {0x015A, "CmpSymbolChannel_IN63"},
+    {0x015B, "CmpSymbolChannel_OUT00"},
+    {0x019A, "CmpSymbolChannel_OUT63"},
+    {0x01F0, "CmpMotionControl"},
+    {0x01FE, "PnoVendorName"},
+    {0x8001, "ErrTextLibHelp"},
+    {0x8002, "CPUTextlibHelp"},
+    {0x8003, "ErrTextLibExHelp"},
+    {0x8004, "DS1TextListHelp"},
+    {0x8005, "OSTTextLibHelp  (S7classic)"},
+    {0x8006, "IOTextlibHelp"},
+    {0x8007, "DRHelp"},
+    {0x8008, "IOTextLibFlatHelp"},
+    {0x800D, "FS_TextLibHelp"},
+    {0x800F, "CPTextlibHelp"},
+    {0x8040, "PCStationHelp"},
+    {0x8042, "PCCPHelp"},
+    {0x8043, "PCDiagBaseHelp"},
+    {0x80F0, "MotionControlHelp"},
+    {0x80F2,  "SinumerikHelp"},
+    {0, NULL}
+};
+
+static value_string_ext s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_names_ext =
+    VALUE_STRING_EXT_INIT(s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_names);
+
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8;
+static const value_string s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names[] = {
+    {1, "Short-circuit"},
+    {2, "Undervoltage"},
+    {3, "Overvoltage"},
+    {4, "Overload"},
+    {5, "Overtemperature"},
+    {6, "Wire break"},
+    {7, "High limit exceeded"},
+    {8, "Low limit violated"},
+    {9, "Error"},
+    {10, "Simulation active"},
+    {11, "Error (000B)"},
+    {12, "Error (000C)"},
+    {13, "Error (000D)"},
+    {14, "Error (000E)"},
+    {15, "Parameter not adequate"},
+    {16, "Parameter error"},
+    {17, "Supply voltage missing"},
+    {18, "Fuse fault"},
+    {19, "Communication fault"},
+    {20, "Ground fault"},
+    {21, "Reference channel fault"},
+    {22, "Hardware interrupt lost"},
+    {23, "Limit value warning"},
+    {24, "Actuator shutoff"},
+    {25, "Safety-related shutoff"},
+    {26, "External error"},
+    {27, "General error"},
+    {28, "PROFIsafe communications error"},
+    {29, "Error1 in actuator/sensor"},
+    {30, "Error2 in actuator/sensor"},
+    {31, "Channel/component temporarily not available "},
+    {33, "Further diagnostics information available not stored individually"},
+    {34, "Diagnostics available and is being processed"},
+    {35, "Module monitoring time exceeded"},
+    {64, "Mismatch of safety destination address (F_Dest_Add)"},
+    {65, "Safety destination address not valid (F_Dest_Add)"},
+    {66, "Safety source address not valid (F_Source_Add)"},
+    {67, "Safety watchdog time value is 0 ms (F_WD_Time) "},
+    {68, "Parameter F_SIL exceeds SIL from specific device application "},
+    {69, "Parameter F_CRC_Length does not match the generated values "},
+    {70, "Version of F parameter set incorrect "},
+    {71, "CRC1 fault "},
+    {72, "Device-specific diagnostics information, see manual "},
+    {73, "Save iParameter watchdog time exceeded "},
+    {74, "Restore iParameter watchdog time exceeded "},
+    {75, "Inconsistent iParameters (iParCRC error) "},
+    {76, "F_Block_ID not supported "},
+    {77, "Transmission error: Inconsistent data (CRC error) "},
+    {78, "Transmission error: Timeout (watchdog time 1 or 2 expired) "},
+    {79, "Acknowledge required to enable channel(s) - as channel error(s) are remedied."},
+    {256, "Module is defective"},
+    {257, "Front connector not plugged"},
+    {258, "Error (0102)"},
+    {259, "Watchdog tripped"},
+    {260, "Internal supply voltage fault"},
+    {261, "Short-circuit to L+"},
+    {262, "Short-circuit to ground"},
+    {263, "Overcurrent"},
+    {264, "Illegal input voltage"},
+    {265, "Line break"},
+    {266, "Supply voltage missing"},
+    {267, "Overvoltage backplane bus"},
+    {268, "Switch off"},
+    {269, "Error (010D)"},
+    {270, "Short circuit / overload of the sensor supply voltage"},
+    {271, "Error at digital outputs"},
+    {272, "Supply voltage fault"},
+    {273, "Error (0111)"},
+    {274, "Error (0112)"},
+    {275, "Error (0113)"},
+    {276, "Error (0114)"},
+    {277, "Error (0115)"},
+    {278, "Error (0116)"},
+    {279, "Error (0117)"},
+    {280, "Common mode error"},
+    {281, "Undervoltage/Overload in power segment "},
+    {282, "Error in the power segment"},
+    {283, "Invalid/inconsistent firmware present"},
+    {284, "At least one battery empty"},
+    {285, "Safety shutdown"},
+    {286, "Read Back Error"},
+    {287, "Error (011F)"},
+    {288, "Redundancy partner has different hardware/firmware version"},
+    {289, "IO redundancy warning"},
+    {290, "Shut-off via push-button handling"},
+    {291, "Inconsistent parameter assignment"},
+    {292, "Short circuit/wire break of sensor cable"},
+    {293, "Changeover switch error"},
+    {294, "Error partner channel"},
+    {295, "Output deviation"},
+    {296, "Wire break sensor supply"},
+    {297, "Internal AI power supply issue"},
+    {298, "Application Software Execution Fault TM-RTC"},
+    {299, "Module firmware download:"},
+    {300, "Firmware successfully downloaded and activated for use after reset (New firmware version @5Y%s@@6Y%u@.@7Y%u@.@8Y%u@)"},
+    {318, "Diagnostic queue overflow"},
+    {319, "Slot @3W%u@"},
+    {320, "HART parameter error"},
+    {321, "HART communication error"},
+    {322, "HART primary variable out of range"},
+    {323, "HART analog output current saturated"},
+    {324, "HART output current of the field device fixed"},
+    {325, "HART - more status available"},
+    {326, "HART configuration changed"},
+    {327, "HART field device malfunction"},
+    {328, "HART safety related HART shutoff defective "},
+    {329, "HART - non primary variable out of limits"},
+    {330, "HART error (014A)"},
+    {331, "HART error (014B)"},
+    {332, "HART error (014C)"},
+    {333, "HART error (014D)"},
+    {334, "HART error (014E)"},
+    {335, "HART error (014F)"},
+    {337, "Invalid BaseUnit"},
+    {338, "Invalid terminal block"},
+    {339, "Remanent memory in base unit is defective "},
+    {340, "Carrier module or memory in carrier module is defective"},
+    {341, "Terminal block (TB) or memory in terminal block is defective "},
+    {342, "Bus adapter is defective"},
+    {343, "Output channels inactive"},
+    {344, "Failure"},
+    {345, "Function check"},
+    {346, "Out of specification"},
+    {347, "Maintenance required"},
+    {384, "Short-circuit to ground on AS-interface line"},
+    {740, "Positioning error"},
+    {741, "Driver error"},
+    {742, "Internal error"},
+    {743, "DIS input active"},
+    {752, "Pilot valve: switching cycle counter limit reached"},
+    {753, "Actuator: switching cycle counter limit reached"},
+    {754, "No valve voltage"},
+    {755, "Pilot valve: wire break"},
+    {756, "Pilot valve: short circuit"},
+    {757, "Internal module fault"},
+    {758, "Pressure limit value exceeded"},
+    {759, "Pressure limit value not reached"},
+    {760, "Error (02F8)"},
+    {761, "Error (02F9)"},
+    {762, "Error (02FA)"},
+    {763, "Error (02FB)"},
+    {764, "Error (02FC)"},
+    {765, "Error (02FD)"},
+    {766, "Error (02FE)"},
+    {767, "Error (02FF)"},
+    {768, "Discrepancy failure, channel state 0/0"},
+    {769, "Discrepancy failure, channel state 0/1"},
+    {770, "Discrepancy failure, channel state 1/0"},
+    {771, "Discrepancy failure, channel state 1/1"},
+    {772, "Analog input signal not recorded unique"},
+    {773, "Input signal not recorded unique"},
+    {774, "Internal sensor supply short-circuit to P"},
+    {775, "Overload or internal sensor supply short-circuit to ground"},
+    {776, "Short-circuit of sensor supply defective"},
+    {777, "Short-circuit of the sensor with the sensor supply"},
+    {778, "No pulses detected"},
+    {779, "Channel failure acknowledgement"},
+    {780, "Device deactivation"},
+    {781, "F-address memory not accessible"},
+    {782, "No valid F-address available"},
+    {783, "Error during failsafe address assignment"},
+    {784, "Sensor signal flutters"},
+    {785, "Frequency too high"},
+    {786, "Undertemperature"},
+    {787, "Failure in the input circuit"},
+    {788, "Discrepancy failure"},
+    {789, "Internal discrepancy failure"},
+    {790, "Relay can not be turned on"},
+    {791, "Relay can not be turned off (contacts welded) "},
+    {792, "PROFIsafe communication failure (timeout)"},
+    {793, "PROFIsafe communication error (CRC)"},
+    {794, "PROFIsafe address assignment failure"},
+    {795, "Input short-circuit to ground"},
+    {796, "Input shorted to P"},
+    {797, "Output defective"},
+    {798, "Read back failure"},
+    {799, "Overcurrent"},
+    {800, "Overload"},
+    {801, "Supply voltage too high"},
+    {802, "Supply voltage too low"},
+    {803, "Supply voltage too high"},
+    {804, "Supply voltage too low"},
+    {805, "Bus enumeration fault"},
+    {806, "Bus enumeration fault / old FW version"},
+    {807, "Module slot wrong or configuration faulty"},
+    {808, "Module slot wrong or configuration faulty(not safety relevant)"},
+    {809, "Inconsistent configuration data"},
+    {810, "Safety related HART shutoff defective "},
+    {811, "Channel passivated"},
+    {812, "Safety related shut-off (relay continuous on time limit exceeded)"},
+    {813, "Panic operation of enabling button incomplete"},
+    {814, "F module error (0x032E)"},
+    {815, "F module error (0x032F)"},
+    {816, "Safety related shut-off"},
+    {817, "ADC failure"},
+    {818, "Failure in the test circuit"},
+    {1024, "AS-i slave failed"},
+    {1025, "AS-i slave on B-address failed"},
+    {1026, "Peripheral fault in AS-i slave "},
+    {1027, "Peripheral fault in AS-i slave on B-address"},
+    {1028, "AS-i address used multiple times"},
+    {1029, "AS-i B-address used multiple times"},
+    {1030, "No voltage or too low voltage on AS-interface cable"},
+    {1031, "AS-i configuration fault"},
+    {1032, "Short-circuit to ground on AS-interface line"},
+    {1033, "AS-i fault (0x0409)"},
+    {1034, "Supernumerary AS-i slave "},
+    {1035, "Supernumerary AS-i slave on B-address "},
+    {1036, "Incorrect AS-i slave"},
+    {1037, "Incorrect AS-i slave on B-address "},
+    {1038, "AS-i voltage too high"},
+    {1039, "AS-i voltage too low"},
+    {1040, "Discrepancy failure, channel state 0/0"},
+    {1041, "Discrepancy failure, channel state 0/1"},
+    {1042, "Discrepancy failure, channel state 1/0"},
+    {1043, "Discrepancy failure, channel state 1/1"},
+    {1044, "Sequence error, channel state 0/0"},
+    {1045, "Sequence error, channel state 0/1"},
+    {1046, "Sequence error, channel state 1/0"},
+    {1047, "Sequence error, channel state 1/1"},
+    {1048, "Overtemperature"},
+    {1049, "New AS-i safety slave code sequence detected"},
+    {1050, "Safe AS-i input slave missing"},
+    {1051, "Safe AS-i output slave failed"},
+    {1052, "Peripheral fault in one or more AS-i slaves "},
+    {1053, "One or more AS-i addresses used multiple times"},
+    {1054, "AS-i safety signal error"},
+    {1055, "AS-i safety slave code sequence ready to save"},
+    {1056, "AS-i safety slave code sequence missing"},
+    {1057, "AS-i safety slave code sequence multiple used"},
+    {1058, "AS-i safety communication error"},
+    {1059, "Device error"},
+    {1060, "AS-i error (0x0424)"},
+    {1061, "AS-i error (0x0425)"},
+    {1062, "AS-i error (0x0426)"},
+    {1232, "CAN in bus off mode"},
+    {1233, "CAN in error passive mode"},
+    {1234, "CAN receive buffer overflow"},
+    {1235, "CAN transmit buffer overflow"},
+    {1236, "Received PDO too short"},
+    {1237, "Heartbeat error"},
+    {1238, "Node guarding error"},
+    {1239, "Heartbeat / node guarding error"},
+    {1240, "Wrong NMT state"},
+    {1241, "Bootup failed"},
+    {1242, "Bootup - node not responding"},
+    {1243, "Bootup"},
+    {1244, "EMCY received"},
+    {1245, "Received message wrong length"},
+    {1246, "Extended parameterization error"},
+    {1248, "Interface error"},
+    {1249, "IP address (@5Y%u@.@6Y%u@.@7Y%u@.@8Y%u@) of an IE interface already exists "},
+    {1250, "Name of an IE interface already exists "},
+    {1251, "PROFIBUS interface error "},
+    {1252, "DHCP Server offer not acceptable or not present"},
+    {1253, "Retrieved DHCP parameter changed to invalid"},
+    {1256, "Module firmware update aborted: "},
+    {1257, "Firmware for hardware component unchanged"},
+    {1280, "Illegal A/B signal ratio"},
+    {1281, "Frequency outside specification"},
+    {1282, "RS422/TTL error"},
+    {1283, "Error on SSI sensor"},
+    {1284, "Error on BiSS sensor"},
+    {1285, "Wire break digital input (A, B or N) "},
+    {1286, "Overtemperature"},
+    {1536, "Error (0x0600)"},
+    {1537, "Status error"},
+    {1538, "Configuration error"},
+    {1539, "Net configuration error"},
+    {1552, "Load voltage error"},
+    {1568, "ET-Connection error"},
+    {1584, "Redundancy error"},
+    {1600, "Hardware error"},
+    {1664, "IO bus fault starting at slot @4W%u@"},
+    {1665, "Transmitted IO data invalid (partially bad-flagged)  "},
+    {1666, "Communication with slot @4W%u@ failed"},
+    {1667, "Drag chain fault"},
+    {1668, "Firmware activation pending"},
+    {1678, "Incompatible MultiFieldbus project found on device remanence (ModuleID=@8W%X@)"},
+    {1679, "No active backplane bus detected at an IM port"},
+    {1680, "Wrong module on slot"},
+    {1681, "Station stop - Module parameter 'potential group' incorrect or wrong BaseUnit/TerminalBlock on real configuration slot @4W%u@"},
+    {1682, "Permitted number of I/O modules exceeded at slot @4W%u@"},
+    {1683, "Station stop - missing or wrong server module"},
+    {1684, "Station stop - too many missing modules (@4W%u@)"},
+    {1685, "IO data packing fault for slot @4W%u@"},
+    {1686, "No U connector detected at IM port"},
+    {1687, "More than one bus master module (IM/CPU) detected"},
+    {1688, "Permitted size of backplane exceeded"},
+    {1689, "Invalid backplane configuration for slot @4W%u@"},
+    {1690, "Interface module at wrong slot"},
+    {1691, "Permitted number of power supply modules exceeded at slot @4W%u@"},
+    {1692, "Invalid bus adapter at interface module"},
+    {1693, "Missing record for configuration control"},
+    {1694, "Missing or wrong server module"},
+    {1695, "Module parameter 'potential group' incorrect or wrong BaseUnit / TerminalBlock on real configuration slot (slot number)"},
+    {1696, "Error on other net"},
+    {1697, "Difference between nets at slot @4W%u@"},
+    {1698, "No input data for activated data validity display configured"},
+    {1699, "Coupling of sync domains not possible/nsync master on X1, sync slave on X2 missing"},
+    {1700, "Coupling of sync domains not possible/nsync master on X2, sync slave on X1 missing"},
+    {1701, "Shared device conflict, invalid sub module combination in slot @4W%u@"},
+    {1702, "Shared device conflict, valid IO range exceeded by @4W%u@ bytes."},
+    {1703, "IO memory for interface X@4W%u@ is too fragmented. The device needs to be restarted."},
+    {1712, "Missing voltage in load group at slot according channel number"},
+    {1713, "Overloaded power segment at slot @4W%u@"},
+    {1714, "IM power supply error"},
+    {1715, "Power supply failure (PS number  @4W%u@)"},
+    {1716, "Power supply undervoltage"},
+    {1728, "Invalid number of modules in the extension rack @4W%u@"},
+    {1729, "Invalid number of extension racks (number @4W%u@)"},
+    {1730, "BA-Send module on incorrect slot  @4W%u@"},
+    {1731, "Invalid component in the extension rack @4W%u@"},
+    {1732, "Link error in the extension rack @4W%u@"},
+    {1744, "Request for maintenance @4W%X@"},
+    {1745, "Power supply malfunctioning"},
+    {1746, "Failure in bus adapter of partner module"},
+    {1747, "Redundancy partner with different hardware or software version"},
+    {1760, "Failure on access of flash memory in base unit"},
+    {1761, "Failure on access of flash memory in bus adapter"},
+    {1762, "Module is operated in the limit range"},
+    {1763, "Name of station existing in flash memory (e.g. bus adapter) but not used"},
+    {1764, "Increased disturbances detected"},
+    {4096, "Zero current after ON command"},
+    {4097, "Current flow after OFF command"},
+    {4098, "Current flow after ON command"},
+    {4099, "Zero current after OFF command"},
+    {4100, "Positioner blockage"},
+    {4101, "Torque switch concurrence"},
+    {4102, "End position switch concurrence"},
+    {4103, "End position switch state change "},
+    {4104, "End position / torque switch antivalence error"},
+    {4105, "Test mode running"},
+    {4106, "Test mode current flow"},
+    {4107, "Main circuit power failure"},
+    {4108, "Protection off mode"},
+    {4109, "Wiring fault"},
+    {4110, "Module dropped out"},
+    {4111, "External memory module not accessable "},
+    {4112, "Operating hours counter"},
+    {4113, "Generator operation"},
+    {4114, "Phase control failure"},
+    {4115, "2-phase control active"},
+    {4116, "Error after self-diagnosis"},
+    {4128, "Prewarning overload (I>115%Ie)"},
+    {4129, "Phase unbalance"},
+    {4130, "Thermal motor model overload"},
+    {4131, "Phase failure + thermal motor model overload"},
+    {4132, "Temperature sensor overload"},
+    {4133, "Temperature sensor short-circuit"},
+    {4134, "Temperature sensor wire break"},
+    {4135, "Ground fault"},
+    {4136, "Ground fault module ground fault"},
+    {4137, "Ground fault module wire break"},
+    {4138, "Ground fault module short-circuit"},
+    {4139, "Temperature module 1 above threshold T"},
+    {4140, "Temperature module 1 sensor error"},
+    {4141, "Temperature module 1 outside measuring range"},
+    {4142, "Temperature module 2 above threshold T"},
+    {4143, "Temperature module 2 sensor error"},
+    {4144, "Temperature module 2 outside measuring range"},
+    {4145, "Emergency thermal motor model deleted"},
+    {4146, "Cooling down period active"},
+    {4147, "Missing startup parameters"},
+    {4148, "Ramp up time exceeded"},
+    {4149, "Ramp up time underrun"},
+    {4150, "Ex motor protection parameters received"},
+    {4160, "Above threshold I"},
+    {4161, "Below threshold I"},
+    {4162, "Above threshold P"},
+    {4163, "Below threshold P"},
+    {4164, "Error (0x1044)"},
+    {4165, "Below threshold Cos-Phi"},
+    {4166, "Actuator shutoff"},
+    {4167, "Below threshold U"},
+    {4168, "Analog module 1 above threshold 0/4-20mA"},
+    {4169, "Analog module 1 below threshold 0/4-20mA"},
+    {4170, "Analog module 2 above threshold 0/4-20mA"},
+    {4171, "Analog module 2 below threshold 0/4-20mA"},
+    {4172, "Motor blockage"},
+    {4173, "Dry-run pump"},
+    {4174, "Dry-run-protection error"},
+    {4181, "Test trip"},
+    {4182, "Number of starting operations reached."},
+    {4183, "Number of starting operations exceeded"},
+    {4184, "One more starting operation allowed."},
+    {4185, "Motor operating hours exceeded"},
+    {4186, "Standstill time exceeded"},
+    {4187, "Analog module 1 wire break"},
+    {4188, "Analog module 2 wire break"},
+    {4189, "Analog output wire break"},
+    {4190, "F-component test requirement"},
+    {4191, "F-component feedback circuit"},
+    {4192, "F-component discrepancy error"},
+    {4193, "F-component wiring error"},
+    {4194, "F-component cross-circuit"},
+    {4195, "Error (0x1063)"},
+    {4196, "Error (0x1064)"},
+    {4208, "External error 1"},
+    {4209, "External error 2"},
+    {4210, "External error 3"},
+    {4211, "External error 4"},
+    {4212, "External error 5"},
+    {4213, "External error 6"},
+    {4214, "Error (0x1076)"},
+    {4215, "Error (0x1077)"},
+    {4224, "Device error"},
+    {4225, "Bypass defective"},
+    {4226, "Power semiconductor device defective"},
+    {4227, "Switching element overload"},
+    {4228, "Supply voltage too low"},
+    {4229, "Bypass overload"},
+    {4230, "Supply voltage contact blocks too low"},
+    {4231, "External bypass defect"},
+    {4232, "Power supply to switching element missing"},
+    {4233, "Time reserve before tripping underrun"},
+    {4234, "Error (0x108A)"},
+    {4241, "Zero current"},
+    {4242, "Motor connection variant unknown or incorrect  "},
+    {4243, "Sensor supply overload"},
+    {4244, "Module slot wrong or configuration faulty"},
+    {4245, "Parameter fault"},
+    {4246, "Process image error"},
+    {4247, "Phase failure"},
+    {4248, "Connection break in manual mode"},
+    {4249, "Error (0x1099)"},
+    {4253, "Input action"},
+    {4254, "Emergency end position clockwise"},
+    {4255, "Emergency end position counter-clockwise"},
+    {4261, "Zero current"},
+    {4856, "Limit: @3W%d@ °C (@4W%d@ °F)"},
+    {4857, "Limit: @2X%d@ %"},
+    {4858, "Cooling period in progress ≤ @2X%u@ sec"},
+    {4859, "Prohibited Ie / CLASS setting"},
+    {4860, "Limit: @2X%d@ % relative to Ie"},
+    {4861, "Slot number: @2X%u@"},
+    {4862, "Parameter ID @2X%u@"},
+    {4939, "Trip reset not possible"},
+    {5393, "Tag does not answer"},
+    {5394, "Tag access refused due to wrong password. "},
+    {5395, "Tag data verification failed."},
+    {5396, "Tag reports an unspecific error"},
+    {5397, "Tag has insufficient power "},
+    {5405, "Error (0x151D)"},
+    {5406, "Error (0x151E)"},
+    {5407, "Error (0x151F)"},
+    {5409, "RF field without tag"},
+    {5410, "RF field returns no data"},
+    {5411, "RF field returns CRC error"},
+    {5413, "RF field without active frequency"},
+    {5414, "RF field without active base"},
+    {5415, "RF field with more than one tag"},
+    {5416, "RF field with unspecific error on air protocol"},
+    {5478, "Command Inventory failed"},
+    {5479, "Command Read Tag failed"},
+    {5480, "Command Write Tag failed"},
+    {5481, "Command Write Tag Id failed"},
+    {5482, "Comand Lock Tag failed"},
+    {5483, "Comand Kill Tag failed"},
+    {5521, "Antenna 1 not connected"},
+    {5522, "Antenna 2 not connected"},
+    {5523, "Antenna 3 not connected"},
+    {5524, "Antenna 4 not connected"},
+    {5525, "Antenna 5 not connected"},
+    {5526, "Antenna 6 not connected"},
+    {5527, "Antenna 7 not connected"},
+    {5528, "Antenna 8 not connected"},
+    {5537, "Alarm overflow"},
+    {20480, "Invalid sensor"},
+    {20481, "Reader not found"},
+    {20482, "Error (0x5002)"},
+    {20483, "Error during DISA signal change"},
+    {20484, "Sequence error"},
+    {20485, "Internal file error - Program cannot be started"},
+    {20486, "Transmit error"},
+    {20487, "Transfer error"},
+    {20488, "Error (0x5008)"},
+    {20489, "Error (0x5009)"},
+    {20490, "Program saving error"},
+    {20491, "Match error"},
+    {20492, "Error (0x500C)"},
+    {20493, "TCP communication / archiving / MMI communication error"},
+    {20494, "TCP communication / archiving / MMI communication error"},
+    {20495, "Lamp overload error"},
+    {20496, "Invalid program number error"},
+    {20497, "Error (0x5011)"},
+    {20498, "PROFINET IO connection error"},
+    {20501, "PROFINET IO controller status STOP"},
+    {20502, "PROFINET IO configuration error"},
+    {20503, "PROFINET IO compatibility error"},
+    {20737, "Communication error HCS bus"},
+    {20738, "Line voltage error "},
+    {20739, "Frequency error"},
+    {20740, "Triac short-circuited"},
+    {20741, "Incoming fuse tripped or triac is highly resistive"},
+    {20742, "Outgoing fuse tripped"},
+    {20743, "External error"},
+    {20744, "Internal temperature warning "},
+    {20745, "Internal temperature error"},
+    {20746, "fan error"},
+    {20747, "At least one phase is not connected"},
+    {20748, "Internal error"},
+    {20749, "CIM communication error"},
+    {20750, "Error rotating field"},
+    {20751, "Phase LX1 is not connected"},
+    {20752, "Phase LX3 is not connected"},
+    {20753, "Phase LX3 is not connected"},
+    {20754, "Polarity error on measuring input "},
+    {20755, "partial load missing"},
+    {20756, "permitted channel current exceeded"},
+    {20757, "permitted current phase LX1 exceeded"},
+    {20758, "permitted current phase LX3 exceeded"},
+    {20759, "power-setpoint cannot be reached"},
+    {20760, "fault current exceeded"},
+    {20761, "adaptive softstart cannot be finished"},
+    {20762, "permitted current phase LX2 exceeded"},
+    {21761, "No supply voltage"},
+    {21762, "No server module"},
+    {21763, "Too many modules removed "},
+    {21764, "Incorrect Base Unit"},
+    {21765, "Incorrect bus structure"},
+    {24577, "Redundancy link 1 error"},
+    {24578, "Redundancy link 2 error"},
+    {24832, "Contactor cannot be turned on"},
+    {24833, "Contactor cannot be turned off (contacts welded)"},
+    {32464, "Error (Quality Code derived)"},
+    {32465, "Maintenance demanded (Quality Code derived)"},
+    {32466, "Maintenance required (Quality Code derived)"},
+    {32467, "Out of service (Quality Code derived)"},
+    {32468, "Passivated (Quality Code derived)"},
+    {32469, "Simulated (Quality Code derived)"},
+    {32470, "Local control override (Quality Code derived)"},
+    {32768, "valid for group of @3W%5d@ channels starting with @8W%t#7W@ channel @4W%5d@ "},
+    {36864, "Hardware/software error"},
+    {36865, "Net error"},
+    {36866, "Supply voltage fault"},
+    {36867, "DC link fault"},
+    {36868, "Power electronics fault"},
+    {36869, "Overtemperature of electronic components"},
+    {36870, "Ground fault/phase short-circuit detected"},
+    {36871, "Motor overload"},
+    {36872, "Communication error to the higher-level control system"},
+    {36873, "Safety monitoring channel has identified an error"},
+    {36874, "Position/velocity process value incorrect or not available"},
+    {36875, "Internal connection error (e.g. DRIVE-CLiQ)"},
+    {36876, "Infeed defective"},
+    {36877, "Braking module faulty"},
+    {36878, "Line filter faulty"},
+    {36879, "External measured value/signal state outside permitted range"},
+    {36880, "Application/technological function faulty"},
+    {36881, "Error in parameter assignment/configuration/commissioning"},
+    {36882, "General drive fault"},
+    {36883, "Auxiliary unit faulty"},
+    {36884, "Drive fault (class 20)"},
+    {36885, "Drive fault (class 21)"},
+    {36886, "Drive fault (class 22)"},
+    {36887, "Drive fault (class 23)"},
+    {39826, "Error packet size adoption (PIB)"},
+    {39827, "Command repetition not supported (PIB)"},
+    {39828, "Timeout duing INIT (PIB)"},
+    {39829, "Ident Unit does not respond to INIT (PIB)"},
+    {39830, "Wrong index (PIB)"},
+    {39831, "Only INIT as next command allowed (PIB)"},
+    {39832, "RXBUF overflow (PIB)"},
+    {39833, "Parameter 'Length' too long (PIB)"},
+    {39834, "Command code not allowed (PIB)"},
+    {39835, "Only INIT command allowed (PIB)"},
+    {39931, "Command in which only Write-Config is permissible in this state"},
+    {39932, "Command with wrong synchronization between application and tag"},
+    {39933, "Command parameter invalid"},
+    {39934, "Command index invalid."},
+    {39935, "Command invalid"},
+    {40024, "Communication error: synchronization error (PIB)"},
+    {40025, "Communication error: wrong sequence of acknowledge telegrams (PIB)"},
+    {40026, "Communication error: command code and acknowledgement do not correspond (PIB)"},
+    {40027, "Communication error: Ident Unit executes a hardware reset (PIB)"},
+    {40028, "Communication error: command from another user being processed"},
+    {40029, "Communication error: invalid data block length (PIB)"},
+    {40030, "Communication error: invalid data block length"},
+    {40031, "Communication error: invalid data block number (PIB)"},
+    {40032, "Communication error: invalid data block number"},
+    {40034, "Communication error: wrong sequence number (PIB)"},
+    {40035, "Communication error: wrong sequence number"},
+    {40129, "Device error due to cyclic Status Word"},
+    {40130, "Device command in this mode not supported"},
+    {40131, "Device data buffer overflow"},
+    {40132, "Device command buffer overflow"},
+    {40133, "Device antenna error or not activaded"},
+    {40134, "Device hardware failure"},
+    {40135, "Device power supply failure"},
+    {40228, "File not accessible"},
+    {40229, "File length overflow"},
+    {40230, "File access right violation"},
+    {40231, "File already exists"},
+    {40232, "File entries exhausted."},
+    {40233, "File system not available on tag type."},
+    {40234, "File does not exist"},
+    {40235, "File name incorrect."},
+    {40334, "RF field with more tags than allowed"},
+    {40335, "RF field communication disturbed"},
+    {40426, "Tag access violation "},
+    {40427, "Tag command not supported "},
+    {40428, "Tag does not have the expected ID"},
+    {40429, "Tag data structure inconsistent. "},
+    {40430, "Tag unformatted"},
+    {40431, "Tag memory overflow"},
+    {40432, "Tag is defective"},
+    {40433, "Tag address or command does not fit the tag characteristics"},
+    {40434, "Tag presence error"},
+    {40435, "Tag memory error "},
+    {65521, "Input channel"},
+    {65522, "Output channel"},
+    {65523, "Input/Output channel"},
+    {0, NULL}
+};
+
+static value_string_ext s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names_ext =
+    VALUE_STRING_EXT_INIT(s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names);
+
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_echet;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_echet;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_0;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_1;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_2;
+static int hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_3;
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail;
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_0_2; /* mask: 0x00000007 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_3;
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_4;
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_5;
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_6;
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_7_10; /* mask: 0x00000780 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_11_14; /* mask: 0x00007800 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_15; /* mask: 0x00008000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_16; /* mask: 0x00010000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_17; /* mask: 0x00020000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_18; /* mask: 0x00040000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_19; /* mask: 0x00080000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_20; /* mask: 0x00100000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_21; /* mask: 0x00200000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_22; /* mask: 0x00400000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_23; /* mask: 0x00800000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_24; /* mask: 0x01000000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_25; /* mask: 0x02000000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_26; /* mask: 0x04000000 */
+static int hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_27_31; /* mask: 0xF8000000 */
+
+
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_0;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_1;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_2;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_3;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_4;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_5;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_6;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_7;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_8_14;
+static int hf_s7comm_szl_xy78_xxxx_dis_io_state_15;
+static int hf_s7comm_szl_xy78_xxxx_dis_res;
+static int hf_s7comm_szl_xy78_xxxx_dis_maint_state;
+static const value_string s7comm_szl_xy78_xxxx_dis_maint_state_names[] = {
+    { 0x0,                                  "Good" },
+    { 0x1,                                  "DevicePassivated" },
+    { 0x2,                                  "OutOfService" },
+    { 0x3,                                  "Simulated" },
+    { 0x4,                                  "LocalOperation" },
+    { 0x5,                                  "MaintenanceRequired" },
+    { 0x6,                                  "MaintenanceDemanded" },    
+    { 0x7,                                  "MaintenanceAlarm" },
+    { 0x8,                                  "Unknown" },
+    { 0x9,                                  "ConfigurationChanged" },
+    { 0xA,                                  "IOnotAvailable" },
+    { 0,                                    NULL }
+};
+
+static int hf_s7comm_szl_xy78_xxxx_dis_operating_state;
+static int hf_s7comm_szl_xy78_xxxx_dis_own_state;
+static const value_string s7comm_szl_xy78_xxxx_dis_own_state_names[] = {
+    { 0x0,                                  "Good" },
+    { 0x1,                                  "Deactivated" },
+    { 0x2,                                  "Maintenance Required" },
+    { 0x3,                                  "Maintenance Demanded" },
+    { 0x4,                                  "Error" },
+    { 0x5,                                  "Not Reachable" },
+    { 0x6,                                  "Unknown" },
+    { 0x7,                                  "IOnotAvailable" },
+    { 0,                                    NULL }
+};
+
+static int hf_s7comm_szl_xy78_xxxx_sub_ord_io_state;
+static int hf_s7comm_szl_xy78_xxxx_sub_ord_state;
+static int hf_s7comm_szl_xy78_xxxx_disp_own_state;
+static int hf_s7comm_szl_xy78_xxxx_disp_sub_ord_state;
+static int hf_s7comm_szl_xy78_xxxx_disp_mode;
+static int hf_s7comm_szl_xy78_xxxx_vendor;
+static int hf_s7comm_szl_xy78_xxxx_order_id;
+static int hf_s7comm_szl_xy78_xxxx_im1;
+static int hf_s7comm_szl_xy78_xxxx_iam1_function;
+static int hf_s7comm_szl_xy78_xxxx_iam1_location;
+static int hf_s7comm_szl_xy78_xxxx_asset_id;
+static int hf_s7comm_szl_xy78_xxxx_tlv;
+static int hf_s7comm_szl_xy78_xxxx_tlv_num;
+static int hf_s7comm_szl_xy78_xxxx_tlv_item;
+
+static int hf_s7comm_szl_xy78_xxxx_tlv_item_type;
+static const value_string szl_xy78_xxxx_tlv_item_type_names[] = {
+    { 0x1,                                  "DTI-Type" },
+    { 0x2,                                  "Alarm-SD" },
+    { 0x3,                                  "Propagation behaviour" },
+    { 0,                                    NULL }
+};
+
+static int hf_s7comm_szl_xy78_xxxx_tlv_item_len;
+static int hf_s7comm_szl_xy78_xxxx_tlv_item_data;
+static int hf_s7comm_szl_xy78_xxxx_tlv_item_dti_type;
+static const value_string szl_xy78_xxxx_tlv_item_dti_type_name[] = {
+    { 0x1,                                  "IO-System" },
+    { 0x2,                                  "Device" },
+    { 0x3,                                  "Rack" },
+    { 0x4,                                  "Module" },
+    { 0x5,                                  "Submodule" },
+    { 0xB,                                  "IO-Device Agent" },
+    { 0,                                    NULL }
+};
+
+static int ett_s7comm_szl_xy78_xxxx_geo_addr;
+static int ett_s7comm_szl_xy78_xxxx_dis;
+static int ett_s7comm_szl_xy78_xxxx_dis_cdiags;
+static int ett_s7comm_szl_xy78_xxxx_dis_cdiag_entry;
+static int ett_s7comm_szl_xy78_xxxx_dis_cdiag_add_val;
+static int ett_s7comm_szl_xy78_xxxx_iam1;
+static int ett_s7comm_szl_xy78_xxxx_tlv;
+static int ett_s7comm_szl_xy78_xxxx_tlv_item;
+
+static int ett_s7comm_szl_xy78_xxxx_dis_io_state;
+static int* const s7comm_szl_xy78_xxxx_dis_io_state_fields[] = {
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_0,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_1,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_2,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_3,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_4,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_5,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_6,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_7,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_8_14,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_15,
+    NULL
+};
+
+static int ett_s7comm_szl_xy78_xxxx_sub_ord_io_state;
+static int* const s7comm_szl_xy78_xxxx_sub_ord_io_state_fields[] = {
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_0,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_1,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_2,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_3,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_4,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_5,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_6,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_7,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_8_14,
+    &hf_s7comm_szl_xy78_xxxx_dis_io_state_15,
+    NULL
+};
+
+static int ett_s7comm_szl_xy78_xxxx_dis_comp_state_detail;
+static int* const s7comm_szl_xy78_xxxx_dis_comp_state_detail_fields[] = {
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_0_2,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_3,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_4,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_5,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_6,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_7_10,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_11_14,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_15,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_16,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_17,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_18,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_19,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_20,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_21,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_22,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_23,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_24,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_25,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_26,
+    &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_27_31,
+    NULL
+};
+
 /*******************************************************************************************************
  *
  * Get the textual description of the szl index. Returns NULL if not description available
@@ -1839,6 +2789,12 @@ s7comm_get_szl_id_index_description_text(uint16_t id, uint16_t idx)
 {
     const char* str = NULL;
     switch (id) {
+        case 0x0077:
+            str = "DNN-Id";
+            break;
+        case 0x0078:
+            str = "DNN-Id";
+            break;
         case 0x0111:
             str = val_to_str_const(idx, szl_0111_index_names, "No description available");
             break;
@@ -4999,6 +5955,684 @@ s7comm_decode_szl_id_xy74_idx_0000(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ * SZL-ID:  0xxy76
+ * Index:   0x0000
+ * Content:
+ *  If you read the partial list SSL-ID W#16#xy76, you obtain the DNN-Id of the top DNN node.
+ *
+ *******************************************************************************************************/
+static void
+s7comm_szl_xy76_0000_register(int proto)
+{
+    static hf_register_info hf[] = {
+        { &hf_s7comm_szl_xy76_0000_version,
+        { "Version", "s7comm.szl.xy76.0000.version", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy76_0000_top_dnn_id,
+        { "Top DNN Id", "s7comm.szl.xy76.0000.top_dnn_id", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }}
+    };
+    proto_register_field_array(proto, hf, array_length(hf));
+}
+
+/*******************************************************************************************************
+ *
+ * SZL-ID:  0xxy77
+ * Index:   0xxxxx
+ * Content:
+ *  If you read the partial list SSL-ID W#16#xy77, you obtain the relations of a DNN node.
+ *
+ *******************************************************************************************************/
+static void
+s7comm_szl_xy77_xxxx_register(int proto)
+{
+    static hf_register_info hf[] = {
+        { &hf_s7comm_szl_xy77_xxxx_version,
+        { "Version", "s7comm.szl.xy77.xxxx.version", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_num_parent,
+        { "Number of parent objects", "s7comm.szl.xy77.xxxx.num_parent", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_obj_parent,
+        { "Parent object", "s7comm.szl.xy77.xxxx.obj_parent", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_num_child,
+        { "Number of child objects", "s7comm.szl.xy77.xxxx.num_child", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_obj_child,
+        { "Child object", "s7comm.szl.xy77.xxxx.obj_child", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_num_redundancy_links,
+        { "Number of redundancy links", "s7comm.szl.xy77.xxxx.num_red_links", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_obj_redundancy,
+        { "Redundancy object", "s7comm.szl.xy77.xxxx.obj_red", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_num_iodevice_agent_links,
+        { "Number of redundancy links", "s7comm.szl.xy77.xxxx.num_red_links", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy77_xxxx_obj_iodevice_agent,
+        { "IO-Device agent object", "s7comm.szl.xy77.xxxx.obj_agent", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }}
+    };
+    proto_register_field_array(proto, hf, array_length(hf));
+}
+
+/*******************************************************************************************************
+ *
+ * SZL-ID:  0xxy78
+ * Index:   0xxxxx
+ * Content:
+ *  If you read the partial list SSL-ID W#16#xy78, you obtain the diagnostic data of a DNN node.
+ *
+ *******************************************************************************************************/
+static void
+s7comm_szl_xy78_xxxx_register(int proto)
+{
+    static hf_register_info hf[] = {
+        { &hf_s7comm_szl_xy78_xxxx_version,
+        { "Version", "s7comm.szl.xy78.xxxx.version", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_unknown_version_data,
+        { "Unknown versioned data", "s7comm.szl.xy78.xxxx.unknown_version_data", FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},          
+        { &hf_s7comm_szl_xy78_xxxx_geo_addr,
+        { "GEO. addr", "s7comm.szl.xy78.xxxx.geo", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_geo_addr_subsys,
+        { "Subsystem", "s7comm.szl.xy78.xxxx.geo.subsys", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_geo_addr_station,
+        { "Station", "s7comm.szl.xy78.xxxx.geo.station", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_geo_addr_rack,
+        { "Rack", "s7comm.szl.xy78.xxxx.geo.rack", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_geo_addr_slot,
+        { "Slot", "s7comm.szl.xy78.xxxx.geo.slot", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_geo_addr_subslot,
+        { "Subslot", "s7comm.szl.xy78.xxxx.geo.subslot", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_name,
+        { "Name", "s7comm.szl.xy78.xxxx.name", FT_STRING, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_short_name,
+        { "Short name", "s7comm.szl.xy78.xxxx.short_name", FT_STRING, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dnn_mode,
+        { "DNN mode", "s7comm.szl.xy78.xxxx.dnn_mode", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis,
+        { "DIS", "s7comm.szl.xy78.xxxx.dis", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_num_cdiag,
+        { "Number of component diags", "s7comm.szl.xy78.xxxx.dis.num_cdiag", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiags,
+        { "Component diagnostics", "s7comm.szl.xy78.xxxx.dis.cdiag", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry,
+        { "Diagnostic entry", "s7comm.szl.xy78.xxxx.dis.cdiag.entry", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_ch_nr,
+        { "Channel number", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.ch_nr", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_ch_prop,
+        { "Channel properties", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.ch_prop", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat,
+        { "Alarm category", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.alcat", FT_UINT16, BASE_DEC_HEX | BASE_EXT_STRING,
+          VALS_EXT_PTR(&s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat_names_ext), 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_res,
+        { "Reserved", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.res", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_qualifier,
+        { "Qualifier", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.qual", FT_UINT32, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_chet,
+        { "TextList - CHET", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.text_chet", FT_UINT16, BASE_DEC_HEX | BASE_EXT_STRING,
+          VALS_EXT_PTR(&s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_names_ext), 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet,
+        { "CHET", "s7comm.szl.xy78.xxxx.dis.cdiag.chet", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8,
+        { "Text", "s7comm.szl.xy78.xxxx.dis.cdiag.text_chet.l8.chet", FT_UINT16, BASE_DEC_HEX | BASE_EXT_STRING,
+          VALS_EXT_PTR(&s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names_ext), 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_echet,
+        { "TextList - ECHET", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.text_echet", FT_UINT16, BASE_DEC_HEX | BASE_EXT_STRING,
+          VALS_EXT_PTR(&s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_names_ext), 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_echet,
+        { "ECHET", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.echet", FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val,
+        { "AddVal", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.adval", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_0,
+        { "W0", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.adval.w0", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_1,
+        { "W1", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.adval.w1", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_2,
+        { "W2", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.adval.w2", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_3,
+        { "W3", "s7comm.szl.xy78.xxxx.dis.cdiag.entry.adval.w3", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail,
+        { "Component state details", "s7comm.szl.xy78.xxxx.dis.comp_state", FT_UINT32, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_0_2,
+          { "Submodule State AddInfo", "s7comm.szl.xy78.xxxx.dis.comp_state.bit0_2", FT_BOOLEAN, 32, NULL, 0x00000007,
+          "Bit 0-2: Submodule State AddInfo", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_3,
+          { "Qualified Diagnosis", "s7comm.szl.xy78.xxxx.dis.comp_state.bit3", FT_BOOLEAN, 32, NULL, 0x00000008,
+          "Bit 3: Qualified Diagnosis", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_4,
+          { "Maintenance Required", "s7comm.szl.xy78.xxxx.dis.comp_state.bit4", FT_BOOLEAN, 32, NULL, 0x00000010,
+          "Bit 4: Maintenance Required", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_5,
+          { "Maintenance Demanded", "s7comm.szl.xy78.xxxx.dis.comp_state.bit5", FT_BOOLEAN, 32, NULL, 0x00000020,
+          "Bit 5: Maintenance Demanded", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_6,
+          { "Diagnostic Information", "s7comm.szl.xy78.xxxx.dis.comp_state.bit6", FT_BOOLEAN, 32, NULL, 0x00000040,
+          "Bit 6: Diagnostic Information", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_7_10,
+          { "AR Information", "s7comm.szl.xy78.xxxx.dis.comp_state.bit7_10", FT_BOOLEAN, 32, NULL, 0x00000780,
+          "Bit 7-10: AR Information", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_11_14,
+          { "Ident Information", "s7comm.szl.xy78.xxxx.dis.comp_state.bit11_14", FT_BOOLEAN, 32, NULL, 0x00007800,
+          "Bit 11-14: Ident Information", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_15,
+          { "Form Indicator", "s7comm.szl.xy78.xxxx.dis.comp_state.bit15", FT_BOOLEAN, 32, NULL, 0x00008000,
+          "Bit 15: Form Indicator", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_16,
+          { "Deactivated", "s7comm.szl.xy78.xxxx.dis.comp_state.bit16", FT_BOOLEAN, 32, NULL, 0x00010000,
+          "Bit 16: Deactivated", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_17,
+          { "CiR", "s7comm.szl.xy78.xxxx.dis.comp_state.bit17", FT_BOOLEAN, 32, NULL, 0x00020000,
+          "Bit 17: CiR", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_18,
+          { "Input not avaliable", "s7comm.szl.xy78.xxxx.dis.comp_state.bit18", FT_BOOLEAN, 32, NULL, 0x00040000,
+          "Bit 18: Input not avaliable", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_19,
+          { "Output not avaliable", "s7comm.szl.xy78.xxxx.dis.comp_state.bit19", FT_BOOLEAN, 32, NULL, 0x00080000,
+          "Bit 19: Output not avaliable", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_20,
+          { "AS-Log overflow", "s7comm.szl.xy78.xxxx.dis.comp_state.bit20", FT_BOOLEAN, 32, NULL, 0x00100000,
+          "Bit 20: AS-Log overflow", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_21,
+          { "Out of service", "s7comm.szl.xy78.xxxx.dis.comp_state.bit21", FT_BOOLEAN, 32, NULL, 0x00200000,
+          "Bit 21: Out of service", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_22,
+          { "Partial Failure", "s7comm.szl.xy78.xxxx.dis.comp_state.bit22", FT_BOOLEAN, 32, NULL, 0x00400000,
+          "Bit 22: Partial Failure", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_23,
+          { "H-Unknown", "s7comm.szl.xy78.xxxx.dis.comp_state.bit23", FT_BOOLEAN, 32, NULL, 0x00800000,
+          "Bit 23: H-Unknown", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_24,
+          { "Passivated", "s7comm.szl.xy78.xxxx.dis.comp_state.bit24", FT_BOOLEAN, 32, NULL, 0x01000000,
+          "Bit 24: Passivated", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_25,
+          { "Simulated", "s7comm.szl.xy78.xxxx.dis.comp_state.bit25", FT_BOOLEAN, 32, NULL, 0x02000000,
+          "Bit 25: Simulated", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_26,
+          { "Local Operation", "s7comm.szl.xy78.xxxx.dis.comp_state.bit26", FT_BOOLEAN, 32, NULL, 0x04000000,
+          "Bit 26: Local Operation", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail_b_27_31,
+          { "Reserved", "s7comm.szl.xy78.xxxx.dis.comp_state.bit27_31", FT_BOOLEAN, 32, NULL, 0xF8000000,
+          "Bit 27-31: Reserved", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state,
+        { "IO state", "s7comm.szl.xy78.xxxx.dis.io_state", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_0,
+        { "Good", "s7comm.szl.xy78.xxxx.dis.io_state.bit0", FT_BOOLEAN, 16, NULL, 0x01,
+          "Bit 0: Good", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_1,
+        { "Deactivated", "s7comm.szl.xy78.xxxx.dis.io_state.bit1", FT_BOOLEAN, 16, NULL, 0x0002,
+          "Bit 1: Deactivated", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_2,
+        { "Maint. Req.", "s7comm.szl.xy78.xxxx.dis.io_state.bit2", FT_BOOLEAN, 16, NULL, 0x0004,
+          "Bit 2: Maint. Req.", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_3,
+        { "Maint. Dem.", "s7comm.szl.xy78.xxxx.dis.io_state.bit3", FT_BOOLEAN, 16, NULL, 0x0008,
+          "Bit 3: Maint. Dem.", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_4,
+        { "Error", "s7comm.szl.xy78.xxxx.dis.io_state.bit4", FT_BOOLEAN, 16, NULL, 0x0010,
+          "Bit 4: Error", HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_5,
+        { "Not reachable", "s7comm.szl.xy78.xxxx.dis.io_state.bit5", FT_BOOLEAN, 16, NULL, 0x0020,
+          "Bit 5: Not reachable", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_6,
+        { "Qualified", "s7comm.szl.xy78.xxxx.dis.io_state.bit6", FT_BOOLEAN, 16, NULL, 0x0040,
+          "Bit 6: Qualified", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_7,
+        { "Not available", "s7comm.szl.xy78.xxxx.dis.io_state.bit7", FT_BOOLEAN, 16, NULL, 0x0080,
+          "Bit 7: Not available", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_8_14,
+        { "Reserved", "s7comm.szl.xy78.xxxx.dis.io_state.bit8_14", FT_BOOLEAN, 16, NULL, 0x7F00,
+          "Bit 8-14: Reserved", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_io_state_15,
+        { "Hardware fault", "s7comm.szl.xy78.xxxx.dis.io_state.bit15_res", FT_BOOLEAN, 16, NULL, 0x8000,
+          "Bit 15: Hardware fault", HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_dis_res,
+        { "Reserved", "s7comm.szl.xy78.xxxx.dis.reserved", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_maint_state,
+        { "Maintenance state", "s7comm.szl.xy78.xxxx.dis.maint", FT_UINT32, BASE_HEX, VALS(s7comm_szl_xy78_xxxx_dis_maint_state_names), 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_operating_state,
+        { "Operating state", "s7comm.szl.xy78.xxxx.dis.operating_state", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_dis_own_state,
+        { "Own state", "s7comm.szl.xy78.xxxx.dis.own_state", FT_UINT16, BASE_HEX, VALS(s7comm_szl_xy78_xxxx_dis_own_state_names), 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_sub_ord_io_state,
+        { "Subordinated io state", "s7comm.szl.xy78.xxxx.sub_io_state", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL }},
+        { &hf_s7comm_szl_xy78_xxxx_sub_ord_state,
+        { "Subordinated state", "s7comm.szl.xy78.xxxx.sub_state", FT_UINT16, BASE_HEX, VALS(s7comm_szl_xy78_xxxx_dis_own_state_names), 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_disp_own_state,
+        { "Displayed own state", "s7comm.szl.xy78.xxxx.disp_own_state", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_disp_sub_ord_state,
+        { "Displayed sub. state", "s7comm.szl.xy78.xxxx.disp_sub_state", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_disp_mode,
+        { "Display mode", "s7comm.szl.xy78.xxxx.disp_mode", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_vendor,
+        { "Vendor-Id", "s7comm.szl.xy78.xxxx.vendow_high", FT_UINT16, BASE_HEX, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_order_id,
+        { "Order-Id", "s7comm.szl.xy78.xxxx.order_id", FT_STRING, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_im1,
+        { "I&M1", "s7comm.szl.xy78.xxxx.ium1", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_iam1_function,
+        { "Function", "s7comm.szl.xy78.xxxx.ium1.func", FT_STRING, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_iam1_location,
+        { "Location", "s7comm.szl.xy78.xxxx.ium1.loc", FT_STRING, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_asset_id,
+        { "Asset-Id", "s7comm.szl.xy78.xxxx.asset", FT_STRING, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv,
+        { "TLV", "s7comm.szl.xy78.xxxx.tlv", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv_num,
+        { "Count", "s7comm.szl.xy78.xxxx.tlv.num", FT_UINT16, BASE_DEC, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv_item,
+        { "Item", "s7comm.szl.xy78.xxxx.tlv.item", FT_NONE, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv_item_type,
+        { "Type", "s7comm.szl.xy78.xxxx.tlv.item.type", FT_UINT8, BASE_DEC, VALS(szl_xy78_xxxx_tlv_item_type_names), 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv_item_len,
+        { "Length", "s7comm.szl.xy78.xxxx.tlv.item.len", FT_UINT8, BASE_DEC, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv_item_data,
+        { "Data", "s7comm.szl.xy78.xxxx.tlv.item.data", FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL } },
+        { &hf_s7comm_szl_xy78_xxxx_tlv_item_dti_type,
+        { "DTI-Type", "s7comm.szl.xy78.xxxx.tlv.item.dti", FT_UINT16, BASE_DEC, VALS(szl_xy78_xxxx_tlv_item_dti_type_name), 0x00,
+          NULL, HFILL } },
+    };
+
+    /* Register Subtrees */
+    static int* ett[] = {
+        &ett_s7comm_szl_xy78_xxxx_geo_addr,
+        &ett_s7comm_szl_xy78_xxxx_dis,
+        &ett_s7comm_szl_xy78_xxxx_dis_cdiags,
+        &ett_s7comm_szl_xy78_xxxx_dis_cdiag_entry,
+        &ett_s7comm_szl_xy78_xxxx_dis_cdiag_add_val,
+        &ett_s7comm_szl_xy78_xxxx_iam1,
+        &ett_s7comm_szl_xy78_xxxx_tlv,
+        &ett_s7comm_szl_xy78_xxxx_tlv_item,
+        &ett_s7comm_szl_xy78_xxxx_dis_io_state,
+        &ett_s7comm_szl_xy78_xxxx_sub_ord_io_state,
+        &ett_s7comm_szl_xy78_xxxx_dis_comp_state_detail
+    };
+
+    proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto, hf, array_length(hf));
+}
+
+/*******************************************************************************************************
+ *
+ * SZL-ID:  0xxy76
+ * Index:   0x0000
+ * Content:
+ *  If you read the partial list SSL-ID W#16#xy76, you obtain the DNN-Id of the top DNN node.
+ *
+ *******************************************************************************************************/
+static uint32_t
+s7comm_decode_szl_id_xy76_idx_0000(tvbuff_t *tvb,
+                                   proto_tree *tree,
+                                   uint32_t offset)
+{
+    proto_tree_add_item(tree, hf_s7comm_szl_xy76_0000_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_s7comm_szl_xy76_0000_top_dnn_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;    
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * SZL-ID:  0xxy77
+ * Index:   0xxxxx
+ * Content:
+ *  If you read the partial list SSL-ID W#16#xy77, you obtain the relations of the given DNN node.
+ *
+ *******************************************************************************************************/
+static uint32_t
+s7comm_decode_szl_id_xy77_idx_xxxx(tvbuff_t *tvb,
+                                   proto_tree *tree,
+                                   uint32_t offset)
+{
+    uint16_t num_parent;
+    uint16_t num_child;
+    uint16_t num_red;
+    uint16_t num_agent;
+    uint16_t i;
+
+    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    num_parent = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_parent, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    for (i = 0; i < num_parent; i++) {
+        proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_obj_parent, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    num_child = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_child, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    for (i = 0; i < num_child; i++) {
+        proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_obj_child, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    num_red = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_redundancy_links, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    for (i = 0; i < num_red; i++) {
+        proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_obj_redundancy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    num_agent = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_num_iodevice_agent_links, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    for (i = 0; i < num_agent; i++) {
+        proto_tree_add_item(tree, hf_s7comm_szl_xy77_xxxx_obj_iodevice_agent, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * SZL-ID:  0xxy78
+ * Index:   0xxxxx
+ * Content:
+ *  If you read the partial list SSL-ID W#16#xy78, you obtain the diagnostic data of a DNN node.
+ *
+ *******************************************************************************************************/
+static uint32_t
+s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
+                                   packet_info *pinfo,
+                                   proto_tree *tree,
+                                   uint32_t offset)
+{
+    proto_item *geo_addr_item = NULL;
+    proto_tree *geo_addr_item_tree = NULL;
+    proto_item *dis_item = NULL;
+    proto_tree *dis_item_tree = NULL;
+    proto_item *cdiags_item = NULL;
+    proto_tree *cdiags_item_tree = NULL;
+    proto_item *cdiag_entry_item = NULL;
+    proto_tree *cdiag_entry_item_tree = NULL;
+    proto_item *adval_item = NULL;
+    proto_tree *adval_item_tree = NULL;
+    proto_item *iam1_item = NULL;
+    proto_tree *iam1_item_tree = NULL;
+    proto_item *tlv_item = NULL;
+    proto_tree *tlv_item_tree = NULL;
+    proto_item *tlv_item_item = NULL;
+    proto_tree *tlv_item_item_tree = NULL;
+    proto_item* chet_item_gen = NULL;
+    proto_item* echet_item_gen = NULL;
+
+    uint16_t num_cdiag;
+    int32_t dis_cdiag_total_len;
+    int32_t dis_total_len;
+    uint16_t i;
+    int32_t remaining_bytes;
+    uint8_t num_tlvs;
+    uint8_t tlv_item_len;
+    uint8_t tlv_type;
+    uint16_t version;
+    uint16_t text_list;
+    uint16_t chet;
+    uint16_t echet;
+    int32_t chet_entry_count = 0;
+    const uint16_t cdiag_entry_len = 28;
+    const uint16_t supported_version = 0x0005;
+
+    version = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*unknown version data*/
+    if (version != supported_version) {
+        remaining_bytes = tvb_reported_length_remaining(tvb, offset);
+        proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_unknown_version_data, tvb, offset, remaining_bytes, ENC_LITTLE_ENDIAN);
+        offset += remaining_bytes;
+        return offset;
+    }
+
+    /*GEO address*/
+    geo_addr_item = proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_geo_addr, tvb, offset, 8, ENC_NA);
+    geo_addr_item_tree = proto_item_add_subtree(geo_addr_item, ett_s7comm_szl_xy78_xxxx_geo_addr);
+    proto_tree_add_item(geo_addr_item_tree, hf_s7comm_szl_xy78_xxxx_geo_addr_subsys, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(geo_addr_item_tree, hf_s7comm_szl_xy78_xxxx_geo_addr_station, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(geo_addr_item_tree, hf_s7comm_szl_xy78_xxxx_geo_addr_rack, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(geo_addr_item_tree, hf_s7comm_szl_xy78_xxxx_geo_addr_slot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(geo_addr_item_tree, hf_s7comm_szl_xy78_xxxx_geo_addr_subslot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*Name data*/
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    offset += 32;
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_short_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    offset += 32;
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_dnn_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*DIS section*/
+    num_cdiag = tvb_get_letohs(tvb, offset);
+    dis_cdiag_total_len = cdiag_entry_len * num_cdiag;
+    dis_total_len = dis_cdiag_total_len + 18;
+    dis_item = proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_dis, tvb, offset, dis_total_len, ENC_NA);
+    dis_item_tree = proto_item_add_subtree(dis_item, ett_s7comm_szl_xy78_xxxx_dis);    
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_dis_num_cdiag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*DIS component diagnostic entry section*/
+    if (num_cdiag != 0) {
+        cdiags_item = proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiags, tvb, offset, dis_cdiag_total_len, ENC_NA);
+        cdiags_item_tree = proto_item_add_subtree(cdiags_item, ett_s7comm_szl_xy78_xxxx_dis_cdiags);
+
+        for (i = 0; i < num_cdiag; i++) {
+            cdiag_entry_item = proto_tree_add_item(cdiags_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry, tvb, offset, cdiag_entry_len, ENC_NA);
+            cdiag_entry_item_tree = proto_item_add_subtree(cdiag_entry_item, ett_s7comm_szl_xy78_xxxx_dis_cdiag_entry);
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_ch_nr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_ch_prop, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_alcat, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_res, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_qualifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            /*evaluate channel error type (CHET)*/
+            chet = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            text_list = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_chet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+            /*add corresponding text for TextList 8*/
+            if (text_list == 8 && chet != 0 && chet != 0xFFFF) {
+                chet_item_gen = proto_tree_add_uint(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8, tvb, offset-2, 2, chet);
+                PROTO_ITEM_SET_GENERATED(chet_item_gen);
+                proto_item_append_text(cdiag_entry_item, " / %s",
+                    val_to_str_ext(chet, &s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names_ext, "unknown 0x%04x"));
+            } else {
+                proto_item_append_text(cdiag_entry_item, " / CHET: 0x%04x", chet);
+            }
+
+            if (chet != 0 && chet != 0xFFFF) {
+                chet_entry_count++;
+            }
+            offset += 2;
+
+            /*evaluate ext. channel error type (ECHET)*/
+            echet = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_echet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            text_list = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_text_list_echet, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            if (text_list == 8 && echet != 0) {
+                echet_item_gen = proto_tree_add_uint(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8, tvb, offset - 2, 2, echet);
+                PROTO_ITEM_SET_GENERATED(echet_item_gen);
+            }
+            offset += 2;
+
+            /*Addvalue decoding*/
+            adval_item = proto_tree_add_item(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val, tvb, offset, 8, ENC_NA);
+            adval_item_tree = proto_item_add_subtree(adval_item, ett_s7comm_szl_xy78_xxxx_dis_cdiag_add_val);
+            proto_tree_add_item(adval_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(adval_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(adval_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(adval_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_add_val_3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+    }
+
+    if (chet_entry_count != 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%u CHET entry]", chet_entry_count);
+    }
+
+    proto_tree_add_bitmask(dis_item_tree, tvb, offset, hf_s7comm_szl_xy78_xxxx_dis_comp_state_detail,
+        ett_s7comm_szl_xy78_xxxx_dis_comp_state_detail, s7comm_szl_xy78_xxxx_dis_comp_state_detail_fields, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_bitmask(dis_item_tree, tvb, offset, hf_s7comm_szl_xy78_xxxx_dis_io_state,
+        ett_s7comm_szl_xy78_xxxx_dis_io_state, s7comm_szl_xy78_xxxx_dis_io_state_fields, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_dis_res, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_dis_maint_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_dis_operating_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_dis_own_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*Further state information*/
+    proto_tree_add_bitmask(dis_item_tree, tvb, offset, hf_s7comm_szl_xy78_xxxx_sub_ord_io_state,
+        ett_s7comm_szl_xy78_xxxx_sub_ord_io_state, s7comm_szl_xy78_xxxx_sub_ord_io_state_fields, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_sub_ord_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_disp_own_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_disp_sub_ord_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(dis_item_tree, hf_s7comm_szl_xy78_xxxx_disp_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_vendor, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_order_id, tvb, offset, 20, ENC_ASCII | ENC_NA);
+    offset += 20;
+
+    /*I&M1 data*/
+    iam1_item = proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_im1, tvb, offset, 54, ENC_NA);
+    iam1_item_tree = proto_item_add_subtree(iam1_item, ett_s7comm_szl_xy78_xxxx_iam1);
+    proto_tree_add_item(iam1_item_tree, hf_s7comm_szl_xy78_xxxx_iam1_function, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    offset += 32;
+    proto_tree_add_item(iam1_item_tree, hf_s7comm_szl_xy78_xxxx_iam1_location, tvb, offset, 22, ENC_ASCII | ENC_NA);
+    offset += 22;
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_asset_id, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    offset += 32;
+
+    /*check for TLVs*/
+    remaining_bytes = tvb_reported_length_remaining(tvb, offset);
+    if (remaining_bytes == 0) {
+        return offset;
+    }
+
+    tlv_item = proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_tlv, tvb, offset, remaining_bytes, ENC_NA);
+    tlv_item_tree = proto_item_add_subtree(tlv_item, ett_s7comm_szl_xy78_xxxx_tlv);
+    num_tlvs = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(tlv_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*iterate over TLVs*/
+    for (i = 0; i < num_tlvs; i++) {
+        tlv_item_item = proto_tree_add_item(tlv_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item, tvb, offset, 2, ENC_NA);
+        tlv_item_item_tree = proto_item_add_subtree(tlv_item_item, ett_s7comm_szl_xy78_xxxx_tlv_item);
+
+        tlv_type = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        tlv_item_len = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_len, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        switch (tlv_type) {
+            case 1:
+                proto_tree_add_item(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_dti_type, tvb, offset, tlv_item_len, ENC_LITTLE_ENDIAN);
+                offset += tlv_item_len;
+                break;
+            default:
+                proto_tree_add_item(tlv_item_item_tree, hf_s7comm_szl_xy78_xxxx_tlv_item_data, tvb, offset, tlv_item_len, ENC_NA);
+                offset += tlv_item_len;
+                break;
+        }
+    }
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * SZL-ID:  0xxy1c
  * Index:   0x000x
  * Content:
@@ -5881,6 +7515,9 @@ s7comm_register_szl_types(int proto)
     s7comm_szl_xy96_xxxx_register(proto);
     s7comm_szl_xy74_0000_register(proto);
     s7comm_szl_0424_0000_register(proto);
+    s7comm_szl_xy76_0000_register(proto);
+    s7comm_szl_xy77_xxxx_register(proto);
+    s7comm_szl_xy78_xxxx_register(proto);
 }
 
 /*******************************************************************************************************
@@ -6109,6 +7746,18 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         case 0x0174:
                                 offset = s7comm_decode_szl_id_xy74_idx_0000(tvb, szl_item_tree, offset);
                                 szl_decoded = true;
+                            break;
+                        case 0x0076:
+                            offset = s7comm_decode_szl_id_xy76_idx_0000(tvb, szl_item_tree, offset);
+                            szl_decoded = true;
+                            break;
+                        case 0x0077:
+                            offset = s7comm_decode_szl_id_xy77_idx_xxxx(tvb, szl_item_tree, offset);
+                            szl_decoded = true;
+                            break;
+                        case 0x0078:
+                            offset = s7comm_decode_szl_id_xy78_idx_xxxx(tvb, pinfo, szl_item_tree, offset);
+                            szl_decoded = true;
                             break;
                         case 0x0091:
                         case 0x0191:
