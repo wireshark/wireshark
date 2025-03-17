@@ -1319,8 +1319,6 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
 {
     char label_str[ITEM_LABEL_LENGTH];
     char *dfilter_string;
-    char time_buf[NSTIME_ISO8601_BUFSIZE];
-    size_t time_len;
 
     /* Text label */
     if (fi->hfinfo->id == hf_text_only && fi->rep) {
@@ -1346,16 +1344,8 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
             else
                 json_dumper_value_anyf(pdata->dumper, "false");
             break;
-        case FT_ABSOLUTE_TIME:
-            time_len = nstime_to_iso8601(time_buf, sizeof(time_buf), fvalue_get_time(fi->value));
-            if (time_len != 0) {
-                json_dumper_value_anyf(pdata->dumper, "\"%s\"", time_buf);
-            } else {
-                json_dumper_value_anyf(pdata->dumper, "\"Not representable\"");
-            }
-            break;
         default:
-            dfilter_string = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+            dfilter_string = fvalue_to_string_repr(NULL, fi->value, FTREPR_JSON, fi->hfinfo->display);
             if (dfilter_string != NULL) {
                 json_dumper_value_string(pdata->dumper, dfilter_string);
             }
