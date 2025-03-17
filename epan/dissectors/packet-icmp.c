@@ -1931,6 +1931,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		break;
 
 	case ICMP_EXTECHO:
+	case ICMP_EXTECHOREPLY:
 		if (tvb_reported_length(tvb) > 8) {
 			tvbuff_t * extension_tvb = tvb_new_subset_remaining(tvb, 8);
 			dissect_icmp_extension(extension_tvb, pinfo, icmp_tree, NULL);
