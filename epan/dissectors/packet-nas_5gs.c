@@ -332,6 +332,9 @@ static int hf_nas_5gs_mm_mcsiu_b0;
 static int hf_nas_5gs_mm_nvl_satnr_b1;
 static int hf_nas_5gs_rslpl_b2;
 static int hf_nas_5gs_nsuc_b3;
+static int hf_nas_5gs_rslpvu_b4;
+static int hf_nas_5gs_rslppu_b5;
+static int hf_nas_5gs_ratuc_b6;
 static int hf_nas_5gs_mm_type_id;
 static int hf_nas_5gs_mm_odd_even;
 static int hf_nas_5gs_mm_length;
@@ -1212,9 +1215,9 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     static int * const flags9[] = {
         &hf_nas_5gs_spare_b7,
-        &hf_nas_5gs_spare_b6,
-        &hf_nas_5gs_spare_b5,
-        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_ratuc_b6,
+        &hf_nas_5gs_rslppu_b5,
+        &hf_nas_5gs_rslpvu_b4,
         &hf_nas_5gs_nsuc_b3,
         &hf_nas_5gs_rslpl_b2,
         &hf_nas_5gs_mm_nvl_satnr_b1,
@@ -5425,6 +5428,11 @@ de_nas_5gs_mm_ext_5gmm_cause(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 }
 
 /*
+ * 9.11.3.110 RAT utilization control
+ */
+
+/* See subclause 9.9.3.3A in 3GPP TS 24.301 [15]. */
+/*
  * 9.11.4    5GS session management (5GSM) information elements
  */
 
@@ -8159,6 +8167,8 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV(0x5C, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_FEAT_AUTH_IND, NULL);
     /* 61    On-demand NSSAI    On-demand NSSAI 9.11.3.108    O    TLV    5-210 */
     ELEM_OPT_TLV(0x61, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ON_DEMAND_NSSAI, NULL);
+    /* 63    RAT utilization control    RAT utilization control  9.11.3.110 O TLV 4 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -8227,6 +8237,8 @@ nas_5gs_mm_registration_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     ELEM_OPT_TLV(0x4D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_TNAN_INFO, NULL);
     /* 62    Extended 5GMM cause    Extended 5GMM cause 9.11.3.109    O    TLV    3 */
     ELEM_OPT_TLV(0x62, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_EXT_5GMM_CAUSE, NULL);
+    /* 63    RAT utilization control    RAT utilization control  9.11.3.110 O TLV 4 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -8392,6 +8404,8 @@ nas_5gs_mm_de_registration_req_ue_term(tvbuff_t *tvb, proto_tree *tree, packet_i
     ELEM_OPT_TLV(0x1D, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_TA_ID_LIST, " - Forbidden TAI(s) for the list of \"5GS forbidden tracking areas for roaming\"");
     /* 1E    Forbidden TAI(s) for the list of "5GS forbidden tracking areas for regional provision of service"    5GS tracking area identity list 9.11.3.9    O    TLV    9-114 */
     ELEM_OPT_TLV(0x1E, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_TA_ID_LIST, " - Forbidden TAI(s) for the list of \"5GS forbidden tracking areas for regional provision of service\"");
+    /* 63    RAT utilization control    RAT utilization control  9.11.3.110 O TLV 4 */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -8613,6 +8627,8 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(0x5C, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_FEAT_AUTH_IND, NULL);
     /* 61    On-demand NSSAI    On-demand NSSAI 9.11.3.108    O    TLV    5-210 */
     ELEM_OPT_TLV(0x61, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ON_DEMAND_NSSAI, NULL);
+    /* 63 RAT utilization control RAT utilization control 9.11.3.110 O TLV 2-n */
+    ELEM_OPT_TLV(0x63, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -13292,16 +13308,31 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_nvl_satnr_b1,
         { "NVL-SATNR",   "nas-5gs.mm.nvl_satnr_b1",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
-            NULL, HFILL }
+            "Network verified UE location over satellite NG-RAN", HFILL }
         },
         { &hf_nas_5gs_rslpl_b2,
         { "RSLPL",   "nas-5gs.mm.rslpl_b2",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
-            NULL, HFILL }
+            "Ranging and sidelink positioning over PC5 for located UE support", HFILL }
         },
         { &hf_nas_5gs_nsuc_b3,
-        { "NSUC",   "nas-5gs.mm.nsuc_b3",
+        { "Network slice usage control (NSUC)",   "nas-5gs.mm.nsuc_b3",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_rslpvu_b4,
+        { "RSLPVU",   "nas-5gs.mm.rslpvu_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            "Ranging and sidelink positioning with V2X capable UE", HFILL }
+        },
+        { &hf_nas_5gs_rslppu_b5,
+        { "RSLPPU",   "nas-5gs.mm.rslppu_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            "Ranging and sidelink positioning with 5G ProSe capable UE support", HFILL }
+        },
+        { &hf_nas_5gs_ratuc_b6,
+        { "RAT utilization control (RATUC)",   "nas-5gs.mm.ratuc_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_type_id,

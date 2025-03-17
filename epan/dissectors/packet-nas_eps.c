@@ -67,6 +67,7 @@ int hf_nas_eps_emm_elem_id;
 static int hf_nas_eps_bearer_id;
 static int hf_nas_eps_spare_bits;
 static int hf_nas_eps_spare_b7;
+static int hf_nas_eps_spare_b6;
 static int hf_nas_eps_security_header_type;
 static int hf_nas_eps_msg_auth_code;
 static int hf_nas_eps_seq_no;
@@ -356,7 +357,13 @@ static int hf_nas_eps_emm_unavail_config_eupr;
 static int hf_nas_eps_emm_unavail_config_unavail_period_duration;
 static int hf_nas_eps_emm_unavail_config_start_unavail_period;
 static int hf_nas_eps_emm_ue_info_req_uclir;
-
+static int hf_nas_eps_type_rat_util_cntrl;
+static int hf_nas_eps_sat_ng_ran_b5;
+static int hf_nas_eps_sat_e_utran_b4;
+static int hf_nas_eps_ng_ran_b3;
+static int hf_nas_eps_e_utran_b2;
+static int hf_nas_eps_utran_b1;
+static int hf_nas_eps_geran_b0;
 static int hf_nas_eps_esm_qci;
 static int hf_nas_eps_esm_mbr_ul;
 static int hf_nas_eps_esm_mbr_dl;
@@ -961,6 +968,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_AUTH_FAIL_PAR, "Authentication failure parameter" },              /* 9.9.3.1  Authentication failure parameter */
     { DE_EMM_AUTN, "Authentication parameter AUTN" },                          /* 9.9.3.2  Authentication parameter AUTN */
     { DE_EMM_AUTH_PAR_RAND, "Authentication parameter RAND" },                 /* 9.9.3.3  Authentication parameter RAND */
+    { DE_EMM_RAT_UTIL_CNTRL, "RAT utilization control" },                      /* 9.9.3.3A RAT utilization control */
     { DE_EMM_AUTH_RESP_PAR, "Authentication response parameter" },             /* 9.9.3.4  Authentication response parameter */
     { DE_EMM_SMS_SERVICES_STATUS, "SMS services status" },                     /* 9.9.3.4B SMS services status */
     { DE_EMM_CSFB_RESP, "CSFB response" },                                     /* 9.9.3.5  CSFB response */
@@ -1062,6 +1070,7 @@ typedef enum
     DE_EMM_AUTH_FAIL_PAR,       /* 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
     DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
     DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
+    DE_EMM_RAT_UTIL_CNTRL,      /* 9.9.3.3A RAT utilization control */
     DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
     DE_EMM_SMS_SERVICES_STATUS, /* 9.9.3.4B SMS services status */
     DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
@@ -1226,7 +1235,62 @@ de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 9.9.3.3  Authentication parameter RAND
  * See subclause 10.5.3.1 in 3GPP TS 24.008 [6].
  */
-/*
+
+ /*
+  * 9.9.3.3A RAT utilization control
+  */
+static const value_string nas_eps_emm_utype_rat_util_cntrl_vals[] = {
+    { 0x0, "Current PLMN"},
+    { 0x1, "Current PLMN and its equivalent PLMN(s)"},
+    { 0x2, "Unused, shall be interpreted as \"current PLMN\" if received by the UE"},
+    { 0x3, "Unused, shall be interpreted as \"current PLMN\" if received by the UE"},
+    { 0, NULL}
+};
+
+static uint16_t
+de_emm_rat_util_cntrl(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len _U_,
+    char* add_string _U_, int string_len _U_)
+{
+
+    static int* const oct3_flags[] = {
+    &hf_nas_eps_type_rat_util_cntrl,
+    NULL
+    };
+
+    static int* const oct4_flags[] = {
+    &hf_nas_eps_spare_b7,
+    &hf_nas_eps_spare_b6,
+    &hf_nas_eps_sat_ng_ran_b5,
+    &hf_nas_eps_sat_e_utran_b4,
+    &hf_nas_eps_ng_ran_b3,
+    &hf_nas_eps_e_utran_b2,
+    &hf_nas_eps_utran_b1,
+    &hf_nas_eps_geran_b0,
+    NULL
+    };
+
+    uint32_t curr_offset;
+
+    curr_offset = offset;
+
+    /* spare spare spare spare spare spare Type of RAT utilization control octet 3 */
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset << 3, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
+    curr_offset++;
+
+    /* 0 spare 0 spare Sat-NG-RAN Sat-E-UTRAN NG-RAN E-UTRAN UTRAN GERAN */
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
+    //curr_offset++;
+
+    ///* Following octets are optional */
+    //if ((curr_offset - offset) >= len)
+    //    return (len);
+
+    return (len);
+}
+
+  /*
  * 9.9.3.4  Authentication response parameter
  */
 static uint16_t
@@ -4545,6 +4609,7 @@ uint16_t (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     NULL,                       /* 9.9.3.1  Authentication failure parameter(dissected in packet-gsm_a_dtap.c) */
     NULL,                       /* 9.9.3.2  Authentication parameter AUTN(packet-gsm_a_dtap.c) */
     NULL,                       /* 9.9.3.3  Authentication parameter RAND */
+    de_emm_rat_util_cntrl,      /* 9.9.3.3  9.9.3.3A RAT utilization control */
     de_emm_auth_resp_par,       /* 9.9.3.4  Authentication response parameter */
     de_emm_sms_services_status, /* 9.9.3.4B SMS services status */
     de_emm_csfb_resp,           /* 9.9.3.5  CSFB response */
@@ -4840,6 +4905,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
     /* 1F   Unavailability configuration Unavailability configuration 9.9.3.70 O TLV 3-9 */
     ELEM_OPT_TLV(0x1F, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_CONFIG, NULL);
+    /* 20 RAT utilization control RAT utilization control 9.9.3.3A O TLV 4-n  */
+    ELEM_OPT_TLV(0x20, NAS_PDU_TYPE_EMM, DE_EMM_RAT_UTIL_CNTRL, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -7336,8 +7403,13 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_spare_b7,
-        { "Spare bit(s)", "nas-eps.spare_bits",
+        { "Spare bit", "nas-eps.spare_b7",
         FT_UINT8, BASE_HEX, NULL, 0x80,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_spare_b6,
+        { "Spare bit", "nas-eps.spare_b6",
+        FT_UINT8, BASE_HEX, NULL, 0x40,
         NULL, HFILL }
     },
   { &hf_nas_eps_security_header_type,
@@ -9256,6 +9328,41 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_ue_info_req_uclir,
         { "UE coarse location information request", "nas-eps.emm.ue_info_request.uclir",
         FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_type_rat_util_cntrl,
+        { "Type of RAT utilization control", "nas-eps.emm.type_rat_util_cntrl",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_utype_rat_util_cntrl_vals), 0x03,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_sat_ng_ran_b5,
+        { "Sat-NG-RAN", "nas-eps.emm.rat_util_cntrl.sat_ng_ran",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_sat_e_utran_b4,
+        { "Sat-E-UTRAN", "nas-eps.emm.rat_util_cntrl.sat_e_utran",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_ng_ran_b3,
+        { "NG-RAN", "nas-eps.emm.rat_util_cntrl.ng_ran",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_e_utran_b2,
+        { "E-UTRAN", "nas-eps.emm.rat_util_cntrl.e_utran",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_utran_b1,
+        { "UTRAN", "nas-eps.emm.rat_util_cntrl.utran",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_geran_b0,
+        { "GERAN", "nas-eps.emm.rat_util_cntrl.geran",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x02,
         NULL, HFILL }
     },
   };
