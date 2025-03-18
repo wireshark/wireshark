@@ -2390,7 +2390,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
 
         /* Pad out by 1 or 4 bytes, according to preference */
-        offset = (bit_offset + ((st6_4byte_alignment ? 31 : 7) / 8));
+        if (!st6_4byte_alignment) {
+            offset = (bit_offset + 7) / 8;
+        }
+        else {
+            int mode = bit_offset % 32;
+            if (mode != 0) {
+                offset = (bit_offset + (32-mode))/8;
+            }
+            else {
+                offset = bit_offset/8;
+            }
+        }
         proto_item_set_end(c_section_tree, tvb, offset);
     }
 
@@ -2400,7 +2411,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* Section extension commands */
     while (extension_flag) {
-
         int extension_start_offset = offset;
 
         /* Prefetch extType so can use specific extension type ett */
