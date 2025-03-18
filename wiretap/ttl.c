@@ -1483,7 +1483,7 @@ ttl_create_interface(wtap* wth, int pkt_encap, uint16_t addr, const char* name) 
 
     if_descr_mand->time_units_per_second = 1000 * 1000;
     if_descr_mand->tsprecision = WTAP_TSPREC_USEC;
-    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
+    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 6);
     if_descr_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;
     if_descr_mand->num_stat_entries = 0;
     if_descr_mand->interface_statistics = NULL;
