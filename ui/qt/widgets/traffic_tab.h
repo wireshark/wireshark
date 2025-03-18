@@ -244,6 +244,9 @@ private:
 
     bool _disableTaps;
     bool _nameResolution;
+    bool _absoluteTime;
+    bool _limitToDisplayFilter;
+    bool _nanoseconds;
 
     QTreeView * createTree(int protoId);
     TrafficDataFilterProxy * modelForTabIndex(int tabIdx = -1);

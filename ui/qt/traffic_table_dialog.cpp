@@ -52,6 +52,7 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
 
     if (cf.displayFilter().length() > 0) {
         ui->displayFilterCheckBox->setChecked(true);
+        ui->trafficTab->limitToDisplayFilter(true);
     }
 
     ui->trafficTab->setFocus();

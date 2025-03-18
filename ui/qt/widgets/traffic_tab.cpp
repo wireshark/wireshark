@@ -72,6 +72,9 @@ TrafficTab::TrafficTab(QWidget * parent) :
     _createDelegate = nullptr;
     _disableTaps = false;
     _nameResolution = false;
+    _absoluteTime = false;
+    _limitToDisplayFilter = false;
+    _nanoseconds = false;
     setTabBasename(QString());
 }
 
@@ -115,6 +118,10 @@ QTreeView * TrafficTab::createTree(int protoId)
 
     if (_createModel) {
         ATapDataModel * model = _createModel(protoId, "");
+        model->useAbsoluteTime(_absoluteTime);
+        model->limitToDisplayFilter(_limitToDisplayFilter);
+        model->useNanosecondTimestamps(_nanoseconds);
+        model->setResolveNames(_nameResolution);
         model->setParent(tree);
         connect(model, &ATapDataModel::tapListenerChanged, tree, &TrafficTree::tapListenerEnabled);
 
@@ -184,6 +191,10 @@ QTreeView * TrafficTab::createTree(int protoId)
 
 void TrafficTab::useAbsoluteTime(bool absolute)
 {
+    if (absolute == _absoluteTime)
+        return;
+
+    _absoluteTime = absolute;
     for(int idx = 0; idx < count(); idx++)
     {
         ATapDataModel * atdm = dataModelForTabIndex(idx);
@@ -194,6 +205,10 @@ void TrafficTab::useAbsoluteTime(bool absolute)
 
 void TrafficTab::useNanosecondTimestamps(bool nanoseconds)
 {
+    if (nanoseconds == _nanoseconds)
+        return;
+
+    _nanoseconds = nanoseconds;
     for(int idx = 0; idx < count(); idx++)
     {
         ATapDataModel * atdm = dataModelForTabIndex(idx);
@@ -204,6 +219,10 @@ void TrafficTab::useNanosecondTimestamps(bool nanoseconds)
 
 void TrafficTab::limitToDisplayFilter(bool limit)
 {
+    if (limit == _limitToDisplayFilter)
+        return;
+
+    _limitToDisplayFilter = limit;
     for(int idx = 0; idx < count(); idx++)
     {
         ATapDataModel * atdm = dataModelForTabIndex(idx);
