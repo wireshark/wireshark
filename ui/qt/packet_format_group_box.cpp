@@ -220,6 +220,8 @@ PacketFormatJSONGroupBox::PacketFormatJSONGroupBox(QWidget *parent) :
     pf_ui_->setupUi(this);
 
     connect(pf_ui_->dupKeysCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
+    connect(pf_ui_->valuesCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
+    connect(pf_ui_->bytesCheckBox, &QCheckBox::toggled, this, &PacketFormatGroupBox::formatChanged);
 }
 
 PacketFormatJSONGroupBox::~PacketFormatJSONGroupBox()
@@ -232,7 +234,28 @@ bool PacketFormatJSONGroupBox::noDuplicateKeys()
     return pf_ui_->dupKeysCheckBox->isChecked();
 }
 
+bool PacketFormatJSONGroupBox::valuesEnabled() const
+{
+    return pf_ui_->valuesCheckBox->isChecked();
+}
+
+bool PacketFormatJSONGroupBox::bytesEnabled() const
+{
+    return pf_ui_->bytesCheckBox->isChecked();
+}
+
+bool PacketFormatJSONGroupBox::isValid() const
+{
+    if (!valuesEnabled() && !bytesEnabled()) {
+        return false;
+    }
+    return true;
+}
+
 void PacketFormatJSONGroupBox::updatePrintArgs(print_args_t& print_args)
 {
     print_args.no_duplicate_keys = noDuplicateKeys();
+    print_args.print_dissections = valuesEnabled() ?
+        print_dissections_expanded : print_dissections_none;
+    print_args.print_hex = bytesEnabled();
 }

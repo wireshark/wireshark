@@ -97,10 +97,14 @@ public:
     explicit PacketFormatJSONGroupBox(QWidget *parent = 0);
     ~PacketFormatJSONGroupBox();
 
+    bool isValid() const override;
     void updatePrintArgs(print_args_t& print_args) override;
     bool noDuplicateKeys();
 
 private:
+    bool valuesEnabled() const;
+    bool bytesEnabled() const;
+
     Ui::PacketFormatJSONGroupBox *pf_ui_;
 };
 

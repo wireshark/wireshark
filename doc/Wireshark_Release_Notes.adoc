@@ -164,6 +164,11 @@ The following features are either new or have been significantly updated since v
   Note that this format does not necessarily preserve the ordering of all
   children in a tree, if sibling with identical keys are not consecutive.
 
+* The GUI Export Dissections Dialog can output raw hex bytes of the frame
+  data for each field with or without exporting the field values, the same
+  formats as the "-T json -x" and "-T jsonraw" output modes, respectively,
+  of TShark.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.
