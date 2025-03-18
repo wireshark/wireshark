@@ -56,7 +56,7 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
     }
 
     ui->trafficTab->setFocus();
-    ui->trafficTab->useNanosecondTimestamps(cf.timestampPrecision() == WTAP_TSPREC_NSEC);
+    ui->trafficTab->useNanosecondTimestamps(cf.timestampPrecision() == WTAP_TSPREC_NSEC || cf.timestampPrecision() == WTAP_TSPREC_PER_PACKET);
     connect(ui->displayFilterCheckBox, &QCheckBox::toggled, this, &TrafficTableDialog::displayFilterCheckBoxToggled);
     connect(ui->trafficList, &TrafficTypesList::protocolsChanged, ui->trafficTab, &TrafficTab::setOpenTabs);
     connect(ui->trafficTab, &TrafficTab::tabsChanged, ui->trafficList, &TrafficTypesList::selectProtocols);
