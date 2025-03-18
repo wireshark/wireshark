@@ -1,4 +1,0 @@
-# Global hosts
-# Matches addresses in dns+icmp.pcapng.gz
-8.8.8.8	global-8-8-8-8
-8.8.4.4	global-8-8-4-4

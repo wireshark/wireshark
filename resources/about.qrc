@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/about">
-        <file>Acknowledgements.md</file>
-        <file>gpl-2.0-standalone.html</file>
-        <file>wssplash.png</file>
-        <file>sssplash.png</file>
-        <file>sssplash@2x.png</file>
-    </qresource>
-</RCC>

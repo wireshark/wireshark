@@ -1,3 +1,0 @@
-;Add your custom radius dictionary here
-; Example:
-;File "..\..\radius\dictionary.foo"

@@ -1,4 +1,0 @@
-# Default profile / personal hosts
-# Matches addresses in dns+icmp.pcapng.gz
-8.8.4.4	personal-8-8-4-4
-4.2.2.2	personal-4-2-2-2

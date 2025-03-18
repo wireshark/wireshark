@@ -1,3 +1,0 @@
-;Add your custom plugins directives here
-; Example:
-;File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\foo.dll"

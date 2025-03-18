@@ -1,3 +1,0 @@
-usr/lib/*/libwireshark.so.*
-usr/lib/*/wireshark/plugins/*/codecs/*.so
-usr/lib/*/wireshark/plugins/*/epan/*.so

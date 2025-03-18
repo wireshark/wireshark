@@ -1,9 +1,0 @@
-#
-# Editor configuration
-#
-# https://editorconfig.org
-#
-
-[{ciscodump,randpktdump,ssh-base,sshdump,udpdump,wifidump}.[ch]]
-indent_style = tab
-indent_size = tab

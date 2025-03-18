@@ -1,8 +1,0 @@
-#
-# Editor configuration
-#
-# https://editorconfig.org/
-#
-
-[wslua_struct.[ch]]
-indent_size = 2

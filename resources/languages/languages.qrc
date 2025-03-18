@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/languages">
-        <file>language.svg</file>
-        <file>language.dark.svg</file>
-    </qresource>
-</RCC>

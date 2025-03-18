@@ -1,5 +1,0 @@
-Tests: tshark
-Depends: tshark
-
-Tests: gui
-Depends: wireshark, xvfb, xauth, at-spi2-core
