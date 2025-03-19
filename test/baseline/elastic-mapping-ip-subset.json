@@ -6,7 +6,6 @@
     "index.mapping.total_fields.limit": 1000000
   },
   "mappings": {
-    "dynamic": false,
     "properties": {
       "timestamp": {
         "type": "date"

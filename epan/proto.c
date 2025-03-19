@@ -12037,8 +12037,6 @@ proto_registrar_dump_elastic(const char* filter)
 
 	json_dumper_set_member_name(&dumper, "mappings");
 	json_dumper_begin_object(&dumper); // 2.mappings
-	json_dumper_set_member_name(&dumper, "dynamic");
-	json_dumper_value_anyf(&dumper, "false"); // XXX - Should this be "true"? (#15780)
 
 	json_dumper_set_member_name(&dumper, "properties");
 	json_dumper_begin_object(&dumper); // 3.properties
