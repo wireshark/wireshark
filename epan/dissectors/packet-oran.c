@@ -4178,7 +4178,7 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_item_append_text(udcomphdr_ti, " (ignored)");
         if (hdr_iq_width || ud_comp_meth) {
             expert_add_info_format(pinfo, udcomphdr_ti, &ei_oran_udpcomphdr_should_be_zero,
-                                   "udCompHdr in C-Plane for DL should be 0 - found %02x",
+                                   "udCompHdr in C-Plane for DL should be 0 - found 0x%02x",
                                    tvb_get_uint8(tvb, offset));
         }
 
