@@ -4828,7 +4828,7 @@ proto_register_vnc(void)
 		{ &hf_vnc_mirrorlink_fb_block_y,
 		  { "Framebuffer Y", "vnc.mirrorlink_fb_block_y",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Framdbuffer blocking - Y position", HFILL }
+		    "Framebuffer blocking - Y position", HFILL }
 		},
 		{ &hf_vnc_mirrorlink_fb_block_width,
 		  { "Framebuffer Width", "vnc.mirrorlink_fb_block_width",
