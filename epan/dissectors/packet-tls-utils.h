@@ -2136,7 +2136,7 @@ ssl_common_dissect_t name;
     },                                                                  \
     { & name .hf.hs_finished,                                           \
       { "Verify Data", prefix ".handshake.verify_data",                 \
-        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "Opaque verification data", HFILL }                             \
     },                                                                  \
     { & name .hf.hs_client_cert_vrfy_sig_len,                           \
