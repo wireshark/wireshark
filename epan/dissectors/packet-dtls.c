@@ -673,7 +673,7 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 }
 
 static void
-dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_type, uint8_t curr_layer_num_ssl, bool inner_content_type)
+dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_type, SslDecoder *decoder, uint8_t curr_layer_num_ssl, bool inner_content_type)
 {
     const unsigned char *data = dtls_decrypted_data.data;
     unsigned datalen = dtls_decrypted_data_avail;
@@ -701,7 +701,10 @@ dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_ty
         }
     }
 
-    ssl_add_record_info(proto_dtls, pinfo, data, datalen, record_id, NULL, (ContentType)content_type, curr_layer_num_ssl);
+    // For DTLS 1.3, the record sequence number was encrypted, so store it.
+    // tls_decrypt_aead_record does not increment decoder->seq after
+    // successful authentication for DTLS 1.3 (unlike for TLS.)
+    ssl_add_record_info(proto_dtls, pinfo, data, datalen, record_id, NULL, (ContentType)content_type, curr_layer_num_ssl, decoder->seq);
 }
 
 static bool
@@ -755,7 +758,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, SslDecry
                          &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
 
   if (success) {
-    dtls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, content_type, curr_layer_num_ssl, ssl->session.version == DTLSV1DOT3_VERSION);
+    dtls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, content_type, decoder, curr_layer_num_ssl, ssl->session.version == DTLSV1DOT3_VERSION);
   }
   return success;
 }
@@ -1693,18 +1696,8 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
   if (decrypted)
   {
-    /* on first pass add seq suffix decrypted info */
-    if (ssl) {
-      if (is_from_server && ssl->server) {
-        // XXX - Should the cast depend on seq_length ?
-        record->dtls13_seq_suffix = (uint16_t)ssl->server->seq;
-      } else if (ssl->client) {
-        record->dtls13_seq_suffix = (uint16_t)ssl->client->seq;
-      }
-    }
-
     ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_sequence_suffix_dec, tvb, hdr_start + 1 + cid_length,
-                             seq_length, record->dtls13_seq_suffix);
+                             seq_length, (uint16_t)record->record_seq);
     proto_item_set_generated(ti);
     add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
     /* real content type*/

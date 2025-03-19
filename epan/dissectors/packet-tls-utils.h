@@ -437,8 +437,8 @@ typedef struct _SslRecordInfo {
     ContentType type;       /**< Content type of the decrypted record data. */
     SslFlow *flow;          /**< Flow where this record fragment is a part of.
                                  Can be NULL if this record type may not be fragmented. */
+    uint64_t record_seq;    /**< Implicit (TLS) or explicit (DTLS) record sequence number. */
     uint32_t seq;            /**< Data offset within the flow. */
-    uint16_t dtls13_seq_suffix;   /* < decrypted dtlsv1.3 record number suffix */
     struct _SslRecordInfo* next;
 } SslRecordInfo;
 
@@ -782,7 +782,7 @@ tls_add_packet_info(int proto, packet_info *pinfo, uint8_t curr_layer_num_ssl);
 
 /* add to packet data a copy of the specified real data */
 extern void
-ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, int data_len, int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl);
+ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, int data_len, int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl, uint64_t record_seq);
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*

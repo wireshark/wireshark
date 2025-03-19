@@ -107,6 +107,7 @@ static int hf_tls_record_content_type;
 static int hf_tls_record_opaque_type;
 static int hf_tls_record_version;
 static int hf_tls_record_length;
+static int hf_tls_record_sequence_number;
 static int hf_tls_record_appdata;
 static int hf_tls_record_appdata_proto;
 static int hf_ssl2_record;
@@ -1216,7 +1217,8 @@ tls_save_decrypted_record(packet_info *pinfo, int record_id, SslDecryptSession *
      * Alert messages MUST NOT be fragmented across records, so do not
      * bother maintaining a flow for those. */
     ssl_add_record_info(proto_tls, pinfo, data, datalen, record_id,
-            allow_fragments ? decoder->flow : NULL, (ContentType)content_type, curr_layer_num_ssl);
+            allow_fragments ? decoder->flow : NULL, (ContentType)content_type,
+            curr_layer_num_ssl, decoder->seq - 1); // decoder->seq has already been incremented
 }
 
 /**
@@ -2271,6 +2273,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                      tvb, content_type_offset, 1, record->type);
             proto_item_set_generated(ti);
         }
+        ti = proto_tree_add_uint64(ssl_record_tree, hf_tls_record_sequence_number,
+                                     tvb, 0, 0, record->record_seq);
+        proto_item_set_generated(ti);
     }
     ssl_check_record_length(&dissect_ssl3_hf, pinfo, (ContentType)content_type, record_length, length_pi, version, decrypted);
 
@@ -4583,6 +4588,11 @@ proto_register_tls(void)
           { "Length", "tls.record.length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Length of TLS record data", HFILL }
+        },
+        { &hf_tls_record_sequence_number,
+          { "Sequence Number", "tls.record.sequence_number",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
         },
         { &hf_tls_record_appdata,
           { "Encrypted Application Data", "tls.app_data",

@@ -5795,6 +5795,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint
             decoder->cipher_suite->enc == ENC_NULL &&
             !(ssl->state & SSL_MASTER_SECRET)) {
         ssl_debug_printf("MAC check skipped due to missing keys\n");
+        decoder->seq++; // Increment this for display
         goto skip_mac;
     }
 
@@ -6257,7 +6258,7 @@ tls_add_packet_info(int proto, packet_info *pinfo, uint8_t curr_layer_num_ssl)
  * @param curr_layer_num_ssl The layer identifier for this TLS session.
  */
 void
-ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, int data_len, int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl)
+ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, int data_len, int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl, uint64_t record_seq)
 {
     SslRecordInfo* rec, **prec;
     SslPacketInfo *pi = tls_add_packet_info(proto, pinfo, curr_layer_num_ssl);
@@ -6268,6 +6269,7 @@ ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, in
     rec->id = record_id;
     rec->type = type;
     rec->next = NULL;
+    rec->record_seq = record_seq;
 
     if (flow && type == SSL_ID_APP_DATA) {
         rec->seq = flow->byte_seq;
