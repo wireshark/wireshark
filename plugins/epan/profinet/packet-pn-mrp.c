@@ -18,6 +18,12 @@
 
 #include "packet-pn.h"
 
+#define MRP_LINKINFO_PRIMARY_SECONDARY 0x0001
+#define MRP_LINKINFO_RESERVED1 0x00FE
+#define MRP_LINKINFO_LINK_CHANGE_REASON 0x0F00
+#define MRP_LINKINFO_ADDITIONAL_CHECK_BITS 0x1000
+#define MRP_LINKINFO_RESERVED2 0xE000
+
 void proto_register_pn_mrp(void);
 void proto_reg_handoff_pn_mrp(void);
 
@@ -47,10 +53,21 @@ static int hf_pn_mrp_sub_option2;
 static int hf_pn_mrp_other_mrm_prio;
 static int hf_pn_mrp_other_mrm_sa;
 static int hf_pn_mrp_manufacturer_data;
+static int hf_pn_mrp_in_id;
+static int hf_pn_mrp_in_state;
+static int hf_pn_mrp_link_info;
+static int hf_pn_mrp_link_info_primary_secondary;
+static int hf_pn_mrp_link_info_reserved1;
+static int hf_pn_mrp_link_info_link_change_reason;
+static int hf_pn_mrp_link_info_check_bits;
+static int hf_pn_mrp_link_info_reserved2;
+
+
 
 static int ett_pn_mrp;
 static int ett_pn_mrp_type;
 static int ett_pn_sub_tlv;
+static int ett_pn_mrp_link_info;
 
 static const value_string pn_mrp_block_type_vals[] = {
     { 0x00, "MRP_End" },
@@ -72,7 +89,8 @@ static const value_string pn_mrp_block_type_vals[] = {
 static const value_string pn_mrp_port_role_vals[] = {
     { 0x0000, "Primary ring port" },
     { 0x0001, "Secondary ring port"},
-    /*0x0002 - 0xFFFF Reserved */
+    {0x0002, "Interconnection port"},
+    /*0x0003 - 0xFFFF Reserved */
 
     { 0, NULL }
 };
@@ -95,6 +113,14 @@ static const value_string pn_mrp_ring_state_vals[] = {
     /*0x0002 - 0xFFFF Reserved */
 
     { 0, NULL }
+};
+
+static const value_string pn_mrp_interconnect_state_vals[] = {
+    {0x0000, "Interconnection open"},
+    {0x0001, "Interconnection closed"},
+    /*0x0002 - 0xFFFF Reserved */
+
+    { 0, NULL}
 };
 
 
@@ -128,6 +154,30 @@ static const value_string pn_mrp_sub_tlv_header_type_vals[] = {
     { 0xFE, "Manufacturer specific functions" },
     { 0xFF, "Manufacturer specific functions" },
     { 0, NULL },
+};
+
+static const value_string pn_mrp_link_change_reason[] = {
+    /*0 reserved*/
+    { 0x1, "undefined reason"},
+    { 0x2, "RDI bit"},
+    { 0x3, "CFM timeout"},
+    { 0x4, "PHY problem"},
+
+    { 0 , NULL}, 
+};
+
+static const value_string pn_mrp_additional_check_bits[] = {
+    { 0x0, "disabled"},
+    { 0x1, "enabled"},
+
+    { 0 , NULL},
+};
+
+static const value_string pn_mrp_interconnection_link_info[] = {
+    { 0x0, "the frame is sent from one of the MICs at the primary link"},
+    { 0x1, "the frame is sent from the MIC of the secondary link"},
+
+    { 0 , NULL},
 };
 
 static int
@@ -420,7 +470,124 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 
     return offset;
 }
+static int
+dissect_PNMRP_InTest(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_)
+{
+    /*MRP_InID*/
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_in_id, NULL);
 
+    /* MRP_SA */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, NULL);
+
+    /* MRP_PortRole */
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, NULL);
+
+    /* MRP_InState */
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_in_state, NULL);
+
+    /* MRP_Transition */
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_transition, NULL);
+
+    /* MRP_Timestamp */
+    proto_tree_add_item_ret_uint(tree, hf_pn_mrp_time_stamp, tvb, offset, 4, ENC_BIG_ENDIAN, NULL);
+    offset += 4;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+}
+
+static int
+dissect_PNMRP_InTopologyChange(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_)
+{
+    uint16_t interval;
+    proto_item* sub_item;
+
+    /* MRP_SA */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, NULL);
+
+    /*MRP_InID*/
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_in_id, NULL);
+
+    /*MRP_Interval*/
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval, &sub_item);
+    proto_item_append_text(sub_item, " Interval for next topology change event (in ms) ");
+    if (interval < 0x07D1){
+        proto_item_append_text(sub_item, "Mandatory");
+    }
+    else{
+        proto_item_append_text(sub_item, "Optional");
+    }
+    return offset;
+}
+
+static int
+dissect_PNMRP_InLink(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_)
+{
+    uint16_t interval;
+    proto_item* sub_item;
+
+    /* MRP_SA */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, NULL);
+
+    /* MRP_PortRole */
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, NULL);
+
+    /*MRP_InID*/
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_in_id, NULL); 
+
+    /* MRP_Interval */
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval, &sub_item);
+    if (interval < 0x07D1){
+        proto_item_append_text(sub_item, " Mandatory");
+    }
+    else{
+        proto_item_append_text(sub_item, " Optional");
+    }
+
+    /*MRP_LinkInfo*/
+    proto_tree *link_info_tree =  proto_item_add_subtree(item, ett_pn_mrp_link_info);
+
+    static int* const mrp_link_info_fields[] = {
+        &hf_pn_mrp_link_info_primary_secondary,
+        &hf_pn_mrp_link_info_reserved1,
+        &hf_pn_mrp_link_info_link_change_reason,
+        &hf_pn_mrp_link_info_check_bits,
+        &hf_pn_mrp_link_info_reserved2,
+        NULL
+    };
+
+    proto_tree_add_bitmask(
+        link_info_tree, tvb, offset, hf_pn_mrp_link_info,
+        ett_pn_mrp_link_info, mrp_link_info_fields, ENC_BIG_ENDIAN);
+
+    offset += 2;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+}
+
+static int
+dissect_PNMRP_InLinkStatusPoll(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_)
+{
+    /* MRP_SA */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, NULL);
+
+    /* MRP_PortRole */
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, NULL);
+
+    /*MRP_InID*/
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_in_id, NULL);
+
+    return offset;
+}
 
 static int
 dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
@@ -479,6 +646,19 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         case 0x04:
         case 0x05: /* dissection of up and down is identical! */
             offset = dissect_PNMRP_Link(new_tvb, offset, pinfo, sub_tree, sub_item);
+            break;
+        case 0x06:
+            offset = dissect_PNMRP_InTest(new_tvb, offset, pinfo, sub_tree, sub_item);
+            break;
+        case 0x07:
+            offset = dissect_PNMRP_InTopologyChange(new_tvb, offset, pinfo, sub_tree, sub_item);
+            break;
+        case 0x08:
+        case 0x09:
+            offset = dissect_PNMRP_InLink(new_tvb, offset, pinfo, sub_tree, sub_item);
+            break;
+        case 0xA:
+            offset = dissect_PNMRP_InLinkStatusPoll(new_tvb, offset, pinfo, sub_tree, sub_item);
             break;
         case 0x7f:
             offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, sub_tree, sub_item, length);
@@ -629,13 +809,54 @@ proto_register_pn_mrp (void)
     { &hf_pn_mrp_manufacturer_data,
       { "MRP_ManufacturerData", "pn_mrp.manufacturer_data",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+
+    { &hf_pn_mrp_in_id,
+      { "MRP_InID", "pn_mrp.inid",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+
+    { &hf_pn_mrp_in_state,
+      { "MRP_InState", "pn_mrp.in_state",
+        FT_UINT16, BASE_HEX, VALS(pn_mrp_interconnect_state_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_pn_mrp_link_info,
+      { "MRP_LinkInfo", "pn_mrp.linkinfo",
+        FT_UINT16, BASE_HEX, NULL, 0x0000,
+        NULL, HFILL }},
+
+    { &hf_pn_mrp_link_info_primary_secondary,
+      {"Primary/Secondary", "pn_mrp.linkinfo_primary_secondary",
+        FT_UINT16, BASE_HEX, VALS(pn_mrp_interconnection_link_info), MRP_LINKINFO_PRIMARY_SECONDARY,
+        NULL, HFILL}},
+
+    { &hf_pn_mrp_link_info_reserved1,
+      {"Reserved", "pn_mrp.linkinfo_reserved1",
+        FT_UINT16, BASE_HEX, NULL, MRP_LINKINFO_RESERVED1,
+        NULL, HFILL}},
+
+    { &hf_pn_mrp_link_info_link_change_reason,
+      {"Link_Change_Reason","pn_mrp.linkinfo_link_change_reason",
+        FT_UINT16, BASE_DEC,VALS(pn_mrp_link_change_reason), MRP_LINKINFO_LINK_CHANGE_REASON,
+        NULL, HFILL}},
+
+    { &hf_pn_mrp_link_info_check_bits,
+      {"Additional_check_bits","pn_mrp.linkinfo_check_bits",
+        FT_UINT16, BASE_HEX,VALS(pn_mrp_additional_check_bits), MRP_LINKINFO_ADDITIONAL_CHECK_BITS,
+        NULL, HFILL}},
+
+    { &hf_pn_mrp_link_info_reserved2,
+      {"Reserved", "pn_mrp.linkinfo_reserved2",
+        FT_UINT16, BASE_HEX, NULL, MRP_LINKINFO_RESERVED2,
+        NULL, HFILL}}
     };
 
     static int *ett[] = {
         &ett_pn_mrp,
         &ett_pn_mrp_type,
-        &ett_pn_sub_tlv
+        &ett_pn_sub_tlv,
+        &ett_pn_mrp_link_info
     };
 
     proto_pn_mrp = proto_register_protocol ("PROFINET MRP", "PN-MRP", "pn_mrp");
