@@ -25,7 +25,7 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include "packet-ldap.h"
-#include "packet-pkcs1.h"
+#include "packet-pkixalgs.h"
 #if defined(HAVE_LIBGNUTLS)
 #include <gnutls/gnutls.h>
 #endif

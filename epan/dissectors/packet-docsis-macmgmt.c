@@ -87,7 +87,7 @@
 #include <epan/asn1.h>
 #include "packet-cms.h"
 #include "packet-ocsp.h"
-#include "packet-pkcs1.h"
+#include "packet-pkixalgs.h"
 #include "packet-x509af.h"
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
@@ -4458,7 +4458,7 @@ dissect_attrs(tvbuff_t * tvb, packet_info * pinfo, proto_item *item _U_, proto_t
       break;
     case BPKM_RSA_PUB_KEY:
       asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-      dissect_pkcs1_RSAPublicKey(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_rsa_pub_key);
+      dissect_pkixalgs_RSAPublicKey(false, tvb, pos, &asn1_ctx, tlv_tree, hf_docsis_bpkmattr_rsa_pub_key);
       break;
     case BPKM_CM_ID:
       tlv_subitem = proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_cm_id, tvb, pos, tlv_length, ENC_NA);

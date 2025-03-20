@@ -96,13 +96,13 @@ set(ASN1_SRC_DIRS
 	p7
 	p772
 	pcap
-	pkcs1
 	pkcs10
 	pkcs12
 	pkinit
 	pkix1explicit
 	pkix1implicit
 	pkixac
+	pkixalgs
 	pkixproxy
 	pkixqualified
 	pkixtsp

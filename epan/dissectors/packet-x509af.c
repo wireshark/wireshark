@@ -30,7 +30,7 @@
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include "packet-ldap.h"
-#include "packet-pkcs1.h"
+#include "packet-pkixalgs.h"
 #if defined(HAVE_LIBGNUTLS)
 #include <gnutls/gnutls.h>
 #endif
@@ -367,7 +367,7 @@ dissect_x509af_T_subjectPublicKey(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
   if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
-    offset += dissect_pkcs1_RSAPublicKey(false, bs_tvb, 0, actx, tree, hf_index);
+    offset += dissect_pkixalgs_RSAPublicKey(false, bs_tvb, 0, actx, tree, hf_index);
 
   } else {
     offset = dissect_ber_bitstring(false, actx, tree, tvb, offset,

@@ -124,7 +124,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
   if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
-    offset += dissect_pkcs1_RSAPublicKey(false, bs_tvb, 0, actx, tree, hf_index);
+    offset += dissect_pkixalgs_RSAPublicKey(false, bs_tvb, 0, actx, tree, hf_index);
 
 # TODO: PKCS#1 only defines RSA; DH and DSA are from PKIX1Algorithms2008
 # } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */

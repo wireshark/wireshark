@@ -1,5 +1,5 @@
-/* packet-pkcs1.h
- * Routines for PKCS#1/RFC2313 packet dissection
+/* packet-pkixalgs.h
+ * Routines for PKIX Algorithms packet dissection
  *  Ronnie Sahlberg 2004
  *
  * Wireshark - Network traffic analyzer
@@ -9,10 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef PACKET_PKCS1_H
-#define PACKET_PKCS1_H
+#ifndef PACKET_PKIXALGS_H
+#define PACKET_PKIXALGS_H
 
-#include "packet-pkcs1-exp.h"
+#include "packet-pkixalgs-exp.h"
 
-#endif  /* PACKET_PKCS1_H */
+#endif  /* PACKET_PKIXALGS_H */
 

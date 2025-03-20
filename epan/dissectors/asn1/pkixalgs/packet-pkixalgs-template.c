@@ -1,5 +1,5 @@
-/* packet-pkcs1.c
- * Routines for PKCS#1/RFC2313 packet dissection
+/* packet-pkixalgs.c
+ * Routines for PKIX Algorithms packet dissection
  *  Ronnie Sahlberg 2004
  *
  * Wireshark - Network traffic analyzer
@@ -17,95 +17,96 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
-#include "packet-pkcs1.h"
+#include "packet-pkixalgs.h"
 #include "packet-x509af.h"
 
-#define PNAME  "PKCS#1"
-#define PSNAME "PKCS-1"
-#define PFNAME "pkcs-1"
+#define PNAME  "PKIX Algorithms"
+#define PSNAME "PKIXALGS"
+#define PFNAME "pkixalgs"
 
-void proto_register_pkcs1(void);
-void proto_reg_handoff_pkcs1(void);
+void proto_register_pkixalgs(void);
+void proto_reg_handoff_pkixalgs(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs1;
-#include "packet-pkcs1-hf.c"
+static int proto_pkixalgs;
+#include "packet-pkixalgs-hf.c"
 
 /* Initialize the subtree pointers */
-#include "packet-pkcs1-ett.c"
+#include "packet-pkixalgs-ett.c"
 
-#include "packet-pkcs1-fn.c"
+#include "packet-pkixalgs-fn.c"
 
-/*--- proto_register_pkcs1 ----------------------------------------------*/
-void proto_register_pkcs1(void) {
+/*--- proto_register_pkixalgs ----------------------------------------------*/
+void proto_register_pkixalgs(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-#include "packet-pkcs1-hfarr.c"
+#include "packet-pkixalgs-hfarr.c"
   };
 
   /* List of subtrees */
   static int *ett[] = {
-#include "packet-pkcs1-ettarr.c"
+#include "packet-pkixalgs-ettarr.c"
   };
 
   /* Register protocol */
-  proto_pkcs1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_pkixalgs = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_pkcs1, hf, array_length(hf));
+  proto_register_field_array(proto_pkixalgs, hf, array_length(hf));
+  proto_register_alias(proto_pkixalgs, "pkcs1");
   proto_register_subtree_array(ett, array_length(ett));
 
 }
 
 
-/*--- proto_reg_handoff_pkcs1 -------------------------------------------*/
-void proto_reg_handoff_pkcs1(void) {
-#include "packet-pkcs1-dis-tab.c"
+/*--- proto_reg_handoff_pkixalgs -------------------------------------------*/
+void proto_reg_handoff_pkixalgs(void) {
+#include "packet-pkixalgs-dis-tab.c"
 
-	register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2");
-	register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4");
-	register_ber_oid_dissector("1.2.840.113549.2.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "md5");
+	register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkixalgs, "md2");
+	register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkixalgs, "md4");
+	register_ber_oid_dissector("1.2.840.113549.2.5", dissect_ber_oid_NULL_callback, proto_pkixalgs, "md5");
 
-	register_ber_oid_dissector("1.2.840.113549.1.1.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2WithRSAEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.3", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4WithRSAEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md5WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.1", dissect_ber_oid_NULL_callback, proto_pkixalgs, "rsaEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.2", dissect_ber_oid_NULL_callback, proto_pkixalgs, "md2WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.3", dissect_ber_oid_NULL_callback, proto_pkixalgs, "md4WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.4", dissect_ber_oid_NULL_callback, proto_pkixalgs, "md5WithRSAEncryption");
 
 
 	/* these two are not from RFC2313  but pulled in from
  	   http://www.alvestrand.no/objectid/1.2.840.113549.1.1.html
 	*/
-	register_ber_oid_dissector("1.2.840.113549.1.1.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha1WithRSAEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.6", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaOAEPEncryptionSET");
+	register_ber_oid_dissector("1.2.840.113549.1.1.5", dissect_ber_oid_NULL_callback, proto_pkixalgs, "sha1WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.6", dissect_ber_oid_NULL_callback, proto_pkixalgs, "rsaOAEPEncryptionSET");
 
 	/* these sha2 algorithms are from RFC3447 */
-	register_ber_oid_dissector("1.2.840.113549.1.1.11", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha256WithRSAEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.12", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha384WithRSAEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha512WithRSAEncryption");
-	register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha224WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.11", dissect_ber_oid_NULL_callback, proto_pkixalgs, "sha256WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.12", dissect_ber_oid_NULL_callback, proto_pkixalgs, "sha384WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkixalgs, "sha512WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkixalgs, "sha224WithRSAEncryption");
 
 	/* ECDSA SHA-1 algorithm from RFC 3279 */
-	register_ber_oid_dissector("1.2.840.10045.4.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA1");
+	register_ber_oid_dissector("1.2.840.10045.4.1", dissect_ber_oid_NULL_callback, proto_pkixalgs, "ecdsa-with-SHA1");
 
 	/* SM2-with-SM3 from GM/T 0006 Cryptographic application identifier criterion specification */
-	register_ber_oid_dissector("1.2.156.10197.1.501", dissect_ber_oid_NULL_callback, proto_pkcs1, "SM2-with-SM3");
+	register_ber_oid_dissector("1.2.156.10197.1.501", dissect_ber_oid_NULL_callback, proto_pkixalgs, "SM2-with-SM3");
 
 	/* ECDSA SHA2 algorithms from X9.62, RFC5480, RFC 5758, RFC 5912 */
-	register_ber_oid_dissector("1.2.840.10045.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA224");
-	register_ber_oid_dissector("1.2.840.10045.4.3.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA256");
-	register_ber_oid_dissector("1.2.840.10045.4.3.3", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA384");
-	register_ber_oid_dissector("1.2.840.10045.4.3.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA512");
+	register_ber_oid_dissector("1.2.840.10045.4.3.1", dissect_ber_oid_NULL_callback, proto_pkixalgs, "ecdsa-with-SHA224");
+	register_ber_oid_dissector("1.2.840.10045.4.3.2", dissect_ber_oid_NULL_callback, proto_pkixalgs, "ecdsa-with-SHA256");
+	register_ber_oid_dissector("1.2.840.10045.4.3.3", dissect_ber_oid_NULL_callback, proto_pkixalgs, "ecdsa-with-SHA384");
+	register_ber_oid_dissector("1.2.840.10045.4.3.4", dissect_ber_oid_NULL_callback, proto_pkixalgs, "ecdsa-with-SHA512");
 
 	/* DSA SHA2 algorithms from FIPS186-3, RFC5480, RFC 5758, RFC 5912 */
-	register_ber_oid_dissector("2.16.840.1.101.3.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-dsa-with-sha224");
-	register_ber_oid_dissector("2.16.840.1.101.3.4.3.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-dsa-with-sha256");
+	register_ber_oid_dissector("2.16.840.1.101.3.4.3.1", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-dsa-with-sha224");
+	register_ber_oid_dissector("2.16.840.1.101.3.4.3.2", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-dsa-with-sha256");
 
 	/* Curve25519 and Curve448 algorithms from RFC 8410 */
-	register_ber_oid_dissector("1.3.101.110", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-X25519");
-	register_ber_oid_dissector("1.3.101.111", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-X448");
-	register_ber_oid_dissector("1.3.101.112", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-Ed25519");
-	register_ber_oid_dissector("1.3.101.113", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-Ed448");
+	register_ber_oid_dissector("1.3.101.110", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-X25519");
+	register_ber_oid_dissector("1.3.101.111", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-X448");
+	register_ber_oid_dissector("1.3.101.112", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-Ed25519");
+	register_ber_oid_dissector("1.3.101.113", dissect_ber_oid_NULL_callback, proto_pkixalgs, "id-Ed448");
 
 	/* Curve identifiers from SECG SEC 2 */
 	oid_add_from_string("sect163k1","1.3.132.0.1");

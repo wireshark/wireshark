@@ -162,12 +162,12 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p7.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p772.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcap.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkcs1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkcs10.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkcs12.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkinit.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkix1explicit.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkix1implicit.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkixalgs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkixac.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkixproxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pkixqualified.c
@@ -535,11 +535,11 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-pdcp-nr.h
 	packet-pdu-transport.h
 	packet-per.h
-	packet-pkcs1.h
 	packet-pkcs12.h
 	packet-pkix1explicit.h
 	packet-pkix1implicit.h
 	packet-pkixac.h
+	packet-pkixalgs.h
 	packet-pkixproxy.h
 	packet-pkixqualified.h
 	packet-pkixtsp.h

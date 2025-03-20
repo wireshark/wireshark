@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-set( PROTOCOL_NAME pkcs1 )
+set( PROTOCOL_NAME pkixalgs )
 
 set( PROTO_OPT )
 
