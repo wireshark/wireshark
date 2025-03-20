@@ -1477,3 +1477,16 @@ class TestDecryptSmb2:
                            r'\\172.31.9.163\IPC$', '56dc03ab00000000',
                            '484c30bf3e17e322e0d217764d4584a325ec0495519c3f1547e0f996ab76c4c4',
                            '46b64f320a0f856b63b3a0dc2c058a67267830a8cbdd44a088fbf1d0308a981f', env=test_env)
+
+
+class TestDecryptVNCExtendedClipboard:
+
+    def test_utf8_clipboard_ok(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('vnc_clipboard.pcap.gz'),
+                '-Tfields',
+                '-e', 'vnc.clipboard.text',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, '😀😃😄😁😆😅😂🤣😊😇')
+        assert grep_output(stdout, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        assert grep_output(stdout, 'абвгдежзийклмнопрстуфхцчшщъыьэюя')

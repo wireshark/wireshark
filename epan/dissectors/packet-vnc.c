@@ -291,6 +291,7 @@ static const value_string vnc_server_message_types_vs[] = {
 #define VNC_ENCODING_TYPE_TRANSFORM          0xFFFFFDF2
 #define VNC_ENCODING_TYPE_HSML               0xFFFFFDF1
 #define VNC_ENCODING_TYPE_H264               0X48323634
+#define VNC_ENCODING_EXTENDED_CLIPBOARD      0xC0A1E5CE
 
 static const value_string encoding_types_vs[] = {
 	{ VNC_ENCODING_TYPE_DESKTOP_SIZE,	"DesktopSize (pseudo)" },
@@ -368,6 +369,7 @@ static const value_string encoding_types_vs[] = {
 	{ VNC_ENCODING_TYPE_TRANSFORM,		"Transform"            },
 	{ VNC_ENCODING_TYPE_HSML,		"HSML"                 },
 	{ VNC_ENCODING_TYPE_H264,		"H264"                 },
+	{ VNC_ENCODING_EXTENDED_CLIPBOARD,	"Extended Clipboard (pseudo)" },
 	{ 0,				NULL                   }
 };
 
@@ -500,6 +502,18 @@ typedef enum {
 #define VNC_FENCE_SYNC_NEXT      0x00000004
 #define VNC_FENCE_REQUEST        0x80000000
 
+#define VNC_EXT_CLIPBOARD_TEXT   0x1 << 0
+#define VNC_EXT_CLIPBOARD_RTF    0x1 << 1
+#define VNC_EXT_CLIPBOARD_HTML   0x1 << 2
+#define VNC_EXT_CLIPBOARD_DIB    0x1 << 3
+#define VNC_EXT_CLIPBOARD_FILES  0x1 << 4
+#define VNC_EXT_CLIPBOARD_CAPS   0x1 << 24
+#define VNC_EXT_CLIPBOARD_REQUEST 0x1 << 25
+#define VNC_EXT_CLIPBOARD_PEEK   0x1 << 26
+#define VNC_EXT_CLIPBOARD_NOTIFY 0x1 << 27
+#define VNC_EXT_CLIPBOARD_PROVIDE 0x1 << 28
+
+
 /* This structure will be tied to each conversation. */
 typedef struct {
 	double server_proto_ver, client_proto_ver;
@@ -518,6 +532,7 @@ typedef struct {
 	uint8_t depth;
 	vnc_session_state_e vnc_next_state;
 	int preferred_encoding;
+	bool extended_clipboard_enabled;
 } vnc_conversation_t;
 
 /* This structure will be tied to each packet */
@@ -552,8 +567,12 @@ static void vnc_client_key_event(tvbuff_t *tvb, packet_info *pinfo,
 				 int *offset, proto_tree *tree);
 static void vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo,
 				     int *offset, proto_tree *tree);
-static void vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+static unsigned vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 				proto_tree *tree);
+static unsigned vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+				proto_tree *tree);
+static void vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo,
+			    int *offset, proto_tree *tree, int message_length);
 
 static unsigned vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo,
 					   int *offset, proto_tree *tree);
@@ -707,6 +726,7 @@ static int hf_vnc_client_set_encodings_encoding_type;
 
 /* Client Cut Text */
 static int hf_vnc_client_cut_text_len;
+static int hf_vnc_client_cut_text_len_ext;
 static int hf_vnc_client_cut_text;
 
 /* Client QEMU Message SubType */
@@ -938,6 +958,45 @@ static int hf_vnc_h264_width;
 static int hf_vnc_h264_height;
 static int hf_vnc_h264_data;
 
+/* Extended clipboard */
+static int hf_vnc_ext_clipboard_flags;
+static int hf_vnc_ext_clipboard_text;
+static int hf_vnc_ext_clipboard_rtf;
+static int hf_vnc_ext_clipboard_html;
+static int hf_vnc_ext_clipboard_dib;
+static int hf_vnc_ext_clipboard_files;
+static int hf_vnc_ext_clipboard_caps;
+static int hf_vnc_ext_clipboard_request;
+static int hf_vnc_ext_clipboard_peek;
+static int hf_vnc_ext_clipboard_notify;
+static int hf_vnc_ext_clipboard_provide;
+
+static int * const vnc_ext_clipboard_flags[] = {
+	&hf_vnc_ext_clipboard_text,
+	&hf_vnc_ext_clipboard_rtf,
+	&hf_vnc_ext_clipboard_html,
+	&hf_vnc_ext_clipboard_dib,
+	&hf_vnc_ext_clipboard_files,
+	&hf_vnc_ext_clipboard_caps,
+	&hf_vnc_ext_clipboard_request,
+	&hf_vnc_ext_clipboard_peek,
+	&hf_vnc_ext_clipboard_notify,
+	&hf_vnc_ext_clipboard_provide,
+	NULL
+};
+
+static int hf_vnc_ext_clipboard_cap_text;
+static int hf_vnc_ext_clipboard_cap_rtf;
+static int hf_vnc_ext_clipboard_cap_html;
+static int hf_vnc_ext_clipboard_cap_dib;
+
+static int hf_vnc_ext_clipboard_text_value;
+static int hf_vnc_ext_clipboard_rtf_value;
+static int hf_vnc_ext_clipboard_html_value;
+static int hf_vnc_ext_clipboard_dib_value;
+
+static int hf_vnc_ext_clipboard_compressed;
+
 /********** End of Server Message Types **********/
 
 static bool vnc_preference_desegment = true;
@@ -961,6 +1020,7 @@ static int ett_vnc_key_events;
 static int ett_vnc_touch_events;
 static int ett_vnc_slrle_subline;
 static int ett_vnc_fence_flags;
+static int ett_vnc_ext_clipboard_flags;
 
 static expert_field ei_vnc_possible_gtk_vnc_bug;
 static expert_field ei_vnc_auth_code_mismatch;
@@ -1010,6 +1070,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_INVALID;
 		per_conversation_info->tight_enabled = false;
 		per_conversation_info->preferred_encoding = VNC_ENCODING_TYPE_RAW;
+		per_conversation_info->extended_clipboard_enabled = false;
 		/* Initial values for depth and bytes_per_pixel are set in
 		 * in the mandatory VNC_SESSION_STATE_SERVER_INIT startup
 		 * message. "This pixel format will be used unless the
@@ -1795,7 +1856,8 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 		     vnc_conversation_t *per_conversation_info)
 {
 	uint8_t message_type;
-
+	int bytes_needed = 0;
+	int bytes_available;
 	proto_item *ti;
 	proto_tree *vnc_client_message_type_tree;
 
@@ -1839,8 +1901,19 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 		break;
 
 	case VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT :
-		vnc_client_cut_text(tvb, pinfo, offset,
-				    vnc_client_message_type_tree);
+		bytes_available = tvb_reported_length_remaining(tvb, *offset);
+		if(per_conversation_info->extended_clipboard_enabled) {
+			bytes_needed = vnc_client_cut_text_extended(tvb, pinfo, offset,
+						vnc_client_message_type_tree);
+		} else {
+			bytes_needed = vnc_client_cut_text(tvb, pinfo, offset,
+						vnc_client_message_type_tree);
+		}
+		if (bytes_available < bytes_needed && vnc_preference_desegment && pinfo->can_desegment) {
+			pinfo->desegment_offset = *offset;
+			pinfo->desegment_len = bytes_needed - bytes_available;
+			break;
+		}
 		break;
 
 	case VNC_CLIENT_MESSAGE_TYPE_MIRRORLINK :
@@ -2050,6 +2123,9 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 			case VNC_ENCODING_TYPE_TIGHT:
 				per_conversation_info->preferred_encoding = encoding;
 				break;
+			case VNC_ENCODING_EXTENDED_CLIPBOARD:
+				per_conversation_info->extended_clipboard_enabled = true;
+				break;
 			}
 		}
 
@@ -2130,7 +2206,7 @@ vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 }
 
 
-static void
+static unsigned
 vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 		    proto_tree *tree)
 {
@@ -2142,6 +2218,7 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 	*offset += 3; /* Skip over 3 bytes of padding */
 
 	text_len = tvb_get_ntohl(tvb, *offset);
+	VNC_BYTES_NEEDED((uint32_t) text_len);
 	proto_tree_add_item(tree, hf_vnc_client_cut_text_len, tvb, *offset, 4,
 			    ENC_BIG_ENDIAN);
 	*offset += 4;
@@ -2149,7 +2226,124 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, int *offset,
 	proto_tree_add_item(tree, hf_vnc_client_cut_text, tvb, *offset,
 			    text_len, ENC_ASCII);
 	*offset += text_len;
+	return 0;
+}
 
+static unsigned
+vnc_client_cut_text_extended(tvbuff_t *tvb, packet_info *pinfo, int *offset,
+		    proto_tree *tree)
+{
+	int message_length;
+	bool original_format;
+
+	message_length = (int) tvb_get_ntohil(tvb, *offset + 3);
+
+	if (message_length >= 0) {
+		original_format = true;
+	} else {
+		original_format = false;
+		message_length = abs(message_length);
+	}
+	VNC_BYTES_NEEDED((uint32_t) message_length);
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
+	*offset += 3; /* Skip over 3 bytes of padding */
+	col_set_str(pinfo->cinfo, COL_INFO, "Client cut text (extended)");
+	proto_tree_add_int(tree, hf_vnc_client_cut_text_len_ext, tvb, *offset, 4, message_length);
+	*offset += 4;
+	if (original_format) {
+		proto_tree_add_item(tree, hf_vnc_client_cut_text, tvb, *offset,
+	    message_length - 4, ENC_ASCII);
+	} else {
+		vnc_client_cut_text_extended_non_compatible(
+		    tvb, pinfo, offset, tree, message_length);
+	}
+	*offset += message_length;
+	return 0;
+}
+
+
+static void
+vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset,
+		    proto_tree *tree, int message_length)
+{
+	int end_offset = *offset + message_length;
+	proto_tree_add_bitmask(tree, tvb, *offset, hf_vnc_ext_clipboard_flags,
+	       ett_vnc_ext_clipboard_flags, vnc_ext_clipboard_flags, ENC_BIG_ENDIAN);
+	uint32_t flags = tvb_get_uint32(tvb, *offset, ENC_BIG_ENDIAN);
+	*offset += 4;
+	bool has_utf = (flags & VNC_EXT_CLIPBOARD_TEXT) != 0;
+	bool has_rtf = (flags & VNC_EXT_CLIPBOARD_RTF) != 0;
+	bool has_html = (flags & VNC_EXT_CLIPBOARD_HTML) != 0;
+	bool has_dib = (flags & VNC_EXT_CLIPBOARD_DIB) != 0;
+	if ((flags & VNC_EXT_CLIPBOARD_CAPS) != 0) {
+		if (has_utf) {
+			proto_tree_add_item(tree, hf_vnc_ext_clipboard_cap_text, tvb, *offset, 4,
+				ENC_BIG_ENDIAN);
+			*offset += 4;
+		}
+		if (has_rtf) {
+			proto_tree_add_item(tree, hf_vnc_ext_clipboard_cap_rtf, tvb, *offset, 4,
+				ENC_BIG_ENDIAN);
+			*offset += 4;
+		}
+		if (has_html) {
+			proto_tree_add_item(tree, hf_vnc_ext_clipboard_cap_html, tvb, *offset, 4,
+				ENC_BIG_ENDIAN);
+			*offset += 4;
+		}
+		if (has_dib) {
+			proto_tree_add_item(tree, hf_vnc_ext_clipboard_cap_dib, tvb, *offset, 4,
+				ENC_BIG_ENDIAN);
+			*offset += 4;
+		}
+	}
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
+	if (has_utf || has_rtf || has_html || has_dib) {
+		int value_length;
+		int uncomp_offset = 0;
+		tvbuff_t *uncomp_tvb = tvb_child_uncompress_zlib(tvb, tvb, *offset, end_offset - *offset);
+
+		if(uncomp_tvb != NULL) {
+			add_new_data_source(pinfo, uncomp_tvb, "Decompressed Data");
+			if (has_utf) {
+				value_length = tvb_get_uint32(uncomp_tvb, uncomp_offset, ENC_BIG_ENDIAN);
+				uncomp_offset += 4;
+				proto_tree_add_item(tree,
+					hf_vnc_ext_clipboard_text_value, uncomp_tvb,
+					uncomp_offset, value_length, ENC_UTF_8);
+				uncomp_offset += value_length;
+			}
+			if (has_rtf) {
+				value_length = tvb_get_uint32(uncomp_tvb, uncomp_offset, ENC_BIG_ENDIAN);
+				uncomp_offset += 4;
+				proto_tree_add_item(tree,
+					hf_vnc_ext_clipboard_rtf_value, uncomp_tvb,
+					uncomp_offset, value_length, ENC_NA);
+				uncomp_offset += value_length;
+			}
+			if (has_html) {
+				value_length = tvb_get_uint32(uncomp_tvb, uncomp_offset, ENC_BIG_ENDIAN);
+				uncomp_offset += 4;
+				proto_tree_add_item(tree,
+					hf_vnc_ext_clipboard_html_value, uncomp_tvb,
+					uncomp_offset, value_length, ENC_UTF_8);
+				uncomp_offset += value_length;
+			}
+			if (has_dib) {
+				value_length = tvb_get_uint32(uncomp_tvb, uncomp_offset, ENC_BIG_ENDIAN);
+				uncomp_offset += 4;
+				proto_tree_add_item(tree,
+					hf_vnc_ext_clipboard_dib_value, uncomp_tvb,
+					uncomp_offset, value_length, ENC_NA);
+				uncomp_offset += value_length;
+			}
+		}
+	}
+#else
+	(void)end_offset;
+	proto_tree_add_item(tree,
+		hf_vnc_ext_clipboard_compressed, tvb, *offset, message_length, ENC_NA);
+#endif /* HAVE_ZLIB */
 }
 
 
@@ -4262,6 +4456,11 @@ proto_register_vnc(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Length of client's copy/cut text (clipboard) string in bytes", HFILL }
 		},
+		{ &hf_vnc_client_cut_text_len_ext,
+		  { "Length", "vnc.client_cut_text_len_ext",
+		    FT_INT32, BASE_DEC, NULL, 0x0,
+		    "Length of client's copy/cut text (clipboard) string in bytes (extended)", HFILL }
+		},
 		{ &hf_vnc_client_cut_text,
 		  { "Text", "vnc.client_cut_text",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -5006,6 +5205,109 @@ proto_register_vnc(void)
 		    "Frame H.264 data", HFILL }
 		},
 
+		/* Extended Clipboard */
+		{ &hf_vnc_ext_clipboard_flags,
+		  {"Extended clipboard flags", "vnc.ext_clipboard.flags", FT_UINT32, BASE_HEX,
+		   NULL, 0, NULL, HFILL}},
+
+		{ &hf_vnc_ext_clipboard_text,
+		  { "PlainText", "vnc.ext_clipboard.is_plain",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_TEXT,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_rtf,
+		  { "Microsoft RTF", "vnc.ext_clipboard.is_rtf",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_RTF,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_html,
+		  { "HTML", "vnc.ext_clipboard.is_html",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_HTML,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_dib,
+		  { "Microsoft DIB", "vnc.ext_clipboard.is_dib",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_DIB,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_files,
+		  { "Undefined (files)", "vnc.ext_clipboard.is_files",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_FILES,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_caps,
+		  { "Caps present", "vnc.ext_clipboard.has_caps",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_CAPS,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_request,
+		  { "Request specific formats", "vnc.ext_clipboard.request",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_REQUEST,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_peek,
+		  { "Ask formats list", "vnc.ext_clipboard.peek",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_PEEK,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_notify,
+		  { "Send formats list", "vnc.ext_clipboard.notify",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_NOTIFY,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_provide,
+		  { "Data is provided", "vnc.ext_clipboard.provide",
+		    FT_BOOLEAN, 32, NULL, VNC_EXT_CLIPBOARD_PROVIDE,
+		    NULL, HFILL }
+		},
+
+		{ &hf_vnc_ext_clipboard_cap_text,
+		  { "Maximum Text length", "vnc.clipboard.cap.text",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_cap_rtf,
+		  { "Maximum RTF length", "vnc.clipboard.cap.rtf",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_cap_html,
+		  { "Maximum HTML length", "vnc.clipboard.cap.html",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_cap_dib,
+		  { "Maximum DIB length", "vnc.clipboard.cap.dib",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_vnc_ext_clipboard_text_value,
+		  { "UTF8 text", "vnc.clipboard.text",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_rtf_value,
+		  { "RTF", "vnc.clipboard.rtf",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_html_value,
+		  { "HTML", "vnc.clipboard.html",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_dib_value,
+		  { "DIB", "vnc.clipboard.dib",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_vnc_ext_clipboard_compressed,
+		  { "Compressed value", "vnc.clipboard.compressed_value",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
 	};
 
 	/* Setup protocol subtree arrays */
@@ -5027,7 +5329,8 @@ proto_register_vnc(void)
 		&ett_vnc_key_events,
 		&ett_vnc_touch_events,
 		&ett_vnc_slrle_subline,
-		&ett_vnc_fence_flags
+		&ett_vnc_fence_flags,
+		&ett_vnc_ext_clipboard_flags
 	};
 
 	static ei_register_info ei[] = {
