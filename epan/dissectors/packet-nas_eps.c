@@ -998,7 +998,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_NONCE, "Nonce" },                                                 /* 9.9.3.25 Nonce */
     { DE_EMM_PAGING_ID, "Paging identity" },                                   /* 9.9.3.25A Paging identity */
     { DE_EMM_P_TMSI_SIGN, "P-TMSI signature" },                                /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
-    { DE_EMM_EXT_CAUSE, " Extended EMM cause" },                               /* 9.9.3.26A Extended EMM cause */
+    { DE_EMM_EXT_CAUSE, "Extended EMM cause" },                                /* 9.9.3.26A Extended EMM cause */
     { DE_EMM_SERV_TYPE, "Service type" },                                      /* 9.9.3.27 Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
     { DE_EMM_SHORT_MAC, "Short MAC" },                                         /* 9.9.3.28 Short MAC */
     { DE_EMM_TZ, "Time zone" },                                                /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
