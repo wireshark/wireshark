@@ -2548,7 +2548,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 90129, "Telenor Connexion AB" },
     { 90131, "Orange" },
     { 90132, "MegaFon" },
-    { 90133, "Smart Communications , Inc" },
+    { 90133, "Smart Communications, Inc" },
     { 90134, "Tyntec Limited" },
     { 90135, "Globecomm Network Services" },
     { 90136, "Azerfon LLC" },
@@ -3515,7 +3515,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (long_mnc) {
         mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
-        item = proto_tree_add_string_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc_str,
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc_id, tvb, start_offset + 1, 2, mnc_str,
                    "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
                    mnc_str);
@@ -3529,7 +3529,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, ""));
     } else {
         mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
-        item = proto_tree_add_string_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc_str,
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc_id, tvb, start_offset + 1, 2, mnc_str,
                    "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
                    mnc_str);
@@ -3645,13 +3645,13 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (long_mnc){
         mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
-        item = proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc_str,
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc, tvb, start_offset + 1, 2, mnc_str,
                    "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
                    mnc_str);
     }else{
         mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
-        item = proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc_str,
+        item = proto_tree_add_string_format_value(tree, hf_E212_mnc, tvb, start_offset + 1, 2, mnc_str,
                    "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
                    mnc_str);
@@ -3743,13 +3743,13 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     if (long_mnc){
         mnc_str = wmem_strdup_printf(pinfo->pool, "%03u", mnc);
-        proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 2, mnc_str,
+        proto_tree_add_string_format_value(tree, hf_E212_mnc, tvb, start_offset + 2, 2, mnc_str,
                    "%s (%s)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_3digits_codes_ext, "Unknown"),
                    mnc_str);
     }else{
         mnc_str = wmem_strdup_printf(pinfo->pool, "%02u", mnc);
-        proto_tree_add_string_format_value(tree, hf_E212_mnc , tvb, start_offset + 2, 1, mnc_str,
+        proto_tree_add_string_format_value(tree, hf_E212_mnc, tvb, start_offset + 2, 1, mnc_str,
                    "%s (%s)",
                    val_to_str_ext_const(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext, "Unknown"),
                    mnc_str);
