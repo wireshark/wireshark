@@ -5278,15 +5278,21 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
 static void
 nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
+    unsigned ul_lv_len;
+
     if (pinfo->link_dir == P2P_DIR_UL) {
         nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
         return;
-    }else if (pinfo->link_dir == P2P_DIR_DL) {
+    } else if (pinfo->link_dir == P2P_DIR_DL) {
         nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
         return;
     }
 
-    if (len >= 8) {
+    if (len >= 2) {
+        /* Check UL mandatory DE_EMM_EPS_MID length */
+        ul_lv_len = tvb_get_uint8(tvb, offset + 1);
+    }
+    if (len >= 8 && ul_lv_len == (len - 2)) {
         nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
     } else {
         nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
