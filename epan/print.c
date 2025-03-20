@@ -961,42 +961,14 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
 
     json_dumper_begin_array(pdata->dumper);
 
-    if (fi->hfinfo->bitmask!=0) {
-        switch (fvalue_type_ftenum(fi->value)) {
-            case FT_INT8:
-            case FT_INT16:
-            case FT_INT24:
-            case FT_INT32:
-                json_dumper_value_anyf(pdata->dumper, "\"%X\"", (unsigned) fvalue_get_sinteger(fi->value));
-                break;
-            case FT_CHAR:
-            case FT_UINT8:
-            case FT_UINT16:
-            case FT_UINT24:
-            case FT_UINT32:
-                json_dumper_value_anyf(pdata->dumper, "\"%X\"", fvalue_get_uinteger(fi->value));
-                break;
-            case FT_INT40:
-            case FT_INT48:
-            case FT_INT56:
-            case FT_INT64:
-                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_sinteger64(fi->value));
-                break;
-            case FT_UINT40:
-            case FT_UINT48:
-            case FT_UINT56:
-            case FT_UINT64:
-            case FT_BOOLEAN:
-                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_uinteger64(fi->value));
-                break;
-            default:
-                ws_assert_not_reached();
-        }
-    } else {
-        json_write_field_hex_value(pdata, fi);
-    }
+    json_write_field_hex_value(pdata, fi);
 
     /* Dump raw hex-encoded dissected information including position, length, bitmask, type */
+    /* These were added for use by json2pcap, but might be useful for others.
+     * XXX - Should information about the data source be added? fi->start
+     * refers to a position in a particular data source tvb, and fields in
+     * additional data sources confuse json2pcap.
+     */
     json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->start);
     json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->length);
     json_dumper_value_anyf(pdata->dumper, "%" PRIu64, fi->hfinfo->bitmask);
@@ -1278,40 +1250,7 @@ ek_write_name(proto_node *pnode, char* suffix, write_json_data* pdata)
 static void
 ek_write_hex(field_info *fi, write_json_data *pdata)
 {
-    if (fi->hfinfo->bitmask != 0) {
-        switch (fvalue_type_ftenum(fi->value)) {
-            case FT_INT8:
-            case FT_INT16:
-            case FT_INT24:
-            case FT_INT32:
-                json_dumper_value_anyf(pdata->dumper, "\"%X\"", (unsigned) fvalue_get_sinteger(fi->value));
-                break;
-            case FT_CHAR:
-            case FT_UINT8:
-            case FT_UINT16:
-            case FT_UINT24:
-            case FT_UINT32:
-                json_dumper_value_anyf(pdata->dumper, "\"%X\"", fvalue_get_uinteger(fi->value));
-                break;
-            case FT_INT40:
-            case FT_INT48:
-            case FT_INT56:
-            case FT_INT64:
-                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_sinteger64(fi->value));
-                break;
-            case FT_UINT40:
-            case FT_UINT48:
-            case FT_UINT56:
-            case FT_UINT64:
-            case FT_BOOLEAN:
-                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_uinteger64(fi->value));
-                break;
-            default:
-                ws_assert_not_reached();
-        }
-    } else {
-        json_write_field_hex_value(pdata, fi);
-    }
+    json_write_field_hex_value(pdata, fi);
 }
 
 static void
@@ -1881,6 +1820,41 @@ static void
 json_write_field_hex_value(write_json_data *pdata, field_info *fi)
 {
     const uint8_t *pd;
+
+    // XXX - Why are uppercase hex digits used if the bitmask is non zero,
+    // and lowercase otherwise? To give a hint that there was a bitmask?
+    if (fi->hfinfo->bitmask!=0) {
+        switch (fvalue_type_ftenum(fi->value)) {
+            case FT_INT8:
+            case FT_INT16:
+            case FT_INT24:
+            case FT_INT32:
+                json_dumper_value_anyf(pdata->dumper, "\"%X\"", (unsigned) fvalue_get_sinteger(fi->value));
+                return;
+            case FT_CHAR:
+            case FT_UINT8:
+            case FT_UINT16:
+            case FT_UINT24:
+            case FT_UINT32:
+                json_dumper_value_anyf(pdata->dumper, "\"%X\"", fvalue_get_uinteger(fi->value));
+                return;
+            case FT_INT40:
+            case FT_INT48:
+            case FT_INT56:
+            case FT_INT64:
+                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_sinteger64(fi->value));
+                return;
+            case FT_UINT40:
+            case FT_UINT48:
+            case FT_UINT56:
+            case FT_UINT64:
+            case FT_BOOLEAN:
+                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_uinteger64(fi->value));
+                return;
+            default:
+                ws_assert_not_reached();
+        }
+    }
 
     if (!fi->ds_tvb)
         return;
