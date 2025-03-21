@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 18.8.0
+ * References: 3GPP TS 24.501 18.10.0
  */
 
 #include "config.h"
@@ -495,6 +495,9 @@ static int hf_nas_5gs_sm_atsss_st_b3_b6;
 static int hf_nas_5gs_sm_ept_s1_b2;
 static int hf_nas_5gs_sm_mh6_pdu_b1;
 static int hf_nas_5gs_sm_rqos_b0;
+static int hf_nas_5gs_sm_mpquic_udp_b6;
+static int hf_nas_5gs_sm_mptcp_b5;
+static int hf_nas_5gs_sm_atsss_ll_b3_b4;
 static int hf_nas_5gs_sm_sdnaepc_b1;
 static int hf_nas_5gs_sm_apmqf_b0;
 static int hf_nas_5gs_sm_5gsm_cause;
@@ -5451,6 +5454,13 @@ static const value_string nas_5gs_sm_atsss_st_b3_b6_vals[] = {
     { 0,   NULL }
 };
 
+static const value_string nas_nas_5gs_sm_atsss_ll_b3_b4_vals[] = {
+    { 0x0, "ATSSS-LL functionality not supported" },
+    { 0x1, "ATSSS-LL functionality with only active-standby steering mode supported" },
+    { 0x2, "ATSSS-LL functionality with any steering mode allowed for ATSSS-LL supported" },
+    { 0,   NULL }
+};
+
 static uint16_t
 de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     uint32_t offset, unsigned len,
@@ -5469,10 +5479,9 @@ de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     static int * const flags2[] = {
         &hf_nas_5gs_spare_b7,
-        &hf_nas_5gs_spare_b6,
-        &hf_nas_5gs_spare_b5,
-        &hf_nas_5gs_spare_b4,
-        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_sm_mpquic_udp_b6,
+        &hf_nas_5gs_sm_mptcp_b5,
+        &hf_nas_5gs_sm_atsss_ll_b3_b4,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_sm_sdnaepc_b1,
         &hf_nas_5gs_sm_apmqf_b0,
@@ -12431,7 +12440,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_cag_info_entry_lci,
-        { "Length of CAG-IDs indicator (LCI)",   "nas-5gs.mm.cag_info.entry.lci",
+        { "Length of CAG-ID without additional information list (LCI)",   "nas-5gs.mm.cag_info.entry.lci",
             FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x02,
             NULL, HFILL }
         },
@@ -14088,6 +14097,21 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_rqos_b0,
         { "Reflective QoS (RqoS)",   "nas-5gs.sm.rqos",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mpquic_udp_b6,
+        { "Supporting MPQUIC functionality with any steering mode (MPQUIC-UDP)",   "nas-5gs.sm.mpquic_udp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mptcp_b5,
+        { "Supporting MPTCP functionality with any steering mode (MPTCP)",   "nas-5gs.sm.mptcp",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_atsss_ll_b3_b4,
+        { "ATSSS-LL functionality support (ATSSS-LL)",   "nas-5gs.sm.atsss_ll",
+            FT_UINT8, BASE_DEC, VALS(nas_nas_5gs_sm_atsss_ll_b3_b4_vals), 0x18,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_sdnaepc_b1,
