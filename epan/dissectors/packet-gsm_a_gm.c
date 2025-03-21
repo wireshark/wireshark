@@ -87,7 +87,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 18.6.0 Release 18)
+ *   (3GPP TS 24.008 version 18.8.0 Release 18)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -4596,6 +4596,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0051, 0x0051, "SDNAEPC EAP message with the length of two octets" },
 	{ 0x0052, 0x0052, "SDNAEPC DN-specific identity" },
 	{ 0x0056, 0x0056, "UE policy container with the length of two octets" },
+	{ 0x0057, 0x0057, "URSP provisioning in EPS support indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4663,6 +4664,7 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x004a, 0x004a, "Network support of MAC address range in 5GS indicator" },
 	{ 0x0051, 0x0051, "SDNAEPC EAP message with the length of two octets" },
 	{ 0x0056, 0x0056, "UE policy container with the length of two octets" },
+	{ 0x0057, 0x0057, "URSP provisioning in EPS support indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
