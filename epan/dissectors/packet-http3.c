@@ -24,25 +24,24 @@
 
 #define WS_LOG_DOMAIN "HTTP3"
 
-#include <epan/packet.h>
-#include <epan/expert.h>
-#include <epan/exceptions.h>
-#include <epan/proto_data.h>
-#include <epan/to_str.h>
 #include <stdint.h>
 #include <string.h>
-#include <wsutil/pint.h>
 
 #include <epan/conversation_table.h>
-#include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
-
-#include "packet-quic.h"
-#include "packet-tls-utils.h"
-#include "wsutil/wmem/wmem_user_cb.h"
-
 #include <epan/decode_as.h>
+#include <epan/exceptions.h>
+#include <epan/expert.h>
+#include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/reassemble.h>
+#include <epan/to_str.h>
 #include <epan/uat.h>
+
+#include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
+#include <epan/dissectors/packet-quic.h>
+
+#include <wsutil/pint.h>
+#include <wsutil/ws_assert.h>
 
 #ifdef HAVE_NGHTTP3
 #include <nghttp3/nghttp3.h>
@@ -68,7 +67,6 @@ static int hf_http3_frame_payload;
 
 static int hf_http3_data;
 
-//static int hf_http3_headers;
 static int hf_http3_headers_count;
 static int hf_http3_header;
 static int hf_http3_header_length;
@@ -81,7 +79,6 @@ static int hf_http3_header_request_full_uri;
 static int hf_http3_header_qpack_blocked;
 static int hf_http3_header_qpack_blocked_stream_rcint;
 static int hf_http3_header_qpack_blocked_decoder_wicnt;
-//static int hf_http3_header_qpack_fatal;
 
 #ifdef HAVE_NGHTTP3
 /* Static HTTP3 headers */
@@ -137,12 +134,9 @@ static int hf_http3_headers_via;
 static int hf_http3_headers_www_authenticate;
 #endif
 
-//static int hf_http3_qpack;
 static int hf_http3_qpack_encoder;
-//static int hf_http3_qpack_encoder_length;
 static int hf_http3_qpack_encoder_icnt;
 static int hf_http3_qpack_encoder_icnt_inc;
-//static int hf_http3_qpack_encoder_opcode;
 static int hf_http3_qpack_encoder_opcode_insert_indexed;
 static int hf_http3_qpack_encoder_opcode_insert_indexed_ref;
 static int hf_http3_qpack_encoder_opcode_insert_indexed_val;
@@ -153,7 +147,6 @@ static int hf_http3_qpack_encoder_opcode_insert_hname;
 static int hf_http3_qpack_encoder_opcode_insert_val;
 static int hf_http3_qpack_encoder_opcode_insert_hval;
 static int hf_http3_qpack_encoder_opcode_duplicate;
-//static int hf_http3_qpack_encoder_opcode_duplicate_val;
 static int hf_http3_qpack_encoder_opcode_dtable_cap;
 static int hf_http3_qpack_encoder_opcode_dtable_cap_val;
 
@@ -170,12 +163,9 @@ static int hf_http3_settings_h3_datagram_draft04;
 static int hf_http3_priority_update_element_id;
 static int hf_http3_priority_update_field_value;
 
-/* QPACK dissection EIs */
-//static expert_field ei_http3_qpack_enc_update;
 static expert_field ei_http3_qpack_failed;
 /* HTTP3 dissection EIs */
 static expert_field ei_http3_unknown_stream_type;
-//static expert_field ei_http3_data_not_decoded;
 /* Encoded data EIs */
 static expert_field ei_http3_header_encoded_state;
 /* HTTP3 header decoding EIs */
@@ -363,15 +353,24 @@ static http3_session_info_t *http3_session_lookup_or_create(packet_info *pinfo);
 #define QPACK_MAX_DTABLE_SIZE   65536   /**< Max size of the QPACK dynamic table. */
 #define QPACK_MAX_BLOCKED       512     /**< Upper limit on number of streams blocked on QPACK updates. */
 
+
 /**
- *  Decompressed header field definition.
- *  Header field definitions are cached separately,
- *  to preserve memory.
+ * Header caching scheme
+ *
+ * The HTTP/3 headers are sent on the wire in QPACK-encoded form.
+ * To dissect the headers, Wireshark needs to keep the decoded
+ * header names and values in memory.
+ *
+ * To optimize dissection time, and to conserve memory
+ * the HTTP/3 dissector keeps all *unique* combinations
+ * of header-name, header-value in a cache.
+ *
+ * The cached values are stored in the "pstr" format:
+ *      name length (uint32_t)
+ *      name
+ *      value length (uint32_t)
+ *      value
  */
-typedef struct _http3_header_field_def {
-    const uint8_t *name;
-    unsigned      name_len;
-} http3_header_field_def_t;
 
 /**
  * HTTP3 header field.
@@ -385,14 +384,13 @@ typedef struct _http3_header_field_def {
  */
 typedef struct _http3_header_field {
     struct {
-        unsigned len;
-        unsigned offset;
+        unsigned    len;        /**< Length of the encoded header field. */
+        unsigned    offset;     /**< Offset of the encoded header field in the decrypted TVB. */
     } encoded;
     struct {
-        const uint8_t *pstr;
-        unsigned      pstr_len;
+        const char  *bytes;     /**< Decoded header field bytes. */
+        unsigned    len;        /**< Length of the decoded header field. */
     } decoded;
-    http3_header_field_def_t *def;
 } http3_header_field_t;
 
 /**
@@ -472,7 +470,6 @@ typedef struct _http3_file_local_ctx {
     wmem_map_t *conn_info_map;
 #ifdef HAVE_NGHTTP3
     wmem_map_t *hdr_cache_map;
-    wmem_map_t *hdr_def_cache_map;
 #endif
 } http3_file_local_ctx;
 
@@ -490,13 +487,6 @@ static http3_file_local_ctx *http3_get_file_local_ctx(void);
 
 #ifdef HAVE_NGHTTP3
 #define HTTP3_HEADER_CACHE http3_get_file_local_ctx()->hdr_cache_map
-#define HTTP3_HEADER_NAME_CACHE http3_get_file_local_ctx()->hdr_def_cache_map
-
-/* This global carries header name_length + name + value_length + value.
- * It is allocated with file scoped memory, and then either placed in the
- * cache map or, if it matches something already in the cache map, the
- * memory is reallocated for the next header encountered. */
-static char *http3_header_pstr;
 #endif
 
 /**
@@ -587,11 +577,6 @@ static bool
 qpack_decoder_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     nghttp3_qpack_decoder_del((nghttp3_qpack_decoder *)user_data);
-    /* If we have a decoder, then we might have set http3_header_pstr to
-     * point to file scoped memory. Make sure we set it to NULL when leaving
-     * wmem_file_scope.
-     */
-    http3_header_pstr = NULL;
     return false;
 }
 
@@ -863,6 +848,80 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t
     return ti;
 }
 
+
+static void
+get_header_field_pstr(nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *outlen)
+{
+    char             *pstr;      /* The returned pstr, always from the cache. */
+    uint32_t         pstr_len;   /* The length of `pstr'. */
+    nghttp3_vec      namev;      /* Vector holding the bytes of the field's name. */
+    char             *name;      /* Typed pointer to field's name. */
+    uint32_t         name_len;   /* Field's name length. */
+    nghttp3_vec      valuev;     /* Vector holding the bytes of the field's value. */
+    char             *value;     /* Typed pointer to field's value. */
+    uint32_t         value_len;  /* Field's value length. */
+
+    /* Scratch buffer, allocated in the wmem_file_scope.
+     * Using the scratch buffer allows to reduce the number
+     * of allocations.
+     */
+    static char      *scratch_buffer           = NULL;
+    static uint32_t  scratch_buffer_alloc_size = 0;
+
+    /* Extract the vectors from `header_nv'. */
+    namev       = nghttp3_rcbuf_get_buf(header_nv->name);
+    name        = (char *)namev.base;
+    name_len    = (uint32_t)namev.len;
+    valuev      = nghttp3_rcbuf_get_buf(header_nv->value);
+    value       = (char *)valuev.base;
+    value_len   = (uint32_t)valuev.len;
+
+    /* Ensure the scratch buffer is large enough. */
+    pstr_len = (4 + name_len) + (4 + value_len);
+    if (scratch_buffer_alloc_size < pstr_len) {
+        ws_noisy("Increasing scratch buffer capacity from %u to %u",
+            scratch_buffer_alloc_size, pstr_len);
+        scratch_buffer = (char *)wmem_realloc(wmem_file_scope(), scratch_buffer, pstr_len);
+        scratch_buffer_alloc_size = pstr_len;
+    }
+
+    ws_debug("HTTP header: %.*s: %.*s", name_len, name, value_len, value);
+
+    /* Construct the pstr in the scratch buffer.
+     * The pstr format is described in the "Header caching scheme"
+     * comment above.
+     */
+    phton32(&scratch_buffer[0], name_len);
+    memcpy(&scratch_buffer[4], name, name_len);
+    phton32(&scratch_buffer[4 + name_len], value_len);
+    memcpy(&scratch_buffer[4 + name_len + 4], value, value_len);
+
+    /* Check whether the pstr is already in the cache,
+     * or allocate a new entry. */
+    pstr = (char *)wmem_map_lookup(HTTP3_HEADER_CACHE, scratch_buffer);
+    if (pstr == NULL) {
+        /* N.B: The scratch buffer has enough capacity for the longest
+         * header field that was seen so far. This may potentially be
+         * significantly larger than the length of the current pstr.
+         * Because of that we are not caching the scratch buffer,
+         * but allocating a separate buffer to be cached.
+         */
+        pstr = (char *)wmem_alloc(wmem_file_scope(), pstr_len);
+        memcpy(pstr, scratch_buffer, pstr_len);
+        wmem_map_insert(HTTP3_HEADER_CACHE, pstr, pstr);
+    }
+
+    /* Decrement `nv' reference counts to avoid memory leaks. */
+    nghttp3_rcbuf_decref(header_nv->name);
+    nghttp3_rcbuf_decref(header_nv->value);
+
+    /* N.B. We never return the scratch buffer,
+     * so that its ownership remains here.
+     */
+    *outp   = pstr;
+    *outlen = pstr_len;
+}
+
 static int
 dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tvb_offset, unsigned offset,
                       quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
@@ -884,7 +943,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     nghttp3_qpack_decoder         *decoder;
     proto_item                    *header, *ti, *ti_named_field;
     proto_tree                    *header_tree, *blocked_rcint_tree;
-    tvbuff_t                      *header_tvb;
+    tvbuff_t                      *header_tvb = NULL;
 
     http3_session = http3_session_lookup_or_create(pinfo);
     header_data   = http3_get_header_data(pinfo, tvb, offset);
@@ -983,86 +1042,24 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
              */
             if (flags & NGHTTP3_QPACK_DECODE_FLAG_EMIT) {
                 http3_header_field_t        *out;
-                http3_header_field_def_t    *def;
-                char                        *cached_pstr;
-                nghttp3_vec                 name_vec;
-                nghttp3_vec                 value_vec;
-                uint32_t                    name_len;
-                uint8_t                     *name;
-                uint32_t                    value_len;
-                uint8_t                     *value;
-                uint32_t                    pstr_len;
 
                 ws_noisy("Emit nread=%d flags=%" PRIu8 "", nread, flags);
 
+                /* Create an output field and add it to the headers array */
+                out = wmem_new0(wmem_file_scope(), http3_header_field_t);
+
+                /* Populate the `encoded' portion. */
+                out->encoded.len    = header_data->len;
+                out->encoded.offset = header_data->encoded.pos;
+
+                /* Populate the `decoded' portion. */
+                get_header_field_pstr(&nv, &out->decoded.bytes, &out->decoded.len);
+
+                /* Add the decoded header field to the header data. */
                 if (header_data->header_fields == NULL) {
                     header_data->header_fields = wmem_array_new(wmem_file_scope(), sizeof(http3_header_field_t));
                 }
-
-                name_vec  = nghttp3_rcbuf_get_buf(nv.name);
-                name_len  = (uint32_t)name_vec.len;
-                name      = name_vec.base;
-                value_vec = nghttp3_rcbuf_get_buf(nv.value);
-                value_len = (uint32_t)value_vec.len;
-                value     = value_vec.base;
-
-                ws_debug("HTTP header: %.*s: %.*s", name_len, name, value_len, value);
-
-                pstr_len          = (name_len + value_len + 4 + 4);
-                http3_header_pstr = (char *)wmem_realloc(wmem_file_scope(), http3_header_pstr, pstr_len);
-                phton32(&http3_header_pstr[0], name_len);
-                memcpy(&http3_header_pstr[4], name, name_len);
-                phton32(&http3_header_pstr[4 + name_len], value_len);
-                memcpy(&http3_header_pstr[4 + name_len + 4], value, value_len);
-
-                /* Lookup a field definition, or create one if needed */
-                def = (http3_header_field_def_t *)wmem_map_lookup(HTTP3_HEADER_NAME_CACHE, http3_header_pstr);
-                if (def == NULL) {
-                    char *def_name = NULL;
-                    def_name       = (char *)wmem_realloc(wmem_file_scope(), def_name, name_len + 1);
-                    memcpy(def_name, name, name_len);
-
-                    def           = wmem_new0(wmem_file_scope(), http3_header_field_def_t);
-                    def->name_len = name_len;
-                    def->name     = (const char *)def_name;
-
-                    wmem_map_insert(HTTP3_HEADER_NAME_CACHE, http3_header_pstr, def);
-                    /* XXX: keys are not copied in wmem_maps, so once we use
-                     * http3_header_pstr, we should set it to NULL so that
-                     * the memory pointed to won't be realloc'ed. However,
-                     * we'll do that in the other map below, as we only insert
-                     * into these maps at the same time, we are guaranteed
-                     * that we will be setting it to NULL below. This is
-                     * fragile and should be replaced with a single map.
-                     * I also don't see the point of this map considering
-                     * that the name and name_len are contained within the
-                     * pstr value and can (and are) parsed from it; this
-                     * map doesn't seem to be used currently.
-                     */
-                }
-
-                /* Create an output field and add it to the headers array */
-                out      = wmem_new0(wmem_file_scope(), http3_header_field_t);
-                out->def = def;
-
-                cached_pstr = (char *)wmem_map_lookup(HTTP3_HEADER_CACHE, http3_header_pstr);
-                if (cached_pstr) {
-                    out->decoded.pstr = cached_pstr;
-                } else {
-                    out->decoded.pstr = http3_header_pstr;
-                    wmem_map_insert(HTTP3_HEADER_CACHE, http3_header_pstr, http3_header_pstr);
-                    http3_header_pstr = NULL;
-                }
-                out->decoded.pstr_len = pstr_len;
-
                 wmem_array_append(header_data->header_fields, out, 1);
-
-                /*
-                 * Decrease the reference counts on the NGHTTP3 nv structure to avoid
-                 * memory leaks.
-                 */
-                nghttp3_rcbuf_decref(nv.name);
-                nghttp3_rcbuf_decref(nv.value);
             } else {
                 proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_decoding_no_output, tvb, tvb_offset, 0,
                                              "QPACK - nothing emitted decoder %p ctx %p flags %" PRIu8 " error %d (%s)",
@@ -1092,10 +1089,10 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         tvbuff_t                *next_tvb;
 
         in = (http3_header_field_t *)wmem_array_index(header_data->header_fields, i);
-        header_len += in->decoded.pstr_len;
+        header_len += in->decoded.len;
 
         /* Now setup the tvb buffer to have the new data */
-        next_tvb = tvb_new_child_real_data(tvb, in->decoded.pstr, in->decoded.pstr_len, in->decoded.pstr_len);
+        next_tvb = tvb_new_child_real_data(tvb, in->decoded.bytes, in->decoded.len, in->decoded.len);
         tvb_composite_append(header_tvb, next_tvb);
     }
 
@@ -1634,7 +1631,8 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 uint64_t val_bytes_len    = 0;
                 bool value_huffman    = false;
 
-                /*
+                /* https://datatracker.ietf.org/doc/html/rfc9204#name-insert-with-name-reference
+                 *
                  *   0   1   2   3   4   5   6   7
                  * +---+---+---+---+---+---+---+---+
                  * | 1 | T |    Name Index (6+)    |
@@ -1643,7 +1641,6 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                  * +---+---------------------------+
                  * |  Value String (Length bytes)  |
                  * +-------------------------------+
-                 *
                  */
                 decoded += read_qpack_prefixed_integer(tvb, opcode_offset, 6, &table_entry, &fin, NULL);
                 table_entry_len = offset + decoded - opcode_offset;
@@ -1691,9 +1688,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 unsigned val_bytes_offset   = 0;
                 uint64_t val_bytes_len      = 0;
 
-                /*
-                 *  Insert with literal name:
-                 *  See https://datatracker.ietf.org/doc/html/rfc9204#name-insert-with-literal-name
+                /* https://datatracker.ietf.org/doc/html/rfc9204#name-insert-with-literal-name
                  *
                  *   0   1   2   3   4   5   6   7
                  * +---+---+---+---+---+---+---+---+
@@ -1705,7 +1700,6 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                  * +---+---------------------------+
                  * |  Value String (Length bytes)  |
                  * +-------------------------------+
-                 *
                  */
 
                 /* Read the 5-encoded name length */
@@ -1760,7 +1754,8 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             } else if (opcode & QPACK_OPCODE_SET_DTABLE_CAP) {
                 uint64_t dynamic_capacity = 0;
 
-                /*
+                /* https://datatracker.ietf.org/doc/html/rfc9204#name-set-dynamic-table-capacity
+                 *
                  *   0   1   2   3   4   5   6   7
                  * +---+---+---+---+---+---+---+---+
                  * | 0 | 0 | 1 |   Capacity (5+)   |
@@ -1779,7 +1774,8 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             } else if (opcode == QPACK_OPCODE_DUPLICATE) {
                 uint64_t duplicate_of = 0;
 
-                /*
+                /* https://datatracker.ietf.org/doc/html/rfc9204#name-duplicate
+                 *
                  *   0   1   2   3   4   5   6   7
                  * +---+---+---+---+---+---+---+---+
                  * | 0 | 0 | 0 |    Index (5+)     |
@@ -2760,34 +2756,6 @@ http3_hdrcache_equal(const void *lhs, const void *rhs)
 
     return alen == blen && memcmp(a, b, alen) == 0;
 }
-
-static size_t
-http3_hdrdefcache_length(const void *vv)
-{
-    const uint8_t *v = (const uint8_t *)vv;
-    uint32_t      namelen;
-
-    namelen = pntoh32(v);
-
-    return namelen + sizeof(namelen);
-}
-
-static unsigned
-http3_hdrdefcache_hash(const void *key)
-{
-    return wmem_strong_hash((const uint8_t *)key, http3_hdrdefcache_length(key));
-}
-
-static gboolean
-http3_hdrdefcache_equal(const void *lhs, const void *rhs)
-{
-    const uint8_t *a    = (const uint8_t *)lhs;
-    const uint8_t *b    = (const uint8_t *)rhs;
-    size_t        alen = http3_hdrdefcache_length(a);
-    size_t        blen = http3_hdrdefcache_length(b);
-
-    return alen == blen && memcmp(a, b, alen) == 0;
-}
 #endif
 
 /* Deallocation callback */
@@ -2812,8 +2780,6 @@ http3_get_file_local_ctx(void)
 #ifdef HAVE_NGHTTP3
         g_http3_file_local_ctx->hdr_cache_map =
             wmem_map_new(wmem_file_scope(), http3_hdrcache_hash, http3_hdrcache_equal);
-        g_http3_file_local_ctx->hdr_def_cache_map =
-            wmem_map_new(wmem_file_scope(), http3_hdrdefcache_hash, http3_hdrdefcache_equal);
 #endif
         wmem_register_callback(wmem_file_scope(), http3_file_local_ctx_del_cb, NULL);
     }
