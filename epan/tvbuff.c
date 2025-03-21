@@ -3776,7 +3776,7 @@ tvb_get_dect_standard_8bits_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int 
 	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return get_t61_string(scope, ptr, size);
+	return get_dect_standard_8bits_string(scope, ptr, size);
 }
 
 uint8_t *
