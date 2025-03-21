@@ -5301,7 +5301,7 @@ proto_register_sctp(void)
                          "Dissect upper layer protocols",
                          "Dissect upper layer protocols",
                          &enable_ulp_dissection);
-  prefs_register_uat_preference_qt(sctp_module, "statistics_chunk_types",
+  prefs_register_uat_preference(sctp_module, "statistics_chunk_types",
                          "Select the chunk types for the statistics dialog",
                          "Select the chunk types for the statistics dialog",
                          chunk_types_uat);

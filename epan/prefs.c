@@ -1820,22 +1820,6 @@ prefs_register_uat_preference(module_t *module, const char *name,
                               const char *title, const char *description,
                               uat_t* uat)
 {
-
-    pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
-
-    preference->varp.uat = uat;
-}
-
-/*
- * Register a uat 'preference' for QT only. It adds a button that opens the uat's window in the
- * preferences tab of the module.
- */
-extern void
-prefs_register_uat_preference_qt(module_t *module, const char *name,
-                              const char *title, const char *description,
-                              uat_t* uat)
-{
-
     pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
 
     preference->varp.uat = uat;
@@ -6459,6 +6443,8 @@ set_pref(char *pref_name, const char *value, void *private_data,
 
         case PREF_STATIC_TEXT:
         case PREF_UAT:
+            break;
+
         case PREF_PROTO_TCP_SNDAMB_ENUM:
         {
             /* There's no point in setting the TCP sequence override

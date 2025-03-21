@@ -693,27 +693,6 @@ WS_DLL_PUBLIC void prefs_register_uat_preference(module_t *module,
     const char *name, const char* title, const char *description,  struct epan_uat* uat);
 
 /**
- * Register a uat 'preference' for QT only. It adds a button that opens the uat's window in the
- * preferences tab of the module.
- * @param module the preferences module returned by prefs_register_protocol() or
- *               prefs_register_protocol_subtree()
- * @param name the preference's identifier. This is appended to the name of the
- *             protocol, with a "." between them, to create a unique identifier.
- *             The identifier should not include the protocol name, as the name in
- *             the preference file will already have it. Make sure that
- *             only lower-case ASCII letters, numbers, underscores and
- *             dots appear in the preference name.
- * @param title Field's title in the preferences dialog
- * @param description description to include in the preferences file
- *                    and shown as tooltip in the GUI, or NULL
- * @param uat the uat object that will be updated when the
- *                    field is changed in the preference dialog box
- */
-WS_DLL_PUBLIC void prefs_register_uat_preference_qt(module_t *module,
-    const char *name, const char* title, const char *description,  struct epan_uat* uat);
-
-
-/**
  * Register a color preference.  Currently does not have any "GUI Dialog" support
  * so the color data needs to be managed independently.  Currently used by the
  * "GUI preferences" to aid in reading/writing the preferences file, but the
