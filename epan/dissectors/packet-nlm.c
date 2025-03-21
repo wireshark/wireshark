@@ -315,6 +315,8 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 	proto_tree* lock_tree = NULL;
 	uint32_t fh_hash, svid;
 	uint64_t start_offset=0, end_offset=0;
+	uint32_t start_offset32=0, end_offset32=0;
+	const char *hostname;
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
@@ -324,30 +326,35 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 	}
 
 	offset = dissect_rpc_string(tvb,lock_tree,
-			hf_nlm_lock_caller_name, offset, NULL);
+			hf_nlm_lock_caller_name, offset, &hostname);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", hostname);
+
 	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree, "fh", &fh_hash, civ);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH:0x%08x", fh_hash);
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 
 	svid = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_svid, offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " svid:%d", svid);
 
 	if (version == 4) {
 		start_offset = tvb_get_ntoh64(tvb, offset);
 		offset = dissect_rpc_uint64(tvb, lock_tree, hf_nlm_lock_l_offset64, offset);
 		end_offset = tvb_get_ntoh64(tvb, offset);
 		offset = dissect_rpc_uint64(tvb, lock_tree, hf_nlm_lock_l_len64, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+			", Pos:%" PRIu64 ", Len: %" PRIu64, start_offset, end_offset);
 	}
 	else {
 		start_offset = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_offset, offset);
 		end_offset = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_len, offset);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+			", Pos: %u"  ", Len: %u", start_offset32, end_offset32);
 	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", svid:%d", svid);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%" PRIu64 "-%" PRIu64, start_offset, end_offset);
 
 	return offset;
 }
@@ -633,7 +640,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 		if((rpc_call->proc==12)  /* NLM_LOCK_RES */
 		|| (rpc_call->proc==13)  /* NLM_CANCEL_RES */
 		|| (rpc_call->proc==14)  /* NLM_UNLOCK_RES */
-		|| (rpc_call->proc==15) ){	/* NLM_GRENTED_RES */
+		|| (rpc_call->proc==15) ){ /* NLM_GRANTED_RES */
 			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
@@ -1092,7 +1099,7 @@ proto_register_nlm(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_svid, {
 			"svid", "nlm.lock.svid", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			NULL, 0, "zero-based", HFILL }},
 		{ &hf_nlm_lock_l_offset64, {
 			"l_offset", "nlm.lock.l_offset64", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
