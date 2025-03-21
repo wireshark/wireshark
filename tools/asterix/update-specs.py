@@ -25,6 +25,7 @@ import convertspec as convert
 # Path to default upstream repository
 upstream_repo = 'https://zoranbosnjak.github.io/asterix-specs'
 dissector_file = 'epan/dissectors/packet-asterix.c'
+script_path = os.path.dirname(os.path.realpath(__file__))
 
 class Offset(object):
     """Keep track of number of added bits.
@@ -643,7 +644,7 @@ class Output(object):
 
     def __enter__(self):
         if self.update:
-            self.f = open(dissector_file, 'w')
+            self.f = open(os.path.join(script_path, '..', '..', dissector_file), 'w')
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
@@ -789,7 +790,6 @@ def main():
         part4(ctx, set([spec['number'] for spec in jsons]))
 
         # use context buffer to render template
-        script_path = os.path.dirname(os.path.realpath(__file__))
         with open(os.path.join(script_path, 'packet-asterix-template.c')) as f:
             template_lines = f.readlines()
 

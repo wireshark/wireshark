@@ -527,7 +527,6 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, packet_info *pinfo, unsig
     }
 }
 
-// We're transported over UDP and our offset always advances.
 // NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_asterix_fields (tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, uint8_t category, const AsterixField * const current_uap [])
 {
@@ -724,7 +723,6 @@ static uint8_t asterix_field_exists (tvbuff_t *tvb, unsigned offset, int bitInde
     return asterix_bit (tvb_get_uint8 (tvb, offset + i), bitNo % 8);
 }
 
-// We're transported over UDP and our offset always advances.
 // NOLINTNEXTLINE(misc-no-recursion)
 static int asterix_field_length (tvbuff_t *tvb, packet_info *pinfo, unsigned offset, const AsterixField * const field)
 {
@@ -860,11 +858,7 @@ void proto_register_asterix (void)
 
     module_t *asterix_prefs_module;
 
-    proto_asterix = proto_register_protocol (
-        "ASTERIX packet", /* name       */
-        "ASTERIX",        /* short name */
-        "asterix"         /* abbrev     */
-    );
+    proto_asterix = proto_register_protocol ("ASTERIX packet", "ASTERIX", "asterix");
 
     proto_register_field_array (proto_asterix, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
