@@ -516,6 +516,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-nsh.h
 	packet-ntlmssp.h
 	packet-ntp.h
+	packet-nts-ke.h
 	packet-nvme.h
 	packet-ocsp.h
 	packet-oer.h
