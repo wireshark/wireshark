@@ -38,8 +38,6 @@
 #include <wsutil/wslog.h>
 #include <wsutil/wmem/wmem_list.h>
 #include <wsutil/wmem/wmem_map.h>
-#include <gnutls/gnutls.h>
-#include <gnutls/abstract.h>
 
 #if EDHOC_LOG_DATA
 /** Duplicate logic of packet-tls-util.c
