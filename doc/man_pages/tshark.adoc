@@ -335,6 +335,7 @@ Add a field to the list of fields to display if *-T ek|fields|json|pdml*
 is selected.  This option can be used multiple times on the command line.
 At least one field must be provided if the *-T fields* option is
 selected. Column types may be used prefixed with "_ws.col."
+Prefixing the field name with an at sign (@) will display the data as hex bytes.
 
 Example: *tshark -T fields -e frame.number -e ip.addr -e udp -e _ws.col.info*
 
