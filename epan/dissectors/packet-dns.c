@@ -409,6 +409,10 @@ static int hf_dns_svcb_param_ipv4hint_ip;
 static int hf_dns_svcb_param_ipv6hint_ip;
 static int hf_dns_svcb_param_dohpath;
 static int hf_dns_svcb_param_odohconfig;
+static int hf_dns_dsync_type;
+static int hf_dns_dsync_scheme;
+static int hf_dns_dsync_target_port;
+static int hf_dns_dsync_target_name;
 static int hf_dns_openpgpkey;
 static int hf_dns_spf_length;
 static int hf_dns_spf;
@@ -810,6 +814,7 @@ typedef struct _dns_conv_info_t {
 #define T_ZONEMD        63              /* Message Digest for DNS Zones (RFC8976) */
 #define T_SVCB          64              /* draft-ietf-dnsop-svcb-https-01 */
 #define T_HTTPS         65              /* draft-ietf-dnsop-svcb-https-01 */
+#define T_DSYNC         66              /* draft-ietf-dnsop-generalized-notify */
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_UINFO        100              /* [IANA-Reserved] */
 #define T_UID          101              /* [IANA-Reserved] */
@@ -1088,6 +1093,19 @@ static const value_string hip_algo_vals[] = {
   { 0,                   NULL }
 };
 
+/*
+  DSYNC: Location of Synchronization Endpoints
+  https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dsync-location-of-synchronization-endpoints
+*/
+
+static const range_string dsync_scheme_vals[] = {
+  {   0,   0, "Null scheme (no-op)"      },
+  {   1,   1, "NOTIFY"                   },
+  {   2, 127, "Unassigned"               },
+  { 128, 255, "Reserved for Private Use" },
+  {   0,   0, NULL                       }
+};
+
 /* RFC 3123 */
 #define DNS_APL_NEGATION       (1<<7)
 #define DNS_APL_AFDLENGTH      (0x7F<<0)
@@ -1182,6 +1200,7 @@ static const value_string dns_types_vals[] = {
   { T_ZONEMD,     "ZONEMD"     }, /* RFC 8976 */
   { T_SVCB,       "SVCB"       }, /* draft-ietf-dnsop-svcb-https-01 */
   { T_HTTPS,      "HTTPS"      }, /* draft-ietf-dnsop-svcb-https-01 */
+  { T_DSYNC,      "DSYNC"      }, /* draft-ietf-dnsop-generalized-notify */
   { T_SPF,        "SPF"        }, /* RFC 4408 */
   { T_UINFO,      "UINFO"      }, /* IANA reserved */
   { T_UID,        "UID"        }, /* IANA reserved */
@@ -1283,6 +1302,7 @@ static const value_string dns_types_description_vals[] = {
   { T_ZONEMD,     "" }, /* RFC 8976 */
   { T_SVCB,       "(General Purpose Service Endpoints)" }, /*  draft-ietf-dnsop-svcb-https*/
   { T_HTTPS,      "(HTTPS Specific Service Endpoints)" }, /*  draft-ietf-dnsop-svcb-https*/
+  { T_DSYNC,      "(Endpoint discovery for delegation synchronization)" }, /* draft-ietf-dnsop-generalized-notify */
   { T_SPF,        "" }, /* RFC 4408 */
   { T_UINFO,      "" }, /* IANA reserved */
   { T_UID,        "" }, /* IANA reserved */
@@ -4085,6 +4105,22 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_DSYNC: /* Endpoint discovery for delegation synchronization (66) */
+    {
+      const char   *dsync_name;
+      int           dsync_name_len;
+
+      proto_tree_add_item(rr_tree, hf_dns_dsync_type, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_dsync_scheme, tvb, cur_offset + 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(rr_tree, hf_dns_dsync_target_port, tvb, cur_offset + 3, 2, ENC_BIG_ENDIAN);
+
+      used_bytes = get_dns_name(tvb, cur_offset + 5, 0, dns_data_offset, &dsync_name, &dsync_name_len);
+      name_out = format_text(pinfo->pool, (const unsigned char*)dsync_name, dsync_name_len);
+      proto_tree_add_string(rr_tree, hf_dns_dsync_target_name, tvb, cur_offset + 5, used_bytes, name_out);
+
+    }
+    break;
+
     case T_SPF: /* Sender Policy Framework (99) */
     {
       int rr_len = data_len;
@@ -6777,6 +6813,26 @@ proto_register_dns(void)
       { "ODoHConfig", "dns.svcb.svcparam.odohconfig",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Oblivious DoH keys", HFILL }},
+
+    { &hf_dns_dsync_type,
+      { "RR Type", "dns.dsync.type",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &dns_types_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_dsync_scheme,
+      { "Scheme", "dns.dsync.scheme",
+        FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(dsync_scheme_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_dsync_target_port,
+      { "Target Port", "dns.dsync.target.port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_dsync_target_name,
+      { "Target Domain Name", "dns.dsync.target.name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_spf_length,
       { "SPF Length", "dns.spf.length",
