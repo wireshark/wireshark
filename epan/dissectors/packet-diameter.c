@@ -334,17 +334,6 @@ static dissector_table_t diameter_ericsson_avp_dissector_table;
 static dissector_table_t diameter_verizon_avp_dissector_table;
 static dissector_table_t diameter_expr_result_vnd_table;
 
-static const char *avpflags_str[] = {
-	"---",
-	"--P",
-	"-M-",
-	"-MP",
-	"V--",
-	"V-P",
-	"VM-",
-	"VMP",
-};
-
 #define SUBSCRIPTION_ID_TYPE_E164	0
 #define SUBSCRIPTION_ID_TYPE_IMSI	1
 #define SUBSCRIPTION_ID_TYPE_SIP_URI	2
@@ -854,7 +843,6 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	uint32_t code           = tvb_get_ntohl(tvb,offset);
 	uint32_t len            = tvb_get_ntohl(tvb,offset+4);
 	uint32_t vendor_flag    = len & 0x80000000;
-	uint32_t flags_bits_idx = (len & 0xE0000000) >> 29;
 	uint32_t flags_bits     = (len & 0xFF000000) >> 24;
 	uint32_t vendorid       = vendor_flag ? tvb_get_ntohl(tvb,offset+8) : 0 ;
 	wmem_tree_key_t k[3];
@@ -945,7 +933,8 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	offset += 4;
 
-	proto_item_set_text(avp_item,"AVP: %s(%u) l=%u f=%s", code_str, code, len, avpflags_str[flags_bits_idx]);
+	proto_item_set_text(avp_item,"%s", code_str);
+
 	if (update_col_info) {
 		col_append_fstr(c->pinfo->cinfo, COL_INFO, " %s", code_str);
 	}
@@ -977,7 +966,6 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	/* Vendor flag */
 	if (vendor_flag) {
-		proto_item_append_text(avp_item," vnd=%s", val_to_str(vendorid, vnd_short_vs, "%d"));
 		pi = proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,ENC_BIG_ENDIAN);
 		if (vendor == &unknown_vendor) {
 			proto_tree *tu = proto_item_add_subtree(pi,ett_unknown);
@@ -1041,7 +1029,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		}
 
 		if (diam_sub_dis_inf->avp_str) {
-			proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
+			proto_item_append_text(avp_item, ": %s", diam_sub_dis_inf->avp_str);
 		}
 	} else {
 		avp_str = a->dissector_rfc(c,a,subtvb, diam_sub_dis_inf);
@@ -1053,9 +1041,9 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	/* Let the subdissector have precedence filling in the avp_item string */
 	if (diam_sub_dis_inf->avp_str) {
-		proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
+		proto_item_append_text(avp_item, ": %s", diam_sub_dis_inf->avp_str);
 	} else if (avp_str) {
-		proto_item_append_text(avp_item," val=%s", avp_str);
+		proto_item_append_text(avp_item, ": %s", avp_str);
 	}
 
 
@@ -1435,13 +1423,6 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	return NULL;
 }
 
-static const char *msgflags_str[] = {
-	"----", "---T", "--E-", "--ET",
-	"-P--", "-P-T", "-PE-", "-PET",
-	"R---", "R--T", "R-E-", "R-ET",
-	"RP--", "RP-T", "RPE-", "RPET"
-};
-
 static int * const diameter_flags_fields[] = {
 	&hf_diameter_flags_request,
 	&hf_diameter_flags_proxyable,
@@ -1529,18 +1510,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_hopbyhopid, tvb, 12, 4, ENC_BIG_ENDIAN, &hop_by_hop_id);
 	proto_tree_add_item_ret_uint(diam_tree, hf_diameter_endtoendid, tvb, 16, 4, ENC_BIG_ENDIAN, &end_to_end_id);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-			 "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
-			 cmd_str,
-			 ((flags_bits>>4)&0x08) ? " Request" : " Answer",
-			 cmd,
-			 msgflags_str[((flags_bits>>4)&0x0f)],
-			 "appl",
-			 val_to_str_ext_const(diam_sub_dis_inf->application_id, dictionary.applications, "Unknown"),
-			 diam_sub_dis_inf->application_id,
-			 hop_by_hop_id,
-			 end_to_end_id);
-
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s", cmd_str, ((flags_bits>>4)&0x08) ? " Request" : " Answer");
 	col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
