@@ -195,7 +195,7 @@ static const value_string macsec_tlvs[] = {
   { 0, NULL }
 };
 
-static const char *mka_ckn_info_uat_defaults_[] = { NULL, "", NULL };
+static const char *mka_ckn_info_uat_defaults_[] = { NULL, "", "" };
 
 static mka_ckn_info_t *mka_ckn_uat_data = NULL;
 static unsigned num_mka_ckn_uat_data = 0;
@@ -203,7 +203,7 @@ static GHashTable *ht_mka_ckn = NULL;
 
 UAT_BUFFER_CB_DEF(mka_ckn_uat_data, cak, mka_ckn_info_t, cak, cak_len)
 UAT_BUFFER_CB_DEF(mka_ckn_uat_data, ckn, mka_ckn_info_t, ckn, ckn_len)
-UAT_LSTRING_CB_DEF(mka_ckn_uat_data, name, mka_ckn_info_t, name, name_len)
+UAT_CSTRING_CB_DEF(mka_ckn_uat_data, name, mka_ckn_info_t)
 
 /* Derive the ICK or KEK from the CAK and label. */
 static unsigned
@@ -359,7 +359,6 @@ ckn_info_copy_cb(void *n, const void *o, size_t size _U_) {
   new_rec->ckn = (unsigned char *)g_memdup2(old_rec->ckn, old_rec->ckn_len);
   new_rec->ckn_len = old_rec->ckn_len;
   new_rec->name = g_strdup(old_rec->name);
-  new_rec->name_len = old_rec->name_len;
 
   return new_rec;
 }
@@ -369,17 +368,17 @@ ckn_info_update_cb(void *r, char **err) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)r;
 
   if ((0 != rec->cak_len) && ((AES128_KEY_LEN != rec->cak_len) && (AES256_KEY_LEN != rec->cak_len))) {
-    *err = ws_strdup_printf("Invalid CAK length! CAKs need to be 16 or 32 bytes when specified.");
+    *err = ws_strdup("Invalid CAK length! CAKs need to be 16 or 32 bytes when specified.");
     return false;
   }
 
   if ((0 == rec->ckn_len) || (rec->ckn_len > 32)) {
-    *err = ws_strdup_printf("Invalid CKN length! CKNs need to be between 1 and 32 bytes.");
+    *err = ws_strdup("Invalid CKN length! CKNs need to be between 1 and 32 bytes.");
     return false;
   }
 
-  if (0 == rec->name_len) {
-    *err = ws_strdup_printf("Invalid Name length! A name must be specified for this CAK/CKN entry.");
+  if (0 == strlen(rec->name)) {
+    *err = ws_strdup("Missing name! A name must be specified for this CAK/CKN entry.");
     return false;
   }
 
@@ -459,7 +458,7 @@ mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) 
 
     const mka_ckn_info_t *rec = ckn_info_lookup(ckn, ckn_len);
     if (rec != NULL) {
-      ti = proto_tree_add_string(tree, hf_mka_cak_name_info, tvb, offset, rec->name_len, rec->name);
+      ti = proto_tree_add_string(tree, hf_mka_cak_name_info, tvb, offset, ckn_len, rec->name);
       proto_item_set_generated(ti);
     }
   }
@@ -723,11 +722,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
       }
 
       /* Look up the CKN and if found in the table, use the KEK associated with it. */
-      if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-        uint8_t ckn_name[MKA_MAX_CKN_LEN] = {0};
-        memcpy(ckn_name, rec->name, rec->name_len);
-        ws_debug("CKN entry name: %s", (char *)ckn_name);
-      }
+      ws_debug("CKN entry name: %s", rec->name);
 
       /* If no KEK available, skip the decode. */
       mka_ckn_info_key_t *key = &(rec->key);
@@ -775,7 +770,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
       }
 
       /* Add the unwrapped SAK to the output. */
-      proto_tree_add_bytes(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, key->kek_len, sak);
+      proto_tree_add_bytes_with_length(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, 0, sak, key->kek_len);  //works, no highlights
     }
   }
   else

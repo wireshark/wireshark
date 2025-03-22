@@ -48,7 +48,6 @@ typedef struct _mka_ckn_info {
 
   /* Identifier for the name of the entry. */
   unsigned char *name;
-  unsigned name_len;
 
   /* KEK/ICK/SAK data for this entry */
   mka_ckn_info_key_t key;

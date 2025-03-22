@@ -123,14 +123,13 @@ typedef struct _psk_info {
 typedef struct _psk_config {
   psk_info_t keydata;
   unsigned char *name;
-  unsigned name_len;
 } psk_config_t;
 
 static psk_config_t *psk_config_data = NULL;
 static unsigned psk_config_data_count = 0;
 
 UAT_BUFFER_CB_DEF(psk_config_data, key, psk_config_t, keydata.key, keydata.key_len)
-UAT_LSTRING_CB_DEF(psk_config_data, name, psk_config_t, name, name_len)
+UAT_CSTRING_CB_DEF(psk_config_data, name, psk_config_t)
 
 static void *
 copy_psk_config_cb(void *n, const void *o, size_t size _U_) {
@@ -141,7 +140,6 @@ copy_psk_config_cb(void *n, const void *o, size_t size _U_) {
     new_rec->keydata.key_len = old_rec->keydata.key_len;
 
     new_rec->name = g_strdup(old_rec->name);
-    new_rec->name_len = old_rec->name_len;
 
     return new_rec;
 }
@@ -155,12 +153,12 @@ update_psk_config(void *r, char **err) {
 
     // Validate the key input
     if ((PSK128_LEN != rec->keydata.key_len) && (PSK256_LEN != rec->keydata.key_len)) {
-        *err = ws_strdup_printf("Only AES-128 (16 byte) or AES-256 (32 byte) keys are supported");
+        *err = ws_strdup("Only AES-128 (16 byte) or AES-256 (32 byte) keys are supported");
         return false;
     }
 
-    if (0 == rec->name_len) {
-        *err = ws_strdup_printf("Missing PSK ID!");
+    if (0 == strlen(rec->name)) {
+        *err = ws_strdup("Missing PSK ID!");
         return false;
     }
 
@@ -409,7 +407,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint8_t     tci_an_field;
     uint8_t     an = 0;
 
-    int         icv_check_success = PROTO_CHECKSUM_E_BAD;
+    proto_checksum_enum_e icv_check_success = PROTO_CHECKSUM_E_BAD;
     bool        encrypted = false;
 
     proto_item *macsec_item;
@@ -550,10 +548,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         payload_len = tvb_captured_length(next_tvb);
 
         /* Fetch the payload into a buffer to pass for decode. */
-        payload = g_malloc(payload_len);
-        if (NULL != payload) {
-            tvb_memcpy(next_tvb, payload, 0, payload_len);
-        }
+        payload = tvb_memdup(pinfo->pool, next_tvb, 0, payload_len);
 
         /* For authenticated and encrypted data, the AAD consists of the header data and security tag. */
         memcpy(aad, header, ETHHDR_LEN);
@@ -601,11 +596,6 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         icv_check_success = PROTO_CHECKSUM_E_GOOD;
     }
 
-    /* Release the payload copy. */
-    if (NULL != payload) {
-        g_free(payload);
-    }
-
     verify_item = proto_tree_add_item(macsec_tree, hf_macsec_verify_info, tvb, 0, 0, ENC_NA);
     proto_item_set_generated(verify_item);
 
@@ -613,53 +603,39 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     verify_tree = proto_item_add_subtree(verify_item, ett_macsec_verify);
 
     /* Add a flag indicating the frame is or is not verified. */
-    verify_item = proto_tree_add_boolean(verify_tree, hf_macsec_ICV_check_success, tvb, 0, 0, icv_check_success);
+    verify_item = proto_tree_add_boolean(verify_tree, hf_macsec_ICV_check_success, tvb, 0, 0, PROTO_CHECKSUM_E_GOOD == icv_check_success);
     proto_item_set_generated(verify_item);
 
     if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
         if (true == use_mka_table) {
             const mka_ckn_info_t *ckn_table = get_mka_ckn_table();
             char *name = ckn_table[table_index].name;
-            unsigned name_len = ckn_table[table_index].name_len;
-
-            unsigned char *namestr = g_malloc(name_len + 1);
-            memcpy(namestr, name, name_len);
-            namestr[name_len] = 0;
 
             /* add the SAK and name identifier. */
             verify_item = proto_tree_add_bytes_with_length(verify_tree, hf_macsec_sak, tvb, 0, 0, sak_for_decode, sak_for_decode_len);
             proto_item_set_generated(verify_item);
 
-            verify_item = proto_tree_add_string(verify_tree, hf_macsec_ckn_info, tvb, 0, 0, namestr);
+            verify_item = proto_tree_add_string(verify_tree, hf_macsec_ckn_info, tvb, 0, 0, name);
             proto_item_set_generated(verify_item);
 
             /* add the table index for filtering. */
             verify_item = proto_tree_add_int(verify_tree, hf_macsec_ckn_table_index, tvb, 0, 0, table_index);
             proto_item_set_generated(verify_item);
 
-            g_free(namestr);
-
         } else {
             const psk_config_t *psk_table = get_psk_config_table();
             char *name = psk_table[table_index].name;
-            unsigned name_len = psk_table[table_index].name_len;
-
-            unsigned char *namestr = g_malloc(name_len + 1);
-            memcpy(namestr, name, name_len);
-            namestr[name_len] = 0;
 
             /* add the PSK and name identifier. */
             verify_item = proto_tree_add_bytes_with_length(verify_tree, hf_macsec_psk, tvb, 0, 0, sak_for_decode, sak_for_decode_len);
             proto_item_set_generated(verify_item);
 
-            verify_item = proto_tree_add_string(verify_tree, hf_macsec_psk_info, tvb, 0, 0, namestr);
+            verify_item = proto_tree_add_string(verify_tree, hf_macsec_psk_info, tvb, 0, 0, name);
             proto_item_set_generated(verify_item);
 
             /* add the table index for filtering. */
             verify_item = proto_tree_add_int(verify_tree, hf_macsec_psk_table_index, tvb, 0, 0, table_index);
             proto_item_set_generated(verify_item);
-
-            g_free(namestr);
         }
     }
 
