@@ -81,15 +81,15 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratoshark 정보</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;시스템 호출 및 이벤트 분석기&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1206,7 +1206,9 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Stratoshark %1에서 생성됨
+
+</translation>
     </message>
 </context>
 <context>
@@ -1374,7 +1376,7 @@
     </message>
     <message>
         <source>Compression:</source>
-        <translation type="unfinished"></translation>
+        <translation>압축:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1456,7 +1458,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>LZ4</translation>
     </message>
     <message>
         <source>File infix pattern</source>
@@ -1855,7 +1857,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display as:</source>
-        <translation type="unfinished"></translation>
+        <translation>표시 형식:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1863,15 +1865,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>값</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>문자열</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">자세한 정보</translation>
+        <translation>자세한 정보</translation>
     </message>
     <message>
         <source>Missing fields.</source>
@@ -1906,7 +1908,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>표시 형식</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
@@ -1918,7 +1920,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Custom Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>사용자 정의 표현식</translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -1971,19 +1973,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CompressionGroupBox</name>
     <message>
         <source>Compression options</source>
-        <translation type="unfinished"></translation>
+        <translation>압축 옵션</translation>
     </message>
     <message>
         <source>&amp;Uncompressed</source>
-        <translation type="unfinished"></translation>
+        <translation>압축하지 않음(&amp;U)</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip으로 압축(&amp;Z)</translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>LZ4로 압축(&amp;L)</translation>
     </message>
 </context>
 <context>
@@ -2085,11 +2087,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation type="unfinished">I/O 그래프</translation>
+        <translation>I/O 그래프</translation>
     </message>
     <message>
         <source>I/OGraph TCP conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>I/O 그래프 TCP 대화입니다.</translation>
     </message>
 </context>
 <context>
@@ -3101,7 +3103,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FieldFilterEdit</name>
     <message>
         <source>Field entry</source>
-        <translation type="unfinished"></translation>
+        <translation>필드 항목</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
@@ -3109,7 +3111,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid field: </source>
-        <translation type="unfinished"></translation>
+        <translation>잘못된 필드:</translation>
     </message>
 </context>
 <context>
@@ -3835,15 +3837,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Color Scheme:</source>
-        <translation type="unfinished"></translation>
+        <translation>색 구성표:</translation>
     </message>
     <message>
         <source>Light Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>밝은 모드</translation>
     </message>
     <message>
         <source>Dark Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>어두운 모드</translation>
     </message>
     <message>
         <source>Font</source>
@@ -4315,11 +4317,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>범례</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>범례 전환</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -5034,7 +5036,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation type="unfinished"></translation>
+        <translation>리틀 엔디언:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -5210,7 +5212,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation type="unfinished"></translation>
+        <translation>그룹 데이터를 캡처하는 표현식 없음(사용: (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7529,6 +7531,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>No duplicate keys</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Values</source>
+        <translation type="unfinished">값</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the hex bytes of its packet data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Raw Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PacketFormatTextGroupBox</name>
@@ -8901,11 +8919,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">값</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">문자열</translation>
     </message>
     <message>
         <source>Details</source>
@@ -14546,23 +14564,23 @@ a:hover {
     </message>
     <message>
         <source>Display Filter Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>표시 필터 참조</translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>대화 내의 첫 패킷</translation>
     </message>
     <message>
         <source>Go to the first packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>이 대화 내의 첫 패킷으로 이동</translation>
     </message>
     <message>
         <source>Last Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>대화 내의 마지막 패킷</translation>
     </message>
     <message>
         <source>Go to the last packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>이 대화 내의 마지막 패킷으로 이동</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -14586,7 +14604,7 @@ a:hover {
     </message>
     <message>
         <source>As &amp;HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>HTML로(&amp;H)</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -15068,15 +15086,15 @@ a:hover {
     </message>
     <message>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>UTC 날짜와 시간(1970-01-01 01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>UTC 년, 연중일, 시간(1970/001 01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>UTC Time of Day (01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>UTC 시간(01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -15315,7 +15333,7 @@ a:hover {
     </message>
     <message>
         <source>Do you want to save the captured packets%1?</source>
-        <translation>캡처한 패킷을 저장하시겠습니까%1?</translation>
+        <translation>%1까지 캡처한 패킷을 저장하시겠습니까?</translation>
     </message>
     <message>
         <source>Save before Continue</source>
