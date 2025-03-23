@@ -69,6 +69,15 @@ static int hf_egfx_start_acked_in;
 static int hf_egfx_end_frameid;
 static int hf_egfx_end_acked_in;
 
+static int hf_egfx_watermark_surfaceid;
+static int hf_egfx_watermark_width;
+static int hf_egfx_watermark_height;
+static int hf_egfx_watermark_pixelformat;
+static int hf_egfx_watermark_opacity;
+static int hf_egfx_watermark_hpadding;
+static int hf_egfx_watermark_vpadding;
+static int hf_egfx_watermark_imgsize;
+static int hf_egfx_unknown_bytes;
 
 static int ett_rdp_egfx;
 static int ett_egfx_caps;
@@ -80,6 +89,7 @@ static int ett_egfx_ackqoe;
 static int ett_egfx_reset;
 static int ett_egfx_monitors;
 static int ett_egfx_monitordef;
+static int ett_egfx_watermark;
 
 
 static expert_field ei_egfx_pdulen_invalid;
@@ -114,6 +124,8 @@ enum {
 	RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE 	= 0x0016,
 	RDPGFX_CMDID_MAPSURFACETOSCALEDOUTPUT = 0x0017,
 	RDPGFX_CMDID_MAPSURFACETOSCALEDWINDOW = 0x0018,
+	RDPGFX_CMDID_PROTECT_SURFACE = 0x0019,
+	RDPGFX_CMDID_WATERMARK = 0x001A,
 };
 
 enum {
@@ -154,6 +166,8 @@ static const value_string rdp_egfx_cmd_vals[] = {
 	{ RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE, "Qoe frame acknowledge" },
 	{ RDPGFX_CMDID_MAPSURFACETOSCALEDOUTPUT, "Map surface to scaled output" },
 	{ RDPGFX_CMDID_MAPSURFACETOSCALEDWINDOW, "Map surface to scaled window" },
+	{ RDPGFX_CMDID_PROTECT_SURFACE, "Protect surface" },
+	{ RDPGFX_CMDID_WATERMARK, "Watermark surface" },
 	{ 0x0, NULL },
 };
 
@@ -546,6 +560,50 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Scaled Window");
 			break;
 
+		case RDPGFX_CMDID_WATERMARK: {
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Watermark surface");
+			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_watermark, NULL, "Watermark");
+			proto_tree_add_item(subtree, hf_egfx_watermark_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_watermark_width, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_watermark_height, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			// XXX
+			proto_tree_add_item(subtree, hf_egfx_unknown_bytes, tvb, offset, 6, ENC_NA);
+			offset += 6;
+
+			proto_tree_add_item(subtree, hf_egfx_watermark_pixelformat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			offset += 1;
+
+			// XXX
+			proto_tree_add_item(subtree, hf_egfx_unknown_bytes, tvb, offset, 2, ENC_NA);
+			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_watermark_opacity, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			// XXX
+			proto_tree_add_item(subtree, hf_egfx_unknown_bytes, tvb, offset, 6, ENC_NA);
+			offset += 6;
+
+			proto_tree_add_item(subtree, hf_egfx_watermark_hpadding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(subtree, hf_egfx_watermark_vpadding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			// XXX
+			proto_tree_add_item(subtree, hf_egfx_unknown_bytes, tvb, offset, 8, ENC_NA);
+			offset += 8;
+
+			uint32_t sz;
+			proto_tree_add_item_ret_uint(subtree, hf_egfx_watermark_imgsize, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sz);
+			offset += 2;
+			break;
+		}
 		default:
 			break;
 		}
@@ -743,7 +801,6 @@ void proto_register_rdp_egfx(void) {
 			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 			NULL, HFILL }
 		},
-
 		{ &hf_egfx_end_frameid,
 		  { "Frame id", "rdp_egfx.endframe.frameid",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -754,6 +811,51 @@ void proto_register_rdp_egfx(void) {
 			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_egfx_watermark_surfaceid,
+		  { "Surface id", "rdp_egfx.watermark.surfaceid",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_width,
+		  { "Width", "rdp_egfx.watermark.width",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_height,
+		  { "Height", "rdp_egfx.watermark.height",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_pixelformat,
+		  { "Pixel format", "rdp_egfx.watermark.pixelformat",
+			FT_UINT8, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_opacity,
+		  { "Opacity", "rdp_egfx.watermark.opacity",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_hpadding,
+		  { "HPadding", "rdp_egfx.watermark.hpadding",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_vpadding,
+		  { "VPadding", "rdp_egfx.watermark.vpadding",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_watermark_imgsize,
+		  { "Image size", "rdp_egfx.watermark.imgsize",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_unknown_bytes,
+		  { "Unknown bytes", "rdp_egfx.unknown",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		}
 	};
 
 	static int *ett[] = {
@@ -767,6 +869,7 @@ void proto_register_rdp_egfx(void) {
 		&ett_egfx_capsconfirm,
 		&ett_egfx_monitors,
 		&ett_egfx_monitordef,
+		&ett_egfx_watermark,
 	};
 
 	static ei_register_info ei[] = {
