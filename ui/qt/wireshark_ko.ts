@@ -4261,11 +4261,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>범례</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>범례 전환</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -5148,7 +5148,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation type="unfinished"></translation>
+        <translation>그룹 데이터를 캡처하는 표현식 없음(사용: (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -15107,7 +15107,7 @@ a:hover {
     </message>
     <message>
         <source>Do you want to save the captured packets%1?</source>
-        <translation>캡처한 패킷을 저장하시겠습니까%1?</translation>
+        <translation>%1까지 캡처한 패킷을 저장하시겠습니까?</translation>
     </message>
     <message>
         <source>Save before Continue</source>

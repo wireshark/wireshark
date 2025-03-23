@@ -22110,6 +22110,7 @@ static const value_string usb_products_vals[] = {
     { 0x1a8d100d, "4G LTE adapter" },
     { 0x1a980002, "Leica M9" },
     { 0x1a982041, "Leica SL" },
+    { 0x1a982083, "Leica M11 Monochrom" },
     { 0x1a982376, "Leica Q3" },
     { 0x1aab7736, "sceye (Gen 2)" },
     { 0x1aab7737, "sceye (Gen 3)" },
