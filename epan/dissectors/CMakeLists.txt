@@ -1783,6 +1783,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_rail.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_snd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_ear.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_dr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdpudp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-realtek.c

@@ -40,6 +40,7 @@ static dissector_handle_t drdynvc_handle;
 static dissector_handle_t rail_handle;
 static dissector_handle_t cliprdr_handle;
 static dissector_handle_t snd_handle;
+static dissector_handle_t rdpdr_handle;
 
 static int ett_rdp;
 
@@ -1571,15 +1572,15 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     if (rdp_info)
       rdp_info->maxChannels = MIN(channelCount, RDP_MAX_CHANNELS);
 
-	for (i = 0; i < MIN(channelCount, RDP_MAX_CHANNELS); i++) {
-		if (rdp_info) {
-			rdp_channel_def_t *channel = &rdp_info->staticChannels[i];
-			channel->value = -1; /* unset */
-			channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
-			channel->channelType = find_known_channel_by_name(channel->strptr);
-		}
-		offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
-	}
+    for (i = 0; i < MIN(channelCount, RDP_MAX_CHANNELS); i++) {
+      if (rdp_info) {
+        rdp_channel_def_t *channel = &rdp_info->staticChannels[i];
+        channel->value = -1; /* unset */
+        channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
+        channel->channelType = find_known_channel_by_name(channel->strptr);
+      }
+      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
+    }
 
     if (rdp_info) {
       /* value_strings are normally terminated with a {0, NULL} entry */
@@ -1726,6 +1727,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   case RDP_CHANNEL_RAIL:
   case RDP_CHANNEL_CLIPBOARD:
   case RDP_CHANNEL_SOUND:
+  case RDP_CHANNEL_DISK:
 	  memset(&channelPDU_fields[1], 0, sizeof(channelPDU_fields[1]));
 	  break;
   default:
@@ -1756,6 +1758,10 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   case RDP_CHANNEL_SOUND:
 	  subtvb = tvb_new_subset_length(tvb, offset, length);
 	  offset += call_dissector(snd_handle, subtvb, pinfo, tree);
+	  break;
+  case RDP_CHANNEL_DISK:
+	  subtvb = tvb_new_subset_length(tvb, offset, length);
+	  offset += call_dissector(rdpdr_handle, subtvb, pinfo, tree);
 	  break;
   default: {
 	  rdp_channel_def_t* channel = find_channel(pinfo, t124_get_last_channelId());
@@ -2704,8 +2710,10 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   rdp_info = rdp_get_conversation_data(pinfo);
 
+  /*
   copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
   rdp_info->serverAddr.port = pinfo->destport;
+  */
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
 
@@ -2799,6 +2807,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   uint32_t         encryptionMethod = 0;
   uint32_t         encryptionLevel  = 0;
   uint32_t         channelCount     = 0;
+  uint32_t         mcsChannelId     = 0;
   uint32_t         channelId     = 0;
   uint32_t         messageChannelId     = 0;
   unsigned         i;
@@ -2840,7 +2849,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   rdp_field_info_t sn_fields[] = {
     {&hf_rdp_headerType,               2, NULL, 0, 0, NULL },
     {&hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
-    {&hf_rdp_MCSChannelId,             2, &channelId, 0, 0, NULL },
+    {&hf_rdp_MCSChannelId,             2, &mcsChannelId, 0, 0, NULL },
     {&hf_rdp_channelCount,             2, &channelCount, 0, 0, NULL },
     FI_TERMINATOR
   };
@@ -2925,8 +2934,8 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
       lcl_offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sn_fields, 0);
 
-      rdp_info->staticChannelId = channelId;
-      register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
+      rdp_info->staticChannelId = mcsChannelId;
+      register_t124_sd_dissector(pinfo, mcsChannelId, dissect_rdp_SendData, proto_rdp);
 
       if (channelCount > 0) {
         array_fields[0].fixedLength = channelCount * 2;
@@ -2938,7 +2947,6 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           lcl_offset = dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, channel_fields, 0);
           if (i < RDP_MAX_CHANNELS) {
             rdp_info->staticChannels[i].value = channelId;
-            //printf("%d: %s -> %d\n", pinfo->num, rdp_info->staticChannels[i].strptr, channelId);
           }
 
           /* register SendData on this for now */
@@ -3022,6 +3030,11 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     &hf_rdp_requestedProtocols_flag_hybrid_ex,
     NULL
   };
+
+  rdp_conv_info_t *rdp_info = rdp_get_conversation_data(pinfo);
+
+  copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
+  rdp_info->serverAddr.port = pinfo->destport;
 
   col_append_str(pinfo->cinfo, COL_INFO, "Negotiate Request");
 
@@ -5236,6 +5249,7 @@ proto_reg_handoff_rdp(void)
   rail_handle = find_dissector("rdp_rail");
   cliprdr_handle = find_dissector("rdp_cliprdr");
   snd_handle = find_dissector("rdp_snd");
+  rdpdr_handle = find_dissector("rdpdr");
 
   heur_dissector_add("cotp_cr", dissect_rdp_cr_heur, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
   heur_dissector_add("cotp_cc", dissect_rdp_cc_heur, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
