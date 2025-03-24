@@ -385,11 +385,11 @@ static int edhoc_decrypt(const edhoc_cs_t *suite, GBytes *key, GBytes *iv, GByte
     }
     err = gcry_cipher_setkey(ghd, g_bytes_get_data(key, NULL), g_bytes_get_size(key));
     if (err) {
-        ws_warning("gcry_cipher_setkey size %ld error: %s", g_bytes_get_size(key), gcry_strerror(err));
+        ws_warning("gcry_cipher_setkey error: %s", gcry_strerror(err));
     }
     err = gcry_cipher_setiv(ghd, g_bytes_get_data(iv, NULL), g_bytes_get_size(iv));
     if (err) {
-        ws_warning("gcry_cipher_setiv size %ld error: %s", g_bytes_get_size(iv), gcry_strerror(err));
+        ws_warning("gcry_cipher_setiv error: %s", gcry_strerror(err));
     }
 
     if (aead_props->gcry_mode == GCRY_CIPHER_MODE_CCM) {
@@ -403,7 +403,7 @@ static int edhoc_decrypt(const edhoc_cs_t *suite, GBytes *key, GBytes *iv, GByte
     }
     err = gcry_cipher_authenticate(ghd, g_bytes_get_data(aad, NULL), g_bytes_get_size(aad));
     if (err) {
-        ws_warning("gcry_cipher_authenticate size %ld error: %s", g_bytes_get_size(aad), gcry_strerror(err));
+        ws_warning("gcry_cipher_authenticate error: %s", gcry_strerror(err));
     }
 
     // in-place decryption in the scratch buffer
