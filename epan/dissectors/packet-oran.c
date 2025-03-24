@@ -893,8 +893,12 @@ static bool se_allowed_in_st(unsigned se, unsigned ct)
             return ext_cts[se-1].ST5;
         case 6:
             return ext_cts[se-1].ST6;
+        case 10:
+            return ext_cts[se-1].ST10;
+        case 11:
+            return ext_cts[se-1].ST11;
         default:
-            /* New section type that includes 'ef'.. assume ok */
+            /* New/unknown section type that includes 'ef'.. assume ok */
             return true;
     }
 }
@@ -4827,8 +4831,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
 
-        case SEC_C_RRM_MEAS_REPORTS:
-        case SEC_C_REQUEST_RRM_MEAS:
+        case SEC_C_RRM_MEAS_REPORTS:    /* Section Type 10 */
+        case SEC_C_REQUEST_RRM_MEAS:    /* Section Type 11 */
             /* reserved (16 bits) */
             proto_tree_add_item(section_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -8200,7 +8204,7 @@ proto_register_oran(void)
         },
 
         /* 7.5.27.2 */
-        {&hf_oran_beam_type,
+        { &hf_oran_beam_type,
          {"beamType", "oran_fh_cus.beamType",
           FT_UINT16, BASE_DEC,
           VALS(beam_type_vals), 0xc0,
@@ -8208,7 +8212,7 @@ proto_register_oran(void)
           HFILL}
         },
         /* 7.5.3.65 */
-        {&hf_oran_meas_cmd_size,
+        { &hf_oran_meas_cmd_size,
          {"measCmdSize", "oran_fh_cus.measCmdSize",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
