@@ -3007,7 +3007,9 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
              *
              * Continue the read process.
              */
-            pcapng_read_shb(pcap_src, errmsg, errmsgl);
+            if (pcapng_read_shb(pcap_src, errmsg, errmsgl)) {
+                break;
+            }
             return 1;
         }
 
