@@ -45,7 +45,7 @@ static int hf_nrppa_AoA_AssistanceInfo_PDU;       /* AoA_AssistanceInfo */
 static int hf_nrppa_ARP_ID_PDU;                   /* ARP_ID */
 static int hf_nrppa_ARPLocationInformation_PDU;   /* ARPLocationInformation */
 static int hf_nrppa_nrppa_Assistance_Information_PDU;  /* Assistance_Information */
-static int hf_nrppa_AssistanceInformationFailureList_PDU;  /* AssistanceInformationFailureList */
+static int hf_nrppa_nrppa_AssistanceInformationFailureList_PDU;  /* AssistanceInformationFailureList */
 static int hf_nrppa_Bandwidth_Aggregation_Request_Indication_PDU;  /* Bandwidth_Aggregation_Request_Indication */
 static int hf_nrppa_Broadcast_PDU;                /* Broadcast */
 static int hf_nrppa_PositioningBroadcastCells_PDU;  /* PositioningBroadcastCells */
@@ -12284,11 +12284,11 @@ int dissect_nrppa_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_AssistanceInformationFailureList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nrppa_AssistanceInformationFailureList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-  offset = dissect_nrppa_AssistanceInformationFailureList(tvb, offset, &asn1_ctx, tree, hf_nrppa_AssistanceInformationFailureList_PDU);
+  offset = dissect_nrppa_AssistanceInformationFailureList(tvb, offset, &asn1_ctx, tree, hf_nrppa_nrppa_AssistanceInformationFailureList_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -13712,7 +13712,7 @@ void proto_register_nrppa(void) {
       { "Assistance-Information", "nrppa.Assistance_Information_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nrppa_AssistanceInformationFailureList_PDU,
+    { &hf_nrppa_nrppa_AssistanceInformationFailureList_PDU,
       { "AssistanceInformationFailureList", "nrppa.AssistanceInformationFailureList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
@@ -17414,7 +17414,7 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_TDD_Config_EUTRA_Item, create_dissector_handle(dissect_TDD_Config_EUTRA_Item_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_Assistance_Information, create_dissector_handle(dissect_nrppa_Assistance_Information_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_Broadcast, create_dissector_handle(dissect_Broadcast_PDU, proto_nrppa));
-  dissector_add_uint("nrppa.ies", id_AssistanceInformationFailureList, create_dissector_handle(dissect_AssistanceInformationFailureList_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.ies", id_AssistanceInformationFailureList, create_dissector_handle(dissect_nrppa_AssistanceInformationFailureList_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_SRSConfiguration, create_dissector_handle(dissect_nrppa_SRSConfiguration_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRPInformationTypeListTRPReq, create_dissector_handle(dissect_TRPInformationTypeListTRPReq_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRPInformationListTRPResp, create_dissector_handle(dissect_TRPInformationListTRPResp_PDU, proto_nrppa));

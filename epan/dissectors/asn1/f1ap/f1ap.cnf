@@ -3138,7 +3138,7 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_microseconds)
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_PosAssistance_Information);
-    dissect_nrppa_Assistance_Information_PDU(param_tvb, actx->pinfo, subtree, NULL);
+    dissect_nrppa_AssistanceInformationFailureList_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY LocationMeasurementInformation VAL_PTR = &param_tvb

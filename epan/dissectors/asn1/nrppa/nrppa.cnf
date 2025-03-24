@@ -18,10 +18,12 @@ SRSResourceID-Item
 
 #.EXPORTS
 Assistance-Information_PDU
+AssistanceInformationFailureList_PDU
 SRSConfiguration_PDU
 
 #.PDU
 Assistance-Information
+AssistanceInformationFailureList
 NRPPA-PDU
 SRSConfiguration
 
