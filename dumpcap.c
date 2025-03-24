@@ -278,6 +278,7 @@ typedef struct _pcap_pipe_info {
 typedef struct _pcapng_pipe_info {
     pcapng_block_header_t bh;                  /**< Pcapng general block header when capturing from a pipe */
     GArray *src_iface_to_global;               /**< Int array mapping local IDB numbers to global_ld.interface_data */
+    bool byte_swapped;                         /**< true if data in the pipe is byte swapped. */
 } pcapng_pipe_info_t;
 
 struct _loop_data; /* forward declaration so we can use it in the cap_pipe_dispatch function pointer */
@@ -2248,6 +2249,12 @@ pcap_pipe_open_live(int fd,
         hdr->version_minor = GUINT16_SWAP_LE_BE(hdr->version_minor);
         hdr->snaplen = GUINT32_SWAP_LE_BE(hdr->snaplen);
         hdr->network = GUINT32_SWAP_LE_BE(hdr->network);
+
+        /* XXX - There are some link-layer types, like Linux USB or Linux SLL
+         * carrying CAN bus, that have metadata fields in host byte order in
+         * the packet data. We don't byte-swap those currently, but should.
+         * Fail with an error on those link-layer types?
+         */
     }
     /*
      * The link-layer header type field of the pcap header is
@@ -2347,35 +2354,10 @@ pcapng_read_shb(capture_src *pcap_src,
     {
     case PCAPNG_MAGIC:
         ws_debug("pcapng SHB MAGIC");
+        pcap_src->cap_pipe_info.pcapng.byte_swapped = false;
         break;
     case PCAPNG_SWAPPED_MAGIC:
         ws_debug("pcapng SHB SWAPPED MAGIC");
-        /*
-         * pcapng sources can contain all sorts of block types.
-         * Rather than add a bunch of complexity to this code (which is
-         * often privileged), punt and tell the user to swap bytes
-         * elsewhere.
-         *
-         * XXX - punting means that the Wireshark test suite must be
-         * modified to:
-         *
-         *  1) have both little-endian and big-endian versions of
-         *     all pcapng files piped to dumpcap;
-         *
-         *  2) pipe the appropriate file to dumpcap, depending on
-         *     the byte order of the host on which the tests are
-         *     being run;
-         *
-         * as per comments in bug 15772 and 15754.
-         *
-         * Are we *really* certain that the complexity added would be
-         * significant enough to make adding it a security risk?  And
-         * why would this code even be running with any elevated
-         * privileges if you're capturing from a pipe?  We should not
-         * only have given up all additional privileges if we're reading
-         * from a pipe, we should give them up in such a fashion that
-         * we can't reclaim them.
-         */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 #define OUR_ENDIAN "big"
 #define IFACE_ENDIAN "little"
@@ -2383,10 +2365,33 @@ pcapng_read_shb(capture_src *pcap_src,
 #define OUR_ENDIAN "little"
 #define IFACE_ENDIAN "big"
 #endif
-        snprintf(errmsg, errmsgl,
-                   "Interface %u is " IFACE_ENDIAN " endian but we're " OUR_ENDIAN " endian.",
-                   pcap_src->interface_id);
-        return -1;
+        if (!global_ld.pcapng_passthrough) {
+            /* Dumpcap is generating its own SHB and IDBs, which will have the
+             * opposite endianness of this source SHB. To handle this, we'd have
+             * to byte swap various elements (including in other block types);
+             * we don't do that for pcapng yet.
+             *
+             * We also might have to byte-swap some fields in the packet data,
+             * at least for link-layer types like Linux USB or Linux SLL
+             * carrying CAN bus that have metadata fields in host byte order.
+             *
+             * XXX - If *all* the input pcapng SHBs are the opposite byte order
+             * of the host, we could generate an opposite byte order SHB and
+             * IDBs. It still wouldn't handle the mixed case.
+             */
+            snprintf(errmsg, errmsgl,
+                       "Interface %u is " IFACE_ENDIAN " endian but we're " OUR_ENDIAN " endian.",
+                       pcap_src->interface_id);
+            return -1;
+        }
+        /* Remember that this pipe's current section is byte swapped; we're
+         * passing everything through, but still need to swap the block total
+         * length and, for other block types, the block type, to read correctly.
+         */
+        pcap_src->cap_pipe_info.pcapng.byte_swapped = true;
+        pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
+        bh->block_total_length = GUINT32_SWAP_LE_BE(bh->block_total_length);
+        break;
     default:
         /* Not a pcapng type we know about, or not pcapng at all. */
         snprintf(errmsg, errmsgl,
@@ -3013,6 +3018,10 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             return 1;
         }
 
+        if (pcap_src->cap_pipe_info.pcapng.byte_swapped) {
+            bh->block_type = GUINT32_SWAP_LE_BE(bh->block_type);
+            bh->block_total_length = GUINT32_SWAP_LE_BE(bh->block_total_length);
+        }
         if ((bh->block_total_length & 0x03) != 0) {
             snprintf(errmsg, errmsgl,
                        "Total length of pcapng block read from pipe is %u, which is not a multiple of 4.",
@@ -3118,14 +3127,22 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     capture_src        *pcap_src;
     unsigned            i;
 
-    if ((use_threads == false) &&
-        (capture_opts->ifaces->len > 1)) {
-        snprintf(errmsg, errmsg_len,
-                   "Using threads is required for capturing on multiple interfaces.");
-        return false;
+    if (capture_opts->ifaces->len > 1) {
+        /* If we have more than one input, then we're definitely not passing
+         * blocks through. Setting it here will cause pcapng_read_shb to fail
+         * on a SHB of endianness opposite our host, since we don't handle
+         * byte swapping the data in each block.
+         */
+        ld->pcapng_passthrough = false;
+
+        if (use_threads == false) {
+            snprintf(errmsg, errmsg_len,
+                       "Using threads is required for capturing on multiple interfaces.");
+            return false;
+        }
     }
 
-    int pcapng_src_count = 0;
+    unsigned pcapng_src_count = 0;
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         pcap_src = g_new0(capture_src, 1);
@@ -3282,6 +3299,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             /*
              * Add our pcapng interface entry.
              */
+            ld->pcapng_passthrough = false;
             saved_idb_t idb_source = { 0 };
             idb_source.interface_id = i;
             g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
@@ -3302,11 +3320,18 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
          * Yes; pass through SHBs and IDBs from the source, rather
          * than generating our own.
          */
-        ld->pcapng_passthrough = true;
         g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
+        ws_assert(global_ld.pcapng_passthrough == true);
         ws_assert(global_ld.saved_idbs->len == 0);
         ws_debug("%s: Pass through SHBs and IDBs directly", G_STRFUNC);
         g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
+    } else {
+        /*
+         * No; that means we'll generate our own SHB and IDBs. If the source
+         * is a pipe with byte order different than our own, we'll have to
+         * byte swap various elements; we don't do that for pcapng yet.
+         */
+        ws_assert(global_ld.pcapng_passthrough == false);
     }
 
     /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
@@ -5321,7 +5346,8 @@ main(int argc, char *argv[])
 
     /* Initialize the pcaps list and IDBs */
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(capture_src *));
-    global_ld.pcapng_passthrough = false;
+    /* Assume, for now, that there will be only one input, which is pcapng. */
+    global_ld.pcapng_passthrough = true;
     global_ld.saved_shb = NULL;
     global_ld.saved_idbs = g_array_new(FALSE, TRUE, sizeof(saved_idb_t));
 

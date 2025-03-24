@@ -308,7 +308,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, cmd_capinfos, result_file):
 def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture_file, result_file):
     if sys.platform == 'win32':
         pytest.skip('Test requires OS fifo support.')
-    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False, env=None):
+    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False, mixed_endian=False, env=None):
         # Make sure we always test multiple SHBs in an input.
         in_files_l = [ [
             capture_file('many_interfaces.pcapng.1'),
@@ -316,6 +316,8 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             ] ]
         if multi_input:
             in_files_l.append([ capture_file('many_interfaces.pcapng.3') ])
+        if mixed_endian:
+            in_files_l[0].append(capture_file('dhcp_big_endian.pcapng'))
         fifo_files = []
         fifo_procs = []
         # Default values for our validity tests
@@ -403,6 +405,11 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             check_vals[1]['idb_count'] = 33
             check_vals[1]['ua_dc_count'] = 1
 
+        # dhcp_big_endian.pcapng : 4 packets, Big Endian, 1 IDB, no UA option
+        if mixed_endian:
+            check_vals[-1]['packet_count'] += 4
+            check_vals[-1]['idb_count'] += 1
+
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
 
         subprocesstest.check_run(capture_cmd, env=env)
@@ -467,7 +474,6 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             assert count_output(tshark_proc.stdout, r'Option: User Application = Dumpcap \(Wireshark\)') \
                         == check_val['ua_dc_count']
     return check_dumpcap_pcapng_sections_real
-
 
 class TestWiresharkCapture:
     def test_wireshark_capture_10_packets_to_file(self, request, wireshark_k, check_capture_10_packets, make_screenshot_on_error, test_env):
@@ -577,14 +583,10 @@ class TestDumpcapRingbuffer:
 class TestDumpcapPcapngSections:
     def test_dumpcap_pcapng_single_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from a single pcapng source using Dumpcap and write a single file'''
-        if sys.byteorder == 'big':
-            pytest.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self, env=base_env)
 
     def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from a single pcapng source using Dumpcap and write two files'''
-        if sys.byteorder == 'big':
-            pytest.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self, multi_output=True, env=base_env)
 
     def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
@@ -598,3 +600,18 @@ class TestDumpcapPcapngSections:
         if sys.byteorder == 'big':
             pytest.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self, multi_input=True, multi_output=True, env=base_env)
+
+class TestDumpcapPcapngMixedEndian:
+    def test_dumpcap_pcapng_single_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
+        '''Capture from a single pcapng source using Dumpcap and write a single file'''
+        check_dumpcap_pcapng_sections(self, mixed_endian=True, env=base_env)
+
+    def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections, base_env):
+        '''Capture from a single pcapng source using Dumpcap and write two files'''
+        check_dumpcap_pcapng_sections(self, multi_output=True, mixed_endian=True, env=base_env)
+
+    # dumpcap doesn't support capturing from mixed-endian pipes with multiple
+    # inputs (i.e., when not just passing through the SHBs and IDBs).
+    # def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
+    #     '''Capture from a single pcapng source using Dumpcap and write a single file'''
+    #     check_dumpcap_pcapng_sections(self, multi_input=True, mixed_endian=True, env=base_env)
