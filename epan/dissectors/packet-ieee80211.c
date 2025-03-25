@@ -45264,7 +45264,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_addba_ext_reserved,
       {"Reserved", "wlan.addba.reserved",
-       FT_UINT8, BASE_HEX, NULL, 0xF8,
+       FT_UINT8, BASE_HEX, NULL, 0x18,
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_addba_ext_buffer_size,
