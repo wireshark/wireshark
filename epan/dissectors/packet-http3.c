@@ -850,7 +850,7 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t
 
 
 static void
-get_header_field_pstr(nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *outlen)
+get_header_field_pstr(wmem_allocator_t *scratch, nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *outlen)
 {
     char             *pstr;      /* The returned pstr, always from the cache. */
     uint32_t         pstr_len;   /* The length of `pstr'. */
@@ -861,12 +861,7 @@ get_header_field_pstr(nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *
     char             *value;     /* Typed pointer to field's value. */
     uint32_t         value_len;  /* Field's value length. */
 
-    /* Scratch buffer, allocated in the wmem_file_scope.
-     * Using the scratch buffer allows to reduce the number
-     * of allocations.
-     */
-    static char      *scratch_buffer           = NULL;
-    static uint32_t  scratch_buffer_alloc_size = 0;
+    char             *scratch_buffer;
 
     /* Extract the vectors from `header_nv'. */
     namev       = nghttp3_rcbuf_get_buf(header_nv->name);
@@ -876,21 +871,14 @@ get_header_field_pstr(nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *
     value       = (char *)valuev.base;
     value_len   = (uint32_t)valuev.len;
 
-    /* Ensure the scratch buffer is large enough. */
-    pstr_len = (4 + name_len) + (4 + value_len);
-    if (scratch_buffer_alloc_size < pstr_len) {
-        ws_noisy("Increasing scratch buffer capacity from %u to %u",
-            scratch_buffer_alloc_size, pstr_len);
-        scratch_buffer = (char *)wmem_realloc(wmem_file_scope(), scratch_buffer, pstr_len);
-        scratch_buffer_alloc_size = pstr_len;
-    }
-
     ws_debug("HTTP header: %.*s: %.*s", name_len, name, value_len, value);
 
     /* Construct the pstr in the scratch buffer.
      * The pstr format is described in the "Header caching scheme"
      * comment above.
      */
+    pstr_len = (4 + name_len) + (4 + value_len);
+    scratch_buffer = (char *)wmem_alloc(scratch, pstr_len);
     phton32(&scratch_buffer[0], name_len);
     memcpy(&scratch_buffer[4], name, name_len);
     phton32(&scratch_buffer[4 + name_len], value_len);
@@ -900,14 +888,7 @@ get_header_field_pstr(nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *
      * or allocate a new entry. */
     pstr = (char *)wmem_map_lookup(HTTP3_HEADER_CACHE, scratch_buffer);
     if (pstr == NULL) {
-        /* N.B: The scratch buffer has enough capacity for the longest
-         * header field that was seen so far. This may potentially be
-         * significantly larger than the length of the current pstr.
-         * Because of that we are not caching the scratch buffer,
-         * but allocating a separate buffer to be cached.
-         */
-        pstr = (char *)wmem_alloc(wmem_file_scope(), pstr_len);
-        memcpy(pstr, scratch_buffer, pstr_len);
+        pstr = (char *)wmem_memdup(wmem_file_scope(), scratch_buffer, pstr_len);
         wmem_map_insert(HTTP3_HEADER_CACHE, pstr, pstr);
     }
 
@@ -915,9 +896,6 @@ get_header_field_pstr(nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *
     nghttp3_rcbuf_decref(header_nv->name);
     nghttp3_rcbuf_decref(header_nv->value);
 
-    /* N.B. We never return the scratch buffer,
-     * so that its ownership remains here.
-     */
     *outp   = pstr;
     *outlen = pstr_len;
 }
@@ -1053,7 +1031,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
                 out->encoded.offset = header_data->encoded.pos;
 
                 /* Populate the `decoded' portion. */
-                get_header_field_pstr(&nv, &out->decoded.bytes, &out->decoded.len);
+                get_header_field_pstr(pinfo->pool, &nv, &out->decoded.bytes, &out->decoded.len);
 
                 /* Add the decoded header field to the header data. */
                 if (header_data->header_fields == NULL) {
