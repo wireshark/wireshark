@@ -24,7 +24,7 @@ enum section_c_types {
     SEC_C_MAX_INDEX
 };
 
-#define HIGHEST_EXTTYPE 27
+#define HIGHEST_EXTTYPE 28
 
 typedef struct oran_tap_info {
     /* Key info */
