@@ -263,7 +263,7 @@ FolderListModel::FolderListModel(QObject * parent):
 #ifdef HAVE_LIBSMI
     /* SMI MIBs/PIBs */
     char *default_mib_path = oid_get_default_mib_path();
-    QStringList smiPaths = QString(default_mib_path).split(G_SEARCHPATH_SEPARATOR_S);
+    QStringList smiPaths = QString(default_mib_path).split(G_SEARCHPATH_SEPARATOR_S, Qt::SkipEmptyParts);
     g_free(default_mib_path);
     foreach(QString path, smiPaths)
         appendRow(QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
