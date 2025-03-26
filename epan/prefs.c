@@ -2443,6 +2443,14 @@ static const enum_val_t st_sort_col_vals[] = {
     { NULL,      NULL,         0 }
 };
 
+static const enum_val_t st_format_vals[] = {
+    { "text",  "Plain text",             ST_FORMAT_PLAIN },
+    { "csv",   "Comma separated values", ST_FORMAT_CSV   },
+    { "xml",   "XML document",           ST_FORMAT_XML   },
+    { "yaml",  "YAML document",          ST_FORMAT_YAML  },
+    { NULL,    NULL,                     0 }
+};
+
 static void
 stats_callback(void)
 {
@@ -3966,6 +3974,13 @@ prefs_register_modules(void)
             "plug-in is show in windows. If cleared the plug-in name is shown "
             "without menu path (only the part of the name after last '/' character.)",
             &prefs.st_sort_showfullname);
+
+    prefs_register_enum_preference(stats_module, "output_format",
+            "Default output format",
+            "Sets the default output format for statistical data. Only supported "
+            "by taps using the stats_tree system currently; other taps may honor "
+            "this preference in the future. ",
+            &prefs.st_format, st_format_vals, false);
 
     module_t *conv_module;
     // avoid using prefs_register_stat to prevent lint complaint about recursion

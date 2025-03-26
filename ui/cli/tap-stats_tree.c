@@ -17,6 +17,7 @@
 
 #include <wsutil/report_message.h>
 
+#include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_tap_ui.h>
 
@@ -41,7 +42,7 @@ draw_stats_tree(void *psp)
 	stats_tree *st = (stats_tree *)psp;
 	GString *s;
 
-	s= stats_tree_format_as_str(st, ST_FORMAT_PLAIN, stats_tree_get_default_sort_col(st),
+	s= stats_tree_format_as_str(st, prefs.st_format, stats_tree_get_default_sort_col(st),
 				    stats_tree_is_default_sort_DESC(st));
 
 	printf("%s", s->str);

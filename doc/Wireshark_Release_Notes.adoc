@@ -175,6 +175,10 @@ The following features are either new or have been significantly updated since v
   preference, "conv.machine_readable". The same preference controls whether
   precise byte counts are used in the TShark "-z conv" and "-z endpoints" taps.
 
+* The output format for some TShark statistics taps (those selected with
+  "-z <tap>,tree", which use the stats_tree system) can be controlled via
+  a preference "-o statistics.output_format".
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

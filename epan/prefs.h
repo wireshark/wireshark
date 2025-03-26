@@ -278,6 +278,7 @@ typedef struct _e_prefs {
   int          st_sort_defcolflag;
   bool         st_sort_defdescending;
   bool         st_sort_showfullname;
+  int          st_format;
   bool         conv_machine_readable;
   bool         extcap_save_on_start;
 } e_prefs;
