@@ -243,7 +243,8 @@ static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
     "ORAN-E2SM-KPM",
     "ORAN-E2SM-RC",
     "ORAN-E2SM-NI",
-    "{"               /* For now, CCC is the only JSON-based RAN Function, so just match opening */
+    "{",              /* For now, CCC is the only JSON-based RAN Function, so just match opening */
+    "ORAN-E2SM-LLC"
 };
 
 
@@ -274,6 +275,8 @@ static const char *ran_function_to_str(ran_function_t ran_function)
             return "NI";
         case CCC_RANFUNCTIONS:
             return "CCC";
+        case LLC_RANFUNCTIONS:
+            return "LLC";
 
         default:
             return "Unknown";
@@ -846,7 +849,6 @@ proto_reg_handoff_e2ap(void)
   oid_add_from_string("NI v5",         "1.3.6.1.4.1.53148.1.5.2.1");
   oid_add_from_string("NI v6",         "1.3.6.1.4.1.53148.1.6.2.1");
 
-
   /* CCC */
   oid_add_from_string("CCC v1",         "1.3.6.1.4.1.53148.1.1.2.4");
   oid_add_from_string("CCC v2",         "1.3.6.1.4.1.53148.1.2.2.4");
@@ -854,6 +856,9 @@ proto_reg_handoff_e2ap(void)
   oid_add_from_string("CCC v4",         "1.3.6.1.4.1.53148.1.4.2.4");
   oid_add_from_string("CCC v5",         "1.3.6.1.4.1.53148.1.5.2.4");
   oid_add_from_string("CCC v6",         "1.3.6.1.4.1.53148.1.6.2.4");
+
+  /* LLC */
+  oid_add_from_string("LLC v1",         "1.3.6.1.4.1.53148.1.1.2.5");
 
 
   /*********************************************************/

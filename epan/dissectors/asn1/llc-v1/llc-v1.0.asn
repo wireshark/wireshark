@@ -1,0 +1,670 @@
+-- ASN1START
+-- **************************************************************
+-- E2SM-LLC Information Element Definitions
+-- **************************************************************
+E2SM-LLC-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version1(1) e2sm(2) e2sm-LLC-IEs (5)}
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+-- E2SM Common IEs
+-- **************************************************************
+IMPORTS
+     RANfunction-Name,
+     RIC-Style-Name,
+     RIC-Style-Type,
+     RIC-Format-Type,
+     CGI,
+     UEID
+FROM E2SM-COMMON-IEs;
+
+-- *****************************************************
+-- CONSTANTS
+-- *****************************************************
+
+maxnoofLLIs                                INTEGER ::= 63
+maxnoofMeasurementsToReport                INTEGER ::= 65535
+maxnoofMeasurements                        INTEGER ::= 63
+maxnoofRICStyles                           INTEGER ::= 63
+maxnoofControlAction                       INTEGER ::= 65535
+maxnoofUEInfo                              INTEGER ::= 65535
+maxnoofUEs                                 INTEGER ::= 65535
+maxnoofReceiveAntennas                     INTEGER ::= 65535
+maxnoofUEID                                INTEGER ::= 65535
+maxnoofCSIReports                          INTEGER ::= 255
+maxnoofUEBearers                           INTEGER ::= 255
+maxnoofLogicalChannels                     INTEGER ::= 63
+maxnoofScheduledDLSlots                    INTEGER ::= 63
+maxnoofDLGrants                            INTEGER ::= 63
+maxnoofPdschSMGs                           INTEGER ::= 63
+maxnoofCsiRsPrecodingBands                 INTEGER ::= 63
+maxnoofPrecoders                           INTEGER ::= 255
+maxnoofPrecoderCoefficients                INTEGER ::= 65535
+
+
+-- *****************************************************
+-- IEs
+-- *****************************************************
+
+LogicalOR ::= ENUMERATED {true, false, ...}
+
+LowerLayers-Info-Type   ::= ENUMERATED {srs, csi,...}
+LowerLayers-Meas-Type   ::= ENUMERATED { dl-rlc-buffer-status, dl-pdcp-buffer-status, dl-harq-statistics, slot-time-stamp, ...}
+
+LogicalChannelID ::= INTEGER (1..32, ...)
+
+SpsConfigIndex ::= INTEGER (0..7, ...)
+
+ReceivedTimestamp ::= OCTET STRING (SIZE(8))
+
+
+-------------------------------
+-- Event Trigger related IEs
+-------------------------------
+
+EventTrigger-UE-Info ::= SEQUENCE { ueInfo-List  SEQUENCE (SIZE(1..maxnoofUEInfo)) OF EventTrigger-UE-Info-Item, ...
+}
+
+EventTrigger-UE-Info-Item ::= SEQUENCE {
+    eventTriggerUEID                     RIC-EventTrigger-UE-ID,
+    ueType                                CHOICE {
+        ueType-Choice-Individual            EventTrigger-UE-Info-Item-Choice-Individual,
+        ueType-Choice-Group                 EventTrigger-UE-Info-Item-Choice-Group,
+        ...
+    },
+    logicalOR                LogicalOR                            OPTIONAL,
+    ...
+}
+
+EventTrigger-UE-Info-Item-Choice-Individual ::= SEQUENCE {
+    ueID                                UEID,
+    ...
+}
+
+EventTrigger-UE-Info-Item-Choice-Group ::= SEQUENCE {
+    groupOfUEs                           GroupOfUEs,
+     ...
+}
+
+GroupOfUEs ::= SEQUENCE {
+    cellGlobalID                   CGI                                 OPTIONAL,
+    ueIdentifier-List              SEQUENCE (SIZE(0..maxnoofUEs)) OF UeIdentifier-Item,
+    ...
+}
+
+UeIdentifier-Item ::= SEQUENCE {
+    ueID                          UEID,
+    ...
+}
+
+
+----------------------------
+-- RIC Service related IEs
+----------------------------
+
+
+RIC-ControlAction-ID ::= INTEGER (1..65535, ...)
+
+RIC-ControlAction-Name ::= PrintableString (SIZE(1..150, ...))
+
+RIC-EventTriggerCondition-ID ::= INTEGER (1..65535, ...)
+
+RIC-EventTrigger-UE-ID ::= INTEGER (1..65535, ...)
+
+
+SlotTimeStamp ::= SEQUENCE {
+    slotInfo                           SlotInfo,
+    slotStartTime     OCTET STRING (SIZE(8)),
+    ...
+}
+
+SlotInfo ::= SEQUENCE {
+    systemFramNumber                     INTEGER (0..1023, ...),
+    slotIndex                            CHOICE {
+        scs-15                              INTEGER (0..9),
+        scs-30                              INTEGER (0..19),
+        scs-60                              INTEGER (0..39),
+        scs-120                             INTEGER (0..79),
+        ...
+     },
+     ...
+}
+
+SRS ::= SEQUENCE {
+ srsReceiveAntenna-List    SEQUENCE (SIZE(1..maxnoofReceiveAntennas)) OF SrsReceiveAntenna-Item,
+     ...
+}
+
+SrsReceiveAntenna-Item ::= SEQUENCE {  srsSymbol-List    SEQUENCE (SIZE(1|2|4,...)) OF SrsSymbol-Item,      ...
+}
+
+SrsSymbol-Item ::= SEQUENCE {
+    srsCompressionHeader                OCTET STRING (SIZE(1)),
+    rawSRS                              OCTET STRING,      ...
+}
+
+CSI ::= SEQUENCE {  csiUeIdentifier-List    SEQUENCE (SIZE(1.. maxnoofUEID)) OF CsiUeIdentifier-Item,
+                    ...
+}
+
+CsiUeIdentifier-Item     ::= SEQUENCE {
+    ueID                               UEID,
+    channelCarryingUCI                 ENUMERATED {pucch, pusch, ...},
+    csiReport-List                     SEQUENCE (SIZE(1.. maxnoofCSIReports)) OF CsiReport-Item,
+    ...
+}
+
+CsiReport-Item ::= SEQUENCE {
+    csiReportConfigID                 INTEGER,
+    csiFieldsCsiReport-Part1           BIT STRING,
+    csiFieldsCsiReport-Part2           BIT STRING                                OPTIONAL,
+    ...
+}
+
+DlRlcBufferStatus ::= SEQUENCE {   dlRlcUeIdentifiers-List    SEQUENCE (SIZE(1.. maxnoofUEID)) OF DlRlcUeIdentifiers-Item,
+                                    ...
+}
+
+DlRlcUeIdentifiers-Item ::= SEQUENCE {
+    ueID                                UEID,
+    dlRlcUeBearers-List                 SEQUENCE (SIZE(1.. maxnoofUEBearers)) OF DlRlcUeBearers-Item,
+    ...
+}
+
+DlRlcUeBearers-Item ::= SEQUENCE {
+    lcID                                INTEGER (1..32, ...),
+    dlRlcBufferOccupancy                INTEGER,
+    dlRlcHolTimeToLive                  INTEGER (0..1032, ...),
+    ...
+}
+
+DlPdcpBufferStatus ::= SEQUENCE {      dlPdcpUeIdentifiers-List           SEQUENCE (SIZE(1.. maxnoofUEID)) OF DlPdcpUeIdentifiers-Item,
+     ...
+}
+
+DlPdcpUeIdentifiers-Item ::= SEQUENCE {
+    ueID           UEID,
+    dlPdcpUeBearers-List                SEQUENCE (SIZE(1.. maxnoofUEBearers)) OF DlPdcpUeBearers-Item,
+     ...
+}
+
+DlPdcpUeBearers-Item     ::= SEQUENCE {
+     drbID                            INTEGER (1..32, ...),
+     dlPdcpBufferOccupancy            INTEGER,
+     dlPdcpHolTimeToLive              INTEGER (0..1032, ...),
+     ...
+}
+
+DlHarqStatistics ::= SEQUENCE {  dlHarqUeIdentifier-List    SEQUENCE (SIZE(1.. maxnoofUEID)) OF DlHarqUeIdentifier-Item,
+     ...
+}
+
+DlHarqUeIdentifier-Item ::= SEQUENCE {
+     harqUeID                           UEID,
+     dlHarqCodeword-List                SEQUENCE (SIZE(1|2,...)) OF DlHarqCodeword-Item,
+     ...
+}
+
+DlHarqCodeword-Item ::= SEQUENCE {
+    dlSu-ACK-Count      INTEGER,
+    dlSu-NACK-Count     INTEGER,
+    dlSu-DTX-Count      INTEGER,
+    dlMu-ACK-Count      INTEGER,
+    dlMu-NACK-Count     INTEGER,
+    dlMu-DTX-Count      INTEGER,
+    ...
+}
+
+LogicalChannelHandlingControl      ::= SEQUENCE {  logicalChannelUEID-List    SEQUENCE (SIZE(1.. maxnoofUEID)) OF LogicalChannelUEID-Item,
+    ...
+}
+
+LogicalChannelUEID-Item ::= SEQUENCE {
+    ueID                                     UEID,
+    logicalChanContByNearRTRicToAdd-List     SEQUENCE (SIZE(1.. maxnoofLogicalChannels)) OF LogicalChanContByNearRTRicToAdd-Item,
+    logicalChanContByNearRTRicToRel-List     SEQUENCE (SIZE(1.. maxnoofLogicalChannels)) OF LogicalChanContByNearRTRicToRel-Item,
+    ...
+}
+
+LogicalChanContByNearRTRicToAdd-Item     ::= SEQUENCE {
+    logicalChannelID                     LogicalChannelID,
+    startingSlotNumber                   SlotInfo,
+    ...
+}
+
+LogicalChanContByNearRTRicToRel-Item     ::= SEQUENCE {
+    logicalChannelID                     LogicalChannelID,
+    startingSlotNumber                   SlotInfo,
+    ...
+}
+
+DlSchedulingControl ::= SEQUENCE {
+     dlSlotToBeScheduled-List        SEQUENCE (SIZE(1.. maxnoofScheduledDLSlots)) OF DlSlotToBeScheduled-Item,
+     ...
+}
+
+DlSlotToBeScheduled-Item     ::= SEQUENCE {
+     slotInfo                               SlotInfo,
+     dlGrant-List                           SEQUENCE (SIZE(1.. maxnoofDLGrants)) OF DlGrant-Item,
+     pdschSMG-List                          SEQUENCE (SIZE(1.. maxnoofPdschSMGs)) OF PdschSMG-Item,
+     csiRsPrecodingBand-List                SEQUENCE (SIZE(0.. maxnoofCsiRsPrecodingBands)) OF CsiRsPrecodingBand-Item,
+     precoder-List                          SEQUENCE (SIZE(1.. maxnoofPrecoders)) OF Precoder-Item,
+    ...
+}
+
+DlGrant-Item     ::= SEQUENCE {
+    grantID                 INTEGER (1..63, ...),
+    bwpID                   INTEGER (0..4, ...)                 OPTIONAL,
+    ueID                    UEID,
+    logicalChannel-List     SEQUENCE (SIZE(1.. maxnoofLogicalChannels)) OF LogicalChannel-Item,
+    dlControlInfoType       CHOICE {
+        dci-10                                Dci-10,
+        dci-11                                Dci-11,
+        semiPersistence                       NULL,
+        ...
+    },
+    ...
+}
+
+LogicalChannel-Item ::= SEQUENCE {
+    logicalChannelID                   LogicalChannelID,
+    noofBytes-TB1                      INTEGER,
+    noofBytes-TB2                      INTEGER                            OPTIONAL,
+    ...
+}
+
+Dci-10 ::= SEQUENCE {
+    useCsiRnti                           SEQUENCE {
+          spsConfigIndex                      SpsConfigIndex                 OPTIONAL,
+-- C-ifSPSList: This IE shall be present if there are multiple SPS configurations in the SPS-Config IE (3GPP TS 38.331) of the UE. It shall not be present otherwise.
+          activation                           ENUMERATED {activate, deactivate},
+          ...
+    }                                                                      OPTIONAL,
+    freqDomainResources                      INTEGER,
+    timeDomainResources                      INTEGER (0..15, ...),
+    vrbToPrbMapping                          ENUMERATED {interleaved, ...} OPTIONAL,
+    mcs                                      INTEGER (0..31, ...),
+    redundancyVersion                        INTEGER (0..3, ...),
+    ...
+}
+
+Dci-11 ::= SEQUENCE {
+    useCsiRnti                     SEQUENCE {
+        spsConfigIndex                      SpsConfigIndex                  OPTIONAL,
+-- C-ifSPSList: This IE shall be present if there are multiple SPS configurations in the SPS-Config IE (3GPP TS 38.331) of the UE. It shall not be present otherwise.
+        ...
+    }                                                                       OPTIONAL,
+    carrierIndicator                     INTEGER (1..7, ...)                OPTIONAL,
+    freqDomainResources                  BIT STRING,
+    timeDomainResources                  INTEGER (0..15, ...),
+    vrbToPrbMapping                      ENUMERATED {interleaved, ...}      OPTIONAL,
+    prbBundlingSizeIndicagor             INTEGER (0..1, ...),
+    mcs-TB1                              INTEGER (0..31, ...),
+    redundancyVersion-TB1                INTEGER (0..3, ...),
+    mcs-TB2                              INTEGER (0..31, ...)               OPTIONAL,
+    redundancyVersion-TB2                INTEGER (0..3, ...)                OPTIONAL,
+    antennaPorts                         BIT STRING (SIZE(4..6)),
+    transmissionConfigIndication         INTEGER (0..7, ...)                OPTIONAL,
+    srsRequest                           BIT STRING (SIZE(2..3))            OPTIONAL,
+    dmrsSequenceInit                     INTEGER (0..1),
+    ...
+}
+
+PdschSMG-Item ::= SEQUENCE {
+    precoderID                           INTEGER (0..63, ...),
+    smgProirity                          INTEGER (0..31, ...)                OPTIONAL,
+    startRB                              INTEGER,
+    noofRBs                              INTEGER,
+    startSymbol                          INTEGER,
+    noofSymbols                          INTEGER,
+    ...
+}
+
+CsiRsPrecodingBand-Item ::= SEQUENCE {
+    precoderID                         INTEGER (0..63, ...),
+    ueid                               UEID,
+    nzpCsiRsResourceID                 INTEGER (0..191, ...),
+    startRB                            INTEGER,
+    noofRBs                            INTEGER,
+    ...
+}
+
+Precoder-Item ::= SEQUENCE {
+     compressionInformation            SEQUENCE {
+         precoderCompressionHeader       OCTET STRING,
+         precoderCompressionParam        OCTET STRING,
+         ...
+     }                                                                      OPTIONAL,
+     precoderCoeff-List     SEQUENCE (SIZE(1.. maxnoofPrecoderCoefficients)) OF PrecoderCoeff-Item,
+     ...
+}
+
+PrecoderCoeff-Item ::= SEQUENCE {
+    precoderCoeff-I                      INTEGER,
+    precoderCoeff-Q                      INTEGER,
+    ...
+}
+
+DlSchedulingControlOutcome ::= SEQUENCE {
+    receivedTimstamp                    ReceivedTimestamp,
+    processingTimeMargin                INTEGER (-32767..32767),
+    scheduledSlotOutcome-List           SEQUENCE (SIZE(1.. maxnoofScheduledDLSlots)) OF DlScheduledSlotOutcome-Item,
+    ...
+}
+
+DlScheduledSlotOutcome-Item ::= SEQUENCE {
+    slotInfo                      SlotInfo,
+    dlGrantOutome-List            SEQUENCE (SIZE(1.. maxnoofDLGrants)) OF DlGrantOutcome-Item,
+    additionalDlAllocation-List   SEQUENCE (SIZE(0.. maxnoofDLGrants)) OF AdditionalDlAllocation-Item,
+    csiRsPrecodingBandsNotExecuted-List SEQUENCE (SIZE(0.. maxnoofCsiRsPrecodingBands)) OF CsiRsPrecodingBandsNotExecuted-Item,
+     ...
+}
+
+DlGrantOutcome-Item ::= SEQUENCE {
+     grantID                                INTEGER (1..63, ...),
+     executionLevel                         CHOICE {
+         fullyExecuted                        NULL,
+         notFullyExecuted                     SEQUENCE {
+             scheduledLogicalChannelOutcome-List SEQUENCE (SIZE(1.. maxnoofLogicalChannels)) OF ScheduledLogicalChannelOutcome-Item,
+             ...
+         },
+     ...
+     }
+}
+
+ScheduledLogicalChannelOutcome-Item ::= SEQUENCE {
+    logicalChannelID                   LogicalChannelID,
+    noofBytesScheduled                 INTEGER,
+    cause                              INTEGER,
+    ...
+}
+
+AdditionalDlAllocation-Item ::= SEQUENCE {
+    ueid                               UEID                               OPTIONAL,
+    logicalChannelID                   LogicalChannelID                   OPTIONAL,
+    noofBytesScheduled                 INTEGER,
+    startSymbol                        INTEGER                            OPTIONAL,
+    noofSymbols                        INTEGER                            OPTIONAL,
+    startRB                            INTEGER                            OPTIONAL,
+    noofRBs                            INTEGER                            OPTIONAL,
+    ...
+}
+
+CsiRsPrecodingBandsNotExecuted-Item ::= SEQUENCE {
+     csiRsPrecodingBandID                INTEGER (0..63, ...),
+     cause                               INTEGER,
+     ...
+}
+
+
+
+-- **************************************************************
+-- E2SM-LLC Service Model IEs
+-- **************************************************************
+
+
+-- ***************************************************
+-- Event Trigger OCTET STRING contents
+-- ***************************************************
+
+E2SM-LLC-EventTrigger ::= SEQUENCE {
+    ric-eventTrigger-formats   CHOICE {
+        eventTrigger-Format1    E2SM-LLC-EventTrigger-Format1,
+        eventTrigger-Format2    E2SM-LLC-EventTrigger-Format2,
+        ...
+    },
+    ...
+}
+
+E2SM-LLC-EventTrigger-Format1 ::= SEQUENCE {
+    message-List                      SEQUENCE (SIZE(1..maxnoofLLIs)) OF E2SM-LLC-EventTrigger-Format1-Item,
+    globalAssociatedUEInfo            EventTrigger-UE-Info                    OPTIONAL,      ...
+}
+
+E2SM-LLC-EventTrigger-Format1-Item ::= SEQUENCE {
+    ric-eventTriggerCondition-ID      RIC-EventTriggerCondition-ID,
+    lowerLayersInfoType               LowerLayers-Info-Type,
+    associatedUEInfo                  EventTrigger-UE-Info                    OPTIONAL,
+    logicalOR                         LogicalOR                               OPTIONAL,
+     ...
+}
+
+E2SM-LLC-EventTrigger-Format2 ::= SEQUENCE {
+     reportingPeriod                      INTEGER (1.. 65535),
+     associatedUEInfo                     EventTrigger-UE-Info                OPTIONAL,
+     ...
+}
+
+
+-- ***************************************************
+-- Action Definition OCTET STRING contents
+-- ***************************************************
+
+E2SM-LLC-ActionDefinition ::= SEQUENCE {
+     ric-Style-Type                      RIC-Style-Type,
+     ric-actionDefinition-formats      CHOICE {
+        actionDefinition-Format1           E2SM-LLC-ActionDefinition-Format1,
+        actionDefinition-Format2           E2SM-LLC-ActionDefinition-Format2,
+        ...
+     },
+     ...
+}
+
+E2SM-LLC-ActionDefinition-Format1 ::= SEQUENCE {
+     lowerLayersInfoType                 LowerLayers-Info-Type,
+     ...
+}
+
+E2SM-LLC-ActionDefinition-Format2 ::= SEQUENCE {
+     measurementToReport-List           SEQUENCE (SIZE(1.. maxnoofMeasurementsToReport)) OF MeasurementToReport-Item,
+     ...
+}
+
+MeasurementToReport-Item ::= SEQUENCE {
+     lowerLayers-Meas-Type            LowerLayers-Meas-Type,
+     ...
+}
+
+
+-- ***************************************************
+-- Indication Header OCTET STRING contents
+-- ***************************************************
+
+E2SM-LLC-IndicationHeader ::= SEQUENCE {
+    ric-indicationHeader-formats      CHOICE {
+          indicationHeader-Format1           E2SM-LLC-IndicationHeader-Format1,
+          ...
+     },
+    ...
+}
+
+E2SM-LLC-IndicationHeader-Format1 ::= SEQUENCE {
+    ric-eventTriggerCondition-ID  RIC-EventTriggerCondition-ID   OPTIONAL,
+     ...
+}
+
+
+-- ***************************************************
+-- Indication Message OCTET STRING contents
+-- ***************************************************
+
+E2SM-LLC-IndicationMessage ::= SEQUENCE {
+    ric-indicationMessage-formats  CHOICE {
+        indicationMessage-Format1   E2SM-LLC-IndicationMessage-Format1,
+        indicationMessage-Format2   E2SM-LLC-IndicationMessage-Format2,
+        ...
+     },
+    ...
+}
+
+E2SM-LLC-IndicationMessage-Format1 ::= SEQUENCE {
+    slotTimeStamp                      SlotTimeStamp,
+    lowerLayersInfoType                 CHOICE {
+        sRS                                     SRS,
+        cSI                                     CSI,
+        ...
+    },
+    ...
+}
+
+
+E2SM-LLC-IndicationMessage-Format2 ::= SEQUENCE {
+     lowerLayersMeasurement-List           SEQUENCE (SIZE(1.. maxnoofMeasurements)) OF LowerLayersMeasurement-Item,
+     ...
+}
+
+LowerLayersMeasurement-Item ::= SEQUENCE {
+    slotTimeStamp                      SlotTimeStamp,
+    lowerLayersMeasurementType           CHOICE {
+        dlRlcBufferStatus                    DlRlcBufferStatus,
+        dlPdcpBufferStatus                   DlPdcpBufferStatus,
+        dlHarqStatistics                     DlHarqStatistics,
+        slotTimeStamp                        NULL,
+        ...
+     },
+    ...
+}
+
+
+-- ***************************************************
+-- Control Header OCTET STRING contents
+-- ***************************************************
+
+E2SM-LLC-ControlHeader ::= SEQUENCE {
+    ric-controlHeader-formats           CHOICE {
+        controlHeader-Format1  E2SM-LLC-ControlHeader-Format1,
+        ...
+    },
+    ...
+}
+
+E2SM-LLC-ControlHeader-Format1 ::= SEQUENCE {
+     ric-StyleType                       RIC-Style-Type,
+     ric-ControlAction-ID                RIC-ControlAction-ID,
+     ...
+}
+
+-- ***************************************************
+-- Control Message OCTET STRING contents
+-- ***************************************************
+
+E2SM-LLC-ControlMessage ::= SEQUENCE {
+   ric-controlMessage-formats   CHOICE {
+       controlMessage-Format1   E2SM-LLC-ControlMessage-Format1,
+       ...
+   },
+   ...
+}
+
+E2SM-LLC-ControlMessage-Format1 ::= SEQUENCE {
+    controlType                           CHOICE {
+        logicalChannelHandlingControl      LogicalChannelHandlingControl,
+        dlSchedulingControl                DlSchedulingControl,
+        ...
+    },
+    ...
+}
+
+
+-- ****************************************************
+-- Control Outcome OCTET STRING contents
+-- ****************************************************
+
+E2SM-LLC-ControlOutcome ::= SEQUENCE {
+    ric-controlOutcome-formats   CHOICE {
+        controlOutcome-Format1    E2SM-LLC-ControlOutcome-Format1,
+        ...
+     },
+    ...
+}
+
+E2SM-LLC-ControlOutcome-Format1 ::= SEQUENCE {
+     controlType                           CHOICE {
+          logicalChannelHandling                ReceivedTimestamp,
+          dlSchedulingParameters                DlSchedulingControlOutcome,
+          ...
+     },
+    ...
+}
+
+
+-- **************************************************************
+-- RAN Function Definition IEs
+-- **************************************************************
+E2SM-LLC-RANFunctionDefinition ::= SEQUENCE{
+    ranFunction-Name                          RANfunction-Name,
+    ranFunctionDefinition-EventTrigger        RANFunctionDefinition-EventTrigger-LLC          OPTIONAL,
+    ranFunctionDefinition-Report              RANFunctionDefinition-Report-LLC                OPTIONAL,
+    ranFunctionDefinition-Control             RANFunctionDefinition-Control-LLC               OPTIONAL,
+    ...
+}
+
+-------------------------------
+-- Event Trigger
+-------------------------------
+RANFunctionDefinition-EventTrigger-LLC ::= SEQUENCE {
+    ric-EventTriggerStyle-List    SEQUENCE (SIZE(1..maxnoofRICStyles)) OF RANFunctionDefinition-EventTrigger-Style-Item-LLC,
+    ...
+}
+
+RANFunctionDefinition-EventTrigger-Style-Item-LLC ::= SEQUENCE {
+    ric-EventTriggerStyle-Type                RIC-Style-Type,
+    ric-EventTriggerStyle-Name                RIC-Style-Name,
+    ric-EventTriggerFormat-Type               RIC-Format-Type,
+    ...
+}
+
+
+-------------------------------
+-- Report
+-------------------------------
+
+RANFunctionDefinition-Report-LLC ::= SEQUENCE {
+    ric-ReportStyle-List     SEQUENCE (SIZE(1..maxnoofRICStyles)) OF RANFunctionDefinition-Report-Item-LLC,
+    ...
+}
+
+
+RANFunctionDefinition-Report-Item-LLC ::= SEQUENCE {
+    ric-ReportStyle-Type                     RIC-Style-Type,
+    ric-ReportStyle-Name                     RIC-Style-Name,
+    ric-SupportedEventTriggerStyle-Type      RIC-Style-Type,
+    ric-ReportActionFormat-Type              RIC-Format-Type,
+    ric-IndicationHeaderFormat-Type          RIC-Format-Type,
+    ric-IndicationMessageFormat-Type         RIC-Format-Type,
+     ...
+}
+
+-------------------------------
+-- Control
+-------------------------------
+
+RANFunctionDefinition-Control-LLC ::= SEQUENCE {
+ ric-ControlStyle-List     SEQUENCE (SIZE(1..maxnoofRICStyles)) OF RANFunctionDefinition-Control-Item-LLC,
+     ...
+}
+
+
+RANFunctionDefinition-Control-Item-LLC ::= SEQUENCE {
+    ric-ControlStyle-Type               RIC-Style-Type,
+    ric-ControlStyle-Name               RIC-Style-Name,
+    ric-ControlAction-List              SEQUENCE (SIZE(1..maxnoofControlAction)) OF  RANFunctionDefinition-Control-Action-Item-LLC     OPTIONAL,
+    ric-ControlHeaderFormat-Type        RIC-Format-Type,
+    ric-ControlMessageFormat-Type       RIC-Format-Type,
+    ric-CallProcessIDFormat-Type        RIC-Format-Type    OPTIONAL,
+    ric-ControlOutcomeFormat-Type       RIC-Format-Type,
+    ...
+}
+
+RANFunctionDefinition-Control-Action-Item-LLC ::= SEQUENCE {
+    ric-ControlAction-ID     RIC-ControlAction-ID,
+    ric-ControlAction-Name   RIC-ControlAction-Name,
+    ...
+}
+
+END
+
+-- ASN1STOP

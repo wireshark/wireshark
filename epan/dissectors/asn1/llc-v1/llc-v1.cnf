@@ -1,0 +1,81 @@
+# llc_v1.cnf
+# llc_v1 conformation file
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.USE_VALS_EXT
+
+#.EXPORTS ONLY_VALS WS_DLL
+
+#.EXPORTS
+
+#.PDU
+
+E2SM-LLC-RANFunctionDefinition
+
+E2SM-LLC-ControlHeader
+E2SM-LLC-ControlMessage
+E2SM-LLC-ControlOutcome
+
+E2SM-LLC-ActionDefinition
+E2SM-LLC-IndicationHeader
+E2SM-LLC-IndicationMessage
+E2SM-LLC-EventTrigger
+
+#.MAKE_ENUM
+
+#.NO_EMIT
+
+#.OMIT_ASSIGNMENT
+
+#.END
+
+
+#.TYPE_ATTR
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+GlobalGNB-ID/gNB-ID gnb-id-choice
+
+#.FIELD_ATTR
+
+#.ASSIGN_VALUE_TO_TYPE
+
+#.END
+
+#.REGISTER
+
+#.FN_BODY RANfunction-Name/ranFunction-ShortName VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
+%(DEFAULT_BODY)s
+  if (!actx->pinfo->fd->visited) {
+    /* N.B. too early to work out exact dissector, as don't have OID yet */
+    e2ap_store_ran_function_mapping(actx->pinfo, tree, value_tvb,
+                                    tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+  }
+
+
+#.FN_BODY RANfunction-Name/ranFunction-E2SM-OID  VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  %(DEFAULT_BODY)s
+  e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
+                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+				   tvb_captured_length(parameter_tvb), ENC_ASCII));
+
+
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

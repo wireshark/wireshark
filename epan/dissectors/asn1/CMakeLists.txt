@@ -70,6 +70,7 @@ set(ASN1_SRC_DIRS
 	kpm-v2
 	lcsap
 	ldap
+	llc-v1
 	lnpdqp
 	logotypecertextn
 	lpp

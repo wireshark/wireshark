@@ -53,6 +53,7 @@ typedef enum {
     RC_RANFUNCTIONS,
     NI_RANFUNCTIONS,
     CCC_RANFUNCTIONS,
+    LLC_RANFUNCTIONS,
     MAX_RANFUNCTIONS
 } ran_function_t;
 
