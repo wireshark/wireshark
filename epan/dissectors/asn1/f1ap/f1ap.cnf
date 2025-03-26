@@ -2245,7 +2245,16 @@ SRSInformationReservationNotification    N f1ap.proc.imsg id-SRSInformationReser
         col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
         col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
         col_set_fence(actx->pinfo->cinfo, COL_INFO);
-        call_dissector(nr_rrc_ul_ccch_handle, param_tvb, actx->pinfo, subtree);
+        switch (tvb_captured_length(param_tvb)){
+          case 6:
+            call_dissector(nr_rrc_ul_ccch_handle, param_tvb, actx->pinfo, subtree);
+            break;
+          case 8:
+            call_dissector(nr_rrc_ul_ccch1_handle, param_tvb, actx->pinfo, subtree);
+            break;
+          default:
+            break;
+        }
         break;
       case id_ULRRCMessageTransfer:
         switch (f1ap_data->srb_id) {
