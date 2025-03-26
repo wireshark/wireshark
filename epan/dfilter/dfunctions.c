@@ -610,8 +610,10 @@ ul_semcheck_value_string(dfwork_t *dfw, const char *func_name, ftenum_t logical_
 
         for (; hfinfo; hfinfo = hfinfo->same_name_next) {
             if (FT_IS_INTEGER(hfinfo->type) && hfinfo->strings != NULL && hfinfo->type != FT_FRAMENUM) {
-                /* The dfvm VALUE_STRING instruction doesn't support floating
-                 * types, even though they can be BASE_CUSTOM. */
+                /* XXX - Should we just allow the same types as display_column_strings
+                 * in ui/packet_list_utils.c ? dfvm now does exactly the same thing
+                 * as what proto_custom_set does when displaying a column "as strings".
+                 */
                 sttype_field_set_value_string(param, true);
                 return FT_STRING;
             }

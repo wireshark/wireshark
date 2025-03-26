@@ -102,10 +102,11 @@ display_column_strings (int col, capture_file *cf)
             for (ii = 0; ii < num_fields; ii++) {
                 col_custom = (col_custom_t *) g_slist_nth_data(cf->cinfo.columns[col].col_custom_fields_ids, ii);
                 if (col_custom->field_id == 0) {
-                    /* XXX - A "resolved" string might be conceivable for certain
-                     * expressions, but would require being able to know which
-                     * hfinfo produced each value, if there are multiple hfi with
-                     * the same abbreviation.
+                    /* XXX - Displaying as strings requires being able to know
+                     * which hfinfo produced each value, if there are multiple
+                     * hfi with the same abbreviation. Users should call the
+                     * "vals()" function on each fields to achieve the desired
+                     * result.
                      */
                     continue;
                 }
