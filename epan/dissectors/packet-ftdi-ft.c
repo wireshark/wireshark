@@ -946,7 +946,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
         tvbuff_t *payload_tvb = NULL;
         uint32_t  reassembled_bytes = 0;
         uint8_t   bitmode;
-        uint8_t   curr_layer_num = pinfo->curr_layer_num;
+        fragment_head *fd_head = NULL;
 
         bitmode = get_recorded_interface_mode(pinfo, urb, interface);
 
@@ -957,7 +957,6 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
         desegment_data = get_recorded_desegment_data(pinfo, urb, interface, bitmode);
         if (desegment_data)
         {
-            fragment_head    *fd_head;
             desegment_data_t *next_desegment_data = NULL;
 
             if ((desegment_data->previous) && (desegment_data->first_frame == pinfo->num))
@@ -973,20 +972,36 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                 /* Combine data reassembled so far with current tvb and check if this is last fragment or not */
                 fragment_item *item;
                 fd_head = fragment_get(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, desegment_data);
-                DISSECTOR_ASSERT(fd_head && !(fd_head->flags & FD_DEFRAGMENTED) && fd_head->next);
-                payload_tvb = tvb_new_composite();
-                for (item = fd_head->next; item; item = item->next)
-                {
-                    DISSECTOR_ASSERT(reassembled_bytes == item->offset);
-                    tvb_composite_append(payload_tvb, item->tvb_data);
-                    reassembled_bytes += item->len;
+                DISSECTOR_ASSERT(fd_head && fd_head->next);
+                if (fd_head->flags & FD_DATALEN_SET) {
+                    /* If we already reassembled this, then even if we set
+                     * partial reassembly, this has the total length.
+                     */
+                    reassembled_bytes = fd_head->datalen;
+                } else {
+                    /* Given how we process this, this case should only be
+                     * when there's one fragment.
+                     */
+                    for (item = fd_head->next; item; item = item->next)
+                    {
+                        DISSECTOR_ASSERT(reassembled_bytes == item->offset);
+                        reassembled_bytes += item->len;
+                    }
                 }
-                tvb_composite_append(payload_tvb, tvb);
-                tvb_composite_finalize(payload_tvb);
+
+                /* Always assume there are no more frags on the first pass.
+                 * We can't know until we call the subdissector.
+                 */
+                fd_head = fragment_add(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame, desegment_data, reassembled_bytes, bytes, false);
+                payload_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
+                add_new_data_source(pinfo, payload_tvb, "Reassembled");
+                /* Since we don't know if this is really the last fragment
+                 * yet, wait and show the fragment tree only if it is.
+                 */
             }
             else
             {
-                fd_head = fragment_get_reassembled_id(&ftdi_reassembly_table, pinfo, desegment_data->first_frame);
+                fd_head = fragment_get(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, desegment_data);
                 payload_tvb = process_reassembled_data(tvb, 0, pinfo, "Reassembled", fd_head,
                                                        &ftdi_frag_items, NULL, ftdi_tree);
             }
@@ -994,7 +1009,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
             if (next_desegment_data)
             {
                 fragment_head *next_head;
-                next_head = fragment_get_reassembled_id(&ftdi_reassembly_table, pinfo, next_desegment_data->first_frame);
+                next_head = fragment_get(&ftdi_reassembly_table, pinfo, next_desegment_data->first_frame, next_desegment_data);
                 process_reassembled_data(tvb, 0, pinfo, "Reassembled", next_head, &ftdi_frag_items, NULL, ftdi_tree);
             }
 
@@ -1017,34 +1032,24 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
              * the data to the next dissector. There is absolutely no metadata that could help with it as
              * FTDI FT is pretty much a direct replacement to UART (COM port) and is pretty much transparent
              * to the actual serial protocol used.
-             *
-             * Passing the data to next dissector results in curr_layer_num being increased if it dissected
-             * the data (when it is the last fragment). This would prevent the process_reassembled_data()
-             * (after the first pass) from returning the reassembled tvb in FTFI FT which in turn prevents
-             * the data from being passed to the next dissector.
-             *
-             * Override pinfo->curr_layer_num value when the fragments are being added to reassembly table.
-             * This is ugly hack. Is there any better approach?
-             *
-             * There doesn't seem to be a mechanism to "back-track" just added fragments to reassembly table,
-             * or any way to "shorten" the last added fragment. The most problematic case is when current
-             * packet is both last packet for previous reassembly and a first packet for next reassembly.
              */
-            uint8_t save_curr_layer_num = pinfo->curr_layer_num;
-            pinfo->curr_layer_num = curr_layer_num;
 
             if (!pinfo->desegment_len)
             {
                 if (desegment_data)
                 {
                     /* Current tvb is really the last fragment */
-                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
-                                       desegment_data, reassembled_bytes, bytes, false);
+                    proto_tree *frag_tree_item;
+                    show_fragment_tree(fd_head, &ftdi_frag_items, ftdi_tree, pinfo, payload_tvb, &frag_tree_item);
                     desegment_data->last_frame = pinfo->num;
                 }
             }
             else
             {
+                /* XXX - This probably works even if the subdissector does try
+                 * to set the desegment_len, this dissector will just ignore
+                 * it and treat it as DESEGMENT_ONE_MORE_SEGMENT anyway.
+                 */
                 DISSECTOR_ASSERT_HINT(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT,
                                       "FTDI FT supports only DESEGMENT_ONE_MORE_SEGMENT");
                 if (!desegment_data)
@@ -1053,14 +1058,13 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     int fragment_length = tvb_reported_length_remaining(tvb, pinfo->desegment_offset);
                     desegment_data = record_desegment_data(pinfo, urb, interface, bitmode);
                     desegment_data->first_frame_offset = pinfo->desegment_offset;
-                    fragment_add_check(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
+                    fragment_add(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
                                        desegment_data->first_frame, desegment_data, 0, fragment_length, true);
                 }
                 else if (pinfo->desegment_offset == 0)
                 {
                     /* Continue reassembling */
-                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
-                                       desegment_data, reassembled_bytes, bytes, true);
+                    fragment_set_partial_reassembly(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, desegment_data);
                 }
                 else
                 {
@@ -1071,8 +1075,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     /* This packet contains both an end from a previous reassembly and start of a new one */
                     DISSECTOR_ASSERT((uint32_t)pinfo->desegment_offset > reassembled_bytes);
                     previous_bytes = pinfo->desegment_offset - reassembled_bytes;
-                    fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
-                                       desegment_data, reassembled_bytes, previous_bytes, false);
+                    fragment_truncate(&ftdi_reassembly_table, pinfo, desegment_data->first_frame, desegment_data, pinfo->desegment_offset);
                     desegment_data->last_frame = pinfo->num;
 
                     previous_desegment_data = desegment_data;
@@ -1080,12 +1083,14 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     desegment_data = record_desegment_data(pinfo, urb, interface, bitmode);
                     desegment_data->first_frame_offset = previous_bytes;
                     desegment_data->previous = previous_desegment_data;
-                    fragment_add_check(&ftdi_reassembly_table, tvb, previous_bytes, pinfo, desegment_data->first_frame,
+                    /* Note we assume that this isn't followed by another PDU;
+                     * i.e., that the subdissector would dissect as many PDUs
+                     * as possible. (Otherwise we'd have to loop here.)
+                     */
+                    fragment_add(&ftdi_reassembly_table, tvb, previous_bytes, pinfo, desegment_data->first_frame,
                                        desegment_data, 0, fragment_length, true);
                 }
             }
-
-            pinfo->curr_layer_num = save_curr_layer_num;
         }
     }
 
