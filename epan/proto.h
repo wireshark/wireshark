@@ -1006,7 +1006,7 @@ typedef proto_node proto_item;
  * @param ti The item to check. May be NULL.
  * @return true if the item is hidden, false otherwise.
  */
-static inline bool proto_item_is_hidden(proto_item *ti) {
+static inline bool proto_item_is_hidden(const proto_item *ti) {
     if (ti && PITEM_FINFO(ti)) {
         return FI_GET_FLAG(PITEM_FINFO(ti), FI_HIDDEN);
     }
@@ -1040,7 +1040,8 @@ static inline void proto_item_set_visible(proto_item *ti) {
  * @param ti The item to check. May be NULL.
  * @return true if the item is generated, false otherwise.
  */
-static inline bool proto_item_is_generated(proto_item *ti) {
+static inline bool proto_item_is_generated(const proto_item *ti)
+{
     if (ti) {
         return FI_GET_FLAG(PITEM_FINFO(ti), FI_GENERATED);
     }
@@ -1063,7 +1064,8 @@ static inline void proto_item_set_generated(proto_item *ti) {
  * @param ti The item to check. May be NULL.
  * @return true if the item is a URL, false otherwise.
  */
-static inline bool proto_item_is_url(proto_item *ti) {
+static inline bool proto_item_is_url(const proto_item *ti)
+{
     if (ti) {
         return FI_GET_FLAG(PITEM_FINFO(ti), FI_URL);
     }
