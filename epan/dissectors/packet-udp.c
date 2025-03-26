@@ -593,8 +593,8 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* determine if this packet is part of a conversation and call dissector */
     /* for the conversation if available */
-    if (try_conversation_dissector(&pinfo->dst, &pinfo->src, CONVERSATION_UDP,
-             uh_dport, uh_sport, next_tvb, pinfo, tree, NULL, NO_ADDR_B|NO_PORT_B)) {
+    if (try_conversation_dissector_strat(pinfo, CONVERSATION_UDP,
+             next_tvb, tree, NULL, NO_ADDR_B|NO_PORT_B)) {
         handle_export_pdu_conversation(pinfo, next_tvb, uh_dport, uh_sport);
         return;
     }
@@ -1217,10 +1217,32 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
     pinfo->srcport = udph->uh_sport;
     pinfo->destport = udph->uh_dport;
 
-    /* find (and extend) an existing conversation, or create a new one */
-    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0, false);
+    /* Find (and extend) an existing conversation, or create a new one.
+     * Don't try finding at all costs (NO_GREEDY)
+     */
+    conv = find_conversation_strat(pinfo, CONVERSATION_UDP, NO_GREEDY, false);
     if(!conv) {
         conv=conversation_new_strat(pinfo, CONVERSATION_UDP, 0);
+
+        /* For new conversations, check if there is a NO_PORT_B conv matching
+         * on the reverse direction and in this case set the appropriate dissector
+         */
+        conversation_t *revconvnob = NULL;
+        revconvnob = find_conversation_strat(pinfo, CONVERSATION_UDP, NO_PORT_B, true);
+
+        if(revconvnob) {
+            // apply the higher protocol dissector
+            dissector_handle_t l7_handle = conversation_get_dissector(revconvnob, pinfo->num);
+            if(l7_handle) {
+                conversation_set_dissector(conv, l7_handle);
+            }
+        }
+    }
+    else {
+        /* Explicitly and immediately move forward the conversation last_frame */
+        if (!(pinfo->fd->visited) && (pinfo->num > conv->last_frame)) {
+            conv->last_frame = pinfo->num;
+        }
     }
 
     udpd = get_udp_conversation_data(conv, pinfo);

@@ -1720,6 +1720,8 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
         DPRINT(("exact match %sfound",conversation?"":"not "));
         if (conversation != NULL)
             goto end;
+        else if(options & NO_GREEDY)
+            goto end;
     }
 
     /*
@@ -1905,6 +1907,9 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
                 }
                 goto end;
             }
+        }
+        if(options & NO_GREEDY) {
+            goto end;
         }
     }
 

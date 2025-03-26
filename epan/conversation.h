@@ -53,6 +53,7 @@ extern "C" {
 #define NO_PORT_B 0x00020000
 #define NO_PORT_X 0x00040000
 #define NO_ANC    0x00080000
+#define NO_GREEDY 0x00100000
 
 /** Flags to handle endpoints */
 #define USE_LAST_ENDPOINT 0x08		/**< Use last endpoint created, regardless of type */
