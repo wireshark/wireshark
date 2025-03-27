@@ -41,6 +41,14 @@ typedef struct oran_tap_info {
     bool     section_types[SEC_C_MAX_INDEX];
     bool     extensions[HIGHEST_EXTTYPE+1];    /* wasting first entry */
 
+    /* U-Plane stats */
+    uint32_t num_prbs;
+    uint32_t num_res;
+    bool     non_zero_re_in_current_prb;
+    uint32_t num_prbs_zero;
+    uint32_t num_res_zero;
+
+
     /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams? */
     /* N.B. bitwidth, method, but each section could potentially have different udcompHdr.. */
 } oran_tap_info;

@@ -31,6 +31,10 @@ enum {
     EXTENSIONS_COLUMN,
     HIGHEST_SLOT_COLUMN,
     MISSING_SNS_COLUMN,
+    NUM_PRBS,
+    NUM_PRBS_ZERO,
+    NUM_RES,
+    NUM_RES_ZERO,
     NUM_FLOW_COLUMNS
 };
 
@@ -42,7 +46,11 @@ static const char *flow_titles[] = { " Plane    ",
                                      "Section Types        ",
                                      "Extensions",
                                      "Highest Slot",
-                                     "Missing SNs"
+                                     "Missing SNs   ",
+                                     "PRBs ",
+                                     "Zero-PRBs       ",
+                                     "REs ",
+                                     "Zero-REs"
                                    };
 
 /* Stats for one Flow */
@@ -53,6 +61,11 @@ typedef struct oran_row_data {
     uint32_t      largest_pdu;
     uint32_t      highest_slot;
     uint32_t      missing_sns;
+
+    uint32_t      num_prbs;
+    uint32_t      num_res;
+    uint32_t      num_prbs_zero;
+    uint32_t      num_res_zero;
 } oran_row_data;
 
 /* Top-level struct for ORAN FH statistics */
@@ -141,6 +154,11 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     row->highest_slot = MAX(row->highest_slot, si->slot);
     row->missing_sns += si->missing_sns;
 
+    row->num_prbs += si->num_prbs;
+    row->num_res += si->num_res;
+    row->num_prbs_zero += si->num_prbs_zero;
+    row->num_res_zero += si->num_res_zero;
+
     return TAP_PACKET_REDRAW;
 }
 
@@ -195,7 +213,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n============================================================================================================================\n");
+    printf("\n=======================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -229,7 +247,7 @@ oran_stat_draw(void *phs)
         }
 
         /* Print this row */
-        printf("%s %11u %16s %11u %15u %18s %18s %13u %12u\n",
+        printf("%s %11u %16s %11u %15u %18s %18s %13u %12u %8u %11u %11u %10u\n",
                (row->base_info.userplane) ? "U" : "C",
                row->base_info.eaxc,
                (row->base_info.uplink) ? "Uplink" : "Downlink",
@@ -238,7 +256,11 @@ oran_stat_draw(void *phs)
                sections,
                extensions,
                row->highest_slot,
-               row->missing_sns);
+               row->missing_sns,
+               row->num_prbs,
+               row->num_prbs_zero,
+               row->num_res,
+               row->num_res_zero);
     }
 }
 

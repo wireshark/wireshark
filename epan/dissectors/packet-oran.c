@@ -4577,6 +4577,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         if (missing_sns < 128) {
             tap_info->missing_sns = missing_sns;
         }
+        else {
+            tap_info->missing_sns = 0;
+        }
         /* TODO: could add previous/next frames (in seqId tree?) ? */
     }
 
@@ -5464,6 +5467,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
 static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
                              unsigned sample_number, int samples_offset,
+                             oran_tap_info *tap_info,
                              unsigned sample_bit_width,
                              int comp_meth,
                              uint32_t exponent)
@@ -5483,6 +5487,16 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
     proto_item_set_text(q_ti, "qSample: % 0.7f  0x%04x (RE-%2u in the PRB)", q_value, q_bits, sample_number);
     samples_offset += sample_bit_width;
 
+    /* Update RE stats */
+    tap_info->num_res++;
+    /* if (i_value == 0.0 && q_value == 0.0) { */
+    /* TODO: is just checking bits from frame good enough, or does it it need to be uncompressed value? */
+    if (i_bits == 0 && q_bits == 0) {
+        tap_info->num_res_zero++;
+    }
+    else {
+        tap_info->non_zero_re_in_current_prb = true;
+    }
     return samples_offset;
 }
 
@@ -5705,7 +5719,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         &ei_oran_uplane_unexpected_sequence_number_dl,
                                    "Sequence number %u expected, but got %u",
                                    result->expected_sequence_number, seq_id);
-            tap_info->missing_sns = (seq_id - result->expected_sequence_number) % 256;
+            tap_info->missing_sns = (256 + seq_id - result->expected_sequence_number) % 256;
             /* TODO: could add previous/next frame (in seqId tree?) ? */
         }
     }
@@ -5934,6 +5948,15 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             uint32_t exponent = 0;
             uint16_t sresmask = 0;
 
+            /* Was previous PRB all zeros? */
+            if (tap_info->num_res>0 && !tap_info->non_zero_re_in_current_prb) {
+                tap_info->num_prbs_zero++;
+                /* No non-zero REs in new PRB yet. */
+            }
+            tap_info->num_prbs++;
+            tap_info->non_zero_re_in_current_prb = false;
+
+
             /* udCompParam (depends upon compression method) */
             int before = offset;
             offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask, false);
@@ -5992,7 +6015,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     for (unsigned n=1; n<=12; n++) {
                         if (sresmask_to_use & (1<<(n-1))) {
                             samples_offset = dissect_oran_u_re(tvb, rb_tree,
-                                                               n, samples_offset, sample_bit_width, compression, exponent);
+                                                               n, samples_offset, tap_info, sample_bit_width, compression, exponent);
                             samples++;
                         }
                     }
@@ -6001,7 +6024,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     /* All 12 REs are present */
                     for (unsigned n=1; n<=12; n++) {
                         samples_offset = dissect_oran_u_re(tvb, rb_tree,
-                                                           n, samples_offset, sample_bit_width, compression, exponent);
+                                                           n, samples_offset, tap_info, sample_bit_width, compression, exponent);
                         samples++;
                     }
                 }
