@@ -21,6 +21,7 @@
  */
 
 #include <config.h>
+#include <wmem_scopes.h>
 
 #define WS_LOG_DOMAIN "HTTP3"
 
@@ -84,6 +85,7 @@ static int hf_http3_header_qpack_blocked_decoder_wicnt;
 /* Static HTTP3 headers */
 static int hf_http3_headers_status;
 static int hf_http3_headers_path;
+static int hf_http3_headers_protocol;
 static int hf_http3_headers_method;
 static int hf_http3_headers_scheme;
 static int hf_http3_headers_accept;
@@ -195,6 +197,7 @@ static int ett_http3_qpack_opcode;
 #define HTTP3_HEADER_NAME_AUTHORITY         ":authority"
 #define HTTP3_HEADER_NAME_METHOD            ":method"
 #define HTTP3_HEADER_NAME_PATH              ":path"
+#define HTTP3_HEADER_NAME_PROTOCOL          ":protocol"
 #define HTTP3_HEADER_NAME_SCHEME            ":scheme"
 #define HTTP3_HEADER_NAME_STATUS            ":status"
 
@@ -262,10 +265,10 @@ static const val64_string http3_frame_types[] = {
     { 0x09, "Reserved" },
     { HTTP3_MAX_PUSH_ID, "MAX_PUSH_ID" },
     { 0x0e, "Reserved" }, // "DUPLICATE_PUSH" in draft-26 and before
+    /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
     { HTTP3_WEBTRANSPORT_BISTREAM, "WEBTRANSPORT_BISTREAM" }, // draft-ietf-webtrans-http3-03
     { HTTP3_PRIORITY_UPDATE_REQUEST_STREAM, "PRIORITY_UPDATE" }, // RFC 9218
     { HTTP3_PRIORITY_UPDATE_PUSH_STREAM, "PRIORITY_UPDATE" }, // RFC 9218
-    /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
     { 0, NULL }
 };
 
@@ -277,9 +280,9 @@ static const val64_string http3_frame_types[] = {
 #define HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE   0x06
 #define HTTP3_QPACK_BLOCKED_STREAMS             0x07
 #define HTTP3_EXTENDED_CONNECT                  0x08        /* https://datatracker.ietf.org/doc/draft-ietf-httpbis-h3-websockets */
-#define HTTP3_H3_DATAGRAM                       0x33             // rfc9297
-#define HTTP3_H3_DATAGRAM_DRAFT04               0xffd277 // draft-ietf-masque-h3-datagram-04
-#define HTTP3_WEBTRANSPORT                      0x2b603742      // draft-ietf-webtrans-http3-03
+#define HTTP3_H3_DATAGRAM                       0x33        /* rfc9297 */
+#define HTTP3_H3_DATAGRAM_DRAFT04               0xffd277    /* draft-ietf-masque-h3-datagram-04 */
+#define HTTP3_WEBTRANSPORT                      0x2b603742  /* draft-ietf-webtrans-http3-03 */
 
 static const val64_string http3_settings_vals[] = {
     { HTTP3_QPACK_MAX_TABLE_CAPACITY, "Max Table Capacity" },
@@ -420,6 +423,8 @@ typedef struct _header_block_encoded_iter {
         }                                                                                                              \
     } while (0)
 
+#define HTTP3_HD_DECODER_BLOCKED    0x1
+#define HTTP3_HD_DECODER_ERROR      0x2
 /**
  * HTTP3 header data block.
  *
@@ -430,13 +435,46 @@ typedef struct _header_block_encoded_iter {
  * will be identified by the `offset' field.
  */
 typedef struct _http3_header_data {
-    unsigned                    len;           /**< Length of the encoded headers block. */
-    unsigned                    offset;        /**< Offset of the headers block in the pinfo TVB. */
-    unsigned                    ds_idx;        /**< Index of the data source tvb in the pinfo. */
+    uint32_t                    len;           /**< Length of the encoded headers block. */
+    uint32_t                    offset;        /**< Offset of the headers block in the pinfo TVB. */
+    uint32_t                    ds_idx;        /**< Index of the data source tvb in the pinfo. */
+    uint16_t                    state;         /**< See HTTP3_HD_DECODER_XXX above */
+    uint16_t                    error;         /**< Decoding error code if any. */
     wmem_array_t *              header_fields; /**< List of header fields contained in the header block. */
     header_block_encoded_iter_t encoded;       /**< Used for dissection, not allocated. */
     struct _http3_header_data * next;          /**< Next pointer in the chain. */
 } http3_header_data_t;
+
+
+#ifdef HAVE_NGHTTP3
+/* HTTP/3 pseudo-header fields.
+ *
+ * This is a convenience structure that is used
+ * to collect the values of the HTTP/3 pseudo-headers
+ * while constructing the protocol tree,
+ * and to construct the column info afterwards.
+ * https://www.ietf.org/archive/id/draft-ietf-quic-http-34.html#name-pseudo-header-fields
+ */
+typedef struct _http3_pseudo_header_fields {
+    const char      *authority;
+    const char      *method;
+    const char      *path;
+    const char      *protocol;
+    const char      *reason_phrase;    /**< "pseudo" pseudo-header. */
+    const char      *scheme;
+    const char      *status;
+} http3_pseudo_header_fields_t;
+
+#define HTTP3_PSEUDO_HEADERS_INITIALIZER (http3_pseudo_header_fields_t){    \
+    .authority      = NULL,                                                 \
+    .method         = NULL,                                                 \
+    .path           = NULL,                                                 \
+    .protocol       = NULL,                                                 \
+    .reason_phrase  = NULL,                                                 \
+    .scheme         = NULL,                                                 \
+    .status         = NULL,                                                 \
+}
+#endif /* HAVE_NGHTTP3 */
 
 /* HTTP3 QPACK encoder state
  *
@@ -794,26 +832,6 @@ http3_packet_get_direction(quic_stream_info *stream_info)
         : FROM_SERVER_TO_CLIENT;
 }
 
-static void
-try_append_method_path_info(packet_info *pinfo, proto_tree *tree, const char *method_header_value,
-                            const char *path_header_value, const char *authority_header_value)
-{
-    if (method_header_value != NULL) {
-        if ((strcmp(method_header_value, "CONNECT_UDP") == 0) || (strcmp(method_header_value, "CONNECT") == 0)) {
-            if (authority_header_value != NULL) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", method_header_value, authority_header_value);
-            }
-        } else {
-            if (path_header_value != NULL) {
-                /* append request information to info column (for example, HEADERS: GET /demo/1.jpg) */
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", method_header_value, path_header_value);
-                /* append request information to Stream node */
-                proto_item_append_text(tree, ", %s %s", method_header_value, path_header_value);
-            }
-        }
-    }
-}
-
 static proto_item *
 try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t length, const char *header_name,
                            const char *header_value)
@@ -847,7 +865,6 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t
     }
     return ti;
 }
-
 
 static void
 get_header_field_pstr(wmem_allocator_t *scratch, nghttp3_qpack_nv *header_nv, const char **outp, uint32_t *outlen)
@@ -904,24 +921,13 @@ static int
 dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tvb_offset, unsigned offset,
                       quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
-    const char   *authority_header_value = NULL;
-    const char   *method_header_value    = NULL;
-    const char   *path_header_value      = NULL;
-    const char   *scheme_header_value    = NULL;
-    const uint8_t *header_name;
-    const uint8_t *header_value;
-
-    int                           length = 0;
-    uint32_t                      header_name_length;
-    uint32_t                      header_value_length;
-    http3_header_data_t           *header_data;
-    http3_session_info_t          *http3_session;
-    http3_stream_dir              packet_direction;
-    int                           header_len = 0, hoffset = 0;
-    nghttp3_qpack_decoder         *decoder;
-    proto_item                    *header, *ti, *ti_named_field;
-    proto_tree                    *header_tree, *blocked_rcint_tree;
-    tvbuff_t                      *header_tvb = NULL;
+    http3_header_data_t           *header_data;         /* The decoded header data block; populated on the first pass. */
+    http3_session_info_t          *http3_session;       /* The corresponding HTTP/3 session. */
+    tvbuff_t                      *header_tvb;          /* Composite TVB containing the decoded header fields. */
+    int                           header_len;           /* Total length of the decoded header fields. */
+    int                           hoffset;              /* Offset of a decoded header in the decoded TVB */
+    proto_item                    *ti;                  /* Temporary tree item; used in multiple ways when constructing proto trees. */
+    http3_pseudo_header_fields_t  pseudo_headers;       /* Pseudo-header values; populated when building proto trees; used when creating column info. */
 
     http3_session = http3_session_lookup_or_create(pinfo);
     header_data   = http3_get_header_data(pinfo, tvb, offset);
@@ -929,6 +935,10 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     ws_noisy("pdinfo visited=%d", PINFO_FD_VISITED(pinfo));
 
     if (!PINFO_FD_VISITED(pinfo)) {
+        nghttp3_qpack_decoder         *decoder;
+        int                           length = 0;
+        http3_stream_dir              packet_direction;
+
         /*
          * This packet has not been processed yet, which means this is
          *  the first linear scan.  We do header decompression only
@@ -958,9 +968,6 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         ws_debug("Header data: %p %d %d", header_data->encoded.bytes, header_data->encoded.pos,
                                 header_data->encoded.len);
 
-        proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_encoded_state, tvb, tvb_offset, 0,
-                                     "HTTP3 encoded headers - bytes %p pos %d len %d", header_data->encoded.bytes,
-                                     header_data->encoded.pos, header_data->encoded.len);
         /*
          * Attempt to decode headers.
          *
@@ -978,15 +985,13 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             int32_t nread = (int32_t)nghttp3_qpack_decoder_read_request(decoder, sctx, &nv, &flags,
                                                                       HEADER_BLOCK_ENC_ITER_PTR(header_data),
                                                                       HEADER_BLOCK_ENC_ITER_REMAINING(header_data), 1);
-
+            /*
+             * Check for decoding errors.
+             */
             if (nread < 0) {
-                /*
-                 * This should be signaled up.
-                 */
+                header_data->state = HTTP3_HD_DECODER_ERROR;
+                header_data->error = nread;
                 ws_debug("Early return nread=%d err=%s", nread, nghttp3_strerror(nread));
-                proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_decoding_failed, tvb, tvb_offset, 0,
-                                             "QPACK error decoder %p ctx %p flags %" PRIu8 " error %d (%s)", decoder,
-                                             sctx, flags, nread, nghttp3_strerror((int)nread));
                 break;
             }
 
@@ -994,24 +999,13 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
              * Check whether the QPACK decoder is blocked on QPACK encoder stream.
              */
             if (flags & NGHTTP3_QPACK_DECODE_FLAG_BLOCKED) {
-                uint64_t ricnt, wicnt;
+                uint64_t wicnt, ricnt;
 
-                ricnt = nghttp3_qpack_stream_context_get_ricnt(sctx);
-                wicnt = nghttp3_qpack_decoder_get_icnt(decoder);
-                ti    = proto_tree_add_boolean(tree, hf_http3_header_qpack_blocked, tvb, tvb_offset, 0, true);
-                proto_item_set_generated(ti);
-                blocked_rcint_tree = proto_item_add_subtree(ti, ett_http3_headers_qpack_blocked);
-                ti = proto_tree_add_uint(blocked_rcint_tree, hf_http3_header_qpack_blocked_stream_rcint, tvb,
-                                         tvb_offset, 0, (uint32_t)ricnt);
-                proto_item_set_generated(ti);
-                proto_tree_add_uint(blocked_rcint_tree, hf_http3_header_qpack_blocked_decoder_wicnt, tvb, tvb_offset, 0,
-                                    (uint32_t)wicnt);
-                proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_decoding_blocked, tvb, tvb_offset, 0,
-                                             "QPACK - blocked decoder %p ctx %p flags=%" PRIu8 " ricnt=%" PRIu64
-                                             " wicnt=%" PRIu64 " error %d (%s)",
-                                             decoder, sctx, flags, ricnt, wicnt, nread, nghttp3_strerror((int)nread));
+                header_data->state  = HTTP3_HD_DECODER_BLOCKED;
+                ricnt               = nghttp3_qpack_stream_context_get_ricnt(sctx);
+                wicnt               = nghttp3_qpack_decoder_get_icnt(decoder);
                 ws_debug("Early return nread=%d blocked=%" PRIu8 " ricnt=%" PRIu64 " wicnt=%" PRIu64,
-                                        nread, flags, ricnt, wicnt);
+                    nread, flags, ricnt, wicnt);
                 break;
             }
 
@@ -1019,7 +1013,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
              * Check whether the decoder has emitted header data.
              */
             if (flags & NGHTTP3_QPACK_DECODE_FLAG_EMIT) {
-                http3_header_field_t        *out;
+                http3_header_field_t  *out;
 
                 ws_noisy("Emit nread=%d flags=%" PRIu8 "", nread, flags);
 
@@ -1056,11 +1050,34 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         nghttp3_qpack_stream_context_del(sctx);
     }
 
+    /* Check if any expert information fields have to be added.
+     */
+    if (header_data->state == HTTP3_HD_DECODER_ERROR) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_decoding_failed, tvb, tvb_offset, 0,
+            "QPACK decoding error %d (%s)",
+            header_data->error, nghttp3_strerror(header_data->error));
+    } else if (header_data->state == HTTP3_HD_DECODER_BLOCKED) {
+        ti  = proto_tree_add_boolean(tree, hf_http3_header_qpack_blocked, tvb, tvb_offset, 0, true);
+        proto_item_set_generated(ti);
+        proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_decoding_blocked, tvb, tvb_offset, 0,
+            "QPACK decoding blocked");
+    }
+
+    if (header_data->encoded.pos < tvb_offset && header_data->encoded.len != 0) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_encoded_state, tvb, tvb_offset, 0,
+            "HTTP3 encoded headers - bytes %p pos %d len %d", header_data->encoded.bytes,
+            header_data->encoded.pos, header_data->encoded.len);
+    }
+
     if ((header_data->header_fields == NULL) || (wmem_array_get_count(header_data->header_fields) == 0)) {
         return tvb_offset;
     }
 
-    header_tvb = tvb_new_composite();
+    /* Header data contains decoded header values; start building the protocol trees. */
+    header_tvb      = tvb_new_composite();
+    header_len      = 0;
+    hoffset         = 0;
+    pseudo_headers  = HTTP3_PSEUDO_HEADERS_INITIALIZER;
 
     for (unsigned i = 0; i < wmem_array_get_count(header_data->header_fields); ++i) {
         http3_header_field_t    *in;
@@ -1085,7 +1102,14 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     proto_item_set_generated(ti);
 
     for (unsigned i = 0; i < wmem_array_get_count(header_data->header_fields); ++i) {
-        http3_header_field_t *in;
+        http3_header_field_t    *in;
+        proto_item              *ti_named_field;
+        proto_item              *header;
+        proto_tree              *header_tree;
+        uint32_t                header_name_length;
+        const uint8_t           *header_name;
+        uint32_t                header_value_length;
+        const uint8_t           *header_value;
 
         in = (http3_header_field_t *)wmem_array_index(header_data->header_fields, i);
 
@@ -1121,58 +1145,103 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
         proto_item_append_text(header, ": %s: %s", header_name, header_value);
 
-        /* Display :method, :path and :status in info column (just like http1.1 dissector does)*/
+        /* Collect the pseudo-header values to be used later. */
         if (strcmp(header_name, HTTP3_HEADER_NAME_METHOD) == 0) {
-            method_header_value = header_value;
-            try_append_method_path_info(pinfo, tree, method_header_value, path_header_value, authority_header_value);
+            pseudo_headers.method = header_value;
+        } else if (strcmp(header_name, HTTP3_HEADER_NAME_PROTOCOL) == 0) {
+            pseudo_headers.protocol = header_value;
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_PATH) == 0) {
-            path_header_value = header_value;
-            try_append_method_path_info(pinfo, tree, method_header_value, path_header_value, authority_header_value);
+            pseudo_headers.path = header_value;
             http_add_path_components_to_tree(header_tvb, pinfo, ti_named_field, hoffset - header_value_length,
                                              header_value_length);
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_AUTHORITY) == 0) {
-            authority_header_value = header_value;
-            try_append_method_path_info(pinfo, tree, method_header_value, path_header_value, authority_header_value);
-        } else if (strcmp(header_name, HTTP3_HEADER_NAME_STATUS) == 0) {
-            const char *reason_phase =
-                val_to_str_const((unsigned)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
-            /* append response status and reason phrase to info column (for example, HEADERS: 200 OK) */
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", header_value, reason_phase);
-            /* append response status and reason phrase to header_tree and Stream node */
-            proto_item_append_text(header_tree, " %s", reason_phase);
-            proto_item_append_text(tree, ", %s %s", header_value, reason_phase);
-        } else if (strcmp(header_name, HTTP3_HEADER_NAME_AUTHORITY) == 0) {
-            authority_header_value = header_value;
+            pseudo_headers.authority = header_value;
         } else if (strcmp(header_name, HTTP3_HEADER_NAME_SCHEME) == 0) {
-            scheme_header_value = header_value;
+            pseudo_headers.scheme = header_value;
+        } else if (strcmp(header_name, HTTP3_HEADER_NAME_STATUS) == 0) {
+            unsigned status_code;
+
+            status_code             = (unsigned)strtoul(header_value, NULL, 10);
+            pseudo_headers.status   = header_value;
+            pseudo_headers.reason_phrase = val_to_str_const(status_code, vals_http_status_code, "Unknown");
+            proto_item_append_text(header_tree, " %s", pseudo_headers.reason_phrase);
+            proto_item_append_text(tree, ", %s %s", pseudo_headers.status, pseudo_headers.reason_phrase);
         }
 
         tvb_offset += in->encoded.len;
     }
 
-    /*
-     * Use the `:authority' Header as an indication that this packet is a request.
+    /* We have finished constructing the tree for the header fields.
+     * Proceed to determine whether this is a variant of the CONNECT
+     * method and to update the `hf_http3_header_request_full_uri'
+     * and the info column display accordingly.
      */
-    if (authority_header_value) {
-        proto_item *e_ti;
-        char       *uri;
+    if (pseudo_headers.method != NULL) {
+        proto_item   *ti_url;
+        char         *uri;
+        bool         authority_contains_target = false;
 
-        /*
-         * https://www.ietf.org/rfc/rfc9114.html#name-request-pseudo-header-field
-         *
-         * All HTTP/3 requests MUST include exactly one value for the `:method',
-         * `:scheme', and `:path' pseudo-header fields, unless the request is
-         * a `CONNECT' request; see Section 4.4.
-         */
-        if (method_header_value && strcmp(method_header_value, HTTP3_HEADER_METHOD_CONNECT) == 0) {
-            uri = wmem_strdup(pinfo->pool, authority_header_value);
-        } else {
-            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s", scheme_header_value, authority_header_value,
-                                     path_header_value);
+        if (strncmp(pseudo_headers.method, "CONNECT", 7) == 0) {
+            /* This is a variant of CONNECT method.
+             * Supported variants:
+             * 1. "CONNECT-UDP"
+             *     https://www.ietf.org/archive/id/draft-schinazi-masque-connect-udp-00.html#section-3
+             * 2. "Plain CONNECT"
+             *    https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
+             * 3. "Extended CONNECT"
+             *     https://www.rfc-editor.org/rfc/rfc9298.html#section-2
+             *     https://www.rfc-editor.org/rfc/rfc9298.html#section-3.4
+             *     https://www.rfc-editor.org/rfc/rfc8441.html#section-4
+             *
+             * Both the "CONNECT-UDP" and "Plain CONNECT" utilize the
+             * `:authority' pseudo-header as the connection target.
+             * The "Extended CONNECT" uses the pseudo-headers
+             * in the same way as other HTTP methods.
+             */
+            if (strcmp(pseudo_headers.method, "CONNECT-UDP") == 0) {
+                /* This is CONNECT-UDP method
+                 * https://www.ietf.org/archive/id/draft-schinazi-masque-connect-udp-00.html#section-3
+                 *
+                 * Pseudo-header semantics:
+                 * `:method' contains  "CONNECT-UDP"
+                 * `:authority' contains the target host:port
+                 * `:scheme' and `:path' MUST be empty.
+                 */
+                 authority_contains_target = true;
+            } else if (pseudo_headers.protocol == NULL) {
+                /* This is the plain CONNECT method
+                 * https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
+                 *
+                 * Pseudo-header semantics:
+                 * `:method' contains "CONNECT"
+                 * `:authority' contains the target host and port
+                 * `:scheme' and `:path' MUST be empty
+                 */
+                 authority_contains_target = true;
+            }
         }
-        e_ti = proto_tree_add_string(tree, hf_http3_header_request_full_uri, tvb, 0, 0, uri);
-        proto_item_set_url(e_ti);
-        proto_item_set_generated(e_ti);
+
+        if (authority_contains_target) {
+            /* Both plain CONNECT and CONNECT-UDP use only the `:authority' header.
+             */
+            uri = wmem_strdup(pinfo->pool, pseudo_headers.authority);
+        } else {
+            /* The Extended CONNECT uses the standard URL construction
+             */
+            uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s",
+                pseudo_headers.scheme, pseudo_headers.authority, pseudo_headers.path);
+        }
+
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s",
+            pseudo_headers.method, uri);
+        ti_url = proto_tree_add_string(tree, hf_http3_header_request_full_uri, tvb, 0, 0, uri);
+        proto_item_set_url(ti_url);
+        proto_item_set_generated(ti_url);
+    } else if (pseudo_headers.status != NULL) {
+        DISSECTOR_ASSERT(pseudo_headers.reason_phrase); /* Must be filled together with `:status' */
+        /* append the status code and the reason phrase (for example, HEADERS: 200 OK) */
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s",
+            pseudo_headers.status, pseudo_headers.reason_phrase);
     }
 
     return tvb_offset;
@@ -1457,6 +1526,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     case HTTP3_MAX_PUSH_ID: /* TODO: dissect Max_Push_ID Frame */
         break;
     case HTTP3_PRIORITY_UPDATE_REQUEST_STREAM:
+        /* FALLTHROUGH */
     case HTTP3_PRIORITY_UPDATE_PUSH_STREAM: { /* Priority_Update Frame */
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_priority_update(next_tvb, pinfo, ft_tree, 0, frame_length);
@@ -1582,9 +1652,9 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_item   *opcode_ti;
     proto_tree   *opcode_tree;
     tvbuff_t     *decoded_tvb;
-    unsigned      decoded = 0;
-    bool          fin = false;
-    int           inc = 0;
+    unsigned      decoded      = 0;
+    bool          fin          = false;
+    int           inc          = 0;
     volatile bool can_continue = true;
 
     remaining = tvb_captured_length_remaining(tvb, offset);
@@ -1607,7 +1677,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 int      value_len        = 0;
                 int      val_bytes_offset = 0;
                 uint64_t val_bytes_len    = 0;
-                bool value_huffman    = false;
+                bool value_huffman        = false;
 
                 /* https://datatracker.ietf.org/doc/html/rfc9204#name-insert-with-name-reference
                  *
@@ -1787,53 +1857,54 @@ static int
 dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                         quic_stream_info *stream_info, http3_stream_info_t *http3_stream)
 {
-    int                   remaining, remaining_captured, retval, decoded = 0;
-    proto_item *          qpack_update;
-    proto_tree *          qpack_update_tree;
-    http3_session_info_t *http3_session;
+    int                   remaining, remaining_captured, retval;
 
     remaining_captured = tvb_captured_length_remaining(tvb, offset);
     remaining          = tvb_reported_length_remaining(tvb, offset);
     DISSECTOR_ASSERT(remaining_captured == remaining);
     retval = remaining;
 
-    http3_session = http3_session_lookup_or_create(pinfo);
-    DISSECTOR_ASSERT(http3_session);
+    if (remaining > 0) {
+        http3_session_info_t    *http3_session;
+        proto_item              *qpack_update;
+        proto_tree              *qpack_update_tree;
+        int                     decoded;
 
-    /*
-     * Add a QPACK encoder tree item.
-     */
-    qpack_update      = proto_tree_add_item(tree, hf_http3_qpack_encoder, tvb, offset, remaining, ENC_NA);
-    qpack_update_tree = proto_item_add_subtree(qpack_update, ett_http3_qpack_update);
-    decoded =     dissect_http3_qpack_encoder_stream(tvb, pinfo, qpack_update_tree, offset,
-                                                           http3_stream);
+        http3_session = http3_session_lookup_or_create(pinfo);
+        DISSECTOR_ASSERT(http3_session);
 
-    if (!PINFO_FD_VISITED(pinfo)) {
-        ws_debug("decode encoder stream: Wireshark decoded=%u of %u", decoded, remaining);
-    }
-    if (decoded < remaining) {
-        pinfo->desegment_offset = offset + decoded;
-        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-    }
+        /*
+        * Add a QPACK encoder tree item.
+        */
+        qpack_update      = proto_tree_add_item(tree, hf_http3_qpack_encoder, tvb, offset, remaining, ENC_NA);
+        qpack_update_tree = proto_item_add_subtree(qpack_update, ett_http3_qpack_update);
+        decoded =     dissect_http3_qpack_encoder_stream(tvb, pinfo, qpack_update_tree, offset,
+                                                            http3_stream);
+
+        if (!PINFO_FD_VISITED(pinfo)) {
+            ws_debug("decode encoder stream: Wireshark decoded=%u of %u", decoded, remaining);
+        }
+        if (decoded < remaining) {
+            pinfo->desegment_offset = offset + decoded;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+        }
 
 #ifdef HAVE_NGHTTP3
-    if (remaining > 0) {
-        proto_item *           ti;
-        http3_stream_dir       packet_direction = http3_packet_get_direction(stream_info);
-        nghttp3_qpack_decoder *decoder          = http3_session->qpack_decoder[packet_direction];
+        proto_item            *ti;
+        http3_stream_dir      packet_direction = http3_packet_get_direction(stream_info);
+        nghttp3_qpack_decoder *decoder         = http3_session->qpack_decoder[packet_direction];
 
         http3_qpack_encoder_state_t *encoder_state = http3_get_qpack_encoder_state(pinfo, tvb, offset);
 
         if (!PINFO_FD_VISITED(pinfo)) {
-
             /*
              * Since we are now defragmenting, pass only the number of bytes
              * decoded to the nghttp3_qpack_decoder. Otherwise, we'll end up
              * sending the same bytes to the decoder again when the packet
              * is defragmented.
              */
-            uint8_t *qpack_buf = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, decoded);
-            int                    qpack_buf_len = decoded;
+            uint8_t *qpack_buf      = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, decoded);
+            int     qpack_buf_len   = decoded;
 
             /*
              * Get the instr count prior to processing the data.
@@ -1868,12 +1939,12 @@ dissect_http3_qpack_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         ti = proto_tree_add_uint64(qpack_update_tree, hf_http3_qpack_encoder_icnt, tvb, offset, 0,
                                    encoder_state->icnt);
         proto_item_set_generated(ti);
-    }
 #else
     (void)stream_info;
     (void)qpack_update;
     (void)decoded;
 #endif /* HAVE_NGHTTP3 */
+    }
 
     return retval;
 }
@@ -2067,6 +2138,11 @@ register_static_headers(void)
         },
         { &hf_http3_headers_path,
           { ":path", "http3.headers.path",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_http3_headers_protocol,
+          { ":protocol", "http3.headers.protocol",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -2320,8 +2396,8 @@ register_static_headers(void)
 void
 proto_register_http3(void)
 {
-    expert_module_t *      expert_http3;
-    module_t *module_http3 _U_;
+    expert_module_t *expert_http3;
+    module_t        *module_http3 _U_;
 
     static hf_register_info hf[] = {
         { &hf_http3_stream_uni,
@@ -2364,18 +2440,15 @@ proto_register_http3(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
         /* Data */
         { &hf_http3_data,
           { "Data", "http3.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
         /* Headers */
-        //{ &hf_http3_headers,
-        //     { "Header", "http3.headers",
-        //        FT_UINT32, BASE_DEC, NULL, 0x0,
-        //        NULL, HFILL }
-        //},
         { &hf_http3_headers_count,
              { "Headers Count", "http3.headers.count",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2416,6 +2489,8 @@ proto_register_http3(void)
               FT_STRING, BASE_NONE, NULL, 0x0,
               "The full requested URI (including host name)", HFILL }
         },
+
+        /* QPACK */
         { &hf_http3_header_qpack_blocked,
             { "HEADERS head-of-line-blocked on QPACK encoder stream", "http3.header.qpack.blocked",
                 FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -2431,26 +2506,11 @@ proto_register_http3(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        //{ &hf_http3_header_qpack_fatal,
-        //    { "QPACK decoding error", "http3.header.qpack.fatal",
-        //        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-        //        NULL, HFILL }
-        //},
-        //{ &hf_http3_qpack,
-        //    { "QPACK", "http3.qpack",
-        //        FT_BYTES, BASE_NONE, NULL, 0x0,
-        //        NULL, HFILL }
-        //},
         { &hf_http3_qpack_encoder,
             { "QPACK encoder", "http3.qpack.encoder",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
-        //{ &hf_http3_qpack_encoder_length,
-        //    { "QPACK encoder update length", "http3.qpack.encoder.length",
-        //        FT_UINT32, BASE_DEC, NULL, 0x0,
-        //        NULL, HFILL }
-        //},
         { &hf_http3_qpack_encoder_icnt,
             { "QPACK encoder instruction count", "http3.qpack.encoder.icnt",
                 FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -2461,11 +2521,6 @@ proto_register_http3(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-       //{ &hf_http3_qpack_encoder_opcode,
-       //     { "QPACK encoder opcode", "http3.qpack.encoder.opcode",
-       //       FT_BYTES, BASE_NONE, NULL, 0x0,
-       //       NULL, HFILL }
-       // },
         { &hf_http3_qpack_encoder_opcode_insert_indexed,
             { "Insert with Name Reference", "http3.qpack.encoder.opcode.insert_indexed",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2516,11 +2571,6 @@ proto_register_http3(void)
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        //{ &hf_http3_qpack_encoder_opcode_duplicate_val,
-        //    { "Duplicate Index", "http3.qpack.encoder.opcode.duplicate.val",
-        //      FT_BYTES, BASE_NONE, NULL, 0x0,
-        //      NULL, HFILL }
-        //},
         { &hf_http3_qpack_encoder_opcode_dtable_cap,
             { "Set Dynamic Table Capacity", "http3.qpack.encoder.opcode.dtable_cap",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2612,34 +2662,26 @@ proto_register_http3(void)
           { "http3.unknown_stream_type", PI_UNDECODED, PI_WARN,
             "An unknown stream type was encountered", EXPFILL }
         },
-        //{ &ei_http3_data_not_decoded,
-        //    { "http3.data_not_decoded", PI_UNDECODED, PI_WARN,
-        //      "Data not decoded", EXPFILL }
-        // },
-        // { &ei_http3_qpack_enc_update,
-        //   { "http3.qpack_enc_update", PI_UNDECODED, PI_WARN,
-        //     "Success decoding QPACK buffer", EXPFILL }
-        // },
-         { &ei_http3_qpack_failed,
-           { "http3.qpack_enc_failed", PI_UNDECODED, PI_NOTE,
-             "Error decoding QPACK buffer", EXPFILL }
-         },
-         { &ei_http3_header_encoded_state ,
-           { "http3.expert.header.encoded_state", PI_DEBUG, PI_NOTE,
-             "HTTP3 header encoded block", EXPFILL }
-         },
-         { &ei_http3_header_decoding_failed ,
-           { "http3.expert.header_decoding.failed", PI_UNDECODED, PI_NOTE,
-             "Failed to decode HTTP3 header name/value", EXPFILL }
-         },
-         { &ei_http3_header_decoding_blocked,
-           { "http3.expert.header_decoding.blocked", PI_UNDECODED, PI_NOTE,
-             "Failed to decode HTTP3 header name/value (blocked on QPACK)", EXPFILL}
-         },
-         { &ei_http3_header_decoding_no_output,
-           { "http3.expert.header_decoding.no_output", PI_UNDECODED, PI_NOTE,
-             "Failed to decode HTTP3 header name/value (QPACK decoder no emission)", EXPFILL}
-         },
+        { &ei_http3_qpack_failed,
+          { "http3.qpack_enc_failed", PI_UNDECODED, PI_NOTE,
+            "Error decoding QPACK buffer", EXPFILL }
+        },
+        { &ei_http3_header_encoded_state ,
+          { "http3.expert.header.encoded_state", PI_DEBUG, PI_NOTE,
+            "HTTP3 header encoded block", EXPFILL }
+        },
+        { &ei_http3_header_decoding_failed ,
+          { "http3.expert.header_decoding.failed", PI_UNDECODED, PI_NOTE,
+            "Failed to decode HTTP3 header name/value", EXPFILL }
+        },
+        { &ei_http3_header_decoding_blocked,
+          { "http3.expert.header_decoding.blocked", PI_UNDECODED, PI_NOTE,
+            "Failed to decode HTTP3 header name/value (blocked on QPACK)", EXPFILL}
+        },
+        { &ei_http3_header_decoding_no_output,
+          { "http3.expert.header_decoding.no_output", PI_UNDECODED, PI_NOTE,
+            "Failed to decode HTTP3 header name/value (QPACK decoder no emission)", EXPFILL}
+        },
     };
 
     proto_http3 = proto_register_protocol("Hypertext Transfer Protocol Version 3", "HTTP3", "http3");
