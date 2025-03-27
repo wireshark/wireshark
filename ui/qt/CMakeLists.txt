@@ -18,6 +18,7 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 set(WIRESHARK_WIDGET_HEADERS
 	widgets/additional_toolbar.h
 	widgets/apply_line_edit.h
+	widgets/base_data_source_view.h
 	widgets/byte_view_text.h
 	widgets/capture_filter_combo.h
 	widgets/capture_filter_edit.h
@@ -40,6 +41,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/find_line_edit.h
 	widgets/follow_stream_text.h
 	widgets/interface_toolbar_lineedit.h
+	widgets/json_data_source_view.h
 	widgets/label_stack.h
 	widgets/overlay_scroll_bar.h
 	widgets/packet_list_header.h
@@ -310,6 +312,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/find_line_edit.cpp
 	widgets/follow_stream_text.cpp
 	widgets/interface_toolbar_lineedit.cpp
+	widgets/json_data_source_view.cpp
 	widgets/label_stack.cpp
 	widgets/overlay_scroll_bar.cpp
 	widgets/packet_list_header.cpp

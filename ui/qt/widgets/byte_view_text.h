@@ -23,34 +23,30 @@
 #include <QTextLayout>
 #include <QVector>
 
+#include "base_data_source_view.h"
+
 #include <ui/qt/utils/data_printer.h>
 #include <ui/qt/utils/idata_printable.h>
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
-class ByteViewText : public QAbstractScrollArea, public IDataPrintable
+class ByteViewText : public BaseDataSourceView, public IDataPrintable
 {
     Q_OBJECT
     Q_INTERFACES(IDataPrintable)
 
 public:
-    explicit ByteViewText(const QByteArray &data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = 0);
+    explicit ByteViewText(const QByteArray &data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = nullptr);
     ~ByteViewText();
 
-    virtual QSize minimumSizeHint() const;
-
     void setFormat(bytes_view_type format);
-    bool isEmpty() const;
 
 signals:
-    void byteHovered(int pos);
-    void byteSelected(int pos);
     void byteViewSettingsChanged();
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);
     void updateByteViewSettings();
-    void detachData();
 
     void markProtocol(int start, int length);
     void markField(int start, int length, bool scroll_to = true);
@@ -77,7 +73,6 @@ private:
     } HighlightMode;
 
     QTextLayout *layout_;
-    QByteArray data_;
 
     void updateLayoutMetrics();
     int stringWidth(const QString &line);

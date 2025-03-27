@@ -31,6 +31,8 @@ The following changes have been made since version 0.9.1:
 
 * Stratoshark can now show field offsets for supported plugins.
 
+* Cloudtrail log messages can now be viewed as formatted JSON data.
+
 The following changes have been made since version 0.9.0:
 
 * The application icons have been updated.

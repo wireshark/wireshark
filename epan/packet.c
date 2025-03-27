@@ -56,6 +56,7 @@ static dissector_handle_t data_handle;
 struct data_source {
 	tvbuff_t *tvb;
 	char *name;
+	data_source_media_type_e media_type;
 };
 
 /*
@@ -405,17 +406,25 @@ postseq_cleanup_all_protocols(void)
  * Add a new data source to the list of data sources for a frame, given
  * the tvbuff for the data source and its name.
  */
-void
-add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
+struct data_source *add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
 	struct data_source *src;
 
 	src = wmem_new(pinfo->pool, struct data_source);
 	src->tvb = tvb;
 	src->name = wmem_strdup(pinfo->pool, name);
+	src->media_type = DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM;
 	/* This could end up slow, but we should never have that many data
 	 * sources so it probably doesn't matter */
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
+	return src;
+}
+
+void set_data_source_media_type(struct data_source *src, data_source_media_type_e media_type)
+{
+	if (src) {
+		src->media_type = media_type;
+	}
 }
 
 void
@@ -439,7 +448,10 @@ get_data_source_name(const struct data_source *src)
 tvbuff_t *
 get_data_source_tvb(const struct data_source *src)
 {
-	return src->tvb;
+	if (src) {
+		return src->tvb;
+	}
+	return NULL;
 }
 
 /*
@@ -448,6 +460,9 @@ get_data_source_tvb(const struct data_source *src)
 tvbuff_t *
 get_data_source_tvb_by_name(packet_info *pinfo, const char *name)
 {
+	if (!pinfo) {
+		return NULL;
+	}
 	GSList *source;
 	for (source = pinfo->data_src; source; source = source->next) {
 		struct data_source *this_source = (struct data_source *)source->data;
@@ -456,6 +471,14 @@ get_data_source_tvb_by_name(packet_info *pinfo, const char *name)
 		}
 	}
 	return NULL;
+}
+
+data_source_media_type_e get_data_source_media_type(const struct data_source *src)
+{
+	if (src) {
+		return src->media_type;
+	}
+	return DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM;
 }
 
 

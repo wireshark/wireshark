@@ -828,22 +828,49 @@ register_final_registration_routine(void (*func)(void));
 extern void
 final_registration_all_protocols(void);
 
-/*
+// XXX Should we move frame_data.encoding here?
+typedef enum {
+    DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM,
+    DS_MEDIA_TYPE_APPLICATION_JSON,
+} data_source_media_type_e;
+
+struct data_source;
+
+/**
  * Add a new data source to the list of data sources for a frame, given
- * the tvbuff for the data source and its name.
+ * the tvbuff for the data source and its name. The media type will be
+ * set to DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM.
+ * @param pinfo Packet info.
+ * @param tvb The tvbuff to associate with the data source.
+ * @param name A display-freindly name of the data source.
+ * @return An opaque pointer to the data source.
  */
-WS_DLL_PUBLIC void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
+WS_DLL_PUBLIC struct data_source* add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
     const char *name);
+
+/**
+ * Set the media type for the data source. This will be used as a hint
+ * to display the source's tvbuff.
+ * @param src The data source.
+ * @param media_type A valid media type.
+ */
+WS_DLL_PUBLIC void set_data_source_media_type(struct data_source *src, data_source_media_type_e media_type);
+
 /* Removes the last-added data source, if it turns out it wasn't needed */
 WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
 
 /*
  * Return the data source name, tvb.
  */
-struct data_source;
 WS_DLL_PUBLIC char *get_data_source_name(const struct data_source *src);
 WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb(const struct data_source *src);
 WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb_by_name(packet_info *pinfo, const char *name);
+/**
+ * Get a data source's media type.
+ * @param src The data source.
+ * @return A media type.
+ */
+WS_DLL_PUBLIC data_source_media_type_e get_data_source_media_type(const struct data_source *src);
 
 /*
  * Free up a frame's list of data sources.

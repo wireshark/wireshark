@@ -23,7 +23,7 @@
 #include <QTabWidget>
 
 
-#include <ui/qt/widgets/byte_view_text.h>
+#include <ui/qt/widgets/base_data_source_view.h>
 
 class ByteViewTab : public QTabWidget
 {
@@ -59,8 +59,8 @@ private:
     bool disable_hover_;
 
     void setTabsVisible();
-    ByteViewText * findByteViewTextForTvb(tvbuff_t * search, int * idx = 0);
-    void addTab(const char *name = "", tvbuff_t *tvb = NULL);
+    BaseDataSourceView * findDataSourceViewForTvb(tvbuff_t * search, int * idx = 0);
+    void addTab(const char *name = "", const struct data_source *source = nullptr);
 
 protected:
     void tabInserted(int);

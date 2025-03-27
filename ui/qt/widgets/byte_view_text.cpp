@@ -14,6 +14,7 @@
 
 #include <wsutil/str_util.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/color_utils.h>
@@ -46,9 +47,8 @@ Q_DECLARE_METATYPE(bytes_encoding_type)
 Q_DECLARE_METATYPE(DataPrinter::DumpType)
 
 ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
-    QAbstractScrollArea(parent),
+    BaseDataSourceView(data, parent),
     layout_(new QTextLayout()),
-    data_(data),
     encoding_(encoding),
     hovered_byte_offset_(-1),
     marked_byte_offset_(-1),
@@ -126,7 +126,11 @@ void ByteViewText::createContextMenu()
     ctx_menu_.addSeparator();
 
     QActionGroup * encoding_actions = new QActionGroup(this);
-    action_bytes_enc_from_packet_ = encoding_actions->addAction(tr("Show text based on packet"));
+    if (application_flavor_is_wireshark()) {
+        action_bytes_enc_from_packet_ = encoding_actions->addAction(tr("Show text based on packet"));
+    } else {
+        action_bytes_enc_from_packet_ = encoding_actions->addAction(tr("Show text based on event"));
+    }
     action_bytes_enc_from_packet_->setData(QVariant::fromValue(BYTES_ENC_FROM_PACKET));
     action_bytes_enc_from_packet_->setCheckable(true);
 
@@ -181,17 +185,6 @@ void ByteViewText::updateContextMenu()
         action_bytes_enc_ebcdic_->setChecked(true);
         break;
     }
-}
-
-bool ByteViewText::isEmpty() const
-{
-    return data_.isEmpty();
-}
-
-QSize ByteViewText::minimumSizeHint() const
-{
-    // Allow panel to shrink to any size
-    return QSize();
 }
 
 void ByteViewText::markProtocol(int start, int length)
@@ -254,11 +247,6 @@ void ByteViewText::updateByteViewSettings()
     updateContextMenu();
     updateScrollbars();
     viewport()->update();
-}
-
-void ByteViewText::detachData()
-{
-    data_.detach();
 }
 
 void ByteViewText::paintEvent(QPaintEvent *)

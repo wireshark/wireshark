@@ -16,13 +16,14 @@
 
 #include "cfile.h"
 
+#include <wsutil/application_flavor.h>
+
 #include <main_application.h>
 
 #include <ui/qt/main_window.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/byte_view_text.h>
-
-#define tvb_data_property "tvb_data_property"
+#include <ui/qt/widgets/json_data_source_view.h>
 
 // To do:
 // - We might want to add a callback to free_data_sources in so that we
@@ -35,7 +36,11 @@ ByteViewTab::ByteViewTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     edt_(edt_fixed),
     disable_hover_(false)
 {
-    setAccessibleName(tr("Packet bytes"));
+    if (application_flavor_is_wireshark()) {
+        setAccessibleName(tr("Packet bytes"));
+    } else {
+        setAccessibleName(tr("Event data"));
+    }
     setTabPosition(QTabWidget::South);
     setDocumentMode(true);
 
@@ -72,7 +77,7 @@ void ByteViewTab::captureActive(int cap)
         if (allBVTs.count() > 0)
         {
             ByteViewText * bvt = allBVTs.at(0);
-            tvbuff_t * stored = VariantPointer<tvbuff_t>::asPtr(bvt->property(tvb_data_property));
+            tvbuff_t * stored = bvt->tvb();
 
             if (! stored)
                 selectedFrameChanged(QList<int>());
@@ -80,17 +85,18 @@ void ByteViewTab::captureActive(int cap)
     }
 }
 
-void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
+void ByteViewTab::addTab(const char *name, const struct data_source *source)
+{
+
     if (count() == 1) { // Remove empty placeholder.
-        ByteViewText *cur_text = qobject_cast<ByteViewText *>(currentWidget());
-        if (cur_text && cur_text->isEmpty()) delete currentWidget();
+        BaseDataSourceView *cur_view = qobject_cast<BaseDataSourceView *>(currentWidget());
+        if (cur_view && cur_view->isEmpty()) delete currentWidget();
     }
 
-    packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII;
-    if (cap_file_ && cap_file_->current_frame)
-        encoding = (packet_char_enc)cap_file_->current_frame->encoding;
-
+    BaseDataSourceView *data_source_view;
+    tvbuff_t *tvb = get_data_source_tvb(source);
     QByteArray data;
+
     if (tvb) {
         int data_len = (int) tvb_captured_length(tvb);
         if (data_len > 0) {
@@ -101,9 +107,30 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
         }
     }
 
-    ByteViewText * byte_view_text = new ByteViewText(data, encoding, this);
-    byte_view_text->setAccessibleName(name);
-    byte_view_text->setMonospaceFont(mainApp->monospaceFont(true));
+    switch (get_data_source_media_type(source)) {
+    case DS_MEDIA_TYPE_APPLICATION_JSON:
+    {
+        proto_node *root_node = nullptr;
+        if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+            root_node = cap_file_->edt->tree;
+        }
+
+        data_source_view = new JsonDataSourceView(data, root_node, this);
+    }
+        break;
+    default:
+    {
+        packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII;
+        if (cap_file_ && cap_file_->current_frame) {
+            encoding = (packet_char_enc)cap_file_->current_frame->encoding;
+        }
+
+        data_source_view = new ByteViewText(data, encoding, this);
+    }
+    }
+
+    data_source_view->setAccessibleName(name);
+    data_source_view->setMonospaceFont(mainApp->monospaceFont(true));
 
     if (tvb)
     {
@@ -117,7 +144,7 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
         // there is no free_cb (a free_cb implies the data is freed at the
         // same time as the tvb, i.e. when leaving the packet.)
         if (is_fixed_packet_ && count() > 0) {
-            connect(this, &ByteViewTab::detachData, byte_view_text, &ByteViewText::detachData);
+            connect(this, &ByteViewTab::detachData, data_source_view, &BaseDataSourceView::detachData);
         }
         // See above - this tvb is (expected to be) scoped to the packet, but
         // the real data is not necessarily so. If this is a PacketDialog
@@ -131,19 +158,21 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
         // even doing so only when the capture file is closing. However, while
         // relatively simple for the few number of secondary data sources, it
         // would be a pain to change the pointers for every field_info.
-        byte_view_text->setProperty(tvb_data_property, VariantPointer<tvbuff_t>::asQVariant(tvb));
+        data_source_view->setTvb(tvb);
 
-        connect(mainApp, &MainApplication::zoomMonospaceFont, byte_view_text, &ByteViewText::setMonospaceFont);
+        connect(mainApp, &MainApplication::zoomMonospaceFont, data_source_view, &BaseDataSourceView::setMonospaceFont);
+        connect(data_source_view, &ByteViewText::byteSelected, this, &ByteViewTab::byteViewTextMarked);
 
-        connect(byte_view_text, &ByteViewText::byteHovered, this, &ByteViewTab::byteViewTextHovered);
-        connect(byte_view_text, &ByteViewText::byteSelected, this, &ByteViewTab::byteViewTextMarked);
-        connect(byte_view_text, &ByteViewText::byteViewSettingsChanged, this, &ByteViewTab::byteViewSettingsChanged);
-        connect(this, &ByteViewTab::byteViewSettingsChanged, byte_view_text, &ByteViewText::updateByteViewSettings);
-        connect(this, &ByteViewTab::byteViewUnmarkField, byte_view_text, &ByteViewText::unmarkField);
+        if (ByteViewText *byte_view_text = qobject_cast<ByteViewText *>(data_source_view)) {
+            connect(byte_view_text, &ByteViewText::byteHovered, this, &ByteViewTab::byteViewTextHovered);
+            connect(byte_view_text, &ByteViewText::byteViewSettingsChanged, this, &ByteViewTab::byteViewSettingsChanged);
+            connect(this, &ByteViewTab::byteViewSettingsChanged, byte_view_text, &ByteViewText::updateByteViewSettings);
+            connect(this, &ByteViewTab::byteViewUnmarkField, byte_view_text, &ByteViewText::unmarkField);
+        }
     }
 
-    int idx = QTabWidget::addTab(byte_view_text, name);
-    byte_view_text->setProperty("tab_index", QVariant::fromValue(idx));
+    int idx = QTabWidget::addTab(data_source_view, name);
+    data_source_view->setTabIndex(idx);
 
     QTabWidget::setTabToolTip(idx, name);
 }
@@ -152,7 +181,8 @@ void ByteViewTab::byteViewTextHovered(int idx)
 {
     if (idx >= 0 && edt_)
     {
-        tvbuff_t * tvb = VariantPointer<tvbuff_t>::asPtr(sender()->property(tvb_data_property));
+        BaseDataSourceView *source = qobject_cast<BaseDataSourceView *>(sender());
+        tvbuff_t * tvb = source ? source->tvb() : nullptr;
         proto_tree * tree = edt_->tree;
 
         if (tvb && tree)
@@ -175,7 +205,8 @@ void ByteViewTab::byteViewTextMarked(int idx)
 {
     if (idx >= 0 && edt_)
     {
-        tvbuff_t * tvb = VariantPointer<tvbuff_t>::asPtr(sender()->property(tvb_data_property));
+        BaseDataSourceView *source = qobject_cast<BaseDataSourceView *>(sender());
+        tvbuff_t * tvb = source ? source->tvb() : nullptr;
         proto_tree * tree = edt_->tree;
 
         if (tvb && tree)
@@ -193,29 +224,27 @@ void ByteViewTab::byteViewTextMarked(int idx)
     emit fieldSelected((FieldInformation *)0);
 }
 
-ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * idx)
+BaseDataSourceView *ByteViewTab::findDataSourceViewForTvb(tvbuff_t * search_tvb, int * idx)
 {
+    if (! search_tvb) {
+        return nullptr;
+    }
 
-    ByteViewText * item = 0;
-    if (! search_tvb)
-        return item;
+    BaseDataSourceView *item = nullptr;
 
-    bool found = false;
-
-    QList<ByteViewText *> allBVTs = findChildren<ByteViewText *>();
-    for (int i = 0; i < allBVTs.size() && ! found; ++i)
+    QList<BaseDataSourceView *> all_sources = findChildren<BaseDataSourceView *>();
+    for (int i = 0; i < all_sources.size() && !item; ++i)
     {
-        ByteViewText * bvt = allBVTs.at(i);
-        tvbuff_t * stored = VariantPointer<tvbuff_t>::asPtr(bvt->property(tvb_data_property));
+        BaseDataSourceView * dsv = all_sources.at(i);
+        tvbuff_t * stored = dsv->tvb();
         if (stored == search_tvb)
         {
-            found = true;
-            int wdgIdx = bvt->property("tab_index").toInt();
+            int wdgIdx = dsv->tabIndex();
             if (idx)
             {
                 *idx = wdgIdx;
             }
-            item = (ByteViewText *)widget(wdgIdx);
+            item = qobject_cast<BaseDataSourceView *>(widget(wdgIdx));
         }
     }
 
@@ -242,7 +271,7 @@ void ByteViewTab::setTabsVisible() {
 void ByteViewTab::selectedFrameChanged(QList<int> frames)
 {
     clear();
-    qDeleteAll(findChildren<ByteViewText *>());
+    qDeleteAll(findChildren<BaseDataSourceView *>());
 
     if (!is_fixed_packet_) {
         /* If this is not a fixed packet (not the packet dialog), it must be the
@@ -273,7 +302,7 @@ void ByteViewTab::selectedFrameChanged(QList<int> frames)
             char* source_name;
             source = (struct data_source *)src_le->data;
             source_name = get_data_source_name(source);
-            addTab(source_name, get_data_source_tvb(source));
+            addTab(source_name, source);
             wmem_free(NULL, source_name);
         }
     }
@@ -286,7 +315,7 @@ void ByteViewTab::selectedFrameChanged(QList<int> frames)
 void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
 {
     // We need to handle both selection and deselection.
-    ByteViewText * byte_view_text = qobject_cast<ByteViewText *>(currentWidget());
+    BaseDataSourceView * data_source_view = qobject_cast<BaseDataSourceView *>(currentWidget());
     int f_start = -1, f_length = -1;
     int p_start = -1, p_length = -1;
     int fa_start = -1, fa_length = -1;
@@ -299,8 +328,9 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
         const field_info *fi = selected->fieldInfo();
 
         int idx = 0;
-        if (fi)
-            byte_view_text = findByteViewTextForTvb(fi->ds_tvb, &idx);
+        if (fi) {
+            data_source_view = findDataSourceViewForTvb(fi->ds_tvb, &idx);
+        }
 
         if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
             // In the hex view, only highlight the target bytes or string. The entire
@@ -324,19 +354,19 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
         delete parentField;
     }
 
-    if (byte_view_text)
+    if (data_source_view)
     {
-        byte_view_text->markField(f_start, f_length);
-        byte_view_text->markProtocol(p_start, p_length);
-        byte_view_text->markAppendix(fa_start, fa_length);
+        data_source_view->markField(f_start, f_length);
+        data_source_view->markProtocol(p_start, p_length);
+        data_source_view->markAppendix(fa_start, fa_length);
     } else {
         emit byteViewUnmarkField();
     }
 }
 void ByteViewTab::highlightedFieldChanged(FieldInformation *highlighted)
 {
-    ByteViewText * byte_view_text = qobject_cast<ByteViewText *>(currentWidget());
-    if (!highlighted || !byte_view_text) {
+    BaseDataSourceView * data_source_view = qobject_cast<BaseDataSourceView *>(currentWidget());
+    if (!highlighted || !data_source_view) {
         return;
     }
 
@@ -352,9 +382,9 @@ void ByteViewTab::highlightedFieldChanged(FieldInformation *highlighted)
         f_length = highlighted->position().length;
     }
 
-    byte_view_text->markField(f_start, f_length, false);
-    byte_view_text->markProtocol(-1, -1);
-    byte_view_text->markAppendix(-1, -1);
+    data_source_view->markField(f_start, f_length, false);
+    data_source_view->markProtocol(-1, -1);
+    data_source_view->markAppendix(-1, -1);
 }
 
 void ByteViewTab::setCaptureFile(capture_file *cf)

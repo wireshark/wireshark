@@ -80,6 +80,7 @@ typedef struct conv_filter_info {
 typedef struct bridge_info {
     sinsp_source_info_t *ssi;
     uint32_t source_id;
+    data_source_media_type_e media_type;
     int proto;
     hf_register_info* hf;
     int* hf_ids;
@@ -557,6 +558,11 @@ create_source_hfids(bridge_info* bi)
     }
 }
 
+// Plugins whose data should be displayed as JSON.
+// XXX This should probably be a preference.
+// We could also do this by numeric ID: https://github.com/falcosecurity/plugins
+static const char *json_plugins[] = {"cloudtrail"};
+
 void
 import_plugin(char* fname)
 {
@@ -576,6 +582,13 @@ import_plugin(char* fname)
     const char *source_name = get_sinsp_source_name(bi->ssi);
     const char *plugin_name = g_strdup_printf("%s Falco Bridge Plugin", source_name);
     bi->proto = proto_register_protocol(plugin_name, source_name, source_name);
+
+    bi->media_type = DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM;
+    for (size_t i = 0; i < array_length(json_plugins); i++) {
+        if (strcmp(json_plugins[i], source_name) == 0) {
+            bi->media_type = DS_MEDIA_TYPE_APPLICATION_JSON;
+        }
+    }
 
     static dissector_handle_t ct_handle;
     ct_handle = create_dissector_handle(dissect_sinsp_plugin, bi->proto);
@@ -876,7 +889,13 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         proto_item_append_text(idti, " (%s)", source_name);
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", source_name);
 
-        tvbuff_t* plugin_tvb = tvb_new_subset_length(tvb, 12, tvb_captured_length(tvb) - 12);
+        tvbuff_t *plugin_tvb = tvb;
+        if (bi->media_type == DS_MEDIA_TYPE_APPLICATION_JSON) {
+            int plugin_data_len = tvb_captured_length_remaining(tvb, 12);
+            plugin_tvb = tvb_new_child_real_data(tvb, tvb_get_ptr(tvb, 12, plugin_data_len), plugin_data_len, tvb_reported_length_remaining(tvb, 12));
+            struct data_source *source = add_new_data_source(pinfo, plugin_tvb, source_name);
+            set_data_source_media_type(source, DS_MEDIA_TYPE_APPLICATION_JSON);
+        }
         dissect_sinsp_plugin(plugin_tvb, pinfo, fb_tree, bi);
     }
 
@@ -1234,8 +1253,8 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
                call_dissector(json_handle, json_tvb, pinfo, json_tree);
 
-               /* Restore Protocol and Info columns */
-               col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
+                /* Restore Protocol and Info columns */
+                col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
             }
             int addr_fld_idx = bi->hf_id_to_addr_id[fld_idx];
             if (addr_fld_idx >= 0) {

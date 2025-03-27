@@ -18,6 +18,7 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/additional_toolbar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/apply_line_edit.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/base_data_source_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/byte_view_text.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_filter_combo.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_filter_edit.h
@@ -39,6 +40,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/find_line_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/follow_stream_text.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/interface_toolbar_lineedit.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/json_data_source_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/label_stack.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.h
@@ -279,6 +281,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/find_line_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/follow_stream_text.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/interface_toolbar_lineedit.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/json_data_source_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/label_stack.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/overlay_scroll_bar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/packet_list_header.cpp
