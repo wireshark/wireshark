@@ -13,10 +13,8 @@ ExtraArgs:
 
 # Checks to run. A complete list of checks can be found at
 # https://clang.llvm.org/extra/clang-tidy/checks/list.html
-Checks:
-  - '-*'
-  - 'misc-no-recursion'
+Checks: '-*,misc-no-recursion,bugprone-infinite-loop,bugprone-too-small-loop-variable'
 
-WarningsAsErrors: 'misc-no-recursion'
+WarningsAsErrors: 'misc-no-recursion,bugprone-infinite-loop'
 
 UseColor: true
