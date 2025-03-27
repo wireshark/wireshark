@@ -411,7 +411,12 @@ const std::pair<std::vector<std::string>,bool> get_json_array(const std::string 
 
 // Given a JSON blob containing a schema properties object, add each property to the
 // given plugin config.
-const std::pair<const std::string,bool> get_schema_properties(const std::string props_blob, int &opt_idx, const std::string option_prefix, const std::string plugin_name, std::vector<struct config_properties> &property_list) {
+// NOLINTNEXTLINE(misc-no-recursion)
+const std::pair<const std::string,bool> get_schema_properties(const std::string props_blob, int &opt_idx, const std::string option_prefix, const std::string plugin_name, std::vector<struct config_properties> &property_list, int depth) {
+    if (++depth > JSON_DUMPER_MAX_DEPTH) {
+        return std::pair<std::string,bool>("max depth exceeded", false);
+    }
+
     std::vector<jsmntok_t> tokens;
     int num_tokens = json_parse(props_blob.c_str(), NULL, 0);
 
@@ -473,7 +478,7 @@ const std::pair<const std::string,bool> get_schema_properties(const std::string 
                 "",
             };
             property_list.push_back(properties);
-            get_schema_properties(jv.first, opt_idx, option_prefix + "-" + name, plugin_name, property_list);
+            get_schema_properties(jv.first, opt_idx, option_prefix + "-" + name, plugin_name, property_list, depth);
             properties = {
                 name,
                 display,
@@ -682,7 +687,7 @@ static bool get_plugin_config_schema(const std::shared_ptr<sinsp_plugin> &plugin
         return false;
     }
     int opt_idx = OPT_SCHEMA_PROPERTIES_START;
-    jv = get_schema_properties(jv.first, opt_idx, "", plugin->name(), plugin_config.property_list);
+    jv = get_schema_properties(jv.first, opt_idx, "", plugin->name(), plugin_config.property_list, 0);
     if (!jv.second) {
         ws_warning("ERROR: Interface \"%s\" has an unsupported or invalid configuration schema: %s", plugin->name().c_str(), jv.first.c_str());
         return false;
