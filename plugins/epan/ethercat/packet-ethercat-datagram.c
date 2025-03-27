@@ -1088,13 +1088,13 @@ typedef struct
 
 static ecat_esc_reg_info ecat_esc_registers [] =
 {
-   { 0x0000, 1, 1, &hf_ecat_reg_revision, NO_SUBTREE_FILL},
-   { 0x0001, 1, 1, &hf_ecat_reg_esc_type, NO_SUBTREE_FILL},
+   { 0x0000, 1, 1, &hf_ecat_reg_esc_type, NO_SUBTREE_FILL},
+   { 0x0001, 1, 1, &hf_ecat_reg_revision, NO_SUBTREE_FILL},
    { 0x0002, 2, 1, &hf_ecat_reg_esc_build, NO_SUBTREE_FILL},
    { 0x0004, 1, 1, &hf_ecat_reg_esc_fmmucnt, NO_SUBTREE_FILL},
    { 0x0005, 1, 1, &hf_ecat_reg_esc_smcnt, NO_SUBTREE_FILL},
-   { 0x0006, 1, 1, &hf_ecat_reg_esc_ports, NO_SUBTREE_FILL},
-   { 0x0007, 1, 1, &hf_ecat_reg_esc_dpram, NO_SUBTREE_FILL},
+   { 0x0006, 1, 1, &hf_ecat_reg_esc_dpram, NO_SUBTREE_FILL},
+   { 0x0007, 1, 1, &hf_ecat_reg_esc_ports, NO_SUBTREE_FILL},
    { 0x0008, 2, 1, &hf_ecat_reg_esc_features, ecat_esc_reg_8, &ett_ecat_reg_esc_features, NULL},
    { 0x0010, 2, 1, &hf_ecat_reg_physaddr, NO_SUBTREE_FILL},
    { 0x0012, 2, 1, &hf_ecat_reg_physaddr2, NO_SUBTREE_FILL},
@@ -2379,12 +2379,12 @@ void proto_register_ecat(void)
          },
 
          /* Registers */
-         { &hf_ecat_reg_revision,
-           {"ESC Revision (0x0)", "ecat.reg.revision",
+         { &hf_ecat_reg_esc_type,
+           {"ESC Type (0x0)", "ecat.reg.type",
              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
          },
-         { &hf_ecat_reg_esc_type,
-           {"ESC Type (0x1)", "ecat.reg.type",
+         { &hf_ecat_reg_revision,
+           {"ESC Revision (0x1)", "ecat.reg.revision",
              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
          },
          { &hf_ecat_reg_esc_build,
@@ -2399,12 +2399,12 @@ void proto_register_ecat(void)
            {"ESC SM Cnt (0x5)", "ecat.reg.smcnt",
              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
          },
-         { &hf_ecat_reg_esc_ports,
-           {"ESC Ports (0x6)", "ecat.reg.ports",
+         { &hf_ecat_reg_esc_dpram,
+           {"ESC DPRAM (0x6)", "ecat.reg.dpram",
              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
          },
-         { &hf_ecat_reg_esc_dpram,
-           {"ESC DPRAM (0x7)", "ecat.reg.dpram",
+         { &hf_ecat_reg_esc_ports,
+           {"ESC Ports (0x7)", "ecat.reg.ports",
              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
          },
          { &hf_ecat_reg_esc_features,
