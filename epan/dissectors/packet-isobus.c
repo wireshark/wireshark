@@ -40,6 +40,15 @@ static int hf_isobus_dst_addr;
 static int hf_isobus_pgn;
 static int hf_isobus_payload;
 
+static int hf_isobus_datetime_response;
+static int hf_isobus_datetime_seconds;
+static int hf_isobus_datetime_minute;
+static int hf_isobus_datetime_hour;
+static int hf_isobus_datetime_day;
+static int hf_isobus_datetime_month;
+static int hf_isobus_datetime_year;
+static int hf_isobus_datetime_utc_offset;
+
 static int hf_isobus_req_requested_pgn;
 static int hf_isobus_ac_name;
 static int hf_isobus_ac_name_id_number;
@@ -201,6 +210,7 @@ static int ett_isobus_can_id;
 static int ett_isobus_name;
 static int ett_isobus_fragment;
 static int ett_isobus_fragments;
+static int ett_isobus_datetime_response;
 
 static const fragment_items isobus_frag_items = {
     &ett_isobus_fragment,
@@ -689,11 +699,71 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Address claimed %u", address_claimed);
         }
     } else if (call_isobus_subdissector(tvb, pinfo, isobus_tree, false, priority, pdu_format, pgn, src_addr, data) == 0) {
-        col_append_str(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
-        proto_tree_add_item(isobus_tree, hf_isobus_payload, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+        if (pgn == 65254) {
+            // Time/Date response
+            uint16_t year = tvb_get_uint8(tvb, 5) + 1985;
+            uint8_t day = (uint8_t)(tvb_get_uint8(tvb, 4) * 0.25f);
+            uint8_t sec = (uint8_t)(tvb_get_uint8(tvb, 0) * 0.25f);
+            int8_t utc_hour_offset = tvb_get_int8(tvb, 7) - 125;
+            int8_t utc_min_offset = tvb_get_int8(tvb, 6) - 125;
+
+            char utc_min_offset_str[9]  = {0};
+            if (utc_min_offset)
+            {
+                snprintf(utc_min_offset_str, 8, "%d min", utc_min_offset);
+            }
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Date/time:  %u.%u.%u %u:%u:%u (UTC+%d hour%s)",
+                year,
+                tvb_get_uint8(tvb, 3),
+                day,
+                tvb_get_uint8(tvb, 2),
+                tvb_get_uint8(tvb, 1),
+                sec,
+                utc_hour_offset,
+                utc_min_offset_str
+            );
+            proto_tree *datetime_tree;
+            ti = proto_tree_add_item(isobus_tree, hf_isobus_datetime_response, tvb, 0, 8, ENC_NA);
+            datetime_tree = proto_item_add_subtree(ti, ett_isobus_datetime_response);
+
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_year, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_month, tvb, 3, 1, ENC_NA);
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_day, tvb, 4, 1, ENC_NA);
+
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_hour, tvb, 2, 1, ENC_NA);
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_minute, tvb, 1, 1, ENC_NA);
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_seconds, tvb, 0, 1, ENC_NA);
+
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_utc_offset, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+        } else {
+            col_append_str(pinfo->cinfo, COL_INFO, "Protocol not yet supported");
+            proto_tree_add_item(isobus_tree, hf_isobus_payload, tvb, 0, tvb_captured_length(tvb), ENC_NA);
+        }
     }
 
     return tvb_reported_length(tvb);
+}
+
+static void isobus_print_datetime_year(char* s, uint32_t v)
+{
+    snprintf(s, ITEM_LABEL_LENGTH, "%u", v + 1985);
+}
+
+static void isobus_print_datetime_day_or_sec(char* s, uint32_t v)
+{
+    snprintf(s, ITEM_LABEL_LENGTH, "%u", (uint8_t)(v * 0.25f));
+}
+
+static void isobus_print_datetime_utc_offset(char* s, uint32_t v)
+{
+    snprintf(s, ITEM_LABEL_LENGTH, "%d hour", (int8_t)(((v >> 8) & 0xFF) - 125));
+    int8_t minutes = ((v & 0xFF) - 125);
+    if (minutes != 0)
+    {
+        size_t current_len = strlen(s);
+        snprintf(&s[current_len], ITEM_LABEL_LENGTH - current_len, " %d minute(s)", minutes);
+    }
 }
 
 static void
@@ -732,6 +802,23 @@ proto_register_isobus(void) {
             "PGN", "isobus.pgn", FT_UINT24, BASE_DEC_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
         { &hf_isobus_payload, {
             "Payload", "isobus.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_isobus_datetime_response, {
+            "Date/Time", "isobus.datetime_response", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_year, {
+            "Year", "isobus.datetime.year", FT_UINT8, BASE_CUSTOM, CF_FUNC(isobus_print_datetime_year), 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_month, {
+            "Month", "isobus.datetime.month", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_day, {
+            "Day", "isobus.datetime.day", FT_UINT8, BASE_CUSTOM, CF_FUNC(isobus_print_datetime_day_or_sec), 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_hour, {
+            "Hour", "isobus.datetime.hour", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_minute, {
+            "Minute", "isobus.datetime.minute", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_seconds, {
+            "Second", "isobus.datetime.second", FT_UINT8, BASE_CUSTOM, CF_FUNC(isobus_print_datetime_day_or_sec), 0x0, NULL, HFILL } },
+        { &hf_isobus_datetime_utc_offset, {
+            "Local time - UTC offset", "isobus.datetime.utc_offset", FT_UINT16, BASE_CUSTOM, CF_FUNC(isobus_print_datetime_utc_offset), 0x0, NULL, HFILL } },
 
         { &hf_isobus_req_requested_pgn, {
             "Requested PGN", "isobus.req.requested_pgn", FT_UINT24, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&isobus_pgn_names_ext), 0x0, NULL, HFILL } },
@@ -823,7 +910,8 @@ proto_register_isobus(void) {
         &ett_isobus_can_id,
         &ett_isobus_name,
         &ett_isobus_fragment,
-        &ett_isobus_fragments
+        &ett_isobus_fragments,
+        &ett_isobus_datetime_response
     };
 
     /* Register protocol init routine */
