@@ -100,6 +100,14 @@ The following features are either new or have been significantly updated since v
   extension field that precedes the NTS Authenticator and Encrypted Extension Fields
   extension field) are checked for validity.
 
+* Wiresharks' capability to decrypt MACsec packets has been expanded to either
+  use the SAK unwrapped by the MKA dissector, or the PSK configured in the
+  MACsec dissector. To enable the MKA dissector to unwrap the SAK, the CAK for
+  the applicable CKN can be entered in the extended CKN/CAK Info UAT in the
+  MKA dissector preferences. The ability of the MACsec dissector to decrypt
+  packets using a PSK has been extended to a list of PSKs, which can entered
+  through a new UAT.
+
 * The TCP Stream Graph axes now use units with SI prefixes. wsbuglink:20197[]
 
 * Custom columns have an option to show the values using the same format as
