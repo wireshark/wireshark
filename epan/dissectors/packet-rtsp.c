@@ -37,6 +37,7 @@
 #include "packet-rtcp.h"
 #include "packet-e164.h"
 #include "packet-rtsp.h"
+#include "packet-media-type.h"
 
 void proto_register_rtsp(void);
 
@@ -543,7 +544,8 @@ static void
 rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
                          const unsigned char *line_begin, size_t line_len,
                          int rdt_feature_level,
-                         rtsp_type_t rtsp_type_packet)
+                         rtsp_type_t rtsp_type_packet,
+                         sdp_setup_info_t *setup_info)
 {
     char     buf[256];
     char    *tmp;
@@ -746,13 +748,13 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         /* RTP only if indicated */
         if (c_data_port)
         {
-            rtp_add_address(pinfo, PT_UDP, &dst_addr, c_data_port, s_data_port,
-                            "RTSP", pinfo->num, is_video, NULL);
+            srtp_add_address(pinfo, PT_UDP, &dst_addr, c_data_port, s_data_port,
+                            "RTSP", pinfo->num, is_video, NULL, NULL, setup_info);
         }
         else if (s_data_port)
         {
-            rtp_add_address(pinfo, PT_UDP, &src_addr, s_data_port, 0,
-                            "RTSP", pinfo->num, is_video, NULL);
+            srtp_add_address(pinfo, PT_UDP, &src_addr, s_data_port, 0,
+                            "RTSP", pinfo->num, is_video, NULL, NULL, setup_info);
         }
 
         /* RTCP only if indicated */
@@ -765,8 +767,8 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     else if (rtp_tcp_transport)
     {
         /* RTP only if indicated */
-        rtp_add_address(pinfo, PT_TCP, &src_addr, c_data_port, s_data_port,
-                        "RTSP", pinfo->num, is_video, NULL);
+        srtp_add_address(pinfo, PT_TCP, &src_addr, c_data_port, s_data_port,
+                        "RTSP", pinfo->num, is_video, NULL, NULL, setup_info);
     }
     else if (rdt_transport)
     {
@@ -851,6 +853,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     char         *content_base = NULL;
     char         *content_location = NULL;
     char         *request_uri = NULL;
+    const char   *transport_line = NULL;
+    int           transport_linelen;
+    sdp_setup_info_t *setup_info = NULL;
 
     rtsp_stat_info = wmem_new(pinfo->pool, rtsp_info_value_t);
     rtsp_stat_info->framenum = pinfo->num;
@@ -1182,13 +1187,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                            tvb_format_text(pinfo->pool, tvb, value_offset,
                                                            value_len));
 
-                /*
-                 * Based on the port numbers specified
-                 * in the Transport: header, set up
-                 * a conversation that will be dissected
-                 * with the appropriate dissector.
-                 */
-                rtsp_create_conversation(pinfo, ti, line, linelen, rdt_feature_level, rtsp_type_packet);
+                /* Setup the conversation after parsing all the headers. */
+                transport_line = line;
+                transport_linelen = linelen;
             } else if (HDR_MATCHES(rtsp_content_type))
             {
                 proto_tree_add_string(rtsp_tree, hf_rtsp_content_type,
@@ -1331,6 +1332,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (session_id) {
+        /* Mandatory, opaque string */
+        setup_info = wmem_new0(pinfo->pool, sdp_setup_info_t);
+        setup_info->hf_id = hf_rtsp_session;
+        setup_info->hf_type = SDP_TRACE_ID_HF_TYPE_STR;
+        setup_info->trace_id.str = wmem_strdup(wmem_file_scope(), session_id);
+
         stat_info = wmem_new0(pinfo->pool, voip_packet_info_t);
         stat_info->protocol_name = wmem_strdup(pinfo->pool, "RTSP");
         stat_info->call_id = session_id;
@@ -1339,6 +1346,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         stat_info->call_active_state = VOIP_ACTIVE;
         stat_info->frame_comment = frame_label;
         tap_queue_packet(voip_tap, pinfo, stat_info);
+    }
+
+    if (transport_line) {
+        /*
+         * Based on the port numbers specified in the Transport: header, set up
+         * a conversation that will be dissected with the appropriate dissector.
+         */
+        rtsp_create_conversation(pinfo, ti, transport_line, transport_linelen, rdt_feature_level, rtsp_type_packet, setup_info);
     }
 
     /*
@@ -1423,10 +1438,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
             &rtsp_type_packet);
 
         if (!is_request_or_reply){
+            media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, media_type_str_lower_case, NULL, setup_info };
             if (media_type_str_lower_case &&
                 dissector_try_string_with_data(media_type_dissector_table,
                     media_type_str_lower_case,
-                    new_tvb, pinfo, rtsp_tree, true, NULL)){
+                    new_tvb, pinfo, rtsp_tree, true, &content_info)) {
 
             } else {
                 /*
