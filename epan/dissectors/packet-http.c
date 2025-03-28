@@ -883,7 +883,7 @@ http_seq_stats_tick_request(stats_tree* st, const char* arg_full_uri, int refere
 	}
 }
 
-static char*
+char*
 determine_http_location_target(wmem_allocator_t *scope, const char *base_url, const char * location_url)
 {
 	/* Resolving a base URI + relative URI to an absolute URI ("Relative Resolution")

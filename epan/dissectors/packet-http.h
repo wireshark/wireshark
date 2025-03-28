@@ -107,4 +107,18 @@ typedef struct _http_eo_t {
 	tvbuff_t *payload;
 } http_eo_t;
 
+/* Resolves a URI reference that might be relative to a given base URI and
+ * returns a string. Roughly similar to the algorithm in RFC 3986 5.2 but
+ * not entirely accurate to it (sacrificing some accuracy for simplicity.)
+ *
+ * @param scope wmem allocator scope for the returned string
+ * @param base_url base URI
+ * @param location_url a URI reference that might be relative to base_url
+ * (or might be an absolute URI)
+ * @return A string allocated in scope that represents a target URI after
+ * resolving location_url, using base_url as the possible base URI
+ */
+extern char *
+determine_http_location_target(wmem_allocator_t *scope, const char *base_url, const char * location_url);
+
 #endif /* __PACKET_HTTP_H__ */

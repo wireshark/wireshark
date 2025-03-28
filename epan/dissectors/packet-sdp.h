@@ -46,7 +46,14 @@ typedef struct _sdp_setup_info {
         char   *str;                    /* The trace id if the hf_type is str */
         uint32_t num;                    /* Numerical trace id */
     } trace_id;
+    const char* base_uri;               /* For RTSP, URIs in the control field can be relative to this. */
 } sdp_setup_info_t;
+
+/* opaque outside packet-rtp.c */
+typedef struct _rtp_dyn_payload_t rtp_dyn_payload_t;
+
+extern rtp_dyn_payload_t*
+sdp_get_rtsp_media_desc(const char *control_uri);
 
 extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame, const bool delay, sdp_setup_info_t *setup_info);
 /* Handles duplicate OFFER packets so they don't end up processed by dissect_sdp().  This can probably

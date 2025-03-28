@@ -13,6 +13,11 @@
  * References:
  * RTSP is defined in RFC 2326, https://tools.ietf.org/html/rfc2326
  * https://www.iana.org/assignments/rsvp-parameters
+ * RFC 7826 describes RTSP 2.0, and technically obsoletes RFC 2326.
+ * However, in practice due to lack of backwards compatibility, it has
+ * has seen limited adoption and this dissector does not attempt to
+ * dissect it. RFC 7826 does, however, have some useful comments about
+ * ambiguities and pitfalls in RFC 2326.
  */
 
 #include "config.h"
@@ -540,6 +545,35 @@ static const char rtsp_cseq[]              = "CSeq:";
 static const char rtsp_content_base[]      = "Content-Base:";
 static const char rtsp_content_location[]  = "Content-Location:";
 
+static sdp_setup_info_t*
+rtsp_create_setup_info(packet_info *pinfo, const char* session_id, const char *base_uri)
+{
+    sdp_setup_info_t *setup_info = NULL;
+    if (!PINFO_FD_VISITED(pinfo)) {
+        // setup_info is only used on the first pass (by SDP or RTP)
+        setup_info = wmem_new0(pinfo->pool, sdp_setup_info_t);
+        setup_info->hf_id = hf_rtsp_session;
+        setup_info->hf_type = SDP_TRACE_ID_HF_TYPE_STR;
+        /* The session is a mandatory, opaque string for the session - but
+         * not necessarily available at the time of media initialization via SDP,
+         * whether DESCRIBE or via HTTP or some other protocol. It is known at
+         * the time of actual RTP setup by RTSP, though.
+         *
+         * wmem_strdup will return "<NULL>" when it is not available, which
+         * shouldn't ever be used by SDP (due to the "control" media attribute)
+         * but prevents a possible null dereference with, e.g., fuzzed captures.
+         *
+         * It's in file scope (unlike the setup_info struct itself) because the
+         * SDP and RTP dissectors don't copy the string but use it directly.
+         * We probably could store the session id copy in conversation data.
+         */
+        setup_info->trace_id.str = wmem_strdup(wmem_file_scope(), session_id);
+        setup_info->base_uri = base_uri;
+    }
+
+    return setup_info;
+}
+
 static void
 rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
                          const unsigned char *line_begin, size_t line_len,
@@ -559,6 +593,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     address   src_addr;
     address   dst_addr;
     uint32_t  ip4_addr;
+    rtp_dyn_payload_t *rtp_dyn_payload = NULL;
 
     if (rtsp_type_packet != RTSP_REPLY) {
         return;
@@ -693,6 +728,10 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         }
     }
 
+    if (setup_info && setup_info->base_uri) {
+        rtp_dyn_payload = sdp_get_rtsp_media_desc(setup_info->base_uri);
+    }
+
     /* Deal with RTSP TCP-interleaved conversations. */
     tmp = strstr(buf, rtsp_inter);
     if (tmp != NULL) {
@@ -712,6 +751,25 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
 
         /* At least data channel present, look for conversation (presumably TCP) */
         data = get_rtsp_conversation_data(NULL, pinfo);
+
+        /* XXX - This doesn't set up the rtp conversation data, including RTP
+         * dynamic payload types and setup info. Two possible approaches:
+         * 1) The RTP dissector have a function that attaches dynamic payload
+         *    type and setup info to the TCP conversation but does *not* set
+         *    the conversation dissector (TCP needs to call the RTSP dissector
+         *    first for interleaved data).
+         * 2) Define a CONVERSATION_RTSP type and change the RTP dissector to
+         *    do something other than only look for conversations that match
+         *    conversation_pt_to_conversation_type(pinfo->ptype).
+         *
+         * The former needs to attach a "bundled" rtp_dyn_payload_t that
+         * includes mapping for the payload types of all possible channels;
+         * this usually happens when RTSP is used because the media descriptor
+         * port is usually 0, but we'd want to ensure it. (It also would not
+         * work if multiple sessions were SETUP simultaneously and media
+         * descriptors with different meanings for the same RTP dynamic payload
+         * type were PLAYed on different interleaved channels simulateously.)
+         */
 
         /* Now set the dissector handle of the interleaved channel
            according to the transport protocol used */
@@ -735,6 +793,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         }
         return;
     }
+
     /* Noninterleaved options follow */
     /*
      * We only want to match on the destination address, not the
@@ -749,12 +808,12 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         if (c_data_port)
         {
             srtp_add_address(pinfo, PT_UDP, &dst_addr, c_data_port, s_data_port,
-                            "RTSP", pinfo->num, is_video, NULL, NULL, setup_info);
+                            "RTSP", pinfo->num, is_video, rtp_dyn_payload, NULL, setup_info);
         }
         else if (s_data_port)
         {
             srtp_add_address(pinfo, PT_UDP, &src_addr, s_data_port, 0,
-                            "RTSP", pinfo->num, is_video, NULL, NULL, setup_info);
+                            "RTSP", pinfo->num, is_video, rtp_dyn_payload, NULL, setup_info);
         }
 
         /* RTCP only if indicated */
@@ -768,7 +827,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     {
         /* RTP only if indicated */
         srtp_add_address(pinfo, PT_TCP, &src_addr, c_data_port, s_data_port,
-                        "RTSP", pinfo->num, is_video, NULL, NULL, setup_info);
+                        "RTSP", pinfo->num, is_video, rtp_dyn_payload, NULL, setup_info);
     }
     else if (rdt_transport)
     {
@@ -853,6 +912,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     char         *content_base = NULL;
     char         *content_location = NULL;
     char         *request_uri = NULL;
+    char         *base_uri = NULL;
     const char   *transport_line = NULL;
     int           transport_linelen;
     sdp_setup_info_t *setup_info = NULL;
@@ -1329,15 +1389,20 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_tree_add_uint(req_tree, hf_rtsp_response_to, tvb, 0, 0, curr_req_resp->req_frame);
             }
         }
+        base_uri = wmem_ascii_strdown(pinfo->pool, curr_req_resp->request_uri, -1);
+    }
+
+    if (content_base) {
+        base_uri = content_base;
+    } else if (content_location) {
+        /* XXX - Content-Location itself can be relative to the request_uri, at
+         * least according to RFC 7826. (RTSP 2.0 is not widely implemented, but
+         * it does have useful notes on gotchas and limitations of RTSP 1.0.)
+         */
+        base_uri = content_location;
     }
 
     if (session_id) {
-        /* Mandatory, opaque string */
-        setup_info = wmem_new0(pinfo->pool, sdp_setup_info_t);
-        setup_info->hf_id = hf_rtsp_session;
-        setup_info->hf_type = SDP_TRACE_ID_HF_TYPE_STR;
-        setup_info->trace_id.str = wmem_strdup(wmem_file_scope(), session_id);
-
         stat_info = wmem_new0(pinfo->pool, voip_packet_info_t);
         stat_info->protocol_name = wmem_strdup(pinfo->pool, "RTSP");
         stat_info->call_id = session_id;
@@ -1353,6 +1418,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Based on the port numbers specified in the Transport: header, set up
          * a conversation that will be dissected with the appropriate dissector.
          */
+        setup_info = rtsp_create_setup_info(pinfo, session_id, base_uri);
         rtsp_create_conversation(pinfo, ti, transport_line, transport_linelen, rdt_feature_level, rtsp_type_packet, setup_info);
     }
 
@@ -1438,6 +1504,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
             &rtsp_type_packet);
 
         if (!is_request_or_reply){
+            setup_info = rtsp_create_setup_info(pinfo, session_id, base_uri);
             media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, media_type_str_lower_case, NULL, setup_info };
             if (media_type_str_lower_case &&
                 dissector_try_string_with_data(media_type_dissector_table,
