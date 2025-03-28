@@ -269,10 +269,34 @@ typedef struct {
  * for dynamically increasing the size of the 'interleaved' array) -
  * the containing structure is garbage collected and contained
  * pointers will not be freed.
+ *
+ * XXX - This is wmem allocated now. Rather than a array of fixed size,
+ * the array could be, e.g., a tree or map indexed by the channel.
  */
 typedef struct {
     rtsp_interleaved_t      interleaved[RTSP_MAX_INTERLEAVED];
 } rtsp_conversation_data_t;
+
+static rtsp_conversation_data_t*
+get_rtsp_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+    rtsp_conversation_data_t *data;
+    if (conv == NULL) {
+        conv = find_or_create_conversation(pinfo);
+    }
+
+    /* Look for previous data */
+    data = (rtsp_conversation_data_t *)conversation_get_proto_data(conv, proto_rtsp);
+
+    /* Create new data if necessary */
+    if (!data)
+    {
+        data = wmem_new0(wmem_file_scope(), rtsp_conversation_data_t);
+        conversation_add_proto_data(conv, proto_rtsp, data);
+    }
+
+    return data;
+}
 
 static int
 dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -508,7 +532,6 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
                          int rdt_feature_level,
                          rtsp_type_t rtsp_type_packet)
 {
-    conversation_t  *conv;
     char     buf[256];
     char    *tmp;
     bool      rtp_udp_transport = false;
@@ -673,17 +696,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         }
 
         /* At least data channel present, look for conversation (presumably TCP) */
-        conv = find_or_create_conversation(pinfo);
-
-        /* Look for previous data */
-        data = (rtsp_conversation_data_t *)conversation_get_proto_data(conv, proto_rtsp);
-
-        /* Create new data if necessary */
-        if (!data)
-        {
-            data = wmem_new0(wmem_file_scope(), rtsp_conversation_data_t);
-            conversation_add_proto_data(conv, proto_rtsp, data);
-        }
+        data = get_rtsp_conversation_data(NULL, pinfo);
 
         /* Now set the dissector handle of the interleaved channel
            according to the transport protocol used */
