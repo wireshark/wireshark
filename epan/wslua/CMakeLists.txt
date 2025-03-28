@@ -39,7 +39,6 @@ set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tvb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_utility.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_wtap.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua_gcrypt.c
 )
 
 set(WSLUA_FILES

@@ -327,10 +327,6 @@ class TestWslua:
         '''wslua conversation'''
         check_lua_script('conversation.lua', dns_port_pcap, True)
 
-    def test_wslua_gcrypt(self, check_lua_script):
-        '''wslua gcrypt'''
-        check_lua_script('gcrypt.lua', empty_pcap, True)
-
 class TestWsluaUnicode:
     def test_wslua_unicode(self, cmd_tshark, features, dirs, capture_file, unicode_env):
         '''Check handling of unicode paths.'''

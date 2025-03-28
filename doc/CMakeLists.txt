@@ -455,7 +455,6 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_wtap.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_utility.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
-	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_gcrypt.c
 )
 
 # Empty file to trigger wsluarm generation.
