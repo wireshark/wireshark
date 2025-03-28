@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.8.0 (2025-01-03)
+ * Ref 3GPP TS 29.244 V18.9.0 (2025-03-14)
  */
 #include "config.h"
 
@@ -290,6 +290,7 @@ static int hf_pfcp_report_type_b0_dldr;
 static int hf_pfcp_offending_ie;
 static int hf_pfcp_offending_ie_value;
 
+static int hf_pfcp_up_function_features_o14_b1_ulmn4;
 static int hf_pfcp_up_function_features_o14_b0_mbsch;
 static int hf_pfcp_up_function_features_o13_b7_un6tu;
 static int hf_pfcp_up_function_features_o13_b6_umn6ip;
@@ -3453,7 +3454,8 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o14_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_up_function_features_o14_b1_ulmn4,
         &hf_pfcp_up_function_features_o14_b0_mbsch,
         NULL
     };
@@ -14720,6 +14722,11 @@ proto_register_pfcp(void)
         { "MBSCH", "pfcp.up_function_features.mbsch",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "MB-UPF support of MBS charging", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o14_b1_ulmn4,
+        { "ULM N4", "pfcp.up_function_features.ulmn4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UE Level measurement", HFILL }
         },
 
         { &hf_pfcp_sequence_number,
