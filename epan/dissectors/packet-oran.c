@@ -5133,8 +5133,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                         expert_add_info(pinfo, command_tree, &ei_oran_trx_control_cmd_scope);
                     }
 
-                    /* reserved (1 bit) */
-                    proto_tree_add_item(command_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    /* reserved (2 bits) */
+                    proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* log2MaskBits (4 bits) */
                     unsigned log2maskbits;
                     proto_tree_add_item_ret_uint(command_tree, hf_oran_log2maskbits, tvb, offset, 1, ENC_BIG_ENDIAN, &log2maskbits);
