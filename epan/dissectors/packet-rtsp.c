@@ -118,6 +118,7 @@ static int hf_rtsp_status;
 static int hf_rtsp_session;
 static int hf_rtsp_transport;
 static int hf_rtsp_rdtfeaturelevel;
+static int hf_rtsp_cseq;
 static int hf_rtsp_X_Vig_Msisdn;
 static int hf_rtsp_magic;
 static int hf_rtsp_channel;
@@ -132,6 +133,7 @@ static expert_field ei_rtsp_bad_client_port;
 static expert_field ei_rtsp_bad_interleaved_channel;
 static expert_field ei_rtsp_content_length_invalid;
 static expert_field ei_rtsp_rdtfeaturelevel_invalid;
+static expert_field ei_rtsp_cseq_invalid;
 static expert_field ei_rtsp_bad_server_ip_address;
 static expert_field ei_rtsp_bad_client_ip_address;
 
@@ -498,6 +500,7 @@ static const char rtsp_rdt_feature_level[] = "RDTFeatureLevel";
 static const char rtsp_real_rdt[]          = "x-real-rdt/";
 static const char rtsp_real_tng[]          = "x-pn-tng/"; /* synonym for x-real-rdt */
 static const char rtsp_inter[]             = "interleaved=";
+static const char rtsp_cseq[]              = "CSeq:";
 
 static void
 rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
@@ -815,6 +818,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     char         *frame_label = NULL;
     char         *session_id  = NULL;
     voip_packet_info_t *stat_info = NULL;
+    uint32_t      cseq = 0;
 
     rtsp_stat_info = wmem_new(pinfo->pool, rtsp_info_value_t);
     rtsp_stat_info->framenum = pinfo->num;
@@ -1225,6 +1229,16 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 tvb, offset, linelen, rdt_feature_level);
                 if (!rdt_feature_level_valid)
                     expert_add_info(pinfo, pi, &ei_rtsp_rdtfeaturelevel_invalid);
+            } else if (HDR_MATCHES(rtsp_cseq))
+            {
+                bool cseq_valid;
+                proto_item* pi;
+                cseq_valid = ws_strtou32(tvb_format_text(pinfo->pool, tvb, value_offset, value_len),
+                    NULL, &cseq);
+                pi = proto_tree_add_uint(rtsp_tree, hf_rtsp_cseq, tvb, offset, linelen, cseq);
+                if (!cseq_valid) {
+                    expert_add_info(pinfo, pi, &ei_rtsp_cseq_invalid);
+                }
             }
             else
             {
@@ -1549,6 +1563,9 @@ proto_register_rtsp(void)
         { &hf_rtsp_rdtfeaturelevel,
             { "RDTFeatureLevel", "rtsp.rdt-feature-level", FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }},
+        { &hf_rtsp_cseq,
+            { "CSeq", "rtsp.cseq", FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }},
         { &hf_rtsp_X_Vig_Msisdn,
             { "X-Vig-Msisdn", "rtsp.X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
@@ -1579,6 +1596,8 @@ proto_register_rtsp(void)
           { "rtsp.content-length.invalid", PI_MALFORMED, PI_ERROR, "Invalid content length", EXPFILL }},
         { &ei_rtsp_rdtfeaturelevel_invalid,
           { "rtsp.rdt-feature-level.invalid", PI_MALFORMED, PI_ERROR, "Invalid RDTFeatureLevel", EXPFILL }},
+        { &ei_rtsp_cseq_invalid,
+          { "rtsp.cseq.invalid", PI_PROTOCOL, PI_WARN, "Invalid CSeq", EXPFILL }},
         { &ei_rtsp_bad_server_ip_address,
           { "rtsp.bad_server_ip_address", PI_MALFORMED, PI_ERROR, "Bad server IP address", EXPFILL }},
         { &ei_rtsp_bad_client_ip_address,
