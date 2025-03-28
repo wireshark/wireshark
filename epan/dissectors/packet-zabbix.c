@@ -372,8 +372,9 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * Note that even pre-7.0 passive agent *responses* can be JSON, so don't just check
      * for JSON validation but check the conversation data!
      */
+    int token_count = json_parse(json_str, NULL, 0);
     if (
-        !json_validate(json_str, datalen) ||
+        token_count < 0 ||
         (
             CONV_IS_ZABBIX_RESPONSE(zabbix_info, pinfo) &&
             IS_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE | ZABBIX_T_LEGACY)
@@ -394,13 +395,6 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         passive_agent_data_str = wmem_strndup(pinfo->pool, json_str, (size_t)datalen);
         /* Don't do content-based searches for pre-7.0 passive agents */
         goto show_agent_outputs;
-    }
-    /* Parse JSON, first get the token count */
-    int token_count = json_parse(json_str, NULL, 0);
-    if (token_count <= 0) {
-        temp_ti = proto_tree_add_item(zabbix_tree, hf_zabbix_data, next_tvb, 0, (int)datalen, ENC_UTF_8);
-        expert_add_info_format(pinfo, temp_ti, &ei_zabbix_json_error, "Error in initial JSON parse");
-        goto final_outputs;
     }
     jsmntok_t *tokens = wmem_alloc_array(pinfo->pool, jsmntok_t, token_count);
     int ret = json_parse(json_str, tokens, token_count);
