@@ -424,6 +424,7 @@ include::{build_dir}/wsluarm_src/wslua_file.adoc[]
 include::{build_dir}/wsluarm_src/wslua_dir.adoc[]
 include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
 include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
+include::{build_dir}/wsluarm_src/wslua_gcrypt.adoc[]
 
 [#lua_module_PCRE2]
 
