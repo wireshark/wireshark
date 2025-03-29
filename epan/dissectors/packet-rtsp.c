@@ -121,6 +121,8 @@ static int hf_rtsp_session;
 static int hf_rtsp_transport;
 static int hf_rtsp_rdtfeaturelevel;
 static int hf_rtsp_cseq;
+static int hf_rtsp_content_base;
+static int hf_rtsp_content_location;
 static int hf_rtsp_X_Vig_Msisdn;
 static int hf_rtsp_magic;
 static int hf_rtsp_channel;
@@ -534,6 +536,8 @@ static const char rtsp_real_rdt[]          = "x-real-rdt/";
 static const char rtsp_real_tng[]          = "x-pn-tng/"; /* synonym for x-real-rdt */
 static const char rtsp_inter[]             = "interleaved=";
 static const char rtsp_cseq[]              = "CSeq:";
+static const char rtsp_content_base[]      = "Content-Base:";
+static const char rtsp_content_location[]  = "Content-Location:";
 
 static void
 rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
@@ -844,6 +848,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     voip_packet_info_t *stat_info = NULL;
     bool          cseq_valid = false;
     uint32_t      cseq = 0;
+    char         *content_base = NULL;
+    char         *content_location = NULL;
     char         *request_uri = NULL;
 
     rtsp_stat_info = wmem_new(pinfo->pool, rtsp_info_value_t);
@@ -1202,7 +1208,6 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 media_type_str_lower_case = ascii_strdown_inplace(
                     (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_ASCII));
-
             } else if (HDR_MATCHES(rtsp_content_length))
             {
                 uint32_t clength;
@@ -1267,6 +1272,16 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 if (!cseq_valid) {
                     expert_add_info(pinfo, ti, &ei_rtsp_cseq_invalid);
                 }
+            } else if (HDR_MATCHES(rtsp_content_base))
+            {
+                content_base = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_UTF_8);
+                proto_tree_add_string(rtsp_tree, hf_rtsp_content_base,
+                                      tvb, offset, linelen, content_base);
+            } else if (HDR_MATCHES(rtsp_content_location))
+            {
+                content_location = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_UTF_8);
+                proto_tree_add_string(rtsp_tree, hf_rtsp_content_location,
+                                      tvb, offset, linelen, content_location);
             }
             else
             {
@@ -1613,6 +1628,12 @@ proto_register_rtsp(void)
             NULL, HFILL }},
         { &hf_rtsp_cseq,
             { "CSeq", "rtsp.cseq", FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }},
+        { &hf_rtsp_content_base,
+            { "Content-Base", "rtsp.content-base", FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+        { &hf_rtsp_content_location,
+            { "Content-Location", "rtsp.content-location", FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
         { &hf_rtsp_X_Vig_Msisdn,
             { "X-Vig-Msisdn", "rtsp.X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
