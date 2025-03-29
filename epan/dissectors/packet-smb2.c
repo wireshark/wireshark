@@ -5928,7 +5928,6 @@ static int
 dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	uint16_t dc;
-	uint16_t i;
 	proto_item *nco_item, *ncc_item;
 	bool supports_smb_3_10 = false;
 	uint32_t nco;
@@ -5990,7 +5989,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
-	for (i = 0 ; i < dc; i++) {
+	for (unsigned i = 0 ; i < dc; i++) {
 		uint16_t d = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
@@ -6035,7 +6034,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 		}
 	}
 
-	for (i = 0; i < ncc; i++) {
+	for (unsigned i = 0; i < ncc; i++) {
 		offset = WS_ROUNDUP_8(offset);
 		offset = dissect_smb2_negotiate_context(tvb, pinfo, tree, offset, si);
 	}
@@ -6047,7 +6046,6 @@ static int
 dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t s_olb;
-	uint16_t i;
 	uint32_t nco;
 	uint32_t ncc;
 	bool continue_dissection;
@@ -6207,7 +6205,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 		}
 	}
 
-	for (i = 0; i < ncc; i++) {
+	for (unsigned i = 0; i < ncc; i++) {
 		offset = WS_ROUNDUP_8(offset);
 		offset = dissect_smb2_negotiate_context(tvb, pinfo, tree, offset, si);
 	}

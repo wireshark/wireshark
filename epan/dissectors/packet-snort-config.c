@@ -1032,7 +1032,7 @@ static unsigned char content_get_nibble_value(char c)
 
     if (!values_set) {
         /* Set table once and for all */
-        unsigned char ch;
+        unsigned ch;
         for (ch='a'; ch <= 'f'; ch++) {
             values[ch] = 0xa + (ch-'a');
         }

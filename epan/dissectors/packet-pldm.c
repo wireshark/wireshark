@@ -1075,7 +1075,7 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 	proto_tree *p_tree, uint16_t offset)
 {
 	uint32_t min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
-	uint16_t bytes_left = tvb_reported_length(tvb) - offset;
+	unsigned bytes_left = tvb_reported_length(tvb) - offset;
 	while (bytes_left >= min_size) {
 		// parse a FRU Record Data
 		proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1087,7 +1087,7 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 		proto_tree_add_item_ret_uint(p_tree, hf_fru_record_encoding, tvb, offset, 1, ENC_LITTLE_ENDIAN, &encoding);
 		offset += 1;
 
-		for (uint8_t i = 0; i < num_fields; i++) {
+		for (unsigned i = 0; i < num_fields; i++) {
 			if (record_type == 1) { // General
 				proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;

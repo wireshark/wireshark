@@ -2836,7 +2836,6 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb,
     uint32_t tia_var_area2 = 0;
     uint8_t tia_lid_flags = 0;
     uint32_t tia_value = 0;
-    uint16_t i;
     proto_item *sub_item = NULL;
     proto_tree *sub_item_tree = NULL;
 
@@ -2867,7 +2866,7 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_s7comm_tia1200_item_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    for (i = 0; i < (varspec_length - 10) / 4; i++) {
+    for (int i = 0; i < (varspec_length - 10) / 4; i++) {
         sub_item = proto_tree_add_item(tree, hf_s7comm_tia1200_substructure_item, tvb, offset, 4, ENC_NA);
         sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
         tia_lid_flags = tvb_get_uint8(tvb, offset) >> 4;
@@ -2956,7 +2955,7 @@ s7comm_syntaxid_driveesany(tvbuff_t *tvb,
 static void
 s7comm_try_block_data_heuristic(tvbuff_t *tvb,
                                packet_info *pinfo,
-                               proto_tree *tree,                                                           
+                               proto_tree *tree,
                                uint32_t offset,
                                uint8_t function,
                                uint8_t status)
@@ -2969,7 +2968,7 @@ s7comm_try_block_data_heuristic(tvbuff_t *tvb,
         struct tvbuff* next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /*no need to call call_data_dissector() if dissector_try_heuristic() returns false*/
-        dissector_try_heuristic(s7comm_heur_subdissector_list_block_data, next_tvb, pinfo, tree, &hdtbl_entry, fc);            
+        dissector_try_heuristic(s7comm_heur_subdissector_list_block_data, next_tvb, pinfo, tree, &hdtbl_entry, fc);
     }
 }
 
@@ -3832,7 +3831,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
 
                     /* try heuristic response data dissector*/
                     s7comm_try_block_data_heuristic(tvb, pinfo, tree, offset, function, status);
-                    
+
                     offset += dlength - 4;
                 }
             }

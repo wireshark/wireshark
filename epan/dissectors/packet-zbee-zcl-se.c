@@ -6415,7 +6415,7 @@ dissect_zcl_met_mirror_report_attribute_response(tvbuff_t *tvb, proto_tree *tree
             break;
     }
     if (noti_flags_count > 0) {
-        for (uint16_t noti_flags_number = 0; noti_flags_number < noti_flags_count; noti_flags_number++) {
+        for (int noti_flags_number = 0; noti_flags_number < noti_flags_count; noti_flags_number++) {
             dissect_zcl_met_notification_flags(tvb, tree, offset, noti_flags_number);
         }
     } else {

@@ -1736,7 +1736,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uint
             tvb, offset * 8 + 4, 4, &num_entries, ENC_LITTLE_ENDIAN);
 
         offset += 1;
-        for (uint8_t i = 0; i < num_entries; i++)
+        for (uint64_t i = 0; i < num_entries; i++)
         {
             switch (entries_type) {
             case 0:

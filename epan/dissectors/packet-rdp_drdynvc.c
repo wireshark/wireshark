@@ -706,10 +706,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			offset += 2;
 
 			if (flags & 0x02) { /* SOFT_SYNC_CHANNEL_LIST_PRESENT */
-				uint16_t i;
 				proto_tree *tunnels_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rdp_drdynvc_softsync_channels, NULL, "Channels");
 
-				for (i = 0; i < ntunnels; i++) {
+				for (unsigned i = 0; i < ntunnels; i++) {
 					uint16_t j;
 					uint32_t tunnelType = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 					uint16_t ndvcs = tvb_get_uint16(tvb, offset + 4, ENC_LITTLE_ENDIAN);

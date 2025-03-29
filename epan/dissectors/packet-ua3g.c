@@ -1493,7 +1493,6 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x05: /* START TONE */
         {
-            uint8_t ii;
             uint32_t tone_nb_entries;
 
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1501,7 +1500,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             offset++;
             length--;
 
-            for (ii = 0; ii < tone_nb_entries; ii++) {
+            for (unsigned ii = 0; ii < tone_nb_entries; ii++) {
                 uint8_t tone_id = tvb_get_uint8(tvb, offset);
                 int tone_duration = tvb_get_ntohs(tvb, offset + 1);
 

@@ -8253,7 +8253,6 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   uint32_t hdr_data_length;
   uint32_t hdr_version;
   uint32_t hdr_opcode;
-  uint16_t i;
 
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_tree *skinny_tree = NULL;
@@ -8264,7 +8263,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   hdr_version     = tvb_get_letohl(tvb, 4);
   hdr_opcode      = tvb_get_letohl(tvb, 8);
 
-  for (i = 0; i < array_length(skinny_opcode_map); i++) {
+  for (size_t i = 0; i < array_length(skinny_opcode_map); i++) {
     if (skinny_opcode_map[i].opcode == hdr_opcode) {
       opcode_entry = &skinny_opcode_map[i];
     }

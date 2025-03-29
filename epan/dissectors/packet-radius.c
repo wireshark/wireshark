@@ -1321,10 +1321,7 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 				add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
 				/* strip padding for string type */
 				if (dictionary_entry->type == radius_string) {
-					for (uint8_t i=0; i < avp_length; i++){
-						if (buffer[i] == '\0')
-							avp_length = i;
-					}
+					avp_length = (uint32_t)strnlen((const char *)buffer, avp_length);
 				}
 				dictionary_entry->type(dictionary_entry, avp_tree, pinfo, tvb_decrypted, 0, avp_length, avp_item);
 			break;

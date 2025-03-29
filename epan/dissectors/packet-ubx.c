@@ -1362,7 +1362,6 @@ static int dissect_ubx_nav_pvt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 /* Dissect UBX-NAV-SAT message */
 static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    uint16_t i;
     uint32_t num_svs;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-SAT");
@@ -1384,7 +1383,7 @@ static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(ubx_nav_sat_tree, hf_ubx_nav_sat_reserved1,
             tvb, 6, 2, ENC_NA);
 
-    for (i = 0; i < num_svs; i++) {
+    for (unsigned i = 0; i < num_svs; i++) {
         const uint8_t gnss_id = tvb_get_uint8(tvb, 8 + 12 * i);
         const uint8_t sv_id = tvb_get_uint8(tvb, 9 + 12 * i);
         const uint32_t used = (tvb_get_uint32(tvb, 16 + 12 * i, ENC_LITTLE_ENDIAN) & 0x0008) >> 3;
@@ -1418,7 +1417,6 @@ static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 /* Dissect UBX-NAV-SBAS message */
 static int dissect_ubx_nav_sbas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    uint16_t i;
     uint32_t num_svs;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-NAV-SBAS");
@@ -1445,7 +1443,7 @@ static int dissect_ubx_nav_sbas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(ubx_nav_sbas_tree, hf_ubx_nav_sbas_reserved1,
             tvb, 9, 3, ENC_LITTLE_ENDIAN);
 
-    for (i = 0; i < num_svs; i++) {
+    for (unsigned i = 0; i < num_svs; i++) {
         const uint8_t sv_id = tvb_get_uint8(tvb, 12 + 12 * i);
 
         proto_tree *sv_info_tree = proto_tree_add_subtree_format(ubx_nav_sbas_tree,
@@ -1737,7 +1735,6 @@ static int dissect_ubx_rxm_rawx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int dissect_ubx_rxm_sfrbx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     tvbuff_t *next_tvb;
     uint8_t *buf;
-    uint8_t i;
     uint32_t gnssid, numwords, version;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBX-RXM-SFRBX");
@@ -1796,7 +1793,7 @@ static int dissect_ubx_rxm_sfrbx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         // UBX-RXM-SFRBX has the nav msg encoded in little endian. As this is not
         // convenient for dissection, map to big endian and add as new data source.
         buf = wmem_alloc(pinfo->pool, numwords * 4);
-        for (i = 0; i < numwords; i++) {
+        for (unsigned i = 0; i < numwords; i++) {
             phton32(buf + 4 * i, tvb_get_uint32(tvb, 8 + i * 4, ENC_LITTLE_ENDIAN));
         }
         next_tvb = tvb_new_child_real_data(tvb, (uint8_t *)buf, numwords * 4, numwords * 4);
@@ -2781,7 +2778,7 @@ void proto_register_ubx(void) {
     // pointers to ett_ubx_nav_sbas_sv_info elements,
     // pointers to ett_ubx_rxm_rawx_meas elements, and
     // pointers to ett_ubx_rxm_measx_meas elements
-    uint16_t i;
+    size_t i;
     for (i = 0; i < array_length(ett_part); i++) {
         ett[i] = ett_part[i];
     }

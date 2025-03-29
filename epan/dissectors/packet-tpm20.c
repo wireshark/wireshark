@@ -261,15 +261,13 @@ static struct num_handles tpm_handles_map[] = {
 
 static void get_num_hndl(struct num_handles *map)
 {
-	uint8_t i, y;
-
-	for (i = 0; i < array_length(tpm_handles_map); i++) {
+	for (size_t i = 0; i < array_length(tpm_handles_map); i++) {
 		if (map->command == tpm_handles_map[i].command) {
 			map->num_req_handles = tpm_handles_map[i].num_req_handles;
 			map->num_resp_handles = tpm_handles_map[i].num_resp_handles;
-			for (y = 0; y < map->num_req_handles; y++)
+			for (size_t y = 0; y < map->num_req_handles; y++)
 				map->req_pd[y] = tpm_handles_map[i].req_pd[y];
-			for (y = 0; y < map->num_resp_handles; y++)
+			for (size_t y = 0; y < map->num_resp_handles; y++)
 				map->resp_pd[y] = tpm_handles_map[i].resp_pd[y];
 		}
 	}

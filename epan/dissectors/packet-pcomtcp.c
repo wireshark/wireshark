@@ -269,7 +269,6 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     unsigned     offset = 0;
     uint16_t     nvalues;
-    uint8_t      i;
     uint8_t      cc_len;
     uint32_t     cc;
     const char* cc_str;
@@ -372,7 +371,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             if(op_type == 2) { // write only
                 nvalues = (tvb_reported_length(tvb)-3-offset) / op_size;
-                for (i = 0; i < nvalues; i++) {
+                for (unsigned i = 0; i < nvalues; i++) {
                     proto_tree_add_item(pcomascii_tree, hf_pcomascii_address_value,
                              tvb, offset, op_size , ENC_ASCII);
                     offset += op_size;
@@ -381,7 +380,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else { // reply
              if(op_type == 1) { // read only
                 nvalues = (tvb_reported_length(tvb)-offset-3) / op_size;
-                for (i = 0; i < nvalues; i++) {
+                for (unsigned i = 0; i < nvalues; i++) {
                     proto_tree_add_item(pcomascii_tree, hf_pcomascii_address_value,
                              tvb, offset, op_size , ENC_ASCII);
                     offset += op_size;

@@ -92,7 +92,7 @@ static dissector_handle_t rlc_ps_dtch_handle;
 static dissector_handle_t rrc_handle;
 
 /* MAC-is reassembly */
-static unsigned MAX_TSN = 64;
+static size_t MAX_TSN = 64;
 static uint16_t mac_tsn_size = 6;
 static int global_mac_tsn_size = MAC_TSN_6BITS;
 int get_mac_tsn_size(void) { return global_mac_tsn_size; }
@@ -858,9 +858,8 @@ static body_parts ** get_body_parts(mac_is_channel * ch)
     /* If there was no body_part* array for this channel, create one. */
     if (bpa == NULL) {
         mac_is_channel * channel;
-        uint16_t i;
         bpa = wmem_alloc_array(wmem_file_scope(), body_parts*, MAX_TSN); /* Create new body_parts-pointer array */
-        for (i = 0; i < MAX_TSN; i++) {
+        for (size_t i = 0; i < MAX_TSN; i++) {
             bpa[i] = wmem_new0(wmem_file_scope(), body_parts); /* Fill it with body_parts. */
         }
         channel = wmem_new(wmem_file_scope(), mac_is_channel); /* Alloc new channel for use in hash table. */

@@ -531,7 +531,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, bool dcomp)
 {
     uint8_t entity, len, algo_id;
-    uint8_t number_of_comp, i;
+    int number_of_comp, i;
     bool p_bit_set;
     algo_parameters_t * algo_pars;
     uint8_t function_index;

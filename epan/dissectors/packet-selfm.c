@@ -1232,7 +1232,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     proto_item       *fmdata_item, *fmdata_dig_ch_item;
     proto_item       *fmdata_ai_sf_item;
     proto_tree       *fmdata_tree, *fmdata_ai_tree=NULL, *fmdata_dig_tree=NULL, *fmdata_ai_ch_tree=NULL, *fmdata_dig_ch_tree=NULL;
-    uint8_t          len, idx=0, j=0;
+    uint8_t          len, j=0;
     uint16_t         config_cmd;
     int16_t          ai_int16val;
     int              cnt = 0, ch_size=0;
@@ -1309,7 +1309,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                         }
 
                         /* For each analog channel we encounter... */
-                        for (idx = 0; idx < cnt; idx++) {
+                        for (int idx = 0; idx < cnt; idx++) {
 
                             fm_analog_info *ai = &(cfg_data->analogs[idx]);
 
@@ -1405,9 +1405,9 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     fmdata_dig_tree = proto_tree_add_subtree_format(fmdata_tree, tvb, offset, cfg_data->num_dig,
                                         ett_selfm_fmdata_dig, NULL, "Digital Channels (%d)", cfg_data->num_dig);
 
-                    for (idx=0; idx < cfg_data->num_dig; idx++) {
+                    for (unsigned idx=0; idx < cfg_data->num_dig; idx++) {
 
-                        fmdata_dig_ch_tree = proto_tree_add_subtree_format(fmdata_dig_tree, tvb, offset, 1, ett_selfm_fmdata_dig_ch, &fmdata_dig_ch_item, "Digital Word Bit Row: %2d", idx+1);
+                        fmdata_dig_ch_tree = proto_tree_add_subtree_format(fmdata_dig_tree, tvb, offset, 1, ett_selfm_fmdata_dig_ch, &fmdata_dig_ch_item, "Digital Word Bit Row: %2u", idx+1);
 
                         /* Display the bit pattern on the digital channel proto_item */
                         proto_item_append_text(fmdata_dig_ch_item, " [  %d %d %d %d %d %d %d %d  ]",

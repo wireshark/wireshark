@@ -1707,7 +1707,7 @@ rlc_um_reassemble(tvbuff_t *tvb, uint16_t offs, packet_info *pinfo, proto_tree *
           struct rlc_li *li, uint16_t num_li, bool li_is_on_2_bytes,
           struct atm_phdr *atm)
 {
-    uint8_t   i;
+    uint16_t  i;
     bool      dissected = false;
     int       length;
     tvbuff_t *next_tvb  = NULL;
@@ -2254,7 +2254,7 @@ rlc_am_reassemble(tvbuff_t *tvb, uint16_t offs, packet_info *pinfo,
           uint16_t num_li, bool final, bool li_is_on_2_bytes,
           struct atm_phdr *atm)
 {
-    uint8_t   i;
+    uint16_t  i;
     bool      piggyback = false, dissected = false;
     tvbuff_t *next_tvb  = NULL;
 
