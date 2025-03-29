@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <epan/uat-int.h>
 #include <epan/uat.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>

@@ -325,12 +325,17 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_UAT: {
-            /* get filename */
-            const char* uat_file_name = luaL_optstring(L,4,"");
-            pref->value.s = g_strdup(uat_file_name);
-            /* process fields */
-            uat_field_t *flds_array = get_uat_flds_array(L,2, pref->value.s);
-            pref->info.uat_field_list_info.uat_field_list = flds_array;
+            /* if second argument is not a ttable the pref is only for existend uat reading */
+            if (lua_type(L, 2) == LUA_TTABLE ) {
+                /* get filename */
+                const char* uat_file_name = luaL_optstring(L,4,"");
+                pref->value.s = g_strdup(uat_file_name);
+                /* process fields */
+                uat_field_t *flds_array = get_uat_flds_array(L,2, pref->value.s);
+                pref->info.uat_field_list_info.uat_field_list = flds_array;
+            } else {
+                pref->info.uat_field_list_info.uat_field_list = NULL;
+            }
             break;
         }
         default:
@@ -448,7 +453,8 @@ WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
 
 WSLUA_CONSTRUCTOR Pref_uat(lua_State* L) {
     /*
-    Creates an uat preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table.
+    Creates an uat preference to be added to a <<lua_class_attrib_proto_prefs,`Proto.prefs`>> Lua table, or
+    read an existent uat table content, and returns in a table, all returned cell conent is in string format.
 
     ===== Example:
 
@@ -483,11 +489,25 @@ WSLUA_CONSTRUCTOR Pref_uat(lua_State* L) {
         -- return check result as boolean and errstring if needed
         return result, errstring
     end
+
+    -- Reading existent uat: 
+    
+    proto_foo.prefs.preference_existent_uat_name = Pref.uat("Protobuf Search Paths")
+    for i, row in ipairs(proto_foo.prefs.preference_existent_uat_name) do
+        local row_str = ""
+        for j, value in ipairs(row) do
+            row_str = row_str .. value .. "\t"
+        end
+        print(row_str)
+    end
+
     ----
     */
-#define WSLUA_ARG_Pref_uat_FIELD_CONFIG 2 /* Fields names and description table. */
-#define WSLUA_ARG_Pref_uat_DESCRIPTION 3 /* A description of what this preference is. */
-#define WSLUA_ARG_Pref_uat_FILE_NAME 4 /* The name of the uat file. */
+#define WSLUA_ARG_Pref_uat_LABEL 1 /* The Label for this preference.
+    In case of existent uat table reading, this argument contains the uat name, and all other argument is omitted. */
+#define WSLUA_OPTARG_Pref_uat_FIELD_CONFIG 2 /* Fields names and description table. */
+#define WSLUA_OPTARG_Pref_uat_DESCRIPTION 3 /* A description of what this preference is. */
+#define WSLUA_OPTARG_Pref_uat_FILE_NAME 4 /* The name of the uat file. */
     return new_pref(L,PREF_UAT);
 }
 
@@ -551,20 +571,22 @@ static int Pref__gc(lua_State* L) {
         }
         case PREF_UAT: {
             /*
-            * Free the uat values allocated in get_uat_flds_array().
+            * Free the uat values if allocated in get_uat_flds_array().
             */
-            const uat_field_t *field_valp = pref->info.uat_field_list_info.uat_field_list;
-            while (field_valp->name) {
-                g_free((char *)field_valp->title);
-                g_free((char *)field_valp->desc);
-                g_free((uint8_t *)field_valp->cbdata.chk);
-                g_free((uint8_t *)field_valp->cbdata.set);
-                g_free((uint8_t *)field_valp->cbdata.tostr);
-                g_free((char *)field_valp->fld_data);
-                field_valp++;
+            if (pref->info.uat_field_list_info.uat_field_list != NULL) {
+                const uat_field_t *field_valp = pref->info.uat_field_list_info.uat_field_list;
+                while (field_valp->name) {
+                    g_free((char *)field_valp->title);
+                    g_free((char *)field_valp->desc);
+                    g_free((uint8_t *)field_valp->cbdata.chk);
+                    g_free((uint8_t *)field_valp->cbdata.set);
+                    g_free((uint8_t *)field_valp->cbdata.tostr);
+                    g_free((char *)field_valp->fld_data);
+                    field_valp++;
+                }
+                g_free((uat_field_t *)pref->info.uat_field_list_info.uat_field_list);
+                g_free(pref->value.s);
             }
-            g_free((uat_field_t *)pref->info.uat_field_list_info.uat_field_list);
-            g_free(pref->value.s);
             break;
         }
         default:
@@ -716,9 +738,9 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->desc);
                     break;
                 case PREF_UAT:
-                    /* Create a UAT for preferences */
-                    {
-                        uat = uat_new(pref->label,
+                    /* Create a UAT for preferences, if not existent reading. */
+                    if (pref->info.uat_field_list_info.uat_field_list != NULL) {
+                        uat = uat_new(pref->name,
                             sizeof(uat_container_t),                            /* record size */
                             pref->value.s,                                      /* filename */
                             true,                                               /* from_profile */
@@ -732,7 +754,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                             NULL,                                               /* post update callback */
                             NULL,                                               /* reset callback */
                             pref->info.uat_field_list_info.uat_field_list);     /* UAT field definitions */
-                        prefs_register_uat_preference(prefs_p->proto->prefs_module, pref->value.s,
+                        prefs_register_uat_preference(prefs_p->proto->prefs_module, pref->name,
                             pref->label,
                             pref->desc,
                             uat);
@@ -792,6 +814,37 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
                     char *push_str = range_convert_range(NULL, prefs_p->value.r);
                     lua_pushstring(L, push_str);
                     wmem_free(NULL, push_str);
+                    }
+                    break;
+                case PREF_UAT:
+                    {
+                        uat_load_all();
+                        uat_t* get_uat = NULL;
+                        if (prefs_p->info.uat_field_list_info.uat_field_list == NULL) {
+                            // get uat by pref label in case of existent uat reading.
+                            get_uat = uat_get_table_by_name(prefs_p->label);
+                        }
+                        else {
+                            // get uat by pref name in case of Lua created uat.
+                            get_uat = uat_get_table_by_name(prefs_p->name);
+                        }
+                        if (get_uat != NULL) {
+                            lua_newtable(L);
+                            for (unsigned int idx = 0; idx < get_uat->user_data->len; idx++) {
+                                lua_pushinteger(L, idx + 1);
+                                lua_newtable(L);
+                                void *rec = UAT_INDEX_PTR(get_uat, idx);
+                                unsigned int colnum;
+                                for(colnum = 0; colnum < get_uat->ncols; colnum++) {
+                                    lua_pushinteger(L, colnum + 1);
+                                    char *str = uat_fld_tostr(rec, &(get_uat->fields[colnum]));
+                                    lua_pushstring(L, str);
+                                    lua_settable(L, -3);
+                                }
+                                lua_settable(L, -3);
+                            }
+                            WSLUA_RETURN(1);
+                        }
                     }
                     break;
                 default: WSLUA_ERROR(Prefs__index,"Unknown Pref type"); return 0;
