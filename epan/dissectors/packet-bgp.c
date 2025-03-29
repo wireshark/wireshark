@@ -47,7 +47,8 @@
  * RFC8669 Segment Routing Prefix Segment Identifier Extensions for BGP
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
  * RFC8538 Notification Message Support for BGP Graceful Restart
- * draft-ietf-bess-evpn-igmp-mld-proxy-03
+ * RFC9251 Internet Group Management Protocol (IGMP) and Multicast Listener
+ *         Discovery (MLD) Proxies for Ethernet VPN (EVPN)
  * draft-ietf-idr-tunnel-encaps-15
  * draft-ietf-idr-segment-routing-te-policy-08
  * draft-yu-bess-evpn-l2-attributes-04
@@ -2574,6 +2575,8 @@ static int hf_bgp_evpn_nlri_ipv6_gtw;
 static int hf_bgp_evpn_nlri_igmp_mc_or_length;
 static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv4;
 static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6;
+static int hf_bgp_evpn_nlri_igmp_mc_reserved;
+static int hf_bgp_evpn_nlri_igmp_mc_max_resp_time;
 static int hf_bgp_evpn_nlri_igmp_mc_flags;
 static int hf_bgp_evpn_nlri_igmp_mc_flags_v1;
 static int hf_bgp_evpn_nlri_igmp_mc_flags_v2;
@@ -7334,7 +7337,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
           +--------------------------------------------------+
           |  RD (8 octets)                                   |
           +--------------------------------------------------+
-          | Ethernet Segment Identifier (10 octets)          |
+          |  Ethernet Segment Identifier (10 octets)         |
           +--------------------------------------------------+
           |  Ethernet Tag ID  (4 octets)                     |
           +--------------------------------------------------+
@@ -7349,6 +7352,32 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
           |  Originator Router Length (1 octet)              |
           +--------------------------------------------------+
           |  Originator Router Address (variable)            |
+          +--------------------------------------------------+
+          |  Flags (1 octet)                                 |
+          +--------------------------------------------------+
+
+          +--------------------------------------------------+
+          |  RD (8 octets)                                   |
+          +--------------------------------------------------+
+          |  Ethernet Segment Identifier (10 octets)         |
+          +--------------------------------------------------+
+          |  Ethernet Tag ID  (4 octets)                     |
+          +--------------------------------------------------+
+          |  Multicast Source Length (1 octet)               |
+          +--------------------------------------------------+
+          |  Multicast Source Address (variable)             |
+          +--------------------------------------------------+
+          |  Multicast Group Length (1 octet)                |
+          +--------------------------------------------------+
+          |  Multicast Group Address (Variable)              |
+          +--------------------------------------------------+
+          |  Originator Router Length (1 octet)              |
+          +--------------------------------------------------+
+          |  Originator Router Address (variable)            |
+          +--------------------------------------------------+
+          |  Reserved (4 octets)                             |
+          +--------------------------------------------------+
+          |  Maximum Response Time (1 octet)                 |
           +--------------------------------------------------+
           |  Flags (1 octet)                                 |
           +--------------------------------------------------+
@@ -7393,6 +7422,22 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
                  reader_offset += 16;
                  break;
         }
+
+        if (route_type == EVPN_IGMP_LEAVE_ROUTE) {
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_igmp_mc_reserved, tvb,
+                                reader_offset, 4, ENC_NA);
+            reader_offset += 4;
+
+            /* Maximum Response Time, per RFC2236 (IGMPv2)
+             * XXX - What if this is the max response time from RFC3376 (IGMPv3)?
+             */
+            uint8_t tsecs = tvb_get_uint8(tvb, offset);
+            proto_tree_add_uint_format_value(prefix_tree, hf_bgp_evpn_nlri_igmp_mc_max_resp_time, tvb,
+                                             reader_offset, 1, tsecs, "%.1f sec (0x%02x)", tsecs*0.1, tsecs);
+
+            reader_offset += 1;
+        }
+
         if (reader_offset - start_offset < nlri_len) {
             proto_tree_add_bitmask(prefix_tree, tvb, reader_offset, hf_bgp_evpn_nlri_igmp_mc_flags,
                                    ett_bgp_evpn_nlri_mc, evpn_nlri_igmp_mc_flags, ENC_BIG_ENDIAN);
@@ -14369,6 +14414,12 @@ proto_register_bgp(void)
       { &hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6,
        { "Originator Router Address IPv6", "bgp.evpn.nlri.or_addr_ipv6", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_reserved,
+       { "Reserved", "bgp.evpn.nlri.igmp_mc_reserved", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_max_resp_time,
+       { "Max. response time", "bgp.evpn.nlri.igmp_mc_max_resp_time", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_igmp_mc_flags,
        { "Flags", "bgp.evpn.nlri.igmp_mc_flags", FT_UINT8,
           BASE_HEX, NULL, 0x0, NULL, HFILL}},
