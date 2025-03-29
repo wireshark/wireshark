@@ -5186,7 +5186,6 @@ static void learn_operation_sid(dof_2009_1_pdu_20_opid *opid, uint8_t length, co
 static void generateMac(gcry_cipher_hd_t cipher_state, uint8_t *nonce, const uint8_t *epp, int a_len, uint8_t *data, int len, uint8_t *mac, int mac_len)
 {
     uint16_t i;
-    uint16_t cnt;
 
     /* a_len = 1, t = mac_len, q = 4: (t-2)/2 : (q-1) -> 4B */
     mac[0] = 0x43 | (((mac_len - 2) / 2) << 3);
@@ -5201,7 +5200,7 @@ static void generateMac(gcry_cipher_hd_t cipher_state, uint8_t *nonce, const uin
     mac[1] ^= (a_len);
     i = 2;
 
-    for (cnt = 0; cnt < a_len; cnt++, i++)
+    for (int cnt = 0; cnt < a_len; cnt++, i++)
     {
         if (i % 16 == 0)
             gcry_cipher_encrypt(cipher_state, mac, 16, NULL, 0);
@@ -5210,7 +5209,7 @@ static void generateMac(gcry_cipher_hd_t cipher_state, uint8_t *nonce, const uin
     }
 
     i = 0;
-    for (cnt = 0; cnt < len; cnt++, i++)
+    for (int cnt = 0; cnt < len; cnt++, i++)
     {
         if (i % 16 == 0)
             gcry_cipher_encrypt(cipher_state, mac, 16, NULL, 0);
@@ -5223,8 +5222,7 @@ static void generateMac(gcry_cipher_hd_t cipher_state, uint8_t *nonce, const uin
 
 static int decrypt(ccm_session_data *session, ccm_packet_data *pdata, uint8_t *nonce, const uint8_t *epp, int a_len, uint8_t *data, int len)
 {
-    unsigned short i;
-
+    int i;
     unsigned char ctr[16];
     unsigned char encrypted_ctr[16];
     unsigned char mac[16];

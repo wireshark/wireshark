@@ -7254,11 +7254,11 @@ fUnsigned64(tvbuff_t *tvb, unsigned offset, uint32_t lvt, uint64_t *val)
 {
     bool valid = false;
     int64_t  value = 0;
-    uint8_t  data, i;
+    uint8_t  data;
 
     if (lvt && (lvt <= 8)) {
         valid = true;
-        for (i = 0; i < lvt; i++) {
+        for (unsigned i = 0; i < lvt; i++) {
             data = tvb_get_uint8(tvb, offset+i);
             value = (value << 8) + data;
         }

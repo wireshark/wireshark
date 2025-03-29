@@ -1827,7 +1827,6 @@ static const value_string dect_charset_control_codes_val[] = {
 static proto_item* add_dect_nwk_dect_charset_tree_item(proto_tree *tree, packet_info *pinfo, int hfindex, tvbuff_t *tvb, int start, int length)
 {
 	const char *keypad_string, *current_char_ptr;
-	uint8_t current_char_position;
 	gunichar current_char;
 	wmem_strbuf_t *keypad_information;
 
@@ -1835,7 +1834,7 @@ static proto_item* add_dect_nwk_dect_charset_tree_item(proto_tree *tree, packet_
 	current_char_ptr = keypad_string;
 
 	keypad_information = wmem_strbuf_new_sized(pinfo->pool, length);
-	for ( current_char_position = 0; current_char_position < length; current_char_position++ ) {
+	for (int current_char_position = 0; current_char_position < length; current_char_position++ ) {
 		current_char = g_utf8_get_char(current_char_ptr);
 		if ( current_char < 0x20 ) {
 			wmem_strbuf_append_printf(keypad_information, "<<%s>>", val_to_str(current_char, dect_charset_control_codes_val, "0x%02x"));

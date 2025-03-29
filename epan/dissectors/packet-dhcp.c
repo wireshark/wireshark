@@ -3512,7 +3512,8 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 			     int optend)
 {
 	int	    suboptoff = optoff;
-	uint8_t	    subopt, idx, vs_opt, vs_len;
+	uint8_t	    subopt, vs_opt, vs_len;
+	size_t      idx;
 	int	    subopt_len, subopt_end, datalen;
 	uint32_t	    enterprise;
 	proto_item *vti, *ti;

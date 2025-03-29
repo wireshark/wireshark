@@ -775,7 +775,6 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
 {
  /* Set up structures needed to add the protocol request and use it for dissecting response packet */
     unsigned offset = 0;
-    uint8_t idx=0 ;
     request_frame *frame;
     uint16_t num_objects=0;
 
@@ -798,7 +797,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
         frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
 
         /* We have a range of 'request' points */
-        for (idx = 0; idx < num_objects; idx++) {
+        for (unsigned idx = 0; idx < num_objects; idx++) {
             frame->requested_points[idx] = startpt;
             startpt++;
         }
@@ -808,11 +807,8 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
     else {
         num_objects = frame->numberofcharacters;
         frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
-        for (idx = 0; idx < num_objects; idx++) {
-            frame->requested_points[idx] = tvb_get_uint8(tvb, offset);
-            offset += 1;
-        }
-
+        tvb_memcpy(tvb, frame->requested_points, offset, num_objects * sizeof(uint8_t));
+        offset += num_objects * sizeof(uint8_t);
     }
 
     return frame;
