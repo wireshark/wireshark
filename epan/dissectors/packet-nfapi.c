@@ -1519,15 +1519,13 @@ static void dissect_tlv_list(ptvcursor_t * ptvc, packet_info* pinfo, int len);
 
 static void dissect_array_value(ptvcursor_t * ptvc, packet_info* pinfo, const char* name, uint32_t ett_idx, uint32_t count, tlv_decode decode)
 {
-	uint16_t i;
-
 	if (count > 0)
 	{
 		ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_idx, "%s", name);
 
-		for (i = 0; i < count; ++i)
+		for (unsigned i = 0; i < count; ++i)
 		{
-			ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_idx, "[%d]", i);
+			ptvcursor_add_text_with_subtree(ptvc, SUBTREE_UNDEFINED_LENGTH, ett_idx, "[%u]", i);
 			decode(ptvc, pinfo);
 			ptvcursor_pop_subtree(ptvc);
 		}

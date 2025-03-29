@@ -1288,7 +1288,7 @@ static void
 dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
 	int         bit_offset;
-	uint8_t		i, sps_max_sub_layers_minus1, sps_extension_4bits = 0;
+	uint8_t		sps_max_sub_layers_minus1, sps_extension_4bits = 0;
 	uint32_t		num_short_term_ref_pic_sets, num_long_term_ref_pics_sps, log2_max_pic_order_cnt_lsb_minus4, bit_depth_luma_minus8, bit_depth_chroma_minus8;
 	bool	sps_sub_layer_ordering_info_present_flag = 0, scaling_list_enabled_flag = 0, sps_scaling_list_data_present_flag = 0,
 		pcm_enabled_flag = 0, long_term_ref_pics_present_flag = 0, vui_parameters_present_flag = 0, sps_extension_present_flag = 0,
@@ -1334,7 +1334,7 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	proto_tree_add_bits_item(tree, hf_h265_sps_sub_layer_ordering_info_present_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 
-	for (i = (sps_sub_layer_ordering_info_present_flag ? 0 : sps_max_sub_layers_minus1);
+	for (unsigned i = (sps_sub_layer_ordering_info_present_flag ? 0 : sps_max_sub_layers_minus1);
 		i <= sps_max_sub_layers_minus1; i++) {
 		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_dec_pic_buffering_minus1, tvb, pinfo, &bit_offset, H265_UE_V);
 		dissect_h265_exp_golomb_code(tree, hf_h265_sps_max_num_reorder_pics, tvb, pinfo, &bit_offset, H265_UE_V);
@@ -1394,7 +1394,7 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		proto_tree_add_expert(tree, pinfo, &ei_h265_value_to_large, tvb, bit_offset>>3, 1);
 		return;
 	}
-	for (i = 0; i < num_short_term_ref_pic_sets; i++)
+	for (int i = 0; i < (int)num_short_term_ref_pic_sets; i++)
 		bit_offset = dissect_h265_st_ref_pic_set(tree, tvb, pinfo, bit_offset, i, num_short_term_ref_pic_sets, NumDeltaPocs);
 
 	long_term_ref_pics_present_flag = tvb_get_bits8(tvb, bit_offset, 1);
@@ -1404,7 +1404,7 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	if (long_term_ref_pics_present_flag) {
 
 		num_long_term_ref_pics_sps = dissect_h265_exp_golomb_code(tree, hf_h265_num_long_term_ref_pics_sps, tvb, pinfo, &bit_offset, H265_UE_V);
-		for (i = 0; i < num_long_term_ref_pics_sps; i++) {
+		for (int i = 0; i < (int)num_long_term_ref_pics_sps; i++) {
 
 			proto_tree_add_bits_item(tree, hf_h265_lt_ref_pic_poc_lsb_sps, tvb, bit_offset, log2_max_pic_order_cnt_lsb_minus4 + 4, ENC_BIG_ENDIAN);
 			bit_offset = bit_offset + log2_max_pic_order_cnt_lsb_minus4 + 4;

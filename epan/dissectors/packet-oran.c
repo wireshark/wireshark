@@ -1303,7 +1303,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
         }
 
         unsigned bundles_set = 0;
-        for (uint8_t n=0;
+        for (unsigned n=0;
              n < (settings->ext6_num_bits_set * settings->ext6_rbg_size) / numBundPrb;
              n++) {
 

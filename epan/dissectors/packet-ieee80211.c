@@ -21081,20 +21081,20 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     dont_change = true;
     break;
   case AIRONET_IE_APNAME_V2:
-  /* Adds support for the new AP name v2 format; 
+  /* Adds support for the new AP name v2 format;
 this supports:
 - 32 character long AP names (vs 16 in v1/ccx)
 - is used on both WLC and Meraki
-- does not require CCX to be enabled. 
+- does not require CCX to be enabled.
  */
     tag_len -= 1;
     length = tag_len;
-     
+
     proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_cisco_ap_name_v2, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool,&apname);
     proto_item_append_text(ietree, ": AP name v2: %s", apname);
     // Set to true, so we dont append "Aironet type"
     dont_change = true;
-  break;  
+  break;
 
   default:
     proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_data, tvb, offset,
@@ -36078,7 +36078,6 @@ ieee80211_tag_supported_operating_classes(tvbuff_t *tvb, packet_info *pinfo, pro
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   proto_item* item = NULL;
-  uint8_t i;
   uint8_t field_len = 0;
   uint8_t alt_op_class_field[256];
 
@@ -36092,7 +36091,7 @@ ieee80211_tag_supported_operating_classes(tvbuff_t *tvb, packet_info *pinfo, pro
 
   proto_tree_add_item(tree, hf_ieee80211_tag_supported_ope_classes_current, tvb, offset++, 1, ENC_NA);
 
-  for (i = offset; i < tag_len; i++) {
+  for (int i = offset; i < tag_len; i++) {
     uint8_t op_class =  tvb_get_uint8(tvb, i);
     /* Field terminates immediately before OneHundredAndThirty or Zero delimiter */
     if (op_class == 130 || op_class == 0) {
@@ -36103,7 +36102,7 @@ ieee80211_tag_supported_operating_classes(tvbuff_t *tvb, packet_info *pinfo, pro
   if (field_len) {
     item = proto_tree_add_item(tree, hf_ieee80211_tag_supported_ope_classes_alternate, tvb, offset, field_len, ENC_NA);
   }
-  for (i = 0; i < field_len; i++) {
+  for (int i = 0; i < field_len; i++) {
     proto_item_append_text(item, i == 0 ? ": %d":", %d", alt_op_class_field[i]);
   }
 
@@ -54545,7 +54544,7 @@ proto_register_ieee80211(void)
       {&hf_ieee80211_vs_cisco_ap_name_v2,
      {"AP Name", "wlan.vs.cisco.apname_v2",
        FT_STRING, BASE_NONE, NULL, 0,
-       NULL, HFILL }}, 
+       NULL, HFILL }},
 
     /* Vendor Specific : Ruckus */
     {&hf_ieee80211_vs_ruckus_ap_name,

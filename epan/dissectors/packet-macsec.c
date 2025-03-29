@@ -149,7 +149,7 @@ update_psk_config(void *r, char **err) {
     psk_config_t *rec = (psk_config_t *)r;
 
     ws_debug("update_psk_config\n");
-    ws_debug("psk_config_data_count :%d\n", psk_config_data_count);
+    ws_debug("psk_config_data_count :%u\n", psk_config_data_count);
 
     // Validate the key input
     if ((PSK128_LEN != rec->keydata.key_len) && (PSK256_LEN != rec->keydata.key_len)) {
@@ -170,7 +170,7 @@ free_psk_config_cb(void *r) {
     psk_config_t *rec = (psk_config_t *)r;
 
     ws_debug("free_psk_config_cb\n");
-    ws_debug("psk_config_data_count :%d\n", psk_config_data_count);
+    ws_debug("psk_config_data_count :%u\n", psk_config_data_count);
 
     g_free(rec->keydata.key);
     g_free(rec->name);
@@ -179,12 +179,10 @@ free_psk_config_cb(void *r) {
 static void
 post_update_psk_config_cb(void) {
     ws_debug("post_update_psk_config_cb\n");
-    ws_debug("psk_config_data_count :%d\n", psk_config_data_count);
+    ws_debug("psk_config_data_count :%u\n", psk_config_data_count);
 
     if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-        uint8_t i;
-
-        for (i = 0; i < psk_config_data_count; i++) {
+        for (unsigned i = 0; i < psk_config_data_count; i++) {
             psk_config_t *c = &psk_config_data[i];
             unsigned char *key = c->keydata.key;
             ws_debug("id: %s\n", c->name);
@@ -209,7 +207,7 @@ get_psk_config_table(void) {
     return psk_config_data;
 }
 
-static guint
+static unsigned
 get_psk_config_table_count(void) {
     return psk_config_data_count;
 }

@@ -7049,7 +7049,6 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             case MCH_SCHEDULING_INFO_LCID:
                 {
                     uint32_t curr_offset = offset;
-                    int16_t i;
                     uint32_t stop_mtch_val;
                     proto_item *mch_sched_info_ti, *ti;
                     proto_tree *mch_sched_info_tree;
@@ -7070,7 +7069,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                                                                      "MCH Scheduling Information");
                     mch_sched_info_tree = proto_item_add_subtree(mch_sched_info_ti, ett_mac_lte_mch_scheduling_info);
 
-                    for (i=0; i<(pdu_lengths[n]/2); i++) {
+                    for (int i=0; i<(pdu_lengths[n]/2); i++) {
                         proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_lcid,
                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         ti = proto_tree_add_item_ret_uint(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_stop_mtch,

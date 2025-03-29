@@ -4045,7 +4045,6 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     /* router LSA */
     uint8_t              link_type;
-    uint16_t             link_counter;
     uint16_t             metric_counter;
     const char          *metric_type_str;
 
@@ -4156,7 +4155,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         /* nr_links links follow
          * maybe we should put each of the links into its own subtree ???
          */
-        for (link_counter = 0; link_counter < nr_links; link_counter++) {
+        for (unsigned link_counter = 0; link_counter < nr_links; link_counter++) {
             proto_tree *ospf_lsa_router_link_tree;
             proto_item *ti_item;
 

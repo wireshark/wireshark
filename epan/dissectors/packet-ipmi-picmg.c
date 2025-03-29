@@ -1084,7 +1084,7 @@ static void
 rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_picmg_12_dynamic, &hf_ipmi_picmg_12_pwr_lvl, NULL };
-	uint8_t v, v2, i;
+	uint8_t v, v2;
 	uint32_t tmp, max;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_12_byte1, byte1, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
@@ -1098,7 +1098,7 @@ rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	} else if (max > 20) {
 		max = 20; /* 20 levels at most */
 	}
-	for (i = 1; i <= max; i++) {
+	for (unsigned i = 1; i <= max; i++) {
 		v2 = tvb_get_uint8(tvb, 2 + i);
 		tmp = (unsigned)v2 * v;
 		proto_tree_add_uint_format(tree, hf_ipmi_picmg_12_pwr_draw, tvb, 2 + i, 1,

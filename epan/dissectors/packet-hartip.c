@@ -940,7 +940,6 @@ dissect_cmd178(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
    uint8_t number_of_cmds;
    uint8_t cmd_byte_count;
    int     length = bodylen;
-   int8_t  i;
    int     result;
 
    if (length >= 5) {
@@ -949,7 +948,7 @@ dissect_cmd178(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
      offset += 1;
      length -= 1;
 
-     for (i = 0; i < number_of_cmds; i++)
+     for (unsigned i = 0; i < number_of_cmds; i++)
      {
        if (length >= 4)
        {

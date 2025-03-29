@@ -1093,7 +1093,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 {
     proto_item    *item;
     proto_tree    *ssdo_tree, *ssdo_payload;
-    uint16_t       taddr                = 0, sdn = 0, server = 0, client = 0, n = 0, ct = 0;
+    uint16_t       taddr                = 0, sdn = 0, server = 0, client = 0, ct = 0;
     uint32_t       abortcode, ssdoIndex = 0, ssdoSubIndex = 0, payloadSize, fragmentId = 0, entry = 0;
     uint8_t        db0Offset, db0, payloadOffset, preload;
     unsigned       dataLength;
@@ -1360,7 +1360,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                     if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
                     {
                         proto_tree_add_item( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset, 4, ENC_LITTLE_ENDIAN );
-                        for ( n = 4; n < payloadSize; n+=4 )
+                        for (unsigned n = 4; n < payloadSize; n+=4)
                         {
                             entry = tvb_get_letohl ( message_tvb, payloadOffset + n );
                             proto_tree_add_uint_format_value ( ssdo_tree, hf_oss_sod_par_checksum, message_tvb, (payloadOffset + n ),
@@ -2043,7 +2043,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
     unsigned            length, len, frameOffset, frameLength, nodeAddress, gapStart;
     uint8_t            *swbytes;
     bool                handled, dissectorCalled, call_sub_dissector, markAsMalformed;
-    uint8_t             type, found, i, tempByte, previous_msg_id;
+    uint8_t             type, found, tempByte, previous_msg_id;
     uint16_t            frameStart1, frameStart2, byte_offset;
     int                 reported_len;
     dissector_handle_t  protocol_dissector = NULL;
@@ -2092,7 +2092,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
         /* Wordswapping for modbus detection */
         /* Only a even number of bytes can be swapped */
         len = (length / 2);
-        for ( i = 0; i < len; i++ )
+        for (unsigned i = 0; i < len; i++)
         {
             tempByte = swbytes [ 2 * i ]; swbytes [ 2 * i ] = swbytes [ 2 * i + 1 ]; swbytes [ 2 * i + 1 ] = tempByte;
         }
