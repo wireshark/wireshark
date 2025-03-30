@@ -319,7 +319,9 @@ static dissector_handle_t pcep_handle;
 #define PCEP_OBJ_ASSOCIATION_FLAGS_R 0x0001
 
 /* Mask for the flags of SR PCE Capability TLV */
-#define PCEP_TLV_SR_PCE_CAPABILITY_L    0x01
+#define PCEP_TLV_SR_PCE_CAPABILITY_L    0x01 // deprecated
+#define PCEP_TLV_SR_PCE_CAPABILITY_X    0x01
+#define PCEP_TLV_SR_PCE_CAPABILITY_N    0x02
 
 /* Mask for the flags of Subobjevct SR*/
 #define PCEP_SUBOBJ_SR_FLAGS_M  0x001
@@ -5059,12 +5061,12 @@ proto_register_pcep(void)
         },
         { &hf_pcep_sr_pce_capability_sub_tlv_flags_n,
           { "Node or Adjacency Identifier (NAI) is supported (N)", "pcep.sub-tlv.sr-pce-capability.flags.n",
-            FT_BOOLEAN, 7, TFS(&tfs_set_notset), PCEP_TLV_SR_PCE_CAPABILITY_L,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_TLV_SR_PCE_CAPABILITY_N,
             NULL, HFILL }
         },
         { &hf_pcep_sr_pce_capability_sub_tlv_flags_x,
           { "Unlimited Maximum SID Depth (X)", "pcep.sub-tlv.sr-pce-capability.flags.x",
-            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_TLV_SR_PCE_CAPABILITY_L,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_TLV_SR_PCE_CAPABILITY_X,
             NULL, HFILL }
         },
         // SR-PCE CAPABILITY TLV is deprecated
