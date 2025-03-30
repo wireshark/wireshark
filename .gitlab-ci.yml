@@ -200,7 +200,7 @@ workflow:
 .build-macos:
   stage: build
   tags: [ saas-macos-medium-m1 ]
-  image: macos-13-xcode-14 # https://docs.gitlab.com/ee/ci/runners/saas/macos/environment.html
+  image: macos-14-xcode-15 # https://gitlab-org.gitlab.io/ci-cd/shared-runners/images/macos-image-inventory/macos-14-xcode-15/
   retry: 1
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
