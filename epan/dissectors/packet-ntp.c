@@ -53,7 +53,7 @@ static dissector_handle_t ntp_handle;
  * |                   Reference Timestamp (64)                    |
  * |                                                               |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                   Originate Timestamp (64)                    |
+ * |                     Origin Timestamp (64)                     |
  * |                                                               |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * |                    Receive Timestamp (64)                     |
@@ -1632,7 +1632,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 */
 	proto_tree_add_item(ntp_tree, hf_ntp_reftime, tvb, 16, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
-	/* Originate Timestamp: This is the time at which the request departed
+	/* Origin Timestamp: This is the time at which the request departed
 	 * the client for the server.
 	 */
 	proto_tree_add_item(ntp_tree, hf_ntp_org, tvb, 24, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
