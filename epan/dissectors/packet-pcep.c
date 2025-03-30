@@ -3920,8 +3920,16 @@ dissect_pcep_obj_branch_node_capability(proto_tree *pcep_object_tree, packet_inf
 static void
 dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
-    proto_item *ti;
-    proto_tree *lsp_flags;
+    static int * const lsp_flags[] = {
+        &hf_pcep_obj_lsp_flags_d,
+        &hf_pcep_obj_lsp_flags_s,
+        &hf_pcep_obj_lsp_flags_r,
+        &hf_pcep_obj_lsp_flags_a,
+        &hf_pcep_obj_lsp_flags_o,
+        &hf_pcep_obj_lsp_flags_c,
+        &hf_pcep_obj_lsp_flags_reserved,
+        NULL
+    };
 
     if (obj_length < OBJ_HDR_LEN + OBJ_LSP_MIN_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -3932,15 +3940,13 @@ dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
     }
 
     proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_plsp_id, tvb, offset2, 3, ENC_BIG_ENDIAN);
-    ti = proto_tree_add_item(pcep_object_tree, hf_pcep_obj_lsp_flags, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    lsp_flags = proto_item_add_subtree(ti, ett_pcep_obj_lsp);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_d,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_s,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_r,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_a,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_o,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_c,         tvb, offset2+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(lsp_flags, hf_pcep_obj_lsp_flags_reserved,  tvb, offset2+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(pcep_object_tree,
+                           tvb,
+                           offset2+2,
+                           hf_pcep_obj_lsp_flags,
+                           ett_pcep_obj_lsp,
+                           lsp_flags,
+                           ENC_NA);
 
     /* The object can have optional TLV(s)*/
     offset2 += OBJ_LSP_MIN_LEN;
@@ -5980,12 +5986,12 @@ proto_register_pcep(void)
         },
         { &hf_pcep_obj_lsp_plsp_id,
           { "PLSP-ID", "pcep.obj.lsp.plsp-id",
-            FT_UINT32, BASE_DEC, NULL, PCEP_OBJ_LSP_PLSP_ID,
+            FT_UINT24, BASE_DEC, NULL, PCEP_OBJ_LSP_PLSP_ID,
             NULL, HFILL }
         },
         { &hf_pcep_obj_lsp_flags,
           { "Flags", "pcep.obj.lsp.flags",
-            FT_UINT24, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_obj_lsp_flags_d,
