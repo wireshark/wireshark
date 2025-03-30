@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Анализатор системных вызовов и журналов событий&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -1390,7 +1390,7 @@
     </message>
     <message>
         <source>Compression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Сжатие:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1472,7 +1472,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>LZ4</translation>
     </message>
     <message>
         <source>File infix pattern</source>
@@ -1934,7 +1934,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Custom Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользовательское выражение</translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -2101,11 +2101,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation type="unfinished">Графики ввода/вывода</translation>
+        <translation>Графики ввода/вывода</translation>
     </message>
     <message>
         <source>I/OGraph TCP conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>I/O График TCP-обменов.</translation>
     </message>
 </context>
 <context>
@@ -2400,7 +2400,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enter a custom column expression %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Введите пользовательское выражение для столбца %1</translation>
     </message>
     <message>
         <source>Current filter: %1</source>
@@ -3074,11 +3074,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Открыть файл</translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Выбрать файл</translation>
     </message>
 </context>
 <context>
@@ -3117,7 +3117,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FieldFilterEdit</name>
     <message>
         <source>Field entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Ввод поля</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
@@ -3125,7 +3125,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invalid field: </source>
-        <translation type="unfinished"></translation>
+        <translation>Недопустимое поле:</translation>
     </message>
 </context>
 <context>
@@ -4331,11 +4331,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Toggle X-axis between relative time and time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключение оси X между относительным временем и временем суток</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключение оси Y между логарифмической и линейной шкалой</translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -4351,11 +4351,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Легенда</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Отключить легенду</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -5066,15 +5066,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Следует ли рассматривать несколько групп байтов как расположенные в порядке little-endian, а не в порядке по умолчанию, сетевом (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation type="unfinished"></translation>
+        <translation>Младший эндианальный:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl-совместимое регулярное выражение, перехватывающее один пакет в файле с именованными группами, определяющими данные для импорта. Якоря ^ и $ также совпадают до/после новой строки &lt;/p&gt;&lt;p&gt;Единственная обязательная группа - data, но также поддерживаются time, dir и seqno.&lt;/p&gt;&lt;p&gt;Флаги Regex: DUPNAMES, MULTILINE и NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
@@ -5246,7 +5246,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation type="unfinished"></translation>
+        <translation>Отсутствующие данные о группе захвата (используйте (?&lt;data&gt;(...)))</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -5321,7 +5321,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because WinPcap is installed but is no longer supported.&lt;/p&gt;&lt;p&gt;You can fix this by uninstalling WinPcap and installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Локальные интерфейсы недоступны, потому что установлен WinPcap, но он больше не поддерживается.&lt;/p&gt;&lt;p&gt; Вы можете исправить это, удалив WinPcap и установив&lt;a href=&quot;https://npcap.com/&quot;&gt; Npcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
@@ -5329,7 +5329,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed. The command must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Локальные интерфейсы недоступны, потому что не загружен драйвер захвата пакетов.&lt;/p&gt;&lt;p&gt; Вы можете исправить это, выполнив команду &lt;pre&gt;net start npcap&lt;/pre&gt;, если у вас установлен Npcap. Команда должна быть запущена от имени администратора.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
@@ -6990,15 +6990,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Сетевой анализатор Wireshark</translation>
     </message>
     <message>
         <source>The Stratoshark System Call and Log Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Анализатор системных вызовов и журналов Stratoshark</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Захват с %1</translation>
     </message>
 </context>
 <context>
@@ -7558,34 +7558,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketFormatBlankGroupBox</name>
     <message>
         <source>The selected format has no options</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбранный формат не имеет опций</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatJSONGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">Групповой блок</translation>
+        <translation>GroupBox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Формат пакета</translation>
+        <translation>Формат пакета</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avoid duplicate keys in the JSON by using a list for sibling fields with the same key&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Избегайте дублирования ключей в JSON, используя список для полей-близнецов с одинаковым ключом&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>No duplicate keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Никаких дубликатов ключей</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Экспортируйте пару имя/значение для каждого поля со значением поля&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished">Значения</translation>
+        <translation>Значение</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the hex bytes of its packet data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -7600,7 +7600,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketFormatTextGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished">Групповой блок</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packet Format</source>
@@ -12770,6 +12770,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Name resolution</source>
         <translation>Разрешение имён</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display exact numbers instead of rounding with SI prefixes. (Exact numbers always used when sorting.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display raw data</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
