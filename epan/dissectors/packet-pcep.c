@@ -791,6 +791,7 @@ static int hf_pcep_multipath_backup_capability;
 static int hf_pcep_multipath_oppdir_path_capability;
 static int hf_pcep_multipath_forward_class_capability;
 static int hf_pcep_composite_candidate_path_capability;
+static int hf_pcep_multipath_weight;
 
 static int hf_pcep_enterprise_number;
 static int hf_pcep_enterprise_specific_info;
@@ -1266,6 +1267,7 @@ static const value_string pcep_tlvs_vals[] = {
     {58, "SRPOLICY-CPATH-NAME"                     }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {59, "SRPOLICY-CPATH-PREFERENCE"               }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {60, "MULTIPATH-CAP"                           }, /* TEMPORARY - registered 2022-05-09, extension registered 2024-04-25, expires 2025-05-09 draft-ietf-pce-multipath-12 */
+    {61, "MULTIPATH-WEIGHT TLV"                    }, /* TEMPORARY - registered 2022-05-09, extension registered 2024-04-25, expires 2025-05-09 draft-ietf-pce-multipath-12 */
     {64, "LSP-EXTENDED-FLAG"                       },
     {65, "VIRTUAL-NETWORK-TLV"                     },
     {0, NULL                                       }
@@ -2066,6 +2068,9 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
             case 60:    /* MULTIPATH-CAP TLV */
                 proto_tree_add_item(tlv, hf_pcep_multipath_number_of_multipaths, tvb, offset + 4 + j, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_bitmask(tlv, tvb, offset + 4 + j + 2, hf_pcep_multipath_cap_flags, ett_pcep_obj, tlv_multipath_cap_flags, ENC_NA);
+                break;
+            case 61:    /* MULTIPATH-WEIGHT TLV */
+                proto_tree_add_item(tlv, hf_pcep_multipath_weight, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -6358,6 +6363,11 @@ proto_register_pcep(void)
         { &hf_pcep_composite_candidate_path_capability,
           { "Composite Candidate Path supported (C)", "pcep.multipath_cap.composite_candidate_class",
             FT_BOOLEAN, 16, NULL, PCEP_TLV_MULTIPATH_CAP_C,
+            NULL, HFILL }
+        },
+        { &hf_pcep_multipath_weight,
+          { "Weight", "pcep.tlv.multipath_weight",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
