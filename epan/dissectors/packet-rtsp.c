@@ -1275,12 +1275,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 }
             } else if (HDR_MATCHES(rtsp_content_base))
             {
-                content_base = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_UTF_8);
+                content_base = (char *)tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_len, ENC_UTF_8);
                 proto_tree_add_string(rtsp_tree, hf_rtsp_content_base,
                                       tvb, offset, linelen, content_base);
             } else if (HDR_MATCHES(rtsp_content_location))
             {
-                content_location = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_UTF_8);
+                content_location = (char *)tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_len, ENC_UTF_8);
                 proto_tree_add_string(rtsp_tree, hf_rtsp_content_location,
                                       tvb, offset, linelen, content_location);
             }
