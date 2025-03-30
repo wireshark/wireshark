@@ -323,6 +323,11 @@ static dissector_handle_t pcep_handle;
 #define PCEP_TLV_SR_PCE_CAPABILITY_X    0x01
 #define PCEP_TLV_SR_PCE_CAPABILITY_N    0x02
 
+/* Mask for the flags of PATH-ATTRIB Object */
+#define PCEP_OBJ_PATH_ATTRIB_FLAGS_O           0x00000007
+#define PCEP_OBJ_PATH_ATTRIB_FLAGS_R           0x00000008
+#define PCEP_OBJ_PATH_ATTRIB_FLAGS_RESERVED    0xFFFFFFF0
+
 /* Mask for the flags of Subobjevct SR*/
 #define PCEP_SUBOBJ_SR_FLAGS_M  0x001
 #define PCEP_SUBOBJ_SR_FLAGS_C  0x002
@@ -756,6 +761,12 @@ static int hf_pcep_association_id_extended_ipv6_endpoint;
 static int hf_pcep_unreach_destination_obj_ipv4_address;
 static int hf_pcep_unreach_destination_obj_ipv6_address;
 
+static int hf_pcep_obj_path_attrib_flags;
+static int hf_pcep_obj_path_attrib_flags_o;
+static int hf_pcep_obj_path_attrib_flags_r;
+static int hf_pcep_obj_path_attrib_flags_reserved;
+static int hf_pcep_obj_path_attrib_path_id;
+
 static int hf_pcep_op_conf_assoc_range_reserved;
 static int hf_pcep_op_conf_assoc_range_assoc_type;
 static int hf_pcep_op_conf_assoc_range_start_assoc;
@@ -764,7 +775,6 @@ static int hf_pcep_op_conf_assoc_range_range;
 static int hf_pcep_srcpag_info_color;
 static int hf_pcep_srcpag_info_destination_endpoint;
 static int hf_pcep_srcpag_info_preference;
-
 
 static int hf_pcep_sr_policy_name;
 static int hf_pcep_sr_policy_cpath_id_proto_origin;
@@ -4140,6 +4150,46 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
                       offset2, obj_length, ett_pcep_obj_association,association_type);
 }
 
+/*----------------------------------------------------------------------------
+ * PATH-ATTRIB OBJECT
+ *----------------------------------------------------------------------------*/
+#define OBJ_PATH_ATTRIB_MIN_LEN 8
+static void
+dissect_pcep_obj_path_attrib(proto_tree *pcep_object_tree, packet_info *pinfo,
+                             tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
+{
+    static int * const path_attrib_flags[] = {
+        &hf_pcep_obj_path_attrib_flags_o,
+        &hf_pcep_obj_path_attrib_flags_r,
+        &hf_pcep_obj_path_attrib_flags_reserved,
+        NULL
+    };
+
+    if (obj_length < OBJ_HDR_LEN + OBJ_PATH_ATTRIB_MIN_LEN) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo,
+                                     &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad PATH_ATTRIB object length %u, should be >= %u",
+                                     obj_length,
+                                     OBJ_HDR_LEN + OBJ_PATH_ATTRIB_MIN_LEN);
+        return;
+    }
+
+    proto_tree_add_bitmask(pcep_object_tree,
+                           tvb,
+                           offset2,
+                           hf_pcep_obj_path_attrib_flags,
+                           ett_pcep_obj_path_attrib,
+                           path_attrib_flags,
+                           ENC_NA);
+    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_path_attrib_path_id, tvb, offset2 + 4, 4, ENC_BIG_ENDIAN);
+
+    /* The PATH_ATTRIB object can have optional TLV(s) */
+    offset2 += OBJ_PATH_ATTRIB_MIN_LEN;
+    obj_length -= OBJ_HDR_LEN + OBJ_PATH_ATTRIB_MIN_LEN;
+    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_path_attrib);
+}
+
 /*------------------------------------------------------------------------------*/
 /* Dissect in Objects */
 /*------------------------------------------------------------------------------*/
@@ -4217,7 +4267,7 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
         /* 42 */ { &hf_PCEPF_OBJ_WA,                     &hf_pcep_obj_wa_type,                      &ett_pcep_obj_wa,                   NULL /* XXX */                              },
         /* 43 */ { &hf_PCEPF_OBJ_FLOWSPEC,               &hf_pcep_obj_flowspec_type,                &ett_pcep_obj_flowspec,             NULL /* XXX */                              },
         /* 44 */ { &hf_PCEPF_OBJ_CCI_TYPE,               &hf_pcep_obj_cci_type,                     &ett_pcep_obj_cci_type,             NULL /* XXX */                              },
-        /* 45 */ { &hf_PCEPF_OBJ_PATH_ATTRIB,            &hf_pcep_obj_path_attrib_type,             &ett_pcep_obj_path_attrib,          NULL /* XXX */                              },
+        /* 45 */ { &hf_PCEPF_OBJ_PATH_ATTRIB,            &hf_pcep_obj_path_attrib_type,             &ett_pcep_obj_path_attrib,          dissect_pcep_obj_path_attrib                },
     };
     pcep_lut_t lut_item;
 
@@ -6599,8 +6649,33 @@ proto_register_pcep(void)
         },
 
         { &hf_pcep_obj_path_attrib_type,
-          { "Path-Attrib Type", "pcep.obj.path_attrib.type",
+          { "PATH ATTRIB Object-Type", "pcep.obj.path_attrib.type",
             FT_UINT8, BASE_DEC, NULL, MASK_OBJ_TYPE,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_path_attrib_flags,
+          { "Flags", "pcep.obj.path_attrib.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_path_attrib_flags_o,
+          { "Operational (O)", "pcep.obj.path_attrib.flags.operational",
+            FT_UINT32, BASE_DEC, VALS(pcep_object_lsp_flags_operational_vals), PCEP_OBJ_PATH_ATTRIB_FLAGS_O,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_path_attrib_flags_r,
+          { "Reverse (R)", "pcep.obj.path_attrib.flags.reverse",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), PCEP_OBJ_PATH_ATTRIB_FLAGS_R,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_path_attrib_flags_reserved,
+          { "Reserved", "pcep.obj.path_attrib.flags.reserved",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), PCEP_OBJ_PATH_ATTRIB_FLAGS_RESERVED,
+            NULL, HFILL }
+        },
+        { &hf_pcep_obj_path_attrib_path_id,
+          { "Path ID", "pcep.obj.path_attrib.path_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
