@@ -5669,6 +5669,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 7626, "simco",            "SImple Middlebox COnfiguration (SIMCO) Server" },
     { 7630, "hawk",             "HA Web Konsole" },
     { 7631, "tesla-sys-msg",    "TESLA System Messaging" },
+    { 7668, "authoritygate",    "AuthorityGate Secure API communication for Orchestrated task sequencing" },
     { 7672, "imqstomp",         "iMQ STOMP Server" },
     { 7673, "imqstomps",        "iMQ STOMP Server over SSL" },
     { 7683, "dmt",              "Cleondris DMT" },
