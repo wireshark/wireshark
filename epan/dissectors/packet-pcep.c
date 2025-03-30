@@ -303,6 +303,10 @@ static dissector_handle_t pcep_handle;
 #define PCEP_OBJ_LSP_FLAGS_C            0x0080
 #define PCEP_OBJ_LSP_FLAGS_RESERVED     0x0F00
 
+/* Mask for the flags of TE-PATH-BINDING TLV */
+#define PCEP_TLV_TE_PATH_BINDING_FLAGS_R           0x80
+#define PCEP_TLV_TE_PATH_BINDING_FLAGS_RESERVED    0x7F
+
 /* Mask for the flags of SRP Object */
 #define PCEP_OBJ_SRP_FLAGS_R            0x00000001
 
@@ -333,6 +337,12 @@ static dissector_handle_t pcep_handle;
 #define PCEP_SUBOBJ_SR_FLAGS_C  0x002
 #define PCEP_SUBOBJ_SR_FLAGS_S  0x004
 #define PCEP_SUBOBJ_SR_FLAGS_F  0x008
+
+/* Mask for components of a MPLS label stack entry */
+#define PCEP_MPLS_LABEL_STACK_ENTRY_LABEL 0xFFFFF000 // label
+#define PCEP_MPLS_LABEL_STACK_ENTRY_TC    0x00000E00 // traffic class (formerly called EXP)
+#define PCEP_MPLS_LABEL_STACK_ENTRY_S     0x00000100 // bottom of stack
+#define PCEP_MPLS_LABEL_STACK_ENTRY_TTL   0x000000FF // time-to-live
 
 /* Mask for the flags of Subobject SRv6 */
 #define PCEP_SUBOBJ_SRV6_FLAGS_S    0x001
@@ -775,6 +785,18 @@ static int hf_pcep_op_conf_assoc_range_range;
 static int hf_pcep_srcpag_info_color;
 static int hf_pcep_srcpag_info_destination_endpoint;
 static int hf_pcep_srcpag_info_preference;
+
+static int hf_pcep_te_path_binding_bt;
+static int hf_pcep_te_path_binding_flags;
+static int hf_pcep_te_path_binding_flags_r;
+static int hf_pcep_te_path_binding_flags_reserved;
+static int hf_pcep_te_path_binding_reserved;
+static int hf_pcep_te_path_binding_bsid;
+static int hf_pcep_te_path_binding_bsid_label;
+static int hf_pcep_te_path_binding_bsid_tc;
+static int hf_pcep_te_path_binding_bsid_s;
+static int hf_pcep_te_path_binding_bsid_ttl;
+static int hf_pcep_te_path_binding_bsid_value;
 
 static int hf_pcep_sr_policy_name;
 static int hf_pcep_sr_policy_cpath_id_proto_origin;
@@ -1714,6 +1736,14 @@ static const value_string pcep_path_setup_type_capability_sub_tlv_vals[] = {
     {0,  NULL }
 };
 
+/* Binding Type (BT) values in TE-PATH-BINDING TLV, RFC 9604 */
+static const value_string pcep_te_path_binding_bt_vals[] = {
+    {0, "MPLS label value"},
+    {1, "MPLS label stack entry"},
+    {2, "SRv6 SID"},
+    {3, "SRv6 SID and endpoint behavior"},
+    {0, NULL}
+};
 
 /* Protocol Origin values in SR Policy Candidate Path Identifiers TLV*/
 static const value_string pcep_sr_policy_id_proto_origin_vals[] = {
@@ -1861,6 +1891,11 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
     int         i, j;
     int         padding = 0;
 
+    uint32_t     binding_type;
+    proto_item *bsid_item = NULL;
+    proto_tree *bsid_tree = NULL;
+    uint32_t label, tc, bos, ttl;
+
     static int * const tlv_stateful_pce_capability_flags[] = {
         &hf_pcep_lsp_update_capability,
         &hf_pcep_include_db_version,
@@ -1874,6 +1909,12 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
 
     static int * const tlv_sr_pce_capability_flags[] = {
         &hf_pcep_sr_pce_capability_flags_l,
+        NULL
+    };
+
+    static int * const tlv_te_path_binding_flags[] = {
+        &hf_pcep_te_path_binding_flags_r,
+        &hf_pcep_te_path_binding_flags_reserved,
         NULL
     };
 
@@ -2044,6 +2085,46 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_destination_endpoint, tvb, offset + 4 + j + 4, 4, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_preference, tvb, offset + 4 + j + 8, 4, ENC_NA);
+                break;
+
+            case 55:   /* TE-PATH-BINDING TLV */
+                proto_tree_add_item_ret_uint(tlv, hf_pcep_te_path_binding_bt, tvb, offset + 4 + j, 1, ENC_BIG_ENDIAN, &binding_type);
+                proto_tree_add_bitmask(tlv, tvb, offset + 4 + j + 1, hf_pcep_te_path_binding_flags, ett_pcep_obj, tlv_te_path_binding_flags, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_te_path_binding_reserved, tvb, offset + 4 + j + 2, 2, ENC_BIG_ENDIAN);
+
+                if (tlv_length <= 4) {
+                    // No binding value; for example, PCE is requesting PCC to allocate a binding SID.
+                    // Cf. RFC 9604, Section 5 "Operation", paragraph 8
+                    break;
+                }
+
+                bsid_item = proto_tree_add_item(tlv, hf_pcep_te_path_binding_bsid, tvb, offset + 4 + j + 4, tlv_length - 4, ENC_NA);
+                bsid_tree = proto_item_add_subtree(bsid_item, ett_pcep_obj);
+                switch(binding_type)
+                {
+                    case 0: // MPLS label value
+                        proto_tree_add_item_ret_uint(bsid_tree, hf_pcep_te_path_binding_bsid_label, tvb,
+                                                     offset + 4 + j + 4, 4, ENC_BIG_ENDIAN, &label);
+                        proto_item_append_text(bsid_tree, ", Label: %u", label);
+                        break;
+                    case 1: // MPLS label stack entry
+                        proto_tree_add_item_ret_uint(bsid_tree, hf_pcep_te_path_binding_bsid_label, tvb,
+                                                     offset + 4 + j + 4, 4, ENC_BIG_ENDIAN, &label);
+                        proto_tree_add_item_ret_uint(bsid_tree, hf_pcep_te_path_binding_bsid_tc, tvb,
+                                                     offset + 4 + j + 4, 4, ENC_BIG_ENDIAN, &tc);
+                        proto_tree_add_item_ret_uint(bsid_tree, hf_pcep_te_path_binding_bsid_s, tvb,
+                                                     offset + 4 + j + 4, 4, ENC_BIG_ENDIAN, &bos);
+                        proto_tree_add_item_ret_uint(bsid_tree, hf_pcep_te_path_binding_bsid_ttl, tvb,
+                                                     offset + 4 + j + 4, 4, ENC_BIG_ENDIAN, &ttl);
+                        proto_item_append_text(bsid_tree, ", Label: %u, TC: %u, S: %u, TTL: %u", label, tc, bos, ttl);
+                        break;
+                    case 2: // SRv6 SID
+                        // Not implemented; fall through
+                    case 3: // SRv6 SID and endpoint behavior
+                        // Not implemented; fall through
+                    default:
+                        proto_tree_add_item(bsid_tree, hf_pcep_te_path_binding_bsid_value, tvb, offset + 4 + j + 4, tlv_length - 4, ENC_NA);
+                }
                 break;
 
             case 56:   /* SRPOLICY-POL-NAME */
@@ -5249,22 +5330,22 @@ proto_register_pcep(void)
         },
         { &hf_pcep_subobj_sr_sid_label,
           { "SID/Label", "pcep.subobj.sr.sid.label",
-            FT_UINT32, BASE_DEC, NULL, 0xfffff000,
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_LABEL,
             "SID represent MPLS Label stack: Label", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_tc,
           {"SID/TC", "pcep.subobj.sr.sid.tc",
-            FT_UINT32, BASE_DEC, NULL, 0x00000E00,
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_TC,
             "SID represent MPLS Label stack: Traffic Class field", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_s,
           {"SID/S", "pcep.subobj.sr.sid.s",
-            FT_UINT32, BASE_DEC, NULL, 0x00000100,
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_S,
             "SID represent MPLS Label stack: Bottom of Stack", HFILL }
         },
         { &hf_pcep_subobj_sr_sid_ttl,
           {"SID/TTL", "pcep.subobj.sr.sid.ttl",
-            FT_UINT32, BASE_DEC, NULL, 0x000000FF,
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_TTL,
             "SID represent MPLS Label stack: Time to Live", HFILL }
         },
         { &hf_pcep_subobj_sr_nai_ipv4_node,
@@ -6292,6 +6373,61 @@ proto_register_pcep(void)
         { &hf_pcep_srcpag_info_preference,
           { "Preference", "pcep.srcpag_info.preference",
             FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bt,
+          { "Binding Type (BT)", "pcep.tlv.te_path_binding.bt",
+            FT_UINT8, BASE_DEC, VALS(pcep_te_path_binding_bt_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_flags,
+          { "Flags", "pcep.tlv.te_path_binding.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_flags_r,
+          { "Removal (R)", "pcep.tlv.te_path_binding.flags.r",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_TLV_TE_PATH_BINDING_FLAGS_R,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_flags_reserved,
+          { "Reserved", "pcep.tlv.te_path_binding.flags.reserved",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCEP_TLV_TE_PATH_BINDING_FLAGS_RESERVED,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_reserved,
+          { "Reserved", "pcep.tlv.te_path_binding.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bsid,
+          { "Binding SID", "pcep.tlv.te_path_binding.bsid",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bsid_label,
+          { "Label", "pcep.tlv.te_path_binding.bsid.label",
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_LABEL,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bsid_tc,
+          { "TC", "pcep.tlv.te_path_binding.bsid.tc",
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_TC,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bsid_s,
+          { "Bottom of Stack (S)", "pcep.tlv.te_path_binding.bsid.s",
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_S,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bsid_ttl,
+          { "TTL", "pcep.tlv.te_path_binding.bsid.ttl",
+            FT_UINT32, BASE_DEC, NULL, PCEP_MPLS_LABEL_STACK_ENTRY_TTL,
+            NULL, HFILL }
+        },
+        { &hf_pcep_te_path_binding_bsid_value,
+          { "Value", "pcep.tlv.te_path_binding.bsid.value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_sr_policy_name,
