@@ -335,6 +335,13 @@ static dissector_handle_t pcep_handle;
 #define PCEP_SUBOBJ_SRV6_FLAGS_T    0x004
 #define PCEP_SUBOBJ_SRV6_FLAGS_V    0x008
 
+/* Mask for the flags of Multipath Capability TLV */
+#define PCEP_TLV_MULTIPATH_CAP_W 0x0001
+#define PCEP_TLV_MULTIPATH_CAP_B 0x0002
+#define PCEP_TLV_MULTIPATH_CAP_O 0x0004
+#define PCEP_TLV_MULTIPATH_CAP_F 0x0008
+#define PCEP_TLV_MULTIPATH_CAP_C 0x0010
+
 static int proto_pcep;
 
 static int hf_pcep_endpoint_p2mp_leaf;
@@ -766,6 +773,14 @@ static int hf_pcep_sr_policy_cpath_id_originator_address;
 static int hf_pcep_sr_policy_cpath_id_discriminator;
 static int hf_pcep_sr_policy_cpath_name;
 static int hf_pcep_sr_policy_cpath_preference;
+
+static int hf_pcep_multipath_number_of_multipaths;
+static int hf_pcep_multipath_cap_flags;
+static int hf_pcep_multipath_weight_capability;
+static int hf_pcep_multipath_backup_capability;
+static int hf_pcep_multipath_oppdir_path_capability;
+static int hf_pcep_multipath_forward_class_capability;
+static int hf_pcep_composite_candidate_path_capability;
 
 static int hf_pcep_enterprise_number;
 static int hf_pcep_enterprise_specific_info;
@@ -1240,6 +1255,7 @@ static const value_string pcep_tlvs_vals[] = {
     {57, "SRPOLICY-CPATH-ID"                       }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {58, "SRPOLICY-CPATH-NAME"                     }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
     {59, "SRPOLICY-CPATH-PREFERENCE"               }, /* TEMPORARY - registered 2021-03-30, expires 2022-03-30 draft-ietf-pce-segment-routing-policy-cp-04 */
+    {60, "MULTIPATH-CAP"                           }, /* TEMPORARY - registered 2022-05-09, extension registered 2024-04-25, expires 2025-05-09 draft-ietf-pce-multipath-12 */
     {64, "LSP-EXTENDED-FLAG"                       },
     {65, "VIRTUAL-NETWORK-TLV"                     },
     {0, NULL                                       }
@@ -1849,6 +1865,15 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
         NULL
     };
 
+    static int * const tlv_multipath_cap_flags[] = {
+        &hf_pcep_multipath_weight_capability,
+        &hf_pcep_multipath_backup_capability,
+        &hf_pcep_multipath_oppdir_path_capability,
+        &hf_pcep_multipath_forward_class_capability,
+        &hf_pcep_composite_candidate_path_capability,
+        NULL
+    };
+
     for (j = 0; j < length; j += 4 + tlv_length + padding) {
         tlv_type = tvb_get_ntohs(tvb, offset+j);
         tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
@@ -2026,6 +2051,11 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
 
             case 59:   /* SRPOLICY-CPATH-PREFERENCE */
                 proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_preference, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                break;
+
+            case 60:    /* MULTIPATH-CAP TLV */
+                proto_tree_add_item(tlv, hf_pcep_multipath_number_of_multipaths, tvb, offset + 4 + j, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(tlv, tvb, offset + 4 + j + 2, hf_pcep_multipath_cap_flags, ett_pcep_obj, tlv_multipath_cap_flags, ENC_NA);
                 break;
 
             default:
@@ -6244,6 +6274,43 @@ proto_register_pcep(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+
+        { &hf_pcep_multipath_number_of_multipaths,
+          { "Number of Multipaths", "pcep.multipath_cap.number_of_multipaths",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_multipath_cap_flags,
+          { "Flags", "pcep.multipath_cap.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_multipath_weight_capability,
+          { "MULTIPATH-WEIGHT TLV supported (W)", "pcep.multipath_cap.multipath_weight",
+            FT_BOOLEAN, 16, NULL, PCEP_TLV_MULTIPATH_CAP_W,
+            NULL, HFILL }
+        },
+        { &hf_pcep_multipath_backup_capability,
+          { "MULTIPATH-BACKUP TLV supported (B)", "pcep.multipath_cap.multipath_backup",
+            FT_BOOLEAN, 16, NULL, PCEP_TLV_MULTIPATH_CAP_B,
+            NULL, HFILL }
+        },
+        { &hf_pcep_multipath_oppdir_path_capability,
+          { "MULTIPATH-OPPDIR-PATH TLV supported (O)", "pcep.multipath_cap.multipath_oppdir_path",
+            FT_BOOLEAN, 16, NULL, PCEP_TLV_MULTIPATH_CAP_O,
+            NULL, HFILL }
+        },
+        { &hf_pcep_multipath_forward_class_capability,
+          { "MULTIPATH-FORWARD-CLASS TLV supported (F)", "pcep.multipath_cap.multipath_forward_class",
+            FT_BOOLEAN, 16, NULL, PCEP_TLV_MULTIPATH_CAP_F,
+            NULL, HFILL }
+        },
+        { &hf_pcep_composite_candidate_path_capability,
+          { "Composite Candidate Path supported (C)", "pcep.multipath_cap.composite_candidate_class",
+            FT_BOOLEAN, 16, NULL, PCEP_TLV_MULTIPATH_CAP_C,
+            NULL, HFILL }
+        },
+
         { &hf_pcep_enterprise_number,
           { "Enterprise Number", "pcep.vendor-information.enterprise-number",
            FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
