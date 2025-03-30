@@ -10,12 +10,9 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
+#include "wireshark.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <glib.h>
 #include <float.h>
-#include <inttypes.h>
 #include <errno.h>
 
 #include <epan/tfs.h>
@@ -28,8 +25,6 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/pint.h>
-#include <wsutil/wslog.h>
-#include <wsutil/ws_assert.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/dtoa.h>
 
@@ -46,7 +41,6 @@
 #include "epan_dissect.h"
 #include "dfilter/dfilter.h"
 #include "tvbuff.h"
-#include <epan/wmem_scopes.h>
 #include "charsets.h"
 #include "column-info.h"
 #include "to_str.h"
@@ -93,7 +87,6 @@ struct ptvcursor {
 
 /** See inlined comments.
  @param tree the tree to append this item to
- @param free_block a code block to call to free resources if this returns
  @return NULL if 'tree' is null */
 #define CHECK_FOR_NULL_TREE(tree) \
 	CHECK_FOR_NULL_TREE_AND_FREE(tree, ((void)0))
@@ -6586,7 +6579,8 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *l
 		 * of the string", and if the tvbuff if short, we just
 		 * throw an exception.
 		 *
-		 * For ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARIANT_ZIGZAG|ENC_VARINT_SDNV, it means "find the end of the string",
+		 * For ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARIANT_ZIGZAG|ENC_VARINT_SDNV,
+		 * it means "find the end of the string",
 		 * and if the tvbuff if short, we just throw an exception.
 		 *
 		 * It's not valid for any other type of field.  For those
@@ -10982,31 +10976,13 @@ hfinfo_char_value_format_display(int display, char buf[7], uint32_t value)
 			break;
 
 		case '\a':
-			*(--ptr) = 'a';
-			break;
-
 		case '\b':
-			*(--ptr) = 'b';
-			break;
-
 		case '\f':
-			*(--ptr) = 'f';
-			break;
-
 		case '\n':
-			*(--ptr) = 'n';
-			break;
-
 		case '\r':
-			*(--ptr) = 'r';
-			break;
-
 		case '\t':
-			*(--ptr) = 't';
-			break;
-
 		case '\v':
-			*(--ptr) = 'v';
+			*(--ptr) = value - '\a' + 'a';
 			break;
 
 		default:
@@ -13258,7 +13234,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 	} else if (hf_field->type != FT_BYTES) {
-		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of %u > 65",
+		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of %u > 64",
 				     hf_field->abbrev, no_of_bits);
 		return NULL;
 	}
