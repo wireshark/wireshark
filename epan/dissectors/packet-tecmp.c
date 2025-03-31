@@ -1964,12 +1964,15 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     length2 = MAX(0, MIN((int)length2, tvb_captured_length_remaining(sub_tvb, offset2) - 1));
                 }
 
+                /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
+                bool ignore_lin_payload = (lin_info.id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_uint8(sub_tvb, offset2) == 0x00);
+
                 if (length2 > 0) {
                     lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
                     uint32_t bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
-                    if (!dissector_try_uint_with_data(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, false, &lin_info)) {
-                        if (!dissector_try_uint_with_data(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, false, &lin_info)) {
+                    if (ignore_lin_payload || !dissector_try_uint_with_data(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, false, &lin_info)) {
+                        if (ignore_lin_payload || !dissector_try_uint_with_data(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, false, &lin_info)) {
                             dissect_data(payload_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                         }
                     }

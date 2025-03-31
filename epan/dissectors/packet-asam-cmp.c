@@ -1339,8 +1339,11 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
             lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
             lin_info.len = msg_payload_type_length;
 
-            if (!dissector_try_uint_with_data(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, false, &lin_info)) {
-                if (!dissector_try_uint_with_data(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, false, &lin_info)) {
+            /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
+            bool ignore_lin_payload = (lin_info.id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_uint8(sub_tvb, 0) == 0x00);
+
+            if (ignore_lin_payload || !dissector_try_uint_with_data(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, false, &lin_info)) {
+                if (ignore_lin_payload || !dissector_try_uint_with_data(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, false, &lin_info)) {
                     call_data_dissector(sub_tvb, pinfo, tree);
                 }
             }
