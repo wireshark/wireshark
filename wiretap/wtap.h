@@ -1378,7 +1378,8 @@ typedef struct {
     /* uint32_t sentinel; */
     uint64_t  timestamp;        /* ns since epoch - XXX dup of ts */
     uint64_t  thread_id;
-    uint32_t  event_len;        /* length of the event */
+    uint32_t  event_len;        /* length of the event (ppm event len) */
+    uint32_t  event_data_len;   /* length of the event data (ppm event len - ppm event header len) */
     uint32_t  nparams;          /* number of parameters of the event */
     uint32_t  flags;
     uint16_t  event_type;

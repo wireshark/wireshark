@@ -60,6 +60,7 @@ static int proto_sysdig_event;
 static int hf_se_cpu_id;
 static int hf_se_thread_id;
 static int hf_se_event_length;
+static int hf_se_event_data_length;
 static int hf_se_nparams;
 static int hf_se_event_type;
 static int hf_se_event_name;
@@ -3006,6 +3007,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(se_tree, hf_se_cpu_id, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.cpu_id);
     proto_tree_add_uint64(se_tree, hf_se_thread_id, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.thread_id);
     proto_tree_add_uint(se_tree, hf_se_event_length, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.event_len);
+    proto_tree_add_uint(se_tree, hf_se_event_data_length, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.event_data_len);
     if (pinfo->rec->rec_header.syscall_header.nparams != 0) {
         proto_tree_add_uint(se_tree, hf_se_nparams, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.nparams);
     }
@@ -3065,6 +3067,10 @@ proto_register_sysdig_event(void)
         },
         { &hf_se_event_length,
           { "Event length", "sysdig.event_len",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_se_event_data_length,
+          { "Event data length", "sysdig.event_data_len",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_se_nparams,

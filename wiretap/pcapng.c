@@ -3166,6 +3166,16 @@ sysdig_has_nparams(unsigned block_type) {
         || block_type == BLOCK_TYPE_SYSDIG_EVF_V2_LARGE;
 }
 
+// Preamble:
+//   uint16_t CPU ID
+//   uint32_t Flags (optional, sysdig_has_flags)
+// Event header (libs:driver/ppm_events_public.h:ppm_evt_hdr):
+//   uint64_t Timestamp
+//   uint64_t Thread ID
+//   uint32_t Event length. Includes this header.
+//   uint16_t Event type
+//   uint32_t Number of params (optional, sysdig_has_nparams)
+
 static bool
 pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                                section_info_t *section_info,
@@ -3199,6 +3209,7 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;
     wblock->rec->rec_header.syscall_header.pathname = wth->pathname;
 
+    // Preamble
     if (!wtap_read_bytes(fh, &cpu_id, sizeof cpu_id, err, err_info)) {
         ws_debug("failed to read sysdig event cpu id");
         return false;
@@ -3209,7 +3220,7 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             return false;
         }
     }
-    // Start of event data
+    // Event header
     if (!wtap_read_bytes(fh, &ts, sizeof ts, err, err_info)) {
         ws_debug("failed to read sysdig event timestamp");
         return false;
@@ -3265,14 +3276,21 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
         event_len = block_remaining + event_header_len;
     }
 
+    uint32_t event_data_len = event_len - event_header_len;
+
     wblock->rec->rec_header.syscall_header.cpu_id = cpu_id;
     wblock->rec->rec_header.syscall_header.flags = flags;
     wblock->rec->rec_header.syscall_header.thread_id = thread_id;
     wblock->rec->rec_header.syscall_header.event_len = event_len;
+    wblock->rec->rec_header.syscall_header.event_data_len = event_data_len;
     wblock->rec->rec_header.syscall_header.event_type = event_type;
     wblock->rec->rec_header.syscall_header.nparams = nparams;
 
-    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data, event_len - event_header_len, err, err_info)) {
+    // Event data
+    // XXX Should we include the event header here? It would ensure that
+    // we always have data and avoid the "consumed = 1" workaround in the
+    // Falco Bridge dissector.
+    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data, event_data_len, err, err_info)) {
         return false;
     }
 
@@ -3284,14 +3302,8 @@ pcapng_read_sysdig_event_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
         return false;   /* Seek error */
     }
 
-#if 0
-    if (event_len - event_header_len + pad_len != block_remaining || true) {
-        ws_warning("r bt 0x%04x btl %u br %u pl %u ehl %u el %u pad %u", bh->block_type, bh->block_total_length, block_remaining, preamble_len, event_header_len, event_len, pad_len);
-    }
-#endif
-
     /* Options */
-    unsigned opt_cont_buf_len = block_remaining - (event_len - event_header_len + pad_len);
+    unsigned opt_cont_buf_len = block_remaining - (event_data_len + pad_len);
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 NULL,
                                 OPT_LITTLE_ENDIAN, err, err_info))
@@ -5570,13 +5582,13 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     unsigned event_header_len = MIN_SYSDIG_EVENT_SIZE + (has_nparams ? 4 : 0);
 
     /* Don't write anything we're not willing to read. */
-    if (rec->rec_header.syscall_header.event_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.syscall_header.event_data_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return false;
     }
 
-    if ((rec->rec_header.syscall_header.event_len + preamble_len) % 4) {
-        pad_len = 4 - ((rec->rec_header.syscall_header.event_len + preamble_len) % 4);
+    if ((rec->rec_header.syscall_header.event_data_len + event_header_len + preamble_len) % 4) {
+        pad_len = 4 - ((rec->rec_header.syscall_header.event_data_len + event_header_len + preamble_len) % 4);
     } else {
         pad_len = 0;
     }
@@ -5588,10 +5600,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* write sysdig event block header */
     bh.block_type = rec->rec_header.syscall_header.record_type;
-    bh.block_total_length = MIN_BLOCK_SIZE + preamble_len + rec->rec_header.syscall_header.event_len + pad_len + options_size;
-#if 0
-    ws_warning("w bt 0x%04x btl %u       pl %u        el %u pad %u", bh.block_type, bh.block_total_length, preamble_len, rec->rec_header.syscall_header.event_len, pad_len);
-#endif
+    bh.block_total_length = MIN_BLOCK_SIZE + preamble_len + event_header_len + rec->rec_header.syscall_header.event_data_len + pad_len + options_size;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof(bh), err))
         return false;
@@ -5599,9 +5608,10 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     uint16_t cpu_id = rec->rec_header.syscall_header.cpu_id;
     uint64_t ts = (((uint64_t)rec->ts.secs) * 1000000000) + rec->ts.nsecs;
     uint64_t thread_id = rec->rec_header.syscall_header.thread_id;
-    uint32_t event_len = rec->rec_header.syscall_header.event_len;
+    uint32_t event_len = rec->rec_header.syscall_header.event_data_len + event_header_len;
     uint16_t event_type = rec->rec_header.syscall_header.event_type;
 
+    // Preamble
     if (!wtap_dump_file_write(wdh, &cpu_id, sizeof cpu_id, err))
         return false;
 
@@ -5612,6 +5622,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
         }
     }
 
+    // Event header
     if (!wtap_dump_file_write(wdh, &ts, sizeof(ts), err))
         return false;
 
@@ -5624,11 +5635,18 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     if (!wtap_dump_file_write(wdh, &event_type, sizeof(event_type), err))
         return false;
 
-    /* write event data */
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.syscall_header.event_len - event_header_len, err))
+    if (has_nparams) {
+        uint32_t nparams = rec->rec_header.syscall_header.nparams;
+        if (!wtap_dump_file_write(wdh, &nparams, sizeof(nparams), err)) {
+            return false;
+        }
+    }
+
+    /* Event data */
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.syscall_header.event_data_len, err))
         return false;
 
-    /* write padding (if any) */
+    /* Write padding (if any) */
     if (pad_len != 0) {
         if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
             return false;

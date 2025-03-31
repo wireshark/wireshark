@@ -850,7 +850,7 @@ mutate_packet_data(wtap_rec *rec, uint32_t change_offset, uint64_t count) {
         break;
 
     case REC_TYPE_SYSCALL:
-        caplen = rec->rec_header.syscall_header.event_len;
+        caplen = rec->rec_header.syscall_header.event_data_len;
         break;
 
     case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:

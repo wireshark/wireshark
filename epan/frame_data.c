@@ -194,9 +194,9 @@ frame_data_init(frame_data *fdata, uint32_t num, const wtap_rec *rec,
     /*
      * XXX - is cum_bytes supposed to count non-packet bytes?
      */
-    fdata->pkt_len = rec->rec_header.syscall_header.event_len;
-    fdata->cum_bytes = cum_bytes + rec->rec_header.syscall_header.event_len;
-    fdata->cap_len = rec->rec_header.syscall_header.event_len;
+    fdata->pkt_len = rec->rec_header.syscall_header.event_data_len;
+    fdata->cum_bytes = cum_bytes + rec->rec_header.syscall_header.event_data_len;
+    fdata->cap_len = rec->rec_header.syscall_header.event_data_len;
     break;
 
   case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
