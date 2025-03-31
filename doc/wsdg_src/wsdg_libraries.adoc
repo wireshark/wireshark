@@ -248,9 +248,9 @@ https://dev-libs.wireshark.org/windows/packages/[].
 
 [#ChLibsGcrypt]
 
-=== Gcrypt
+=== Libgcrypt
 
-The Gcrypt Library is a low-level cryptographic library that provides
+Libgcrypt is a low-level cryptographic library that provides
 support for many ciphers and message authentication codes, such as DES, 3DES,
 AES, Blowfish, SHA-1, SHA-256, and others.
 
@@ -261,7 +261,7 @@ AES, Blowfish, SHA-1, SHA-256, and others.
 
 If this library isn't already installed or available as a
 package for your platform, you can get it at
-https://directory.fsf.org/wiki/Libgcrypt[].
+https://gnupg.org/software/libgcrypt/[].
 
 [#ChLibsWindowsGcrypt]
 

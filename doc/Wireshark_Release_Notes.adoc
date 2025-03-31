@@ -239,6 +239,7 @@ There is no new or updated capture file support in this release.
 
 // === Major API Changes
 
+The Lua API now supports Libgcrypt symmetric cipher functions.
 
 == Getting Wireshark
 
