@@ -716,7 +716,12 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
     sinsp_span->sfe_ptrs.clear();
     sinsp_span->sfe_lengths.clear();
     sinsp_span->sfe_infos.clear();
-    sinsp_span->inspector.open_savefile(filepath);
+    try {
+        sinsp_span->inspector.open_savefile(filepath);
+    } catch (sinsp_exception &e) {
+        ws_warning("%s", e.what());
+    }
+
     sinsp_span->str_chunk = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
     sinsp_span->proc_info_chunk = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
 
