@@ -46,6 +46,7 @@
 #include <epan/tap.h>
 #include <epan/column-utils.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/wsgcrypt.h>
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
@@ -374,6 +375,7 @@ typedef struct _wslua_proto_t* Proto;
 typedef struct _wslua_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
 typedef GByteArray* ByteArray;
+typedef gcry_cipher_hd_t* GcryptCipher;
 typedef struct _wslua_tvb* Tvb;
 typedef struct _wslua_tvbrange* TvbRange;
 typedef struct _wslua_col_info* Column;
