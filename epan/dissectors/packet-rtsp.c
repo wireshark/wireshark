@@ -1389,7 +1389,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_tree_add_uint(req_tree, hf_rtsp_response_to, tvb, 0, 0, curr_req_resp->req_frame);
             }
         }
-        base_uri = wmem_ascii_strdown(pinfo->pool, curr_req_resp->request_uri, -1);
+        if (curr_req_resp->request_uri) {
+            base_uri = wmem_ascii_strdown(pinfo->pool, curr_req_resp->request_uri, -1);
+        }
     }
 
     if (content_base) {
