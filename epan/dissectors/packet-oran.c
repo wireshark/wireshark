@@ -3,7 +3,6 @@
  * Copyright 2020, Jan Schiefer, Keysight Technologies, Inc.
  * Copyright 2020- Martin Mathieson
  *
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -14,7 +13,8 @@
  /*
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-   * The current implementation is based on the ORAN-WG4.CUS.0-v16.01 specification
+   * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification
+   * Note that other message types are handled in packet-ecpri.c
    */
 
 #include <config.h>
@@ -27,7 +27,6 @@
 #include <epan/tap.h>
 
 #include <epan/tfs.h>
-#include <wsutil/array.h>
 
 #include "epan/dissectors/packet-oran.h"
 
@@ -1982,13 +1981,13 @@ static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
             bit_offset += 8; /* one byte */
             break;
         case COMP_BLOCK_SCALE:
-            /* Separate into integer and fractional bits? */
+            /* Separate into integer (1) and fractional (7) bits? */
             proto_tree_add_item(cicompparam_tree, hf_oran_blockScaler,
                                 tvb, bit_offset/8, 1, ENC_BIG_ENDIAN);
             bit_offset += 8;
             break;
         case COMP_U_LAW:
-            /* compBitWidth, compShift */
+            /* compBitWidth, compShift (4 bits each) */
             proto_tree_add_item(cicompparam_tree, hf_oran_compBitWidth,
                                 tvb, bit_offset/8, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(cicompparam_tree, hf_oran_compShift,
@@ -4622,7 +4621,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     if ((sectionType == SEC_C_ACK_NACK_FEEDBACK) ||  /* Section Type 8 */
         (sectionType == SEC_C_SINR_REPORTING)) {     /* Section Type 9 */
         /* symbolId */
-        proto_tree_add_item(section_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint(section_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA, &startSymbolId);
     }
     else if (sectionType != SEC_C_LAA) {
          /* startSymbolId is in most section types */
@@ -4640,7 +4639,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     offset++;
 
     char id[16];
-    snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
+    snprintf(id, 16, "%d-%d-%d-%d", frameId, subframeId, slotId, startSymbolId);
     proto_item *pi = proto_tree_add_string(section_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
@@ -5670,7 +5669,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset++;
 
     char id[16];
-    snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
+    snprintf(id, 16, "%d-%d-%d-%d", frameId, subframeId, slotId, symbolId);
     proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
@@ -5762,7 +5761,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned number_of_sections = 0;
     unsigned nBytesPerPrb =0;
 
-    /* Add each section (no count, just keep parsing until payload used) */
+    /* Add each section (not from count, just keep parsing until payload used) */
     do {
         /* Section subtree */
         unsigned section_start_offset = offset;
