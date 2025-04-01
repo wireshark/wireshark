@@ -684,6 +684,16 @@ static int hf_smb2_flush_reserved2;
 static int hf_smb2_file_id_hash;
 static int hf_smb2_num_matched;
 static int hf_smb2_blobs;
+static int hf_smb2_dfs_max_referral_level;
+static int hf_smb2_dfs_request_flags;
+static int hf_smb2_dfs_request_data_len;
+static int hf_smb2_dfs_request_data;
+static int hf_smb2_dfs_request_data_file;
+static int hf_smb2_dfs_filename_len;
+static int hf_smb2_dfs_request_data_site;
+static int hf_smb2_dfs_sitename_len;
+static int hf_smb2_dfs_sitename;
+
 static int ett_smb2;
 static int ett_smb2_olb;
 static int ett_smb2_ea;
@@ -805,6 +815,9 @@ static int ett_smb2_query_info_flags;
 static int ett_smb2_server_notification;
 static int ett_smb2_fscc_refs_snapshot_query_delta_buffer;
 static int ett_smb2_fid_str;
+static int ett_smb2_fsctl_dfs_get_referrals_ex_request_data;
+static int ett_smb2_fsctl_dfs_get_referrals_ex_filename;
+static int ett_smb2_fsctl_dfs_get_referrals_ex_sitename;
 
 static expert_field ei_smb2_invalid_length;
 static expert_field ei_smb2_bad_response;
@@ -9104,6 +9117,83 @@ dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, 
 	/*offset += 8;*/
 }
 
+/* [MS-SMB2] - v20240129 2.2.31 and [MS-DFSC] - v20180912 2.2.3 */
+void
+dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset _U_, gboolean data_in)
+{
+	int16_t bc;
+	int32_t name_len;
+	int32_t data_len;
+	bool is_sitename = FALSE;
+	bool has_site_name = FALSE;
+	const char *name;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	proto_item *fitem = NULL;
+	proto_tree *ftree = NULL;
+
+	if (!parent_tree || !data_in)
+		return;
+
+	/* Max referral level */
+	proto_tree_add_item(parent_tree, hf_smb2_dfs_max_referral_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* Request flags */
+	item = proto_tree_add_item(parent_tree, hf_smb2_dfs_request_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	if (tvb_get_letohs(tvb, offset)==0x00000001) {
+		has_site_name = TRUE;
+		proto_item_append_text(item, " (Site name specified)");
+	} else {
+		proto_item_append_text(item, " (Site name not specified)");
+	}
+	offset += 2;
+
+	/* Length of the RequestData buffer */
+	data_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(parent_tree, hf_smb2_dfs_request_data_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_dfs_request_data, tvb, offset, data_len, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_smb2_fsctl_dfs_get_referrals_ex_request_data);
+	bc = data_len;
+
+	/* RequestData buffer */
+	/* Read the filenames and if has_sitename, the site name */
+	while (data_len > 0) {
+
+		name_len = tvb_get_letohs(tvb, offset);
+		offset += 2;
+
+		if(has_site_name
+		&& data_len == name_len + 2)
+			is_sitename = TRUE;
+
+		if (name_len) {
+			name = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, TRUE, &name_len, TRUE, TRUE, &bc);
+			if (name) {
+				if (!is_sitename) {
+					fitem = proto_tree_add_string(tree, hf_smb2_dfs_request_data_file, tvb, offset, name_len, name);
+					ftree = proto_item_add_subtree(fitem, ett_smb2_fsctl_dfs_get_referrals_ex_filename);
+					proto_tree_add_item(ftree, hf_smb2_dfs_filename_len, tvb, offset-2, 2, ENC_LITTLE_ENDIAN);
+					proto_tree_add_string(ftree, hf_smb2_filename, tvb, offset, name_len, name);
+				} else {
+					fitem = proto_tree_add_string(tree, hf_smb2_dfs_request_data_site, tvb, offset, name_len, name);
+					ftree = proto_item_add_subtree(fitem, ett_smb2_fsctl_dfs_get_referrals_ex_sitename);
+					proto_tree_add_item(ftree, hf_smb2_dfs_sitename_len, tvb, offset-2, 2, ENC_LITTLE_ENDIAN);
+					proto_tree_add_string(ftree, hf_smb2_dfs_sitename, tvb, offset, name_len, name);
+				}
+				data_len -= (name_len + 2);
+				offset += name_len;
+			} else {
+				return;
+			}
+		} else {
+			return;
+		}
+	}
+}
+
 void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, uint32_t ioctl_function, bool data_in, void *private_data _U_)
 {
@@ -9114,10 +9204,13 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	switch (ioctl_function) {
 	case 0x00060194: /* FSCTL_DFS_GET_REFERRALS */
 		if (data_in) {
-			dissect_get_dfs_request_data(tvb, pinfo, tree, 0, &dc, true);
+			dissect_smb_get_dfs_request_data(tvb, pinfo, tree, 0, &dc, true);
 		} else {
-			dissect_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc, true);
+			dissect_smb_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc, true);
 		}
+		break;
+	case 0x000601B0: /* FSCTL_DFS_GET_REFERRALS_EX */
+		dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x000940CF: /* FSCTL_QUERY_ALLOCATED_RANGES */
 		dissect_smb2_FSCTL_QUERY_ALLOCATED_RANGES(tvb, pinfo, tree, 0, data_in);
@@ -15953,7 +16046,35 @@ proto_register_smb2(void)
 			{ "Reserved2", "smb2.flush.reserved2", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
-	};
+		/* FSCTL_DFS_GET_REFERRALS_EX fields */
+		{ &hf_smb2_dfs_max_referral_level,
+			{ "Max referral level", "smb2.fsctl.max_referral_level", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_request_flags,
+			{ "Request flags", "smb2.fsctl.request_flags", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_request_data_len,
+			{ "Request data length", "smb2.fsctl.request_data_len", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_request_data,
+			{ "Request Data", "smb2.fsctl.request_data", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_request_data_file,
+			{ "File", "smb2.fsctl.request_data_file", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_filename_len,
+			{ "Length", "smb2.fsctl.filename_len", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_request_data_site,
+			{ "Site", "smb2.fsctl.request_data_site", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_sitename_len,
+			{ "Length", "smb2.fsctl.sitename_len", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_smb2_dfs_sitename,
+			{ "Sitename", "smb2.sitename", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		};
 
 	static int *ett[] = {
 		&ett_smb2,
@@ -16077,6 +16198,9 @@ proto_register_smb2(void)
 		&ett_smb2_server_notification,
 		&ett_smb2_fscc_refs_snapshot_query_delta_buffer,
 		&ett_smb2_fid_str,
+		&ett_smb2_fsctl_dfs_get_referrals_ex_request_data,
+		&ett_smb2_fsctl_dfs_get_referrals_ex_filename,
+		&ett_smb2_fsctl_dfs_get_referrals_ex_sitename,
 	};
 
 	static ei_register_info ei[] = {

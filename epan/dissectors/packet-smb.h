@@ -372,8 +372,10 @@ extern int dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent
 extern int dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t *bcp, bool *trunc);
 extern int dissect_qfi_SMB_FILE_PIPE_LOCAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t *bcp, bool *trunc);
 extern int dissect_qfi_SMB_FILE_PIPE_REMOTE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t *bcp, bool *trunc);
-extern int dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t *bcp, bool unicode);
-extern int dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t *bcp, bool unicode);
+extern int dissect_smb_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t *bcp, bool unicode);
+extern int dissect_smb_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t *bcp, bool unicode);
+extern const char *smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *offsetp, bool useunicode,
+				int *len, bool nopad, bool exactlen, uint16_t *bcp);
 
 /* Returns an IP (v4 or v6) of the server in a SMB/SMB2 conversation */
 extern const char *tree_ip_str(packet_info *pinfo, uint16_t cmd);
