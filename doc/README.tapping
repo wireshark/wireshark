@@ -4,8 +4,7 @@ In order to use the tapping system, very little knowledge of Wireshark
 internals is required.
 
 As examples on how to use the tap system see the implementation of
-tap-rpcprogs.c (tshark version)
-ui/qt/rpc_service_response_time_dialog.cpp (wireshark version)
+ui/cli/tap-rpcprogs.c (tshark version)
 
 If all you need is to keep some counters, there's the stats_tree API,
 which offers a simple way to make a GUI and tshark tap-listener; see
@@ -22,6 +21,7 @@ So you want to hack together a tap application?
 
 TAP
 ===
+(see epan/dissectors/packet-dcerpc.c as an example)
 First you must decide which protocol you are interested in writing a tap
 application for and check if that protocol has already got a tap installed
 in it.
@@ -52,7 +52,7 @@ need.
 
 TAP LISTENER
 ============
-(see tap-rpcprogs.c as an example)
+(see ui/cli/tap-rpcprogs.c as an example)
 Interfacing your application is not that much harder either.
 Only 4 callbacks and two functions.
 
@@ -85,7 +85,7 @@ Just make sure that it is unique by letting it be the pointer to a struct
 holding all state variables. If you want to allow multiple concurrent
 instances, just put ALL state variables inside a struct allocated by
 g_new() and use that pointer.
-(tap-rpcstat.c use this technique to allow multiple simultaneous instances)
+(tap-rpcprogs.c uses this technique to allow multiple simultaneous instances)
 
 *fstring
 is a pointer to a filter string.
