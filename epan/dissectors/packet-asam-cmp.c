@@ -1,7 +1,7 @@
 /* packet-asam-cmp.c
  * ASAM Capture Module Protocol dissector.
  * Copyright 2021-2023 Alicia Mediano Schikarski, Technica Engineering GmbH
- * Copyright 2021-2024 Dr. Lars Voelker, Technica Engineering GmbH
+ * Copyright 2021-2025 Dr. Lars Voelker, Technica Engineering GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1369,8 +1369,11 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
             lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
             lin_info.len = msg_payload_type_length;
 
-            if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, FALSE, &lin_info)) {
-                if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, FALSE, &lin_info)) {
+            /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
+            bool ignore_lin_payload = (lin_info.id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_guint8(sub_tvb, 0) == 0x00);
+
+            if (ignore_lin_payload || !dissector_try_uint_new(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, FALSE, &lin_info)) {
+                if (ignore_lin_payload || !dissector_try_uint_new(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, FALSE, &lin_info)) {
                     call_data_dissector(sub_tvb, pinfo, tree);
                 }
             }
