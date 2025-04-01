@@ -195,7 +195,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         };
         painter->drawPolyline(end_line, 3);
             /* analysis overriding on the last packet of the conversation,
-             * we mark it with an additional horizontal line only. 
+             * we mark it with an additional horizontal line only.
              * See issue 10725 for example.
              */
             // analysis overriding mark (three horizontal lines)
@@ -349,7 +349,13 @@ void RelatedPacketDelegate::setCurrentFrame(uint32_t current_frame)
 
 void RelatedPacketDelegate::addRelatedFrame(int frame_num, ft_framenum_type_t framenum_type)
 {
-    if (frame_num != -1 && !related_frames_.contains(frame_num))
+    // A frame might be related to the current frame in several different
+    // ways, especially at different layers (e.g., the frame that is ACKed
+    // the TCP layer might have a request/response relationship at a later
+    // layer.) This takes the last match. We might want to have some ordering
+    // of precedence (generic FT_FRAMENUM_NONE is less interesting than other
+    // types?) or even use a bitmask and try to draw more than one symbol.
+    if (frame_num != -1)
         related_frames_[frame_num] = framenum_type;
 
     // Last match wins. Last match might not make sense, however.
