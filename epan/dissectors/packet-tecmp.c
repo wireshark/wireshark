@@ -17,6 +17,12 @@
   * which is somewhat similar to active network tap, towards a logger or PC to
   * record or analyze the captured data.
   * Capture Modules capture data of LIN, CAN, FlexRay, Ethernet, RS232, or other sources.
+  *
+  * See
+  *
+  *    https://github.com/Technica-Engineering/libtecmp/tree/master/docs
+  *
+  * for specifications for the protocol.
   */
 
 #include <config.h>
