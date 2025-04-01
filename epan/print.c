@@ -89,6 +89,7 @@ static char *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, void *data);
 static void proto_tree_write_node_pdml(proto_node *node, void *data);
 static void proto_tree_write_node_ek(proto_node *node, write_json_data *data);
+static struct data_source* get_field_data_source(GSList *src_list, field_info *fi, uint32_t *idx);
 static const uint8_t *get_field_data(GSList *src_list, field_info *fi);
 static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
@@ -958,21 +959,25 @@ static void
 write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
 {
     field_info *fi = node->finfo;
+    uint32_t src_idx;
 
     json_dumper_begin_array(pdata->dumper);
 
     json_write_field_hex_value(pdata, fi);
 
-    /* Dump raw hex-encoded dissected information including position, length, bitmask, type */
-    /* These were added for use by json2pcap, but might be useful for others.
-     * XXX - Should information about the data source be added? fi->start
-     * refers to a position in a particular data source tvb, and fields in
-     * additional data sources confuse json2pcap.
-     */
+    /* Dump raw hex-encoded dissected information including position, length,
+     * bitmask, type, and data source index. */
+    /* These were added for use by json2pcap, but might be useful for others. */
     json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->start);
     json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->length);
     json_dumper_value_anyf(pdata->dumper, "%" PRIu64, fi->hfinfo->bitmask);
     json_dumper_value_anyf(pdata->dumper, "%" PRId32, (int32_t)fvalue_type_ftenum(fi->value));
+
+    if (get_field_data_source(pdata->src_list, fi, &src_idx)) {
+        json_dumper_value_anyf(pdata->dumper, "%" PRIu32, src_idx);
+    } else {
+        json_dumper_value_anyf(pdata->dumper, "null");
+    }
 
     json_dumper_end_array(pdata->dumper);
 }
@@ -1690,6 +1695,35 @@ write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
 }
 
 /*
+ * Find the data source for a specified field, and return a pointer to it.
+ * Also returns the index of the data source in the list of data sources
+ * Returns NULL if the field's data source is not in the list of data sources,
+ * in which case idx is not valid.
+ */
+static struct data_source*
+get_field_data_source(GSList *src_list, field_info *fi, uint32_t *idx)
+{
+    GSList   *src_le;
+    struct data_source *src;
+    uint32_t  src_idx = 0;
+
+    for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
+        src = (struct data_source *)src_le->data;
+        if (fi->ds_tvb == get_data_source_tvb(src)) {
+            /*
+             * Found it.
+             */
+            if (idx) {
+                *idx = src_idx;
+            }
+            return src;
+        }
+        src_idx++;
+    }
+    return NULL;  /* not found */
+}
+
+/*
  * Find the data source for a specified field, and return a pointer
  * to the data in it. Returns NULL if the data is out of bounds.
  */
@@ -1702,39 +1736,35 @@ write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
  *      a tvb whose data source tvb was *not* added to pinfo with
  *      add_new_data_source, then it won't get printed. But why?
  */
-
 static const uint8_t *
 get_field_data(GSList *src_list, field_info *fi)
 {
-    GSList   *src_le;
     tvbuff_t *src_tvb;
     int       length, tvbuff_length;
     struct data_source *src;
 
-    for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
-        src = (struct data_source *)src_le->data;
+    src = get_field_data_source(src_list, fi, NULL);
+    if (src) {
         src_tvb = get_data_source_tvb(src);
-        if (fi->ds_tvb == src_tvb) {
-            /*
-             * Found it.
-             *
-             * XXX - a field can have a length that runs past
-             * the end of the tvbuff.  Ideally, that should
-             * be fixed when adding an item to the protocol
-             * tree, but checking the length when doing
-             * that could be expensive.  Until we fix that,
-             * we'll do the check here.
-             */
-            tvbuff_length = tvb_captured_length_remaining(src_tvb,
-                                                 fi->start);
-            if (tvbuff_length < 0) {
-                return NULL;
-            }
-            length = fi->length;
-            if (length > tvbuff_length)
-                length = tvbuff_length;
-            return tvb_get_ptr(src_tvb, fi->start, length);
+        /*
+         * Found it.
+         *
+         * XXX - a field can have a length that runs past
+         * the end of the tvbuff.  Ideally, that should
+         * be fixed when adding an item to the protocol
+         * tree, but checking the length when doing
+         * that could be expensive.  Until we fix that,
+         * we'll do the check here.
+         */
+        tvbuff_length = tvb_captured_length_remaining(src_tvb,
+                                             fi->start);
+        if (tvbuff_length < 0) {
+            return NULL;
         }
+        length = fi->length;
+        if (length > tvbuff_length)
+            length = tvbuff_length;
+        return tvb_get_ptr(src_tvb, fi->start, length);
     }
     return NULL;  /* not found */
 }
