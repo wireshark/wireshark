@@ -1860,8 +1860,11 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
         }
     }
 
-    if (!fi->ds_tvb)
+    if (!fi->ds_tvb) {
+        // Should this be null instead of the empty string?
+        json_dumper_value_string(pdata->dumper, "");
         return;
+    }
 
     if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
         json_dumper_value_string(pdata->dumper, "field length invalid!");
@@ -1885,6 +1888,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
         json_dumper_value_string(pdata->dumper, str);
         g_free(str);
     } else {
+        // Should this be null instead of the empty string?
         json_dumper_value_string(pdata->dumper, "");
     }
 }
