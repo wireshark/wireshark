@@ -1697,6 +1697,10 @@ write_carrays_hex_data(uint32_t num, FILE *fh, epan_dissect_t *edt)
  *      Why bother searching for fi->ds_tvb for the matching tvb
  *       in the data_source list ?
  *      IOW: Why not just use fi->ds_tvb for the arg to tvb_get_ptr() ?
+ *
+ *      The effect is that if the field was added to the tree with a
+ *      a tvb whose data source tvb was *not* added to pinfo with
+ *      add_new_data_source, then it won't get printed. But why?
  */
 
 static const uint8_t *
