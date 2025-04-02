@@ -26,8 +26,8 @@ extern "C" {
 /** only for internal and display use. */
 typedef struct expert_info_s {
 	uint32_t     packet_num;
-	int          group;
-	int          severity;
+	int          group;    /* from a bitfield, should probably be unsigned */
+	int          severity; /* from a bitfield, should probably be unsigned */
 	int          hf_index; /* hf_index of the expert item. Might be -1. */
 	const char *protocol;
 	char        *summary;

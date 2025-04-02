@@ -66,6 +66,7 @@ typedef struct _packet_info {
     uint32_t in_error_pkt:1;         /**< true if we're inside an {ICMP,CLNP,...} error packet */
     uint32_t in_gre_pkt:1;           /**< true if we're encapsulated inside a GRE packet */
   } flags;
+  uint32_t expert_severity;         /**< highest expert severity */
   port_type ptype;                  /**< type of the following two port numbers */
   uint32_t srcport;                  /**< source port */
   uint32_t destport;                 /**< destination port */

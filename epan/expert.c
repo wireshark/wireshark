@@ -560,17 +560,29 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 		return NULL;
 	}
 
+	/* severity - the severity of this item
+	 * highest_severity - the highest severity in the entire capture,
+	 *	used to set the color/tooltip in the main status bar
+	 * pinfo->expert_severity - the highest severity of an item in the
+	 *	entire frame, used for setting COL_EXPERT. We always have
+	 *	packet_info at this point.
+	 * FI_GET_FLAG(PITEM_FINFO(pi)) - the highest severity of an item
+	 *	or its descendants, used to set the background color in
+	 *	proto_tree_model.cpp. Note we can't set or get this if an item
+	 *	is faked.
+	 */
 	if (severity > highest_severity) {
 		highest_severity = severity;
 	}
 
-	/* XXX: can we get rid of these checks and make them programming errors instead now? */
+	/* The item might be faked, but we still need to tap it even so, e.g.,
+	 * for the Expert Info dialog or CLI tap. */
 	if (pi != NULL && PITEM_FINFO(pi) != NULL) {
 		expert_set_item_flags(pi, group, severity);
 	}
 
-	if ((pi == NULL) || (PITEM_FINFO(pi) == NULL) ||
-		((unsigned)severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK))) {
+	if ((unsigned)severity > pinfo->expert_severity) {
+		pinfo->expert_severity = (unsigned)severity;
 		col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "Unknown (%u)"));
 	}
 
@@ -628,7 +640,6 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	if (pi != NULL && PITEM_FINFO(pi) != NULL) {
 		ei->pitem = pi;
 	}
-	/* XXX: remove this because we don't have an internal-only function now? */
 	else {
 		ei->pitem = NULL;
 	}
