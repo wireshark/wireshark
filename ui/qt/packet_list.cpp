@@ -1054,27 +1054,6 @@ void PacketList::setColumnVisibility()
     set_column_visibility_ = false;
 }
 
-int PacketList::sizeHintForColumn(int column) const
-{
-    int size_hint = 0;
-
-    // This is a bit hacky but Qt does a fine job of column sizing and
-    // reimplementing QTreeView::sizeHintForColumn seems like a worse idea.
-    if (itemDelegateForColumn(column)) {
-        QStyleOptionViewItem option;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        initViewItemOption(&option);
-#else
-        option = viewOptions();
-#endif
-        // In my (gcc) testing this results in correct behavior on Windows but adds extra space
-        // on macOS and Linux. We might want to add Q_OS_... #ifdefs accordingly.
-        size_hint = itemDelegateForColumn(column)->sizeHint(option, QModelIndex()).width();
-    }
-    size_hint += QTreeView::sizeHintForColumn(column); // Decoration padding
-    return size_hint;
-}
-
 void PacketList::setRecentColumnWidth(int col)
 {
     int col_width = recent_get_column_width(col);
@@ -1097,6 +1076,12 @@ void PacketList::setRecentColumnWidth(int col)
 #else
             option = viewOptions();
 #endif
+            // This is adding "how much width hinted for an empty index, plus
+            // the decoration, plus any padding between the decoration and
+            // normal display?" Many styles however have a non zero hint for
+            // an empty index, so this isn't quite right. What we really want
+            // is a size hint for an index whose data is the string above, and
+            // to just use that for the width.
             col_width += itemDelegateForColumn(col)->sizeHint(option, QModelIndex()).width();
         }
     }

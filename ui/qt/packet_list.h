@@ -166,7 +166,6 @@ private:
 
     void setFrameReftime(bool set, frame_data *fdata);
     void setColumnVisibility();
-    int sizeHintForColumn(int column) const override;
     void setRecentColumnWidth(int column);
     void drawCurrentPacket();
     void applyRecentColumnWidths();

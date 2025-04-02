@@ -33,6 +33,8 @@ public slots:
     void addRelatedFrame(int frame_num, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
 
 protected:
+    void initStyleOption(QStyleOptionViewItem *option,
+                   const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option,

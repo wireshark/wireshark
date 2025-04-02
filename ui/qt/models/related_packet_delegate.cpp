@@ -47,6 +47,15 @@ RelatedPacketDelegate::RelatedPacketDelegate(QWidget *parent) :
     clear();
 }
 
+void RelatedPacketDelegate::initStyleOption(QStyleOptionViewItem *option,
+                                         const QModelIndex &index) const
+{
+    QStyledItemDelegate::initStyleOption(option, index);
+    option->features |= QStyleOptionViewItem::HasDecoration;
+    option->decorationSize.setHeight(1);
+    option->decorationSize.setWidth(option->fontMetrics.height());
+}
+
 void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
@@ -63,14 +72,11 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     }
 
     QStyleOptionViewItem option_vi = option;
-    QStyledItemDelegate::initStyleOption(&option_vi, index);
+    initStyleOption(&option_vi, index);
     int em_w = option_vi.fontMetrics.height();
     int en_w = (em_w + 1) / 2;
     int line_w = (option_vi.fontMetrics.lineWidth());
 
-    option_vi.features |= QStyleOptionViewItem::HasDecoration;
-    option_vi.decorationSize.setHeight(1);
-    option_vi.decorationSize.setWidth(em_w);
     QStyledItemDelegate::paint(painter, option_vi, index);
 
     uint32_t setup_frame = 0, last_frame = 0;
@@ -278,7 +284,10 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const
 {
-    /* This prevents the sizeHint for the delegate, if multiple lines are being selected */
+    /* This prevents the sizeHint for the delegate if multiple lines are being selected
+     * XXX - Do we want that? If a user resizes the columns while doing multi-select,
+     * that will mean resizing to a smaller width (without space for the symbols.)
+     * But multi-select is a transient state. */
     if (mainApp && mainApp->mainWindow())
     {
         MainWindow * mw = mainApp->mainWindow();
@@ -286,8 +295,11 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
             return QStyledItemDelegate::sizeHint(option, index);
     }
 
-    return QSize(option.fontMetrics.height() + QStyledItemDelegate::sizeHint(option, index).width(),
-                 QStyledItemDelegate::sizeHint(option, index).height());
+    /* Some styles put extra space between a decoration and the contents.
+     * Make sure the QStyleOptionViewItem reflects the decoration. */
+    QStyleOptionViewItem option_vi = option;
+    initStyleOption(&option_vi, index);
+    return QStyledItemDelegate::sizeHint(option_vi, index);
 }
 
 void RelatedPacketDelegate::drawArrow(QPainter *painter, const QPoint tail, const QPoint head, int head_size) const
