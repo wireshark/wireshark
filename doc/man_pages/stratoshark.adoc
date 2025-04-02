@@ -858,7 +858,7 @@ A complete list of authors can be found in the AUTHORS file in Wireshark's sourc
 
 == SEE ALSO
 
-xref:wireshark-filter.html[wireshark-filter](4), xref:tshark.html[tshark](1), xref:editcap.html[editcap](1), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1)
+xref:wireshark-filter.html[wireshark-filter](4), xref:strato.html[strato](1), xref:editcap.html[editcap](1), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1)
 
 == NOTES
 

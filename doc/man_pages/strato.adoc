@@ -1,0 +1,1749 @@
+include::../attributes.adoc[]
+= strato(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: {css_dir}/{stylesheet}
+
+== NAME
+
+strato - Dump and analyze system calls and event logs
+
+== SYNOPSIS
+
+[manarg]
+*strato*
+[ *-i* <capture source>|- ]
+[ *-f* <capture filter> ]
+[ *-2* ]
+[ *-r* <infile> ]
+[ *-w* <outfile>|- ]
+[ *options* ]
+[ <filter> ]
+
+[manarg]
+*strato*
+*-h|--help*
+
+[manarg]
+*strato*
+*-v|--version*
+
+== DESCRIPTION
+
+*strato* is a system call and log analyzer.
+It lets you capture system call and log events from a live source, or read events from a previously saved
+capture file, either printing a decoded form of those events to the
+standard output or writing the packets to a file.  *strato*'s native
+capture file format is *scap* format, which is also the format used
+by *Stratoshark*, *Falco*, *sysdig* and various other tools.
+
+Without any options set, *strato* will work much like *sysdig*.  It
+will use the libscap and libsinsp to capture traffic from the first available
+source and displays a summary line on the standard output for
+each received packet.
+
+When run with the *-r* option, specifying a capture file from which to
+read, *strato* will again work much like *sysdig*, reading packets
+from the file and displaying a summary line on the standard output for
+each packet read.  *strato* is able to detect, read and write the same
+capture files that are supported by *Stratoshark*.  The input file
+doesn't need a specific filename extension; the file format and an
+optional gzip, Zstandard, or LZ4 compression will be automatically detected.  Near the
+beginning of the DESCRIPTION section of xref:wireshark.html[wireshark](1) or
+https://www.wireshark.org/docs/man-pages/wireshark.html is a detailed
+description of the way *Wireshark* handles this, which is the same way
+*strato* handles this.
+
+Compressed file support uses (and therefore requires) the zlib library.
+If the zlib library is not present when compiling *strato*, it will be
+possible to compile it, but the resulting program will be unable to read
+compressed files. Similarly, LZ4 and ZStandard also require their respective
+libraries.
+
+When displaying events on the standard output, *strato* writes, by
+default, a summary line containing the fields specified by the
+preferences file (which are also the fields displayed in the packet list
+pane in *Wireshark*), although if it's writing packets as it captures
+them, rather than writing packets from a saved capture file, it won't
+show the "frame number" field.  If the *-V* option is specified, it
+instead writes a view of the details of the packet, showing all the
+fields of all protocols in the packet.  If the *-O* option is
+specified, it will only show the full details for the protocols
+specified, and show only the top-level detail line for all other
+protocols.  Use the output of "*tshark -G protocols*" to find the
+abbreviations of the protocols you can specify.  If the *-P* option is
+specified with either the *-V* or *-O* options, both the summary line
+for the entire packet and the details will be displayed.
+
+Packet capturing is performed with the pcap library.  That library
+supports specifying a filter expression; packets that don't match that
+filter are discarded.  The *-f* option is used to specify a capture
+filter.  The syntax of a capture filter is defined by the pcap library;
+this syntax is different from the display filter syntax described below,
+and the filtering mechanism is limited in its abilities.
+
+Display filters in *strato*, which allow you to select which packets are
+to be decoded or written to a file, are very powerful; more fields are
+filterable in *strato* than in other protocol analyzers, and the syntax
+you can use to create your filters is richer.  As *strato* progresses,
+expect more and more protocol fields to be allowed in display filters.
+Display filters use the same syntax as display and color filters in
+*Wireshark*; a display filter is specified with the *-Y* option.
+
+Display filters can be specified when capturing or when reading from a
+capture file.  Note that capture filters are much more efficient
+than display filters, and it may be more difficult for *strato* to keep up
+with a busy network if a display filter is specified for a live capture, so
+you might be more likely to lose packets if you're using a display filter.
+
+A capture or display filter can either be specified with the *-f* or *-Y*
+option, respectively, in which case the entire filter expression must be
+specified as a single argument (which means that if it contains spaces,
+it must be quoted), or can be specified with command-line arguments
+after the option arguments, in which case all the arguments after the
+filter arguments are treated as a filter expression.  If the filter is
+specified with command-line arguments after the option arguments, it's a
+capture filter if a capture is being done (i.e., if no *-r* option was
+specified) and a display filter if a capture file is being read (i.e., if a
+*-r* option was specified).
+
+If the *-w* option is specified when capturing packets or reading from
+a capture file, *strato* does not display packets on the standard
+output.  Instead, it writes the packets to a capture file with the name
+specified by the *-w* option.  Note that display filters are currently
+not supported when capturing and saving the captured packets.
+
+If you want to write the decoded form of packets to a file, run
+*strato* without the *-w* option, and redirect its standard output to
+the file (do __not__ use the *-w* option).
+
+If you want the packets to be displayed to the standard output and also
+saved to a file, specify the *-P* option in addition to the *-w*
+option to have the summary line displayed, specify the *-V* option
+in addition to the *-w* option to have the details of the packet
+displayed, and specify the *-O* option, with a list of protocols, to
+have the full details of the specified protocols and the top-level
+detail line for all other protocols to be displayed.  If the *-P*
+option is used together with the *-V* or *-O* option, the summary line
+will be displayed along with the detail lines.
+
+When writing packets to a file, *strato*, by default, writes the file
+in *pcapng* format, and writes all of the packets it sees to the output
+file.  The *-F* option can be used to specify the format in which to
+write the file.  The list of available file formats is displayed by the
+*-F* option without a value.  However, for a live capture, you can only
+specify a file format supported by xref:dumpcap.html[dumpcap](1), viz.
+*pcapng* or *pcap*. The *--compress* option can be used to specify
+a compression method as well; the list of supported compression methods
+for writing can be displayed by the *--compress* method without an
+argument. If the *--compress* option is not given, then the desired
+compression method, if any, is deduced from the extension of the filename
+given as argument to the *-w* option.
+
+When capturing packets, *strato* writes to the standard error an
+initial line listing the interfaces from which packets are being
+captured and, if packet information isn't being displayed to the
+terminal, writes a continuous count of packets captured to the standard
+output.  If the *-q* option is specified, neither the continuous count
+nor the packet information will be displayed; instead, at the end of the
+capture, a count of packets captured will be displayed.  If the *-Q*
+option is specified, neither the initial line, nor the packet
+information, nor any packet counts will be displayed.  If the *-q* or
+*-Q* option is used, the *-P*, *-V*, or *-O* option can be used to
+cause the corresponding output to be displayed even though other output
+is suppressed.
+
+When reading packets, the *-q* and *-Q* option will suppress the
+display of the packet summary or details; this would be used if *-z*
+options are specified in order to display statistics, so that only the
+statistics, not the packet information, is displayed.
+
+The *-G* option is a special mode that simply causes *strato*
+to dump one of several types of internal glossaries and then exit.
+
+== OPTIONS
+
+-2::
++
+--
+Perform a two-pass analysis. This causes *strato* to buffer output until the
+entire first pass is done, but allows it to fill in fields that require future
+knowledge, such as 'response in frame #' fields. Also permits reassembly
+frame dependencies to be calculated correctly. This requires the ability
+to seek backwards on the input, and as such cannot be used with live captures
+or when reading from a pipe or FIFO.
+--
+
+-a|--autostop  <capture autostop condition>::
++
+--
+Specify a criterion that specifies when *strato* is to stop writing
+to a capture file.  The criterion is of the form __test:value__,
+where __test__ is one of:
+
+*duration*:__value__ Stop writing to a capture file after __value__ seconds
+have elapsed. Floating point values (e.g. 0.5) are allowed.
+
+*files*:__value__ Stop writing to capture files after __value__ number of files
+were written.
+
+*filesize*:__value__ Stop writing to a capture file after it reaches a size of
+__value__ kB.  If this option is used together with the *-b* option, *strato*
+will stop writing to the current capture file and switch to the next one if
+filesize is reached.  When reading a capture file, *strato* will stop reading
+the file after the number of bytes read exceeds this number (the complete
+packet  will be read, so more bytes than this number may be read).  Note that
+the filesize is limited to a maximum value of 2 TB, although you might have
+problems before then if the number of packets exceeds exceeds 2^32^ (4294967296).
+
+*packets*:__value__ switch to the next file after it contains __value__
+packets.
+This does not include any packets that do not pass the display filter, so it
+may differ from *-c*<capture packet count>.
+--
+
+-A  <user>:<password>::
++
+--
+Specify a user and a password when *strato* captures from a rpcap:// interface
+where authentication is required.
+
+This option is available with libpcap with enabled remote support.
+--
+
+-b|--ring-buffer  <capture ring buffer option>::
++
+--
+Cause *strato* to run in "multiple files" mode.  In "multiple files" mode,
+*strato* will write to several capture files.  When the first capture file
+fills up, *strato* will switch writing to the next file and so on.
+
+The created filenames are based on the filename given with the *-w* option,
+the number of the file and on the creation date and time,
+e.g. outfile_00001_20250714120117.pcap, outfile_00002_20250714120523.pcap, ...
+
+With the __files__ option it's also possible to form a "ring buffer".
+This will fill up new files until the number of files specified,
+at which point *strato* will discard the data in the first file and start
+writing to that file and so on.  If the __files__ option is not set,
+new files filled up until one of the capture stop conditions match (or
+until the disk is full).
+
+The criterion is of the form __key:value__,
+where __key__ is one of:
+
+*duration*:__value__ switch to the next file after __value__ seconds have
+elapsed, even if the current file is not completely filled up. Floating
+point values (e.g. 0.5) are allowed.
+
+*files*:__value__ begin again with the first file after __value__ number of
+files were written (form a ring buffer).  This value must be less than 100000.
+Caution should be used when using large numbers of files: some filesystems do
+not handle many files in a single directory well.  The *files* criterion
+requires either *duration*, *interval* or *filesize* to be specified to
+control when to go to the next file.  It should be noted that each *-b*
+parameter takes exactly one criterion; to specify two criterion, each must be
+preceded by the *-b* option.
+
+*filesize*:__value__ switch to the next file after it reaches a size of
+__value__ kB.  Note that the filesize is limited to a maximum value of 2 TB,
+although you might have problems before then if the number of packets exceeds
+exceeds 2^32^ (4294967296).
+
+*interval*:__value__ switch to the next file when the time is an exact
+multiple of __value__ seconds.  For example, use 3600 to switch to a new file
+every hour on the hour.
+
+*packets*:__value__ switch to the next file after it contains __value__
+packets.
+
+*printname*:__filename__ print the name of the most recently written file
+to __filename__ after the file is closed. __filename__ can be `stdout` or `-`
+for standard output, or `stderr` for standard error.
+
+*nametimenum*:__value__ Choose between two save filename templates.  If
+__value__ is 1, make running file number part before start time part; this is
+the original and default behaviour (e.g. log_00001_20250714164426.pcap).  If
+__value__ is greater than 1, make start time part before running number part
+(e.g. log_20210828164426_00001.pcap).  The latter makes alphabetical sorting
+order equal to creation time order, and keeps related multiple file sets in
+same directory close to each other.
+
+Example: *tshark -b filesize:1000 -b files:5* results in a ring buffer of five
+files of size one megabyte each.
+--
+
+-B|--buffer-size  <capture buffer size>::
++
+--
+Set capture buffer size (in MiB, default is 2 MiB).  This is used by
+the capture driver to buffer packet data until that data can be written
+to disk.  If you encounter packet drops while capturing, try to increase
+this size.  Note that, while *strato* attempts to set the buffer size
+to 2 MiB by default, and can be told to set it to a larger value, the
+system or interface on which you're capturing might silently limit the
+capture buffer size to a lower value or raise it to a higher value.
+
+This is available on UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows.
+It is not available on UNIX-compatible systems with earlier versions of
+libpcap.
+
+This option can occur multiple times.  If used before the first
+occurrence of the *-i* option, it sets the default capture buffer size.
+If used after an *-i* option, it sets the capture buffer size for
+the interface specified by the last *-i* option occurring before
+this option.  If the capture buffer size is not set specifically,
+the default capture buffer size is used instead.
+--
+
+-c  <capture packet count>::
++
+--
+Set the maximum number of packets to read when capturing live
+data.
+If reading a capture file, set the maximum number of packets to read.
+This includes any packets that do not pass the display filter, so it
+may differ from *-a packets:*<capture packet count>.
+--
+
+-C  <configuration profile>::
++
+--
+Run with the given configuration profile. If used in conjunction with
+--global-profile, then the global profile with the associated name
+would be used.
+--
+
+-D|--list-interfaces::
++
+--
+Print a list of the interfaces on which *strato* can capture, and
+exit.  For each network interface, a number and an interface name,
+possibly followed by a text description of the interface, is printed.
+The interface name or the number can be supplied to the *-i* flag to
+specify an interface on which to capture.  The number can be useful on
+Windows systems, where the interfaces have long names that usually
+contain a GUID.
+--
+
+-e  <field>::
++
+--
+Add a field to the list of fields to display if *-T ek|fields|json|pdml*
+is selected.  This option can be used multiple times on the command line.
+At least one field must be provided if the *-T fields* option is
+selected. Column types may be used prefixed with "_ws.col."
+Prefixing the field name with an at sign (@) will display the data as hex bytes.
+
+Example: *tshark -T fields -e frame.number -e ip.addr -e udp -e _ws.col.info*
+
+Fields are separated by tab characters by default.  *-E* controls the
+format of the printed fields.
+Giving a protocol rather than a single field will print the protocol summary
+(subtree label) from the packet details as a single field.
+If the protocol summary contains only the protocol name
+(e.g. "Hypertext Transfer Protocol") then the protocol filter name ("http")
+will be printed.
+--
+
+-E  <field print option>::
++
+--
+Set an option controlling the printing of fields when *-T fields* is
+selected.
+
+Options are:
+
+*bom=y|n* If *y*, prepend output with the UTF-8 byte order mark
+(hexadecimal ef, bb, bf). Defaults to *n*.
+
+*header=y|n* If *y*, print a list of the field names given using *-e*
+as the first line of the output; the field name will be separated using
+the same character as the field values.  Defaults to *n*.
+
+*separator=/t|/s|*<character> Set the separator character to
+use for fields.  If */t* tab will be used (this is the default), if
+*/s*, a single space will be used.  Otherwise any character that can be
+accepted by the command line as part of the option may be used.
+
+*occurrence=f|l|a* Select which occurrence to use for fields that have
+multiple occurrences.  If *f* the first occurrence will be used, if *l*
+the last occurrence will be used and if *a* all occurrences will be used
+(this is the default).
+
+*aggregator=,|/s|*<character> Set the aggregator character to
+use for fields that have multiple occurrences.  If *,* a comma will be used
+(this is the default), if */s*, a single space will be used.  Otherwise
+any character that can be accepted by the command line as part of the
+option may be used.
+
+*quote=d|s|n* Set the quote character to use to surround fields.  *d*
+uses double-quotes, *s* single-quotes, *n* no quotes (the default).
+If the quote character appears in a field value, it will be escaped
+by being duplicated.
+
+*escape=y|n* If *y*, the whitespace control characters (tab, line feed,
+carriage return, form feed, and vertical tab) backspace, and the
+backslash will be replaced in field values by C-style escapes, e.g.
+"\n" for line feed.  If *n*, field value strings will be printed as-is.
+Defaults to *y*.
+--
+
+-f  <capture filter>::
++
+--
+Set the capture filter expression.
+
+This option can occur multiple times.  If used before the first
+occurrence of the *-i* option, it sets the default capture filter expression.
+If used after an *-i* option, it sets the capture filter expression for
+the interface specified by the last *-i* option occurring before
+this option.  If the capture filter expression is not set specifically,
+the default capture filter expression is used if provided.
+
+Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture
+Filters, can be used by prefixing the argument with "predef:".
+Example: *tshark -f "predef:MyPredefinedHostOnlyFilter"*
+--
+
+-F  <file format>::
+Set the file format of the output capture file written using the *-w*
+option.  The output written with the *-w* option is raw packet data, not
+text, so there is no *-F* option to request text output.  The option *-F*
+without a value will list the available formats. The default is the
+*pcapng* format (unless the default has been changed in preferences.)
+.
+
+-g::
+This option causes the output file(s) to be created with group-read permission
+(meaning that the output file(s) can be read by other members of the calling
+user's group).
+
+-G  <report type>::
++
+--
+The *-G* option will cause *strato* to dump one of several types of glossaries
+and then exit.  The glossary type is now mandatory; previous versions generated
+the *fields* report by default when no type was given. With one exception, the
+reports reflect the current configuration, including that given by a *-C* option
+or as modified by other command line options.
+Using the report type of *help* lists all the current report types.
+
+The available report types include:
+
+*column-formats* Dumps the column formats understood by *strato*.
+There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: format string (e.g. "%rD")
+Field 2:: text description of format string (e.g. "Dest port (resolved)")
+Field 3:: field abbreviation used for the column text (e.g. "_ws.col.res_dst_port")
+
+This report is followed by a usage example that demonstrates how to change
+the columns by overriding the `gui.column.format` preference value with *-o*.
+
+*currentprefs*  Dumps a copy of the current preferences file to stdout.
+
+*decodes* Dumps the "layer type"/"decode as" associations to stdout.
+There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: layer type, e.g. "tcp.port"
+Field 2:: selector in decimal
+Field 3:: "decode as" name, e.g. "http"
+
+*defaultprefs*  Dumps a default preferences file to stdout. This report
+is unaffected by other command line arguments.
+
+*dissectors*  Dumps a list of registered dissectors to stdout.  There is
+one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: dissector name
+Field 2:: dissector description
+
+*dissector-tables*  Dumps a list of dissector tables to stdout.  There
+is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: dissector table name, e.g. "tcp.port"
+Field 2:: name used for the dissector table in the GUI
+Field 3:: type (textual representation of the ftenum type, or "heuristic")
+Field 4:: base for display (for integer types)
+Field 5:: protocol name
+Field 6:: "decode as" support (for non-heuristic tables)
+
+*elastic-mapping*[,__filter__]  Dumps the ElasticSearch mapping file to stdout. Fields
+falling in the default case (string) won't be mapped.
+
+__filter__ is an optional list of comma separated protocol filter names
+that limits the generated mapping file to the specified protocols,
+to avoid a huge mapping file that can choke some software (such as Kibana). E.g.,
+
+  tshark -G elastic-mapping,ip,udp,dns
+
+*enterprises* Dumps the IANA Private Enterprise Number (PEN) table.
+
+*fieldcount*  Dumps the number of header fields to stdout.
+
+*fields*[,__prefix__]  Dumps the contents of the registration database to
+stdout.  An independent program can take this output and format it into nice
+tables or HTML or whatever.  There is one record per line.  Each record is
+either a protocol or a header field, differentiated by the first field.
+The fields are tab-delimited.
+
+.Protocols
+[horizontal]
+Field 1:: 'P'
+Field 2:: descriptive protocol name
+Field 3:: protocol abbreviation
+
+.Header Fields
+[horizontal]
+Field 1:: 'F'
+Field 2:: descriptive field name
+Field 3:: field abbreviation
+Field 4:: type (textual representation of the ftenum type)
+Field 5:: parent protocol abbreviation
+Field 6:: base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
+Field 7:: bitmask: format: hex: 0x....
+Field 8:: blurb describing field
+
+An optional search prefix argument can be given to
+*fields*, in which case the output is limited to protocols and fields whose
+abbreviation starts with the search prefix.
+
+.Search Output
+[horizontal]
+Field 1:: protocol or field abbreviation
+Field 2:: descriptive protocol or field name
+
+*folders* Dumps various folders used by *strato*.  This is essentially the
+same data reported in Wireshark's About | Folders tab.
+There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: Folder type (e.g "Personal configuration:")
+Field 2:: Folder location (e.g. "/home/vagrant/.config/wireshark/")
+
+*ftypes* Dumps the "ftypes" (fundamental types) understood by *strato*.
+There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: FTYPE (e.g "FT_IPv6")
+Field 2:: text description of type (e.g. "IPv6 address")
+
+*heuristic-decodes* Dumps the heuristic decodes currently installed.
+There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: heuristic dissector table name (e.g. "tcp")
+Field 2:: name of heuristic decoder (e.g. "ucp")
+Field 3:: heuristic enabled (e.g. "T" or "F")
+Field 4:: heuristic enabled by default (e.g. "T" or "F")
+Field 5:: heuristic short name (e.g. "ucp_tcp")
+Field 6:: heuristic display name (e.g. "UCP over TCP")
+
+*help* Displays the available report types.
+
+*manuf* Dumps the MAC address lookup table in `manuf` format.
+
+*plugins* Dumps the plugins currently installed.
+There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: plugin library/Lua script/extcap executable (e.g. "gryphon.so")
+Field 2:: plugin version (e.g. 0.0.4)
+Field 3:: plugin type ("dissector", "tap", "file type", etc.)
+Field 4:: full path to plugin file
+
+*protocols* Dumps the protocols in the registration database to stdout.
+An independent program can take this output and format it into nice tables
+or HTML or whatever.  There is one record per line.  The fields are tab-delimited.
+
+[horizontal]
+Field 1:: protocol name
+Field 2:: protocol short name
+Field 3:: protocol filter name
+Field 4:: protocol enabled (e.g. "T" or "F")
+Field 5:: protocol enabled by default (e.g. "T" or "F")
+Field 6:: protocol can toggle (e.g. "T" or "F")
+
+*services* Dumps the TCP, UDP, and SCTP transport service (port) table.
+
+*values* Dumps the value_strings, range_strings or true/false strings
+for fields that have them.  There is one record per line.  Fields are
+tab-delimited.  There are three types of records: Value String, Range
+String and True/False String.  The first field, 'V', 'R' or 'T', indicates
+the type of record.
+
+.Value Strings
+[horizontal]
+Field 1:: 'V'
+Field 2:: field abbreviation to which this value string corresponds
+Field 3:: Integer value
+Field 4:: String
+
+.Range Strings
+[horizontal]
+Field 1:: 'R'
+Field 2:: field abbreviation to which this range string corresponds
+Field 3:: Integer value: lower bound
+Field 4:: Integer value: upper bound
+Field 5:: String
+
+.True/False Strings
+[horizontal]
+Field 1:: 'T'
+Field 2:: field abbreviation to which this true/false string corresponds
+Field 3:: True String
+Field 4:: False String
+--
+
+-h|--help::
+Print the version number and options and exit.
+
+-H  <input hosts file>::
++
+--
+Read a list of entries from a "hosts" file, which will then be written
+to a capture file.  Implies *-W n*. Can be called multiple times.
+
+The "hosts" file format is documented at
+https://en.wikipedia.org/wiki/Hosts_(file)[].
+--
+
+-i|--interface  <capture interface> | -::
++
+--
+Set the name of the network interface or pipe to use for live packet
+capture.
+
+Network interface names should match one of the names listed in "*tshark
+-D*" (described above); a number, as reported by "*tshark -D*", can also
+be used.
+
+If no interface is specified, *strato* searches the list of
+interfaces, choosing the first non-loopback interface if there are any
+non-loopback interfaces, and choosing the first loopback interface if
+there are no non-loopback interfaces.  If there are no interfaces at all,
+*strato* reports an error and doesn't start the capture.
+
+Pipe names should be either the name of a FIFO (named pipe) or "-" to
+read data from the standard input.  On Windows systems, pipe names must be
+of the form +"\\.\pipe\+*pipename*".  Data read from pipes must be in
+standard pcapng or pcap format. Pcapng data must have the same
+endianness as the capturing host.
+
+"TCP@<host>:<port>" causes *strato* to attempt to connect to the
+specified port on the specified host and read pcapng or pcap data.
+
+This option can occur multiple times. When capturing from multiple
+interfaces, the capture file will be saved in pcapng format.
+--
+
+-j  <protocol match filter>::
++
+--
+Protocol match filter used for ek|json|jsonraw|pdml output file types.
+Only the protocol's parent node is included. Child nodes are only
+included if explicitly specified in the filter.
+
+Example: *tshark -T json -j "ip ip.flags http"*
+--
+
+-J  <protocol match filter>::
++
+--
+Protocol top level filter used for ek|json|jsonraw|pdml output file types.
+The protocol's parent node and all child nodes are included.
+Lower-level protocols must be explicitly specified in the filter.
+
+Example: *tshark -T pdml -J "tcp http"*
+--
+
+-l::
++
+--
+Flush the standard output after the information for each packet is
+printed.  (This is not, strictly speaking, line-buffered if *-V*
+was specified; however, it is the same as line-buffered if *-V* wasn't
+specified, as only one line is printed for each packet, and, as *-l* is
+normally used when piping a live capture to a program or script, so that
+output for a packet shows up as soon as the packet is seen and
+dissected, it should work just as well as true line-buffering.  We do
+this as a workaround for a deficiency in the Microsoft Visual C++ C
+library.) This also sets *--update-interval* to 0 ms.
+
+This may be useful when piping the output of *strato* to another
+program, as it means that the program to which the output is piped will
+see the dissected data for a packet as soon as *strato* sees the
+packet and generates that output, rather than seeing it only when the
+standard output buffer containing that data fills up.
+--
+
+-L|--list-data-link-types::
+List the data link types supported by the interface and exit.  The reported
+link types can be used for the *-y* option.
+
+-o  <preference>:<value>::
++
+--
+Set a preference value, overriding the default value and any value read
+from a preference file.  The argument to the option is a string of the
+form __prefname:value__, where __prefname__ is the name of the
+preference (which is the same name that would appear in the preference
+file), and __value__ is the value to which it should be set.
+
+NOTE: *strato* does not save preferences, so use this for temporary changes
+for a single execution. To permanently set a preference, change it in the
+*Wireshark* GUI or edit the preference file directly, creating multiple
+configuration profiles if you need different preference sets for different
+occasions.
+--
+
+-O  <protocols>::
++
+--
+Similar to the *-V* option, but causes *strato* to only show a
+detailed view of the comma-separated list of __protocols__ specified, and
+show only the top-level detail line for all other protocols, rather than
+a detailed view of all protocols.  Use the output of "*tshark -G
+ protocols*" to find the abbreviations of the protocols you can specify.
+--
+
+-P|--print::
++
+--
+Decode and display the packet summary or details, even if writing raw
+packet data using the *-w* option, and even if packet output is
+otherwise suppressed with *-Q*.
+--
+
+-q::
++
+--
+When capturing packets, don't display the continuous count of packets
+captured that is normally shown when saving a capture to a file;
+instead, just display, at the end of the capture, a count of packets
+captured.  On systems that support the SIGINFO signal, such as various
+BSDs, you can cause the current count to be displayed by typing your
+"status" character (typically control-T, although it
+might be set to "disabled" by default on at least some BSDs, so you'd
+have to explicitly set it to use it).
+
+When reading a capture file, or when capturing and not saving to a file,
+don't print packet information; this is useful if you're using a *-z*
+option to calculate statistics and don't want the packet information
+printed, just the statistics.
+--
+
+-Q::
++
+--
+When capturing packets, don't display, on the standard error, the
+initial message indicating on which interfaces the capture is being
+done, the continuous count of packets captured shown when saving a
+capture to a file, and the final message giving the count of packets
+captured.  Only true errors are displayed on the standard error.
+
+This outputs less than the *-q* option, so the interface name and total
+packet count and the end of a capture are not sent to stderr.
+
+When reading a capture file, or when capturing and not saving to a file,
+don't print packet information; this is useful if you're using a *-z*
+option to calculate statistics and don't want the packet information
+printed, just the statistics.
+--
+
+-r|--read-file  <infile>::
++
+--
+Read packet data from __infile__, can be any supported capture file format
+(including compressed files).  It is possible to use named pipes or stdin (-)
+here but only with certain capture file formats (in particular: those that
+can be read without seeking backwards.)
+
+TIP: Reading a live capture from the standard out of another process through
+a pipe can circumvent restrictions that apply to *strato* during live capture,
+such as file formats or compression.
+--
+
+-R|--read-filter  <Read filter>::
++
+--
+Cause the specified filter (which uses the syntax of read/display filters,
+rather than that of capture filters) to be applied during the first pass of
+analysis. Packets not matching the filter are not considered for future
+passes. Only makes sense with multiple passes, see *-2*. For regular filtering
+on single-pass dissect see *-Y* instead.
+
+Note that forward-looking fields such as 'response in frame #' cannot be used
+with this filter, since they will not have been calculated when this filter is
+applied.
+--
+
+-s|--snapshot-length  <capture snaplen>::
++
+--
+Set the default snapshot length to use when capturing live data.
+No more than __snaplen__ bytes of each network packet will be read into
+memory, or saved to disk.  A value of 0 specifies a snapshot length of
+262144, so that the full packet is captured; this is the default.
+
+This option can occur multiple times.  If used before the first
+occurrence of the *-i* option, it sets the default snapshot length.
+If used after an *-i* option, it sets the snapshot length for
+the interface specified by the last *-i* option occurring before
+this option.  If the snapshot length is not set specifically,
+the default snapshot length is used if provided.
+--
+
+-S  <separator>::
+Set the line separator to be printed between packets.
+
+-T  ek|fields|json|jsonraw|pdml|ps|psml|tabs|text::
++
+--
+Set the format of the output when viewing decoded packet data.  The
+options are one of:
+
+*ek* Newline delimited JSON format for bulk import into Elasticsearch.
+It can be used with *-j* or *-J* to specify
+which protocols to include or with
+*-x* to include raw hex-encoded packet data.
+If *-P* is specified it will print the packet summary only, with both
+*-P* and *-V* it will print the packet summary and packet details.
+If neither *-P* or *-V* are used it will print the packet details only.
+Example of usage to import data into Elasticsearch:
+
+  tshark -T ek -j "http tcp ip" -P -V -x -r file.pcap > file.json
+  curl -H "Content-Type: application/x-ndjson" -XPOST http://elasticsearch:9200/_bulk --data-binary "@file.json"
+
+Elastic requires a mapping file to be loaded as template for packets-*
+index in order to convert Wireshark types to elastic types. This file
+can be auto-generated with the command "tshark -G elastic-mapping". Since
+the mapping file can be huge, protocols can be selected by using the option
+--elastic-mapping-filter:
+
+  tshark -G elastic-mapping --elastic-mapping-filter ip,udp,dns
+
+or adding the filter directly to the *-G elastic-mapping* option:
+
+  tshark -G elastic-mapping,ip,udp,dns
+
+*fields* The values of fields specified with the *-e* option, in a
+form specified by the *-E* option.  For example,
+
+  tshark -T fields -E separator=, -E quote=d
+
+would generate comma-separated values (CSV) output suitable for importing
+into your favorite spreadsheet program.
+
+*json* JSON file format.  It can be used with *-j* or *-J* to specify
+which protocols to include or with *-x* option to include
+raw hex-encoded packet data.  Example of usage:
+
+  tshark -T json -r file.pcap
+  tshark -T json -j "http tcp ip" -x -r file.pcap
+
+*jsonraw* JSON file format including only raw hex-encoded packet data.
+It can be used with *-j* or *-J* to specify which protocols to include.
+Example of usage:
+
+  tshark -T jsonraw -r file.pcap
+  tshark -T jsonraw -j "http tcp ip" -x -r file.pcap
+
+*pdml* Packet Details Markup Language, an XML-based format for the
+details of a decoded packet.  This information is equivalent to the
+packet details printed with the *-V* option.  Using the *--color* option
+will add color attributes to *pdml* output.  These attributes are
+nonstandard.
+
+*ps* PostScript for a human-readable one-line summary of each of the
+packets, or a multi-line view of the details of each of the packets,
+depending on whether the *-V* option was specified.
+
+*psml* Packet Summary Markup Language, an XML-based format for the summary
+information of a decoded packet.  This information is equivalent to the
+information shown in the one-line summary printed by default.
+Using the *--color* option will add color attributes to *pdml* output. These
+attributes are nonstandard.
+
+*tabs* Similar to the default *text* report except the human-readable one-line
+summary of each packet will include an ASCII horizontal tab (0x09) character
+as a delimiter between each column.
+
+*text* Text of a human-readable one-line summary of each of the packets, or a
+multi-line view of the details of each of the packets, depending on
+whether the *-V* option was specified.  This is the default.
+--
+
+--temp-dir <directory>::
++
+--
+Specifies the directory into which temporary files (including capture
+files) are to be written.  The default behavior on UNIX-compatible systems,
+such as Linux, macOS, \*BSD, Solaris, and AIX, is to use the environment
+variable __$TMPDIR__ if set, and the system default, typically __/tmp__, if it
+is not.  On Windows, the __%TEMP%__ environment variable is used, which
+typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
+--
+
+-U <tap name>::
++
+--
+PDUs export, exports PDUs from infile to outfile according to the tap
+name given. Use *-Y* to filter.
+
+Enter an empty tap name "" or a tap name of ? to get a list of available
+names.
+--
+
+-v|--version::
+Print the full version information and exit.
+
+-V::
+Cause *strato* to print a view of the packet details.
+
+-w  <outfile> | -::
++
+--
+Write raw packet data to __outfile__ or to the standard output if
+__outfile__ is '-'. The *-F* and *--compress* options can be used
+to control the file format and compression method. If the latter is
+not given, then the extension may be used to deduce the desired
+compression algorithm, if supported, e.g. a gzip archive for '.gz'.
+
+NOTE: *-w* provides raw packet data, not text.  If you want text output
+you need to redirect stdout (e.g. using '>'), don't use the *-w*
+option for this.
+--
+
+-W  <file format option>::
++
+--
+Save extra information in the file if the format supports it.  For
+example,
+
+  tshark -F pcapng -W n
+
+will save host name resolution records along with captured packets.
+
+Future versions of *strato* may automatically change the capture format
+to *pcapng* as needed.
+
+The argument is a string that may contain the following letter:
+
+*n* write network address resolution information (pcapng only)
+--
+
+-x::
+Cause *strato* to print a hex and ASCII dump of the packet data
+after printing the summary and/or details, if either are also being displayed.
+
+--hexdump <hexoption>::
++
+--
+Cause *strato* to print a hex and ASCII dump of the packet data
+with the ability to select which data sources to dump, how to
+format or exclude the ASCII dump text, and whether to print the
+frame timestamp as preamble.
+
+This option (and *-x*) can occur multiple times on the command line,
+and the hex dump will only be printed once. In the case of conflicting
+options, the last options given will be used. The possible *<hexoption>*
+values are:
+
+*all*::
+
+Enable hexdump, generate hexdump blocks for all data sources associated
+with each frame. Used to negate earlier use of `--hexdump frames`.
+The *-x* option displays all data sources by default.
+
+*frames*::
+
+Enable hexdump, generate hexdump blocks only for the frame data. Use
+this option to exclude from hexdump output any hexdump blocks for
+secondary data sources such as 'Bitstring tvb', 'Reassembled TCP',
+'De-chunked entity body', etc.
+
+*ascii*::
+
+Enable hexdump, with undelimited ASCII dump text. Used to negate earlier
+use of `--hexdump delimit` or `--hexdump noascii`. The *-x* option
+displays undelimited ASCII dump text by default.
+
+*delimit*::
+
+Enable hexdump with the ASCII dump text delimited with '|' characters.
+This is useful to unambiguously determine the last of the hex byte text
+and start of the ASCII dump text.
+
+*noascii*::
+
+Enable hexdump without printing any ASCII dump text.
+
+*time*::
+
+Enable hexdump and print each frame timestamp as preamble. The *-t*
+option can be used to change the timestamp format.
+
+*notime*::
+
+Enable hexdump without print each frame timestamp as preamble.
+
+*help*::
+
+Display *--hexdump* specific help then exit.
+
+The use of *--hexdump <hexoption>* is particularly useful to generate output
+that can be used to create a pcap or pcapng file from a capture file type such
+as Microsoft NetMon 2.x which *strato* and *Wireshark* can read but can not
+directly do a "Save as" nor export packets from.
+
+Examples:
+
+Generate hexdump output, with only the frame data source, with delimited ASCII
+dump text, and with each frame hex block preceded by a human readable timestamp
+in the local time zone that is directly usable by the *text2pcap* utility:
+
+  tshark ... --hexdump frames --hexdump delimit --hexdump time -t ad \
+      | text2pcap -t 'ISO' - MYNEWPCAPNG
+
+Generate hexdump output, with only the frame data source, with the default
+ASCII dump text with no delimiter, and with each frame hex block preceded by a
+human readable timestamp in UTC that is directly usable by the *text2pcap*
+utility with the *-a* option:
+
+  tshark ... --hexdump frames --hexdump time -t ud \
+      | text2pcap -a -t 'ISO' - MYNEWPCAPNG
+
+Generate hexdump output, with only the frame data source, with no ASCII dump
+text, and with each frame hex block preceded by an epoch timestamp that is
+directly usable by the *text2pcap* utility:
+
+  tshark ... --hexdump frames --hexdump noascii --hexdump time -t e \
+      | text2pcap -t %s.%f - MYNEWPCAPNG
+--
+
+-X <eXtension options>::
++
+--
+Specify an option to be passed to a *strato* module.  The eXtension option
+is in the form __extension_key:value__, where __extension_key__ can be:
+
+*lua_script*:__lua_script_filename__ tells *strato* to load the given script in
+addition to the default Lua scripts.
+
+**lua_script**__num__:__argument__ tells *strato* to pass the given argument
+to the lua script identified by 'num', which is the number indexed order of the
+'lua_script' command. For example, if only one script was loaded with
+'-X lua_script:my.lua', then '-X lua_script1:foo' will pass the string 'foo' to
+the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua'
+and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would
+pass the string 'bar' to the second lua script, namely 'other.lua'.
+
+*read_format*:__file_format__ tells *strato* to use the given file format to
+read in the file (the file given in the *-r* command option). Providing no
+__file_format__ argument, or an invalid one, will produce a list of available
+file formats to use. For example,
+
+  tshark -r rtcp_broken.pcapng -X read_format:"MIME Files Format" -V
+
+will display the internal file structure  and allow access to the
+`file-pcapng` fields.
+--
+
+////
+-y|--linktype  <capture link type>::
++
+--
+Set the data link type to use while capturing packets.  The values
+reported by *-L* are the values that can be used.
+
+This option can occur multiple times.  If used before the first
+occurrence of the *-i* option, it sets the default capture link type.
+If used after an *-i* option, it sets the capture link type for
+the interface specified by the last *-i* option occurring before
+this option.  If the capture link type is not set specifically,
+the default capture link type is used if provided.
+--
+////
+
+-Y|--display-filter  <displaY filter>::
++
+--
+Cause the specified filter (which uses the syntax of read/display filters,
+rather than that of capture filters) to be applied before printing a
+decoded form of packets or writing packets to a file.  Packets matching the
+filter are printed or written to file; packets that the matching packets
+depend upon (e.g., fragments), are not printed but are written to file;
+packets not matching the filter nor depended upon are discarded rather
+than being printed or written.
+
+Use this instead of *-R* for filtering using single-pass analysis. If doing
+two-pass analysis (see *-2*) then only packets matching the read filter (if there
+is one) will be checked against this filter.
+--
+
+-M  <auto session reset>::
++
+--
+Automatically reset internal session when reached to specified number of packets.
+For example,
+
+    tshark -M 100000
+
+will reset session every 100000 packets.
+
+This feature does not support *-2* two-pass analysis
+--
+
+-z  <statistics>::
++
+--
+Get *strato* to collect various types of statistics and display the
+result after finishing reading the capture file.  Use the *-q* option
+if you're reading a capture file and only want the statistics printed,
+not any per-packet information.
+
+Statistics are calculated independently of the normal per-packet output,
+unaffected by the main display filter. However, most have their own
+optional __filter__ parameter, and only packets that match that filter (and
+any capture filter or read filter) will be used in the calculations.
+
+Note that the *-z proto* option is different - it doesn't cause
+statistics to be gathered and printed when the capture is complete, it
+modifies the regular packet summary output to include the values of
+fields specified with the option.  Therefore you must not use the *-q*
+option, as that option would suppress the printing of the regular packet
+summary output, and must also not use the *-V* option, as that would
+cause packet detail information rather than packet summary information
+to be printed.
+
+Some of the currently implemented statistics are:
+--
+
+*-z help*::
+Display all possible values for *-z*.
+
+*-z* container_io,tree[,__filter__]::
+Calculate I/O statistics for containers and individual processes.
+
+////
+*-z* conv,__type__[,__filter__]::
++
+--
+Create a table that lists all conversations that could be seen in the
+capture.  __type__ specifies the conversation endpoint type for which we
+want to generate the statistics; currently the supported ones are:
+
+  "bluetooth"  Bluetooth addresses
+  "bpv7"       Bundle Protocol Version 7 addresses
+  "dccp"       DCCP/IP socket pairs Both IPv4 and IPv6 are supported
+  "dnp3"       DNP3 addresses
+  "eth"        Ethernet addresses
+  "fc"         Fibre Channel addresses
+  "fddi"       FDDI addresses
+  "ip"         IPv4 addresses
+  "ipv6"       IPv6 addresses
+  "ipx"        IPX addresses
+  "jxta"       JXTA message addresses
+  "ltp"        LTP addresses
+  "mptcp"      Multipath TCP connections
+  "ncp"        NCP connections
+  "openSAFETY" openSAFETY addresses
+  "rsvp"       RSVP connections
+  "sctp"       SCTP/IP socket pairs Both IPv4 and IPv6 are supported
+  "sll"        Linux "cooked mode" capture addresses
+  "tcp"        TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"         Token Ring addresses
+  "udp"        UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"        USB addresses
+  "wlan"       IEEE 802.11 addresses
+  "wpan"       IEEE 802.15.4 addresses
+  "zbee_nwk"   ZigBee Network Layer addresses
+
+The table is presented with one line for each conversation which displays
+the number of frames/bytes in each direction, the total number of
+frames/bytes, relative start time and duration.
+The table is sorted according to the total number of frames.
+--
+
+*-z* endpoints,__type__[,__filter__]::
++
+--
+Create a table that lists all endpoints that could be seen in the
+capture.  __type__ specifies the endpoint type for which we
+want to generate the statistics; currently the supported ones are:
+
+  "bluetooth"  Bluetooth addresses
+  "bpv7"       Bundle Protocol Version 7 addresses
+  "dccp"       DCCP/IP socket pairs Both IPv4 and IPv6 are supported
+  "dnp3"       DNP3 addresses
+  "eth"        Ethernet addresses
+  "fc"         Fibre Channel addresses
+  "fddi"       FDDI addresses
+  "ip"         IPv4 addresses
+  "ipv6"       IPv6 addresses
+  "ipx"        IPX addresses
+  "jxta"       JXTA message addresses
+  "ltp"        LTP addresses
+  "mptcp"      Multipath TCP connections
+  "ncp"        NCP connections
+  "openSAFETY" openSAFETY addresses
+  "rsvp"       RSVP connections
+  "sctp"       SCTP/IP socket pairs Both IPv4 and IPv6 are supported
+  "sll"        Linux "cooked mode" capture addresses
+  "tcp"        TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"         Token Ring addresses
+  "udp"        UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"        USB addresses
+  "wlan"       IEEE 802.11 addresses
+  "wpan"       IEEE 802.15.4 addresses
+  "zbee_nwk"   ZigBee Network Layer addresses
+
+The table is presented with one line for each endpoint which displays
+the total number of packets/bytes and the number of packets/bytes in
+each direction.
+The table is sorted according to the total number of packets.
+--
+////
+
+
+*-z* expert[__,error|,warn|,note|,chat|,comment__][,__filter__]::
++
+--
+Collects information about all expert info, and will display them in order,
+grouped by severity.
+
+Example: *-z expert,sip* will show expert items of all severity for frames that
+match the sip protocol.
+
+This option can be used multiple times on the command line.
+
+Example: *-z "expert,note,tcp"* will only collect expert items for frames that
+include the tcp protocol, with a severity of note or higher.
+--
+
+////
+
+*-z* follow,__prot__,__mode__,__filter__[,__range__]::
++
+--
+Displays the contents of a TCP or UDP stream between two nodes. The data
+sent by the second node is prefixed with a tab to differentiate it from the
+data sent by the first node.
+
+__prot__ specifies the transport protocol.  It can be one of:
+
+  tcp   TCP
+  udp   UDP
+  dccp  DCCP
+  tls   TLS or SSL
+  http  HTTP streams
+  http2 HTTP/2 streams
+  quic  QUIC streams
+  mp2t  MPEG-2 TS PIDs
+  mpeg-pes MPEG-2 Packetized Element Stream
+
+NOTE: While the usage help presents sip as an option, the proper
+stream filters are not implemented so SIP calls cannot be followed
+in *strato*, only in *Wireshark*.
+
+__mode__ specifies the output mode.  It can be one of:
+
+  ascii  ASCII output with dots for non-printable characters
+  ebcdic EBCDIC output with dots for non-printable characters
+  hex    Hexadecimal and ASCII data with offsets
+  raw    Hexadecimal data
+  utf-8  UTF-8 output with REPLACEMENT CHARACTERs for invalid sequences
+  yaml   YAML format
+
+Since the output in *ascii*, *ebcdic*, or *utf-8* mode may contain newlines,
+each section of output is preceded by its length in bytes plus a newline.
+(Note that for *utf-8* this is not UTF-8 characters, and may be different
+than the length as transmitted due to the substitution of replacement
+characters for invalid sequences.)
+
+__filter__ specifies the stream to be displayed. There are three formats:
+
+  ip-addr0:port0,ip-addr1:port1
+  stream-index
+  stream-index,substream-index
+
+The first format specifies IP addresses and TCP, UDP, or DCCP port pairs.
+(TCP ports are used for TLS, HTTP, and HTTP2; UDP ports are used for QUIC,
+MP2T, and MPEG-PS.) Note that this format will include all streams multiplexed
+on the same address and port 5-tuple for transports with substreams such
+as HTTP/2, QUIC, and MP2T. In addition, for QUIC this format will include
+all connections sharing the same 5-tuple, and will not follow connection
+migration.
+
+The second format specifies stream indices, and is used for TCP, UDP, DCCP,
+TLS, and HTTP. (TLS and HTTP use TCP stream indices.)
+
+The third format, specifying streams and substreams, is used for HTTP/2,
+QUIC, MP2T, and MPEG-PES due to their use of multiplexing. (TCP stream and
+HTTP/2 stream indices for HTTP/2, QUIC connection number and stream ID for
+QUIC, MP2T stream and PID for MP2T and MPEG-PS.)
+
+__range__ optionally specifies which "chunks" of the stream should be displayed.
+
+Example: *-z "follow,tcp,hex,1"* will display the contents of the second TCP
+stream (the first is stream 0) in "hex" format.
+
+  ===================================================================
+  Follow: tcp,hex
+  Filter: tcp.stream eq 1
+  Node 0: 200.57.7.197:32891
+  Node 1: 200.57.7.198:2906
+  00000000  00 00 00 22 00 00 00 07  00 0a 85 02 07 e9 00 02  ...".... ........
+  00000010  07 e9 06 0f 00 0d 00 04  00 00 00 01 00 03 00 06  ........ ........
+  00000020  1f 00 06 04 00 00                                 ......
+  00000000  00 01 00 00                                       ....
+  00000026  00 02 00 00
+
+Example: *-z "follow,tcp,ascii,200.57.7.197:32891,200.57.7.198:2906"* will
+display the contents of a TCP stream between 200.57.7.197 port 32891 and
+200.57.7.98 port 2906.
+
+  ===================================================================
+  Follow: tcp,ascii
+  Filter: (omitted for readability)
+  Node 0: 200.57.7.197:32891
+  Node 1: 200.57.7.198:2906
+  38
+  ...".....
+  ................
+  4
+  ....
+
+Example: *-z "follow,http2,hex,0,1"* will display the contents of a HTTP/2
+stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
+
+  ===================================================================
+  Follow: http2,hex
+  Filter: tcp.stream eq 0 and http2.streamid eq 1
+  Node 0: 172.16.5.1:49178
+  Node 1: 172.16.5.10:8443
+  00000000  00 00 2c 01 05 00 00 00  01 82 04 8b 63 c1 ac 2a  ..,..... ....c..*
+  00000010  27 1d 9d 57 ae a9 bf 87  41 8c 0b a2 5c 2e 2e da  '..W.... A...\...
+  00000020  e1 05 c7 9a 69 9f 7a 88  25 b6 50 c3 ab b6 25 c3  ....i.z. %.P...%.
+  00000030  53 03 2a 2f 2a                                    S.*/*
+      00000000  00 00 22 01 04 00 00 00  01 88 5f 87 35 23 98 ac  .."..... .._.5#..
+      00000010  57 54 df 61 96 c3 61 be  94 03 8a 61 2c 6a 08 2f  WT.a..a. ...a,j./
+      00000020  34 a0 5b b8 21 5c 0b ea  62 d1 bf                 4.[.!\.. b..
+      0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
+
+--
+
+
+*-z* io,phs[,__filter__]::
++
+--
+Create Protocol Hierarchy Statistics listing both number of packets and bytes.
+
+This option can be used multiple times on the command line.
+--
+
+*-z* io,stat,__interval__[,__filter__][,__filter__][,__filter__]...::
++
+--
+Collect packet/bytes statistics for the capture in intervals of
+__interval__ seconds.  __Interval__ can be specified either as a whole or
+fractional second and can be specified with microsecond (us) resolution.
+If __interval__ is 0, the statistics will be calculated over all packets.
+
+If one or more __filters__ are specified statistics will be calculated for
+all filters and presented with one column of statistics for each filter.
+
+This option can be used multiple times on the command line.
+
+Example: *-z io,stat,1,ip.addr==1.2.3.4* will generate 1 second
+statistics for all traffic to/from host 1.2.3.4.
+
+Example: *-z "io,stat,0.001,smb&&ip.addr==1.2.3.4"* will generate 1ms
+statistics for all SMB packets to/from host 1.2.3.4.
+
+The examples above all use the standard syntax for generating statistics
+which only calculates the number of packets and bytes in each interval.
+
+*io,stat* can also do much more statistics and calculate COUNT(), SUM(),
+MIN(), MAX(), AVG() and LOAD() using a slightly different filter syntax:
+--
+
+-z io,stat,__interval__,"COUNT|SUM|MIN|MAX|AVG|LOAD(__field__)__filter__"::
++
+--
+NOTE: One important thing to note here is that the filter is not optional
+and that the field that the calculation is based on MUST be part of the filter
+string or the calculation will fail.
+
+So: *-z io,stat,0.010,AVG(smb.time)* does not work.  Use *-z
+ io,stat,0.010,AVG(smb.time)smb.time* instead.  Also be aware that a field
+can exist multiple times inside the same packet and will then be counted
+multiple times in those packets.
+
+NOTE: A second important thing to note is that the system setting for
+decimal separator must be set to "."! If it is set to "," the statistics
+will not be displayed per filter.
+
+**COUNT** - Calculates the number of times that the
+field __name__ (not its value) appears per interval in the filtered packet list.
+''__field__'' can be any display filter name.
+
+Example: *-z io,stat,0.010,"COUNT(smb.sid)smb.sid"*
+
+This will count the total number of SIDs seen in each 10ms interval.
+
+**SUM** - Unlike COUNT, the __values__ of the
+specified field are summed per time interval.
+''__field__'' can only be a named integer, float, double or relative time field.
+
+Example: *tshark -z io,stat,0.010,"SUM(frame.len)frame.len"*
+
+Reports the total number of bytes that were transmitted bidirectionally in
+all the packets within a 10 millisecond interval.
+
+**MIN/MAX/AVG** - The minimum, maximum, or average field value
+in each interval is calculated.  The specified field must be a named integer,
+float, double or relative time field.  For relative time fields, the output is
+presented in seconds with six decimal digits of precision rounded to the nearest
+microsecond.
+
+In the following example, the time of the first Read_AndX call, the last Read_AndX
+response values are displayed and the minimum, maximum, and average Read response times
+(SRTs) are calculated.  NOTE: If the DOS command shell line continuation character, ''^''
+is used, each line cannot end in a comma so it is placed at the beginning of each
+continuation line:
+
+  tshark -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,
+  "MIN(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==0",
+  "MAX(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==1",
+  "MIN(smb.time)smb.time and smb.cmd==0x2e",
+  "MAX(smb.time)smb.time and smb.cmd==0x2e",
+  "AVG(smb.time)smb.time and smb.cmd==0x2e"
+
+  ======================================================================================================
+  IO Statistics
+  Column #0: MIN(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==0
+  Column #1: MAX(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==1
+  Column #2: MIN(smb.time)smb.time and smb.cmd==0x2e
+  Column #3: MAX(smb.time)smb.time and smb.cmd==0x2e
+  Column #4: AVG(smb.time)smb.time and smb.cmd==0x2e
+                  |    Column #0   |    Column #1   |    Column #2   |    Column #3   |    Column #4   |
+  Time            |       MIN      |       MAX      |       MIN      |       MAX      |       AVG      |
+  000.000-                 0.000000         7.704054         0.000072         0.005539         0.000295
+  ======================================================================================================
+
+The following command displays the average SMB Read response PDU size, the
+total number of read PDU bytes, the average SMB Write request PDU size, and
+the total number of bytes transferred in SMB Write PDUs:
+
+  tshark -n -q -r smb_reads_writes.cap -z io,stat,0,
+  "AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to",
+  "SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to",
+  "AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to",
+  "SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to"
+
+  =====================================================================================
+  IO Statistics
+  Column #0: AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to
+  Column #1: SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to
+  Column #2: AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to
+  Column #3: SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to
+                  |    Column #0   |    Column #1   |    Column #2   |    Column #3   |
+  Time            |       AVG      |       SUM      |       AVG      |       SUM      |
+  000.000-                    30018         28067522               72             3240
+  =====================================================================================
+
+**LOAD** - The LOAD/Queue-Depth
+in each interval is calculated.  The specified field must be a relative time field that represents a response time.  For example smb.time.
+For each interval the Queue-Depth for the specified protocol is calculated.
+
+The following command displays the average SMB LOAD.
+A value of 1.0 represents one I/O in flight.
+
+  tshark -n -q -r smb_reads_writes.cap
+  -z "io,stat,0.001,LOAD(smb.time)smb.time"
+
+  ============================================================================
+  IO Statistics
+  Interval:   0.001000 secs
+  Column #0: LOAD(smb.time)smb.time
+                          |    Column #0   |
+  Time                    |       LOAD     |
+  0000.000000-0000.001000         1.000000
+  0000.001000-0000.002000         0.741000
+  0000.002000-0000.003000         0.000000
+  0000.003000-0000.004000         1.000000
+
+**FRAMES | BYTES**[()__filter__] - Displays the total number of frames or bytes.
+The filter field is optional but if included it must be prepended with ''()''.
+
+The following command displays five columns: the total number of frames and bytes
+(transferred bidirectionally) using a single comma, the same two stats using the FRAMES and BYTES
+subcommands, the total number of frames containing at least one SMB Read response, and
+the total number of bytes transmitted to the client (unidirectionally) at IP address 10.1.0.64.
+
+  tshark -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,,FRAMES,BYTES,
+  "FRAMES()smb.cmd==0x2e and smb.response_to","BYTES()ip.dst==10.1.0.64"
+
+  =======================================================================================================================
+  IO Statistics
+  Column #0:
+  Column #1: FRAMES
+  Column #2: BYTES
+  Column #3: FRAMES()smb.cmd==0x2e and smb.response_to
+  Column #4: BYTES()ip.dst==10.1.0.64
+                  |            Column #0            |    Column #1   |    Column #2   |    Column #3   |    Column #4   |
+  Time            |     Frames     |      Bytes     |     FRAMES     |     BYTES      |     FRAMES     |     BYTES      |
+  000.000-                    33576         29721685            33576         29721685              870         29004801
+  =======================================================================================================================
+--
+
+--capture-comment <comment>::
++
+--
+Add a capture comment to the output file, if supported by the output
+file format.
+
+This option may be specified multiple times.  Note that Wireshark
+currently only displays the first comment of a capture file.
+--
+
+--list-time-stamp-types::
+List time stamp types supported for the interface. If no time stamp type can be
+set, no time stamp types are listed.
+
+--time-stamp-type <type>::
+Change the interface's timestamp method.
+
+--update-interval  <interval>::
+Set the length of time in milliseconds between new packet reports during
+a capture. Also sets the granularity of file duration conditions.
+The default value is 100ms.
+
+--color::
+Enable coloring of packets according to standard Wireshark color
+filters. On Windows colors are limited to the standard console
+character attribute colors. Other platforms require a terminal that
+handles 24-bit "true color" terminal escape sequences. See
+{wireshark-wiki-url}ColoringRules for more information on
+configuring color filters.
+
+--no-duplicate-keys::
+If a key appears multiple times in an object, only write it a single time with
+as value a json array containing all the separate values. (Only works with
+*-T json*)
+
+--elastic-mapping-filter <protocol>,<protocol>,...::
++
+--
+When generating the ElasticSearch mapping file, only put the specified protocols
+in it, to avoid a huge mapping file that can choke some software (such as Kibana).
+The option takes a list of wanted protocol abbreviations, separated by comma.
+
+Example: ip,udp,dns puts only those three protocols in the mapping file.
+--
+
+--export-objects <protocol>,<destdir>::
++
+--
+Export all objects within a protocol into directory *destdir*. The available
+values for *protocol* can be listed with *--export-objects help*.
+
+The objects are directly saved in the given directory. Filenames are dependent
+on the dissector, but typically it is named after the basename of a file.
+Duplicate files are not overwritten, instead an increasing number is appended
+before the file extension.
+
+This interface is subject to change, adding the possibility to filter on files.
+--
+
+--print-timers::
+Output JSON containing elapsed times for each pass tshark does to process a capture
+file and the sum elapsed time for all passes. The per-pass output contains the total
+elapsed time and aggregate counters for per-packet operations (dissection and filtering).
+
+--compress <type>::
++
+--
+Compress the output file using the type compression format.
+*--compress* with no argument provides a list of the compression formats supported
+for writing. The type given takes precedence over the extension of __outfile__.
+
+////
+The --compress-type option is not documented anywhere; it works with live
+captures only.
+
+Should we document it? Deprecate it in favor of also using compress?
+////
+--
+
+include::dissection-options.adoc[tags=**;!not_tshark]
+
+include::diagnostic-options.adoc[]
+
+////
+== CAPTURE FILTER SYNTAX
+
+See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist, xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8),
+or, if that doesn't exist, {wireshark-wiki-url}CaptureFilters.
+////
+
+////
+== READ FILTER SYNTAX
+
+For a complete table of protocol and protocol fields that are filterable
+in *strato* see the xref:wireshark-filter.html[wireshark-filter](4) manual page.
+////
+
+include::files.adoc[tags=**;!gui]
+
+== OUTPUT
+
+*strato* uses UTF-8 to represent strings internally. In some cases the
+output might not be valid. For example, a dissector might generate
+invalid UTF-8 character sequences. Programs reading *strato* output
+should expect UTF-8 and be prepared for invalid output.
+
+If *strato* detects that it is writing to a TTY on a UNIX-compatible
+system, such as Linux, macOS, \*BSD, Solaris, and AIX, and the locale
+does not support UTF-8, output will be re-encoded to match the current
+locale.
+
+If *strato* detects that it is writing to the console on Windows,
+dissection output will be encoded as UTF-16LE. Other output will be
+UTF-8. If extended characters don't display properly in your terminal
+you might try setting your console code page to UTF-8 (*chcp 65001*)
+and using a modern terminal application if possible.
+
+== ENVIRONMENT VARIABLES
+
+// Should this be moved to an include file?
+
+WIRESHARK_CONFIG_DIR::
+This environment variable overrides the location of personal
+configuration files.  On UNIX-compatible systems, such as Linux, macOS,
+\*BSD, Solaris, and AIX, it defaults to __$XDG_CONFIG_HOME/wireshark__
+(or, if that directory doesn't exist but __$HOME/.wireshark__ does
+exist, __$HOME/.wireshark__); this is typically
+__$HOME/.config/wireshark__.  On Windows, it defaults to
+__%APPDATA%\Wireshark__ (or, if %APPDATA% isn't defined,
+__%USERPROFILE%\Application Data\Wireshark__).  Available since
+Wireshark 3.0.
+
+WIRESHARK_DEBUG_WMEM_OVERRIDE::
+Setting this environment variable forces the wmem framework to use the
+specified allocator backend for *all* allocations, regardless of which
+backend is normally specified by the code. This is mainly useful to developers
+when testing or debugging. See __README.wmem__ in the source distribution for
+details.
+
+WIRESHARK_RUN_FROM_BUILD_DIRECTORY::
+This environment variable causes the plugins and other data files to be
+loaded from the build directory (where the program was compiled) rather
+than from the standard locations.  It has no effect when the program in
+question is running with root (or setuid) permissions on UNIX-compatible
+systems, such as Linux, macOS, \*BSD, Solaris, and AIX.
+
+WIRESHARK_DATA_DIR::
+This environment variable causes the various data files to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
+
+WIRESHARK_EXTCAP_DIR::
+This environment variable causes the various extcap programs and scripts
+to be run from a directory other than the standard locations.  It has no
+effect when the program in question is running with root (or setuid)
+permissions on UNIX-compatible systems.
+
+WIRESHARK_PLUGIN_DIR::
+This environment variable causes the various plugins to be loaded from
+a directory other than the standard locations.  It has no effect when the
+program in question is running with root (or setuid) permissions on
+UNIX-compatible systems.
+
+ERF_RECORDS_TO_CHECK::
+This environment variable controls the number of ERF records checked when
+deciding if a file really is in the ERF format.  Setting this environment
+variable a number higher than the default (20) would make false positives
+less likely.
+
+IPFIX_RECORDS_TO_CHECK::
+This environment variable controls the number of IPFIX records checked when
+deciding if a file really is in the IPFIX format.  Setting this environment
+variable a number higher than the default (20) would make false positives
+less likely.
+
+WIRESHARK_ABORT_ON_DISSECTOR_BUG::
+If this environment variable is set, *strato* will call abort(3)
+when a dissector bug is encountered.  abort(3) will cause the program to
+exit abnormally; if you are running *strato* in a debugger, it
+should halt in the debugger and allow inspection of the process, and, if
+you are not running it in a debugger, it will, on some OSes, assuming
+your environment is configured correctly, generate a core dump file.
+This can be useful to developers attempting to troubleshoot a problem
+with a protocol dissector.
+
+WIRESHARK_ABORT_ON_TOO_MANY_ITEMS::
+If this environment variable is set, *strato* will call abort(3)
+if a dissector tries to add too many items to a tree (generally this
+is an indication of the dissector not breaking out of a loop soon enough).
+abort(3) will cause the program to exit abnormally; if you are running
+*strato* in a debugger, it should halt in the debugger and allow
+inspection of the process, and, if you are not running it in a debugger,
+it will, on some OSes, assuming your environment is configured correctly,
+generate a core dump file.  This can be useful to developers attempting to
+troubleshoot a problem with a protocol dissector.
+
+WIRESHARK_LOG_LEVEL::
+This environment variable controls the verbosity of diagnostic messages to
+the console. From less verbose to most verbose levels can be `critical`,
+`warning`, `message`, `info`, `debug` or `noisy`. Levels above the
+current level are also active. Levels `critical` and `error` are always
+active.
+
+WIRESHARK_LOG_FATAL::
+Sets the fatal log level. Fatal log levels cause the program to abort.
+This level can be set to `Error`, `critical` or `warning`. `Error` is
+always fatal and is the default.
+
+WIRESHARK_LOG_DOMAINS::
+This environment variable selects which log domains are active. The filter is
+given as a case-insensitive comma separated list. If set only the included
+domains will be enabled. The default domain is always considered to be enabled.
+Domain filter lists can be preceded by '!' to invert the sense of the match.
+
+WIRESHARK_LOG_DEBUG::
+List of domains with `debug` log level. This sets the level of the provided
+log domains and takes precedence over the active domains filter. If preceded
+by '!' this disables the `debug` level instead.
+
+WIRESHARK_LOG_NOISY::
+Same as above but for `noisy` log level instead.
+
+== SEE ALSO
+
+xref:wireshark-filter.html[wireshark-filter](4), xref:stratoshark.html[stratoshark](1), xref:editcap.html[editcap](1), xref:dumpcap.html[dumpcap](1)
+
+== NOTES
+
+This is the manual page for *strato* {stratoshark-version}.
+*strato* is part of the *Stratoshark* distribution.
+The latest version of *Stratoshark* can be found at {stratoshark-main-url}.
+
+HTML versions of the Wireshark project man pages are available at
+https://www.wireshark.org/docs/man-pages.
+
+== AUTHORS
+
+*strato* uses the same dissection code as *Stratoshark* and *Wireshark*,
+as well as using many other modules from *Stratoshark* and *Wireshark*; see the list of
+authors in the *Wireshark* man page for a list of authors of that code.

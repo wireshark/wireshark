@@ -2217,6 +2217,18 @@ set(TSHARK_TAP_SRC
 
 )
 
+set(STRATO_TAP_SRC
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-endpoints.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-exportobject.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-funnel.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-iousers.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-rtd.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-simple_stattable.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-stats_tree.c
+	${CMAKE_SOURCE_DIR}/ui/cli/tap-srt.c
+	${CUSTOM_STRATO_TAP_SRC}
+)
+
 # Copied into ${DATAFILE_DIR} at build time and ${CMAKE_INSTALL_DATADIR}/wireshark
 # at install time.
 set(INSTALL_DIRS
@@ -3150,7 +3162,7 @@ if (BUILD_stratoshark AND FALCO_PLUGINS)
 endif()
 
 # Common properties for CLI executables
-macro(set_extra_executable_properties _executable _folder)
+function(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
 		LINK_FLAGS "${WILDCARD_OBJ} ${WS_LINK_FLAGS}"
 		FOLDER ${_folder}
@@ -3163,26 +3175,30 @@ macro(set_extra_executable_properties _executable _folder)
 	set(PROGLIST ${PROGLIST} ${_executable})
 
 	if(ENABLE_APPLICATION_BUNDLE)
+		set(bundle_name "Wireshark.app")
+		if (_executable MATCHES "strato")
+			set(bundle_name "Stratoshark.app")
+		endif()
 		if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
 			# Xcode
 			set_target_properties(${_executable} PROPERTIES
-				RUNTIME_OUTPUT_DIRECTORY run/$<CONFIG>/Wireshark.app/Contents/MacOS
+				RUNTIME_OUTPUT_DIRECTORY run/$<CONFIG>/${bundle_name}/Contents/MacOS
 			)
 		else ()
 			set_target_properties(${_executable} PROPERTIES
-				RUNTIME_OUTPUT_DIRECTORY run/Wireshark.app/Contents/MacOS
+				RUNTIME_OUTPUT_DIRECTORY run/${bundle_name}/Contents/MacOS
 			)
 			# Create a convenience link from run/<name> to its respective
 			# target in the application bundle.
 			add_custom_target(${_executable}-symlink
 				COMMAND ln -s -f
-					Wireshark.app/Contents/MacOS/${_executable}
+					${bundle_name}/Contents/MacOS/${_executable}
 					${CMAKE_BINARY_DIR}/run/${_executable}
 			)
 			add_dependencies(${_executable} ${_executable}-symlink)
 		endif()
 	endif()
-endmacro()
+endfunction()
 
 macro(executable_link_mingw_unicode _target)
 	# target_link_options() requires CMake >= 3.13
@@ -3223,6 +3239,38 @@ if(BUILD_tshark)
 	target_link_libraries(tshark ${tshark_LIBS})
 	executable_link_mingw_unicode(tshark)
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(BUILD_strato)
+	set(strato_LIBS
+		ui
+		capchild
+		caputils
+		wiretap
+		epan
+		iface_monitor
+		wsutil
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
+	)
+	set(strato_FILES
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:shark_common>
+		strato.c
+		extcap.c
+		${STRATO_TAP_SRC}
+		strato-tap-register.c
+	)
+
+	set_executable_resources(strato "Strato" UNIQUE_RC)
+	add_executable(strato ${strato_FILES})
+	set_extra_executable_properties(strato "Executables")
+	target_link_libraries(strato ${strato_LIBS})
+	executable_link_mingw_unicode(strato)
+	install(TARGETS strato RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+	register_tap_files(strato-tap-register.c ${STRATO_TAP_SRC})
 endif()
 
 if(BUILD_tfshark)
