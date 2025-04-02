@@ -641,7 +641,7 @@ class ValueString:
             # Same value, different label
             if value in self.parsed_vals and label != self.parsed_vals[value]:
                 print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
-                    self.parsed_vals[value], 'now', label)
+                      self.parsed_vals[value], 'now', label)
                 warnings_found += 1
             else:
                 # Add into table, while checking for repeated label
@@ -663,7 +663,9 @@ class ValueString:
                             break
 
                     if not excepted and len(label)>2:
-                        print('Warning:', self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value)
+                        previous_values =  [ str(v) for v in self.parsed_vals if self.parsed_vals[v] == label ]
+                        print('Warning:', self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value,
+                              'previously', ','.join(previous_values))
                         warnings_found += 1
                 else:
                     self.seen_labels.add(label)
@@ -682,7 +684,7 @@ class ValueString:
         if num_items > 4 and span > num_items and (span-num_items <=1):
             for val in range(self.min_value, self.max_value):
                 if val not in self.parsed_vals:
-                    print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries)')
+                    print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries )')
                     global warnings_found
                     warnings_found += 1
 

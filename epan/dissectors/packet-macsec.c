@@ -817,7 +817,8 @@ proto_register_macsec(void)
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_macsec,
-        &ett_macsec_tci
+        &ett_macsec_tci,
+        &ett_macsec_verify
     };
 
     /* Register the protocol name and description */
