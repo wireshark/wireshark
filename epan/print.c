@@ -1279,9 +1279,6 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
                 json_dumper_value_string(pdata->dumper, label_str);
             }
             break;
-        case FT_NONE:
-            json_dumper_value_string(pdata->dumper, NULL);
-            break;
         case FT_BOOLEAN:
             if (fvalue_get_uinteger64(fi->value))
                 json_dumper_value_anyf(pdata->dumper, "true");
@@ -1290,9 +1287,7 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
             break;
         default:
             dfilter_string = fvalue_to_string_repr(NULL, fi->value, FTREPR_JSON, fi->hfinfo->display);
-            if (dfilter_string != NULL) {
-                json_dumper_value_string(pdata->dumper, dfilter_string);
-            }
+            json_dumper_value_string(pdata->dumper, dfilter_string);
             wmem_free(NULL, dfilter_string);
             break;
         }
