@@ -961,6 +961,8 @@ static const value_string netscaler_reset_window_error_code_vals[] = {
     { 0, NULL },
 };
 
+static value_string_ext netscaler_reset_window_error_code_vals_ext = VALUE_STRING_EXT_INIT(netscaler_reset_window_error_code_vals);
+
 static dissector_table_t subdissector_table;
 static dissector_table_t tcp_option_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -2415,15 +2417,6 @@ mptcp_select_subflow_from_meta(const struct tcp_analysis *tcpd, const mptcp_meta
     }
 }
 
-/* if we saw a window scaling option, store it for future reference
-*/
-static void
-pdu_store_window_scale_option(uint8_t ws, struct tcp_analysis *tcpd)
-{
-    if (tcpd)
-        tcpd->fwd->win_scale=ws;
-}
-
 /* when this function returns, it will (if createflag) populate the ta pointer.
  */
 static void
@@ -2865,7 +2858,7 @@ finished_fwd:
                     }
 
                     precedence_count=!precedence_count;
-        } else {
+            } else {
                     /* If the segment came relatively close since the segment with the highest
                      * seen sequence number and it doesn't look like a retransmission
                      * then it is an OUT-OF-ORDER segment.
@@ -5650,8 +5643,7 @@ dissect_tcpopt_default_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     length_item = proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
-    if (!tcp_option_len_check(length_item, pinfo, tvb_reported_length(tvb), 2))
-        return tvb_captured_length(tvb);
+    tcp_option_len_check(length_item, pinfo, tvb_reported_length(tvb), 2);
 
     return tvb_captured_length(tvb);
 }
@@ -5936,8 +5928,7 @@ dissect_tcpopt_sack_perm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     col_append_str(pinfo->cinfo, COL_INFO, " SACK_PERM");
 
-    if (!tcp_option_len_check(length_item, pinfo, tvb_reported_length(tvb), TCPOLEN_SACK_PERM))
-        return tvb_captured_length(tvb);
+    tcp_option_len_check(length_item, pinfo, tvb_reported_length(tvb), TCPOLEN_SACK_PERM);
 
     return tvb_captured_length(tvb);
 }
@@ -5975,10 +5966,12 @@ dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_item_append_text(item, ": %u bytes", mss);
     tcp_info_append_uint(pinfo, "MSS", mss);
 
-    /* Only SYN packets are supposed to have this option
-     * XXX - we could restrict a bit more with seq_analyze */
-    if( tcpd && (tcph->th_flags & TH_SYN) && !pinfo->fd->visited ) {
-        tcpd->fwd->mss=mss;
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* Only SYN packets are supposed to have this option
+        * XXX - we could restrict a bit more with seq_analyze */
+        if( tcpd && (tcph->th_flags & TH_SYN) ) {
+            tcpd->fwd->mss=mss;
+        }
     }
 
     return tvb_captured_length(tvb);
@@ -6030,8 +6023,11 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     tcp_info_append_uint(pinfo, "WS", 1 << shift);
 
-    if(!pinfo->fd->visited) {
-        pdu_store_window_scale_option(shift, tcpd);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* if we saw a window scaling option, store it for future reference */
+        if (tcpd) {
+            tcpd->fwd->win_scale = shift;
+        }
     }
 
     return tvb_captured_length(tvb);
@@ -7007,8 +7003,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     tcp_flow_t *flow;
     int         direction;
     proto_item *tf = NULL, *item;
-    proto_tree *flags_tree = NULL;
-    uint8_t     capvector;
+    uint64_t    capvector;
     uint8_t     connid;
     int         offset = 0, optlen = tvb_reported_length(tvb);
 
@@ -7042,22 +7037,19 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      * (SCPS-TP)" Section 3.2.3 for definition.
      */
     if (optlen == 4) {
-        tf = proto_tree_add_item(field_tree, hf_tcp_option_scps_vector, tvb,
-                                 offset + 2, 1, ENC_BIG_ENDIAN);
-        flags_tree = proto_item_add_subtree(tf, ett_tcp_scpsoption_flags);
-        proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_bets, tvb,
-                            offset + 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_snack1, tvb,
-                            offset + 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_snack2, tvb,
-                            offset + 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_compress, tvb,
-                            offset + 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_nlts, tvb,
-                            offset + 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_reserved, tvb,
-                            offset + 2, 1, ENC_BIG_ENDIAN);
-        capvector = tvb_get_uint8(tvb, offset + 2);
+        static int* const fields[] = {
+             &hf_tcp_scpsoption_flags_bets,
+             &hf_tcp_scpsoption_flags_snack1,
+             &hf_tcp_scpsoption_flags_snack2,
+             &hf_tcp_scpsoption_flags_compress,
+             &hf_tcp_scpsoption_flags_nlts,
+             &hf_tcp_scpsoption_flags_reserved,
+             NULL
+        };
+
+        tf = proto_tree_add_bitmask_with_flags_ret_uint64(field_tree, tvb, offset+2, hf_tcp_option_scps_vector,
+                                                          ett_tcp_scpsoption_flags, fields, ENC_BIG_ENDIAN,
+                                                          BMT_NO_APPEND, &capvector);
 
         if (capvector) {
             struct capvec
@@ -7190,27 +7182,6 @@ dissect_tcpopt_user_to(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     tcp_info_append_uint(pinfo, "USER_TO", to);
     return tvb_captured_length(tvb);
-}
-
-/* This is called for SYN+ACK packets and the purpose is to verify that
- * the SCPS capabilities option has been successfully negotiated for the flow.
- * If the SCPS capabilities option was offered by only one party, the
- * proactively set scps_capable attribute of the flow (set upon seeing
- * the first instance of the SCPS option) is revoked.
- */
-static void
-verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
-{
-    tf_syn = 0x0;
-
-    if(tcpd) {
-        if ((!(tcpd->flow1.scps_capable)) || (!(tcpd->flow2.scps_capable))) {
-            tcpd->flow1.scps_capable = false;
-            tcpd->flow2.scps_capable = false;
-        } else {
-            expert_add_info(pinfo, tf_syn, &ei_tcp_scps_capable);
-        }
-    }
 }
 
 /* See "CCSDS 714.0-B-2 (CCSDS Recommended Standard for SCPS
@@ -8241,7 +8212,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     bool        icmp_ip = false;
     uint8_t    conversation_completeness = 0;
     bool       conversation_is_new = false;
-    uint8_t    ace;
 
     tcph = wmem_new0(pinfo->pool, struct tcpheader);
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
@@ -8639,7 +8609,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
     }
 
-    if (!icmp_ip) {
+    if (tcp_tree && !icmp_ip) {
         if(tcp_relative_seq && tcp_analyze_seq) {
             proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
             item = proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
@@ -8820,7 +8790,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
         if (tcph->th_use_ace) {
-            ace = tcp_get_ace(tcph);
+            uint8_t ace = tcp_get_ace(tcph);
             proto_tree_add_uint_format(field_tree, hf_tcp_flags_ace, tvb, 12, 2, ace,
                                        "...%c %c%c.. .... = ACE: %u",
                                        ace & 0x04 ? '1' : '0',
@@ -8934,7 +8904,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_uint(tcp_tree, hf_tcp_window_size_value, tvb, offset + 14, 2, real_window);
         if(tcph->th_flags & TH_RST){
             /* Check if the window value of this reset packet is in the NetScaler error code range */
-            const char *tcp_ns_reset_window_error_descr = try_val_to_str(real_window, netscaler_reset_window_error_code_vals);
+            const char *tcp_ns_reset_window_error_descr = try_val_to_str_ext(real_window, &netscaler_reset_window_error_code_vals_ext);
             if (tcp_ns_reset_window_error_descr != NULL) { /* If its in the Netscaler range, add tree */
                 item = proto_tree_add_string(tcp_tree, hf_tcp_ns_reset_window_error_code, tvb,
                        offset + 14, 2, tcp_ns_reset_window_error_descr);
@@ -9226,7 +9196,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
     }
 
-    if(!pinfo->fd->visited) {
+    if(!PINFO_FD_VISITED(pinfo)) {
         if((tcph->th_flags & TH_SYN)==TH_SYN) {
             /* Check the validity of the window scale value
              */
@@ -9234,20 +9204,24 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
 
         if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
-            /* If the SYN or the SYN+ACK offered SCPS capabilities,
-             * validate the flow's bidirectional scps capabilities.
-             * The or protects against broken implementations offering
-             * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
+            /* This is checked for SYN+ACK packets and the purpose is to verify that
+             * the SCPS capabilities option has been successfully negotiated for the flow.
+             * If the SCPS capabilities option was offered by only one party, the
+             * proactively set scps_capable attribute of the flow (set upon seeing
+             * the first instance of the SCPS option) is revoked.
              */
-            if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
-                verify_scps(pinfo, tf_syn, tcpd);
+            if (tcpd && (tcpd->rev->scps_capable != tcpd->fwd->scps_capable)) {
+                tcpd->rev->scps_capable = tcpd->fwd->scps_capable = false;
             }
-
         }
     }
 
-    if (tcph->th_mptcp) {
+    if (((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) &&
+        (tcpd) && ((tcpd->rev->scps_capable) && (tcpd->fwd->scps_capable))) {
+        expert_add_info(pinfo, tf_syn, &ei_tcp_scps_capable);
+    }
 
+    if (tcph->th_mptcp && (tcpd)) {
         if (tcp_analyze_mptcp) {
             mptcp_add_analysis_subtree(pinfo, tvb, tcp_tree, tcpd, tcpd->mptcp_analysis, tcph );
         }
@@ -9276,7 +9250,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     CLEANUP_CALL_AND_POP;
 
     /* if it is an MPTCP packet */
-    if(tcpd->mptcp_analysis) {
+    if((tcpd) && tcpd->mptcp_analysis) {
         tap_queue_packet(mptcp_tap, pinfo, tcpd);
     }
 
@@ -10391,7 +10365,7 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_ambiguous_ack, { "tcp.analysis.ambiguous_ack", PI_SEQUENCE, PI_NOTE, "Ambiguous ACK following Karn's definition", EXPFILL }},
         { &ei_tcp_connection_fin_active, { "tcp.connection.fin_active", PI_SEQUENCE, PI_NOTE, "This frame initiates the connection closing", EXPFILL }},
         { &ei_tcp_connection_fin_passive, { "tcp.connection.fin_passive", PI_SEQUENCE, PI_NOTE, "This frame undergoes the connection closing", EXPFILL }},
-        { &ei_tcp_scps_capable, { "tcp.analysis.scps_capable", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
+        { &ei_tcp_scps_capable, { "tcp.analysis.scps_capable", PI_SEQUENCE, PI_NOTE, "Connection establish acknowledge (SYN+ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_sack_dsack, { "tcp.options.sack.dsack", PI_SEQUENCE, PI_WARN, "D-SACK Sequence", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
