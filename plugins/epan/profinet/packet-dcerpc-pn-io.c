@@ -2714,8 +2714,17 @@ static const value_string pn_io_mau_type[] = {
     /*0x0020 - 0x002D reserved */
     { 0x002E, "100BASELX10" },
     /*0x002F - 0x0035 reserved */
-    { 0x0036, "100BASEPXFD" },
-    /*0x0037 - 0x008C reserved */
+    { 0x0036, "10GbaseT or 100BASEPXFD" },
+    /*0x0037 - 0x005C reserved */
+    { 0x005D, "25GbaseSR" },
+    /*0x005E - 0x0066 reserved */
+    { 0x0067, "2.5Gbase-T" },
+    { 0x0068, "5Gbase-T" },
+    /*0x0069 - 0x0071 reserved */
+    { 0x0072, "25Gbase-LR" },
+    { 0x0073, "25Gbase-ER" },
+    /*0x0074 - 0x008C reserved */
+    { 0x0087, "400GigBASER" },
     { 0x008D, "10BASET1L" },
     /*0x008E - 0xFFFF reserved */
     { 0, NULL }
