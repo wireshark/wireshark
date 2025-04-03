@@ -8975,20 +8975,54 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (tcp_check_checksum) {
             /* We haven't turned checksum checking off; checksum it. */
 
+            /* When using Large Send Offload for large TCP packets, Microsoft
+             * uses zero for the length field in the partial checksum
+             * https://learn.microsoft.com/en-us/windows-hardware/drivers/network/offloading-the-segmentation-of-large-tcp-packets
+             *
+             * So we can do a quick calculation of the partial checksum with
+             * zero length. The size is relatively small so this is fairly
+             * fast, but could be sped up by reworking in_cksum.c to allow
+             * feeding the partial sum back in as a starting register value,
+             * computing the partial sum without the length, and then using
+             * that as a start value when adding the length and payload.
+             */
+            uint16_t partial_cksum_no_len;
+
             /* Set up the fields of the pseudo-header. */
             SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
             SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
+            /* Set a length of a final vector to zero so we short-circuit out
+             * to get just the partial result.
+             */
+            SET_CKSUM_VEC_PTR(cksum_vec[3], (const uint8_t *)phdr, 0);
             switch (pinfo->src.type) {
 
             case AT_IPv4:
-                phdr[0] = g_htonl((IP_PROTO_TCP<<16) + reported_len);
+                /* Note - While the pseudo-headers for IPv4 and IPv6 are
+                 * conceptually different (see RFC 8200 and RFC 9293), in
+                 * practice they are the same - the checksum is a 16 bit
+                 * one's complement sum, so zero octets contribute nothing,
+                 * and treating the TCP protocol number as a 16 bit or 32
+                 * bit number before potentially byte swapping doesn't make
+                 * a difference on Big Endian or Little Endian platforms
+                 * (the octets either swap parity or do not), though possibly
+                 * on some strange PDP mixed-endian platform it might.
+                 * Thus, we could use the same code path for IPv4 and IPv6.
+                 */
+                phdr[0] = g_htonl((IP_PROTO_TCP<<16) + 0);
                 SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)phdr, 4);
+                computed_cksum = in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
+                phdr[0] = g_htonl((IP_PROTO_TCP<<16) + reported_len);
                 break;
 
             case AT_IPv6:
-                phdr[0] = g_htonl(reported_len);
+                /* Order of the 32 byte elements also does not matter, so it
+                 * might be simpler to swap these and vary the length used. */
+                phdr[0] = g_htonl(0);
                 phdr[1] = g_htonl(IP_PROTO_TCP);
                 SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)phdr, 8);
+                computed_cksum = in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
+                phdr[0] = g_htonl(reported_len);
                 break;
 
             default:
@@ -9024,6 +9058,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             } else {
                 proto_item* calc_item;
                 uint16_t shouldbe_cksum = in_cksum_shouldbe(th_sum, computed_cksum);
+                if (th_sum == g_htons(partial_cksum_no_len)) {
+                    /* If anyone cared, we could distinguish between "partial
+                     * likely caused by \"TCP checksum offload\"" and "partial
+                     * likely caused by Microsoft \"Large Send Offload\"".
+                     */
+                    partial_cksum = partial_cksum_no_len;
+                }
                 if (computed_cksum != 0 && th_sum == g_htons(partial_cksum)) {
                     /* Don't use PROTO_CHECKSUM_IN_CKSUM because we expect the value
                      * to match what we pass in. */
