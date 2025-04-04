@@ -9,7 +9,7 @@ jobs:
     env:
       PLATFORM: x64
       WIRESHARK_BASE_DIR: C:\Development
-      CMAKE_PREFIX_PATH: D:\a\wireshark\Qt\6.2.3\msvc2019_64
+      CMAKE_PREFIX_PATH: D:\a\wireshark\Qt\6.8.3\msvc2022_64
       WIRESHARK_VERSION_EXTRA: -GithubActionBuild
     steps:
       - name: Checkout
@@ -21,18 +21,18 @@ jobs:
       - name: Install strawberryperl
         uses: shogo82148/actions-setup-perl@v1
         with:
-          perl-version: '5.30'
+          perl-version: '5.38'
           distribution: strawberry
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
-          arch: win64_msvc2019_64
-          version: 6.2.3
+          arch: win64_msvc2022_64
+          version: 6.8.3
           modules: 'qt5compat'
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: 16.8
+          vs-version: 17.13
       - name: Set MSVC command prompt
         uses: ilammy/msvc-dev-cmd@v1
       - name: Mkdir
@@ -53,10 +53,10 @@ jobs:
       - name: Build test-programs
         run: cmake --build . --config RelWithDebInfo --target test-programs
         working-directory: build
-      - name: Set up Python 3.8
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.13
       - name: Install pytest
         run: pip install pytest pytest-xdist
       - name: Run tests
