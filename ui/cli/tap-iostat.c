@@ -915,6 +915,7 @@ iostat_draw(void *arg)
     k = 11;
     switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
+    case TS_UTC:
         printf("\n| Time    ");
         break;
     case TS_ABSOLUTE_WITH_YMD:
