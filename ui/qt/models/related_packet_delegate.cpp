@@ -52,7 +52,7 @@ void RelatedPacketDelegate::initStyleOption(QStyleOptionViewItem *option,
 {
     QStyledItemDelegate::initStyleOption(option, index);
     option->features |= QStyleOptionViewItem::HasDecoration;
-    option->decorationSize.setHeight(1);
+    option->decorationSize.setHeight(0);
     option->decorationSize.setWidth(option->fontMetrics.height());
 }
 
