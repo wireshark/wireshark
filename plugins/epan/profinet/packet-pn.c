@@ -44,11 +44,20 @@ static int hf_pn_io_error_code2_pnio_5;
 static int hf_pn_io_error_code2_pnio_6;
 static int hf_pn_io_error_code2_pnio_7;
 static int hf_pn_io_error_code2_pnio_8;
+static int hf_pn_io_error_code2_pnio_9;
+static int hf_pn_io_error_code2_pnio_10;
+static int hf_pn_io_error_code2_pnio_11;
+static int hf_pn_io_error_code2_pnio_12;
 static int hf_pn_io_error_code2_pnio_13;
+static int hf_pn_io_error_code2_pnio_14;
 static int hf_pn_io_error_code2_pnio_20;
 static int hf_pn_io_error_code2_pnio_21;
 static int hf_pn_io_error_code2_pnio_22;
 static int hf_pn_io_error_code2_pnio_23;
+static int hf_pn_io_error_code2_pnio_24;
+static int hf_pn_io_error_code2_pnio_25;
+static int hf_pn_io_error_code2_pnio_26;
+static int hf_pn_io_error_code2_pnio_27;
 static int hf_pn_io_error_code2_pnio_40;
 static int hf_pn_io_error_code2_pnio_60;
 static int hf_pn_io_error_code2_pnio_61;
@@ -57,6 +66,7 @@ static int hf_pn_io_error_code2_pnio_63;
 static int hf_pn_io_error_code2_pnio_64;
 static int hf_pn_io_error_code2_pnio_65;
 static int hf_pn_io_error_code2_pnio_66;
+static int hf_pn_io_error_code2_pnio_69;
 static int hf_pn_io_error_code2_pnio_70;
 static int hf_pn_io_error_code2_pnio_71;
 static int hf_pn_io_error_code2_pnio_72;
@@ -65,6 +75,21 @@ static int hf_pn_io_error_code2_pnio_74;
 static int hf_pn_io_error_code2_pnio_75;
 static int hf_pn_io_error_code2_pnio_76;
 static int hf_pn_io_error_code2_pnio_77;
+static int hf_pn_io_error_code2_pnio_79;
+static int hf_pn_io_error_code2_pnio_80;
+static int hf_pn_io_error_code2_pnio_100;
+static int hf_pn_io_error_code2_pnio_101;
+static int hf_pn_io_error_code2_pnio_102;
+static int hf_pn_io_error_code2_pnio_103;
+static int hf_pn_io_error_code2_pnio_104;
+static int hf_pn_io_error_code2_pnio_105;
+static int hf_pn_io_error_code2_pnio_106;
+static int hf_pn_io_error_code2_pnio_107;
+static int hf_pn_io_error_code2_pnio_108;
+static int hf_pn_io_error_code2_pnio_109;
+static int hf_pn_io_error_code2_pnio_110;
+static int hf_pn_io_error_code2_pnio_112;
+static int hf_pn_io_error_code2_pnio_114;
 static int hf_pn_io_error_code2_pnio_253;
 static int hf_pn_io_error_code2_pnio_255;
 
@@ -180,12 +205,15 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0x0B /* 11*/, "Connect: Faulty ARFSUBlock" },
     { 0x0C /* 12*/, "Connect: Faulty ARVendorBlockReq" },
     { 0x0D /* 13*/, "Connect: Faulty RSInfoBlock" },
+    { 0x0E /* 14*/, "Connect: ARAlgorithmInfoBlock"},
     { 0x14 /* 20*/, "IODControl: Faulty ControlBlockConnect" },
     { 0x15 /* 21*/, "IODControl: Faulty ControlBlockPlug" },
     { 0x16 /* 22*/, "IOXControl: Faulty ControlBlock after a connect est." },
     { 0x17 /* 23*/, "IOXControl: Faulty ControlBlock a plug alarm" },
     { 0x18 /* 24*/, "IOXControl: Faulty ControlBlockPrmBegin" },
     { 0x19 /* 25*/, "IOXControl: Faulty SubmoduleListBlock" },
+    { 0x1A /* 26*/, "IOXSecure: Faulty SecurityRequestBlock"},
+    { 0x1B /* 27*/, "IOXSecure: Faulty ARUUIDBlock"},
 
     { 0x28 /* 40*/, "Release: Faulty ReleaseBlock" },
 
@@ -283,7 +311,7 @@ static const value_string pn_io_error_code2_pnio_2[] = {
     { 7, "Error in Parameter IOCRProperties" },
     { 8, "Error in Parameter DataLength" },
     { 9, "Error in Parameter FrameID" },
-    { 10, "Error in Parameter SendClockFactor" },
+    { 10, "Error in Parameter GatingCycle" },
     { 11, "Error in Parameter ReductionRatio" },
     { 12, "Error in Parameter Phase" },
     { 14, "Error in Parameter FrameSendOffset" },
@@ -370,7 +398,7 @@ static const value_string pn_io_error_code2_pnio_6[] = {
 };
 
 static const value_string pn_io_error_code2_pnio_7[] = {
-    /* CheckingRules for MCRBlockReq */
+    /* CheckingRules for ARRPCBlockReq */
     { 0, "Error in Parameter BlockType" },
     { 1, "Error in Parameter BlockLength" },
     { 2, "Error in Parameter BlockVersionHigh" },
@@ -380,7 +408,7 @@ static const value_string pn_io_error_code2_pnio_7[] = {
 };
 
 static const value_string pn_io_error_code2_pnio_8[] = {
-    /* CheckingRules for Read/Write ParameterReqHeader */
+    /* CheckingRules for Faulty Record */
     { 0, "Error in Parameter BlockType" },
     { 1, "Error in Parameter BlockLength" },
     { 2, "Error in Parameter BlockVersionHigh" },
@@ -396,6 +424,48 @@ static const value_string pn_io_error_code2_pnio_8[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_error_code2_pnio_9[] = {
+    /* CheckingRules for IRInfoBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 2, "Error in BlockVersionHigh" },
+    { 3, "Error in BlockVersionLow" },
+    { 5, "Error in IRDataUUID" },
+    { 7, "Error in NumberOfIOCRs" },
+    { 8, "Error in IOCRReference" },
+    { 9, "Error in SubframeOffset" },
+    { 10, "Error in SubframeData" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_10[] = {
+    /* Checking Rules for SRInfoBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 2, "Error in Parameter BlockVersionHigh" },
+    { 3, "Error in Parameter BlockVersionLow" },
+    { 4, "Error in Parameter RedundancyDataHoldFactor" },
+    { 5, "Error in Parameter SRProperties" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_11[] = {
+    /* CheckingRules for ARFSUBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 5, "Error in Parameter FastStartUpBlock" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_12[] = {
+    /* CheckingRules for ARVendorBlockReq */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 5, "Error in Parameter API" },
+    { 6, "Error in Parameter Data*" },
+    { 0, NULL }
+};
+
 static const value_string pn_io_error_code2_pnio_13[] = {
     /* CheckingRules for RSInfoBlock */
     { 0, "Error in Parameter BlockType" },
@@ -404,6 +474,13 @@ static const value_string pn_io_error_code2_pnio_13[] = {
     { 3, "Error in Parameter BlockVersionLow" },
     { 4, "Error in Parameter Padding" },
     { 5, "Error in Parameter RSProperties" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_14[] = {
+    /* Checking Rules for ARAlgorithmInfoBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 8, "SecurityCapability" },
     { 0, NULL }
 };
 
@@ -463,6 +540,53 @@ static const value_string pn_io_error_code2_pnio_23[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_error_code2_pnio_24[] = {
+    /* CheckingRules for ControlBlockPrmBegin */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 9, "Error in Parameter ControlBlockProperties" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_25[] = {
+    /* CheckingRules for SubmoduleListBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 2, "Error in Parameter BlockVersionHigh" },
+    { 3, "Error in Parameter BlockVersionLow" },
+    { 4, "Error in Parameter NumberOfEntries" },
+    { 5, "Error in Parameter API" },
+    { 6, "Error in Parameter SlotNumber" },
+    { 7, "Error in Parameter SubslotNumber" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_26[] = {
+    /* CheckingRules for SecurityRequestBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 4, "SecurityOperation" },
+    { 5, "SAMRequestData" },
+    { 16, "CredentialID" },
+    { 17, "CredentialCreationProperties" },
+    { 18, "PrivateKeyLength" },
+    { 19, "PrivateKey" },
+    { 20, "Padding" },
+    { 21, "NumberOfElements" },
+    { 22, "CertificateLength" },
+    { 23, "Certificate" },
+    { 24, "SecurityConfigurationParameters" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_27[] = {
+    /* CheckingRules for ARUUIDBlock */
+    { 0, "Error in Parameter BlockType" },
+    { 1, "Error in Parameter Length" },
+    { 6, "Error in Parameter ARUUID" },
+    { 0, NULL }
+};
+
 static const value_string pn_io_error_code2_pnio_40[] = {
     /* CheckingRules for ReleaseBlock */
     { 0, "Error in Parameter BlockType" },
@@ -501,8 +625,8 @@ static const value_string pn_io_error_code2_pnio_62[] = {
 };
 
 static const value_string pn_io_error_code2_pnio_63[] = {
-    /* NRPM */
-    { 0, "No DCP active" },
+    /* CTLDINA */
+    { 0, "No DCP active / No Link" },
     { 1, "DNS Unknown_RealStationName" },
     { 2, "DCP No_RealStationName" },
     { 3, "DCP Multiple_RealStationName" },
@@ -513,7 +637,7 @@ static const value_string pn_io_error_code2_pnio_63[] = {
 };
 
 static const value_string pn_io_error_code2_pnio_64[] = {
-    /* RMPM */
+    /* CMRPC */
     { 0, "ArgsLength invalid" },
     { 1, "Unknown Blocks" },
     { 2, "IOCR Missing" },
@@ -534,6 +658,8 @@ static const value_string pn_io_error_code2_pnio_65[] = {
     /* ALPMI */
     { 0, "Invalid State" },
     { 1, "Wrong ACK-PDU" },
+    { 2, "Invalid" },
+    { 3, "Wrong state" },
     { 0, NULL }
 };
 
@@ -541,7 +667,22 @@ static const value_string pn_io_error_code2_pnio_66[] = {
     /* ALPMR */
     { 0, "Invalid State" },
     { 1, "Wrong Notification PDU" },
+    { 2, "Invalid" },
+    { 3, "Wrong state" },
     { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_69[] = {
+    /* RPC */
+    { 1, "CLRPC_ERR_REJECTED" },
+    { 2, "CLRPC_ERR_FAULTED" },
+    { 3, "CLRPC_ERR_TIMEOUT" },
+    { 4, "CLRPC_ERR_IN_ARGS" },
+    { 5, "CLRPC_ERR_OUT_ARGS" },
+    { 6, "CLRPC_ERR_DECODE" },
+    { 7, "CLRPC_ERR_PNIO_OUT_ARGS" },
+    { 8, "CLRPC_ERR_PNIO_APP_TIMEOUT" },
+    { 0, NULL },
 };
 
 static const value_string pn_io_error_code2_pnio_70[] = {
@@ -597,6 +738,119 @@ static const value_string pn_io_error_code2_pnio_77[] = {
     /* DCPMCR */
     { 0, "Invalid State" },
     { 1, "LMPM signaled an error" },
+    { 0, NULL }
+};
+
+
+static const value_string pn_io_error_code2_pnio_79[] = {
+    /* RSI */
+    { 0, "State conflict" },
+    { 1, "Abort" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_80[] = {
+    /* RSIR */
+    { 0, "State conflict" },
+    { 1, "Abort" },
+    { 2, "InterfaceNotFound "},
+    { 3, "OutOfResources" },
+    { 4, "Rerun connect" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_100[] = {
+    /* CTLSM */
+    { 0, "Invalid state" },
+    { 1, "CTLSM signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_101[] = {
+    /* CTLRDI */
+    { 0, "Invalid state" },
+    { 1, "CTLRDI signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_102[] = {
+    /* CTLRDR */
+    { 0, "Invalid state" },
+    { 1, "CTLRDR signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_103[] = {
+    /* CTLRWRI */
+    { 0, "Invalid state" },
+    { 1, "CTLWRI signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_104[] = {
+    /* CTLRWRR */
+    { 0, "Invalid state" },
+    { 1, "CTLWRR signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_105[] = {
+    /* CTLIO */
+    { 0, "Invalid state" },
+    { 1, "CTLIO signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_106[] = {
+    /* CTLSU */
+    { 0, "Invalid state" },
+    { 1, "AR add provider or consumer failed" },
+    { 2, "AR alarm-open failed" },
+    { 3, "AR alarm-ack-send" },
+    { 4, "AR alarm-ind" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_107[] = {
+    /* CTLRPC */
+    { 0, "Invalid state" },
+    { 1, "CTLRPC signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_108[] = {
+    /* CTLPBE */
+    { 0, "Invalid state" },
+    { 1, "CTLPBE signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_109[] = {
+    /* CTLSRL */
+    { 0, "Invalid state" },
+    { 1, "CTLSRL signaled an error" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_110[] = {
+    /* NME */
+    { 0, "Invalid state" },
+    { 1, "Temporarily unknown" },
+    { 2, "Not best NME" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_112[] = {
+    /* PCE */
+    { 0, "Invalid state" },
+    { 1, "No path found" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_114[] = {
+    /* NUE */
+    { 0, "Invalid state" },
+    { 1, "Remote problem" },
     { 0, NULL }
 };
 
@@ -963,10 +1217,35 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
                 hf_pn_io_error_code2_pnio_8, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_8;
             break;
+        case(9):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_9, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_9;
+            break;
+        case(10):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_10, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_10;
+            break;
+        case(11):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_11, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_11;
+            break;
+        case(12):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_12, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_12;
+            break;
         case(13):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_13, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_13;
+            break;
+        case(14):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_14, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_14;
             break;
         case(20):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
@@ -987,6 +1266,26 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_23, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_23;
+            break;
+        case(24):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_24, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_24;
+            break;
+        case(25):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_25, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_25;
+            break;
+        case(26):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_26, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_26;
+            break;
+        case (27):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_27, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_27;
             break;
         case(40):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
@@ -1028,6 +1327,11 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
                 hf_pn_io_error_code2_pnio_66, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_66;
             break;
+        case(69):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_69, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_69;
+            break;
         case(70):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_70, &u8ErrorCode2);
@@ -1067,6 +1371,81 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
                 hf_pn_io_error_code2_pnio_77, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_77;
+            break;
+        case(79):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_79, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_79;
+            break;
+        case(80):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_80, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_80;
+            break;
+        case(100):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_100, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_100;
+            break;
+        case(101):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_101, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_101;
+            break;
+        case(102):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_102, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_102;
+            break;
+        case(103):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_103, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_103;
+            break;
+        case(104):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_104, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_104;
+            break;
+        case(105):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_105, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_105;
+            break;
+        case(106):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_106, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_106;
+            break;
+        case(107):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_107, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_107;
+            break;
+        case(108):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_108, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_108;
+            break;
+        case(109):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_109, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_109;
+            break;
+        case(110):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_110, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_110;
+            break;
+        case(112):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_112, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_112;
+            break;
+        case(114):
+            dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
+                hf_pn_io_error_code2_pnio_114, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_114;
             break;
         case(253):
             dissect_dcerpc_uint8(tvb, offset + (3 ^ bytemask), pinfo, sub_tree, drep,
@@ -1250,172 +1629,297 @@ init_pn (int proto)
         NULL, HFILL }
     },
     { &hf_pn_io_error_code1_pniorw,
-      { "ErrorCode1", "pn_io.error_code1",
+      { "ErrorCode1", "pn_io.error_code1_pniorw",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pniorw), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pniorw,
-      { "ErrorCode2 for PNIORW is user specified!", "pn_io.error_code2",
+      { "ErrorCode2 for PNIORW is u 0x0!", "pnio.error_code2_pniorw",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code1_pnio,
-      { "ErrorCode1", "pn_io.error_code1",
+      { "ErrorCode1", "pn_io.error_code1_pnio",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pnio), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_1,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_1",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_1), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_2,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_2",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_2), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_3,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_3",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_3), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_4,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_4",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_4), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_5,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_5",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_5), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_6,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_6",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_6), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_7,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_7",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_7), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_8,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_8",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_8), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_error_code2_pnio_9,
+      { "ErrorCode2", "pn_io.error_code2_pnio_9",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_9), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_10,
+      { "ErrorCode2", "pn_io.error_code2_pnio_10",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_10), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_11,
+      { "ErrorCode2", "pn_io.error_code2_pnio_11",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_11), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_12,
+      { "ErrorCode2", "pn_io.error_code2_pnio_12",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_12), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_13,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_13",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_13), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_error_code2_pnio_14,
+      { "ErrorCode2", "pn_io.error_code2_pnio_14",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_14), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_20,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_20",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_20), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_21,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_21",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_21), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_22,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_22",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_22), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_23,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_23",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_23), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_error_code2_pnio_24,
+      { "ErrorCode2", "pn_io.error_code2_pnio_24",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_24), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_25,
+      { "ErrorCode2", "pn_io.error_code2_pnio_25",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_25), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_26,
+      { "ErrorCode2", "pn_io.error_code2_pnio_26",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_26), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_27,
+      { "ErrorCode2", "pn_io.error_code2_pnio_27",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_27), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_40,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_40",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_40), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_60,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_60",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_60), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_61,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_61",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_61), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_62,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_62",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_62), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_63,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_63",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_63), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_64,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_64",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_64), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_65,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_65",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_65), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_66,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_66",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_66), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_error_code2_pnio_69,
+      { "ErrorCode2", "pn_io.error_code2_pnio_69",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_69), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_70,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_70",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_70), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_71,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_71",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_71), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_72,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_72",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_72), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_73,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_73",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_73), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_74,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_74",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_74), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_75,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_75",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_75), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_76,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_76",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_76), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_77,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_77",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_77), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_error_code2_pnio_79,
+      { "ErrorCode2", "pn_io.error_code2_pnio_79",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_79), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_80,
+      { "ErrorCode2", "pn_io.error_code2_pnio_80",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_80), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_100,
+      { "ErrorCode2", "pn_io.error_code2_pnio_100",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_100), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_101,
+      { "ErrorCode2", "pn_io.error_code2_pnio_101",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_101), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_102,
+      { "ErrorCode2", "pn_io.error_code2_pnio_102",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_102), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_103,
+      { "ErrorCode2", "pn_io.error_code2_pnio_103",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_103), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_104,
+      { "ErrorCode2", "pn_io.error_code2_pnio_104",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_104), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_105,
+      { "ErrorCode2", "pn_io.error_code2_pnio_105",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_105), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_106,
+      { "ErrorCode2", "pn_io.error_code2_pnio_106",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_106), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_107,
+      { "ErrorCode2", "pn_io.error_code2_pnio_107",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_107), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_108,
+      { "ErrorCode2", "pn_io.error_code2_pnio_108",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_108), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_109,
+      { "ErrorCode2", "pn_io.error_code2_pnio_109",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_109), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_110,
+      { "ErrorCode2", "pn_io.error_code2_pnio_110",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_110), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_112,
+      { "ErrorCode2", "pn_io.error_code2_pnio_112",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_112), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_error_code2_pnio_114,
+      { "ErrorCode2", "pn_io.error_code2_pnio_114",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_114), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_253,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_253",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_253), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_error_code2_pnio_255,
-      { "ErrorCode2", "pn_io.error_code2",
+      { "ErrorCode2", "pn_io.error_code2_pnio_255",
         FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_255), 0x0,
         NULL, HFILL }
     },
