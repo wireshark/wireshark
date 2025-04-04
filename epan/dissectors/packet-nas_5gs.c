@@ -781,6 +781,7 @@ static int hf_nas_5gs_ursp_traff_desc_next_hdr;
 static int hf_nas_5gs_ursp_traff_desc_single_remote_port;
 static int hf_nas_5gs_ursp_traff_desc_remote_port_range_low;
 static int hf_nas_5gs_ursp_traff_desc_remote_port_range_high;
+static int hf_nas_5gs_ursp_traff_desc_ip_3_tuple_bitmap;
 static int hf_nas_5gs_ursp_traff_desc_sec_param_index;
 static int hf_nas_5gs_ursp_traff_desc_tos_tc;
 static int hf_nas_5gs_ursp_traff_desc_tos_tc_mask;
@@ -9915,9 +9916,8 @@ static void
 de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
     int len = tvb_reported_length(tvb);
-    uint32_t traff_desc;
+    uint32_t traff_desc, length, i, bmp;
     int offset = 0;
-    uint32_t length, i;
 
     /*
     Traffic descriptor (octets v+5 to w)
@@ -9983,6 +9983,7 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_remote_port_range_high, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
+        case 0x52:
             /* For "IP 3 tuple type", the traffic descriptor component value field shall be encoded as a
                sequence of a one octet IP 3 tuple information bitmap field where:
                - bit 1 set to zero indicates that the IPv4 address field is absent;
@@ -10019,6 +10020,35 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                address field, IPv6 remote address/prefix length field, the protocol identifier/next
                header field, the single remote port field and the remote port range field, otherwise the
                receiving entity shall ignore the URSP rule. */
+               proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_traff_desc_ip_3_tuple_bitmap, tvb, offset, 1, ENC_NA, &bmp);
+               offset += 1;
+               if (bmp & 0x01) {
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+                   offset += 4;
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                   offset += 4;
+               }
+               if (bmp & 0x02) {
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv6, tvb, offset, 16, ENC_NA);
+                   offset += 16;
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv6_prefix_len, tvb, offset, 1, ENC_NA);
+                   offset += 1;
+               }
+               if (bmp & 0x04) {
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_next_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
+                   offset += 1;
+               }
+               if (bmp & 0x08) {
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_single_remote_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                   offset += 2;
+               }
+               if (bmp & 0x10) {
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_remote_port_range_low, tvb, offset, 2, ENC_BIG_ENDIAN);
+                   offset += 2;
+                   proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_remote_port_range_high, tvb, offset, 2, ENC_BIG_ENDIAN);
+                   offset += 2;
+               }
+               break;
         case 0x60:
             /* For "security parameter index type", the traffic descriptor component value field shall be encoded as
                four octets which specify the IPSec security parameter index. */
@@ -15164,6 +15194,11 @@ proto_register_nas_5gs(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_ursp_traff_desc_ip_3_tuple_bitmap,
+            { "IP 3 tuple bitmap", "nas-5gs.ursp.traff_desc.ip_3_tuple_bitmap",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
         { &hf_nas_5gs_ursp_traff_desc_sec_param_index,
         { "Security parameter index", "nas-5gs.ursp.traff_desc.sec_param_index",
             FT_UINT32, BASE_HEX, NULL, 0x0,
