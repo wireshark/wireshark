@@ -12,12 +12,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include "globals.h"
 #include <wsutil/ws_assert.h>
+#include <wsutil/time_util.h>
+#include <wsutil/to_str.h>
 
 #define CALC_TYPE_FRAMES 0
 #define CALC_TYPE_BYTES  1
@@ -54,7 +57,7 @@ typedef struct _io_stat_t {
     unsigned invl_prec;      /* Decimal precision of the time interval (1=10s, 2=100s etc) */
     unsigned int num_cols;         /* The number of columns of stats in the table */
     struct _io_stat_item_t *items;  /* Each item is a single cell in the table */
-    time_t start_time;    /* Time of first frame matching the filter */
+    nstime_t start_time;    /* Time of first frame matching the filter */
     /* The following are all per-column fixed information arrays */
     const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     uint64_t *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
@@ -77,6 +80,8 @@ typedef struct _io_stat_item_t {
         double double_counter;
     };
 } io_stat_item_t;
+
+static char *io_decimal_point;
 
 #define NANOSECS_PER_SEC UINT64_C(1000000000)
 
@@ -107,8 +112,8 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         relative_time = last_relative_time;
     }
 
-    if (mit->parent->start_time == 0) {
-        mit->parent->start_time = pinfo->abs_ts.secs - pinfo->rel_ts.secs;
+    if (nstime_is_unset(&mit->parent->start_time)) {
+        nstime_delta(&mit->parent->start_time, &pinfo->abs_ts, &pinfo->rel_ts);
     }
 
     /* The prev item is always the last interval in which we saw packets. */
@@ -550,6 +555,118 @@ typedef struct {
 } column_width;
 
 static void
+fill_abs_time(const nstime_t* the_time, char *time_buf, char *decimal_point, unsigned invl_prec, bool local)
+{
+    struct tm tm, *tmp;
+    char *ptr;
+    size_t remaining = NSTIME_ISO8601_BUFSIZE;
+    int num_bytes;
+
+    if (local) {
+        tmp = ws_localtime_r(&the_time->secs, &tm);
+    } else {
+        tmp = ws_gmtime_r(&the_time->secs, &tm);
+    }
+
+    if (tmp == NULL) {
+        snprintf(time_buf, remaining, "XX:XX:XX");
+        return;
+    }
+
+    ptr = time_buf;
+    num_bytes = snprintf(time_buf, NSTIME_ISO8601_BUFSIZE,
+        "%02d:%02d:%02d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec);
+    if (num_bytes < 0) {
+        // snprintf failed
+        snprintf(time_buf, remaining, "XX:XX:XX");
+        return;
+    }
+    ptr += num_bytes;
+    remaining -= num_bytes;
+    if (invl_prec != 0) {
+        num_bytes = format_fractional_part_nsecs(ptr, remaining,
+            (uint32_t)the_time->nsecs, decimal_point, invl_prec);
+        ptr += num_bytes;
+        remaining -= num_bytes;
+    }
+
+    if (!local) {
+        if (remaining == 1 && num_bytes > 0) {
+            /*
+             * If we copied a fractional part but there's only room
+             * for the terminating '\0', replace the last digit of
+             * the fractional part with the "Z". (Remaining is at
+             * least 1, otherwise we would have returned above.)
+             */
+            ptr--;
+            remaining++;
+        }
+        (void)g_strlcpy(ptr, "Z", remaining);
+    }
+    return;
+}
+
+static void
+fill_abs_ydoy_time(const nstime_t* the_time, char *time_buf, char *decimal_point, unsigned invl_prec, bool local)
+{
+    struct tm tm, *tmp;
+    char *ptr;
+    size_t remaining = NSTIME_ISO8601_BUFSIZE;
+    int num_bytes;
+
+    if (local) {
+        tmp = ws_localtime_r(&the_time->secs, &tm);
+    } else {
+        tmp = ws_gmtime_r(&the_time->secs, &tm);
+    }
+
+    if (tmp == NULL) {
+        snprintf(time_buf, remaining, "XXXX/XXX XX:XX:XX");
+        return;
+    }
+
+    ptr = time_buf;
+    num_bytes = snprintf(time_buf, NSTIME_ISO8601_BUFSIZE,
+        "%04d/%03d %02d:%02d:%02d",
+        tmp->tm_year + 1900,
+        tmp->tm_yday + 1,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec);
+    if (num_bytes < 0) {
+        // snprintf failed
+        snprintf(time_buf, remaining, "XXXX/XXX XX:XX:XX");
+        return;
+    }
+    ptr += num_bytes;
+    remaining -= num_bytes;
+    if (invl_prec != 0) {
+        num_bytes = format_fractional_part_nsecs(ptr, remaining,
+            (uint32_t)the_time->nsecs, decimal_point, invl_prec);
+        ptr += num_bytes;
+        remaining -= num_bytes;
+    }
+
+    if (!local) {
+        if (remaining == 1 && num_bytes > 0) {
+            /*
+             * If we copied a fractional part but there's only room
+             * for the terminating '\0', replace the last digit of
+             * the fractional part with the "Z". (Remaining is at
+             * least 1, otherwise we would have returned above.)
+             */
+            ptr--;
+            remaining++;
+        }
+        (void)g_strlcpy(ptr, "Z", remaining);
+    }
+    return;
+}
+
+static void
 iostat_draw(void *arg)
 {
     uint32_t num;
@@ -566,8 +683,7 @@ iostat_draw(void *arg)
     bool last_row = false;
     io_stat_t *iot;
     column_width *col_w;
-    struct tm *tm_time;
-    time_t the_time;
+    char time_buf[NSTIME_ISO8601_BUFSIZE];
 
     mit = (io_stat_item_t *)arg;
     iot = mit->parent;
@@ -648,7 +764,10 @@ iostat_draw(void *arg)
     case TS_ABSOLUTE_WITH_YDOY:
     case TS_UTC_WITH_YMD:
     case TS_UTC_WITH_YDOY:
-        invl_col_w = MAX(invl_col_w, 23);
+        // We don't show more than 6 fractional digits (+Z) currently.
+        // NSTIME_ISO8601_BUFSIZE is enough room for 9 frac digits + Z + '\0'
+        // That's 4 extra characters, which leaves room for the "|  |".
+        invl_col_w = MAX(invl_col_w, NSTIME_ISO8601_BUFSIZE + invl_prec - 6);
         break;
 
     default:
@@ -995,84 +1114,42 @@ iostat_draw(void *arg)
 
         /* Patch for Absolute Time */
         /* XXX - has a Y2.038K problem with 32-bit time_t */
-        the_time = (time_t)(iot->start_time + (t/UINT64_C(1000000)));
+        nstime_t the_time = NSTIME_INIT_SECS_USECS(t / 1000000, t % 1000000);
+        nstime_add(&the_time, &iot->start_time);
 
         /* Display the interval for this row */
         switch (timestamp_get_type()) {
         case TS_ABSOLUTE:
-          tm_time = localtime(&the_time);
-          if (tm_time != NULL) {
-            printf("| %02d:%02d:%02d |",
-               tm_time->tm_hour,
-               tm_time->tm_min,
-               tm_time->tm_sec);
-          } else
-            printf("| XX:XX:XX |");
+          fill_abs_time(&the_time, time_buf, io_decimal_point, invl_prec, true);
+          // invl_col_w includes the "|  |"
+          printf("| %-*s |", invl_col_w - 4, time_buf);
           break;
 
         case TS_ABSOLUTE_WITH_YMD:
-          tm_time = localtime(&the_time);
-          if (tm_time != NULL) {
-            printf("| %04d-%02d-%02d %02d:%02d:%02d |",
-               tm_time->tm_year + 1900,
-               tm_time->tm_mon + 1,
-               tm_time->tm_mday,
-               tm_time->tm_hour,
-               tm_time->tm_min,
-               tm_time->tm_sec);
-          } else
-            printf("| XXXX-XX-XX XX:XX:XX |");
+          format_nstime_as_iso8601(time_buf, NSTIME_ISO8601_BUFSIZE, &the_time,
+            io_decimal_point, true, invl_prec);
+          printf("| %-*s |", invl_col_w - 4, time_buf);
           break;
 
         case TS_ABSOLUTE_WITH_YDOY:
-          tm_time = localtime(&the_time);
-          if (tm_time != NULL) {
-            printf("| %04d/%03d %02d:%02d:%02d |",
-               tm_time->tm_year + 1900,
-               tm_time->tm_yday + 1,
-               tm_time->tm_hour,
-               tm_time->tm_min,
-               tm_time->tm_sec);
-          } else
-            printf("| XXXX/XXX XX:XX:XX |");
+          fill_abs_ydoy_time(&the_time, time_buf, io_decimal_point, invl_prec, true);
+          printf("| %-*s |", invl_col_w - 4, time_buf);
           break;
 
         case TS_UTC:
-          tm_time = gmtime(&the_time);
-          if (tm_time != NULL) {
-            printf("| %02d:%02d:%02d |",
-               tm_time->tm_hour,
-               tm_time->tm_min,
-               tm_time->tm_sec);
-          } else
-            printf("| XX:XX:XX |");
+          fill_abs_time(&the_time, time_buf, io_decimal_point, invl_prec, false);
+          printf("| %-*s |", invl_col_w - 4, time_buf);
           break;
 
         case TS_UTC_WITH_YMD:
-          tm_time = gmtime(&the_time);
-          if (tm_time != NULL) {
-            printf("| %04d-%02d-%02d %02d:%02d:%02d |",
-               tm_time->tm_year + 1900,
-               tm_time->tm_mon + 1,
-               tm_time->tm_mday,
-               tm_time->tm_hour,
-               tm_time->tm_min,
-               tm_time->tm_sec);
-          } else
-            printf("| XXXX-XX-XX XX:XX:XX |");
+          format_nstime_as_iso8601(time_buf, NSTIME_ISO8601_BUFSIZE, &the_time,
+            io_decimal_point, false, invl_prec);
+          printf("| %-*s |", invl_col_w - 4, time_buf);
           break;
 
         case TS_UTC_WITH_YDOY:
-          tm_time = gmtime(&the_time);
-          if (tm_time != NULL) {
-            printf("| %04d/%03d %02d:%02d:%02d |",
-               tm_time->tm_year + 1900,
-               tm_time->tm_yday + 1,
-               tm_time->tm_hour,
-               tm_time->tm_min,
-               tm_time->tm_sec);
-          } else
-            printf("| XXXX/XXX XX:XX:XX |");
+          fill_abs_ydoy_time(&the_time, time_buf, io_decimal_point, invl_prec, false);
+          printf("| %-*s |", invl_col_w - 4, time_buf);
           break;
 
         case TS_RELATIVE:
@@ -1406,6 +1483,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     io_stat_t *io;
     const char *filters, *str, *pos;
 
+    io_decimal_point = localeconv()->decimal_point;
+
     /* XXX - Why can't the last character be a comma? Shouldn't it be
      * fine for the last filter to be empty? Even in the case of locales
      * that use ',' for the decimal separator, there shouldn't be any
@@ -1504,7 +1583,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
      * Perhaps ideally we'd verify the filters before doing allocation.
      */
     io->num_cols = 1;
-    io->start_time = 0;
+    nstime_set_unset(&io->start_time);
 
     if (*filters != '\0') {
         /* Eliminate the first comma. */
