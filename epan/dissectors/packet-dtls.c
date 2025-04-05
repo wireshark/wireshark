@@ -689,27 +689,27 @@ static void
 dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_type, SslDecoder *decoder, uint8_t curr_layer_num_ssl, bool inner_content_type)
 {
     const unsigned char *data = dtls_decrypted_data.data;
-    unsigned datalen = dtls_decrypted_data_avail;
+    unsigned content_len = dtls_decrypted_data_avail;
 
-    if (datalen == 0) {
+    if (content_len == 0) {
         return;
     }
 
     if (content_type == SSL_ID_TLS12_CID || inner_content_type) {
         /*
-         * The actual data is followed by the content type and then zero or
+         * The content is followed by the content type and then zero or
          * more padding. Scan backwards for content type, skipping padding.
          */
-        while (datalen > 0 && data[datalen - 1] == 0) {
-            datalen--;
+        while (content_len > 0 && data[content_len - 1] == 0) {
+            content_len--;
         }
-        ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, dtls_decrypted_data_avail - datalen);
-        if (datalen == 0) {
+        ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, dtls_decrypted_data_avail - content_len);
+        if (content_len == 0) {
             ssl_debug_printf("%s there is no room for content type!\n", G_STRFUNC);
             return;
         }
-        content_type = data[--datalen];
-        if (datalen == 0) {
+        content_type = data[--content_len];
+        if (content_len == 0) {
             return;
         }
     }
@@ -718,7 +718,7 @@ dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_ty
     // tls_decrypt_aead_record does not increment decoder->seq after
     // successful authentication for DTLS 1.3 (unlike for TLS.)
     // XXX - The flow is only passed in here in order to support Follow Stream.
-    ssl_add_record_info(proto_dtls, pinfo, data, datalen, record_id, decoder->flow, (ContentType)content_type, curr_layer_num_ssl, decoder->seq);
+    ssl_add_record_info(proto_dtls, pinfo, data, dtls_decrypted_data_avail, content_len, record_id, decoder->flow, (ContentType)content_type, curr_layer_num_ssl, decoder->seq);
 }
 
 static bool
@@ -840,7 +840,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
     bool  dissected;
     uint16_t  saved_match_port;
     /* try to dissect decrypted data*/
-    ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
+    ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->content_len);
 
     saved_match_port = pinfo->match_uint;
     if (is_from_server) {
@@ -854,7 +854,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
       ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
                        (void *)session->app_handle,
                        dissector_handle_get_dissector_name(session->app_handle));
-      ssl_print_data("decrypted app data", record->plain_data, record->data_len);
+      ssl_print_data("decrypted app data", record->plain_data, record->content_len);
 
       if (have_tap_listener(exported_pdu_tap)) {
         export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_DISSECTOR_NAME,
@@ -930,7 +930,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   uint16_t        epoch;
   uint64_t        sequence_number;
   uint8_t         content_type;
-  unsigned        content_type_offset;
   uint8_t         next_byte;
   proto_tree     *ti;
   proto_tree     *dtls_record_tree;
@@ -1014,7 +1013,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       ct_pi = proto_tree_add_item(dtls_record_tree, hf_dtls_record_content_type,
                                   tvb, offset, 1, ENC_BIG_ENDIAN);
   }
-  content_type_offset = offset;
   offset++;
 
   /* add the version */
@@ -1089,8 +1087,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     if (content_type == SSL_ID_TLS12_CID) {
       content_type = record->type;
       ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_content_type,
-                               tvb, content_type_offset, 1, record->type);
-      proto_item_set_generated(ti);
+                               decrypted, record->content_len, 1, record->type);
+      decrypted = tvb_new_subset_length(decrypted, 0, record->content_len);
     }
   }
   ssl_check_record_length(&dissect_dtls_hf, pinfo, (ContentType)content_type, record_length, length_pi, session->version, decrypted);
@@ -1715,10 +1713,15 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
   if (decrypted)
   {
+    add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
+
+    ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_content_type,
+                             decrypted, record->content_len, 1, record->type);
+    decrypted = tvb_new_subset_length(decrypted, 0, record->content_len);
+
     ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_sequence_suffix_dec, tvb, hdr_start + 1 + cid_length,
                              seq_length, (uint16_t)record->record_seq);
     proto_item_set_generated(ti);
-    add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
     /* real content type*/
     switch ((record->type))
     {

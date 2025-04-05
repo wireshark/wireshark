@@ -533,14 +533,14 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
         follow_record->packet_num = pinfo->num;
         follow_record->abs_ts = pinfo->abs_ts;
 
-        follow_record->data = g_byte_array_sized_new(appl_data->data_len);
+        follow_record->data = g_byte_array_sized_new(appl_data->content_len);
         follow_record->data = g_byte_array_append(follow_record->data,
                                               appl_data->plain_data,
-                                              appl_data->data_len);
+                                              appl_data->content_len);
 
         /* Add the record to the follow_info structure. */
         follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
-        follow_info->bytes_written[from] += appl_data->data_len;
+        follow_info->bytes_written[from] += appl_data->content_len;
     }
 
     return TAP_PACKET_DONT_REDRAW;
@@ -1199,27 +1199,27 @@ tls_save_decrypted_record(packet_info *pinfo, int record_id, SslDecryptSession *
                           SslDecoder *decoder, bool allow_fragments, uint8_t curr_layer_num_ssl)
 {
     const unsigned char *data = ssl_decrypted_data.data;
-    unsigned datalen = ssl_decrypted_data_avail;
+    unsigned content_len = ssl_decrypted_data_avail;
 
-    if (datalen == 0) {
+    if (content_len == 0) {
         return;
     }
 
     if (ssl->session.version == TLSV1DOT3_VERSION) {
         /*
-         * The actual data is followed by the content type and then zero or
+         * The content is followed by the content type and then zero or
          * more padding. Scan backwards for content type, skipping padding.
          */
-        while (datalen > 0 && data[datalen - 1] == 0) {
-            datalen--;
+        while (content_len > 0 && data[content_len - 1] == 0) {
+            content_len--;
         }
-        ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, ssl_decrypted_data_avail - datalen);
-        if (datalen == 0) {
+        ssl_debug_printf("%s found %d padding bytes\n", G_STRFUNC, ssl_decrypted_data_avail - content_len);
+        if (content_len == 0) {
             ssl_debug_printf("%s there is no room for content type!\n", G_STRFUNC);
             return;
         }
-        content_type = data[--datalen];
-        if (datalen == 0) {
+        content_type = data[--content_len];
+        if (content_len == 0) {
             /*
              * XXX zero-length Handshake fragments are forbidden by RFC 8446,
              * Section 5.1. Empty Application Data fragments are allowed though.
@@ -1231,7 +1231,7 @@ tls_save_decrypted_record(packet_info *pinfo, int record_id, SslDecryptSession *
     /* In TLS 1.3 only Handshake and Application Data can be fragmented.
      * Alert messages MUST NOT be fragmented across records, so do not
      * bother maintaining a flow for those. */
-    ssl_add_record_info(proto_tls, pinfo, data, datalen, record_id,
+    ssl_add_record_info(proto_tls, pinfo, data, ssl_decrypted_data_avail, content_len, record_id,
             allow_fragments ? decoder->flow : NULL, (ContentType)content_type,
             curr_layer_num_ssl, decoder->seq - 1); // decoder->seq has already been incremented
 }
@@ -2036,14 +2036,14 @@ dissect_ssl_payload(tvbuff_t *decrypted, packet_info *pinfo,
     save_can_desegment = pinfo->can_desegment;
 
     /* try to dissect decrypted data*/
-    ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->data_len);
-    ssl_print_data("decrypted app data fragment", record->plain_data, record->data_len);
+    ssl_debug_printf("%s decrypted len %d\n", G_STRFUNC, record->content_len);
+    ssl_print_data("decrypted app data fragment", record->plain_data, record->content_len);
 
     /* Can we desegment this segment? */
     if (tls_desegment_app_data) {
         /* Yes. */
         pinfo->can_desegment = 2;
-        desegment_ssl(decrypted, pinfo, 0, record->seq, record->seq + record->data_len,
+        desegment_ssl(decrypted, pinfo, 0, record->seq, record->seq + record->content_len,
                       session, proto_tree_get_root(tree), tree,
                       record->flow, app_handle_port, tlsinfo);
     } else if (session->app_handle || app_handle_port) {
@@ -2102,7 +2102,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree     *ti;
     proto_tree     *ssl_record_tree;
     proto_item     *length_pi, *ct_pi;
-    unsigned        content_type_offset;
     uint32_t        available_bytes;
     tvbuff_t       *decrypted;
     SslRecordInfo  *record = NULL;
@@ -2213,7 +2212,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         ct_pi = proto_tree_add_item(ssl_record_tree, hf_tls_record_content_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
     }
-    content_type_offset = offset;
     offset++;
 
     /* add the version */
@@ -2289,8 +2287,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (session->version == TLSV1DOT3_VERSION) {
             content_type = record->type;
             ti = proto_tree_add_uint(ssl_record_tree, hf_tls_record_content_type,
-                                     tvb, content_type_offset, 1, record->type);
-            proto_item_set_generated(ti);
+                                     decrypted, record->content_len, 1, record->type);
+            decrypted = tvb_new_subset_length(decrypted, 0, record->content_len);
         }
         ti = proto_tree_add_uint64(ssl_record_tree, hf_tls_record_sequence_number,
                                      tvb, 0, 0, record->record_seq);

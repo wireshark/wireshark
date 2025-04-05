@@ -436,7 +436,11 @@ typedef struct {
 
 typedef struct _SslRecordInfo {
     unsigned char *plain_data;     /**< Decrypted data. */
-    unsigned   data_len;       /**< Length of decrypted data. */
+    unsigned plain_data_len;       /**< Total length of decrypted data,
+                                        including the content type and padding
+                                        if the TLS version supports them. */
+    unsigned content_len;   /**< Length of the part of the decrypted data
+                                 corresponding to the record content. */
     int     id;             /**< Identifies the exact record within a frame
                                  (there can be multiple records in a frame). */
     ContentType type;       /**< Content type of the decrypted record data. */
@@ -790,7 +794,10 @@ tls_add_packet_info(int proto, packet_info *pinfo, uint8_t curr_layer_num_ssl);
 
 /* add to packet data a copy of the specified real data */
 extern void
-ssl_add_record_info(int proto, packet_info *pinfo, const unsigned char *data, int data_len, int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl, uint64_t record_seq);
+ssl_add_record_info(int proto, packet_info *pinfo,
+                    const unsigned char *plain_data, int plain_data_len, int content_len,
+                    int record_id, SslFlow *flow, ContentType type, uint8_t curr_layer_num_ssl,
+                    uint64_t record_seq);
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*
