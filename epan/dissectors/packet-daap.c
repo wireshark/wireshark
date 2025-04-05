@@ -447,9 +447,6 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
    p_set_proto_depth(pinfo, proto_daap, recursion_depth);
 
    while (offset < tvb_reported_length(tvb)) {
-      tagname = tvb_get_ntohl(tvb, offset);
-      tagsize = tvb_get_ntohl(tvb, offset+4);
-
       tag_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_daap_sub, &tag_ti, "Tag: ");
 
