@@ -51,9 +51,16 @@ void RelatedPacketDelegate::initStyleOption(QStyleOptionViewItem *option,
                                          const QModelIndex &index) const
 {
     QStyledItemDelegate::initStyleOption(option, index);
+    // The decoration needs a height of at least one in order for it to
+    // properly affect the sizeHint for the width, but a nonzero decoration
+    // height always increases the hint for the height as well by at least 2,
+    // to "prevent icons from overlapping" according to Qt:
+    // https://github.com/qt/qtbase/blob/a0e0425a107aebf8727673505ea2376400b54b07/src/widgets/styles/qcommonstyle.cpp#L5027
+#if 0
     option->features |= QStyleOptionViewItem::HasDecoration;
     option->decorationSize.setHeight(1);
     option->decorationSize.setWidth(option->fontMetrics.height());
+#endif
 }
 
 void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -73,6 +80,9 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     QStyleOptionViewItem option_vi = option;
     initStyleOption(&option_vi, index);
+    option_vi.features |= QStyleOptionViewItem::HasDecoration;
+    option_vi.decorationSize.setHeight(1);
+    option_vi.decorationSize.setWidth(option.fontMetrics.height());
     int em_w = option_vi.fontMetrics.height();
     int en_w = (em_w + 1) / 2;
     int line_w = (option_vi.fontMetrics.lineWidth());
@@ -284,6 +294,10 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const
 {
+    QStyleOptionViewItem option_vi = option;
+    initStyleOption(&option_vi, index);
+
+    QSize hintNoDecoration = QStyledItemDelegate::sizeHint(option_vi, index);
     /* This prevents the sizeHint for the delegate if multiple lines are being selected
      * XXX - Do we want that? If a user resizes the columns while doing multi-select,
      * that will mean resizing to a smaller width (without space for the symbols.)
@@ -292,14 +306,16 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
     {
         MainWindow * mw = mainApp->mainWindow();
         if (mw && mw->selectedRows().count() > 1)
-            return QStyledItemDelegate::sizeHint(option, index);
+            return hintNoDecoration;
     }
 
     /* Some styles put extra space between a decoration and the contents.
      * Make sure the QStyleOptionViewItem reflects the decoration. */
-    QStyleOptionViewItem option_vi = option;
-    initStyleOption(&option_vi, index);
-    return QStyledItemDelegate::sizeHint(option_vi, index);
+    option_vi.features |= QStyleOptionViewItem::HasDecoration;
+    option_vi.decorationSize.setHeight(1);
+    option_vi.decorationSize.setWidth(option.fontMetrics.height());
+    QSize hint = QStyledItemDelegate::sizeHint(option_vi, index);
+    return QSize(hint.width(), hintNoDecoration.height());
 }
 
 void RelatedPacketDelegate::drawArrow(QPainter *painter, const QPoint tail, const QPoint head, int head_size) const
