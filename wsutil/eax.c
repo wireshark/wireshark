@@ -152,7 +152,7 @@ static void dCMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, c
      */
     if (worksize != SizeT) {
         work[SizeT] = 0x80;
-        for (ptr = &work[SizeT+1]; ptr < &work[worksize]; ptr++)
+        for (ptr = &work[SizeT+1]; ptr <= &work[worksize-1]; ptr++)
             *ptr = 0;
         ptr= &work[worksize-0x10];
         BLK_XOR(ptr, instance.Q);
