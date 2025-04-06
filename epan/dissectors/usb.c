@@ -25334,6 +25334,7 @@ static const value_string usb_products_vals[] = {
     { 0x80870029, "AX200 Bluetooth" },
     { 0x80870032, "AX210 Bluetooth" },
     { 0x80870033, "AX211 Bluetooth" },
+    { 0x80870036, "BE200 Bluetooth" },
     { 0x80870716, "Modem Flashloader" },
     { 0x808707da, "Centrino Bluetooth Wireless Transceiver" },
     { 0x808707db, "Atom C2000 Root Hub" },

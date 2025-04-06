@@ -7589,90 +7589,90 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the hex bytes of its packet data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Экспортируйте пару имя/значение для каждого поля с шестнадцатеричными байтами его пакетных данных&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Raw Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Сырой байт</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatTextGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>Групповой бокс</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished">Формат пакета</translation>
+        <translation>Формат пакета</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Строки сводки пакетов, аналогичные списку пакетов&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>Сводная линия</translation>
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Включите заголовки столбцов</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Детали пакетов, аналогичные дереву протоколов&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Детали:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Экспортируйте только детали пакетов верхнего уровня&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Все ко&amp;ллапсы</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Разворачивайте и сворачивайте сведения о пакете в том виде, в котором они отображаются в данный момент.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>As displa&amp;yed</source>
-        <translation type="unfinished"></translation>
+        <translation>Как вытесненный</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Экспорт всех подробных элементов пакета&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Всё и расширенное</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Экспортируйте шестнадцатеричный дамп данных пакета, аналогичный представлению байтов пакета&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Байты</translation>
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Включите источники вторичных данных</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Генерируйте шестнадцатеричные дампы для вторичных источников данных, таких как пересобранные или расшифрованные буферы, в дополнение к кадру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include timestamp preamble</source>
-        <translation type="unfinished"></translation>
+        <translation>Включить преамбулу временной метки</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include each frame timestamp immediately before its hex dump, using the current time display format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Включите временную метку каждого кадра непосредственно перед его шестнадцатеричным дампом, используя формат отображения текущего времени.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -7962,7 +7962,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Копировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
@@ -8450,7 +8450,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copied %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопировано %1</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -9024,7 +9024,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Выражение фильтра &quot;%1&quot; не является допустимым фильтром отображения.
+(%2).</translation>
     </message>
     <message>
         <source>Error</source>
@@ -9120,31 +9121,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Average Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Средняя пропускная способность</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished">Время приёма-передачи</translation>
+        <translation>Время поездки туда и обратно</translation>
     </message>
     <message>
         <source>Segment Length</source>
-        <translation type="unfinished">Длина сегмента</translation>
+        <translation>Длина сегмента</translation>
     </message>
     <message>
         <source>Sequence Number</source>
-        <translation type="unfinished">Номер последовательности</translation>
+        <translation>Порядковый номер</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Время</translation>
+        <translation>Время</translation>
     </message>
     <message>
         <source>Window Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Размер окна</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Нераспакованные (неиспользованные) байты</translation>
     </message>
 </context>
 <context>
@@ -12124,11 +12125,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sampling Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Метод выборки</translation>
     </message>
     <message>
         <source>Select which packets and how the RTT sampling is done</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбор пакетов и способа выборки RTT</translation>
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
@@ -12428,35 +12429,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All Data Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Все пакеты данных</translation>
     </message>
     <message>
         <source>Sampling from all data packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Выборка из всех пакетов данных</translation>
     </message>
     <message>
         <source>All Data Packets w/ SACK</source>
-        <translation type="unfinished"></translation>
+        <translation>Все пакеты данных/ SACK</translation>
     </message>
     <message>
         <source>Sampling from all data packets w/ SACK</source>
-        <translation type="unfinished"></translation>
+        <translation>Выборка из всех пакетов данных/ SACK</translation>
     </message>
     <message>
         <source>Data Packets matching RTT</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакеты данных, соответствующие RTT</translation>
     </message>
     <message>
         <source>Sampling from RTT packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Выборка из пакетов RTT</translation>
     </message>
     <message>
         <source>Data Packets matching Karn RTT</source>
-        <translation type="unfinished"></translation>
+        <translation>Пакеты данных, соответствующие Karn RTT</translation>
     </message>
     <message>
         <source>Sampling from Karn RTT packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Выборка из пакетов Karn RTT</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
@@ -12773,11 +12774,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display exact numbers instead of rounding with SI prefixes. (Exact numbers always used when sorting.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Отображение точных чисел вместо округления с префиксами SI. (Точные числа всегда используются при сортировке)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>Отображение исходных данных</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -14650,19 +14651,19 @@ a:hover {
     </message>
     <message>
         <source>First Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Первый пакет в разговоре</translation>
     </message>
     <message>
         <source>Go to the first packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейдите к первому пакету в этой беседе.</translation>
     </message>
     <message>
         <source>Last Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Последний пакет в разговоре</translation>
     </message>
     <message>
         <source>Go to the last packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейдите к последнему пакету в этой беседе.</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -15168,15 +15169,15 @@ a:hover {
     </message>
     <message>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>Дата и время дня по Гринвичу (1970-01-01 01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>Год, день года и время суток UTC (1970/001 01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>UTC Time of Day (01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>Время дня по Гринвичу (01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -15395,7 +15396,8 @@ a:hover {
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Выражение фильтра &quot;%1&quot; не является допустимым фильтром чтения.
+(%2).</translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>
