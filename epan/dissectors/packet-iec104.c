@@ -729,7 +729,7 @@ static const true_false_string tfs_not_topical_topical = { "Not Topical", "Topic
 static const true_false_string tfs_transient_not_transient = { "Transient", "Not Transient" };
 static const true_false_string tfs_overflow_no_overflow = { "Overflow", "No overflow" };
 static const true_false_string tfs_select_execute = { "Select", "Execute" };
-static const true_false_string tfs_local_dst = { "DST", "Local" };
+static const true_false_string tfs_summer_standard_time = { "Summer time", "Standard time" };
 static const true_false_string tfs_coi_i = { "Initialisation after change of local parameters", "Initialisation with unchanged local parameters" };
 static const true_false_string tfs_adjusted_not_adjusted = { "Adjusted", "Not Adjusted" };
 
@@ -3008,7 +3008,7 @@ proto_register_iec60870_asdu(void)
 		    "CP56Time hours", HFILL }},
 
 		{ &hf_cp56time_su,
-		  { "SU", "iec60870_asdu.cp56time.su", FT_BOOLEAN, 8, TFS(&tfs_local_dst), 0x80,
+		  { "SU", "iec60870_asdu.cp56time.su", FT_BOOLEAN, 8, TFS(&tfs_summer_standard_time), 0x80,
 		    "CP56Time summer time", HFILL }},
 
 		{ &hf_cp56time_day,
@@ -3288,7 +3288,7 @@ proto_register_iec60870_asdu(void)
 		    "Error time stamp hours", HFILL }},
 
 		{ &hf_etm_su,
-		  { "SU", "iec60870_asdu.etm.su", FT_BOOLEAN, 8, TFS(&tfs_local_dst), 0x80,
+		  { "SU", "iec60870_asdu.etm.su", FT_BOOLEAN, 8, TFS(&tfs_summer_standard_time), 0x80,
 		    "Error time stamp summer time", HFILL }},
 
 		{ &hf_etm_day,
