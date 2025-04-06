@@ -23,6 +23,7 @@ void proto_register_echo(void);
 void proto_reg_handoff_echo(void);
 
 static dissector_handle_t echo_handle;
+static dissector_handle_t wol_handle;
 static int proto_echo;
 
 static int hf_echo_data;
@@ -54,6 +55,19 @@ static int dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
+static int
+dissect_echo_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  /* Wake On Lan is commonly used over UDP port 7 and has strong heuristics,
+   * whereas the echo dissector never rejects a packet, so try WOL first.
+   * Unfortunately "echo" still ends up in frame.protocols this way.
+   */
+  if (wol_handle && call_dissector_only(wol_handle, tvb, pinfo, tree, data)) {
+    return tvb_captured_length(tvb);
+  }
+  return dissect_echo(tvb, pinfo, tree, data);
+}
+
 void proto_register_echo(void)
 {
 
@@ -81,8 +95,10 @@ void proto_register_echo(void)
 
 void proto_reg_handoff_echo(void)
 {
-  dissector_add_uint_with_preference("udp.port", ECHO_PORT, echo_handle);
+  dissector_add_uint_with_preference("udp.port", ECHO_PORT, create_dissector_handle(dissect_echo_udp, proto_echo));
   dissector_add_uint_with_preference("tcp.port", ECHO_PORT, echo_handle);
+
+  wol_handle = find_dissector_add_dependency("wol", proto_echo);
 }
 
 /*
