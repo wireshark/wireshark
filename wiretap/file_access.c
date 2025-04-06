@@ -105,6 +105,7 @@
 #include "peak-trc.h"
 #include "netlog.h"
 #include "procmon.h"
+#include "vector-asc.h"
 
 /*
  * Add an extension, and all compressed versions thereof if requested,
@@ -357,6 +358,7 @@ static const struct open_info open_info_base[] = {
 	{ "Candump log",                            OPEN_INFO_HEURISTIC, candump_open,             NULL,       NULL, NULL },
 	{ "Busmaster log",                          OPEN_INFO_HEURISTIC, busmaster_open,           NULL,       NULL, NULL },
 	{ "CSS Electronics CLX000 CAN log",         OPEN_INFO_MAGIC,     cllog_open,               "txt",      NULL, NULL },
+	{ "Vector ASC CAN log",                     OPEN_INFO_HEURISTIC, vector_asc_open,          "asc",      NULL, NULL },
 	{ "Ericsson eNode-B raw log",               OPEN_INFO_MAGIC,     eri_enb_log_open,         NULL,       NULL, NULL },
 	{ "Systemd Journal",                        OPEN_INFO_HEURISTIC, systemd_journal_open,     "log;jnl;journal",      NULL, NULL },
 	{ "PEAK CAN TRC log",                       OPEN_INFO_HEURISTIC, peak_trc_open,            "trc",      NULL, NULL },
