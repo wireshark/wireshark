@@ -304,9 +304,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
-    char temp[50];
-    snprintf(temp, 50, "%%s %%s", h225_pi->frame_label, codec_str);
-    (void) g_strlcpy(h225_pi->frame_label, temp, 50);
+    h225_pi->frame_label = wmem_strdup_printf(actx->pinfo->pool, "%%s %%s", h225_pi->frame_label, codec_str);
     h225_pi->is_faststart = true;
   }
   contains_faststart = true;
@@ -413,7 +411,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Status-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_STATUS, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_STATUS, false);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR Information-UUIE
@@ -423,7 +421,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Information-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_INFORMATION, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_INFORMATION, false);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR Progress-UUIE
@@ -433,7 +431,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Progress-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_PROGRESS, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_PROGRESS, contains_faststart);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR SetupAcknowledge-UUIE
@@ -443,7 +441,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR SetupAcknowledge-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_SETUP_ACK, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_SETUP_ACK, false);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR Facility-UUIE
@@ -453,7 +451,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Facility-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_FACILITY, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_FACILITY, false);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H323-UU-PDU/h245Tunnelling
@@ -476,7 +474,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Setup-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_SETUP, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_SETUP, contains_faststart);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR CallProceeding-UUIE
@@ -486,7 +484,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR CallProceeding-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_CALL_PROCEDING, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_CALL_PROCEDING, contains_faststart);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR Alerting-UUIE
@@ -496,7 +494,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Alerting-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_ALERTING, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_ALERTING, contains_faststart);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR ReleaseComplete-UUIE
@@ -506,7 +504,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR ReleaseComplete-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_RELEASE_COMPLET, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_RELEASE_COMPLET, false);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR Connect-UUIE
@@ -516,7 +514,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR Connect-UUIE
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_CONNECT, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_CONNECT, contains_faststart);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H245TransportAddress

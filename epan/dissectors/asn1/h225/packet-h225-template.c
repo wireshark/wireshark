@@ -236,7 +236,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
   return TAP_PACKET_REDRAW;
 }
 
-static void h225_set_cs_type(h225_packet_info* h225_pi, h225_cs_type cs_type, bool faststart)
+static void h225_set_cs_type(packet_info *pinfo, h225_packet_info* h225_pi, h225_cs_type cs_type, bool faststart)
 {
   if (h225_pi == NULL)
     return;
@@ -248,11 +248,9 @@ static void h225_set_cs_type(h225_packet_info* h225_pi, h225_cs_type cs_type, bo
    * Is that an oversight or intentional?
    */
   if (faststart) {
-    char temp[50];
-    snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-    (void) g_strlcpy(h225_pi->frame_label, temp, 50);
+    h225_pi->frame_label = wmem_strdup_printf(pinfo->pool, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
   } else {
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    h225_pi->frame_label = wmem_strdup(pinfo->pool, val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 }
 
@@ -970,6 +968,7 @@ static h225_packet_info* create_h225_packet_info(packet_info *pinfo)
   pi->cs_type = H225_OTHER;
   pi->msg_tag = -1;
   pi->reason = -1;
+  pi->frame_label = wmem_strdup(pinfo->pool, "");
 
   return pi;
 }

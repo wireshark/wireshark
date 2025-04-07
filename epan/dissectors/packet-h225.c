@@ -1251,7 +1251,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
   return TAP_PACKET_REDRAW;
 }
 
-static void h225_set_cs_type(h225_packet_info* h225_pi, h225_cs_type cs_type, bool faststart)
+static void h225_set_cs_type(packet_info *pinfo, h225_packet_info* h225_pi, h225_cs_type cs_type, bool faststart)
 {
   if (h225_pi == NULL)
     return;
@@ -1263,11 +1263,9 @@ static void h225_set_cs_type(h225_packet_info* h225_pi, h225_cs_type cs_type, bo
    * Is that an oversight or intentional?
    */
   if (faststart) {
-    char temp[50];
-    snprintf(temp, 50, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-    (void) g_strlcpy(h225_pi->frame_label, temp, 50);
+    h225_pi->frame_label = wmem_strdup_printf(pinfo->pool, "%s OLC (%s)", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
   } else {
-    snprintf(h225_pi->frame_label, 50, "%s", val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
+    h225_pi->frame_label = wmem_strdup(pinfo->pool, val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
 }
 
@@ -3228,9 +3226,7 @@ dissect_h225_FastStart_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
   if (h225_pi != NULL) {
-    char temp[50];
-    snprintf(temp, 50, "%s %s", h225_pi->frame_label, codec_str);
-    (void) g_strlcpy(h225_pi->frame_label, temp, 50);
+    h225_pi->frame_label = wmem_strdup_printf(actx->pinfo->pool, "%s %s", h225_pi->frame_label, codec_str);
     h225_pi->is_faststart = true;
   }
   contains_faststart = true;
@@ -4249,7 +4245,7 @@ dissect_h225_Setup_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_SETUP, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_SETUP, contains_faststart);
   return offset;
 }
 
@@ -4295,7 +4291,7 @@ dissect_h225_CallProceeding_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_CALL_PROCEDING, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_CALL_PROCEDING, contains_faststart);
   return offset;
 }
 
@@ -4332,7 +4328,7 @@ dissect_h225_Connect_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_CONNECT, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_CONNECT, contains_faststart);
   return offset;
 }
 
@@ -4367,7 +4363,7 @@ dissect_h225_Alerting_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_ALERTING, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_ALERTING, contains_faststart);
   return offset;
 }
 
@@ -4391,7 +4387,7 @@ dissect_h225_Information_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_INFORMATION, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_INFORMATION, false);
   return offset;
 }
 
@@ -4547,7 +4543,7 @@ dissect_h225_ReleaseComplete_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_RELEASE_COMPLET, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_RELEASE_COMPLET, false);
   return offset;
 }
 
@@ -4662,7 +4658,7 @@ dissect_h225_Facility_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_FACILITY, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_FACILITY, false);
   return offset;
 }
 
@@ -4690,7 +4686,7 @@ dissect_h225_Progress_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_PROGRESS, contains_faststart);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_PROGRESS, contains_faststart);
   return offset;
 }
 
@@ -4725,7 +4721,7 @@ dissect_h225_Status_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_STATUS, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_STATUS, false);
   return offset;
 }
 
@@ -4763,7 +4759,7 @@ dissect_h225_SetupAcknowledge_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   /* Add to packet info */
   h225_pi = (h225_packet_info*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_h225, 0);
-  h225_set_cs_type(h225_pi, H225_SETUP_ACK, false);
+  h225_set_cs_type(actx->pinfo, h225_pi, H225_SETUP_ACK, false);
   return offset;
 }
 
@@ -11677,6 +11673,7 @@ static h225_packet_info* create_h225_packet_info(packet_info *pinfo)
   pi->cs_type = H225_OTHER;
   pi->msg_tag = -1;
   pi->reason = -1;
+  pi->frame_label = wmem_strdup(pinfo->pool, "");
 
   return pi;
 }

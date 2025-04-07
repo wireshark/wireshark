@@ -58,7 +58,7 @@ typedef struct _h225_packet_info {
   uint16_t      h245_port;
   char          dialedDigits[129]; /* Dialed Digits in the LRQ and LCF used for voip analysis */
   bool          is_destinationInfo;
-  char          frame_label[50];   /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
+  char         *frame_label;       /* the Frame label used by graph_analysis, what is an abbreviation of cinfo */
 } h225_packet_info;
 
 /*
