@@ -83,33 +83,34 @@ struct pref_custom_cbs {
     pref_custom_to_str_cb to_str_cb;
 };
 
-/**
- * PREF_OBSOLETE is used for preferences that a module used to support
- * but no longer supports; we give different error messages for them.
- */
-#define PREF_UINT             (1u << 0)
-#define PREF_BOOL             (1u << 1)
-#define PREF_ENUM             (1u << 2)
-#define PREF_STRING           (1u << 3)
-#define PREF_RANGE            (1u << 4)
-#define PREF_STATIC_TEXT      (1u << 5)
-#define PREF_UAT              (1u << 6)
-#define PREF_SAVE_FILENAME    (1u << 7)
-#define PREF_COLOR            (1u << 8) /* XXX - These are only supported for "internal" (non-protocol) */
-#define PREF_CUSTOM           (1u << 9) /* use and not as a generic protocol preference */
-#define PREF_OBSOLETE         (1u << 10)
-#define PREF_DIRNAME          (1u << 11)
-// Was PREF_DECODE_AS_UINT   (1u << 12)
-#define PREF_DECODE_AS_RANGE  (1u << 13) /* XXX - Internal use only, not a generic protocol preference */
-#define PREF_OPEN_FILENAME    (1u << 14)
-#define PREF_PASSWORD         (1u << 15) /* like string, but never saved to prefs file */
-/**
- * Dedicated to TCP PROTOCOL for handling manual SEQ interpretation,
- * and allow users manage the sender traffic ambiguities
- */
-#define PREF_PROTO_TCP_SNDAMB_ENUM   (1u << 16)
+typedef enum {
+    PREF_UINT,
+    PREF_BOOL,
+    PREF_ENUM,
+    PREF_STRING,
+    PREF_RANGE,
+    PREF_STATIC_TEXT,
+    PREF_UAT,
+    PREF_SAVE_FILENAME,
+    PREF_COLOR,                 // (1)
+    PREF_CUSTOM,                // (1)
+    PREF_DIRNAME,
+    PREF_DECODE_AS_RANGE,       // (2)
+    PREF_OPEN_FILENAME,
+    PREF_PASSWORD,              // (3)
+    PREF_PROTO_TCP_SNDAMB_ENUM, // (4)
+    PREF_DISSECTOR              // (5)
+} pref_type_e;
 
-#define PREF_DISSECTOR        (1u << 17) /* like string, but with dissector name syntax check */
+/*
+ * (1) These are only supported for "internal" (non-protocol) use
+ *     and not as a generic protocol preference.
+ * (2) Internal use only, not a generic protocol preference.
+ * (3) Like string, but never saved to prefs file.
+ * (4) Dedicated to TCP PROTOCOL for handling manual SEQ interpretation,
+ *     and allow users manage the sender traffic ambiguities
+ * (5) Like string, but with dissector name syntax check.
+ */
 
 /* read_prefs_file: read in a generic config file and do a callback to */
 /* pref_set_pair_fct() for every key/value pair found */

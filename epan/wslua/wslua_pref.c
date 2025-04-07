@@ -256,7 +256,7 @@ static uat_field_t* get_uat_flds_array(lua_State *L, int idx, char * uat_filenam
     return ret;
 }
 
-static int new_pref(lua_State* L, pref_type_t type) {
+static int new_pref(lua_State* L, pref_type_e type) {
     const char* label = luaL_optstring(L,1,NULL);
     const char* descr = luaL_optstring(L,3,"");
 

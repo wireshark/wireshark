@@ -938,6 +938,15 @@ char *prefs_pref_type_description(pref_t *pref);
 WS_DLL_PUBLIC
 char *prefs_pref_to_str(pref_t *pref, pref_source_t source);
 
+/** Fetch whether a preference is marked obsolete.
+ *
+ * @param pref A preference.
+ *
+ * @return A boolean indication the obsolesence of the preference.
+ */
+WS_DLL_PUBLIC
+bool prefs_is_preference_obsolete(pref_t *pref);
+
 /**
  * Read the preferences file, fill in "prefs", and return a pointer to it.
  * If we got an error (other than "it doesn't exist") we report it through

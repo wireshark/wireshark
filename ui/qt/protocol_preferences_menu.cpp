@@ -234,6 +234,9 @@ void ProtocolPreferencesMenu::setModule(const QString module_name)
 
 void ProtocolPreferencesMenu::addMenuItem(preference *pref)
 {
+    if (prefs_is_preference_obsolete(pref))
+        return;
+
     switch (prefs_get_type(pref)) {
     case PREF_BOOL:
     {
@@ -284,7 +287,6 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
     }
     case PREF_CUSTOM:
     case PREF_STATIC_TEXT:
-    case PREF_OBSOLETE:
         break;
     case PREF_PROTO_TCP_SNDAMB_ENUM:
     {

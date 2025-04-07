@@ -274,7 +274,7 @@ fill_prefs(module_t *module, void *root_ptr)
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
         pref_t *pref = gxx_list_data(pref_t *, pref_l);
 
-        if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT)
+        if (prefs_is_preference_obsolete(pref) || (prefs_get_type(pref) == PREF_STATIC_TEXT))
             continue;
 
         const char *type_name = prefs_pref_type_name(pref);
@@ -329,7 +329,7 @@ void PrefsModel::populate()
     root_->prependChild(special_item);
 }
 
-QString PrefsModel::typeToString(int type)
+QString PrefsModel::typeToString(PrefsModelType type)
 {
     QString typeStr;
 
@@ -349,7 +349,7 @@ QString PrefsModel::typeToString(int type)
     return typeStr;
 }
 
-QString PrefsModel::typeToHelp(int type)
+QString PrefsModel::typeToHelp(PrefsModelType type)
 {
     QString helpStr;
 

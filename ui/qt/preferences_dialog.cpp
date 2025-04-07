@@ -51,7 +51,7 @@ module_prefs_unstash(module_t *module, void *data)
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
         pref_t *pref = gxx_list_data(pref_t *, pref_l);
 
-        if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
+        if (prefs_is_preference_obsolete(pref) || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
         unstashed_data.module = module;
         pref_unstash(pref, &unstashed_data);
@@ -75,7 +75,7 @@ module_prefs_clean_stash(module_t *module, void *)
     for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
         pref_t *pref = gxx_list_data(pref_t *, pref_l);
 
-        if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
+        if (prefs_is_preference_obsolete(pref) || prefs_get_type(pref) == PREF_STATIC_TEXT) continue;
 
         pref_clean_stash(pref, Q_NULLPTR);
     }

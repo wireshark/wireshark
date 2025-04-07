@@ -5435,91 +5435,92 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, void *d)
     snprintf(json_pref_key, sizeof(json_pref_key), "%s.%s", data->module->name, pref_name);
     sharkd_json_object_open(json_pref_key);
 
-    switch (prefs_get_type(pref))
-    {
-        case PREF_UINT:
-            sharkd_json_value_anyf("u", "%u", prefs_get_uint_value(pref, pref_current));
-            if (prefs_get_uint_base(pref) != 10)
-                sharkd_json_value_anyf("ub", "%u", prefs_get_uint_base(pref));
-            break;
-
-        case PREF_BOOL:
-            sharkd_json_value_anyf("b", prefs_get_bool_value(pref, pref_current) ? "1" : "0");
-            break;
-
-        case PREF_STRING:
-        case PREF_SAVE_FILENAME:
-        case PREF_OPEN_FILENAME:
-        case PREF_DIRNAME:
-        case PREF_PASSWORD:
-        case PREF_DISSECTOR:
-            sharkd_json_value_string("s", prefs_get_string_value(pref, pref_current));
-            break;
-
-        case PREF_ENUM:
-            {
-                const enum_val_t *enums;
-
-                sharkd_json_array_open("e");
-                for (enums = prefs_get_enumvals(pref); enums->name; enums++)
-                {
-                    json_dumper_begin_object(&dumper);
-
-                    sharkd_json_value_anyf("v", "%d", enums->value);
-
-                    if (enums->value == prefs_get_enum_value(pref, pref_current))
-                        sharkd_json_value_anyf("s", "1");
-
-                    sharkd_json_value_string("d", enums->description);
-
-                    json_dumper_end_object(&dumper);
-                }
-                sharkd_json_array_close();
+    if (!prefs_is_preference_obsolete(pref)) {
+        switch (prefs_get_type(pref))
+        {
+            case PREF_UINT:
+                sharkd_json_value_anyf("u", "%u", prefs_get_uint_value(pref, pref_current));
+                if (prefs_get_uint_base(pref) != 10)
+                    sharkd_json_value_anyf("ub", "%u", prefs_get_uint_base(pref));
                 break;
-            }
 
-        case PREF_RANGE:
-        case PREF_DECODE_AS_RANGE:
-            {
-                char *range_str = range_convert_range(NULL, prefs_get_range_value_real(pref, pref_current));
-                sharkd_json_value_string("r", range_str);
-                wmem_free(NULL, range_str);
+            case PREF_BOOL:
+                sharkd_json_value_anyf("b", prefs_get_bool_value(pref, pref_current) ? "1" : "0");
                 break;
-            }
 
-        case PREF_UAT:
-            {
-                uat_t *uat = prefs_get_uat_value(pref);
-                unsigned idx;
+            case PREF_STRING:
+            case PREF_SAVE_FILENAME:
+            case PREF_OPEN_FILENAME:
+            case PREF_DIRNAME:
+            case PREF_PASSWORD:
+            case PREF_DISSECTOR:
+                sharkd_json_value_string("s", prefs_get_string_value(pref, pref_current));
+                break;
 
-                sharkd_json_array_open("t");
-                for (idx = 0; idx < uat->raw_data->len; idx++)
+            case PREF_ENUM:
                 {
-                    void *rec = UAT_INDEX_PTR(uat, idx);
-                    unsigned colnum;
+                    const enum_val_t *enums;
 
-                    sharkd_json_array_open(NULL);
-                    for (colnum = 0; colnum < uat->ncols; colnum++)
+                    sharkd_json_array_open("e");
+                    for (enums = prefs_get_enumvals(pref); enums->name; enums++)
                     {
-                        char *str = uat_fld_tostr(rec, &(uat->fields[colnum]));
+                        json_dumper_begin_object(&dumper);
 
-                        sharkd_json_value_string(NULL, str);
-                        g_free(str);
+                        sharkd_json_value_anyf("v", "%d", enums->value);
+
+                        if (enums->value == prefs_get_enum_value(pref, pref_current))
+                            sharkd_json_value_anyf("s", "1");
+
+                        sharkd_json_value_string("d", enums->description);
+
+                        json_dumper_end_object(&dumper);
+                    }
+                    sharkd_json_array_close();
+                    break;
+                }
+
+            case PREF_RANGE:
+            case PREF_DECODE_AS_RANGE:
+                {
+                    char *range_str = range_convert_range(NULL, prefs_get_range_value_real(pref, pref_current));
+                    sharkd_json_value_string("r", range_str);
+                    wmem_free(NULL, range_str);
+                    break;
+                }
+
+            case PREF_UAT:
+                {
+                    uat_t *uat = prefs_get_uat_value(pref);
+                    unsigned idx;
+
+                    sharkd_json_array_open("t");
+                    for (idx = 0; idx < uat->raw_data->len; idx++)
+                    {
+                        void *rec = UAT_INDEX_PTR(uat, idx);
+                        unsigned colnum;
+
+                        sharkd_json_array_open(NULL);
+                        for (colnum = 0; colnum < uat->ncols; colnum++)
+                        {
+                            char *str = uat_fld_tostr(rec, &(uat->fields[colnum]));
+
+                            sharkd_json_value_string(NULL, str);
+                            g_free(str);
+                        }
+
+                        sharkd_json_array_close();
                     }
 
                     sharkd_json_array_close();
+                    break;
                 }
 
-                sharkd_json_array_close();
+            case PREF_COLOR:
+            case PREF_CUSTOM:
+            case PREF_STATIC_TEXT:
+                /* TODO */
                 break;
-            }
-
-        case PREF_COLOR:
-        case PREF_CUSTOM:
-        case PREF_STATIC_TEXT:
-        case PREF_OBSOLETE:
-            /* TODO */
-            break;
+        }
     }
 
 #if 0

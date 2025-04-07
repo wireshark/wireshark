@@ -41,6 +41,7 @@
 #include <epan/uat-int.h>
 #include <epan/uat.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
@@ -168,26 +169,11 @@ typedef struct _wslua_expert_field_t {
     int severity;
 } wslua_expert_field_t;
 
-/**
- * PREF_OBSOLETE is used for preferences that a module used to support
- * but no longer supports; we give different error messages for them.
- */
-typedef enum {
-    PREF_UINT,
-    PREF_BOOL,
-    PREF_ENUM,
-    PREF_STRING,
-    PREF_RANGE,
-    PREF_STATIC_TEXT,
-    PREF_UAT,
-    PREF_OBSOLETE
-} pref_type_t;
-
 typedef struct _wslua_pref_t {
     char* name;
     char* label;
     char* desc;
-    pref_type_t type;
+    pref_type_e type;
     union {
         bool b;
         unsigned u;
