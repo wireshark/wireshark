@@ -990,24 +990,25 @@ stat_number_to_string_with_any(uint32_t value, unsigned max, char *format_string
 
 static void
 stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, char *ret, size_t size_limit) {
-    char service_str[128];
-    char instance_str[128];
-    char majorver_str[128];
-    char minorver_str[128];
-    char eventgrp_str[128];
-    char tmp[128];
+    char service_str[16];
+    char instance_str[16];
+    char majorver_str[16];
+    char minorver_str[16];
+    char eventgrp_str[16];
+
+    int bytes_written;
 
     char *service_name  = someip_lookup_service_name(data->service_id);
     char *eventgrp_name = someip_lookup_eventgroup_name(data->service_id, data->eventgroup_id);
 
-    stat_number_to_string_with_any(data->service_id, UINT32_MAX, "0x%04x", service_str, sizeof(service_str) - 1);
-    stat_number_to_string_with_any(data->instance_id, UINT32_MAX, "0x%04x", instance_str, sizeof(instance_str) - 1);
-    stat_number_to_string_with_any(data->major_version, UINT8_MAX, "%d", majorver_str, sizeof(majorver_str) - 1);
+    stat_number_to_string_with_any(data->service_id, UINT32_MAX, "0x%04x", service_str, sizeof(service_str));
+    stat_number_to_string_with_any(data->instance_id, UINT32_MAX, "0x%04x", instance_str, sizeof(instance_str));
+    stat_number_to_string_with_any(data->major_version, UINT8_MAX, "%d", majorver_str, sizeof(majorver_str));
 
     switch (data->entry_type) {
     case SD_ENTRY_FIND_SERVICE:
     case SD_ENTRY_OFFER_SERVICE:
-        stat_number_to_string_with_any(data->minor_version, UINT32_MAX, "%d", minorver_str, sizeof(minorver_str) - 1);
+        stat_number_to_string_with_any(data->minor_version, UINT32_MAX, "%d", minorver_str, sizeof(minorver_str));
         if (service_name != NULL) {
             snprintf(ret, size_limit, "Service %s (%s) Version %s.%s Instance %s", service_str, service_name, majorver_str, minorver_str, instance_str);
         } else {
@@ -1017,14 +1018,14 @@ stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, char *ret,
 
     case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
     case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
-        stat_number_to_string_with_any(data->eventgroup_id, UINT32_MAX, "0x%04x", eventgrp_str, sizeof(eventgrp_str) - 1);
+        stat_number_to_string_with_any(data->eventgroup_id, UINT32_MAX, "0x%04x", eventgrp_str, sizeof(eventgrp_str));
         if (service_name != NULL) {
-            snprintf(tmp, sizeof(tmp) - 1, "Service %s (%s) Version %s Instance %s Eventgroup %s", service_str, service_name, majorver_str, instance_str, eventgrp_str);
+            bytes_written = snprintf(ret, size_limit, "Service %s (%s) Version %s Instance %s Eventgroup %s", service_str, service_name, majorver_str, instance_str, eventgrp_str);
         } else {
-            snprintf(tmp, sizeof(tmp) - 1, "Service %s Version %s Instance %s Eventgroup %s", service_str, majorver_str, instance_str, eventgrp_str);
+            bytes_written = snprintf(ret, size_limit, "Service %s Version %s Instance %s Eventgroup %s", service_str, majorver_str, instance_str, eventgrp_str);
         }
-        if (eventgrp_name != NULL) {
-            snprintf(ret, size_limit, "%s (%s)", tmp, eventgrp_name);
+        if (bytes_written > 0 && ((size_t)bytes_written < size_limit) && eventgrp_name != NULL) {
+            snprintf(&ret[bytes_written], size_limit - bytes_written, " (%s)", eventgrp_name);
         }
         break;
     }
