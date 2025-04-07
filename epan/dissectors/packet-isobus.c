@@ -707,10 +707,10 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
             int8_t utc_hour_offset = tvb_get_int8(tvb, 7) - 125;
             int8_t utc_min_offset = tvb_get_int8(tvb, 6) - 125;
 
-            char utc_min_offset_str[9]  = {0};
+            wmem_strbuf_t *utc_min_offset_strbuf = wmem_strbuf_create(pinfo->pool);
             if (utc_min_offset)
             {
-                snprintf(utc_min_offset_str, 8, "%d min", utc_min_offset);
+                wmem_strbuf_append_printf(utc_min_offset_strbuf, " %d min", utc_min_offset);
             }
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Date/time:  %u.%u.%u %u:%u:%u (UTC+%d hour%s)",
@@ -721,7 +721,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
                 tvb_get_uint8(tvb, 1),
                 sec,
                 utc_hour_offset,
-                utc_min_offset_str
+                wmem_strbuf_finalize(utc_min_offset_strbuf)
             );
             proto_tree *datetime_tree;
             ti = proto_tree_add_item(isobus_tree, hf_isobus_datetime_response, tvb, 0, 8, ENC_NA);
