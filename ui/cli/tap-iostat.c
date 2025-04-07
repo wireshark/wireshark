@@ -678,7 +678,7 @@ iostat_draw(void *arg)
     unsigned int val_mag;   /* The magnitude of the max value in this column */
     char *spaces, *spaces_s, *filler_s = NULL, **fmts, *fmt = NULL;
     const char *filter;
-    static char dur_mag_s[3], invl_prec_s[3], fr_mag_s[3], val_mag_s[3], *invl_fmt, *full_fmt;
+    static char *invl_fmt, *full_fmt;
     io_stat_item_t *mit, **stat_cols, *item, **item_in_column;
     bool last_row = false;
     io_stat_t *iot;
@@ -713,7 +713,6 @@ iostat_draw(void *arg)
     dur_nsecs = (unsigned int)(duration%UINT64_C(1000000));
     dur_nsecs_orig = dur_nsecs;
     dur_mag = magnitude((uint64_t)dur_secs, 5);
-    snprintf(dur_mag_s, 3, "%u", dur_mag);
 
     /* Calc the interval's magnitude */
     invl_mag = magnitude(interval/UINT64_C(1000000), 5);
@@ -796,10 +795,9 @@ iostat_draw(void *arg)
             fr_mag = MAX(6, fr_mag);
             col_w[j].fr = fr_mag;
             tabrow_w += col_w[j].fr + 3;
-            snprintf(fr_mag_s, 3, "%u", fr_mag);
 
             if (type == CALC_TYPE_FRAMES) {
-                fmt = g_strconcat(" %", fr_mag_s, "u |", NULL);
+                fmt = g_strdup_printf(" %%%uu |", fr_mag);
             } else {
                 /* CALC_TYPE_FRAMES_AND_BYTES
                 */
@@ -807,8 +805,7 @@ iostat_draw(void *arg)
                 val_mag = MAX(5, val_mag);
                 col_w[j].val = val_mag;
                 tabrow_w += (col_w[j].val + 3);
-                snprintf(val_mag_s, 3, "%u", val_mag);
-                fmt = g_strconcat(" %", fr_mag_s, "u |", " %", val_mag_s, PRIu64 " |", NULL);
+                fmt = g_strdup_printf(" %%%uu | %%%u"PRIu64 " |", fr_mag, val_mag);
             }
             if (fmt)
                 fmts[j] = fmt;
@@ -821,8 +818,7 @@ iostat_draw(void *arg)
             val_mag = magnitude(iot->max_vals[j], 15);
             val_mag = MAX(5, val_mag);
             col_w[j].val = val_mag;
-            snprintf(val_mag_s, 3, "%u", val_mag);
-            fmt = g_strconcat(" %", val_mag_s, PRIu64 " |", NULL);
+            fmt = g_strdup_printf(" %%%u"PRIu64" |", val_mag);
             break;
 
         default:
@@ -831,8 +827,7 @@ iostat_draw(void *arg)
                 case FT_FLOAT:
                 case FT_DOUBLE:
                     val_mag = magnitude(iot->max_vals[j], 15);
-                    snprintf(val_mag_s, 3, "%u", val_mag);
-                    fmt = g_strconcat(" %", val_mag_s, ".6f |", NULL);
+                    fmt = g_strdup_printf(" %%%u.6f |", val_mag);
                     col_w[j].val = val_mag + 7;
                     break;
                 case FT_RELATIVE_TIME:
@@ -844,8 +839,7 @@ iostat_draw(void *arg)
                         iot->max_vals[j] = (iot->max_vals[j] + UINT64_C(500000000)) / NANOSECS_PER_SEC;
                     }
                     val_mag = magnitude(iot->max_vals[j], 15);
-                    snprintf(val_mag_s, 3, "%u", val_mag);
-                    fmt = g_strconcat(" %", val_mag_s, "u.%06u |", NULL);
+                    fmt = g_strdup_printf(" %%%uu.%%06u |", val_mag);
                     col_w[j].val = val_mag + 7;
                    break;
 
@@ -853,7 +847,6 @@ iostat_draw(void *arg)
                     val_mag = magnitude(iot->max_vals[j], 15);
                     val_mag = MAX(namelen, val_mag);
                     col_w[j].val = val_mag;
-                    snprintf(val_mag_s, 3, "%u", val_mag);
 
                     switch (ftype) {
                     case FT_UINT8:
@@ -861,14 +854,14 @@ iostat_draw(void *arg)
                     case FT_UINT24:
                     case FT_UINT32:
                     case FT_UINT64:
-                        fmt = g_strconcat(" %", val_mag_s, PRIu64 " |", NULL);
+                        fmt = g_strdup_printf(" %%%u"PRIu64 " |", val_mag);
                         break;
                     case FT_INT8:
                     case FT_INT16:
                     case FT_INT24:
                     case FT_INT32:
                     case FT_INT64:
-                        fmt = g_strconcat(" %", val_mag_s, PRId64 " |", NULL);
+                        fmt = g_strdup_printf(" %%%u"PRId64 " |", val_mag);
                         break;
                     }
             } /* End of ftype switch */
@@ -919,7 +912,7 @@ iostat_draw(void *arg)
     printf("|%s|\n", spaces_s);
 
     if (invl_prec == 0) {
-        invl_fmt = g_strconcat("%", dur_mag_s, "u", NULL);
+        invl_fmt = g_strdup_printf("%%%du", dur_mag);
         full_fmt = g_strconcat("| Duration: ", invl_fmt, ".%6u secs%s|\n", NULL);
         spaces_s = &spaces[25 + dur_mag];
         printf(full_fmt, dur_secs_orig, dur_nsecs_orig, spaces_s);
@@ -928,8 +921,7 @@ iostat_draw(void *arg)
         spaces_s = &spaces[18 + dur_mag];
         printf(full_fmt, (uint32_t)(interval/UINT64_C(1000000)), spaces_s);
     } else {
-        snprintf(invl_prec_s, 3, "%u", invl_prec);
-        invl_fmt = g_strconcat("%", dur_mag_s, "u.%0", invl_prec_s, "u", NULL);
+        invl_fmt = g_strdup_printf("%%%du.%%0%du", dur_mag, invl_prec);
         full_fmt = g_strconcat("| Duration: ", invl_fmt, " secs%s|\n", NULL);
         spaces_s = &spaces[19 + dur_mag + invl_prec];
         printf(full_fmt, dur_secs, dur_nsecs/(int)dv, spaces_s);
@@ -1159,10 +1151,9 @@ iostat_draw(void *arg)
                   int maxw;
                   maxw = dur_mag >= 3 ? dur_mag+1 : 3;
                   g_free(full_fmt);
-                  snprintf(dur_mag_s, 3, "%u", maxw);
-                  full_fmt = g_strconcat( dur_mag == 1 ? "|  " : "| ",
-                                          invl_fmt, " <> ", "%-",
-                                          dur_mag_s, "s|", NULL);
+                  full_fmt = g_strdup_printf("| %s%s <> %%-%ds|",
+                                            dur_mag == 1 ? " " : "",
+                                            invl_fmt, maxw);
                   printf(full_fmt, (uint32_t)(t/UINT64_C(1000000)), "Dur");
               } else {
                   printf(full_fmt, (uint32_t)(t/UINT64_C(1000000)),
