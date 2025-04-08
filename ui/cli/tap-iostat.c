@@ -833,7 +833,55 @@ iostat_draw_filters(unsigned borderlen, const io_stat_t *iot)
         puts(filt_str->str);
         g_string_free(filt_str, TRUE);
     }
+}
 
+static void
+iostat_draw_header(unsigned borderlen, const io_stat_t *iot, const nstime_t *duration, const nstime_t *interval, ws_tsprec_e invl_prec)
+{
+    unsigned i;
+    char time_buf[NSTIME_ISO8601_BUFSIZE];
+
+    /* Display the top border */
+    printf("\n");
+    for (i=0; i<borderlen; i++)
+        printf("=");
+
+    printf("\n|%-*s|\n", borderlen - 2, " IO Statistics");
+    printf("|%-*s|\n", borderlen - 2, "");
+
+    /* For some reason, we print the total duration in microsecond precision
+     * here if the interval is in seconds precision, and use the interval
+     * precision otherwise.
+     */
+    ws_tsprec_e dur_prec = (invl_prec == WS_TSPREC_SEC) ? WS_TSPREC_USEC : invl_prec;
+    nstime_t dur_rounded;
+    nstime_rounded(&dur_rounded, duration, dur_prec);
+    int dur_mag = magnitude(duration->secs, 5);
+    int dur_w = dur_mag + (invl_prec == 0 ? 0 : invl_prec+1);
+
+    GString *dur_str = g_string_new("| Duration: ");
+    display_signed_time(time_buf, NSTIME_ISO8601_BUFSIZE, &dur_rounded, dur_prec);
+    g_string_append_printf(dur_str, "%*s secs", dur_w, time_buf);
+    g_string_append_printf(dur_str, "%*s", (int)(borderlen - dur_str->len), "|");
+    puts(dur_str->str);
+    g_string_free(dur_str, TRUE);
+
+    GString *invl_str = g_string_new("| Interval: ");
+    display_signed_time(time_buf, NSTIME_ISO8601_BUFSIZE, interval, invl_prec);
+    g_string_append_printf(invl_str, "%*s secs", dur_w, time_buf);
+    g_string_append_printf(invl_str, "%*s", (int)(borderlen - invl_str->len), "|");
+    puts(invl_str->str);
+    g_string_free(invl_str, TRUE);
+
+    printf("|%-*s|\n", borderlen - 2, "");
+
+    iostat_draw_filters(borderlen, iot);
+
+    printf("|-");
+    for (i=0; i<borderlen-3; i++) {
+        printf("-");
+    }
+    printf("|\n");
 }
 
 static void
@@ -841,7 +889,7 @@ iostat_draw(void *arg)
 {
     uint32_t num;
     uint64_t interval, duration, t, invl_end, dv;
-    unsigned int i, j, k, num_cols, num_rows, dur_secs_orig, dur_nsecs_orig, dur_secs, dur_nsecs, dur_mag,
+    unsigned int i, j, k, num_cols, num_rows, dur_secs, dur_mag,
         invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, type,
         maxfltr_w, ftype;
     char *spaces, *spaces_s, *filler_s = NULL, **fmts, *fmt = NULL;
@@ -876,9 +924,6 @@ iostat_draw(void *arg)
 
     /* Calc the capture duration's magnitude (dur_mag) */
     dur_secs  = (unsigned int)(duration/UINT64_C(1000000));
-    dur_secs_orig = dur_secs;
-    dur_nsecs = (unsigned int)(duration%UINT64_C(1000000));
-    dur_nsecs_orig = dur_nsecs;
     dur_mag = magnitude((uint64_t)dur_secs, 5);
 
     /* Calc the interval's magnitude */
@@ -910,7 +955,6 @@ iostat_draw(void *arg)
         duration += 5*(dv/10);
         duration = (duration/dv) * dv;
         dur_secs  = (unsigned int)(duration/UINT64_C(1000000));
-        dur_nsecs = (unsigned int)(duration%UINT64_C(1000000));
         /*
          * Recalc dur_mag in case rounding has increased its magnitude */
         dur_mag  = magnitude((uint64_t)dur_secs, 5);
@@ -918,11 +962,16 @@ iostat_draw(void *arg)
     if (iot->interval == UINT64_MAX)
         interval = duration;
 
+    //int dur_w = dur_mag + (invl_prec == 0 ? 0 : invl_prec+1);
+
     /* Calc the width of the time interval column (incl borders and padding). */
-    if (invl_prec == 0)
+    if (invl_prec == 0) {
+        invl_fmt = g_strdup_printf("%%%du", dur_mag);
         invl_col_w = (2*dur_mag) + 8;
-    else
+    } else {
+        invl_fmt = g_strdup_printf("%%%du.%%0%du", dur_mag, invl_prec);
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
+    }
 
     /* Update the width of the time interval column if date is shown */
     switch (timestamp_get_type()) {
@@ -971,54 +1020,13 @@ iostat_draw(void *arg)
     if (borderlen-tabrow_w == 1)
         borderlen++;
 
-    /* Display the top border */
-    printf("\n");
-    for (i=0; i<borderlen; i++)
-        printf("=");
+    nstime_t invl_time = NSTIME_INIT_SECS_USECS(interval/UINT64_C(1000000), interval%UINT64_C(1000000));
+    iostat_draw_header(borderlen, iot, &cfile.elapsed_time, &invl_time, invl_prec);
 
     spaces = (char *)g_malloc(borderlen+1);
     for (i=0; i<borderlen; i++)
         spaces[i] = ' ';
     spaces[borderlen] = '\0';
-
-    spaces_s = &spaces[16];
-    printf("\n| IO Statistics%s|\n", spaces_s);
-    spaces_s = &spaces[2];
-    printf("|%s|\n", spaces_s);
-
-    if (invl_prec == 0) {
-        invl_fmt = g_strdup_printf("%%%du", dur_mag);
-        full_fmt = g_strconcat("| Duration: ", invl_fmt, ".%6u secs%s|\n", NULL);
-        spaces_s = &spaces[25 + dur_mag];
-        printf(full_fmt, dur_secs_orig, dur_nsecs_orig, spaces_s);
-        g_free(full_fmt);
-        full_fmt = g_strconcat("| Interval: ", invl_fmt, " secs%s|\n", NULL);
-        spaces_s = &spaces[18 + dur_mag];
-        printf(full_fmt, (uint32_t)(interval/UINT64_C(1000000)), spaces_s);
-    } else {
-        invl_fmt = g_strdup_printf("%%%du.%%0%du", dur_mag, invl_prec);
-        full_fmt = g_strconcat("| Duration: ", invl_fmt, " secs%s|\n", NULL);
-        spaces_s = &spaces[19 + dur_mag + invl_prec];
-        printf(full_fmt, dur_secs, dur_nsecs/(int)dv, spaces_s);
-        g_free(full_fmt);
-
-        full_fmt = g_strconcat("| Interval: ", invl_fmt, " secs%s|\n", NULL);
-        spaces_s = &spaces[19 + dur_mag + invl_prec];
-        printf(full_fmt, (uint32_t)(interval/UINT64_C(1000000)),
-               (uint32_t)((interval%UINT64_C(1000000))/dv), spaces_s);
-    }
-    g_free(full_fmt);
-
-    spaces_s = &spaces[2];
-    printf("|%s|\n", spaces_s);
-
-    iostat_draw_filters(borderlen, iot);
-
-    printf("|-");
-    for (i=0; i<borderlen-3; i++) {
-        printf("-");
-    }
-    printf("|\n");
 
     /* Display spaces above "Interval (s)" label */
     spaces_s = &spaces[borderlen-(invl_col_w-2)];
