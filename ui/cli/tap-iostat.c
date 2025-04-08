@@ -666,16 +666,120 @@ fill_abs_ydoy_time(const nstime_t* the_time, char *time_buf, char *decimal_point
     return;
 }
 
+/* Calc the total width of each row in the stats table and build the printf format string for each
+*  column based on its field type, width, and name length.
+*  NOTE: The magnitude of all types including float and double are stored in iot->max_vals which
+*        is an *integer*. */
+static unsigned
+iostat_calc_cols_width_and_fmt(io_stat_t *iot, uint64_t interval, column_width* col_w, char**fmts)
+{
+    unsigned tabrow_w, type, ftype, namelen;
+    unsigned fr_mag;    /* The magnitude of the max frame number in this column */
+    unsigned val_mag;   /* The magnitude of the max value in this column */
+    char *fmt = NULL;
+
+    tabrow_w = 0;
+    for (unsigned j=0; j < iot->num_cols; j++) {
+        type = iot->calc_type[j];
+        if (type == CALC_TYPE_FRAMES_AND_BYTES) {
+            namelen = 5;
+        } else {
+            namelen = (unsigned int)strlen(calc_type_table[type].func_name);
+        }
+        if (type == CALC_TYPE_FRAMES
+         || type == CALC_TYPE_FRAMES_AND_BYTES) {
+
+            fr_mag = magnitude(iot->max_frame[j], 15);
+            fr_mag = MAX(6, fr_mag);
+            col_w[j].fr = fr_mag;
+            tabrow_w += col_w[j].fr + 3;
+
+            if (type == CALC_TYPE_FRAMES) {
+                fmt = g_strdup_printf(" %%%uu |", fr_mag);
+            } else {
+                /* CALC_TYPE_FRAMES_AND_BYTES
+                */
+                val_mag = magnitude(iot->max_vals[j], 15);
+                val_mag = MAX(5, val_mag);
+                col_w[j].val = val_mag;
+                tabrow_w += (col_w[j].val + 3);
+                fmt = g_strdup_printf(" %%%uu | %%%u"PRIu64 " |", fr_mag, val_mag);
+            }
+            if (fmt)
+                fmts[j] = fmt;
+            continue;
+        }
+        switch (type) {
+        case CALC_TYPE_BYTES:
+        case CALC_TYPE_COUNT:
+
+            val_mag = magnitude(iot->max_vals[j], 15);
+            val_mag = MAX(5, val_mag);
+            col_w[j].val = val_mag;
+            fmt = g_strdup_printf(" %%%u"PRIu64" |", val_mag);
+            break;
+
+        default:
+            ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
+            switch (ftype) {
+                case FT_FLOAT:
+                case FT_DOUBLE:
+                    val_mag = magnitude(iot->max_vals[j], 15);
+                    fmt = g_strdup_printf(" %%%u.6f |", val_mag);
+                    col_w[j].val = val_mag + 7;
+                    break;
+                case FT_RELATIVE_TIME:
+                    /* Convert FT_RELATIVE_TIME field to seconds
+                    *  CALC_TYPE_LOAD was already converted in iostat_packet() ) */
+                    if (type == CALC_TYPE_LOAD) {
+                        iot->max_vals[j] /= interval;
+                    } else if (type != CALC_TYPE_AVG) {
+                        iot->max_vals[j] = (iot->max_vals[j] + UINT64_C(500000000)) / NANOSECS_PER_SEC;
+                    }
+                    val_mag = magnitude(iot->max_vals[j], 15);
+                    fmt = g_strdup_printf(" %%%uu.%%06u |", val_mag);
+                    col_w[j].val = val_mag + 7;
+                   break;
+
+                default:
+                    val_mag = magnitude(iot->max_vals[j], 15);
+                    val_mag = MAX(namelen, val_mag);
+                    col_w[j].val = val_mag;
+
+                    switch (ftype) {
+                    case FT_UINT8:
+                    case FT_UINT16:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                    case FT_UINT64:
+                        fmt = g_strdup_printf(" %%%u"PRIu64 " |", val_mag);
+                        break;
+                    case FT_INT8:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                    case FT_INT64:
+                        fmt = g_strdup_printf(" %%%u"PRId64 " |", val_mag);
+                        break;
+                    }
+            } /* End of ftype switch */
+        } /* End of calc_type switch */
+        tabrow_w += col_w[j].val + 3;
+        if (fmt)
+            fmts[j] = fmt;
+    } /* End of for loop (columns) */
+
+    return tabrow_w;
+}
+
 static void
 iostat_draw(void *arg)
 {
     uint32_t num;
     uint64_t interval, duration, t, invl_end, dv;
     unsigned int i, j, k, num_cols, num_rows, dur_secs_orig, dur_nsecs_orig, dur_secs, dur_nsecs, dur_mag,
-        invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, namelen, len_filt, type,
+        invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, len_filt, type,
         maxfltr_w, ftype;
-    unsigned int fr_mag;    /* The magnitude of the max frame number in this column */
-    unsigned int val_mag;   /* The magnitude of the max value in this column */
     char *spaces, *spaces_s, *filler_s = NULL, **fmts, *fmt = NULL;
     const char *filter;
     static char *invl_fmt, *full_fmt;
@@ -770,106 +874,14 @@ iostat_draw(void *arg)
         break;
 
     default:
+        // Make it as least as twice as wide as "> Dur|" for the final interval
         invl_col_w = MAX(invl_col_w, 12);
         break;
     }
 
-    borderlen = MAX(borderlen, invl_col_w);
-
-    /* Calc the total width of each row in the stats table and build the printf format string for each
-    *  column based on its field type, width, and name length.
-    *  NOTE: The magnitude of all types including float and double are stored in iot->max_vals which
-    *        is an *integer*. */
-    tabrow_w = invl_col_w;
-    for (j=0; j<num_cols; j++) {
-        type = iot->calc_type[j];
-        if (type == CALC_TYPE_FRAMES_AND_BYTES) {
-            namelen = 5;
-        } else {
-            namelen = (unsigned int)strlen(calc_type_table[type].func_name);
-        }
-        if (type == CALC_TYPE_FRAMES
-         || type == CALC_TYPE_FRAMES_AND_BYTES) {
-
-            fr_mag = magnitude(iot->max_frame[j], 15);
-            fr_mag = MAX(6, fr_mag);
-            col_w[j].fr = fr_mag;
-            tabrow_w += col_w[j].fr + 3;
-
-            if (type == CALC_TYPE_FRAMES) {
-                fmt = g_strdup_printf(" %%%uu |", fr_mag);
-            } else {
-                /* CALC_TYPE_FRAMES_AND_BYTES
-                */
-                val_mag = magnitude(iot->max_vals[j], 15);
-                val_mag = MAX(5, val_mag);
-                col_w[j].val = val_mag;
-                tabrow_w += (col_w[j].val + 3);
-                fmt = g_strdup_printf(" %%%uu | %%%u"PRIu64 " |", fr_mag, val_mag);
-            }
-            if (fmt)
-                fmts[j] = fmt;
-            continue;
-        }
-        switch (type) {
-        case CALC_TYPE_BYTES:
-        case CALC_TYPE_COUNT:
-
-            val_mag = magnitude(iot->max_vals[j], 15);
-            val_mag = MAX(5, val_mag);
-            col_w[j].val = val_mag;
-            fmt = g_strdup_printf(" %%%u"PRIu64" |", val_mag);
-            break;
-
-        default:
-            ftype = proto_registrar_get_ftype(iot->hf_indexes[j]);
-            switch (ftype) {
-                case FT_FLOAT:
-                case FT_DOUBLE:
-                    val_mag = magnitude(iot->max_vals[j], 15);
-                    fmt = g_strdup_printf(" %%%u.6f |", val_mag);
-                    col_w[j].val = val_mag + 7;
-                    break;
-                case FT_RELATIVE_TIME:
-                    /* Convert FT_RELATIVE_TIME field to seconds
-                    *  CALC_TYPE_LOAD was already converted in iostat_packet() ) */
-                    if (type == CALC_TYPE_LOAD) {
-                        iot->max_vals[j] /= interval;
-                    } else if (type != CALC_TYPE_AVG) {
-                        iot->max_vals[j] = (iot->max_vals[j] + UINT64_C(500000000)) / NANOSECS_PER_SEC;
-                    }
-                    val_mag = magnitude(iot->max_vals[j], 15);
-                    fmt = g_strdup_printf(" %%%uu.%%06u |", val_mag);
-                    col_w[j].val = val_mag + 7;
-                   break;
-
-                default:
-                    val_mag = magnitude(iot->max_vals[j], 15);
-                    val_mag = MAX(namelen, val_mag);
-                    col_w[j].val = val_mag;
-
-                    switch (ftype) {
-                    case FT_UINT8:
-                    case FT_UINT16:
-                    case FT_UINT24:
-                    case FT_UINT32:
-                    case FT_UINT64:
-                        fmt = g_strdup_printf(" %%%u"PRIu64 " |", val_mag);
-                        break;
-                    case FT_INT8:
-                    case FT_INT16:
-                    case FT_INT24:
-                    case FT_INT32:
-                    case FT_INT64:
-                        fmt = g_strdup_printf(" %%%u"PRId64 " |", val_mag);
-                        break;
-                    }
-            } /* End of ftype switch */
-        } /* End of calc_type switch */
-        tabrow_w += col_w[j].val + 3;
-        if (fmt)
-            fmts[j] = fmt;
-    } /* End of for loop (columns) */
+    /* Calculate the width and format string of all the other columns, and add
+     * the total to the interval column width for the entire total. */
+    tabrow_w = invl_col_w + iostat_calc_cols_width_and_fmt(iot, interval, col_w, fmts);
 
     borderlen = MAX(borderlen, tabrow_w);
 
