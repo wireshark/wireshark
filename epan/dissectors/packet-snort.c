@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/to_str.h>
 #include <wiretap/wtap.h>
 
 #include "packet-snort-config.h"
@@ -793,9 +794,19 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         if (!alert->raw_alert_ts_fixed) {
             /* Write 6 figures to position after decimal place in timestamp. Must have managed to
                parse out fields already, so will definitely be long enough for memcpy() to succeed. */
-            char digits[7];
-            snprintf(digits, 7, "%06d", pinfo->abs_ts.nsecs / 1000);
-            memcpy(alert->raw_alert+18, digits, 6);
+            char digits[8];
+            int bytes_written;
+            /* Since this is an absolute time, pinfo->abs_ts.nsecs should be
+             * positive (unless something very wrong has gone on).
+             *
+             * Snort has a particular timestamp format (found in snort_parse_ts)
+             * that always uses "." as the decimal point.
+             *
+             * format_fractional_part_nsecs returns the bytes written (not
+             * including the terminating '\0')
+             */
+            bytes_written = format_fractional_part_nsecs(digits, sizeof(digits), (uint32_t)(pinfo->abs_ts.nsecs), ".", WS_TSPREC_USEC);
+            memcpy(alert->raw_alert+17, digits, bytes_written);
             alert->raw_alert_ts_fixed = true;
         }
         ti = proto_tree_add_string(snort_tree, hf_snort_raw_alert, tvb, 0, 0, alert->raw_alert);
