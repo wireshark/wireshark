@@ -285,6 +285,11 @@ void PacketListHeader::columnVisibilityTriggered()
     if (ha->isChecked())
         emit resetColumnWidth(col);
 
+    PacketList* packetList = qobject_cast<PacketList*>(parent());
+    if (packetList) {
+        packetList->setColumnDelegate();
+    }
+
     prefs_main_write();
 }
 

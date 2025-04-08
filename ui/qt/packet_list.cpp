@@ -1051,7 +1051,24 @@ void PacketList::setColumnVisibility()
     for (int i = 0; i < prefs.num_cols; i++) {
         setColumnHidden(i, get_column_visible(i) ? false : true);
     }
+    setColumnDelegate();
     set_column_visibility_ = false;
+}
+
+void PacketList::setColumnDelegate()
+{
+    for (int i = 0; i < prefs.num_cols; i++) {
+        setItemDelegateForColumn(i, nullptr);   // Reset all delegates
+    }
+
+    if (prefs.gui_packet_list_show_related) {
+        for (int i = 0; i < prefs.num_cols; i++) {
+            if (get_column_visible(i)) {
+                setItemDelegateForColumn(i, &related_packet_delegate_);
+                break;  // Set the delegate only on the first visible column
+            }
+        }
+    }
 }
 
 void PacketList::setRecentColumnWidth(int col)
@@ -1224,13 +1241,6 @@ void PacketList::applyRecentColumnWidths()
 
 void PacketList::preferencesChanged()
 {
-    // Related packet delegate
-    if (prefs.gui_packet_list_show_related) {
-        setItemDelegateForColumn(0, &related_packet_delegate_);
-    } else {
-        setItemDelegateForColumn(0, 0);
-    }
-
     // Intelligent scroll bar (minimap)
     if (prefs.gui_packet_list_show_minimap) {
         if (overlay_timer_id_ == 0) {
