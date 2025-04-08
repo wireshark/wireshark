@@ -2047,7 +2047,7 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_dio_channel_ref,
-			{ "Digital IO EBHSCR header 'Channel' referrence", "ebhscr.dio.ch_ref",
+			{ "Digital IO EBHSCR header 'Channel' reference", "ebhscr.dio.ch_ref",
 			FT_UINT64, BASE_DEC | BASE_VAL64_STRING,
 			VALS64(dio_channel_ref_strings), 0x0400000000000000,
 			NULL, HFILL }
@@ -2462,7 +2462,7 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_mipi_csi2_status_packet_checksum_err,
-			{ "MIPI CSI-2 long packet checksum error", "ebhscr.mipi_csi2.st.chceksum_err",
+			{ "MIPI CSI-2 long packet checksum error", "ebhscr.mipi_csi2.st.checksum_err",
 			FT_BOOLEAN, 12,
 			NULL, 0x001,
 			NULL, HFILL }

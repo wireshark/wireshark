@@ -72,7 +72,7 @@ each line must begin with an offset describing the position in the packet,
 each byte is individually displayed, with spaces separating the bytes from
 each other, and repeated or all NUL ('\0') lines are not omitted. Hex digits
 can be upper or lowercase. *Text2pcap* can handle other hex dump formats,
-some of which can be automatically deetected and some of which require
+some of which can be automatically detected and some of which require
 enabling options to properly recognize.
 
 Offsets are followed by one or more spaces or tabs separating them from the

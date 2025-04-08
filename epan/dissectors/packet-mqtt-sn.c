@@ -566,7 +566,7 @@ static int dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         mqttsn_msg_type_id = tvb_get_uint8(tvb, 3);
     }
 
-    /* Add the protcol name to the protocol column. */
+    /* Add the protocol name to the protocol column. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQTT-SN");
 
     /* Add the message type to the info column. */

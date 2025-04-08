@@ -765,7 +765,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
         if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
-        /* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
+        /* The first byte of the Option Data keeps a code of the filter used, 0 = libpcap filter string */
         if (!write_to_file(pfile, (const uint8_t*)&padding, 1, bytes_written, err))
             return false;
         if (!write_to_file(pfile, (const uint8_t*)filter, (int) strlen(filter), bytes_written, err))

@@ -963,7 +963,7 @@ static int ett_pn_io_ir_tx_phase;
 static int ett_pn_io_ir_rx_phase;
 static int ett_pn_io_subframe_data;
 static int ett_pn_io_SFIOCRProperties;
-static int ett_pn_io_frame_defails;
+static int ett_pn_io_frame_details;
 static int ett_pn_io_profisafe_f_parameter;
 static int ett_pn_io_profisafe_f_parameter_prm_flag1;
 static int ett_pn_io_profisafe_f_parameter_prm_flag2;
@@ -9588,7 +9588,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
                                       hf_pn_io_rx_port, &u8RXPort);
         /* FrameDetails */
         sub_item = proto_tree_add_item(ir_frame_data_tree, hf_pn_io_frame_details, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_frame_defails);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_frame_details);
         dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                              hf_pn_io_frame_details_sync_frame, &u8FrameDetails);
         dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
@@ -18979,7 +18979,7 @@ proto_register_pn_io (void)
         &ett_pn_io_ir_rx_phase,
         &ett_pn_io_subframe_data,
         &ett_pn_io_SFIOCRProperties,
-        &ett_pn_io_frame_defails,
+        &ett_pn_io_frame_details,
         &ett_pn_io_profisafe_f_parameter,
         &ett_pn_io_profisafe_f_parameter_prm_flag1,
         &ett_pn_io_profisafe_f_parameter_prm_flag2,
