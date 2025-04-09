@@ -98,7 +98,7 @@ $X64Archives = @{
     "vcpkg-export/vcpkg-export-20250124-1-x64-windows-ws.zip" = "8587711d1b95fe3708355b71139a28036e0c17f60840a8805f014b70c036d460";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
     "zlib-ng/zlib-ng-2.2.3-1-x64-windows-ws.zip" = "8b4e5ba1b61688eccb7e315c2f4ce1ef0c4301172f265bd41455e1df6a5a9522";
-    "zstd/zstd-1.5.6-1-x64-windows-ws.zip" = "f3f59351d273a1c1f2b84b60164556c8d2726155da2148f917d260d9efd16b6e";
+    "zstd/zstd-1.5.7-x64-windows-ws.zip" = "cdce6d578ece3a14873572b1bffd54b42443ddb97386df9e4552ab7c17b2097d";
 }
 
 
@@ -130,7 +130,7 @@ $Arm64Archives = @{
     "vcpkg-export/vcpkg-export-20250124-1-arm64-windows-ws.zip" = "29f234a5dc64c43e1b3aca8c47561ea877cdfc21abfeafc97174770023a097dc";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
     "zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip" = "bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8";
-    "zstd/zstd-1.5.6-1-arm64-windows-ws.zip" = "167261f9605a28f8f5a45a2fa400daa5072290a89d5fdc218595da52d57f938b";
+    "zstd/zstd-1.5.7-arm64-windows-ws.zip" = "5a066e38a0c7bbbae3955919107e099565aee0c6c6523c43c0c9a0e6982a6a0a";
 }
 
 # Subdirectory to extract an archive to
