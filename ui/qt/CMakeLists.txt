@@ -673,6 +673,7 @@ if(HAVE_PCAP_REMOTE)
 endif()
 
 set(WIRESHARK_QT_TS
+	wireshark_ca.ts
 	wireshark_de.ts
 	wireshark_en.ts # lupdate -pluralonly
 	wireshark_es.ts

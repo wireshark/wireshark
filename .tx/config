@@ -27,6 +27,7 @@ trans.tr_TR            = ui/qt/wireshark_tr_TR.ts
 trans.uk               = ui/qt/wireshark_uk.ts
 trans.de               = ui/qt/wireshark_de.ts
 trans.ko               = ui/qt/wireshark_ko.ts
+trans.ca               = ui/qt/wireshark_ca.ts
 replace_edited_strings = false
 keep_translations      = false
 
