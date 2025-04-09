@@ -2489,7 +2489,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
  */
 static bool
 is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, uint32_t offset_end,
-                               bool maybe_encrypted, SslSession *session, bool is_from_server)
+                               SslSession *session, bool is_from_server)
 {
     unsigned record_length = offset_end - offset;
     unsigned msg_length;
@@ -2517,13 +2517,11 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, uint32_t offse
      * occurs, then we have possibly found the explicit nonce preceding the
      * encrypted contents for GCM/CCM cipher suites as used in TLS 1.2.
      */
-    if (maybe_encrypted) {
-        maybe_encrypted = tvb_get_ntoh40(tvb, offset) == 0;
-        /*
-         * TODO handle Finished message after CCS in the same frame and remove the
-         * above nonce-based heuristic.
-         */
-    }
+    bool maybe_encrypted = tvb_get_ntoh40(tvb, offset) == 0;
+    /*
+     * TODO handle Finished message after CCS in the same frame and remove the
+     * above nonce-based heuristic.
+     */
 
     if (!maybe_encrypted) {
         /*
@@ -2830,7 +2828,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
     } else if (!frag_info) {
         // 3. Not part of a reassembly, so this is a new handshake message. Does it
         //    look like encrypted data?
-        if (is_encrypted_handshake_message(tvb, pinfo, offset, offset_end, maybe_encrypted, session, is_from_server)) {
+        if (maybe_encrypted && is_encrypted_handshake_message(tvb, pinfo, offset, offset_end, session, is_from_server)) {
             // Update Info column and record tree.
             tls_show_handshake_details(pinfo, tree, version, 0, true, true, true,
                     tvb, offset, offset_end - offset);
