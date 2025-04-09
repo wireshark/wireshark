@@ -1663,19 +1663,18 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     const q931_packet_info *pi = (const q931_packet_info *)q931_info;
 
-    /* free previously allocated q931_calling/ed_number */
-    g_free(tapinfo->q931_calling_number);
-    g_free(tapinfo->q931_called_number);
+    const char* q931_calling_number;
+    const char* q931_called_number;
 
     if (pi->calling_number!=NULL)
-        tapinfo->q931_calling_number = g_strdup(pi->calling_number);
+        q931_calling_number = pi->calling_number;
     else
-        tapinfo->q931_calling_number = g_strdup("");
+        q931_calling_number = "";
 
     if (pi->called_number!=NULL)
-        tapinfo->q931_called_number = g_strdup(pi->called_number);
+        q931_called_number = pi->called_number;
     else
-        tapinfo->q931_called_number = g_strdup("");
+        q931_called_number = "";
     tapinfo->q931_cause_value = pi->cause_value;
     tapinfo->q931_frame_num = pinfo->num;
     tapinfo->q931_crv = pi->crv;
@@ -1707,14 +1706,10 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             comment = NULL;
             if (tapinfo->h225_cstype == H225_SETUP) {
                 /* set the calling and called number from the Q931 packet */
-                if (tapinfo->q931_calling_number != NULL) {
-                    g_free(callsinfo->from_identity);
-                    callsinfo->from_identity=g_strdup(tapinfo->q931_calling_number);
-                }
-                if (tapinfo->q931_called_number != NULL) {
-                    g_free(callsinfo->to_identity);
-                    callsinfo->to_identity=g_strdup(tapinfo->q931_called_number);
-                }
+                g_free(callsinfo->from_identity);
+                callsinfo->from_identity=g_strdup(q931_calling_number);
+                g_free(callsinfo->to_identity);
+                callsinfo->to_identity=g_strdup(q931_called_number);
 
                 /* check if there is an LRQ/LCF that match this Setup */
                 /* TODO: we are just checking the DialedNumer in LRQ/LCF against the Setup
@@ -1836,8 +1831,8 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             callsinfo = g_new0(voip_calls_info_t, 1);
             callsinfo->call_active_state = VOIP_ACTIVE;
             callsinfo->call_state = VOIP_CALL_SETUP;
-            callsinfo->from_identity=g_strdup(tapinfo->q931_calling_number);
-            callsinfo->to_identity=g_strdup(tapinfo->q931_called_number);
+            callsinfo->from_identity=g_strdup(q931_calling_number);
+            callsinfo->to_identity=g_strdup(q931_called_number);
             copy_address(&(callsinfo->initial_speaker),tapinfo->actrace_direction?&pstn_add:&(pinfo->src));
             callsinfo->start_fd=pinfo->fd;
             callsinfo->start_rel_ts=pinfo->rel_ts;
@@ -1860,7 +1855,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
         switch(pi->message_type) {
             case Q931_SETUP:
-                comment = ws_strdup_printf("AC_ISDN trunk:%u Calling: %s  Called:%s", tapinfo->actrace_trunk, tapinfo->q931_calling_number, tapinfo->q931_called_number);
+                comment = ws_strdup_printf("AC_ISDN trunk:%u Calling: %s  Called:%s", tapinfo->actrace_trunk, q931_calling_number, q931_called_number);
                 callsinfo->call_state=VOIP_CALL_SETUP;
                 break;
             case Q931_CONNECT:
@@ -1969,6 +1964,7 @@ free_h225_info(void *p) {
 
     /* DUMP_PTR2(tmp_h323info->guid); */
     g_free(tmp_h323info->guid);
+    free_address(&tmp_h323info->h225SetupAddr);
 
     if (tmp_h323info->h245_list) {
         GList *list2 = g_list_first(tmp_h323info->h245_list);

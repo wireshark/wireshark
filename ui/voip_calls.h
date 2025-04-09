@@ -197,8 +197,6 @@ typedef struct _voip_calls_tapinfo {
     uint8_t               mtp3_ni;
     uint32_t              mtp3_frame_num;
     struct _h245_labels  *h245_labels; /**< H.245 labels */
-    char                 *q931_calling_number;
-    char                 *q931_called_number;
     uint8_t               q931_cause_value;
     int32_t               q931_crv;
     uint32_t              q931_frame_num;
