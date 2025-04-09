@@ -992,6 +992,9 @@ static int gtpv2_tap;
 #define GTPV2_RELOCATION_CANCEL_RESPONSE        140
 #define GTPV2_CONFIGURATION_TRANSFER_TUNNEL        141
 #define GTPV2_RAN_INFORMATION_RELAY     152
+#define GTPV2_RELEASE_ACCESS_BEARERS_REQUEST      170
+#define GTPV2_RELEASE_ACCESS_BEARERS_RESPONSE      171
+#define GTPV2_DL_DATA_NOTIF            176
 #define GTPV2_DL_DATA_NOTIF_ACK        177
 #define GTPV2_MODIFY_ACESSS_BEARER_REQUEST      211
 #define GTPV2_MODIFY_ACCESS_BEARER_RESPONSE     212
@@ -9180,6 +9183,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
     case GTPV2_RELOCATION_CANCEL_REQUEST:
     case GTPV2_FORWARD_CTX_NOTIFICATION:
     case GTPV2_FORWARD_RELOCATION_COMPLETE_NOTIFICATION:
+    case GTPV2_RELEASE_ACCESS_BEARERS_REQUEST:
+    case GTPV2_DL_DATA_NOTIF:
         gcr.is_request = true;
         gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
@@ -9201,6 +9206,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
     case GTPV2_RELOCATION_CANCEL_RESPONSE:
     case GTPV2_FORWARD_CTX_ACKNOWLEDGE:
     case GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE:
+    case GTPV2_RELEASE_ACCESS_BEARERS_RESPONSE:
+    case GTPV2_DL_DATA_NOTIF_ACK:
 
         gcr.is_request = false;
         gcr.req_frame = 0;
@@ -9237,6 +9244,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
         case GTPV2_RELOCATION_CANCEL_REQUEST:
         case GTPV2_FORWARD_CTX_NOTIFICATION:
         case GTPV2_FORWARD_RELOCATION_COMPLETE_NOTIFICATION:
+        case GTPV2_RELEASE_ACCESS_BEARERS_REQUEST:
+        case GTPV2_DL_DATA_NOTIF:
 
             gcr.seq_nr = seq_nr;
 
@@ -9273,6 +9282,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
         case GTPV2_RELOCATION_CANCEL_RESPONSE:
         case GTPV2_FORWARD_CTX_ACKNOWLEDGE:
         case GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE:
+        case GTPV2_RELEASE_ACCESS_BEARERS_RESPONSE:
+        case GTPV2_DL_DATA_NOTIF_ACK:
 
             gcr.seq_nr = seq_nr;
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
