@@ -40,6 +40,8 @@ typedef enum _ga_info_type {
     GA_INFO_TYPE_RTP
 } ga_info_type;
 
+typedef void (*ga_info_ptr_free_cb)(void*);
+
 /** defines an entry for the graph analysis */
 typedef struct _seq_analysis_item {
     uint32_t frame_number;
@@ -60,6 +62,7 @@ typedef struct _seq_analysis_item {
     uint16_t line_style;            /**< the arrow line width in pixels*/
     ga_info_type info_type;         /**< type of info for item */
     void *info_ptr;                 /**< ptr to info for item */
+    ga_info_ptr_free_cb free_info_ptr; /**< callback to free info_ptr for item */
 } seq_analysis_item_t;
 
 /** defines the graph analysis structure */

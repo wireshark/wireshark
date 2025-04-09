@@ -192,16 +192,8 @@ static void sequence_analysis_item_free(void *data)
     g_free(seq_item->comment);
     free_address(&seq_item->src_addr);
     free_address(&seq_item->dst_addr);
-    if (seq_item->info_ptr) {
-#if 0
-        /* XXX: If seq_item->info_type is GA_INFO_TYPE_RTP, then we need
-         * to free the data, but rtpstream_info_free_* is in libui and
-         * not exported. */
-        if (seq_item->info_type == GA_INFO_TYPE_RTP) {
-            rtpstream_info_free_data((rtpstream_info_t *)seq_item->info_ptr);
-        }
-#endif
-        g_free(seq_item->info_ptr);
+    if (seq_item->info_ptr && seq_item->free_info_ptr) {
+        seq_item->free_info_ptr(seq_item->info_ptr);
     }
     g_free(data);
 }

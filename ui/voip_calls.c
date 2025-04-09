@@ -780,6 +780,7 @@ rtp_draw(void *tap_offset_ptr)
                 new_gai->info_type=GA_INFO_TYPE_RTP;
                 rtpstream_info_t *new_info = g_new(rtpstream_info_t, 1);
                 new_gai->info_ptr = new_info;
+                new_gai->free_info_ptr = (ga_info_ptr_free_cb)rtpstream_info_free_all;
                 rtpstream_info_init(new_info);
                 rtpstream_id_copy(&rtp_listinfo->id, &new_info->id);
                 new_info->packet_count = rtp_listinfo->packet_count;
