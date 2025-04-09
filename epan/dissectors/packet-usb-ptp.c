@@ -394,10 +394,11 @@ dissect_usb_ptp_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent
 }
 
 static void
-dissect_usb_ptp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb_conv_info_t *usb_conv_info, uint16_t ptp_type,
+dissect_usb_ptp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, urb_info_t *urb, uint16_t ptp_type,
         uint16_t ptp_code, const usb_ptp_value_string_masked_t *vsm _U_, int offset)
 {
     unsigned length_payload;
+    usb_conv_info_t *usb_conv_info = urb->conv;
 
     switch(ptp_type)
     {
@@ -471,7 +472,7 @@ dissect_usb_ptp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, usb
 static int
 dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    usb_conv_info_t *usb_conv_info;
+    urb_info_t *urb = (urb_info_t *) data;
     proto_tree *tree = NULL;
     unsigned length_tvb;
     uint16_t ptp_type;
@@ -484,17 +485,19 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     usb_ptp_conv_info_t *usb_ptp_conv_info;
     const usb_ptp_value_string_masked_t *vsm = NULL;
 
+    if(!urb)
+        return 0;
+
     length_tvb = tvb_captured_length(tvb);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB-PTP");
 
     /* Add our own class information to usb_conv_info */
-    usb_conv_info = (usb_conv_info_t *) data;
-    usb_ptp_conv_info = (usb_ptp_conv_info_t *) usb_conv_info->class_data;
+    usb_ptp_conv_info = (usb_ptp_conv_info_t *) urb->conv->class_data;
     if(!usb_ptp_conv_info)
     {
         usb_ptp_conv_info = wmem_new0(wmem_file_scope(), usb_ptp_conv_info_t);
-        usb_conv_info->class_data = usb_ptp_conv_info;
-        usb_ptp_conv_info->flavor = usb_ptp_flavor(pinfo, data);
+        urb->conv->class_data = usb_ptp_conv_info;
+        usb_ptp_conv_info->flavor = usb_ptp_flavor(pinfo, urb->conv);
     }
 
     if (parent_tree)
@@ -505,8 +508,8 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     }
 
     /* PTP Is defined as Class=6, SubClass=1, Protocol=1 */
-    if (!(   (usb_conv_info->interfaceSubclass == IF_CLASS_IMAGE_SUBCLASS_PTP)
-          && (usb_conv_info->interfaceProtocol == IF_CLASS_IMAGE_PROTOCOL_PTP) ))
+    if (!(   (urb->conv->interfaceSubclass == IF_CLASS_IMAGE_SUBCLASS_PTP)
+          && (urb->conv->interfaceProtocol == IF_CLASS_IMAGE_PROTOCOL_PTP) ))
     {
         proto_tree_add_expert(tree, pinfo, &ei_ptp_undecoded, tvb, 0, length_tvb);
         return 0;
@@ -567,7 +570,7 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     /* Pass along if we have a payload */
     if ( (length_tvb-offset) > 0 )
     {
-        dissect_usb_ptp_payload(tvb,pinfo,tree, (usb_conv_info_t*)data, ptp_type,ptp_code,vsm,offset);
+        dissect_usb_ptp_payload(tvb,pinfo,tree, urb, ptp_type,ptp_code,vsm,offset);
     }
 
     return offset;
