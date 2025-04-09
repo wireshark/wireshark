@@ -11,6 +11,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * Up-to-date to draft-ietf-opsawg-pcapng-03
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -23,6 +27,7 @@
 #include <wiretap/pcapng_module.h>
 #include <wiretap/secrets-types.h>
 #include <wsutil/array.h>
+#include <wsutil/str_util.h>
 
 #include "file-pcapng.h"
 #include "packet-pcap_pktdata.h"
@@ -68,6 +73,8 @@ static int hf_pcapng_option_data_ipv6_mask;
 static int hf_pcapng_option_data_mac_address;
 static int hf_pcapng_option_data_eui_address;
 static int hf_pcapng_option_data_interface_speed;
+static int hf_pcapng_option_data_interface_txspeed;
+static int hf_pcapng_option_data_interface_rxspeed;
 static int hf_pcapng_option_data_interface_timestamp_resolution;
 static int hf_pcapng_option_data_interface_timestamp_resolution_base;
 static int hf_pcapng_option_data_interface_timestamp_resolution_value;
@@ -78,8 +85,11 @@ static int hf_pcapng_option_data_interface_filter_bpf_program;
 static int hf_pcapng_option_data_interface_filter_unknown;
 static int hf_pcapng_option_data_interface_os;
 static int hf_pcapng_option_data_interface_hardware;
+static int hf_pcapng_option_data_interface_iana_tzname;
 static int hf_pcapng_option_data_interface_fcs_length;
 static int hf_pcapng_option_data_interface_timestamp_offset;
+static int hf_pcapng_option_data_proc_id;
+static int hf_pcapng_option_data_thread_id;
 static int hf_pcapng_option_data_packet_verdict_type;
 static int hf_pcapng_option_data_packet_verdict_data;
 static int hf_pcapng_option_data_packet_queue;
@@ -226,6 +236,8 @@ static const value_string block_type_vals[] = {
     { BLOCK_TYPE_ARINC_429,                 "Arinc 429 in AFDX Encapsulation Information Block" },
     { BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT,    "systemd Journal Export Block" },
     { BLOCK_TYPE_DSB,                       "Decryption Secrets Block" },
+    { BLOCK_TYPE_HP_MIB,                    "Hone Project Machine Info Block" },
+    { BLOCK_TYPE_HP_CEB,                    "Hone Project Connection Event Block" },
     { BLOCK_TYPE_SYSDIG_MI,                 "Sysdig Machine Info Block" },
     { BLOCK_TYPE_SYSDIG_PL_V1,              "Sysdig Process List Block" },
     { BLOCK_TYPE_SYSDIG_FDL_V1,             "Sysdig File Descriptor List Block" },
@@ -258,41 +270,44 @@ static const value_string block_type_vals[] = {
 /* blockId-> local_block_callback_info_t* */
 static GHashTable *s_local_block_callback_table;
 
+#define OPTION_CODE_STD_OPTIONS \
+    { OPT_EOFOPT,       "End of Options" }, \
+    { OPT_COMMENT,      "Comment" }
+
 #define OPTION_CODE_CUSTOM_OPTIONS \
-    { 2988,  "Custom Option UTF-8 string which can be copied" }, \
-    { 2989,  "Custom Option which can be copied" }, \
-    { 19372, "Custom Option UTF-8 string which should not be copied" }, \
-    { 19373, "Custom Option which should not be copied" }
+    { OPT_CUSTOM_STR_COPY,      "Custom Option UTF-8 string which can be copied" }, \
+    { OPT_CUSTOM_BIN_COPY,      "Custom Option which can be copied" }, \
+    { OPT_CUSTOM_STR_NO_COPY,   "Custom Option UTF-8 string which should not be copied" }, \
+    { OPT_CUSTOM_BIN_NO_COPY,   "Custom Option which should not be copied" }
 
 static const value_string option_code_section_header_vals[] = {
-    { 0,  "End of Options" },
-    { 1,  "Comment" },
-
-    { 2,  "Hardware Description" },
-    { 3,  "OS Description" },
-    { 4,  "User Application" },
+    OPTION_CODE_STD_OPTIONS,
+    { OPT_SHB_HARDWARE,  "Hardware Description" },
+    { OPT_SHB_OS,        "OS Description" },
+    { OPT_SHB_USERAPPL,  "User Application" },
     OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
 static const value_string option_code_interface_description_vals[] = {
-    { 0,  "End of Options" },
-    { 1,  "Comment" },
-
-    { 2,  "Interface Name" },
-    { 3,  "Interface Description" },
-    { 4,  "IPv4 Address" },
-    { 5,  "IPv6 Address" },
-    { 6,  "MAC Address" },
-    { 7,  "EUI Address" },
-    { 8,  "Speed" },
-    { 9,  "Timestamp Resolution" },
-    { 10, "Timezone" },
-    { 11, "Filter" },
-    { 12, "OS" },
-    { 13, "FCS Length" },
-    { 14, "Timestamp Offset" },
-    { 15, "Hardware" },
+    OPTION_CODE_STD_OPTIONS,
+    { OPT_IDB_NAME,         "Interface Name" },
+    { OPT_IDB_DESCRIPTION,  "Interface Description" },
+    { OPT_IDB_IP4ADDR,      "IPv4 Address" },
+    { OPT_IDB_IP6ADDR,      "IPv6 Address" },
+    { OPT_IDB_MACADDR,      "MAC Address" },
+    { OPT_IDB_EUIADDR,      "EUI Address" },
+    { OPT_IDB_SPEED,        "Speed" },
+    { OPT_IDB_TSRESOL,      "Timestamp Resolution" },
+    { OPT_IDB_TZONE,        "Timezone" },
+    { OPT_IDB_FILTER,       "Filter" },
+    { OPT_IDB_OS,           "OS" },
+    { OPT_IDB_FCSLEN,       "FCS Length" },
+    { OPT_IDB_TSOFFSET,     "Timestamp Offset" },
+    { OPT_IDB_HARDWARE,     "Hardware" },
+    { OPT_IDB_TXSPEED,      "Tx Speed" },
+    { OPT_IDB_RXSPEED,      "Rx Speed" },
+    { OPT_IDB_IANA_TZNAME,  "IANA TZ Name" },
     OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
@@ -404,15 +419,14 @@ static const value_string option_code_interface_description_vals[] = {
 
 
 static const value_string option_code_enhanced_packet_vals[] = {
-    { 0,  "End of Options" },
-    { 1,  "Comment" },
-
-    { 2,  "Flags" },
-    { 3,  "Hash" },
-    { 4,  "Drop Count" },
-    { 5,  "Packet ID" },
-    { 6,  "Queue" },
-    { 7,  "Verdict" },
+    OPTION_CODE_STD_OPTIONS,
+    { OPT_PKT_FLAGS,        "Flags" },
+    { OPT_PKT_HASH,         "Hash" },
+    { OPT_PKT_DROPCOUNT,    "Drop Count" },
+    { OPT_PKT_PACKETID,     "Packet ID" },
+    { OPT_PKT_QUEUE,        "Queue" },
+    { OPT_PKT_VERDICT,      "Verdict" },
+    { OPT_PKT_PROCIDTHRDID, "Process ID thread ID" },
     OPTION_CODE_CUSTOM_OPTIONS,
     { 32769,   "Darwin DPEB ID" },
     { 32770,   "Darwin Service Class" },
@@ -423,37 +437,31 @@ static const value_string option_code_enhanced_packet_vals[] = {
 };
 
 static const value_string option_code_packet_vals[] = {
-    { 0,  "End of Options" },
-    { 1,  "Comment" },
-
-    { 2,  "Flags" },
-    { 3,  "Hash" },
+    OPTION_CODE_STD_OPTIONS,
+    { OPT_PKT_FLAGS,    "Flags" },
+    { OPT_PKT_HASH,     "Hash" },
     OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
 static const value_string option_code_name_resolution_vals[] = {
-    { 0,  "End of Options" },
-    { 1,  "Comment" },
-
-    { 2,  "DNS Name" },
-    { 3,  "DNS IPv4 Address" },
-    { 4,  "DNS IPv6 Address" },
+    OPTION_CODE_STD_OPTIONS,
+    { OPT_NS_DNSNAME,       "DNS Name" },
+    { OPT_NS_DNSIP4ADDR,    "DNS IPv4 Address" },
+    { OPT_NS_DNSIP6ADDR,    "DNS IPv6 Address" },
     OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
 
 static const value_string option_code_interface_statistics_vals[] = {
-    { 0,  "End of Options" },
-    { 1,  "Comment" },
-
-    { 2,  "Start Time" },
-    { 3,  "End Time" },
-    { 4,  "Number of Received Packets" },
-    { 5,  "Number of Dropped Packets" },
-    { 6,  "Number of Accepted Packets" },
-    { 7,  "Number of Packets Dropped by OS" },
-    { 8,  "Number of Packets Delivered to the User" },
+    OPTION_CODE_STD_OPTIONS,
+    { OPT_ISB_STARTTIME,    "Start Time" },
+    { OPT_ISB_ENDTIME,      "End Time" },
+    { OPT_ISB_IFRECV,       "Number of Received Packets" },
+    { OPT_ISB_IFDROP,       "Number of Dropped Packets" },
+    { OPT_ISB_FILTERACCEPT, "Number of Accepted Packets" },
+    { OPT_ISB_OSDROP,       "Number of Packets Dropped by OS" },
+    { OPT_ISB_USRDELIV,     "Number of Packets Delivered to the User" },
     OPTION_CODE_CUSTOM_OPTIONS,
     { 0, NULL }
 };
@@ -476,6 +484,8 @@ static const value_string record_code_vals[] = {
     { 0x0000,  "End of Records" },
     { 0x0001,  "IPv4 Record" },
     { 0x0002,  "IPv6 Record" },
+    { 0x0003,  "EUI48 Record" },
+    { 0x0004,  "EUI64 Record" },
     { 0, NULL }
 };
 
@@ -504,6 +514,7 @@ static const value_string packet_hash_algorithm_vals[] = {
     { 2,  "CRC32" },
     { 3,  "MD5" },
     { 4,  "SHA1" },
+    { 5,  "Toeplitz" },
     { 0, NULL }
 };
 
@@ -554,12 +565,12 @@ void dissect_custom_options(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *
 
     /* Todo: Add known PEN custom options dissection. */
     switch (option_code) {
-    case 2988:
-    case 19372:
+    case OPT_CUSTOM_STR_COPY:
+    case OPT_CUSTOM_STR_NO_COPY:
         proto_tree_add_item(tree, hf_pcapng_cb_option_string, tvb, offset, option_length - 4, ENC_UTF_8);
         break;
-    case 2989:
-    case 19373:
+    case OPT_CUSTOM_BIN_COPY:
+    case OPT_CUSTOM_BIN_NO_COPY:
         proto_tree_add_item(tree, hf_pcapng_cb_option_data, tvb, offset, option_length - 4, encoding);
         break;
     }
@@ -655,32 +666,32 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
         option_length_item = proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_length, tvb, offset, 2, encoding, &option_length);
         offset += 2;
 
-        if (option_code == 0) {
+        if (option_code == OPT_EOFOPT) {
             if (option_length != 0)
                 expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
             proto_item_set_len(option_item, option_length + 2 * 2);
             break;
-        } else if (option_code == 1) {
+        } else if (option_code == OPT_COMMENT) {
             proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
             proto_item_append_text(option_item, " = %s", str);
             offset += option_length;
-        } else if (option_code == 2988 || option_code == 2989 || option_code == 19372 || option_code == 19373) {
+        } else if (option_code == OPT_CUSTOM_STR_COPY || option_code == OPT_CUSTOM_BIN_COPY || option_code == OPT_CUSTOM_STR_NO_COPY || option_code == OPT_CUSTOM_BIN_NO_COPY) {
             dissect_custom_options(option_tree, pinfo, tvb, offset, option_code, option_length, encoding);
             offset += option_length;
         } else switch (block_type) {
         case BLOCK_TYPE_SHB:
             switch (option_code) {
-            case 2:
+            case OPT_SHB_HARDWARE:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
-            case 3:
+            case OPT_SHB_OS:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
-            case 4:
+            case OPT_SHB_USERAPPL:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
@@ -694,17 +705,17 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
             struct interface_description  *interface_description = (struct interface_description *) user_data;
 
             switch (option_code) {
-            case 2:
+            case OPT_IDB_NAME:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
-            case 3:
+            case OPT_IDB_DESCRIPTION:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
-            case 4:
+            case OPT_IDB_IP4ADDR:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -722,7 +733,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                         address_to_display(pinfo->pool,  &addr),
                         address_to_display(pinfo->pool,  &addr_mask));
                 break;
-            case 5:
+            case OPT_IDB_IP6ADDR:
                 if (option_length != 17) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -740,7 +751,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                     address_to_display(pinfo->pool,  &addr), value_u32);
 
                 break;
-            case 6:
+            case OPT_IDB_MACADDR:
                 if (option_length != 6) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -753,7 +764,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 6;
 
                 break;
-            case 7:
+            case OPT_IDB_EUIADDR:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -768,30 +779,30 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                     address_to_display(pinfo->pool,  &addr));
 
                 break;
-            case 8:
+            case OPT_IDB_SPEED:
+            case OPT_IDB_TXSPEED: // if_txspeed
+            case OPT_IDB_RXSPEED: // if_rxspeed
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
                     break;
                 }
 
-                p_item = proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_speed, tvb, offset, 8, encoding, &value_u64);
-                /* XXX - is there a general routine to do this mapping? */
-                if (value_u64 == 10000000) {
-                    const_str = "10 Mbps";
-                } else if (value_u64 == 100000000) {
-                    const_str = "100 Mbps";
-                } else if (value_u64 == 1000000000) {
-                    const_str = "1 Gbps";
-                } else {
-                    const_str = wmem_strdup_printf(pinfo->pool, "%"PRIu64, value_u64);
-                }
-                proto_item_append_text(p_item, "%s", const_str);
+                if (option_code == OPT_IDB_SPEED)
+                    p_item = proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_speed, tvb, offset, 8, encoding, &value_u64);
+                else if (option_code == OPT_IDB_TXSPEED)
+                    p_item = proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_txspeed, tvb, offset, 8, encoding, &value_u64);
+                else
+                    p_item = proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_rxspeed, tvb, offset, 8, encoding, &value_u64);
+
+                const_str = format_size_wmem(pinfo->pool, value_u64, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI);
+
+                proto_item_append_text(p_item, " bps (%s)", const_str);
                 proto_item_append_text(option_item, " = %s", const_str);
                 offset += 8;
 
                 break;
-            case 9:
+            case OPT_IDB_TSRESOL:
             {
                 uint32_t    base;
                 uint32_t    exponent;
@@ -894,7 +905,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                     wmem_strbuf_finalize(strbuf));
                 break;
             }
-            case 10:
+            case OPT_IDB_TZONE:
                 if (option_length != 4) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -908,7 +919,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
-            case 11:
+            case OPT_IDB_FILTER:
                 if (option_length == 0) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     break;
@@ -938,13 +949,13 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length - 1;
 
                 break;
-            case 12:
+            case OPT_IDB_OS:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
                 break;
-            case 13:
+            case OPT_IDB_FCSLEN:
                 if (option_length != 1) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -956,7 +967,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
-            case 14:
+            case OPT_IDB_TSOFFSET:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -972,8 +983,16 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 15:
+            case OPT_IDB_HARDWARE:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
+                proto_item_append_text(option_item, " = %s", str);
+                offset += option_length;
+
+                break;
+            //case OPT_IDB_TXSPEED: done together with OPT_IDB_SPEED
+            //case OPT_IDB_RXSPEED: done together with OPT_IDB_SPEED
+            case OPT_IDB_IANA_TZNAME: // if_iana_tzname
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_iana_tzname, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
@@ -986,7 +1005,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_TYPE_PB:
             switch (option_code) {
-            case 2:
+            case OPT_PKT_FLAGS:
                 if (option_length != 4) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1008,7 +1027,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 3:
+            case OPT_PKT_HASH:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_hash_algorithm, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -1024,13 +1043,13 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_TYPE_NRB:
             switch (option_code) {
-            case 2:
+            case OPT_NS_DNSNAME:
                 proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, pinfo->pool, &str);
                 proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
                 break;
-            case 3:
+            case OPT_NS_DNSIP4ADDR:
                 if (option_length != 4) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1045,7 +1064,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                     address_to_display(pinfo->pool, &addr));
 
                 break;
-            case 4:
+            case OPT_NS_DNSIP6ADDR:
                 if (option_length != 16) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1068,7 +1087,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_TYPE_ISB:
             switch (option_code) {
-            case 2:
+            case OPT_ISB_STARTTIME:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1079,7 +1098,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 3:
+            case OPT_ISB_ENDTIME:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1090,7 +1109,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 4:
+            case OPT_ISB_IFRECV:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1102,7 +1121,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 5:
+            case OPT_ISB_IFDROP:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1114,7 +1133,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 6:
+            case OPT_ISB_FILTERACCEPT:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1126,7 +1145,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 7:
+            case OPT_ISB_OSDROP:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1138,7 +1157,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 8:
+            case OPT_ISB_USRDELIV:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1158,7 +1177,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
             break;
         case BLOCK_TYPE_EPB:
             switch (option_code) {
-            case 2:
+            case OPT_PKT_FLAGS:
                 if (option_length != 4) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1180,7 +1199,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 break;
-            case 3:
+            case OPT_PKT_HASH:
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_hash_algorithm, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -1188,7 +1207,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length - 1;
 
                 break;
-            case 4:
+            case OPT_PKT_DROPCOUNT:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1200,7 +1219,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 5:
+            case OPT_PKT_PACKETID:
                 if (option_length != 8) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1212,7 +1231,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 8;
 
                 break;
-            case 6:
+            case OPT_PKT_QUEUE:
                 if (option_length != 4) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     offset += option_length;
@@ -1224,7 +1243,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 4;
 
                 break;
-            case 7:
+            case OPT_PKT_VERDICT:
                 if (option_length < 1) {
                     expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
                     break;
@@ -1245,6 +1264,22 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 if (option_length > 1)
                     proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_verdict_data, tvb, offset + 1, option_length - 1, ENC_NA);
                 offset += option_length;
+
+                break;
+            case OPT_PKT_PROCIDTHRDID:
+                if (option_length != 8) {
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+                    offset += option_length;
+                    break;
+                }
+
+                // XXX - assuming this is the right order
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_proc_id, tvb, offset, 4, encoding, &value_u32);
+                proto_item_append_text(option_item, " = 0x%08x", value_u32);
+                offset += 4;
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_thread_id, tvb, offset, 4, encoding, &value_u32);
+                proto_item_append_text(option_item, ", 0x%08x", value_u32);
+                offset += 4;
 
                 break;
             case 32769: /* Darwin DPEB ID */
@@ -1680,6 +1715,8 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             str = address_to_display(pinfo->pool, &addr);
 
             break;
+        case 0x003: /* EUI48 Record */ // TODO
+        case 0x004: /* EUI64 Record */ // TODO
         default:
             proto_tree_add_item(record_tree, hf_pcapng_record_data, tvb, offset, record_length, ENC_NA);
             offset += record_length;
@@ -1935,6 +1972,8 @@ int dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct in
             break;
         case BLOCK_TYPE_IRIG_TS:
         case BLOCK_TYPE_ARINC_429:
+        case BLOCK_TYPE_HP_MIB:
+        case BLOCK_TYPE_HP_CEB:
             break;
 
         default:
@@ -2266,6 +2305,16 @@ proto_register_pcapng(void)
             FT_UINT64, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_pcapng_option_data_interface_txspeed,
+            { "Tx speed",                                  "pcapng.options.option.data.interface.txspeed",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_interface_rxspeed,
+            { "Rx speed",                                  "pcapng.options.option.data.interface.rxspeed",
+            FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_pcapng_option_data_interface_timestamp_resolution,
             { "Timestamp Resolution",                      "pcapng.options.option.data.interface.timestamp_resolution",
             FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -2316,6 +2365,11 @@ proto_register_pcapng(void)
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_pcapng_option_data_interface_iana_tzname,
+            { "IANA timezone name",                        "pcapng.options.option.data.interface.iana_tzname",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_pcapng_option_data_interface_fcs_length,
             { "FCS Length",                                "pcapng.options.option.data.interface.fcs_length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -2324,6 +2378,16 @@ proto_register_pcapng(void)
         { &hf_pcapng_option_data_interface_timestamp_offset,
             { "Timestamp Offset",                          "pcapng.options.option.data.interface.timestamp_offset",
             FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_proc_id,
+            { "Process ID",                                "pcapng.options.option.data.process_id",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_thread_id,
+            { "Thread ID",                                 "pcapng.options.option.data.thread_id",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_verdict_type,

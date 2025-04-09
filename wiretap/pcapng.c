@@ -173,18 +173,6 @@ struct pcapng_option {
     uint16_t value_length;
 };
 
-/* Option codes: 16-bit field */
-#define OPT_EPB_FLAGS        0x0002
-#define OPT_EPB_HASH         0x0003
-#define OPT_EPB_DROPCOUNT    0x0004
-#define OPT_EPB_PACKETID     0x0005
-#define OPT_EPB_QUEUE        0x0006
-#define OPT_EPB_VERDICT      0x0007
-
-#define OPT_NRB_DNSNAME      0x0002
-#define OPT_NRB_DNSV4ADDR    0x0003
-#define OPT_NRB_DNSV6ADDR    0x0004
-
 /* MSBit of option code means "local type" */
 #define OPT_LOCAL_FLAG       0x8000
 
@@ -328,6 +316,8 @@ register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
 
     case BLOCK_TYPE_IRIG_TS:
     case BLOCK_TYPE_ARINC_429:
+    case BLOCK_TYPE_HP_MIB:
+    case BLOCK_TYPE_HP_CEB:
         /*
          * Yes, and we don't already handle it.  Allow a plugin to
          * handle it.
@@ -425,7 +415,7 @@ register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
  */
 #define BT_INDEX_SHB        0
 #define BT_INDEX_IDB        1
-#define BT_INDEX_PBS        2  /* all packet blocks */
+#define BT_INDEX_PBS        2  /* all packet blocks: PB/EPB/SPB */
 #define BT_INDEX_NRB        3
 #define BT_INDEX_ISB        4
 #define BT_INDEX_EVT        5
@@ -1439,6 +1429,36 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
             pcapng_process_string_option(wblock, option_code, option_length,
                                          option_content);
             break;
+        case(OPT_IDB_IP4ADDR):
+            /*
+             * Interface network address and netmask. This option can be
+             * repeated multiple times within the same Interface
+             * Description Block when multiple IPv4 addresses are assigned
+             * to the interface. 192 168 1 1 255 255 255 0
+             */
+            break;
+        case(OPT_IDB_IP6ADDR):
+            /*
+             * Interface network address and prefix length (stored in the
+             * last byte). This option can be repeated multiple times
+             * within the same Interface Description Block when multiple
+             * IPv6 addresses are assigned to the interface.
+             * 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in
+             * hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44
+             * 40"
+             */
+            break;
+        case(OPT_IDB_MACADDR):
+            /*
+             * Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
+             */
+            break;
+        case(OPT_IDB_EUIADDR):
+            /*
+             * Interface Hardware EUI address (64 bits), if available.
+             * 02 34 56 FF FE 78 9A BC
+             */
+             break;
         case(OPT_IDB_SPEED): /* if_speed */
             pcapng_process_uint64_option(wblock, section_info,
                                          OPT_SECTION_BYTE_ORDER,
@@ -1449,9 +1469,19 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
             pcapng_process_uint8_option(wblock, option_code, option_length,
                                         option_content);
             break;
+        case(OPT_IDB_TZONE): /* if_tzone */
             /*
-             * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example
+             * Time zone for GMT support.  This option has never been
+             * specified in greater detail and, unless it were to identify
+             * something such as an IANA time zone database timezone,
+             * would be insufficient for converting between UTC and local
+             * time.  Therefore, it SHOULD NOT be used; instead, the
+             * if_iana_tzname option SHOULD be used if time zone
+             * information is to be specified.
+             *
+             * Given that, we don't do anything with it.
              */
+             break;
         case(OPT_IDB_FILTER): /* if_filter */
             if (option_length < 1) {
                 *err = WTAP_ERR_BAD_FILE;
@@ -1521,54 +1551,6 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
             pcapng_process_uint8_option(wblock, option_code, option_length,
                                         option_content);
             break;
-        case(OPT_IDB_HARDWARE): /* if_hardware */
-            pcapng_process_string_option(wblock, option_code, option_length,
-                                         option_content);
-            break;
-        /* TODO: process these! */
-        case(OPT_IDB_IP4ADDR):
-            /*
-             * Interface network address and netmask. This option can be
-             * repeated multiple times within the same Interface
-             * Description Block when multiple IPv4 addresses are assigned
-             * to the interface. 192 168 1 1 255 255 255 0
-             */
-            break;
-        case(OPT_IDB_IP6ADDR):
-            /*
-             * Interface network address and prefix length (stored in the
-             * last byte). This option can be repeated multiple times
-             * within the same Interface Description Block when multiple
-             * IPv6 addresses are assigned to the interface.
-             * 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in
-             * hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44
-             * 40"
-             */
-            break;
-        case(OPT_IDB_MACADDR):
-            /*
-             * Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
-             */
-            break;
-        case(OPT_IDB_EUIADDR):
-            /*
-             * Interface Hardware EUI address (64 bits), if available.
-             * TODO: give a good example
-             */
-             break;
-        case(OPT_IDB_TZONE):
-            /*
-             * Time zone for GMT support.  This option has never been
-             * specified in greater detail and, unless it were to identify
-             * something such as an IANA time zone database timezone,
-             * would be insufficient for converting between UTC and local
-             * time.  Therefore, it SHOULD NOT be used; instead, the
-             * if_iana_tzname option SHOULD be used if time zone
-             * information is to be specified.
-             *
-             * Given that, we don't do anything with it.
-             */
-             break;
         case(OPT_IDB_TSOFFSET):
             /*
              * A 64-bit integer value that specifies an offset (in
@@ -1582,6 +1564,26 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
                                         option_code, option_length,
                                         option_content);
              break;
+        case(OPT_IDB_HARDWARE): /* if_hardware */
+            pcapng_process_string_option(wblock, option_code, option_length,
+                                         option_content);
+            break;
+        case(OPT_IDB_TXSPEED): /* if_txspeed */
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
+            break;
+        case(OPT_IDB_RXSPEED): /* if_rxspeed */
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
+            break;
+        case(OPT_IDB_IANA_TZNAME): /* if_iana_tzname */
+            pcapng_process_string_option(wblock, option_code, option_length,
+                                         option_content);
+            break;
         default:
             if (!pcapng_process_unhandled_option(wblock, BT_INDEX_IDB,
                                                  section_info, option_code,
@@ -1972,7 +1974,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
      * in one of those places as standardized option types.
      */
     switch (option_code) {
-        case(OPT_EPB_FLAGS):
+        case(OPT_PKT_FLAGS):
             if (option_length != 4) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: packet block flags option length %u is not 4",
@@ -1985,7 +1987,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                          option_code, option_length,
                                          option_content);
             break;
-        case(OPT_EPB_HASH):
+        case(OPT_PKT_HASH):
             if (option_length < 1) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: packet block hash option length %u is < 1",
@@ -2003,7 +2005,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
             ws_debug("hash type %u, data len %u",
                      option_content[0], option_length - 1);
             break;
-        case(OPT_EPB_DROPCOUNT):
+        case(OPT_PKT_DROPCOUNT):
             if (option_length != 8) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: packet block drop count option length %u is not 8",
@@ -2016,7 +2018,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                          option_code, option_length,
                                          option_content);
             break;
-        case(OPT_EPB_PACKETID):
+        case(OPT_PKT_PACKETID):
             if (option_length != 8) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: packet block packet id option length %u is not 8",
@@ -2029,7 +2031,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                          option_code, option_length,
                                          option_content);
             break;
-        case(OPT_EPB_QUEUE):
+        case(OPT_PKT_QUEUE):
             if (option_length != 4) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: packet block queue option length %u is not 4",
@@ -2042,7 +2044,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                          option_code, option_length,
                                          option_content);
             break;
-        case(OPT_EPB_VERDICT):
+        case(OPT_PKT_VERDICT):
             if (option_length < 1) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: packet block verdict option length %u is < 1",
@@ -2106,6 +2108,20 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
             wtap_packet_verdict_free(&packet_verdict);
             ws_debug("verdict type %u, data len %u",
                      option_content[0], option_length - 1);
+            break;
+        case(OPT_PKT_PROCIDTHRDID):
+            if (option_length != 8) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = ws_strdup_printf("pcapng: packet block process id thread id option length %u is not 8",
+                                            option_length);
+                /* XXX - free anything? */
+                return false;
+            }
+            // XXX - It's two concatenated 32 bit unsigned integers
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         default:
             if (!pcapng_process_unhandled_option(wblock, BT_INDEX_PBS,
@@ -5295,23 +5311,26 @@ compute_epb_option_size(wtap_block_t block _U_, unsigned option_id, wtap_opttype
 
     switch(option_id)
     {
-    case OPT_EPB_FLAGS:
+    case OPT_PKT_FLAGS:
         size = 4;
         break;
-    case OPT_EPB_DROPCOUNT:
+    case OPT_PKT_HASH:
+        size = pcapng_compute_packet_hash_option_size(optval);
+        break;
+    case OPT_PKT_DROPCOUNT:
         size = 8;
         break;
-    case OPT_EPB_PACKETID:
+    case OPT_PKT_PACKETID:
         size = 8;
         break;
-    case OPT_EPB_QUEUE:
+    case OPT_PKT_QUEUE:
         size = 4;
         break;
-    case OPT_EPB_VERDICT:
+    case OPT_PKT_VERDICT:
         size = pcapng_compute_packet_verdict_option_size(optval);
         break;
-    case OPT_EPB_HASH:
-        size = pcapng_compute_packet_hash_option_size(optval);
+    case OPT_PKT_PROCIDTHRDID:
+        size = 8;
         break;
     default:
         /* Unknown options - size by datatype? */
@@ -5326,29 +5345,31 @@ static bool write_wtap_epb_option(wtap_dumper *wdh, wtap_block_t block _U_, unsi
     switch(option_id)
     {
     case OPT_PKT_FLAGS:
-        if (!pcapng_write_uint32_option(wdh, OPT_EPB_FLAGS, optval, err))
-            return false;
-        break;
-    case OPT_PKT_DROPCOUNT:
-        if (!pcapng_write_uint64_option(wdh, OPT_EPB_DROPCOUNT, optval, err))
-            return false;
-        break;
-    case OPT_PKT_PACKETID:
-        if (!pcapng_write_uint64_option(wdh, OPT_EPB_PACKETID, optval, err))
-            return false;
-        break;
-    case OPT_PKT_QUEUE:
-        if (!pcapng_write_uint32_option(wdh, OPT_EPB_QUEUE, optval, err))
-            return false;
-        break;
-    case OPT_PKT_VERDICT:
-        if (!pcapng_write_packet_verdict_option(wdh, OPT_EPB_VERDICT, optval,
-                                                err))
+        if (!pcapng_write_uint32_option(wdh, OPT_PKT_FLAGS, optval, err))
             return false;
         break;
     case OPT_PKT_HASH:
-        if (!pcapng_write_packet_hash_option(wdh, OPT_EPB_HASH, optval,
-                                             err))
+        if (!pcapng_write_packet_hash_option(wdh, OPT_PKT_HASH, optval, err))
+            return false;
+        break;
+    case OPT_PKT_DROPCOUNT:
+        if (!pcapng_write_uint64_option(wdh, OPT_PKT_DROPCOUNT, optval, err))
+            return false;
+        break;
+    case OPT_PKT_PACKETID:
+        if (!pcapng_write_uint64_option(wdh, OPT_PKT_PACKETID, optval, err))
+            return false;
+        break;
+    case OPT_PKT_QUEUE:
+        if (!pcapng_write_uint32_option(wdh, OPT_PKT_QUEUE, optval, err))
+            return false;
+        break;
+    case OPT_PKT_VERDICT:
+        if (!pcapng_write_packet_verdict_option(wdh, OPT_PKT_VERDICT, optval, err))
+            return false;
+        break;
+    case OPT_PKT_PROCIDTHRDID:
+        if (!pcapng_write_uint64_option(wdh, OPT_PKT_PROCIDTHRDID, optval, err))
             return false;
         break;
     default:
@@ -6908,7 +6929,10 @@ static const struct supported_option_type interface_block_options_supported[] = 
     { OPT_IDB_OS, ONE_OPTION_SUPPORTED },
     { OPT_IDB_FCSLEN, ONE_OPTION_SUPPORTED },
     { OPT_IDB_TSOFFSET, ONE_OPTION_SUPPORTED },
-    { OPT_IDB_HARDWARE, ONE_OPTION_SUPPORTED }
+    { OPT_IDB_HARDWARE, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_TXSPEED, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_RXSPEED, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_IANA_TZNAME, ONE_OPTION_SUPPORTED }
 };
 
 /* Options for name resolution blocks. */
@@ -6961,11 +6985,12 @@ static const struct supported_option_type meta_events_block_options_supported[] 
 static const struct supported_option_type packet_block_options_supported[] = {
     { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_PKT_FLAGS, ONE_OPTION_SUPPORTED },
+    { OPT_PKT_HASH, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_PKT_DROPCOUNT, ONE_OPTION_SUPPORTED },
     { OPT_PKT_PACKETID, ONE_OPTION_SUPPORTED },
     { OPT_PKT_QUEUE, ONE_OPTION_SUPPORTED },
-    { OPT_PKT_HASH, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_PKT_VERDICT, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_PKT_PROCIDTHRDID, ONE_OPTION_SUPPORTED },
     { OPT_CUSTOM_STR_COPY, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_CUSTOM_BIN_COPY, MULTIPLE_OPTIONS_SUPPORTED },
     { OPT_CUSTOM_STR_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED },

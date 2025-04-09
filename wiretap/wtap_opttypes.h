@@ -119,9 +119,18 @@ extern "C" {
                                        *     "Intel(R) PRO/1000 MT Network Connection" /
                                        *     "NETGEAR WNA1000Mv2 N150 Wireless USB Micro Adapter"
                                        */
+#define OPT_IDB_TXSPEED        16    /**< A 64-bit unsigned integer indicating the interface transmit speed in
+                                       *     bits per second.
+                                       */
+#define OPT_IDB_RXSPEED        17    /**< A 64-bit unsigned integer indicating the interface receive speed in
+                                       *     bits per second.
+                                       */
+#define OPT_IDB_IANA_TZNAME    18    /**< A UTF-8 string that indicates the IANA time zone database timezone name
+                                       *     for the IANA database timezone in which the interface is located.
+                                       */
 
 /*
- * These are the flags for an EPB, but we use them for all WTAP_BLOCK_PACKET
+ * These are the options for an EPB, but we use them for all WTAP_BLOCK_PACKET
  */
 #define OPT_PKT_FLAGS        2
 #define OPT_PKT_HASH         3
@@ -129,6 +138,7 @@ extern "C" {
 #define OPT_PKT_PACKETID     5
 #define OPT_PKT_QUEUE        6
 #define OPT_PKT_VERDICT      7
+#define OPT_PKT_PROCIDTHRDID 8
 
 /* Name Resolution Block (NRB) */
 #define OPT_NS_DNSNAME       2

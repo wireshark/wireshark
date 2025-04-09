@@ -26,6 +26,8 @@
 #define BLOCK_TYPE_ARINC_429              0x00000008 /* ARINC 429 in AFDX Encapsulation Information Block */
 #define BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT 0x00000009 /* systemd journal entry */
 #define BLOCK_TYPE_DSB                    0x0000000A /* Decryption Secrets Block */
+#define BLOCK_TYPE_HP_MIB                 0x00000101 /* Hone Project Machine Info Block */
+#define BLOCK_TYPE_HP_CEB                 0x00000102 /* Hone Project Connection Event Block */
 #define BLOCK_TYPE_SYSDIG_MI              0x00000201 /* Sysdig Machine Info Block */
 #define BLOCK_TYPE_SYSDIG_PL_V1           0x00000202 /* Sysdig Process List Block */
 #define BLOCK_TYPE_SYSDIG_FDL_V1          0x00000203 /* Sysdig File Descriptor List Block */
@@ -53,6 +55,7 @@
 
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:
+ * Alternative Packet Blocks
  * Compression Block
  * Encryption Block
  * Fixed Length Block
