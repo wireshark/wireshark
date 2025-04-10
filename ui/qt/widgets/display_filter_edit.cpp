@@ -389,7 +389,9 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         alignActionButtons();
     }
 
-    if ((filter_text.length() <= 0) && mainApp->mainWindow()->isActiveWindow())
+    MainWindow *mw = mainApp->mainWindow();
+
+    if ((filter_text.length() <= 0) && mw && mw->isActiveWindow())
         mainApp->popStatus(MainApplication::FilterSyntax);
 
     emit popFilterSyntaxStatus();
@@ -399,7 +401,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     switch (syntaxState()) {
     case Deprecated:
     {
-        if (mainApp->mainWindow()->isActiveWindow())
+        if (mw && mw->isActiveWindow())
             mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
         setToolTip(syntaxErrorMessage());
         break;
@@ -407,7 +409,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     case Invalid:
     {
         QString invalidMsg = tr("Invalid filter: ").append(syntaxErrorMessage());
-        if (mainApp->mainWindow()->isActiveWindow())
+        if (mw && mw->isActiveWindow())
             mainApp->pushStatus(MainApplication::FilterSyntax, syntaxErrorMessage());
         setToolTip(invalidMsg);
         break;
@@ -524,7 +526,8 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
 {
     // Push a hint about the current field.
     if (syntaxState() == Valid) {
-        if (mainApp->mainWindow()->isActiveWindow())
+        MainWindow *mw = mainApp->mainWindow();
+        if (mw && mw->isActiveWindow())
             mainApp->popStatus(MainApplication::FilterSyntax);
 
         header_field_info *hfinfo = proto_registrar_get_byname(field_word.toUtf8().constData());
@@ -532,7 +535,7 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word, const QSt
             QString cursor_field_msg = QStringLiteral("%1: %2")
                     .arg(hfinfo->name)
                     .arg(ftype_pretty_name(hfinfo->type));
-            if (mainApp->mainWindow()->isActiveWindow())
+            if (mw && mw->isActiveWindow())
                 mainApp->pushStatus(MainApplication::FilterSyntax, cursor_field_msg);
         }
     }
