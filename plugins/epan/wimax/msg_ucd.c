@@ -425,7 +425,7 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap, tvb, offset-tlv_value_offset, ENC_NA);
 					break;
 				}
-				case UCD_TLV_T_159_BAND_AMC_ALLOCATION_THRESHHOLD:
+				case UCD_TLV_T_159_BAND_AMC_ALLOCATION_THRESHOLD:
 				{
 					add_tlv_subtree(&tlv_info, ucd_tree, hf_ucd_tlv_t_159_band_amc_allocation_threshold, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					break;

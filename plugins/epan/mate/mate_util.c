@@ -187,7 +187,7 @@ void scs_unsubscribe(SCS_collection* c, char* s) {
  *
  * Formats the input and subscribes it.
  *
- * Return value: the stored copy of the formated string.
+ * Return value: the stored copy of the formatted string.
  *
  **/
 char* scs_subscribe_printf(SCS_collection* c, char* fmt, ...) {
@@ -598,7 +598,7 @@ extern AVP* extract_avp_by_name(AVPL* avpl, char* name) {
  * extract_first_avp:
  * @param avpl the avpl from which to try to extract the avp.
  *
- * Extracts the fisrt avp from the avpl.
+ * Extracts the first avp from the avpl.
  *
  * Return value: a pointer to extracted avp if there's one, else NULL.
  *
@@ -848,7 +848,7 @@ extern void merge_avpl(AVPL* dst, AVPL* src, bool copy_avps) {
  * @param copy_avps whether avps should be copied instead of referenced.
  *
  * Creates a new avpl containing the same avps as the given avpl
- * It will either reference or copie the avps.
+ * It will either reference or copy the avps.
  *
  * Return value: a pointer to the newly allocated string.
  *

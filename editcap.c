@@ -1343,7 +1343,7 @@ extract_secrets(wtap *wth, char* filename, int *err, char **err_info)
         }
     } else {
         /* We have more than one DSB, so write multiple files. While for some
-         * types, we could combine the information from different DSBs togther
+         * types, we could combine the information from different DSBs together
          * (and most of those are text-based, so we'd want to write in text
          * mode so that the line endings are uniform (which makes testing
          * harder), we don't know that for every type.
