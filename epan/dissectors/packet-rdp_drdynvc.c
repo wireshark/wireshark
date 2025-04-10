@@ -166,6 +166,7 @@ static drdynvc_know_channel_def knownChannels[] = {
 	{"Microsoft::Windows::RDS::DisplayControl", "display", DRDYNVC_CHANNEL_DISPLAY},
 	{"Microsoft::Windows::RDS::Geometry::v08.01", "geometry", DRDYNVC_CHANNEL_GEOMETRY},
 	{"Microsoft::Windows::RDS::Input", "input",	DRDYNVC_CHANNEL_MULTITOUCH},
+	{"Microsoft::Windows::RDS::RAIL", "rail", DRDYNVC_CHANNEL_RAIL},
 
 	/* static channels that can be reopened on the dynamic channel */
 	{"rail", "rail", DRDYNVC_CHANNEL_RAIL},
@@ -403,8 +404,10 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			if (!isServerTarget) {
 				unsigned nameLen = tvb_strsize(tvb, offset);
 
-				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Request");
-				proto_tree_add_item(tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII);
+				char *channelName = NULL;
+				proto_tree_add_item_ret_display_string(tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII, pinfo->pool, &channelName);
+
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "CreateChannel Request(%s)", channelName);
 
 				if (!PINFO_FD_VISITED(pinfo)) {
 					channel = wmem_alloc(wmem_file_scope(), sizeof(*channel));
@@ -429,7 +432,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				}
 
 			} else {
-				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Response");
+				char *channelName = "unknown";
 				proto_tree_add_item(tree, hf_rdp_drdynvc_creationStatus, tvb, offset, 4, ENC_NA);
 
 				if (channel) {
@@ -447,7 +450,10 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 								proto_tree_add_uint(tree, hf_rdp_drdynvc_createreq_frameid, tvb, 0, 0, channel->createFrameId)
 						);
 					}
+					channelName = channel->name;
 				}
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "CreateChannel Response(%s)", channelName);
+
 			}
 			break;
 		case DRDYNVC_CAPABILITY_REQUEST_PDU: {
@@ -460,7 +466,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			offset += 2;
 
 			if (!isServerTarget) {
-				col_set_str(pinfo->cinfo, COL_INFO, "Capabilities request");
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Capabilities request");
 
 				if (version > 1) {
 					proto_tree_add_item(tree, hf_rdp_drdynvc_capa_prio0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -473,12 +479,12 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					offset += 2;
 				}
 			} else {
-				col_set_str(pinfo->cinfo, COL_INFO, "Capabilities response");
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Capabilities response");
 			}
 			break;
 		}
 		case DRDYNVC_DATA_FIRST_PDU: {
-			col_set_str(pinfo->cinfo, COL_INFO, "Data first");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Data first");
 
 			if (channel) {
 				drdynvc_pdu_info_t *pduInfo = NULL;
@@ -563,7 +569,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			break;
 		}
 		case DRDYNVC_DATA_PDU: {
-			col_set_str(pinfo->cinfo, COL_INFO, "Data");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Data");
 
 			if (channel) {
 				tvbuff_t *targetTvb = NULL;
