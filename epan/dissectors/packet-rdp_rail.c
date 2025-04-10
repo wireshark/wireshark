@@ -98,6 +98,7 @@ enum {
 	TS_RAIL_ORDER_SYSCOMMAND = 0x04,
 	TS_RAIL_ORDER_HANDSHAKE = 0x05,
 	TS_RAIL_ORDER_NOTIFY_EVENT = 0x06,
+	TS_RAIL_ORDER_EXEC_RESULT_7 = 0x7,
 	TS_RAIL_ORDER_WINDOWMOVE = 0x08,
 	TS_RAIL_ORDER_LOCALMOVESIZE = 0x09,
 	TS_RAIL_ORDER_MINMAXINFO = 0x0a,
@@ -117,7 +118,25 @@ enum {
 	TS_RAIL_ORDER_SNAP_ARRANGE = 0x17,
 	TS_RAIL_ORDER_GET_APPID_RESP_EX = 0x18,
 	TS_RAIL_ORDER_TEXTSCALEINFO = 0x19,
-	TS_RAIL_ORDER_CARETBLINKINFO = 0x1a
+	TS_RAIL_ORDER_CARETBLINKINFO = 0x1a,
+
+	TS_RAIL_ORDER_WINDOW_CREATE_BODY = 0x1b,
+	TS_RAIL_ORDER_WINDOW_CHANGE_BODY = 0x1c,
+	TS_RAIL_ORDER_WINDOW_GEOMETRY_BODY = 0x1d,
+	TS_RAIL_ORDER_WINDOW_DELETE_BODY = 0x1e,
+	TS_RAIL_ORDER_WINDOW_ICON_BODY = 0x1f,
+	TS_RAIL_ORDER_WINDOW_CACHED_ICON = 0x20,
+	TS_RAIL_ORDER_WINDOW_APPBAR_INFO_BODY = 0x21,
+	TS_RAIL_ORDER_WINDOW_NOTIFY_ICON_BODY = 0x22,
+	TS_RAIL_ORDER_WINDOW_NOTIFY_ICON_BODY_CHANGE = 0x23,
+	TS_RAIL_ORDER_NOTIFY_ICON_DELETE = 0x25,
+	TS_RAIL_ORDER_ZORDER_BODY = 0x26,
+	TS_RAIL_ORDER_SYNC_STATE_BODY = 0x27,
+	TS_RAIL_ORDER_28 = 0x28,
+	TS_RAIL_ORDER_29 = 0x29,
+	TS_RAIL_ORDER_2B = 0x2b,
+	TS_RAIL_ORDER_2C = 0x2c,
+	TS_RAIL_ORDER_2D = 0x2d,
 };
 
 enum {
@@ -158,6 +177,7 @@ static const value_string rdp_rail_order_vals[] = {
 	{ TS_RAIL_ORDER_SYSCOMMAND, "System command"},
 	{ TS_RAIL_ORDER_HANDSHAKE, "Handshake"},
 	{ TS_RAIL_ORDER_NOTIFY_EVENT, "Notify event"},
+	{ TS_RAIL_ORDER_EXEC_RESULT_7, "ExecResult 0x7"},
 	{ TS_RAIL_ORDER_WINDOWMOVE, "Window move"},
 	{ TS_RAIL_ORDER_LOCALMOVESIZE, "Local move size"},
 	{ TS_RAIL_ORDER_MINMAXINFO, "MinMax info"},
@@ -178,6 +198,24 @@ static const value_string rdp_rail_order_vals[] = {
 	{ TS_RAIL_ORDER_GET_APPID_RESP_EX, "Get appId response"},
 	{ TS_RAIL_ORDER_TEXTSCALEINFO, "Text scale info"},
 	{ TS_RAIL_ORDER_CARETBLINKINFO, "Caret blink info"},
+	{ TS_RAIL_ORDER_WINDOW_CREATE_BODY, "window create body" },
+	{ TS_RAIL_ORDER_WINDOW_CHANGE_BODY, "window change body" },
+	{ TS_RAIL_ORDER_WINDOW_GEOMETRY_BODY, "window body geometry" },
+	{ TS_RAIL_ORDER_WINDOW_DELETE_BODY, "window delete body" },
+	{ TS_RAIL_ORDER_WINDOW_ICON_BODY, "window icon body" },
+	{ TS_RAIL_ORDER_WINDOW_CACHED_ICON, "window icon cached" },
+	{ TS_RAIL_ORDER_WINDOW_APPBAR_INFO_BODY, "appbar info body" },
+	{ TS_RAIL_ORDER_WINDOW_NOTIFY_ICON_BODY, "notify icon body" },
+	{ TS_RAIL_ORDER_WINDOW_NOTIFY_ICON_BODY_CHANGE, "notify icon body change" },
+	{ TS_RAIL_ORDER_NOTIFY_ICON_DELETE, "notify icon delete" },
+	{ TS_RAIL_ORDER_ZORDER_BODY, "zorder" },
+	{ TS_RAIL_ORDER_SYNC_STATE_BODY, "sync state" },
+	{ TS_RAIL_ORDER_28, "order28" },
+	{ TS_RAIL_ORDER_29, "order29" },
+	{ TS_RAIL_ORDER_2B, "order2B" },
+	{ TS_RAIL_ORDER_2C, "order2C" },
+	{ TS_RAIL_ORDER_2D, "order2D" },
+
 	{ 0x0, NULL},
 };
 
@@ -292,12 +330,14 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 	case TS_RAIL_ORDER_GET_APPID_RESP_EX:
 	case TS_RAIL_ORDER_ZORDER_SYNC:
 		proto_tree_add_item_ret_uint(tree, hf_rail_windowId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &windowId);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s|windowId=0x%x", val_to_str_const(cmdId, rdp_rail_order_vals, "Unknown RAIL command"),
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s|windowId=0x%x", val_to_str_const(cmdId, rdp_rail_order_vals, "Unknown RAIL command"),
 				windowId);
 		offset += 4;
 		break;
+	case TS_RAIL_ORDER_SYSPARAM:
+		break;
 	default:
-		col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmdId, rdp_rail_order_vals, "Unknown RAIL command"));
+		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", val_to_str_const(cmdId, rdp_rail_order_vals, "Unknown RAIL command"));
 		break;
 	}
 
@@ -312,12 +352,9 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 	case TS_RAIL_ORDER_SYSPARAM:
 		if (!packetToServer) {
 			uint32_t serverParam;
-
-			col_set_str(pinfo->cinfo, COL_INFO, "Server system parameters");
-
 			proto_tree_add_item_ret_uint(tree, hf_rail_sysparam_server_params, tvb, offset, 4, ENC_LITTLE_ENDIAN, &serverParam);
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str_const(serverParam, rdp_rail_server_system_params_vals, "<unknown server param>"));
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "Server system parameters %s", val_to_str_const(serverParam, rdp_rail_server_system_params_vals, "<unknown server param>"));
 			switch(serverParam) {
 			case SPI_SETSCREENSAVEACTIVE:
 			case SPI_SETSCREENSAVESECURE:
@@ -328,7 +365,7 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 			uint32_t clientParam;
 
 			proto_tree_add_item_ret_uint(tree, hf_rail_sysparam_client_params, tvb, offset, 4, ENC_LITTLE_ENDIAN, &clientParam);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str_const(clientParam, rdp_rail_client_system_params_vals, "<unknown client param>"));
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "client system parameters %s", val_to_str_const(clientParam, rdp_rail_client_system_params_vals, "<unknown client param>"));
 
 			switch(clientParam) {
 			case SPI_SETDRAGFULLWINDOWS:
