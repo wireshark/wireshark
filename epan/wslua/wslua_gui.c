@@ -626,6 +626,8 @@ static int ProgDlg__gc(lua_State* L) {
             ops->destroy_progress_window(pd->pw);
         }
 
+        g_free(pd->task);
+        g_free(pd->title);
         g_free(pd);
     } else {
         luaL_error(L, "ProgDlg__gc has being passed something else!");
