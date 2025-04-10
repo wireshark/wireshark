@@ -544,9 +544,6 @@ static int Pref__gc(lua_State* L) {
         return 0;
     }
 
-    g_free(pref->name);
-    g_free(pref->label);
-    g_free(pref->desc);
     switch (pref->type) {
         case PREF_STRING:
             /*
@@ -574,6 +571,10 @@ static int Pref__gc(lua_State* L) {
             * Free the uat values if allocated in get_uat_flds_array().
             */
             if (pref->info.uat_field_list_info.uat_field_list != NULL) {
+                uat = uat_get_table_by_name(pref->name);
+                if (uat != NULL) {
+                    uat_destroy(uat);
+                }
                 const uat_field_t *field_valp = pref->info.uat_field_list_info.uat_field_list;
                 while (field_valp->name) {
                     g_free((char *)field_valp->title);
@@ -592,6 +593,9 @@ static int Pref__gc(lua_State* L) {
         default:
             break;
     }
+    g_free(pref->name);
+    g_free(pref->label);
+    g_free(pref->desc);
     g_free(pref);
 
     return 0;
