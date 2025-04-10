@@ -334,46 +334,46 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 
 			switch (dtype) {
 			case RDPDR_DTYP_SMARTCARD:
-				col_set_str(pinfo->cinfo, COL_INFO, "SMARTCARD Fn");
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "SMARTCARD Fn");
 				break;
 			case RDPDR_DTYP_FILESYSTEM:
 			default:
 				switch(majorFn) {
 				case IRP_MJ_CREATE:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_CREATE");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_CREATE");
 					break;
 				case IRP_MJ_CLOSE:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_CLOSE");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_CLOSE");
 					break;
 				case IRP_MJ_READ:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_READ");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_READ");
 					break;
 				case IRP_MJ_WRITE:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_WRITE");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_WRITE");
 					break;
 				case IRP_MJ_DEVICE_CONTROL:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_DEVICE_CONTROL");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_DEVICE_CONTROL");
 					break;
 				case IRP_MJ_QUERY_VOLUME_INFORMATION:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_QUERY_VOLUME_INFORMATION");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_QUERY_VOLUME_INFORMATION");
 					break;
 				case IRP_MJ_SET_VOLUME_INFORMATION:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_SET_VOLUME_INFORMATION");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_SET_VOLUME_INFORMATION");
 					break;
 				case IRP_MJ_QUERY_INFORMATION:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_QUERY_INFORMATION");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_QUERY_INFORMATION");
 					break;
 				case IRP_MJ_SET_INFORMATION:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_SET_INFORMATION");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_SET_INFORMATION");
 					break;
 				case IRP_MJ_DIRECTORY_CONTROL:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_DIRECTORY_CONTROL");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_DIRECTORY_CONTROL");
 					break;
 				case IRP_MJ_LOCK_CONTROL:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS IRP_MJ_LOCK_CONTROL");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_LOCK_CONTROL");
 					break;
 				default:
-					col_set_str(pinfo->cinfo, COL_INFO, "FS unhandled");
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS unhandled");
 					break;
 				}
 				break;
@@ -462,6 +462,7 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 		}
 
 		default:
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str_const(packetId, rdpdr_packetid_vals, "<unknown command>"));
 			break;
 		}
 	} else if (component == RDPDR_CTYP_PRN) {
