@@ -670,6 +670,10 @@ extern "C" {
 #define ETHERTYPE_EXEH			0xE555	/* EXos internal Extra Header */
 #endif
 
+#ifndef ETHERTYPE_ATMF
+#define ETHERTYPE_ATMF			0xFBAE  /* Allied Telesis Autonomous Management Framework frames */
+#endif
+
 #ifndef ETHERTYPE_ATRL
 #define ETHERTYPE_ATRL			0xFBAC	/* Allied Telesis Resiliency Link frames */
 #endif
