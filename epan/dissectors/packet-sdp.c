@@ -2346,9 +2346,12 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
             /* Ensure that we do not attempt to set it below. */
             media_desc->media.set_rtp = true;
             if (setup_info && setup_info->base_uri) {
-                media_desc->control_uri = determine_http_location_target(wmem_file_scope(), setup_info->base_uri, media_desc->control_uri);
-                ascii_strdown_inplace(media_desc->control_uri);
+                char *absolute_uri = determine_http_location_target(wmem_file_scope(), setup_info->base_uri, media_desc->control_uri);
+                if (absolute_uri) {
+                    media_desc->control_uri = absolute_uri;
+                }
             }
+            ascii_strdown_inplace(media_desc->control_uri);
             /* If there are multiple entries with the same URI they SHOULD be
              * the same, so we could free the existing entry.  */
             rtp_dyn_payload_t *old_rtp_pt;
