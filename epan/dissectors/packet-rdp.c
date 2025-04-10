@@ -417,6 +417,7 @@ static int hf_rdp_optionsCompressRDP;
 static int hf_rdp_optionsCompress;
 static int hf_rdp_optionsShowProtocol;
 static int hf_rdp_optionsRemoteControlPersistent;
+static int hf_rdp_channelId;
 
 static int hf_rdp_channelPDUHeader;
 static int hf_rdp_channelFlags;
@@ -1554,10 +1555,6 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     FI_SUBTREE(&hf_rdp_options, 4, ett_rdp_options, option_fields),
     FI_TERMINATOR
   };
-  rdp_field_info_t def_fields[] = {
-    FI_SUBTREE(&hf_rdp_channelDef, 12, ett_rdp_channelDef, channel_fields),
-    FI_TERMINATOR
-  };
 
   pi        = proto_tree_add_item(tree, hf_rdp_clientNetworkData, tvb, offset, length, ENC_NA);
   next_tree = proto_item_add_subtree(pi, ett_rdp_clientNetworkData);
@@ -1573,13 +1570,27 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
       rdp_info->maxChannels = MIN(channelCount, RDP_MAX_CHANNELS);
 
     for (i = 0; i < MIN(channelCount, RDP_MAX_CHANNELS); i++) {
-      if (rdp_info) {
-        rdp_channel_def_t *channel = &rdp_info->staticChannels[i];
+      rdp_channel_def_t *channel = NULL;
+
+      if (rdp_info)
+         channel = &rdp_info->staticChannels[i];
+
+      if (!PINFO_FD_VISITED(pinfo) && channel) {
         channel->value = -1; /* unset */
         channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
         channel->channelType = find_known_channel_by_name(channel->strptr);
       }
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
+
+      char channelName[8] = { 0 };
+      tvb_get_raw_bytes_as_string(tvb, offset, channelName, 8);
+
+      proto_tree *channel_tree = proto_tree_add_subtree_format(next_tree, tvb, offset, 12, ett_rdp_channelDef, NULL, "channel %s", channelName);
+      if (channel)
+          proto_item_set_generated(
+               proto_tree_add_int(channel_tree, hf_rdp_channelId, tvb, offset, 2, channel->value)
+          );
+
+      offset = dissect_rdp_fields(tvb, offset, pinfo, channel_tree, channel_fields, 0);
     }
 
     if (rdp_info) {
@@ -2567,7 +2578,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   } /* (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) */
 
   /* Virtual Channel */
-  col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Virtual Channel PDU");
+  col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Virtual Channel PDU");
 
   offset = dissect_rdp_securityHeader(tvb, offset, pinfo, tree, rdp_info, false, &flags);
 
@@ -2710,10 +2721,10 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   rdp_info = rdp_get_conversation_data(pinfo);
 
-  /*
-  copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
-  rdp_info->serverAddr.port = pinfo->destport;
-  */
+  if (!rdp_info->serverAddr.port) {
+	  copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
+	  rdp_info->serverAddr.port = pinfo->destport;
+  }
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
 
@@ -3628,17 +3639,17 @@ dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U
 	switch (pduType) {
 	case 1:
 		/* capabilities */
-		col_set_str(pinfo->cinfo, COL_INFO, "RDSTLS Capabilities");
+		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "RDSTLS Capabilities");
 		proto_tree_add_item(tree, hf_rdp_rdstls_supportedVersions, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		break;
 	case 2:
 		/* auth req */
-		col_set_str(pinfo->cinfo, COL_INFO, "RDSTLS AuthReq");
+		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "RDSTLS AuthReq");
 		dissect_rdp_fields(tvb, offset, pinfo, tree, authReqFields, pdu_length-6);
 		break;
 	case 4:
 		/* auth resp */
-		col_set_str(pinfo->cinfo, COL_INFO, "RDSTLS AuthResp");
+		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "RDSTLS AuthResp");
 		proto_tree_add_item(tree, hf_rdp_rdstls_resultCode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	}
@@ -4942,7 +4953,7 @@ proto_register_rdp(void) {
             FT_UINT32, BASE_HEX, NULL, 0,
             NULL, HFILL }},
     { &hf_rdp_capaRail_flag_supported,
-      { "SUPPORTED", "rdp.capability.rail.supported",
+      { "TS_RAIL_LEVEL_SUPPORTED", "rdp.capability.rail.supported",
             FT_UINT32, BASE_HEX, NULL, 0x00000001,
             NULL, HFILL }},
     { &hf_rdp_capaRail_flag_dockedlangbar,
@@ -5093,6 +5104,9 @@ proto_register_rdp(void) {
       { "channelPacketCompressionType", "rdp.channelPacket.compressionType",
         FT_UINT32, BASE_HEX, VALS(rdp_channelCompressionType_vals), ChannelCompressionTypeMask,
         NULL, HFILL }},
+    { &hf_rdp_channelId,
+      {"channelId", "rdp.channelid",
+       FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL}},
     { &hf_rdp_wYear,
       { "wYear", "rdp.wYear",
         FT_UINT16, BASE_DEC, NULL, 0,
@@ -5258,6 +5272,9 @@ proto_reg_handoff_rdp(void)
 
   register_t124_ns_dissector("Duca", dissect_rdp_ClientData, proto_rdp);
   register_t124_ns_dissector("McDn", dissect_rdp_ServerData, proto_rdp);
+
+  heur_dissector_add("tls", dissect_rdp_heur, "RDP over TLS", "rdp_tls", proto_rdp, HEURISTIC_ENABLE);
+  heur_dissector_add("ws", dissect_rdp_heur, "RDP over websocket", "rdp_ws", proto_rdp, HEURISTIC_ENABLE);
 }
 
 /*
