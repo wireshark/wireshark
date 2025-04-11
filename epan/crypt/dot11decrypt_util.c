@@ -119,7 +119,7 @@ dot11decrypt_prf(const uint8_t *key, size_t key_len,
                  uint8_t *output, size_t output_len)
 {
     uint8_t R[MAX_R_LEN]; /* Will hold "label || 0 || context || i" */
-    size_t label_len = strlen(label);
+    size_t label_len;
     uint8_t tmp[MAX_TMP_LEN];
     uint16_t hash_len = gcry_md_get_algo_dlen(hash_algo);
     size_t offset = 0;
@@ -127,6 +127,8 @@ dot11decrypt_prf(const uint8_t *key, size_t key_len,
     if (!key || !label || !context || !output) {
         return false;
     }
+
+    label_len = strlen(label);
     if (label_len + 1 + context_len + 1 > MAX_R_LEN ||
         output_len > 64) {
         ws_warning("Invalid input or output sizes");
@@ -175,7 +177,7 @@ dot11decrypt_kdf(const uint8_t *key, size_t key_len,
 {
     uint8_t R[MAX_R_LEN]; /* Will hold "i || Label || Context || Length" */
     uint8_t tmp[MAX_TMP_LEN];
-    size_t label_len = strlen(label);
+    size_t label_len;
     size_t hash_len = gcry_md_get_algo_dlen(hash_algo);
     size_t iterations = output_len * 8 / hash_len;
     uint16_t len_le = GUINT16_TO_LE(output_len * 8);
@@ -185,6 +187,8 @@ dot11decrypt_kdf(const uint8_t *key, size_t key_len,
     if (!key || !label || !context || !output) {
         return false;
     }
+
+    label_len = strlen(label);
     if (2 + label_len + context_len + 2 > MAX_R_LEN ||
         iterations * hash_len > MAX_TMP_LEN) {
         ws_warning("Invalid input sizes");
