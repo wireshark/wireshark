@@ -447,7 +447,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* dissect the key, it must be a string */
   offset   = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, key, false, "Key" );
-  if (offset == 0)
+  if (offset == 0 || !*key)
   {
     proto_tree_add_expert_format(sub_tree, pinfo, &ei_int_string, tvb, offset, -1, "Invalid string for Key");
     return 0;
@@ -540,17 +540,17 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
-  if(*key && strcmp(*key,"q")==0 && strlen(val)>1 )
+  if(strcmp(*key,"q")==0 && strlen(val)>1 )
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%c%s", g_ascii_toupper(val[0]), val + 1);
-  if(*key && strcmp(*key,"r")==0 )
+  if(strcmp(*key,"r")==0 )
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Response");
-  if(*key && strcmp(*key,"e")==0 )
+  if(strcmp(*key,"e")==0 )
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Error");
-  if(*key && (strcmp(*key,"info_hash")==0 || strcmp(*key,"target")==0) )
+  if((strcmp(*key,"info_hash")==0 || strcmp(*key,"target")==0) )
     col_append_fstr(pinfo->cinfo, COL_INFO, " %c%s=%s", g_ascii_toupper((*key)[0]), *key + 1, val);
 
   const char * printable_key = *key;
-  if(key && strlen(*key)==1 )
+  if(strlen(*key)==1 )
     printable_key = val_to_str_const( (*key)[0], short_key_name_value_string, *key );
   if(val && strlen(val)==1 )
     val = val_to_str_const( val[0], short_val_name_value_string, val );
