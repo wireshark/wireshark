@@ -192,6 +192,27 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
                 wmem_free(NULL, range_value);
                 break;
             }
+            case PREF_UAT:
+            {
+                uat_t* get_uat = prefs_get_uat_value(pref);
+                if (get_uat != NULL) {
+                    lua_newtable(L);
+                    for (unsigned int idx = 0; idx < get_uat->user_data->len; idx++) {
+                        lua_pushinteger(L, idx + 1);
+                        lua_newtable(L);
+                        void *rec = UAT_INDEX_PTR(get_uat, idx);
+                        unsigned int colnum;
+                        for(colnum = 0; colnum < get_uat->ncols; colnum++) {
+                            lua_pushinteger(L, colnum + 1);
+                            char *str = uat_fld_tostr(rec, &(get_uat->fields[colnum]));
+                            lua_pushstring(L, str);
+                            lua_settable(L, -3);
+                        }
+                        lua_settable(L, -3);
+                    }
+                }
+                break;
+            }
             default:
                 /* Get not supported for this type. */
                 return luaL_error(L, "preference type %d is not supported.", prefs_get_type(pref));

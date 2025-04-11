@@ -38,7 +38,7 @@ testlib.test(GET_PREF,"get_preference-enum-0",console_open == "NEVER" or console
 testlib.test(GET_PREF,"get_preference-string-0",get_preference("gui.window_title") == "")
 testlib.test(GET_PREF,"get_preference-range-0",get_preference("http.tls.port") == "443")
 success = pcall(get_preference, "user_dlt.encaps_table")
-testlib.test(GET_PREF,"get_preference-uat-0", not success)
+testlib.test(GET_PREF,"get_preference-uat-0", success)
 
 --------------------------
 
