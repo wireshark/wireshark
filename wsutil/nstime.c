@@ -182,6 +182,18 @@ double nstime_to_sec(const nstime_t *nstime)
     return ((double)nstime->secs + (double)nstime->nsecs/NS_PER_S);
 }
 
+void nstime_rounded(nstime_t *a, const nstime_t *b, ws_tsprec_e prec)
+{
+    nstime_t round = NSTIME_INIT_ZERO;
+    unsigned dv = NS_PER_S;
+    for (ws_tsprec_e i = WS_TSPREC_SEC; i < prec; i++) {
+        dv /= 10;
+    }
+    round.nsecs = 5 * (dv / 10);
+    nstime_sum(a, b, &round);
+    a->nsecs = (a->nsecs / dv) * dv;
+}
+
 /*
  * Compute the minimum and maximum time_t values.
  *

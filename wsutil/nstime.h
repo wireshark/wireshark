@@ -184,6 +184,17 @@ typedef enum {
  */
 #define NUM_WS_TSPREC_VALS (WS_TSPREC_MAX + 1)
 
+/** round an nstime to a given precision
+ *
+ * a = b rounded to prec
+ *
+ * Note that it is acceptable for a and b to point at the same structure.
+ */
+WS_DLL_PUBLIC void nstime_rounded(nstime_t *a, const nstime_t *b, ws_tsprec_e prec);
+
+/** a rounded to prec */
+#define nstime_round(a, prec) nstime_rounded(a, a, prec)
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
