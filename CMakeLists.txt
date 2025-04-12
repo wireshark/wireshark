@@ -902,8 +902,6 @@ else() # ! MSVC
 			# It can be a lot of work to fix properly and none of them
 			# seem to flag very interesting issues.
 			#
-			-Wno-format-truncation # Enabled with -Wall
-
 			-Wno-format-nonliteral	# Enabled with -Wformat=2
 		)
 		list(APPEND WIRESHARK_C_ONLY_FLAGS
