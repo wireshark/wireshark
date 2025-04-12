@@ -773,15 +773,78 @@ iostat_calc_cols_width_and_fmt(io_stat_t *iot, uint64_t interval, column_width* 
 }
 
 static void
+iostat_draw_filters(unsigned borderlen, const io_stat_t *iot)
+{
+    const char *filter;
+    size_t len_filt;
+    GString *filt_str;
+
+    /* Display the list of filters and their column numbers vertically */
+    for (unsigned j=0; j<iot->num_cols; j++) {
+        if (j == 0) {
+            filt_str = g_string_new("| Col ");
+        } else {
+            filt_str = g_string_new("|     ");
+        };
+        g_string_append_printf(filt_str, "%2u: ", j + 1);
+        if (!iot->filters[j]) {
+            /* An empty (no filter) comma field was specified */
+            g_string_append(filt_str, "Frames and bytes");
+        } else {
+            filter = iot->filters[j];
+            len_filt = strlen(filter);
+            /* borderlen has been adjusted to try to accommodate the widest
+             * filter, but only up to a limit (currently 102 bytes), and so
+             * filters wider than that must still wrap. */
+            /* 11 is the length of "| Col XX: " plus the trailing "|" */
+            size_t max_w = borderlen - 11;
+
+            while (len_filt > max_w) {
+                const char *pos;
+                size_t len;
+                unsigned int next_start;
+
+                /* Find the pos of the last space in filter up to max_w. If a
+                 * space is found, copy up to that space; otherwise, wrap the
+                 * filter at max_w. */
+                pos = g_strrstr_len(filter, max_w, " ");
+                if (pos) {
+                    len = (size_t)(pos-filter);
+                    /* Skip the space when wrapping. */
+                    next_start = (unsigned int) len+1;
+                } else {
+                    len = max_w;
+                    next_start = (unsigned int)len;
+                }
+                g_string_append_len(filt_str, filter, len);
+                g_string_append_printf(filt_str, "%*s", (int)(borderlen - filt_str->len), "|");
+
+                puts(filt_str->str);
+                g_string_free(filt_str, TRUE);
+
+                filt_str = g_string_new("|         ");
+                filter = &filter[next_start];
+                len_filt = strlen(filter);
+            }
+
+            g_string_append(filt_str, filter);
+        }
+        g_string_append_printf(filt_str, "%*s", (int)(borderlen - filt_str->len), "|");
+        puts(filt_str->str);
+        g_string_free(filt_str, TRUE);
+    }
+
+}
+
+static void
 iostat_draw(void *arg)
 {
     uint32_t num;
     uint64_t interval, duration, t, invl_end, dv;
     unsigned int i, j, k, num_cols, num_rows, dur_secs_orig, dur_nsecs_orig, dur_secs, dur_nsecs, dur_mag,
-        invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, len_filt, type,
+        invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, type,
         maxfltr_w, ftype;
     char *spaces, *spaces_s, *filler_s = NULL, **fmts, *fmt = NULL;
-    const char *filter;
     static char *invl_fmt, *full_fmt;
     io_stat_item_t *mit, **stat_cols, *item, **item_in_column;
     bool last_row = false;
@@ -949,65 +1012,7 @@ iostat_draw(void *arg)
     spaces_s = &spaces[2];
     printf("|%s|\n", spaces_s);
 
-    /* Display the list of filters and their column numbers vertically */
-    printf("| Col");
-    for (j=0; j<num_cols; j++) {
-        printf((j == 0 ? "%2u: " : "|    %2u: "), j+1);
-        if (!iot->filters[j]) {
-            /*
-            * An empty (no filter) comma field was specified */
-            spaces_s = &spaces[16 + 10];
-            printf("Frames and bytes%s|\n", spaces_s);
-        } else {
-            filter = iot->filters[j];
-            len_filt = (unsigned int) strlen(filter);
-
-            /* If the width of the widest filter exceeds the width of the stat table, borderlen has
-            *  been set to 102 bytes above and filters wider than 102 will wrap at 91 bytes. */
-            if (len_filt+11 <= borderlen) {
-                printf("%s", filter);
-                if (len_filt+11 <= borderlen) {
-                    spaces_s = &spaces[len_filt + 10];
-                    printf("%s", spaces_s);
-                }
-                printf("|\n");
-            } else {
-                char *sfilter1, *sfilter2;
-                const char *pos;
-                size_t len;
-                unsigned int next_start, max_w = borderlen-11;
-
-                do {
-                    if (len_filt > max_w) {
-                        sfilter1 = g_strndup(filter, (size_t) max_w);
-                        /*
-                        * Find the pos of the last space in sfilter1. If a space is found, set
-                        * sfilter2 to the string prior to that space and print it; otherwise, wrap
-                        * the filter at max_w. */
-                        pos = g_strrstr(sfilter1, " ");
-                        if (pos) {
-                            len = (size_t)(pos-sfilter1);
-                            next_start = (unsigned int) len+1;
-                        } else {
-                            len = (size_t) strlen(sfilter1);
-                            next_start = (unsigned int)len;
-                        }
-                        sfilter2 = g_strndup(sfilter1, len);
-                        printf("%s%s|\n", sfilter2, &spaces[len+10]);
-                        g_free(sfilter1);
-                        g_free(sfilter2);
-
-                        printf("|        ");
-                        filter = &filter[next_start];
-                        len_filt = (unsigned int) strlen(filter);
-                    } else {
-                        printf("%s%s|\n", filter, &spaces[strlen(filter)+10]);
-                        break;
-                    }
-                } while (1);
-            }
-        }
-    }
+    iostat_draw_filters(borderlen, iot);
 
     printf("|-");
     for (i=0; i<borderlen-3; i++) {
