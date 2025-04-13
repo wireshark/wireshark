@@ -52,7 +52,7 @@ extern "C" {
  * (dissector) code cannot.
  */
 
-/* obscure data type to handle an uat */
+/* opaque data type to handle an uat */
 typedef struct epan_uat uat_t;
 /********************************************
  * Callbacks:
@@ -278,7 +278,7 @@ typedef struct _uat_field_t {
  * @param data_ptr Although a void*, this is really a pointer to a null terminated array of pointers to the data
  * @param num_items_ptr A pointer with number of items
  * @param flags flags indicating what this UAT affects
- * @param help A pointer to help text
+ * @param help A pointer to the name of a Users Guide section
  * @param copy_cb A function that copies the data in the struct
  * @param update_cb Will be called when a record is updated
  * @param free_cb Will be called to destroy a struct in the dataset
