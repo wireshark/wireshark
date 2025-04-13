@@ -93,7 +93,7 @@ uat_t* uat_new(const char* name,
     uat->loaded = false;
     uat->rep = NULL;
     uat->free_rep = NULL;
-    uat->help = g_strdup(help);
+    uat->help = (help) ? g_strdup(help) : g_strdup("ChUserTable");
     uat->flags = flags;
 
     for (i=0;flds_array[i].title;i++) {
