@@ -253,7 +253,6 @@ static ssl_master_key_map_t       ssl_master_key_map;
 static GHashTable         *ssl_key_hash;
 static wmem_stack_t       *key_list_stack;
 static uat_t              *ssldecrypt_uat;
-static const char         *ssl_keys_list;
 #endif
 static dissector_table_t   ssl_associations;
 static dissector_handle_t  tls_handle;
@@ -341,20 +340,9 @@ tls_hs_reassembly_table_functions = {
 static void
 ssl_init(void)
 {
-    module_t *ssl_module = prefs_find_module("tls");
-    pref_t   *keys_list_pref;
-
     ssl_common_init(&ssl_master_key_map,
                     &ssl_decrypted_data, &ssl_compressed_data);
     ssl_debug_flush();
-
-    /* We should have loaded "keys_list" by now. Mark it obsolete */
-    if (ssl_module) {
-        keys_list_pref = prefs_find_preference(ssl_module, "keys_list");
-        if (! prefs_get_preference_obsolete(keys_list_pref)) {
-            prefs_set_preference_obsolete(keys_list_pref);
-        }
-    }
 
     /* Reset the identifier for a group of handshake fragments. */
     hs_reassembly_id_count = 0;
@@ -431,37 +419,6 @@ ssl_reset_uat(void)
 {
     g_hash_table_destroy(ssl_key_hash);
     ssl_key_hash = NULL;
-}
-
-static void
-ssl_parse_old_keys(void)
-{
-    char **old_keys, **parts, *err;
-    char   *uat_entry;
-    unsigned   i;
-
-    /* Import old-style keys */
-    if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
-        old_keys = g_strsplit(ssl_keys_list, ";", 0);
-        for (i = 0; old_keys[i] != NULL; i++) {
-            parts = g_strsplit(old_keys[i], ",", 5);
-            if (parts[0] && parts[1] && parts[2] && parts[3]) {
-                char *path = uat_esc(parts[3], (unsigned)strlen(parts[3]));
-                const char *password = parts[4] ? parts[4] : "";
-                uat_entry = wmem_strdup_printf(NULL, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
-                                parts[0], parts[1], parts[2], path, password);
-                g_free(path);
-                if (!uat_load_str(ssldecrypt_uat, uat_entry, &err)) {
-                    ssl_debug_printf("ssl_parse_old_keys: Can't load UAT string %s: %s\n",
-                                     uat_entry, err);
-                    g_free(err);
-                }
-                wmem_free(NULL, uat_entry);
-            }
-            g_strfreev(parts);
-        }
-        g_strfreev(old_keys);
-    }
 }
 #endif  /* HAVE_LIBGNUTLS */
 
@@ -646,7 +603,7 @@ print_tls_fragment_tree(fragment_head *ipfd_head, proto_tree *tree, proto_tree *
  * Code to actually dissect the packets
  */
 static int
-dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     conversation_t    *conversation;
@@ -4942,10 +4899,7 @@ proto_register_tls(void)
             "A table of RSA keys for TLS decryption",
             ssldecrypt_uat);
 
-        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list (deprecated)",
-             "Semicolon-separated list of private RSA keys used for TLS decryption. "
-             "Used by versions of Wireshark prior to 1.6",
-             &ssl_keys_list);
+        prefs_register_obsolete_preference(ssl_module, "keys_list");
 #endif  /* HAVE_LIBGNUTLS */
 
         prefs_register_filename_preference(ssl_module, "debug_file", "TLS debug file",
@@ -5050,14 +5004,8 @@ proto_reg_handoff_ssl(void)
 #ifdef HAVE_LIBGNUTLS
     /* parse key list */
     ssl_parse_uat();
-    ssl_parse_old_keys();
 #endif
 
-    /*
-     * XXX the port preferences should probably be removed in favor of Decode
-     * As. Then proto_reg_handoff_ssl can be removed from
-     * prefs_register_protocol.
-     */
     static bool initialized = false;
     if (initialized) {
         return;

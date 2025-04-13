@@ -984,24 +984,6 @@ typedef enum {
 WS_DLL_PUBLIC prefs_set_pref_e prefs_set_pref(char *prefarg, char **errmsg);
 
 /**
- * Get or set a preference's obsolete status. These can be used to make a
- * preference obsolete after startup so that we can fetch its value but
- * keep it from showing up in the prefrences dialog.
- *
- * @param pref A preference.
- * @return true if the preference is obsolete, otherwise false
- */
-bool prefs_get_preference_obsolete(pref_t *pref);
-
-/**
- * Make a preference obsolete
- *
- * @param pref a preference.
- * @return the result from attempting to set the preference
- */
-prefs_set_pref_e prefs_set_preference_obsolete(pref_t *pref);
-
-/**
  * Get the current range preference value (maintained by pref, so it doesn't need to be freed). This allows the
  * preference structure to remain hidden from those that doesn't really need it.
  *

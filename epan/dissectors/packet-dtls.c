@@ -201,7 +201,6 @@ static expert_field ei_dtls_cid_invalid_enc_content;
 static GHashTable      *dtls_key_hash;
 static wmem_stack_t    *key_list_stack;
 static uat_t           *dtlsdecrypt_uat;
-static const char      *dtls_keys_list;
 #endif
 static reassembly_table    dtls_reassembly_table;
 static dissector_table_t   dtls_associations;
@@ -247,19 +246,8 @@ static SSL_COMMON_LIST_T(dissect_dtls_hf);
 static void
 dtls_init(void)
 {
-  module_t *dtls_module = prefs_find_module("dtls");
-  pref_t   *keys_list_pref;
-
   ssl_data_alloc(&dtls_decrypted_data, 32);
   ssl_data_alloc(&dtls_compressed_data, 32);
-
-  /* We should have loaded "keys_list" by now. Mark it obsolete */
-  if (dtls_module) {
-    keys_list_pref = prefs_find_preference(dtls_module, "keys_list");
-    if (! prefs_get_preference_obsolete(keys_list_pref)) {
-      prefs_set_preference_obsolete(keys_list_pref);
-    }
-  }
 
   ssl_init_cid_list();
 }
@@ -330,36 +318,6 @@ dtls_reset_uat(void)
 {
   g_hash_table_destroy(dtls_key_hash);
   dtls_key_hash = NULL;
-}
-
-static void
-dtls_parse_old_keys(void)
-{
-  char           **old_keys, **parts, *err;
-  unsigned         i;
-  char           *uat_entry;
-
-  /* Import old-style keys */
-  if (dtlsdecrypt_uat && dtls_keys_list && dtls_keys_list[0]) {
-    old_keys = g_strsplit(dtls_keys_list, ";", 0);
-    for (i = 0; old_keys[i] != NULL; i++) {
-      parts = g_strsplit(old_keys[i], ",", 4);
-      if (parts[0] && parts[1] && parts[2] && parts[3]) {
-        char *path = uat_esc(parts[3], (unsigned)strlen(parts[3]));
-        uat_entry = wmem_strdup_printf(NULL, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
-                        parts[0], parts[1], parts[2], path);
-        g_free(path);
-        if (!uat_load_str(dtlsdecrypt_uat, uat_entry, &err)) {
-          ssl_debug_printf("dtls_parse: Can't load UAT string %s: %s\n",
-                           uat_entry, err);
-          g_free(err);
-        }
-        wmem_free(NULL, uat_entry);
-      }
-      g_strfreev(parts);
-    }
-    g_strfreev(old_keys);
-  }
 }
 #endif  /* HAVE_LIBGNUTLS */
 
@@ -3067,7 +3025,7 @@ proto_register_dtls(void)
                               &dtlskeylist_uats,              /* data_ptr */
                               &ndtlsdecrypt,                  /* numitems_ptr */
                               UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
-                              "ChK12ProtocolsSection",        /* TODO, need revision - help */
+                              NULL,                           /* TODO, need revision - help */
                               dtlsdecrypt_copy_cb,
                               NULL, /* dtlsdecrypt_update_cb? */
                               dtlsdecrypt_free_cb,
@@ -3080,10 +3038,7 @@ proto_register_dtls(void)
                                   "A table of RSA keys for DTLS decryption",
                                   dtlsdecrypt_uat);
 
-    prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list (deprecated)",
-                                     "Semicolon-separated list of private RSA keys used for DTLS decryption. "
-                                     "Used by versions of Wireshark prior to 1.6",
-                                     &dtls_keys_list);
+    prefs_register_obsolete_preference(dtls_module, "keys_list");
 #endif  /* HAVE_LIBGNUTLS */
 
     prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
@@ -3128,7 +3083,6 @@ proto_reg_handoff_dtls(void)
 
 #ifdef HAVE_LIBGNUTLS
   dtls_parse_uat();
-  dtls_parse_old_keys();
 #endif
 
   if (initialized == false) {

@@ -2068,31 +2068,6 @@ prefs_set_preference_effect_fields(module_t *module, const char *name)
     }
 }
 
-/*
- * Check to see if a preference is obsolete.
- */
-extern bool
-prefs_get_preference_obsolete(pref_t *pref)
-{
-    if (pref)
-        return (IS_PREF_OBSOLETE(pref->type) ? true : false);
-
-    return true;
-}
-
-/*
- * Make a preference obsolete.
- */
-extern prefs_set_pref_e
-prefs_set_preference_obsolete(pref_t *pref)
-{
-    if (pref) {
-        SET_PREF_OBSOLETE(pref->type);
-        return PREFS_SET_OK;
-    }
-    return PREFS_SET_NO_SUCH_PREF;
-}
-
 unsigned
 pref_stash(pref_t *pref, void *unused _U_)
 {

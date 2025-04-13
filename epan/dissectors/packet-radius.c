@@ -2610,21 +2610,6 @@ radius_register_avp_dissector(uint32_t vendor_id, uint32_t _attribute_id, radius
 
 }
 
-/* Discard and init any state we've saved */
-static void
-radius_init_protocol(void)
-{
-	module_t *radius_module = prefs_find_module("radius");
-	pref_t *alternate_port;
-
-	if (radius_module) {
-		/* Find alternate_port preference and mark it obsolete (thus hiding it from a user) */
-		alternate_port = prefs_find_preference(radius_module, "alternate_port");
-		if (! prefs_get_preference_obsolete(alternate_port))
-			prefs_set_preference_obsolete(alternate_port);
-	}
-}
-
 static void
 radius_shutdown(void)
 {
@@ -2912,7 +2897,6 @@ proto_register_radius(void)
 
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
 	radius_handle = register_dissector("radius", dissect_radius, proto_radius);
-	register_init_routine(&radius_init_protocol);
 	register_shutdown_routine(radius_shutdown);
 	radius_module = prefs_register_protocol(proto_radius, NULL);
 	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
@@ -2932,6 +2916,7 @@ proto_register_radius(void)
 				       "Whether to interpret 241-246 as extended attributes according to RFC 6929",
 				       &disable_extended_attributes);
 	prefs_register_obsolete_preference(radius_module, "request_ttl");
+	prefs_register_obsolete_preference(radius_module, "alternate_port");
 
 	radius_tap = register_tap("radius");
 	proto_register_prefix("radius", register_radius_fields);
