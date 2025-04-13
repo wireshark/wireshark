@@ -817,7 +817,10 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
 
 /* Local function used by commandline_options_drop */
 static int cl_find_custom(const void *elem_data, const void *search_data) {
-    return memcmp(elem_data, search_data, strlen((char *)search_data));
+    const char *prefix = (const char *)search_data;
+    const char *opt_and_val = (const char *)elem_data;
+
+    return strncmp(opt_and_val, prefix, strlen(prefix));
 }
 
 /* Drop any options the user specified on the command line with `-o`
