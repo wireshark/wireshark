@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en">
+<TS version="2.1" language="ca">
 <context>
     <name>Abbreviation</name>
     <message>
@@ -13,117 +13,117 @@
     <name>AboutDialog</name>
     <message>
         <source>About Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Quant al Wireshark</translation>
     </message>
     <message>
         <source>Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark</translation>
     </message>
     <message>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analitzador del protocol de xarxa&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la informació de la versió al porta-retalls</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia al porta-retalls</translation>
     </message>
     <message>
         <source>Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Autors</translation>
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca autors</translation>
     </message>
     <message>
         <source>Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Carpetes</translation>
     </message>
     <message>
         <source>Search Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca carpetes</translation>
     </message>
     <message>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements</translation>
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat complements.</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca complements</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra per tipus:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreceres de teclat</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca dreceres</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Reconeixements</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Llicència</translation>
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Quant a l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Analitzador de crides al sistema i registre d&apos;esdeveniments&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta carpeta no existeix.</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu crear la carpeta %1?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>La carpeta no s&apos;ha pogut crear.</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>La carpeta %1 no s&apos;ha pogut crear.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra al cercador</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra a la carpeta</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform>Copy Row</numerusform>
-            <numerusform>Copy Rows</numerusform>
+        <translation>
+            <numerusform>Copia la fila</numerusform>
+            <numerusform>Copia les files</numerusform>
         </translation>
     </message>
 </context>
@@ -131,2792 +131,2799 @@
     <name>AddressEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Name Resolution Preferences…</source>
         <oldsource>Name Resolution Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Preferències de resolució de noms…</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom:</translation>
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot assignar %1 a %2.</translation>
     </message>
 </context>
 <context>
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica els canvis</translation>
     </message>
 </context>
 <context>
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Correu electrònic</translation>
     </message>
 </context>
 <context>
     <name>BluetoothAttServerAttributesDialog</name>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Atributs del servidor ATT Bluetooth</translation>
     </message>
     <message>
         <source>Handle</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificador</translation>
     </message>
     <message>
         <source>UUID</source>
-        <translation type="unfinished"></translation>
+        <translation>UUID</translation>
     </message>
     <message>
         <source>UUID Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom UUID</translation>
     </message>
     <message>
         <source>All Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les interfícies</translation>
     </message>
     <message>
         <source>All Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els dispositius</translation>
     </message>
     <message>
         <source>Remove duplicates</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau els duplicats</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la cel·la</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les files</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia-ho tot</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a imatge</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la fila</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la cel·la</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la imatge de la taula</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Imatge PNG (*.png)</translation>
     </message>
 </context>
 <context>
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositiu Bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished"></translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished"></translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de dispositiu</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió LMP</translation>
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversió LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished"></translation>
+        <translation>Fabricant</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió HCI</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>Revisió HCI</translation>
     </message>
     <message>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Escaneja</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Autenticació</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>Encriptació</translation>
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets ACL totals</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets SCO totals</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL MTU</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets LE ACL totals</translation>
     </message>
     <message>
         <source>LE ISO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ISO MTU</translation>
     </message>
     <message>
         <source>LE ISO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets LE ISO totals</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode de consulta</translation>
     </message>
     <message>
         <source>Page Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;espera de la pàgina</translation>
     </message>
     <message>
         <source>Simple Pairing Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode d&apos;emparellament simple</translation>
     </message>
     <message>
         <source>Voice Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració de la veu</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvis</translation>
     </message>
     <message>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 canvis</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la cel·la</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les files</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia-ho tot</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a imatge</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la fila</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la cel·la</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositiu Bluetooth ‒ %1%2</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>activat</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>desactivat</translation>
     </message>
     <message>
         <source>%1 ms (%2 slots)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ms (%2 ranures)</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la imatge de la taula</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Imatge PNG (*.png)</translation>
     </message>
 </context>
 <context>
     <name>BluetoothDevicesDialog</name>
     <message>
         <source>Bluetooth Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositius Bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished"></translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished"></translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió LMP</translation>
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation>Subversió LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished"></translation>
+        <translation>Fabricant</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió HCI</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>Revisió HCI</translation>
     </message>
     <message>
         <source>Is Local Adapter</source>
-        <translation type="unfinished"></translation>
+        <translation>És adaptador local</translation>
     </message>
     <message>
         <source>All Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les interfícies</translation>
     </message>
     <message>
         <source>Show information steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els passos d&apos;informació</translation>
     </message>
     <message>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 elements; Feu clic amb el botó dret per a més opcions.; Doble clic per a veure els detalls del dispositiu.</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la cel·la</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les files</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia-ho tot</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a imatge</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la fila</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la cel·la</translation>
     </message>
     <message>
         <source>true</source>
-        <translation type="unfinished"></translation>
+        <translation>cert</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la imatge de la taula</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Imatge PNG (*.png)</translation>
     </message>
 </context>
 <context>
     <name>BluetoothHciSummaryDialog</name>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum HCI Bluetooth</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>OGF</source>
-        <translation type="unfinished"></translation>
+        <translation>OGF</translation>
     </message>
     <message>
         <source>OCF</source>
-        <translation type="unfinished"></translation>
+        <translation>OCF</translation>
     </message>
     <message>
         <source>Opcode</source>
-        <translation type="unfinished"></translation>
+        <translation>Codi d&apos;operació</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniment</translation>
     </message>
     <message>
         <source>Subevent</source>
-        <translation type="unfinished"></translation>
+        <translation>Subesdeveniment</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>Motiu</translation>
     </message>
     <message>
         <source>Hardware Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error de maquinari</translation>
     </message>
     <message>
         <source>Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocurrència</translation>
     </message>
     <message>
         <source>Link Control Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Enllaça les ordres de control</translation>
     </message>
     <message>
         <source>0x01</source>
-        <translation type="unfinished"></translation>
+        <translation>0x01</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Link Policy Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Enllaça les ordres de polítiques</translation>
     </message>
     <message>
         <source>0x02</source>
-        <translation type="unfinished"></translation>
+        <translation>0x02</translation>
     </message>
     <message>
         <source>Controller &amp; Baseband Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordres de controlador i de banda base</translation>
     </message>
     <message>
         <source>0x03</source>
-        <translation type="unfinished"></translation>
+        <translation>0x03</translation>
     </message>
     <message>
         <source>Informational Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Paràmetres d&apos;informació</translation>
     </message>
     <message>
         <source>0x04</source>
-        <translation type="unfinished"></translation>
+        <translation>0x04</translation>
     </message>
     <message>
         <source>Status Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Paràmetres d&apos;estat</translation>
     </message>
     <message>
         <source>0x05</source>
-        <translation type="unfinished"></translation>
+        <translation>0x05</translation>
     </message>
     <message>
         <source>Testing Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordres de prova</translation>
     </message>
     <message>
         <source>0x06</source>
-        <translation type="unfinished"></translation>
+        <translation>0x06</translation>
     </message>
     <message>
         <source>LE Controller Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordres de controladors LE</translation>
     </message>
     <message>
         <source>0x08</source>
-        <translation type="unfinished"></translation>
+        <translation>0x08</translation>
     </message>
     <message>
         <source>Bluetooth Logo Testing Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordres de prova del logo Bluetooth</translation>
     </message>
     <message>
         <source>0x3E</source>
-        <translation type="unfinished"></translation>
+        <translation>0x3E</translation>
     </message>
     <message>
         <source>Vendor-Specific Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordres específiques del proveïdor</translation>
     </message>
     <message>
         <source>0x3F</source>
-        <translation type="unfinished"></translation>
+        <translation>0x3F</translation>
     </message>
     <message>
         <source>Unknown OGF</source>
-        <translation type="unfinished"></translation>
+        <translation>OGF desconegut</translation>
     </message>
     <message>
         <source>Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniments</translation>
     </message>
     <message>
         <source>Hardware Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Errors de maquinari</translation>
     </message>
     <message>
         <source>Results filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de resultats:</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>All Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les interfícies</translation>
     </message>
     <message>
         <source>All Adapters</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els adaptadors</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la cel·la</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les files</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia-ho tot</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a imatge</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la fila</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca la cel·la</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da</translation>
     </message>
     <message>
         <source>Adapter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Adaptador %1</translation>
     </message>
     <message>
         <source>Frame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama %1</translation>
     </message>
     <message>
         <source>Pending</source>
-        <translation type="unfinished"></translation>
+        <translation>Pendent</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la imatge de la taula</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Imatge PNG (*.png)</translation>
     </message>
 </context>
 <context>
     <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes del paquet</translation>
     </message>
 </context>
 <context>
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished"></translation>
+        <translation>Permet ressaltat amb el ratolí a sobre</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els bytes en hexadecimal</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>…en decimal</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished"></translation>
+        <translation>…en octal</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished"></translation>
+        <translation>…en bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el text basat en el paquet</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>…en ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>…en EBCDIC</translation>
     </message>
 </context>
 <context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita els comentaris de captura</translation>
     </message>
     <message>
         <source>Add Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un comentari</translation>
     </message>
     <message>
         <source>Section %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Secció %1</translation>
     </message>
 </context>
 <context>
     <name>CaptureCommentTabWidget</name>
     <message>
         <source>Comment %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari %1</translation>
     </message>
 </context>
 <context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
-        <translation type="unfinished"></translation>
+        <translation>[tancant-se]</translation>
     </message>
     <message>
         <source> [closed]</source>
-        <translation type="unfinished"></translation>
+        <translation>[tancat]</translation>
     </message>
 </context>
 <context>
     <name>CaptureFileDialog</name>
     <message>
         <source>This capture file contains comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquest fitxer de captura conté comentaris.</translation>
     </message>
     <message>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>El format de fitxer que heu escollit no suporta els comentaris. Voleu desar la captura en un format que els suporti o voleu descartar-los i desar la captura amb el format que heu escollit?</translation>
     </message>
     <message>
         <source>Discard comments and save</source>
-        <translation type="unfinished"></translation>
+        <translation>Descarta els comentaris i desa</translation>
     </message>
     <message>
         <source>Save in another format</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa en un altre format</translation>
     </message>
     <message>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap format de fitxer que pugui desar-ho i suporti comentaris. Voleu descartar els comentaris i desar-ho en el format que heu triat?</translation>
     </message>
     <message>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els fitxers (</translation>
     </message>
     <message>
         <source>All Capture Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els fitxers de captura</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Format:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida:</translation>
     </message>
     <message>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici / transcorregut:</translation>
     </message>
     <message>
         <source>Automatically detect file type</source>
-        <translation type="unfinished"></translation>
+        <translation>Detecta automàticament el tipus de fitxer</translation>
     </message>
     <message numerus="yes">
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
         <translation type="vanished">
-            <numerusform>%1, error after %Ln packet</numerusform>
-            <numerusform>%1, error after %Ln packets</numerusform>
+            <numerusform>%1, error després d&apos;%Ln paquet</numerusform>
+            <numerusform>%1, error després de %Ln paquets</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
         <translation type="vanished">
-            <numerusform>%1, timed out at %Ln packet</numerusform>
-            <numerusform>%1, timed out at %Ln packets</numerusform>
+            <numerusform>%1, fi del temps d&apos;espera al cap d&apos;%Ln paquet</numerusform>
+            <numerusform>%1, fi del temps d&apos;espera al cap de %Ln paquets</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln packet(s)</source>
         <translation type="vanished">
-            <numerusform>%1, %Ln packet</numerusform>
-            <numerusform>%1, %Ln packets</numerusform>
+            <numerusform>%1, %Ln paquet</numerusform>
+            <numerusform>%1, %Ln paquets</numerusform>
         </translation>
     </message>
     <message>
         <source>Prepend packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteposa els paquets</translation>
     </message>
     <message>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Insereix els paquets del fitxer seleccionat abans del fitxer actual. S&apos;ignoraran les marques de temps.</translation>
     </message>
     <message>
         <source>Merge chronologically</source>
-        <translation type="unfinished"></translation>
+        <translation>Combina cronològicament</translation>
     </message>
     <message>
         <source>Insert packets in chronological order.</source>
-        <translation type="unfinished"></translation>
+        <translation>Insereix els paquets en ordre cronològic.</translation>
     </message>
     <message>
         <source>Append packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix els paquets</translation>
     </message>
     <message>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Insereix els paquets del fitxer seleccionat després del fitxer actual. S&apos;ignoraran les marques de temps.</translation>
     </message>
     <message>
         <source>Read filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de lectura:</translation>
     </message>
     <message>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Obre un fitxer de captura</translation>
     </message>
     <message>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Desa el fitxer de captura com a</translation>
     </message>
     <message>
         <source>Save as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a:</translation>
     </message>
     <message>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els paquets especificats</translation>
     </message>
     <message>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta com a:</translation>
     </message>
     <message>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Combina el fitxer de captura</translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de fitxer desconegut retornat per un diàleg de desada.</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Informeu d&apos;això com a problema del Wireshark a la pàgina https://gitlab.com/wireshark/wireshark/-/issues.</translation>
     </message>
     <message>
         <source>directory</source>
-        <translation type="unfinished"></translation>
+        <translation>carpeta</translation>
     </message>
     <message>
         <source>unknown file format</source>
-        <translation type="unfinished"></translation>
+        <translation>format de fitxer desconegut</translation>
     </message>
     <message>
         <source>error opening file</source>
-        <translation type="unfinished"></translation>
+        <translation>error mentre s&apos;obria un fitxer</translation>
     </message>
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1, error after %Ln data record</numerusform>
-            <numerusform>%1, error after %Ln data records</numerusform>
+        <translation>
+            <numerusform>%1, error després d&apos;%Ln registre de dades</numerusform>
+            <numerusform>%1, error després de %Ln registres de dades</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform>%1, timed out at %Ln data record</numerusform>
-            <numerusform>%1, timed out at %Ln data records</numerusform>
+        <translation>
+            <numerusform>%1, fi del temps d&apos;espera al cap d&apos;%Ln registre de dades</numerusform>
+            <numerusform>%1, fi del temps d&apos;espera al cap de %Ln registres de dades</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform>%1, %Ln data record</numerusform>
-            <numerusform>%1, %Ln data records</numerusform>
+        <translation>
+            <numerusform>%1, %Ln registre de dades</numerusform>
+            <numerusform>%1, %Ln registres de dades</numerusform>
         </translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>desconegut/da</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls</translation>
     </message>
     <message>
         <source>Edit Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita els comentaris</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitza</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia al porta-retalls</translation>
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propietats del fitxer de captura</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud</translation>
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA256)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA1)</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Encapsulació</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de la instantània</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer paquet</translation>
     </message>
     <message>
         <source>First event</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer esdeveniment</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Últim paquet</translation>
     </message>
     <message>
         <source>Last event</source>
-        <translation type="unfinished"></translation>
+        <translation>Últim esdeveniment</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Transcorregut</translation>
     </message>
     <message>
         <source>Section %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Secció %1</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura</translation>
     </message>
     <message>
         <source>Hardware</source>
-        <translation type="unfinished"></translation>
+        <translation>Maquinari</translation>
     </message>
     <message>
         <source>OS</source>
-        <translation type="unfinished"></translation>
+        <translation>SO</translation>
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplicació</translation>
     </message>
     <message>
         <source>Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfícies</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície</translation>
     </message>
     <message>
         <source>Dropped packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets descartats</translation>
     </message>
     <message>
         <source>Dropped events</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniments descartats</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura</translation>
     </message>
     <message>
         <source>Link type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus d&apos;enllaç</translation>
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Límit de la mida de paquet (snaplen)</translation>
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Límit de la mida d&apos;esdeveniment (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
-        <translation type="unfinished"></translation>
+        <translation>cap</translation>
     </message>
     <message>
         <source>%1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 bytes</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentaris</translation>
     </message>
     <message>
         <source>Comment %1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari %1: </translation>
     </message>
     <message>
         <source>Decryption Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Secrets de desencriptació</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida</translation>
     </message>
     <message>
         <source>Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques</translation>
     </message>
     <message>
         <source>Measurement</source>
-        <translation type="unfinished"></translation>
+        <translation>Mesures</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>Capturat/da</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrat/da</translation>
     </message>
     <message>
         <source>Marked</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcat/da</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniments</translation>
     </message>
     <message>
         <source>Time span, s</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval de temps, s</translation>
     </message>
     <message>
         <source>Average pps</source>
-        <translation type="unfinished"></translation>
+        <translation>PPS de mitjana</translation>
     </message>
     <message>
         <source>Average packet size, B</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida del paquet de mitjana, B</translation>
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida de l&apos;esdeveniment de mitjana, B</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Average bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes/s de mitjana</translation>
     </message>
     <message>
         <source>Average bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bits/s de mitjana</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentaris del paquet</translation>
     </message>
     <message>
         <source>Event Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentaris de l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Trama %1: </translation>
     </message>
     <message>
         <source>Created by Wireshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Creat amb el Wireshark %1
+
+</translation>
     </message>
     <message>
         <source>Created by Stratoshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Creat amb el Stratoshark %1
+
+</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionador de filtres de captura</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada dels filtres de captura</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona els marcadors desats.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica aquesta cadena de filtre a la visualització.</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;han seleccionat diversos filtres. Anul·leu-los aquí o deixeu-ho en blanc per a mantenir-los.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Les interfícies seleccionades tenen diferents filtres de captura. Si escriviu un filtre aquí, s&apos;anul·laran els altres filtres. Si no feu res, es mantindran els filtres existents.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu un filtre de captura %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa aquest filtre</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau aquest filtre</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona els filtres de captura</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informació de la captura</translation>
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Para la captura</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 paquets, %2:%3:%4</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoModel</name>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Altres</translation>
     </message>
 </context>
 <context>
     <name>CaptureOptionsDialog</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Trànsit</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Capçalera de la capa d&apos;enllaç</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
+        <translation>Promiscu</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Memòria intermèdia (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode monitor</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Probablement vulgueu activar-ho. Normalment, una targeta de xarxa només captura el trànsit que s&apos;envia a la seva adreça de xarxa. Si voleu capturar el trànsit que la targeta pot &amp;quot;veure&amp;quot;, marqueu aquesta opció. Vegeu les Preguntes Més Freqüents per a capturar paquets d&apos;una xarxa commutada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa el mode promiscu per a totes les interfícies</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra i amaga interfícies, afegeix comentaris i gestiona pipes i interfícies remotes.</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona les interfícies…</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura per a les interfícies seleccionades:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation type="unfinished"></translation>
+        <translation>Compila els BPF</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortida</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escriviu el nom del fitxer on cal escriure les dades. Per defecte, es farà servir un fitxer temporal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura a un fitxer permanent</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer:</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de sortida:</translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation type="unfinished"></translation>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap</translation>
     </message>
     <message>
         <source>Compression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Compressió:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;En lloc de fer servir un únic fitxer de captura, se&apos;n crearan diversos.&lt;/p&gt;&lt;p&gt;Els noms dels fitxers generats contindran nombres ascendents i el moment d&apos;inici de la captura.&lt;/p&gt;&lt;p&gt;NOTA: Si s&apos;activa, cal triar almenys un criteri per a la creació de fitxers nous.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea un fitxer nou automàticament…</translation>
     </message>
     <message>
         <source>after</source>
-        <translation type="unfinished"></translation>
+        <translation>després de</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al fitxer següent quan s&apos;hagi capturat el nombre de paquets especificat.</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>paquets</translation>
     </message>
     <message>
         <source>Switch to the next file after the file size exceeds the specified file size.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al fitxer següent quan la mida del fitxer actual sobrepassi la mida de fitxer especificada.</translation>
     </message>
     <message>
         <source>kilobytes</source>
-        <translation type="unfinished"></translation>
+        <translation>quilobytes</translation>
     </message>
     <message>
         <source>megabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>megabytes</translation>
     </message>
     <message>
         <source>gigabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>gigabytes</translation>
     </message>
     <message>
         <source>Switch to the next file when the time capturing to the current file exceeds the specified time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al fitxer següent quan el temps de captura del fitxer actual sobrepassi el temps especificat.</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>segons</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>minuts</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>hores</translation>
     </message>
     <message>
         <source>when time is a multiple of</source>
-        <translation type="unfinished"></translation>
+        <translation>quan el temps és un múltiple de</translation>
     </message>
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al fitxer següent quan el temps de rellotge sigui un múltiple de l&apos;interval especificat.
+Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada hora en punt.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalment una xarxa sense fils només captura el trànsit que s&apos;envia o es rep des de la seva adreça de xarxa pròpia i només captura trànsit de &lt;em&gt;dades d&apos;usuari&lt;/em&gt; amb capçaleres Ethernet &amp;quot;falses&amp;quot;. Si voleu capturar tot el trànsit que pot &amp;quot;veure&amp;quot; la targeta, o si esteu interessats en gestionar o controlar paquets de 802.11 o de la informació de la capa de ràdio, marqueu aquesta opció. El mode monitor depèn del controlador i de la targeta de xarxa sense fils. Vegeu la Wiki per a obtenir més detalls de la captura de paquets en xarxes WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable monitor mode on all 802.11 interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa el mode monitor per a totes les interfícies 802.11</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>gzip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip</translation>
     </message>
     <message>
         <source>LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>LZ4</translation>
     </message>
     <message>
         <source>File infix pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Patró infix del fitxer</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In multiple file mode, the date and time and file index number are inserted between filename template and any suffix. Select their order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;En mode de fitxers múltiples, la data, el temps i el número de fitxer s&apos;insereixen entre el nom especificat i el sufix. Trieu en quin ordre s&apos;han d&apos;escriure.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>YYYYmmDDHHMMSS_NNNNN</source>
-        <translation type="unfinished"></translation>
+        <translation>AAAAmmDDHHMMSS_NNNNN</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Data i temps abans del númeor de fitxer. Així, els fitxers s&apos;ordenaran segons el temps de creació i es mantindran els fitxers del mateix grup a prop.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
-        <translation type="unfinished"></translation>
+        <translation>NNNNN_AAAAmmDDHHMMSS</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Número de fitxer abans de la data i del temps. Aquest és el format de nom històric del Wireshark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Després que la captura passi al següent fitxer i se superi el nombre de fitxers especificat, el fitxer més antic se suprimirà.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation type="unfinished"></translation>
+        <translation>Fes servir memòria intermèdia cíclica amb</translation>
     </message>
     <message>
         <source>files</source>
-        <translation type="unfinished"></translation>
+        <translation>fitxers</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions de visualització</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Amb aquesta opció, es mostraran els paquets capturats immediatament a la vista principal. Tingueu en compte que alenteix la captura de paquets i potser hi haurà més paquets descartats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitza la llista de paquets en temps real</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aquesta opció farà que la «llista de paquets» mostri automàticament l&apos;últim paquet capturat, quan l&apos;opció corresponent d&apos;actualitzar la llista de paquets en temps real està activada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaça automàticament durant la captura en directe</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra el diàleg d&apos;informació mentre es realitza la captura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la informació de la captura en directe</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolució del nom</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Realitza la resolució de nom de la capa MAC mentre es captura.</translation>
     </message>
     <message>
         <source>Resolve MAC addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol les adreces MAC</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Realitza la resolució de nom de la capa mentre es captura.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol els noms de xarxa</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Realitza la resolució de nom de la capa de transport mentre es captura.</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol els noms de transport</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <translation type="unfinished"></translation>
+        <translation>Para la captura automàticament passats…</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Finalitza la captura després que s&apos;hagin capturat el nombre de paquets especificats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Finalitza la captura després que s&apos;hagin capturat el nombre de paquets especificats.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Finalitza la captura després que s&apos;hagin creat el nombre de fitxers especificats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of files have been created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Finalitza la captura després que s&apos;hagin creat el nombre de fitxers especificats.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Finalitza la captura quan s&apos;hagi capturat la quantitat de dades especificades.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Finalitza la captura quan s&apos;hagi capturat la quantitat de dades especificades.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Finalitza la captura quan hagi passat el temps especificat.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Especifica opcionalment una carpeta temporal per als fitxers de captura sense nom.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Directory for temporary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Carpeta dels fitxers temporals</translation>
     </message>
     <message>
         <source>Capture Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions de captura</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Deixa en blanc per a fer servir un fitxer temporal</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>Especifica un fitxer de captura</translation>
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Especifica una carpeta temporal</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense adreces</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 TB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers múltiples: Mida de fitxer sol·licitada massa gran. La mida del fitxer no pot ser superior a 2 TB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers múltiples: No s&apos;ha anomenat el fitxer de captura. S&apos;ha d&apos;especificar un nom de fitxer si voleu fer servir diversos fitxers.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers múltiples: No s&apos;ha establert el límit dels fitxers. Heu d&apos;especificar una mida, interval o nombre de paquets de fitxer per a cada fitxer.</translation>
     </message>
 </context>
 <context>
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Default interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície per defecte</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Probablement vulgueu activar-ho. Normalment, una targeta de xarxa només captura el trànsit que s&apos;envia a la seva adreça de xarxa. Si voleu capturar el trànsit que la targeta pot &amp;quot;veure&amp;quot;, marqueu aquesta opció. Vegeu les Preguntes Més Freqüents per a capturar paquets d&apos;una xarxa commutada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in promiscuous mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura paquets en mode promiscu</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalment una xarxa sense fils només captura el trànsit que s&apos;envia o es rep des de la seva adreça de xarxa pròpia i només captura trànsit de &lt;em&gt;dades d&apos;usuari&lt;/em&gt; amb capçaleres Ethernet &amp;quot;falses&amp;quot;. Si voleu capturar tot el trànsit que pot &amp;quot;veure&amp;quot; la targeta, o si esteu interessats en gestionar o controlar paquets de 802.11 o de la informació de la capa de ràdio, marqueu aquesta opció. El mode monitor depèn del controlador i de la targeta de xarxa sense fils. Vegeu la Wiki per a obtenir més detalls de la captura de paquets en xarxes WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in monitor mode on 802.11 devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura paquets en mode monitor en dispositius 802.11</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Captura paquets fent servir el format de fitxer de captura de nova generació.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura paquets en format pcapng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Actualitza la llista de paquets mentre es realitza la captura. Pot provocar que es descartin paquets en xarxes d&apos;alta velocitat.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real time</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitza la llista de paquets en temps real</translation>
     </message>
     <message>
         <source>Interval between updates (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval entre actualitzacions (ms)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How often the capture notifies the GUI of new packets. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indica cada quan la captura notifica els nous paquets a la interfície. Afecta la freqüència d&apos;actualització de la interfície i dels temporitzadors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The interval between new packet updates. Affects how often the GUI updates and the granularity of timers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;interval entre actualitzacions dels paquets. Afecta la freqüència d&apos;actualització de la interfície i dels temporitzadors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>No carreguis les interfícies a l&apos;inici</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva les interfícies de captura externa</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>s&apos;ignorarà el símbol «@».</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Add a new coloring rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix una regla de coloració nova.</translation>
     </message>
     <message>
         <source>Delete this coloring rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina aquesta regla de coloració.</translation>
     </message>
     <message>
         <source>Duplicate this coloring rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplica aquesta regla de coloració.</translation>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina totes les regles de coloració.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix el color de primer pla d&apos;aquesta regla.</translation>
     </message>
     <message>
         <source>Foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer pla</translation>
     </message>
     <message>
         <source>Set the background color for this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix el color de fons d&apos;aquesta regla.</translation>
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Fons</translation>
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix el filtre de visualització amb aquesta regla.</translation>
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica com a filtre</translation>
     </message>
     <message>
         <source>Select a file and add its filters to the end of the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria un fitxer i afegeix els seus filtres al final de la llista.</translation>
     </message>
     <message>
         <source>Save filters in a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa els filtres en un fitxer.</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Regles de coloració %1</translation>
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa…</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta…</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les regles de coloració d&apos;un altre perfil.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Obre</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu doble clic per a editar-ho. Arrossegueu-ho per a moure. Les regles es processen en ordre fins que es trobi una coincidència.</translation>
     </message>
     <message>
         <source>Import Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa regles de coloració</translation>
     </message>
     <message>
         <source>Export %1 Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta %1 regles de coloració</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Regla de coloració nova</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Les regles de coloració no s&apos;han pogut desar: %1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre</translation>
     </message>
 </context>
 <context>
     <name>ColumnEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Title:</source>
         <oldsource>Title</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Títol:</translation>
     </message>
     <message>
         <source>Type:</source>
         <oldsource>Type</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Tipus:</translation>
     </message>
     <message>
         <source>Fields:</source>
         <oldsource>Fields</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Camps:</translation>
     </message>
     <message>
         <source>Occurrence:</source>
         <oldsource>Occurrence</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ocurrència:</translation>
     </message>
     <message>
         <source>Display as:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra com a:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Els valors mostraran els valors en net dels camps.&lt;p&gt;Les cadenes mostraran cadenes que poden ser llegides pels humans en lloc dels valors en net dels camps. Només es pot aplicar a determinades columnes amb camps que tenen valors de cadena o bé a columnes personalitzades que es puguin resoldre a cadenes.&lt;p&gt;Els detalls mostraran els valors amb el mateix format que els «Detalls de paquet». Només es pot aplicar a columnes personalitzades.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenes</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls</translation>
     </message>
     <message>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fan falta camps.</translation>
     </message>
     <message>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Camps no vàlids.</translation>
     </message>
     <message>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor d&apos;ocurrència no vàlid.</translation>
     </message>
 </context>
 <context>
     <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrat/da</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Títol</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocurrència de camp</translation>
     </message>
     <message>
         <source>Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de visualització</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Els valors mostraran els valors en net dels camps.&lt;p&gt;Les cadenes mostraran cadenes que poden ser llegides pels humans en lloc dels valors en net dels camps. Només es pot aplicar a determinades columnes amb camps que tenen valors de cadena o bé a columnes personalitzades que es puguin resoldre a cadenes.&lt;p&gt;Els detalls mostraran els valors amb el mateix format que els «Detalls de paquet». Només es pot aplicar a columnes personalitzades.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplada</translation>
     </message>
     <message>
         <source>Custom Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió personalitzada</translation>
     </message>
     <message>
         <source>Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Alineació</translation>
     </message>
     <message>
         <source>New Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Columna nova</translation>
     </message>
 </context>
 <context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Add a new column</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix una columna nova</translation>
     </message>
     <message>
         <source>Delete selected column</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra la columna seleccionada</translation>
     </message>
     <message>
         <source>Show displayed columns only</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra només les columnes visualitzades</translation>
     </message>
     <message>
         <source>Reset all changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix tots els canvis</translation>
     </message>
 </context>
 <context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortida del filtre compilat</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy filter text to the clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia el text del filtre al porta-retalls.</translation>
     </message>
 </context>
 <context>
     <name>CompressionGroupBox</name>
     <message>
         <source>Compression options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions de compressió</translation>
     </message>
     <message>
         <source>&amp;Uncompressed</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sense comprimir</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimeix amb g&amp;zip</translation>
     </message>
     <message>
         <source>Compress with &amp;LZ4</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimeix amb &amp;LZ4</translation>
     </message>
 </context>
 <context>
     <name>ConversationDataModel</name>
     <message>
         <source>Address A</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça A</translation>
     </message>
     <message>
         <source>Port A</source>
-        <translation type="unfinished"></translation>
+        <translation>Port A</translation>
     </message>
     <message>
         <source>Address B</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça B</translation>
     </message>
     <message>
         <source>Port B</source>
-        <translation type="unfinished"></translation>
+        <translation>Port B</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Stream ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID del flux</translation>
     </message>
     <message>
         <source>Packets A </source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets A</translation>
     </message>
     <message>
         <source>Bytes A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes A</translation>
     </message>
     <message>
         <source>Packets B </source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets B</translation>
     </message>
     <message>
         <source>Bytes B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes B</translation>
     </message>
     <message>
         <source>Abs Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici abs</translation>
     </message>
     <message>
         <source>Rel Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici rel</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Durada</translation>
     </message>
     <message>
         <source>Bits/s A </source>
-        <translation type="unfinished"></translation>
+        <translation>Bits/s A </translation>
     </message>
     <message>
         <source>Bits/s B </source>
-        <translation type="unfinished"></translation>
+        <translation>Bits/s B </translation>
     </message>
     <message>
         <source>Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxes</translation>
     </message>
     <message>
         <source>Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets totals</translation>
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge filtrat</translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
     <message>
         <source>Follow Stream…</source>
-        <translation type="unfinished"></translation>
+        <translation>Segueix el flux…</translation>
     </message>
     <message>
         <source>Follow a TCP or UDP stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Segueix un flux TCP o UDP.</translation>
     </message>
     <message>
         <source>Graph…</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic…</translation>
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Representa la gràfica d&apos;una conversa TCP.</translation>
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics d&apos;E/S</translation>
     </message>
     <message>
         <source>I/OGraph TCP conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics E/S de converses TCP.</translation>
     </message>
 </context>
 <context>
     <name>ConversationHashTablesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Taules hash de la conversa</translation>
     </message>
 </context>
 <context>
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia de</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les entrades d&apos;un altre perfil.</translation>
     </message>
     <message>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte del sistema</translation>
     </message>
 </context>
 <context>
     <name>CredentialsDialog</name>
     <message>
         <source>Wireshark - Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark ‒ Credencials</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Credencials</translation>
     </message>
 </context>
 <context>
     <name>CredentialsModel</name>
     <message>
         <source>Click to select the packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
         <source>Click to select the packet with username</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu-hi clic per a triar el paquet amb el nom d&apos;usuari</translation>
     </message>
     <message>
         <source>Username not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom d&apos;usuari no disponible</translation>
     </message>
     <message>
         <source>Packet No.</source>
-        <translation type="unfinished"></translation>
+        <translation>Núm. de paquet</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom d&apos;usuari</translation>
     </message>
     <message>
         <source>Additional Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Informació addicional</translation>
     </message>
 </context>
 <context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes com a bolcat Hex + ASCII</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a bolcat hexadecimal i ASCII.</translation>
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a bolcat hexadecimal</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a bolcat hexadecimal.</translation>
     </message>
     <message>
         <source>…as MIME Data</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a dades MIME</translation>
     </message>
     <message>
         <source>…as C String</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a cadena en C</translation>
     </message>
     <message>
         <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a caràcters i seqüències d&apos;escapada ASCII imprimibles.</translation>
     </message>
     <message>
         <source>…as Go literal</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a literal Go</translation>
     </message>
     <message>
         <source>Copy packet bytes as Go literal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a literal Go.</translation>
     </message>
     <message>
         <source>…as C Array</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a taula en C</translation>
     </message>
     <message>
         <source>Copy packet bytes as C Array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a taula en C.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a flux hexadecimal</translation>
     </message>
     <message>
         <source>…as UTF-8 Text</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a text UTF-8</translation>
     </message>
     <message>
         <source>Copy packet bytes as text, treating as UTF-8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a text, tractant-los com a UTF-8.</translation>
     </message>
     <message>
         <source>…as ASCII Text</source>
-        <translation type="unfinished"></translation>
+        <translation>…en text ASCII</translation>
     </message>
     <message>
         <source>Copy packet bytes as text, treating as ASCII.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a text, tractant-los com a ASCII.</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a flux hexadecimal.</translation>
     </message>
     <message>
         <source>…as a Base64 String</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a cadena Base64</translation>
     </message>
     <message>
         <source>Copy packet bytes as a base64 encoded string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes com a cadenes codificades en base64.</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els bytes de paquet com a dades MIME d&apos;aplicació/flux en octets.</translation>
     </message>
 </context>
 <context>
     <name>DecodeAsDialog</name>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia el comportament de dissecció per a un protocol.</translation>
     </message>
     <message>
         <source>Remove this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau aquest comportament de dissecció.</translation>
     </message>
     <message>
         <source>Copy this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia aquest comportament de dissecció.</translation>
     </message>
     <message>
         <source>Clear all dissection behaviors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra tots els comportaments de dissecció.</translation>
     </message>
     <message>
         <source>Decode As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Descodifica com a…</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Obre</translation>
     </message>
 </context>
 <context>
     <name>DecodeAsModel</name>
     <message>
         <source>Match using this field</source>
-        <translation type="unfinished"></translation>
+        <translation>Compara fent servir aquest camp</translation>
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia el comportament quan el camp coincideixi amb aquest valor</translation>
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de valor del camp (i base, si és enter)</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Comportament actual «Descodifica com a»</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Comportament per defecte «Descodifica com a»</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadena</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation type="unfinished"></translation>
+        <translation>Enter, base</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>desconegut/da</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;none&gt;</translation>
     </message>
     <message>
         <source>GUID</source>
-        <translation type="unfinished"></translation>
+        <translation>GUID</translation>
     </message>
     <message>
         <source>Field</source>
-        <translation type="unfinished"></translation>
+        <translation>Camp</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>Actual</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el selector de filtres</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria d&apos;entre els filtres emprats anteriorment.</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra una entrada de filtre</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona els marcadors desats.</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra una expressió de filtre…</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica un filtre de visualització %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Enter a display filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu un filtre de visualització %1</translation>
     </message>
     <message>
         <source>Clear display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja el filtre de visualització</translation>
     </message>
     <message>
         <source>Apply display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica el filtre de visualització</translation>
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Botons d&apos;alineació a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica un filtre de lectura %1</translation>
     </message>
     <message>
         <source>Enter a custom column expression %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu una expressió de columna personalitzada %1</translation>
     </message>
     <message>
         <source>Current filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre actual: %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre no vàlid:</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa aquest filtre</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau aquest filtre</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona els filtres de visualització</translation>
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències del botó de filtre...</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Select a field to start building a display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccioneu un camp per a començar a definir un filtre de visualització.</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del camp</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la llista de noms de camp.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les relacions es poden fer servir per a restringir els camps a valors específics. Cada relació fa el següent:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;està present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Paquets que continguin aquest camp&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compara aquest camp amb un valor específic.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;conté, coincideix&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Comprova aquest camp amb una cadena (conté) o una expressió regular (coincideix)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;en&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compara el camp amb un conjunt específic de valors&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</translation>
     </message>
     <message>
         <source>Relation</source>
-        <translation type="unfinished"></translation>
+        <translation>Relació</translation>
     </message>
     <message>
         <source>By default order comparisons and contains/matches/in relations are true if any value matches. The quantifier &quot;all&quot; can be used to apply the test to all values in a frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte, l&apos;ordre de les comparacions i conté/coincideix/en relacions són certes si qualsevol es compleix. El quantificador «tot» es pot fer servir per a aplicar el test a tots els valors d&apos;una trama.</translation>
     </message>
     <message>
         <source>Quantifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantificador</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualsevol</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots</translation>
     </message>
     <message>
         <source>Match against this value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca aquest valor.</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
     <message>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si el camp seleccionat té un conjunt conegut de valors vàlids, es mostraran aquí.</translation>
     </message>
     <message>
         <source>Predefined Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors predefinits</translation>
     </message>
     <message>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si el camp seleccionat cobreix un rang de bytes (com ara quan se selecciona un protocol), aquí en podeu restringir la coincidència a un rang de bytes.</translation>
     </message>
     <message>
         <source>Range (offset:length)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rang (òfset:longitud)</translation>
     </message>
     <message>
         <source>No display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense filtres de visualització</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra una expressió de filtre</translation>
     </message>
     <message>
         <source>Select a field name to get started</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona un nom de camp per a començar</translation>
     </message>
     <message>
         <source>Click OK to insert this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu clic a «OK» per a inserir el filtre.</translation>
     </message>
 </context>
 <context>
     <name>DissectorSyntaxLineEdit</name>
     <message>
         <source>Dissector entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada de dissector</translation>
     </message>
     <message>
         <source>Enter a dissector %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriu un dissector %1</translation>
     </message>
 </context>
 <context>
     <name>DissectorTablesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Taules de dissectors</translation>
     </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
     <message>
         <source>Table Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de taula</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadena</translation>
     </message>
     <message>
         <source>Dissector Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripció del dissector</translation>
     </message>
     <message>
         <source>Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom curt</translation>
     </message>
     <message>
         <source>Table Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de la taula</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del selector</translation>
     </message>
 </context>
 <context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Si es desactiva un protocol, s&apos;evita que es mostrin els protocols de capes superiors.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>in</source>
-        <translation type="unfinished"></translation>
+        <translation>en</translation>
     </message>
     <message>
         <source>Enable All</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa-ho tot</translation>
     </message>
     <message>
         <source>Disable All</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva-ho tot</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix</translation>
     </message>
     <message>
         <source>Enabled Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocols activats</translation>
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Per tot arreu</translation>
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Només protocols</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Només la descripció</translation>
     </message>
     <message>
         <source>Only enabled protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Només els protocols activats</translation>
     </message>
     <message>
         <source>Only disabled protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Només els protocols desactivats</translation>
     </message>
     <message>
         <source>any protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>qualsevol protocol</translation>
     </message>
     <message>
         <source>non-heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protocols no heurístics</translation>
     </message>
     <message>
         <source>heuristic protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>protocols heurístics</translation>
     </message>
 </context>
 <context>
     <name>EnabledProtocolsModel</name>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripció</translation>
     </message>
 </context>
 <context>
     <name>EndpointDataModel</name>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Tx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets Tx</translation>
     </message>
     <message>
         <source>Tx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes Tx</translation>
     </message>
     <message>
         <source>Rx Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets Rx</translation>
     </message>
     <message>
         <source>Rx Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes Rx</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>País</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciutat</translation>
     </message>
     <message>
         <source>Latitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Latitud</translation>
     </message>
     <message>
         <source>Longitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud</translation>
     </message>
     <message>
         <source>AS Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Número AS</translation>
     </message>
     <message>
         <source>AS Organization</source>
-        <translation type="unfinished"></translation>
+        <translation>Organització AS</translation>
     </message>
     <message>
         <source>Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets totals</translation>
     </message>
     <message>
         <source>Percent Filtered</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge filtrat</translation>
     </message>
 </context>
 <context>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
+        <translation>Representa els punts finals IPv4 o IPv6 en un mapa.</translation>
     </message>
     <message>
         <source>Open in browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre al navegador</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error del fitxer de mapa</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el mapa de punts finals</translation>
     </message>
     <message>
         <source>Hide aggregated</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga els agregats</translation>
     </message>
     <message>
         <source>Hide IPv4 aggregated endpoints (see subnets file &amp; IPv4 preferences)</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga els punts finals agregats IPv4 (vegeu el fitxer de subxarxes i preferències IPv4)</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut desar el fitxer de mapa %1.</translation>
     </message>
 </context>
 <context>
     <name>EthernetAddressModel</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça</translation>
     </message>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les entrades</translation>
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostes</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces Ethernet</translation>
     </message>
     <message>
         <source>Ethernet Manufacturers</source>
-        <translation type="unfinished"></translation>
+        <translation>Fabricants d&apos;Ethernet</translation>
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces Ethernet conegudes</translation>
     </message>
 </context>
 <context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Limit to Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limita al filtre de visualització</translation>
     </message>
     <message>
         <source>Group by summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Agrupa per resum</translation>
     </message>
     <message>
         <source>Search expert summaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca resums experts.</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>Show…</source>
         <oldsource>Show...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mostra…</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>Show error packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els paquets d&apos;error.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avís</translation>
     </message>
     <message>
         <source>Show warning packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els paquets d&apos;avís.</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota</translation>
     </message>
     <message>
         <source>Show note packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els paquets de nota.</translation>
     </message>
     <message>
         <source>Chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Conversa</translation>
     </message>
     <message>
         <source>Show chat packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els paquets de conversa.</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari</translation>
     </message>
     <message>
         <source>Show comment packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els paquets de comentari.</translation>
     </message>
     <message>
         <source>Expert Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informació avançada</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega-ho tot</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandeix-ho tot</translation>
     </message>
     <message>
         <source>Capture file closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer de captura tancat.</translation>
     </message>
     <message>
         <source>No display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense filtres de visualització</translation>
     </message>
     <message>
         <source>No display filter set.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap conjunt de filtres de visualització.</translation>
     </message>
     <message>
         <source>Limit information to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Limita la informació a «%1».</translation>
     </message>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització: «%1»</translation>
     </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Severity</source>
-        <translation type="unfinished"></translation>
+        <translation>Gravetat</translation>
     </message>
     <message>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Grup</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte</translation>
     </message>
 </context>
 <context>
@@ -2924,147 +2931,147 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Export Packet Dissections</source>
         <oldsource>Wireshark: Export Packet Dissections</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Exporta les disseccions de paquets</translation>
     </message>
     <message>
         <source>Export As:</source>
         <oldsource>Export as:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Exporta com a:</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Text net (*.txt)</translation>
     </message>
     <message>
         <source>Comma Separated Values - summary (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors separats per comes ‒ resum (*.csv)</translation>
     </message>
     <message>
         <source>PSML - summary (*.psml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML ‒ resum (*.psml, *.xml)</translation>
     </message>
     <message>
         <source>PDML - details (*.pdml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDML ‒ detalls (*.pdml, *.xml)</translation>
     </message>
     <message>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <source>C Arrays - bytes (*.c, *.h)</source>
-        <translation type="unfinished"></translation>
+        <translation>Taules en C Arrays ‒ bytes (*.c, *.h)</translation>
     </message>
 </context>
 <context>
     <name>ExportObjectDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Content Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de contingut:</translation>
     </message>
     <message>
         <source>Searching for objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Es cerquen objectes</translation>
     </message>
     <message>
         <source>Text Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de text:</translation>
     </message>
     <message>
         <source>Only display entries containing this string</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra només les entrades que continguin aquesta cadena</translation>
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista prèvia</translation>
     </message>
     <message>
         <source>All Content-Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els tipus de contingut</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta</translation>
     </message>
     <message>
         <source>%1 object list</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista d&apos;objectes %1</translation>
     </message>
     <message>
         <source>Save Object As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa l&apos;objecte com a…</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa tots els objectes com a…</translation>
     </message>
 </context>
 <context>
     <name>ExportObjectModel</name>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de l&apos;hoste</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de contingut</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del fitxer</translation>
     </message>
 </context>
 <context>
     <name>ExportPDUDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>Export PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els PDU</translation>
     </message>
 </context>
 <context>
     <name>ExtArgSelector</name>
     <message>
         <source>Reload data</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a carregar les dades</translation>
     </message>
 </context>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja</translation>
     </message>
     <message>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els fitxers (</translation>
     </message>
     <message>
         <source>%1 Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre el fitxer %1</translation>
     </message>
     <message>
         <source>%1 Select File</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona el fitxer %1</translation>
     </message>
 </context>
 <context>
@@ -3072,72 +3079,72 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Interface Options</source>
         <oldsource>Extcap Interface Options</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Opcions d&apos;interfície</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte</translation>
     </message>
     <message>
         <source>Restore default value of the item</source>
-        <translation type="unfinished"></translation>
+        <translation>Restaura el valor per defecte de l&apos;element</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot trobar l&apos;ajuda de l&apos;Extcap.</translation>
     </message>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;ajuda per a la interfície de l&apos;extcap %1 no s&apos;ha pogut trobar. Fitxer donat: %2</translation>
     </message>
     <message>
         <source>Save parameter(s) on capture start</source>
-        <translation type="unfinished">Save parameter on capture start</translation>
+        <translation>Desa el paràmetre quan comenci la captura</translation>
     </message>
 </context>
 <context>
     <name>FieldFilterEdit</name>
     <message>
         <source>Field entry</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada del camp</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu un camp %1</translation>
     </message>
     <message>
         <source>Invalid field: </source>
-        <translation type="unfinished"></translation>
+        <translation>Camp no vàlid:</translation>
     </message>
 </context>
 <context>
     <name>FileSetDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Carpeta:</translation>
     </message>
     <message>
         <source>No files in Set</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha fitxers al conjunt.</translation>
     </message>
     <message>
         <source>No capture loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha carregat cap captura.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
         <translation>
-            <numerusform>%Ln File in Set</numerusform>
-            <numerusform>%Ln Files in Set</numerusform>
+            <numerusform>%Ln fitxer al conjunt</numerusform>
+            <numerusform>%Ln fitxers al conjunt</numerusform>
         </translation>
     </message>
 </context>
@@ -3145,390 +3152,390 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>FilesetEntryModel</name>
     <message>
         <source>Open this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre aquest fitxer de captura</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del fitxer</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>Creat/da</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificat/da</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida</translation>
     </message>
 </context>
 <context>
     <name>FilterAction</name>
     <message>
         <source>Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionat/da</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>No seleccionat/da</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…i seleccionat/da</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…o seleccionat/da</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…i no seleccionat/da</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…o no seleccionat/da</translation>
     </message>
 </context>
 <context>
     <name>FilterDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea un filtre nou.</translation>
     </message>
     <message>
         <source>Remove this filter.</source>
         <oldsource>Remove this profile.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Trau aquest filtre.</translation>
     </message>
     <message>
         <source>Copy this filter.</source>
         <oldsource>Copy this profile.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Copia aquest filtre.</translation>
     </message>
     <message>
         <source>Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres de captura</translation>
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres de visualització</translation>
     </message>
     <message>
         <source>Display Filter Macros</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les macros de filtres</translation>
     </message>
     <message>
         <source>New macro</source>
-        <translation type="unfinished"></translation>
+        <translation>Macro nova</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Obre</translation>
     </message>
     <message>
         <source>New capture filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura nou</translation>
     </message>
     <message>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització nou</translation>
     </message>
 </context>
 <context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències dels botons de filtre...</translation>
     </message>
     <message>
         <source>Label:</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta:</translation>
     </message>
     <message>
         <source>Enter a description for the filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu una descripció per al botó del filtre.</translation>
     </message>
     <message>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre:</translation>
     </message>
     <message>
         <source>Enter a filter expression to be applied</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu l&apos;expressió de filtre que s&apos;ha d&apos;aplicar</translation>
     </message>
     <message>
         <source>Comment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari:</translation>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu un comentari per al botó del filtre</translation>
     </message>
     <message>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fa falta l&apos;etiqueta.</translation>
     </message>
     <message>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fa falta l&apos;expressió del filtre.</translation>
     </message>
     <message>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió de filtre no vàlida.</translation>
     </message>
 </context>
 <context>
     <name>FilterExpressionToolBar</name>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències del botó de filtre...</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau</translation>
     </message>
 </context>
 <context>
     <name>FilterListModel</name>
     <message>
         <source>Macro Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de la macro</translation>
     </message>
     <message>
         <source>Filter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del filtre</translation>
     </message>
     <message>
         <source>Macro Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió de la macro</translation>
     </message>
     <message>
         <source>Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió de filtre</translation>
     </message>
 </context>
 <context>
     <name>FindLineEdit</name>
     <message>
         <source>Textual Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca textual</translation>
     </message>
     <message>
         <source>Regular Expression Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca d&apos;expressió regular</translation>
     </message>
 </context>
 <context>
     <name>FirewallRulesDialog</name>
     <message>
         <source>Create rules for</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea regles per a</translation>
     </message>
     <message>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrant</translation>
     </message>
     <message>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Denega</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Regles ACL del tallafoc</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>IPv4 source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça IPv4 d&apos;origen.</translation>
     </message>
     <message>
         <source>IPv4 destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça IPv4 de destí.</translation>
     </message>
     <message>
         <source>Source port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Port d&apos;origen.</translation>
     </message>
     <message>
         <source>Destination port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Port de destí.</translation>
     </message>
     <message>
         <source>IPv4 source address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Direcció i port d&apos;origen IPv4.</translation>
     </message>
     <message>
         <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>Direcció i port de destí IPv4.</translation>
     </message>
     <message>
         <source>MAC source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça MAC d&apos;origen.</translation>
     </message>
     <message>
         <source>MAC destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça MAC de destí.</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer de text (*.txt);;Tots els fitxers (</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avís</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut desar %1</translation>
     </message>
 </context>
 <context>
     <name>FolderListModel</name>
     <message>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporal</translation>
     </message>
     <message>
         <source>Personal configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració personal</translation>
     </message>
     <message>
         <source>Global configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració global</translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>Sistema</translation>
     </message>
     <message>
         <source>ethers, ipxnets</source>
-        <translation type="unfinished"></translation>
+        <translation>ethers, ipxnets</translation>
     </message>
     <message>
         <source>Program</source>
-        <translation type="unfinished"></translation>
+        <translation>Programa</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements personals</translation>
     </message>
     <message>
         <source>Global Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements globals</translation>
     </message>
     <message>
         <source>Personal Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements Lua personals</translation>
     </message>
     <message>
         <source>Global Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements Lua globals</translation>
     </message>
     <message>
         <source>Lua scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Scripts Lua</translation>
     </message>
     <message>
         <source>&quot;File&quot; dialog location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ubicació dels diàlegs «de fitxers»</translation>
     </message>
     <message>
         <source>Capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers de captura</translation>
     </message>
     <message>
         <source>Untitled capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers de captura sense nom</translation>
     </message>
     <message>
         <source>Preferences, profiles, manuf, …</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències, perfils, fabricants…</translation>
     </message>
     <message>
         <source>Program files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers del programa</translation>
     </message>
     <message>
         <source>Binary plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements en binari</translation>
     </message>
     <message>
         <source>Personal Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí Extcap personal</translation>
     </message>
     <message>
         <source>External capture (extcap) plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Complements de captura externa (extcap)</translation>
     </message>
     <message>
         <source>Global Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí de l&apos;Extcap global</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí del MaxMind DB</translation>
     </message>
     <message>
         <source>MaxMind DB database search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí de cerca de les bases de dades del MaxMind DB</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí MIB/PIB</translation>
     </message>
     <message>
         <source>SMI MIB/PIB search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí de cerca SMI MIB/PIB</translation>
     </message>
     <message>
         <source>macOS Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>Extres del macOS</translation>
     </message>
     <message>
         <source>Extra macOS packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets macOS addicionals</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ubicació</translation>
     </message>
     <message>
         <source>Typical Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers típics</translation>
     </message>
 </context>
 <context>
     <name>FollowStreamAction</name>
     <message>
         <source>%1 Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux %1</translation>
     </message>
 </context>
 <context>
@@ -3536,493 +3543,493 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Filtra aquest flux</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimeix</translation>
     </message>
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln client pkt, </numerusform>
-            <numerusform>%Ln client pkts, </numerusform>
+            <numerusform>%Ln paq. de client,</numerusform>
+            <numerusform>%Ln paq. de clients,</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln server pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln server pkt, </numerusform>
-            <numerusform>%Ln server pkts, </numerusform>
+            <numerusform>%Ln paq. de serv.,</numerusform>
+            <numerusform>%Ln paq. de serv.,</numerusform>
         </translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>C Arrays</source>
-        <translation type="unfinished"></translation>
+        <translation>Taules en C</translation>
     </message>
     <message>
         <source>EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>EBCDIC</translation>
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Bolcat hexadecimal</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML</translation>
     </message>
     <message>
         <source>Raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors en brut (Raw)</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Enrere</translation>
     </message>
     <message>
         <source>Packet %1. </source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet %1. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkts, </numerusform>
+            <numerusform>%Ln paq. de &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln paq. de &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;clients&lt;/span&gt; , </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkts, </numerusform>
+            <numerusform>%Ln paq. de &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;servidor&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln paq. de &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;servidors&lt;/span&gt; , </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
         <translation>
-            <numerusform>%Ln turn.</numerusform>
-            <numerusform>%Ln turns.</numerusform>
+            <numerusform>%Ln torn.</numerusform>
+            <numerusform>%Ln torns.</numerusform>
         </translation>
     </message>
     <message>
         <source>Event %1. </source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniment %1. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectura&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectures&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escriptura&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escriptures&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message>
         <source> Click to select.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu clic per a seleccionar-ho.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca amb Regex:</translation>
     </message>
     <message>
         <source>No capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap fitxer de captura.</translation>
     </message>
     <message>
         <source>Please make sure you have a capture file opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>Comproveu que teniu un fitxer de captura obert.</translation>
     </message>
     <message>
         <source>Error following stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha produït un error quan se seguia el flux.</translation>
     </message>
     <message>
         <source>Capture file invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer de captura no vàlid.</translation>
     </message>
     <message>
         <source>Please make sure you have a %1 packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Comproveu que teniu un paquet %1 seleccionat.</translation>
     </message>
     <message>
         <source>%1 stream not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>El flux %1 no s&apos;ha trobat al paquet seleccionat.</translation>
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Llegeix l&apos;activitat (%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriu l&apos;activitat (%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Activitat d&apos;E/S sencera (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Conversa completa (%1)</translation>
     </message>
     <message>
         <source>Follow %1 Stream (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Segueix la seqüència %1 (%2)</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha produït un error quan es creava el filtre per a aquest flux.</translation>
     </message>
     <message>
         <source>Save Stream Content As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el contingut del flux com a…</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform>%Ln stream.</numerusform>
-            <numerusform>%Ln total streams.</numerusform>
+        <translation>
+            <numerusform>%Ln flux.</numerusform>
+            <numerusform>%Ln fluxos en total.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>ID màxim per al subflux del flux seleccionat: %Ln</numerusform>
+            <numerusform>ID màxim per al subflux del flux seleccionat: %Ln</numerusform>
         </translation>
     </message>
     <message>
         <source>File closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha tancat el fitxer.</translation>
     </message>
     <message>
         <source>Follow Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Segueix el flux</translation>
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Consell.</translation>
     </message>
     <message>
         <source>Show as</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra com a</translation>
     </message>
     <message>
         <source>No delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense temps delta</translation>
     </message>
     <message>
         <source>Turn delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa els temps delta</translation>
     </message>
     <message>
         <source>All delta times</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els temps delta</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux</translation>
     </message>
     <message>
         <source>Substream</source>
-        <translation type="unfinished"></translation>
+        <translation>Subflux</translation>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Distingeix majúscules i minúscules</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el &amp;següent</translation>
     </message>
 </context>
 <context>
     <name>FollowStreamText</name>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Sortida del flux truncada]</translation>
     </message>
 </context>
 <context>
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation type="unfinished"></translation>
+        <translation>Font de la finestra principal</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria una font</translation>
     </message>
     <message>
         <source>Colors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Colors:</translation>
     </message>
     <message>
         <source>System Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte del sistema</translation>
     </message>
     <message>
         <source>Solid</source>
-        <translation type="unfinished"></translation>
+        <translation>Sòlid</translation>
     </message>
     <message>
         <source>Sample ignored packet text</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de text de paquet ignorat</translation>
     </message>
     <message>
         <source>Sample marked packet text</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de text de paquet marcat</translation>
     </message>
     <message>
         <source>Sample active selected item</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple d&apos;element seleccionat actiu</translation>
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Estil:</translation>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradient</translation>
     </message>
     <message>
         <source>Sample inactive selected item</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple d&apos;element seleccionat inactiu</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de client de «Segueix el flux»</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de text de servidor de «Segueix el flux»</translation>
     </message>
     <message>
         <source>Sample valid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de filtre vàlid</translation>
     </message>
     <message>
         <source>Sample invalid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de filtre no vàlid</translation>
     </message>
     <message>
         <source>Sample warning filter</source>
         <oldsource>Sample deprecated filter</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de filtre d&apos;avís</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exemple de paquets de sol·licitud GIF que tenen mides de finestra enormes</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Els teixons mandrosos mouen paquets únics de meduses ceroses</translation>
     </message>
     <message>
         <source>Color Scheme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquema de color:</translation>
     </message>
     <message>
         <source>Light Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode clar</translation>
     </message>
     <message>
         <source>Dark Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode fosc</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Font</translation>
     </message>
 </context>
 <context>
     <name>FunnelStringDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
 </context>
 <context>
     <name>FunnelTextDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter some text or a regular expression. It will be highlighted above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Escriviu un text o una expressió regular. Es ressaltaran les ocurrències que hi hagi més amunt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Highlight:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ressalta:</translation>
     </message>
 </context>
 <context>
     <name>GsmMapSummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>GSM MAP Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum GSM MAP</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de la instantània</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dades</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer paquet</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Últim paquet</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Transcorregut</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Invokes</source>
-        <translation type="unfinished"></translation>
+        <translation>Invoca</translation>
     </message>
     <message>
         <source>Total number of Invokes</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre total d&apos;invocacions</translation>
     </message>
     <message>
         <source>Average number of Invokes per second</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mitjà d&apos;invocacions per segon</translation>
     </message>
     <message>
         <source>Total number of bytes for Invokes</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre total de bytes per invocació</translation>
     </message>
     <message>
         <source>Average number of bytes per Invoke</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mitjà de bytes per invocació</translation>
     </message>
     <message>
         <source>Return Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultats de retorn</translation>
     </message>
     <message>
         <source>Total number of Return Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre total de resultats de retorn</translation>
     </message>
     <message>
         <source>Average number of Return Results per second</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mitjà de resultats de retorn per segon</translation>
     </message>
     <message>
         <source>Total number of bytes for Return Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre total de bytes de resultats de retorn</translation>
     </message>
     <message>
         <source>Average number of bytes per Return Result</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitjana de bytes per resultat de retorn</translation>
     </message>
     <message>
         <source>Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>Totals</translation>
     </message>
     <message>
         <source>Total number of GSM MAP messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre total de missatges GSM MAP</translation>
     </message>
     <message>
         <source>Average number of GSM MAP messages per second</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mitjà de missatges GSM MAP per segon</translation>
     </message>
     <message>
         <source>Total number of bytes for GSM MAP messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre total de bytes de missatges GSM MAP</translation>
     </message>
     <message>
         <source>Average number of bytes per GSM MAP message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mitjà de bytes per missatge GSM MAP</translation>
     </message>
 </context>
 <context>
     <name>IOConsoleDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Enter code</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu el codi</translation>
     </message>
     <message>
         <source>Evaluate</source>
-        <translation type="unfinished"></translation>
+        <translation>Avalua</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja</translation>
     </message>
     <message>
         <source>Use %1 to evaluate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fes servir %1 per a avaluar.</translation>
     </message>
 </context>
 <context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -4081,2140 +4088,2169 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Dreceres de teclat valuoses i sorprenents per a estalviar temps&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Augmenta el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Redueix el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Augmenta el zoom en l&apos;eix de les X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Redueix el zoom en l&apos;eix de les X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Augmenta el zoom en l&apos;eix de les Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Redueix el zoom en l&apos;eix de les Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Restableix el gràfic al seu estat inicial&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Mou 10 píxels a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Mou 10 píxels a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Mou 10 píxels amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Mou 10 píxels avall&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Mou 1 píxel a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Mou 1 píxel a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Mou 1 píxel amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Mou 1 píxel avall&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vés al paquet que hi ha sota el cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Commuta el zoom/arrossegament amb el ratolí&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta els temps d&apos;origen de la captura/sessió&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Espai&lt;/th&gt;&lt;td&gt;Commuta els punts de mira&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un gràfic nou.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra tots els gràfics.</translation>
     </message>
     <message>
         <source>Remove the selected graph(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau els gràfics seleccionats.</translation>
     </message>
     <message>
         <source>Duplicate the selected graph(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplica els gràfics seleccionats.</translation>
     </message>
     <message>
         <source>Move the selected graph(s) upwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou els gràfics seleccionats cap amunt.</translation>
     </message>
     <message>
         <source>Move the selected graph(s) downwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou els gràfics seleccionats cap avall.</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Ratolí</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrossega amb el botó del ratolí.</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>arrossega</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona amb el botó del ratolí.</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>amplia/redueix</translation>
     </message>
     <message>
         <source>Interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval</translation>
     </message>
     <message>
         <source>Time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora del dia</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala logarítmica</translation>
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualització automàtica</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic al seu estat inicial.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels amunt</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Amunt</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquerra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a la dreta</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreta</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels avall</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Avall</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel amunt</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Amunt</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Esquerra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a la dreta</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Dreta</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
         <oldsource>Move down 1 pixel</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Avall</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha sota el cursor</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha actualment a sota del cursor</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrossega / Zoom</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta el comportament del ratolí entre arrossegar/fer zoom</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;origen de la captura/sessió</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta entre temps d&apos;origen de la captura i la sessió</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Toggle X-axis between relative time and time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta entre temps relatiu i hora del dia a l&apos;eix de les X</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta entre escala lineal o logarítmica a l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Punts de mira</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta els punts de mira</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Espai</translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Llegenda</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta la llegenda</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Y</translation>
     </message>
     <message>
         <source>1 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>1 s</translation>
     </message>
     <message>
         <source>10 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>10 s</translation>
     </message>
     <message>
         <source>1 min</source>
-        <translation type="unfinished"></translation>
+        <translation>1 min</translation>
     </message>
     <message>
         <source>10 min</source>
-        <translation type="unfinished"></translation>
+        <translation>10 min</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps (s)</translation>
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics d&apos;E/S</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els gràfics d&apos;un altre perfil.</translation>
     </message>
     <message>
         <source>1 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>1 μs</translation>
     </message>
     <message>
         <source>2 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>2 μs</translation>
     </message>
     <message>
         <source>5 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>5 μs</translation>
     </message>
     <message>
         <source>10 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>10 μs</translation>
     </message>
     <message>
         <source>20 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>20 μs</translation>
     </message>
     <message>
         <source>50 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>50 μs</translation>
     </message>
     <message>
         <source>100 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>100 μs</translation>
     </message>
     <message>
         <source>200 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>200 μs</translation>
     </message>
     <message>
         <source>500 μs</source>
-        <translation type="unfinished"></translation>
+        <translation>500 μs</translation>
     </message>
     <message>
         <source>1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>1 ms</translation>
     </message>
     <message>
         <source>2 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>2 ms</translation>
     </message>
     <message>
         <source>5 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>5 ms</translation>
     </message>
     <message>
         <source>10 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>10 ms</translation>
     </message>
     <message>
         <source>20 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>20 ms</translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>50 ms</translation>
     </message>
     <message>
         <source>100 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>100 ms</translation>
     </message>
     <message>
         <source>200 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>200 ms</translation>
     </message>
     <message>
         <source>500 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>500 ms</translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>2 s</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>5 s</translation>
     </message>
     <message>
         <source>2 min</source>
-        <translation type="unfinished"></translation>
+        <translation>2 min</translation>
     </message>
     <message>
         <source>5 min</source>
-        <translation type="unfinished"></translation>
+        <translation>5 min</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics d&apos;E/S del Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets filtrats</translation>
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniments filtrats</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els paquets</translation>
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els esdeveniments</translation>
     </message>
     <message>
         <source>All Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els paquets</translation>
     </message>
     <message>
         <source>TCP Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Errors TCP</translation>
     </message>
     <message>
         <source>All Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els esdeveniments</translation>
     </message>
     <message>
         <source>All Execs</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes els execucions</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou el ratolí per sobre del gràfic per a més detalls.</translation>
     </message>
     <message>
         <source>No packets in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>A l&apos;interval no hi ha paquets</translation>
     </message>
     <message>
         <source>No events in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>A l&apos;interval no hi ha esdeveniments</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniment</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>Solta per a zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>El rang no s&apos;ha pogut seleccionar.</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu clic per a triar una part del gràfic.</translation>
     </message>
     <message>
         <source>%1 Intervals </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 intervals </translation>
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou a la part superior esquerra</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou a la part superior central</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou a la part superior dreta</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou a la part inferior esquerra</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou a la part inferior central</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou a la part inferior dreta</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Comma Separated Values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors separats per comes (*.csv)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
 </context>
 <context>
     <name>Iax2AnalysisDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Enviament&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Retorn&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Enviament</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta màx. (ms)</translation>
     </message>
     <message>
         <source>Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal (ms)</translation>
     </message>
     <message>
         <source>Bandwidth</source>
-        <translation type="unfinished"></translation>
+        <translation>Ample de banda</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>Retorn</translation>
     </message>
     <message>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o amaga els valors de fluctuació del senyal d&apos;enviament.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal d&apos;enviament</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o amaga els valors de diferència d&apos;enviament.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Diferència d&apos;enviament</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o amaga els valors de fluctuació del senyal de retorn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació de senyal de retorn</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o amaga els valors de diferència de retorn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Diferència de retorn</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>So</translation>
     </message>
     <message>
         <source>Save the audio data for both channels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades de so d&apos;ambdós canals.</translation>
     </message>
     <message>
         <source>Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Àudio del flux d&apos;enviament</translation>
     </message>
     <message>
         <source>Save the forward stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades d&apos;àudio del flux d&apos;enviament.</translation>
     </message>
     <message>
         <source>Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Àudio del flux de retorn</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades d&apos;àudio del flux de retorn.</translation>
     </message>
     <message>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa ambdues taules com a CSV.</translation>
     </message>
     <message>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux d&apos;enviament CSV</translation>
     </message>
     <message>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la taula d&apos;enviament com a CSV.</translation>
     </message>
     <message>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux de retorn CSV</translation>
     </message>
     <message>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la taula de retorn com a CSV.</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic</translation>
     </message>
     <message>
         <source>Save the graph image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la imatge del gràfic.</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria el paquet corresponent de la llista de paquets.</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent paquet problemàtic</translation>
     </message>
     <message>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al proper paquet problemàtic.</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>N</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi de fluxos IAX2</translation>
     </message>
     <message>
         <source>Unable to save RTP data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les dades RTP no s&apos;han pogut desar.</translation>
     </message>
     <message>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccioneu un paquet IAX2.</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation> G: Vés al paquet (go), N: Proper paquet problemàtic (next)</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot desar en un fitxer: longitud dels paquets capturats errònia.</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot desar en un fitxer: problema amb el fitxer d&apos;E/S.</translation>
     </message>
     <message>
         <source>Save forward stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el flux d&apos;enviament com a àudio</translation>
     </message>
     <message>
         <source>Save reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el flux de retorn com a àudio</translation>
     </message>
     <message>
         <source>Save audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa l&apos;àudio</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
         <source>;;Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>;;Valors en brut (*.raw)</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avís</translation>
     </message>
     <message>
         <source>Unable to save in that format</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot desar en aquest format.</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut desar %1</translation>
     </message>
     <message>
         <source>Saving %1…</source>
-        <translation type="unfinished"></translation>
+        <translation>Es desa %1…</translation>
     </message>
     <message>
         <source>Analyzing IAX2</source>
-        <translation type="unfinished"></translation>
+        <translation>Analitzant IAX2</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el flux d&apos;enviament com a CSV</translation>
     </message>
     <message>
         <source>Save reverse stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el flux de retorn com a CSV</translation>
     </message>
     <message>
         <source>Save CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el CSV</translation>
     </message>
     <message>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors separats per comes (*.csv)</translation>
     </message>
 </context>
 <context>
     <name>ImportTextDialog</name>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer:</translation>
     </message>
     <message>
         <source>Set name of text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix el nom del fitxer de text a importar</translation>
     </message>
     <message>
         <source>Browse for text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el fitxer de text a importar</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Bolcat hexadecimal</translation>
     </message>
     <message>
         <source>Import a standard hex dump as exported by Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa un bolcat hexadecimal estàndard tal com l&apos;exporta el Wireshark</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Els òfsets del fitxer de text estan en notació octal</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Octal</translation>
     </message>
     <message>
         <source>Offsets:</source>
-        <translation type="unfinished"></translation>
+        <translation>Òfsets:</translation>
     </message>
     <message>
         <source>Offsets in the text file are in hexadecimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Els òfsets del fitxer de text estan en notació hexadecimal</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Hexadecimal</translation>
     </message>
     <message>
         <source>Offsets in the text file are in decimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>Els òfsets del fitxer de text estan en notació decimal</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Decimal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indica si cal fer un processat extra per a detectar l&apos;inici de la representació ASCII al final d&apos;una línia hex+ASCII encara que semblin bytes en hexadecimal.&lt;/p&gt;&lt;p&gt;No ho activeu si el bolcat hexadecimal no conté ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificació ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió regular</translation>
     </message>
     <message>
         <source>Import a file formatted according to a custom regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa un fitxer formatat d&apos;acord a una expressió regular personalitzada</translation>
     </message>
     <message>
         <source>Packet format regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió regular de format de paquet</translation>
     </message>
     <message>
         <source>This is regexHintLabel, it will be set to default_regex_hint</source>
-        <translation type="unfinished"></translation>
+        <translation>És regexHintLabel. S&apos;establirà a default_regex_hint.</translation>
     </message>
     <message>
         <source>Data encoding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Codificació de dades:</translation>
     </message>
     <message>
         <source>How data is encoded</source>
-        <translation type="unfinished"></translation>
+        <translation>Com es codifiquen les dades</translation>
     </message>
     <message>
         <source>encodingRegexExample</source>
-        <translation type="unfinished"></translation>
+        <translation>encodingRegexExample</translation>
     </message>
     <message>
         <source>List of characters indicating incoming packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista de caràcters que indiquen paquets d&apos;arribada</translation>
     </message>
     <message>
         <source>iI&lt;</source>
-        <translation type="unfinished"></translation>
+        <translation>iI&lt;</translation>
     </message>
     <message>
         <source>List of characters indicating outgoing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista de caràcters que indiquen paquets de sortida</translation>
     </message>
     <message>
         <source>oO&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>oO&gt;</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de les marques de temps:</translation>
     </message>
     <message>
         <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Indica si el fitxer conté informació indicant la direcció (entrant o sortint) del paquet.</translation>
     </message>
     <message>
         <source>Direction indication:</source>
-        <translation type="unfinished"></translation>
+        <translation>Indicació de direcció:</translation>
     </message>
     <message>
         <source>ExportPDU</source>
-        <translation type="unfinished"></translation>
+        <translation>ExportPDU</translation>
     </message>
     <message>
         <source>IP version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió IP:</translation>
     </message>
     <message>
         <source>Interface name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de la interfície:</translation>
     </message>
     <message>
         <source>The name of the interface to write to the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>El nom de la interfície on escriure el fitxer de captura importat</translation>
     </message>
     <message>
         <source>Fake IF, Import from Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>IF fals, Importa des d&apos;un volcat hexadeximal</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud màxima de trama:</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Encapsulació</translation>
     </message>
     <message>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>El fitxer de text no té òfset.</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indica si cal tractar múltiples grups de bytes com si estiguessin en ordre little-endian, en lloc de l&apos;ordre per defecte de la xarxa (big-endian).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation type="unfinished"></translation>
+        <translation>Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expressió regular compatible amb Perl de captura d&apos;un sol paquet del fitxer amb grups amb nom que identifiquen les dades a importar. Les àncores ^ i $ també s&apos;apliquen abans/després de línies noves. &lt;/p&gt;&lt;p&gt;L&apos;únic grup obligatori és el de data, però també s&apos;admeten els de time, dir i seqno.&lt;/p&gt;&lt;p&gt;Etiquetes regex: DUPNAMES, MULTILINE i NOEMPTY.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;regex recomanat:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>El format per a escriure les marques de temps al fitxer de text  (com ara %H:%M:%S.). Els especificadors de format es basen en el strptime(3)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;El format de les marques de temps per al fitxer de text (com ara %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Els especificadors de format es basen en el strptime(3), amb l&apos;afegitó de %f per a les fraccions de segon. La precisió de %f ve determinada per la seva longitud.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
-        <translation type="unfinished"></translation>
+        <translation>%H:%M:%S.%f</translation>
     </message>
     <message>
         <source>timestampExampleLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>timestampExampleLabel</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus d&apos;encapsulació:</translation>
     </message>
     <message>
         <source>Encapsulation type of the frames in the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus d&apos;encapsulació de les trames al fitxer de captura d&apos;importació</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Posa un prefix de capçalera Ethernet i IP a cada trama</translation>
     </message>
     <message>
         <source>IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Posa un prefix de capçalera Ethernet, IP i UDP a cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Posa un prefix de capçalera Ethernet, IP i TCP a cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>Posa un prefix de capçalera Ethernet, IP i SCTP a cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>Posa un prefix de capçalera Ethernet, IP i SCTP (DATA) a cada trama</translation>
     </message>
     <message>
         <source>Source address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça d&apos;origen:</translation>
     </message>
     <message>
         <source>Destination address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça de destí:</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished"></translation>
+        <translation>Dissector</translation>
     </message>
     <message>
         <source>The IP protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;identificador del protocol IP de cada trama</translation>
     </message>
     <message>
         <source>The IP source address for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;adreça IP de l&apos;origen de cada trama</translation>
     </message>
     <message>
         <source>The IP destination address for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;adreça IP del destí de cada trama</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El port d&apos;origen UDP, TCP o SCTP de cada trama</translation>
     </message>
     <message>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;identificador de protocol de càrrega útil SCTP DATA de cada trama</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El port de destí UDP, TCP o SCTP de cada trama</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet header</source>
-        <translation type="unfinished"></translation>
+        <translation>Posa un prefix de capçalera Ethernett a cada trama</translation>
     </message>
     <message>
         <source>Ethernet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>PPI:</source>
-        <translation type="unfinished"></translation>
+        <translation>PPP:</translation>
     </message>
     <message>
         <source>Protocol (dec):</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol (dec):</translation>
     </message>
     <message>
         <source>Leave frames unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>No modifiquis les trames</translation>
     </message>
     <message>
         <source>No dummy header</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense capçalera simulada</translation>
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta:</translation>
     </message>
     <message>
         <source>UDP</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <source>Source port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port d&apos;origen:</translation>
     </message>
     <message>
         <source>The Ethertype value of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El valor Ethertype de cada trama</translation>
     </message>
     <message>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <source>The SCTP verification tag for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;etiqueta de verificació SCTP de cada trama</translation>
     </message>
     <message>
         <source>Destination port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port de destí:</translation>
     </message>
     <message>
         <source>Ethertype (hex):</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus Ether (hex):</translation>
     </message>
     <message>
         <source>SCTP (Data)</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP (dades)</translation>
     </message>
     <message>
         <source>The dissector to use for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>El dissector que s&apos;ha de fer servir en cada trama</translation>
     </message>
     <message>
         <source>The IP Version to use for the dummy IP header</source>
-        <translation type="unfinished"></translation>
+        <translation>La versió IP per a fer servir a la capçalera IP simulada</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <translation>La mida màxima de les trames a escriure al fitxer de captura d&apos;importació (màx 256 kiB)</translation>
     </message>
     <message>
         <source>Supported fields are data, dir, time, seqno</source>
-        <translation type="unfinished"></translation>
+        <translation>Els camps suportats són data, dir, time, seqno.</translation>
     </message>
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation type="unfinished"></translation>
+        <translation>Fan falta dades de grups de captura (fes servir (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa des d&apos;un bolcat hexadecimal</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa</translation>
     </message>
     <message>
         <source>Import Text File</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa el fitxer de text</translation>
     </message>
 </context>
 <context>
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Wired</source>
-        <translation type="unfinished"></translation>
+        <translation>Cablejat</translation>
     </message>
     <message>
         <source>AirPCAP</source>
-        <translation type="unfinished"></translation>
+        <translation>AirPCAP</translation>
     </message>
     <message>
         <source>Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Pipe</translation>
     </message>
     <message>
         <source>STDIN</source>
-        <translation type="unfinished"></translation>
+        <translation>STDIN</translation>
     </message>
     <message>
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth</translation>
     </message>
     <message>
         <source>Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense fils</translation>
     </message>
     <message>
         <source>Dial-Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Dial-Up</translation>
     </message>
     <message>
         <source>USB</source>
-        <translation type="unfinished"></translation>
+        <translation>USB</translation>
     </message>
     <message>
         <source>External Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura externa</translation>
     </message>
     <message>
         <source>Virtual</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtual</translation>
     </message>
     <message>
         <source>Remote interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfícies remotes</translation>
     </message>
     <message>
         <source>Show hidden interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les interfícies amagades</translation>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les interfícies de captura externes estan desactivades.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because WinPcap is installed but is no longer supported.&lt;/p&gt;&lt;p&gt;You can fix this by uninstalling WinPcap and installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Les interfícies locals no estan disponibles perquè el WinPcap està instal·lat però ja no s&apos;ofereix suport.&lt;/p&gt;&lt;p&gt;Podeu arreglar-ho si desinstal·leu el WinPcap i instal·leu el &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Les interfícies locals no estan disponibles perquè no hi ha cap controlador de captura de paquets instal·lat.&lt;/p&gt;&lt;p&gt;Podeu arreglar-ho si instal·leu el &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed. The command must be run as Administrator.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Les interfícies locals no estan disponibles perquè no hi ha cap controlador de captura de paquets carregat.&lt;/p&gt;&lt;p&gt;Ho podeu arreglar si executeu &lt;pre&gt;net start npcap&lt;/pre&gt; si teniu el Npcap instal·lat. L&apos;ordre s&apos;ha d&apos;executar com a administrador.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You don&apos;t have permission to capture on local interfaces.&lt;/p&gt;&lt;p&gt;You can fix this by &lt;a href=&quot;file://%1&quot;&gt;installing ChmodBPF&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;No teniu permís per a capturar interfícies locals.&lt;/p&gt;&lt;p&gt;Podeu arreglar-ho &lt;a href=&quot;file://%1&quot;&gt;instal·lant ChmodBPF&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>You don&apos;t have permission to capture on local interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>No teniu permís per a capturar les interfícies locals.</translation>
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat interfícies.</translation>
     </message>
     <message>
         <source>Interfaces not loaded (due to preference). Go to Capture </source>
-        <translation type="unfinished"></translation>
+        <translation>Les interfícies no s&apos;han carregat per una preferència establerta. Aneu a Captura</translation>
     </message>
     <message>
         <source>Start capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicia la captura</translation>
     </message>
     <message>
         <source>Hide Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga la interfície</translation>
     </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
         <source>No interfaces to be displayed. %1 interfaces hidden.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha interfícies a mostrar. N&apos;hi ha %1 d&apos;amagades.</translation>
     </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Select interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria una interfície</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície</translation>
     </message>
 </context>
 <context>
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica els canvis</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>per defecte</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeModel</name>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom amistós</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de la interfície</translation>
     </message>
     <message>
         <source>No interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat interfícies.</translation>
     </message>
     <message>
         <source>This version of Wireshark was built without packet capture support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta versió del Wireshark no disposa de suport de captura de paquets.</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruta de la pipe local</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari</translation>
     </message>
     <message>
         <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Capçalera de capa d&apos;enllaç</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
+        <translation>Promiscu</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Memòria intermèdia (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode monitor</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça</translation>
     </message>
     <message>
         <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície Extcap: %1</translation>
     </message>
     <message>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense adreces</translation>
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap filtre de captura.</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura</translation>
     </message>
 </context>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de transport LBT-RM</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Orígens</translation>
     </message>
     <message>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça/Transport</translation>
     </message>
     <message>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames de dades</translation>
     </message>
     <message>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de dades</translation>
     </message>
     <message>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes de dades</translation>
     </message>
     <message>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de dades</translation>
     </message>
     <message>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames de dades RX</translation>
     </message>
     <message>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de dades RX</translation>
     </message>
     <message>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes de dades RX</translation>
     </message>
     <message>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de dades RX</translation>
     </message>
     <message>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames NCF</translation>
     </message>
     <message>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte NCF</translation>
     </message>
     <message>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de NCF</translation>
     </message>
     <message>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes NCF</translation>
     </message>
     <message>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte/bytes NCF</translation>
     </message>
     <message>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/recompte NCF</translation>
     </message>
     <message>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/recompte/bytes NCF</translation>
     </message>
     <message>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa NCF</translation>
     </message>
     <message>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames SM</translation>
     </message>
     <message>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes SM</translation>
     </message>
     <message>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes SM</translation>
     </message>
     <message>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa SM</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dades</translation>
     </message>
     <message>
         <source>RX Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dades RX</translation>
     </message>
     <message>
         <source>NCF</source>
         <extracomment>Nak ConFirmation</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
         <extracomment>Session Message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>SM</translation>
     </message>
     <message>
         <source>sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>números de seqüència de transport</translation>
     </message>
     <message>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/Motiu</translation>
     </message>
     <message>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>Receptors</translation>
     </message>
     <message>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames NAK</translation>
     </message>
     <message>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte NAK</translation>
     </message>
     <message>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes NAK</translation>
     </message>
     <message>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa NAK</translation>
     </message>
     <message>
         <source>NAK sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Números de seqüència NAK de transport</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Regenera les estadístiques amb aquest filtre de visualització</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a CSV</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia l&apos;arbre com a CSV</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a YAML</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia l&apos;arbre com a YAML</translation>
     </message>
     <message>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames de dades</translation>
     </message>
     <message>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes de dades</translation>
     </message>
     <message>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes de dades</translation>
     </message>
     <message>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames de dades RX</translation>
     </message>
     <message>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes de dades RX</translation>
     </message>
     <message>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes de dades RX</translation>
     </message>
     <message>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames NCF</translation>
     </message>
     <message>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de recompte NCF</translation>
     </message>
     <message>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes de dades</translation>
     </message>
     <message>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes de dades RX</translation>
     </message>
     <message>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de recompte/bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/recompte NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/recompte/bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes NCF</translation>
     </message>
     <message>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames SM</translation>
     </message>
     <message>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes SM</translation>
     </message>
     <message>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes SM</translation>
     </message>
     <message>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes SM</translation>
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona automàticament les columnes per la mida del contingut</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona les columnes per la mida del contingut</translation>
     </message>
     <message>
         <source>LBT-RM Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>Les estadístiques LBT-RM no s&apos;han pogut afegir a la interfície TAP</translation>
     </message>
 </context>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de transport LBT-RU</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Orígens</translation>
     </message>
     <message>
         <source>Address/Transport/Client</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça/Transport/Client</translation>
     </message>
     <message>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames de dades</translation>
     </message>
     <message>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de dades</translation>
     </message>
     <message>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes de dades</translation>
     </message>
     <message>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de dades</translation>
     </message>
     <message>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames de dades RX</translation>
     </message>
     <message>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de dades RX</translation>
     </message>
     <message>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes de dades RX</translation>
     </message>
     <message>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de dades RX</translation>
     </message>
     <message>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames NCF</translation>
     </message>
     <message>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte NCF</translation>
     </message>
     <message>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de NCF</translation>
     </message>
     <message>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/recompte NCF</translation>
     </message>
     <message>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes NCF</translation>
     </message>
     <message>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte/bytes NCF</translation>
     </message>
     <message>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/recompte/bytes NCF</translation>
     </message>
     <message>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa NCF</translation>
     </message>
     <message>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames SM</translation>
     </message>
     <message>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes SM</translation>
     </message>
     <message>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes SM</translation>
     </message>
     <message>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa SM</translation>
     </message>
     <message>
         <source>RST frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames RST</translation>
     </message>
     <message>
         <source>RST bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes RST</translation>
     </message>
     <message>
         <source>RST frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes RST</translation>
     </message>
     <message>
         <source>RST rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa RST</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra</translation>
     </message>
     <message>
         <source>Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN de dades</translation>
     </message>
     <message>
         <source>RX Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN de dades RX</translation>
     </message>
     <message>
         <source>NCF SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN NCF</translation>
     </message>
     <message>
         <source>SM SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN SM</translation>
     </message>
     <message>
         <source>RST reason</source>
-        <translation type="unfinished"></translation>
+        <translation>Motiu RST</translation>
     </message>
     <message>
         <source>details for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>detalls de transport</translation>
     </message>
     <message>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>Motiu</translation>
     </message>
     <message>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/Motiu</translation>
     </message>
     <message>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>Receptors</translation>
     </message>
     <message>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça/Transport</translation>
     </message>
     <message>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames NAK</translation>
     </message>
     <message>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte NAK</translation>
     </message>
     <message>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes NAK</translation>
     </message>
     <message>
         <source>NAK frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/recompte NAK</translation>
     </message>
     <message>
         <source>NAK count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Recompte/bytes NAK</translation>
     </message>
     <message>
         <source>NAK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes NAK</translation>
     </message>
     <message>
         <source>NAK frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/recompte/bytes NAK</translation>
     </message>
     <message>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa NAK</translation>
     </message>
     <message>
         <source>ACK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames ACK</translation>
     </message>
     <message>
         <source>ACK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes ACK</translation>
     </message>
     <message>
         <source>ACK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes ACK</translation>
     </message>
     <message>
         <source>ACK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa ACK</translation>
     </message>
     <message>
         <source>CREQ frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames CREQ</translation>
     </message>
     <message>
         <source>CREQ bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes CREQ</translation>
     </message>
     <message>
         <source>CREQ frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames/bytes CREQ</translation>
     </message>
     <message>
         <source>CREQ rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa CREQ</translation>
     </message>
     <message>
         <source>NAK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN NAK</translation>
     </message>
     <message>
         <source>ACK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN ACK</translation>
     </message>
     <message>
         <source>CREQ request</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds CREQ</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Regenera les estadístiques amb aquest filtre de visualització</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a CSV</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia l&apos;arbre com a CSV</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a YAML</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia l&apos;arbre com a YAML</translation>
     </message>
     <message>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames de dades</translation>
     </message>
     <message>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes de dades</translation>
     </message>
     <message>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes de dades</translation>
     </message>
     <message>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes de dades</translation>
     </message>
     <message>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames de dades RX</translation>
     </message>
     <message>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes de dades RX</translation>
     </message>
     <message>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes de dades RX</translation>
     </message>
     <message>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes de dades RX</translation>
     </message>
     <message>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames NCF</translation>
     </message>
     <message>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de recompte NCF</translation>
     </message>
     <message>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de recompte/bytes NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/recompte NCF</translation>
     </message>
     <message>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/recompte/bytes NCF</translation>
     </message>
     <message>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames SM</translation>
     </message>
     <message>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes SM</translation>
     </message>
     <message>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes SM</translation>
     </message>
     <message>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes SM</translation>
     </message>
     <message>
         <source>Show the RST frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames RST</translation>
     </message>
     <message>
         <source>Show the RST bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes RST</translation>
     </message>
     <message>
         <source>Show the RST frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes RST</translation>
     </message>
     <message>
         <source>Show the RST rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes RST</translation>
     </message>
     <message>
         <source>Show the NAK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames NAK</translation>
     </message>
     <message>
         <source>Show the NAK count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de recompte NAK</translation>
     </message>
     <message>
         <source>Show the NAK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes NAK</translation>
     </message>
     <message>
         <source>Show the NAK frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/recompte NAK</translation>
     </message>
     <message>
         <source>Show the NAK count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de recompte/bytes NAK</translation>
     </message>
     <message>
         <source>Show the NAK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes NAK</translation>
     </message>
     <message>
         <source>Show the NAK frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/recompte/bytes NAK</translation>
     </message>
     <message>
         <source>Show the NAK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes NAK</translation>
     </message>
     <message>
         <source>Show the ACK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames ACK</translation>
     </message>
     <message>
         <source>Show the ACK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes ACK</translation>
     </message>
     <message>
         <source>Show the ACK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes ACK</translation>
     </message>
     <message>
         <source>Show the ACK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes ACK</translation>
     </message>
     <message>
         <source>Show the CREQ frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames CREQ</translation>
     </message>
     <message>
         <source>Show the CREQ bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de bytes CREQ</translation>
     </message>
     <message>
         <source>Show the CREQ frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de trames/bytes CREQ</translation>
     </message>
     <message>
         <source>Show the CREQ rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes CREQ</translation>
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona automàticament les columnes per la mida del contingut</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona les columnes per la mida del contingut</translation>
     </message>
     <message>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la columna de taxes NCF</translation>
     </message>
     <message>
         <source>LBT-RU Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>Les estadístiques LBT-RU no s&apos;han pogut afegir a la interfície TAP</translation>
     </message>
 </context>
 <context>
     <name>LBMStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux</translation>
     </message>
     <message>
         <source>Endpoint A</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final A</translation>
     </message>
     <message>
         <source>Endpoint B</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final B</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Primera trama</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama final</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Regenera les estadístiques amb aquest filtre de visualització</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a CSV</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia l&apos;arbre com a CSV</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a YAML</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia l&apos;arbre com a YAML</translation>
     </message>
     <message>
         <source>LBM Stream failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>El flux LBM no s&apos;ha pogut afegir a la interfície TAP</translation>
     </message>
 </context>
 <context>
@@ -6238,105 +6274,105 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>LayoutPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Pane 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Panell 1:</translation>
     </message>
     <message>
         <source>Packet List</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista de paquets</translation>
     </message>
     <message>
         <source>Packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls del paquet</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes del paquet</translation>
     </message>
     <message>
         <source>Packet Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrama del paquet</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>Pane 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Panell 2:</translation>
     </message>
     <message>
         <source>Pane 3:</source>
-        <translation type="unfinished"></translation>
+        <translation>Panell 3:</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració de la llista de paquets:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el separador de paquets</translation>
     </message>
     <message>
         <source>Show column definition in column context menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la definició de la columna al menú contextual de columna</translation>
     </message>
     <message>
         <source>Allow the list to be sorted</source>
-        <translation type="unfinished"></translation>
+        <translation>Permet ordenar la llista</translation>
     </message>
     <message>
         <source>Maximum number of cached rows (affects sorting)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre màxim de files a la memòria cau (afecta a l&apos;ordenació)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si es mostren més d&apos;aquest nombre de files, llavors per a ordenar les columnes caldrà desactivar la dissecció de paquets. Si s&apos;augmenta aquest nombre, augmenta el consum de memòria cau a base de carregar els valors de les dades de les columnes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa l&apos;acoloriment amb el ratolí a sobre</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració de la barra d&apos;estat:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el número de paquet seleccionat</translation>
     </message>
     <message>
         <source>Show file load time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps de càrrega del fitxer</translation>
     </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
     <message>
         <source>LTE/NR Mac Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques Mac LTE/NR</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou les trames SR al filtre</translation>
     </message>
     <message>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou les trames RACH al filtre</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques MAC</translation>
     </message>
 </context>
 <context>
     <name>LteRlcGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -6365,439 +6401,464 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Dreceres de teclat valuoses i sorprenents per a estalviar temps&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Augmenta el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;‒&lt;/th&gt;&lt;td&gt;Redueix el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Restableix el gràfic al seu estat inicial&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Mou 10 píxels a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Mou 10 píxels a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Mou 10 píxels amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Mou 10 píxels avall&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Mou 1 píxel a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Mou 1 píxel a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Mou 1 píxel amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Mou 1 píxel avall&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vés al paquet que hi ha sota el cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Commuta el zoom/arrossegament amb el ratolí&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta els temps d&apos;origen de la captura/sessió&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Espai&lt;/th&gt;&lt;td&gt;Commuta els punts de mira&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Ratolí</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrossega amb el botó del ratolí.</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>arrossega</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona amb el botó del ratolí.</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>amplia/redueix</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Restableix el gràfic al seu estat inicial.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Commuta la direcció de la connexió (mostra el flux oposat).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia la direcció</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic al seu estat inicial.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels amunt</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Amunt</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquerra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a la dreta</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreta</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels avall</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Avall</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel amunt</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Amunt</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Esquerra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a la dreta</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Dreta</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Avall</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrossega / Zoom</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta el comportament del ratolí entre arrossegar/fer zoom</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Punts de mira</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta els punts de mira</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Espai</translation>
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 100 píxels amunt</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>Re Pàg</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>Av Pàg</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha sota el cursor</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha a sota del cursor</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Y</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+X</translation>
     </message>
     <message>
         <source>Switch direction (swap between UL and DL)</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta la direcció (intercanvia entre UL i DL)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps</translation>
     </message>
     <message>
         <source>Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Número de seqüència</translation>
     </message>
     <message>
         <source>%1 RLC Graph (UE=%2 chan=%3%4 %5 - %6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic %1 RLC (UE=%2 canal=%3%4 %5 - %6)</translation>
     </message>
     <message>
         <source>3GPP RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic 3GPP RLC ‒ no s&apos;ha seleccionat cap canal</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 (%3s seq %4 len %5)</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>Solta per a zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>El rang no s&apos;ha pogut seleccionar.</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu clic per a triar una part del gràfic.</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
 </context>
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>3GPP RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques 3GPP RLC</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou les trames SR al filtre</translation>
     </message>
     <message>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou les trames RACH al filtre</translation>
     </message>
     <message>
         <source>Use RLC frames only from MAC frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Fes servir només trames RLC només de trames MAC</translation>
     </message>
     <message>
         <source>UL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames UL</translation>
     </message>
     <message>
         <source>UL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes UL</translation>
     </message>
     <message>
         <source>UL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MB/s UL</translation>
     </message>
     <message>
         <source>UL ACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK UL</translation>
     </message>
     <message>
         <source>UL NACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>NACK UL</translation>
     </message>
     <message>
         <source>UL Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Fa falta UL</translation>
     </message>
     <message>
         <source>DL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames DL</translation>
     </message>
     <message>
         <source>DL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de DL</translation>
     </message>
     <message>
         <source>DL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MB/s de DL</translation>
     </message>
     <message>
         <source>DL ACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK de DL</translation>
     </message>
     <message>
         <source>DL NACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>NACK de DL</translation>
     </message>
     <message>
         <source>DL Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>DL perduts</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques RLC</translation>
     </message>
 </context>
 <context>
     <name>MainStatusBar</name>
     <message>
         <source>Ready to load or capture</source>
-        <translation type="unfinished"></translation>
+        <translation>A punt per a carregar o capturar</translation>
     </message>
     <message>
         <source>Ready to load file</source>
-        <translation type="unfinished"></translation>
+        <translation>A punt per a carregar un fitxer</translation>
     </message>
     <message>
         <source>Open the Capture File Properties dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre el diàleg de propietats del fitxer de captura</translation>
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfil: %1</translation>
     </message>
     <message>
         <source> %1 Displayed: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 de visualitzats: %2 (%3%)</translation>
     </message>
     <message>
         <source>Manage Profiles…</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona els perfils…</translation>
     </message>
     <message>
         <source>New…</source>
-        <translation type="unfinished"></translation>
+        <translation>Nou…</translation>
     </message>
     <message>
         <source>Edit…</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita…</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra</translation>
     </message>
     <message>
         <source>Switch to</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia a</translation>
     </message>
     <message>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>és el nivell més alt d&apos;informació avançada</translation>
     </message>
     <message>
         <source>ERROR</source>
-        <translation type="unfinished"></translation>
+        <translation>ERROR</translation>
     </message>
     <message>
         <source>WARNING</source>
-        <translation type="unfinished"></translation>
+        <translation>AVÍS</translation>
     </message>
     <message>
         <source>NOTE</source>
-        <translation type="unfinished"></translation>
+        <translation>NOTA</translation>
     </message>
     <message>
         <source>CHAT</source>
-        <translation type="unfinished"></translation>
+        <translation>CONVERSA</translation>
     </message>
     <message>
         <source>No expert information</source>
         <oldsource>No expert info</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha informació avançada.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
@@ -6816,76 +6877,76 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes %1-%2</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet seleccionat: %1 %2 </translation>
     </message>
     <message>
         <source>Selected Event: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniment seleccionat: %1 %2 </translation>
     </message>
     <message>
         <source>Events: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Esdeveniments: %1</translation>
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 de seleccionats: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
-        <translation type="unfinished"></translation>
+        <translation> %1 de marcats: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Dropped: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 de descartats: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Ignored: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 d&apos;ignorats: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Comments: %2</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 comentaris: %2</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
-        <translation type="unfinished"></translation>
+        <translation> %1  Temps de càrrega: %2:%3.%4</translation>
     </message>
     <message>
         <source>No Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha paquets.</translation>
     </message>
     <message>
         <source>No Events</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense esdeveniments</translation>
     </message>
     <message>
         <source>From Zip File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Del fitxer zip...</translation>
     </message>
     <message>
         <source>From Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Des de la carpeta...</translation>
     </message>
     <message>
         <source>Selected Personal Profile...</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfil personal seleccionat...</translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els perfils personals...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets: %1</translation>
     </message>
 </context>
 <context>
@@ -6903,560 +6964,560 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>MainWindow</name>
     <message>
         <source>Display filter as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el filtre com a %1</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;analitzador de xarxes Wireshark</translation>
     </message>
     <message>
         <source>The Stratoshark System Call and Log Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;analitzador de l&apos;Stratoshark de registres i crides de sistema</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Es captura de %1</translation>
     </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si ho seleccioneu, es desarà la mida, posició i l&apos;estat maximitzat de la finestra principal.</translation>
     </message>
     <message>
         <source>Remember main window size and placement</source>
-        <translation type="unfinished"></translation>
+        <translation>Recorda la mida i la posició de la finestra principal</translation>
     </message>
     <message>
         <source>Open files in</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre els fitxers en</translation>
     </message>
     <message>
         <source>This folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta carpeta:</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>The most recently used folder</source>
-        <translation type="unfinished"></translation>
+        <translation>La carpeta que s&apos;ha fet servir més recentment</translation>
     </message>
     <message>
         <source>The current working directory</source>
-        <translation type="unfinished"></translation>
+        <translation>La carpeta de treball actual</translation>
     </message>
     <message>
         <source>Show up to</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra fins a</translation>
     </message>
     <message>
         <source>filter entries</source>
-        <translation type="unfinished"></translation>
+        <translation>entrades de filtres</translation>
     </message>
     <message>
         <source>recent files</source>
-        <translation type="unfinished"></translation>
+        <translation>fitxers recents</translation>
     </message>
     <message>
         <source>Confirm unsaved capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirma els fitxers de captura sense desar</translation>
     </message>
     <message>
         <source>Display autocompletion for filter text</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra l&apos;autocompleció per al text del filtre</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Estil de barra d&apos;eines principal:</translation>
     </message>
     <message>
         <source>Icons only</source>
-        <translation type="unfinished"></translation>
+        <translation>Només icones</translation>
     </message>
     <message>
         <source>Text only</source>
-        <translation type="unfinished"></translation>
+        <translation>Només text</translation>
     </message>
     <message>
         <source>Icons &amp; Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Icones i text</translation>
     </message>
     <message>
         <source>Window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Títol de la finestra</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Títol de finestra personalitzat que s&apos;afegeix al títol existent&lt;br/&gt;%F = camí del fitxer de captura&lt;br/&gt;%P = nom del perfil&lt;br/&gt;%S = un separador condiciona («‒») que només es mostra quan està envoltat de variables amb valors o text estàtic&lt;br/&gt;%V = informació de la versió&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Prepend window title</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefix del títol de la finestra</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Títol de finestra personalitzat que s&apos;anteposa al títol existent&lt;br/&gt;%F = camí del fitxer de captura&lt;br/&gt;%P = nom del perfil&lt;br/&gt;%S = un separador condiciona («‒») que només es mostra quan està envoltat de variables amb valors o text estàtic&lt;br/&gt;%V = informació de la versió&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Language: </source>
-        <translation type="unfinished"></translation>
+        <translation>Idioma:</translation>
     </message>
     <message>
         <source>Use system setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Fes servir la configuració del sistema</translation>
     </message>
     <message>
         <source>Open Files In</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre els fitxers en</translation>
     </message>
 </context>
 <context>
     <name>ManageInterfacesDialog</name>
     <message>
         <source>Manage Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona les interfícies</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Feu clic al quadre per a mostrar o amagar una interfície oculta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Local Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfícies locals</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Afegeix una pipe de la qual capturar o trau una pipe existent de la llista.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Pipes</source>
-        <translation type="unfinished"></translation>
+        <translation>Pipes</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Afegeix una pipe nova amb la configuració per defecte.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elimina la pipe seleccionada de la llista.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfícies remotes</translation>
     </message>
     <message>
         <source>Host / Device URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL de l&apos;hoste/dispositiu</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Afegeix un hoste remot i les seves interfícies.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Trau l&apos;hoste seleccionat de la llista.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració d&apos;interfícies remotes</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save pipe settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta versió del Wireshark no desa la configuració de pipes.</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save remote settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta versió del Wireshark no desa la configuració d&apos;interfícies i hostes remots.</translation>
     </message>
     <message>
         <source>This version of Wireshark does not support remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta versió del Wireshark no suporta interfícies remotes.</translation>
     </message>
     <message>
         <source>New Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Pipe nova</translation>
     </message>
 </context>
 <context>
     <name>ManufDialog</name>
     <message>
         <source>MAC Address Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Blocs d&apos;adreça MAC</translation>
     </message>
     <message>
         <source>Search MAC address or address prefix. Special purpose bits are masked.</source>
-        <translation type="unfinished"></translation>
+        <translation>Busca l&apos;adreça MAC o el prefix d&apos;adreça. Els bits de propòsit especial estan emmascarats.</translation>
     </message>
     <message>
         <source>MAC Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça MAC</translation>
     </message>
     <message>
         <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el nom del proveïdor fent servir una expressió regular no sensible a majúscules i minúscules.</translation>
     </message>
     <message>
         <source>Vendor Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del proveïdor</translation>
     </message>
     <message>
         <source>Show short name column.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el nom de columna curt.</translation>
     </message>
     <message>
         <source>Short name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom curt</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona-ho tot</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja</translation>
     </message>
 </context>
 <context>
     <name>ManufTableModel</name>
     <message>
         <source>Address Block</source>
-        <translation type="unfinished"></translation>
+        <translation>Bloc d&apos;adreça</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom curt</translation>
     </message>
     <message>
         <source>Vendor Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del proveïdor</translation>
     </message>
 </context>
 <context>
     <name>ModulePreferencesScrollArea</name>
     <message>
         <source>ScrollArea</source>
-        <translation type="unfinished"></translation>
+        <translation>ScrollArea</translation>
     </message>
 </context>
 <context>
     <name>Mtp3SummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum MTP3</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de la instantània</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dades</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer paquet</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Últim paquet</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Transcorregut</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Service Indicator (SI) Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>Totals de l&apos;indicador de serveis (SI)</translation>
     </message>
     <message>
         <source>SI</source>
-        <translation type="unfinished"></translation>
+        <translation>SI</translation>
     </message>
     <message>
         <source>MSUs</source>
-        <translation type="unfinished"></translation>
+        <translation>MSU</translation>
     </message>
     <message>
         <source>MSUs/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MSU/s</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Bytes/MSU</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes/MSU</translation>
     </message>
     <message>
         <source>Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes/s</translation>
     </message>
     <message>
         <source>Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>Totals</translation>
     </message>
     <message>
         <source>Total MSUs</source>
-        <translation type="unfinished"></translation>
+        <translation>MSU totals</translation>
     </message>
     <message>
         <source>Total Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes en total</translation>
     </message>
     <message>
         <source>Average Bytes/MSU</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes/MSU de mitjana</translation>
     </message>
     <message>
         <source>Average Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes/s de mitjana</translation>
     </message>
 </context>
 <context>
     <name>MulticastStatisticsDialog</name>
     <message>
         <source>UDP Multicast Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos de difusió selectiva UDP</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça d&apos;origen</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port d&apos;origen</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça de destí</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port de destí</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Packets/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets/s</translation>
     </message>
     <message>
         <source>Avg BW (bps)</source>
-        <translation type="unfinished"></translation>
+        <translation>BW mitjans (bps)</translation>
     </message>
     <message>
         <source>Max BW (bps)</source>
-        <translation type="unfinished"></translation>
+        <translation>BW màx. (bps)</translation>
     </message>
     <message>
         <source>Max Burst</source>
-        <translation type="unfinished"></translation>
+        <translation>Ràfega màx.</translation>
     </message>
     <message>
         <source>Burst Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Alarmes de ràfegues</translation>
     </message>
     <message>
         <source>Max Buffers (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Memòria intermèdia màx (B)</translation>
     </message>
     <message>
         <source>Buffer Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Alarmes de memòries intermèdies</translation>
     </message>
     <message>
         <source>Burst measurement interval (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval de mesures de ràfegues (ms):</translation>
     </message>
     <message>
         <source>Burst alarm threshold (packets):</source>
-        <translation type="unfinished"></translation>
+        <translation>Llindar d&apos;alarmes de ràfegues (paquets):</translation>
     </message>
     <message>
         <source>Buffer alarm threshold (B):</source>
-        <translation type="unfinished"></translation>
+        <translation>Llindar d&apos;alarmes de memòries intermèdies (B):</translation>
     </message>
     <message>
         <source>Stream empty speed (Kb/s):</source>
         <oldsource>Stream empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Velocitat buida del flux (Kb/s):</translation>
     </message>
     <message>
         <source>Total empty speed (Kb/s):</source>
         <oldsource>Total empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Velocitat buida total (Kb/s):</translation>
     </message>
     <message>
         <source>The burst interval must be between 1 and 1000. </source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;interval de ràfegues ha d&apos;estar entre 1 i 1.000.</translation>
     </message>
     <message>
         <source>The burst alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>El llindar d&apos;alarmes de ràfegues no és vàlid.</translation>
     </message>
     <message>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>El llindar d&apos;alarmes de memòries intermèdies no és vàlid.</translation>
     </message>
     <message>
         <source>The stream empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>La velocitat buida de flux ha d&apos;estar entre 1 i 10.000.000.</translation>
     </message>
     <message>
         <source>The total empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>La velocitat buida total ha d&apos;estar entre 1 i 10.000.000.</translation>
     </message>
     <message>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 fluxos, bw mitjans: %2bps, bw màx.: %3bps, ràfega màx.: %4 / %5ms, mem. intermèdia màx.: %6B</translation>
     </message>
 </context>
 <context>
     <name>PacketCommentDialog</name>
     <message>
         <source>Edit Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita el comentari del paquet</translation>
     </message>
     <message>
         <source>Add Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un comentari al paquet</translation>
     </message>
 </context>
 <context>
     <name>PacketDiagram</name>
     <message>
         <source>Packet diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrama del paquet</translation>
     </message>
     <message>
         <source>Show Field Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els valors del camp</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitza</translation>
     </message>
     <message>
         <source>Save Diagram As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el diagrama com a…</translation>
     </message>
     <message>
         <source>Copy as Raster Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a mapa de bits</translation>
     </message>
     <message>
         <source>…as SVG</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a SVG</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Scalable Vector Graphics (*.svg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics vectorials escalables (*.svg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
 </context>
 <context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Show packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els bytes del paquet</translation>
     </message>
     <message>
         <source>Layout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposició:</translation>
     </message>
     <message>
         <source>Packet %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet %1</translation>
     </message>
     <message>
         <source>[%1 closed] </source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 tancat] </translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes %1-%2</translation>
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%Ln byte</numerusform>
             <numerusform>%Ln bytes</numerusform>
         </translation>
@@ -7473,415 +7534,417 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketFormatBlankGroupBox</name>
     <message>
         <source>The selected format has no options</source>
-        <translation type="unfinished"></translation>
+        <translation>El format seleccionat no té opcions</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatJSONGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>GroupBox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de paquet</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avoid duplicate keys in the JSON by using a list for sibling fields with the same key&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Evita claus duplicades al JSON fent servir una llista de camps agermanats amb la mateixa clau&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>No duplicate keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense claus duplicades</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporta la parella nom/valor de cada camp amb el valor del camp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the hex bytes of its packet data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporta la parella nom/valor de cada camp amb els bytes en hexadecimal del seu paquet de dades&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Raw Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes en brut</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatTextGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>GroupBox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de paquet</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Línies de resum de paquet similars a la llista de paquets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>Línia de resum</translation>
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou les capçaleres de les columnes</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Detalls de paquet similars a l&apos;arbre de protocol&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporta només els elements de nivell més alt dels detalls de paquet&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tot &amp;plegat</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expandeix i plega els detalls de paquet tal com estan visualitzats ara mateix.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>As displa&amp;yed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tal com es &amp;visualitza</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporta tots els elements dels detalls de paquet&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Tot &amp;desplegat</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporta un bolcat hexadecimal de les dades del paquet de manera semblant a la vista de bytes del paquet&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou les fonts de dades secundàries</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Genera bolcats hexadecimals per als orígens de dades secundaris com ara memòries intermèdies tornades a unir o desencriptades, a més a més de la trama.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Include timestamp preamble</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou un preàmbul amb la marca de temps</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Include each frame timestamp immediately before its hex dump, using the current time display format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inclou la marca de temps de cada trama immediatament abans del seu bolcat hexadecimal, fent servir el format de visualització del temps actual.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>PacketList</name>
     <message>
         <source>Summary as Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum com a text</translation>
     </message>
     <message>
         <source>…as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a CSV</translation>
     </message>
     <message>
         <source>…as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a YAML</translation>
     </message>
     <message>
         <source>…as HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a HTML</translation>
     </message>
     <message>
         <source>Decode As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Descodifica com a…</translation>
     </message>
     <message>
         <source>Frame %1: %2
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Trama %1: %2
+
+</translation>
     </message>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ El text del comentari excedeix %1. Es para. ]</translation>
     </message>
 </context>
 <context>
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Alinea a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Alinea al centre</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Alinea a la dreta</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita la columna</translation>
     </message>
     <message>
         <source>Resize to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona segons els continguts</translation>
     </message>
     <message>
         <source>&lt;html&gt;Values will show the raw values for fields.&lt;p&gt;Strings will show human-readable strings instead of raw values for fields. Only applicable to custom columns with fields that have value strings and custom columns which can be resolved to strings.&lt;p&gt;Details will show the values using the same format as in Packet Details. Only applicable to custom columns.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Els valors mostraran els valors en net dels camps.&lt;p&gt;Les cadenes mostraran cadenes que poden ser llegides pels humans en lloc dels valors en net dels camps. Només es pot aplicar a determinades columnes amb camps que tenen valors de cadena o bé a columnes personalitzades que es puguin resoldre a cadenes.&lt;p&gt;Els detalls mostraran els valors amb el mateix format que els «Detalls de paquet». Només es pot aplicar a columnes personalitzades.&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display as Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra com a valors</translation>
     </message>
     <message>
         <source>Display as Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra com a cadenes</translation>
     </message>
     <message>
         <source>Display as packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra com a detalls de paquets</translation>
     </message>
     <message>
         <source>Column Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències de la columna…</translation>
     </message>
     <message>
         <source>Resize Column to Width…</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona l&apos;amplada de la columna…</translation>
     </message>
     <message>
         <source>Remove this Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau aquesta columna</translation>
     </message>
     <message>
         <source>Column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Columna %1</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplada:</translation>
     </message>
 </context>
 <context>
     <name>PacketListModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Columna</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 només es pot ordenar amb %2 o menys files visibles; augmenteu la memòria cau a les preferències de disposició.</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ordena «%1»…</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ordena…</translation>
     </message>
 </context>
 <context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulari</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Rang de paquet</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrat/da</translation>
     </message>
     <message>
         <source>&amp;Marked packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Només el paquets &amp;marcats</translation>
     </message>
     <message>
         <source>&amp;Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rang:</translation>
     </message>
     <message>
         <source>Remove &amp;ignored packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau els paquets &amp;ignorats</translation>
     </message>
     <message>
         <source>Include &amp;depended upon packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou els paquets &amp;dependents</translation>
     </message>
     <message>
         <source>Also include packets depended upon, such as those used to reassemble displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Inclou també els paquets que en depenen, com ara els que es fan servir per a muntar els paquets visualitzats.</translation>
     </message>
     <message>
         <source>First &amp;to last marked</source>
-        <translation type="unfinished"></translation>
+        <translation>Del primer &amp;fins a l&apos;últim marcats</translation>
     </message>
     <message>
         <source>&amp;All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tots els paquets</translation>
     </message>
     <message>
         <source>&amp;Selected packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Només els paquets &amp;seleccionats</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>Capturat</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionDelegate</name>
     <message>
         <source>Open a pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre una pipe</translation>
     </message>
 </context>
 <context>
     <name>PathSelectionEdit</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Navega</translation>
     </message>
     <message>
         <source>Select a path</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria un camí</translation>
     </message>
 </context>
 <context>
     <name>PluginListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí</translation>
     </message>
 </context>
 <context>
     <name>PortsModel</name>
     <message>
         <source>All entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les entrades</translation>
     </message>
     <message>
         <source>tcp</source>
-        <translation type="unfinished"></translation>
+        <translation>tcp</translation>
     </message>
     <message>
         <source>udp</source>
-        <translation type="unfinished"></translation>
+        <translation>udp</translation>
     </message>
     <message>
         <source>sctp</source>
-        <translation type="unfinished"></translation>
+        <translation>sctp</translation>
     </message>
     <message>
         <source>dccp</source>
-        <translation type="unfinished"></translation>
+        <translation>dccp</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
 </context>
 <context>
     <name>PreferenceEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="unfinished"></translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>a preference</source>
-        <translation type="unfinished"></translation>
+        <translation>una preferència</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre les preferències de %1…</translation>
     </message>
     <message>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor no vàlid.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>Checking this will show only changed preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si es selecciona, es mostraran només les preferències modificades.</translation>
     </message>
     <message>
         <source>Show changed values</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els valors canviats</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform>Copy Row</numerusform>
-            <numerusform>Copy Rows</numerusform>
+        <translation>
+            <numerusform>Copia la fila</numerusform>
+            <numerusform>Copia les files</numerusform>
         </translation>
     </message>
 </context>
@@ -7889,257 +7952,257 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PrefsModel</name>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Avançat</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Aparença</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposició</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Columnes</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonts i colors</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>Expert</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Botons de filtre</translation>
     </message>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Claus RSA</translation>
     </message>
 </context>
 <context>
     <name>PrintDialog</name>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de paquet</translation>
     </message>
     <message>
         <source>Print each packet on a new page</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimeix cada paquet en una pàgina nova</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Print capture file information on each page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Imprimeix la informació del fitxer de captura a cada pàgina&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture information header</source>
-        <translation type="unfinished"></translation>
+        <translation>Capçalera d&apos;informació de la captura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Feu servir les tecles «+» i «‒» per a apropar o allunyar la vista. Premeu «0» per a restablir el nivell de zoom.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ and - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ i - per a zoom; 0 per a restablir&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Rang de paquet</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimeix</translation>
     </message>
     <message>
         <source>&amp;Print…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Imprimeix…</translation>
     </message>
     <message>
         <source>Page &amp;Setup…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Configuració de pàgines…</translation>
     </message>
     <message>
         <source>%1 %2 total packets, %3 shown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 paquets en total; se&apos;n mostren %3</translation>
     </message>
     <message>
         <source>Print Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error d&apos;impressió</translation>
     </message>
     <message>
         <source>Unable to print to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut imprimir en %1.</translation>
     </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
         <source>Search for profile …</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca un perfil…</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea un perfil nou amb la configuració per defecte.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elimina aquest perfil. Els perfils proporcionats pel sistema no es poden traure. Es restablirà el perfil per defecte quan s&apos;esborri.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia aquest perfil.</translation>
     </message>
     <message>
         <source>The number of packets or events to check for automatic profile switching.</source>
-        <translation type="unfinished"></translation>
+        <translation>El nombre de paquets o d&apos;esdeveniments a comprovar per a canviar automàticament de perfil.</translation>
     </message>
     <message>
         <source>Auto switch packet limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia automàticament el límit de paquets</translation>
     </message>
     <message>
         <source>Configuration Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfils de configuració</translation>
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia automàticament el límit d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Import</source>
         <comment>noun</comment>
-        <translation type="unfinished"></translation>
+        <translation>Importa</translation>
     </message>
     <message>
         <source>Export</source>
         <comment>noun</comment>
-        <translation type="unfinished"></translation>
+        <translation>Exporta</translation>
     </message>
     <message>
         <source>From Zip File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Del fitxer zip...</translation>
     </message>
     <message>
         <source>From Directory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Des de la carpeta...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)...</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln perfil personal seleccionat...</numerusform>
+            <numerusform>%Ln perfils personals seleccionats...</numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles...</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els perfils personals...</translation>
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfil nou</translation>
     </message>
     <message>
         <source>Profile Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error del perfil</translation>
     </message>
     <message>
         <source>Exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;exporten els perfils</translation>
     </message>
     <message>
         <source>No profiles found for export</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat perfils per a exportar.</translation>
     </message>
     <message>
         <source>Select zip file for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria el fitxer zip a exportar</translation>
     </message>
     <message numerus="yes">
         <source>… %Ln selected personal profile(s)</source>
         <translation type="vanished">
-            <numerusform>… %Ln selected personal profile</numerusform>
-            <numerusform>… %Ln selected personal profiles</numerusform>
+            <numerusform>… %Ln perfil personal seleccionat</numerusform>
+            <numerusform>… %Ln perfils personals seleccionats</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
         <translation type="vanished">
-            <numerusform>%Ln selected personal profile</numerusform>
-            <numerusform>%Ln selected personal profiles</numerusform>
+            <numerusform>%Ln perfil personal seleccionat</numerusform>
+            <numerusform>%Ln perfils personals seleccionats</numerusform>
         </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
-        <translation type="unfinished"></translation>
+        <translation>No es permet importar perfils mentre hi hagi canvis pendents.</translation>
     </message>
     <message>
         <source>An import is pending to be saved. Additional imports are not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>Queda pendent desar una importació. No es permeten importacions addicionals.</translation>
     </message>
     <message>
         <source>An export of profiles is only allowed for personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Només es permet exportar perfils personals.</translation>
     </message>
     <message>
         <source>An export of profiles is not allowed, while changes are pending</source>
-        <translation type="unfinished"></translation>
+        <translation>No es permet exportar perfils mentre hi hagi canvis pendents.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
         <translation>
-            <numerusform>%Ln profile exported</numerusform>
-            <numerusform>%Ln profiles exported</numerusform>
+            <numerusform>%Ln perfil exportat</numerusform>
+            <numerusform>%Ln perfils exportats</numerusform>
         </translation>
     </message>
     <message>
         <source>Select zip file for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria el fitxer zip a importar</translation>
     </message>
     <message>
         <source>Select directory for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria una carpeta per a importar</translation>
     </message>
     <message>
         <source>Zip File (*.zip)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer zip (*.zip)</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>An error has occurred while exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha produït un error mentre s&apos;exportaven els perfils.</translation>
     </message>
     <message>
         <source>No profiles found for import in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat perfils per a importar a %1.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
         <translation>
-            <numerusform>%Ln profile imported</numerusform>
-            <numerusform>%Ln profiles imported</numerusform>
+            <numerusform>%Ln perfil importat</numerusform>
+            <numerusform>%Ln perfils importats</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
         <translation>
-            <numerusform>, %Ln profile skipped</numerusform>
-            <numerusform>, %Ln profiles skipped</numerusform>
+            <numerusform>, %Ln perfil omés</numerusform>
+            <numerusform>, %Ln perfils omesos </numerusform>
         </translation>
     </message>
     <message>
         <source>Importing profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;importen els perfils</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) selected</source>
@@ -8153,1695 +8216,1698 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileModel</name>
     <message>
         <source>Resetting to default</source>
-        <translation type="unfinished"></translation>
+        <translation>Es restableix als valors per defecte</translation>
     </message>
     <message>
         <source>Imported profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfil importat</translation>
     </message>
     <message>
         <source>This is a system provided profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquest és un perfil que proporciona el sistema.</translation>
     </message>
     <message>
         <source>A profile change for this name is pending</source>
-        <translation type="unfinished"></translation>
+        <translation>Hi ha un canvi de perfil pendent per a aquest nom.</translation>
     </message>
     <message>
         <source> (See: %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Vegeu: %1)</translation>
     </message>
     <message>
         <source>This is an invalid profile definition</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta definició de perfil no és vàlida.</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ja existeix un perfil amb aquest nom.</translation>
     </message>
     <message>
         <source>A profile with this name is being deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Ja s&apos;esborra un perfil amb aquest nom.</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Creat des de la configuració perdeterminada</translation>
     </message>
     <message>
         <source>system provided</source>
-        <translation type="unfinished"></translation>
+        <translation>proporcionat pel sistema</translation>
     </message>
     <message>
         <source>deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>esborrat</translation>
     </message>
     <message>
         <source>Auto Switch Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de commutació automàtic</translation>
     </message>
     <message>
         <source>copy</source>
         <comment>noun</comment>
-        <translation type="unfinished"></translation>
+        <translation>copia</translation>
     </message>
     <message>
         <source>Exporting profiles while changes are pending is not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>No es permet exportar perfils mentre hi hagi canvis pendents.</translation>
     </message>
     <message>
         <source>No profiles found to export</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat perfils per a exportar</translation>
     </message>
     <message>
         <source>Can&apos;t delete profile directory</source>
-        <translation type="unfinished"></translation>
+        <translation>La carpeta de perfils no es pot eliminar.</translation>
     </message>
     <message>
         <source>A profile name cannot contain the following characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Els perfils no poden contenir cap dels caràcters següents: %1</translation>
     </message>
     <message>
         <source>A profile name cannot contain the &apos;/&apos; character</source>
-        <translation type="unfinished"></translation>
+        <translation>Els perfils no poden contenir el caràcter «/».</translation>
     </message>
     <message>
         <source>A profile cannot start or end with a period (.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Els perfils no poden començar o acabar amb un punt (.)</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte</translation>
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished"></translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Personal</source>
-        <translation type="unfinished"></translation>
+        <translation>Personal</translation>
     </message>
     <message>
         <source>Renamed from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiat i reanomenat des de: %1</translation>
     </message>
     <message>
         <source>Copied from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiat des de: %1</translation>
     </message>
     <message>
         <source>renamed to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>reanomenat com a %1</translation>
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfil</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
 </context>
 <context>
     <name>ProfileSortModel</name>
     <message>
         <source>All profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els perfils</translation>
     </message>
     <message>
         <source>Personal profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfils personals</translation>
     </message>
     <message>
         <source>Global profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfils globals</translation>
     </message>
 </context>
 <context>
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Es carrega</translation>
     </message>
 </context>
 <context>
     <name>ProtoTree</name>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls del paquet</translation>
     </message>
     <message>
         <source>Not a field or protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>No és ni un camp ni un protocol.</translation>
     </message>
     <message>
         <source>No field reference available for text labels.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap referència de camp disponible per a les etiquetes de text.</translation>
     </message>
     <message>
         <source>Expand Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandeix els subarbres</translation>
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega els subarbres</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandeix-ho tot</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega-ho tot</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>All Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els elements visibles</translation>
     </message>
     <message>
         <source>All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els elements de l&apos;arbre visible seleccionat</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripció</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del camp</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
     <message>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a filtre</translation>
     </message>
     <message>
         <source>Wiki Protocol Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pàgina wiki del protocol</translation>
     </message>
     <message>
         <source>Filter Field Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra la referència del filtre</translation>
     </message>
     <message>
         <source>Copied %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiat %1</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pàgina wiki de %1</translation>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;La viquipèdia del Wireshark la manté la comunitat.&lt;/p&gt;&lt;p&gt;La pàgina que carregareu potser és meravellosa, incompleta, incorrecta o potser ni tan sols existeix.&lt;/p&gt;&lt;p&gt;Voleu continuar a la viqui?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Acoloreix amb el filtre</translation>
     </message>
 </context>
 <context>
     <name>ProtocolHierarchyDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge de paquets</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Percent Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge de bytes</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bits/s</translation>
     </message>
     <message>
         <source>End Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets finals</translation>
     </message>
     <message>
         <source>End Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes finals</translation>
     </message>
     <message>
         <source>End Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bits finals/s</translation>
     </message>
     <message>
         <source>PDUs</source>
-        <translation type="unfinished"></translation>
+        <translation>PDU</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a CSV</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la llista de fluxos com a CSV.</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a YAML</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la llista de fluxos com a YAML.</translation>
     </message>
     <message>
         <source>Copy short names</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els noms curts</translation>
     </message>
     <message>
         <source>Copy short protocol names in use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els noms curts de protocol en ús.</translation>
     </message>
     <message>
         <source>Disable unused protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva els protocols que no es fan servir</translation>
     </message>
     <message>
         <source>Disable all protocols but those listed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva tots els protocols excepte els de la llista.</translation>
     </message>
     <message>
         <source>Re-enable unused protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Reactiva els protocols que no es fan servir</translation>
     </message>
     <message>
         <source>Re-enable protocols that were disabled in this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Reactiva els protocols que s&apos;han desactivat en aquest diàleg.</translation>
     </message>
     <message>
         <source>Protocol Hierarchy Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de jerarquia de protocols</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>com a CSV</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>com a YAML</translation>
     </message>
     <message>
         <source>protocol short names</source>
-        <translation type="unfinished"></translation>
+        <translation>noms curts de protocols</translation>
     </message>
     <message>
         <source>Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocols</translation>
     </message>
     <message>
         <source>Disable unused</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva els que no es fan servir</translation>
     </message>
     <message>
         <source>Revert changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Desfés els canvis</translation>
     </message>
     <message>
         <source>No display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense filtres de visualització.</translation>
     </message>
     <message>
         <source>Display filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització: %1</translation>
     </message>
     <message>
         <source>Unused protocols have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;han desactivat els protocols que no es fan servir.</translation>
     </message>
     <message>
         <source>Protocol changes have been reverted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els canvis de protocol s&apos;han revertit.</translation>
     </message>
 </context>
 <context>
     <name>ProtocolPreferencesMenu</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències de protocol</translation>
     </message>
     <message>
         <source>No protocol preferences available</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha preferències de protocol disponibles.</translation>
     </message>
     <message>
         <source>Disable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva %1</translation>
     </message>
     <message>
         <source>%1 has no preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 no té preferències</translation>
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre les preferències de %1…</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>[no capture file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[no hi ha cap fitxer de captura]</translation>
     </message>
     <message>
         <source>Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Conversa</translation>
     </message>
     <message>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les barres mostren la línia de temps relativa de cada conversa.</translation>
     </message>
     <message>
         <source>Endpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica com a filtre</translation>
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara com a filtre</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Colorize</source>
-        <translation type="unfinished"></translation>
+        <translation>Acoloreix</translation>
     </message>
     <message>
         <source>Look Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>DESCONEGUT/DA</translation>
     </message>
     <message>
         <source>Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionat/da</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>No seleccionat/da</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…i seleccionat/da</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…o seleccionat/da</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…i no seleccionat/da</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…o no seleccionat/da</translation>
     </message>
     <message>
         <source>A </source>
-        <translation type="unfinished"></translation>
+        <translation>A </translation>
     </message>
     <message>
         <source>B </source>
-        <translation type="unfinished"></translation>
+        <translation>B </translation>
     </message>
     <message>
         <source>Any </source>
-        <translation type="unfinished"></translation>
+        <translation>Qualsevol</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
-        <translation type="unfinished"></translation>
+        <translation>No mostris més aquest missatge.</translation>
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;han trobat diversos problemes.</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%L2%)</translation>
     </message>
     <message>
         <source>No entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense entrades.</translation>
     </message>
     <message>
         <source>%1 entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 entrades.</translation>
     </message>
     <message>
         <source>Base station</source>
-        <translation type="unfinished"></translation>
+        <translation>Estació base</translation>
     </message>
     <message>
         <source>&lt;Broadcast&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Broadcast&gt;</translation>
     </message>
     <message>
         <source>&lt;Hidden&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Hidden&gt;</translation>
     </message>
     <message>
         <source>BSSID</source>
-        <translation type="unfinished"></translation>
+        <translation>BSSID</translation>
     </message>
     <message>
         <source>Beacons</source>
-        <translation type="unfinished"></translation>
+        <translation>Balises</translation>
     </message>
     <message>
         <source>Data Pkts</source>
-        <translation type="unfinished"></translation>
+        <translation>Pqts de dades</translation>
     </message>
     <message>
         <source>Protection</source>
-        <translation type="unfinished"></translation>
+        <translation>Protecció</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça</translation>
     </message>
     <message>
         <source>Pkts Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Pqts enviats</translation>
     </message>
     <message>
         <source>Pkts Received</source>
-        <translation type="unfinished"></translation>
+        <translation>Pqts rebuts</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari</translation>
     </message>
     <message>
         <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>Número de seqüència erroni</translation>
     </message>
     <message>
         <source>Payload changed to PT=%1</source>
-        <translation type="unfinished"></translation>
+        <translation>La càrrega útil ha canviat a PT=%1</translation>
     </message>
     <message>
         <source>Incorrect timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca de temps no vàlida</translation>
     </message>
     <message>
         <source>Marker missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Fa falta el marcador?</translation>
     </message>
     <message>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <source>NR</source>
-        <translation type="unfinished"></translation>
+        <translation>NR</translation>
     </message>
     <message>
         <source>C-RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>C-RNTI</translation>
     </message>
     <message>
         <source>SPS-RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>SPS-RNTI</translation>
     </message>
     <message>
         <source>RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>RNTI</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>UEId</source>
-        <translation type="unfinished"></translation>
+        <translation>UEId</translation>
     </message>
     <message>
         <source>RAT</source>
-        <translation type="unfinished"></translation>
+        <translation>RAT</translation>
     </message>
     <message>
         <source>UL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames UL</translation>
     </message>
     <message>
         <source>UL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes UL</translation>
     </message>
     <message>
         <source>UL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MB/s UL</translation>
     </message>
     <message>
         <source>UL Padding %</source>
-        <translation type="unfinished"></translation>
+        <translation>% de farciment UL</translation>
     </message>
     <message>
         <source>UL Re TX</source>
-        <translation type="unfinished"></translation>
+        <translation>UL Re TX</translation>
     </message>
     <message>
         <source>DL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames DL</translation>
     </message>
     <message>
         <source>DL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de DL</translation>
     </message>
     <message>
         <source>DL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MB/s de DL</translation>
     </message>
     <message>
         <source>DL Padding %</source>
-        <translation type="unfinished"></translation>
+        <translation>% de farciment DL</translation>
     </message>
     <message>
         <source>DL CRC Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>DL CRC fallats</translation>
     </message>
     <message>
         <source>DL ReTX</source>
-        <translation type="unfinished"></translation>
+        <translation>DL ReTX</translation>
     </message>
     <message>
         <source>LCID 1</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 1</translation>
     </message>
     <message>
         <source>LCID 2</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 2</translation>
     </message>
     <message>
         <source>LCID 3</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 3</translation>
     </message>
     <message>
         <source>LCID 4</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 4</translation>
     </message>
     <message>
         <source>LCID 5</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 5</translation>
     </message>
     <message>
         <source>LCID 6</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 6</translation>
     </message>
     <message>
         <source>LCID 7</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 7</translation>
     </message>
     <message>
         <source>LCID 8</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 8</translation>
     </message>
     <message>
         <source>LCID 9</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 9</translation>
     </message>
     <message>
         <source>LCID 10</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 10</translation>
     </message>
     <message>
         <source>LCID 32</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 32</translation>
     </message>
     <message>
         <source>LCID 33</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 33</translation>
     </message>
     <message>
         <source>LCID 34</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 34</translation>
     </message>
     <message>
         <source>LCID 35</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 35</translation>
     </message>
     <message>
         <source>LCID 36</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 36</translation>
     </message>
     <message>
         <source>LCID 37</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 37</translation>
     </message>
     <message>
         <source>LCID 38</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 38</translation>
     </message>
     <message>
         <source>TM</source>
-        <translation type="unfinished"></translation>
+        <translation>TM</translation>
     </message>
     <message>
         <source>UM</source>
-        <translation type="unfinished"></translation>
+        <translation>UM</translation>
     </message>
     <message>
         <source>AM</source>
-        <translation type="unfinished"></translation>
+        <translation>AM</translation>
     </message>
     <message>
         <source>Predef</source>
-        <translation type="unfinished"></translation>
+        <translation>Predef</translation>
     </message>
     <message>
         <source>Unknown (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da (%1)</translation>
     </message>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
     <message>
         <source>SRB-%1</source>
-        <translation type="unfinished"></translation>
+        <translation>SRB-%1</translation>
     </message>
     <message>
         <source>DRB-%1</source>
-        <translation type="unfinished"></translation>
+        <translation>DRB-%1</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquerra</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Centre</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreta</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors</translation>
     </message>
     <message>
         <source>Strings</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadenes</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls</translation>
     </message>
     <message>
         <source>UE Id</source>
-        <translation type="unfinished"></translation>
+        <translation>Id UE</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode</translation>
     </message>
     <message>
         <source>Priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Prioritat</translation>
     </message>
     <message>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>per defecte</translation>
     </message>
     <message>
         <source>DLT %1</source>
-        <translation type="unfinished"></translation>
+        <translation>DLT %1</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització no vàlid</translation>
     </message>
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid display filter.
 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>El filtre d&apos;expressió «%1» no és un filtre de visualització vàlid.
+(%2).</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat interfícies remotes.</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>El PCAP no s&apos;ha trobat.</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error desconegut</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Per defecte</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificat/da</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta opció ha canviat?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>El valor per defecte és buit</translation>
     </message>
     <message>
         <source>Gap in dissection</source>
-        <translation type="unfinished"></translation>
+        <translation>Gap a la dissecció</translation>
     </message>
     <message>
         <source>Edit…</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita…</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>PACKETS</source>
-        <translation type="unfinished"></translation>
+        <translation>PAQUETS</translation>
     </message>
     <message>
         <source>EVENTS</source>
-        <translation type="unfinished"></translation>
+        <translation>ESDEVENIMENTS</translation>
     </message>
     <message>
         <source>BYTES</source>
-        <translation type="unfinished"></translation>
+        <translation>BYTES</translation>
     </message>
     <message>
         <source>BITS</source>
-        <translation type="unfinished"></translation>
+        <translation>BITS</translation>
     </message>
     <message>
         <source>COUNT FRAMES</source>
-        <translation type="unfinished"></translation>
+        <translation>RECOMPTE DE TRAMES</translation>
     </message>
     <message>
         <source>COUNT FIELDS</source>
-        <translation type="unfinished"></translation>
+        <translation>RECOMPTE DE CAMPS</translation>
     </message>
     <message>
         <source>SUM</source>
-        <translation type="unfinished"></translation>
+        <translation>SUMA</translation>
     </message>
     <message>
         <source>MAX</source>
-        <translation type="unfinished"></translation>
+        <translation>MÀX</translation>
     </message>
     <message>
         <source>MIN</source>
-        <translation type="unfinished"></translation>
+        <translation>MÍN</translation>
     </message>
     <message>
         <source>AVERAGE</source>
-        <translation type="unfinished"></translation>
+        <translation>MITJANA</translation>
     </message>
     <message>
         <source>THROUGHPUT</source>
-        <translation type="unfinished"></translation>
+        <translation>CABAL</translation>
     </message>
     <message>
         <source>LOAD</source>
-        <translation type="unfinished"></translation>
+        <translation>CÀRREGA</translation>
     </message>
     <message>
         <source>Average Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Cabal mitjà</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;anada i tornada</translation>
     </message>
     <message>
         <source>Segment Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud del segment</translation>
     </message>
     <message>
         <source>Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Número de seqüència</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps</translation>
     </message>
     <message>
         <source>Window Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida de la finestra</translation>
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes UnAck (pendents)</translation>
     </message>
 </context>
 <context>
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície remota</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoste:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Autenticació</translation>
     </message>
     <message>
         <source>Null authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Autenticació nul·la</translation>
     </message>
     <message>
         <source>Password authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Autenticació amb contrasenya</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom d&apos;usuari:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Contrasenya:</translation>
     </message>
     <message>
         <source>Clear list</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja la llista</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat interfícies remotes.</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>El PCAP no s&apos;ha trobat.</translation>
     </message>
 </context>
 <context>
     <name>RemoteSettingsDialog</name>
     <message>
         <source>Remote Capture Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració de captures remotes</translation>
     </message>
     <message>
         <source>Capture Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions de captura</translation>
     </message>
     <message>
         <source>Do not capture own RPCAP traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>No capturis el trànsit RPCAP propi</translation>
     </message>
     <message>
         <source>Use UDP for data transfer</source>
-        <translation type="unfinished"></translation>
+        <translation>Fes servir UDP per a transferir dades</translation>
     </message>
     <message>
         <source>Sampling Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions de mostreig</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>1 of</source>
-        <translation type="unfinished"></translation>
+        <translation>1 de</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>paquets</translation>
     </message>
     <message>
         <source>1 every </source>
-        <translation type="unfinished"></translation>
+        <translation>1 cada</translation>
     </message>
     <message>
         <source>milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>mil·lisegons</translation>
     </message>
 </context>
 <context>
     <name>ResizeHeaderView</name>
     <message>
         <source>Resize all %1 to contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona tot %1 al contingut</translation>
     </message>
 </context>
 <context>
     <name>ResolvedAddressesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostes</translation>
     </message>
     <message>
         <source>Search for entry (min 3 characters)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca l&apos;entrada (mín. 3 caràcters)</translation>
     </message>
     <message>
         <source>Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Ports</translation>
     </message>
     <message>
         <source>Search for port or name</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca port o nom</translation>
     </message>
     <message>
         <source>Capture File Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Captura els comentaris del fitxer</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari</translation>
     </message>
     <message>
         <source>Show the comment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el comentari.</translation>
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula hash IPv4</translation>
     </message>
     <message>
         <source>Show the IPv4 hash table entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les entrades de la taula hash IPv4.</translation>
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula hash IPv6</translation>
     </message>
     <message>
         <source>Show the IPv6 hash table entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les entrades de la taula hash IPv6.</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra-ho tot</translation>
     </message>
     <message>
         <source>Show all address types.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra tots els tipus d&apos;adreça.</translation>
     </message>
     <message>
         <source>Hide All</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga-ho tot</translation>
     </message>
     <message>
         <source>Hide all address types.</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga tots els tipus d&apos;adreça.</translation>
     </message>
     <message>
         <source>IPv4 and IPv6 Addresses (hosts)</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces IPv4 i IPv6 (hostes)</translation>
     </message>
     <message>
         <source>Show resolved IPv4 and IPv6 host names in &quot;hosts&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els noms d&apos;hoste IPv4 i IPv6 resolts en format «hoste».</translation>
     </message>
     <message>
         <source>Port names (services)</source>
-        <translation type="unfinished"></translation>
+        <translation>Noms dels ports (serveis)</translation>
     </message>
     <message>
         <source>Show resolved port names in &quot;services&quot; format.</source>
         <oldsource>Show resolved port names names in &quot;servies&quot; format.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els noms resolts de port en format «serveis».</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces Ethernet</translation>
     </message>
     <message>
         <source>Show resolved Ethernet addresses in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les direccions Ethernet resoltes en format «ethers».</translation>
     </message>
     <message>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces Ethernet conegudes</translation>
     </message>
     <message>
         <source>Show well-known Ethernet addresses in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les direccions Ethernet conegudes en format «ethers».</translation>
     </message>
     <message>
         <source>Ethernet Manufacturers</source>
-        <translation type="unfinished"></translation>
+        <translation>Fabricants d&apos;Ethernet</translation>
     </message>
     <message>
         <source>Show Ethernet manufacturers in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els fabricants d&apos;Ethernet en format «ethers».</translation>
     </message>
     <message>
         <source>[no file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[cap fitxer]</translation>
     </message>
     <message>
         <source>Resolved Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces resoltes</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
-        <translation type="unfinished"></translation>
+        <translation># Adreces resoltes trobades a %1</translation>
     </message>
     <message>
         <source># Comments
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Comentaris
+#
+# </translation>
     </message>
 </context>
 <context>
     <name>ResolvedAddressesView</name>
     <message>
         <source>as Plain Text</source>
-        <translation type="unfinished"></translation>
+        <translation>com a text net</translation>
     </message>
     <message>
         <source>Copy selected rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les files seleccionades</translation>
     </message>
     <message>
         <source>Copy table</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la taula</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>com a CSV</translation>
     </message>
     <message>
         <source>as JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>com a JSON</translation>
     </message>
     <message>
         <source>Save selected rows as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les files seleccionades com a…</translation>
     </message>
     <message>
         <source>Save table as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la taula com a…</translation>
     </message>
     <message>
         <source>Save Resolved Addresses As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les adreces resoltes com a…</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Text net (*.txt)</translation>
     </message>
     <message>
         <source>CSV Document (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Document CSV (*.csv)</translation>
     </message>
     <message>
         <source>JSON Document (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>Document JSON (*.json)</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avís</translation>
     </message>
     <message>
         <source>Unable to save %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut desar %1: %2</translation>
     </message>
 </context>
 <context>
     <name>ResponseTimeDelayDialog</name>
     <message>
         <source>%1 Response Time Delay Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de retard de temps de resposta %1</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges</translation>
     </message>
     <message>
         <source>Min SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>SRT mín</translation>
     </message>
     <message>
         <source>Max SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>SRT màx</translation>
     </message>
     <message>
         <source>Avg SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>SRT mitjans</translation>
     </message>
     <message>
         <source>Min in Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Mín a la trama</translation>
     </message>
     <message>
         <source>Max in Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Màx a la trama</translation>
     </message>
     <message>
         <source>Open Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds obertes</translation>
     </message>
     <message>
         <source>Discarded Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>Respostes descartades</translation>
     </message>
     <message>
         <source>Repeated Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds repetides</translation>
     </message>
     <message>
         <source>Repeated Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>Respostes repetides</translation>
     </message>
 </context>
 <context>
     <name>RpcServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a program and version and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Trieu un programa i una versió i escriviu un filtre si voleu. Després, premeu «Aplica».&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Versió:</translation>
     </message>
     <message>
         <source>Program:</source>
-        <translation type="unfinished"></translation>
+        <translation>Programa:</translation>
     </message>
     <message>
         <source>DCE-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps de resposta del servei DCE-RPC</translation>
     </message>
     <message>
         <source>ONC-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps de resposta del servei ONC-RPC</translation>
     </message>
 </context>
 <context>
     <name>RsaKeysFrame</name>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Claus RSA</translation>
     </message>
     <message>
         <source>RSA private keys are loaded from a file or PKCS #11 token.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les claus privades RSA es carreguen d&apos;un token PKCS #11 o d&apos;un fitxer.</translation>
     </message>
     <message>
         <source>Add new keyfile…</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un fitxer de claus nou…</translation>
     </message>
     <message>
         <source>Add new token…</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un token nou…</translation>
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau la clau</translation>
     </message>
     <message>
         <source>PKCS #11 provider libraries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteques del proveïdor PKCS #11.</translation>
     </message>
     <message>
         <source>Add new provider…</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un proveïdor nou…</translation>
     </message>
     <message>
         <source>Remove provider</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau el proveïdor</translation>
     </message>
     <message>
         <source>Add PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix una clau o token PKCS #11</translation>
     </message>
     <message>
         <source>No new PKCS #11 tokens or keys found, consider adding a PKCS #11 provider.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat claus ni tokens PKCS #11 nous. Considereu si cal afegir un proveïdor PKCS #11.</translation>
     </message>
     <message>
         <source>Select a new PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria una clau o token PKCS #11 nou</translation>
     </message>
     <message>
         <source>PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>Clau o token PKCS #11</translation>
     </message>
     <message>
         <source>Enter PIN or password for %1 (it will be stored unencrypted)</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu el PIN o la contrasenya de %1 (s&apos;emmagatzemarà encriptada)</translation>
     </message>
     <message>
         <source>Enter PIN or password for key</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu el PIN o la contrasenya per a la clau</translation>
     </message>
     <message>
         <source>Key could not be added: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>La clau no s&apos;ha pogut afegir: %1</translation>
     </message>
     <message>
         <source>RSA private key (*.pem *.p12 *.pfx *.key);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Clau privada RSA (*.pem *.p12 *.pfx *.key);;Tots els fitxers (</translation>
     </message>
     <message>
         <source>Select RSA private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria el fitxer de la clau RSA privada</translation>
     </message>
     <message>
         <source>Libraries (*.dll)</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteques (*.dll)</translation>
     </message>
     <message>
         <source>Libraries (*.so)</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteques (*.so)</translation>
     </message>
     <message>
         <source>Select PKCS #11 Provider Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Trieu la biblioteca de proveïdors PKCS #11</translation>
     </message>
     <message>
         <source>Changes will apply after a restart</source>
-        <translation type="unfinished"></translation>
+        <translation>Els canvis s&apos;aplicaran quan es reiniciï el programa.</translation>
     </message>
     <message>
         <source>PKCS #11 provider %1 will be removed after the next restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>El proveïdor PKCS #11 %1 es traurà quan es reiniciï el programa.</translation>
     </message>
 </context>
 <context>
     <name>RtpAnalysisDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Seqüència</translation>
     </message>
     <message>
         <source>Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta màx. (ms)</translation>
     </message>
     <message>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal (ms)</translation>
     </message>
     <message>
         <source>Skew</source>
-        <translation type="unfinished"></translation>
+        <translation>Desviació</translation>
     </message>
     <message>
         <source>Bandwidth</source>
-        <translation type="unfinished"></translation>
+        <translation>Ample de banda</translation>
     </message>
     <message>
         <source>Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcador</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat</translation>
     </message>
     <message>
         <source>Stream %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream %1</translation>
     </message>
     <message>
         <source>Stream %1 Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal del flux %1</translation>
     </message>
     <message>
         <source>Stream %1 Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Diferència del flux %1</translation>
     </message>
     <message>
         <source>Stream %1 Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta del flux %1</translation>
     </message>
     <message>
         <source> %1 streams, </source>
-        <translation type="unfinished"></translation>
+        <translation> %1 fluxos, </translation>
     </message>
     <message>
         <source>Save one stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa un flux CSV</translation>
     </message>
     <message>
         <source>Save all stream&apos;s CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa tots els fluxos CSV</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Analitza</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre la finestra d&apos;anàlisi per als fluxos seleccionats.</translation>
     </message>
     <message>
         <source>&amp;Set List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Estableix la llista</translation>
     </message>
     <message>
         <source>&amp;Add to List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Afegeix a la llista</translation>
     </message>
     <message>
         <source>&amp;Remove from List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Trau de la llista</translation>
     </message>
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>Reemplaça la llista existent al diàleg d&apos;anàlisi RTP amb una altra de nova</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un conjunt nou a la llista existent al diàleg d&apos;anàlisi RTP</translation>
     </message>
     <message>
         <source>Remove selected streams from list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau els fluxos seleccionats de la llista al diàleg d&apos;anàlisi RTP</translation>
     </message>
     <message>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Exporta</translation>
     </message>
     <message>
         <source>Open export menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre el menú d&apos;exportar</translation>
     </message>
     <message>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <source>Save tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les taules com a CSV.</translation>
     </message>
     <message>
         <source>Current Tab Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Pestanya actual de flux CSV</translation>
     </message>
     <message>
         <source>Save the table on the current tab as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la taula de la pestanya actual com a CSV.</translation>
     </message>
     <message>
         <source>All Tab Streams CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les pestanyes de fluxos CSV</translation>
     </message>
     <message>
         <source>Save the table from all tabs as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la taula de totes les pestanyes com a CSV</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic</translation>
     </message>
     <message>
         <source>Save the graph image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la imatge del gràfic.</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria el paquet corresponent de la llista de paquets.</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent paquet problemàtic</translation>
     </message>
     <message>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al proper paquet problemàtic.</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>N</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Pestanya actual</translation>
     </message>
     <message>
         <source>Prepare a filter matching current tab.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre que coincideixi amb la pestanya seleccionada.</translation>
     </message>
     <message>
         <source>&amp;All Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les &amp;pestanyes</translation>
     </message>
     <message>
         <source>Prepare a filter matching all tabs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre que coincideixi amb totes les pestanyes.</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi de fluxos RTP</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation> G: Vés al paquet (go), N: Proper paquet problemàtic (next)</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors separats per comes (*.csv)</translation>
     </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 no suporta PCM a %2. El format preferit és %3</translation>
     </message>
 </context>
 <context>
     <name>RtpPlayerDialog</name>
     <message>
         <source>RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Reproductor RTP</translation>
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Reprodueix</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça d&apos;origen</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port d&apos;origen</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça de destí</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port de destí</translation>
     </message>
     <message>
         <source>SSRC</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC</translation>
     </message>
     <message>
         <source>Setup Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama de configuració</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Time Span (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Interval de temps (s)</translation>
     </message>
     <message>
         <source>Payloads</source>
-        <translation type="unfinished"></translation>
+        <translation>Càrregues útils</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Sense àudio&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Start playback of all unmuted streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicia la reproducció de tots els fluxos no silenciats</translation>
     </message>
     <message>
         <source>Pause/unpause playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Pausa/Reprèn la reproducció</translation>
     </message>
     <message>
         <source>Stop playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Para la reproducció</translation>
     </message>
     <message>
         <source>Enable/disable skipping of silence during playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa/Desactiva saltar el silenci mentre es reprodueix</translation>
     </message>
     <message>
         <source>Min silence:</source>
-        <translation type="unfinished"></translation>
+        <translation>Silenci mínim:</translation>
     </message>
     <message>
         <source>Minimum silence duration to skip in seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Durada de silenci mínima per a saltar (en segons)</translation>
     </message>
     <message>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositiu de sortida:</translation>
     </message>
     <message>
         <source>Output Audio Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa d&apos;àudio de sortida:</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Memòria intermèdia de la fluctuació del senyal:</translation>
     </message>
     <message>
         <source>The simulated jitter buffer in milliseconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>La memòria intermèdia de la fluctuació del senyal simulada en mil·lisegons.</translation>
     </message>
     <message>
         <source>Playback Timing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporització de reproducció:</translation>
     </message>
     <message>
         <source>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
@@ -9854,1364 +9920,1368 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing.
 &lt;br/&gt;
 &lt;strong&gt;Uniterrupted Mode&lt;/strong&gt;: Ignore the RTP Timestamp. Play the stream as it is completed. This is useful when the RTP timestamp is missing.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;strong&gt;Memòria intermèdia de la fluctuació de senyal&lt;/strong&gt;: Feu servir la memòria intermèdia de la fluctuació de senyal per a simular el flux RTP tal com l&apos;escolta l&apos;usuari final.
+&lt;br/&gt;
+&lt;strong&gt;Marca de temps RTP&lt;/strong&gt;: Feu servir les marques de temps RTP en lloc del temps d&apos;arribada del paquet. No es reproduirà el flux tal com l&apos;escolta l&apos;usuari, però és útil quan l&apos;RTP va tunelitzat i fa falta la temporització del paquet original.
+&lt;br/&gt;
+&lt;strong&gt;Mode ininterromput&lt;/strong&gt;: Ignora les marques de temps RTP. Reprodueix el flux com si estigués complet. Útil quan fan falta marques de temps.</translation>
     </message>
     <message>
         <source>Jitter Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Memòria intermèdia de la fluctuació del senyal</translation>
     </message>
     <message>
         <source>RTP Timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca de temps RTP</translation>
     </message>
     <message>
         <source>Uninterrupted Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode ininterromput</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra les marques de temps com a hora del dia (comprovada) o bé en segons des de l&apos;inici de captura (sense comprovar).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora del dia</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Exporta</translation>
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta l&apos;àudio de tots els canals silenciats o exporta la càrrega útil d&apos;un canal.</translation>
     </message>
     <message>
         <source>From &amp;cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Del &amp;cursor</translation>
     </message>
     <message>
         <source>Save audio data started at the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades d&apos;àudio iniciades al cursor</translation>
     </message>
     <message>
         <source>&amp;Stream Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>F&amp;lux de l&apos;àudio sincronitzat</translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the earliest stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades d&apos;àudio sincronitzades amb l&apos;inici del primer flux.</translation>
     </message>
     <message>
         <source>&amp;File Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer de l&apos;àudio sincronitzat</translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades d&apos;àudio sincronitzades amb l&apos;inici del fitxer de captura.</translation>
     </message>
     <message>
         <source>&amp;Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Càrrega útil</translation>
     </message>
     <message>
         <source>Save RTP payload of selected stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la càrrega útil RTP del flux seleccionat.</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic al seu estat inicial.</translation>
     </message>
     <message>
         <source>Go To Setup Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet de configuració</translation>
     </message>
     <message>
         <source>Go to setup packet of stream currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet de configuració del flux que hi ha actualment a sota del cursor</translation>
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Silencia</translation>
     </message>
     <message>
         <source>Mute selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Silencia els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>Unmute</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau el silenciador</translation>
     </message>
     <message>
         <source>Unmute selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau el silenciador dels fluxos seleccionats.</translation>
     </message>
     <message>
         <source>Invert muting of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix l&apos;estat de silenciador dels fluxos seleccionats</translation>
     </message>
     <message>
         <source>Route audio to left channel of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Encamina l&apos;àudio al canal esquerre dels fluxos seleccionats</translation>
     </message>
     <message>
         <source>Route audio to left and right channel of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Encamina l&apos;àudio al canal esquerre i dret dels fluxos seleccionats</translation>
     </message>
     <message>
         <source>Route audio to right channel of selected streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Encamina l&apos;àudio al canal dret dels fluxos seleccionats</translation>
     </message>
     <message>
         <source>Remove Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau fluxos</translation>
     </message>
     <message>
         <source>Remove selected streams from the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina els fluxos seleccionats de la llista.</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona-ho tot</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra la selecció</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix la selecció</translation>
     </message>
     <message>
         <source>Play/Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Reprodueix/Posa en pausa</translation>
     </message>
     <message>
         <source>Start playing or pause playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicia la reproducció o posa-la en pausa.</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Para</translation>
     </message>
     <message>
         <source>Stop playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Para la reproducció.</translation>
     </message>
     <message>
         <source>I&amp;naudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos i&amp;naudibles</translation>
     </message>
     <message>
         <source>Select/Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca/Desmarca els fluxos inaudibles</translation>
     </message>
     <message>
         <source>Inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos inaudibles</translation>
     </message>
     <message>
         <source>&amp;Select</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Selecciona</translation>
     </message>
     <message>
         <source>Select inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca els fluxos inaudibles</translation>
     </message>
     <message>
         <source>&amp;Deselect</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Desmarca</translation>
     </message>
     <message>
         <source>Deselect inaudible streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Desmarca les seqüències inaudibles.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Actualitza els fluxos</translation>
     </message>
     <message>
         <source>Read captured packets from capture in progress to player</source>
-        <translation type="unfinished"></translation>
+        <translation>Llegeix els paquets capturats del directe al reproductor</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa</translation>
     </message>
     <message>
         <source>SR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>SR (Hz)</translation>
     </message>
     <message>
         <source>Sample rate of codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Freqüència de mostreig del còdec</translation>
     </message>
     <message>
         <source>PR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>PR (Hz)</translation>
     </message>
     <message>
         <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ritme de reproducció de l&apos;àudio descodificat (depèn, per exemple, de la targeta de so seleccionada)</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a la dreta</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a la dreta</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha sota el cursor</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha a sota del cursor</translation>
     </message>
     <message>
         <source>Play the stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Reprodueix el flux</translation>
     </message>
     <message>
         <source>To Left</source>
-        <translation type="unfinished"></translation>
+        <translation>A l&apos;esquerra</translation>
     </message>
     <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquerra+Dreta</translation>
     </message>
     <message>
         <source>To Right</source>
-        <translation type="unfinished"></translation>
+        <translation>A la dreta</translation>
     </message>
     <message>
         <source>Invert Muting</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix l&apos;estat de silenciador</translation>
     </message>
     <message>
         <source>No devices available</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha dispositius disponibles.</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona</translation>
     </message>
     <message>
         <source>Audio Routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Encaminador de l&apos;àudio</translation>
     </message>
     <message>
         <source>&amp;Play Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reprodueix fluxos</translation>
     </message>
     <message>
         <source>Open RTP player dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre el diàleg de reproducció RTP</translation>
     </message>
     <message>
         <source>&amp;Set playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Estableix la llista de reproducció</translation>
     </message>
     <message>
         <source>Replace existing playlist in RTP Player with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>Reemplaça la llista de reproducció existent al reproductor RTP amb una de nova</translation>
     </message>
     <message>
         <source>&amp;Add to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Afegeix a la llista de reproducció</translation>
     </message>
     <message>
         <source>Add new set to existing playlist in RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un conjunt nou a la llista de reproducció existent al reproductor RTP</translation>
     </message>
     <message>
         <source>&amp;Remove from playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Trau de la llista de reproducció</translation>
     </message>
     <message>
         <source>Remove selected streams from playlist in RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau els fluxos seleccionats de la llista de reproducció al reproductor RTP</translation>
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense so</translation>
     </message>
     <message>
         <source>Decoding streams...</source>
-        <translation type="unfinished"></translation>
+        <translation>Es descodifiquen els fluxos...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Fora de la seqüència</translation>
     </message>
     <message>
         <source>Jitter Drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Descartats per la fluctuació del senyal</translation>
     </message>
     <message>
         <source>Wrong Timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Marques de temps errònies</translation>
     </message>
     <message>
         <source>Inserted Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Silenci inserit</translation>
     </message>
     <message>
         <source>Double click on cell to change audio routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Doble clic a la cel·la per a canviar l&apos;encaminador d&apos;àudio</translation>
     </message>
     <message>
         <source>%1 streams</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 fluxos</translation>
     </message>
     <message>
         <source>, %1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 seleccionat</translation>
     </message>
     <message>
         <source>, %1 not muted</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 no silenciat</translation>
     </message>
     <message>
         <source>, start: %1. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>, inici: %1. Doble clic en un gràfic per a establir l&apos;inici de la reproducció.</translation>
     </message>
     <message>
         <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
-        <translation type="unfinished"></translation>
+        <translation>, inici: %1, cursor: %2. Premeu «G» per a anar al paquet %3. Doble clic al gràfic per a establir l&apos;inici de la reproducció.</translation>
     </message>
     <message>
         <source>Playback of stream %1 failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>La reproducció del flux %1 ha fallat!</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automàtic</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV (*.wav)</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
         <source>Save audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa l&apos;àudio</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors en brut (*.raw)</translation>
     </message>
     <message>
         <source>Save payload</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa la càrrega</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avís</translation>
     </message>
     <message>
         <source>No stream selected or none of selected streams provide audio</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha seleccionat cap flux o cap dels seleccionats proporciona àudio</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els fluxos seleccionats han de fer servir la mateixa taxa de reproducció. Potser establir la taxa d&apos;àudio de sortida pot ajudar.</translation>
     </message>
     <message>
         <source>No streams are suitable for save</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha fluxos que es puguin desar.</translation>
     </message>
     <message>
         <source>Save failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha produït un error a la desada!</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot escriure la capçalera del fitxer AU</translation>
     </message>
     <message>
         <source>Can&apos;t write header of WAV file</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot escriure la capçalera del fitxer WAV</translation>
     </message>
     <message>
         <source>Payload save works with just one audio stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>La desada de càrregues útils funciona només amb un sol flux d&apos;àudio.</translation>
     </message>
     <message>
         <source>Double click to change audio routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Doble clic per a canviar l&apos;encaminador d&apos;àudio</translation>
     </message>
     <message>
         <source>Preparing to play...</source>
-        <translation type="unfinished"></translation>
+        <translation>Es prepara per a reproduir...</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da</translation>
     </message>
 </context>
 <context>
     <name>RtpStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça d&apos;origen</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port d&apos;origen</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreça de destí</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port de destí</translation>
     </message>
     <message>
         <source>SSRC</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC</translation>
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;inici</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Durada</translation>
     </message>
     <message>
         <source>Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>Càrrega útil</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>Lost</source>
-        <translation type="unfinished"></translation>
+        <translation>Perdut/da</translation>
     </message>
     <message>
         <source>Max Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta màx. (ms)</translation>
     </message>
     <message>
         <source>Max Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal màxima</translation>
     </message>
     <message>
         <source>Mean Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal mitjana</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra només les converses que compleixin el filtre de visualització actual&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limita al filtre de visualització</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora del dia</translation>
     </message>
     <message>
         <source>Find &amp;Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba el &amp;retorn</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Exporta</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Analitza</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre la finestra d&apos;anàlisi per als fluxos seleccionats i afegeix-ho</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Troba el flux de retorn que coincideix amb el flux d&apos;enviament seleccionat.</translation>
     </message>
     <message>
         <source>Min Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta mín. (ms)</translation>
     </message>
     <message>
         <source>Mean Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta mitjà (ms)</translation>
     </message>
     <message>
         <source>Min Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuació del senyal mínima</translation>
     </message>
     <message>
         <source>All forward/reverse stream actions</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les accions de fluxos d&apos;enviament/retorn</translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished"></translation>
+        <translation>R</translation>
     </message>
     <message>
         <source>Find All &amp;Pairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca tots els &amp;parells</translation>
     </message>
     <message>
         <source>Select all streams which are paired in forward/reverse relation</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona els fluxos emparellats en relació enviament/retorn</translation>
     </message>
     <message>
         <source>Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+R</translation>
     </message>
     <message>
         <source>Find Only &amp;Singles</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca només els &amp;solts</translation>
     </message>
     <message>
         <source>Find all streams which don&apos;t have paired reverse stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca tots els fluxos que no tenen un flux de retorn aparellat</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <source>Mark Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca els paquets</translation>
     </message>
     <message>
         <source>Mark the packets of the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca els paquets dels fluxos seleccionats.</translation>
     </message>
     <message>
         <source>M</source>
-        <translation type="unfinished"></translation>
+        <translation>M</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona-ho tot</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra la selecció</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix la selecció</translation>
     </message>
     <message>
         <source>Go To Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a la configuració</translation>
     </message>
     <message>
         <source>Go to the setup packet for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet de configuració d&apos;aquest flux.</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>P</source>
-        <translation type="unfinished"></translation>
+        <translation>P</translation>
     </message>
     <message>
         <source>Export the stream payload as rtpdump</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta la càrrega útil del flux com a rtpdump</translation>
     </message>
     <message>
         <source>E</source>
-        <translation type="unfinished"></translation>
+        <translation>E</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <source>Open copy menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre el menú de copiar</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a CSV</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la llista de fluxos com a CSV.</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a YAML</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la llista de fluxos com a YAML.</translation>
     </message>
     <message>
         <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos RTP</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>com a CSV</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>com a YAML</translation>
     </message>
     <message>
         <source>%1 streams</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 fluxos</translation>
     </message>
     <message>
         <source>, %1 selected, %2 total packets</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 de seleccionat, %2 paquets en total</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el bolcat RTP com a…</translation>
     </message>
 </context>
 <context>
     <name>SCTPAllAssocsDialog</name>
     <message>
         <source>Wireshark - SCTP Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark ‒ Associacions SCTP</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Port 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Port 1</translation>
     </message>
     <message>
         <source>Port 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Port 2</translation>
     </message>
     <message>
         <source>Number of Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de paquets</translation>
     </message>
     <message>
         <source>Number of DATA Chunks</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de fragments de DADES</translation>
     </message>
     <message>
         <source>Number of Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de bytes</translation>
     </message>
     <message>
         <source>Filter Selected Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Associació de seleccions de filtre</translation>
     </message>
     <message>
         <source>Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>Analitza</translation>
     </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
     <message>
         <source>Wireshark - Analyse Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark ‒ Associació d&apos;anàlisi</translation>
     </message>
     <message>
         <source>TabWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>TabWidget</translation>
     </message>
     <message>
         <source>Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques</translation>
     </message>
     <message>
         <source>Chunk Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de fragments</translation>
     </message>
     <message>
         <source>Filter Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Associació de filtres</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de fragments de DADES d&apos;EP2 a EP1:</translation>
     </message>
     <message>
         <source>Checksum Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de suma de verificació:</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP1 to EP2: </source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de fragments de DADES d&apos;EP1 a EP2:</translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP1 to EP2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de bytes de dades d&apos;EP1 a EP2:</translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de bytes de dades d&apos;EP2 a EP1:</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final 1</translation>
     </message>
     <message>
         <source>Graph TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic TSN</translation>
     </message>
     <message>
         <source>Graph Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic de bytes</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de fluxos entrants sol·licitats:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Sent Verification Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta de verificació enviada:</translation>
     </message>
     <message>
         <source>Minimum Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mínim de fluxos entrants:</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;For complete analysis check SCTP preference Enable Association indexing&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Per a un anàlisi complet, comproveu les preferències SCTP i activeu l&apos;indexat d&apos;associacions.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista completa d&apos;adreces IP del fragment INIT:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre mínim de fluxos de sortida:</translation>
     </message>
     <message>
         <source>Graph Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic Arwnd</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final 2</translation>
     </message>
     <message>
         <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista completa d&apos;adreces IP del fragment INIT_ACK:</translation>
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre donat de fluxos de sortida:</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Associació d&apos;anàlisi SCTP: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Association found for this packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha trobat cap associació per a aquest paquet.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Avís</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut trobar l&apos;associació SCTP amb id: %1</translation>
     </message>
     <message>
         <source>Complete list of IP addresses from INIT Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista completa d&apos;adreces IP del fragment INIT:</translation>
     </message>
     <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista completa d&apos;adreces IP del fragment INIT_ACK:</translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista d&apos;adreces IP usades</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de fluxos entrants usats:</translation>
     </message>
     <message>
         <source>Used Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de fluxos de sortida usats:</translation>
     </message>
 </context>
 <context>
     <name>SCTPChunkStatisticsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Associació</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final 1</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Punt final 2</translation>
     </message>
     <message>
         <source>Save Chunk Type Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa l&apos;ordre dels tipus de fragment</translation>
     </message>
     <message>
         <source>Hide Chunk Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga el tipus de fragment</translation>
     </message>
     <message>
         <source>Remove the chunk type from the table</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau de la taula el tipus de fragment</translation>
     </message>
     <message>
         <source>Chunk Type Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències de tipus de fragment</translation>
     </message>
     <message>
         <source>Go to the chunk type preferences dialog to show or hide other chunk types</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al diàleg de preferències de tipus de fragment per a mostrar o amagar altres tipus de fragment</translation>
     </message>
     <message>
         <source>Show All Registered Chunk Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra tots els tipus de fragments registrats</translation>
     </message>
     <message>
         <source>Show all chunk types with defined names</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra tots els tipus de fragment amb noms definits</translation>
     </message>
     <message>
         <source>SCTP Chunk Statistics: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de fragments SCTP: %1 Port1 %2 Port2 %3</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphArwndDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic SCTP</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix a la mida completa</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>goToPacket</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Finestra de Dades SCTP i Rec. Av. respecte el temps: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha enviat cap fragment de dades.</translation>
     </message>
     <message>
         <source>Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Arwnd</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>temps [segons]</translation>
     </message>
     <message>
         <source>Advertised Receiver Window [Bytes]</source>
-        <translation type="unfinished"></translation>
+        <translation>Finestra de receptors anunciats [bytes]</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: a_rwnd=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Gràfic %1: a_rwnd=%2 Temps=%3 segons &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphByteDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic SCTP</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix a la mida completa</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>goToPacket</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Finestra de Dades SCTP i Rec. Av. respecte el temps: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha enviat cap fragment de dades.</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>temps [segons]</translation>
     </message>
     <message>
         <source>Received Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes rebuts</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: Received bytes=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Gràfic %1: Bytes rebuts=%2 temps=%3 segons &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic SCTP</translation>
     </message>
     <message>
         <source>Relative TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN relatives</translation>
     </message>
     <message>
         <source>Only SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>Només SACK</translation>
     </message>
     <message>
         <source>Only TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>Només TSN</translation>
     </message>
     <message>
         <source>Show both</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra ambdues</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix a la mida completa</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>goToPacket</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP TSN i SACK respecte temps: %1 Port1 %2 Port2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha enviat cap fragment de dades.</translation>
     </message>
     <message>
         <source>CumTSNAck</source>
-        <translation type="unfinished"></translation>
+        <translation>CumTSNAck</translation>
     </message>
     <message>
         <source>Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Gap Ack</translation>
     </message>
     <message>
         <source>NR Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>NR Gap Ack</translation>
     </message>
     <message>
         <source>Duplicate Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplica Ack</translation>
     </message>
     <message>
         <source>TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>temps [segons]</translation>
     </message>
     <message>
         <source>TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;%1: %2 Time: %3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;%1: %2 Temps: %3 segons &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
 </context>
 <context>
     <name>ScsiServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Trieu una ordre i escriviu un filtre si voleu. Després, premeu «Aplica».&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordre:</translation>
     </message>
     <message>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps de resposta del servei SCSI</translation>
     </message>
 </context>
 <context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la columna d&apos;informació de la llista de paquets (panell de resum), a les etiquetes de visualització de paquets descodificats (panell de vista en arbre) o a les dades de paquet convertides a ASCII (panell de vista hexadecimal).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista de paquets</translation>
     </message>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls del paquet</translation>
     </message>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes del paquet</translation>
     </message>
     <message>
         <source>&lt;b&gt;Options:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Opcions:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca cadenes que continguin caràcters reduïts (UTF-8 i ASCII) i ampliats (UTF-16).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Narrow &amp; Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>Reduït i ampliat</translation>
     </message>
     <message>
         <source>Narrow (UTF-8 / ASCII)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reduït (UTF-8 / ASCII)</translation>
     </message>
     <message>
         <source>Wide (UTF-16)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ampliat (UTF-16)</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Distingeix majúscules i minúscules</translation>
     </message>
     <message>
         <source>Backwards</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap enrere</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for a subsequent occurrence in the current packet before advancing to the next packet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca la següent ocurrència del paquet actual abans d&apos;avançar al paquet següent.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Multiple occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocurrències múltiples</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca dades fent servir la sintaxi de filtres de visualització (com ara ip.addr==10.1.1.1), com a cadena hexadecimal (com ara fffffda5), una cadena neta (com ara «La meva cadena») o una expressió regular (com ara un color).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització</translation>
     </message>
     <message>
         <source>Hex value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor hex</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadena</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Expressió regular</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel·la</translation>
     </message>
     <message>
         <source>No valid search type selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha seleccionat cap tipus de cerca vàlida. Aviseu d&apos;aquest problema a l&apos;equip de desenvolupament.</translation>
     </message>
     <message>
         <source>Invalid filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre no vàlid.</translation>
     </message>
     <message>
         <source>Event List</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalls de l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la columna d&apos;informació de la llista d&apos;esdeveniments (panell de resum), a les etiquetes de visualització d&apos;esdeveniments descodificats (panell de vista en arbre) o a les dades d&apos;esdeveniments convertides a ASCII (panell de vista hexadecimal).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquest filtre no comprova res.</translation>
     </message>
     <message>
         <source>That&apos;s not a valid hex string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta cadena hexadecimal no és vàlida.</translation>
     </message>
     <message>
         <source>You didn&apos;t specify any text for which to search.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha especificat cap text a buscar.</translation>
     </message>
     <message>
         <source>No valid character set selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha seleccionat cap conjunt de caràcters vàlid. Aviseu d&apos;aquest problema a l&apos;equip de desenvolupament.</translation>
     </message>
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha seleccionat cap àrea de cerca vàlida. Aviseu d&apos;aquest problema a l&apos;equip de desenvolupament.</translation>
     </message>
     <message>
         <source>Searching for %1…</source>
-        <translation type="unfinished"></translation>
+        <translation>Es cerca %1…</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap paquet conté aquests bytes.</translation>
     </message>
     <message>
         <source>No packet contained that string in its Info column.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap paquet conté la cadena a la seva columna d&apos;informació.</translation>
     </message>
     <message>
         <source>No packet contained that string in its dissected display.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap paquet conté la cadena a la visualització disseccionada.</translation>
     </message>
     <message>
         <source>No packet contained that string in its converted data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap paquet conté la cadena a les seves dades convertides.</translation>
     </message>
     <message>
         <source>No packet matched that filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap paquet compleix aquest filtre.</translation>
     </message>
 </context>
 <context>
     <name>SequenceDialog</name>
     <message>
         <source>Call Flow</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux de trucades</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentari</translation>
     </message>
     <message>
         <source>No data</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense dades</translation>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%Ln node</numerusform>
             <numerusform>%Ln nodes</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln item</numerusform>
-            <numerusform>%Ln items</numerusform>
+        <translation>
+            <numerusform>%Ln element</numerusform>
+            <numerusform>%Ln elements</numerusform>
         </translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII (*.txt)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
     <message>
         <source>Flow</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -11260,568 +11330,593 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Dreceres de teclat valuoses i sorprenents per a estalviar temps&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Augmenta el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;‒&lt;/th&gt;&lt;td&gt;Redueix el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Restableix el gràfic al seu estat inicial&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Mou 10 píxels a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Mou 10 píxels a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Mou 10 píxels amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Mou 10 píxels avall&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Mou 1 píxel a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Mou 1 píxel a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Mou 1 píxel amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Mou 1 píxel avall&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vés al paquet que hi ha sota el cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;Vés al paquet següent&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;Vés al paquet anterior&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Espai&lt;/th&gt;&lt;td&gt;Commuta els punts de mira&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra només els fluxos que compleixin el filtre de visualització actual&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limita al filtre de visualització</translation>
     </message>
     <message>
         <source>Flow type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de flux:</translation>
     </message>
     <message>
         <source>Addresses:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces:</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualsevol</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Xarxa</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el diagrama</translation>
     </message>
     <message>
         <source>Reset &amp;Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el &amp;diagrama</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el diagrama al seu estat inicial.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>&amp;Reset Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Restableix el diagrama</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el diagrama al seu estat inicial</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Exporta</translation>
     </message>
     <message>
         <source>Export diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta el diagrama</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels amunt</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Amunt</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquerra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a la dreta</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreta</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels avall</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Avall</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel amunt</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Amunt</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Esquerra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a la dreta</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Dreta</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Avall</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha sota el cursor</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha a sota del cursor</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>All Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els fluxos</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els fluxos de tots els paquets</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos TCP</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra només la informació del flux TCP</translation>
     </message>
     <message>
         <source>Go To Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet següent</translation>
     </message>
     <message>
         <source>Go to the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet següent</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>N</translation>
     </message>
     <message>
         <source>Go To Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet anterior</translation>
     </message>
     <message>
         <source>Go to the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet anterior</translation>
     </message>
     <message>
         <source>P</source>
-        <translation type="unfinished"></translation>
+        <translation>P</translation>
     </message>
     <message>
         <source>Select RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria un flux RTP</translation>
     </message>
     <message>
         <source>Select RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria un flux RTP al diàleg de fluxos RTP</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Desmarca un flux RTP</translation>
     </message>
     <message>
         <source>Deselect RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Desmarca un flux RTP al diàleg de fluxos RTP</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
     <message>
         <source>Display Filter Input</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra l&apos;entrada del filtre</translation>
     </message>
     <message>
         <source>Jump to display filter input box</source>
-        <translation type="unfinished"></translation>
+        <translation>Salta a la caixa d&apos;entrada del filtre de visualització</translation>
     </message>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Drecera</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripció</translation>
     </message>
 </context>
 <context>
     <name>ShowPacketBytesDialog</name>
     <message>
         <source>Show Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els bytes del paquet</translation>
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Consell.</translation>
     </message>
     <message>
         <source>Decode as</source>
-        <translation type="unfinished"></translation>
+        <translation>Descodifica com a</translation>
     </message>
     <message>
         <source>Show as</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra com a</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici</translation>
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation>Final</translation>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Distingeix majúscules i minúscules</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el &amp;següent</translation>
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform>Frame %1, %2, %Ln byte.</numerusform>
-            <numerusform>Frame %1, %2, %Ln bytes.</numerusform>
+        <translation>
+            <numerusform>Trama %1, %2, %Ln byte.</numerusform>
+            <numerusform>Trama %1, %2, %Ln bytes.</numerusform>
         </translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>Base64</source>
-        <translation type="unfinished"></translation>
+        <translation>Base64</translation>
     </message>
     <message>
         <source>Compressed</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimit</translation>
     </message>
     <message>
         <source>Hex Digits</source>
-        <translation type="unfinished"></translation>
+        <translation>Dígits hex</translation>
     </message>
     <message>
         <source>Percent-Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge de codificació</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
-        <translation type="unfinished"></translation>
+        <translation>Quoted-Printable</translation>
     </message>
     <message>
         <source>ROT13</source>
-        <translation type="unfinished"></translation>
+        <translation>ROT13</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII</translation>
     </message>
     <message>
         <source>ASCII &amp; Control</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII i Control</translation>
     </message>
     <message>
         <source>C Array</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula en C</translation>
     </message>
     <message>
         <source>EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>EBCDIC</translation>
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Bolcat hexadecimal</translation>
     </message>
     <message>
         <source>HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>HTML</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imatge</translation>
     </message>
     <message>
         <source>Raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Valors en brut (Raw)</translation>
     </message>
     <message>
         <source>Rust Array</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula en Rust</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8</translation>
     </message>
     <message>
         <source>YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimeix</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>Decoded as %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Descodificat com a %1.</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa els bytes del paquet seleccionat com a…</translation>
     </message>
     <message>
         <source>compressed %1</source>
-        <translation type="unfinished"></translation>
+        <translation>comprimit %1</translation>
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform>Using %Ln byte.</numerusform>
-            <numerusform>Using %Ln bytes.</numerusform>
+        <translation>
+            <numerusform>Es fa servir %Ln byte.</numerusform>
+            <numerusform>Es fan servir %Ln bytes.</numerusform>
         </translation>
     </message>
     <message>
         <source>JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON</translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca amb Regex:</translation>
     </message>
 </context>
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
         <source>Show Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els seleccionats</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra-ho tot</translation>
     </message>
 </context>
 <context>
     <name>SplashOverlay</name>
     <message>
         <source>Initializing dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;inicialitzen els dissectors</translation>
     </message>
     <message>
         <source>Initializing tap listeners</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;inicialitzen els detectors de TAP</translation>
     </message>
     <message>
         <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;inicialitzen els complements de captura externs</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>Es registren els dissectors</translation>
     </message>
     <message>
         <source>Registering plugins</source>
         <oldsource>Registering dissector</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Es registren els complements</translation>
     </message>
     <message>
         <source>Handing off dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>Es passen els dissectors</translation>
     </message>
     <message>
         <source>Handing off plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Es passen els complements</translation>
     </message>
     <message>
         <source>Loading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Es carreguen els complements Lua</translation>
     </message>
     <message>
         <source>Removing Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Es trauen els complements Lua</translation>
     </message>
     <message>
         <source>Loading module preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Es carreguen les preferències de mòduls</translation>
     </message>
     <message>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Es busquen interfícies locals</translation>
     </message>
     <message>
         <source>Applying changed preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;apliquen les preferències canviades</translation>
     </message>
     <message>
         <source>(Unknown action)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Acció desconeguda)</translation>
     </message>
 </context>
 <context>
     <name>StatsTreeDialog</name>
     <message>
         <source>Configuration not found</source>
-        <translation type="unfinished"></translation>
+        <translation>La configuració no s&apos;ha trobat.</translation>
     </message>
     <message>
         <source>Unable to find configuration for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha trobat la configuració per a %1.</translation>
     </message>
 </context>
 <context>
     <name>StripHeadersDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>Strip Headers</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau les capçaleres</translation>
     </message>
 </context>
 <context>
     <name>SupportedProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la llista de noms de camp.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca:</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Gathering protocol information…&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Es recopila la informació de protocol…&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocols suportats</translation>
     </message>
     <message>
         <source>%1 protocols, %2 fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 protocols, %2 camps.</translation>
     </message>
 </context>
 <context>
     <name>SupportedProtocolsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripció</translation>
     </message>
 </context>
 <context>
     <name>SyntaxLineEdit</name>
     <message>
         <source>Invalid filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre no vàlid: %1</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>«%1» ha quedat obsolet i s&apos;ha de substituir per «%2». Vegeu la secció d&apos;ajuda 6.4.8 per a més detalls.</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
     <name>TCPStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -11900,1149 +11995,1188 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Dreceres de teclat valuoses i sorprenents per a estalviar temps&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Augmenta el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Redueix el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Augmenta el zoom en l&apos;eix de les X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Redueix el zoom en l&apos;eix de les X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Augmenta el zoom en l&apos;eix de les Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Redueix el zoom en l&apos;eix de les Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Restableix el gràfic al seu estat inicial&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Mou 10 píxels a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Mou 10 píxels a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Mou 10 píxels amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Mou 10 píxels avall&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Mou 1 píxel a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Mou 1 píxel a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Mou 1 píxel amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Mou 1 píxel avall&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Re pàg&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Flux següent&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Av pàg&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Flux anterior&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Commuta la direcció (intercanvia els punts finals TCP)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vés al paquet que hi ha sota el cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Commuta el zoom/arrossegament amb el ratolí&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Commuta entre números de seqüència relatius/absoluts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta entre temps d&apos;origen de la captura i la sessió&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Espai&lt;/th&gt;&lt;td&gt;Commuta els punts de mira&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;Gràfic de temps d&apos;anada i tornada&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;Gràfic de cabal&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;3&lt;/th&gt;&lt;td&gt;Gràfic de temps/seqüència d&apos;estil Stevens&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;4&lt;/th&gt;&lt;td&gt;Gràfic de temps/seqüència d&apos;estil tcptrace&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;5&lt;/th&gt;&lt;td&gt;Gràfic d&apos;escalat de la finestra&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Amb el ratolí per sobre, veureu les dreceres.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus</translation>
     </message>
     <message>
         <source>MA Window (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Finestra MA (s)</translation>
     </message>
     <message>
         <source>Allow SACK segments as well as data packets to be selected by clicking on the graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Permet que els segments SACK i els paquets de dades es puguin seleccionar fent clic al gràfic</translation>
     </message>
     <message>
         <source>Select SACKs</source>
         <oldsource>select SACKs</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona els SACK</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Commuta la direcció de la connexió (mostra el flux oposat).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia la direcció</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>Ratolí</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrossega amb el botó del ratolí.</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>arrossega</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona amb el botó del ratolí.</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>amplia/redueix</translation>
     </message>
     <message>
         <source>Sampling Method</source>
-        <translation type="unfinished"></translation>
+        <translation>Mètode de mostreig</translation>
     </message>
     <message>
         <source>Select which packets and how the RTT sampling is done</source>
-        <translation type="unfinished"></translation>
+        <translation>Tria quins paquets i com es fa el mostreig RTT</translation>
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps d&apos;anada i tornada vs número de seqüència</translation>
     </message>
     <message>
         <source>RTT By Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>RTT per número de seqüència</translation>
     </message>
     <message>
         <source>Display graph of Segment Length vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el gràfic de longitud de segment vs temps</translation>
     </message>
     <message>
         <source>Segment Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud del segment</translation>
     </message>
     <message>
         <source>Display graph of Mean Transmitted Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el gràfic del bytes transmesos de mitjana vs temps</translation>
     </message>
     <message>
         <source>Display graph of Mean ACKed Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el gràfic dels bytes ACK de mitjana vs temps</translation>
     </message>
     <message>
         <source>Goodput</source>
-        <translation type="unfinished"></translation>
+        <translation>Cabal bo</translation>
     </message>
     <message>
         <source>Display graph of Receive Window Size vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el gràfic de mida de finestra rebuda vs temps</translation>
     </message>
     <message>
         <source>Rcv Win</source>
-        <translation type="unfinished"></translation>
+        <translation>Rcv Win</translation>
     </message>
     <message>
         <source>Display graph of Outstanding Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el gràfic de bytes pendents vs temps</translation>
     </message>
     <message>
         <source>Bytes Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes de sortida</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Restableix el gràfic al seu estat inicial.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic al seu estat inicial.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels amunt</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Amunt</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquerra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels a la dreta</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dreta</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 10 píxels avall</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Avall</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel amunt</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Amunt</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Esquerra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel a la dreta</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Dreta</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Avall</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux següent</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al següent flux de la captura.</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>Re Pàg</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux anterior</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al flux anterior de la captura.</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>Av Pàg</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta la direcció (intercanvia els punts finals TCP)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha sota el cursor</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha a sota del cursor</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrossega / Zoom</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta el comportament del ratolí entre arrossegar/fer zoom</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Números de seqüència relatius/absoluts</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta entre números de seqüència relatius/absoluts</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;origen de la captura/sessió</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta entre temps d&apos;origen de la captura i la sessió</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Punts de mira</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta els punts de mira</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Espai</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;anada i tornada</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al gràfic de temps d&apos;anada i tornada</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Cabal</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al gràfic de cabal</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps / Seqüència (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al gràfic de temps/seqüència d&apos;estil Stevens</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escalat de la finestra</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al gràfic d&apos;escalat de la finestra</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps/seqüència (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia al gràfic de temps/seqüència d&apos;estil tcptrace</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>All Data Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els paquets de dades</translation>
     </message>
     <message>
         <source>Sampling from all data packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostreig de tots els paquets de dades</translation>
     </message>
     <message>
         <source>All Data Packets w/ SACK</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els paquets de dades amb SACK</translation>
     </message>
     <message>
         <source>Sampling from all data packets w/ SACK</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostreig de tots els paquets de dades amb SACK</translation>
     </message>
     <message>
         <source>Data Packets matching RTT</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets de dades que coincideixen amb RTT</translation>
     </message>
     <message>
         <source>Sampling from RTT packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostreig de paquets RTT</translation>
     </message>
     <message>
         <source>Data Packets matching Karn RTT</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets de dades que coincideixen amb Karn RTT</translation>
     </message>
     <message>
         <source>Sampling from Karn RTT packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostreig de paquets Karn RTT</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Apropa en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Majúscula+Y</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>No Capture Data</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha dades de captura</translation>
     </message>
     <message>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 pqts, %3 %4 %5 pqts, %6 </translation>
     </message>
     <message>
         <source>Sequence Numbers (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Números de seqüència (Stevens)</translation>
     </message>
     <message>
         <source>Sequence Numbers (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Números de seqüència (tcptrace)</translation>
     </message>
     <message>
         <source> (MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (MA)</translation>
     </message>
     <message>
         <source> (%1 Segment MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (%1 segment MA)</translation>
     </message>
     <message>
         <source> [not enough data]</source>
-        <translation type="unfinished"></translation>
+        <translation> [no hi ha prou dades]</translation>
     </message>
     <message>
         <source> for %1:%2 %3 %4:%5</source>
-        <translation type="unfinished"></translation>
+        <translation> per a %1:%2 %3 %4:%5</translation>
     </message>
     <message>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>Solta per a zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>El rang no s&apos;ha pogut seleccionar.</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>Feu clic per a triar una part del gràfic.</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
 </context>
 <context>
     <name>TLSKeylogDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>Command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Línia d&apos;ordres</translation>
     </message>
     <message>
         <source>Run an application with the SSLKEYLOGFILE environment variable set to the file specified by the TLS key log filename preference. This enables TLS decryption in Wireshark. Set the key log file and start the capture before launching the application to ensure that the initial TLS handshakes are captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Executa una aplicació amb l&apos;entorn SSLKEYLOGFILE establert al fitxer especificat per la preferència de nom de fitxer de registre de clau TLS. Això activa la desencriptació TLS del Wireshark. Establiu el fitxer de registre de claus i l&apos;inici de la captura abans de llançar l&apos;aplicació per a assegurar que les encaixades de mans inicials TLS es capturen.</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;Firefox and Chrome are known to work. If your desired browser is currently running, close it first before launching it below. Command line options are supported.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;Se sap que el Firefox i el Chrome funcionen. Si el vostre navegador s&apos;executa, tanqueu-lo abans de llançar-lo més avall. Les opcions de línia de comandes estan suportades.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>TLS (Pre)-Master-Secret log file path (tls.keylog_file)</source>
-        <translation type="unfinished"></translation>
+        <translation>Camí del fitxer de registre TLS (Pre)-Master-Secret (tls.keylog_file)</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-size:small;&quot;&gt;TLS session secrets will be logged to this file. If you change this field, hit the Save button to update the TLS protocol preferences.&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span style=&quot; font-size:small;&quot;&gt;Els secrets de sessió TLS es registraran en aquest fitxer. Si canvieu aquest camp, premeu el botó de desada per a actualitzar les preferències de protocol TLS.&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Launch application with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Llança l&apos;aplicació amb SSLKEYLOGFILE</translation>
     </message>
     <message>
         <source>Launch</source>
-        <translation type="unfinished"></translation>
+        <translation>Llança</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa</translation>
     </message>
     <message>
         <source>TLS Keylog file</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer TLS keylog</translation>
     </message>
     <message>
         <source>Program to start with SSLKEYLOGFILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Programa per a iniciar amb SSLKEYLOGFILE</translation>
     </message>
 </context>
 <context>
     <name>TapParameterDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Item</source>
-        <translation type="unfinished"></translation>
+        <translation>Element</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Regenera les estadístiques amb aquest filtre de visualització</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia una representació del text de l&apos;arbre al porta-retalls</translation>
     </message>
     <message>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>Save the displayed data in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades visualitzades en diferents formats</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega-ho tot</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandeix-ho tot</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les estadístiques com a…</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer de text net (*.txt);;Valors separats per comes (*.csv);;Document XML (*.xml);;Document YAML (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer de text net (*.txt)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha produït un error mentre es desava el fitxer %1</translation>
     </message>
 </context>
 <context>
     <name>TimeShiftDialog</name>
     <message>
         <source>Shift all packets by</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica els desplaçaments de temps de tots els paquets en</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Set the time for packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix el temps per al paquet</translation>
     </message>
     <message>
         <source>to</source>
-        <translation type="unfinished"></translation>
+        <translation>a</translation>
     </message>
     <message>
         <source>…then set packet</source>
         <oldsource>...then set packet</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>…llavors estableix el paquet</translation>
     </message>
     <message>
         <source>and extrapolate the time for all other packets</source>
-        <translation type="unfinished"></translation>
+        <translation>i extrapola el temps de tots els altres paquets</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[AAAA-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
-        <translation type="unfinished"></translation>
+        <translation>Desfés tots els desplaçaments de temps</translation>
     </message>
     <message>
         <source>Time Shift</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaçament de temps</translation>
     </message>
     <message>
         <source>Frame numbers must be between 1 and %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els nombres de trama han d&apos;estar entre 1 i %1.</translation>
     </message>
     <message>
         <source>Invalid frame number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Número de trama no vàlid.</translation>
     </message>
     <message>
         <source>Time shifting is not available while capturing packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mentre es capturen paquets, el desplaçament de temps no està disponible.</translation>
     </message>
 </context>
 <context>
     <name>TrafficTab</name>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished"></translation>
+        <translation>Error del fitxer de mapa</translation>
     </message>
     <message>
         <source>Could not open base file %1 for reading: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>El fitxer base %1 no s&apos;ha pogut obrir per a llegir-lo: %2</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha punts finals disponibles per a mapejar.</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut crear el fitxer temporal.</translation>
     </message>
 </context>
 <context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra els noms d&apos;adreces resoltes i de ports en lloc dels valors nets. Cal activar l&apos;opció de resolució de noms corresponent.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolució del nom</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display exact numbers instead of rounding with SI prefixes. (Exact numbers always used when sorting.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra nombres exactes en lloc d&apos;arrodonir-los amb prefixos SI. (Sempre es fan servir els valors exactes per a ordenar.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les dades en brut</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra només les converses que compleixin el filtre de visualització actual&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limita al filtre de visualització</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show types matching the filter value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra només els tipus que coincideixin amb el valor del filtre&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Filter list for specific type</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra la llista per tipus específics</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra el temps absolut a la columna de temps d&apos;inici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>GroupBox</translation>
     </message>
     <message>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;inici absolut</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconegut/da</translation>
     </message>
 </context>
 <context>
     <name>TrafficTree</name>
     <message>
         <source>Resize all columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona totes les columnes pel contingut</translation>
     </message>
     <message>
         <source>Filter on stream id</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra amb l&apos;id de flux</translation>
     </message>
     <message>
         <source>Copy %1 table</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la taula %1</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>com a CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia tots els valors d&apos;aquesta pàgina al porta-retalls en format CSV (valors separats per coma).</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>com a YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia tots els valors d&apos;aquesta pàgina al porta-retalls en format de serialització de dades YAML.</translation>
     </message>
     <message>
         <source>as JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>com a JSON</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the JSON data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia tots els valors d&apos;aquesta pàgina al porta-retalls en format de serialització de dades JSON.</translation>
     </message>
     <message>
         <source>Save data as raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les dades com a raw</translation>
     </message>
     <message>
         <source>Disable data formatting for export/clipboard and save as raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactiva la formatació de dades per a exportar/porta-retalls i desa-les com a dades en brut</translation>
     </message>
 </context>
 <context>
     <name>TrafficTreeHeaderView</name>
     <message>
         <source>Less than</source>
-        <translation type="unfinished"></translation>
+        <translation>Menor que</translation>
     </message>
     <message>
         <source>Greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>Major que</translation>
     </message>
     <message>
         <source>Equal</source>
-        <translation type="unfinished"></translation>
+        <translation>Igual</translation>
     </message>
     <message>
         <source>Columns to display</source>
-        <translation type="unfinished"></translation>
+        <translation>Columnes a mostrar</translation>
     </message>
     <message>
         <source>Filter %1 by</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra %1 per</translation>
     </message>
     <message>
         <source>Enter filter value</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriviu el valor del filtre</translation>
     </message>
 </context>
 <context>
     <name>TrafficTypesModel</name>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
 </context>
 <context>
     <name>UatDialog</name>
     <message>
         <source>Create a new entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea una entrada nova.</translation>
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau les entrades seleccionades.</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les entrades seleccionades.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou les entrades seleccionades cap amunt.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou les entrades seleccionades cap avall.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra totes les entrades.</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula accessible d&apos;usuaris desconeguda</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Obre</translation>
     </message>
 </context>
 <context>
     <name>UatFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Create a new entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea una entrada nova.</translation>
     </message>
     <message>
         <source>Remove the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau les entrades seleccionades.</translation>
     </message>
     <message>
         <source>Copy the selected entry(ies).</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les entrades seleccionades.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou les entrades seleccionades cap amunt.</translation>
     </message>
     <message>
         <source>Move the selected entry(ies) down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou les entrades seleccionades cap avall.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra totes les entrades.</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia les entrades d&apos;un altre perfil.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia de</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Taula accessible d&apos;usuaris desconeguda</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Obre</translation>
     </message>
 </context>
 <context>
     <name>VoipCallsDialog</name>
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra només les converses que compleixin el filtre de visualització actual&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limita al filtre de visualització</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora del dia</translation>
     </message>
     <message>
         <source>Flow &amp;Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Seqüència de flux</translation>
     </message>
     <message>
         <source>Show flow sequence for selected call(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la seqüència de flux per a les crides seleccionades.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected calls(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara un filtre que coincideixi amb les crides seleccionades.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <source>Open copy menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre el menú de copiar</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots</translation>
     </message>
     <message>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona-ho tot</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Cap</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix</translation>
     </message>
     <message>
         <source>Invert selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverteix la selecció</translation>
     </message>
     <message>
         <source>Select related RTP streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona els fluxos RTP relacionats</translation>
     </message>
     <message>
         <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona els fluxos RTP relacionats amb les trucades seleccionades al diàleg de fluxos RTP</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect related RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau la selecció dels fluxos RTP relacionats</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra la selecció</translation>
     </message>
     <message>
         <source>Display time as time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps com a l&apos;hora del dia</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a CSV</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la llista de fluxos com a CSV.</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia com a YAML</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la llista de fluxos com a YAML.</translation>
     </message>
     <message>
         <source>SIP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos SIP</translation>
     </message>
     <message>
         <source>VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>Trucades VoIP</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>com a CSV</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>com a YAML</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona</translation>
     </message>
 </context>
 <context>
     <name>VoipCallsInfoModel</name>
     <message>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Activat</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Desactivat</translation>
     </message>
     <message>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunelització: %1  Inici ràpid: %2</translation>
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;inici</translation>
     </message>
     <message>
         <source>Stop Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps de parada</translation>
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
+        <translation>Interlocutor inicial</translation>
     </message>
     <message>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>De</translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocol</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Durada</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets</translation>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>Estat</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentaris</translation>
     </message>
 </context>
 <context>
     <name>WelcomePage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulari</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Us donem la benvinguda al Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Obre un fitxer al vostre sistema&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Obre&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers de captura recents</translation>
     </message>
     <message>
         <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxers de captura que s&apos;han obert anteriorment</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Captura paquets en directe de la vostra xarxa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Captura&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>…fent servir aquest filtre:</translation>
     </message>
     <message>
         <source>Interface list</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista d&apos;interfícies</translation>
     </message>
     <message>
         <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Llista d&apos;interfícies de captura disponibles</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Aprén&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -13088,2434 +13222,2467 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: palette(text);
+  text-decoration: none;
+}
+a:hover {
+  color: palette(text);
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Guia d&apos;usuari&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Viqui&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Preguntes i respostes&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Llistes de correu&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://sharkfest.wireshark.org/&quot;&gt;SharkFest&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://discord.com/invite/ts9GZCjGj5&quot;&gt;Discord del Wireshark&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiresharkfoundation.org/donate/&quot;&gt;Donatius&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra al cercador</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra a la carpeta</translation>
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Us donem la benvinguda al %1</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Es mostren totes les interfícies</translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation type="unfinished">
-            <numerusform>%n interface shown, %1 hidden</numerusform>
-            <numerusform>%n interfaces shown, %1 hidden</numerusform>
+        <translation>
+            <numerusform>%n interfície mostrada, %1 d&apos;amagades</numerusform>
+            <numerusform>%n interfícies mostrades, %1 d&apos;amagades</numerusform>
         </translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Esteu esnifant el pegament que manté unida la Internet fent servir el Wireshark</translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir el Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;executa l&apos;Stratoshark.</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;executa el Wireshark.</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebeu actualitzacions automàtiques.</translation>
     </message>
     <message>
         <source> You have disabled automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Heu desactivat les actualitzacions automàtiques.</translation>
     </message>
     <message>
         <source>not found</source>
-        <translation type="unfinished"></translation>
+        <translation>no trobat</translation>
     </message>
     <message>
         <source>Copy file path</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia el camí del fitxer</translation>
     </message>
     <message>
         <source>Remove from list</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau de la llista</translation>
     </message>
 </context>
 <context>
     <name>WirelessFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Estableix el canal 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Canal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When capturing, show all frames, ones that have a valid frame check sequence (FCS), or ones with an invalid FCS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quan es captura, mostra totes les trames: les que tinguin una seqüència de comprovació de trama vàlida (FCS) i les que tinguin un FCS no vàlid.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>FCS Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre FCS</translation>
     </message>
     <message>
         <source>All Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les trames</translation>
     </message>
     <message>
         <source>Valid Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames vàlides</translation>
     </message>
     <message>
         <source>Invalid Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Trames no vàlides</translation>
     </message>
     <message>
         <source>Wireless controls are not supported in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>En aquesta versió del Wireshark no es suporten els controls sense fils.</translation>
     </message>
     <message>
         <source>External Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajudant extern</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the IEEE 802.11 preferences, including decryption keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra les preferències de l&apos;IEEE 802.11, incloent les claus de desencriptació.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>802.11 Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferències de 802.11</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut seleccionar el canal ni l&apos;òfset.</translation>
     </message>
     <message>
         <source>Unable to set FCS validation behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot establir el comportament de validació FCS.</translation>
     </message>
 </context>
 <context>
     <name>WirelessTimeline</name>
     <message>
         <source>Packet number %1 does not include TSF timestamp, not showing timeline.</source>
-        <translation type="unfinished"></translation>
+        <translation>El número de paquet %1 no inclou la marca de temps TSF. La línia de temps no es mostra.</translation>
     </message>
     <message>
         <source>Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>El número de paquet %u té un salt negatiu gran al TSF i no se&apos;n mostra la línia de temps. Potser el punt de referència de TSF s&apos;ha establert malament?</translation>
     </message>
 </context>
 <context>
     <name>WiresharkDialog</name>
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut afegir al TAP «%1»</translation>
     </message>
 </context>
 <context>
     <name>WiresharkMainWindow</name>
     <message>
         <source>Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark</translation>
     </message>
     <message>
         <source>Go to packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel·la</translation>
     </message>
     <message>
         <source>File Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Conjunt de fitxers</translation>
     </message>
     <message>
         <source>Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta les disseccions de paquets</translation>
     </message>
     <message>
         <source>Export Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els objectes</translation>
     </message>
     <message>
         <source>&amp;Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zoom</translation>
     </message>
     <message>
         <source>&amp;Time Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de visualització del &amp;temps</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Manual pages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pàgines del manual</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica com a filtre</translation>
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Prepara com a filtre</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>TCP Stream Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics de fluxos TCP</translation>
     </message>
     <message>
         <source>BACnet</source>
-        <translation type="unfinished"></translation>
+        <translation>BACnet</translation>
     </message>
     <message>
         <source>HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fitxer</translation>
     </message>
     <message>
         <source>&amp;Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Captura</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ajuda</translation>
     </message>
     <message>
         <source>&amp;Go</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vés</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Visualitza</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Analitza</translation>
     </message>
     <message>
         <source>Follow</source>
-        <translation type="unfinished"></translation>
+        <translation>Segueix</translation>
     </message>
     <message>
         <source>&amp;Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Estadístiques</translation>
     </message>
     <message>
         <source>29West</source>
-        <translation type="unfinished"></translation>
+        <translation>29West</translation>
     </message>
     <message>
         <source>Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>Temes</translation>
     </message>
     <message>
         <source>Queues</source>
-        <translation type="unfinished"></translation>
+        <translation>Cues</translation>
     </message>
     <message>
         <source>UIM</source>
-        <translation type="unfinished"></translation>
+        <translation>UIM</translation>
     </message>
     <message>
         <source>Telephon&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>Tele&amp;fonia</translation>
     </message>
     <message>
         <source>RTSP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Edita</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentaris del paquet</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra d&apos;eines principal</translation>
     </message>
     <message>
         <source>Display Filter Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra d&apos;eines de filtre de visualització</translation>
     </message>
     <message>
         <source>Open a capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre un fitxer de captura</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Surt del Wireshark</translation>
     </message>
     <message>
         <source>&amp;Start</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Inicia</translation>
     </message>
     <message>
         <source>Start capturing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Comença a capturar paquets</translation>
     </message>
     <message>
         <source>S&amp;top</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Para</translation>
     </message>
     <message>
         <source>Stop capturing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Detén la captura dels paquets.</translation>
     </message>
     <message>
         <source>No files found</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;han trobat fitxers.</translation>
     </message>
     <message>
         <source>TShark</source>
-        <translation type="unfinished"></translation>
+        <translation>TShark</translation>
     </message>
     <message>
         <source>Rawshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Dumpcap</translation>
     </message>
     <message>
         <source>Mergecap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergecap</translation>
     </message>
     <message>
         <source>Editcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Editcap</translation>
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Lloc web</translation>
     </message>
     <message>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>Descàrregues</translation>
     </message>
     <message>
         <source>Wiki</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiki</translation>
     </message>
     <message>
         <source>Sample Captures</source>
-        <translation type="unfinished"></translation>
+        <translation>Captures d&apos;exemple</translation>
     </message>
     <message>
         <source>&amp;About Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Quant al Wireshark</translation>
     </message>
     <message>
         <source>Ask (Q&amp;&amp;A)</source>
-        <translation type="unfinished"></translation>
+        <translation>Consulta (Q&amp;&amp;A)</translation>
     </message>
     <message>
         <source>Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet següent</translation>
     </message>
     <message>
         <source>Go to the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet següent</translation>
     </message>
     <message>
         <source>Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet anterior</translation>
     </message>
     <message>
         <source>Go to the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet anterior</translation>
     </message>
     <message>
         <source>First Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer paquet</translation>
     </message>
     <message>
         <source>Go to the first packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al primer paquet</translation>
     </message>
     <message>
         <source>Last Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Últim paquet</translation>
     </message>
     <message>
         <source>Go to the last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a l&apos;últim paquet</translation>
     </message>
     <message>
         <source>E&amp;xpand Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>E&amp;xpandeix els subarbres</translation>
     </message>
     <message>
         <source>Expand the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandeix els detalls dels paquets actuals</translation>
     </message>
     <message>
         <source>&amp;Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Expandeix-ho tot</translation>
     </message>
     <message>
         <source>Expand packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Expandeix els detalls de paquet</translation>
     </message>
     <message>
         <source>Collapse &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ple&amp;ga-ho tot</translation>
     </message>
     <message>
         <source>Collapse all packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega els detalls de tots els paquets.</translation>
     </message>
     <message>
         <source>Go to specified packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet especificat</translation>
     </message>
     <message>
         <source>Merge one or more files</source>
-        <translation type="unfinished"></translation>
+        <translation>Combina un o més fitxers</translation>
     </message>
     <message>
         <source>Import a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa un fitxer</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Desa</translation>
     </message>
     <message>
         <source>Save as a different file</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa com a un fitxer diferent</translation>
     </message>
     <message>
         <source>Export specified packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els paquets especificats</translation>
     </message>
     <message>
         <source>Export TLS Session Keys…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta les claus de sessió TLS…</translation>
     </message>
     <message>
         <source>List Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Enumera els fitxers</translation>
     </message>
     <message>
         <source>Next File</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent fitxer</translation>
     </message>
     <message>
         <source>Previous File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer anterior</translation>
     </message>
     <message>
         <source>&amp;Reload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Torna a carregar</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions</translation>
     </message>
     <message>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions de captura</translation>
     </message>
     <message>
         <source>Capture filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres de captura</translation>
     </message>
     <message>
         <source>Refresh Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitza les interfícies</translation>
     </message>
     <message>
         <source>Refresh interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualitza les interfícies</translation>
     </message>
     <message>
         <source>&amp;Restart</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reinicia</translation>
     </message>
     <message>
         <source>Restart current capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a iniciar la captura actual.</translation>
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a &amp;CSV…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a taules en C…</translation>
     </message>
     <message>
         <source>As P&amp;SML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a P&amp;SML XML…</translation>
     </message>
     <message>
         <source>As P&amp;DML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a P&amp;DML XML…</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a &amp;JSON…</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripció</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom del camp</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor</translation>
     </message>
     <message>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a filtre</translation>
     </message>
     <message>
         <source>Close this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Tanca aquest fitxer de captura</translation>
     </message>
     <message>
         <source>Packet:</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet:</translation>
     </message>
     <message>
         <source>Interface Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Barres d&apos;eines d&apos;interfície</translation>
     </message>
     <message>
         <source>Colorize Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Acoloreix la conversa</translation>
     </message>
     <message>
         <source>Internals</source>
-        <translation type="unfinished"></translation>
+        <translation>Internes</translation>
     </message>
     <message>
         <source>Additional Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Barres d&apos;eines addicionals</translation>
     </message>
     <message>
         <source>Conversation Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de converses</translation>
     </message>
     <message>
         <source>Reliable Server Pooling (RSerPool)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reliable Server Pooling (RSerPool)</translation>
     </message>
     <message>
         <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP</translation>
     </message>
     <message>
         <source>&amp;DTN</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DTN</translation>
     </message>
     <message>
         <source>Osmux</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
         <oldsource>Tools</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Eines</translation>
     </message>
     <message>
         <source>Wireless Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra d&apos;eines dels sense fils</translation>
     </message>
     <message>
         <source>FAQs</source>
-        <translation type="unfinished"></translation>
+        <translation>Preguntes més freqüents</translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent paquet de la conversa</translation>
     </message>
     <message>
         <source>Go to the next packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al següent paquet d&apos;aquesta conversa</translation>
     </message>
     <message>
         <source>Previous Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Anterior paquet de la conversa</translation>
     </message>
     <message>
         <source>Go to the previous packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a l&apos;anterior paquet d&apos;aquesta conversa</translation>
     </message>
     <message>
         <source>Next Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent paquet de l&apos;historial</translation>
     </message>
     <message>
         <source>Go to the next packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al següent paquet de l&apos;historial de selecció</translation>
     </message>
     <message>
         <source>Previous Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet anterior de l&apos;historial</translation>
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a l&apos;anterior paquet de l&apos;historial de selecció</translation>
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega els subarbres</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>Plega els detalls del paquet actual</translation>
     </message>
     <message>
         <source>Go to Packet…</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet…</translation>
     </message>
     <message>
         <source>&amp;Merge…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Combina…</translation>
     </message>
     <message>
         <source>&amp;Import from Hex Dump…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importa des d&apos;un bolcat hexadecimal…</translation>
     </message>
     <message>
         <source>Save this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa aquest fitxer de captura</translation>
     </message>
     <message>
         <source>Save &amp;As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa &amp;com a…</translation>
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els paquets especificats…</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els &amp;bytes del paquet…</translation>
     </message>
     <message>
         <source>&amp;Print…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Imprimeix…</translation>
     </message>
     <message>
         <source>Reload this file</source>
-        <translation type="unfinished"></translation>
+        <translation>Recarrega aquest fitxer</translation>
     </message>
     <message>
         <source>Reload as File Format/Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a carregar com a captura/format de fitxer</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia la descripció d&apos;aquest element</translation>
     </message>
     <message>
         <source>Copy this item&apos;s field name</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia el nom de camp d&apos;aquest element</translation>
     </message>
     <message>
         <source>Copy this item&apos;s value</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia el valor d&apos;aquest element</translation>
     </message>
     <message>
         <source>Copy this item as a display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia aquest element com a filtre de visualització</translation>
     </message>
     <message>
         <source>Apply as Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplica com a columna</translation>
     </message>
     <message>
         <source>Create a packet list column from the selected field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea una columna de llista de paquets del camp seleccionat.</translation>
     </message>
     <message>
         <source>Find a packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca un paquet</translation>
     </message>
     <message>
         <source>Find the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el paquet següent</translation>
     </message>
     <message>
         <source>Find the previous packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Mark/Unmark Packet(s)</source>
-        <oldsource>&amp;Mark/Unmark Packet</oldsource>
-        <translation type="obsolete">&amp;Mark/Unmark Packet</translation>
+        <translation>Cerca el paquet anterior</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca tots els mostrats</translation>
     </message>
     <message>
         <source>Mark all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca tots els paquets mostrats</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Desmarca tots els paquets mostrats</translation>
     </message>
     <message>
         <source>Next Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent marca</translation>
     </message>
     <message>
         <source>Go to the next marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al següent paquet marcat.</translation>
     </message>
     <message>
         <source>Previous Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca anterior</translation>
     </message>
     <message>
         <source>Go to the previous marked packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Ignore/Unignore Packet(s)</source>
-        <oldsource>&amp;Ignore/Unignore Packet</oldsource>
-        <translation type="obsolete">&amp;Ignore/Unignore Packet</translation>
+        <translation>Vés al paquet marcat anterior.</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignora tots els mostrats</translation>
     </message>
     <message>
         <source>Ignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignora tots els paquets mostrats</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix/Restableix la referència de temps</translation>
     </message>
     <message>
         <source>Set or unset a time reference for this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Estableix o restableix una referència temporal per a aquest paquet</translation>
     </message>
     <message>
         <source>Unset All Time References</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix totes les referències de temps</translation>
     </message>
     <message>
         <source>Remove all time references</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau totes les referències temporals</translation>
     </message>
     <message>
         <source>Next Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Següent referència de temps</translation>
     </message>
     <message>
         <source>Go to the next time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a la següent referència de temps</translation>
     </message>
     <message>
         <source>Previous Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Referència de temps anterior</translation>
     </message>
     <message>
         <source>Go to the previous time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a la referència de temps anterior</translation>
     </message>
     <message>
         <source>Shift or change packet timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaça o canvia les marques de temps</translation>
     </message>
     <message>
         <source>Delete All Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra tots els comentaris de paquet</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau tots els comentaris de paquet del fitxer de captura</translation>
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfils de &amp;configuració</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Perfils de configuració</translation>
     </message>
     <message>
         <source>Manage your configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona els perfils de configuració</translation>
     </message>
     <message>
         <source>Manage Wireshark&apos;s preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestiona les preferències del Wireshark</translation>
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propietats del fitxer de captura</translation>
     </message>
     <message>
         <source>Capture file properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propietats del fitxer de captura</translation>
     </message>
     <message>
         <source>&amp;Protocol Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Jerarquia de &amp;protocols</translation>
     </message>
     <message>
         <source>Show a summary of protocols present in the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra un resum dels protocols presents al fitxer de captura.</translation>
     </message>
     <message>
         <source>Capinfos</source>
-        <translation type="unfinished"></translation>
+        <translation>Capinfos</translation>
     </message>
     <message>
         <source>Reordercap</source>
-        <translation type="unfinished"></translation>
+        <translation>Reordercap</translation>
     </message>
     <message>
         <source>Time Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Durada de la seqüència (Stevens)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic de la seqüència de temps TCP (Stevens)</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Cabal</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;anada i tornada</translation>
     </message>
     <message>
         <source>TCP round trip time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps d&apos;anada i tornada TCP</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escalat de la finestra</translation>
     </message>
     <message>
         <source>TCP window scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Escalat de la finestra TCP</translation>
     </message>
     <message>
         <source>HTTP/2 Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux HTTP/2</translation>
     </message>
     <message>
         <source>SIP Call</source>
-        <translation type="unfinished"></translation>
+        <translation>Trucada SIP</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Seqüència de temps (tcptrace)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic de la seqüència de temps TCP (tcptrace)</translation>
     </message>
     <message>
         <source>Analyse this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Analitza aquesta associació</translation>
     </message>
     <message>
         <source>Show All Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra totes les associacions</translation>
     </message>
     <message>
         <source>Flow Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic de flux</translation>
     </message>
     <message>
         <source>Flow sequence diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrama del flux de seqüències</translation>
     </message>
     <message>
         <source>ANCP</source>
-        <translation type="unfinished"></translation>
+        <translation>ANCP</translation>
     </message>
     <message>
         <source>ANCP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques ANCP</translation>
     </message>
     <message>
         <source>Packets sorted by Instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets ordenats per ID d&apos;instància</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de BACapp ordenades per ID d&apos;instància</translation>
     </message>
     <message>
         <source>Packets sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets ordenats per IP</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de BACapp ordenades per IP</translation>
     </message>
     <message>
         <source>Packets sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets ordenats per tipus d&apos;objecte</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de BACapp ordenades per tipus d&apos;objecte</translation>
     </message>
     <message>
         <source>Packets sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets ordenats per servei</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de BACapp ordenades per servei</translation>
     </message>
     <message>
         <source>Collectd</source>
-        <translation type="unfinished"></translation>
+        <translation>Collectd</translation>
     </message>
     <message>
         <source>Collectd statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de Collectd</translation>
     </message>
     <message>
         <source>DNS</source>
-        <translation type="unfinished"></translation>
+        <translation>DNS</translation>
     </message>
     <message>
         <source>DNS statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques DNS</translation>
     </message>
     <message>
         <source>HART-IP</source>
-        <translation type="unfinished"></translation>
+        <translation>HART-IP</translation>
     </message>
     <message>
         <source>HART-IP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques HART-IP</translation>
     </message>
     <message>
         <source>HPFEEDS</source>
-        <translation type="unfinished"></translation>
+        <translation>HPFEEDS</translation>
     </message>
     <message>
         <source>hpfeeds statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques hpfeeds</translation>
     </message>
     <message>
         <source>HTTP2</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP2</translation>
     </message>
     <message>
         <source>HTTP2 statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques HTTP2</translation>
     </message>
     <message>
         <source>Packet Counter</source>
-        <translation type="unfinished"></translation>
+        <translation>Comptador de paquets</translation>
     </message>
     <message>
         <source>HTTP packet counter</source>
-        <translation type="unfinished"></translation>
+        <translation>Comptador de paquets HTTP</translation>
     </message>
     <message>
         <source>Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds</translation>
     </message>
     <message>
         <source>HTTP requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds HTTP</translation>
     </message>
     <message>
         <source>Load Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribució de càrrega</translation>
     </message>
     <message>
         <source>HTTP load distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Distribució de càrrega HTTP</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
-        <translation type="unfinished"></translation>
+        <translation>Llargàries dels paquets</translation>
     </message>
     <message>
         <source>Packet length statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de llargàries dels paquets</translation>
     </message>
     <message>
         <source>Sametime</source>
-        <translation type="unfinished"></translation>
+        <translation>Sametime</translation>
     </message>
     <message>
         <source>Sametime statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de Sametime</translation>
     </message>
     <message>
         <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges de SOME/IP</translation>
     </message>
     <message>
         <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de missatges SOME/IP</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrades SOME/IP-SD</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques d&apos;entrades SOME/IP-SD</translation>
     </message>
     <message>
         <source>&amp;LTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTP</translation>
     </message>
     <message>
         <source>LTP segment and block statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de segments i blocs LTP</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges &amp;ISUP</translation>
     </message>
     <message>
         <source>ISUP message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de missatges ISUP</translation>
     </message>
     <message>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Comptadors de paquets Osmux</translation>
     </message>
     <message>
         <source>RTSP packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Comptadors de paquets RTSP</translation>
     </message>
     <message>
         <source>SM&amp;PP Operations</source>
-        <translation type="unfinished"></translation>
+        <translation>Operacions SM&amp;PP</translation>
     </message>
     <message>
         <source>SMPP operation statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques d&apos;operacions SMPP</translation>
     </message>
     <message>
         <source>&amp;UCP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges &amp;UCP</translation>
     </message>
     <message>
         <source>UCP message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de missatges UCP</translation>
     </message>
     <message>
         <source>F1AP</source>
-        <translation type="unfinished"></translation>
+        <translation>F1AP</translation>
     </message>
     <message>
         <source>F1AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges F1AP</translation>
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges NGAP</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvia la manera en la qual es disseccionen els paquets</translation>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a carregar els complements Lua</translation>
     </message>
     <message>
         <source>Reload Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a carregar els complements Lua</translation>
     </message>
     <message>
         <source>Advertisements by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Anuncis per tema</translation>
     </message>
     <message>
         <source>Advertisements by Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Anuncis per origen</translation>
     </message>
     <message>
         <source>Advertisements by Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Anuncis per transport</translation>
     </message>
     <message>
         <source>Queries by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds per tema</translation>
     </message>
     <message>
         <source>Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds per receptor</translation>
     </message>
     <message>
         <source>Wildcard Queries by Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds comodí per patró</translation>
     </message>
     <message>
         <source>Wildcard Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds comodí per receptor</translation>
     </message>
     <message>
         <source>Advertisements by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>Anuncis per cua</translation>
     </message>
     <message>
         <source>Queries by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds per cua</translation>
     </message>
     <message>
         <source>Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos</translation>
     </message>
     <message>
         <source>LBT-RM</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RM</translation>
     </message>
     <message>
         <source>LBT-RU</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RU</translation>
     </message>
     <message>
         <source>Filter this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra aquesta associació</translation>
     </message>
     <message>
         <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau les capçaleres…</translation>
     </message>
     <message>
         <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau les capçaleres i exporta al fitxer les encapsulacions de nivell més alt</translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics d&apos;&amp;E/S</translation>
     </message>
     <message>
         <source>&amp;Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Converses</translation>
     </message>
     <message>
         <source>&amp;Endpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Punts finals</translation>
     </message>
     <message>
         <source>Shrink the main window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Redueix el text de la finestra principal</translation>
     </message>
     <message>
         <source>Return the main window text to its normal size</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el text de la finestra principal amb la seva mida normal</translation>
     </message>
     <message>
         <source>Reset Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix la disposició</translation>
     </message>
     <message>
         <source>Seconds Since First Captured Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Segons des del primer paquet capturat</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the first captured packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els temps dels paquets en segons des del primer paquet capturat.</translation>
     </message>
     <message>
         <source>Tenths of a millisecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Dècimes de mil·lisegon</translation>
     </message>
     <message>
         <source>Hundredths of a millisecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Centèsimes de mil·lisegon</translation>
     </message>
     <message>
         <source>Tenths of a microsecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Dècimes de microsegon</translation>
     </message>
     <message>
         <source>Hundredths of a microsecond</source>
-        <translation type="unfinished"></translation>
+        <translation>Centèsimes de microsegon</translation>
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Diagrama del paquet</translation>
     </message>
     <message>
         <source>Show or hide the packet diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga el diagrama del paquet.</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra cada taula hash de converses</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra cada taula de dissecció i les seves entrades</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els protocols suportats actualment i els camps de filtre de visualització</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques MAC</translation>
     </message>
     <message>
         <source>LTE MAC statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques LTE MAC</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques RLC</translation>
     </message>
     <message>
         <source>LTE RLC statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques LTE RLC</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfic LTE RLC</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum MTP3</translation>
     </message>
     <message>
         <source>MTP3 summary statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de resums MTP3</translation>
     </message>
     <message>
         <source>Bluetooth Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositius Bluetooth</translation>
     </message>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum HCI Bluetooth</translation>
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra una &amp;expressió de filtre…</translation>
     </message>
     <message>
         <source>Display Filter Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra una expressió de filtre…</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation type="unfinished"></translation>
+        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici de «REGISTER_STAT_GROUP_RSERPOOL»</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha estadístiques GSM registrades.</translation>
     </message>
     <message>
         <source>No LTE statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha estadístiques LTE registrades.</translation>
     </message>
     <message>
         <source>No MTP3 statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha estadístiques MTP3 registrades.</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi de fluxos IAX2</translation>
     </message>
     <message>
         <source>Show Packet Bytes…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els bytes del paquet…</translation>
     </message>
     <message>
         <source>Go to &amp;Linked Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet &amp;enllaçat</translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos de difusió selectiva UDP</translation>
     </message>
     <message>
         <source>Show UTP multicast stream statistics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les estadístiques de fluxos de difusió selectiva</translation>
     </message>
     <message>
         <source>WLAN Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Trànsit de la WLAN</translation>
     </message>
     <message>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les estadístiques de la LAN sense fils IEEE 802.11.</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un botó de filtre de visualització.</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Regles ACL del tallafoc</translation>
     </message>
     <message>
         <source>Create firewall ACL rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea regles ACL de tallafocs</translation>
     </message>
     <message>
         <source>&amp;Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Pantalla completa</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>Credencials</translation>
     </message>
     <message>
         <source>MAC Address Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Blocs d&apos;adreça MAC</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Opcions…</translation>
     </message>
     <message>
         <source>&amp;3GPP Uu</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;3GPP Uu</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sense fils</translation>
     </message>
     <message>
         <source>&amp;User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Guia d&apos;usuari</translation>
     </message>
     <message>
         <source>Wireshark User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>Guia d&apos;usuari del Wireshark</translation>
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres de visualització</translation>
     </message>
     <message>
         <source>Display Filter Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la referència del filtre</translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Primer paquet de la conversa</translation>
     </message>
     <message>
         <source>Go to the first packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al primer paquet d&apos;aquesta conversa</translation>
     </message>
     <message>
         <source>Last Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Últim paquet de la conversa</translation>
     </message>
     <message>
         <source>Go to the last packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés a l&apos;últim paquet d&apos;aquesta conversa</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres de &amp;captura…</translation>
     </message>
     <message>
         <source>As Plain &amp;Text…</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a text &amp;net…</translation>
     </message>
     <message>
         <source>As Plain &amp;Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a text &amp;net</translation>
     </message>
     <message>
         <source>As &amp;CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a &amp;CSV</translation>
     </message>
     <message>
         <source>As &amp;YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a &amp;YAML</translation>
     </message>
     <message>
         <source>As &amp;HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>Com a &amp;HTML</translation>
     </message>
     <message>
         <source>All Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els elements visibles</translation>
     </message>
     <message>
         <source>All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Tots els elements de l&apos;arbre visible seleccionat</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les &amp;macros de filtres…</translation>
     </message>
     <message>
         <source>&amp;Find Packet…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Cerca un paquet…</translation>
     </message>
     <message>
         <source>Find Ne&amp;xt</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca el &amp;següent</translation>
     </message>
     <message>
         <source>Find Pre&amp;vious</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca l&apos;&amp;anterior</translation>
     </message>
     <message>
         <source>&amp;Mark/Unmark Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Marca/Desmarca els seleccionats</translation>
     </message>
     <message>
         <source>Mark or unmark each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca o desmarca cada paquet seleccionat.</translation>
     </message>
     <message>
         <source>&amp;Ignore/Unignore Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ignora/No ignoris els seleccionats</translation>
     </message>
     <message>
         <source>Ignore or unignore each selected packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignora o no ignoris cada paquet seleccionat</translation>
     </message>
     <message>
         <source>U&amp;nignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Deixa d&apos;ignorar tots els mostrats</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>No ignoris tots els paquets mostrats</translation>
     </message>
     <message>
         <source>Time Shift…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaçament de temps…</translation>
     </message>
     <message>
         <source>Inject TLS Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Injecta els secrets TLS</translation>
     </message>
     <message>
         <source>Embed used TLS secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Incrusta els secrets TLS emprats al fitxer de captura</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Descarta tots els secrets</translation>
     </message>
     <message>
         <source>Discard all decryption secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Descarta tots els secrets de desencriptació del fitxer de captura</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Preferències…</translation>
     </message>
     <message>
         <source>TCP throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>Cabal TCP</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>General</translation>
     </message>
     <message>
         <source>Query-Response</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licitud-Resposta</translation>
     </message>
     <message>
         <source>DNS Query-Response Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de Sol·licituds-Respotes DNS</translation>
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>Seqüències de sol·licituds</translation>
     </message>
     <message>
         <source>HTTP Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>Seqüències de sol·licituds HTTP</translation>
     </message>
     <message>
         <source>E2AP</source>
-        <translation type="unfinished"></translation>
+        <translation>E2AP</translation>
     </message>
     <message>
         <source>E2AP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Missatges E2AP</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Descodifica com a…</translation>
     </message>
     <message>
         <source>Export PDUs to File…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els PDU a un fitxer…</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea gràfics en funció dels camps dels filtres de visualització</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Barra d&apos;eines principal</translation>
     </message>
     <message>
         <source>Show or hide the main toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga la barra d&apos;eines principal</translation>
     </message>
     <message>
         <source>&amp;Filter Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra d&apos;eines del &amp;filtre</translation>
     </message>
     <message>
         <source>Show or hide the display filter toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga la barra d&apos;eines del filtre de visualització</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Converses a nivells de protocol diferents</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Punts finals a nivells de protocol diferents</translation>
     </message>
     <message>
         <source>Colorize Packet List</source>
-        <translation type="unfinished"></translation>
+        <translation>Acoloreix la llista de paquets</translation>
     </message>
     <message>
         <source>Draw packets using your coloring rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Representa els paquets fent servir les vostres regles de coloració</translation>
     </message>
     <message>
         <source>&amp;Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>A&amp;propa</translation>
     </message>
     <message>
         <source>Enlarge the main window text</source>
-        <translation type="unfinished"></translation>
+        <translation>Fes més gran el text de la finestra principal</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>Normal Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Mida normal</translation>
     </message>
     <message>
         <source>Reset layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix la disposició a la seva mida per defecte</translation>
     </message>
     <message>
         <source>Resize Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona les columnes</translation>
     </message>
     <message>
         <source>Resize packet list columns to fit contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Redimensiona les columnes de la llista de paquets pel contingut</translation>
     </message>
     <message>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>Data i hora del dia (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the date and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps del paquet com a data i hora del dia.</translation>
     </message>
     <message>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>Any, dia i hora del dia (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps del paquet com a any, dia de l&apos;any i hora del dia.</translation>
     </message>
     <message>
         <source>Time of Day (01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora del dia (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Seconds Since 1970-01-01</source>
-        <translation type="unfinished"></translation>
+        <translation>Segons des de l&apos;u de gener del 1.970</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els temps dels paquets en segons des de l&apos;inici de l&apos;època UNIX/POSIX (01-01-1970).</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Segons des de l&apos;anterior paquet capturat</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els temps dels paquets en segons des del paquet capturat anterior.</translation>
     </message>
     <message>
         <source>Seconds Since Previous Displayed Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Segons des de l&apos;anterior paquet mostrat</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els temps dels paquets en segons des del paquet mostrat anterior.</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps del paquet com a data i hora del dia UTC.</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps del paquet com a any, dia de l&apos;any i hora del dia UTC.</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el temps del paquet com a hora del dia UTC.</translation>
     </message>
     <message>
         <source>Automatic (from capture file)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automàtic (des del fitxer de captura)</translation>
     </message>
     <message>
         <source>Use the time precision indicated in the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fes servir la precisió de temps indicada al fitxer de captura.</translation>
     </message>
     <message>
         <source>Seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Segons</translation>
     </message>
     <message>
         <source>Tenths of a second</source>
-        <translation type="unfinished"></translation>
+        <translation>Dècimes de segon</translation>
     </message>
     <message>
         <source>Hundredths of a second</source>
-        <translation type="unfinished"></translation>
+        <translation>Centèsimes de segon</translation>
     </message>
     <message>
         <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Mil·lisegons</translation>
     </message>
     <message>
         <source>Microseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Microsegons</translation>
     </message>
     <message>
         <source>Nanoseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Nanosegons</translation>
     </message>
     <message>
         <source>Display Seconds With Hours and Minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra segons amb hores i minuts</translation>
     </message>
     <message>
         <source>Display seconds with hours and minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra segons amb hores i minuts</translation>
     </message>
     <message>
         <source>Resolve &amp;Physical Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol les adreces &amp;físiques</translation>
     </message>
     <message>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els noms de les adreces MAC conegudes. Les cerques fan servir una base de dades local.</translation>
     </message>
     <message>
         <source>Resolve &amp;Network Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol les adreces de &amp;xarxa</translation>
     </message>
     <message>
         <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els noms de les adreces IPv4, IPv6 i IPX conegudes. Les cerques poden generar trànsit per la xarxa.</translation>
     </message>
     <message>
         <source>Resolve &amp;Transport Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol les adreces de &amp;transport</translation>
     </message>
     <message>
         <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els noms dels serveis TCP, UDP i SCTP coneguts. Les cerques poden generar trànsit en alguns sistemes.</translation>
     </message>
     <message>
         <source>Wire&amp;less Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra d&apos;eines dels sense &amp;fils</translation>
     </message>
     <message>
         <source>Show or hide the wireless toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga la barra d&apos;eines dels sense fils</translation>
     </message>
     <message>
         <source>&amp;Status Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra d&apos;e&amp;stat</translation>
     </message>
     <message>
         <source>Show or hide the status bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga la barra d&apos;estat</translation>
     </message>
     <message>
         <source>Packet &amp;List</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Llista de paquets</translation>
     </message>
     <message>
         <source>Show or hide the packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga la llista de paquets</translation>
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Detalls del paquet</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga els detalls de paquet</translation>
     </message>
     <message>
         <source>Packet &amp;Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Bytes del paquet</translation>
     </message>
     <message>
         <source>Show or hide the packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga els bytes del paquet</translation>
     </message>
     <message>
         <source>&amp;Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Taules hash de la &amp;conversa</translation>
     </message>
     <message>
         <source>&amp;Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Taules de &amp;dissectors</translation>
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Protocols &amp;suportats</translation>
     </message>
     <message>
         <source>MAP Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Resum MAP</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de resum GSM MAP</translation>
     </message>
     <message>
         <source>RLC &amp;Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Gràfic RLC</translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
-        <translation type="unfinished"></translation>
+        <translation>Regles de &amp;coloració…</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el paquet enllaçat en una finestra nova</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Regla de coloració nova…</translation>
     </message>
     <message>
         <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi del flux RTP per al flux seleccionat. Premeu la tecla CTRL per a afegir també el flux de retorn.</translation>
     </message>
     <message>
         <source>RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Reproductor RTP</translation>
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
-        <translation type="unfinished"></translation>
+        <translation>Reprodueix el flux seleccionat. Premeu la tecla CTRL per a reproduir també el flux de retorn.</translation>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi de fluxos IA&amp;X2</translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Protocols activats…</translation>
     </message>
     <message>
         <source>Wiki Protocol Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Pàgina wiki del protocol</translation>
     </message>
     <message>
         <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre la pàgina wiki del Wireshark per a aquest protocol.</translation>
     </message>
     <message>
         <source>Filter Field Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtra la referència del filtre</translation>
     </message>
     <message>
         <source>Open the display filter reference page for this filter field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre la pàgina de referència del filtre de visualització per al camp del filtre.</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet referenciat pel camp seleccionat.</translation>
     </message>
     <message>
         <source>TLS Keylog Launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfície d&apos;inici del TLS keylog</translation>
     </message>
     <message>
         <source>Release Notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Notes de la versió</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>Trucades &amp;VoIP</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre&apos;n un de &amp;recent</translation>
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resol&amp;ució del nom</translation>
     </message>
     <message>
         <source>Service &amp;Response Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps de &amp;resposta del servei</translation>
     </message>
     <message>
         <source>&amp;RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;RTP</translation>
     </message>
     <message>
         <source>S&amp;CTP</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;CTP</translation>
     </message>
     <message>
         <source>&amp;ANSI</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ANSI</translation>
     </message>
     <message>
         <source>&amp;GSM</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;GSM</translation>
     </message>
     <message>
         <source>&amp;MTP3</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;MTP3</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Obre</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Surt</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tanca</translation>
     </message>
     <message>
         <source>Display &amp;Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els &amp;filtres…</translation>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Desmarca tots els mostrats</translation>
     </message>
     <message>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>Data i hora del dia UTC (1970-01-01 01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>Any, dia de l&apos;any i hora del dia (1970/001 01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>UTC Time of Day (01:02:03.123456Z)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora del dia UTC (01:02:03.123456Z)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les trucades VoIP</translation>
     </message>
     <message>
         <source>SIP &amp;Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fluxos SIP</translation>
     </message>
     <message>
         <source>SIP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos SIP</translation>
     </message>
     <message>
         <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluxos RTP</translation>
     </message>
     <message>
         <source>Edit the packet list coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita les regles de coloració de la llista de paquets.</translation>
     </message>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
         <oldsource>ATT Server Attributes</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Atributs del servidor ATT Bluetooth</translation>
     </message>
     <message>
         <source>Show Packet in New &amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el paquet en una &amp;finestra nova</translation>
     </message>
     <message>
         <source>Show this packet in a separate window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el paquet en una finestra a banda.</translation>
     </message>
     <message>
         <source>Show the linked packet in a separate window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el paquet enllaçat en una finestra a banda.</translation>
     </message>
     <message>
         <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaçament automàtic en captures en &amp;directe</translation>
     </message>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaça automàticament fins a l&apos;últim paquet durant les captures en directe.</translation>
     </message>
     <message>
         <source>Expert Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informació avançada</translation>
     </message>
     <message>
         <source>Show expert notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra les notificacions expertes</translation>
     </message>
     <message>
         <source>Add an expression to the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix una expressió al filtre de visualització.</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation type="unfinished"></translation>
+        <translation>REGISTER_STAT_GROUP_UNSORTED</translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici de «REGISTER_STAT_GROUP_UNSORTED»</translation>
     </message>
     <message>
         <source>No ANSI statistics registered</source>
         <oldsource>No tools registered</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha estadístiques ANSI registrades.</translation>
     </message>
     <message>
         <source>Resolved Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adreces resoltes</translation>
     </message>
     <message>
         <source>Show each table of resolved addresses as copyable text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra cada taula d&apos;adreces resoltes com a text que es pot copiar.</translation>
     </message>
     <message>
         <source>Color &amp;1</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;1</translation>
     </message>
     <message>
         <source>Mark the current conversation with its own color.</source>
         <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Marca la conversa actual amb el seu propi color.</translation>
     </message>
     <message>
         <source>Color &amp;2</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;2</translation>
     </message>
     <message>
         <source>Color &amp;3</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;3</translation>
     </message>
     <message>
         <source>Color &amp;4</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;4</translation>
     </message>
     <message>
         <source>Color &amp;5</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;5</translation>
     </message>
     <message>
         <source>Color &amp;6</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;6</translation>
     </message>
     <message>
         <source>Color &amp;7</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;7</translation>
     </message>
     <message>
         <source>Color &amp;8</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;8</translation>
     </message>
     <message>
         <source>Color &amp;9</source>
-        <translation type="unfinished"></translation>
+        <translation>Color &amp;9</translation>
     </message>
     <message>
         <source>Color 1&amp;0</source>
-        <translation type="unfinished"></translation>
+        <translation>Color 1&amp;0</translation>
     </message>
     <message>
         <source>Create a new coloring rule based on this field.</source>
         <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Crea una regla de coloració nova basada en aquest camp.</translation>
     </message>
     <message>
         <source>Reset Colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix la coloració</translation>
     </message>
     <message>
         <source>Reset colorized conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix les converses acolorides.</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi de fluxos RTP</translation>
     </message>
     <message>
         <source>Edit Resolved Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita el nom resolt</translation>
     </message>
     <message>
         <source>Manually edit a name resolution entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita manualment una entrada de resolució de nom.</translation>
     </message>
     <message>
         <source>Enable and disable specific protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa i desactiva els protocols específics</translation>
     </message>
     <message>
         <source> before quitting</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de sortir</translation>
     </message>
     <message>
         <source>Save packets before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu desar els paquets abans de combinar?</translation>
     </message>
     <message>
         <source>A temporary capture file can&apos;t be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un fitxer de captura temporal no es pot combinar.</translation>
     </message>
     <message>
         <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu desar ens canvis de «%1» abans de combinar?</translation>
     </message>
     <message>
         <source>Changes must be saved before the files can be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;han de desar els canvis abans de combinar els fitxers.</translation>
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de lectura no vàlid</translation>
     </message>
     <message>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>abans d&apos;importar una captura</translation>
     </message>
     <message>
         <source>Unable to export to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot exportar a «%1».</translation>
     </message>
     <message>
         <source>You cannot export packets to the current capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>No podeu exportar paquets al fitxer de captura actual.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Voleu desar els canvis que heu fet%1?</translation>
     </message>
     <message>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els paquets capturats es perdran si no es desen.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu desar els canvis que heu fet al fitxer de captura «%1»%2?</translation>
     </message>
     <message>
         <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els canvis es perdran si no es desen.</translation>
     </message>
     <message>
         <source>Check for Updates…</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprova si hi ha actualitzacions…</translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es poden descartar fitxers mentre es fa una captura.</translation>
     </message>
     <message>
         <source>The filter expression &quot;%1&quot; isn&apos;t a valid read filter.
 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>El filtre d&apos;expressió «%1» no és un filtre de lectura vàlid.
+(%2).</translation>
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de fitxer desconegut retornat per un diàleg de combinació.</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Informeu d&apos;això com a problema del Wireshark a la pàgina https://gitlab.com/wireshark/wireshark/-/issues.</translation>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de fitxer desconegut retornat per un diàleg d&apos;exportació.</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu parar la captura i desar els paquets capturats%1?</translation>
     </message>
     <message>
         <source>Do you want to save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voleu desar els paquets capturats%1?</translation>
     </message>
     <message>
         <source>Save before Continue</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa abans de continuar</translation>
     </message>
     <message>
         <source>Stop and Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Para i desa</translation>
     </message>
     <message>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Para i surt s&amp;ense desar</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Surt &amp;sense desar</translation>
     </message>
     <message>
         <source>USB CDC Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Dades USB CDC</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap camp «rtp.ssrc» en aquesta versió del Wireshark.</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccioneu un paquet RTPv2 amb un valor SSRC.</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>El valor SSRC no s&apos;ha trobat.</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o amaga la barra d&apos;eines</translation>
     </message>
     <message>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Continua sense desar</translation>
     </message>
     <message>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Para i continua se&amp;nse desar</translation>
     </message>
     <message>
         <source> before opening another file</source>
-        <translation type="unfinished"></translation>
+        <translation>abans d&apos;obrir un altre fitxer</translation>
     </message>
     <message>
         <source>Merging files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es combinen els fitxers.</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja el menú</translation>
     </message>
     <message>
         <source> before closing the file</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de tancar el fitxer</translation>
     </message>
     <message>
         <source>Export Selected Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta els bytes dels paquets seleccionats</translation>
     </message>
     <message>
         <source>No Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Sense claus</translation>
     </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="vanished">
-            <numerusform>Export SSL Session Keys (%Ln key)</numerusform>
-            <numerusform>Export SSL Session Keys (%Ln keys)</numerusform>
+            <numerusform>Exporta la clau de sessió SSL (%Ln clau)</numerusform>
+            <numerusform>Exporta les claus de sessió SSL (%Ln claus)</numerusform>
         </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Dades en brut (*.bin *.dat *.raw);;Tots els fitxers (</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation type="unfinished"></translation>
+        <translation>El text no s&apos;ha pogut copiar. Intenteu-ho amb un altre element.</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all packet comments?</source>
-        <translation type="unfinished"></translation>
+        <translation>Esteu segur que voleu traure tots els comentaris dels paquets?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>El filtre de conversa no s&apos;ha pogut compilar.</translation>
     </message>
     <message>
         <source> before reloading the file</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de tornar a carregar el fitxer</translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>S&apos;ha produït un error de compilació del filtre d&apos;aquesta conversa.</translation>
     </message>
     <message>
         <source>No previous/next packet in conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>En aquesta conversa no hi ha paquet anterior ni següent.</translation>
     </message>
     <message>
         <source>No interface selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha seleccionat cap interfície.</translation>
     </message>
     <message>
         <source>Saving %1…</source>
-        <translation type="unfinished"></translation>
+        <translation>Es desa %1…</translation>
     </message>
     <message>
         <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura tots els extcaps abans de començar la captura.</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura no vàlid.</translation>
     </message>
     <message>
         <source>(empty comment)</source>
         <comment>placeholder for empty comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>(comentari buit)</translation>
     </message>
     <message>
         <source>Add New Comment…</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un comentari nou…</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Edita «%1»</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Esborra «%1»</translation>
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra els comentaris del paquet</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Esborra els comentaris del paquet</numerusform>
+            <numerusform>Esborra els comentaris dels %n paquets</numerusform>
         </translation>
     </message>
     <message>
         <source> before starting a new capture</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de començar una captura nova</translation>
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de tornar a carregar els complements Lua</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
-        <translation type="unfinished"></translation>
+        <translation>Espereu mentre s&apos;inicialitza el Wireshark…</translation>
     </message>
     <message>
         <source> before updating</source>
-        <translation type="unfinished"></translation>
+        <translation>abans d&apos;actualitzar</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha claus de sessió TLS per a desar.</translation>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform>Export TLS Session Keys (%Ln key)</numerusform>
-            <numerusform>Export TLS Session Keys (%Ln keys)</numerusform>
+        <translation>
+            <numerusform>Exporta la clau de sessió TLS (%Ln clau)</numerusform>
+            <numerusform>Exporta les claus de sessió TLS (%Ln claus)</numerusform>
         </translation>
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Claus de sessió TLS (*.keys *.txt);;Tots els fitxers (</translation>
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha secrets TLS</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha secrets disponibles fets servir per a desencriptar el trànsit TLS del fitxer de captura. Voleu veure informació sobre com desencriptar el trànsit TLS a la wiki?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
-        <translation type="unfinished"></translation>
+        <translation>Esteu segur que voleu descartar tots els secrets de desencriptació?</translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha cap filtre disponible. Intenteu-ho amb un altre %1.</translation>
     </message>
     <message>
         <source>column</source>
-        <translation type="unfinished"></translation>
+        <translation>columna</translation>
     </message>
     <message>
         <source>item</source>
-        <translation type="unfinished"></translation>
+        <translation>element</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>La columna «%1» ja existeix.</translation>
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>La columna «%1» ja existeix com a «%2».</translation>
     </message>
     <message>
         <source>RTP packet search failed</source>
-        <translation type="unfinished"></translation>
+        <translation>La cerca de paquets RTP ha fallat.</translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha seleccionat cap interfície.</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>abans de reiniciar la captura</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Pàgina wiki de %1</translation>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;La viquipèdia del Wireshark la manté la comunitat.&lt;/p&gt;&lt;p&gt;La pàgina que carregareu potser és meravellosa, incompleta, incorrecta o potser ni tan sols existeix.&lt;/p&gt;&lt;p&gt;Voleu continuar a la viqui?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Es carrega</translation>
     </message>
     <message>
         <source>Reloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Es torna a carregar</translation>
     </message>
     <message>
         <source>Rescanning</source>
-        <translation type="unfinished"></translation>
+        <translation>Es torna a escanejar</translation>
     </message>
 </context>
 <context>
     <name>WlanStatisticsDialog</name>
     <message>
         <source>Wireless LAN Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques de la LAN sense fils</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Canal</translation>
     </message>
     <message>
         <source>SSID</source>
-        <translation type="unfinished"></translation>
+        <translation>SSID</translation>
     </message>
     <message>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge de paquets</translation>
     </message>
     <message>
         <source>Percent Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>Percentatge de reintents</translation>
     </message>
     <message>
         <source>Probe Reqs</source>
-        <translation type="unfinished"></translation>
+        <translation>Sol·licituds de prova</translation>
     </message>
     <message>
         <source>Probe Resp</source>
-        <translation type="unfinished"></translation>
+        <translation>Respostes de prova</translation>
     </message>
     <message>
         <source>Auths</source>
-        <translation type="unfinished"></translation>
+        <translation>Auts</translation>
     </message>
     <message>
         <source>Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna a provar</translation>
     </message>
     <message>
         <source>Deauths</source>
-        <translation type="unfinished"></translation>
+        <translation>Deauts</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Altres</translation>
     </message>
 </context>
 </TS>

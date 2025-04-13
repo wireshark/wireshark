@@ -7536,19 +7536,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the field value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation> 各フィールドについて、フィールドの値を含む名前／値のペアをエクスポート</translation>
     </message>
     <message>
         <source>Values</source>
-        <translation type="unfinished">値</translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a name/value pair for each field with the hex bytes of its packet data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation> 各フィールドについて、パケットデータの16進数バイト列を含む名前／値のペアをエクスポートする</translation>
     </message>
     <message>
         <source>Raw Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>生バイト</translation>
     </message>
 </context>
 <context>
@@ -12705,11 +12705,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display exact numbers instead of rounding with SI prefixes. (Exact numbers always used when sorting.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation> SI接頭辞による丸めを使わず、正確な数値を表示する。（ソート時には常に正確な数値が使用されます）</translation>
     </message>
     <message>
         <source>Display raw data</source>
-        <translation type="unfinished"></translation>
+        <translation>生データを表示</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
