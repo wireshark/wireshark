@@ -50,11 +50,14 @@ static int hf_dch_sequence;
 static int hf_efr32;
 static int hf_efr32_hwstart;
 static int hf_efr32_phr;
+static int hf_efr32_phr_packetlen;
+static int hf_efr32_2bytephr;
+static int hf_efr32_4bytephr;
 static int hf_efr32_hwend;
 static int hf_efr32_rssi;
 static int hf_efr32_syncword;
 static int hf_efr32_radiocfg;
-static int hf_efr32_radioicfg_ext;
+static int hf_efr32_phyid;
 static int hf_efr32_radiocfg_addedbytes;
 static int hf_ef32_radiocfg_blephyid;
 static int hf_efr32_radiocfg_regionid;
@@ -66,6 +69,7 @@ static int hf_efr32_radioinfo;
 static int hf_efr32_radioinfo_antenna;
 static int hf_efr32_radioinfo_syncword;
 static int hf_efr32_radioinfo_channel;
+static int hf_efr32_channel;
 static int hf_efr32_status;
 static int hf_efr32_status_errorcode;
 static int hf_efr32_status_protocolid;
@@ -98,6 +102,9 @@ static int hf_phr_ofdm_scrambler;
 static expert_field ei_silabs_dch_unsupported_type = EI_INIT;
 static expert_field ei_silabs_dch_unsupported_protocol = EI_INIT;
 static expert_field ei_silabs_dch_invalid_appendedinfolen = EI_INIT;
+
+/* Bit-mask for the EFR32 phr field */
+#define EFR32_PHR_PACKETLEN_MASK 0xFF
 
 /* Bit-masks for the EFR32 radio-cfg field */
 #define EFR32_RADIOCFG_ADDEDBYTES_MASK 0xF8
@@ -207,8 +214,8 @@ static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static const Efr32AppendedInfo *get_efr32_appended_info(uint8_t appended_info_cfg);
 static const ProtocolInfo *get_protocol_info(uint8_t protocol_id);
 static int decode_wisun_phr_type(tvbuff_t *tvb, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len);
+static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id);
 static uint16_t reverse_bits_uint16(uint16_t value);
-static void phr_format(char *buf, uint32_t value);
 static uint8_t get_phr_length(uint8_t protocol_id, tvbuff_t *tvb, int last_index, uint8_t radioCfgLen);
 static uint8_t get_phy_mode_id(uint8_t protocol_id, tvbuff_t *tvb, int last_index, uint8_t radioCfgLen);
 // --------------------
@@ -513,11 +520,31 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   { // Further dissect Wi-SUN PHR
     uint8_t phy_mode_id = get_phy_mode_id(protocol_id, tvb, last_index, appended_info->radioCfgLen);
     phr_len = dissect_silabs_wisun_phr(tvb, pinfo, efr32_tree, offset, phr_len, phy_mode_id, ota_payload_len, &crc_len);
-  }
-  break;
-  default:
-    proto_tree_add_item(efr32_tree, hf_efr32_phr, tvb, offset, phr_len, ENC_LITTLE_ENDIAN);
     break;
+  }
+  case 2: // Thread on RAIL
+  case 5: // Zigbee on RAIL
+  case 8: // Custom on 802.15.4 built-in PHY
+  {
+    static int *const efr32_phr_fields[] = {
+        &hf_efr32_phr_packetlen,
+        NULL};
+
+    switch (phr_len)
+    {
+    case 1:
+      proto_tree_add_bitmask(efr32_tree, tvb, offset, hf_efr32_phr, ett_silabs_efr32_phr, efr32_phr_fields, ENC_LITTLE_ENDIAN);
+      break;
+    case 2:
+      proto_tree_add_item(efr32_tree, hf_efr32_2bytephr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      break;
+    case 4:
+      proto_tree_add_item(efr32_tree, hf_efr32_4bytephr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      break;
+    default:
+      break;
+    }
+  }
   }
   // Adjust offset and ota_payload_len after PHR
   offset += phr_len;
@@ -536,6 +563,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     case 2: // Thread on RAIL
     case 5: // Zigbee on RAIL
     case 7: // Wi-SUN on RAIL
+    case 8: // Custom on 802.15.4 built-in PHY
       call_dissector(ieee802154nofcs_handle, next_tvb, pinfo, tree);
       break;
     default:
@@ -561,7 +589,9 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   // decode rssi, add to subtree
   if (appended_info->hasRssi)
   {
-    proto_tree_add_item(efr32_tree, hf_efr32_rssi, tvb, offset, appended_info->rssiLen, ENC_LITTLE_ENDIAN);
+    int8_t rssi = tvb_get_uint8(tvb, offset);
+    rssi = (appended_info->version == 1) ? (rssi - 0x32) : rssi;
+    proto_tree_add_int_format_value(efr32_tree, hf_efr32_rssi, tvb, offset, appended_info->rssiLen, rssi, "%d dBm", rssi);
     offset += appended_info->rssiLen;
   }
 
@@ -586,6 +616,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
       &hf_efr32_radiocfg_external,
       &hf_efr32_radiocfg_id,
       NULL};
+  uint8_t radiocfg_id = 0;
   if (appended_info->hasRadioCfg)
   {
     switch (protocol_id)
@@ -601,8 +632,11 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     case 5:
     case 7:
     case 8:
+    {
+      radiocfg_id = tvb_get_uint8(tvb, offset) & EFR32_RADIOCFG_ID_MASK;
       proto_tree_add_bitmask(efr32_tree, tvb, offset, hf_efr32_radiocfg, ett_silabs_efr32_radiocfg, efr32_radiocfg_154_fields, ENC_LITTLE_ENDIAN);
       break;
+    }
     default:
       proto_tree_add_item(efr32_tree, hf_efr32_radiocfg, tvb, offset, appended_info->radioCfgLen, ENC_LITTLE_ENDIAN);
       break;
@@ -610,7 +644,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset += 1;
     if (appended_info->radioCfgLen == 2)
     {
-      proto_tree_add_item(efr32_tree, hf_efr32_radioicfg_ext, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(efr32_tree, hf_efr32_phyid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
     }
   }
@@ -621,7 +655,10 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
       &hf_efr32_radioinfo_syncword,
       &hf_efr32_radioinfo_channel,
       NULL};
+  uint8_t radioinfo_channel = tvb_get_uint8(tvb, offset) & EFR32_RADIOINFO_CHANNEL_MASK;
   proto_tree_add_bitmask(efr32_tree, tvb, offset, hf_efr32_radioinfo, ett_silabs_efr32_radioinfo, efr32_radioinfo_fields, ENC_LITTLE_ENDIAN);
+  // decode computed channel
+  decode_channel_number(tvb, efr32_tree, offset, radioinfo_channel, radiocfg_id, protocol_id);
   offset += 1;
 
   // decode status, add to subtree
@@ -776,6 +813,112 @@ static int decode_wisun_phr_type(tvbuff_t *tvb, int offset, uint8_t phr_len, uin
 }
 
 /**
+ * Decode and add computed channel number to the tree
+ *
+ * @param tvb pointer to buffer containing raw packet.
+ * @param tree pointer to data tree wireshark uses to display packet.
+ * @param offset offset in tvb
+ * @param radioinfo_channel channel number from radio info
+ * @param radiocfg_id radio configuration id
+ * @param protocol_id protocol id
+ * @return offset
+ */
+static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id)
+{
+  int center_freq;
+  int formatted_channel = radioinfo_channel;
+  proto_item *channel_item;
+
+  switch (protocol_id)
+  {
+  case 3: // BLE
+    center_freq = 2402 + (radioinfo_channel * 2);
+    formatted_channel = radioinfo_channel;
+    channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+    proto_item_append_text(channel_item, " (RF channel %d, %d MHz)", radioinfo_channel, center_freq);
+    break;
+
+  case 1: // EMBER_PHY
+  case 2: // THREAD_ON_RAIL
+  case 5: // ZIGBEE_ON_RAIL
+  case 4: // CONNECT_ON_RAIL
+  case 8: // CUSTOM_ON_802_15_4
+    switch (radiocfg_id)
+    {
+    case 0: // OQPSK 2.4GHz
+      center_freq = 2405 + (5 * radioinfo_channel);
+      formatted_channel = radioinfo_channel + 11;
+      channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+      proto_item_append_text(channel_item, " (15.4 Cp0 channel %d, 2.%03d GHz)", formatted_channel, center_freq % 1000);
+      break;
+
+    case 1: // BPSK 868MHz
+      channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+      proto_item_append_text(channel_item, " (15.4 Cp0 channel %d, 868.3 MHz)", radioinfo_channel);
+      break;
+
+    case 2: // BPSK 915MHz
+      center_freq = 906 + (2 * radioinfo_channel);
+      channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+      proto_item_append_text(channel_item, " (15.4 Cp0 channel %d, %d MHz)", radioinfo_channel, center_freq);
+      break;
+
+    case 5: // GFSK 863MHz GB868
+      center_freq = 863250 + (200 * radioinfo_channel);
+      if (radioinfo_channel < 27)
+      {
+        formatted_channel = radioinfo_channel;
+        channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+        proto_item_append_text(channel_item, " (15.4 Cp28 channel %d, %d.%03d MHz)", formatted_channel, center_freq / 1000, center_freq % 1000);
+      }
+      else if (radioinfo_channel < 35)
+      {
+        formatted_channel = radioinfo_channel - 27;
+        channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+        proto_item_append_text(channel_item, " (15.4 Cp29 channel %d, %d.%03d MHz)", formatted_channel, center_freq / 1000, center_freq % 1000);
+      }
+      else if (radioinfo_channel < 62)
+      {
+        formatted_channel = radioinfo_channel - 35;
+        channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+        proto_item_append_text(channel_item, " (15.4 Cp30 channel %d, %d.%03d MHz)", formatted_channel, center_freq / 1000, center_freq % 1000);
+      }
+      else
+      {
+        formatted_channel = 8 + radioinfo_channel - 62;
+        channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+        proto_item_append_text(channel_item, " (15.4 Cp29 channel %d, %d.%03d MHz)", formatted_channel, center_freq / 1000, center_freq % 1000);
+      }
+      break;
+
+    case 6: // GFSK 915MHz GB868
+      center_freq = 915350 + (200 * radioinfo_channel);
+      channel_item = proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+      proto_item_append_text(channel_item, " (15.4 Cp31 channel %d, %d.%03d MHz)", radioinfo_channel, center_freq / 1000, center_freq % 1000);
+      break;
+
+    default:
+      proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+      break;
+    }
+    break;
+
+  case 7: // Wi-SUN
+  {
+    formatted_channel = (radiocfg_id << 6) + radioinfo_channel;
+    proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+    break;
+  }
+
+  default:
+    proto_tree_add_uint(tree, hf_efr32_channel, tvb, offset, 1, formatted_channel);
+    break;
+  }
+
+  return offset;
+}
+
+/**
  * Get protocol info based on protocol id
  *
  * @param protocol_id protocol id
@@ -834,6 +977,7 @@ static const Efr32AppendedInfo *get_efr32_appended_info(uint8_t appended_info_cf
   bool isRx = (appended_info_cfg & 0x00000040) != 0;
   uint8_t var_len = (appended_info_cfg & 0x00000038) >> 3;
   appended_info->length = var_len + 3;
+  appended_info->version = (appended_info_cfg & 0x00000007);
   appended_info->isInvalid = false;
   if (isRx)
   {
@@ -1024,18 +1168,6 @@ static uint16_t reverse_bits_uint16(uint16_t value)
   return value;
 }
 
-/**
- * Format PHR field
- *
- * @param buf buffer to write formatted string to
- * @param value value to format
- *
- */
-static void phr_format(char *buf, uint32_t value)
-{
-  snprintf(buf, ITEM_LABEL_LENGTH, "0x%x", value);
-}
-
 // ********************************
 
 /* Register the protocol with Wireshark.
@@ -1067,17 +1199,23 @@ void proto_register_silabs_dch(void)
       {&hf_efr32_hwstart,
        {"HW Start", "silabs-dch.hwstart", FT_UINT8, BASE_HEX, VALS(silabs_efr32_hwstart_values), 0x0, "EFR32 HW Start", HFILL}},
       {&hf_efr32_phr,
-       {"PHR", "silabs-dch.phr", FT_UINT32, BASE_CUSTOM, CF_FUNC(phr_format), 0x0, "EFR32 PHR", HFILL}},
+       {"PHR", "silabs-dch.phr", FT_UINT8, BASE_DEC, NULL, 0x0, "EFR32 PHR", HFILL}},
+      {&hf_efr32_phr_packetlen,
+       {"Packet Length", "silabs-dch.phr_packetlen", FT_UINT8, BASE_DEC, NULL, EFR32_PHR_PACKETLEN_MASK, "EFR32 PHR Packet Length", HFILL}},
+      {&hf_efr32_2bytephr,
+       {"2-Byte PHR", "silabs-dch.phr_2bytephr", FT_UINT16, BASE_DEC, NULL, 0x0, "EFR32 PHR 2-Byte", HFILL}},
+      {&hf_efr32_4bytephr,
+       {"4-Byte PHR", "silabs-dch.phr_4bytephr", FT_UINT32, BASE_DEC, NULL, 0x0, "EFR32 PHR 4-Byte", HFILL}},
       {&hf_efr32_hwend,
        {"HW End", "silabs-dch.hwend", FT_UINT8, BASE_HEX, VALS(silabs_efr32_hwend_values), 0x0, "EFR32 HW End", HFILL}},
       {&hf_efr32_rssi,
-       {"RSSI", "silabs-dch.rssi", FT_UINT8, BASE_HEX, NULL, 0x0, "EFR32 RSSI", HFILL}},
+       {"RSSI", "silabs-dch.rssi", FT_INT8, BASE_DEC, NULL, 0x0, "EFR32 RSSI", HFILL}},
       {&hf_efr32_syncword,
        {"Syncword", "silabs-dch.syncword", FT_UINT32, BASE_HEX, NULL, 0x0, "EFR32 Syncword", HFILL}},
       {&hf_efr32_radiocfg,
        {"Radio Config", "silabs-dch.radio_cfg", FT_UINT8, BASE_HEX, NULL, 0x0, "EFR32 Radio Config", HFILL}},
-      {&hf_efr32_radioicfg_ext,
-       {"Radio Config Extension", "silabs-dch.radio_cfg_ext", FT_UINT8, BASE_HEX, NULL, 0x0, "EFR32 Radio Config Extension", HFILL}},
+      {&hf_efr32_phyid,
+       {"Phy ID", "silabs-dch.phy_id", FT_UINT8, BASE_HEX, NULL, 0x0, "EFR32 Phy ID", HFILL}},
       {&hf_efr32_radiocfg_addedbytes,
        {"Added Bytes", "silabs-dch.radio_cfg_addedbytes", FT_UINT8, BASE_HEX, NULL, EFR32_RADIOCFG_ADDEDBYTES_MASK, "EFR32 Radio Config Added Bytes", HFILL}},
       {&hf_ef32_radiocfg_blephyid,
@@ -1099,7 +1237,9 @@ void proto_register_silabs_dch(void)
       {&hf_efr32_radioinfo_syncword,
        {"Syncword Select", "silabs-dch.radio_info_syncword", FT_UINT8, BASE_HEX, NULL, EFR32_RADIOINFO_SYNCWORD_MASK, "EFR32 Radio Info Syncword", HFILL}},
       {&hf_efr32_radioinfo_channel,
-       {"Channel", "silabs-dch.radio_info_channel", FT_UINT8, BASE_DEC, NULL, EFR32_RADIOINFO_CHANNEL_MASK, "EFR32 Radio Info Channel", HFILL}},
+       {"Radio Info Channel", "silabs-dch.radio_info_channel", FT_UINT8, BASE_DEC, NULL, EFR32_RADIOINFO_CHANNEL_MASK, "EFR32 Radio Info Channel", HFILL}},
+      {&hf_efr32_channel,
+       {"Channel", "silabs-dch.channel", FT_UINT16, BASE_DEC, NULL, 0x0, "EFR32 Channel", HFILL}},
       {&hf_efr32_status,
        {"Status", "silabs-dch.status", FT_UINT8, BASE_HEX, NULL, 0x0, "EFR32 Status", HFILL}},
       {&hf_efr32_status_errorcode,
