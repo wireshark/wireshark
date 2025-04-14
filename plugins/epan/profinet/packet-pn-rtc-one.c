@@ -485,6 +485,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     wmem_list_frame_t  *aruuid_frame;
     ARUUIDFrame        *current_aruuid_frame = NULL;
     uint32_t            current_aruuid = 0;
+    uint32_t            current_fake_aruuid = 4126751477;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");            /* set protocol name */
 
@@ -525,6 +526,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
         }
 
         station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+        if (station_info == NULL) {
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
+        }
 
         if (station_info != NULL) {
             pn_find_dcp_station_info(station_info, conversation);

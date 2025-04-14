@@ -112,7 +112,11 @@ void proto_reg_handoff_pn_io(void);
 #define PA_PROFILE_TB_PARENT_GAS_ANALYZER 1u
 #define PA_PROFILE_TB_PARENT_ENUMERATED_IO 1u
 #define PA_PROFILE_TB_PARENT_BINARY_IO 1u
-
+#ifdef _WIN32
+#define strtok_sys(str, delim, context) strtok_s(str, delim, context)
+#else
+#define strtok_sys(str, delim, context) strtok_r(str, delim, context)
+#endif
 
 
 static int proto_pn_io;
@@ -1047,6 +1051,8 @@ static int ett_pn_io_snmp_command_name;
 #define PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH 4
 #define PD_SUB_FRAME_BLOCK_FRAME_ID_LENGTH 2
 #define PD_SUB_FRAME_BLOCK_SUB_FRAME_DATA_LENGTH 4
+#define HEURISTIC_EXTRACTION 0
+#define MANUAL_EXTRACTION 1
 
 static expert_field ei_pn_io_block_version;
 static expert_field ei_pn_io_block_length;
@@ -1082,6 +1088,16 @@ static uint16_t ver_pn_io_implicitar = 1;
 /* PNIO Preference Variables */
 bool           pnio_ps_selection = true;
 static const char *pnio_ps_networkpath = "";
+static const char* pnio_configpath = "";
+int extract_method;
+static const enum_val_t pnio_method_enum[] = {
+    { "heuristic",    "heuristic extraction",        0 },
+    { "manual",      "manual extraction",       1 },
+    { NULL, NULL, 0 }
+};
+
+static uint8_t* stateflag = NULL;
+wmem_list_t* conversation_address_list;
 
 static wmem_allocator_t *pnio_pref_scope;
 
@@ -4376,6 +4392,1217 @@ pnio_load_gsd_files(void)
     }
 #endif /* HAVE_LIBXML2 */
 }
+typedef struct {
+    address* device;
+    address* controller;
+} ConversationAddress;
+
+typedef struct {
+    const char* data_type;
+    uint16_t length;
+} DataTypeInfo;
+
+const DataTypeInfo data_types[] = {
+    {"Integer8", 1},
+    {"Integer16", 2},
+    {"Integer32", 4},
+    {"Integer64", 8},
+    {"Unsigned8", 1},
+    {"Unsigned16", 2},
+    {"Unsigned32", 4},
+    {"Unsigned64", 8},
+    {"Float32", 4},
+    {"Float64", 8},
+    {"Date", 7},
+    {"TimeOfDay with date indication", 6},
+    {"TimeOfDay without date indication", 4},
+    {"TimeDifference with date indication", 6},
+    {"TimeDifference without date indication", 4},
+    {"NetworkTime", 8},
+    {"NetworkTimeDifference", 8},
+    {"VisibleString", 0},
+    {"OctetString", 0},
+    {"Float32+Status8", 5},
+    {"F_MessageTrailer4Byte", 4},
+    {"F_MessageTrailer5Byte", 5},
+    {"Unsigned8+Unsigned8", 2},
+    {"Float32+Unsigned8", 5},
+    {"Boolean", 1},
+    {"UnicodeString8", 0},
+    {"61131_STRING", 0},
+    {"61131_WSTRING", 0},
+    {"TimeStamp", 12},
+    {"TimeStampDifference", 12},
+    {"TimeStampDifferenceShort", 8},
+    {"OctetString2+Unsigned8", 3},
+    {"Unsigned16_S", 2},
+    {"N2", 2},
+    {"N4", 4},
+    {"V2", 2},
+    {"L2", 2},
+    {"R2", 2},
+    {"T2", 2},
+    {"T4", 4},
+    {"D2", 2},
+    {"E2", 2},
+    {"C4", 4},
+    {"X2", 2},
+    {"X4", 4},
+    {"Unipolar2.16", 2}
+};
+
+/*Structs for internal mapping of the GSD file*/
+typedef struct {
+    bool is_input;
+    bool is_output;
+    uint16_t length;
+}DataItem;
+
+typedef struct {
+    char* module_item_target;
+    char* fixed_in_slots;
+    char* used_in_slots;
+}ModuleItemRef;
+
+typedef struct {
+    uint32_t submodule_ident_number;
+    char* ID;
+}VirtualSubmoduleItem;
+
+typedef struct {
+    uint32_t submodule_ident_number;
+    uint16_t subslot_number;
+}SystemDefinedSubmodule;
+
+typedef struct {
+    wmem_list_t* module_item_list;
+    wmem_list_t* virtual_submodule_items_list;
+    wmem_list_t* system_defined_submodule_list;
+    uint32_t submodule_ident_number;
+    uint32_t module_ident_number;
+    uint16_t slot_nr;
+    uint16_t subslot_nr;
+    char* text_id;
+    char* moduleNameStr;
+    char* ID;
+}DeviceAccessPointItem;
+
+typedef struct {
+    bool inside_useable_modules;
+    bool inside_module_item;
+    bool inside_module_list;
+    bool inside_virtual_submodul_item;
+    bool inside_input;
+    bool inside_output;
+    bool inside_device_access_point_item;
+    bool inside_system_defined_submodule_list;
+    bool inside_module_info;
+    bool inside_primary_language;
+    wmem_list_t* module_item_ref_list;
+    wmem_list_t* module_item_list;
+    wmem_list_t* current_data_items;
+    wmem_list_t* virtual_submodule_item_list;
+    wmem_list_t* system_defined_submodule_list;
+    char* module_item_target;
+    char* module_id;
+    char* text_id_DAPI;
+    char* text_id_virtual_submodul_item;
+    char* text_id_module_item;
+    char* module_name;
+    uint32_t module_ident_number;
+    uint32_t submodule_ident_number;
+    uint16_t subslot_number;
+    uint16_t module_subslot;
+    uint16_t subslot_number_DAPI;
+    uint16_t slot_nr;
+    bool has_input;
+    bool has_output;
+    uint16_t offset;
+    DeviceAccessPointItem* device_access_point_item;
+} ParserState;
+
+typedef struct {
+    bool use_manual_method;
+    wmem_list_t* conversation_address_list;
+} ParserConvState;
+
+
+typedef struct {
+    char* ID;
+    uint32_t module_ident_number;
+    uint16_t slotNr;
+    uint16_t subslot_number;
+    uint32_t submodule_ident_number;
+    uint16_t frame_offset;
+    bool has_input;
+    bool has_output;
+    wmem_list_t* data_items;
+    wmem_list_t* used_in_slots;
+    uint16_t count;
+    uint16_t slots_start;
+    uint16_t slots_end;
+    char* text_id;
+    char* moduleNameStr;
+}ModuleItem;
+
+/* Helper function to extract IOData Length */
+static int get_data_type_length(const char* data_type) {
+    int data_type_count = sizeof(data_types) / sizeof(DataTypeInfo);
+    for (int i = 0; i < data_type_count; i++) {
+        if (strcmp(data_type, data_types[i].data_type) == 0) {
+            return data_types[i].length;
+        }
+    }
+    return 0;
+}
+/* Duplicates list */
+static wmem_list_t* copy_list(wmem_allocator_t* scope, wmem_list_t* src_list)
+{
+    wmem_list_t* new_list = wmem_list_new(scope);
+
+    /* Iterate through each frame in the source list */
+    if (src_list != NULL) {
+        for (wmem_list_frame_t* frame = wmem_list_head(src_list);
+            frame != NULL;
+            frame = wmem_list_frame_next(frame)) {
+
+            DataItem* original_item = (DataItem*)wmem_list_frame_data(frame);
+
+            DataItem* new_item = wmem_new(scope, DataItem);
+            new_item->is_input = original_item->is_input;
+            new_item->is_output = original_item->is_output;
+            new_item->length = original_item->length;
+
+            wmem_list_append(new_list, new_item);
+        }
+    }
+
+    return new_list;
+}
+
+/* Callback function called when an XML markup element is opened */
+static void parser_start_element(GMarkupParseContext* context, const char* element_name, const char** attribute_names,
+    const char** attribute_values, void* user_data, GError** error) {
+    
+    (void)context;
+    (void)error;
+    ModuleItemRef* module_item_ref;
+    DataItem* dataitem;
+    VirtualSubmoduleItem* virtual_submodule_item;
+    ParserState* state = (ParserState*)user_data;
+
+    /* DeviceAccessPointItem */
+    if (strcmp(element_name, "DeviceAccessPointItem") == 0) {
+        state->inside_device_access_point_item = true;
+        bool entered = false;
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "ModuleIdentNumber") == 0) {
+                state->module_ident_number = (uint32_t)strtoul(attribute_values[i], NULL, 0);
+            }
+            else if (strcmp(attribute_names[i], "ID") == 0) {
+                state->module_id = g_strdup(attribute_values[i]);
+            }
+            else if (strcmp(attribute_names[i], "FixedInSlots") == 0) {
+                state->slot_nr = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+            }
+            else if (strcmp(attribute_names[i], "PhysicalSubslots") == 0) {
+                state->subslot_number_DAPI = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+                entered = true;
+            }
+        }
+        if (!entered) {
+            state->subslot_number_DAPI = 1;
+        }
+    }
+    else if (strcmp(element_name, "ModuleInfo") == 0) {
+        state->inside_module_info = true;
+    }
+    /* TextIds for ModuleName string */
+    else if (strcmp(element_name, "Name") == 0 && state->inside_module_info) {
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "TextId") == 0) {
+                if (state->inside_device_access_point_item && !state->inside_virtual_submodul_item) {
+                    state->text_id_DAPI = g_strdup(attribute_values[i]);
+                }
+                else if (state->inside_virtual_submodul_item && state->inside_device_access_point_item) {
+                    state->text_id_virtual_submodul_item = g_strdup(attribute_values[i]);
+                }
+                else if (!state->inside_virtual_submodul_item && state->inside_module_item) {
+                    state->text_id_module_item= g_strdup(attribute_values[i]);
+                }
+                break;
+            }
+        }
+    }
+    else if (strcmp(element_name, "UseableModules") == 0 && state->inside_device_access_point_item) {
+        state->inside_useable_modules = true;
+    }
+    /* ModuleItemRef */
+    else if (strcmp(element_name, "ModuleItemRef") == 0 && state->inside_useable_modules) {
+        module_item_ref = wmem_new0(wmem_file_scope(), ModuleItemRef);
+
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "ModuleItemTarget") == 0) {
+                module_item_ref->module_item_target = g_strdup(attribute_values[i]);
+            }
+
+            else if (strcmp(attribute_names[i], "FixedInSlots") == 0) {
+                module_item_ref->fixed_in_slots = g_strdup(attribute_values[i]);
+            }
+            else if (strcmp(attribute_names[i], "UsedInSlots") == 0) {
+                module_item_ref->used_in_slots = g_strdup(attribute_values[i]);
+            }
+        }
+        wmem_list_append(state->module_item_ref_list, module_item_ref);
+    }
+    /* VirtualSubmoduleItem inside DAPI */
+    else if (strcmp(element_name, "VirtualSubmoduleItem") == 0 && state->inside_device_access_point_item) {
+        state->inside_virtual_submodul_item = true;
+        virtual_submodule_item = wmem_new0(wmem_file_scope(), VirtualSubmoduleItem);
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "SubmoduleIdentNumber") == 0) {
+                virtual_submodule_item->submodule_ident_number = (uint32_t)strtoul(attribute_values[i], NULL, 0);
+            }
+            else if (strcmp(attribute_names[i], "ID") == 0) {
+                virtual_submodule_item->ID = g_strdup(attribute_values[i]);
+            }
+        }
+        wmem_list_append(state->virtual_submodule_item_list, virtual_submodule_item);
+    }
+    else if (strcmp(element_name, "SystemDefinedSubmoduleList") == 0 && state->inside_device_access_point_item) {
+        state->inside_system_defined_submodule_list = true;
+    }
+    /* InterfaceSubmoduleItem */
+    else if (strcmp(element_name, "InterfaceSubmoduleItem") == 0 && state->inside_system_defined_submodule_list) {
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "SubslotNumber") == 0) {
+                state->subslot_number = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+            }
+            else if (strcmp(attribute_names[i], "SubmoduleIdentNumber") == 0) {
+                state->submodule_ident_number = (uint32_t)strtoul(attribute_values[i], NULL, 0);
+            }
+        }
+    }
+    /* PortSubmoduleItem */
+    else if (strcmp(element_name, "PortSubmoduleItem") == 0 && state->inside_system_defined_submodule_list) {
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "SubslotNumber") == 0) {
+                state->subslot_number = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+            }
+            else if (strcmp(attribute_names[i], "SubmoduleIdentNumber") == 0) {
+                state->submodule_ident_number = (uint32_t)strtoul(attribute_values[i], NULL, 0);
+            }
+        }
+    }
+    else if (strcmp(element_name, "ModuleList") == 0) {
+        state->inside_module_list = true;
+    }
+    /* ModuleItem inside ModuleList*/
+    else if (strcmp(element_name, "ModuleItem") == 0 && state->inside_module_list) {
+        state->inside_module_item = true;
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "ID") == 0) {
+                state->module_id = g_strdup(attribute_values[i]);
+            }
+            else if (strcmp(attribute_names[i], "ModuleIdentNumber") == 0) {
+                state->module_ident_number = (uint32_t)strtoul(attribute_values[i], NULL, 0);
+            }
+        }
+    }
+    /* VirtualSubmoduleItem inside ModuleItem */
+    else if (strcmp(element_name, "VirtualSubmoduleItem") == 0 && state->inside_module_item) {
+        state->inside_virtual_submodul_item = true;
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "SubmoduleIdentNumber") == 0) {
+                state->submodule_ident_number = (uint32_t)strtoul(attribute_values[i], NULL, 0);
+            }
+            else if (strcmp(attribute_names[i], "FixedInSubslots") == 0) {
+                state->module_subslot = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+            }
+        }
+    }
+    else if (strcmp(element_name, "Input") == 0 && state->inside_module_item) {
+        state->inside_input = true;
+        state->has_input = true;
+    }
+    else if (strcmp(element_name, "Output") == 0 && state->inside_module_item) {
+        state->inside_output = true;
+        state->has_output = true;
+    }
+    /* DataItem Input*/
+    else if (strcmp(element_name, "DataItem") == 0 && state->inside_input) {
+        dataitem = wmem_new0(wmem_file_scope(), DataItem);
+        dataitem->is_input = true;
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "DataType") == 0) {
+                uint16_t data_type_length = get_data_type_length(attribute_values[i]);
+                if (data_type_length > 0) {
+                    dataitem->length = data_type_length;
+                }
+            }
+            else if (strcmp(attribute_names[i], "Length") == 0) {
+                dataitem->length = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+            }
+        }
+        wmem_list_append(state->current_data_items, dataitem);
+    }
+    /* DataItem Output */
+    else if (strcmp(element_name, "DataItem") == 0 && state->inside_output) {
+        dataitem = wmem_new0(wmem_file_scope(), DataItem);
+        dataitem->is_output = true;
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "DataType") == 0) {
+                uint16_t data_type_length = get_data_type_length(attribute_values[i]);
+                if (data_type_length > 0) {
+                    dataitem->length = data_type_length;
+                }
+            }
+            else if (strcmp(attribute_names[i], "Length") == 0) {
+                dataitem->length = (uint16_t)strtoul(attribute_values[i], NULL, 0);
+            }
+        }
+        wmem_list_append(state->current_data_items, dataitem);
+    }
+    else if (strcmp(element_name, "PrimaryLanguage") == 0) {
+        state->inside_primary_language = true;
+    }
+    else if (strcmp(element_name, "Text") == 0 && state->inside_primary_language) {
+        char* text_id = NULL;
+        char* value = NULL;
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "TextId") == 0) {
+                text_id = g_strdup(attribute_values[i]);
+            }
+            if (strcmp(attribute_names[i], "Value") == 0) {
+                value = g_strdup(attribute_values[i]);
+            }
+        }
+        /* Finds matching moduleName string */
+        if (text_id != NULL && value != NULL) {
+            for (wmem_list_frame_t* module_item_frame = wmem_list_head(state->module_item_list);
+                module_item_frame != NULL;
+                module_item_frame = wmem_list_frame_next(module_item_frame))
+            {
+                ModuleItem* module_item = (ModuleItem*)wmem_list_frame_data(module_item_frame);
+                if (module_item != NULL && module_item->text_id != NULL) {
+                    if (strcmp(module_item->text_id, text_id) == 0) {
+                        module_item->moduleNameStr = g_strdup(value);
+                    }
+                }
+            }
+            if (state->device_access_point_item != NULL && state->device_access_point_item->text_id != NULL) {
+                if (strcmp(state->device_access_point_item->text_id, text_id) == 0) {
+                    state->device_access_point_item->moduleNameStr = g_strdup(value);
+                }
+            }
+            if (state->text_id_virtual_submodul_item != NULL) {
+                if (strcmp(state->text_id_virtual_submodul_item, text_id) == 0) {
+                    state->module_name = g_strdup(value);
+                }
+            }
+        }
+
+    }
+}
+/* Callback function called when an XML markup element is closed */
+static void parser_end_element(GMarkupParseContext* context, const char* element_name, void* user_data, GError** error) {
+    (void)context;
+    (void)error;
+    uint32_t start, end;
+    ParserState* state = (ParserState*)user_data;
+    char* token;
+    char* contextptr = NULL;
+    if (strcmp(element_name, "ModuleInfo") == 0) {
+        state->inside_module_info = false;
+    }
+    else if (strcmp(element_name, "UseableModules") == 0) {
+        state->inside_useable_modules = false;
+    }
+    else if (strcmp(element_name, "VirtualSubmoduleItem") == 0) {
+        state->inside_virtual_submodul_item = false;
+    }
+    /* Creates SystemDefinedSubmodule as InterfaceSubmoduleItem */
+    else if (strcmp(element_name, "InterfaceSubmoduleItem") == 0) {
+        SystemDefinedSubmodule* interface_submodule_item = wmem_new0(wmem_file_scope(), SystemDefinedSubmodule);
+        interface_submodule_item->submodule_ident_number = state->submodule_ident_number;
+        interface_submodule_item->subslot_number = state->subslot_number;
+        wmem_list_append(state->system_defined_submodule_list, interface_submodule_item);
+    }
+    /* Creates SystemDefinedSubmodule as PortSubmoduleItem */
+    else if (strcmp(element_name, "PortSubmoduleItem") == 0) {
+        SystemDefinedSubmodule* port_submodule_item = wmem_new0(wmem_file_scope(), SystemDefinedSubmodule);
+        port_submodule_item->submodule_ident_number = state->submodule_ident_number;
+        port_submodule_item->subslot_number = state->subslot_number;
+        wmem_list_append(state->system_defined_submodule_list, port_submodule_item);
+    }
+    else if (strcmp(element_name, "SystemDefinedSubmoduleList") == 0) {
+        state->inside_system_defined_submodule_list = false;
+    }
+    /* Creates DeviceAccessPointItem*/
+    else if (strcmp(element_name, "DeviceAccessPointItem") == 0)
+    {
+        state->device_access_point_item = wmem_new0(wmem_file_scope(), DeviceAccessPointItem);
+        state->device_access_point_item->ID = state->module_id;
+        state->device_access_point_item->text_id = state->text_id_DAPI;
+        state->device_access_point_item->module_ident_number = state->module_ident_number;
+        state->device_access_point_item->system_defined_submodule_list = state->system_defined_submodule_list;
+        state->device_access_point_item->slot_nr = state->slot_nr;
+        state->device_access_point_item->subslot_nr = state->subslot_number_DAPI;
+        state->device_access_point_item->moduleNameStr = (char*)wmem_alloc(wmem_file_scope(), MAX_NAMELENGTH);
+        (void)g_strlcpy(state->device_access_point_item->moduleNameStr, "Unknown", MAX_NAMELENGTH);
+
+        /* Get submodule_ident_number for API */
+        if (state->virtual_submodule_item_list != NULL) {
+            if (wmem_list_count(state->virtual_submodule_item_list) == 1) {
+                wmem_list_frame_t* sub_frame = wmem_list_head(state->virtual_submodule_item_list);
+                VirtualSubmoduleItem* sub = (VirtualSubmoduleItem*)wmem_list_frame_data(sub_frame);
+                state->device_access_point_item->submodule_ident_number = sub->submodule_ident_number;
+            }
+            else {
+                wmem_list_frame_t* sub_frame = wmem_list_head(state->virtual_submodule_item_list);
+                while (sub_frame != NULL) {
+                    VirtualSubmoduleItem* sub = (VirtualSubmoduleItem*)wmem_list_frame_data(sub_frame);
+                    if (sub->ID != NULL && state->device_access_point_item->ID != NULL) {
+                        if (strcmp(sub->ID, state->device_access_point_item->ID) == 0)
+                        {
+                            state->device_access_point_item->submodule_ident_number = sub->submodule_ident_number;
+                            break;
+                        }
+                    }
+                    sub_frame = wmem_list_frame_next(sub_frame);
+                }
+            }
+            state->inside_device_access_point_item = false;
+        }
+    }
+    /* Creates and initializes a ModuleItem object */
+    else if (strcmp(element_name, "ModuleItem") == 0 && state->inside_module_list) {
+        ModuleItem* module_item = wmem_new0(wmem_file_scope(), ModuleItem);
+        module_item->ID = state->module_id;
+        module_item->subslot_number = state->module_subslot;
+        module_item->module_ident_number = state->module_ident_number;
+        module_item->submodule_ident_number = state->submodule_ident_number;
+        module_item->data_items = copy_list(wmem_file_scope(), state->current_data_items);
+        module_item->has_input = state->has_input;
+        module_item->has_output = state->has_output;
+        module_item->text_id = state->text_id_module_item;
+        module_item->moduleNameStr = (char*)wmem_alloc(wmem_file_scope(), MAX_NAMELENGTH);
+        (void)g_strlcpy(module_item->moduleNameStr, "Unknown", MAX_NAMELENGTH);
+        wmem_list_append(state->module_item_list, module_item);
+        state->has_output = false;
+        state->has_input = false;
+        state->inside_module_item = false;
+        if (state->current_data_items != NULL) {
+            /* clears data_items for next module_item */
+            while (wmem_list_head(state->current_data_items) != NULL) {
+                wmem_list_remove_frame(state->current_data_items, wmem_list_head(state->current_data_items));
+            }
+        }
+    }
+    /* Determines the actual usage count of a ModuleItem based on the slot specifications */
+    else if (strcmp(element_name, "ModuleList") == 0) {
+        if (state->module_item_ref_list != NULL && state->module_item_list != NULL &&
+            state->device_access_point_item != NULL) {
+            wmem_list_frame_t* ref_frame = wmem_list_head(state->module_item_ref_list);
+            while (ref_frame != NULL) {
+                ModuleItemRef* ref = (ModuleItemRef*)wmem_list_frame_data(ref_frame);
+
+                wmem_list_frame_t* item_frame = wmem_list_head(state->module_item_list);
+                while (item_frame != NULL) {
+                    ModuleItem* item = (ModuleItem*)wmem_list_frame_data(item_frame);
+
+                    if (ref->module_item_target != NULL && item->ID != NULL &&
+                        strcmp(ref->module_item_target, item->ID) == 0) {
+                        if (ref->fixed_in_slots != NULL) {
+                            if (sscanf(ref->fixed_in_slots, "%u..%u", &start, &end) == 2) {
+                                item->count = (end - start + 1);
+                                item->slots_start = start;
+                                item->slots_end = end;
+                            }
+                            else if (sscanf(ref->fixed_in_slots, "%u", &start) == 1) {
+                                item->count = 1;
+                                item->slotNr = start;
+                            }
+                        }
+                        if (ref->used_in_slots != NULL) {
+                            item->used_in_slots = wmem_list_new(wmem_file_scope());
+                            token = strtok_sys(ref->used_in_slots, " ", &contextptr);
+                            while (token != NULL)
+                            {
+                                for (size_t i = 0; token[i] != '\0'; i++) {
+                                    if (!g_ascii_isdigit(token[i])) {
+                                        return;
+                                    }
+                                }
+                                uint32_t* num = wmem_new(wmem_file_scope(), uint32_t);
+                                *num = (uint32_t)strtoul(token, NULL, 0);
+                                wmem_list_append(item->used_in_slots, num);
+                                token = strtok_sys(NULL, " ", &contextptr);
+                            }
+                        }
+                    }
+                    /* Go to next ModuleItem */
+                    item_frame = wmem_list_frame_next(item_frame);
+                }
+
+                /* Got to next ModuleItemRef */
+                ref_frame = wmem_list_frame_next(ref_frame);
+            }
+            state->device_access_point_item->module_item_list = state->module_item_list;
+        }
+        state->inside_module_list = false;
+    }
+    else if (strcmp(element_name, "Input") == 0) {
+        state->inside_input = false;
+    }
+    else if (strcmp(element_name, "Output") == 0) {
+        state->inside_output = false;
+    }
+    else if (strcmp(element_name, "PrimaryLanguage") == 0) {
+        state->inside_primary_language = false;
+    }
+}
+/* Callback function to extract config File to get all MAC-Address in PNIO network traffic */
+static void parser_conv_start_element(GMarkupParseContext* context, const char* element_name, const char** attribute_names,
+    const char** attribute_values, void* user_data, GError** error) {
+    (void)context;
+    (void)error;
+    ParserConvState* state = (ParserConvState*)user_data;
+    if (strcmp(element_name, "conversation") == 0) {
+        ConversationAddress* new_conversation_address = wmem_new0(wmem_file_scope(), ConversationAddress);
+        for (int i = 0; attribute_names[i] != NULL; i++) {
+            if (strcmp(attribute_names[i], "device") == 0) {
+                char* device_str = g_strdup(attribute_values[i]);
+                uint8_t* device_bytes = wmem_alloc(wmem_file_scope(), 6 * sizeof(uint8_t));
+                if (sscanf(device_str, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
+                    &device_bytes[0],
+                    &device_bytes[1],
+                    &device_bytes[2],
+                    &device_bytes[3],
+                    &device_bytes[4],
+                    &device_bytes[5]) == 6) {
+
+                    address* addr_device = wmem_new0(wmem_file_scope(), address);
+                    set_address(addr_device, AT_ETHER, 6, device_bytes);
+                    new_conversation_address->device = addr_device;
+                }
+            }
+            else if (strcmp(attribute_names[i], "controller") == 0) {
+                char* controller_str = g_strdup(attribute_values[i]);
+                uint8_t* controller_bytes = wmem_alloc(wmem_file_scope(), 6 * sizeof(uint8_t));
+                if (sscanf(controller_str, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
+                    &controller_bytes[0],
+                    &controller_bytes[1],
+                    &controller_bytes[2],
+                    &controller_bytes[3],
+                    &controller_bytes[4],
+                    &controller_bytes[5]) == 6) {
+
+                    address* addr_controller = wmem_new0(wmem_file_scope(), address);
+                    set_address(addr_controller, AT_ETHER, 6, controller_bytes);
+                    new_conversation_address->controller = addr_controller;
+                }
+            }
+        }
+        if (new_conversation_address->device != NULL && new_conversation_address->controller != NULL) {
+            wmem_list_append(state->conversation_address_list, new_conversation_address);
+        }
+    }
+    else if (strcmp(element_name, "DeviceAccessPointItem") == 0) {
+        state->use_manual_method = true; 
+    }
+}
+
+/* Creates conversations using information extracted from a configuration file */
+static bool gen_conversations(uint32_t packet_num, uint32_t current_fake_aruuid) {
+    char* buf;
+    ConversationAddress* stored_conversation;
+    FILE* fp = NULL;
+    if (pnio_configpath != NULL) {
+        GMarkupParser parser_manuall = {
+            .start_element = parser_conv_start_element,
+            .end_element = NULL,
+            .text = NULL,
+            .passthrough = NULL,
+            .error = NULL
+        };
+        ParserConvState state = { 0 };
+        state.conversation_address_list = wmem_list_new(wmem_file_scope());
+        GMarkupParseContext* context = g_markup_parse_context_new(&parser_manuall, 0, &state, NULL);
+        fp = ws_fopen(pnio_configpath, "rb");
+        if (fp != NULL) {
+            fseek(fp, 0, SEEK_END);
+            long fsize = ftell(fp);
+            fseek(fp, 0, SEEK_SET);
+
+            buf = (char*)wmem_alloc(wmem_file_scope(), fsize + 1);
+            if (fread(buf, 1, fsize, fp) != (size_t)fsize) {
+                fclose(fp);
+                return false;
+            }
+            buf[fsize] = '\0';
+            fclose(fp);
+            if (!g_markup_parse_context_parse(context, buf, -1, NULL)) {
+                g_markup_parse_context_free(context);
+                return false;
+            }
+            for (wmem_list_frame_t* frame = wmem_list_head(state.conversation_address_list);
+                frame != NULL;
+                frame = wmem_list_frame_next(frame))
+            {
+                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                if (stored_conversation != NULL) {
+                    conversation_t* conversation = find_conversation(packet_num, stored_conversation->device, stored_conversation->controller, CONVERSATION_NONE, 0, 0, 0);
+                    if (conversation == NULL) {
+                        conversation = conversation_new(packet_num, stored_conversation->device, stored_conversation->controller, CONVERSATION_NONE, 0, 0, 0);
+                        stationInfo* station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                        init_pnio_rtc1_station(station_info);
+                        station_info->filled_with_objects = false;
+                        conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                    }
+                }
+            }
+            g_markup_parse_context_free(context);
+            return state.use_manual_method;
+        }
+    }
+    return false;
+}
+/* Creates necessary objects for displaying PNIO data without AR information */
+static void extract_pnio_objects_withoutAR(packet_info* pinfo)
+{
+    GDir* dir;
+    FILE* fp = NULL;
+    const char* filename;
+    char* extraction_file = g_strdup(pnio_ps_networkpath);
+    char* fileopen = NULL;
+    char* buf;
+    bool manual_flag = false;
+
+    conversation_t* conversation;
+    ConversationAddress* stored_conversation;
+    stationInfo* station_info = NULL;
+    DataItem* data_item;
+    iocsObject* iocs_object;
+    ioDataObject* io_data_object;
+    wmem_list_t* iocs_list;
+    wmem_list_t* data_item_list;
+    uint32_t current_fake_aruuid = 4126751477; //generated first 4 Bytes from an UUID
+    uint16_t frameOffset = 0;
+
+    GMarkupParseContext* context;
+    ParserState state = { 0 };
+    state.module_item_list = wmem_list_new(wmem_file_scope());
+    state.module_item_ref_list = wmem_list_new(wmem_file_scope());
+    state.current_data_items = wmem_list_new(wmem_file_scope());
+    state.virtual_submodule_item_list = wmem_list_new(wmem_file_scope());
+    state.system_defined_submodule_list = wmem_list_new(wmem_file_scope());
+    GMarkupParser parser = {
+    .start_element = parser_start_element,
+    .end_element = parser_end_element,
+    .text = NULL,
+    .passthrough = NULL,
+    .error = NULL
+    };
+    /* Manual extraction method */
+    if (extract_method == MANUAL_EXTRACTION) {
+        if (*stateflag == 0) {
+            if (gen_conversations(pinfo->num, current_fake_aruuid)) {
+                /* Uses now the config File to extract the needed Data */
+                extraction_file = g_strdup(pnio_configpath);
+                manual_flag = true;
+            }
+            *stateflag = 1;
+        }
+    }
+    /* Heuristic extraction method */
+    else {
+        /* conversation_address_list contains Device and Controller MAC addresses from acyclic frames.
+           Write/read request frames create a conversation_t, but response frames don't */
+        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
+        if (conversation != NULL) {
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
+        }
+        if (conversation == NULL || station_info == NULL) {
+            if (conversation_address_list != NULL) {
+                for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+                    frame != NULL;
+                    frame = wmem_list_frame_next(frame))
+                {
+                    /* Verify packet as input or output */
+                    stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                    if (stored_conversation != NULL) {
+                        if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
+                            memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
+                            conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
+                            station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                            init_pnio_rtc1_station(station_info);
+                            station_info->filled_with_objects = false;
+                            conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                        }
+                        else if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
+                            memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
+                            conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, CONVERSATION_NONE, 0, 0, 0);
+                            station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                            init_pnio_rtc1_station(station_info);
+                            station_info->filled_with_objects = false;
+                            conversation_add_proto_data(conversation, current_fake_aruuid, station_info);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
+    if (conversation != NULL) {
+        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
+        if (station_info != NULL) {
+            if (!station_info->filled_with_objects) {
+                if (extraction_file[0] != '\0') {   /* check the length of the given networkpath (array overflow protection) */
+                    if (manual_flag) {
+                        fileopen = extraction_file;
+                    }
+                    else if ((dir = g_dir_open(extraction_file, 0, NULL)) != NULL) {
+                        if  ((filename = g_dir_read_name(dir)) != NULL) {
+                            /* ---- complete the path to open a GSD-file ---- */
+                            fileopen = wmem_strdup_printf(pinfo->pool, "%s" G_DIR_SEPARATOR_S "%s", extraction_file, filename);
+                        }
+                    }
+                    if (fileopen != NULL) {
+                        /* ---- Open the found GSD-file  ---- */
+                        fp = ws_fopen(fileopen, "rb");
+                        if (fp != NULL) {
+                            fseek(fp, 0, SEEK_END);
+                            long fsize = ftell(fp);
+                            fseek(fp, 0, SEEK_SET);
+
+                            buf = (char*)wmem_alloc(wmem_file_scope(), fsize + 1);
+                            if (fread(buf, 1, fsize, fp) != (size_t)fsize) {
+                                fclose(fp);
+                                return;
+                            }
+                            buf[fsize] = '\0';
+                            fclose(fp);
+
+                            context = g_markup_parse_context_new(&parser, 0, &state, NULL);
+                            if (!g_markup_parse_context_parse(context, buf, -1, NULL)) {
+                                g_markup_parse_context_free(context);
+                                return;
+                            }
+                            /* INPUT-CR */
+                            if (state.device_access_point_item != NULL) {
+                                station_info->gsdPathLength = true;
+                                station_info->gsdFound = true;
+                                station_info->gsdLocation = wmem_strdup(wmem_file_scope(), fileopen);
+                                io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+
+                                /* DAPI as IODataObject */
+                                iocs_list = station_info->ioobject_data_in;
+                                io_data_object->slotNr = state.device_access_point_item->slot_nr;
+                                io_data_object->subSlotNr = state.device_access_point_item->subslot_nr;
+                                io_data_object->moduleNameStr = state.device_access_point_item->moduleNameStr;
+                                io_data_object->moduleIdentNr = state.device_access_point_item->module_ident_number;
+                                io_data_object->subModuleIdentNr = state.device_access_point_item->submodule_ident_number;
+                                io_data_object->discardIOXS = false;
+                                io_data_object->frameOffset = frameOffset;
+                                frameOffset = 1 + frameOffset;
+                                station_info->ioDataObjectNr_in += 1;
+                                wmem_list_append(iocs_list, io_data_object);
+
+                                /* SystemDefinedSubmodule as IODataObject */
+                                if (state.device_access_point_item->system_defined_submodule_list != NULL) {
+                                    wmem_list_frame_t* frame_sys = wmem_list_head(state.device_access_point_item->system_defined_submodule_list);
+                                    while (frame_sys != NULL) {
+                                        SystemDefinedSubmodule* module = (SystemDefinedSubmodule*)wmem_list_frame_data(frame_sys);
+                                        io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                        io_data_object->slotNr = state.device_access_point_item->slot_nr;
+                                        io_data_object->subSlotNr = module->subslot_number;
+                                        io_data_object->discardIOXS = false;
+                                        io_data_object->frameOffset = frameOffset;
+                                        frameOffset = 1 + frameOffset;
+                                        io_data_object->moduleNameStr = state.module_name;
+                                        io_data_object->moduleIdentNr = state.device_access_point_item->module_ident_number;
+                                        io_data_object->subModuleIdentNr = module->submodule_ident_number;
+                                        wmem_list_append(iocs_list, io_data_object);
+                                        station_info->ioDataObjectNr_in += 1;
+                                        frame_sys = wmem_list_frame_next(frame_sys);
+                                    }
+                                }
+                                /* Input IODataObject */
+                                if (state.device_access_point_item->module_item_list != NULL) {
+                                    for (wmem_list_frame_t* frame_in = wmem_list_head(state.device_access_point_item->module_item_list);
+                                        frame_in != NULL;
+                                        frame_in = wmem_list_frame_next(frame_in))
+                                    {
+                                        ModuleItem* item = (ModuleItem*)wmem_list_frame_data(frame_in);
+                                        if (item->has_input) {
+                                            /* Items with FixedInSlots X..X */
+                                            if (item->slots_start != 0 && item->slots_end != 0) {
+                                                uint32_t slotsnr = item->slots_start;
+                                                for (uint16_t i = item->slots_start; i <= item->slots_end; i++) {
+                                                    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                                    io_data_object->slotNr = slotsnr;
+                                                    io_data_object->discardIOXS = false;
+                                                    io_data_object->moduleNameStr = item->moduleNameStr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    io_data_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number
+                                                        : state.device_access_point_item->subslot_nr;
+
+                                                    data_item_list = item->data_items;
+                                                    if (data_item_list != NULL) {
+                                                        for (wmem_list_frame_t* frame = wmem_list_head(data_item_list);
+                                                            frame != NULL;
+                                                            frame = wmem_list_frame_next(frame))
+                                                        {
+                                                            data_item = (DataItem*)wmem_list_frame_data(frame);
+                                                            if (data_item->is_input) {
+                                                                io_data_object->length = data_item->length;
+                                                                io_data_object->frameOffset = frameOffset;
+                                                                frameOffset = data_item->length + frameOffset + 1;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    io_data_object->moduleIdentNr = item->module_ident_number;
+                                                    io_data_object->subModuleIdentNr = item->submodule_ident_number;
+                                                    wmem_list_append(iocs_list, io_data_object);
+                                                    station_info->ioDataObjectNr_in += 1;
+                                                    slotsnr++;
+                                                }
+                                            }
+                                            /* Items with FixedInSlot X */
+                                            else {
+                                                for (uint16_t i = 1; i <= item->count; i++) {
+                                                    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                                    io_data_object->slotNr = item->slotNr;
+                                                    io_data_object->moduleNameStr = item->moduleNameStr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    io_data_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    io_data_object->discardIOXS = false;
+
+                                                    data_item_list = item->data_items;
+                                                    if (data_item_list != NULL) {
+                                                        for (wmem_list_frame_t* frame = wmem_list_head(data_item_list);
+                                                            frame != NULL;
+                                                            frame = wmem_list_frame_next(frame))
+                                                        {
+                                                            data_item = (DataItem*)wmem_list_frame_data(frame);
+                                                            if (data_item->is_input) {
+                                                                io_data_object->length = data_item->length;
+                                                                io_data_object->frameOffset = frameOffset;
+                                                                frameOffset = data_item->length + frameOffset + 1;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    io_data_object->moduleIdentNr = item->module_ident_number;
+                                                    io_data_object->subModuleIdentNr = item->submodule_ident_number;
+                                                    station_info->ioDataObjectNr_in += 1;
+                                                    wmem_list_append(iocs_list, io_data_object);
+                                                }
+                                            }
+                                            /* Items with UsedInSlots */
+                                            if (item->used_in_slots != NULL) {
+                                                for (wmem_list_frame_t* frame_used_in = wmem_list_head(item->used_in_slots);
+                                                    frame_used_in != NULL;
+                                                    frame_used_in = wmem_list_frame_next(frame_used_in))
+                                                {
+                                                    /*void* raw_data = wmem_list_frame_data(frame);
+                                                    uint32_t* num_ptr = (uint32_t*)raw_data;
+                                                    uint32_t slotnr = *num_ptr;*/
+                                                    uint32_t slotnr = *(uint32_t*)wmem_list_frame_data(frame_used_in);
+                                                    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                                    io_data_object->slotNr = slotnr;
+                                                    io_data_object->moduleNameStr = item->moduleNameStr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    io_data_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    io_data_object->discardIOXS = false;
+
+                                                    data_item_list = item->data_items;
+                                                    if (data_item_list != NULL) {
+                                                        for (wmem_list_frame_t* frame = wmem_list_head(data_item_list);
+                                                            frame != NULL;
+                                                            frame = wmem_list_frame_next(frame))
+                                                        {
+                                                            data_item = (DataItem*)wmem_list_frame_data(frame);
+                                                            if (data_item->is_input) {
+                                                                io_data_object->length = data_item->length;
+                                                                io_data_object->frameOffset = frameOffset;
+                                                                frameOffset = data_item->length + frameOffset + 1;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    io_data_object->moduleIdentNr = item->module_ident_number;
+                                                    io_data_object->subModuleIdentNr = item->submodule_ident_number;
+                                                    station_info->ioDataObjectNr_in += 1;
+                                                    wmem_list_append(iocs_list, io_data_object);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    /* IOCS in Output State */
+                                    for (wmem_list_frame_t* frame_in = wmem_list_head(state.device_access_point_item->module_item_list);
+                                        frame_in != NULL;
+                                        frame_in = wmem_list_frame_next(frame_in))
+                                    {
+                                        ModuleItem* item = (ModuleItem*)wmem_list_frame_data(frame_in);
+                                        if (item->has_output) {
+                                            iocs_list = station_info->iocs_data_in;
+
+                                            /* Items with FixedInSlots X..X */
+                                            if (item->slots_start != 0 && item->slots_end != 0) {
+                                                uint32_t slotsnr = item->slots_start;
+                                                for (uint16_t i = item->slots_start; i <= item->slots_end; i++) {
+                                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                                    iocs_object->slotNr = slotsnr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    iocs_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    iocs_object->frameOffset = frameOffset;
+                                                    frameOffset = 1 + frameOffset;
+                                                    wmem_list_append(iocs_list, iocs_object);
+                                                    slotsnr++;
+                                                    station_info->iocsNr_in += 1;
+                                                }
+                                            }
+                                            /* Items with FixedInSlot X */
+                                            else {
+                                                for (uint16_t i = 1; i <= item->count; i++) {
+                                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                                    iocs_object->slotNr = item->slotNr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    iocs_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    iocs_object->frameOffset = frameOffset;
+                                                    frameOffset = 1 + frameOffset;
+                                                    wmem_list_append(iocs_list, iocs_object);
+                                                    station_info->iocsNr_in += 1;
+                                                }
+                                            }
+                                            /* Items with UsedInSlots */
+                                            if (item->used_in_slots != NULL) {
+                                                for (wmem_list_frame_t* frame = wmem_list_head(item->used_in_slots);
+                                                    frame != NULL;
+                                                    frame = wmem_list_frame_next(frame))
+                                                {
+                                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                                    uint32_t slotnr = *(uint32_t*)wmem_list_frame_data(frame);
+                                                    iocs_object->slotNr = slotnr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    iocs_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    iocs_object->frameOffset = frameOffset;
+                                                    frameOffset = 1 + frameOffset;
+                                                    wmem_list_append(iocs_list, iocs_object);
+                                                    station_info->iocsNr_in += 1;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    /* Reset frameOffset, becouse the creation of output packet objects begins */
+                                    frameOffset = 0;
+
+                                    /* OUTPUT-CR */
+                                    wmem_list_frame_t* frame_out = wmem_list_head(state.device_access_point_item->module_item_list);
+                                    while (frame_out != NULL) {
+                                        ModuleItem* item = (ModuleItem*)wmem_list_frame_data(frame_out);
+                                        if (item->has_output) {
+                                            /* Output IODataObject */
+                                            iocs_list = station_info->ioobject_data_out;
+
+                                            if (item->slots_start != 0 && item->slots_end != 0) {
+                                                uint32_t slotsnr = item->slots_start;
+                                                for (uint16_t i = item->slots_start; i <= item->slots_end; i++) {
+                                                    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                                    io_data_object->slotNr = slotsnr;
+                                                    io_data_object->moduleNameStr = item->moduleNameStr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    io_data_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    io_data_object->discardIOXS = false;
+
+                                                    data_item_list = item->data_items;
+                                                    if (data_item_list != NULL) {
+                                                        for (wmem_list_frame_t* frame = wmem_list_head(data_item_list); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                                                            data_item = (DataItem*)wmem_list_frame_data(frame);
+                                                            if (data_item->is_output) {
+                                                                io_data_object->length = data_item->length;
+                                                                io_data_object->frameOffset = frameOffset;
+                                                                frameOffset = data_item->length + frameOffset + 1;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    io_data_object->moduleIdentNr = item->module_ident_number;
+                                                    io_data_object->subModuleIdentNr = item->submodule_ident_number;
+                                                    wmem_list_append(iocs_list, io_data_object);
+                                                    slotsnr++;
+                                                    station_info->ioDataObjectNr_out += 1;
+                                                }
+                                            }
+                                            else {
+                                                for (uint16_t i = 1; i <= item->count; i++) {
+                                                    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                                    io_data_object->slotNr = item->slotNr;
+                                                    io_data_object->moduleNameStr = item->moduleNameStr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    io_data_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    io_data_object->discardIOXS = false;
+
+                                                    data_item_list = item->data_items;
+                                                    if (data_item_list != NULL) {
+                                                        for (wmem_list_frame_t* frame = wmem_list_head(data_item_list);
+                                                            frame != NULL;
+                                                            frame = wmem_list_frame_next(frame)) {
+                                                            data_item = (DataItem*)wmem_list_frame_data(frame);
+                                                            if (data_item->is_output) {
+                                                                io_data_object->length = data_item->length;
+                                                                io_data_object->frameOffset = frameOffset;
+                                                                frameOffset = data_item->length + frameOffset + 1;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    io_data_object->moduleIdentNr = item->module_ident_number;
+                                                    io_data_object->subModuleIdentNr = item->submodule_ident_number;
+                                                    station_info->ioDataObjectNr_out += 1;
+                                                    wmem_list_append(iocs_list, io_data_object);
+                                                }
+                                            }
+                                            if (item->used_in_slots != NULL) {
+                                                for (wmem_list_frame_t* frame_used_in = wmem_list_head(item->used_in_slots);
+                                                    frame_used_in != NULL;
+                                                    frame_used_in = wmem_list_frame_next(frame_used_in))
+                                                {
+                                                    uint32_t slotnr = *(uint32_t*)wmem_list_frame_data(frame_used_in);
+                                                    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+                                                    io_data_object->slotNr = slotnr;
+                                                    io_data_object->moduleNameStr = item->moduleNameStr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    io_data_object->subSlotNr = item->subslot_number ? 
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    io_data_object->discardIOXS = false;
+
+                                                    data_item_list = item->data_items;
+                                                    if (data_item_list != NULL) {
+                                                        for (wmem_list_frame_t* frame = wmem_list_head(data_item_list);
+                                                            frame != NULL;
+                                                            frame = wmem_list_frame_next(frame))
+                                                        {
+                                                            data_item = (DataItem*)wmem_list_frame_data(frame);
+                                                            if (data_item->is_output) {
+                                                                io_data_object->length = data_item->length;
+                                                                io_data_object->frameOffset = frameOffset;
+                                                                frameOffset = data_item->length + frameOffset + 1;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    io_data_object->moduleIdentNr = item->module_ident_number;
+                                                    io_data_object->subModuleIdentNr = item->submodule_ident_number;
+                                                    station_info->ioDataObjectNr_in += 1;
+                                                    wmem_list_append(iocs_list, io_data_object);
+                                                }
+                                            }
+                                        }
+                                        frame_out = wmem_list_frame_next(frame_out);
+                                    }
+                                    /* DAPI as Output IOCS in Input State */
+                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                    iocs_list = station_info->iocs_data_out;
+                                    iocs_object->slotNr = state.device_access_point_item->slot_nr;
+                                    iocs_object->subSlotNr = state.device_access_point_item->subslot_nr;
+                                    iocs_object->frameOffset = frameOffset;
+                                    frameOffset = 1 + frameOffset;
+                                    wmem_list_append(iocs_list, iocs_object);
+                                    station_info->iocsNr_out += 1;
+
+                                    /* SystemDefinedSubmodule as Output IOCS in Input State */
+                                    if (state.device_access_point_item->system_defined_submodule_list != NULL) {
+                                        wmem_list_frame_t* frame_sys_defmod = wmem_list_head(state.device_access_point_item->system_defined_submodule_list);
+                                        while (frame_sys_defmod != NULL) {
+                                            SystemDefinedSubmodule* module = (SystemDefinedSubmodule*)wmem_list_frame_data(frame_sys_defmod);
+                                            iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                            iocs_object->slotNr = state.device_access_point_item->slot_nr;
+                                            iocs_object->subSlotNr = module->subslot_number;
+                                            iocs_object->frameOffset = frameOffset;
+                                            frameOffset = 1 + frameOffset;
+                                            wmem_list_append(iocs_list, iocs_object);
+                                            station_info->iocsNr_out += 1;
+                                            frame_sys_defmod = wmem_list_frame_next(frame_sys_defmod);
+                                        }
+                                    }
+                                    /* Output IOCS in Input State */
+                                    frame_out = wmem_list_head(state.device_access_point_item->module_item_list);
+                                    while (frame_out != NULL) {
+                                        ModuleItem* item = (ModuleItem*)wmem_list_frame_data(frame_out);
+                                        if (item->has_input) {
+                                            iocs_list = station_info->iocs_data_out;
+
+                                            if (item->slots_start != 0 && item->slots_end != 0) {
+                                                uint32_t slotsnr = item->slots_start;
+                                                for (uint16_t i = item->slots_start; i <= item->slots_end; i++) {
+                                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                                    iocs_object->slotNr = slotsnr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    iocs_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    iocs_object->frameOffset = frameOffset;
+                                                    frameOffset = 1 + frameOffset;
+                                                    wmem_list_append(iocs_list, iocs_object);
+                                                    slotsnr++;
+                                                    station_info->iocsNr_out += 1;
+                                                }
+                                            }
+                                            else {
+                                                for (uint16_t i = 1; i <= item->count; i++) {
+                                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                                    iocs_object->slotNr = item->slotNr;
+                                                    iocs_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    iocs_object->frameOffset = frameOffset;
+                                                    frameOffset = 1 + frameOffset;
+                                                    wmem_list_append(iocs_list, iocs_object);
+                                                    station_info->iocsNr_out += 1;
+                                                }
+                                            }
+                                            if (item->used_in_slots != NULL) {
+                                                for (wmem_list_frame_t* frame = wmem_list_head(item->used_in_slots);
+                                                    frame != NULL;
+                                                    frame = wmem_list_frame_next(frame))
+                                                {
+                                                    iocs_object = wmem_new0(wmem_file_scope(), iocsObject);
+                                                    uint32_t slotnr = *(uint32_t*)wmem_list_frame_data(frame);
+                                                    iocs_object->slotNr = slotnr;
+                                                    /* if subslot_number is not set, use state.device_access_point_item->subslot_nr */
+                                                    iocs_object->subSlotNr = item->subslot_number ?
+                                                        item->subslot_number : state.device_access_point_item->subslot_nr;
+                                                    iocs_object->frameOffset = frameOffset;
+                                                    frameOffset = 1 + frameOffset;
+                                                    wmem_list_append(iocs_list, iocs_object);
+                                                    station_info->iocsNr_out += 1;
+                                                }
+                                            }
+                                        }
+                                        frame_out = wmem_list_frame_next(frame_out);
+                                    }
+                                    station_info->filled_with_objects = true;
+                                }
+                            }
+                            g_markup_parse_context_free(context);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 static int
 dissect_profidrive_value(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6325,13 +7552,41 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
 {
     e_guid_t aruuid;
     e_guid_t null_uuid;
+    ConversationAddress* stored_conversation;
+    bool flag = false;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    /* Stores mac addresses */
+    if (extract_method == HEURISTIC_EXTRACTION) {
+        if (conversation_address_list != NULL) {
+            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+                frame != NULL;
+                frame = wmem_list_frame_next(frame))
+            {
+                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
+                    memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            ConversationAddress* conversation_address = wmem_new0(wmem_file_scope(), ConversationAddress);
 
+            address* addr_device = wmem_new0(wmem_file_scope(), address);
+            address* addr_controller = wmem_new0(wmem_file_scope(), address);
+            copy_address_wmem(wmem_file_scope(), addr_device, &pinfo->dl_dst);
+            copy_address_wmem(wmem_file_scope(), addr_controller, &pinfo->dl_src);
+            conversation_address->device = addr_device;
+            conversation_address->controller = addr_controller;
+            wmem_list_append(conversation_address_list, conversation_address);
+        }
+    }
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
 
     /* The value NIL indicates the usage of the implicit AR*/
@@ -6366,13 +7621,41 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
 {
     e_guid_t aruuid;
     e_guid_t null_uuid;
+    ConversationAddress* stored_conversation;
+    bool flag = false;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    /* Stores mac addresses */
+    if (extract_method == HEURISTIC_EXTRACTION) {
+        if (conversation_address_list != NULL) {
+            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+                frame != NULL;
+                frame = wmem_list_frame_next(frame))
+            {
+                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                if (memcmp(stored_conversation->device->data, pinfo->dl_dst.data, 6) == 0 &&
+                    memcmp(stored_conversation->controller->data, pinfo->dl_src.data, 6) == 0) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            ConversationAddress* conversation_address = wmem_new0(wmem_file_scope(), ConversationAddress);
 
+            address* addr_device = wmem_new0(wmem_file_scope(), address);
+            address* addr_controller = wmem_new0(wmem_file_scope(), address);
+            copy_address_wmem(wmem_file_scope(), addr_device, &pinfo->dl_dst);
+            copy_address_wmem(wmem_file_scope(), addr_controller, &pinfo->dl_src);
+            conversation_address->device = addr_device;
+            conversation_address->controller = addr_controller;
+            wmem_list_append(conversation_address_list, conversation_address);
+        }
+    }
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
 
     /* The value NIL indicates the usage of the implicit AR*/
@@ -6410,6 +7693,8 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
     uint16_t u16AddVal1;
     uint16_t u16AddVal2;
     uint32_t u32Status;
+    ConversationAddress* stored_conversation;
+    bool flag = false;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -6417,7 +7702,34 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    /* Stores mac addresses */
+    if (extract_method == HEURISTIC_EXTRACTION) {
+        if (conversation_address_list != NULL) {
+            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+                frame != NULL;
+                frame = wmem_list_frame_next(frame))
+            {
+                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
+                    memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
+                    flag = true;
+                    break;
 
+                }
+            }
+        }
+        if (!flag) {
+            ConversationAddress* conversation_address = wmem_new0(wmem_file_scope(), ConversationAddress);
+
+            address* addr_device = wmem_new0(wmem_file_scope(), address);
+            address* addr_controller = wmem_new0(wmem_file_scope(), address);
+            copy_address_wmem(wmem_file_scope(), addr_device, &pinfo->dl_src);
+            copy_address_wmem(wmem_file_scope(), addr_controller, &pinfo->dl_dst);
+            conversation_address->device = addr_device;
+            conversation_address->controller = addr_controller;
+            wmem_list_append(conversation_address_list, conversation_address);
+        }
+    }
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
 
     /* The value NIL indicates the usage of the implicit AR*/
@@ -6460,6 +7772,8 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
     e_guid_t aruuid;
     uint16_t u16AddVal1;
     uint16_t u16AddVal2;
+    ConversationAddress* stored_conversation;
+    bool flag = false;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -6467,7 +7781,33 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    /* Stores mac addresses */
+    if (extract_method == HEURISTIC_EXTRACTION) {
+        if (conversation_address_list != NULL) {
+            for (wmem_list_frame_t* frame = wmem_list_head(conversation_address_list);
+                frame != NULL;
+                frame = wmem_list_frame_next(frame))
+            {
+                stored_conversation = (ConversationAddress*)wmem_list_frame_data(frame);
+                if (memcmp(stored_conversation->device->data, pinfo->dl_src.data, 6) == 0 &&
+                    memcmp(stored_conversation->controller->data, pinfo->dl_dst.data, 6) == 0) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            ConversationAddress* conversation_address = wmem_new0(wmem_file_scope(), ConversationAddress);
 
+            address* addr_device = wmem_new0(wmem_file_scope(), address);
+            address* addr_controller = wmem_new0(wmem_file_scope(), address);
+            copy_address_wmem(wmem_file_scope(), addr_device, &pinfo->dl_src);
+            copy_address_wmem(wmem_file_scope(), addr_controller, &pinfo->dl_dst);
+            conversation_address->device = addr_device;
+            conversation_address->controller = addr_controller;
+            wmem_list_append(conversation_address_list, conversation_address);
+        }
+    }
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
 
     /* The value NIL indicates the usage of the implicit AR*/
@@ -15518,6 +16858,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (cyclic Real-Time, class=1) and
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff) {
+        extract_pnio_objects_withoutAR(pinfo);
         dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
         return true;
     }
@@ -15526,6 +16867,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (cyclic Real-Time, class=1, legacy) and
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0xc000 && u16FrameID < 0xfbff) {
+        extract_pnio_objects_withoutAR(pinfo);
         dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
         return true;
     }
@@ -15673,6 +17015,9 @@ pnio_shutdown(void) {
 static void
 pnio_setup(void) {
     aruuid_frame_setup_list = wmem_list_new(wmem_file_scope());
+    conversation_address_list = wmem_list_new(wmem_file_scope());
+    stateflag = wmem_alloc0(wmem_file_scope(), sizeof(uint8_t));
+    *stateflag = 0;
 }
 
 
@@ -19426,6 +20771,12 @@ proto_register_pn_io (void)
         "This version of Wireshark was built without support for reading GSDML files.",
         "This version of Wireshark was built without libxml2 and does not support reading GSDML files.");
 #endif
+    prefs_register_filename_preference(pnio_module, "pnio_configpath",
+        "Config file for manual extraction",
+        "Choose a config XML file",
+        &pnio_configpath, false);
+    prefs_register_enum_preference(pnio_module, "pnio_gsd_parsing_option",
+        "Method of parsing the GSD", "Choose heuristic or manual method to extract GSD", &extract_method, pnio_method_enum, false);
 
     /* subdissector code */
     register_dissector("pn_io", dissect_PNIO, proto_pn_io);

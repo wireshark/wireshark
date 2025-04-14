@@ -54,6 +54,8 @@ typedef struct tagStationInfo {
     wmem_list_t *ioobject_data_out;
     /* Different ModuleIdentnumber */
     wmem_list_t *diff_module;
+    /* Flag for the extraction of PNIO Objects without AR */
+    bool filled_with_objects;
 } stationInfo;
 
 typedef struct tagApduStatusSwitch
