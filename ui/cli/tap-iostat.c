@@ -885,14 +885,94 @@ iostat_draw_header(unsigned borderlen, const io_stat_t *iot, const nstime_t *dur
 }
 
 static void
+iostat_draw_header_row(unsigned borderlen, const io_stat_t *iot, const column_width *col_w, unsigned invl_col_w, unsigned tabrow_w)
+{
+    unsigned j, type, numpad = 1;
+    char *filler_s = NULL;
+
+    /* Display spaces above "Interval (s)" label */
+    printf("|%*s", invl_col_w - 1, "|");
+
+    /* Display column number headers */
+    for (j=0; j < iot->num_cols; j++) {
+        int padding;
+        if (iot->calc_type[j] == CALC_TYPE_FRAMES_AND_BYTES)
+            padding = col_w[j].fr + col_w[j].val + 3;
+        else if (iot->calc_type[j] == CALC_TYPE_FRAMES)
+            padding = col_w[j].fr;
+        else
+            padding = col_w[j].val;
+
+        printf("%-2d%*s|", j+1, padding, "");
+    }
+    if (tabrow_w < borderlen) {
+        filler_s = g_strdup_printf("%*s", borderlen - tabrow_w, "|");
+        printf("%s", filler_s);
+    }
+    printf("\n");
+
+    GString *timestamp_str;
+    switch (timestamp_get_type()) {
+    case TS_ABSOLUTE:
+    case TS_UTC:
+        timestamp_str = g_string_new("| Time    ");
+        break;
+    case TS_ABSOLUTE_WITH_YMD:
+    case TS_ABSOLUTE_WITH_YDOY:
+    case TS_UTC_WITH_YMD:
+    case TS_UTC_WITH_YDOY:
+        timestamp_str = g_string_new("| Date and time");
+        break;
+    case TS_RELATIVE:
+    case TS_NOT_SET:
+        timestamp_str = g_string_new("| Interval");
+        break;
+    default:
+        timestamp_str = g_string_new(NULL);
+        break;
+    }
+
+    printf("%s%*s", timestamp_str->str, (int)(invl_col_w - timestamp_str->len), "|");
+    g_string_free(timestamp_str, TRUE);
+
+    /* Display the stat label in each column */
+    for (j=0; j < iot->num_cols; j++) {
+        type = iot->calc_type[j];
+        if (type == CALC_TYPE_FRAMES) {
+            printcenter (calc_type_table[type].func_name, col_w[j].fr, numpad);
+        } else if (type == CALC_TYPE_FRAMES_AND_BYTES) {
+            printcenter ("Frames", col_w[j].fr, numpad);
+            printcenter ("Bytes", col_w[j].val, numpad);
+        } else {
+            printcenter (calc_type_table[type].func_name, col_w[j].val, numpad);
+        }
+    }
+    if (filler_s) {
+        printf("%s", filler_s);
+    }
+    printf("\n|-");
+
+    for (j=0; j<tabrow_w-3; j++)
+        printf("-");
+    printf("|");
+
+    if (filler_s) {
+        printf("%s", filler_s);
+        g_free(filler_s);
+    }
+
+    printf("\n");
+}
+
+static void
 iostat_draw(void *arg)
 {
     uint32_t num;
     uint64_t interval, duration, t, invl_end, dv;
     unsigned int i, j, k, num_cols, num_rows, dur_secs, dur_mag,
-        invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, numpad = 1, type,
+        invl_mag, invl_prec, tabrow_w, borderlen, invl_col_w, type,
         maxfltr_w, ftype;
-    char *spaces, *spaces_s, *filler_s = NULL, **fmts, *fmt = NULL;
+    char **fmts, *fmt = NULL;
     static char *invl_fmt, *full_fmt;
     io_stat_item_t *mit, **stat_cols, *item, **item_in_column;
     bool last_row = false;
@@ -1023,79 +1103,8 @@ iostat_draw(void *arg)
     nstime_t invl_time = NSTIME_INIT_SECS_USECS(interval/UINT64_C(1000000), interval%UINT64_C(1000000));
     iostat_draw_header(borderlen, iot, &cfile.elapsed_time, &invl_time, invl_prec);
 
-    spaces = (char *)g_malloc(borderlen+1);
-    for (i=0; i<borderlen; i++)
-        spaces[i] = ' ';
-    spaces[borderlen] = '\0';
+    iostat_draw_header_row(borderlen, iot, col_w, invl_col_w, tabrow_w);
 
-    /* Display spaces above "Interval (s)" label */
-    spaces_s = &spaces[borderlen-(invl_col_w-2)];
-    printf("|%s|", spaces_s);
-
-    /* Display column number headers */
-    for (j=0; j<num_cols; j++) {
-        if (iot->calc_type[j] == CALC_TYPE_FRAMES_AND_BYTES)
-            spaces_s = &spaces[borderlen - (col_w[j].fr + col_w[j].val)] - 3;
-        else if (iot->calc_type[j] == CALC_TYPE_FRAMES)
-            spaces_s = &spaces[borderlen - col_w[j].fr];
-        else
-            spaces_s = &spaces[borderlen - col_w[j].val];
-
-        printf("%-2d%s|", j+1, spaces_s);
-    }
-    if (tabrow_w < borderlen) {
-        filler_s = &spaces[tabrow_w+1];
-        printf("%s|", filler_s);
-    }
-
-    k = 11;
-    switch (timestamp_get_type()) {
-    case TS_ABSOLUTE:
-    case TS_UTC:
-        printf("\n| Time    ");
-        break;
-    case TS_ABSOLUTE_WITH_YMD:
-    case TS_ABSOLUTE_WITH_YDOY:
-    case TS_UTC_WITH_YMD:
-    case TS_UTC_WITH_YDOY:
-        printf("\n| Date and time");
-        k = 16;
-        break;
-    case TS_RELATIVE:
-    case TS_NOT_SET:
-        printf("\n| Interval");
-        break;
-    default:
-        break;
-    }
-
-    spaces_s = &spaces[borderlen-(invl_col_w-k)];
-    printf("%s|", spaces_s);
-
-    /* Display the stat label in each column */
-    for (j=0; j<num_cols; j++) {
-        type = iot->calc_type[j];
-        if (type == CALC_TYPE_FRAMES) {
-            printcenter (calc_type_table[type].func_name, col_w[j].fr, numpad);
-        } else if (type == CALC_TYPE_FRAMES_AND_BYTES) {
-            printcenter ("Frames", col_w[j].fr, numpad);
-            printcenter ("Bytes", col_w[j].val, numpad);
-        } else {
-            printcenter (calc_type_table[type].func_name, col_w[j].val, numpad);
-        }
-    }
-    if (filler_s)
-        printf("%s|", filler_s);
-    printf("\n|-");
-
-    for (i=0; i<tabrow_w-3; i++)
-        printf("-");
-    printf("|");
-
-    if (tabrow_w < borderlen)
-        printf("%s|", &spaces[tabrow_w+1]);
-
-    printf("\n");
     t = 0;
     if (invl_prec == 0 && dur_mag == 1)
         full_fmt = g_strconcat("|  ", invl_fmt, " <> ", invl_fmt, "  |", NULL);
@@ -1292,8 +1301,9 @@ iostat_draw(void *arg)
                 printf(fmt, (uint64_t)0, (uint64_t)0);
             }
         }
-        if (filler_s)
-            printf("%s|", filler_s);
+        if (tabrow_w < borderlen) {
+            printf("%*s", borderlen - tabrow_w, "|");
+        }
         printf("\n");
         t += interval;
 
@@ -1316,7 +1326,6 @@ iostat_draw(void *arg)
     g_free(invl_fmt);
     g_free(full_fmt);
     g_free(fmts);
-    g_free(spaces);
     g_free(stat_cols);
     g_free(item_in_column);
 }
