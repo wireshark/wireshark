@@ -86,18 +86,6 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     new_visible_rows_.reserve(1000);
     number_to_row_.reserve(reserved_packets_);
 
-    if (MainWindow *mw = mainApp->mainWindow())
-    {
-            QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
-            if (wtWidget && qobject_cast<WirelessTimeline *>(wtWidget))
-            {
-                WirelessTimeline * wt = qobject_cast<WirelessTimeline *>(wtWidget);
-                connect(this, &PacketListModel::bgColorizationProgress,
-                        wt, &WirelessTimeline::bgColorizationProgress);
-            }
-
-    }
-
     idle_dissection_timer_ = new QElapsedTimer();
 }
 

@@ -352,6 +352,12 @@ WirelessTimeline::~WirelessTimeline()
 void WirelessTimeline::setPacketList(PacketList *packet_list)
 {
     this->packet_list = packet_list;
+    PacketListModel *packet_list_model = qobject_cast<PacketListModel *>(packet_list->model());
+    if (packet_list_model) {
+        connect(packet_list_model, &PacketListModel::bgColorizationProgress,
+                this, &WirelessTimeline::bgColorizationProgress);
+    }
+
 }
 
 void WirelessTimeline::tap_timeline_reset(void* tapdata)

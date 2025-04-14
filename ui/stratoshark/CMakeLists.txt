@@ -55,7 +55,6 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/splash_overlay.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/stock_icon_tool_button.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/syntax_line_edit.h
-	${CMAKE_SOURCE_DIR}/ui/qt/widgets/wireless_timeline.h # Required by PacketListModel
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/tabnav_tree_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tab.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tree.h
@@ -296,7 +295,6 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/splash_overlay.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/stock_icon_tool_button.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/syntax_line_edit.cpp
-	${CMAKE_SOURCE_DIR}/ui/qt/widgets/wireless_timeline.cpp # Required by PacketListModel
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/tabnav_tree_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tab.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tree.cpp
@@ -448,9 +446,6 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/response_time_delay_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/rsa_keys_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/search_frame.cpp
-	# XXX Depends on RTP Stream Dialog
-	# ${CMAKE_SOURCE_DIR}/ui/qt/sequence_diagram.cpp
-	# ${CMAKE_SOURCE_DIR}/ui/qt/sequence_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/show_packet_bytes_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/simple_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/simple_statistics_dialog.cpp
