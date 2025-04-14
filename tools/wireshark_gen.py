@@ -843,7 +843,7 @@ class wireshark_gen_C:
             if ex.members():
                 #print ex.members()
                 for m in ex.members():
-                    t = 0
+                    pass
                     #print m.memberType(), m.memberType().kind()
 
     def genOpDelegator(self, oplist):

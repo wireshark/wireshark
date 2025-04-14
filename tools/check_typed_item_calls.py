@@ -361,7 +361,7 @@ class TVBGetBits:
             for m in matches:
                 try:
                     length = int(m.group(2))
-                except:
+                except Exception:
                     # Not parsable as literal decimal, so ignore
                     # TODO: could subst macros if e.g., do check in check_against_items() 
                     continue

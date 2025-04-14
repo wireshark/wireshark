@@ -141,7 +141,7 @@ class SharkdShell:
         except json.JSONDecodeError as e:
             _logger.error('Invalid command: %s', e)
             return
-        if type(c) != dict or not 'req' in c:
+        if c is not dict or 'req' not in c:
             _logger.error('Missing req key in request')
             return
         return c

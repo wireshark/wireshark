@@ -8,6 +8,8 @@ and save it in a packet-capture file.
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+# TODO: update to python3
+
 import getopt
 import os
 import re

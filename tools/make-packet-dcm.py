@@ -3,6 +3,7 @@ import os.path
 import sys
 import itertools
 import lxml.etree
+import re
 
 # This utility scrapes the DICOM standard document in DocBook format, finds the appropriate tables,
 # and extracts the data needed to build the lists of DICOM attributes, UIDs and value representations.
@@ -137,7 +138,6 @@ def uid_define_name(uid):
         uid_name = uid_name[:-len(uid_type)].strip()
     return f"DCM_UID_{definify(uid_type)}_{definify(uid_name)}"
 
-import re
 def definify(s):
     return re.sub('[^A-Z0-9]+', '_', re.sub('  +', ' ', re.sub('[^-A-Z0-9 ]+', '', s.upper())))
 

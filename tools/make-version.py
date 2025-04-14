@@ -218,7 +218,7 @@ def generate_version_h(repo_data):
 
     if repo_data.get('commit_id'):
         ws_commit_id_line = f'#define WIRESHARK_VCS_COMMIT_ID "{repo_data["commit_id"]}"'
-        ss_commit_id_line = f'#define STRATOSHARK_VCS_COMMIT_ID WIRESHARK_VCS_COMMIT_ID'
+        ss_commit_id_line =  '#define STRATOSHARK_VCS_COMMIT_ID WIRESHARK_VCS_COMMIT_ID'
 
     if repo_data.get('enable_vcsversion'):
         if repo_data.get('ws_git_description'):

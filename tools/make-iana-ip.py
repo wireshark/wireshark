@@ -205,7 +205,7 @@ def main():
     try:
         with io.open(iana_path, 'w', encoding='UTF-8') as iana_f:
             iana_f.write(iana_data)
-    except:
+    except Exception:
         exit_msg("Couldn't open \"{}\" file for writing".format(iana_path))
 
 if __name__ == '__main__':

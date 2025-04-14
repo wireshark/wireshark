@@ -32,7 +32,6 @@ import re
 import sys
 
 from enum import Enum
-from string import Template
 
 def parse_desc(description):
     '''\
@@ -450,7 +449,7 @@ def main():
                 adoc_f.write(functions[global_id].to_adoc())
 
             if len(functions.keys()) > 0:
-                adoc_f.write(f'// Global function\n')
+                adoc_f.write('// Global function\n')
 
             adoc_f.write('// end of module\n')
 
