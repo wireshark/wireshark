@@ -1009,7 +1009,12 @@ While _NONE_ keeps the historical behaviour, the other options are built on thre
 The presence of packets which seem to be duplicates because they have the same payload but aren't filtered by the other preference _Ignore duplicate frames_,
 is a strong indication that a deinterlacing key is likely to change the interpretation.
 Check carefully the different values of Interface IDs, MAC Addresses, and VLAN Tags, to identify which deinterlacing key is appropriate for 
-isolating the conversations and bringing the proper interpretation.
+isolating the conversations and bringing the proper interpretation, but keep in mind that capturing on different interfaces or VLANs doesn't necessarily
+mean that deinterlacing is needed.
+
+When the deinterlacing key has any impact on the dissection, either the IPv4/IPv6 tabs of the Conversations dialog or the tuple values related to Ethernet
+or IPv4/IPv6 in the Conversation Hash Tables dialog will make this obvious (protocols supporting multiple incarnations of a connection such as TCP are
+harder to interpret and then rather not checked first).
 
 The preference _The max number of hashes to keep in memory for determining duplicate frames_ allows you to set how large the set of frames to consider for duplication is.
 
