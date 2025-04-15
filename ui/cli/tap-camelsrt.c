@@ -36,7 +36,6 @@ void register_tap_listener_camelsrt(void);
 
 /* used to keep track of the statistics for an entire program interface */
 struct camelsrt_t {
-  char *filter;
   uint32_t count[NB_CAMELSRT_CATEGORY];
   timestat_t stats[NB_CAMELSRT_CATEGORY];
   nstime_t delta_time[NB_CAMELSRT_CATEGORY][NUM_RAS_STATS];
@@ -49,7 +48,14 @@ static void camelsrt_reset(void *phs)
   memset(hs, 0, sizeof(struct camelsrt_t));
 }
 
+/* Free our memory */
+static void camelsrt_finish(void *phs)
+{
+  struct camelsrt_t *hs = (struct camelsrt_t *)phs;
+  g_free(hs);
+}
 
+/* Collect stats */
 static tap_packet_status camelsrt_packet(void *phs,
                                          packet_info *pinfo _U_,
                                          epan_dissect_t *edt _U_,
@@ -78,7 +84,7 @@ static tap_packet_status camelsrt_packet(void *phs,
   return TAP_PACKET_REDRAW;
 }
 
-
+/* Print stat output */
 static void camelsrt_draw(void *phs)
 {
   struct camelsrt_t *hs = (struct camelsrt_t *)phs;
@@ -200,29 +206,29 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
 {
   struct camelsrt_t *p_camelsrt;
   GString *error_string;
+  const char *filter;
 
   p_camelsrt = g_new(struct camelsrt_t, 1);
   camelsrt_reset(p_camelsrt);
 
   if (!strncmp(opt_arg, "camel,srt,", 10)) {
-    p_camelsrt->filter = g_strdup(opt_arg+10);
+    filter = opt_arg+10;
   } else {
-    p_camelsrt->filter = NULL;
+    filter = NULL;
   }
 
   error_string = register_tap_listener("CAMEL",
                                      p_camelsrt,
-                                     p_camelsrt->filter,
-                                     0,
-                                     NULL,
+                                     filter,
+                                     TL_REQUIRES_NOTHING,
+                                     camelsrt_reset,
                                      camelsrt_packet,
                                      camelsrt_draw,
-                                     NULL);
+                                     camelsrt_finish);
 
   if (error_string) {
     /* error, we failed to attach to the tap. clean up */
-    g_free(p_camelsrt->filter);
-    g_free(p_camelsrt);
+    camelsrt_finish((void *)p_camelsrt);
 
     cmdarg_err("Couldn't register camel,srt tap: %s", error_string->str);
     g_string_free(error_string, TRUE);
