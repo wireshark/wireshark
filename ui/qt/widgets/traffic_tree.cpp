@@ -480,7 +480,7 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
                 qint64 lpart = subnet.indexOf("/");
                 ws_in4_addr ip4addr;
 
-                if(ws_inet_pton4(subnet.left(lpart).toUtf8().data(), &ip4addr)) {
+                if(ws_inet_pton4(subnet.left(int(lpart)).toUtf8().data(), &ip4addr)) {
                     quint32 valA = g_ntohl(ip4addr);
                     quint32 valB = model->data(source_right, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
                     result = valA < valB;
@@ -490,7 +490,7 @@ bool TrafficDataFilterProxy::lessThan(const QModelIndex &source_left, const QMod
                 QString subnet = datB.toString();
                 qint64 lpart = subnet.indexOf("/");
                 ws_in4_addr ip4addr;
-                if(ws_inet_pton4(subnet.left(lpart).toUtf8().data(), &ip4addr)) {
+                if(ws_inet_pton4(subnet.left(int(lpart)).toUtf8().data(), &ip4addr)) {
                     quint32 valA = model->data(source_left, ATapDataModel::DATA_IPV4_INTEGER).value<quint32>();
                     quint32 valB = g_ntohl(ip4addr);
                     result = valA < valB;
