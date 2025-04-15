@@ -1733,7 +1733,7 @@ smb_saved_info_hash_matched(const void *k)
 
 static GSList *conv_tables;
 
-int
+static int
 smb_find_unicode_null_offset(tvbuff_t *tvb, int offset, const int maxlength, const uint16_t needle, const unsigned encoding)
 {
     unsigned captured_length = tvb_captured_length(tvb);
@@ -1774,7 +1774,7 @@ smb_find_unicode_null_offset(tvbuff_t *tvb, int offset, const int maxlength, con
    at least, appears, in some cases, to put only 1 byte of 0 at the end
    of a Unicode string if the byte count
 */
-char *
+static char *
 unicode_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *us_lenp, bool exactlen,
 	       uint16_t bc)
 {

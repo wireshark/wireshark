@@ -9118,7 +9118,7 @@ dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, 
 }
 
 /* [MS-SMB2] - v20240129 2.2.31 and [MS-DFSC] - v20180912 2.2.3 */
-void
+static void
 dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset _U_, gboolean data_in)
 {
 	int16_t bc;
