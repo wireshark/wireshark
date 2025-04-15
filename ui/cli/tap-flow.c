@@ -40,10 +40,22 @@ flow_draw(void *arg)
     sequence_analysis_get_nodes(flow_info);
 
     sequence_analysis_dump_to_file(stdout, flow_info, 0);
+}
 
+static void
+flow_finish(void *arg)
+{
+    seq_analysis_info_t* flow_info = (seq_analysis_info_t*)arg;
     //clean up the data
     sequence_analysis_list_free(flow_info);
     sequence_analysis_info_free(flow_info);
+}
+
+static void
+flow_reset(void *arg)
+{
+    seq_analysis_info_t* flow_info = (seq_analysis_info_t*)arg;
+    sequence_analysis_list_free(flow_info);
 }
 
 static bool flow_arg_strncmp(const char **opt_argp, const char *strp)
@@ -94,7 +106,7 @@ flow_init(const char *opt_argp, void *userdata)
     sequence_analysis_list_free(flow_info);
 
     errp = register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), flow_info, filter, sequence_analysis_get_tap_flags(analysis),
-                                NULL, sequence_analysis_get_packet_func(analysis), flow_draw, NULL);
+                                flow_reset, sequence_analysis_get_packet_func(analysis), flow_draw, flow_finish);
 
     if (errp != NULL)
     {
