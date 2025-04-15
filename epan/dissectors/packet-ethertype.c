@@ -190,6 +190,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_ECPRI,                "eCPRI" },
 	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
 	{ ETHERTYPE_EXEH,                 "EXos internal Extra Header" },
+	{ ETHERTYPE_ATMF,                 "Allied Telesis Autonomous Management Framework" },
 	{ ETHERTYPE_ATRL,                 "Allied Telesis Resiliency Link" },
 	{ ETHERTYPE_ACIGLEAN,             "Cisco ACI ARP gleaning" },
 	{ ETHERTYPE_IEEE_802_1CB,         "802.1CB Frame Replication and Elimination for Reliability" },
