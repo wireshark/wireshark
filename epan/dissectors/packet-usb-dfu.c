@@ -245,6 +245,7 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (urb->is_setup) {
         uint16_t interface;
+        uint32_t length;
 
         command_item = proto_tree_add_item(main_tree, hf_setup_command, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         command = tvb_get_uint8(tvb, offset);
@@ -273,12 +274,15 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         interface = tvb_get_letohs(tvb, offset);
         offset += 2;
 
-        proto_tree_add_item(main_tree, hf_setup_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(main_tree, hf_setup_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
         offset += 2;
 
         if (command == 0x01) { /* Download */
-            proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
+            /* length == 0 implies there's no more data to download */
+            if (length > 0) {
+                proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
+                offset = tvb_captured_length(tvb);
+            }
         }
 
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
