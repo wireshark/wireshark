@@ -2775,7 +2775,7 @@ void LograyMainWindow::addPluginIFStructures()
         if (menu->parent_menu) {
             QMenu *sortUnderneath = searchSubMenu(QString(menu->parent_menu));
             if (sortUnderneath)
-                subMenu = sortUnderneath->addMenu(menu->label);
+                subMenu = findOrAddMenu(sortUnderneath, QStringList() << menu->label);
         }
 
         if (!subMenu)
