@@ -1687,10 +1687,12 @@ again:
                 another_pdu_follows = 0;
             } else {
                 /*
-                 * Show the stuff in this TCP segment as
-                 * just raw TCP segment data.
+                 * Show the stuff in this TLS segment as
+                 * just raw TLS segment data.
                  */
-                nbytes = tvb_reported_length_remaining(tvb, offset);
+                nbytes = another_pdu_follows > 0 ?
+                    another_pdu_follows :
+                    tvb_reported_length_remaining(tvb, offset);
                 ssl_proto_tree_add_segment_data(tree, tvb, offset, nbytes, NULL);
 
                 /* Show details of the reassembly */
