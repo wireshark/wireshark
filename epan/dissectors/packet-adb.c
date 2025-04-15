@@ -638,7 +638,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 command_data->completed_in_frame = frame_number;
         }
 
-        if (frame_number == command_data->reassemble_error_in_frame) {
+        if (command_data && frame_number == command_data->reassemble_error_in_frame) {
             /* data reassembly error was detected in the first pass. */
             proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data, tvb, offset, -1);
         }
