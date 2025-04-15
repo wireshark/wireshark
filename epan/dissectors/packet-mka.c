@@ -316,7 +316,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
 {
   int offset = *offset_ptr;
   proto_tree *basic_param_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
   uint16_t basic_param_set_len;
   uint16_t cak_len;
 
@@ -387,7 +387,7 @@ dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *
 {
   int offset = *offset_ptr;
   proto_tree *peer_list_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
   int hf_peer;
   int16_t peer_list_len;
 
@@ -450,7 +450,7 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
 {
   int offset = *offset_ptr;
   proto_tree *sak_use_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
   uint16_t sak_use_len;
 
   sak_use_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
@@ -539,7 +539,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
   int offset = *offset_ptr;
   uint16_t distributed_sak_len;
   proto_tree *distributed_sak_tree;
-  proto_tree *ti;
+  proto_item *ti;
 
   distributed_sak_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_distributed_sak_set, tvb, offset, distributed_sak_len + 4, ENC_NA);
@@ -611,7 +611,7 @@ dissect_distributed_cak(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *
   int offset = *offset_ptr;
   uint16_t distributed_cak_len;
   proto_tree *distributed_cak_tree;
-  proto_tree *ti;
+  proto_item *ti;
   uint16_t cak_len;
 
   distributed_cak_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
@@ -654,7 +654,7 @@ dissect_kmd(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *of
   int offset = *offset_ptr;
   uint16_t kmd_len;
   proto_tree *kmd_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
 
   kmd_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_kmd_set, tvb, offset, kmd_len + 4, ENC_NA);
@@ -681,7 +681,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
   int offset = *offset_ptr;
   uint16_t announcement_len;
   proto_tree *announcement_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
   int offset2;
 
   announcement_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
@@ -772,7 +772,7 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *of
   int offset = *offset_ptr;
   uint16_t xpn_len;
   proto_tree *xpn_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
 
   xpn_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_xpn_set, tvb, offset, xpn_len + 4, ENC_NA);
@@ -806,7 +806,7 @@ dissect_icv(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *of
 {
   int offset = *offset_ptr;
   proto_tree *icv_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
 
   *icv_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_icv_set, tvb, offset, 4, ENC_NA);
@@ -829,7 +829,7 @@ dissect_unknown_param_set(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t
   int offset = *offset_ptr;
   uint16_t param_set_len;
   proto_tree *param_set_tree;
-  proto_tree *ti;
+  proto_item *ti;
 
   param_set_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_unknown_set, tvb, offset, param_set_len + 4, ENC_NA);
@@ -866,7 +866,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   int         offset = 0;
   uint8_t     mka_version_type;
   uint16_t    icv_len = 16; // Default ICV length, see IEEE 802.1X-2010, Section 11.11
-  proto_tree *ti;
+  proto_item *ti;
   proto_tree *mka_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPOL-MKA");
