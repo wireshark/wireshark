@@ -94,10 +94,9 @@ static const value_string map_bfcp_primitive[] = {
 	{ 12, "HelloAck"},
 	{ 13, "Error"},
 	{ 14, "FloorRequestStatusAck"},
-	{ 15, "ErrorAck"},
-	{ 16, "FloorStatusAck"},
-	{ 17, "Goodbye"},
-	{ 18, "GoodbyeAck"},
+	{ 15, "FloorStatusAck"},
+	{ 16, "Goodbye"},
+	{ 17, "GoodbyeAck"},
 	{ 0,  NULL},
 };
 
