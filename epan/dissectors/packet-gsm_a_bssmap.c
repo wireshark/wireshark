@@ -3072,10 +3072,9 @@ be_loc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset,
  * Positioning Data element of 3GPP TS 49.031 BSSAP-LE.
  */
 static uint16_t
-be_pos_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+be_pos_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     uint32_t curr_offset;
-    uint8_t i;
     uint64_t pos_data_disc;
     int     bit_offset;
 
@@ -3094,7 +3093,7 @@ be_pos_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
     if (pos_data_disc == 0)
     {
         /* Extract the positioning methods and add to protocol tree */
-        for (i = 0; i < len-1; i++)
+        for (unsigned i = 0; i < len-1; i++)
         {
             /* Extract the positioning method and add to protocol tree */
             proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_positioning_method, tvb, bit_offset, 5, ENC_BIG_ENDIAN);

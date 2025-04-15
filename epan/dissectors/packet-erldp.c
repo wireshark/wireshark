@@ -303,7 +303,7 @@ static int dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, int offset, p
 
 static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
   uint32_t num, isi;
-  uint8_t flen, i, flg;
+  uint8_t flen, flg;
   int flg_offset, acrs_offset, acr_offset;
   uint32_t atom_txt_len;
   bool new_entry, long_atom;
@@ -321,7 +321,7 @@ static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset
   flen = num / 2 + 1;
   ti_tmp = proto_tree_add_item(tree, hf_erldp_etf_flags, tvb, offset, flen, ENC_NA );
   flags_tree = proto_item_add_subtree(ti_tmp, ett_etf_flags);
-  for (i=0; i<num; i++) {
+  for (unsigned i=0; i<num; i++) {
     flg = tvb_get_uint8(tvb, offset + i / 2);
     proto_tree_add_boolean_format_value(flags_tree, hf_etf_dist_header_new_cache, tvb, offset + i / 2, 1,
                             (flg & (0x08 << 4*(i%2))), "NewCacheEntryFlag[%2d]: %s",
@@ -337,7 +337,7 @@ static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset
 
   acrs_offset = offset;
   acrs_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_etf_acrs, &ti_acrs, "AtomCacheRefs");
-  for (i=0; i<num; i++) {
+  for (unsigned i=0; i<num; i++) {
     flg = tvb_get_uint8(tvb, flg_offset + i / 2);
     new_entry = flg & (0x08 << 4*(i%2));
     acr_offset = offset;

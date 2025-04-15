@@ -123,7 +123,6 @@ dot11decrypt_prf(const uint8_t *key, size_t key_len,
     uint8_t tmp[MAX_TMP_LEN];
     uint16_t hash_len = gcry_md_get_algo_dlen(hash_algo);
     size_t offset = 0;
-    uint8_t i;
 
     if (!key || !label || !context || !output) {
         return false;
@@ -141,9 +140,9 @@ dot11decrypt_prf(const uint8_t *key, size_t key_len,
     memcpy(R + offset, context, context_len);
     offset += context_len;
 
-    for (i = 0; i <= output_len * 8 / 160; i++)
+    for (size_t i = 0; i <= output_len * 8 / 160; i++)
     {
-        R[offset] = i;
+        R[offset] = (uint8_t)i;
         if (ws_hmac_buffer(hash_algo, tmp + hash_len * i, R, offset + 1, key, key_len)) {
             return false;
         }
@@ -177,11 +176,11 @@ dot11decrypt_kdf(const uint8_t *key, size_t key_len,
     uint8_t R[MAX_R_LEN]; /* Will hold "i || Label || Context || Length" */
     uint8_t tmp[MAX_TMP_LEN];
     size_t label_len = strlen(label);
-    uint16_t hash_len = gcry_md_get_algo_dlen(hash_algo);
-    unsigned iterations = (unsigned)output_len * 8 / hash_len;
+    size_t hash_len = gcry_md_get_algo_dlen(hash_algo);
+    size_t iterations = output_len * 8 / hash_len;
     uint16_t len_le = GUINT16_TO_LE(output_len * 8);
     size_t offset = 0;
-    uint16_t i;
+    size_t i;
 
     if (!key || !label || !context || !output) {
         return false;

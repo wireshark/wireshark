@@ -2271,7 +2271,6 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     unsigned             temp;
     mac_lte_oob_event    oob_event;
     struct mac_lte_info *p_mac_lte_info;
-    uint16_t             n;
 
     /* Current strings of interest begin with ">> ", so if don't see, avoid sscanf() calls. */
     if (strncmp(string, ">> ", 3) != 0) {
@@ -2300,7 +2299,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
         if (number_of_ues > 1) {
             current_position = string;
 
-            for (n=1; n < number_of_ues; n++) {
+            for (unsigned n=1; n < number_of_ues; n++) {
 
                 /* Find the start of the next entry */
                 current_position = strstr(current_position, "] ");
@@ -2347,7 +2346,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
             p_mac_lte_info->direction = DIRECTION_UPLINK;
            break;
         case ltemac_send_sr:
-            for (n=0; n < number_of_ues; n++) {
+            for (unsigned n=0; n < number_of_ues; n++) {
                 p_mac_lte_info->oob_ueid[n] = ueids[n];
                 p_mac_lte_info->oob_rnti[n] = rntis[n];
             }
