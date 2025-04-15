@@ -33,10 +33,6 @@ typedef enum severity_level_t {
     max_level
 } severity_level_t;
 
-/* This variable stores the lowest level that will be displayed.
-   May be changed from the command line */
-static severity_level_t lowest_report_level = comment_level;
-
 typedef struct expert_entry
 {
     uint32_t     group;
@@ -48,6 +44,7 @@ typedef struct expert_entry
 
 /* Overall struct for storing all data seen */
 typedef struct expert_tapdata_t {
+    severity_level_t lowest_report_level; /* the lowest level that will be displayed */
     GArray       *ei_array[max_level]; /* expert info items */
     GStringChunk *text;         /* for efficient storage of summary strings */
 } expert_tapdata_t;
@@ -104,7 +101,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
     }
 
     /* Don't store details at a lesser severity than we are interested in */
-    if (severity_level < lowest_report_level) {
+    if (severity_level < data->lowest_report_level) {
         return TAP_PACKET_REDRAW; /* XXX - TAP_PACKET_DONT_REDRAW? */
     }
 
@@ -202,6 +199,8 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
     GString          *error_string;
     expert_tapdata_t *hs;
     int               n;
+    severity_level_t lowest_report_level = comment_level;
+
 
     /* Check for args. */
     if (strncmp(opt_arg, "expert", 6) == 0) {
@@ -243,6 +242,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
 
     /* Create top-level struct */
     hs = g_new0(expert_tapdata_t, 1);
+    hs->lowest_report_level = lowest_report_level;
 
     /* Allocate chunk of strings */
     hs->text = g_string_chunk_new(100);
@@ -257,7 +257,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
     /**********************************************/
 
     error_string = register_tap_listener("expert", hs,
-                                         filter, 0,
+                                         filter, TL_REQUIRES_NOTHING,
                                          expert_stat_reset,
                                          expert_stat_packet,
                                          expert_stat_draw,
