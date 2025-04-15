@@ -114,6 +114,18 @@ diam_tree_to_csv(proto_node *node, void * data)
 	return false;
 }
 
+static void
+diameteravp_reset(void *pds)
+{
+	diameteravp_t *ds = (diameteravp_t *)pds;
+	ds->frame	      = 0;
+	ds->diammsg_toprocess = 0;
+	ds->req_count	      = 0;
+	ds->ans_count	      = 0;
+	ds->paired_ans_count  = 0;
+	/* cmd_code and filter are cmdline parameters and shouldn't be reset here */
+}
+
 static tap_packet_status
 diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi, tap_flags_t flags _U_)
 {
@@ -203,6 +215,13 @@ diameteravp_draw(void *pds)
 	printf("=== Diameter Summary ===\nrequest count:\t%u\nanswer count:\t%u\nreq/ans pairs:\t%u\n", ds->req_count, ds->ans_count, ds->paired_ans_count);
 }
 
+static void
+diameteravp_finish(void *pds)
+{
+	diameteravp_t *ds = (diameteravp_t *)pds;
+	g_free(ds->filter);
+	g_free(ds);
+}
 
 static void
 diameteravp_init(const char *opt_arg, void *userdata _U_)
@@ -258,10 +277,10 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 	g_strfreev(tokens);
 	ds->filter = g_string_free(filter, FALSE);
 
-	error_string = register_tap_listener("diameter", ds, ds->filter, 0, NULL, diameteravp_packet, diameteravp_draw, NULL);
+	error_string = register_tap_listener("diameter", ds, ds->filter, TL_REQUIRES_NOTHING, diameteravp_reset, diameteravp_packet, diameteravp_draw, diameteravp_finish);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		g_free(ds);
+		diameteravp_finish(ds);
 
 		cmdarg_err("Couldn't register diam,csv tap: %s",
 				error_string->str);
