@@ -147,6 +147,34 @@ eo_draw(void *tapdata)
 }
 
 static void
+object_list_free_entry(void *data)
+{
+    eo_free_entry((export_object_entry_t *)data);
+}
+
+/* Reset our listener state for a new capture */
+static void
+eo_reset(void *tapdata)
+{
+    export_object_list_t *tap_object = (export_object_list_t *)tapdata;
+    export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
+
+    g_slist_free_full(g_steal_pointer(&object_list->entries), object_list_free_entry);
+}
+
+/* Clean up our listener state, tapping is done */
+static void
+eo_finish(void *tapdata)
+{
+    export_object_list_t *tap_object = (export_object_list_t *)tapdata;
+    export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
+
+    g_slist_free_full(g_steal_pointer(&object_list->entries), object_list_free_entry);
+    g_free(object_list);
+    g_free(tap_object);
+}
+
+static void
 exportobject_handler(void *key, void *value _U_, void *user_data _U_)
 {
     GString *error_msg;
@@ -171,8 +199,8 @@ exportobject_handler(void *key, void *value _U_, void *user_data _U_)
     object_list->eo = eo;
 
     /* Data will be gathered via a tap callback */
-    error_msg = register_tap_listener(get_eo_tap_listener_name(eo), tap_data, NULL, 0,
-                      NULL, get_eo_packet_func(eo), eo_draw, NULL);
+    error_msg = register_tap_listener(get_eo_tap_listener_name(eo), tap_data, NULL, TL_REQUIRES_NOTHING,
+                      eo_reset, get_eo_packet_func(eo), eo_draw, eo_finish);
 
     if (error_msg) {
         cmdarg_err("Can't register %s tap: %s", (const char*)key, error_msg->str);
