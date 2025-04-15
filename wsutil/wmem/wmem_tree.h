@@ -40,8 +40,7 @@ typedef struct _wmem_tree_t wmem_tree_t;
  * the tree is fully destroyed. */
 WS_DLL_PUBLIC
 wmem_tree_t *
-wmem_tree_new(wmem_allocator_t *allocator)
-G_GNUC_MALLOC;
+wmem_tree_new(wmem_allocator_t *allocator);
 
 /** Creates a tree with two allocator scopes. The base structure lives in the
  * metadata scope, and the tree data lives in the data scope. Every time free_all
@@ -57,8 +56,7 @@ G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 wmem_tree_t *
-wmem_tree_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope)
-G_GNUC_MALLOC;
+wmem_tree_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_scope);
 
 /** Cleanup memory used by tree.  Intended for NULL scope allocated trees */
 WS_DLL_PUBLIC
