@@ -3551,6 +3551,9 @@ static const SslDigestAlgo digests[]={
 /* get index digest index */
 static const SslDigestAlgo *
 ssl_cipher_suite_dig(const SslCipherSuite *cs) {
+    if (!cs || cs->dig < DIG_MD5 || cs->dig > DIG_NA) {
+        return &digests[DIG_NA - DIG_MD5];
+    }
     return &digests[cs->dig - DIG_MD5];
 }
 
