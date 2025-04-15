@@ -332,6 +332,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		}
 		offset++;
 
+		pad_len = 0;
 		switch(attribute_type){
 		case 1: /* Beneficiary ID */
 			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_beneficiary_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -499,6 +500,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + length - 2;
 			break;
 		}
+		proto_item_set_len(ti, length + pad_len);
 		read_attr = read_attr + length;
 	}
 	decrement_dissection_depth(pinfo);
