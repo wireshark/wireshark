@@ -40,6 +40,21 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
+* Bug in EtherCAT dissector with ECS order. wsbuglink:13718[].
+* Conversation dialog columns return to default width on each new packet in live capture. wsbuglink:15978[].
+* Tests fail in LTO-enabled builds in Ubuntu/Debian. wsbuglink:18216[].
+* Incorrect conditions in BFCP dissector. wsbuglink:18717[].
+* Static build fails on Ubuntu 24.04 because the c-ares library isn't found. wsbuglink:20343[].
+* Flutter's Image Picker Generated JPG Files Detected as Malformed Packet. wsbuglink:20355[].
+* QUIC dissector breaks when src and dst change. wsbuglink:20371[].
+* s390x: build fail on Ubuntu PPA nighty build. wsbuglink:20372[].
+* Trailing octet after IPv4 packet end is not detected or displayed in raw bytes. wsbuglink:20423[].
+* [packet-ax25-nol3.c] Only call APRS dissector on UI Frames. wsbuglink:20429[].
+* Wireshark hangs when refreshing interfaces with the debug console preference set to "always" and a file open (Windows) wsbuglink:20434[].
+* BGP EVPN - Type-8 route not correctly read after addition of Max. Response Time field. wsbuglink:20459[].
+* Wireshark does not correctly decode LIN "go to sleep" in TECMP and CMP. wsbuglink:20463[].
+* MQTT-SN: WILLTOPIC message not decoded correctly (missing some flags) wsbuglink:20476[].
+
 // == Known Bugs
 
 === New and Updated Features
@@ -58,15 +73,56 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.5.. | ag packet- | sort -u)
 [commaize]
 --
+ADB
+ASAM CMP
+AX.25
+BACapp
+BFCP
+BGP
+CP2179
+DCERPC WKSSVC
+DCT2000
+DECT-NWK
+DHCP
+DOF
+EAPOL-MKA
+ECAT
+ErlDP
+Ethertype
+F1AP
+GSM BSSMAP
+GSM DTAP
+HomePlug AV
+ICMP
+IEEE 802.11
+ITS
+LDP
+MQTT-SN
+NAS-EPS
+NR RRC
+OER
+PCEP
+PNIO
+PPP
+QUAKE
+QUIC
+Raw
+Signal PDU
+TCP
+TECMP
+TLS
+USB DFU
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+3GPP
+pcapng
+--
 
 === Updated File Format Decoding Support
 
