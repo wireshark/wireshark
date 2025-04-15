@@ -26,7 +26,9 @@
 
 void register_tap_listener_credentials(void);
 
-wmem_array_t* credentials;
+typedef struct credentials_tapdata_s {
+    wmem_array_t* credentials;
+} credentials_tapdata_t;
 
 static tap_credential_t* tap_credential_clone(tap_credential_t* auth)
 {
@@ -42,30 +44,60 @@ static tap_credential_t* tap_credential_clone(tap_credential_t* auth)
     return clone;
 }
 
-static tap_packet_status credentials_packet(void *p _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
+static void tap_credential_free(tap_credential_t *auth)
 {
-    tap_credential_t* clone = tap_credential_clone((tap_credential_t*)pri);
-    wmem_array_append(credentials, (void*)clone, 1);
-    return TAP_PACKET_REDRAW;
+    wmem_free(NULL, auth->username);
+    wmem_free(NULL, auth->info);
+}
+
+static void tap_credentials_free_all(credentials_tapdata_t *c)
+{
+    if (c->credentials == NULL)
+        return;
+
+    for (unsigned i = 0; i < wmem_array_get_count(c->credentials); i++) {
+        tap_credential_t* auth = (tap_credential_t*)wmem_array_index(c->credentials, i);
+        tap_credential_free(auth);
+    }
+    wmem_destroy_array(c->credentials);
+    c->credentials = NULL;
+}
+
+static void credentials_finish(void *p)
+{
+    credentials_tapdata_t *c = (credentials_tapdata_t *)p;
+    tap_credentials_free_all(c);
+    g_free(c);
 }
 
 static void credentials_reset(void* p)
 {
-    if (!p)
-        return;
-    tap_credential_t* auth = (tap_credential_t*)p;
-    wmem_free(NULL, auth->username);
-    wmem_free(NULL, auth->info);
-    wmem_free(NULL, auth);
+    credentials_tapdata_t *c = (credentials_tapdata_t *)p;
+    tap_credentials_free_all(c);
+    c->credentials = wmem_array_new(wmem_epan_scope(), sizeof(tap_credential_t));
 }
 
-static void credentials_draw(void *p _U_)
+static tap_packet_status credentials_packet(void *p, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri, tap_flags_t flags _U_)
 {
+    credentials_tapdata_t *c = (credentials_tapdata_t *)p;
+    tap_credential_t* clone = tap_credential_clone((tap_credential_t*)pri);
+    wmem_array_append(c->credentials, (void*)clone, 1);
+    /* wmem_array_append() takes a copy of the data, so we need to free our clone.
+     * But not its copies of the strings; tap_credential_free() frees those.
+     */
+    wmem_free(NULL, clone);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static void credentials_draw(void *p)
+{
+    credentials_tapdata_t *c = (credentials_tapdata_t *)p;
     printf("===================================================================\n");
     printf("%-10s %-16s %-16s %-16s\n", "Packet", "Protocol", "Username", "Info");
     printf("------     --------         --------         --------\n");
-    for (unsigned i = 0; i < wmem_array_get_count(credentials); i++) {
-        tap_credential_t* auth = (tap_credential_t*)wmem_array_index(credentials, i);
+    for (unsigned i = 0; i < wmem_array_get_count(c->credentials); i++) {
+        tap_credential_t* auth = (tap_credential_t*)wmem_array_index(c->credentials, i);
         printf("%-10u %-16s %-16s %-16s\n", auth->num, auth->proto, auth->username, auth->info ? auth->info : "");
     }
     printf("===================================================================\n");
@@ -74,18 +106,20 @@ static void credentials_draw(void *p _U_)
 static void credentials_init(const char *opt_arg _U_, void *userdata _U_)
 {
     GString* error_string;
+    credentials_tapdata_t *c = g_new0(credentials_tapdata_t, 1);
 
-    error_string = register_tap_listener("credentials", NULL, NULL, TL_REQUIRES_NOTHING,
-        credentials_reset, credentials_packet, credentials_draw, NULL);
+    error_string = register_tap_listener("credentials", c, NULL, TL_REQUIRES_NOTHING,
+        credentials_reset, credentials_packet, credentials_draw, credentials_finish);
 
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
         cmdarg_err("Couldn't register credentials tap: %s", error_string->str);
+        credentials_finish((void *)c);
         g_string_free(error_string, TRUE);
         exit(1);
     }
 
-    credentials = wmem_array_new(wmem_epan_scope(), sizeof(tap_credential_t));
+    c->credentials = wmem_array_new(wmem_epan_scope(), sizeof(tap_credential_t));
 }
 
 static stat_tap_ui credentials_ui = {
@@ -102,16 +136,3 @@ register_tap_listener_credentials(void)
 {
     register_stat_tap_ui(&credentials_ui, NULL);
 }
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 8
- * tab-width: 8
- * indent-tabs-mode: t
- * End:
- *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
- */
