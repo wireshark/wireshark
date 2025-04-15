@@ -4,7 +4,7 @@
   wkssvc interface definitions
 */
 
-import "srvsvc.idl", "lsa.idl";
+import "../srvsvc/srvsvc.idl", "../lsa/lsa.idl";
 
 [ uuid("6bffd098-a112-3610-9833-46c3f87e345a"),
   version(1.0),
@@ -264,7 +264,7 @@ import "srvsvc.idl", "lsa.idl";
 	} wkssvc_NetWkstaInfo;
 
 	WERROR wkssvc_NetWkstaGetInfo(
-		[in]   [string,charset(UTF16)] uint16 *server_name,
+		[in]   [string,charset(UTF16),unique] uint16 *server_name,
 		[in]   uint32 level,
 		[out,switch_is(level),ref]  wkssvc_NetWkstaInfo *info
 		);

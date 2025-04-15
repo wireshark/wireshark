@@ -6695,7 +6695,7 @@ wkssvc_dissect_struct_ComputerNamesCtr(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 wkssvc_dissect_element_NetWkstaGetInfo_server_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, wkssvc_dissect_element_NetWkstaGetInfo_server_name_, NDR_POINTER_REF, "Pointer to Server Name (uint16)",hf_wkssvc_wkssvc_NetWkstaGetInfo_server_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, wkssvc_dissect_element_NetWkstaGetInfo_server_name_, NDR_POINTER_UNIQUE, "Pointer to Server Name (uint16)",hf_wkssvc_wkssvc_NetWkstaGetInfo_server_name);
 
 	return offset;
 }
@@ -6736,7 +6736,7 @@ wkssvc_dissect_element_NetWkstaGetInfo_info_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 /* IDL: WERROR wkssvc_NetWkstaGetInfo( */
-/* IDL: [charset(UTF16)] [in] [ref] uint16 *server_name, */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *server_name, */
 /* IDL: [in] uint32 level, */
 /* IDL: [out] [ref] [switch_is(level)] wkssvc_NetWkstaInfo *info */
 /* IDL: ); */
