@@ -200,18 +200,20 @@ In most cases you should handle the changeEvent in order to catch
 Qt makes translating the Wireshark UI into different languages easy. To add a new
 translation, do the following:
 
-- Run the following to generate/update your translation files:
+- Run the following to generate/update your translation files,
+replacing XX with the ISO 639 language code:
 ----
 lupdate -I. $(find ui/qt -name '*.cpp' -o -name '*.h' -o -name '*.ui') -ts ui/qt/wireshark_XX.ts
-msginit --no-translator --input packaging/debian/po/templates.pot --output packaging/debian/po/hu.po
+msginit --no-translator --input packaging/debian/po/templates.pot --output packaging/debian/po/XX.po
 ----
 - Add _ui/qt/wireshark_XX.ts_ to _ui/qt/CMakeLists.txt_.
 - Add _ui/qt/wireshark_XX.ts_ to _.tx/config_.
 - Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
 - Do a test build and make sure the generated _wireshark_XX.qm_ binary file is included.
+- Fill in the msgStr fields in the XX.po file.
 - Push your changes to GitLab for review. See <<ChSrcContribute>> for details.
 
-Alternatively you can put your QM and flag files in the _languages_
+Alternatively you can put your QM file in the _languages_
 directory in the Wireshark user configuration directory
 (_$XDG_CONFIG_HOME/wireshark/languages/_ or _$HOME/.wireshark/languages/_ on
 UNIX).
