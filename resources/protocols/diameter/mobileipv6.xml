@@ -4,7 +4,7 @@
 <application id="8" name="Diameter Mobile IPv6 Auth  (MIP6A)" uri="http://tools.ietf.org/html/rfc5778">
 
 	<!-- Mobile-IPv6 Application -->
-	<command name="MIP6-Request/Answer" code="325" vendor-id="None"/>
+	<!--<command name="MIP6-Request/Answer" code="325" vendor-id="None"/> -->
 
 	<!-- ************************** Mobile-IPv6 AVPS ********************* -->
 
