@@ -2137,8 +2137,7 @@ cf_reftime_packets(capture_file* cf)
             /* If it's greater than the current elapsed time, set the elapsed
                time to it (we check for "greater than" so as not to be
                confused by time moving backwards). */
-            if ((int32_t)cf->elapsed_time.secs < rel_ts.secs
-                    || ((int32_t)cf->elapsed_time.secs == rel_ts.secs && (int32_t)cf->elapsed_time.nsecs < rel_ts.nsecs)) {
+            if (nstime_cmp(&cf->elapsed_time, &rel_ts) < 0) {
                 cf->elapsed_time = rel_ts;
             }
 
