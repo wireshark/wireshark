@@ -1084,10 +1084,12 @@ typedef enum {
 #define HOMEPLUG_AV_OUI_NONE               0
 #define HOMEPLUG_AV_OUI_QCA                0x00B052
 #define HOMEPLUG_AV_OUI_ST_IOTECHA         0x0080E1
+#define HOMEPLUG_AV_OUI_DSPACE             0x644D70
 
 static const value_string homeplug_av_vendors_oui_vals[] = {
     { HOMEPLUG_AV_OUI_QCA,              "Qualcomm Atheros" },
     { HOMEPLUG_AV_OUI_ST_IOTECHA,       "ST/IoTecha" },
+    { HOMEPLUG_AV_OUI_DSPACE,           "dSPACE GmbH" },
     { 0, NULL }
 };
 
