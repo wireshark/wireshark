@@ -856,7 +856,10 @@ static dissector_handle_t bgp_handle;
 #define LINK_STATE_LINK_NLRI                    2
 #define LINK_STATE_IPV4_TOPOLOGY_PREFIX_NLRI    3
 #define LINK_STATE_IPV6_TOPOLOGY_PREFIX_NLRI    4
+#define LINK_STATE_SR_POLICY_CANDIDATE_PATH     5
 #define LINK_STATE_SRV6_SID_NLRI                6
+#define LINK_STATE_STUB_LINK_NLRI               7
+
 
 /* Link-State NLRI Protocol-ID values */
 #define BGP_LS_NLRI_PROTO_ID_UNKNOWN       0
@@ -2063,46 +2066,48 @@ static const value_string mcast_vpn_route_type[] = {
 
 /* NLRI type value_string as defined in idr-ls */
 static const value_string bgp_ls_nlri_type_vals[] = {
-        { LINK_STATE_LINK_NLRI,                 "Link NLRI" },
-        { LINK_STATE_NODE_NLRI,                 "Node NLRI" },
-        { LINK_STATE_IPV4_TOPOLOGY_PREFIX_NLRI, "IPv4 Topology Prefix NLRI" },
-        { LINK_STATE_IPV6_TOPOLOGY_PREFIX_NLRI, "IPv6 Topology Prefix NLRI" },
-        { LINK_STATE_SRV6_SID_NLRI,             "SRv6 SID NLRI" },
-        {0, NULL },
+    { LINK_STATE_NODE_NLRI,                 "Node NLRI" },
+    { LINK_STATE_LINK_NLRI,                 "Link NLRI" },
+    { LINK_STATE_IPV4_TOPOLOGY_PREFIX_NLRI, "IPv4 Topology Prefix NLRI" },
+    { LINK_STATE_IPV6_TOPOLOGY_PREFIX_NLRI, "IPv6 Topology Prefix NLRI" },
+    { LINK_STATE_SR_POLICY_CANDIDATE_PATH,  "ST Policy Candidate Path NLRI" },
+    { LINK_STATE_SRV6_SID_NLRI,             "SRv6 SID NLRI" },
+    { LINK_STATE_STUB_LINK_NLRI,            "Stub Link NLRI" },
+    { 0, NULL },
 };
 
 /* Link-State NLRI Protocol-ID value strings */
 static const value_string link_state_nlri_protocol_id_values[] = {
-        {BGP_LS_NLRI_PROTO_ID_UNKNOWN, "Unknown" },
-        {BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_1, "IS-IS Level 1"},
-        {BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_2, "IS-IS Level 2"},
-        {BGP_LS_NLRI_PROTO_ID_OSPF_V2, "OSPFv2"},
-        {BGP_LS_NLRI_PROTO_ID_DIRECT, "Direct"},
-        {BGP_LS_NLRI_PROTO_ID_STATIC, "Static"},
-        {BGP_LS_NLRI_PROTO_ID_OSPF_V3, "OSPFv3"},
-        {BGP_LS_NLRI_PROTO_ID_BGP, "BGP"},
-        {BGP_LS_NLRI_PROTO_ID_RSVP_TE, "RSVP-TE" },
-        {BGP_LS_NLRI_PROTO_ID_SEGMENT_ROUTING, "Segment Routing" },
-        {0, NULL},
+    { BGP_LS_NLRI_PROTO_ID_UNKNOWN,         "Unknown" },
+    { BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_1,   "IS-IS Level 1"},
+    { BGP_LS_NLRI_PROTO_ID_IS_IS_LEVEL_2,   "IS-IS Level 2"},
+    { BGP_LS_NLRI_PROTO_ID_OSPF_V2,         "OSPFv2"},
+    { BGP_LS_NLRI_PROTO_ID_DIRECT,          "Direct"},
+    { BGP_LS_NLRI_PROTO_ID_STATIC,          "Static"},
+    { BGP_LS_NLRI_PROTO_ID_OSPF_V3,         "OSPFv3"},
+    { BGP_LS_NLRI_PROTO_ID_BGP,             "BGP"},
+    { BGP_LS_NLRI_PROTO_ID_RSVP_TE,         "RSVP-TE" },
+    { BGP_LS_NLRI_PROTO_ID_SEGMENT_ROUTING, "Segment Routing" },
+    { 0, NULL},
 };
 
 /* Link-State routing universes */
 static const val64_string link_state_nlri_routing_universe_values[] = {
-        {BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_3, "L3 packet topology" },
-        {BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_1, "L1 optical topology"},
-        {0, NULL}
+    { BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_3, "L3 packet topology" },
+    { BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_1, "L1 optical topology"},
+    { 0, NULL}
 };
 
 /* Link state prefix NLRI OSPF Route Type */
 static const value_string link_state_prefix_descriptors_ospf_route_type[] = {
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_UNKNOWN,     "Unknown" },
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_INTRA_AREA,  "Intra-Area"},
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_INTER_AREA,  "Inter Area"},
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_EXTERNAL_1,  "External 1"},
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_EXTERNAL_2,  "External 2"},
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_NSSA_1,      "NSSA 1"},
-        {BGP_LS_PREFIX_OSPF_ROUTE_TYPE_NSSA_2,      "NSSA 2"},
-        {0, NULL}
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_UNKNOWN,     "Unknown" },
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_INTRA_AREA,  "Intra-Area"},
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_INTER_AREA,  "Inter Area"},
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_EXTERNAL_1,  "External 1"},
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_EXTERNAL_2,  "External 2"},
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_NSSA_1,      "NSSA 1"},
+    { BGP_LS_PREFIX_OSPF_ROUTE_TYPE_NSSA_2,      "NSSA 2"},
+    { 0 , NULL}
 };
 
 /* Link state Flex Algo Metric Type: draft-ietf-lsr-flex-algo-17 */
@@ -2147,7 +2152,7 @@ static const value_string flowspec_nlri_opvaluepair_type[] = {
     { BGPNLRI_FSPEC_PCK_LEN,  "Packet Length filter" },
     { BGPNLRI_FSPEC_DSCP,     "DSCP marking filter" },
     { BGPNLRI_FSPEC_FRAGMENT, "IP fragment filter" },
-    {0, NULL },
+    { 0, NULL },
 };
 
 /* Subtype Route Refresh, draft-ietf-idr-bgp-enhanced-route-refresh-02 */
