@@ -17,7 +17,9 @@
  * https://www.w3.org/Graphics/JPEG/itu-t81.pdf
  *
  * The Exif specifications are found at several locations, such as:
- * http://www.exif.org/
+ * https://web.archive.org/web/20080911194340/http://www.exif.org/
+ * https://www.cipa.jp/e/std/std-sec.html
+ * https://www.cipa.jp/std/documents/download_e.html?DC-008-Translation-2023-E
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -926,6 +928,17 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         if (next_ifd_offset < (uint32_t)offset) {
             expert_add_info_format(pinfo, next_ifd_offset_item, &ei_next_ifd_offset,
                     " (bogus, should be >= %u)", offset);
+            return;
+        }
+
+        if (tvb_reported_length_remaining(tvb, next_ifd_offset) < 6) {
+            /* At minimum the next IFD offset should have room for a 2-byte
+             * count of # of fields and a 4-byte offset to the next IFD.
+             * This might indicate a missing offset to the next IFD, e.g.,
+             * in a Exif IFD or similar. (See #20355).
+             */
+            expert_add_info_format(pinfo, next_ifd_offset_item, &ei_next_ifd_offset,
+                    " (bogus, should be <= %u)", tvb_reported_length_remaining(tvb, 6));
             return;
         }
     }
