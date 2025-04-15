@@ -819,6 +819,23 @@ void TrafficTree::resizeAction()
         resizeColumnToContents(col);
 }
 
+void TrafficTree::widenColumnToContents(int col)
+{
+    if (!model())
+        return;
+
+    if (col < 0 || col >= model()->columnCount())
+        return;
+
+    int content_width = sizeHintForColumn(col);
+    if (!isHeaderHidden()) {
+        content_width = qMax(content_width, header()->sectionSizeHint(col));
+    }
+    if (content_width > columnWidth(col)) {
+        setColumnWidth(col, content_width);
+    }
+}
+
 void TrafficTree::toggleSaveRawAction()
 {
     if (_exportRole == ATapDataModel::UNFORMATTED_DISPLAYDATA)

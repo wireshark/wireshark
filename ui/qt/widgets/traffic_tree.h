@@ -137,6 +137,16 @@ public:
     QMenu * createCopyMenu(QWidget * parent = nullptr);
 
     void applyRecentColumns();
+    /**
+     * @brief Increase column width if necessary to fit contents, but don't
+     * narrow it.
+     *
+     * This is used to ensure that the columns are wide enough for newly
+     * received data, but to avoid narrowing columns that have been manually
+     * widened, especially the Rel Start/Abs Start and Duration columns,
+     * since those contain a timeline graph.
+     */
+    void widenColumnToContents(int column);
 
     virtual void setModel(QAbstractItemModel *model) override;
 
