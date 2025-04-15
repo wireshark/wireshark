@@ -1679,7 +1679,7 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
     /*
      * First try an exact match, if we have two addresses and ports.
      */
-    if (!(options & (NO_ADDR_B|NO_PORT_B|NO_PORTS))) {
+    if (!(options & (NO_ADDR_B|NO_PORT_B|NO_PORT_X))) {
         /*
          * Neither search address B nor search port B are wildcarded,
          * start out with an exact match.
@@ -1728,7 +1728,7 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
      * Well, that didn't find anything.  Try matches that wildcard
      * one of the addresses, if we have two ports.
      */
-    if (!(options & (NO_PORT_B|NO_PORTS))) {
+    if (!(options & (NO_PORT_B|NO_PORT_X))) {
         /*
          * Search port B isn't wildcarded.
          *
@@ -1821,7 +1821,7 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
      * Well, that didn't find anything.  Try matches that wildcard
      * one of the ports, if we have two addresses.
      */
-    if (!(options & (NO_ADDR_B|NO_PORTS))) {
+    if (!(options & (NO_ADDR_B|NO_PORT_X))) {
         /*
          * Search address B isn't wildcarded.
          *
@@ -1921,93 +1921,104 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
      * and port A as the first address and port.
      * (Neither "addr_b" nor "port_b" take part in this lookup.)
      */
-    DPRINT(("trying wildcarded match: %s:%d -> *:*", addr_a_str, port_a));
-    conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_a, port_a, ctype);
-    if (conversation != NULL) {
-        /*
-         * If this is for a connection-oriented protocol:
-         *
-         * if search address B isn't wildcarded, set the
-         * second address for this conversation to address
-         * B, as that's the address that matched the
-         * wildcarded second address for this conversation;
-         *
-         * if search port B isn't wildcarded, set the
-         * second port for this conversation to port B,
-         * as that's the port that matched the wildcarded
-         * second port for this conversation.
-         */
-        DPRINT(("match found"));
-        if (ctype != CONVERSATION_UDP)
-        {
-            if (!(conversation->options & CONVERSATION_TEMPLATE))
-            {
-                if (!(conversation->options & NO_ADDR2))
-                    conversation_set_addr2(conversation, addr_b);
-                if (!(conversation->options & NO_PORT2))
-                    conversation_set_port2(conversation, port_b);
-            }
-            else
-            {
-                conversation =
-                    conversation_create_from_template(conversation, addr_b, port_b);
-            }
-        }
-        goto end;
-    }
-    /* for Infiniband, don't try to look in addresses of reverse
-     * direction, because it could be another different
-     * valid conversation than what is being searched using
-     * addr_a, port_a.
-     */
-    if (ctype != CONVERSATION_IBQP)
-    {
-
-        /*
-         * Well, that didn't find anything.
-         * If search address and port B were specified, try looking for a
-         * conversation with the specified address B and port B as the
-         * first address and port, and with any second address and port
-         * (this packet may be going in the opposite direction from the
-         * first packet in the conversation).
-         * (Neither "addr_a" nor "port_a" take part in this lookup.)
-         */
-        if (addr_a->type == AT_FC) {
-            DPRINT(("trying wildcarded match: %s:%d -> *:*",
-                        addr_b_str, port_a));
-            conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_b, port_a, ctype);
-        } else {
-            DPRINT(("trying wildcarded match: %s:%d -> *:*",
-                        addr_b_str, port_b));
-            conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_b, port_b, ctype);
-        }
+    if (!(options & NO_PORT_X)) {
+        DPRINT(("trying wildcarded match: %s:%d -> *:*", addr_a_str, port_a));
+        conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_a, port_a, ctype);
         if (conversation != NULL) {
             /*
-             * If this is for a connection-oriented protocol, set the
-             * second address for this conversation to address A, as
-             * that's the address that matched the wildcarded second
-             * address for this conversation, and set the second port
-             * for this conversation to port A, as that's the port
-             * that matched the wildcarded second port for this
-             * conversation.
+             * If this is for a connection-oriented protocol:
+             *
+             * if search address B isn't wildcarded, set the
+             * second address for this conversation to address
+             * B, as that's the address that matched the
+             * wildcarded second address for this conversation;
+             *
+             * if search port B isn't wildcarded, set the
+             * second port for this conversation to port B,
+             * as that's the port that matched the wildcarded
+             * second port for this conversation.
              */
             DPRINT(("match found"));
             if (ctype != CONVERSATION_UDP)
             {
                 if (!(conversation->options & CONVERSATION_TEMPLATE))
                 {
-                    conversation_set_addr2(conversation, addr_a);
-                    conversation_set_port2(conversation, port_a);
+                    if (!(conversation->options & NO_ADDR2))
+                        conversation_set_addr2(conversation, addr_b);
+                    if (!(conversation->options & NO_PORT2))
+                        conversation_set_port2(conversation, port_b);
                 }
                 else
                 {
-                    conversation = conversation_create_from_template(conversation, addr_a, port_a);
+                    conversation =
+                        conversation_create_from_template(conversation, addr_b, port_b);
                 }
             }
             goto end;
         }
+        /* for Infiniband, don't try to look in addresses of reverse
+         * direction, because it could be another different
+         * valid conversation than what is being searched using
+         * addr_a, port_a.
+         */
+        if (ctype != CONVERSATION_IBQP)
+        {
+    
+            /*
+             * Well, that didn't find anything.
+             * If search address and port B were specified, try looking for a
+             * conversation with the specified address B and port B as the
+             * first address and port, and with any second address and port
+             * (this packet may be going in the opposite direction from the
+             * first packet in the conversation).
+             * (Neither "addr_a" nor "port_a" take part in this lookup.)
+             */
+            if (addr_a->type == AT_FC) {
+                DPRINT(("trying wildcarded match: %s:%d -> *:*",
+                            addr_b_str, port_a));
+                conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_b, port_a, ctype);
+            } else {
+                DPRINT(("trying wildcarded match: %s:%d -> *:*",
+                            addr_b_str, port_b));
+                conversation = conversation_lookup_no_addr2_or_port2(frame_num, addr_b, port_b, ctype);
+            }
+            if (conversation != NULL) {
+                /*
+                 * If this is for a connection-oriented protocol, set the
+                 * second address for this conversation to address A, as
+                 * that's the address that matched the wildcarded second
+                 * address for this conversation, and set the second port
+                 * for this conversation to port A, as that's the port
+                 * that matched the wildcarded second port for this
+                 * conversation.
+                 */
+                DPRINT(("match found"));
+                if (ctype != CONVERSATION_UDP)
+                {
+                    if (!(conversation->options & CONVERSATION_TEMPLATE))
+                    {
+                        conversation_set_addr2(conversation, addr_a);
+                        conversation_set_port2(conversation, port_a);
+                    }
+                    else
+                    {
+                        conversation = conversation_create_from_template(conversation, addr_a, port_a);
+                    }
+                }
+                goto end;
+            }
+        }
     }
 
+    /*
+     * Well, that didn't find anything.  Try matches between two
+     * addresses, but no ports. Typically ETH and IP protocols fall
+     * into this category.
+     *
+     * First try looking for a conversation with the specified address A
+     * and address B.
+     * (Neither "port_a" nor "port_b" take part in this lookup.)
+     */
     if (options & NO_PORT_X) {
         /*
          * Search for conversations between two addresses, strictly
@@ -2020,7 +2031,12 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
             DPRINT(("match found"));
             goto end;
         }
+        /*
+         * Look for a conversation in the opposite direction.
+         */
         else {
+            DPRINT(("trying exact match: %s -> %s",
+                        addr_b_str, addr_a_str));
             conversation = conversation_lookup_no_ports(frame_num, addr_b, addr_a, ctype);
             if (conversation != NULL) {
                 DPRINT(("match found"));
