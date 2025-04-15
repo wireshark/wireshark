@@ -11699,7 +11699,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   case ANQP_INFO_NEIGHBOR_REPORT:
     {
       tvbuff_t *report_tvb;
-      ieee80211_tagged_field_data_t field_data;
+      ieee80211_tagged_field_data_t field_data = {};
 
       report_tvb = tvb_new_subset_length(tvb, offset, len);
       field_data.item_tag = item;
@@ -31063,7 +31063,6 @@ add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
   proto_item   *ti_len, *ti_tag;
-  ieee80211_tagged_field_data_t field_data;
   bool          isDMG;
 
   isDMG = GPOINTER_TO_INT(p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY));
@@ -31159,11 +31158,13 @@ add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
     }
   }
 
-  field_data.sanity_check = association_sanity_check;
-  field_data.ftype = ftype;
-  field_data.isDMG = isDMG;
-  field_data.item_tag = ti;
-  field_data.item_tag_length = ti_len;
+  ieee80211_tagged_field_data_t field_data = {
+    .ftype = ftype,
+    .sanity_check = association_sanity_check,
+    .isDMG = isDMG,
+    .item_tag = ti,
+    .item_tag_length = ti_len
+  };
   if (!dissector_try_uint_with_data(tagged_field_table, tag_no, tag_tvb, pinfo, tree, false, &field_data))
   {
       proto_tree_add_item(tree, hf_ieee80211_tag_data, tvb, offset + 2, tag_len, ENC_NA);
