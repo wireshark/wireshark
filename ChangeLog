@@ -1,0 +1,1223 @@
+commit caf7abab89
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 15 15:06:24 2025 -0700
+
+    Prep for 4.4.6
+
+commit 888677a4e1
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:26:05 2025 +0000
+
+    etypes: Add Allied Telesis AMF
+
+    This adds 0xFBAE to the list of known ethertypes
+    which allows to identify L2 traffic for ATMF.
+
+    (cherry picked from commit d967e182b38f9ff949a2e517ce79b1d35ff7a474)
+
+    Co-authored-by: Martin Mayer <martin.mayer@m2-it-solutions.de>
+
+commit 89716d2d0f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 13:58:16 2025 +0000
+
+    ieee80211: fix reserved size in ADDBA extension element
+
+    (cherry picked from commit eb163a43d72fbcd681f7cc75a9fa5e14e7aaff3c)
+
+    Co-authored-by: Pablo Martin-Gomez <pmartin-gomez@freebox.fr>
+
+commit d4a8341241
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:02:06 2025 +0000
+
+    EtherCAT: Correct some registers orders that are swapped
+
+    Several different sources agree that these registers are swapped and in
+    the wrong order in the dissector, including the document at the URL in
+    the dissector header:
+
+    https://download.beckhoff.com/download/document/io/ethercat-development-products/ethercat_esc_datasheet_sec1_technology_2i3.pdf
+
+    Fix #13718
+
+    (cherry picked from commit 72197a518c1865ec545968c14319f1b9b00d2ae5)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b6bf94a49b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:03:43 2025 +0000
+
+    epan: Widen some loop variables
+
+    Fix
+
+    ```
+    /builds/wireshark/wireshark/epan/crypt/dot11decrypt_util.c:144:17: warning: loop variable has narrower type 'uint8_t' than iteration's upper bound 'size_t' [bugprone-too-small-loop-variable]
+      144 |     for (i = 0; i <= output_len * 8 / 160; i++)
+          |                 ^
+    ```
+
+    and similar warnings.
+
+    In CP2179, replace a loop+tvb_get_guint8 with tvb_memcpy.
+
+    (cherry picked from commit a6562b5a5ad355ab46a646466904976d10b35ab1)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit b0a3ac7893
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:07:50 2025 +0000
+
+    PCEP: Fix flags in SR-PCE-CAPABILITY sub-TLV
+
+    The parsing of the N flag was incorrect.
+
+    For clarity, I also added individual masks for each flag.
+
+    Before:
+    ```
+    PATH-SETUP-TYPE-CAPABILITY
+        Type: PATH-SETUP-TYPE-CAPABILITY (34)
+        Length: 16
+        Reserved: 0x000000
+        Path Setup Types: 1
+        Path Setup Type: Path is setup using Segment Routing (1)
+        Padding: 000000
+        SR-PCE-CAPABILITY
+            Type: SR-PCE-CAPABILITY (26)
+            Length: 4
+            Reserved: 0x0000
+            Flags: 0x02
+                .... ..0 = Node or Adjacency Identifier (NAI) is supported (N): Not set      <---
+                .... ...0 = Unlimited Maximum SID Depth (X): Not set
+            MSD: 6
+    ```
+
+    After:
+    ```
+    PATH-SETUP-TYPE-CAPABILITY
+        Type: PATH-SETUP-TYPE-CAPABILITY (34)
+        Length: 16
+        Reserved: 0x000000
+        Path Setup Types: 1
+        Path Setup Type: Path is setup using Segment Routing (1)
+        Padding: 000000
+        SR-PCE-CAPABILITY
+            Type: SR-PCE-CAPABILITY (26)
+            Length: 4
+            Reserved: 0x0000
+            Flags: 0x02, Node or Adjacency Identifier (NAI) is supported (N)
+                .... ..1. = Node or Adjacency Identifier (NAI) is supported (N): Set
+                .... ...0 = Unlimited Maximum SID Depth (X): Not set
+            MSD: 6
+    ```
+
+    (cherry picked from commit 4de017a20002df1ae0a2873da8439894383ab9ee)
+
+    Co-authored-by: Martin Stigge <martin@stigge.org>
+
+commit 5413cfff86
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:12:47 2025 +0000
+
+    PROFINET: Additional Mau Types
+
+    (cherry picked from commit 537645efb7739d9126da9e465b30c440ef990ab7)
+
+    Co-authored-by: Uygar Köseer <uygar.koseer@siemens.com>
+
+commit ce2310f6db
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:14:53 2025 +0000
+
+    EAX: avoid taking out-of-bound address of array element
+
+    Harmless, but silence CID 1477707
+
+    (cherry picked from commit 543a4756bfd5483e3366d49df2534174c93c0fef)
+
+    Co-authored-by: Martin Mathieson <martin.r.mathieson@googlemail.com>
+
+commit 25b39ab466
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 14:26:38 2025 +0000
+
+    adb: Add null check
+
+    command_data is checked against NULL before and after this in the
+    same path, so presumably it should be checked here. Coverity complains
+    (#1444777 and #1435479)
+
+    (cherry picked from commit 958d9654580f936c7abfe9a940d1332856b9dbe0)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7bd4a45c49
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 13:24:03 2025 +0000
+
+    epan: Fix an apparent copy-and-pasteo in DECT FT_STRINGZ
+
+    Call the appropriate function to decode a string in the
+    null terminated case for ENC_DECT_STANDARD_8BITS
+
+    Fixup 75fb2e770ce45c851424dc0520f231bcf816fea7
+
+    (cherry picked from commit e7725f3bf777027340d8d17516aad69ffa94bad0)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ff9b649532
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 13:19:27 2025 +0000
+
+    BGP: Add a couple of missing value_string values
+
+    Also make some related formatting more consistent
+
+    (cherry picked from commit 38a542e8fa8dd268690a7dc9825479b9dd6f3c44)
+
+    Co-authored-by: Martin Mathieson <martin.r.mathieson@gmail.com>
+
+commit b8a0baf47a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 13:18:44 2025 +0000
+
+    ICMP: Parse Extensions On Extended Echo Response
+
+    According to Section 6 of RFC 8335, the ICMP Extended Echo Response is
+    an extensible ICMP message. Any ICMP Extended Echo Response longer than
+    8 bytes should be considered to be carrying an extension structure.
+
+    (cherry picked from commit 709e69050dad41992343f4fd418e19a9c7c6a552)
+
+    Co-authored-by: Will Hawkins <hawkinsw@obs.cr>
+
+commit d3e9566d34
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 13:16:18 2025 +0000
+
+    LDP: Update IANA registrations and RFC references
+
+    (cherry picked from commit c836101eb2050aa133ff2172fa06c2fd4fd1f948)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit c02faf6e35
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:59:56 2025 +0000
+
+    TLS: Add a null check
+
+    Fixes a recent scan-build warning. Add bounds checks as well.
+
+    (cherry picked from commit 915347a83474475b3ae75d7e04efd62c8a4d8a31)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit 429949269e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:58:16 2025 +0000
+
+    TLS: Use a FT_NONE field for extension
+
+    This removes the use of a text-only field with
+    proto_tree_add_subtree_format() and makes the JSON somewhat
+    more consistent (though it still has duplicate keys without
+    the no duplicate keys option.) There's no change to the visual
+    display in the GUI.
+
+    Ping #17125
+
+    (cherry picked from commit dfb440c73cf2737aaab1adfcf6a987134e76d06d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 7f8ce84398
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:45:18 2025 +0000
+
+    TLS: Show correct segment data when there are multiple PDUs
+
+    When another PDU follows, the current segment data doesn't go to
+    the end of the TVB, but to the length of the segment indicated.
+
+    See the same fix done for TCP 17 years ago:
+    commit 6341d80f07a0f8ba601a6224f9c70560e9c6a2b4
+
+    (cherry picked from commit 60326a820dbbe92d20d05783c456d58e82d1132f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6f888ec22f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:39:42 2025 +0000
+
+    BFCP: fix length of attributes sub-trees
+
+    Tested with the pcap available in #18717
+
+    (cherry picked from commit baec7b474789b74aa9c3a63270765a526e29e973)
+
+    Co-authored-by: Ivan Nardi <nardi.ivan@gmail.com>
+
+commit caa6966973
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:33:06 2025 +0000
+
+    Drop invalid malloc attribute from wmem_tree_new*
+
+    Wireshark would fail its wmem_test test when built with GCC LTO in some
+    cases with a null pointer dereference with a check that got optimised out.
+
+    This turns out to be because wmem_tree_new and wmem_tree_new_autoreset
+    are (incorrectly) marked with the malloc attribute, which promises to GCC
+    that any memory returned by the functions is completely clean and holds
+    no references to existing objects.
+
+    Similar to 365a8212989ef0ef506969631617175a2464302f.
+
+    See also:
+    * https://bugs.debian.org/1015706
+    * https://bugs.gentoo.org/941890
+    * https://gcc.gnu.org/PR117315
+
+    Closes #18216
+
+    (cherry picked from commit d97945614088cb6aa624c7bc859b4f303a62ecb8)
+
+    Co-authored-by: Sam James <sam@gentoo.org>
+
+commit 7bac65d3f6
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:10:46 2025 +0000
+
+    log3gpp: Don't run off the end of an array.
+
+    Fix the test to have strict inequality.
+
+    Fix #20372
+
+    (cherry picked from commit 069f61e1ba1dfc5d8b0c4ef2d30947b2fdd63223)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit f27e57a219
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:08:09 2025 +0000
+
+    QUIC: Use connection ID, not ports and addresses, for reassembly
+
+    Implement custom reassembly functions that use the (internal) QUIC
+    connection ID and whether a frame is from the server or not, instead
+    of the current packet_info struct ports and addresses, for reassembly.
+
+    This should be more robust if STREAM frames are (ugh) fragmented across
+    migrated endpoints. This also should make reassembly unaffected by the
+    packet_info struct source or destination addresses or ports being
+    changed by an encapsulated protocol when there is more than one STREAM
+    frame in a single datagram.
+
+    Fix #20371
+
+    (cherry picked from commit 615860f899e509d079cd6a13a43ab099a316d510)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5751008344
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 12:05:29 2025 +0000
+
+    Qt: Only auto widen the Conversation/Endpoint columns, don't narrow
+
+    The Conversation and Endpoints dialogs auto resize the columns to
+    fit the data, which includes auto resizing for newly arriving packets
+    in a live capture.
+
+    A user might want to manually widen the columns, especially the
+    Rel/Abs Start and Duration columns in the Conversation dialog, which
+    contain a timeline graph. Only automatically widen a column if it's
+    not narrow enough for the contents, don't shrink them.
+
+    Double-clicking a column or selecting "Resize all columns to contents"
+    from the context-menu still resizes (including shrinking), this is
+    only for the automatic resizing when new packets arrive.
+
+    Automatically resize the columns to match the header size when
+    first creating the tree.
+
+    Fix #15978
+
+    (cherry picked from commit 4d7b01df49a3ab2b13658debe70139e2346f0f39)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e06b5ddec5
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 11:58:55 2025 +0000
+
+    added dSPACE to homeplug-av vendors OUI
+
+    (cherry picked from commit 07143721a402a75f83572ffbefa079de6ce72602)
+
+    Co-authored-by: Thoren Grüttemeier <TGruettemeier@dspace.de>
+
+commit fc1678d588
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 11:47:29 2025 +0000
+
+    JPEG: Workaround bogus EXIF IFDs generated by Flutter Image Picker
+
+    Flutter Image Picker generates non-conformant EXIF IFDs by omitting the
+    4-byte offset to the next IFD, which is usually zero. This can be
+    verified via the EXIF specification and the examples in Annex A.
+
+    We already check if the value has incorrectly gone backwards. Also
+    check if it is unreasonably too high, which catches at least some
+    (most?) cases.
+
+    Also update the URLs for the EXIF standards; https://www.exif.org
+    was an independent site that is no longer active. For the Wayback
+    Machine link, make sure to use a version before the site was taken
+    over by a domain squatter that left just enough of the original text
+    for SEO purposes but removed the actual specifications. Also link
+    to CIPA, which makes the specifications available for free. (JEITA
+    charges for them.)
+
+    Fix #20355
+
+    (cherry picked from commit 93a913066382cab380bfe42bd15df971dedd0c1e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 49d4b2ff19
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 11:43:03 2025 +0000
+
+    pcapng: Stop reading initial blocks at EOF
+
+    Stop reading initial blocks (like IDBs) once file_eof is set. This
+    is most important for live compressed files, which might have written
+    the compressed blocks for the initial pcapng blocks but not written
+    the stream / frame footer with checksum yet. Those will set EOF (and
+    a deferred WTAP_ERR_SHORT_READ), at which point we want to stop reading
+    rather than continue and get the deferred error. We clear EOF later
+    when packets arrive.
+
+    Related to #9311
+
+    (cherry picked from commit e0f39e757197cd1ec5096a262474766459b7723c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1c434c497d
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 11:38:02 2025 +0000
+
+    file: Use nstime_cmp when comparing nstime_t
+
+    In cf_reftime_packets, use nstime_cmp when comparing nstime_t values
+    instead of casting one (but not the other) seconds value, a time_t,
+    to int32_t. (Yes, it's pretty odd if a capture file has an elapsed
+    time greater than 68 years or so.)
+
+    Coverity CID 1509348.
+
+    (cherry picked from commit d4e652f66e146aa06e0e18b12760f09624652be1)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 590830b99e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 11:33:30 2025 +0000
+
+    wiretap: Always reset LZ4 compression context for linked-block frames
+
+    If we seek to the start of a LZ4 frame with linked blocks, we have to
+    reset the compression context (and thus dictionary history) even if
+    the frame info parameters are the same (even if we're fast seeking to
+    the start of the frame we're already in, which can happen, e.g., when
+    selecting "Reload as File Format/Capture".
+
+    (cherry picked from commit 72e8ee566f2c4a86a3fa6740b770ec65d28063fa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d18edc80a7
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 11:31:56 2025 +0000
+
+    c-ares: work around a problem with static builds.
+
+    In an attempt to deal with the import library stuff on Windows,
+    c-ares set up their CMake build to append "_static" to the
+    library name when building a static library.
+
+    Unfortunately, they did that on all platforms, rather than just
+    n Windows, so some UN*Xes may have the static libcares named
+    libcares_static.a rather than libcares.a.
+
+    They subsequently fixed that, but on Ubuntu 24.04, as it
+    currently exists, that fix isn't present, but the Windows-induced
+    pain is present.
+
+    Work around that by looking for cares_static after we look for
+    cares and libcares-2; that way, we don't get the static library
+    if we don't require it.
+
+    Fixes #20343 (although another static build problem on Ubuntu 24.04
+    with libpcap popped up, probably due either to the .pc files not
+    properly listing all dependencies for static linking or due to
+    pcap-config not doing so).
+
+    (cherry picked from commit 4721723b5b0c707daf11d2e612a4809ba9cfbe04)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit ff80862bbb
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 10:09:23 2025 +0000
+
+    IEEE80211: Fix some value-string labels
+
+    (cherry picked from commit cb217b1bd10ea4105d4389bceda75c01063cf4ca)
+
+    Co-authored-by: Martin Mathieson <martin.r.mathieson@gmail.com>
+
+commit e81637ee44
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 10:06:57 2025 +0000
+
+    extcap: Fix leak of FIFO name
+
+    The comment about not freeing the fifo name here, because it is
+    freed with the other members of interface_opts, was from when
+    the entire interface_opts struct was copied and the options accessed
+    by value. (Thus freeing it could cause a double-free, because
+    setting the fifo name to NULL in a copy would not set it to NULL
+    in the original struct.)
+
+    After commit 3b16cc8b219e087e6b8cc8898ed8e4d58263d326 the
+    interface_opts struct is accessed via a pointer, and setting the
+    fifo name to NULL sets it in the original struct, and thus it
+    is not freed in capture_opts_del_iface() if cleared in
+    extcap_session_stop and needs to be freed there.
+
+    (cherry picked from commit 71e847e97edd716346f9649b3a0db33921f5e991)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5c38d81e5c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 10:04:31 2025 +0000
+
+    ieee80211: update supported operating classes
+
+    Add new global operating classes from 802.11-2020, 802.11ax & 802.11be
+    (minus GeoDB classes)
+
+    (cherry picked from commit 70c24e7f96666254c690a2a017a91b564e608675)
+
+    Co-authored-by: Pablo Martin-Gomez <pmartin-gomez@freebox.fr>
+
+commit fa8dd27c13
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 10:01:38 2025 +0000
+
+    Fix duplicated menu item with ext_menubar_register_menu
+
+    (cherry picked from commit 43212097a856760add7864c78066e5f4200c229c)
+
+    Co-authored-by: infostam GitHub <github@infostam.com>
+
+commit c60e91c464
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:31:59 2025 +0000
+
+    wiretap: Clear the random file handle EOF as well
+
+    When tailing a compressed file, it's possible for the random file handle
+    to get marked EOF (if the data runs out when filling the buffer
+    dissecting the columns of the last record). When we clear the EOF
+    because new data arrives, there's no reason not to clear the random
+    file handle EOF as well (as it also is no longer at EOF.)
+
+    (cherry picked from commit 802c8b0a85de47dd151d63aeb251285556e64d48)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit eea26b625f
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:31:04 2025 +0000
+
+    wiretap: Fix log domain
+
+    The log domain needs to be set before including wsutil/wslog.h to
+    have an effect, which means before headers that include it.
+
+    (cherry picked from commit b80a34d559f6b8b379fcc8b4d1ab1b17606198cc)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b836a5b9ed
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:26:15 2025 +0000
+
+    bfcp: renumber primitive
+
+    BFCP dissector use old draft on the implementation and final RFC use different number
+
+    Fix: #18717
+
+    (cherry picked from commit cc31e7db057190cd383608a0fbdf29f7dc162f37)
+
+    Co-authored-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 381047e74a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:24:16 2025 +0000
+
+    USB: Fix dissection of USB DFU download request
+
+    According to the DFU 1.1 specification, the receipt of
+    a DFU_DNLOAD request with wLength = 0 implies that the
+    host is informing the device that there is no more data
+    to download. However, the USB DFU dissector incorrectly
+    reports this as a malformed packet.
+
+    Reported in #18577.
+
+    Signed-off-by: Sahil Siddiq <sahilcdq@proton.me>
+
+    (cherry picked from commit 96ea0c38ab47c16a9c910f822cf6e5904245400e)
+
+    Co-authored-by: Sahil Siddiq <sahilcdq@proton.me>
+
+commit 6247ea21c2
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:22:19 2025 +0000
+
+    Diameter: Command code="325" is allready defined in dictionary.xml
+
+    (cherry picked from commit e96a549269cc4331701d6ce85bdeede548fdd82d)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 24a9cb9390
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:14:54 2025 +0000
+
+    Signal-PDU: Fixing int raw values and UAT checks
+
+    The raw values for int were hex int64 values, while this gets the
+    correct result on positive values, negative values showed the whole
+    int64 despite their correct size.
+
+    In addition, the UAT int check got fixed, which was too restrictive.
+
+    (cherry picked from commit a0a2cb45c240febc318a582150636f1dec78ddb7)
+
+    Co-authored-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+
+commit 052fa33153
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 09:01:19 2025 +0000
+
+    MKA: use proto_item instead of proto_tree for proto_items
+
+    Multiple times proto_tree was used, when proto_item should have been.
+    This patch fixes this.
+
+    (cherry picked from commit 42ea7fec55b66b744fdbe94a5a3befed0904f9fc)
+
+    Co-authored-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+
+commit 205f2ba6c7
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 08:46:14 2025 +0000
+
+    UI: Fix implicit conversion warning
+
+    (cherry picked from commit ee819f80a4db0106fc757952f1ce06fc16a3164b)
+
+    Co-authored-by: Uli Heilmeier <uh@heilmeier.eu>
+
+commit 911f6c9196
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 08:43:39 2025 +0000
+
+    NR RRC: add a missing space in info column for SIB11
+
+    (cherry picked from commit fab46afefd5388cb743e633d8e5ffda21e3296ad)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit 907eacaa39
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 08:51:27 2025 +0000
+
+    wkssvc: fix incorrect pointer type for GetInfo server-name
+
+    Our pidl does not detect that the default pointer type
+    should be unique and instead tries to set this pointer as a
+    ref pointer, causing dissection to fail.
+    Fix this by setting the pointer type explicitely.
+
+    Also fix the paths to include idls we depend on.
+
+    Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+
+    (cherry picked from commit f975a9d58a3c9ce57ca405d16559aebb0e789a82)
+
+    Co-authored-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+
+commit 04628d9aaf
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Apr 15 08:42:18 2025 +0000
+
+    ppp: add authentication algorithms 7 and 8
+
+    Add algorithms SHA-256 and SHA3-256 to the PPP dissector
+
+    https://www.iana.org/assignments/ppp-numbers/ppp-numbers.xml#ppp-numbers-9
+
+    Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+
+    (cherry picked from commit a603093eca50ac99b5f9c19a2e52ff034a33d3c3)
+
+    Co-authored-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+
+commit e63c4efd5a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Apr 13 18:03:32 2025 +0000
+
+    UAT: Make help button work all the time
+
+    With not all UATs having a dedicated help page, it's not a good practice
+    to not provide a help option at all. At the very least provide access
+    to the generic UAT help information from the Users Guide.
+
+    (cherry picked from commit ae72411677d7c12a71124acc810ff9cc75bdd124)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 8c65652d4e
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sun Apr 13 23:14:46 2025 +0000
+
+    Fix buffer overrun when applying prefs with command line prefs present
+
+    Saving preferences in Qt caused a buffer overrun (read) crash with ASAN
+    with `wireshark -otls.keylog_file:/dev/null`. It would try to compare:
+
+        "tls.keylog_file:/dev/null" (overflow with 4 bytes in this case)
+        "capture.devices_monitor_mode:"
+
+    Fixes: v3.5.1rc0-146-g84a0141683 ("[#12331] Persist cmd-line prefs on reloading Lua")
+
+    (cherry picked from commit 0cae98570ebc235d0ad2ad776529197244416667)
+
+    Co-authored-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 54ed322e44
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 13 09:26:42 2025 +0000
+
+    [Automatic update for 2025-04-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a3538b3af9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 8 10:46:16 2025 +0000
+
+    MQTT-SN: Correct flags
+
+    Correct the flags that are present in several of the message types.
+    Actually put them in a flags tree.
+
+    Fix #20476
+
+    (cherry picked from commit 4eb155cee31f58293d0ff5fc00fe4066211d2a5c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit d3e430bae0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 8 01:19:42 2025 +0000
+
+    Fix: lua bit buffer overflow
+
+    (cherry picked from commit 6d25f1bab98e379f7643d97ad405539e47bf31fe)
+
+    Co-authored-by: KIMDONGYEON00 <dongyeonkim2000@gmail.com>
+
+commit 82a2083242
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 6 09:26:52 2025 +0000
+
+    [Automatic update for 2025-04-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7496c86c75
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Apr 4 21:01:38 2025 +0200
+
+    TCP: cleanup and improvements
+
+    Backport of commit 2b05db7a
+    In order of appearance:
+    - Introduce value_string_ext for extensive
+      netscaler_reset_window_error_code_vals value string array.
+    - Drop tiny pdu_store_window_scale_option() function and put code
+      in place of the only call to it
+    - Fix incorrect indentation depth of else statement in
+      tcp_analyze_sequence_number()
+    - Forgo test and return if the function returns anyway. This happens
+      in dissect_tcpopt_default_option() and dissect_tcpopt_sack_perm()
+    - dissect_tcpopt_wscale() is the only place where the code from
+      pdu_store_window_scale_option() ends up. Also make test 'is frame
+      visited?' check explicit, and use applicable macro for it.
+    - Implement the proto_tree_add_bitmask function for the SCPS flags
+      in dissect_tcpopt_scps().
+    - Drop the verify_scps() function and put the code, in two parts,
+      in place of the only call to it. The current implementation does
+      not work; the expert item is never attached anywhere.
+    - The variable 'ace' is used only in one code block, so move its
+      definition there in dissect_tcp().
+    - Add a 'tcp_tree' test for a block of code in dissect_tcp() that
+      only adds proto items to this tree.
+    - Replace the call to verify_scps() with an expression that
+      implements the check in a more straight forward way; at SYN+ACK
+      make sure both directions are scps_capable, if not reset both
+      SCPS capability indicators.
+    - The addition of the ei_tcp_scps_capable expert item must not be
+      hidden behind the 'is frame visited?' check. Therefore the
+      expression needs to be repeated outside of this check.
+    - Every conditional seems to check for tcpd validity, so add it here
+      as well. (Whether this is actually needed is another question.)
+    - Fix the SCPS expert item name, which is a copy-paste error.
+    - Align the summary of the now visible SCPS expert item with the
+      SYNC+ACK expert item.
+
+commit 8503bd3d04
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Mon Mar 31 23:29:49 2025 +0200
+
+    TECMP/CMP: fix decoding issue for LIN go to sleep
+
+    LIN encodes "go to sleep" frames by using ID 0x3C and setting first byte
+    to 0x00. This patches allows to detect this correctly.
+
+    Closes: #20463
+
+commit 6eb5318094
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue Apr 1 14:09:34 2025 +0200
+
+    Update Windows package to libssh-0.11.1
+
+    (cherry picked from commit 039808da2730a278418ada8cdf09138abdb718bb)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit c5abcc0c0f
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue Apr 1 13:17:10 2025 +0200
+
+    Windows:Update to libssh-0.11.0-1 and lz4-1.10.0-1
+
+    ping #20013
+
+    (cherry picked from commit 517f9aa65c99440bb7933d30c4916fe0d36c385d)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 64250ab4af
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue Apr 1 10:34:31 2025 +0200
+
+    vcpkg: Fix copy paste error
+
+    (cherry picked from commit ac4e033325d9b42bda7187172838501bd2dcc91f)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 9d532801c5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 1 00:36:10 2025 +0000
+
+    Upadate to vcpkg-export-20240524-1
+
+    (cherry picked from commit 9783f0c5373a4db272eba6dfb86f86b33c12283b)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 60ae31624e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 30 09:27:16 2025 +0000
+
+    [Automatic update for 2025-03-30]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7bde53f6b9
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Mar 29 19:16:21 2025 +0000
+
+    BGP: Fix EVPN NLRI IGMP Leave Synch Route dissection
+
+    EVPN NLRI IGMP Leave Synch Route packets have two additional fields,
+    which so far were not dissected: 4 reserved octets and a max response
+    time field (as per RFC 2236, IGMPv2). Add dissection for both.
+
+    Fixes #20459
+
+    (cherry picked from commit f40ba8a1e04d3619e7bfac2b183ce31ee2823088)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit a21c74b167
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Mar 26 09:38:34 2025 +0100
+
+    F1AP, Fix UL RRC Message Classification in InitialULRRCMessageTransfer
+
+    (cherry picked from commit 93de861ab3133a5cbc7386589bdc3b77dbe28837)
+
+    40e04907 F1AP, rrc-container handle nr_rrc_ul_ccch_handle
+
+    Co-authored-by: Ashwini Sahu <ashwinisahu990@gmail.com>
+
+commit 8be8412f9e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 24 13:32:13 2025 +0000
+
+    dumpcap: Set pipe error status on non-initial SHB read failure
+
+    If a dumpcap is reading from a pipe, and reading a SHB subsequent
+    to the first one fails, set the pipe error status and return with
+    failure, instead of continually trying to read from the pipe.
+
+    This can happen, for example, if reading a pipe pcapng with mixed
+    BE/LE SHBs, where the first SHB is the same Endianness as the host,
+    but a later SHB is not.
+
+    Ping #15707
+
+    (cherry picked from commit ac0ef1832810f9d79eac4b2d5eac1d88ca353495)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 301cccda27
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 23 09:29:36 2025 +0000
+
+    [Automatic update for 2025-03-23]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b7664b36e8
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Thu Mar 20 14:55:44 2025 +0000
+
+    nas_eps: Improve detach req UL/DL detection
+
+    Add a check for mandatory DE_EMM_EPS_MID length when trying to
+    detect upload or download detach request.
+
+    (cherry picked from commit 1fa8833092a5804483ef01d4fa3b0064efb7424e)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 042d363f69
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 16 09:28:00 2025 +0000
+
+    [Automatic update for 2025-03-16]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 35804a622c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Mar 16 01:20:39 2025 +0000
+
+    dumpcap: As a child process, never wait for a keypress to detach console
+
+    If dumpcap is running as a capture child, never wait for the user to
+    press a key before detaching the console.  Make sure this is false
+    after initializing the logging (whether it was set there, or the
+    console_wait static and the destroy_console called atexit() inherited
+    from the parent process).
+
+    Fix #20434
+
+    (cherry picked from commit 79957a7fe04a2b5928693499c5ff9f199f0cc753)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 32d2aa03f7
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Mar 15 16:36:48 2025 +0000
+
+    quake: fix header dissection
+
+    The flags come before the length, as can be seen in the original source here:
+
+    https://github.com/id-Software/Quake/blob/bf4ac424ce754894ac8f1dae6a3981954bc9852d/WinQuake/net_dgrm.c#L360-L362
+
+    This seems to be a regression introduced in 4f970746.
+
+    (cherry picked from commit 6f4a70b4014ab74fc4640851c26c717d03e3d6e5)
+
+    Co-authored-by: Roman Donchenko <rdonchen@outlook.com>
+
+commit 32ab6e586d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Mar 15 01:34:04 2025 +0000
+
+    raw: create a new tvbuff to hand to IP dissectors.
+
+    That way, if they modify its size to match the total length in the
+    header, they don't mess up the display of the raw packet data by cutting
+    it short.
+
+    Addresses some of issue #20423.
+
+    Add a comment about an issue discovered while testing this.
+
+    (cherry picked from commit 44563411c0e2a212ee4e843e4148e60dac1691d6)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 522a1de2e5
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Mar 14 17:05:28 2025 +0100
+
+    OER uint64 and bitstring dissection fix based on Coverity
+
+    (cherry picked from commit f97c5e60a86ca65cb6eed62812a890f9a6f157aa)
+
+    Co-authored-by: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+
+commit 98d28522b0
+Author: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+Date:   Wed Feb 26 10:12:02 2025 +0000
+
+    OER uint64 and bitsrting dissection fix
+
+    OER dissector crashed for missing uint64 and bitstring types due to lack of implementation
+
+    (cherry picked from commit 2830f4e01ec3c2bde3d0b3c8d5b9f0cc4767a244)
+
+    Co-authored-by: Szilard Turi-Kovats <szilard.turi-kovats@commsignia.com>
+
+commit e9eb456155
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Mar 13 14:36:50 2025 +0000
+
+    dfilter: Don't crash on BASE_CUSTOM value strings
+
+    Actually return the buffer after writing to it.
+
+    Prevents a crash when trying to filter using string values of
+    BASE_CUSTOM.
+
+    Fixup d7bc20d3ead1505d43f216248973f7ff39b0a836
+
+    Fixes errors like:
+     ** (wireshark:1347941) 09:22:38.678379 [DFilter ERROR] epan/dfilter/dfvm.c:1361 -- try_value_string(): assertion "not reached" failed
+     ** (wireshark:1347941) Aborting on fatal log level exception
+
+    (cherry picked from commit bb16079e43c4d57eb46a5abc2afe4582e29cf9f9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a90169232b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Mar 10 19:59:17 2025 +0100
+
+    epan: Fix some sizes
+
+    BGP: An IPv6 address is 16 octets long, extend the field to this size.
+    GSM_A_DTAP: BCC Call State is a single octet information element.
+
+commit 966cf67ca5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Mar 10 09:01:39 2025 +0000
+
+    tshark: Do not cleanup or init a null edt when resetting memory
+
+    Trying to call epan_dissect_cleanup or epan_dissect_init on a
+    null edt will fail an assertion (or crash.) This only applies to
+    reading a capture file (including from a pipe) where we don't need
+    to dissect (because we're just writing to a new file format without
+    filtering, for example.)
+
+    In fact, we don't really need to reset the epan memory at all either,
+    since we shouldn't have allocated anything if we're not dissecting.
+
+    (cherry picked from commit b0f14a776ee0cf8a93b93b1d47a080d555c331f1)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c2e2420e79
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Mar 9 11:02:57 2025 +0000
+
+    AX.25_nol3: only check for and dissect APRS in UI frames
+
+    As per APRS Protocol Reference — APRS Protocol Version 1.0, Chapter 3:
+    "At the link level, APRS uses the AX.25 protocol, ... , utilizing
+    Unnumbered Information (UI) frames exclusively." Therefore, only
+    test frames received in connectionless mode for possible APRS data
+    type identifiers.
+
+    Fixes #20429
+
+    (cherry picked from commit f0e43e21168bb020b2f1bbb4688fe3e0fe2de0e7)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit ebcea521ed
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 9 09:28:15 2025 +0000
+
+    [Automatic update for 2025-03-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit ca5174f8c4
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue Mar 4 14:00:23 2025 +0100
+
+    ITS: Fix a typo.
+
+    (cherry picked from commit 4a488f4e98a88dd5fcd287c1adc1fde970dcbbf3)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 3fc6dd9b25
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Mon Mar 3 15:39:10 2025 +0000
+
+    addr_resolv: replace services with custom entries in personal config
+
+    (cherry picked from commit 73b5d127c6f7550913aac76b98c8fd533defa0b5)
+
+    Co-authored-by: Chuck Craft <bubbasnmp@gmail.com>
+
+commit 0290c3cd37
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Mar 3 12:51:29 2025 +0000
+
+    ITS: CPM Fix extensibility flag of WrappedCpmContainer
+
+    asn2wr script generates C code marking this list as extensible.
+    However, further constraining the field with WITH COMPONENT(S)
+    removes this bit. To fix this, the flag is explicitly removed.
+
+    As some ITS implementations asn1 generators create faulty code a
+    preference is introduce which allows for the previous dissection.
+
+    (cherry picked from commit 4101ea6641b6dee77bfd300478b739b5d9d517f7)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 7c84344076
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 2 09:28:38 2025 +0000
+
+    [Automatic update for 2025-03-02]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0b5c71a589
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Feb 28 20:44:36 2025 +0000
+
+    wslua: Fix use-after-free of DissectorTable name
+
+    (cherry picked from commit f208bcc12730897f2013d757d04cf5f13e75b54d)
+
+    26aac7c2 wslua: Fix use-after-free of DissectorTable name
+
+    Co-authored-by: Ryan Govostes <ryan@govost.es>
+
+commit da60400f7f
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Feb 28 06:54:15 2025 +0000
+
+    Revert "ITS: CPM: Fix extensibility flag of WrappedCpmContainer"
+
+    This reverts commit e8a8056a6bdb8d255ce5d5b984e981eae943fc4b
+
+    (cherry picked from commit 8e00860cbc775317d013de37995f01aa6548e942)
+
+    Co-authored-by: AndersBroman <a.broman58@gmail.com>
+
+commit 2b831fcba0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 26 12:22:09 2025 +0000
+
+    epan: Actually set the values of IEEE_11073_FLOATs
+
+    The values read from the packet have never actually been set
+    to the fvalues (there's only two such fields, temperature fields.)
+
+    This fixes the reported temperature in the file on #15058
+
+    (cherry picked from commit c4670ec7ac3c433f612593eb6a3f16c14852f192)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6932065105
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 26 11:18:05 2025 +0000
+
+    Qt: Don't create extra action types for Find/Colorize in Conversations
+
+    The Find and Colorize actions only support the plain and not operations
+    on a filter, they don't support and/or/andnot/ornot. Pass in the
+    current Action type so that menu items that don't really work aren't
+    created in the Conversations and Endpoints menu.
+
+    (cherry picked from commit e012d63bfb9b5dc1ae8162d367c8a15b68f4617e)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 6d82da296a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Feb 26 01:20:00 2025 +0000
+
+    ftypes: Allow 0 to convert to a IEEE-11073 [S]Float
+
+    If the literal value consists of entirely leading zeros
+    (e.g., "0") with no fractional part, then *i_char already points
+    to the null terminator after skipping the leading zeroes, which
+    means we need to skip the while loop and not iterate i_char past
+    the null terminator.
+
+    On a ASAN build, the current code will stop with a buffer overflow.
+    On most builds, the filter will unexpectedly fail, claiming that
+    "0" cannot be converted to a IEEE-11073 float.
+
+    Just make the do..while loop into a simple while loop. (We can
+    also remove a check if c is '\0' because it won't enter the loop
+    in that case.)
+
+    (cherry picked from commit 1616983542e7beca3a7ad7ade9a9a70ee80e3b2b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 213a1105a0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 24 12:50:44 2025 -0800
+
+    Version: 4.4.5 → 4.4.6
+
+    [skip ci]
