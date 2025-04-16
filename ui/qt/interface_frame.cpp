@@ -410,8 +410,12 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
 bool InterfaceFrame::haveLocalCapturePermissions() const
 {
 #ifdef Q_OS_MAC
-    QFileInfo bpf0_fi = QFileInfo("/dev/bpf0");
-    return bpf0_fi.isReadable() && bpf0_fi.isWritable();
+    if (application_flavor_is_wireshark()) {
+        QFileInfo bpf0_fi = QFileInfo("/dev/bpf0");
+        return bpf0_fi.isReadable() && bpf0_fi.isWritable();
+    } else {
+        return true;
+    }
 #elif defined(Q_OS_UNIX)
     char *dumpcap_bin = get_executable_path("dumpcap");
     bool executable = access(dumpcap_bin, X_OK) == 0;

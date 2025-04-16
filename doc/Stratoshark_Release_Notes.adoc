@@ -47,6 +47,8 @@ The following bugs have been fixed since version 0.9.1:
 
 * Stratoshark and editcap could write incorrect block types. https://gitlab.com/wireshark/wireshark/-/merge_requests/19238[Merge request 19238].
 
+* Stratoshark says I can't capture on local interfaces. wsbuglink:20494[].
+
 The following bugs have been fixed since version 0.9.0:
 
 * Falco Bridge: Empty frame.protocols field. wsbuglink:20248[].
