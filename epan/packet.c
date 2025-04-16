@@ -534,7 +534,9 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 		break;
 
 	case REC_TYPE_SYSCALL:
-		record_type = "System Call";
+		// We handle multiple types of data here, so use "Event"
+		// instead of "System Call"
+		record_type = "Event";
 		break;
 
 	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
