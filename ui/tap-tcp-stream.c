@@ -315,7 +315,7 @@ select_tcpip_session(capture_file *cf)
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);
+        return UINT32_MAX;
     }
 
     epan_dissect_init(&edt, cf->epan, true, false);

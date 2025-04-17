@@ -99,11 +99,7 @@ sip_draw_hash_requests( char *key _U_, sip_request_method_t *data, char *format)
 static void
 sip_draw_hash_responses( int *key _U_ , sip_response_code_t *data, char *format)
 {
-	if (data == NULL) {
-		ws_warning("C'est quoi ce borderl key=%d\n", *key);
-		exit(EXIT_FAILURE);
-	}
-	if (data->packets == 0)
+	if ((data == NULL) || (data->packets == 0))
 		return;
 	printf(format,  data->response_code, data->name, data->packets );
 }

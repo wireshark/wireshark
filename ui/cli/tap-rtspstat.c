@@ -78,7 +78,7 @@ rtsp_init_hash( rtspstat_t *sp)
 static void
 rtsp_draw_hash_requests( char *key _U_ , rtsp_request_methode_t *data, char * format)
 {
-	if (data->packets == 0)
+	if ((data == NULL) || (data->packets == 0))
 		return;
 	printf( format, data->response, data->packets);
 }
@@ -86,11 +86,7 @@ rtsp_draw_hash_requests( char *key _U_ , rtsp_request_methode_t *data, char * fo
 static void
 rtsp_draw_hash_responses( void ** key _U_ , rtsp_response_code_t *data, char * format)
 {
-	if (data == NULL) {
-		ws_warning("No data available, key=%d\n", GPOINTER_TO_INT(key));
-		exit(EXIT_FAILURE);
-	}
-	if (data->packets == 0)
+	if ((data == NULL) || (data->packets == 0))
 		return;
 	/* "     RTSP %3d %-35s %9d packets", */
 	printf(format,  data->response_code, data->name, data->packets );

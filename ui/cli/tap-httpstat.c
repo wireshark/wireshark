@@ -84,11 +84,7 @@ http_draw_hash_requests(char *key _U_, http_request_methode_t *data, char *forma
 static void
 http_draw_hash_responses(int * key _U_, http_response_code_t *data, char *format)
 {
-	if (data == NULL) {
-		ws_warning("No data available, key=%d\n", *key);
-		exit(EXIT_FAILURE);
-	}
-	if (data->packets == 0)
+	if ((data == NULL) || (data->packets == 0))
 		return;
 	/* "     %3d %-35s %9d packets", */
 	/* The maximum existing response code length is 32 characters */

@@ -26,7 +26,6 @@
 void register_tap_listener_protocolinfo(void);
 
 typedef struct _pci_t {
-	char *filter;
 	int hf_index;
 } pci_t;
 
@@ -46,14 +45,12 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	 * is to modify the columns, and if the columns aren't being
 	 * displayed, that makes this tap somewhat pointless.
 	 *
-	 * To prevent a crash, we check whether INFO column is writable
-	 * and, if not, we report that error and exit.
-	 *
-	 * XXX - report the error and just return TAP_PACKET_FAILED?
+	 * To prevent a crash, check whether INFO column is writable
+	 * and, if not, report that error to prevent further tap use.
 	 */
 	if (!col_get_writable(pinfo->cinfo, COL_INFO)) {
 		cmdarg_err("the proto,colinfo tap doesn't work if the INFO column isn't being printed.");
-		exit(1);
+		return TAP_PACKET_FAILED;
 	}
 	gp = proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
 	if (!gp) {
@@ -79,6 +76,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	const char *field = NULL;
 	const char *filter = NULL;
 	header_field_info *hfi;
+	char* rs_filter = NULL;
 	GString *error_string;
 
 	if (!strncmp("proto,colinfo,", opt_arg, 14)) {
@@ -102,19 +100,17 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	rs = g_new(pci_t, 1);
 	rs->hf_index = hfi->id;
 	if ((field-filter) > 1) {
-		rs->filter = (char *)g_malloc(field-filter);
-		(void) g_strlcpy(rs->filter, filter, (field-filter));
-	} else {
-		rs->filter = NULL;
+		rs_filter = (char *)g_malloc(field-filter);
+		(void) g_strlcpy(rs_filter, filter, (field-filter));
 	}
 
-	error_string = register_tap_listener("frame", rs, rs->filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL, NULL);
+	error_string = register_tap_listener("frame", rs, rs_filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. complain and clean up */
 		cmdarg_err("Couldn't register proto,colinfo tap: %s",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(rs->filter);
+		g_free(rs_filter);
 		g_free(rs);
 
 		return false;

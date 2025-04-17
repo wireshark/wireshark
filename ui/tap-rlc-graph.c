@@ -137,7 +137,7 @@ rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
                 error_string->str);
         g_string_free(error_string, TRUE);
         dfilter_free(sfcode);
-        exit(1);   /* XXX: fix this */
+        return NULL;
     }
 
     epan_dissect_init(&edt, cf->epan, true, false);
@@ -295,7 +295,7 @@ bool rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, bool stre
         fprintf(stderr, "wireshark: Couldn't register rlc_graph tap: %s\n",
                 error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);   /* XXX: fix this */
+        return false;
     }
     cf_retap_packets(cf);
     remove_tap_listener(g);
