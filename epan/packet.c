@@ -3818,7 +3818,6 @@ depend_dissector_list_t find_depend_dissector_list(const char* name)
  * Field 1 = layer type, e.g. "tcp.port"
  * Field 2 = selector - decimal for integer tables, strings for string tables,
  *           blank for payload tables. Custom and GUID tables aren't shown.
- *           (XXX - Should integer tables respect the table base, e.g. use hex?)
  * Field 3 = "decode as" name, e.g. "http"
  *
  * XXX - View -> Internals -> Dissector Tables in the GUI includes the UI name,
@@ -3840,6 +3839,8 @@ dissector_dump_decodes_display(const char *table_name,
 	dissector_handle_t  handle;
 	int                 proto_id;
 	const char         *decode_as;
+	char                fstring[32];
+	int                 field_width = 0;
 
 	ws_assert(sub_dissectors);
 
@@ -3855,11 +3856,34 @@ dissector_dump_decodes_display(const char *table_name,
 		decode_as = proto_get_protocol_filter_name(proto_id);
 		ws_assert(decode_as != NULL);
 		switch (sub_dissectors->type) {
-			case FT_UINT8:
-			case FT_UINT16:
-			case FT_UINT24:
 			case FT_UINT32:
-				printf("%s\t%u\t%s\n", table_name, GPOINTER_TO_UINT(key), decode_as);
+				field_width += 2;
+				// fallthrough
+			case FT_UINT24:
+				field_width += 2;
+				// fallthrough
+			case FT_UINT16:
+				field_width += 2;
+				// fallthrough
+			case FT_UINT8:
+				field_width += 2;
+				switch (sub_dissectors->param)
+				{
+					case BASE_OCT:
+						snprintf(fstring, 32, "%%s\t0%%o\t%%s\n");
+						break;
+
+					case BASE_HEX:
+						snprintf(fstring, 32, "%%s\t0x%%0%ux\t%%s\n", field_width);
+						break;
+
+					case BASE_DEC:
+					default:
+						snprintf(fstring, 32, "%%s\t%%u\t%%s\n");
+						break;
+				};
+
+				printf(fstring, table_name, GPOINTER_TO_UINT(key), decode_as);
 				break;
 
 			case FT_STRING:
@@ -3994,12 +4018,8 @@ dissector_dump_dissector_tables_display (void *key, void *user_data _U_)
 			printf("\tBASE_HEX");
 			break;
 
-		case BASE_DEC_HEX:
-			printf("\tBASE_DEC_HEX");
-			break;
-
-		case BASE_HEX_DEC:
-			printf("\tBASE_HEX_DEC");
+		case BASE_OCT:
+			printf("\tBASE_OCT");
 			break;
 
 		default:

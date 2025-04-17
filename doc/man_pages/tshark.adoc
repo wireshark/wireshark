@@ -451,7 +451,7 @@ There is one record per line.  The fields are tab-delimited.
 
 [horizontal]
 Field 1:: layer type, e.g. "tcp.port"
-Field 2:: selector in decimal
+Field 2:: selector in the base for display
 Field 3:: "decode as" name, e.g. "http"
 
 *defaultprefs*  Dumps a default preferences file to stdout. This report
