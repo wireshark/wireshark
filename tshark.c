@@ -3748,7 +3748,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 
             if (ferror(stdout)) {
                 show_print_file_io_error();
-                exit(2);
+                return false;
             }
         }
         cf->provider.prev_dis = fdata;
@@ -4439,7 +4439,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, int64_t offset
 
             if (ferror(stdout)) {
                 show_print_file_io_error();
-                exit(2);
+                return false;
             }
         }
 
