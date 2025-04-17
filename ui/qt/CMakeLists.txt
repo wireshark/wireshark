@@ -199,6 +199,7 @@ set(WIRESHARK_QT_HEADERS
 	interface_toolbar_reader.h
 	interface_toolbar.h
 	io_console_dialog.h
+	io_graph.h
 	io_graph_action.h
 	io_graph_dialog.h
 	layout_preferences_frame.h
@@ -552,6 +553,7 @@ set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/expert_info_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/funnel_statistics.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gsm_map_summary_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/io_graph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/io_graph_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/lte_mac_statistics_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/lte_rlc_statistics_dialog.cpp

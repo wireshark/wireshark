@@ -187,6 +187,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar_reader.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/io_console_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/io_graph.h
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph_action.h
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/layout_preferences_frame.h
@@ -492,6 +493,7 @@ set (STRATOSHARK_QT_SRC
 set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/expert_info_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_statistics.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/io_graph.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/stats_tree_dialog.cpp
 	${WIRESHARK_CUSTOM_TAP_SRC}

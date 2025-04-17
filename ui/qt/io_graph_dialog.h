@@ -11,22 +11,21 @@
 #define IO_GRAPH_DIALOG_H
 
 #include <config.h>
+#include "io_graph.h"
 
-#include "epan/epan_dissect.h"
-#include "epan/prefs.h"
-#include "ui/preference_utils.h"
-
-#include "ui/io_graph_item.h"
-
-#include "wireshark_dialog.h"
-
-#include <ui/qt/models/uat_model.h>
-#include <ui/qt/models/uat_delegate.h>
+#include <epan/epan_dissect.h>
+#include <epan/prefs.h>
 
 #include <wsutil/str_util.h>
 
+#include <ui/preference_utils.h>
+#include <ui/io_graph_item.h>
+#include <ui/qt/models/uat_model.h>
+#include <ui/qt/models/uat_delegate.h>
+
+#include "wireshark_dialog.h"
+
 #include <QPointer>
-#include <QIcon>
 #include <QMenu>
 #include <QTextStream>
 #include <QItemSelection>
@@ -38,121 +37,13 @@ class QTimer;
 class QAbstractButton;
 class CopyFromProfileButton;
 
-class QCPBars;
 class QCPGraph;
 class QCPItemTracer;
-class QCustomPlot;
 class QCPAxisTicker;
 class QCPAxisTickerDateTime;
 
-// GTK+ set this to 100000 (NUM_IO_ITEMS) before raising it to unlimited
-// in commit 524583298beb671f43e972476693866754d38a38.
-// This is the maximum index returned from get_io_graph_index that will
-// be added to the graph. Thus, for a minimum interval size of 1 μs no
-// more than 33.55 s.
-// Each io_graph_item_t is 88 bytes on a system with 64 bit time_t, so
-// the max size we'll attempt to allocate for the array of items is 2.75 GiB
-// (plus a tiny amount extra for the std::vector bookkeeping.)
-// 2^25 = 16777216
-const int max_io_items_ = 1 << 25;
-
 /* define I/O Graph specific UAT columns */
 enum UatColumnsIOG {colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colAOT, colMaxNum};
-
-// XXX - Move to its own file?
-class IOGraph : public QObject {
-Q_OBJECT
-public:
-    // COUNT_TYPE_* in gtk/io_graph.c
-    enum PlotStyles { psLine, psDotLine, psStepLine, psDotStepLine, psImpulse, psBar, psStackedBar, psDot, psSquare, psDiamond, psCross, psPlus, psCircle };
-
-    explicit IOGraph(QCustomPlot *parent);
-    ~IOGraph();
-    QString configError() const { return config_err_; }
-    QString name() const { return name_; }
-    void setName(const QString &name);
-    void setAOT(bool asAOT);
-    bool getAOT() const { return asAOT_; }
-    QString filter() const { return filter_; }
-    bool setFilter(const QString &filter);
-    void applyCurrentColor();
-    bool visible() const { return visible_; }
-    void setVisible(bool visible);
-    bool needRetap() const { return need_retap_; }
-    void setNeedRetap(bool retap);
-    QRgb color() const;
-    void setColor(const QRgb color);
-    void setPlotStyle(int style);
-    QString valueUnitLabel() const;
-    format_size_units_e formatUnits() const;
-    io_graph_item_unit_t valueUnits() const { return val_units_; }
-    void setValueUnits(int val_units);
-    QString valueUnitField() const { return vu_field_; }
-    void setValueUnitField(const QString &vu_field);
-    unsigned int movingAveragePeriod() const { return moving_avg_period_; }
-    void setInterval(int interval);
-    bool addToLegend();
-    bool removeFromLegend();
-    QCPGraph *graph() const { return graph_; }
-    QCPBars *bars() const { return bars_; }
-    double startOffset() const;
-    nstime_t startTime() const;
-    int packetFromTime(double ts) const;
-    bool hasItemToShow(int idx, double value) const;
-    double getItemValue(int idx, const capture_file *cap_file) const;
-    int maxInterval () const { return cur_idx_; }
-
-    void clearAllData();
-
-    unsigned int moving_avg_period_;
-    unsigned int y_axis_factor_;
-
-public slots:
-    void recalcGraphData(capture_file *cap_file);
-    void captureEvent(CaptureEvent e);
-    void reloadValueUnitField();
-
-signals:
-    void requestReplot();
-    void requestRecalc();
-    void requestRetap();
-
-private:
-    // Callbacks for register_tap_listener
-    static void tapReset(void *iog_ptr);
-    static tap_packet_status tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags);
-    static void tapDraw(void *iog_ptr);
-
-    void removeTapListener();
-
-    bool showsZero() const;
-
-    template<class DataMap> double maxValueFromGraphData(const DataMap &map);
-    template<class DataMap> void scaleGraphData(DataMap &map, int scalar);
-
-    QCustomPlot *parent_;
-    QString config_err_;
-    QString name_;
-    bool tap_registered_;
-    bool visible_;
-    bool need_retap_;
-    QCPGraph *graph_;
-    QCPBars *bars_;
-    QString filter_;
-    QString full_filter_; // Includes vu_field_ if used
-    QBrush color_;
-    io_graph_item_unit_t val_units_;
-    QString vu_field_;
-    int hf_index_;
-    int interval_;
-    nstime_t start_time_;
-    bool asAOT_; // Average Over Time interpretation
-
-    // Cached data. We should be able to change the Y axis without retapping as
-    // much as is feasible.
-    std::vector<io_graph_item_t> items_;
-    int cur_idx_;
-};
 
 namespace Ui {
 class IOGraphDialog;
