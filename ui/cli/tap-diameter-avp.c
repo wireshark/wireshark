@@ -51,7 +51,6 @@ typedef struct _diameteravp_t {
 	uint32_t req_count;
 	uint32_t ans_count;
 	uint32_t paired_ans_count;
-	char    *filter;
 } diameteravp_t;
 
 /* Copied from proto.c */
@@ -123,7 +122,7 @@ diameteravp_reset(void *pds)
 	ds->req_count	      = 0;
 	ds->ans_count	      = 0;
 	ds->paired_ans_count  = 0;
-	/* cmd_code and filter are cmdline parameters and shouldn't be reset here */
+	/* cmd_code is a cmdline parameter and shouldn't be reset here */
 }
 
 static tap_packet_status
@@ -219,7 +218,6 @@ static void
 diameteravp_finish(void *pds)
 {
 	diameteravp_t *ds = (diameteravp_t *)pds;
-	g_free(ds->filter);
 	g_free(ds);
 }
 
@@ -241,7 +239,6 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 	ds->req_count	      = 0;
 	ds->ans_count	      = 0;
 	ds->paired_ans_count  = 0;
-	ds->filter	      = NULL;
 
 	filter = g_string_new("diameter");
 
@@ -275,9 +272,9 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		g_string_append(filter, field);
 	}
 	g_strfreev(tokens);
-	ds->filter = g_string_free(filter, FALSE);
 
-	error_string = register_tap_listener("diameter", ds, ds->filter, TL_REQUIRES_NOTHING, diameteravp_reset, diameteravp_packet, diameteravp_draw, diameteravp_finish);
+	error_string = register_tap_listener("diameter", ds, filter->str, TL_REQUIRES_NOTHING, diameteravp_reset, diameteravp_packet, diameteravp_draw, diameteravp_finish);
+	g_string_free(filter, TRUE);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		diameteravp_finish(ds);
