@@ -29,6 +29,8 @@
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-gsm_a_common.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_gsm_astat(void);
 
 typedef struct _gsm_a_stat_t {
@@ -304,6 +306,26 @@ gsm_a_stat_draw(
 }
 
 
+static void
+gsm_a_stat_reset(
+    void                *tapdata)
+{
+    gsm_a_stat_t        *stat_p = (gsm_a_stat_t *)tapdata;
+
+    memset(stat_p, 0, sizeof(gsm_a_stat_t));
+}
+
+
+static void
+gsm_a_stat_finish(
+    void                *tapdata)
+{
+    gsm_a_stat_t        *stat_p = (gsm_a_stat_t *)tapdata;
+
+    g_free(stat_p);
+}
+
+
 static bool
 gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
@@ -315,15 +337,17 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
     memset(stat_p, 0, sizeof(gsm_a_stat_t));
 
     err_p =
-        register_tap_listener("gsm_a", stat_p, NULL, 0,
-            NULL,
+        register_tap_listener("gsm_a", stat_p, NULL, TL_REQUIRES_NOTHING,
+            gsm_a_stat_reset,
             gsm_a_stat_packet,
             gsm_a_stat_draw,
-            NULL);
+            gsm_a_stat_finish);
 
     if (err_p != NULL)
     {
         g_free(stat_p);
+        cmdarg_err("Couldn't register gsm_a tap: %s",
+                   err_p->str);
         g_string_free(err_p, TRUE);
 
         return false;
