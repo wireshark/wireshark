@@ -49,6 +49,7 @@ typedef struct _icmpv6stat_t {
 
 /* This callback is never used by tshark but it is here for completeness.  When
  * registering below, we could just have left this function as NULL.
+ * (But this may soon change; see #20432.)
  *
  * When used by wireshark, this function will be called whenever we would need
  * to reset all state, such as when wireshark opens a new file, when it starts
@@ -63,9 +64,34 @@ icmpv6stat_reset(void *tapdata)
 {
     icmpv6stat_t *icmpv6stat = (icmpv6stat_t *)tapdata;
 
-    g_slist_free(icmpv6stat->rt_list);
-    memset(icmpv6stat, 0, sizeof(icmpv6stat_t));
+    g_slist_free_full(g_steal_pointer(&icmpv6stat->rt_list), g_free);
+    icmpv6stat->num_rqsts = 0;
+    icmpv6stat->num_resps = 0;
+    icmpv6stat->min_frame = 0;
+    icmpv6stat->max_frame = 0;
     icmpv6stat->min_msecs = 1.0 * UINT_MAX;
+    icmpv6stat->max_msecs = 0.0;
+    icmpv6stat->tot_msecs = 0.0;
+}
+
+
+/* This callback is never used by tshark but it is here for completeness.  When
+ * registering below, we could just have left this function as NULL.
+ * (But this may soon change; see #20432.)
+ *
+ * When used by wireshark, this function will be called when our listener is
+ * being removed.
+ *
+ * So if your application has allocated any memory, this is where to free it.
+ */
+static void
+icmpv6stat_finish(void *tapdata)
+{
+    icmpv6stat_t *icmpv6stat = (icmpv6stat_t *)tapdata;
+
+    g_slist_free_full(icmpv6stat->rt_list, g_free);
+    g_free(icmpv6stat->filter);
+    g_free(icmpv6stat);
 }
 
 
@@ -87,8 +113,8 @@ static int compare_doubles(const void *a, const void *b)
 /* This callback is invoked whenever the tap system has seen a packet we might
  * be interested in.  The function is to be used to only update internal state
  * information in the *tapdata structure, and if there were state changes which
- * requires the window to be redrawn, return 1 and (*draw) will be called
- * sometime later.
+ * requires the window to be redrawn, return TAP_PACKET_REDRAW and (*draw) will
+ * be called sometime later.
  *
  * This function should be as lightweight as possible since it executes
  * together with the normal wireshark dissectors.  Try to push as much
@@ -191,6 +217,7 @@ static void compute_stats(icmpv6stat_t *icmpv6stat, double *mean, double *med, d
  * output device.  Since this is tshark, the only output is stdout.
  * TShark will only call this callback once, which is when tshark has finished
  * reading all packets and exits.
+ * (But this may soon change; see #20432.)
  * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
  * This function may even be called in parallel with (*reset) or (*draw), so
@@ -287,7 +314,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
  */
 
     error_string = register_tap_listener("icmpv6", icmpv6stat, icmpv6stat->filter,
-        TL_REQUIRES_NOTHING, icmpv6stat_reset, icmpv6stat_packet, icmpv6stat_draw, NULL);
+        TL_REQUIRES_NOTHING, icmpv6stat_reset, icmpv6stat_packet, icmpv6stat_draw, icmpv6stat_finish);
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
         g_free(icmpv6stat->filter);
