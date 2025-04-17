@@ -103,7 +103,7 @@ static int exported_pdu_tap = -1;
 
 /* Conversation Info */
 typedef struct _diameter_conv_info_t {
-	wmem_map_t *pdu_trees;
+	wmem_tree_t *pdus_tree;
 } diameter_conv_info_t;
 
 typedef struct _diam_ctx_t {
@@ -326,6 +326,11 @@ static dissector_handle_t diameter_sctp_handle;
 
 /* desegmentation of Diameter over TCP */
 static bool gbl_diameter_desegment = true;
+
+/* do not use IP/Port to search conversation of Diameter */
+static bool gbl_diameter_use_ip_port_for_conversation = true;
+
+static wmem_tree_t *diameter_conversations;
 
 /* Dissector tables */
 static dissector_table_t diameter_dissector_table;
@@ -1452,6 +1457,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	diameter_conv_info_t *diameter_conv_info;
 	diameter_req_ans_pair_t *diameter_pair = NULL;
 	wmem_tree_t *pdus_tree;
+	wmem_tree_key_t key[3];
 	proto_item *it;
 	nstime_t ns;
 	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(pinfo->pool, diam_sub_dis_t);
@@ -1516,63 +1522,53 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
 	/* Conversation tracking stuff */
-	/*
-	 * FIXME: Looking at epan/conversation.c it seems unlikely that this will work properly in
-	 * multi-homed SCTP connections. This will probably need to be fixed at some point.
-	 */
+	if (!gbl_diameter_use_ip_port_for_conversation) {
+		pdus_tree = diameter_conversations;
+	} else {
+		conversation = find_or_create_conversation(pinfo);
 
-	conversation = find_or_create_conversation(pinfo);
+		diameter_conv_info = (diameter_conv_info_t *)conversation_get_proto_data(conversation, proto_diameter);
+		if (!diameter_conv_info) {
+			diameter_conv_info = wmem_new(wmem_file_scope(), diameter_conv_info_t);
+			diameter_conv_info->pdus_tree = wmem_tree_new(wmem_file_scope());
 
-	diameter_conv_info = (diameter_conv_info_t *)conversation_get_proto_data(conversation, proto_diameter);
-	if (!diameter_conv_info) {
-		diameter_conv_info = wmem_new(wmem_file_scope(), diameter_conv_info_t);
-		diameter_conv_info->pdu_trees = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
-
-		conversation_add_proto_data(conversation, proto_diameter, diameter_conv_info);
-	}
-
-	/* pdus_tree is an wmem_tree keyed by frame number (in order to handle hop-by-hop collisions */
-	pdus_tree = (wmem_tree_t *)wmem_map_lookup(diameter_conv_info->pdu_trees, GUINT_TO_POINTER(hop_by_hop_id));
-
-	if (pdus_tree == NULL && (flags_bits & DIAM_FLAGS_R)) {
-		/* This is the first request we've seen with this hop-by-hop id */
-		pdus_tree = wmem_tree_new(wmem_file_scope());
-		wmem_map_insert(diameter_conv_info->pdu_trees, GUINT_TO_POINTER(hop_by_hop_id), pdus_tree);
-	}
-
-	if (pdus_tree) {
-		if (!pinfo->fd->visited) {
-			if (flags_bits & DIAM_FLAGS_R) {
-				/* This is a request */
-				diameter_pair = wmem_new(wmem_file_scope(), diameter_req_ans_pair_t);
-				diameter_pair->hop_by_hop_id = hop_by_hop_id;
-				diameter_pair->end_to_end_id = end_to_end_id;
-				diameter_pair->cmd_code = cmd;
-				diameter_pair->result_code = 0;
-				diameter_pair->cmd_str = cmd_str;
-				diameter_pair->req_frame = pinfo->num;
-				diameter_pair->ans_frame = 0;
-				diameter_pair->req_time = pinfo->abs_ts;
-				wmem_tree_insert32(pdus_tree, pinfo->num, (void *)diameter_pair);
-			} else {
-				/* Look for a request which occurs earlier in the trace than this answer. */
-				diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, pinfo->num);
-
-				/* Verify the end-to-end-id matches before declaring a match */
-				if (diameter_pair && diameter_pair->end_to_end_id == end_to_end_id) {
-					diameter_pair->ans_frame = pinfo->num;
-				}
-			}
-		} else {
-			/* Look for a request which occurs earlier in the trace than this answer. */
-			diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, pinfo->num);
-
-			/* If the end-to-end ID doesn't match then this is not the request we were
-			 * looking for.
-			 */
-			if (diameter_pair && diameter_pair->end_to_end_id != end_to_end_id)
-				diameter_pair = NULL;
+			conversation_add_proto_data(conversation, proto_diameter, diameter_conv_info);
 		}
+
+		pdus_tree = diameter_conv_info->pdus_tree;
+	}
+
+	key[0].length = 1;
+	key[0].key = &hop_by_hop_id;
+	key[1].length = 1;
+	key[1].key = &end_to_end_id;
+	key[2].length = 0;
+	key[2].key = NULL;
+
+	if (!pinfo->fd->visited) {
+		if (flags_bits & DIAM_FLAGS_R) {
+			/* This is a request */
+			diameter_pair = wmem_new(wmem_file_scope(), diameter_req_ans_pair_t);
+			diameter_pair->hop_by_hop_id = hop_by_hop_id;
+			diameter_pair->end_to_end_id = end_to_end_id;
+			diameter_pair->cmd_code = cmd;
+			diameter_pair->result_code = 0;
+			diameter_pair->cmd_str = cmd_str;
+			diameter_pair->req_frame = pinfo->num;
+			diameter_pair->ans_frame = 0;
+			diameter_pair->req_time = pinfo->abs_ts;
+			wmem_tree_insert32_array(pdus_tree, key, (void *)diameter_pair);
+		} else {
+			/* This is a answer */
+			diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_array(pdus_tree, key);
+
+			/* Request should be earlier in the trace than this answer. */
+			if (diameter_pair && !diameter_pair->ans_frame && diameter_pair->req_frame < pinfo->num) {
+				diameter_pair->ans_frame = pinfo->num;
+			}
+		}
+	} else {
+		diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_array(pdus_tree, key);
 	}
 
 	if (!diameter_pair) {
@@ -2608,6 +2604,7 @@ real_register_diameter_fields(void)
 
 	g_ptr_array_free(build_dict.ett,true);
 
+	diameter_conversations = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 static void
@@ -2662,6 +2659,14 @@ proto_register_diameter(void)
 				       "Whether the Diameter dissector should reassemble messages spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &gbl_diameter_desegment);
+
+	/* conversation searching */
+	prefs_register_bool_preference(diameter_module, "conversation",
+		"Use IP/Port for request/response conversation",
+		"Whether the Diameter dissector should use IP addresses and SCTP/TCP ports to find request/response conversation."
+		" Conversation search will failed in cases of multi-homed SCTP or multiple TCP (loadshare more) connections."
+		" In such cases need disable this option and only combination of End-To-End and Hop-By-Hop will be used to find request/response",
+		&gbl_diameter_use_ip_port_for_conversation);
 
 	/*  Register some preferences we no longer support, so we can report
 	 *  them as obsolete rather than just illegal.
