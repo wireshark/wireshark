@@ -4987,7 +4987,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             if (st4_cmd_type==1) {
                 if (num_slots != 0) {
                     /* "the value of numSlots should be set to zero for this command type" */
-                    expert_add_info_format(pinfo, ssid_ti, &ei_oran_numslots_not_zero,
+                    expert_add_info_format(pinfo, slots_ti, &ei_oran_numslots_not_zero,
                                            "numSlots should be zero for ST4 command 1 - found %u",
                                            num_slots);
                 }
