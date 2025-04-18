@@ -1399,15 +1399,25 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
 			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
 		endif()
-		if(APPLE AND EXISTS /usr/local/opt/qt5)
-			# Homebrew installs Qt5 (up to at least 5.11.0) in
-			# /usr/local/qt5. Ensure that it can be found by CMake
-			# since it is not in the default /usr/local prefix.
-			# Add it to PATHS so that it doesn't override the
-			# CMAKE_PREFIX_PATH environment variable.
-			# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
-			# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
-			list(APPEND QT5_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
+		if(APPLE)
+			# Homebrew installs Qt5 in different locations for different
+			# versions and architectures. Ensure that it can be found by
+			# CMake since it is not in the default /usr/local prefix.
+			set(QT5_APPLE_PATHS
+				/opt/homebrew/opt/qt@5
+				/opt/homebrew/opt/qt5
+				/usr/local/opt/qt@5
+				/usr/local/opt/qt5
+			)
+			foreach(_qt5_apple_path in QT5_APPLE_PATHS)
+				if(EXISTS ${_qt5_apple_path})
+					# Add it to PATHS so that it doesn't override the
+					# CMAKE_PREFIX_PATH environment variable.
+					# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
+					# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
+					list(APPEND QT5_FIND_PACKAGE_OPTIONS PATHS ${_qt5_apple_path})
+				endif()
+			endforeach()
 		endif()
 
 		set(QT5_PACKAGELIST
