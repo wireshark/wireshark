@@ -1581,8 +1581,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
         channel->channelType = find_known_channel_by_name(channel->strptr);
       }
 
-      char channelName[8] = { 0 };
-      tvb_get_raw_bytes_as_string(tvb, offset, channelName, 8);
+      char *channelName = tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII);
 
       proto_tree *channel_tree = proto_tree_add_subtree_format(next_tree, tvb, offset, 12, ett_rdp_channelDef, NULL, "channel %s", channelName);
       if (channel)
