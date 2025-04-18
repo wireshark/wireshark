@@ -16,10 +16,9 @@ BEGIN-VENDOR	Ciena
 
 ATTRIBUTE	Ciena-CN4200-Priv-Level			1	integer
 
-VALUE	Ciena-CN4200-Priv-Level		limited			1
-VALUE	Ciena-CN4200-Priv-Level		admin			2
-VALUE	Ciena-CN4200-Priv-Level		super-user		3
-VALUE	Ciena-CN4200-Priv-Level		diag			4
+VALUE	Ciena-CN4200-Priv-Level		general			1001
+VALUE	Ciena-CN4200-Priv-Level		maintenance		1002
+VALUE	Ciena-CN4200-Priv-Level		privileged		1003
 
 ATTRIBUTE	Ciena-CES-Priv-Level			10	integer
 
@@ -29,13 +28,44 @@ VALUE	Ciena-CES-Priv-Level		super-user		3
 VALUE	Ciena-CES-Priv-Level		diag			4
 
 ATTRIBUTE	Ciena-CES-NACM-Groups			11	string
+ATTRIBUTE	Ciena-5430-priv-level			20	string
+ATTRIBUTE	Ciena-CD-priv-level                     60	string
+ATTRIBUTE	Ciena-BP-Role                           220	string
+ATTRIBUTE	Ciena-OC-mgmt-Role                      230	string
+ATTRIBUTE	Ciena-OC-P1-Role                        231	string
+ATTRIBUTE	Ciena-OC-P2-Role                        232	string
+ATTRIBUTE	Ciena-OC-P3-Role                        233	string
+ATTRIBUTE	Ciena-OC-P4-Role                        234	string
+ATTRIBUTE	Ciena-OC-P5-Role                        235	string
+ATTRIBUTE	Ciena-OC-P6-Role                        236	string
+ATTRIBUTE	Ciena-OC-P7-Role                        237	string
+ATTRIBUTE	Ciena-OC-P8-Role                        238	string
+ATTRIBUTE	Ciena-OC-P9-Role                        239	string
+ATTRIBUTE	Ciena-OC-Role                           240	string
 
-ATTRIBUTE	Ciena-BP-Role				220	string
-ATTRIBUTE	Ciena-NCS-Role				240	integer
-ATTRIBUTE	Ciena-OC-Role				250	string
+ATTRIBUTE	Ciena-NCS-Role                          250	integer
+
+VALUE	Ciena-NCS-Role		        security                1
+VALUE	Ciena-NCS-Role		        admin                   2
+VALUE	Ciena-NCS-Role		        general                 3
+
 ATTRIBUTE	Ciena-CS-Client-IP			253	ipaddr
+
 ATTRIBUTE	Ciena-CS-Acc-Level			254	integer
+
+VALUE	Ciena-CS-Acc-Level              multi                   1
+VALUE	Ciena-CS-Acc-Level              craft                   2
+VALUE	Ciena-CS-Acc-Level              shell                   3
+VALUE	Ciena-CS-Acc-Level              ems                     4
+
 ATTRIBUTE	Ciena-CS-Priv-Level			255	integer
 
-END-VENDOR	Ciena
+VALUE	Ciena-CS-Priv-Level             read-only               1
+VALUE	Ciena-CS-Priv-Level             read-write              2
+VALUE	Ciena-CS-Priv-Level             laser-read-write        3
+VALUE	Ciena-CS-Priv-Level             admin                   4
+VALUE	Ciena-CS-Priv-Level             debug                   5
+VALUE	Ciena-CS-Priv-Level             ne-config               8
+VALUE	Ciena-CS-Priv-Level             ne-admin                9
 
+END-VENDOR	Ciena
