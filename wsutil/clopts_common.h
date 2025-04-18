@@ -40,34 +40,48 @@ extern "C" {
 #define OPTSTRING_READ_CAPTURE_COMMON \
     "r:"
 
-WS_DLL_PUBLIC int
-get_natural_int(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_natural_int(const char *string, const char *name, int32_t* number);
 
-WS_DLL_PUBLIC int
-get_positive_int(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_positive_int(const char *string, const char *name, int32_t* number);
 
-WS_DLL_PUBLIC uint32_t
-get_uint32(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_natural_int64(const char* string, const char* name, int64_t* number);
+
+WS_DLL_PUBLIC bool
+get_positive_int64(const char* string, const char* name, int64_t* number);
+
+WS_DLL_PUBLIC bool
+get_uint32(const char *string, const char *name, uint32_t* number);
 
 WS_DEPRECATED_X("Use get_uint32 instead")
 static inline uint32_t
-get_guint32(const char *string, const char *name) { return get_uint32(string, name); }
+get_guint32(const char *string, const char *name) {
+    uint32_t number = 0;
+    get_uint32(string, name, &number);
+    return number;
+}
 
-WS_DLL_PUBLIC uint32_t
-get_nonzero_uint32(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_nonzero_uint32(const char *string, const char *name, uint32_t* number);
 
 WS_DEPRECATED_X("Use get_nonzero_uint32 instead")
 static inline uint32_t
-get_nonzero_guint32(const char *string, const char *name) { return get_nonzero_uint32(string, name); }
+get_nonzero_guint32(const char *string, const char *name) {
+    uint32_t number = 0;
+    get_nonzero_uint32(string, name, &number);
+    return number;
+}
 
-WS_DLL_PUBLIC uint64_t
-get_uint64(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_uint64(const char *string, const char *name, uint64_t* number);
 
-WS_DLL_PUBLIC uint64_t
-get_nonzero_uint64(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_nonzero_uint64(const char *string, const char *name, uint64_t* number);
 
-WS_DLL_PUBLIC double
-get_positive_double(const char *string, const char *name);
+WS_DLL_PUBLIC bool
+get_positive_double(const char *string, const char *name, double* number);
 
 #ifdef __cplusplus
 }

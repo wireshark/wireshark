@@ -165,7 +165,10 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'b':	/* max bytes */
-                produce_max_bytes = get_positive_int(ws_optarg, "max bytes");
+                if (!get_positive_int(ws_optarg, "max bytes", &produce_max_bytes)) {
+                    ret = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
                 if (produce_max_bytes > 65536) {
                     cmdarg_err("max bytes is > 65536");
                     ret = WS_EXIT_INVALID_OPTION;
@@ -174,7 +177,10 @@ main(int argc, char *argv[])
                 break;
 
             case 'c':	/* count */
-                produce_count = get_positive_int(ws_optarg, "count");
+                if (!get_positive_int(ws_optarg, "count", &produce_count)) {
+                    ret = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
                 break;
 
             case 'F':

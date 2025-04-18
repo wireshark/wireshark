@@ -14,127 +14,155 @@
 
 #include <stdlib.h>
 #include <errno.h>
-
+#include <ws_exit_codes.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/cmdarg_err.h>
 
-int
-get_natural_int(const char *string, const char *name)
+bool
+get_natural_int(const char *string, const char *name, int32_t* number)
 {
-    int32_t number;
-
-    if (!ws_strtoi32(string, NULL, &number)) {
+    if (!ws_strtoi32(string, NULL, number)) {
         if (errno == EINVAL) {
             cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
-            exit(1);
+            return false;
         }
-        if (number < 0) {
+        if (*number < 0) {
             cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
-            exit(1);
+            return false;
         }
         cmdarg_err("The specified %s \"%s\" is too large (greater than %d)",
-                name, string, number);
-        exit(1);
+                name, string, *number);
+        return false;
     }
-    if (number < 0) {
+    if (*number < 0) {
         cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
-        exit(1);
+        return false;
     }
-    return (int)number;
+    return true;
 }
 
-int
-get_positive_int(const char *string, const char *name)
+bool
+get_positive_int(const char *string, const char *name, int32_t* number)
 {
-    int number;
+    if (!get_natural_int(string, name, number))
+        return false;
 
-    number = get_natural_int(string, name);
-
-    if (number == 0) {
+    if (*number == 0) {
         cmdarg_err("The specified %s is zero", name);
-        exit(1);
+        return false;
     }
 
-    return number;
+    return true;
 }
 
-uint32_t
-get_uint32(const char *string, const char *name)
+bool
+get_natural_int64(const char* string, const char* name, int64_t* number)
 {
-    uint32_t number;
+  if (!ws_strtoi64(string, NULL, number)) {
+    if (errno == EINVAL) {
+      cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
+      return false;
+    }
+    if (*number < 0) {
+      cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
+      return false;
+    }
+    cmdarg_err("The specified %s \"%s\" is too large (greater than %" PRId64 ")",
+      name, string, *number);
+    return false;
+  }
+  if (*number < 0) {
+    cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
+    return false;
+  }
+  return true;
+}
 
-    if (!ws_strtou32(string, NULL, &number)) {
+bool
+get_positive_int64(const char* string, const char* name, int64_t* number)
+{
+  if (!get_natural_int64(string, name, number))
+    return false;
+
+  if (*number == 0) {
+    cmdarg_err("The specified %s is zero", name);
+    return false;
+  }
+
+  return true;
+}
+
+bool
+get_uint32(const char *string, const char *name, uint32_t* number)
+{
+    if (!ws_strtou32(string, NULL, number)) {
         if (errno == EINVAL) {
             cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
-            exit(1);
+            return false;
         }
         cmdarg_err("The specified %s \"%s\" is too large (greater than %d)",
-                name, string, number);
-        exit(1);
+                name, string, *number);
+        return false;
     }
-    return number;
+    return true;
 }
 
-uint32_t
-get_nonzero_uint32(const char *string, const char *name)
+bool
+get_nonzero_uint32(const char *string, const char *name, uint32_t* number)
 {
-    uint32_t number;
+    if (!get_uint32(string, name, number))
+        return false;
 
-    number = get_uint32(string, name);
-
-    if (number == 0) {
+    if (*number == 0) {
         cmdarg_err("The specified %s is zero", name);
-        exit(1);
+        return false;
     }
 
-    return number;
+    return true;
 }
 
-uint64_t
-get_uint64(const char *string, const char *name)
+bool
+get_uint64(const char *string, const char *name, uint64_t* number)
 {
-    uint64_t number;
-
-    if (!ws_strtou64(string, NULL, &number)) {
+    if (!ws_strtou64(string, NULL, number)) {
         if (errno == EINVAL) {
             cmdarg_err("The specified %s \"%s\" isn't a decimal number", name, string);
-            exit(1);
+            return false;
         }
         cmdarg_err("The specified %s \"%s\" is too large (greater than %" PRIu64 ")",
-                name, string, number);
-        exit(1);
+                name, string, *number);
+        return false;
     }
-    return number;
+    return true;
 }
 
-uint64_t
-get_nonzero_uint64(const char *string, const char *name)
+bool
+get_nonzero_uint64(const char *string, const char *name, uint64_t* number)
 {
-    uint64_t number;
+    if (!get_uint64(string, name, number))
+        return false;
 
-    number = get_uint64(string, name);
-
-    if (number == 0) {
+    if (*number == 0) {
         cmdarg_err("The specified %s is zero", name);
-        exit(1);
+        return false;
     }
 
-    return number;
+    return true;
 }
 
-double
-get_positive_double(const char *string, const char *name)
+bool
+get_positive_double(const char *string, const char *name, double* number)
 {
-    double number = g_ascii_strtod(string, NULL);
+    *number = g_ascii_strtod(string, NULL);
 
     if (errno == EINVAL) {
         cmdarg_err("The specified %s \"%s\" isn't a floating point number", name, string);
-        exit(1);
+        return false;
     }
-    if (number < 0.0) {
+    if (*number < 0.0) {
         cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
-        exit(1);
+        return false;
     }
 
-    return number;
+    return true;
 }

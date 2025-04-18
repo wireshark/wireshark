@@ -331,20 +331,25 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     }
     if (strcmp(autostoparg,"duration") == 0) {
         capture_opts->has_autostop_duration = true;
-        capture_opts->autostop_duration = get_positive_double(p,"autostop duration");
+        if (!get_positive_double(p,"autostop duration",&capture_opts->autostop_duration))
+            return false;
     } else if (strcmp(autostoparg,"filesize") == 0) {
         capture_opts->has_autostop_filesize = true;
-        capture_opts->autostop_filesize = get_nonzero_uint32(p,"autostop filesize");
+        if (!get_nonzero_uint32(p,"autostop filesize",&capture_opts->autostop_filesize))
+            return false;
     } else if (strcmp(autostoparg,"files") == 0) {
         capture_opts->multi_files_on = true;
         capture_opts->has_autostop_files = true;
-        capture_opts->autostop_files = get_positive_int(p,"autostop files");
+        if (!get_positive_int(p,"autostop files",&capture_opts->autostop_files))
+            return false;
     } else if (strcmp(autostoparg,"packets") == 0) {
         capture_opts->has_autostop_written_packets = true;
-        capture_opts->autostop_written_packets = get_positive_int(p,"packet write count");
+        if (!get_positive_int(p,"packet write count",&capture_opts->autostop_written_packets))
+            return false;
     } else if (strcmp(autostoparg,"events") == 0) {
         capture_opts->has_autostop_written_packets = true;
-        capture_opts->autostop_written_packets = get_positive_int(p,"event write count");
+        if (!get_positive_int(p,"event write count",&capture_opts->autostop_written_packets))
+            return false;
     } else {
         return false;
     }
@@ -468,25 +473,33 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
 
     if (strcmp(arg,"files") == 0) {
         capture_opts->has_ring_num_files = true;
-        capture_opts->ring_num_files = get_nonzero_uint32(p, "number of ring buffer files");
+        if (!get_nonzero_uint32(p, "number of ring buffer files",&capture_opts->ring_num_files))
+            return false;
     } else if (strcmp(arg,"filesize") == 0) {
         capture_opts->has_autostop_filesize = true;
-        capture_opts->autostop_filesize = get_nonzero_uint32(p, "ring buffer filesize");
+        if (!get_nonzero_uint32(p, "ring buffer filesize",&capture_opts->autostop_filesize))
+            return false;
     } else if (strcmp(arg,"duration") == 0) {
         capture_opts->has_file_duration = true;
-        capture_opts->file_duration = get_positive_double(p, "ring buffer duration");
+        if (!get_positive_double(p, "ring buffer duration",&capture_opts->file_duration))
+            return false;
     } else if (strcmp(arg,"interval") == 0) {
         capture_opts->has_file_interval = true;
-        capture_opts->file_interval = get_positive_int(p, "ring buffer interval");
+        if (!get_positive_int(p, "ring buffer interval",&capture_opts->file_interval))
+            return false;
     } else if (strcmp(arg,"nametimenum") == 0) {
-        int val = get_positive_int(p, "file name: time before num");
+        int val;
+        if (!get_positive_int(p, "file name: time before num", &val))
+            return false;
         capture_opts->has_nametimenum = (val > 1);
     } else if (strcmp(arg,"packets") == 0) {
         capture_opts->has_file_packets = true;
-        capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
+        if (!get_positive_int(p, "ring buffer packet count",&capture_opts->file_packets))
+            return false;
     } else if (strcmp(arg,"events") == 0) {
         capture_opts->has_file_packets = true;
-        capture_opts->file_packets = get_positive_int(p, "ring buffer event count");
+        if (!get_positive_int(p, "ring buffer event count",&capture_opts->file_packets))
+            return false;
     } else if (strcmp(arg,"printname") == 0) {
         capture_opts->print_file_names = true;
         capture_opts->print_name_to = g_strdup(p);
@@ -530,10 +543,12 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             interface_opts->sampling_method = CAPTURE_SAMP_BY_COUNT;
-            interface_opts->sampling_param = get_positive_int(p, "sampling count");
+            if (!get_positive_int(p, "sampling count", &interface_opts->sampling_param))
+                return false;
         } else {
             capture_opts->default_options.sampling_method = CAPTURE_SAMP_BY_COUNT;
-            capture_opts->default_options.sampling_param = get_positive_int(p, "sampling count");
+            if (!get_positive_int(p, "sampling count", &capture_opts->default_options.sampling_param))
+                return false;
         }
     } else if (strcmp(arg, "timer") == 0) {
         if (capture_opts->ifaces->len > 0) {
@@ -541,10 +556,12 @@ get_sampling_arguments(capture_options *capture_opts, const char *arg)
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             interface_opts->sampling_method = CAPTURE_SAMP_BY_TIMER;
-            interface_opts->sampling_param = get_positive_int(p, "sampling timer");
+            if (!get_positive_int(p, "sampling timer", &interface_opts->sampling_param))
+                return false;
         } else {
             capture_opts->default_options.sampling_method = CAPTURE_SAMP_BY_TIMER;
-            capture_opts->default_options.sampling_param = get_positive_int(p, "sampling timer");
+            if (!get_positive_int(p, "sampling timer", &capture_opts->default_options.sampling_param))
+                return false;
         }
     }
     *colonp = ':';
@@ -987,15 +1004,18 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            interface_opts->buffer_size = get_positive_int(optarg_str_p, "buffer size");
+            if (!get_positive_int(optarg_str_p, "buffer size", &interface_opts->buffer_size))
+                return 1;
         } else {
-            capture_opts->default_options.buffer_size = get_positive_int(optarg_str_p, "buffer size");
+            if (!get_positive_int(optarg_str_p, "buffer size", &capture_opts->default_options.buffer_size))
+                return 1;
         }
         break;
     case 'c':        /* Capture n packets */
         /* XXX Use set_autostop_criterion instead? */
         capture_opts->has_autostop_packets = true;
-        capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
+        if (!get_positive_int(optarg_str_p, "packet count", &capture_opts->autostop_packets))
+            return 1;
         break;
     case 'f':        /* capture filter */
         get_filter_arguments(capture_opts, optarg_str_p);
@@ -1089,7 +1109,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 #endif
     case 's':        /* Set the snapshot (capture) length */
         // XXX Should we error out if our flavor is Stratoshark?
-        snaplen = get_natural_int(optarg_str_p, "snapshot length");
+        if (!get_natural_int(optarg_str_p, "snapshot length", &snaplen))
+            return 1;
         /*
          * Make a snapshot length of 0 equivalent to the maximum packet
          * length, mirroring what tcpdump does.
@@ -1195,7 +1216,8 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->temp_dir = g_strdup(optarg_str_p);
         break;
     case LONGOPT_UPDATE_INTERVAL:  /* capture update interval */
-        capture_opts->update_interval = get_natural_int(optarg_str_p, "update interval");
+        if (!get_natural_int(optarg_str_p, "update interval", &capture_opts->update_interval))
+            return false;
         break;
     default:
         /* the caller is responsible to send us only the right opt's */

@@ -5094,7 +5094,10 @@ set_80211_channel(const char *iface, const char *opt)
     }
 
     if (options[0])
-        freq = get_nonzero_uint32(options[0], "802.11 channel frequency");
+        if (!get_nonzero_uint32(options[0], "802.11 channel frequency", &freq)) {
+            ret = EINVAL;
+            goto out;
+        }
 
     if (args >= 1 && options[1]) {
         type = ws80211_str_to_chan_type(options[1]);
@@ -5106,10 +5109,16 @@ set_80211_channel(const char *iface, const char *opt)
     }
 
     if (args >= 2 && options[2])
-        center_freq1 = get_nonzero_uint32(options[2], "VHT center frequency");
+        if (!get_nonzero_uint32(options[2], "VHT center frequency", &center_freq1)) {
+            ret = EINVAL;
+            goto out;
+        }
 
     if (args >= 3 && options[3])
-        center_freq2 = get_nonzero_uint32(options[3], "VHT center frequency 2");
+        if (!get_nonzero_uint32(options[3], "VHT center frequency 2", &center_freq2)) {
+            ret = EINVAL;
+            goto out;
+        }
 
     ret = ws80211_set_freq(iface, freq, type, center_freq1, center_freq2);
 
@@ -5667,10 +5676,12 @@ main(int argc, char *argv[])
             machine_readable = true;
             break;
         case 'C':
-            pcap_queue_byte_limit = get_positive_int(ws_optarg, "byte_limit");
+            if (!get_positive_int64(ws_optarg, "byte_limit", &pcap_queue_byte_limit))
+                arg_error = true;
             break;
         case 'N':
-            pcap_queue_packet_limit = get_positive_int(ws_optarg, "packet_limit");
+            if (!get_positive_int64(ws_optarg, "packet_limit", &pcap_queue_packet_limit))
+                arg_error = true;
             break;
         default:
             /* wslog arguments are okay */

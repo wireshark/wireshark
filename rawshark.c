@@ -572,10 +572,9 @@ main(int argc, char *argv[])
                 break;
 #if !defined(_WIN32) && defined(RLIMIT_AS)
             case 'm':
-                limit.rlim_cur = get_positive_int(ws_optarg, "memory limit");
-                limit.rlim_max = get_positive_int(ws_optarg, "memory limit");
-
-                if(setrlimit(RLIMIT_AS, &limit) != 0) {
+                if (!get_uint32(ws_optarg, "memory limit", (uint32_t*)(&limit.rlim_cur)) ||
+                    !get_uint32(ws_optarg, "memory limit", (uint32_t*)(&limit.rlim_max)) ||
+                    (setrlimit(RLIMIT_AS, &limit) != 0)) {
                     cmdarg_err("setrlimit(RLIMIT_AS) failed: %s",
                                g_strerror(errno));
                     ret = WS_EXIT_INVALID_OPTION;

@@ -281,7 +281,10 @@ main(int argc, char *argv[])
                 break;
 
             case 's':
-                snaplen = get_nonzero_uint32(ws_optarg, "snapshot length");
+                if (!get_nonzero_uint32(ws_optarg, "snapshot length", &snaplen)) {
+                    status = false;
+                    goto clean_exit;
+                }
                 break;
 
             case 'V':

@@ -302,7 +302,8 @@ add_selection(char *sel, uint64_t* max_selection)
             fprintf(stderr, "Not inclusive ...");
 
         selectfrm[max_selected].inclusive = false;
-        selectfrm[max_selected].first = get_uint64(sel, "packet number");
+        if (!get_uint64(sel, "packet number", &selectfrm[max_selected].first))
+            return false;
         if (selectfrm[max_selected].first > *max_selection)
             *max_selection = selectfrm[max_selected].first;
 
@@ -315,8 +316,10 @@ add_selection(char *sel, uint64_t* max_selection)
         *locn = '\0';    /* split the range */
         next = locn + 1;
         selectfrm[max_selected].inclusive = true;
-        selectfrm[max_selected].first = get_uint64(sel, "beginning of packet range");
-        selectfrm[max_selected].second = get_uint64(next, "end of packet range");
+        if (!get_uint64(sel, "beginning of packet range", &selectfrm[max_selected].first))
+            return false;
+        if (!get_uint64(next, "end of packet range", &selectfrm[max_selected].second))
+            return false;
 
         if (selectfrm[max_selected].second == 0)
         {
@@ -1695,7 +1698,10 @@ main(int argc, char *argv[])
         }
 
         case 'c':
-            split_packet_count = get_nonzero_uint64(ws_optarg, "packet count");
+            if (!get_nonzero_uint64(ws_optarg, "packet count", &split_packet_count)) {
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
             break;
 
         case 'C':
@@ -1743,7 +1749,10 @@ main(int argc, char *argv[])
         case 'D':
             dup_detect = true;
             dup_detect_by_time = false;
-            dup_window = get_uint32(ws_optarg, "duplicate window");
+            if (!get_uint32(ws_optarg, "duplicate window", &dup_window)) {
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
             if (dup_window > MAX_DUP_DEPTH) {
                 cmdarg_err("\"%d\" duplicate window value must be between 0 and %d inclusive.",
                         dup_window, MAX_DUP_DEPTH);
@@ -1779,7 +1788,11 @@ main(int argc, char *argv[])
 
         case 'i': /* break capture file based on time interval */
         {
-            double spb = get_positive_double(ws_optarg, "time interval");
+            double spb;
+            if (!get_positive_double(ws_optarg, "time interval", &spb)) {
+              ret = WS_EXIT_INVALID_OPTION;
+              goto clean_exit;
+            }
             if (spb == 0.0) {
               cmdarg_err("The specified interval is zero");
               ret = WS_EXIT_INVALID_OPTION;
@@ -1794,7 +1807,10 @@ main(int argc, char *argv[])
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
-            ignored_bytes = get_uint32(ws_optarg, "number of bytes to ignore");
+            if (!get_uint32(ws_optarg, "number of bytes to ignore", &ignored_bytes)) {
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
             break;
 
         case 'L':
@@ -1802,7 +1818,10 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            change_offset = get_uint32(ws_optarg, "change offset");
+            if (!get_uint32(ws_optarg, "change offset", &change_offset)) {
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
             break;
 
         case 'r':
@@ -1853,7 +1872,10 @@ main(int argc, char *argv[])
         }
 
         case 's':
-            snaplen = get_nonzero_uint32(ws_optarg, "snapshot length");
+            if (!get_nonzero_uint32(ws_optarg, "snapshot length", &snaplen)) {
+                ret = WS_EXIT_INVALID_OPTION;
+                goto clean_exit;
+            }
             break;
 
         case 'S':
