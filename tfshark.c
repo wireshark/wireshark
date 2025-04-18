@@ -912,7 +912,10 @@ main(int argc, char *argv[])
        have registered its field array so we can have a tap filter
        with one of MATE's late-registered fields as part of the
        filter. */
-    start_requested_stats();
+    if (!start_requested_stats()) {
+        exit_status = WS_EXIT_INVALID_OPTION;
+        goto clean_exit;
+    }
 
     /* Process the packets in the file */
     TRY {

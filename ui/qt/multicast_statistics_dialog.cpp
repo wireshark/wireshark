@@ -486,7 +486,7 @@ void MulticastStatisticsDialog::captureFileClosing()
 
 // Stat command + args
 
-static void
+static bool
 multicast_statistics_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     QByteArray filter;
@@ -494,6 +494,7 @@ multicast_statistics_init(const char *args, void*) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
     mainApp->emitStatCommandSignal("MulticastStatistics", filter.constData(), NULL);
+    return true;
 }
 
 static stat_tap_ui multicast_statistics_ui = {

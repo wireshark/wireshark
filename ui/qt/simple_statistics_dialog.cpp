@@ -23,7 +23,7 @@
 static QHash<const QString, stat_tap_table_ui *> cfg_str_to_stu_;
 
 extern "C" {
-static void
+static bool
 simple_stat_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     if (args_l.length() > 1) {
@@ -34,6 +34,8 @@ simple_stat_init(const char *args, void*) {
         }
         mainApp->emitTapParameterSignal(simple_stat, filter, NULL);
     }
+
+    return true;
 }
 }
 

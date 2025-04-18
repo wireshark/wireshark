@@ -265,7 +265,7 @@ oran_stat_draw(void *phs)
 }
 
 /* Create a new ORAN stats struct */
-static void oran_stat_init(const char *opt_arg, void *userdata _U_)
+static bool oran_stat_init(const char *opt_arg, void *userdata _U_)
 {
     oran_stat_t    *hs;
     const char    *filter = NULL;
@@ -293,8 +293,10 @@ static void oran_stat_init(const char *opt_arg, void *userdata _U_)
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 static stat_tap_ui oran_stat_ui = {

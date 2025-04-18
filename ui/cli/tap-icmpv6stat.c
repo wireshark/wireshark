@@ -256,7 +256,7 @@ icmpv6stat_draw(void *tapdata)
  * and it creates a new instance to store statistics in and registers this new
  * instance for the icmpv6 tap.
  */
-static void
+static bool
 icmpv6stat_init(const char *opt_arg, void *userdata _U_)
 {
     icmpv6stat_t *icmpv6stat;
@@ -269,7 +269,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
     icmpv6stat = (icmpv6stat_t *)g_try_malloc(sizeof(icmpv6stat_t));
     if (icmpv6stat == NULL) {
         cmdarg_err("Couldn't register icmpv6,srt tap: Out of memory");
-        exit(1);
+        return false;
     }
     memset(icmpv6stat, 0, sizeof(icmpv6stat_t));
     icmpv6stat->min_msecs = 1.0 * UINT_MAX;
@@ -295,8 +295,10 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
 
         cmdarg_err("Couldn't register icmpv6,srt tap: %s", error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 static stat_tap_ui icmpv6stat_ui = {

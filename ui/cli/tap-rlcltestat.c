@@ -359,7 +359,7 @@ rlc_lte_stat_draw(void *phs)
 
 
 /* Create a new RLC LTE stats struct */
-static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
+static bool rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     rlc_lte_stat_t    *hs;
     const char        *filter = NULL;
@@ -393,9 +393,10 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);
-        exit(1);
+        return false;
     }
 
+    return true;
 }
 
 

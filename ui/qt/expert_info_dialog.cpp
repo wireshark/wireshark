@@ -324,9 +324,10 @@ void ExpertInfoDialog::on_buttonBox_helpRequested()
 
 // Stat command + args
 
-static void
+static bool
 expert_info_init(const char *, void*) {
     mainApp->emitStatCommandSignal("ExpertInfo", NULL, NULL);
+    return true;
 }
 
 static stat_tap_ui expert_info_stat_ui = {

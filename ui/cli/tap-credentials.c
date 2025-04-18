@@ -103,7 +103,7 @@ static void credentials_draw(void *p)
     printf("===================================================================\n");
 }
 
-static void credentials_init(const char *opt_arg _U_, void *userdata _U_)
+static bool credentials_init(const char *opt_arg _U_, void *userdata _U_)
 {
     GString* error_string;
     credentials_tapdata_t *c = g_new0(credentials_tapdata_t, 1);
@@ -116,10 +116,11 @@ static void credentials_init(const char *opt_arg _U_, void *userdata _U_)
         cmdarg_err("Couldn't register credentials tap: %s", error_string->str);
         credentials_finish((void *)c);
         g_string_free(error_string, TRUE);
-        exit(1);
+        return false;
     }
 
     c->credentials = wmem_array_new(wmem_epan_scope(), sizeof(tap_credential_t));
+    return true;
 }
 
 static stat_tap_ui credentials_ui = {

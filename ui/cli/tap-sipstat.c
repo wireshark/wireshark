@@ -299,7 +299,7 @@ sipstat_draw(void *psp  )
 	printf("===================================================================\n");
 }
 
-static void
+static bool
 sipstat_init(const char *opt_arg, void *userdata _U_)
 {
 	sipstat_t  *sp;
@@ -333,12 +333,13 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register sip,stat tap: %s",
 			 error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
 
 	sp->packets = 0;
 	sp->resent_packets = 0;
 	sip_init_hash(sp);
+	return true;
 }
 
 static stat_tap_ui sipstat_ui = {

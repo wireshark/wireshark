@@ -220,7 +220,7 @@ rpcprogs_finish(void *tapdata)
 	g_free((rpc_tapdata_t *)tapdata);
 }
 
-static void
+static bool
 rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 {
 	GString *error_string;
@@ -233,8 +233,10 @@ rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 		cmdarg_err("Couldn't register rpc,programs tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui rpcprogs_ui = {

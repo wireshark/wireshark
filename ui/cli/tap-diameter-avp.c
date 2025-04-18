@@ -223,7 +223,7 @@ diameteravp_finish(void *pds)
 	g_free(ds);
 }
 
-static void
+static bool
 diameteravp_init(const char *opt_arg, void *userdata _U_)
 {
 	diameteravp_t  *ds;
@@ -254,9 +254,9 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		/* if the token is a not-null string and it's not *, the conversion must succeed */
 		if (strlen(tokens[2]) > 0 && tokens[2][0] != '*') {
 			if (!ws_strtou32(tokens[2], NULL, &ds->cmd_code)) {
-				fprintf(stderr, "Invalid integer token: %s\n", tokens[2]);
+				cmdarg_err("Invalid integer token: %s\n", tokens[2]);
 				g_strfreev(tokens);
-				exit(1);
+				return false;
 			}
 		}
 	}
@@ -285,8 +285,10 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register diam,csv tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui diameteravp_ui = {

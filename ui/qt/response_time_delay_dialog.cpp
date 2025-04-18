@@ -22,7 +22,7 @@
 static QHash<const QString, register_rtd_t *> cfg_str_to_rtd_;
 
 extern "C" {
-static void
+static bool
 rtd_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     if (args_l.length() > 1) {
@@ -33,6 +33,8 @@ rtd_init(const char *args, void*) {
         }
         mainApp->emitTapParameterSignal(rtd, filter, NULL);
     }
+
+    return true;
 }
 }
 

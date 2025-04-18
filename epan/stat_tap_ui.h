@@ -46,7 +46,7 @@ typedef struct _tap_param {
 /*
  * UI information for a tap.
  */
-typedef void (* stat_tap_init_cb)(const char *, void*);
+typedef bool (* stat_tap_init_cb)(const char *, void*);
 typedef struct _stat_tap_ui {
     register_stat_group_t  group;      /* group to which statistic belongs */
     const char            *title;      /* title of statistic */
@@ -182,7 +182,7 @@ WS_DLL_PUBLIC bool process_stat_cmd_arg(const char *optstr);
 
 WS_DLL_PUBLIC void list_stat_cmd_args(void);
 
-WS_DLL_PUBLIC void start_requested_stats(void);
+WS_DLL_PUBLIC bool start_requested_stats(void);
 
 #ifdef __cplusplus
 }

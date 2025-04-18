@@ -84,7 +84,7 @@ hosts_draw(void *dummy _U_)
 }
 
 
-static void
+static bool
 hosts_init(const char *opt_arg, void *userdata _U_)
 {
 	GString *error_string;
@@ -109,7 +109,7 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 				dump_v6 = true;
 			} else if (opt_count > 0) {
 				cmdarg_err("invalid \"-z " TAP_NAME "[,ip|ipv4|ipv6]\" argument");
-				exit(1);
+				return false;
 			}
 			opt_count++;
 		}
@@ -123,8 +123,10 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register " TAP_NAME " tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui hosts_ui = {

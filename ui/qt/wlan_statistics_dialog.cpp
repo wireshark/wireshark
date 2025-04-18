@@ -725,7 +725,7 @@ QList<QVariant> WlanStatisticsDialog::treeItemData(QTreeWidgetItem *it) const
 
 // Stat command + args
 
-static void
+static bool
 wlan_statistics_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     QByteArray filter;
@@ -733,6 +733,7 @@ wlan_statistics_init(const char *args, void*) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
     mainApp->emitStatCommandSignal("WlanStatistics", filter.constData(), NULL);
+    return true;
 }
 
 static stat_tap_ui wlan_statistics_ui = {

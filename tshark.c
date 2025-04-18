@@ -2583,7 +2583,10 @@ main(int argc, char *argv[])
            have registered its field array so we can have a tap filter
            with one of MATE's late-registered fields as part of the
            filter. */
-        start_requested_stats();
+        if (!start_requested_stats()) {
+            exit_status = WS_EXIT_INVALID_OPTION;
+            goto clean_exit;
+        }
 
         /* Do we need to do dissection of packets?  That depends on, among
            other things, what taps are listening, so determine that after
@@ -2770,7 +2773,10 @@ main(int argc, char *argv[])
            have registered its field array so we can have a tap filter
            with one of MATE's late-registered fields as part of the
            filter. */
-        start_requested_stats();
+        if (!start_requested_stats()) {
+            exit_status = WS_EXIT_INVALID_OPTION;
+            goto clean_exit;
+        }
 
         /* Do we need to do dissection of packets?  That depends on, among
            other things, what taps are listening, so determine that after

@@ -204,7 +204,7 @@ protohierstat_draw(void *prs)
 }
 
 
-static void
+static bool
 protohierstat_init(const char *opt_arg, void *userdata _U_)
 {
 	phs_t *rs;
@@ -220,7 +220,7 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 		}
 	} else {
 		cmdarg_err("invalid \"-z io,phs[,<filter>]\" argument");
-		exit(1);
+		return false;
 	}
 
 	pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
@@ -239,8 +239,10 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register io,phs tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui protohierstat_ui = {

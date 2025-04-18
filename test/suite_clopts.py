@@ -282,14 +282,14 @@ class TestTsharkZExpert:
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,' + invalid_filter,
             '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
         assert proc.returncode == ExitCodes.COMMAND_LINE
-        assert grep_output(proc.stdout, 'Filter "' + invalid_filter + '" is invalid')
+        assert grep_output(proc.stderr, 'Filter "' + invalid_filter + '" is invalid')
 
     def test_tshark_z_expert_error_invalid_filter(self, cmd_tshark, capture_file, test_env):
         invalid_filter = '__invalid_protocol'
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,error,' + invalid_filter,
             '-r', capture_file('http-ooo.pcap')), capture_output=True, env=test_env)
         assert proc.returncode == ExitCodes.COMMAND_LINE
-        assert grep_output(proc.stdout, 'Filter "' + invalid_filter + '" is invalid')
+        assert grep_output(proc.stderr, 'Filter "' + invalid_filter + '" is invalid')
 
     def test_tshark_z_expert_filter(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert,udp',

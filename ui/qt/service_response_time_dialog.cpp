@@ -25,7 +25,7 @@
 static QHash<const QString, register_srt_t *> cfg_str_to_srt_;
 
 extern "C" {
-static void
+static bool
 srt_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     if (args_l.length() > 1) {
@@ -36,6 +36,8 @@ srt_init(const char *args, void*) {
         }
         mainApp->emitTapParameterSignal(srt, filter, NULL);
     }
+
+    return true;
 }
 }
 

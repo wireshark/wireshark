@@ -3070,9 +3070,10 @@ void IOGraph::tapDraw(void *iog_ptr)
 
 // Stat command + args
 
-static void
+static bool
 io_graph_init(const char *, void*) {
     mainApp->emitStatCommandSignal("IOGraph", NULL, NULL);
+    return true;
 }
 
 static stat_tap_ui io_stat_ui = {

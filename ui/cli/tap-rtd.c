@@ -88,7 +88,7 @@ rtd_draw(void *arg)
 	printf("=====================================================================================================\n");
 }
 
-static void
+static bool
 init_rtd_tables(register_rtd_t* rtd, const char *filter)
 {
 	GString *error_string;
@@ -107,11 +107,13 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 		free_rtd_table(&ui->rtd.stat_table);
 		cmdarg_err("Couldn't register srt tap: %s", error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
-static void
+static bool
 dissector_rtd_init(const char *opt_arg, void* userdata)
 {
 	register_rtd_t *rtd = (register_rtd_t*)userdata;
@@ -123,10 +125,10 @@ dissector_rtd_init(const char *opt_arg, void* userdata)
 	{
 		cmdarg_err("%s", err);
 		g_free(err);
-		exit(1);
+		return false;
 	}
 
-	init_rtd_tables(rtd, filter);
+	return init_rtd_tables(rtd, filter);
 }
 
 /* Set GUI fields for register_rtd list */

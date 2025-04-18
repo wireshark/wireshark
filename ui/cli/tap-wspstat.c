@@ -198,7 +198,7 @@ wspstat_draw(void *psp)
  * and it creates a new instance to store statistics in and registers this
  * new instance for the wsp tap.
  */
-static void
+static bool
 wspstat_init(const char *opt_arg, void *userdata _U_)
 {
 	wspstat_t          *sp;
@@ -260,8 +260,9 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register wsp,stat tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+	return true;
 }
 
 static stat_tap_ui wspstat_ui = {

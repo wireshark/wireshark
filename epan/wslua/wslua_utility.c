@@ -509,7 +509,7 @@ static int statcmd_init_cb_error_handler(lua_State* L _U_) {
     return 0;
 }
 
-static void statcmd_init(const char *opt_arg, void* userdata) {
+static bool statcmd_init(const char *opt_arg, void* userdata) {
     statcmd_t* sc = (statcmd_t *)userdata;
     lua_State* L = sc->L;
 
@@ -536,6 +536,7 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
             break;
     }
 
+    return true;
 }
 
 WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {

@@ -202,7 +202,7 @@ static void camelsrt_draw(void *phs)
   printf("\n");
 }
 
-static void camelsrt_init(const char *opt_arg, void *userdata _U_)
+static bool camelsrt_init(const char *opt_arg, void *userdata _U_)
 {
   struct camelsrt_t *p_camelsrt;
   GString *error_string;
@@ -232,7 +232,7 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
 
     cmdarg_err("Couldn't register camel,srt tap: %s", error_string->str);
     g_string_free(error_string, TRUE);
-    exit(1);
+    return false;
   }
 
   /*
@@ -243,6 +243,8 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
    */
   gtcap_StatSRT = true;
   gcamel_StatSRT = true;
+
+  return true;
 }
 
 static stat_tap_ui camelsrt_ui = {

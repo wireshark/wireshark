@@ -53,18 +53,18 @@ smbsids_draw(void *pss _U_)
 }
 
 
-static void
+static bool
 smbsids_init(const char *opt_arg _U_, void *userdata _U_)
 {
 	GString *error_string;
 
 	if (!sid_name_snooping) {
-		fprintf(stderr, "The -z smb,sids function needs SMB/SID-Snooping to be enabled.\n");
-		fprintf(stderr, "Either enable Edit/Preferences/Protocols/SMB/Snoop SID name mappings  in wireshark\n");
-		fprintf(stderr, "or override the preference file by specifying\n");
-		fprintf(stderr, "  -o \"smb.sid_name_snooping=true\"\n");
-		fprintf(stderr, "on the tshark command line.\n");
-		exit(1);
+		cmdarg_err("The -z smb,sids function needs SMB/SID-Snooping to be enabled.\n"
+			"Either enable Edit/Preferences/Protocols/SMB/Snoop SID name mappings in wireshark\n"
+			"or override the preference file by specifying\n"
+			"  -o \"smb.sid_name_snooping=true\"\n"
+			"on the tshark command line.\n");
+		return false;
 	}
 
 
@@ -73,8 +73,10 @@ smbsids_init(const char *opt_arg _U_, void *userdata _U_)
 		cmdarg_err("Couldn't register smb,sids tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui smbsids_ui = {

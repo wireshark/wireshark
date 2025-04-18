@@ -49,7 +49,7 @@ draw_stats_tree(void *psp)
 	g_string_free(s, TRUE);
 }
 
-static void
+static bool
 init_stats_tree(const char *opt_arg, void *userdata _U_)
 {
 	char *abbr = stats_tree_get_abbr(opt_arg);
@@ -71,18 +71,18 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 				st = stats_tree_new(cfg, NULL, filter);
 			} else {
 				report_failure("Wrong stats_tree (%s) found when looking at ->init_string", abbr);
-				return;
+				return false;
 			}
 		} else {
 			report_failure("no such stats_tree (%s) found in stats_tree registry", abbr);
-			return;
+			return false;
 		}
 
 		g_free(abbr);
 
 	} else {
 		report_failure("could not obtain stats_tree from arg '%s'", opt_arg);
-		return;
+		return false;
 	}
 
 	error_string = register_tap_listener(st->cfg->tapname,
@@ -96,11 +96,13 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 
 	if (error_string) {
 		report_failure("stats_tree for: %s failed to attach to the tap: %s", cfg->path, error_string->str);
-		return;
+		return false;
 	}
 
-	if (cfg->init) cfg->init(st);
+	if (cfg->init)
+		cfg->init(st);
 
+	return true;
 }
 
 static void

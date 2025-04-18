@@ -304,7 +304,7 @@ gsm_a_stat_draw(
 }
 
 
-static void
+static bool
 gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
     gsm_a_stat_t        *stat_p;
@@ -326,8 +326,10 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
         g_free(stat_p);
         g_string_free(err_p, TRUE);
 
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 static stat_tap_ui gsm_a_stat_ui = {

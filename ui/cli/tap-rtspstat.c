@@ -220,7 +220,7 @@ rtspstat_draw(void *psp  )
 
 /* When called, this function will create a new instance of rtspstat.
  */
-static void
+static bool
 rtspstat_init(const char *opt_arg, void *userdata _U_)
 {
 	rtspstat_t *sp;
@@ -254,10 +254,11 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register rtsp,stat tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
 
 	rtsp_init_hash(sp);
+	return true;
 }
 
 static stat_tap_ui rtspstat_ui = {

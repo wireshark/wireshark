@@ -1070,7 +1070,7 @@ QList<QVariant> LteRlcStatisticsDialog::treeItemData(QTreeWidgetItem *item) cons
 
 // Stat command + args
 
-static void
+static bool
 lte_rlc_statistics_init(const char *args, void*)
 {
     QStringList args_l = QString(args).split(',');
@@ -1079,6 +1079,7 @@ lte_rlc_statistics_init(const char *args, void*)
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
     mainApp->emitStatCommandSignal("LteRlcStatistics", filter.constData(), NULL);
+    return true;
 }
 
 static stat_tap_ui lte_rlc_statistics_ui = {

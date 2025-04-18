@@ -20,6 +20,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/expert.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_expert_info(void);
 
@@ -192,7 +193,7 @@ expert_tapdata_free(expert_tapdata_t* hs)
 }
 
 /* Create a new expert stats struct */
-static void expert_stat_init(const char *opt_arg, void *userdata _U_)
+static bool expert_stat_init(const char *opt_arg, void *userdata _U_)
 {
     const char       *args   = NULL;
     const char       *filter = NULL;
@@ -263,11 +264,13 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
                                          expert_stat_draw,
                                          (tap_finish_cb)expert_tapdata_free);
     if (error_string) {
-        printf("Expert tap error (%s)!\n", error_string->str);
+        cmdarg_err("Expert tap error (%s)!\n", error_string->str);
         g_string_free(error_string, TRUE);
         expert_tapdata_free(hs);
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 static stat_tap_ui expert_stat_ui = {

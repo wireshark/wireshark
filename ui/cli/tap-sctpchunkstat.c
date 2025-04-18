@@ -184,7 +184,7 @@ sctpstat_draw(void *phs)
 }
 
 
-static void
+static bool
 sctpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	sctpstat_t *hs;
@@ -210,8 +210,10 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 		cmdarg_err("Couldn't register sctp,stat tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui sctpstat_ui = {

@@ -72,7 +72,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 
 
 
-static void
+static bool
 protocolinfo_init(const char *opt_arg, void *userdata _U_)
 {
 	pci_t *rs;
@@ -90,13 +90,13 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	}
 	if (!field) {
 		cmdarg_err("invalid \"-z proto,colinfo,<filter>,<field>\" argument");
-		exit(1);
+		return false;
 	}
 
 	hfi = proto_registrar_get_byname(field);
 	if (!hfi) {
 		cmdarg_err("Field \"%s\" doesn't exist.", field);
-		exit(1);
+		return false;
 	}
 
 	rs = g_new(pci_t, 1);
@@ -117,8 +117,10 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		exit(1);
+		return false;
 	}
+
+	return true;
 }
 
 static stat_tap_ui protocolinfo_ui = {

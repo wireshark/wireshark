@@ -486,7 +486,7 @@ mac_lte_stat_draw(void *phs)
 }
 
 /* Create a new MAC LTE stats struct */
-static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
+static bool mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     mac_lte_nr_stat_t    *hs;
     const char    *filter = NULL;
@@ -515,8 +515,10 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 static stat_tap_ui mac_lte_stat_ui = {

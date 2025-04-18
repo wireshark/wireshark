@@ -106,10 +106,11 @@ rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
 }
 
 
-static void
+static bool
 rtpstreams_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
     register_tap_listener_rtpstream(&the_tapinfo_struct, NULL, NULL);
+    return true;
 }
 
 static stat_tap_ui rtpstreams_stat_ui = {

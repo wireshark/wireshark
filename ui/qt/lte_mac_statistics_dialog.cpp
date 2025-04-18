@@ -943,7 +943,7 @@ QList<QVariant> LteMacStatisticsDialog::treeItemData(QTreeWidgetItem *item) cons
 
 // Stat command + args
 
-static void
+static bool
 lte_mac_statistics_init(const char *args, void*) {
     QStringList args_l = QString(args).split(',');
     QByteArray filter;
@@ -951,6 +951,7 @@ lte_mac_statistics_init(const char *args, void*) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
     mainApp->emitStatCommandSignal("LteMacStatistics", filter.constData(), NULL);
+    return true;
 }
 
 static stat_tap_ui lte_mac_statistics_ui = {

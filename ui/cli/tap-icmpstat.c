@@ -255,7 +255,7 @@ icmpstat_draw(void *tapdata)
  * and it creates a new instance to store statistics in and registers this new
  * instance for the icmp tap.
  */
-static void
+static bool
 icmpstat_init(const char *opt_arg, void *userdata _U_)
 {
     icmpstat_t *icmpstat;
@@ -268,7 +268,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
     icmpstat = (icmpstat_t *)g_try_malloc(sizeof(icmpstat_t));
     if (icmpstat == NULL) {
         cmdarg_err("Couldn't register icmp,srt tap: Out of memory");
-        exit(1);
+        return false;
     }
     memset(icmpstat, 0, sizeof(icmpstat_t));
     icmpstat->min_msecs = 1.0 * UINT_MAX;
@@ -295,8 +295,10 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
 
         cmdarg_err("Couldn't register icmp,srt tap: %s", error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 static stat_tap_ui icmpstat_ui = {

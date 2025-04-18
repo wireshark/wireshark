@@ -21,6 +21,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/time_util.h>
 #include <wsutil/to_str.h>
+#include <wsutil/cmdarg_err.h>
 
 #define CALC_TYPE_FRAMES 0
 #define CALC_TYPE_BYTES  1
@@ -1499,7 +1500,7 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
     return true;
 }
 
-static void
+static bool
 iostat_init(const char *opt_arg, void *userdata _U_)
 {
     double interval_float;
@@ -1520,8 +1521,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     if ((*(opt_arg+(strlen(opt_arg)-1)) == ',') ||
         (sscanf(opt_arg, "io,stat,%lf%n", &interval_float, (int *)&idx) != 1) ||
         (idx < 8)) {
-        fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>][,<filter>]...\" argument\n");
-        exit(1);
+        cmdarg_err("\ntshark: invalid \"-z io,stat,<interval>[,<filter>][,<filter>]...\" argument\n");
+        return false;
     }
 
     filters = opt_arg+idx;
@@ -1531,8 +1532,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
              * have been consumed during the floating point conversion. */
             --filters;
             if (*filters != ',') {
-                fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>][,<filter>]...\" argument\n");
-                exit(1);
+                cmdarg_err("\ntshark: invalid \"-z io,stat,<interval>[,<filter>][,<filter>]...\" argument\n");
+                return false;
             }
         }
     }
@@ -1542,8 +1543,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     case TS_DELTA:
     case TS_DELTA_DIS:
     case TS_EPOCH:
-        fprintf(stderr, "\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad|adoy|u|ud|udoy>\n");
-        exit(1);
+        cmdarg_err("\ntshark: invalid -t operand. io,stat only supports -t <r|a|ad|adoy|u|ud|udoy>\n");
+        return false;
     default:
         break;
     }
@@ -1590,9 +1591,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         }
     }
     if (io->interval < 1) {
-        fprintf(stderr,
-            "\ntshark: \"-z\" interval must be >=0.000001 seconds or \"0\" for the entire capture duration.\n");
-        exit(10);
+        cmdarg_err("\ntshark: \"-z\" interval must be >=0.000001 seconds or \"0\" for the entire capture duration.\n");
+        return false;
     }
 
     /* Find how many ',' separated filters we have */
@@ -1678,14 +1678,15 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     }
 
     if (!success) {
-        fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
+        cmdarg_err("\ntshark: Couldn't register io,stat tap: %s\n",
             err->str);
         g_string_free(err, TRUE);
         g_free(io->items);
         g_free(io);
-        exit(1);
+        return false;
     }
     g_string_free(err, TRUE);
+    return true;
 
 }
 
