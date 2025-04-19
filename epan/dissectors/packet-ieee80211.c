@@ -11699,11 +11699,13 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   case ANQP_INFO_NEIGHBOR_REPORT:
     {
       tvbuff_t *report_tvb;
-      ieee80211_tagged_field_data_t field_data = {};
+
+      ieee80211_tagged_field_data_t field_data = {
+        .item_tag = item,
+        .item_tag_length = item_len
+      };
 
       report_tvb = tvb_new_subset_length(tvb, offset, len);
-      field_data.item_tag = item;
-      field_data.item_tag_length = item_len;
       dissect_neighbor_report(report_tvb, pinfo, tree, &field_data);
     }
     break;
