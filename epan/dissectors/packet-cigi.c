@@ -9688,6 +9688,11 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Articulated Part Control */
+        { &hf_cigi4_articulated_part_control_part_enable_flags,
+            { "Request Flags", "cigi.art_part_control.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
 
         /* CIGI3 Short Articulated Part Control */
         { &hf_cigi3_short_articulated_part_control,
