@@ -729,6 +729,10 @@
         <source>Packet bytes</source>
         <translation>分组字节流</translation>
     </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ByteViewText</name>
@@ -755,6 +759,10 @@
     <message>
         <source>Show text based on packet</source>
         <translation>根据分组显示文本</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -5429,6 +5437,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Capture filter</source>
         <translation>捕获过滤器</translation>
+    </message>
+</context>
+<context>
+    <name>JsonDataSourceView</name>
+    <message>
+        <source>Event JSON</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

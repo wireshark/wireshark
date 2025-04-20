@@ -729,6 +729,10 @@
         <source>Packet bytes</source>
         <translation>パケットバイト列</translation>
     </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ByteViewText</name>
@@ -755,6 +759,10 @@
     <message>
         <source>Show text based on packet</source>
         <translation>パケットをテキストベースで表示</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -5434,6 +5442,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Capture filter</source>
         <translation>キャプチャフィルタ</translation>
+    </message>
+</context>
+<context>
+    <name>JsonDataSourceView</name>
+    <message>
+        <source>Event JSON</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

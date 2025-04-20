@@ -192,7 +192,7 @@
     <name>BluetoothAttServerAttributesDialog</name>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
-        <translation>Atributs del servidor ATT Bluetooth</translation>
+        <translation>Atributs del servidor Bluetooth ATT</translation>
     </message>
     <message>
         <source>Handle</source>
@@ -525,7 +525,7 @@
     <name>BluetoothHciSummaryDialog</name>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation>Resum HCI Bluetooth</translation>
+        <translation>Resum HCI de Bluetooth</translation>
     </message>
     <message>
         <source>Name</source>
@@ -730,6 +730,10 @@
         <source>Packet bytes</source>
         <translation>Bytes del paquet</translation>
     </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ByteViewText</name>
@@ -756,6 +760,10 @@
     <message>
         <source>Show text based on packet</source>
         <translation>Mostra el text basat en el paquet</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -1565,7 +1573,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <translation>Para la captura automàticament passats…</translation>
+        <translation>Para la captura automàticament després de…</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -2283,7 +2291,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>DecodeAsModel</name>
     <message>
         <source>Match using this field</source>
-        <translation>Compara fent servir aquest camp</translation>
+        <translation>Compara amb aquest camp</translation>
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
@@ -2616,19 +2624,19 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Only Protocols</source>
-        <translation>Només protocols</translation>
+        <translation>Només als protocols</translation>
     </message>
     <message>
         <source>Only Description</source>
-        <translation>Només la descripció</translation>
+        <translation>Només a la descripció</translation>
     </message>
     <message>
         <source>Only enabled protocols</source>
-        <translation>Només els protocols activats</translation>
+        <translation>Només als protocols activats</translation>
     </message>
     <message>
         <source>Only disabled protocols</source>
-        <translation>Només els protocols desactivats</translation>
+        <translation>Només als protocols desactivats</translation>
     </message>
     <message>
         <source>any protocol</source>
@@ -4781,7 +4789,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Next Problem Packet</source>
-        <translation>Següent paquet problemàtic</translation>
+        <translation>Paquet problemàtic següent</translation>
     </message>
     <message>
         <source>Go to the next problem packet</source>
@@ -5452,6 +5460,13 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Capture filter</source>
         <translation>Filtre de captura</translation>
+    </message>
+</context>
+<context>
+    <name>JsonDataSourceView</name>
+    <message>
+        <source>Event JSON</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6788,7 +6803,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>MainStatusBar</name>
     <message>
         <source>Ready to load or capture</source>
-        <translation>A punt per a carregar o capturar</translation>
+        <translation>A punt per a carregar o capturar.</translation>
     </message>
     <message>
         <source>Ready to load file</source>
@@ -6995,7 +7010,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Open files in</source>
-        <translation>Obre els fitxers en</translation>
+        <translation>Obre els fitxers de:</translation>
     </message>
     <message>
         <source>This folder:</source>
@@ -7016,7 +7031,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Show up to</source>
-        <translation>Mostra fins a</translation>
+        <translation>Mostra fins a:</translation>
     </message>
     <message>
         <source>filter entries</source>
@@ -7052,7 +7067,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Window title</source>
-        <translation>Títol de la finestra</translation>
+        <translation>Títol de la finestra:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be appended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -7060,7 +7075,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Prepend window title</source>
-        <translation>Prefix del títol de la finestra</translation>
+        <translation>Prefix del títol de la finestra:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Custom window title to be prepended to the existing title&lt;br/&gt;%F = file path of the capture file&lt;br/&gt;%P = profile name&lt;br/&gt;%S = a conditional separator (&amp;quot; - &amp;quot;) that only shows when surrounded by variables with values or static text&lt;br/&gt;%V = version info&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -7076,7 +7091,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Open Files In</source>
-        <translation>Obre els fitxers en</translation>
+        <translation>Obre els fitxers de:</translation>
     </message>
 </context>
 <context>
@@ -9741,7 +9756,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Next Problem Packet</source>
-        <translation>Següent paquet problemàtic</translation>
+        <translation>Paquet problemàtic següent</translation>
     </message>
     <message>
         <source>Go to the next problem packet</source>
@@ -13136,7 +13151,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Us donem la benvinguda al Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Us donem la benvinguda al Wireshark.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13164,7 +13179,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation>…fent servir aquest filtre:</translation>
+        <translation>…amb aquest filtre:</translation>
     </message>
     <message>
         <source>Interface list</source>
@@ -13176,7 +13191,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation>&lt;h2&gt;Aprén&lt;/h2&gt;</translation>
+        <translation>&lt;h2&gt;Ajuda i informació&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -13276,7 +13291,7 @@ a:hover {
     </message>
     <message>
         <source>Welcome to %1</source>
-        <translation>Us donem la benvinguda al %1</translation>
+        <translation>Us donem la benvinguda al %1.</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
@@ -13299,11 +13314,11 @@ a:hover {
     </message>
     <message>
         <source>You are running Stratoshark </source>
-        <translation>S&apos;executa l&apos;Stratoshark.</translation>
+        <translation>S&apos;executa l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation>S&apos;executa el Wireshark.</translation>
+        <translation>S&apos;executa el Wireshark</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
@@ -13711,7 +13726,7 @@ a:hover {
     </message>
     <message>
         <source>Next File</source>
-        <translation>Següent fitxer</translation>
+        <translation>Fitxer següent</translation>
     </message>
     <message>
         <source>Previous File</source>
@@ -13803,7 +13818,7 @@ a:hover {
     </message>
     <message>
         <source>Internals</source>
-        <translation>Internes</translation>
+        <translation>Interns</translation>
     </message>
     <message>
         <source>Additional Toolbars</source>
@@ -13836,7 +13851,7 @@ a:hover {
     </message>
     <message>
         <source>Wireless Toolbar</source>
-        <translation>Barra d&apos;eines dels sense fils</translation>
+        <translation>Barra d&apos;eines dels dispositius sense fils</translation>
     </message>
     <message>
         <source>FAQs</source>
@@ -13844,7 +13859,7 @@ a:hover {
     </message>
     <message>
         <source>Next Packet in Conversation</source>
-        <translation>Següent paquet de la conversa</translation>
+        <translation>Paquet següent de la conversa</translation>
     </message>
     <message>
         <source>Go to the next packet in this conversation</source>
@@ -13860,7 +13875,7 @@ a:hover {
     </message>
     <message>
         <source>Next Packet In History</source>
-        <translation>Següent paquet de l&apos;historial</translation>
+        <translation>Paquet següent de l&apos;historial</translation>
     </message>
     <message>
         <source>Go to the next packet in your selection history</source>
@@ -13972,7 +13987,7 @@ a:hover {
     </message>
     <message>
         <source>Next Mark</source>
-        <translation>Següent marca</translation>
+        <translation>Marca següent</translation>
     </message>
     <message>
         <source>Go to the next marked packet</source>
@@ -14012,7 +14027,7 @@ a:hover {
     </message>
     <message>
         <source>Next Time Reference</source>
-        <translation>Següent referència de temps</translation>
+        <translation>Referència de temps següent</translation>
     </message>
     <message>
         <source>Go to the next time reference</source>
@@ -14452,7 +14467,7 @@ a:hover {
     </message>
     <message>
         <source>Packet &amp;Diagram</source>
-        <translation>&amp;Diagrama del paquet</translation>
+        <translation>&amp;Diagrames dels paquets</translation>
     </message>
     <message>
         <source>Show or hide the packet diagram</source>
@@ -14504,7 +14519,7 @@ a:hover {
     </message>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation>Resum HCI Bluetooth</translation>
+        <translation>Resum HCI de Bluetooth</translation>
     </message>
     <message>
         <source>Display Filter &amp;Expression…</source>
@@ -14952,11 +14967,11 @@ a:hover {
     </message>
     <message>
         <source>Wire&amp;less Toolbar</source>
-        <translation>Barra d&apos;eines dels sense &amp;fils</translation>
+        <translation>Barra d&apos;eines dels dispositius sense &amp;fils</translation>
     </message>
     <message>
         <source>Show or hide the wireless toolbar</source>
-        <translation>Mostra o amaga la barra d&apos;eines dels sense fils</translation>
+        <translation>Mostra o amaga la barra d&apos;eines dels dispositius sense fils</translation>
     </message>
     <message>
         <source>&amp;Status Bar</source>
@@ -14976,7 +14991,7 @@ a:hover {
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation>&amp;Detalls del paquet</translation>
+        <translation>&amp;Detalls dels paquets</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
@@ -14984,7 +14999,7 @@ a:hover {
     </message>
     <message>
         <source>Packet &amp;Bytes</source>
-        <translation>&amp;Bytes del paquet</translation>
+        <translation>&amp;Bytes dels paquets</translation>
     </message>
     <message>
         <source>Show or hide the packet bytes</source>
@@ -15082,7 +15097,7 @@ a:hover {
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation>Obre&apos;n un de &amp;recent</translation>
+        <translation>Obre un fitxer &amp;recent</translation>
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
@@ -15167,7 +15182,7 @@ a:hover {
     <message>
         <source>Bluetooth ATT Server Attributes</source>
         <oldsource>ATT Server Attributes</oldsource>
-        <translation>Atributs del servidor ATT Bluetooth</translation>
+        <translation>Atributs del servidor Bluetooth ATT</translation>
     </message>
     <message>
         <source>Show Packet in New &amp;Window</source>

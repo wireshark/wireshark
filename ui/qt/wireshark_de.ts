@@ -730,6 +730,10 @@
         <source>Packet bytes</source>
         <translation>Paketbytes</translation>
     </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ByteViewText</name>
@@ -756,6 +760,10 @@
     <message>
         <source>Show text based on packet</source>
         <translation>Text basierend auf den Paketen anzeigen</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -5452,6 +5460,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Capture filter</source>
         <translation>Mitschnittfilter</translation>
+    </message>
+</context>
+<context>
+    <name>JsonDataSourceView</name>
+    <message>
+        <source>Event JSON</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -730,6 +730,10 @@
         <source>Packet bytes</source>
         <translation>Taille du paquet</translation>
     </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ByteViewText</name>
@@ -756,6 +760,10 @@
     <message>
         <source>Show text based on packet</source>
         <translation>Affiche le texte basé sur le paquet</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -5452,6 +5460,13 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Capture filter</source>
         <translation>Filtre de capture</translation>
+    </message>
+</context>
+<context>
+    <name>JsonDataSourceView</name>
+    <message>
+        <source>Event JSON</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

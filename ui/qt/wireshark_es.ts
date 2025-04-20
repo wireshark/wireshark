@@ -730,6 +730,10 @@
         <source>Packet bytes</source>
         <translation type="unfinished">Bytes de paquete</translation>
     </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ByteViewText</name>
@@ -756,6 +760,10 @@
     <message>
         <source>Show text based on packet</source>
         <translation>Mostrar texto basado en paquete</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -5411,6 +5419,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Capture filter</source>
         <translation type="unfinished">Filtro de captura</translation>
+    </message>
+</context>
+<context>
+    <name>JsonDataSourceView</name>
+    <message>
+        <source>Event JSON</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
