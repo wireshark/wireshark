@@ -18,6 +18,12 @@
  * Deltas between the epochs for various non-UN*X time stamp formats and
  * the January 1, 1970, 00:00:00 (proleptic?) UTC epoch for the UN*X time
  * stamp format.
+ *
+ * XXX - All of these are unsigned, but note that most of these epochs are
+ * before the UN*X epoch but one is afterwards, which changes whether the
+ * delta should be subtracted or added to a time in the other epoch to
+ * produce a time_t in the UN*X epoch. Perhaps they should be signed,
+ * or there should macros that do the arithmetic and return a time_t?
  */
 
 /*
@@ -67,7 +73,10 @@
 /*
  * 2000-01-01 00:00:00 UTC.
  * Used by the Zigbee Zigbee Cluster Library protocol.
+ *
+ * This is *after* the UN*X epoch, so to convert from a time in seconds from
+ * this epoch this delta needs to be *added*, unlike the other values.
  */
-#define EPOCH_DELTA_2000_01_01_00_00_00_UTC ((unsigned)(((3*365 + 366)*7 + 2*365)*24*3600))
+#define EPOCH_DELTA_2000_01_01_00_00_00_UTC UINT64_C(((3*365 + 366)*7 + 2*365)*24*3600)
 
 #endif /* __EPOCHS_H__ */

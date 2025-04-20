@@ -2600,11 +2600,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const int start,
 
 			if (length == 8) {
 				tmp64secs  = tvb_get_ntoh64(tvb, start);
-				time_stamp->secs = (time_t)(int64_t)(tmp64secs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->secs = (time_t)(int64_t)(tmp64secs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
 				time_stamp->nsecs = 0;
 			} else if (length == 4) {
 				tmpsecs  = tvb_get_ntohl(tvb, start);
-				time_stamp->secs = (time_t)(int32_t)(tmpsecs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->secs = (time_t)(tmpsecs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
@@ -2622,11 +2622,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const int start,
 
 			if (length == 8) {
 				tmp64secs  = tvb_get_letoh64(tvb, start);
-				time_stamp->secs = (time_t)(int64_t)(tmp64secs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->secs = (time_t)(int64_t)(tmp64secs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
 				time_stamp->nsecs = 0;
 			} else if (length == 4) {
 				tmpsecs  = tvb_get_letohl(tvb, start);
-				time_stamp->secs = (time_t)(int32_t)(tmpsecs - EPOCH_DELTA_2000_01_01_00_00_00_UTC);
+				time_stamp->secs = (time_t)(tmpsecs + EPOCH_DELTA_2000_01_01_00_00_00_UTC);
 				time_stamp->nsecs = 0;
 			} else {
 				time_stamp->secs  = 0;
