@@ -135,7 +135,7 @@ static bool process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset
                                wtap_rec *rec);
 static void show_print_file_io_error(int err);
 
-static void protocolinfo_init(char *field);
+static bool protocolinfo_init(char *field);
 static bool parse_field_string_format(char *format);
 
 typedef enum {
@@ -688,7 +688,8 @@ main(int argc, char *argv[])
 
     /* Initialize our display fields */
     for (fc = 0; fc < disp_fields->len; fc++) {
-        protocolinfo_init((char *)g_ptr_array_index(disp_fields, fc));
+        if (!protocolinfo_init((char *)g_ptr_array_index(disp_fields, fc)))
+            return WS_EXIT_INVALID_OPTION;
     }
     g_ptr_array_free(disp_fields, TRUE);
     printf("\n");
@@ -1047,7 +1048,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, int64_t offset,
 
     if (ferror(stdout)) {
         show_print_file_io_error(errno);
-        exit(2);
+        return false;
     }
 
     epan_dissect_reset(edt);
@@ -1264,7 +1265,7 @@ int g_cmd_line_index;
 /*
  * field must be persistent - we don't g_strdup() it below
  */
-static void
+static bool
 protocolinfo_init(char *field)
 {
     pci_t *rs;
@@ -1275,7 +1276,7 @@ protocolinfo_init(char *field)
     hfi=proto_registrar_get_byname(field);
     if(!hfi){
         fprintf(stderr, "rawshark: Field \"%s\" doesn't exist.\n", field);
-        exit(1);
+        return false;
     }
 
     field_display_to_string(hfi, hfibuf, sizeof(hfibuf));
@@ -1300,8 +1301,10 @@ protocolinfo_init(char *field)
         }
         g_free(rs);
 
-        exit(1);
+        return false;
     }
+
+    return true;
 }
 
 /*
