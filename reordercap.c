@@ -77,7 +77,7 @@ typedef struct FrameRecord_t {
 /**************************************************/
 
 
-static void
+static bool
 frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
             wtap_rec *rec, const char *infile, const char *outfile)
 {
@@ -96,7 +96,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
                     "reordercap: An error occurred while re-reading \"%s\".\n",
                     infile);
             cfile_read_failure_message(infile, err, err_info);
-            exit(1);
+            return false;
         }
     }
 
@@ -109,9 +109,11 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
     if (!wtap_dump(pdh, rec, &err, &err_info)) {
         cfile_write_failure_message(infile, outfile, err, err_info, frame->num,
                                     wtap_file_type_subtype(wth));
-        exit(1);
+        return false;
     }
     wtap_rec_reset(rec);
+
+    return true;
 }
 
 /* Comparing timestamps between 2 frames.
@@ -320,7 +322,8 @@ main(int argc, char *argv[])
         for (i = 0; i < frames->len; i++) {
             FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
-            frame_write(frame, wth, pdh, &rec, infile, outfile);
+            if (!frame_write(frame, wth, pdh, &rec, infile, outfile))
+                return EXIT_FAILURE;
 
             g_slice_free(FrameRecord_t, frame);
         }
