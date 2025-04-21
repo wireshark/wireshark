@@ -380,11 +380,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv)
 {
 	int ret;
 
-	ret = fuzz_init(*argc, *argv);
-	if (ret != 0)
-		exit(ret);
-
-	return 0;
+	return fuzz_init(*argc, *argv);
 }
 
 /*
