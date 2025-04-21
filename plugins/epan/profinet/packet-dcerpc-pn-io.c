@@ -5655,6 +5655,30 @@ dissect_profidrive_value(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return(offset);
 }
 
+static int
+adjust_profidrive_padding(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                         proto_tree *tree, uint8_t format_val, uint8_t no_of_vals)
+{
+    // if total number of bytes are odd, we must add a padding for Byte Format
+    if(no_of_vals % 2)
+    {
+        switch(format_val)
+        {
+        case 1:
+        case 2:
+        case 5:
+        case 0x0A:
+        case 0x41:
+            offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+            break;
+        default:
+            break;
+        }
+    }
+
+    return(offset);
+}
+
 static GList *pnio_ars;
 
 typedef struct pnio_ar_s {
@@ -15719,6 +15743,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
         for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
             uint8_t format;
             uint8_t no_of_vals;
+            uint8_t org_no_of_vals;
             proto_item *sub_item;
             proto_tree *sub_tree;
 
@@ -15733,11 +15758,14 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
 
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
                 val_to_str_const(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
+            org_no_of_vals = no_of_vals;
 
             while (no_of_vals--)
             {
                 offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
             }
+
+            offset = adjust_profidrive_padding(tvb, offset, pinfo, sub_tree, format, org_no_of_vals);
         }
     }
 
@@ -15778,6 +15806,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
         for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
             uint8_t format;
             uint8_t no_of_vals;
+            uint8_t org_no_of_vals;
             proto_item *sub_item;
             proto_tree *sub_tree;
 
@@ -15793,10 +15822,14 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
                 val_to_str_const(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
+            org_no_of_vals = no_of_vals;
+
             while (no_of_vals--)
             {
                 offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
             }
+
+            offset = adjust_profidrive_padding(tvb, offset, pinfo, sub_tree, format, org_no_of_vals);
         }
     }
 
@@ -15808,6 +15841,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
          for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
             uint8_t format;
             uint8_t no_of_vals;
+            uint8_t org_no_of_vals;
             uint16_t value16;
             proto_item *sub_item;
             proto_tree *sub_tree;
@@ -15852,9 +15886,11 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
                     }
                 }
             }else{
+                org_no_of_vals = no_of_vals;
                 while (no_of_vals--){
                     offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
                 }
+                offset = adjust_profidrive_padding(tvb, offset, pinfo, sub_tree, format, org_no_of_vals);
             }
         }
     }
