@@ -10,6 +10,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "MACsec"
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -18,10 +19,10 @@
 
 #include "packet-mka.h"
 
-#define WS_LOG_DOMAIN "MACsec"
 
 #include <wireshark.h>
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/pint.h>
 
 void proto_register_macsec(void);
 void proto_reg_handoff_macsec(void);
@@ -57,6 +58,7 @@ static dissector_handle_t ethertype_handle;
 
 #define AAD_ENCRYPTED_LEN     (28)
 
+// XXX - MACsec now supports jumbo frames, this assumption is not valid
 #define MAX_PAYLOAD_LEN       (1514)
 
 
@@ -158,6 +160,9 @@ update_psk_config(void *r, char **err) {
     }
 
     if (0 == strlen(rec->name)) {
+        // This field is called "name" internally and called "Info" in the UAT,
+        // wth tooltip "PSK info to display". Calling it "PSK ID" here might
+        // be confusing.
         *err = ws_strdup("Missing PSK ID!");
         return false;
     }
@@ -385,19 +390,6 @@ attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payl
 /* Code to actually dissect the packets */
 static int
 dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    // Construct the 14-byte ethernet header (6-byte dst MAC, 6-byte src MAC, 2-byte ethernet type)(part of aad)
-    // Maybe there's a better way to get the header directly from pinfo
-    uint8_t header[ETHHDR_LEN] = {0};
-
-    if (pinfo->dl_dst.data != NULL) {
-        memcpy(header, pinfo->dl_dst.data, HWADDR_LEN);
-    }
-    if (pinfo->dl_src.data != NULL) {
-        memcpy((header + HWADDR_LEN), pinfo->dl_src.data, HWADDR_LEN);
-    }
-
-    uint8_t e_type[ETHERTYPE_LEN] = {(uint8_t)(ETHERTYPE_MACSEC >> 8), (uint8_t)(ETHERTYPE_MACSEC & 0xff)};
-    memcpy(header + (ETHHDR_LEN - ETHERTYPE_LEN), &e_type, ETHERTYPE_LEN);
 
     unsigned    sectag_length, data_length, short_length;
     unsigned    fcs_length = 0;
@@ -518,81 +510,139 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     next_tvb = tvb_new_subset_length(tvb, data_offset, data_length);
 
-    /* Build the IV. */
-    tvb_memcpy(tvb, iv + 8, 2,  4);
-
-    /* If there is an SCI, use it; if not, fill out the default */
-    if (SECTAG_LEN_WITH_SC == sectag_length) {
-        tvb_memcpy(tvb, iv,     6,  HWADDR_LEN); // SI System identifier (source MAC)
-        tvb_memcpy(tvb, iv + 6, 12, 2);          // PI Port identifier
-    } else {
-        /* With no SC, fetch the eth src address and set the PI to the Common Port identifier of 0x0001 */
-        if (pinfo->dl_src.data != NULL) {
-            memcpy(iv, pinfo->dl_src.data, HWADDR_LEN);
-        } else {
-            ws_warning("No Ethernet source address");
-        }
-
-        iv[6] = 0x00;
-        iv[7] = 0x01;
-    }
-
     /* Payload from the packet. */
     uint8_t *payload = NULL;
     unsigned payload_len = 0;
 
-    if (true == encrypted) {
-        /* Save the payload length.  Payload will be decrypted later. */
-        payload_len = tvb_captured_length(next_tvb);
+    // Fill in the first 14 bytes of the aad from the Ethernet header,
+    // if we have it.
+    memset(aad, 0, ETHHDR_LEN);
+    aad_len = 0;
 
-        /* Fetch the payload into a buffer to pass for decode. */
-        payload = tvb_memdup(pinfo->pool, next_tvb, 0, payload_len);
+    if (pinfo->dl_dst.type == AT_ETHER && pinfo->dl_src.type == AT_ETHER) {
+        memcpy(aad, pinfo->dl_dst.data, HWADDR_LEN);
+        memcpy((aad + HWADDR_LEN), pinfo->dl_src.data, HWADDR_LEN);
 
-        /* For authenticated and encrypted data, the AAD consists of the header data and security tag. */
-        memcpy(aad, header, ETHHDR_LEN);
-        tvb_memcpy(tvb, &aad[ETHHDR_LEN], 0, sectag_length);
+        uint16_t etype = ETHERTYPE_MACSEC;
+        // Cisco at least allows the EtherType for MACsec to be changed from
+        // the default to avoid conflicts with provider bridges.
+        if (pinfo->match_uint >= ETHERNET_II_MIN_LEN &&
+            pinfo->match_uint <= UINT16_MAX) {
 
-        aad_len = (sectag_length + ETHHDR_LEN);
+            etype = pinfo->match_uint;
+        }
+        phton16(aad + (ETHHDR_LEN - ETHERTYPE_LEN), etype);
 
-    } else {
-        /* The frame length for the AAD is the complete frame including ethernet header but without the ICV */
-        unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
+        if (true == encrypted) {
+            /* Save the payload length.  Payload will be decrypted later. */
+            payload_len = tvb_captured_length(next_tvb);
 
-        /* For authenticated-only data, the AAD is the entire frame minus the ICV.
-            We have to build the AAD since the incoming TVB payload does not have the Ethernet header. */
-        payload_len = frame_len - ETHHDR_LEN;
+            if (payload_len <= MAX_PAYLOAD_LEN) {
 
-        /* Copy the header we built previously, then the frame data up to the ICV. */
-        memcpy(aad, header, ETHHDR_LEN);
-        tvb_memcpy(tvb, &aad[ETHHDR_LEN], 0, payload_len);
+                /* Fetch the payload into a buffer to pass for decode. */
+                payload = tvb_memdup(pinfo->pool, next_tvb, 0, payload_len);
 
-        aad_len = frame_len;
+                /* For authenticated and encrypted data, the AAD consists of the header data and security tag. */
+                tvb_memcpy(tvb, &aad[ETHHDR_LEN], 0, sectag_length);
+
+                aad_len = (sectag_length + ETHHDR_LEN);
+            }
+
+        } else {
+            /* The frame length for the AAD is the complete frame including ethernet header but without the ICV */
+            unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
+
+            /* For authenticated-only data, the AAD is the entire frame minus the ICV.
+                We have to build the AAD since the incoming TVB payload does not have the Ethernet header. */
+            payload_len = frame_len - ETHHDR_LEN;
+
+            if (payload_len <= MAX_PAYLOAD_LEN) {
+                /* Copy the frame data up to the ICV. */
+                tvb_memcpy(tvb, &aad[ETHHDR_LEN], 0, payload_len);
+
+                aad_len = frame_len;
+            }
+        }
     }
 
-    /* Fetch the ICV. */
-    tvb_memcpy(tvb, icv, icv_offset, icv_len);
+    int table_index = -1;
+    bool use_mka_table = false;
+
+    if (aad_len != 0) {
+
+        /* Build the IV. */
+        tvb_memcpy(tvb, iv + 8, 2,  4);
+
+        /* If there is an SCI, use it; if not, fill out the default */
+        if (SECTAG_LEN_WITH_SC == sectag_length) {
+            tvb_memcpy(tvb, iv,     6,  HWADDR_LEN); // SI System identifier (source MAC)
+            tvb_memcpy(tvb, iv + 6, 12, 2);          // PI Port identifier
+        } else {
+            /* With no SC, fetch the eth src address and set the PI to the Common Port identifier of 0x0001 */
+            if (pinfo->dl_src.type == AT_ETHER) {
+                memcpy(iv, pinfo->dl_src.data, HWADDR_LEN);
+            } else {
+                ws_warning("No Ethernet source address");
+            }
+
+            iv[6] = 0x00;
+            iv[7] = 0x01;
+        }
+
+        /* Fetch the ICV. */
+        tvb_memcpy(tvb, icv, icv_offset, icv_len);
+
+        /* Attempt to authenticate/decode the packet using the stored keys in the PSK table. */
+        table_index = attempt_packet_decode_with_psks(encrypted, payload, payload_len);
+
+        /* Upon failure to decode with PSKs, and when told to also try with the CKN table,
+           attempt to authenticate/decode the packet using the stored SAKs in the CKN table. */
+        if ((true == try_mka) && (0 > table_index)) {
+            use_mka_table = true;
+            ws_debug("also using MKA for decode");
+            table_index = attempt_packet_decode_with_saks(encrypted, an, payload, payload_len);
+        }
+
+        if (0 <= table_index) {
+            icv_check_success = PROTO_CHECKSUM_E_GOOD;
+        }
+    }
+
+    ethertype_data_t ethertype_data;
+
+    /* If the data's ok, attempt to continue dissection. */
+    if (encrypted == false) {
+        /* also trim off the Ethertype */
+        next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
+
+        /* The ethertype is the original from the unencrypted data. */
+        proto_tree_add_item(macsec_tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+        ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
+    } else if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
+        tvbuff_t *plain_tvb;
+
+        plain_tvb = tvb_new_child_real_data(next_tvb, (guint8 *)wmem_memdup(pinfo->pool, macsec_payload, macsec_payload_len),
+                                            macsec_payload_len, macsec_payload_len);
+        ethertype_data.etype = tvb_get_ntohs(plain_tvb, 0);
+
+        /* also trim off the Ethertype */
+        next_tvb = tvb_new_subset_length(plain_tvb, 2, macsec_payload_len - 2);
+
+        /* add the decrypted data as a data source for the next dissectors */
+        add_new_data_source(pinfo, plain_tvb, "Decrypted Data");
+
+        /* The ethertype is the one from the start of the decrypted data. */
+        proto_tree_add_item(macsec_tree, hf_macsec_etype, plain_tvb, 0, 2, ENC_BIG_ENDIAN);
+
+        /* show the decrypted data and original ethertype */
+        /* XXX - Why include the ethertype here? Why not just the payload?
+         * Should this be added to macsec_tree as well? */
+        proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, macsec_payload_len, ENC_NA);
+    }
 
     /* Add the ICV to the sectag subtree. */
     proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset, icv_len, ENC_NA);
     proto_tree_set_appendix(macsec_tree, tvb, icv_offset, icv_len);
-
-    int table_index;
-    bool use_mka_table = false;
-
-    /* Attempt to authenticate/decode the packet using the stored keys in the PSK table. */
-    table_index = attempt_packet_decode_with_psks(encrypted, payload, payload_len);
-
-    /* Upon failure to decode with PSKs, and when told to also try with the CKN table,
-       attempt to authenticate/decode the packet using the stored SAKs in the CKN table. */
-    if ((true == try_mka) && (0 > table_index)) {
-        use_mka_table = true;
-        ws_debug("also using MKA for decode");
-        table_index = attempt_packet_decode_with_saks(encrypted, an, payload, payload_len);
-    }
-
-    if (0 <= table_index) {
-        icv_check_success = PROTO_CHECKSUM_E_GOOD;
-    }
 
     verify_item = proto_tree_add_item(macsec_tree, hf_macsec_verify_info, tvb, 0, 0, ENC_NA);
     proto_item_set_generated(verify_item);
@@ -605,6 +655,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item_set_generated(verify_item);
 
     if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
+        DISSECTOR_ASSERT_CMPINT(table_index, >=, 0);
         if (true == use_mka_table) {
             const mka_ckn_info_t *ckn_table = get_mka_ckn_table();
             char *name = ckn_table[table_index].name;
@@ -637,65 +688,33 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
 
-    /* Show the original data. */
-    call_data_dissector(next_tvb, pinfo, tree);
-
-    ethertype_data_t ethertype_data;
-
-    /* default the next tv_buff to remove ICV */
-    /* lets hand over a buffer without ICV to limit effect of wrong padding calculation */
-    next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
-    ethertype_data.etype = tvb_get_ntohs(tvb, data_offset);
-
-    /* If the data's ok, attempt to continue dissection. */
-    if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
-        if (true == encrypted) {
-            tvbuff_t *plain_tvb;
-
-            plain_tvb = tvb_new_child_real_data(next_tvb, (guint8 *)wmem_memdup(pinfo->pool, macsec_payload, macsec_payload_len),
-                                                macsec_payload_len, macsec_payload_len);
-            ethertype_data.etype = tvb_get_ntohs(plain_tvb, 0);
-
-            /* lets hand over a buffer without ICV to limit effect of wrong padding calculation */
-            next_tvb = tvb_new_subset_length(plain_tvb, 2, macsec_payload_len - 2);
-
-            /* show the decrypted data and original ethertype */
-            proto_tree_add_item(tree, hf_macsec_decrypted_data, plain_tvb, 0, macsec_payload_len, ENC_NA);
-
-            /* add the decrypted data as a data source for the next dissectors */
-            add_new_data_source(pinfo, plain_tvb, "Decrypted Data");
-
-            /* The ethertype is the one from the start of the decrypted data. */
-            proto_tree_add_item(tree, hf_macsec_etype, plain_tvb, 0, 2, ENC_BIG_ENDIAN);
-
-        } else {
-            /* lets hand over a buffer without ICV to limit effect of wrong padding calculation */
-            next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
-
-            /* The ethertype is the original from the unencrypted data. */
-            proto_tree_add_item(tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-        }
-    }
 
     /* If the frame decoded, or was not encrypted, continue dissection */
     if ((PROTO_CHECKSUM_E_GOOD == icv_check_success) || (false == encrypted)) {
         /* help eth padding calculation by subtracting length of the sectag, ethertype, icv, and fcs */
+        /* XXX - This might not be necessary after calling set_actual_length
+         * the short data case above (which is most of the cases where there
+         * is padding.) */
         int pkt_len_saved = pinfo->fd->pkt_len;
 
         pinfo->fd->pkt_len -= (sectag_length + 2 + icv_len + fcs_length);
 
         /* continue dissection */
-        ethertype_data.payload_offset = 0;
+        ethertype_data.payload_offset = 0; // 0 because Ethertype trimmed off above
         ethertype_data.fh_tree = macsec_tree;
         /* XXX: This could be another trailer, a FCS, or the Ethernet dissector
             * incorrectly detecting padding if we don't have short_length. */
         ethertype_data.trailer_id = hf_macsec_eth_padding;
         ethertype_data.fcs_len = 0;
 
+        // XXX - Do we need TRY...EXCEPT to restore pinfo->fd->pkt_len ?
         call_dissector_with_data(ethertype_handle, next_tvb, pinfo, tree, &ethertype_data);
 
         /* restore original value */
         pinfo->fd->pkt_len = pkt_len_saved;
+    } else {
+        /* Show the encrypted, undissected data as data. */
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     /* If the frame was not verified correctly, append this string to the info line
