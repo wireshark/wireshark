@@ -814,7 +814,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     fcf0 = tvb_get_uint8(tvb, 0);
     proto_version = (fcf0 & ZBEE_NWK_FCF_VERSION) >> 2;
     if (proto_version == ZBEE_VERSION_GREEN_POWER) {
-        call_dissector(zbee_gp_handle, tvb, pinfo, tree);
+        call_dissector_with_data(zbee_gp_handle, tvb, pinfo, tree, data);
     } else {
         /* TODO: add check for FCF proto versions. */
         dissect_zbee_nwk_full(tvb, pinfo, tree, data);
