@@ -133,18 +133,15 @@ main(int argc, char *argv[])
             case 'h':
                 show_help_header("Print the file types of capture files.");
                 print_usage(stdout);
-                exit(0);
-                break;
+                return EXIT_SUCCESS;
 
             case 'v':
                 show_version();
-                exit(0);
-                break;
+                return EXIT_SUCCESS;
 
             case '?':              /* Bad flag - print usage message */
                 print_usage(stderr);
-                exit(1);
-                break;
+                return EXIT_FAILURE;
         }
     }
 

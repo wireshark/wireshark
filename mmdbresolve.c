@@ -53,11 +53,6 @@ static const char **lookup_keys[] = {
     empty_key
 };
 
-static void exit_err(void) {
-    fprintf(stderr, "Usage: mmdbresolve -f db_file [-f db_file ...]\n");
-    exit(1);
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -110,7 +105,8 @@ main(int argc, char *argv[])
     fflush(stdout);
 
     if (arg_idx != argc || mmdb_count < 1) {
-        exit_err();
+        fprintf(stderr, "Usage: mmdbresolve -f db_file [-f db_file ...]\n");
+        return EXIT_FAILURE;
     }
 
     int in_items = 0;
@@ -186,7 +182,7 @@ main(int argc, char *argv[])
 
     free(mmdbs);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 /*

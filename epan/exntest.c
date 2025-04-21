@@ -211,7 +211,7 @@ int main(void)
     except_init();
     run_tests();
     except_deinit();
-    exit(failed?1:0);
+    return failed ? EXIT_FAILURE:EXIT_SUCCESS;
 }
 
 /*

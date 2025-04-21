@@ -817,7 +817,7 @@ main(void)
 	varint_tests();
 	zstd_tests ();
 	except_deinit();
-	exit(failed?1:0);
+	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 /*
