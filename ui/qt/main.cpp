@@ -627,7 +627,14 @@ int main(int argc, char *qt_argv[])
         g_free(rf_path);
     }
 
-    commandline_early_options(argc, argv);
+    ret_val = commandline_early_options(argc, argv);
+    if (ret_val != EXIT_SUCCESS) {
+        if (ret_val == WS_EXIT_NOW) {
+            return 0;
+        }
+
+        return ret_val;
+    }
 
 #if defined(_WIN32) && !defined(__MINGW32__)
     win32_reset_library_path();

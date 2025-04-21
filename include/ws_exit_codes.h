@@ -26,5 +26,6 @@
 #define WS_EXIT_DUMPCAP_NOT_SUPPORTED        11
 #define WS_EXIT_NO_INTERFACES                12
 #define WS_EXIT_PCAP_ERROR                   13
+#define WS_EXIT_NOW                          14
 
 #endif /* __WS_EXIT_CODES_H__ */
