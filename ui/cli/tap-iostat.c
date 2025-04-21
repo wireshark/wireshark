@@ -416,9 +416,8 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
         if (gp) {
             ftype = proto_registrar_get_ftype(parent->hf_indexes[it->colnum]);
             if (ftype != FT_RELATIVE_TIME) {
-                fprintf(stderr,
-                    "\ntshark: LOAD() is only supported for relative-time fields such as smb.time\n");
-                exit(10);
+                cmdarg_err("\ntshark: LOAD() is only supported for relative-time fields such as smb.time\n");
+                return TAP_PACKET_FAILED;
             }
             for (i=0; i<gp->len; i++) {
                 uint64_t val;
@@ -1366,24 +1365,22 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
                 p = filter+namelen+1;
                 parenp = strchr(p, ')');
                 if (!parenp) {
-                    fprintf(stderr,
-                        "\ntshark: Closing parenthesis missing from calculated expression.\n");
-                    exit(10);
+                    cmdarg_err("\ntshark: Closing parenthesis missing from calculated expression.\n");
+                    return false;
                 }
 
                 if (io->calc_type[i] == CALC_TYPE_FRAMES || io->calc_type[i] == CALC_TYPE_BYTES) {
                     if (parenp != p) {
-                        fprintf(stderr,
-                            "\ntshark: %s does not require or allow a field name within the parens.\n",
+                        cmdarg_err("\ntshark: %s does not require or allow a field name within the parens.\n",
                             calc_type_table[j].func_name);
-                        exit(10);
+                        return false;
                     }
                 } else {
                     if (parenp == p) {
                             /* bail out if a field name was not specified */
-                            fprintf(stderr, "\ntshark: You didn't specify a field name for %s(*).\n",
+                            cmdarg_err("\ntshark: You didn't specify a field name for %s(*).\n",
                                 calc_type_table[j].func_name);
-                            exit(10);
+                            return false;
                     }
                 }
 
@@ -1395,10 +1392,9 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
                     break;
                 hfi = proto_registrar_get_byname(field);
                 if (!hfi) {
-                    fprintf(stderr, "\ntshark: There is no field named '%s'.\n",
-                        field);
+                    cmdarg_err("\ntshark: There is no field named '%s'.\n", field);
                     g_free(field);
-                    exit(10);
+                    return false;
                 }
 
                 io->hf_indexes[i] = hfi->id;
@@ -1438,11 +1434,10 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
             case CALC_TYPE_AVG:
                 break;
             default:
-                fprintf(stderr,
-                    "\ntshark: %s is a float field, so %s(*) calculations are not supported on it.",
+                cmdarg_err("\ntshark: %s is a float field, so %s(*) calculations are not supported on it.",
                     field,
                     calc_type_table[j].func_name);
-                exit(10);
+                return false;
             }
             break;
         case FT_RELATIVE_TIME:
@@ -1456,11 +1451,10 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
             case CALC_TYPE_LOAD:
                 break;
             default:
-                fprintf(stderr,
-                    "\ntshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
+                cmdarg_err("\ntshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
                     field,
                     calc_type_table[j].func_name);
-                exit(10);
+                return false;
             }
             break;
         default:
@@ -1469,12 +1463,11 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
              * numbers?
              */
             if (io->calc_type[i] != CALC_TYPE_COUNT) {
-                fprintf(stderr,
-                    "\ntshark: %s doesn't have integral values, so %s(*) "
+                cmdarg_err("\ntshark: %s doesn't have integral values, so %s(*) "
                     "calculations are not supported on it.\n",
                     field,
                     calc_type_table[j].func_name);
-                exit(10);
+                return false;
             }
             break;
         }
