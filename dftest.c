@@ -52,7 +52,7 @@ static int opt_lemon;
 static int opt_syntax_tree;
 static int opt_return_vals;
 static int opt_timer;
-static long opt_optimize = 1;
+static int opt_optimize = 1;
 static int opt_show_types;
 static int opt_dump_refs;
 static int opt_dump_macros;
@@ -92,8 +92,8 @@ putloc(FILE *fp, df_loc_t loc)
     fputc('\n', fp);
 }
 
-WS_NORETURN static void
-print_usage(int status)
+static void
+print_usage(void)
 {
     FILE *fp = stdout;
     fprintf(fp, "\n");
@@ -121,7 +121,6 @@ print_usage(int status)
     fprintf(fp, "  -v, --version       print version\n");
     fprintf(fp, "\n");
     ws_log_print_usage(fp);
-    exit(status);
 }
 
 static void
@@ -235,20 +234,22 @@ compile_filter(const char *text, dfilter_t **dfp)
     return ok;
 }
 
-static int
-optarg_to_digit(const char *arg)
+static bool
+optarg_to_digit(const char *arg, int* digit)
 {
     if (strlen(arg) > 1 || !g_ascii_isdigit(*arg)) {
         printf("Error: \"%s\" is not a valid number 0-9\n", arg);
-        print_usage(WS_EXIT_INVALID_OPTION);
+        print_usage();
+        return false;
     }
     errno = 0;
-    int digit = (int)strtol(ws_optarg, NULL, 10);
+    *digit = (int)strtol(ws_optarg, NULL, 10);
     if (errno) {
         printf("Error: %s\n", g_strerror(errno));
-        print_usage(WS_EXIT_INVALID_OPTION);
+        print_usage();
+        return false;
     }
-    return digit;
+    return true;
 }
 
 static int
@@ -392,7 +393,8 @@ main(int argc, char **argv)
                 break;
             case 'd':
                 if (ws_optarg) {
-                    opt_debug_level = optarg_to_digit(ws_optarg);
+                    if (!optarg_to_digit(ws_optarg, &opt_debug_level))
+                        return WS_EXIT_INVALID_OPTION;
                 }
                 else {
                     opt_debug_level++;
@@ -404,7 +406,8 @@ main(int argc, char **argv)
                     set_profile_name (ws_optarg);
                 } else {
                     cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);
-                    print_usage(WS_EXIT_INVALID_OPTION);
+                    print_usage();
+                    return WS_EXIT_INVALID_OPTION;
                 }
                 break;
             case 'D':
@@ -435,7 +438,8 @@ main(int argc, char **argv)
                 opt_optimize = 0;
                 break;
             case 1000:
-                opt_optimize = optarg_to_digit(ws_optarg);
+                if (!optarg_to_digit(ws_optarg, &opt_optimize))
+                    return WS_EXIT_INVALID_OPTION;
                 break;
             case 2000:
                 opt_show_types = 1;
@@ -448,14 +452,14 @@ main(int argc, char **argv)
                 break;
             case 'v':
                 show_version();
-                exit(EXIT_SUCCESS);
-                break;
+                return EXIT_SUCCESS;
             case 'h':
                 show_help_header(NULL);
-                print_usage(EXIT_SUCCESS);
-                break;
+                print_usage();
+                return EXIT_SUCCESS;
             case '?':
-                print_usage(EXIT_FAILURE);
+                print_usage();
+                return EXIT_FAILURE;
                 break;
             default:
                 /* wslog arguments are okay */
@@ -472,7 +476,8 @@ main(int argc, char **argv)
         /* If not printing macros we need a filter expression to compile. */
         if (!opt_dump_macros && !path) {
             printf("Error: Missing argument.\n");
-            print_usage(EXIT_FAILURE);
+            print_usage();
+            return EXIT_FAILURE;
         }
     }
 
@@ -516,7 +521,7 @@ main(int argc, char **argv)
         print_macros();
         if (argv[ws_optind] == NULL) {
             /* No filter expression, we're done. */
-            exit(EXIT_SUCCESS);
+            return EXIT_SUCCESS;
         }
     }
 
@@ -567,19 +572,20 @@ main(int argc, char **argv)
     } else {
 
         /* Check again for filter on command line */
-        if (argv[ws_optind] == NULL) {
+        if (argv[ws_optind] != NULL) {
+            /* Get filter text */
+            text = get_args_as_string(argc, argv, ws_optind);
+
+            exit_status = test_filter(text);
+        } else {
             printf("Error: Missing argument.\n");
-            print_usage(EXIT_FAILURE);
+            print_usage();
+            exit_status = EXIT_FAILURE;
         }
-
-        /* Get filter text */
-        text = get_args_as_string(argc, argv, ws_optind);
-
-        exit_status = test_filter(text);
     }
 
 out:
     epan_cleanup();
     g_free(text);
-    exit(exit_status);
+    return exit_status;
 }
