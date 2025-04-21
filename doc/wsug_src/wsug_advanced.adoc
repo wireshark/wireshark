@@ -748,6 +748,16 @@ will find all 'Complete, WITH_DATA' conversations, while the 'Complete, NO_DATA'
 ones will be found with
 '(tcp.completeness.fin==1 || tcp.completeness.rst==1) && tcp.completeness.data==0 && tcp.completeness.str contains "ASS"'.
 
+[discrete]
+==== TCP Streams Contiguities
+The fields "tcp.stream.client.contiguity_count" and
+"tcp.stream.server.contiguity_count" track the discontinuities of the two TCP streams
+of a conversation.
+Any number other than 1 says that either there is no TCP segment at all (0), or that
+some data is missing (2+). We are only counting the 100 first discontinuities as in
+most of cases it's enough to conclude the capture cannot be used for data extraction
+or there was a serious capture issue.
+
 [#ChAdvTimestamps]
 
 === Time Stamps

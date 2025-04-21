@@ -224,6 +224,8 @@ static int hf_tcp_analysis_rto_frame;
 static int hf_tcp_analysis_duplicate_ack;
 static int hf_tcp_analysis_duplicate_ack_num;
 static int hf_tcp_analysis_duplicate_ack_frame;
+static int hf_tcp_stream_clt_contiguity_count;
+static int hf_tcp_stream_srv_contiguity_count;
 static int hf_tcp_continuation_to;
 static int hf_tcp_pdu_time;
 static int hf_tcp_pdu_size;
@@ -2028,6 +2030,8 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     {
         tcpd->flow1.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
         tcpd->flow2.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
+        tcpd->flow1.tcp_analyze_seq_info->num_contiguous_ranges = 0;
+        tcpd->flow2.tcp_analyze_seq_info->num_contiguous_ranges = 0;
     }
     /* Only allocate the data if its actually going to be displayed */
     if (tcp_display_process_info)
@@ -2449,6 +2453,113 @@ tcp_analyze_get_acked_struct(uint32_t frame, uint32_t seq, uint32_t ack, bool cr
 }
 
 
+
+/*
+ * Updates the array tracking the contiguous parts of a flow
+ */
+static void
+tcp_track_contiguity(uint32_t seq, uint32_t nextseq, struct tcp_analysis *tcpd) {
+
+    if (!tcpd) {
+        return;
+    }
+
+    /* Ignore pure ACK and meaningless situations
+     * XXX - Sequence number rollover is considered meaningless by this definition,
+     * see Issue #10503
+     */
+    if (nextseq-seq <= 0) {
+        return;
+    }
+
+    /* the array length before modification */
+    int crlen = tcpd->fwd->tcp_analyze_seq_info->num_contiguous_ranges;
+
+    /* indicates the increase/decrease of the array */
+    int array_growth = 0;
+
+    /* the array index to update or create */
+    int dstindex = 0;
+
+    /* true when an existing element is RE-extended or no action taken, false for an insertion or LE-extension */
+    bool extensionMode = false;
+
+    /* parse all segments until we find the correct index where to start modifying or inserting */
+    while( (dstindex<crlen) &&
+           (!extensionMode) &&
+           (GE_SEQ(seq,tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][0])) ) {
+
+        /* LE <= seq <= RE (overlap/extend)
+         * seq is known in a segment already identified,
+         * that's some sort of overlapping, the RE might be pushed further */
+        if(LE_SEQ(seq,tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][1])) {
+            if(GT_SEQ(nextseq,tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][1])) {
+                /* RE-extend the current element */
+                tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][1] = nextseq;
+                extensionMode = TRUE;
+                break;
+            }
+            else { /* element already totally contained in another one (RETRANS), no action required */
+                return;
+            }
+        }
+        dstindex++;
+    }
+
+    /* It's not a RE-extension, so we need to insert a new element,
+     * unless we already have too many isolated parts (MAX_CONTIGUOUS_SEQUENCES).
+     * If later a merge/shrink happens, it's equivalent to a LE-extension
+     */
+    if(!extensionMode) {
+        if(crlen<MAX_CONTIGUOUS_SEQUENCES) {
+            array_growth = 1;
+
+            // right shift all elements after that index identified earlier
+            for(int j=crlen; j>dstindex; j--) {
+                tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][0] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j-1][0];
+                tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][1] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j-1][1];
+            }
+
+            // insert a new element
+            tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][0] = seq;
+            tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][1] = nextseq;
+        }
+        else {
+            /* silently discard - XXX an expert information could be placed here */
+            return;
+        }
+    }
+
+    /* Identify how many elements should be shrinked/merged */
+    int toShrink = 0;
+
+    // array length after potential extension but before shrinking
+    int next_crlen = (extensionMode) ? crlen : crlen + 1;
+
+    int j=dstindex+1;
+    while( (j<next_crlen) &&
+           (GE_SEQ(nextseq,tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][0]))) {
+
+        // keep the highest RE boundary
+        if(GT_SEQ(tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][1],nextseq)) {
+            tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][1] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][1];
+        }
+
+        toShrink++;
+        j++;
+    }
+
+    array_growth -= toShrink;
+
+    // proceed to the shrinking/merging
+    for(int k=dstindex+1; k<1+crlen-toShrink; k++) {
+        tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k][0] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k+toShrink][0];
+        tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k][1] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k+toShrink][1];
+    }
+
+    /* finally, update the array size */
+    tcpd->fwd->tcp_analyze_seq_info->num_contiguous_ranges += array_growth;
+}
 
 /* fwd contains a list of all segments processed but not yet ACKed in the
  *     same direction as the current segment.
@@ -3317,6 +3428,11 @@ finished_checking_retransmission_type:
         }
     }
 
+    /* Take the opportunity of having nextseq correctly evaluated,
+     * to track the SEQ contiguity.
+     */
+    tcp_track_contiguity(seq, nextseq, tcpd);
+
 }
 
 /*
@@ -3521,6 +3637,41 @@ tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
 
         proto_item_set_generated(flags_item);
     }
+}
+
+/* Prints results of the sequence number contiguity analysis */
+static void
+tcp_sequence_number_analysis_print_contiguous_flow(packet_info * pinfo _U_,
+                          tvbuff_t * tvb,
+                          proto_tree * parent_tree,
+                          struct tcp_analysis *tcpd
+                        )
+{
+    if(!tcpd)
+        return;
+
+    uint8_t count_client, count_server;
+
+    if(tcpd->fwd->tcp_analyze_seq_info->is_client) {
+        count_client = tcpd->fwd->tcp_analyze_seq_info->num_contiguous_ranges;
+        count_server = tcpd->rev->tcp_analyze_seq_info->num_contiguous_ranges;
+    }
+    else {
+        count_client = tcpd->rev->tcp_analyze_seq_info->num_contiguous_ranges;
+        count_server = tcpd->fwd->tcp_analyze_seq_info->num_contiguous_ranges;
+    }
+
+    proto_item * item;
+
+    item=proto_tree_add_uint(parent_tree,
+                             hf_tcp_stream_clt_contiguity_count,
+                             tvb, 0, 0, count_client);
+    proto_item_set_generated(item);
+
+    item=proto_tree_add_uint(parent_tree,
+                             hf_tcp_stream_srv_contiguity_count,
+                             tvb, 0, 0, count_server);
+    proto_item_set_generated(item);
 }
 
 /* Generate the initial data sequence number and MPTCP connection token from the key. */
@@ -9234,7 +9385,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 use_ack += tcpd->rev->base_seq;
             }
         }
+        /* print results for sequence analysis */
         tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
+
+        /* print results for contiguity analysis */
+        tcp_sequence_number_analysis_print_contiguous_flow(pinfo, tvb, tcp_tree, tcpd);
     }
 
     if(!PINFO_FD_VISITED(pinfo)) {
@@ -10304,6 +10459,14 @@ proto_register_tcp(void)
         { &hf_tcp_ns_reset_window_error_code,
           { "NetScaler TCP Reset Window Error Code", "tcp.nstrace.rst.window_error_code", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_tcp_stream_clt_contiguity_count,
+          { "Client Contiguous Streams", "tcp.stream.client.contiguity_count", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Number of contiguous streams for the client flow once all TCP packets are parsed", HFILL}},
+
+        { &hf_tcp_stream_srv_contiguity_count,
+          { "Server Contiguous Streams", "tcp.stream.server.contiguity_count", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Number of contiguous streams for the server flow once all TCP packets are parsed", HFILL}},
     };
 
     static int *ett[] = {
