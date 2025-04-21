@@ -1010,16 +1010,16 @@ void srtcp_add_address( packet_info *pinfo,
      * Check if the ip address and port combination is not
      * already registered as a conversation.
      */
-    p_conv = find_conversation( setup_frame_number, addr, &null_addr, CONVERSATION_UDP, port, other_port,
-                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
+    p_conv = find_conversation_strat_xtd(pinfo, setup_frame_number, addr, &null_addr, CONVERSATION_UDP, port, other_port,
+                                         NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
     /*
      * If not, create a new conversation.
      */
     if ( ! p_conv ) {
-        p_conv = conversation_new( setup_frame_number, addr, &null_addr, CONVERSATION_UDP,
-                                   (uint32_t)port, (uint32_t)other_port,
-                                   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
+        p_conv = conversation_new_strat_xtd(pinfo, setup_frame_number, addr, &null_addr,
+            CONVERSATION_UDP, (uint32_t)port, (uint32_t)other_port,
+            NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
     }
 
     /* Set dissector */
@@ -4350,7 +4350,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         conversation_t *p_conv;
         /* First time, get info from conversation */
-        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        p_conv = find_conversation_strat_xtd(pinfo, pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    conversation_pt_to_conversation_type(pinfo->ptype),
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
 
@@ -4428,16 +4428,16 @@ static void remember_outgoing_sr(packet_info *pinfo, uint32_t lsr)
     /* First time, get info from conversation.
        Even though we think of this as an outgoing packet being sent,
        we store the time as being received by the destination. */
-    p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+    p_conv = find_conversation_strat_xtd(pinfo, pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                conversation_pt_to_conversation_type(pinfo->ptype),
                                pinfo->destport, pinfo->srcport, NO_ADDR_B);
 
     /* If the conversation doesn't exist, create it now. */
     if (!p_conv)
     {
-        p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src, CONVERSATION_UDP,
-                                  pinfo->destport, pinfo->srcport,
-                                  NO_ADDR2);
+        p_conv = conversation_new_strat_xtd(pinfo, pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+            CONVERSATION_UDP, pinfo->destport, pinfo->srcport,
+            NO_ADDR2);
         if (!p_conv)
         {
             /* Give up if can't create it */
@@ -4520,7 +4520,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
     /********************************************************************/
     /* Look for captured timestamp of last SR in conversation of sender */
     /* of this packet                                                   */
-    p_conv = find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
+    p_conv = find_conversation_strat_xtd(pinfo, pinfo->num, &pinfo->net_src, &pinfo->net_dst,
                                conversation_pt_to_conversation_type(pinfo->ptype),
                                pinfo->srcport, pinfo->destport, NO_ADDR_B);
     if (!p_conv)
@@ -4703,7 +4703,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
      */
 
     /* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
-    p_conv = find_conversation(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
+    p_conv = find_conversation_strat_xtd(pinfo, pinfo->num, &pinfo->net_src, &pinfo->net_dst,
                                conversation_pt_to_conversation_type(pinfo->ptype),
                                pinfo->srcport, pinfo->destport, NO_ADDR_B);
     if (p_conv)

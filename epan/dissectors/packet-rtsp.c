@@ -300,7 +300,7 @@ get_rtsp_conversation_data(conversation_t *conv, packet_info *pinfo)
 {
     rtsp_conversation_data_t *data;
     if (conv == NULL) {
-        conv = find_or_create_conversation(pinfo);
+        conv = find_or_create_conversation_strat(pinfo);
     }
 
     /* Look for previous data */
@@ -423,7 +423,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         length_remaining = rf_len;
     next_tvb = tvb_new_subset_length_caplen(tvb, offset, length_remaining, rf_len);
 
-    conv = find_conversation_pinfo(pinfo, 0);
+    conv = find_conversation_pinfo_strat(pinfo, 0);
 
     if (conv &&
         (data = (rtsp_conversation_data_t *)conversation_get_proto_data(conv, proto_rtsp)) &&

@@ -814,7 +814,11 @@ static conversation_t* create_tftp_conversation(packet_info *pinfo)
   conversation_t* conversation = NULL;
   if (!PINFO_FD_VISITED(pinfo)) {
     /* New read or write request on first pass, so create conversation with client port only */
-    conversation = conversation_new_strat(pinfo, CONVERSATION_UDP, NO_PORT2);
+    conversation = find_conversation_strat(pinfo, CONVERSATION_UDP, NO_PORT_B, false);
+    if(!conversation) {
+        conversation = conversation_new_strat(pinfo, CONVERSATION_UDP, NO_PORT2);
+    }
+
     conversation_set_dissector(conversation, tftp_handle);
     /* Store conversation in this frame */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, CONVERSATION_KEY,
@@ -953,7 +957,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        * such servers out there (issue #18122), and since the default port
        * is IANA assigned it doesn't do harm to process it. Note that in
        * that case the conversation won't have the tftp dissector set. */
-      conversation = find_conversation_pinfo(pinfo, 0);
+      conversation = find_conversation_pinfo_strat(pinfo, 0);
       if (conversation == NULL) {
         return 0;
       }

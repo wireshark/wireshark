@@ -2105,7 +2105,7 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
         /* If the caller didn't supply a conversation, don't
          * clear the analysis, it may be needed */
         clear_ta = false;
-        conv = find_or_create_conversation(pinfo);
+        conv = find_or_create_conversation_strat(pinfo);
     }
 
     /* Get the data for this conversation */
@@ -7657,13 +7657,13 @@ dissect_tcpopt_rvbd_trpy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
      */
     if (sport_handle != NULL) {
         conversation_t *conversation;
-        conversation = find_or_create_conversation(pinfo);
+        conversation = find_or_create_conversation_strat(pinfo);
         if (conversation_get_dissector(conversation, pinfo->num) != sport_handle) {
             conversation_set_dissector(conversation, sport_handle);
         }
     } else if (data_handle != NULL) {
         conversation_t *conversation;
-        conversation = find_or_create_conversation(pinfo);
+        conversation = find_or_create_conversation_strat(pinfo);
         if (conversation_get_dissector(conversation, pinfo->num) != data_handle) {
             conversation_set_dissector(conversation, data_handle);
         }

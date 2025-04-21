@@ -984,7 +984,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool h
             break;
     }
 
-    conversation = find_or_create_conversation(pinfo);
+    conversation = find_or_create_conversation_strat(pinfo);
 
     /*
      * Do we already have a state structure for this conv

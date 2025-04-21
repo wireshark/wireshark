@@ -738,7 +738,7 @@ static struct _sprt_conversation_info* find_sprt_conversation_data(packet_info *
     conversation_t *p_conv = NULL;
     struct _sprt_conversation_info *p_conv_data = NULL;
     /* Use existing packet info if available */
-    p_conv = find_conversation_pinfo(pinfo, NO_ADDR_B|NO_PORT_B);
+    p_conv = find_conversation_pinfo_strat(pinfo, NO_ADDR_B|NO_PORT_B);
     if (p_conv)
     {
         p_conv_data = (struct _sprt_conversation_info*)conversation_get_proto_data(p_conv, proto_sprt);
