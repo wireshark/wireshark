@@ -1427,7 +1427,7 @@ static int dissect_ebhscr_csi2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		field_offset += 1;
 
 		ti = proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_mipi_data_type, tvb, field_offset, 1, ENC_BIG_ENDIAN);
-		field_offset += 1;
+		/* field_offset += 1; */
 
 		ebhscr_current_payload_length -= CSI2_FRAME_SECTION_SIZE_BYTES;
 	}
