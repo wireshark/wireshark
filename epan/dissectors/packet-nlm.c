@@ -346,9 +346,9 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 			", Pos:%" PRIu64 ", Len: %" PRIu64, start_offset, end_offset);
 	}
 	else {
-		start_offset = tvb_get_ntohl(tvb, offset);
+		start_offset32 = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_offset, offset);
-		end_offset = tvb_get_ntohl(tvb, offset);
+		end_offset32 = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_len, offset);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			", Pos: %u"  ", Len: %u", start_offset32, end_offset32);
