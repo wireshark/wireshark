@@ -808,7 +808,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
         num_objects = frame->numberofcharacters;
         frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
         tvb_memcpy(tvb, frame->requested_points, offset, num_objects * sizeof(uint8_t));
-        offset += num_objects * sizeof(uint8_t);
+        /* offset += num_objects * sizeof(uint8_t); */
     }
 
     return frame;
