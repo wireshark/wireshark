@@ -2335,7 +2335,7 @@ vnc_client_cut_text_extended_non_compatible(tvbuff_t *tvb, packet_info *pinfo _U
 				proto_tree_add_item(tree,
 					hf_vnc_ext_clipboard_dib_value, uncomp_tvb,
 					uncomp_offset, value_length, ENC_NA);
-				uncomp_offset += value_length;
+				/* uncomp_offset += value_length; */
 			}
 		}
 	}
