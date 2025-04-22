@@ -125,7 +125,7 @@ typedef struct {
 #define RTU_CONFIG                          0x20
 #define RETURN_RTU_CONFIG                   0x25
 #define REPORT_EXCEPTION_DATA               0x0D
-#define RST_RESPONSE_CODE                   0x80
+#define RST_RESPONSE_CODE                   0x08
 
 /* Function code Lookup */
 static const value_string FunctionCodenames[] = {
