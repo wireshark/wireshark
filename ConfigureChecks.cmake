@@ -28,6 +28,35 @@ check_include_file("sys/utsname.h"          HAVE_SYS_UTSNAME_H)
 check_include_file("sys/wait.h"             HAVE_SYS_WAIT_H)
 check_include_file("unistd.h"               HAVE_UNISTD_H)
 
+# Check that the C compiler works on a trivial program.
+# Do this early on before more specific tests so we can give
+# an appropriate error message.
+if(NOT CMAKE_CROSSCOMPILING)
+	check_c_source_runs("
+		int main(void)
+		{
+			return 0;
+		}
+		"
+		COMPILER_RUNS
+	)
+	if(NOT COMPILER_RUNS)
+		if(WIN32)
+			message(FATAL_ERROR
+"${CMAKE_C_COMPILER} failed to compile and run a trivial test program. \
+This is likely a permissions error or the result of security software like \
+Windows Defender preventing untrusted code from running."
+			)
+		else()
+			message(FATAL_ERROR
+"${CMAKE_C_COMPILER} failed to compile and run a trivial test program. \
+This is likely a permissions error or the result of security software \
+preventing untrusted code from running."
+			)
+		endif()
+	endif()
+endif()
+
 #
 # On Linux, check for some additional headers, which we need as a
 # workaround for a bonding driver bug and for libpcap's current lack
