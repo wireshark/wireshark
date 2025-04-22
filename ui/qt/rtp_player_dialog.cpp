@@ -326,6 +326,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
                 QCP::iRangeDrag |
                 QCP::iRangeZoom
                 );
+    ui->audioPlot->axisRect()->setRangeZoom(Qt::Horizontal);
 
     graph_ctx_menu_->addSeparator();
     list_ctx_menu_ = new QMenu(this);
