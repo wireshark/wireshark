@@ -755,12 +755,12 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     iog->setColor(uat_model_->data(uat_model_->index(row, colColor), Qt::DecorationRole).value<QColor>().rgb());
     data_str = uat_model_->data(uat_model_->index(row, colStyle)).toString();
-    iog->setPlotStyle((int) str_to_val(qUtf8Printable(data_str), graph_style_vs, 0));
+    iog->setPlotStyle((IOGraph::PlotStyles) str_to_val(qUtf8Printable(data_str), graph_style_vs, 0));
 
     data_str = uat_model_->data(uat_model_->index(row, colSMAPeriod)).toString();
     iog->moving_avg_period_ = str_to_val(qUtf8Printable(data_str), moving_avg_vs, 0);
 
-    iog->y_axis_factor_ = uat_model_->data(uat_model_->index(row, colYAxisFactor)).toInt();
+    iog->setYAxisFactor(uat_model_->data(uat_model_->index(row, colYAxisFactor)).toInt());
 
     iog->setInterval(ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt());
 

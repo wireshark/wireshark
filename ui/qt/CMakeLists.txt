@@ -192,6 +192,7 @@ set(WIRESHARK_QT_HEADERS
 	funnel_text_dialog.h
 	geometry_state_dialog.h
 	glib_mainloop_on_qeventloop.h
+	graph.h
 	gsm_map_summary_dialog.h
 	iax2_analysis_dialog.h
 	import_text_dialog.h
@@ -552,6 +553,7 @@ endif()
 set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/expert_info_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/funnel_statistics.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/graph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gsm_map_summary_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/io_graph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/io_graph_dialog.cpp

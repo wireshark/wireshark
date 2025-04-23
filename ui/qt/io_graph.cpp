@@ -19,8 +19,6 @@
 
 #include <new> // std::bad_alloc
 
-const qreal graph_line_width_ = 1.0;
-
 // GTK+ set this to 100000 (NUM_IO_ITEMS) before raising it to unlimited
 // in commit 524583298beb671f43e972476693866754d38a38.
 // This is the maximum index returned from get_io_graph_index that will
@@ -33,22 +31,16 @@ const qreal graph_line_width_ = 1.0;
 const int max_io_items_ = 1 << 25;
 
 IOGraph::IOGraph(QCustomPlot* parent) :
-    parent_(parent),
+    Graph(parent),
+    moving_avg_period_(0),
     tap_registered_(true),
-    visible_(false),
-    graph_(NULL),
-    bars_(NULL),
+    need_retap_(false),
     val_units_(IOG_ITEM_UNIT_FIRST),
     hf_index_(-1),
     interval_(0),
-    start_time_(NSTIME_INIT_ZERO),
     asAOT_(false),
     cur_idx_(-1)
 {
-    Q_ASSERT(parent_ != NULL);
-    graph_ = parent_->addGraph(parent_->xAxis, parent_->yAxis);
-    Q_ASSERT(graph_ != NULL);
-
     GString* error_string;
     error_string = register_tap_listener("frame",
         this,
@@ -69,12 +61,6 @@ IOGraph::IOGraph(QCustomPlot* parent) :
 
 IOGraph::~IOGraph() {
     removeTapListener();
-    if (graph_) {
-        parent_->removeGraph(graph_);
-    }
-    if (bars_) {
-        parent_->removePlottable(bars_);
-    }
 }
 
 void IOGraph::removeTapListener()
@@ -160,25 +146,6 @@ bool IOGraph::setFilter(const QString& filter)
     return true;
 }
 
-void IOGraph::applyCurrentColor()
-{
-    if (graph_) {
-        graph_->setPen(QPen(color_, graph_line_width_));
-    }
-    else if (bars_) {
-        bars_->setPen(QPen(color_.color().darker(110), graph_line_width_));
-        // ...or omit it altogether?
-        // bars_->setPen(QPen(color_);
-        // XXX - We should do something like
-        // bars_->setPen(QPen(ColorUtils::alphaBlend(color_, palette().windowText(), 0.65));
-        // to get a darker outline in light mode and a lighter outline in dark
-        // mode, but we don't yet respect dark mode in IOGraph (or anything
-        // that uses QCustomPlot) - see link below for how to set QCP colors:
-        // https://www.qcustomplot.com/index.php/demos/barchartdemo
-        bars_->setBrush(color_);
-    }
-}
-
 // Sets the Average Over Time value.
 // Mostly C/P of setVisible(), Refer to this method for comments.
 void IOGraph::setAOT(bool asAOT)
@@ -199,13 +166,7 @@ void IOGraph::setAOT(bool asAOT)
 void IOGraph::setVisible(bool visible)
 {
     bool old_visibility = visible_;
-    visible_ = visible;
-    if (graph_) {
-        graph_->setVisible(visible_);
-    }
-    if (bars_) {
-        bars_->setVisible(visible_);
-    }
+    Graph::setVisible(visible);
     if (old_visibility != visible_) {
         if (visible_ && need_retap_) {
             need_retap_ = false;
@@ -234,138 +195,20 @@ void IOGraph::setNeedRetap(bool retap)
     }
 }
 
-void IOGraph::setName(const QString& name)
+void IOGraph::setPlotStyle(PlotStyles style)
 {
-    name_ = name;
-    if (graph_) {
-        graph_->setName(name_);
-    }
-    if (bars_) {
-        bars_->setName(name_);
-    }
-}
-
-QRgb IOGraph::color() const
-{
-    return color_.color().rgb();
-}
-
-void IOGraph::setColor(const QRgb color)
-{
-    color_ = QBrush(color);
-    applyCurrentColor();
-}
-
-void IOGraph::setPlotStyle(int style)
-{
-    bool recalc = false;
     bool shows_zero = showsZero();
+    bool recalc = Graph::setPlotStyle(style);
 
-    // Switch plottable if needed
-    switch (style) {
-    case psBar:
-    case psStackedBar:
-        if (graph_) {
-            bars_ = new QCPBars(parent_->xAxis, parent_->yAxis);
-            // default widthType is wtPlotCoords. Scale with the interval
-            // size to prevent overlap. (Multiply this by a factor to have
-            // a gap between bars; the QCustomPlot default is 0.75.)
-            if (interval_) {
-                bars_->setWidth(interval_ / SCALE_F);
-            }
-            parent_->removeGraph(graph_);
-            graph_ = NULL;
-            recalc = true;
-        }
-        break;
-    default:
-        if (bars_) {
-            graph_ = parent_->addGraph(parent_->xAxis, parent_->yAxis);
-            parent_->removePlottable(bars_);
-            bars_ = NULL;
-            recalc = true;
-        }
-        break;
+    if (bars_ && interval_) {
+        bars_->setWidth(interval_ / SCALE_F);
     }
     setValueUnits(val_units_);
-
-    if (graph_) {
-        graph_->setLineStyle(QCPGraph::lsNone);
-        graph_->setScatterStyle(QCPScatterStyle::ssNone);
-    }
-    switch (style) {
-    case psLine:
-        if (graph_) {
-            graph_->setLineStyle(QCPGraph::lsLine);
-        }
-        break;
-    case psDotLine:
-        if (graph_) {
-            graph_->setLineStyle(QCPGraph::lsLine);
-            graph_->setScatterStyle(QCPScatterStyle::ssDisc);
-        }
-        break;
-    case psStepLine:
-        if (graph_) {
-            graph_->setLineStyle(QCPGraph::lsStepLeft);
-        }
-        break;
-    case psDotStepLine:
-        if (graph_) {
-            graph_->setLineStyle(QCPGraph::lsStepLeft);
-            graph_->setScatterStyle(QCPScatterStyle::ssDisc);
-        }
-        break;
-    case psImpulse:
-        if (graph_) {
-            graph_->setLineStyle(QCPGraph::lsImpulse);
-        }
-        break;
-    case psDot:
-        if (graph_) {
-            graph_->setScatterStyle(QCPScatterStyle::ssDisc);
-        }
-        break;
-    case psSquare:
-        if (graph_) {
-            graph_->setScatterStyle(QCPScatterStyle::ssSquare);
-        }
-        break;
-    case psDiamond:
-        if (graph_) {
-            graph_->setScatterStyle(QCPScatterStyle::ssDiamond);
-        }
-        break;
-    case psCross:
-        if (graph_) {
-            graph_->setScatterStyle(QCPScatterStyle::ssCross);
-        }
-        break;
-    case psPlus:
-        if (graph_) {
-            graph_->setScatterStyle(QCPScatterStyle::ssPlus);
-        }
-        break;
-    case psCircle:
-        if (graph_) {
-            graph_->setScatterStyle(QCPScatterStyle::ssCircle);
-        }
-        break;
-
-    case psBar:
-    case IOGraph::psStackedBar:
-        // Stacking set in scanGraphs
-        bars_->moveBelow(NULL);
-        break;
-    }
 
     if (shows_zero != showsZero()) {
         // recalculate if whether zero is added changed
         recalc = true;
     }
-
-    setName(name_);
-    applyCurrentColor();
 
     if (recalc) {
         // switching the plottable requires recalculation to add the data
@@ -427,57 +270,6 @@ void IOGraph::setValueUnitField(const QString& vu_field)
     }
 }
 
-bool IOGraph::addToLegend()
-{
-    if (graph_) {
-        return graph_->addToLegend();
-    }
-    if (bars_) {
-        return bars_->addToLegend();
-    }
-    return false;
-}
-
-bool IOGraph::removeFromLegend()
-{
-    if (graph_) {
-        return graph_->removeFromLegend();
-    }
-    if (bars_) {
-        return bars_->removeFromLegend();
-    }
-    return false;
-}
-
-// This returns what graph key offset corresponds with relative time 0.0,
-// i.e. when absolute times are used the difference between abs_ts and
-// rel_ts of the first tapped packet. Generally the same for all graphs
-// that are displayed and have some data, unless they're on the opposite
-// sides of time references.
-// XXX - If the graph spans a time reference, it's not clear how we want
-// to switch from relative to absolute times.
-double IOGraph::startOffset() const
-{
-    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
-        return nstime_to_sec(&start_time_);
-    }
-    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
-        return nstime_to_sec(&start_time_);
-    }
-    return 0.0;
-}
-
-nstime_t IOGraph::startTime() const
-{
-    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
-        return start_time_;
-    }
-    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
-        return start_time_;
-    }
-    return nstime_t(NSTIME_INIT_ZERO);
-}
-
 int IOGraph::packetFromTime(double ts) const
 {
     int idx = ts * SCALE_F / interval_;
@@ -500,13 +292,7 @@ void IOGraph::clearAllData()
     if (items_.size()) {
         reset_io_graph_items(&items_[0], items_.size(), hf_index_);
     }
-    if (graph_) {
-        graph_->data()->clear();
-    }
-    if (bars_) {
-        bars_->data()->clear();
-    }
-    nstime_set_zero(&start_time_);
+    Graph::clearAllData();
 }
 
 void IOGraph::recalcGraphData(capture_file* cap_file)

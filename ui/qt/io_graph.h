@@ -12,6 +12,8 @@
 
 #include <config.h>
 
+#include "graph.h"
+
 #include <wsutil/str_util.h>
 #include <ui/io_graph_item.h>
 
@@ -58,29 +60,20 @@ static const value_string y_axis_event_vs[] = {
     { 0, NULL }
 };
 
-class IOGraph : public QObject {
+class IOGraph : public Graph {
     Q_OBJECT
 public:
-    // COUNT_TYPE_* in gtk/io_graph.c
-    enum PlotStyles { psLine, psDotLine, psStepLine, psDotStepLine, psImpulse, psBar, psStackedBar, psDot, psSquare, psDiamond, psCross, psPlus, psCircle };
-
     explicit IOGraph(QCustomPlot* parent);
     ~IOGraph();
     QString configError() const { return config_err_; }
-    QString name() const { return name_; }
-    void setName(const QString& name);
     void setAOT(bool asAOT);
     bool getAOT() const { return asAOT_; }
     QString filter() const { return filter_; }
     bool setFilter(const QString& filter);
-    void applyCurrentColor();
-    bool visible() const { return visible_; }
     void setVisible(bool visible);
     bool needRetap() const { return need_retap_; }
     void setNeedRetap(bool retap);
-    QRgb color() const;
-    void setColor(const QRgb color);
-    void setPlotStyle(int style);
+    void setPlotStyle(PlotStyles style);
     QString valueUnitLabel() const;
     format_size_units_e formatUnits() const;
     io_graph_item_unit_t valueUnits() const { return val_units_; }
@@ -89,12 +82,6 @@ public:
     void setValueUnitField(const QString& vu_field);
     unsigned int movingAveragePeriod() const { return moving_avg_period_; }
     void setInterval(int interval);
-    bool addToLegend();
-    bool removeFromLegend();
-    QCPGraph* graph() const { return graph_; }
-    QCPBars* bars() const { return bars_; }
-    double startOffset() const;
-    nstime_t startTime() const;
     int packetFromTime(double ts) const;
     bool hasItemToShow(int idx, double value) const;
     double getItemValue(int idx, const capture_file* cap_file) const;
@@ -103,7 +90,6 @@ public:
     void clearAllData();
 
     unsigned int moving_avg_period_;
-    unsigned int y_axis_factor_;
 
 public slots:
     void recalcGraphData(capture_file* cap_file);
@@ -128,22 +114,15 @@ private:
     template<class DataMap> double maxValueFromGraphData(const DataMap& map);
     template<class DataMap> void scaleGraphData(DataMap& map, int scalar);
 
-    QCustomPlot* parent_;
     QString config_err_;
-    QString name_;
     bool tap_registered_;
-    bool visible_;
     bool need_retap_;
-    QCPGraph* graph_;
-    QCPBars* bars_;
     QString filter_;
     QString full_filter_; // Includes vu_field_ if used
-    QBrush color_;
     io_graph_item_unit_t val_units_;
     QString vu_field_;
     int hf_index_;
     int interval_;
-    nstime_t start_time_;
     bool asAOT_; // Average Over Time interpretation
 
     // Cached data. We should be able to change the Y axis without retapping as
