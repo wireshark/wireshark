@@ -1683,7 +1683,6 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree  *opcode_tree;
 
         inst_offset     = offset;
-        inst_len        = 0;
         fin             = false;
 
         TRY {
@@ -2010,7 +2009,6 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree  *opcode_tree;
 
         inst_offset     = offset;
-        inst_len        = 0;
         fin             = false;
 
         TRY {
