@@ -48,7 +48,6 @@ static int hf_egfx_reset_monitorDefRight;
 static int hf_egfx_reset_monitorDefBottom;
 static int hf_egfx_reset_monitorDefFlags;
 
-
 static int hf_egfx_ack_queue_depth;
 static int hf_egfx_ack_frame_id;
 static int hf_egfx_ack_total_decoded;
@@ -70,10 +69,15 @@ static int hf_egfx_end_frameid;
 static int hf_egfx_end_acked_in;
 
 static int hf_egfx_surfaceid;
+static int hf_egfx_codecid;
+static int hf_egfx_codeccontextid;
+static int hf_egfx_pixelformat;
+static int hf_egfx_windowid;
+static int hf_egfx_cacheslot;
+static int hf_egfx_cachekey;
 
 static int hf_egfx_watermark_width;
 static int hf_egfx_watermark_height;
-static int hf_egfx_watermark_pixelformat;
 static int hf_egfx_watermark_opacity;
 static int hf_egfx_watermark_hpadding;
 static int hf_egfx_watermark_vpadding;
@@ -103,6 +107,8 @@ static int ett_egfx_surfacetosurface;
 static int ett_egfx_surfacetocache;
 static int ett_egfx_deletesurface;
 static int ett_egfx_deleteencodingcontext;
+static int ett_egfx_solidfill;
+static int ett_egfx_cachetosurface;
 
 static expert_field ei_egfx_pdulen_invalid;
 static expert_field ei_egfx_invalid_compression;
@@ -214,6 +220,25 @@ static const value_string rdp_egfx_monitor_flags_vals[] = {
 	{ 0x0, NULL },
 };
 
+
+static const value_string rdp_egfx_codecs_vals[] = {
+	{ 0x0000, "UNCOMPRESSED" },
+	{ 0x0003, "CAVIDEO" },
+	{ 0x0008, "CLEARCODEC" },
+	{ 0x0009, "CAPROGRESSIVE" },
+	{ 0x000A, "PLANAR" },
+	{ 0x000B, "AVC420" },
+	{ 0x000C, "ALPHA" },
+	{ 0x000E, "AVC444" },
+	{ 0x000F, "AVC444v2" },
+	{ 0x0, NULL },
+};
+
+static const value_string rdp_egfx_pixelformats_vals[] = {
+	{ 0x20, "XRGB_8888" },
+	{ 0x21, "ARGB_8888" },
+	{ 0x0, NULL },
+};
 
 typedef struct {
 	zgfx_context_t *zgfx;
@@ -523,14 +548,20 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_createsurface, NULL, "Create surface");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			// TODO: width / height
+			offset += 2 * 2;
+
+			proto_tree_add_item(subtree, hf_egfx_pixelformat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			break;
 
 		case RDPGFX_CMDID_MAPSURFACETOOUTPUT:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Output");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_mapsurfacetooutput, NULL, "Map surface to output");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
 
+			//offset += 2;
+			// TODO: reserved / outputOriginX /outputOriginY
 			break;
 
 		case RDPGFX_CMDID_WIRETOSURFACE_1:
@@ -538,6 +569,13 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_wiretosurface1, NULL, "Wire to surface 1");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_codecid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_pixelformat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			// offset ++;
+			// TODO: destRect / bitmapDataLength / bitmapData
 			break;
 
 		case RDPGFX_CMDID_WIRETOSURFACE_2:
@@ -545,6 +583,16 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_wiretosurface2, NULL, "Wire to surface 2");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_codecid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_codeccontextid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+
+			proto_tree_add_item(subtree, hf_egfx_pixelformat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			// offset++;
+			// TODO: bitmapDataLength / bitmapData
 			break;
 
 		case RDPGFX_CMDID_DELETEENCODINGCONTEXT:
@@ -552,17 +600,24 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_deleteencodingcontext, NULL, "Delete encoding context");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_codeccontextid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			break;
 
 		case RDPGFX_CMDID_SOLIDFILL:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Solid Fill");
+			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_solidfill, NULL, "Solid fill");
+			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			// offset += 2;
+			// TODO: fillPixel / fillRectCount / fillRects
 			break;
 
 		case RDPGFX_CMDID_SURFACETOSURFACE:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Surface To Surface");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_surfacetosurface, NULL, "Surface to surface");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
+			//offset += 2;
+			// TODO: surfaceIdDest / rectSrc / destPtsCount / destPts
 			break;
 
 		case RDPGFX_CMDID_SURFACETOCACHE:
@@ -570,14 +625,30 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_surfacetocache, NULL, "Surface to cache");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_cachekey, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			offset += 8;
+
+			proto_tree_add_item(subtree, hf_egfx_cacheslot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			//offset += 2;
+			// TODO: rectSrc
 			break;
 
 		case RDPGFX_CMDID_CACHETOSURFACE:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Cache To Surface");
+
+			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_cachetosurface, NULL, "Cache to surface");
+			proto_tree_add_item(subtree, hf_egfx_cacheslot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			//offset += 2;
+			// TODO: destPtsCout / destPts
 			break;
 
 		case RDPGFX_CMDID_EVICTCACHEENTRY:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Evict Cache Entry");
+			proto_tree_add_item(tree, hf_egfx_cacheslot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case RDPGFX_CMDID_DELETESURFACE:
@@ -601,13 +672,18 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_mapsurfacetowindow, NULL, "Map surface to window");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_windowid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			// offset += 8;
+			// TODO: mappedWidth / mappedHeight
 			break;
 
 		case RDPGFX_CMDID_MAPSURFACETOSCALEDOUTPUT:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Map Surface To Scaled Output");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_mapsurfacetoscaledoutput, NULL, "Map surface to scaled output");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
+			//offset += 2;
+			// TODO: reserved / outputOriginX / outputOriginY / targetWidth / targetHeight
 			break;
 
 		case RDPGFX_CMDID_MAPSURFACETOSCALEDWINDOW:
@@ -615,13 +691,17 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_mapsurfacetoscaledwindow, NULL, "Map surface to scaled window");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
+
+			proto_tree_add_item(subtree, hf_egfx_windowid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			// offset += 8
+			// TODO : mappedWidth / mappedHeight / targetWidth / targetHeight
 			break;
 
 		case RDPGFX_CMDID_PROTECT_SURFACE: {
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Protect surface");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_protectsurface, NULL, "Protect surface");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
+			//offset += 2;
 			break;
 		}
 
@@ -641,7 +721,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			proto_tree_add_item(subtree, hf_egfx_unknown_bytes, tvb, offset, 6, ENC_NA);
 			offset += 6;
 
-			proto_tree_add_item(subtree, hf_egfx_watermark_pixelformat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(subtree, hf_egfx_pixelformat, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 
 			// XXX
@@ -666,7 +746,8 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 
 			uint32_t sz;
 			proto_tree_add_item_ret_uint(subtree, hf_egfx_watermark_imgsize, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sz);
-			offset += 2;
+			//offset += 2;
+			// TODO: image bytes
 			break;
 		}
 		default:
@@ -886,6 +967,31 @@ void proto_register_rdp_egfx(void) {
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_egfx_codecid,
+		  { "Codec id", "rdp_egfx.codecid",
+			FT_UINT16, BASE_HEX, VALS(rdp_egfx_codecs_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_codeccontextid,
+		  { "Codec context id", "rdp_egfx.codeccontextid",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_windowid,
+		  { "Windows id", "rdp_egfx.windowid",
+			FT_UINT64, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cacheslot,
+		  { "Cache slot", "rdp_egfx.cacheslot",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cachekey,
+		  { "Cache key", "rdp_egfx.cachekey",
+			FT_UINT64, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_egfx_watermark_width,
 		  { "Width", "rdp_egfx.watermark.width",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -896,9 +1002,9 @@ void proto_register_rdp_egfx(void) {
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_egfx_watermark_pixelformat,
-		  { "Pixel format", "rdp_egfx.watermark.pixelformat",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
+		{ &hf_egfx_pixelformat,
+		  { "Pixel format", "rdp_egfx.pixelformat",
+			FT_UINT8, BASE_HEX, VALS(rdp_egfx_pixelformats_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_egfx_watermark_opacity,
@@ -951,7 +1057,9 @@ void proto_register_rdp_egfx(void) {
 		&ett_egfx_surfacetosurface,
 		&ett_egfx_surfacetocache,
 		&ett_egfx_deletesurface,
-		&ett_egfx_deleteencodingcontext
+		&ett_egfx_deleteencodingcontext,
+		&ett_egfx_solidfill,
+		&ett_egfx_cachetosurface
 	};
 
 	static ei_register_info ei[] = {
