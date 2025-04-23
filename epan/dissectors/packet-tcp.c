@@ -9162,7 +9162,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  */
                 phdr[0] = g_htonl((IP_PROTO_TCP<<16) + 0);
                 SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)phdr, 4);
-                computed_cksum = in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
+                // We don't care about the return, only want the
+                // intermediate partial value.
+                in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
                 phdr[0] = g_htonl((IP_PROTO_TCP<<16) + reported_len);
                 break;
 
@@ -9172,7 +9174,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 phdr[0] = g_htonl(0);
                 phdr[1] = g_htonl(IP_PROTO_TCP);
                 SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)phdr, 8);
-                computed_cksum = in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
+                // We don't care about the return, only want the
+                // intermediate partial value.
+                in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
                 phdr[0] = g_htonl(reported_len);
                 break;
 
