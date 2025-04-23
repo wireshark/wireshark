@@ -1273,7 +1273,7 @@ proto_register_gsm_bssmap_le(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_gsm_a_bssmap_le_not_decoded_yet, { "gsm_bssmap_le.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
-		{ &ei_gsm_a_bssmap_le_extraneous_data, { "gsm_bssmap_le.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+		{ &ei_gsm_a_bssmap_le_extraneous_data, { "gsm_bssmap_le.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
 		{ &ei_gsm_a_bssmap_le_missing_mandatory_element, { "gsm_bssmap_le.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
 	};
 

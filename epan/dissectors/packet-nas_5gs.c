@@ -16387,7 +16387,7 @@ proto_register_nas_5gs(void)
     }
 
     static ei_register_info ei[] = {
-    { &ei_nas_5gs_extraneous_data, { "nas-5gs.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+    { &ei_nas_5gs_extraneous_data, { "nas-5gs.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
     { &ei_nas_5gs_unknown_pd,{ "nas-5gs.unknown_pd", PI_PROTOCOL, PI_ERROR, "Unknown protocol discriminator", EXPFILL } },
     { &ei_nas_5gs_mm_unknown_msg_type,{ "nas-5gs.mm.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL } },
     { &ei_nas_5gs_sm_unknown_msg_type,{ "nas-5gs.sm.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL } },

@@ -2250,7 +2250,7 @@ proto_register_ansi_801(void)
 
 
 	static ei_register_info ei[] = {
-		{ &ei_ansi_801_extraneous_data, { "ansi_801.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+		{ &ei_ansi_801_extraneous_data, { "ansi_801.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
 		{ &ei_ansi_801_short_data, { "ansi_801.short_data", PI_PROTOCOL, PI_NOTE, "Short Data (?) - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)", EXPFILL }},
 		{ &ei_ansi_801_unexpected_length, { "ansi_801.unexpected_length", PI_PROTOCOL, PI_WARN, "Unexpected Data Length - try checking decoder variant preference or dissector bug/later version spec (report to wireshark.org)", EXPFILL }},
 	};

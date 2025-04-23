@@ -460,7 +460,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offse
         proto_tree_add_item_ret_string(tree, hf_index, tvb_out, offset, required_octs, ENC_EUC_KR|ENC_NA, pinfo->pool, &ustr);
         if (ustr == NULL)
             proto_tree_add_expert_format(tree, pinfo, &ei_ansi_637_failed_conversion, tvb_out, offset, required_octs,
-                "Failed iconv conversion on EUC-KR - (report to wireshark.org)");
+                "Failed iconv conversion on EUC-KR (report to wireshark.org)");
         break;
     }
 }
@@ -3236,37 +3236,37 @@ proto_register_ansi_637(void)
         },
         { &ei_ansi_637_unknown_encoding,
             { "ansi_637.unknown_format", PI_PROTOCOL, PI_NOTE,
-            "Encoding Unknown/Unsupported - (report to wireshark.org)",
+            "Encoding Unknown/Unsupported (report to wireshark.org)",
             EXPFILL }
         },
         { &ei_ansi_637_failed_conversion,
             { "ansi_637.failed_conversion", PI_PROTOCOL, PI_WARN,
-            "Failed iconv conversion - (report to wireshark.org)",
+            "Failed iconv conversion (report to wireshark.org)",
             EXPFILL }
         },
         { &ei_ansi_637_unknown_cmas_record_type,
             { "ansi_637.unknown_cmas_record_type", PI_PROTOCOL, PI_WARN,
-            "Unknown CMAS record type - (report to wireshark.org)",
+            "Unknown CMAS record type (report to wireshark.org)",
             EXPFILL }
         },
         { &ei_ansi_637_unknown_trans_parameter,
             { "ansi_637.unknown_trans_parameter", PI_PROTOCOL, PI_WARN,
-            "Unknown transport layer parameter - (report to wireshark.org)",
+            "Unknown transport layer parameter (report to wireshark.org)",
             EXPFILL }
         },
         { &ei_ansi_637_no_trans_parameter_dissector,
             { "ansi_637.no_trans_parameter_dissector", PI_PROTOCOL, PI_WARN,
-            "No transport layer parameter dissector - (report to wireshark.org)",
+            "No transport layer parameter dissector (report to wireshark.org)",
             EXPFILL }
         },
         { &ei_ansi_637_unknown_tele_parameter,
             { "ansi_637.unknown_tele_parameter", PI_PROTOCOL, PI_WARN,
-            "Unknown teleservice layer parameter - (report to wireshark.org)",
+            "Unknown teleservice layer parameter (report to wireshark.org)",
             EXPFILL }
         },
         { &ei_ansi_637_no_tele_parameter_dissector,
             { "ansi_637.no_tele_parameter_dissector", PI_PROTOCOL, PI_WARN,
-            "No teleservice layer parameter dissector - (report to wireshark.org)",
+            "No teleservice layer parameter dissector (report to wireshark.org)",
             EXPFILL }
         }
     };

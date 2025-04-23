@@ -1665,7 +1665,7 @@ void proto_register_sgsap(void) {
   };
 
     static ei_register_info ei[] = {
-        { &ei_sgsap_extraneous_data, { "sgsap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+        { &ei_sgsap_extraneous_data, { "sgsap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
         { &ei_sgsap_missing_mandatory_element, { "sgsap.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
     };
 
