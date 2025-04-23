@@ -58,12 +58,14 @@ public:
 #else
     void decode(QAudioDeviceInfo out_device);
 #endif
+    void decodeVisual();
 
     double startRelTime() const { return start_rel_time_; }
     double stopRelTime() const { return stop_rel_time_; }
     unsigned sampleRate() const { return first_sample_rate_; }
     unsigned playRate() const { return audio_out_rate_; }
     void setRequestedPlayRate(unsigned new_rate) { audio_requested_out_rate_ = new_rate; }
+    void setVisualSampleRate(unsigned new_rate) { visual_sample_rate_ = new_rate; }
     const QStringList payloadNames() const;
 
     /**
@@ -192,6 +194,7 @@ private:
     quint32 first_sample_rate_;
     quint32 audio_out_rate_;
     quint32 audio_requested_out_rate_;
+    uint32_t visual_sample_rate_;
     QSet<QString> payload_names_;
     struct SpeexResamplerState_ *visual_resampler_;
     QMap<double, quint32> packet_timestamps_;
@@ -220,7 +223,6 @@ private:
     void decodeAudio(QAudioDeviceInfo out_device);
     quint32 calculateAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate, unsigned int requested_out_rate);
 #endif
-    void decodeVisual();
     SAMPLE *resizeBufferIfNeeded(SAMPLE *buff, int32_t *buff_bytes, qint64 requested_size);
 
 private slots:

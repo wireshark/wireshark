@@ -202,6 +202,7 @@ private slots:
     void on_jitterSpinBox_valueChanged(double);
     void on_timingComboBox_currentIndexChanged(int);
     void on_todCheckBox_toggled(bool checked);
+    void on_visualSRSpinBox_editingFinished();
     void on_buttonBox_helpRequested();
     void on_actionSelectAll_triggered();
     void on_actionSelectInvert_triggered();

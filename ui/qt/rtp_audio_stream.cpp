@@ -39,7 +39,7 @@
 // To do:
 // - Only allow one rtpstream_info_t per RtpAudioStream?
 
-static const spx_int16_t visual_sample_rate_ = 1000;
+static constexpr spx_uint32_t default_visual_sample_rate_ = 1000;
 
 RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_required) :
     QObject(parent)
@@ -53,6 +53,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_
     , first_sample_rate_(0)
     , audio_out_rate_(0)
     , audio_requested_out_rate_(0)
+    , visual_sample_rate_(default_visual_sample_rate_)
     , max_sample_val_(1)
     , max_sample_val_used_(1)
     , color_(0)
@@ -190,12 +191,7 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
     audio_file_->setFrameWriteStage();
     decodeAudio(out_device);
 
-    // Skip silence at begin of the stream
-    audio_file_->setFrameReadStage(prepend_samples_);
-
-    speex_resampler_reset_mem(visual_resampler_);
     decodeVisual();
-    audio_file_->setDataReadStage();
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
@@ -489,12 +485,20 @@ void RtpAudioStream::decodeVisual()
     uint32_t frame_num;
     rtp_frame_type type;
 
+    speex_resampler_reset_mem(visual_resampler_);
     speex_resampler_set_rate(visual_resampler_, audio_out_rate_, visual_sample_rate_);
+
+    packet_timestamps_.clear();
+    visual_samples_.clear();
+    max_sample_val_ = 1;
+
+    // Skip silence at begin of the stream
+    audio_file_->setFrameReadStage(prepend_samples_);
 
     // Loop over every frame record
     // readFrameSamples() maintains size of buffer for us
     while (audio_file_->readFrameSamples(&read_buff_bytes, &read_buff, &read_len, &frame_num, &type)) {
-        out_len = (spx_uint32_t)(((uint64_t)read_len * visual_sample_rate_ ) / audio_out_rate_);
+        out_len = (spx_uint32_t)(((uint64_t)read_len * visual_sample_rate_) / audio_out_rate_);
 
         if (type == RTP_FRAME_AUDIO) {
             // We resample only audio samples
@@ -523,6 +527,9 @@ void RtpAudioStream::decodeVisual()
     max_sample_val_used_ = max_sample_val_;
     g_free(resample_buff);
     g_free(read_buff);
+
+    // Reset the seek position
+    audio_file_->setDataReadStage();
 }
 
 const QStringList RtpAudioStream::payloadNames() const

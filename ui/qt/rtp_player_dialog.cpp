@@ -2110,6 +2110,35 @@ void RtpPlayerDialog::on_todCheckBox_toggled(bool)
     ui->audioPlot->replot();
 }
 
+void RtpPlayerDialog::on_visualSRSpinBox_editingFinished()
+{
+    lockUI();
+    // Show information for a user - it can last a long time...
+    playback_error_.clear();
+    ui->hintLabel->setText("<i><small>" + tr("Resampling waveform...") + "</i></small>");
+    mainApp->processEvents();
+
+    int row_count = ui->streamTreeWidget->topLevelItemCount();
+
+    // Reset stream values
+    for (int row = 0; row < row_count; row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+
+        audio_stream->setVisualSampleRate(static_cast<unsigned>(ui->visualSRSpinBox->value()));
+        audio_stream->decodeVisual();
+    }
+
+    for (int col = 0; col < ui->streamTreeWidget->columnCount() - 1; col++) {
+        ui->streamTreeWidget->resizeColumnToContents(col);
+    }
+
+    createPlot();
+
+    updateWidgets();
+    unlockUI();
+}
+
 void RtpPlayerDialog::on_buttonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_TELEPHONY_RTP_PLAYER_DIALOG);
