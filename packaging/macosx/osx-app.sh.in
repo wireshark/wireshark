@@ -321,7 +321,7 @@ rpathify_file () {
 	#
 	# OK, what type of file is this?
 	#
-	if ! filetype=$( otool -hv "$1" | grep -E MH_MAGIC | awk '{print $5}' ; exit "${PIPESTATUS[0]}" ) ; then
+	if ! filetype=$( otool -hv "$1" | awk '/MH_MAGIC/ {print $5; exit}' ; exit "${PIPESTATUS[0]}" ) ; then
 		echo "Unable to rpathify $1 in $( pwd ): file type failed."
 		exit 1
 	fi
