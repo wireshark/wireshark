@@ -192,7 +192,7 @@ static const value_string rdp_rail_order_vals[] = {
 	{ TS_RAIL_ORDER_HANDSHAKE_EX, "HandshakeEx"},
 	{ TS_RAIL_ORDER_ZORDER_SYNC, "Z-order sync"},
 	{ TS_RAIL_ORDER_CLOAK, "Cloak"},
-	{ TS_RAIL_ORDER_POWER_DISPLAY_REQUEST, "Power display requet"},
+	{ TS_RAIL_ORDER_POWER_DISPLAY_REQUEST, "Power display request"},
 	{ TS_RAIL_ORDER_SNAP_ARRANGE, "Snap arrange"},
 	{ TS_RAIL_ORDER_GET_APPID_RESP_EX, "Get appId response"},
 	{ TS_RAIL_ORDER_TEXTSCALEINFO, "Text scale info"},
@@ -328,6 +328,10 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 	case TS_RAIL_ORDER_GET_APPID_RESP:
 	case TS_RAIL_ORDER_GET_APPID_RESP_EX:
 	case TS_RAIL_ORDER_ZORDER_SYNC:
+	case TS_RAIL_ORDER_WINDOW_CREATE_BODY:
+	case TS_RAIL_ORDER_WINDOW_CHANGE_BODY:
+	case TS_RAIL_ORDER_WINDOW_GEOMETRY_BODY:
+	case TS_RAIL_ORDER_WINDOW_ICON_BODY:
 		proto_tree_add_item_ret_uint(tree, hf_rail_windowId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &windowId);
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s|windowId=0x%x", val_to_str_const(cmdId, rdp_rail_order_vals, "Unknown RAIL command"),
 				windowId);
@@ -496,7 +500,12 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 	case TS_RAIL_ORDER_GET_APPID_RESP_EX:
 	case TS_RAIL_ORDER_TEXTSCALEINFO:
 	case TS_RAIL_ORDER_CARETBLINKINFO:
-			break;
+		break;
+	case TS_RAIL_ORDER_ZORDER_BODY:
+		offset += 4 * 3;
+		proto_tree_add_item_ret_uint(tree, hf_rail_windowId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &windowId);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "|windowId=0x%x", windowId);
+		break;
 	default:
 		break;
 	}
