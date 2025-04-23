@@ -423,10 +423,11 @@ static int hf_oran_u_section;
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
 
-/* Hidden fields for filtering */
+/* Convenient fields for filtering, mostly shown as hidden */
 static int hf_oran_cplane;
 static int hf_oran_uplane;
 static int hf_oran_bf;      /* to match frames that configure beamforming in any way */
+static int hf_oran_zero_prb;
 
 
 /* Initialize the subtree pointers */
@@ -5489,7 +5490,7 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
     /* Update RE stats */
     tap_info->num_res++;
     /* if (i_value == 0.0 && q_value == 0.0) { */
-    /* TODO: is just checking bits from frame good enough, or does it it need to be uncompressed value? */
+    /* TODO: is just checking bits from frame good enough - assuming this always corresponds to a zero value? */
     if (i_bits == 0 && q_bits == 0) {
         tap_info->num_res_zero++;
     }
@@ -5947,15 +5948,6 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             uint32_t exponent = 0;
             uint16_t sresmask = 0;
 
-            /* Was previous PRB all zeros? */
-            if (tap_info->num_res>0 && !tap_info->non_zero_re_in_current_prb) {
-                tap_info->num_prbs_zero++;
-                /* No non-zero REs in new PRB yet. */
-            }
-            tap_info->num_prbs++;
-            tap_info->non_zero_re_in_current_prb = false;
-
-
             /* udCompParam (depends upon compression method) */
             int before = offset;
             offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask, false);
@@ -6003,6 +5995,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
 
+            tap_info->non_zero_re_in_current_prb = false;
+
             /* Optionally trying to show I/Q RE values */
             if (pref_showIQSampleValues) {
                 /* Individual values */
@@ -6028,7 +6022,19 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     }
                 }
                 proto_item_append_text(prbHeading, " (%u REs)", samples);
+
+                /* Was this PRB all zeros? */
+                if (!tap_info->non_zero_re_in_current_prb) {
+                    tap_info->num_prbs_zero++;
+                    /* Add a filter to make zero-valued PRBs more findable */
+                    proto_tree_add_item(rb_tree, hf_oran_zero_prb, tvb,
+                                                            samples_offset/8, nBytesForSamples, ENC_NA);
+                    proto_item_append_text(prbHeading, " (all zeros)");
+                }
             }
+
+            tap_info->num_prbs++;
+
 
             /* Advance past samples */
             offset += nBytesForSamples;
@@ -7790,7 +7796,12 @@ proto_register_oran(void)
             NULL, 0x0,
             NULL, HFILL}
         },
-
+        { &hf_oran_zero_prb,
+          { "Zero PRB", "oran_fh_cus.zero-prb",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            "All of the REs in this PRB are zero", HFILL}
+        },
 
         /* 5.1.3.2.7 */
         { &hf_oran_ecpri_pcid,
