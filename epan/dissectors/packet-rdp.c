@@ -87,6 +87,7 @@ static int ett_rdp_channelDef;
 static int ett_rdp_channelPDUHeader;
 static int ett_rdp_channelFlags;
 static int ett_rdp_capabilitySet;
+static int ett_rdp_capa_general;
 static int ett_rdp_capa_rail;
 
 static int ett_rdp_StandardDate;
@@ -278,6 +279,28 @@ static int hf_rdp_mt_rsp_hrResponse;
 static int hf_rdp_flagsHi;
 static int hf_rdp_codePage;
 static int hf_rdp_optionFlags;
+static int hf_rdp_flagsInfoMouse;
+static int hf_rdp_flagsDisableCtrlAltDel;
+static int hf_rdp_flagsAutoLogon;
+static int hf_rdp_flagsUnicode;
+static int hf_rdp_flagsMaximizeShell;
+static int hf_rdp_flagsLogonNotify;
+static int hf_rdp_flagsCompression;
+static int hf_rdp_flagsCompressionType;
+static int hf_rdp_flagsEnableWindowsKey;
+static int hf_rdp_flagsRemoteConsoleAudio;
+static int hf_rdp_flagsForceEncryptedCsPdu;
+static int hf_rdp_flagsRail;
+static int hf_rdp_flagsLogonErrors;
+static int hf_rdp_flagsHasWheel;
+static int hf_rdp_flagsPasswordIsScPin;
+static int hf_rdp_flagsNoAudioPlayback;
+static int hf_rdp_flagsUsingSavedCreds;
+static int hf_rdp_flagsAudioCapture;
+static int hf_rdp_flagsVideoDisable;
+static int hf_rdp_flagsReserved1;
+static int hf_rdp_flagsReserved2;
+static int hf_rdp_flagsHidefRailSupported;
 static int hf_rdp_cbDomain;
 static int hf_rdp_cbUserName;
 static int hf_rdp_cbPassword;
@@ -386,6 +409,22 @@ static int hf_rdp_capabilitySet;
 static int hf_rdp_capabilitySetType;
 static int hf_rdp_lengthCapability;
 static int hf_rdp_capabilityData;
+static int hf_rdp_capaGen_fastpathflag_supported;
+static int hf_rdp_capaGen_no_bitmap_comp_hdr;
+static int hf_rdp_capaGen_long_credentials;
+static int hf_rdp_capaGen_autoreconnect;
+static int hf_rdp_capaGen_encsaltedchecksum;
+static int hf_rdp_capaGen_osMajorType;
+static int hf_rdp_capaGen_osMinorType;
+static int hf_rdp_capaGen_protocolVersion;
+static int hf_rdp_capaGen_pad2octets;
+static int hf_rdp_capaGen_compressionTypes;
+static int hf_rdp_capaGen_extraFlags;
+static int hf_rdp_capaGen_updateCapaFlag;
+static int hf_rdp_capaGen_remoteUnshareFlags;
+static int hf_rdp_capaGen_compressionLevel;
+static int hf_rdp_capaGen_refreshRect;
+static int hf_rdp_capaGen_suppressOutput;
 static int hf_rdp_capaRail_supportedLevel;
 static int hf_rdp_capaRail_flag_supported;
 static int hf_rdp_capaRail_flag_dockedlangbar;
@@ -1963,6 +2002,32 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	FI_TERMINATOR
   };
 
+  rdp_field_info_t gen_extraFlags_fields[] = {
+      {&hf_rdp_capaGen_fastpathflag_supported, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaGen_no_bitmap_comp_hdr, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaGen_long_credentials, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaGen_autoreconnect, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_capaGen_encsaltedchecksum, 2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+      FI_TERMINATOR
+  };
+
+  rdp_field_info_t cs_general[] = {
+	{&hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_lengthCapability, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_osMajorType, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_osMinorType, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_protocolVersion, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_pad2octets, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_compressionTypes, 2, NULL, 0, 0, NULL },
+	FI_SUBTREE(&hf_rdp_capaGen_extraFlags, 2, ett_rdp_capa_general, gen_extraFlags_fields),
+	{&hf_rdp_capaGen_updateCapaFlag, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_remoteUnshareFlags, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_compressionLevel, 2, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_refreshRect, 1, NULL, 0, 0, NULL },
+	{&hf_rdp_capaGen_suppressOutput, 1, NULL, 0, 0, NULL },
+	FI_TERMINATOR
+  };
+
   for (i = 0; i < numberCapabilities; i++) {
 	  proto_item *capaItem;
 	  proto_tree *capaTree;
@@ -1975,6 +2040,9 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	  capaTree = proto_item_add_subtree(capaItem, ett_rdp_capabilitySet);
 
 	  switch (capabilityType) {
+	  case CAPSTYPE_GENERAL:
+		  targetFields = cs_general;
+		  break;
 	  case CAPSTYPE_RAIL:
 		  targetFields = cs_rail;
 		  break;
@@ -2380,9 +2448,36 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     FI_TERMINATOR,
   };
 
+  rdp_field_info_t optionsFlags_fields[] = {
+      {&hf_rdp_flagsInfoMouse, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsDisableCtrlAltDel, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsAutoLogon, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsUnicode, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsMaximizeShell, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsLogonNotify, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsCompression, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsCompressionType, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsEnableWindowsKey, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsRemoteConsoleAudio, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsForceEncryptedCsPdu, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsRail, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsLogonErrors, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsHasWheel, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsPasswordIsScPin, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsNoAudioPlayback, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsUsingSavedCreds, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsAudioCapture, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsVideoDisable, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsReserved1, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsReserved2, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+      {&hf_rdp_flagsHidefRailSupported, 4, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
+
+      FI_TERMINATOR
+    };
+
   rdp_field_info_t ue_fields[] = {
     {&hf_rdp_codePage,           4, NULL, 0, 0, NULL },
-    {&hf_rdp_optionFlags,        4, NULL, 0, RDP_FI_INFO_FLAGS, NULL },
+    {&hf_rdp_optionFlags,        4, NULL, ett_rdp_clientTimeZone, RDP_FI_INFO_FLAGS|RDP_FI_SUBTREE, optionsFlags_fields },
     {&hf_rdp_cbDomain,           2, &cbDomain, 2, 0, NULL },
     {&hf_rdp_cbUserName,         2, &cbUserName, 2, 0, NULL },
     {&hf_rdp_cbPassword,         2, &cbPassword, 2, 0, NULL },
@@ -3213,7 +3308,7 @@ dissect_rdp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
     if ((type == TYPE_RDP_NEG_RSP || type == TYPE_RDP_NEG_FAILURE) &&
         length == 8) {
       /* Looks like a Negotiate Response (TYPE_RDP_NEG_RSP, length 8)
-         or a Negotaiate Failure (TYPE_RDP_NEG_FAILURE, length 8) */
+         or a Negotiate Failure (TYPE_RDP_NEG_FAILURE, length 8) */
       ours = true;
     }
   }
@@ -4343,6 +4438,94 @@ proto_register_rdp(void) {
       { "optionFlags", "rdp.optionFlags",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
+	{ &hf_rdp_flagsInfoMouse,
+	  { "MOUSE", "rdp.optionFlags.mouse",
+		FT_UINT32, BASE_HEX, NULL, 0x00000001,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsDisableCtrlAltDel,
+	  { "DISABLECTRLALTDEL", "rdp.optionFlags.disablectrlaltdel",
+		FT_UINT32, BASE_HEX, NULL, 0x00000002,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsAutoLogon,
+	  { "AUTOLOGON", "rdp.optionFlags.autologon",
+		FT_UINT32, BASE_HEX, NULL, 0x00000008,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsUnicode,
+	  { "UNICODE", "rdp.optionFlags.unicode",
+		FT_UINT32, BASE_HEX, NULL, 0x00000010,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsMaximizeShell,
+	  { "MAXIMIZESHELL", "rdp.optionFlags.maximizeshell",
+		FT_UINT32, BASE_HEX, NULL, 0x00000020,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsLogonNotify,
+	  { "LOGONNOTIFY", "rdp.optionFlags.logonnotify",
+		FT_UINT32, BASE_HEX, NULL, 0x00000040,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsCompression,
+	  { "COMPRESSION", "rdp.optionFlags.compression",
+		FT_UINT32, BASE_HEX, NULL, 0x00000080,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsCompressionType,
+	  { "COMPRESSION_TYPES", "rdp.optionFlags.compressiontypes",
+		FT_UINT32, BASE_HEX, NULL, 0x00001E00,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsEnableWindowsKey,
+	  { "ENABLEWINDOWSKEY", "rdp.optionFlags.enablewindowskey",
+		FT_UINT32, BASE_HEX, NULL, 0x00000100,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsRemoteConsoleAudio,
+	  { "REMOTECONSOLEAUDIO", "rdp.optionFlags.remoteconsoleaudio",
+		FT_UINT32, BASE_HEX, NULL, 0x00002000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsForceEncryptedCsPdu,
+	  { "FORCE_ENCRYPTED_CS_PDU", "rdp.optionFlags.forceencryptedcspdu",
+		FT_UINT32, BASE_HEX, NULL, 0x00004000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsRail,
+	  { "RAIL", "rdp.optionFlags.rail",
+		FT_UINT32, BASE_HEX, NULL, 0x00008000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsLogonErrors,
+	  { "LOGONERRORS", "rdp.optionFlags.logonerrors",
+		FT_UINT32, BASE_HEX, NULL, 0x00010000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsHasWheel,
+	  { "MOUSE_HAS_WHEEL", "rdp.optionFlags.mousehaswheel",
+		FT_UINT32, BASE_HEX, NULL, 0x00020000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsPasswordIsScPin,
+	  { "PASSWORD_IS_SC_PIN", "rdp.optionFlags.passwordisscpin",
+		FT_UINT32, BASE_HEX, NULL, 0x00040000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsNoAudioPlayback,
+	  { "NOAUDIOPLAYBACK", "rdp.optionFlags.noaudioplayback",
+		FT_UINT32, BASE_HEX, NULL, 0x00080000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsUsingSavedCreds,
+	  { "USING_SAVED_CREDS", "rdp.optionFlags.usingsavedcreds",
+		FT_UINT32, BASE_HEX, NULL, 0x00100000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsAudioCapture,
+	  { "AUDIOCAPTURE", "rdp.optionFlags.audiocapture",
+		FT_UINT32, BASE_HEX, NULL, 0x00200000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsVideoDisable,
+	  { "VIDEO_DISABLE", "rdp.optionFlags.videodisable",
+		FT_UINT32, BASE_HEX, NULL, 0x00400000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsReserved1,
+	  { "RESERVED1", "rdp.optionFlags.reserved1",
+		FT_UINT32, BASE_HEX, NULL, 0x00800000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsReserved2,
+	  { "RESERVED2", "rdp.optionFlags.reserved2",
+		FT_UINT32, BASE_HEX, NULL, 0x01000000,
+		NULL, HFILL }},
+	{ &hf_rdp_flagsHidefRailSupported,
+	  { "HIDEF_RAIL_SUPPORTED", "rdp.optionFlags.hidefrailsupported",
+		FT_UINT32, BASE_HEX, NULL, 0x02000000,
+		NULL, HFILL }},
     { &hf_rdp_cbDomain,
       { "cbDomain", "rdp.domain.length",
         FT_UINT16, BASE_DEC, NULL, 0,
@@ -4947,10 +5130,74 @@ proto_register_rdp(void) {
       { "capabilityData", "rdp.capabilityData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_rdp_capaRail_supportedLevel,
-      { "RailSupportLevel", "rdp.capability.rail.supportedlevel",
-            FT_UINT32, BASE_HEX, NULL, 0,
-            NULL, HFILL }},
+    { &hf_rdp_capaGen_osMajorType,
+      { "Os major type", "rdp.capability.general.osmajortype",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_capaGen_osMinorType,
+      { "Os minor type", "rdp.capability.general.osminortype",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+	{ &hf_rdp_capaGen_protocolVersion,
+	  { "Protocol version", "rdp.capability.general.protocolversion",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_pad2octets,
+	  { "pad2octetsA", "rdp.capability.general.pad2octetsa",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_compressionTypes,
+	  { "Compression types", "rdp.capability.general.compressiontypes",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_fastpathflag_supported,
+	  { "FASTPATH_OUTPUT_SUPPORTED", "rdp.capability.general.fastpathflagsupported",
+		FT_UINT16, BASE_HEX, NULL, 0x0001,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_no_bitmap_comp_hdr,
+	  { "NO_BITMAP_COMPRESSION_HDR", "rdp.capability.general.nobitmpacomphdr",
+		FT_UINT16, BASE_HEX, NULL, 0x0400,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_long_credentials,
+	  { "LONG_CREDENTIALS_SUPPORTED", "rdp.capability.general.longcredentials",
+		FT_UINT16, BASE_HEX, NULL, 0x0004,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_autoreconnect,
+	  { "AUTORECONNECT_SUPPORTED", "rdp.capability.general.autoreconnect",
+		FT_UINT16, BASE_HEX, NULL, 0x0008,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_encsaltedchecksum,
+	  { "ENC_SALTED_CHECKSUM", "rdp.capability.general.encsaltedchecksum",
+		FT_UINT16, BASE_HEX, NULL, 0x0010,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_extraFlags,
+	  { "Extra flags", "rdp.capability.general.extraflags",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_updateCapaFlag,
+	  { "Update capability flag", "rdp.capability.general.updatecapaflag",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_remoteUnshareFlags,
+	  { "Remote unshare flags", "rdp.capability.general.remoteunshareflags",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_compressionLevel,
+	  { "Compression level", "rdp.capability.general.compressionlevel",
+		FT_UINT16, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_refreshRect,
+	  { "Refresh rect", "rdp.capability.general.refreshrect",
+		FT_UINT8, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaGen_suppressOutput,
+	  { "Suppress output", "rdp.capability.general.suppressoutput",
+		FT_UINT8, BASE_HEX, NULL, 0,
+		NULL, HFILL }},
+	{ &hf_rdp_capaRail_supportedLevel,
+	  { "RailSupportLevel", "rdp.capability.rail.supportlevel",
+			FT_UINT32, BASE_HEX, NULL, 0,
+			NULL, HFILL }},
     { &hf_rdp_capaRail_flag_supported,
       { "TS_RAIL_LEVEL_SUPPORTED", "rdp.capability.rail.supported",
             FT_UINT32, BASE_HEX, NULL, 0x00000001,
@@ -5180,6 +5427,7 @@ proto_register_rdp(void) {
     &ett_rdp_SendData,
     &ett_rdp_MessageData,
     &ett_rdp_capabilitySet,
+    &ett_rdp_capa_general,
     &ett_rdp_capa_rail,
     &ett_rdp_channelDef,
     &ett_rdp_channelDefArray,
