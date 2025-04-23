@@ -7809,7 +7809,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_tai_tac,
-        { "Tracking area code(TAC)","nas-eps.emm.tai_tac",
+        { "Tracking area code (TAC)","nas-eps.emm.tai_tac",
         FT_UINT16, BASE_DEC,  NULL, 0x0,
         NULL, HFILL }
     },
@@ -8681,22 +8681,22 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_embr_ul,
-        { "Maximum bit rate for uplink(ext)","nas-eps.esm.embr_ul",
+        { "Maximum bit rate for uplink (ext)","nas-eps.esm.embr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_embr_dl,
-        { "Maximum bit rate for downlink(ext)","nas-eps.esm.embr_dl",
+        { "Maximum bit rate for downlink (ext)","nas-eps.esm.embr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_egbr_ul,
-        { "Guaranteed bit rate for uplink(ext)","nas-eps.esm.egbr_ul",
+        { "Guaranteed bit rate for uplink (ext)","nas-eps.esm.egbr_ul",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_egbr_dl,
-        { "Guaranteed bit rate for downlink(ext)","nas-eps.esm.egbr_dl",
+        { "Guaranteed bit rate for downlink (ext)","nas-eps.esm.egbr_dl",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
