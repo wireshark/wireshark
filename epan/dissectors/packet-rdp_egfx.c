@@ -38,6 +38,14 @@ static int hf_egfx_pduLength;
 static int hf_egfx_caps_capsSetCount;
 static int hf_egfx_cap_version;
 static int hf_egfx_cap_length;
+static int hf_egfx_cap_flags;
+static int hf_egfx_cap_flag_thinclient;
+static int hf_egfx_cap_flag_smallcache;
+static int hf_egfx_cap_flag_avc420_enabled;
+static int hf_egfx_cap_flag_avc_disabled;
+static int hf_egfx_cap_flag_avc_thinclient;
+static int hf_egfx_cap_flag_scaledmap_disable;
+static int hf_egfx_cap_flag_scp_disable;
 
 static int hf_egfx_reset_width;
 static int hf_egfx_reset_height;
@@ -89,6 +97,7 @@ static int ett_egfx_caps;
 static int ett_egfx_capsconfirm;
 static int ett_egfx_cap;
 static int ett_egfx_cap_version;
+static int ett_egfx_flags;
 static int ett_egfx_ack;
 static int ett_egfx_ackqoe;
 static int ett_egfx_reset;
@@ -163,7 +172,16 @@ enum {
 	RDPGFX_CAPVERSION_111 = 0x000b0101,
 	RDPGFX_CAPVERSION_112 = 0x000b0200,
 	RDPGFX_CAPVERSION_113 = 0x000b0300,
+};
 
+enum {
+	RDPGFX_CAPS_FLAG_THINCLIENT = 0x00000001,
+	RDPGFX_CAPS_FLAG_SMALL_CACHE = 0x00000002,
+	RDPGFX_CAPS_FLAG_AVC420_ENABLED = 0x00000010,
+	RDPGFX_CAPS_FLAG_AVC_DISABLED = 0x00000020,
+	RDPGFX_CAPS_FLAG_AVC_THINCLIENT = 0x00000040,
+	RDPGFX_CAPS_FLAG_SCALEDMAP_DISABLE = 0x00000080,
+	RDPGFX_CAPS_FLAG_SCP_DISABLE = 0x00000100,
 };
 
 static const value_string rdp_egfx_cmd_vals[] = {
@@ -214,6 +232,7 @@ static const value_string rdp_egfx_caps_version_vals[] = {
 	{ 0x0, NULL },
 };
 
+
 static const value_string rdp_egfx_monitor_flags_vals[] = {
 	{ 0x00000000, "is secondary" },
 	{ 0x00000001, "is primary" },
@@ -259,15 +278,6 @@ typedef struct {
 	int ackNum;
 } egfx_frame_t;
 
-static const char *
-find_egfx_version(uint32_t v) {
-	const value_string *vs = rdp_egfx_caps_version_vals;
-	for ( ; vs->strptr; vs++)
-		if (vs->value == v)
-			return vs->strptr;
-
-	return "<unknown>";
-}
 
 static egfx_conv_info_t *
 egfx_get_conversation_data(packet_info *pinfo)
@@ -292,6 +302,43 @@ egfx_get_conversation_data(packet_info *pinfo)
 	}
 
 	return info;
+}
+
+static void
+parseCapaSet(tvbuff_t *tvb, proto_tree *tree, uint32_t version)
+{
+	switch (version) {
+	case RDPGFX_CAPVERSION_101:
+		break;
+	case RDPGFX_CAPVERSION_8:
+	case RDPGFX_CAPVERSION_81:
+	case RDPGFX_CAPVERSION_10:
+	case RDPGFX_CAPVERSION_102:
+	case RDPGFX_CAPVERSION_103:
+	case RDPGFX_CAPVERSION_104:
+	case RDPGFX_CAPVERSION_105:
+	case RDPGFX_CAPVERSION_106_ERROR:
+	case RDPGFX_CAPVERSION_106:
+	case RDPGFX_CAPVERSION_107:
+	case RDPGFX_CAPVERSION_111:
+	case RDPGFX_CAPVERSION_112:
+	case RDPGFX_CAPVERSION_113: {
+		static int *bits[] = {
+			&hf_egfx_cap_flag_thinclient,
+			&hf_egfx_cap_flag_smallcache,
+			&hf_egfx_cap_flag_avc420_enabled,
+			&hf_egfx_cap_flag_avc_disabled,
+			&hf_egfx_cap_flag_avc_thinclient,
+			&hf_egfx_cap_flag_scaledmap_disable,
+			&hf_egfx_cap_flag_scp_disable,
+			NULL
+		};
+		proto_tree_add_bitmask(tree, tvb, 0, hf_egfx_cap_flags, ett_egfx_flags, bits, ENC_LITTLE_ENDIAN);
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 
@@ -345,7 +392,8 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			for (i = 0; i < capsSetCount; i++) {
 				uint32_t version = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 				uint32_t capsDataLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN);
-				proto_tree* vtree = proto_tree_add_subtree(subtree, tvb, offset, 8 + capsDataLength, ett_egfx_cap_version, NULL, find_egfx_version(version));
+				proto_tree* vtree = proto_tree_add_subtree(subtree, tvb, offset, 8 + capsDataLength, ett_egfx_cap_version, NULL, /*find_egfx_version(version)*/
+						val_to_str_const(version, rdp_egfx_caps_version_vals, "<unknown>"));
 
 				proto_tree_add_item(vtree, hf_egfx_cap_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
@@ -353,21 +401,25 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 				proto_tree_add_item(vtree, hf_egfx_cap_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
+				parseCapaSet(tvb_new_subset_length(tvb, offset, capsDataLength), vtree, version);
 				offset += capsDataLength;
 			}
 			break;
 		}
 
 		case RDPGFX_CMDID_CAPSCONFIRM: {
-			uint32_t capsDataLength;
+			uint32_t version, capsDataLength;
 
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Caps confirm");
 
 			subtree = proto_tree_add_subtree(tree, tvb, offset, pduLength-8, ett_egfx_capsconfirm, NULL, "Caps confirm");
-			proto_tree_add_item(subtree, hf_egfx_cap_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(subtree, hf_egfx_cap_version, tvb, offset, 4, ENC_LITTLE_ENDIAN, &version);
 			offset += 4;
 
 			proto_tree_add_item_ret_uint(subtree, hf_egfx_cap_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &capsDataLength);
+			offset += 4;
+
+			parseCapaSet(tvb_new_subset_length(tvb, offset, capsDataLength), subtree, version);
 			break;
 		}
 
@@ -842,6 +894,11 @@ void proto_register_rdp_egfx(void) {
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_egfx_cap_flags,
+		  { "Flags", "rdp_egfx.cap.flags",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_egfx_ack_queue_depth,
 		  { "queueDepth", "rdp_egfx.ack.queuedepth",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1027,6 +1084,42 @@ void proto_register_rdp_egfx(void) {
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+
+		{ &hf_egfx_cap_flag_thinclient,
+		  { "Thinclient", "rdp_egfx.cap.thinclient",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_THINCLIENT,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cap_flag_smallcache,
+		  { "Smallcache", "rdp_egfx.cap.smallcache",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_SMALL_CACHE,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cap_flag_avc420_enabled,
+		  { "AVC420_ENABLED", "rdp_egfx.cap.avc420enabled",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_AVC420_ENABLED,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cap_flag_avc_disabled,
+		  { "AVC_DISABLED", "rdp_egfx.cap.avcdisabled",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_AVC_DISABLED,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cap_flag_avc_thinclient,
+		  { "AVC_THINCLIENT", "rdp_egfx.cap.avcthinclient",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_AVC_THINCLIENT,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cap_flag_scaledmap_disable,
+		  { "SCALEDMAP_DISABLE", "rdp_egfx.cap.scaledmapdisable",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_SCALEDMAP_DISABLE,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_cap_flag_scp_disable,
+		  { "SCP_DISABLE", "rdp_egfx.cap.scpdisable",
+			FT_UINT32, BASE_HEX, NULL, RDPGFX_CAPS_FLAG_SCP_DISABLE,
+			NULL, HFILL }
+		},
 		{ &hf_egfx_unknown_bytes,
 		  { "Unknown bytes", "rdp_egfx.unknown",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1039,6 +1132,7 @@ void proto_register_rdp_egfx(void) {
 		&ett_egfx_caps,
 		&ett_egfx_cap,
 		&ett_egfx_cap_version,
+		&ett_egfx_flags,
 		&ett_egfx_ack,
 		&ett_egfx_ackqoe,
 		&ett_egfx_reset,
