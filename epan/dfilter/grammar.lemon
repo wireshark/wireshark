@@ -116,8 +116,11 @@ expr(X) ::= expr(Y) TEST_OR(T) expr(Z).
     stnode_merge_location(X, Y, Z);
 }
 
-expr(X) ::= expr(Y) TEST_XOR(T) expr(Z).
+expr(X) ::= expr(Y) TEST_XOR expr(Z).
 {
+    /* If we cared, we could check the XOR token and make all the derived
+     * tokens consistently either symbols or words. */
+
     stnode_t *A = stnode_new(STTYPE_TEST, NULL, NULL, DFILTER_LOC_EMPTY);
     sttype_oper_set2(A, STNODE_OP_OR, stnode_dup(Y), stnode_dup(Z));
 
@@ -127,7 +130,7 @@ expr(X) ::= expr(Y) TEST_XOR(T) expr(Z).
     stnode_t *C = stnode_new(STTYPE_TEST, NULL, NULL, DFILTER_LOC_EMPTY);
     sttype_oper_set1(C, STNODE_OP_NOT, B);
 
-    X = T;
+    X = stnode_new_empty(STTYPE_TEST);
     sttype_oper_set2(X, STNODE_OP_AND, A, C);
     stnode_merge_location(X, Y, Z);
 }
@@ -421,10 +424,12 @@ relation_test(T) ::= entity(E) TEST_IN(O) set(S).
     stnode_merge_location(T, E, S);
 }
 
-relation_test(T) ::= entity(E) TEST_NOT TEST_IN(O) set(S).
+relation_test(T) ::= entity(E) TEST_NOT TEST_IN set(S).
 {
-    T = O;
-    sttype_oper_set2(O, STNODE_OP_NOT_IN, E, S);
+    /* We could create the TEST_NOT node to check the token and see if
+     * ! or not was used was used. */
+    T = stnode_new_empty(STTYPE_TEST);
+    sttype_oper_set2(T, STNODE_OP_NOT_IN, E, S);
     stnode_merge_location(T, E, S);
 }
 
