@@ -580,7 +580,7 @@ print_usage(FILE *output)
 static void
 dumpcap_cmdarg_err(const char *fmt, va_list ap)
 {
-    if (capture_child) {
+    if ((capture_child) && (sync_pipe_fd > 0)) {
         char *msg;
         /* Generate a 'special format' message back to parent */
         msg = ws_strdup_vprintf(fmt, ap);
@@ -601,7 +601,7 @@ dumpcap_cmdarg_err(const char *fmt, va_list ap)
 static void
 dumpcap_cmdarg_err_cont(const char *fmt, va_list ap)
 {
-    if (capture_child) {
+    if ((capture_child) && (sync_pipe_fd > 0)) {
         char *msg;
         msg = ws_strdup_vprintf(fmt, ap);
         sync_pipe_write_errmsgs_to_parent(sync_pipe_fd, msg, "");
