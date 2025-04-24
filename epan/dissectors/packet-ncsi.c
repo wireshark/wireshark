@@ -645,26 +645,42 @@ ncsi_proto_tree_add_cap(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_cap_flag,
             ett_ncsi_cap_flag, cap_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 4;
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset += 4, hf_ncsi_cap_bf,
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_cap_bf,
             ett_ncsi_cap_bf, cap_bf_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 4;
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset += 4, hf_ncsi_cap_mf,
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_cap_mf,
             ett_ncsi_cap_mf, cap_mf_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 4;
 
-    proto_tree_add_item(tree, hf_ncsi_cap_buf, tvb, offset += 4, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_ncsi_cap_buf, tvb, offset, 4, ENC_NA);
+    offset += 4;
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset += 4, hf_ncsi_cap_aen,
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_cap_aen,
             ett_ncsi_cap_aen, cap_aen_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 4;
 
-    proto_tree_add_item(tree, hf_ncsi_cap_vcnt, tvb, offset += 4, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ncsi_cap_mixcnt, tvb, offset += 1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ncsi_cap_mccnt, tvb, offset += 1, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_ncsi_cap_uccnt, tvb, offset += 1, 1, ENC_NA);
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset += 3, hf_ncsi_cap_vmode,
+    proto_tree_add_item(tree, hf_ncsi_cap_vcnt, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ncsi_cap_mixcnt, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ncsi_cap_mccnt, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ncsi_cap_uccnt, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    offset += 2;  /* 2 reserved bytes */
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_cap_vmode,
             ett_ncsi_cap_vmode, cap_vmode_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
-    proto_tree_add_item(tree, hf_ncsi_cap_chcnt, tvb, offset, 1, ENC_NA);
+    offset++;
 
+    proto_tree_add_item(tree, hf_ncsi_cap_chcnt, tvb, offset, 1, ENC_NA);
 }
 
 
