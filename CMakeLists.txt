@@ -278,6 +278,10 @@ if(WIN32)
 	)
 endif(WIN32)
 
+if(WIRESHARK_BASE_DIR AND APPLE)
+	include(FetchArtifacts)
+endif()
+
 include(UseCustomIncludes)
 ADD_CUSTOM_CMAKE_INCLUDE()
 

@@ -1,0 +1,112 @@
+# Download prebuilt artifacts and extract them on systems that don't
+# have a package manager. Track artifacts and versions we install, and
+# re-extract them if we have an updates.
+
+# To do:
+# - Add support for Windows and migrate win-setup.ps1 here.
+
+if(APPLE)
+  set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
+else()
+  message(FATAL_ERROR "No artifacts for this system")
+endif()
+
+# It would be nice to be able to make this self-contained, e.g. by
+# extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
+# doesn't allow source or build paths in INTERFACE_INCLUDE_DIRECTORIES.
+#
+if (NOT EXISTS ${WIRESHARK_BASE_DIR} OR NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR} OR NOT IS_WRITABLE ${WIRESHARK_BASE_DIR})
+  message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
+endif()
+
+set(DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/_download)
+file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
+set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-master)
+file(MAKE_DIRECTORY ${ARTIFACTS_DIR})
+list(APPEND CMAKE_PREFIX_PATH ${ARTIFACTS_DIR})
+set(manifest_file ${ARTIFACTS_DIR}/manifest.txt)
+
+set(artifacts)
+
+function(add_artifact archive_path sha256_hash)
+  # XXX Should this be a list of lists instead?
+  list(APPEND artifacts "${archive_path}:${sha256_hash}")
+  set(artifacts ${artifacts} PARENT_SCOPE)
+endfunction()
+
+# ExternalProject_Add isn't a good choice here because it assumes that
+# we want a build-time target that compiles something from source.
+# FetchContent or CPM (https://github.com/cpm-cmake/CPM.cmake) might be
+# good choices, but for now just using `file DOWNLOAD` and `file
+# ARCHIVE_EXTRACT` seem to do the job.
+function(download_artifacts)
+  foreach(artifact ${artifacts})
+    string(REGEX MATCH "([^:]+):([^:]+)" _ "${artifact}")
+    set(archive_path ${CMAKE_MATCH_1})
+    set(sha256_hash ${CMAKE_MATCH_2})
+    get_filename_component(archive_file ${archive_path} NAME)
+    message(STATUS "Fetching ${archive_file}")
+    file(DOWNLOAD
+      ${download_prefix}/${archive_path}
+      ${DOWNLOAD_DIR}/${archive_file}
+      EXPECTED_HASH SHA256=${sha256_hash}
+      # SHOW_PROGRESS
+    )
+    file(ARCHIVE_EXTRACT
+      INPUT ${DOWNLOAD_DIR}/${archive_file}
+      DESTINATION ${ARTIFACTS_DIR}
+    )
+  endforeach()
+endfunction()
+
+function(update_artifacts)
+  list(JOIN artifacts "\n" list_manifest_contents)
+  set(file_manifest_contents)
+  if (IS_READABLE ${manifest_file})
+    file(READ ${manifest_file} file_manifest_contents)
+  endif()
+  if(list_manifest_contents STREQUAL file_manifest_contents)
+    message(STATUS "Artifacts up to date. Skipping download.")
+    return()
+  endif()
+  # Start with a clean slate.
+  foreach(subdir IN ITEMS bin etc include lib libexec share)
+    file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
+  endforeach()
+  download_artifacts()
+  # XXX Should we generate the manifest file using configure_file?
+  file(WRITE ${manifest_file} ${list_manifest_contents})
+endfunction()
+
+if(APPLE)
+  add_artifact(bcg729/bcg729-1.1.1-1-macos-universal.tar.xz 0e302ac5816fbff353d33a428d25eeaad04d5e2ccd6df20a0003f14431aa63a4)
+  add_artifact(brotli/brotli-1.1.0-1-macos-universal.tar.xz afb52675ff9d26a44776b1c53ddb03cf6079ee452ee12a6d2844a58256e7704b)
+  add_artifact(c-ares/c-ares-1.34.5-1-macos-universal.tar.xz 158fc19f00529a568738cad60c47bc19374de18935fe12ac5f39364ba2cb0b90)
+  add_artifact(glib/glib-bundle-2.84.1-1-macos-universal.tar.xz 08fe1ed668b7c3447289984fe52ceb3f1fe10585f0fd8e7e98655c6a87472910)
+  add_artifact(gnutls/gnutls-bundle-3.8.9-1-macos-universal.tar.xz f713df06de9b077ba60d21fc1e0558382a76718fa2853f0e8155639e744f9e9b)
+  add_artifact(libgcrypt/libgcrypt-bundle-1.11.0-1-macos-universal.tar.xz a93c989a18be505f78021be45abc1740b4a5cb55505a539fd0b4b1d970b6d183)
+  add_artifact(libilbc/libilbc-2.0.2-1-macos-universal.tar.xz cf7c5f34c2101af1fe5b788cce6425b258cdaec03dc3301c4a8d2774a0c06801)
+  add_artifact(libmaxminddb/libmaxminddb-1.12.2-1-macos-universal.tar.xz 722af5c180940cf0fcb7588ec2e824a56cc7dc6ed752c9ec263481c78345c187)
+  add_artifact(libsmi/libsmi-0.4.8-1-macos-universal.tar.xz 3ebe3d5525bf356eafb1ed29cb9469f13a0b5b7cdae1e81f23da9b996e11a1cc)
+  add_artifact(libssh/libssh-0.11.1-1-macos-universal.tar.xz c7c54b66c92f3197cfb7d5154eb6c279c7178ee0e120397aa5107db2118cb661)
+  add_artifact(lua/lua-5.4.7-1-macos-universal.tar.xz 8027d98a0782b4ccb8b75fe99d1431bd57be9a0ab819d73cdf66e654cd31fae8)
+  add_artifact(lz4/lz4-1.10.0-1-macos-universal.tar.xz f4bf1eb9a67f27afeb4f35d9ffc171493a34792b76c239581cdd2b58fec62711)
+  add_artifact(minizip-ng/minizip-ng-4.0.10-1-macos-universal.tar.xz 8da7dc1f6bc97a0ad177a9753ee08353aac03a7d5ae736e49f1a3f5f921f4440)
+  add_artifact(nghttp2/nghttp2-1.65.0-1-macos-universal.tar.xz 7851534e772be18c8f82125eaec1317a33647ca561b73986afcefc9ba8053f3a)
+  add_artifact(nghttp3/nghttp3-1.9.0-1-macos-universal.tar.xz 44c7195ae41e77b2409283293d9639f427d9e6d05308e13061b6debd686d5870)
+  add_artifact(opencore-amr/opencore-amr-0.1.6-1-macos-universal.tar.xz f0b5fc51b1591b187c1f6dc128c89cc9105931c26293e25255e179889d76d498)
+  add_artifact(opus/opus-1.5.2-1-macos-universal.tar.xz 84f5430e703e72de7201be81ca7847b4eb69ceb44836210802f4321e6d72ade5)
+  add_artifact(sbc/sbc-2.1-1-macos-universal.tar.xz 290621fdc6c840c0e06800d6be17a78fdd1be31fd8c71be62c39a393709141f9)
+  add_artifact(snappy/snappy-1.2.2-1-macos-universal.tar.xz f68155652ba367f44ff66aacff88679d577e483a1a4bdc167799bd78951daf85)
+  add_artifact(spandsp/spandsp-0.0.6-1-macos-universal.tar.xz 8d3371e79eeff754f93320080fb9efd4aa80ed2718411c98360a0c431ff88563)
+  add_artifact(speexdsp/speexdsp-1.2.1-1-macos-universal.tar.xz 001933a7631fdafa0cca621891a8ad33ccc91fc33d756753a38a7d3f324ce397)
+  add_artifact(zlib-ng/zlib-ng-2.2.4-1-macos-universal.tar.xz 52f1f054be4c97320b4417ebad5d4d8e278f615efac8fbec94abb4986100cbb0)
+  add_artifact(zstd/zstd-1.5.7-1-macos-universal.tar.xz a7bfa6fdc228badbe30da5b89fc875e1c9bad52ee692df117aba9721798249d0)
+
+  if(BUILD_stratoshark OR BUILD_falcodump)
+    add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.20.0-1-macos-universal.tar.xz d6ee1e8a03ca986dc082685f13e95c573f13ab8d957b792ff281321226712c8c)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-05-07-1-macos-universal.tar.xz 8253e9239db3217dc58ba246a59cd7452f5acecc6c514c967540087016843ee9)
+  endif()
+endif()
+
+update_artifacts()

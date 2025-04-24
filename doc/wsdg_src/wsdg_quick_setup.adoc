@@ -93,16 +93,18 @@ The setup script is `tools/rpm-setup.sh`; its options are:
 
 You must first install Xcode.
 
-There are two scripts available for macOS which will install the packages and libraries required to build Wireshark and its documentation:
+As with Windows we provide pre-built third party libraries which will be automatically installed if you set the WIRESHARK_BASE_DIR CMake variable to a directory that is writable by you, such as _wireshark-third-party_ at the same level as your Wireshark source code directory.
+You can alternatiely use two scripts to install the packages and libraries required to build Wireshark and its documentation:
 `tools/macos-setup-brew.sh`, which will use the https://brew.sh/[Homebrew] package manager and `tools/macos-setup.sh`, which will build any required libraries and tools locally, except for Qt 6.
 
 `tools/macos-setup-brew.sh` supports the following options:
 
-* `--install-optional` install optional software as well
+* `--install-required` install third party libraries required to build Wireshark
+* `--install-optional` install optional third party libraries
 * `--install-dmg-deps` install packages required to build the .dmg file
 * `--install-sparkle-deps` install the Sparkle automatic updater
 * `--install-all` install everything
-* `--install-stratoshark` install everything to compile Stratoshark and Falco bridge
+* `--install-stratoshark` install libraries required to build Stratoshark and Falco bridge
 * `[other]` other options are passed as-is to brew
 
 `tools/macos-setup.sh` supports the following options:

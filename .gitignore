@@ -76,6 +76,7 @@ rules.ninja
 epan/dissectors/asn1/*/*-stamp
 epan/dissectors/pidl/*-stamp
 epan/dissectors/dcerpc/*-stamp
+_download
 
 # Doc #
 ########

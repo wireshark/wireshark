@@ -13,3 +13,7 @@ indent_size = 2
 [FindSPANDSP.cmake]
 indent_style = space
 indent_size = 2
+
+[Fetch*.cmake]
+indent_style = space
+indent_size = 2

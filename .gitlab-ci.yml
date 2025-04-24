@@ -226,7 +226,8 @@ workflow:
     - printf "\e[0Ksection_end:%s:ci_env_section\r\e[0K" "$(date +%s)"
     - brew --version
     - printf "\e[0Ksection_start:%s:brew_section[collapsed=true]\r\e[0KInstalling prerequisites" "$( date +%s)"
-    - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
+    - brew install ccache cmake ninja qt6 asciidoctor docbook docbook-xsl
+    # - ./tools/macos-setup-brew.sh --install-optional --install-test-deps
     - printf "\e[0Ksection_end:%s:brew_section\r\e[0K" "$( date +%s)"
     - python3 -m venv $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
@@ -237,12 +238,22 @@ workflow:
     - mkdir build
     - cd build
   script:
+    - export WIRESHARK_BASE_DIR=/tmp/wireshark-development-libraries
+    - mkdir $WIRESHARK_BASE_DIR
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DENABLE_CCACHE=ON -DTEST_EXTRA_ARGS=--disable-capture ..
+    - cmake -G Ninja
+      -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
+      -DENABLE_CCACHE=ON
+      -DBUILD_stratoshark=ON -DBUILD_falcodump=ON
+      -DTEST_EXTRA_ARGS=--disable-capture
+      ..
+    # The Falco libs 0.20.0 package at https://dev-libs.wireshark.org/macos/packages/falcosecurity-libs/
+    # is missing uthash.h.
+    - ( cd $WIRESHARK_BASE_DIR/macos-universal-master/include ; curl -JLO https://raw.githubusercontent.com/troydhanson/uthash/refs/tags/v1.9.8/src/uthash.h )
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja test-programs
-    - pytest --disable-capture
+    - pytest --disable-capture --junitxml=../macos_tests.xml
   after_script:
     # The cache should be large enough to be useful but it shouldn't take
     # too long to restore+save each run.
@@ -957,13 +968,6 @@ Windows Build:
 macOS Build:
   extends: .build-macos
   rules: !reference [.if-w-w-only-merge-request]
-  script:
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DTEST_EXTRA_ARGS=--disable-capture ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja
-    - ninja test-programs
-    - pytest --disable-capture --junitxml=../macos_tests.xml
   artifacts:
     when: always
     reports:
