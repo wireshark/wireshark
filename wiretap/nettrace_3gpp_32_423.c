@@ -56,6 +56,7 @@ static const unsigned char c_e_initiator[] = "</initiator>";
 static const unsigned char c_s_target[] = "<target";
 static const unsigned char c_e_target[] = "</target>";
 static const unsigned char c_protocol[] = "protocol=\"";
+static const unsigned char c_empty_element[] = "/>";
 
 /* These are protocol names we may put in the exported-pdu data based on
  * what's in the XML. They're defined here as constants so we can use
@@ -372,6 +373,10 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	if (curr_pos != NULL) {
 		curr_pos += CLEN(c_s_initiator);
 		next_pos = STRNSTR(curr_pos, c_e_initiator);
+		if (next_pos == NULL) {
+			//Handle if the xml element is self-closing
+			next_pos = STRNSTR(curr_pos, c_empty_element);
+		}
 		/* Find address */
 		//curr_pos = STRNSTR(curr_pos, c_address) - 1; //Not needed due to regex
 		if (curr_pos != NULL) {
@@ -387,6 +392,10 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	if (curr_pos != NULL) {
 		curr_pos += CLEN(c_s_target);
 		next_pos = STRNSTR(curr_pos, c_e_target);
+		if (next_pos == NULL) {
+			//Handle if the xml element is self-closing
+			next_pos = STRNSTR(curr_pos, c_empty_element);
+		}
 		/* Find address */
 		//curr_pos = STRNSTR(curr_pos, c_address) - 1; //Not needed due to regex
 		if (curr_pos != NULL) {
