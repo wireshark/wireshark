@@ -36,6 +36,25 @@ pcre_free(void *value)
 	}
 }
 
+static void *
+sttype_fvalue_dup(const void *value)
+{
+	const fvalue_t *fvalue = value;
+
+	/* If the data was not claimed with stnode_steal_data(), dup it. */
+	if (fvalue) {
+		return fvalue_dup(fvalue);
+	}
+
+	return NULL;
+}
+
+static void *
+charconst_dup(const void *value)
+{
+	return g_memdup2(value, sizeof(unsigned long));
+}
+
 static char *
 sttype_fvalue_tostr(const void *data, bool pretty)
 {
@@ -109,21 +128,22 @@ sttype_register_pointer(void)
 		STTYPE_FVALUE,
 		NULL,
 		sttype_fvalue_free,
-		NULL,
+		sttype_fvalue_dup,
 		sttype_fvalue_tostr
 	};
 	static sttype_t pcre_type = {
 		STTYPE_PCRE,
 		NULL,
 		pcre_free,
-		NULL,
+		NULL,	// Need to add a ws_regex_dup, but a STTYPE_PCRE can't
+			// be duped with the current syntax and semantic check.
 		pcre_tostr
 	};
 	static sttype_t charconst_type = {
 		STTYPE_CHARCONST,
 		NULL,
 		g_free,
-		NULL,
+		charconst_dup,
 		charconst_tostr
 	};
 
