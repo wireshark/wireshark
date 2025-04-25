@@ -4220,8 +4220,8 @@ static int hf_ieee80211_ff_wme_action_code;     /* Management notification actio
 static int hf_ieee80211_ff_wme_status_code;     /* Management notification setup response status code */
 static int hf_ieee80211_ff_qos_action_code;
 static int hf_ieee80211_ff_dls_action_code;
-static int hf_ieee80211_ff_dst_mac_addr;        /* DLS destination MAC addressi */
-static int hf_ieee80211_ff_src_mac_addr;        /* DLS source MAC addressi */
+static int hf_ieee80211_ff_dst_mac_addr;        /* DLS destination MAC address */
+static int hf_ieee80211_ff_src_mac_addr;        /* DLS source MAC address */
 static int hf_ieee80211_ff_req_ap_addr;
 static int hf_ieee80211_ff_res_ap_addr;
 static int hf_ieee80211_ff_check_beacon;
