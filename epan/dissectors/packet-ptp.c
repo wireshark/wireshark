@@ -859,10 +859,10 @@ static int ett_ptp_time2;
 #define PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_NAME                        0x201F
 #define PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_MAX_KEY                     0x2020
 #define PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_PROPERTIES                  0x2021
-#define PTP_V2_MM_ID_EXTERNAL_PORT_CONFIGURATION_ENABLED               0x3001
-#define PTP_V2_MM_ID_MASTER_ONLY                                       0x3002
-#define PTP_V2_MM_ID_HOLDOVER_UPGRADE_ENABLE                           0x3003
-#define PTP_V2_MM_ID_EXT_PORT_CONFIG_PORT_DATA_SET                     0x3004
+#define PTP_V2_MM_ID_EXTERNAL_PORT_CONFIGURATION_ENABLED               0x3000
+#define PTP_V2_MM_ID_MASTER_ONLY                                       0x3001
+#define PTP_V2_MM_ID_HOLDOVER_UPGRADE_ENABLE                           0x3002
+#define PTP_V2_MM_ID_EXT_PORT_CONFIG_PORT_DATA_SET                     0x3003
 #define PTP_V2_MM_ID_TC_DEFAULT_DATA_SET                               0x4000
 #define PTP_V2_MM_ID_TC_PORT_DATA_SET                                  0x4001
 #define PTP_V2_MM_ID_PRIMARY_DOMAIN                                    0x4002
