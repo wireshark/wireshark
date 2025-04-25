@@ -424,8 +424,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         case 'h':
             show_help_header("Generate a capture file from an ASCII hexdump of packets.");
             print_usage(stdout);
-            exit(0);
-            break;
+            return WS_EXIT_NOW;
         case 'q': quiet = true; break;
         case 'a': info->hexdump.identify_ascii = true; break;
         case 'D': info->hexdump.has_direction = true; break;
@@ -682,8 +681,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         case 'v':
             show_version();
-            exit(0);
-            break;
+            return WS_EXIT_NOW;
 
         case '4':
         case '6':
@@ -1081,6 +1079,9 @@ main(int argc, char *argv[])
     memset(&info, 0, sizeof(info));
     wtap_dump_params_init(&params, NULL);
     if ((ret = parse_options(argc, argv, &info, &params)) != EXIT_SUCCESS) {
+        /* Check for options that print information and then quit */
+        if (ret == WS_EXIT_NOW)
+            ret = EXIT_SUCCESS;
         goto clean_exit;
     }
 
