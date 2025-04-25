@@ -138,11 +138,11 @@ sttype_register(sttype_t *type);
 
 WS_DLL_PUBLIC
 const char *
-sttype_name(sttype_id_t type);
+sttype_name(const sttype_id_t type);
 
 WS_DLL_PUBLIC
 const char *
-stnode_op_name(stnode_op_t op);
+stnode_op_name(const stnode_op_t op);
 
 WS_DLL_PUBLIC
 stnode_t*
@@ -178,11 +178,11 @@ stnode_free(stnode_t *node);
 
 WS_DLL_PUBLIC
 const char*
-stnode_type_name(stnode_t *node);
+stnode_type_name(const stnode_t *node);
 
 WS_DLL_PUBLIC
 sttype_id_t
-stnode_type_id(stnode_t *node);
+stnode_type_id(const stnode_t *node);
 
 WS_DLL_PUBLIC
 void *
@@ -198,11 +198,11 @@ stnode_steal_data(stnode_t *node);
 
 WS_DLL_PUBLIC
 const char *
-stnode_token(stnode_t *node);
+stnode_token(const stnode_t *node);
 
 WS_DLL_PUBLIC
 df_loc_t
-stnode_location(stnode_t *node);
+stnode_location(const stnode_t *node);
 
 WS_DLL_PUBLIC
 void

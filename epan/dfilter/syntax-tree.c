@@ -75,7 +75,7 @@ sttype_lookup(sttype_id_t type_id)
 }
 
 const char *
-sttype_name(sttype_id_t type)
+sttype_name(const sttype_id_t type)
 {
 	switch (type) {
 		case STTYPE_UNINITIALIZED: return "UNINITIALIZED";
@@ -99,7 +99,7 @@ sttype_name(sttype_id_t type)
 }
 
 const char *
-stnode_op_name(stnode_op_t op)
+stnode_op_name(const stnode_op_t op)
 {
 	const char *s = "(null)";
 
@@ -300,13 +300,13 @@ stnode_free(stnode_t *node)
 }
 
 const char*
-stnode_type_name(stnode_t *node)
+stnode_type_name(const stnode_t *node)
 {
 	return sttype_name(node->type->id);
 }
 
 sttype_id_t
-stnode_type_id(stnode_t *node)
+stnode_type_id(const stnode_t *node)
 {
 	if (node->type)
 		return node->type->id;
@@ -337,13 +337,13 @@ stnode_steal_data(stnode_t *node)
 }
 
 const char *
-stnode_token(stnode_t *node)
+stnode_token(const stnode_t *node)
 {
 	return node->repr_token;
 }
 
 df_loc_t
-stnode_location(stnode_t *node)
+stnode_location(const stnode_t *node)
 {
 	return node->location;
 }
