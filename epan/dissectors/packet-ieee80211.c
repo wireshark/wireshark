@@ -6801,6 +6801,15 @@ static int hf_ieee80211_vs_nintendo_unknown;
 static int hf_ieee80211_vs_aruba_subtype;
 static int hf_ieee80211_vs_aruba_apname;
 static int hf_ieee80211_vs_aruba_data;
+static int hf_ieee80211_vs_aruba_gps_length;
+static int hf_ieee80211_vs_aruba_gps_subversion;
+static int hf_ieee80211_vs_aruba_gps_hop;
+static int hf_ieee80211_vs_aruba_gps_latitude;
+static int hf_ieee80211_vs_aruba_gps_longitude;
+static int hf_ieee80211_vs_aruba_gps_major_axis;
+static int hf_ieee80211_vs_aruba_gps_minor_axis;
+static int hf_ieee80211_vs_aruba_gps_orientation;
+static int hf_ieee80211_vs_aruba_gps_distance;
 
 static int hf_ieee80211_vs_routerboard_unknown;
 static int hf_ieee80211_vs_routerboard_subitem;
@@ -21110,8 +21119,11 @@ this supports:
 }
 
 #define ARUBA_APNAME  3
+#define ARUBA_GPS 9
+
 static const value_string ieee80211_vs_aruba_subtype_vals[] = {
   { ARUBA_APNAME, "AP Name"},
+  { ARUBA_GPS, "GPS Ellipse"},
   { 0,                 NULL }
 };
 static void
@@ -21138,6 +21150,86 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
     proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_aruba_apname, tvb,
                          offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &name);
     proto_item_append_text(item, " (%s)", name);
+    break;
+
+  case ARUBA_GPS:
+    {
+      double latitude, longitude, major_axis, minor_axis, orientation, distance;
+      offset += 1;
+      tag_len -= 1;
+      if (tag_len < 1) {
+        expert_add_info_format(pinfo, ietree, &ei_ieee80211_bad_length,
+                          "Malformed Aruba GPS data (insufficient data)");
+        break;
+      }
+
+      uint32_t gps_ie_length = tvb_get_uint8(tvb, offset);
+      offset += 1;
+      tag_len -= 1;
+      gps_ie_length -= 1;
+
+      if (tag_len < gps_ie_length) {
+        expert_add_info_format(pinfo, ietree, &ei_ieee80211_bad_length,
+                      "Truncated Aruba GPS data (IE needs %u bytes but got %u)",
+                      gps_ie_length, tag_len);
+        break;
+      }
+
+      proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_gps_subversion, tvb,
+                        offset, 1, ENC_NA);
+      offset += 1;
+      tag_len -= 1;
+
+      proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_gps_hop, tvb,
+                        offset, 1, ENC_NA);
+      offset += 1;
+      tag_len -= 1;
+
+      latitude = tvb_get_ntohieee_double(tvb, offset);
+      proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_latitude, tvb,
+                        offset, 8, latitude, "%.6f", latitude);
+      offset += 8;
+      tag_len -= 8;
+
+      longitude = tvb_get_ntohieee_double(tvb, offset);
+      proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_longitude, tvb,
+                        offset, 8, longitude, "%.6f", longitude);
+      offset += 8;
+      tag_len -= 8;
+
+      major_axis = tvb_get_ntohieee_double(tvb, offset);
+      proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_major_axis, tvb,
+                        offset, 8, major_axis, "%.6f", major_axis);
+      offset += 8;
+      tag_len -= 8;
+
+      minor_axis = tvb_get_ntohieee_double(tvb, offset);
+      proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_minor_axis, tvb,
+                        offset, 8, minor_axis, "%.6f", minor_axis);
+      offset += 8;
+      tag_len -= 8;
+
+      orientation = tvb_get_ntohieee_double(tvb, offset);
+      proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_orientation, tvb,
+                        offset, 8, orientation, "%.6f", orientation);
+      offset += 8;
+      tag_len -= 8;
+
+      distance = tvb_get_ntohieee_double(tvb, offset);
+      proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_distance, tvb,
+                        offset, 8, distance, "%.6f", distance);
+      offset += 8;
+      tag_len -= 8;
+
+      if (tag_len > 0) {
+        expert_add_info_format(pinfo, ietree, &ei_ieee80211_bad_length,
+                        "Aruba GPS data contains additional %u bytes of unexpected data",
+                        tag_len);
+      }
+
+      proto_item_append_text(item, " (coords: [%.6f, %.6f], ellipse: [%.2fm x %.2fm, %.2f°], distance: %.2fm)",
+                        latitude, longitude, major_axis, minor_axis, orientation, distance);
+    }
     break;
 
   default:
@@ -54422,6 +54514,51 @@ proto_register_ieee80211(void)
      {"Data", "wlan.vs.aruba.data",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aruba_gps_length,
+      { "GPS Length", "wlan.ie.aruba.gps.length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_subversion,
+      { "GPS Subversion", "wlan.ie.aruba.gps.subversion",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_hop,
+      { "GPS Hop", "wlan.ie.aruba.gps.hop",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_latitude,
+      { "GPS Latitude", "wlan.ie.aruba.gps.latitude",
+        FT_DOUBLE, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_longitude,
+      { "GPS Longitude", "wlan.ie.aruba.gps.longitude",
+        FT_DOUBLE, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_major_axis,
+      { "GPS Major Axis", "wlan.ie.aruba.gps.major_axis",
+        FT_DOUBLE, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_minor_axis,
+      { "GPS Minor Axis", "wlan.ie.aruba.gps.minor_axis",
+        FT_DOUBLE, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_orientation,
+      { "GPS Orientation", "wlan.ie.aruba.gps.orientation",
+        FT_DOUBLE, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_ieee80211_vs_aruba_gps_distance,
+      { "GPS Distance", "wlan.ie.aruba.gps.distance",
+        FT_DOUBLE, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
 
     /* Vendor Specific : Routerboard */
     {&hf_ieee80211_vs_routerboard_unknown,
