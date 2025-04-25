@@ -667,8 +667,13 @@ col_prepend_fstr(column_info *cinfo, const int el, const char *format, ...)
       /*
        * Move the fence, unless it's at the beginning of the string.
        */
-      if (col_item->col_fence > 0)
-        col_item->col_fence += (int) strlen(col_item->col_buf);
+      if (col_item->col_fence > 0) {
+        /* pos >= strlen if truncation occurred; this saves on a strlen
+         * call and prevents adding a single byte character later if a
+         * a multibyte character was truncated (good). */
+        col_item->col_fence += (int) pos;
+        col_item->col_fence = MIN((int)(max_len - 1), col_item->col_fence);
+      }
 
       /*
        * Append the original data.
@@ -720,11 +725,11 @@ col_prepend_fence_fstr(column_info *cinfo, const int el, const char *format, ...
        * Move the fence if it exists, else create a new fence at the
        * end of the prepended data.
        */
-      if (col_item->col_fence > 0) {
-        col_item->col_fence += (int) strlen(col_item->col_buf);
-      } else {
-        col_item->col_fence = (int) strlen(col_item->col_buf);
-      }
+      /* pos >= strlen if truncation occurred; this saves on a strlen
+       * call and prevents adding a single byte character later if a
+       * a multibyte character was truncated (good). */
+      col_item->col_fence += (int) pos;
+      col_item->col_fence = MIN((int)(max_len - 1), col_item->col_fence);
       /*
        * Append the original data.
        */
