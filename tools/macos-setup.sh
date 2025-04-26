@@ -1929,23 +1929,33 @@ install_lz4() {
         #
         if [[ "$LZ4_VERSION" == r* ]]
         then
-            [ -f lz4-$LZ4_VERSION.tar.gz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz
+            echo "lz4 $LZ4_VERSION" is too old 1>&2
         else
+            LZ4_MAJOR_VERSION="$( expr "$LZ4_VERSION" : '\([0-9][0-9]*\).*' )"
+            LZ4_MINOR_VERSION="$( expr "$LZ4_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
             [ -f lz4-$LZ4_VERSION.tar.gz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/v$LZ4_VERSION.tar.gz
+            $no_build && echo "Skipping installation" && return
+            gzcat lz4-$LZ4_VERSION.tar.gz | tar xf -
+            cd lz4-$LZ4_VERSION
+            #
+            # On lz4 < 1.10.0, if MOREFLAGS is set, that's added to CFLAGS (or
+            # CPPFLAGS on 1.9.4), and those are combined with LDFLAGS into
+            # FLAGS, which is used when building source files and libraries.
+            #
+            # On lz4 >= 1.10.0, user defined CFLAGS are appended the default
+            # CFLAGS, and those are combined with CPPFLAGS and LDFLAGS into
+            # ALLFLAGS, which is used when building source files and libraries.
+            #
+            if [[ "$LZ4_MAJOR_VERSION" -gt 1 ]] || [[ "$LZ4_MINOR_VERSION" -ge 10 ]]; then
+                CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" \
+                    make PREFIX="$installation_prefix" "${MAKE_BUILD_OPTS[@]}"
+            else
+                MOREFLAGS="-D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" \
+                    make PREFIX="$installation_prefix" "${MAKE_BUILD_OPTS[@]}"
+            fi
+            $DO_MAKE PREFIX="$installation_prefix" install
+            cd ..
         fi
-        $no_build && echo "Skipping installation" && return
-        gzcat lz4-$LZ4_VERSION.tar.gz | tar xf -
-        cd lz4-$LZ4_VERSION
-        #
-        # No configure script here, but it appears that if MOREFLAGS is
-        # set, that's added to CFLAGS, and those are combined with LDFLAGS
-        # and CXXFLAGS into FLAGS, which is used when building source
-        # files and libraries.
-        #
-        MOREFLAGS="-D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" \
-            make PREFIX="$installation_prefix" "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE PREFIX="$installation_prefix" install
-        cd ..
         touch lz4-$LZ4_VERSION-done
     fi
 }
