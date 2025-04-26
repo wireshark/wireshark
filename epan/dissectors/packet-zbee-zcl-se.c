@@ -4315,8 +4315,8 @@ proto_register_zbee_zcl_drlc(void)
             FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL } },
 
         { &hf_zbee_zcl_drlc_effective_time,
-            { "Reserved", "zbee_zcl_se.drlc.effective_time",
-            FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_se_utc_time), 0xFE, NULL, HFILL } },
+            { "Effective time", "zbee_zcl_se.drlc.effective_time",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_se_utc_time), 0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_drlc_report_event_issuer_event_id,
             { "Issuer Event ID", "zbee_zcl_se.drlc.report_event.issuer_id",
