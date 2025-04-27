@@ -152,6 +152,10 @@ class TestDfilterSyntax:
         dfilter = 'frame == tcp()'
         checkDFilterFail(dfilter, error)
 
+    def test_between_1(self, checkDFilterCount):
+        dfilter = "tcp.dstport <= '\x50' < tcp.srcport"
+        checkDFilterCount(dfilter, 1)
+
 class TestDfilterEquality:
     trace_file = "sip.pcapng"
 
@@ -504,6 +508,10 @@ class TestDfilterXor:
     def test_xor_4(self, checkDFilterCount):
         dfilter = 'ip.src == 9.9.9.9 ^^ ip.dst == 9.9.9.9'
         checkDFilterCount(dfilter, 0)
+
+    def test_xor_5(self, checkDFilterCount):
+        dfilter = 'eth ^^ ip.proto in {"udp", "tcp"}'
+        checkDFilterCount(dfilter, 2)
 
 class TestDfilterTFSValueString:
     trace_file = "http.pcap"
