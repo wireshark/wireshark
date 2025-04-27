@@ -16,6 +16,8 @@
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
 
+#include <wsutil/nstime.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -323,6 +325,17 @@ try_rval64_to_str(const uint64_t val, const range_string *rs);
 WS_DLL_PUBLIC
 const char *
 try_rval64_to_str_idx(const uint64_t val, const range_string *rs, int *idx);
+
+/* TIME TO STRING MATCHING */
+
+typedef struct _time_value_string {
+    nstime_t     value;
+    const char *strptr;
+} time_value_string;
+
+WS_DLL_PUBLIC
+const char *
+try_time_val_to_str(const nstime_t *val, const time_value_string *vs);
 
 /* BYTES TO STRING MATCHING */
 

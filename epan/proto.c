@@ -9242,6 +9242,21 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			break;
 
 		/*
+		 * These types are allowed to support display
+		 * time_value_strings.
+		 */
+		case FT_ABSOLUTE_TIME:
+			if (hfinfo->display & BASE_RANGE_STRING ||
+			    hfinfo->display & BASE_EXT_STRING ||
+			    hfinfo->display & BASE_VAL64_STRING ||
+			    hfinfo->display & BASE_UNIT_STRING) {
+				REPORT_DISSECTOR_BUG("Field '%s' (%s) has a non-time-value-strings 'strings' value but is of type %s"
+					" (which is only allowed to have time-value strings)",
+					hfinfo->name, hfinfo->abbrev, ftype_name(hfinfo->type));
+			}
+			break;
+
+		/*
 		 * This type is only allowed to support a string if it's
 		 * a protocol (for pinos).
 		 */
@@ -10128,11 +10143,23 @@ proto_item_fill_label(const field_info *fi, char *label_str, size_t *value_pos)
 
 		case FT_ABSOLUTE_TIME:
 		{
+			const nstime_t *value = fvalue_get_time(fi->value);
 			int flags = ABS_TIME_TO_STR_SHOW_ZONE;
 			if (prefs.display_abs_time_ascii < ABS_TIME_ASCII_TREE) {
 				flags |= ABS_TIME_TO_STR_ISO8601;
 			}
-			tmp = abs_time_to_str_ex(NULL, fvalue_get_time(fi->value), hfinfo->display, flags);
+			if (hfinfo->strings) {
+				/*
+				 * Table of time valus to be displayed
+				 * specially.
+				 */
+				const char *time_string = try_time_val_to_str(value, (const time_value_string *)hfinfo->strings);
+				if (time_string != NULL) {
+					label_fill(label_str, 0, hfinfo, time_string, value_pos);
+					break;
+				}
+			}
+			tmp = abs_time_to_str_ex(NULL, value, hfinfo->display, flags);
 			label_fill(label_str, 0, hfinfo, tmp, value_pos);
 			wmem_free(NULL, tmp);
 			break;

@@ -941,6 +941,28 @@ try_rval64_to_str(const uint64_t val, const range_string *rs)
     return try_rval64_to_str_idx(val, rs, &ignore_me);
 }
 
+/* TIME TO STRING MATCHING */
+
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+const char *
+try_time_val_to_str(const nstime_t *val, const time_value_string *vs)
+{
+    int i = 0;
+
+    if(vs) {
+        while (vs[i].strptr) {
+            if (nstime_cmp(&vs[i].value, val) == 0) {
+                return(vs[i].strptr);
+            }
+            i++;
+        }
+    }
+
+    return NULL;
+}
 
 /* BYTE BUFFER TO STRING MATCHING */
 
