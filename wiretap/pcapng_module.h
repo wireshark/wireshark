@@ -95,7 +95,7 @@ typedef bool (*block_reader)(FILE_T fh, uint32_t block_read,
                              bool byte_swapped, wtapng_block_t *wblock,
                              int *err, char **err_info);
 typedef bool (*block_writer)(wtap_dumper *wdh, const wtap_rec *rec,
-                             const uint8_t *pd, int *err);
+                             int *err, char **err_info);
 
 /*
  * Register a handler for a pcapng block type.
