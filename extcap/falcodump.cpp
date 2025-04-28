@@ -1127,7 +1127,12 @@ int main(int argc, char **argv)
         else
 #endif
         {
-            ret = show_plugin_config(extcap_conf->interface, plugin_configs.at(extcap_conf->interface));
+            if (extcap_conf->interface) {
+                ret = show_plugin_config(extcap_conf->interface, plugin_configs.at(extcap_conf->interface));
+            } else {
+                ws_warning("extcap interface missing");
+                goto end;
+            }
         }
         goto end;
     }
