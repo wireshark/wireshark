@@ -29,6 +29,8 @@ typedef struct lin_info lin_info_t;
 
 bool lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo);
 
+int dissect_lin_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lin_info_t *lininfo);
+
 #endif /* __PACKET_LIN_H__ */
 
 /*

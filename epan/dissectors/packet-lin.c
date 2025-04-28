@@ -378,6 +378,30 @@ lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo) 
     return false;
 }
 
+int
+dissect_lin_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lin_info_t *lininfo) {
+    /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
+    bool ignore_lin_payload = (lininfo->id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_uint8(tvb, 0) == 0x00);
+
+    int ret = 0;
+    if (!ignore_lin_payload) {
+        uint32_t bus_frame_id = lininfo->id | (lininfo->bus_id << 16);
+        ret = dissector_try_uint_with_data(subdissector_table, bus_frame_id, tvb, pinfo, tree, true, &lininfo);
+        if (ret == 0) {
+            ret = dissector_try_uint_with_data(subdissector_table, lininfo->id, tvb, pinfo, tree, true, &lininfo);
+            if (ret == 0) {
+                ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &lininfo);
+            }
+        }
+    }
+
+    if (ret == 0) {
+        ret = call_data_dissector(tvb, pinfo, tree);
+    }
+
+    return ret;
+}
+
 static int
 dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     proto_item *ti;
@@ -449,14 +473,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_item_set_end(ti_root, tvb, 8 + payload_length);
             lininfo.len = (uint16_t)payload_length;
 
-            uint32_t bus_frame_id = lininfo.id | (lininfo.bus_id << 16);
-            if (!dissector_try_uint_with_data(subdissector_table, bus_frame_id, next_tvb, pinfo, tree, true, &lininfo)) {
-                if (!dissector_try_uint_with_data(subdissector_table, lininfo.id, next_tvb, pinfo, tree, true, &lininfo)) {
-                    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &lininfo)) {
-                        call_data_dissector(next_tvb, pinfo, tree);
-                    }
-                }
-            }
+            dissect_lin_message(next_tvb, pinfo, tree, &lininfo);
         }
         break;
     }

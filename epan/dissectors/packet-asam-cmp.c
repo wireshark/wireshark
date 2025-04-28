@@ -37,8 +37,6 @@ static dissector_handle_t eth_handle;
 static bool heuristic_first;
 static bool old_11bit_canid_encoding;
 
-static dissector_table_t lin_subdissector_table;
-
 /* Header fields */
 static int hf_cmp_header;
 static int hf_cmp_version;
@@ -1339,15 +1337,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
             lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
             lin_info.len = msg_payload_type_length;
 
-            /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
-            bool ignore_lin_payload = (lin_info.id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_uint8(sub_tvb, 0) == 0x00);
-
-            if (ignore_lin_payload || !dissector_try_uint_with_data(lin_subdissector_table, lin_info.id | (lin_info.bus_id << 16), sub_tvb, pinfo, tree, false, &lin_info)) {
-                if (ignore_lin_payload || !dissector_try_uint_with_data(lin_subdissector_table, lin_info.id, sub_tvb, pinfo, tree, false, &lin_info)) {
-                    call_data_dissector(sub_tvb, pinfo, tree);
-                }
-            }
-
+            dissect_lin_message(sub_tvb, pinfo, tree, &lin_info);
             offset += (int)msg_payload_type_length;
         }
 
@@ -2643,8 +2633,6 @@ proto_reg_handoff_asam_cmp(void) {
 
     dissector_add_for_decode_as("ethertype", asam_cmp_handle);
     dissector_add_for_decode_as_with_preference("udp.port", asam_cmp_handle);
-
-    lin_subdissector_table = find_dissector_table("lin.frame_id");
 }
 
   /*
