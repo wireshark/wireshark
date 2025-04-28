@@ -6118,7 +6118,7 @@ proto_register_oran(void)
          { "DU Port ID", "oran_fh_cus.du_port_id",
            FT_UINT16, BASE_DEC,
            NULL, 0x0,
-           "Width set in dissector preference", HFILL }
+           "Processing unit at O-RU - width set in dissector preference", HFILL }
        },
 
        /* Section 5.1.3.2.7 */
@@ -6126,7 +6126,7 @@ proto_register_oran(void)
          { "BandSector ID", "oran_fh_cus.bandsector_id",
            FT_UINT16, BASE_DEC,
            NULL, 0x0,
-           "Width set in dissector preference", HFILL }
+           "Aggregated cell identified - width set in dissector preference", HFILL }
        },
 
        /* Section 5.1.3.2.7 */
@@ -6134,7 +6134,7 @@ proto_register_oran(void)
          { "CC ID", "oran_fh_cus.cc_id",
            FT_UINT16, BASE_DEC,
            NULL, 0x0,
-           "Width set in dissector preference", HFILL }
+           "Component Carrier - width set in dissector preference", HFILL }
        },
 
         /* Section 5.1.3.2.7 */
@@ -6142,7 +6142,7 @@ proto_register_oran(void)
           { "RU Port ID", "oran_fh_cus.ru_port_id",
             FT_UINT16, BASE_DEC,
             NULL, 0x0,
-            "Width set in dissector preference", HFILL }
+            "Logical flow - width set in dissector preference", HFILL }
         },
 
         /* Section 5.1.3.2.8 */
