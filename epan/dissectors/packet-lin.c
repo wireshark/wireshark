@@ -471,10 +471,13 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_item_set_end(ti_root, tvb, 8 + payload_length);
             lininfo.len = (guint16)payload_length;
 
+            /* LIN encodes a sleep frame by setting ID to LIN_DIAG_MASTER_REQUEST_FRAME and the first byte to 0x00 */
+            bool ignore_lin_payload = (lininfo.id == LIN_DIAG_MASTER_REQUEST_FRAME && tvb_get_guint8(next_tvb, 0) == 0x00);
+
             guint32 bus_frame_id = lininfo.id | (lininfo.bus_id << 16);
-            if (!dissector_try_uint_new(subdissector_table, bus_frame_id, next_tvb, pinfo, tree, TRUE, &lininfo)) {
-                if (!dissector_try_uint_new(subdissector_table, lininfo.id, next_tvb, pinfo, tree, TRUE, &lininfo)) {
-                    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &lininfo)) {
+            if (ignore_lin_payload || !dissector_try_uint_new(subdissector_table, bus_frame_id, next_tvb, pinfo, tree, TRUE, &lininfo)) {
+                if (ignore_lin_payload || !dissector_try_uint_new(subdissector_table, lininfo.id, next_tvb, pinfo, tree, TRUE, &lininfo)) {
+                    if (ignore_lin_payload || !dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &lininfo)) {
                         call_data_dissector(next_tvb, pinfo, tree);
                     }
                 }
