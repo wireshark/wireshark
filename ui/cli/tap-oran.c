@@ -28,6 +28,7 @@ enum {
     NUM_FRAMES_COLUMN,
     LARGEST_PDU_COLUMN,
     SECTIONS_COLUMN,
+    SECTION_IDS_COLUMN,
     EXTENSIONS_COLUMN,
     HIGHEST_SLOT_COLUMN,
     MISSING_SNS_COLUMN,
@@ -44,6 +45,7 @@ static const char *flow_titles[] = { " Plane    ",
                                      "Frames   ",
                                      "Largest PDU   ",
                                      "Section Types        ",
+                                     "Section IDs        ",
                                      "Extensions",
                                      "Highest Slot",
                                      "Missing SNs   ",
@@ -66,6 +68,8 @@ typedef struct oran_row_data {
     uint32_t      num_res;
     uint32_t      num_prbs_zero;
     uint32_t      num_res_zero;
+
+    bool          section_ids_present[4096];  /* sectionId is 12 bits */
 } oran_row_data;
 
 /* Top-level struct for ORAN FH statistics */
@@ -139,6 +143,11 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
             row->base_info.section_types[s] = si->section_types[s];
         }
     }
+
+    for (unsigned int t=0; t < si->num_section_ids; t++) {
+        row->section_ids_present[si->section_ids[t]] = true;
+    }
+
     for (unsigned int e=0; e <= HIGHEST_EXTTYPE; e++) {
         if (si->extensions[e]) {
             row->base_info.extensions[e] = si->extensions[e];
@@ -213,7 +222,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n=======================================================================================================================================================================\n");
+    printf("\n=============================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -228,6 +237,10 @@ oran_stat_draw(void *phs)
         extensions[0] = '-';
         extensions[1] = '\0';
 
+        char section_ids[64];
+        int section_ids_offset = 0;
+        section_ids[0] = '-';
+        section_ids[1] = '\0';
 
         /* Some fields only apply to c-plane */
         if (!row->base_info.userplane) {
@@ -246,14 +259,21 @@ oran_stat_draw(void *phs)
             }
         }
 
+        for (unsigned id=0; id < 4096; id++) {
+            if (row->section_ids_present[id]) {
+                section_ids_offset += snprintf(section_ids+section_ids_offset, 64-section_ids_offset, "%u ", id);
+            }
+        }
+
         /* Print this row */
-        printf("%s %11u %16s %11u %15u %18s %18s %13u %12u %8u %11u %11u %10u\n",
+        printf("%s %11u %16s %11u %15u %18s %20s %18s %13u %12u %8u %11u %11u %10u\n",
                (row->base_info.userplane) ? "U" : "C",
                row->base_info.eaxc,
                (row->base_info.uplink) ? "Uplink" : "Downlink",
                row->num_frames,
                row->largest_pdu,
                sections,
+               section_ids,
                extensions,
                row->highest_slot,
                row->missing_sns,

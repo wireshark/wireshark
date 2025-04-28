@@ -26,6 +26,8 @@ enum section_c_types {
 
 #define HIGHEST_EXTTYPE 28
 
+#define MAX_SECTION_IDs 32  /* i.e. how many may be reported from one frame */
+
 typedef struct oran_tap_info {
     /* Key info */
     bool     userplane;
@@ -39,6 +41,8 @@ typedef struct oran_tap_info {
     /* Accumulated state */
     uint32_t pdu_size;
     bool     section_types[SEC_C_MAX_INDEX];
+    uint16_t section_ids[MAX_SECTION_IDs+1];
+    uint8_t  num_section_ids;
     bool     extensions[HIGHEST_EXTTYPE+1];    /* wasting first entry */
 
     /* U-Plane stats */
