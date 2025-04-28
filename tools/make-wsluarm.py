@@ -31,8 +31,6 @@ import os
 import re
 import sys
 
-from enum import Enum
-
 def parse_desc(description):
     '''\
 Break up descriptions based on newlines and keywords. Some processing

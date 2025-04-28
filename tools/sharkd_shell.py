@@ -77,7 +77,7 @@ class SharkdShell:
             line = origline.lstrip()
             skipped = len(origline) - len(line)
             startpos = readline.get_begidx() - skipped
-            curpos = readline.get_endidx() - skipped
+            #curpos = readline.get_endidx() - skipped
             # _logger.debug('Completing: head=%r cur=%r tail=%r',
             #              line[:startpos], line[startpos:curpos], line[curpos:])
             completions = []

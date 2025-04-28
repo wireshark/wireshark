@@ -46,7 +46,7 @@ def remove_tasks(stdinu8):
 def main():
     stdinu8 = io.TextIOWrapper(sys.stdin.buffer, encoding='utf8')
     stdoutu8 = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
-    stderru8 = io.TextIOWrapper(sys.stderr.buffer, encoding='utf8')
+    #stderru8 = io.TextIOWrapper(sys.stderr.buffer, encoding='utf8')
 
     lines = remove_tasks(stdinu8)
     patt = re.compile("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]")

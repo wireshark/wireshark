@@ -17,7 +17,6 @@
 
 import os
 import sys
-import argparse
 from pyclibrary import CParser
 
 def parse_files(infiles, outfile):

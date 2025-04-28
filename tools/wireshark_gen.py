@@ -748,7 +748,6 @@ class wireshark_gen_C:
                                       # but only if the fn_hash is not already built
 
         self.curr_sname = sname  # update current opnode's scoped name
-        opname = opnode.identifier()
 
         self.st.out(self.template_helper_function_comment, repoid=opnode.repoId())
 

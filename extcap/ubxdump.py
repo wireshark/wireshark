@@ -314,8 +314,6 @@ def control_write(arg, typ, payload):
 
 def extcap_capture(interface, fifo, control_in, control_out):
     global fn_out
-    
-    counter = 1
 
     with open(fifo, 'wb', 0) as fh:
 

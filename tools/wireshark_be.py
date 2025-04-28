@@ -42,7 +42,6 @@
 
 from __future__ import print_function
 
-import string
 import sys
 from os import path
 
