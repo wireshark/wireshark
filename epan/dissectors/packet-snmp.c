@@ -3194,18 +3194,15 @@ snmp_find_conversation_and_get_conv_data(packet_info *pinfo) {
 	 * from "the transport layer conversation that carries SNMP."
 	 */
         if (pinfo->destport == UDP_PORT_SNMP) {
-                conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, CONVERSATION_SNMP,
-                        pinfo->srcport, 0, NO_PORT_B);
+                conversation = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT_B, 0);
         } else {
-                conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, CONVERSATION_SNMP,
-                        pinfo->destport, 0, NO_PORT_B);
+                conversation = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT_B, 1);
         }
-        if (conversation == NULL) {
+        if ( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
                 conversation = conversation_new_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT2);
                 conversation_set_dissector(conversation, snmp_handle);
 
-                conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_SNMP,
-                        pinfo->srcport, 0, NO_PORT2);
+                conversation = conversation_new_strat(pinfo, CONVERSATION_SNMP, NO_PORT2);
         }
 
 	snmp_info = (snmp_conv_info_t *)conversation_get_proto_data(conversation, proto_snmp);
@@ -3470,13 +3467,9 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         conversation = conversation_new_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), NO_PORT2);
 
                         conversation_set_dissector(conversation, snmp_handle);
-                        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_SNMP,
-                                pinfo->srcport, 0, NO_PORT2);
                 }
                 else if (conversation_get_dissector(conversation,pinfo->num)!=snmp_handle) {
                         conversation_set_dissector(conversation, snmp_handle);
-                        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, CONVERSATION_SNMP,
-                                pinfo->srcport, 0, NO_PORT2);
                 }
         }
 
