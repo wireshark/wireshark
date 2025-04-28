@@ -33,6 +33,7 @@
 #include <wsutil/plugins.h>
 #endif
 
+#include <wsutil/clopts_common.h>
 #include <wsutil/wslog.h>
 
 #include "ui/failure_message.h"
@@ -156,8 +157,11 @@ main(int argc, char *argv[])
     static const struct ws_option long_options[] = {
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
+        LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
+#define OPTSTRING "hnv"
+    static const char optstring[] = OPTSTRING;
     int file_count;
     char *infile;
     const char *outfile;
@@ -171,7 +175,7 @@ main(int argc, char *argv[])
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -200,7 +204,7 @@ main(int argc, char *argv[])
     wtap_init(true);
 
     /* Process the options first */
-    while ((opt = ws_getopt_long(argc, argv, "hnv", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'n':
                 write_output_regardless = false;

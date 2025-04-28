@@ -547,7 +547,7 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, commandline_optstring(), commandline_long_options(), vcmdarg_err, WS_EXIT_INVALID_OPTION);
     ws_noisy("Finished log init and parsing command line log arguments");
 
     /*

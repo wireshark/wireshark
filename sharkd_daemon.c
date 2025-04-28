@@ -241,40 +241,6 @@ print_usage(FILE* output)
 int
 sharkd_init(int argc, char **argv)
 {
-    /*
-     * The leading + ensures that getopt_long() does not permute the argv[]
-     * entries.
-     *
-     * We have to make sure that the first getopt_long() preserves the content
-     * of argv[] for the subsequent getopt_long() call.
-     *
-     * We use getopt_long() in both cases to ensure that we're using a routine
-     * whose permutation behavior we can control in the same fashion on all
-     * platforms, and so that, if we ever need to process a long argument before
-     * doing further initialization, we can do so.
-     *
-     * Glibc and Solaris libc document that a leading + disables permutation
-     * of options, regardless of whether POSIXLY_CORRECT is set or not; *BSD
-     * and macOS don't document it, but do so anyway.
-     *
-     * We do *not* use a leading - because the behavior of a leading - is
-     * platform-dependent.
-     */
-
-#define OPTSTRING "+" "a:hmvC:"
-#define LONGOPT_FOREGROUND 4000
-
-    static const char    optstring[] = OPTSTRING;
-
-    static const struct ws_option long_options[] = {
-        {"api", ws_required_argument, NULL, 'a'},
-        {"foreground", ws_no_argument, NULL, LONGOPT_FOREGROUND},
-        {"help", ws_no_argument, NULL, 'h'},
-        {"version", ws_no_argument, NULL, 'v'},
-        {"config-profile", ws_required_argument, NULL, 'C'},
-        {0, 0, 0, 0 }
-    };
-
     int opt;
 
 #ifndef _WIN32
@@ -333,7 +299,7 @@ sharkd_init(int argc, char **argv)
             if (ws_optind > (argc - 1))
                 break;
 
-            opt = ws_getopt_long(argc, argv, optstring, long_options, NULL);
+            opt = ws_getopt_long(argc, argv, sharkd_optstring(), sharkd_long_options(), NULL);
 
             switch (opt) {
                 case 'C':        /* Configuration Profile */

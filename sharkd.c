@@ -71,6 +71,49 @@ capture_file cfile;
 static uint32_t cum_bytes;
 static frame_data ref_frame;
 
+/*
+ * The leading + ensures that getopt_long() does not permute the argv[]
+ * entries.
+ *
+ * We have to make sure that the first getopt_long() preserves the content
+ * of argv[] for the subsequent getopt_long() call.
+ *
+ * We use getopt_long() in both cases to ensure that we're using a routine
+ * whose permutation behavior we can control in the same fashion on all
+ * platforms, and so that, if we ever need to process a long argument before
+ * doing further initialization, we can do so.
+ *
+ * Glibc and Solaris libc document that a leading + disables permutation
+ * of options, regardless of whether POSIXLY_CORRECT is set or not; *BSD
+ * and macOS don't document it, but do so anyway.
+ *
+ * We do *not* use a leading - because the behavior of a leading - is
+ * platform-dependent.
+ */
+
+static const struct ws_option long_options[] = {
+    {"api", ws_required_argument, NULL, 'a'},
+    {"foreground", ws_no_argument, NULL, LONGOPT_FOREGROUND},
+    {"help", ws_no_argument, NULL, 'h'},
+    {"version", ws_no_argument, NULL, 'v'},
+    {"config-profile", ws_required_argument, NULL, 'C'},
+    LONGOPT_WSLOG
+    {0, 0, 0, 0 }
+};
+
+const struct ws_option* sharkd_long_options(void)
+{
+    return long_options;
+}
+
+const char* sharkd_optstring(void)
+{
+#define OPTSTRING "+" "a:hmvC:"
+    static const char optstring[] = OPTSTRING;
+
+    return optstring;
+}
+
 static void
 print_current_user(void)
 {
@@ -108,7 +151,7 @@ main(int argc, char *argv[])
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, SHARKD_INIT_FAILED);
+    ws_log_parse_args(&argc, argv, sharkd_optstring(), sharkd_long_options(), vcmdarg_err, SHARKD_INIT_FAILED);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 

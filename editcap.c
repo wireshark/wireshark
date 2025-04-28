@@ -1413,8 +1413,12 @@ main(int argc, char *argv[])
         {"preserve-packet-comments", ws_no_argument, NULL, LONGOPT_PRESERVE_PACKET_COMMENTS},
         {"extract-secrets", ws_no_argument, NULL, LONGOPT_EXTRACT_SECRETS},
         {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
+        LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
+
+#define OPTSTRING "a:A:B:c:C:dD:E:F:hi:I:Lo:rR:s:S:t:T:vVw:"
+    static const char optstring[] = OPTSTRING;
 
     char         *p;
     uint32_t      snaplen            = 0; /* No limit               */
@@ -1458,7 +1462,7 @@ main(int argc, char *argv[])
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -1490,7 +1494,7 @@ main(int argc, char *argv[])
     wtap_init(true);
 
     /* Process the options */
-    while ((opt = ws_getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rR:s:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         if (opt != LONGOPT_EXTRACT_SECRETS && opt != 'V') {
             edit_option_specified = true;
         }

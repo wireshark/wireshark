@@ -23,6 +23,7 @@
 #include <ws_attributes.h>
 #include <ws_log_defs.h>
 #include <ws_posix_compat.h>
+#include "ws_getopt.h"
 
 #ifdef WS_LOG_DOMAIN
 #define _LOG_DOMAIN WS_LOG_DOMAIN
@@ -218,14 +219,48 @@ void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
 
 #define LOG_ARGS_NOEXIT -1
 
+#define LONGOPT_WSLOG_BASE                 LONGOPT_BASE_APPLICATION+1000
+#define LONGOPT_WSLOG_LOG_LEVEL            LONGOPT_WSLOG_BASE+1
+#define LONGOPT_WSLOG_LOG_DOMAIN           LONGOPT_WSLOG_BASE+2
+#define LONGOPT_WSLOG_LOG_FILE             LONGOPT_WSLOG_BASE+3
+#define LONGOPT_WSLOG_LOG_FATAL            LONGOPT_WSLOG_BASE+4
+#define LONGOPT_WSLOG_LOG_FATAL_DOMAIN     LONGOPT_WSLOG_BASE+5
+#define LONGOPT_WSLOG_LOG_DEBUG            LONGOPT_WSLOG_BASE+6
+#define LONGOPT_WSLOG_LOG_NOISY            LONGOPT_WSLOG_BASE+7
+
+/** Logging options for command line
+*/
+#define LONGOPT_WSLOG \
+    {"log-level",             ws_required_argument, NULL, LONGOPT_WSLOG_LOG_LEVEL},  \
+    {"log-domain",            ws_required_argument, NULL, LONGOPT_WSLOG_LOG_DOMAIN}, \
+    /* Alias "domain" and "domains". */                                              \
+    {"log-domains",           ws_required_argument, NULL, LONGOPT_WSLOG_LOG_DOMAIN}, \
+    {"log-file",              ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FILE},   \
+    {"log-fatal",             ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL},  \
+    /* Alias "domain" and "domains". */                                                    \
+    {"log-fatal-domain",      ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL_DOMAIN}, \
+    {"log-fatal-domains",     ws_required_argument, NULL, LONGOPT_WSLOG_LOG_FATAL_DOMAIN}, \
+    {"log-debug",             ws_required_argument, NULL, LONGOPT_WSLOG_LOG_DEBUG}, \
+    {"log-noisy",             ws_required_argument, NULL, LONGOPT_WSLOG_LOG_NOISY},
+
 /** Parses the command line arguments for log options.
  *
  * Returns zero for no error, non-zero for one or more invalid options.
  */
 WS_DLL_PUBLIC
 int ws_log_parse_args(int *argc_ptr, char *argv[],
+                        const char* optstring, const struct ws_option* long_options,
                         void (*vcmdarg_err)(const char *, va_list ap),
                         int exit_failure);
+
+/** Determine if command line argument is used by wslog
+*
+* Used when applications are strict about command line arguments passed to it,
+* but shouldn't be handling these themselves
+*/
+WS_DLL_PUBLIC
+bool ws_log_is_wslog_arg(int arg);
+
 
 
 /** Initializes the logging code.

@@ -32,6 +32,7 @@
 #include <wsutil/strnatcmp.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
+#include <ws_exit_codes.h>
 
 #include <cli_main.h>
 #include <wsutil/version_info.h>
@@ -186,8 +187,11 @@ main(int argc, char *argv[])
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
         {"compress", ws_required_argument, NULL, LONGOPT_COMPRESS},
+        LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
+#define OPTSTRING "aF:hI:s:vVw:"
+    static const char optstring[] = OPTSTRING;
     bool                  do_append        = false;
     bool                  verbose          = false;
     int                   in_file_count    = 0;
@@ -208,7 +212,7 @@ main(int argc, char *argv[])
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -241,7 +245,7 @@ main(int argc, char *argv[])
     wtap_init(true);
 
     /* Process the options first */
-    while ((opt = ws_getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
 
         switch (opt) {
             case 'a':

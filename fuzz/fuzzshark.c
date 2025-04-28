@@ -25,6 +25,8 @@
 #include <ui/failure_message.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/clopts_common.h>
+#include <wsutil/ws_getopt.h>
 #include <wsutil/wslog.h>
 #include <wsutil/version_info.h>
 
@@ -129,7 +131,7 @@ fuzz_prefs_apply(void)
 }
 
 static int
-fuzz_init(int argc _U_, char **argv)
+fuzz_init(int argc, char **argv)
 {
 	char                *configuration_init_error;
 
@@ -138,6 +140,10 @@ fuzz_init(int argc _U_, char **argv)
 	e_prefs             *prefs_p;
 	int                  ret = EXIT_SUCCESS;
 	size_t               i;
+	static const struct ws_option long_options[] = {
+		LONGOPT_WSLOG
+		{0, 0, 0, 0 }
+	};
 
 	const char *fuzz_target =
 #if defined(FUZZ_DISSECTOR_TARGET)
@@ -218,7 +224,7 @@ fuzz_init(int argc _U_, char **argv)
 	ws_log_init(vcmdarg_err);
 
 	/* Early logging command-line initialization. */
-	ws_log_parse_args(&argc, argv, vcmdarg_err, LOG_ARGS_NOEXIT);
+	ws_log_parse_args(&argc, argv, "v", long_options, vcmdarg_err, LOG_ARGS_NOEXIT);
 
 	ws_noisy("Finished log init and parsing command line log arguments");
 

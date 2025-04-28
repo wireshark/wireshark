@@ -153,7 +153,7 @@ struct epb {
 };
 #define ENHANCED_PACKET_BLOCK_TYPE 0x00000006
 
-struct ws_option {
+struct ws_option_tlv {
     uint16_t type;
     uint16_t value_length;
 };
@@ -501,7 +501,7 @@ pcapng_count_string_option(const char *option_value)
 {
     if ((option_value != NULL) && (strlen(option_value) > 0) && (strlen(option_value) < UINT16_MAX)) {
         /* There's a value to write; get its length */
-        return (uint32_t)(sizeof(struct ws_option) +
+        return (uint32_t)(sizeof(struct ws_option_tlv) +
                          (uint16_t)ADD_PADDING(strlen(option_value)));
     }
     return 0; /* nothing to write */
@@ -513,7 +513,7 @@ pcapng_write_string_option(pcapio_writer* pfile,
                            uint64_t *bytes_written, int *err)
 {
     size_t option_value_length;
-    struct ws_option option;
+    struct ws_option_tlv option;
     const uint32_t padding = 0;
 
     if (option_value == NULL)
@@ -524,7 +524,7 @@ pcapng_write_string_option(pcapio_writer* pfile,
         option.type = option_type;
         option.value_length = (uint16_t)option_value_length;
 
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)option_value, (int) option_value_length, bytes_written, err))
@@ -579,7 +579,7 @@ pcapng_write_section_header_block(pcapio_writer* pfile,
                                   int *err)
 {
     struct shb shb;
-    struct ws_option option;
+    struct ws_option_tlv option;
     uint32_t block_total_length;
     uint32_t options_length;
 
@@ -596,7 +596,7 @@ pcapng_write_section_header_block(pcapio_writer* pfile,
     options_length += pcapng_count_string_option(appname);
     /* If we have options add size of end-of-options */
     if (options_length != 0) {
-        options_length += (uint32_t)sizeof(struct ws_option);
+        options_length += (uint32_t)sizeof(struct ws_option_tlv);
     }
     block_total_length += options_length;
 
@@ -632,7 +632,7 @@ pcapng_write_section_header_block(pcapio_writer* pfile,
         /* write end of options */
         option.type = OPT_ENDOFOPT;
         option.value_length = 0;
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
     }
 
@@ -656,7 +656,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
                                          int *err)
 {
     struct idb idb;
-    struct ws_option option;
+    struct ws_option_tlv option;
     uint32_t block_total_length;
     uint32_t options_length;
     const uint32_t padding = 0;
@@ -674,20 +674,20 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
 
     /* 08 - IDB_IF_SPEED */
     if (if_speed != 0) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint64_t));
     }
 
     /* 09 - IDB_TSRESOL */
     if (tsresol != 0) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
-                                    sizeof(struct ws_option));
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
+                                    sizeof(struct ws_option_tlv));
     }
 
     /* 11 - IDB_FILTER */
     if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < UINT16_MAX - 1)) {
         /* No, this isn't a string, it has an extra type byte */
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     (uint16_t)(ADD_PADDING(strlen(filter)+ 1)));
     }
 
@@ -699,7 +699,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
 
     /* If we have options add size of end-of-options */
     if (options_length != 0) {
-        options_length += (uint32_t)sizeof(struct ws_option);
+        options_length += (uint32_t)sizeof(struct ws_option_tlv);
     }
     block_total_length += options_length;
 
@@ -733,7 +733,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
         option.type = IDB_IF_SPEED;
         option.value_length = sizeof(uint64_t);
 
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)&if_speed, sizeof(uint64_t), bytes_written, err))
@@ -745,7 +745,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
         option.type = IDB_TSRESOL;
         option.value_length = sizeof(uint8_t);
 
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)&tsresol, sizeof(uint8_t), bytes_written, err))
@@ -762,7 +762,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
     if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < UINT16_MAX - 1)) {
         option.type = IDB_FILTER;
         option.value_length = (uint16_t)(strlen(filter) + 1 );
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         /* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
@@ -790,7 +790,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
         /* write end of options */
         option.type = OPT_ENDOFOPT;
         option.value_length = 0;
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
     }
 
@@ -813,7 +813,7 @@ pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
                                    int *err)
 {
     struct epb epb;
-    struct ws_option option;
+    struct ws_option_tlv option;
     uint32_t block_total_length;
     uint64_t timestamp;
     uint32_t options_length;
@@ -828,12 +828,12 @@ pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
     options_length = 0;
     options_length += pcapng_count_string_option(comment);
     if (flags != 0) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint32_t));
     }
     /* If we have options add size of end-of-options */
     if (options_length != 0) {
-        options_length += (uint32_t)sizeof(struct ws_option);
+        options_length += (uint32_t)sizeof(struct ws_option_tlv);
     }
     block_total_length += options_length;
     timestamp = (uint64_t)sec * ts_mul + (uint64_t)usec;
@@ -876,7 +876,7 @@ pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
     if (flags != 0) {
         option.type = EPB_FLAGS;
         option.value_length = sizeof(uint32_t);
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
         if (!write_to_file(pfile, (const uint8_t*)&flags, sizeof(uint32_t), bytes_written, err))
             return false;
@@ -885,7 +885,7 @@ pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
         /* write end of options */
         option.type = OPT_ENDOFOPT;
         option.value_length = 0;
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
     }
 
@@ -909,7 +909,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
 #else
     struct timeval now;
 #endif
-    struct ws_option option;
+    struct ws_option_tlv option;
     uint32_t block_total_length;
     uint32_t options_length;
     uint64_t timestamp;
@@ -956,26 +956,26 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
     block_total_length = (uint32_t)(sizeof(struct isb) + sizeof(uint32_t));
     options_length = 0;
     if (isb_ifrecv != UINT64_MAX) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint64_t));
     }
     if (isb_ifdrop != UINT64_MAX) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint64_t));
     }
     /* OPT_COMMENT */
     options_length += pcapng_count_string_option(comment);
     if (isb_starttime !=0) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint64_t)); /* ISB_STARTTIME */
     }
     if (isb_endtime !=0) {
-        options_length += (uint32_t)(sizeof(struct ws_option) +
+        options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint64_t)); /* ISB_ENDTIME */
     }
     /* If we have options add size of end-of-options */
     if (options_length != 0) {
-        options_length += (uint32_t)sizeof(struct ws_option);
+        options_length += (uint32_t)sizeof(struct ws_option_tlv);
     }
     block_total_length += options_length;
 
@@ -999,7 +999,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
         option.value_length = sizeof(uint64_t);
         high = (uint32_t)((isb_starttime>>32) & 0xffffffff);
         low = (uint32_t)(isb_starttime & 0xffffffff);
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)&high, sizeof(uint32_t), bytes_written, err))
@@ -1015,7 +1015,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
         option.value_length = sizeof(uint64_t);
         high = (uint32_t)((isb_endtime>>32) & 0xffffffff);
         low = (uint32_t)(isb_endtime & 0xffffffff);
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)&high, sizeof(uint32_t), bytes_written, err))
@@ -1027,7 +1027,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
     if (isb_ifrecv != UINT64_MAX) {
         option.type = ISB_IFRECV;
         option.value_length = sizeof(uint64_t);
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)&isb_ifrecv, sizeof(uint64_t), bytes_written, err))
@@ -1036,7 +1036,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
     if (isb_ifdrop != UINT64_MAX) {
         option.type = ISB_IFDROP;
         option.value_length = sizeof(uint64_t);
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
 
         if (!write_to_file(pfile, (const uint8_t*)&isb_ifdrop, sizeof(uint64_t), bytes_written, err))
@@ -1046,7 +1046,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
         /* write end of options */
         option.type = OPT_ENDOFOPT;
         option.value_length = 0;
-        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option), bytes_written, err))
+        if (!write_to_file(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
             return false;
     }
 

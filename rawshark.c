@@ -421,6 +421,7 @@ main(int argc, char *argv[])
       {"version", ws_no_argument, NULL, 'v'},
       LONGOPT_DISSECT_COMMON
       LONGOPT_READ_CAPTURE_COMMON
+      LONGOPT_WSLOG
       {0, 0, 0, 0 }
     };
 
@@ -447,7 +448,7 @@ main(int argc, char *argv[])
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 

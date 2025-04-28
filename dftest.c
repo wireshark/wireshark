@@ -33,6 +33,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
+#include <wsutil/clopts_common.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
 #include <wsutil/utf8_entities.h>
@@ -317,6 +318,27 @@ main(int argc, char **argv)
     char        *text = NULL;
     int          exit_status = EXIT_FAILURE;
 
+    const char* optstring = "hvC:dDflsmrtV0";
+    static const struct ws_option long_options[] = {
+        { "help",     ws_no_argument,   0,  'h' },
+        { "version",  ws_no_argument,   0,  'v' },
+        { "debug",    ws_optional_argument, 0, 'd' },
+        { "flex",     ws_no_argument,   0,  'f' },
+        { "lemon",    ws_no_argument,   0,  'l' },
+        { "syntax",   ws_no_argument,   0,  's' },
+        { "macros",   ws_no_argument,   0,  'm' },
+        { "timer",    ws_no_argument,   0,  't' },
+        { "verbose",  ws_no_argument,   0,  'V' },
+        { "return-vals", ws_no_argument,   0,  'r' },
+        { "optimize", ws_required_argument, 0, 1000 },
+        { "types",    ws_no_argument,   0, 2000 },
+        { "refs",     ws_no_argument,   0, 3000 },
+        { "file",     ws_required_argument, 0, 4000 },
+        LONGOPT_WSLOG
+        { NULL,       0,                0,  0   }
+    };
+    int opt;
+
     /* Set the program name. */
     g_set_prgname("dftest");
 
@@ -336,7 +358,7 @@ main(int argc, char **argv)
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
 
@@ -358,26 +380,6 @@ main(int argc, char **argv)
     }
 
     ws_init_version_info("DFTest", NULL, NULL);
-
-    const char *optstring = "hvC:dDflsmrtV0";
-    static struct ws_option long_options[] = {
-        { "help",     ws_no_argument,   0,  'h' },
-        { "version",  ws_no_argument,   0,  'v' },
-        { "debug",    ws_optional_argument, 0, 'd' },
-        { "flex",     ws_no_argument,   0,  'f' },
-        { "lemon",    ws_no_argument,   0,  'l' },
-        { "syntax",   ws_no_argument,   0,  's' },
-        { "macros",   ws_no_argument,   0,  'm' },
-        { "timer",    ws_no_argument,   0,  't' },
-        { "verbose",  ws_no_argument,   0,  'V' },
-        { "return-vals", ws_no_argument,   0,  'r' },
-        { "optimize", ws_required_argument, 0, 1000 },
-        { "types",    ws_no_argument,   0, 2000 },
-        { "refs",     ws_no_argument,   0, 3000 },
-        { "file",     ws_required_argument, 0, 4000 },
-        { NULL,       0,                0,  0   }
-    };
-    int opt;
 
     for (;;) {
         opt = ws_getopt_long(argc, argv, optstring, long_options, NULL);

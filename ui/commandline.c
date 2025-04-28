@@ -235,9 +235,21 @@ static const struct ws_option long_options[] = {
         LONGOPT_CAPTURE_COMMON
         LONGOPT_DISSECT_COMMON
         LONGOPT_READ_CAPTURE_COMMON
+        LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
 static const char optstring[] = OPTSTRING;
+
+
+const struct ws_option* commandline_long_options(void)
+{
+    return long_options;
+}
+
+const char* commandline_optstring(void)
+{
+    return optstring;
+}
 
 #ifndef HAVE_LIBPCAP
 static void print_no_capture_support_error(void)

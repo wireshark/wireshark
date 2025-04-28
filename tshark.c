@@ -1048,6 +1048,7 @@ main(int argc, char *argv[])
         LONGOPT_CAPTURE_COMMON
         LONGOPT_DISSECT_COMMON
         LONGOPT_READ_CAPTURE_COMMON
+        LONGOPT_WSLOG
         {"print", ws_no_argument, NULL, 'P'},
         {"export-objects", ws_required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
         {"export-tls-session-keys", ws_required_argument, NULL, LONGOPT_EXPORT_TLS_SESSION_KEYS},
@@ -1142,7 +1143,7 @@ main(int argc, char *argv[])
     ws_log_init(vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, WS_EXIT_INVALID_OPTION);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
     ws_noisy("Finished log init and parsing command line log arguments");
     ws_debug("tshark started with %d args", argc);

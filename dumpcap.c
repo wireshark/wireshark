@@ -5163,6 +5163,7 @@ main(int argc, char *argv[])
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
+        LONGOPT_WSLOG
         {"ifname", ws_required_argument, NULL, LONGOPT_IFNAME},
         {"ifdescr", ws_required_argument, NULL, LONGOPT_IFDESCR},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
@@ -5172,6 +5173,23 @@ main(int argc, char *argv[])
 #endif
         {0, 0, 0, 0 }
     };
+
+#ifdef HAVE_PCAP_REMOTE
+#define OPTSTRING_r "r"
+#define OPTSTRING_u "u"
+#else
+#define OPTSTRING_r
+#define OPTSTRING_u
+#endif
+
+#ifdef HAVE_PCAP_SETSAMPLING
+#define OPTSTRING_m "m:"
+#else
+#define OPTSTRING_m
+#endif
+
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPqQ" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
+    static const char optstring[] = OPTSTRING;
 
     bool              arg_error             = false;
 
@@ -5271,7 +5289,7 @@ main(int argc, char *argv[])
 #endif
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
+    ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
 #if DEBUG_CHILD_DUMPCAP
     /* Assume that if we're specially compiled with dumpcap debugging
@@ -5305,22 +5323,6 @@ main(int argc, char *argv[])
     /* Initialize the version information. */
     ws_init_version_info("Dumpcap", gather_dumpcap_compiled_info,
                          gather_dumpcap_runtime_info);
-
-#ifdef HAVE_PCAP_REMOTE
-#define OPTSTRING_r "r"
-#define OPTSTRING_u "u"
-#else
-#define OPTSTRING_r
-#define OPTSTRING_u
-#endif
-
-#ifdef HAVE_PCAP_SETSAMPLING
-#define OPTSTRING_m "m:"
-#else
-#define OPTSTRING_m
-#endif
-
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:dghk:" OPTSTRING_m "MN:nPqQ" OPTSTRING_r "St" OPTSTRING_u "vw:Z:"
 
 #if defined(__APPLE__) && defined(__LP64__)
     /*
@@ -5500,7 +5502,7 @@ main(int argc, char *argv[])
     global_capture_opts.capture_child = capture_child;
 
     /* Now get our args */
-    while ((opt = ws_getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
             show_help_header("Capture network packets and dump them into a pcapng or pcap file.");
@@ -5667,6 +5669,10 @@ main(int argc, char *argv[])
             pcap_queue_packet_limit = get_positive_int(ws_optarg, "packet_limit");
             break;
         default:
+            /* wslog arguments are okay */
+            if (ws_log_is_wslog_arg(opt))
+                break;
+
             cmdarg_err("Invalid Option: %s", argv[ws_optind-1]);
             /* FALLTHROUGH */
         case '?':        /* Bad flag - print usage message */

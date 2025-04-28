@@ -28,6 +28,7 @@
 #include <conio.h>
 #endif
 
+#include "clopts_common.h"
 #include "file_util.h"
 #include "time_util.h"
 #include "to_str.h"
@@ -368,19 +369,6 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 }
 
 
-static const char *opt_level   = "--log-level";
-static const char *opt_domain  = "--log-domain";
-/* Alias "domain" and "domains". */
-static const char *opt_domain_s = "--log-domains";
-static const char *opt_file    = "--log-file";
-static const char *opt_fatal   = "--log-fatal";
-static const char *opt_fatal_domain = "--log-fatal-domain";
-/* Alias "domain" and "domains". */
-static const char *opt_fatal_domain_s = "--log-fatal-domains";
-static const char *opt_debug   = "--log-debug";
-static const char *opt_noisy   = "--log-noisy";
-
-
 static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
                         int exit_failure,
                         const char *fmt, ...)
@@ -397,277 +385,92 @@ static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
         exit(exit_failure);
 }
 
-
-/*
- * This tries to convert old log level preference to a wslog
- * configuration. The string must start with "console.log.level:"
- * It receives an argv for { '-o', 'console.log.level:nnn', ...} or
- * { '-oconsole.log.level:nnn', ...}.
- */
-static void
-parse_console_compat_option(char *argv[],
-                        void (*vcmdarg_err)(const char *, va_list ap),
-                        int exit_failure)
+int ws_log_parse_args(int* argc, char* argv[],
+    const char* optstring, const struct ws_option* long_options,
+    void (*vcmdarg_err)(const char*, va_list ap),
+    int exit_failure)
 {
-    const char *mask_str;
-    uint32_t mask;
-    enum ws_log_level level;
+    int opt;
 
-    ASSERT(argv != NULL);
+     /* Save the global setting of erroring on unknown options, because this list will probably contain application options
+        not handled here */
+    int old_ws_opterr = ws_opterr;
 
-    if (argv[0] == NULL)
-        return;
+    /* Clear erroring on unknown options */
+    ws_opterr = 0;
 
-    if (strcmp(argv[0], "-o") == 0) {
-        if (argv[1] == NULL ||
-                    !g_str_has_prefix(argv[1], "console.log.level:")) {
-            /* Not what we were looking for. */
-            return;
-        }
-        mask_str = argv[1] + strlen("console.log.level:");
-    }
-    else if (g_str_has_prefix(argv[0], "-oconsole.log.level:")) {
-        mask_str = argv[0] + strlen("-oconsole.log.level:");
-    }
-    else {
-        /* Not what we were looking for. */
-        return;
-    }
+    while ((opt = ws_getopt_long_only(*argc, argv, optstring, long_options, NULL)) != -1) {
 
-    print_err(vcmdarg_err, LOG_ARGS_NOEXIT,
-                "Option 'console.log.level' is deprecated, consult '--help' "
-                "for diagnostic message options.");
-
-    if (*mask_str == '\0') {
-        print_err(vcmdarg_err, exit_failure,
-                    "Missing value to 'console.log.level' option.");
-        return;
-    }
-
-    if (!ws_basestrtou32(mask_str, NULL, &mask, 10)) {
-        print_err(vcmdarg_err, exit_failure,
-                    "%s is not a valid decimal number.", mask_str);
-        return;
-    }
-
-    /*
-     * The lowest priority bit in the mask defines the level.
-     */
-    if (mask & G_LOG_LEVEL_DEBUG)
-        level = LOG_LEVEL_DEBUG;
-    else if (mask & G_LOG_LEVEL_INFO)
-        level = LOG_LEVEL_INFO;
-    else if (mask & G_LOG_LEVEL_MESSAGE)
-        level = LOG_LEVEL_MESSAGE;
-    else if (mask & G_LOG_LEVEL_WARNING)
-        level = LOG_LEVEL_WARNING;
-    else if (mask & G_LOG_LEVEL_CRITICAL)
-        level = LOG_LEVEL_CRITICAL;
-    else if (mask & G_LOG_LEVEL_ERROR)
-        level = LOG_LEVEL_ERROR;
-    else
-        level = LOG_LEVEL_NONE;
-
-    if (level == LOG_LEVEL_NONE) {
-        /* Some values (like zero) might not contain any meaningful bits.
-         * Throwing an error in that case seems appropriate. */
-        print_err(vcmdarg_err, exit_failure,
-                    "Value %s is not a valid log mask.", mask_str);
-        return;
-    }
-
-    ws_log_set_level(level);
-}
-
-/* Match "arg_name=value" or "arg_name value" to opt_name. */
-static bool optequal(const char *arg, const char *opt)
-{
-    ASSERT(arg);
-    ASSERT(opt);
-#define ARGEND(arg) (*(arg) == '\0' || *(arg) == ' ' || *(arg) == '=')
-
-    while (!ARGEND(arg) && *opt != '\0') {
-        if (*arg != *opt) {
-            return false;
-        }
-        arg += 1;
-        opt += 1;
-    }
-    if (ARGEND(arg) && *opt == '\0') {
-        return true;
-    }
-    return false;
-}
-
-int ws_log_parse_args(int *argc_ptr, char *argv[],
-                        void (*vcmdarg_err)(const char *, va_list ap),
-                        int exit_failure)
-{
-    char **ptr = argv;
-    int count = *argc_ptr;
-    int ret = 0;
-    size_t optlen;
-    const char *option, *value;
-    int extra;
-
-    if (argc_ptr == NULL || argv == NULL)
-        return -1;
-
-#ifdef WS_DEBUG
-    /* Assert ws_log_init() was called before ws_log_parse_args(). */
-    ASSERT(init_complete);
-#endif
-
-    /* Configure from command line. */
-
-    while (*ptr != NULL) {
-        if (optequal(*ptr, opt_level)) {
-            option = opt_level;
-            optlen = strlen(opt_level);
-        }
-        else if (optequal(*ptr, opt_domain)) {
-            option = opt_domain;
-            optlen = strlen(opt_domain);
-        }
-        else if (optequal(*ptr, opt_domain_s)) {
-            option = opt_domain; /* Alias */
-            optlen = strlen(opt_domain_s);
-        }
-        else if (optequal(*ptr, opt_fatal_domain)) {
-            option = opt_fatal_domain;
-            optlen = strlen(opt_fatal_domain);
-        }
-        else if (optequal(*ptr, opt_fatal_domain_s)) {
-            option = opt_fatal_domain; /* Alias */
-            optlen = strlen(opt_fatal_domain_s);
-        }
-        else if (optequal(*ptr, opt_file)) {
-            option = opt_file;
-            optlen = strlen(opt_file);
-        }
-        else if (optequal(*ptr, opt_fatal)) {
-            option = opt_fatal;
-            optlen = strlen(opt_fatal);
-        }
-        else if (optequal(*ptr, opt_debug)) {
-            option = opt_debug;
-            optlen = strlen(opt_debug);
-        }
-        else if (optequal(*ptr, opt_noisy)) {
-            option = opt_noisy;
-            optlen = strlen(opt_noisy);
-        }
-        else {
-            /* Check is we have the old '-o console.log.level' flag,
-             * or '-oconsole.log.level', for backward compatibility.
-             * Then if we do ignore it after processing and let the
-             * preferences module handle it later. */
-            if (*(*ptr + 0) == '-' && *(*ptr + 1) == 'o') {
-                parse_console_compat_option(ptr, vcmdarg_err, exit_failure);
-            }
-            ptr += 1;
-            count -= 1;
-            continue;
-        }
-
-        value = *ptr + optlen;
-        /* Two possibilities:
-         *      --<option> <value>
-         * or
-         *      --<option>=<value>
-         */
-        if (value[0] == '\0') {
-            /* value is separated with blank space */
-            value = *(ptr + 1);
-            extra = 1;
-
-            if (value == NULL || !*value || *value == '-') {
-                /* If the option value after the blank starts with '-' assume
-                 * it is another option. */
+        switch (opt)
+        {
+        case LONGOPT_WSLOG_LOG_LEVEL:
+            if (ws_log_set_level_str(ws_optarg) == LOG_LEVEL_NONE) {
                 print_err(vcmdarg_err, exit_failure,
-                            "Option \"%s\" requires a value.\n", *ptr);
-                option = NULL;
-                extra = 0;
-                ret += 1;
+                    "Invalid log level \"%s\".\n", ws_optarg);
             }
-        }
-        else if (value[0] == '=') {
-            /* value is after equals */
-            value += 1;
-            extra = 0;
-        }
-        else {
-            /* Option isn't known. */
-            ptr += 1;
-            count -= 1;
-            continue;
-        }
+            break;
 
-        if (option == opt_level) {
-            if (ws_log_set_level_str(value) == LOG_LEVEL_NONE) {
+        case LONGOPT_WSLOG_LOG_DOMAIN:
+            ws_log_set_domain_filter(ws_optarg);
+            break;
+
+        case LONGOPT_WSLOG_LOG_FILE:
+        {
+            FILE* fp = ws_fopen(ws_optarg, "w");
+            if (fp == NULL) {
                 print_err(vcmdarg_err, exit_failure,
-                            "Invalid log level \"%s\".\n", value);
-                ret += 1;
-            }
-        }
-        else if (option == opt_domain) {
-            ws_log_set_domain_filter(value);
-        }
-        else if (option == opt_fatal_domain) {
-            ws_log_set_fatal_domain_filter(value);
-        }
-        else if (option == opt_file) {
-            if (value == NULL) {
-                print_err(vcmdarg_err, exit_failure,
-                            "Option '%s' requires an argument.\n",
-                            option);
-                ret += 1;
+                    "Error opening file '%s' for writing: %s.\n",
+                    ws_optarg, g_strerror(errno));
             }
             else {
-                FILE *fp = ws_fopen(value, "w");
-                if (fp == NULL) {
-                    print_err(vcmdarg_err, exit_failure,
-                                "Error opening file '%s' for writing: %s.\n",
-                                value, g_strerror(errno));
-                    ret += 1;
-                }
-                else {
-                    ws_log_add_custom_file(fp);
-                }
+                ws_log_add_custom_file(fp);
             }
         }
-        else if (option == opt_fatal) {
-            if (ws_log_set_fatal_level_str(value) == LOG_LEVEL_NONE) {
+        break;
+        case LONGOPT_WSLOG_LOG_FATAL:
+            if (ws_log_set_fatal_level_str(ws_optarg) == LOG_LEVEL_NONE) {
                 print_err(vcmdarg_err, exit_failure,
-                            "Fatal log level must be \"critical\" or "
-                            "\"warning\", not \"%s\".\n", value);
-                ret += 1;
+                    "Fatal log level must be \"critical\" or \"warning\", not \"%s\".\n", ws_optarg);
             }
+            break;
+        case LONGOPT_WSLOG_LOG_FATAL_DOMAIN:
+            ws_log_set_fatal_domain_filter(ws_optarg);
+            break;
+        case LONGOPT_WSLOG_LOG_DEBUG:
+            ws_log_set_debug_filter(ws_optarg);
+            break;
+        case LONGOPT_WSLOG_LOG_NOISY:
+            ws_log_set_noisy_filter(ws_optarg);
+            break;
+        default:
+            /* Ignore options not found because they are probably supported by the application */
+            break;
         }
-        else if (option == opt_debug) {
-            ws_log_set_debug_filter(value);
-        }
-        else if (option == opt_noisy) {
-            ws_log_set_noisy_filter(value);
-        }
-        else {
-            /* Option value missing or invalid, do nothing. */
-        }
-
-        /*
-         * We found a log option. We will remove it from
-         * the argv by moving up the other strings in the array. This is
-         * so that it doesn't generate an unrecognized option
-         * error further along in the initialization process.
-         */
-        /* Include the terminating NULL in the memmove. */
-        memmove(ptr, ptr + 1 + extra, (count - extra) * sizeof(*ptr));
-        /* No need to increment ptr here. */
-        count -= (1 + extra);
-        *argc_ptr -= (1 + extra);
     }
 
-    return ret;
+    /* Restore the global setting of erroring on unknown options */
+    ws_opterr = old_ws_opterr;
+    ws_optreset = 1;
+
+    return 0;
+}
+
+bool ws_log_is_wslog_arg(int arg)
+{
+    static const struct ws_option test_options[] = {
+        LONGOPT_WSLOG
+        {0, 0, 0, 0 }
+    };
+
+    const struct ws_option* option = test_options;
+    while (option->val != 0) {
+        if (option->val == arg)
+            return true;
+
+        option++;
+    }
+
+    return false;
 }
 
 

@@ -28,6 +28,8 @@
 
 typedef void (*sharkd_dissect_func_t)(epan_dissect_t *edt, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data);
 
+#define LONGOPT_FOREGROUND 4000
+
 /* sharkd.c */
 cf_status_t sharkd_cf_open(const char *fname, unsigned int type, bool is_tempfile, int *err);
 int sharkd_load_cap_file(void);
@@ -49,6 +51,9 @@ wtap_block_t sharkd_get_modified_block(const frame_data *fd);
 wtap_block_t sharkd_get_packet_block(const frame_data *fd);
 int sharkd_set_modified_block(frame_data *fd, wtap_block_t new_block);
 const char *sharkd_version(void);
+const struct ws_option* sharkd_long_options(void);
+const char* sharkd_optstring(void);
+
 
 /* sharkd_daemon.c */
 int sharkd_init(int argc, char **argv);
