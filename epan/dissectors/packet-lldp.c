@@ -394,6 +394,9 @@ static int hf_profinet_port_tx_delay_local;
 static int hf_profinet_port_tx_delay_remote;
 static int hf_profinet_cable_delay_local;
 static int hf_profinet_mrp_domain_uuid;
+static int hf_profinet_mrpic_domain_id;
+static int hf_profinet_mrpic_role;
+static int hf_profinet_mrpic_micposition;
 static int hf_profinet_tsn_domain_uuid;
 static int hf_profinet_tsn_nme_management_addr;
 static int hf_profinet_tsn_nme_management_addr_str_length;
@@ -683,6 +686,27 @@ static const value_string dcbx_llink_types[] = {
 	{ 0x0,	"FCoE Status" },
 	{ 0x1,	"LAN Status" },
 	{ 0, NULL }
+};
+
+/* MRPIC  */
+static const value_string pn_io_mrpic_role_lldp[] = {
+	{ 0x0000, "No role assigned" },
+	{ 0x0001, "MRP Interconnection Client (MIC)" },
+	{ 0x0002, "MRP Interconnection Manager (MIM)" },
+	/*all others reserved */
+	{ 0, NULL }
+};
+
+static const value_string pn_io_mrpic_micposition_lldp[] = {
+	{ 0x0000, "MRP Interconnection instance using this interconnection port is a primary MIC." },
+	{ 0x0001, "MRP Interconnection instance using this interconnection port is a secondary MIC." },
+	{ 0, NULL }
+};
+
+static const range_string pn_io_mrpic_domain_id_lldp[] = {
+	{ 0x0000, 0x0000, "No MRP Interconnection Domain defined" },
+	{ 0x0001, 0xFFFF, "Uniquely administered MRP Interconnection Domain identification" },
+	{ 0, 0, NULL }
 };
 
 /* IEEE 802.1 Subtypes */
@@ -4050,6 +4074,19 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 			hf_profinet_green_period_begin_valid, hf_profinet_green_period_begin_offset);
 		break;
 	}
+	case 8:		/* LLDP_PNIO_MRPICPORT_STATUS */
+	{
+		/* MRPIC DomainID */
+		proto_tree_add_item(tree, hf_profinet_mrpic_domain_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		/* MRPIC Role */
+		proto_tree_add_item(tree, hf_profinet_mrpic_role, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		/* MRPIC MICPosition */
+		proto_tree_add_item(tree, hf_profinet_mrpic_micposition, tvb, offset, 2, ENC_BIG_ENDIAN);
+		/*offset += 2;*/
+		break;
+	}
 	case 9:		/* LLDP_PNIO_TSNDOMAIN */
 	{
 		/* DomainUUID */
@@ -6367,6 +6404,18 @@ proto_register_lldp(void)
 		{ &hf_profinet_mrp_domain_uuid,
 			{ "MRP DomainUUID", "lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_mrpic_domain_id,
+			{ "MRPIC Domain ID", "lldp.profinet.mrpic_domain_id", FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
+			RVALS(pn_io_mrpic_domain_id_lldp), 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_mrpic_role,
+			{ "MRPIC Role", "lldp.profinet.mrpic_role", FT_UINT16, BASE_HEX,
+			VALS(pn_io_mrpic_role_lldp), 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_mrpic_micposition,
+			{ "MRPIC MICPosition", "lldp.profinet.mrpic_micposition", FT_UINT16, BASE_HEX,
+			VALS(pn_io_mrpic_micposition_lldp), 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_tsn_domain_uuid,
 			{ "TSN DomainUUID", "lldp.profinet.tsn_domain_uuid", FT_GUID, BASE_NONE,
