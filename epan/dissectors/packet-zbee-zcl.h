@@ -13,6 +13,8 @@
 #ifndef PACKET_ZBEE_ZCL_H
 #define PACKET_ZBEE_ZCL_H
 
+#include <wsutil/epochs.h>
+
 /*  Structure to contain the ZCL frame information */
 typedef struct{
     bool        mfr_spec;
@@ -196,6 +198,9 @@ extern const value_string zbee_zcl_short_data_type_names[];
 extern const value_string zbee_mfr_code_names[];
 extern const value_string zbee_zcl_status_names[];
 
+extern const time_value_string now_strings[];
+extern const time_value_string zbee_zcl_utctime_strings[];
+
 /* Dissector functions */
 extern void dissect_zcl_read_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint16_t cluster_id, uint16_t mfr_code, bool direction);
 extern void dissect_zcl_write_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint16_t cluster_id, uint16_t mfr_code, bool direction);
@@ -208,7 +213,6 @@ extern unsigned dissect_zcl_attr_uint8 (tvbuff_t *tvb, proto_tree *tree, unsigne
 /* Helper functions */
 
 /* Exported DLL functions */
-void decode_zcl_utc_time (char *s, uint32_t value);
 WS_DLL_PUBLIC void decode_zcl_time_in_100ms (char *s, uint16_t value);
 WS_DLL_PUBLIC void decode_zcl_time_in_seconds (char *s, uint16_t value);
 WS_DLL_PUBLIC void decode_zcl_time_in_minutes (char *s, uint16_t value);
@@ -245,5 +249,12 @@ WS_DLL_PUBLIC void zbee_zcl_init_cluster(const char *proto_abbrev, int proto, in
 #define ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_C          0x02
 #define ZBEE_ZCL_CSC_THERMOSTAT_C_SWS_SP_H          0x01
 #define ZBEE_ZCL_CSC_THERMOSTAT_S_GWSR              0x00
+
+/*
+ * Convert a given Zigbee time value to an nstime_t, for initializing
+ * fields in a time_value_string.
+ */
+#define NSTIME_INIT_ZBEE(t) \
+    NSTIME_INIT_SECS(((uint32_t)(t)) + EPOCH_DELTA_2000_01_01_00_00_00_UTC)
 
 #endif /* PACKET_ZBEE_ZCL_H*/

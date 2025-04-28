@@ -671,16 +671,13 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 1;
 
     if (cra == GBCS_MESSAGE_CRA_ALERT) {
-        nstime_t timestamp;
         uint32_t alert_code;
 
         proto_tree_add_item_ret_uint(gbz_tree, hf_gbcs_gbz_alert_code, tvb, offset, 2, ENC_BIG_ENDIAN, &alert_code);
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_ext_const(alert_code, &gbcs_gbz_alert_code_names_ext, "Unknown alert"));
         offset += 2;
 
-        timestamp.secs = (time_t)tvb_get_ntohl(tvb, offset) + EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-        timestamp.nsecs = 0;
-        proto_tree_add_time(gbz_tree, hf_gbcs_gbz_timestamp, tvb, offset, 4, &timestamp);
+        proto_tree_add_item(gbz_tree, hf_gbcs_gbz_timestamp, tvb, offset, 4, ENC_TIME_ZBEE_ZCL|ENC_BIG_ENDIAN);
         offset += 4;
 
         switch (alert_code) {

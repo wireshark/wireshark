@@ -19,7 +19,6 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <wsutil/bits_ctz.h>
-#include <wsutil/epochs.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-zbee.h"
@@ -9820,7 +9819,8 @@ static int hf_zbee_zcl_ota_max_data_size;
 static int hf_zbee_zcl_ota_min_block_period;
 static int hf_zbee_zcl_ota_req_node_addr;
 static int hf_zbee_zcl_ota_current_time;
-static int hf_zbee_zcl_ota_request_time;
+static int hf_zbee_zcl_ota_request_time_offset;
+static int hf_zbee_zcl_ota_request_time_utc;
 static int hf_zbee_zcl_ota_upgrade_time;
 static int hf_zbee_zcl_ota_upgrade_time_utc;
 static int hf_zbee_zcl_ota_data_size;
@@ -9911,36 +9911,23 @@ static const range_string zbee_zcl_ota_image_type_names[] = {
     { 0, 0, NULL }
 };
 
+/**
+ * This table matches a Zigbee time value of 0x00000000, which means
+ * "now" in some contexts.
+ */
+const time_value_string now_strings[] = {
+	{ NSTIME_INIT_ZBEE(0x00000000), "Now" },
+	{ NSTIME_INIT_ZERO, NULL }
+};
+
+static const time_value_string upgrade_time_utc_strings[] = {
+	{ NSTIME_INIT_ZBEE(ZBEE_ZCL_OTA_TIME_WAIT), "Wait for upgrade command" },
+	{ NSTIME_INIT_ZERO, NULL }
+};
+
 /*************************/
 /* Function Bodies       */
 /*************************/
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      decode_zcl_ota_curr_time
- *  DESCRIPTION
- *    this function decode the current time field
- *  PARAMETERS
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
-static void
-decode_zcl_ota_curr_time(char *s, uint32_t value)
-{
-    if (value == ZBEE_ZCL_OTA_TIME_NOW) {
-        snprintf(s, ITEM_LABEL_LENGTH, "Now");
-    }
-    else {
-        char *tmp;
-        value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-        tmp = abs_time_secs_to_str(NULL, value, ABSOLUTE_TIME_LOCAL, 1);
-        snprintf(s, ITEM_LABEL_LENGTH, "%s", tmp);
-        wmem_free(NULL, tmp);
-    }
-
-    return;
-} /*decode_zcl_ota_curr_time*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -9993,33 +9980,6 @@ decode_zcl_ota_upgr_time(char *s, uint32_t value)
 
     return;
 } /*decode_zcl_ota_upgr_time*/
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      decode_zcl_ota_upgr_time_utc
- *  DESCRIPTION
- *    this function decode the upgrade time field when it is UTC time
- *  PARAMETERS
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
-static void
-decode_zcl_ota_upgr_time_utc(char *s, uint32_t value)
-{
-    if (value == ZBEE_ZCL_OTA_TIME_WAIT) {
-        snprintf(s, ITEM_LABEL_LENGTH, "Wait for upgrade command");
-    }
-    else {
-        char *tmp;
-        value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-        tmp = abs_time_secs_to_str(NULL, value, ABSOLUTE_TIME_LOCAL, 1);
-        snprintf(s, ITEM_LABEL_LENGTH, "%s", tmp);
-        wmem_free(NULL, tmp);
-    }
-
-    return;
-} /*decode_zcl_ota_upgr_time_utc*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -10409,12 +10369,27 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
         *offset += data_size;
     }
     else if (status == ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA) {
+        /* If 'Current Time' is zero, 'Request Time' is an offset from now;
+         * if it's non-zero, 'Request Time' is UTC.
+         */
+        uint32_t current_time;
+
         /* Retrieve 'Current Time' field */
-        proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
+        current_time = tvb_get_letohl(tvb, *offset);
         *offset += 4;
 
         /* Retrieve 'Request Time' field */
-        proto_tree_add_item(tree, hf_zbee_zcl_ota_request_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        if (current_time == 0) {
+	        /* Request Time is offset time from now */
+	        proto_tree_add_item(tree, hf_zbee_zcl_ota_request_time_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+	} else {
+	        /* Request Time is UTC time */
+	        proto_tree_add_item(tree, hf_zbee_zcl_ota_request_time_utc, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
+		/* XXX - compute delta between Request Time and Current Time
+		 * and display as offset time from now?
+		 */
+	}
         *offset += 4;
     }
     else {
@@ -10486,7 +10461,8 @@ dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
     /* Retrieve 'Current Time' field */
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &current_time);
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
+    current_time = tvb_get_letohl(tvb, *offset);
     *offset += 4;
 
     /* Retrieve 'Upgrade Time' field */
@@ -10494,14 +10470,13 @@ dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
     {
         /* Upgrade Time is offset time from now */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-        *offset += 4;
     }
     else
     {
         /* Upgrade Time is UTC time */
-        proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time_utc, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-        *offset += 4;
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time_utc, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     }
+    *offset += 4;
 
 } /*dissect_zcl_ota_upgradeendrsp*/
 
@@ -10919,11 +10894,15 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_current_time,
-            { "Current Time", "zbee_zcl_general.ota.current_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_curr_time),
+            { "Current Time", "zbee_zcl_general.ota.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, TIME_VALS(now_strings),
             0x0, NULL, HFILL }},
 
-        { &hf_zbee_zcl_ota_request_time,
-            { "Request Time", "zbee_zcl_general.ota.request_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_req_time),
+        { &hf_zbee_zcl_ota_request_time_offset,
+            { "Request Time (offset)", "zbee_zcl_general.ota.request_time_offset", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_req_time),
+            0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ota_request_time_utc,
+            { "Request Time (UTC)", "zbee_zcl_general.ota.request_time_utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, TIME_VALS(now_strings),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_upgrade_time,
@@ -10931,7 +10910,7 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_upgrade_time_utc,
-            { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time_utc", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_upgr_time_utc),
+            { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time_utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, TIME_VALS(upgrade_time_utc_strings),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_data_size,

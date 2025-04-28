@@ -833,8 +833,8 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf is passing the address of a pointer to $1 in $filename\n";
                         $errorCount++;
                 }
-                if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
-                        print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|RVALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in $filename ?\n";
+                if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
+                        print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in $filename ?\n";
                         $errorCount++;
                 }
 ## Benign...

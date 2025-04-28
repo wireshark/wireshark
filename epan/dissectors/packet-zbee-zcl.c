@@ -22,7 +22,6 @@
 #include <epan/tfs.h>
 
 #include <wsutil/array.h>
-#include <wsutil/epochs.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
@@ -1038,6 +1037,14 @@ static const value_string zbee_zcl_dis_names[] = {
 };
 
 /**
+ * UTCTime special values.
+ */
+const time_value_string zbee_zcl_utctime_strings[] = {
+	{ NSTIME_INIT_ZBEE(0xFFFFFFFF), "Unknown/invalid" },
+	{ NSTIME_INIT_ZERO, NULL }
+};
+
+/**
  *ZigBee Cluster Library dissector for wireshark.
  *
  *@param tvb pointer to buffer containing raw packet.
@@ -2019,8 +2026,6 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, un
     uint16_t  elements_num;
     float     attr_float;
     double    attr_double;
-    nstime_t  attr_time;
-    uint32_t  utc_time;
     proto_item *attr_utc_item = NULL;
 
     /* Dissect attribute data type and data */
@@ -2367,15 +2372,9 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, un
 
         case ZBEE_ZCL_UTC:
             /* Display UTC */
-            utc_time = tvb_get_letohl(tvb, *offset);
-            attr_time.secs = utc_time;
-            attr_time.secs += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-            attr_time.nsecs = 0;
             proto_item_append_text(tree, ", %s",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
-            attr_string = (const uint8_t *)abs_time_to_str(wmem_packet_scope(), &attr_time, ABSOLUTE_TIME_UTC, true);
-            proto_tree_add_time_format(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time,
-                "UTC Time: %s (%u)", attr_string, utc_time);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
 
             /* The raw integer value is sometimes needed independent of the formatted time */
             attr_utc_item = proto_tree_add_item(tree, hf_zbee_zcl_attr_utc_raw, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -2538,24 +2537,6 @@ static void zcl_dump_data(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pr
 
     return;
 } /* zcl_dump_data */
-
-/**
- * This function decodes ZCL UTCTime into a string representation of the time
- * with the integer UTCTime value in brackets afterwards as the value is
- * sometimes also useful.
- *
- * @param s string to display
- * @param value value to decode as ZCL 32 bit UTCTime
-*/
-void
-decode_zcl_utc_time(char *s, uint32_t value)
-{
-    char *start_time;
-    time_t epoch_time = (time_t)value + EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-    start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_UTC, true);
-    snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", start_time, value);
-    wmem_free(NULL, start_time);
-} /* decode_zcl_utc_time */
 
 /**
  *This function decodes tenth of second time type variable
@@ -2794,10 +2775,10 @@ void proto_register_zbee_zcl(void)
             { "Day of Week", "zbee_zcl.attr.wd", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_utc,
-            { "UTC", "zbee_zcl.attr.utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
+            { "UTC Time", "zbee_zcl.attr.utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, TIME_VALS(zbee_zcl_utctime_strings), 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_utc_raw,
-            { "UTC (raw value)", "zbee_zcl.attr.utc_raw", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            { "UTC Time (raw value)", "zbee_zcl.attr.utc_raw", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_status,
             { "Status", "zbee_zcl.attr.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &zbee_zcl_status_names_ext,

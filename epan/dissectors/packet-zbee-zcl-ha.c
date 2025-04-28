@@ -16,7 +16,6 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <wsutil/epochs.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
@@ -961,9 +960,6 @@ proto_reg_handoff_zbee_zcl_appl_evtalt(void)
 #define ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_QUEUE_RSP                0x02  /* Log Queue Response */
 #define ZBEE_ZCL_CMD_ID_APPL_STATS_STATS_AVAILABLE              0x03  /* Statistics Available */
 
-/* Others */
-#define ZBEE_ZCL_APPL_STATS_INVALID_TIME                        0xffffffff /* Invalid UTC Time */
-
 /*************************/
 /* Function Declarations */
 /*************************/
@@ -975,9 +971,6 @@ void proto_reg_handoff_zbee_zcl_appl_stats(void);
 static void dissect_zcl_appl_stats_log_req              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zcl_appl_stats_log_rsp              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zcl_appl_stats_log_queue_rsp        (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
-
-/* Private functions prototype */
-static void decode_zcl_appl_stats_utc_time              (char *s, uint32_t value);
 
 /*************************/
 /* Global Variables      */
@@ -1140,7 +1133,7 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset
     uint32_t log_len;
 
     /* Retrieve 'UTCTime' field */
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_utc_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_utc_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Retrieve 'Log ID' field */
@@ -1185,26 +1178,6 @@ dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *
 }/*dissect_zcl_appl_stats_log_queue_rsp*/
 
 /**
- *This function decodes utc time, with peculiarity case for
- *
- *@param s string to display
- *@param value value to decode
-*/
-static void
-decode_zcl_appl_stats_utc_time(char *s, uint32_t value)
-{
-    if (value == ZBEE_ZCL_APPL_STATS_INVALID_TIME)
-        snprintf(s, ITEM_LABEL_LENGTH, "Invalid UTC Time");
-    else {
-        char *utc_time;
-        value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-        utc_time = abs_time_secs_to_str (NULL, value, ABSOLUTE_TIME_LOCAL, true);
-        snprintf(s, ITEM_LABEL_LENGTH, "%s", utc_time);
-        wmem_free(NULL, utc_time);
-    }
-} /* decode_zcl_appl_stats_utc_time */
-
-/**
  *This function registers the ZCL Appliance Statistics dissector
  *
 */
@@ -1228,7 +1201,7 @@ proto_register_zbee_zcl_appl_stats(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_appl_stats_utc_time,
-            { "UTC Time", "zbee_zcl_ha.applstats.utc_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_appl_stats_utc_time),
+            { "UTC Time", "zbee_zcl_ha.applstats.utc_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, TIME_VALS(zbee_zcl_utctime_strings),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_appl_stats_log_length,
