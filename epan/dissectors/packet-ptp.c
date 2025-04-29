@@ -54,6 +54,9 @@
  *   - Added support for drift_tracking TLV (802.1ASdm)
  * - Alex Gebhard 04-09-2025 <alexander.gebhard@marquette.edu>
  *   - Added support for authentication TLV
+ * - Erez Geva 30-04-2025 <ErezGeva2@gmail.com>
+ *   - Fix wrong PTPv2 Management IDs
+ *   - Add missing PTPv2 Management TLVs dissection
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1644,6 +1647,7 @@ static int hf_ptp_v2_mm_physicalLayerProtocol;
 static int hf_ptp_v2_mm_physicalLayerProtocol_length;
 static int hf_ptp_v2_mm_physicalAddressLength;
 static int hf_ptp_v2_mm_physicalAddress;
+static int hf_ptp_v2_mm_protocolAddressStruct;
 static int hf_ptp_v2_mm_protocolAddress;
 static int hf_ptp_v2_mm_protocolAddress_networkProtocol;
 static int hf_ptp_v2_mm_protocolAddress_length;
@@ -1688,6 +1692,7 @@ static int hf_ptp_v2_mm_clockvariance;
 static int hf_ptp_v2_mm_clockidentity;
 static int hf_ptp_v2_mm_domainNumber;
 static int hf_ptp_v2_mm_SO;
+static int hf_ptp_v2_mm_MO;
 static int hf_ptp_v2_mm_stepsRemoved;
 static int hf_ptp_v2_mm_parentIdentity;
 static int hf_ptp_v2_mm_parentPort;
@@ -1696,6 +1701,7 @@ static int hf_ptp_v2_mm_observedParentOffsetScaledLogVariance;
 static int hf_ptp_v2_mm_observedParentClockPhaseChangeRate;
 static int hf_ptp_v2_mm_grandmasterPriority1;
 static int hf_ptp_v2_mm_grandmasterPriority2;
+static int hf_ptp_v2_mm_alternatePriority1;
 static int hf_ptp_v2_mm_grandmasterclockclass;
 static int hf_ptp_v2_mm_grandmasterclockaccuracy;
 static int hf_ptp_v2_mm_grandmasterclockvariance;
@@ -1714,6 +1720,7 @@ static int hf_ptp_v2_mm_offset_subns;
 static int hf_ptp_v2_mm_pathDelay_subns;
 static int hf_ptp_v2_mm_PortNumber;
 static int hf_ptp_v2_mm_portState;
+static int hf_ptp_v2_mm_desiredPortState;
 static int hf_ptp_v2_mm_logMinDelayReqInterval;
 static int hf_ptp_v2_mm_peerMeanPathDelay_ns;
 static int hf_ptp_v2_mm_peerMeanPathDelay_subns;
@@ -1741,6 +1748,13 @@ static int hf_ptp_v2_mm_nextjumpSeconds;
 static int hf_ptp_v2_mm_logAlternateMulticastSyncInterval;
 static int hf_ptp_v2_mm_numberOfAlternateMasters;
 static int hf_ptp_v2_mm_transmitAlternateMulticastSync;
+static int hf_ptp_v2_mm_maxTableSize;
+static int hf_ptp_v2_mm_acceptableMasterPortDS;
+static int hf_ptp_v2_mm_externalPortConfigurationEnabled;
+static int hf_ptp_v2_mm_holdoverUpgradeEnable;
+static int hf_ptp_v2_mm_logQueryInterval;
+static int hf_ptp_v2_mm_GrandmasterActualTableSize;
+static int hf_ptp_v2_mm_actualTableSize;
 
 /* Fields for analysis code*/
 static int hf_ptp_v2_analysis_sync_to_followup;
@@ -1774,6 +1788,8 @@ static int ett_ptp_v2_managementData;
 static int ett_ptp_v2_clockType;
 static int ett_ptp_v2_physicalLayerProtocol;
 static int ett_ptp_v2_protocolAddress;
+static int ett_ptp_v2_addressTable;
+static int ett_ptp_v2_acceptableRecord;
 static int ett_ptp_v2_faultRecord;
 static int ett_ptp_v2_ptptext;
 static int ett_ptp_v2_timeInterval;
@@ -1808,6 +1824,9 @@ static expert_field ei_ptp_v2_pdresp_twostep;
 static expert_field ei_ptp_v2_pdfup_no_pdresp;
 static expert_field ei_ptp_v2_period_invalid;
 static expert_field ei_ptp_v2_as_tlv_in_non_as;
+static expert_field ei_ptp_v2_mm_protAddrLen;
+static expert_field ei_ptp_v2_mmGrandTblPad;
+static expert_field ei_ptp_v2_mmUnuTblPad;
 
 /* END Definitions and fields for PTPv2 dissection. */
 
@@ -2910,8 +2929,11 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                 offset += S;
 
                 N = tvb_get_ntohs(tvb, offset + 2);
+                /* protocolAddress_length should be even */
+                if(N % 2)
+                    expert_add_info(pinfo, ptp_managementData_tree, &ei_ptp_v2_mm_protAddrLen);
 
-                protocolAddress_ti = proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_protocolAddress, tvb, offset + 4, N, ENC_NA);
+                protocolAddress_ti = proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_protocolAddressStruct, tvb, offset + 4, N, ENC_NA);
                 ptp_protocolAddress_tree = proto_item_add_subtree(protocolAddress_ti, ett_ptp_v2_protocolAddress);
                 /* physicalLayerProtocol subtree */
                 proto_tree_add_item(ptp_protocolAddress_tree, hf_ptp_v2_mm_protocolAddress_networkProtocol, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3308,27 +3330,114 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                 break;
             }
             case PTP_V2_MM_ID_GRANDMASTER_CLUSTER_TABLE: {
-                /* ToDo */
+                uint32_t ii, actualTableSize = 0;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_logQueryInterval, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item_ret_uint(ptp_managementData_tree, hf_ptp_v2_mm_GrandmasterActualTableSize, tvb, offset, 1, ENC_NA, &actualTableSize);
+                offset += 1;
+
+                proto_tree *addressTable_subtree = proto_item_add_subtree(ptp_managementData_tree, ett_ptp_v2_addressTable);
+                for (ii = 0; ii < actualTableSize; ii++) {
+                    uint32_t N = tvb_get_ntohs(tvb, offset + 2);
+                    proto_tree  *address_subtree;
+                    /* protocolAddress_length should be even */
+                    if(N % 2)
+                        expert_add_info(pinfo, addressTable_subtree, &ei_ptp_v2_mm_protAddrLen);
+
+                    protocolAddress_ti = proto_tree_add_item(addressTable_subtree, hf_ptp_v2_mm_protocolAddressStruct, tvb, offset + 4, N, ENC_NA);
+                    address_subtree = proto_item_add_subtree(protocolAddress_ti, ett_ptp_v2_protocolAddress);
+                    proto_tree_add_item(address_subtree, hf_ptp_v2_mm_protocolAddress_networkProtocol, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(address_subtree, hf_ptp_v2_mm_protocolAddress_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(address_subtree, hf_ptp_v2_mm_protocolAddress, tvb, offset + 4, N, ENC_NA);
+                    offset += N + 4;
+                }
+
+                /* We never have a pad here as the table is always even */
+                if((offset - offset_loopstart) % 2)
+                    expert_add_info(pinfo, ptp_managementData_tree, &ei_ptp_v2_mmGrandTblPad);
                 break;
             }
             case PTP_V2_MM_ID_UNICAST_MASTER_TABLE: {
-                /* ToDo */
+                uint32_t ii, actualTableSize = 0;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_logQueryInterval, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item_ret_uint(ptp_managementData_tree, hf_ptp_v2_mm_actualTableSize, tvb, offset, 2, ENC_BIG_ENDIAN, &actualTableSize);
+                offset += 2;
+
+                proto_tree *addressTable_subtree = proto_item_add_subtree(ptp_managementData_tree, ett_ptp_v2_addressTable);
+                for (ii = 0; ii < actualTableSize; ii++) {
+                    uint32_t N = tvb_get_ntohs(tvb, offset + 2);
+                    proto_tree  *address_subtree;
+                    /* protocolAddress_length should be even */
+                    if(N % 2)
+                        expert_add_info(pinfo, addressTable_subtree, &ei_ptp_v2_mm_protAddrLen);
+
+                    protocolAddress_ti = proto_tree_add_item(addressTable_subtree, hf_ptp_v2_mm_protocolAddressStruct, tvb, offset + 4, N, ENC_NA);
+                    address_subtree = proto_item_add_subtree(protocolAddress_ti, ett_ptp_v2_protocolAddress);
+                    proto_tree_add_item(address_subtree, hf_ptp_v2_mm_protocolAddress_networkProtocol, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(address_subtree, hf_ptp_v2_mm_protocolAddress_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(address_subtree, hf_ptp_v2_mm_protocolAddress, tvb, offset + 4, N, ENC_NA);
+                    offset += N + 4;
+                }
+
+                /* We always have a pad as the table is always even and the start is odd */
+                if((offset - offset_loopstart) % 2) {
+                    proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_pad, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                } else
+                    expert_add_info(pinfo, ptp_managementData_tree, &ei_ptp_v2_mmUnuTblPad);
                 break;
             }
             case PTP_V2_MM_ID_UNICAST_MASTER_MAX_TABLE_SIZE: {
-                /* ToDo */
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_maxTableSize, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 break;
             }
             case PTP_V2_MM_ID_ACCEPTABLE_MASTER_TABLE: {
-                /* ToDo */
+                uint32_t ii, actualTableSize = 0;
+
+                proto_tree_add_item_ret_uint(ptp_managementData_tree, hf_ptp_v2_mm_actualTableSize, tvb, offset, 2, ENC_BIG_ENDIAN, &actualTableSize);
+                offset += 2;
+
+                proto_tree *acceptableTable_subtree = proto_item_add_subtree(ptp_managementData_tree, ett_ptp_v2_acceptableRecord);
+                for (ii = 0; ii < actualTableSize; ii++) {
+                    proto_tree  *record_subtree;
+                    proto_item *acceptable_ti;
+                    acceptable_ti = proto_tree_add_item(acceptableTable_subtree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_NA);
+                    record_subtree = proto_item_add_subtree(acceptable_ti, ett_ptp_v2_acceptableRecord);
+
+                    proto_tree_add_item(record_subtree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_BIG_ENDIAN);
+                    offset += 8;
+
+                    proto_tree_add_item(record_subtree, hf_ptp_v2_mm_PortNumber, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    proto_tree_add_item(record_subtree, hf_ptp_v2_mm_alternatePriority1, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+
+                /* Pad to even length */
+                if ((offset - offset_loopstart) % 2) {
+                    proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_pad, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
                 break;
             }
             case PTP_V2_MM_ID_ACCEPTABLE_MASTER_TABLE_ENABLED: {
-                /* ToDo */
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_acceptableMasterPortDS, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
                 break;
             }
             case PTP_V2_MM_ID_ACCEPTABLE_MASTER_MAX_TABLE_SIZE: {
-                /* ToDo */
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_maxTableSize, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 break;
             }
             case PTP_V2_MM_ID_ALTERNATE_TIME_OFFSET_ENABLE: {
@@ -3398,6 +3507,38 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                 proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
+                break;
+            }
+            case PTP_V2_MM_ID_EXTERNAL_PORT_CONFIGURATION_ENABLED: {
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_externalPortConfigurationEnabled, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                break;
+            }
+            case PTP_V2_MM_ID_MASTER_ONLY: {
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_MO, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                break;
+            }
+            case PTP_V2_MM_ID_HOLDOVER_UPGRADE_ENABLE: {
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_holdoverUpgradeEnable, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                break;
+            }
+            case PTP_V2_MM_ID_EXT_PORT_CONFIG_PORT_DATA_SET: {
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_acceptableMasterPortDS, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_desiredPortState, tvb, offset, 1, ENC_NA);
+                offset += 1;
                 break;
             }
             case PTP_V2_MM_ID_TC_DEFAULT_DATA_SET: {
@@ -6649,6 +6790,11 @@ proto_register_ptp(void) {
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_mm_protocolAddressStruct,
+          { "protocol address structure",  "ptp.v2.mm.protocolAddressStruct",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_mm_protocolAddress,
           { "protocol address",  "ptp.v2.mm.protocolAddress",
             FT_BYTES, BASE_NONE, NULL, 0x00,
@@ -6859,6 +7005,11 @@ proto_register_ptp(void) {
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_mm_MO,
+          { "Master only",           "ptp.v2.mm.MasterOnly",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_mm_stepsRemoved,
           { "steps removed",           "ptp.v2.mm.stepsRemoved",
             FT_INT16, BASE_DEC, NULL, 0x00,
@@ -6896,6 +7047,11 @@ proto_register_ptp(void) {
         },
         { &hf_ptp_v2_mm_grandmasterPriority2,
           { "Grandmaster priority2", "ptp.v2.mm.grandmasterPriority2",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_alternatePriority1,
+          { "Alternate priority1", "ptp.v2.mm.alternatePriority1",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
@@ -6986,6 +7142,11 @@ proto_register_ptp(void) {
         },
         { &hf_ptp_v2_mm_portState,
           { "Port state",           "ptp.v2.mm.portState",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ptp_v2_portState_vals_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_desiredPortState,
+          { "Desired port state",   "ptp.v2.mm.desiredPortState",
             FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ptp_v2_portState_vals_ext, 0x00,
             NULL, HFILL }
         },
@@ -7123,6 +7284,46 @@ proto_register_ptp(void) {
         { &hf_ptp_v2_mm_transmitAlternateMulticastSync,
           { "Transmit alternate multicast sync", "ptp.v2.mm.transmitAlternateMulticastSync",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_maxTableSize,
+          { "Maximum number of addresses in a time transmitters table",
+            "ptp.v2.mm.maxTableSize",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_acceptableMasterPortDS,
+          { "Acceptable time transmitter table enabled",
+            "ptp.v2.mm.acceptableMasterPortDS",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_externalPortConfigurationEnabled,
+          { "External port configuration enabled",
+            "ptp.v2.mm.externalPortConfigurationEnabled",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_holdoverUpgradeEnable,
+          { "Holdover-upgrade enable", "ptp.v2.mm.holdoverUpgradeEnable",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_logQueryInterval,
+          { "logarithm to the base 2 of the mean interval in seconds",
+            "ptp.v2.mm.logQueryInterval",
+            FT_INT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_GrandmasterActualTableSize,
+          { "number of records in Grandmaster table",
+            "ptp.v2.mm.GrandmasterActualTableSize",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_mm_actualTableSize,
+          { "number of records",  "ptp.v2.mm.actualTableSize",
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_smpte_subtype,
@@ -7361,6 +7562,8 @@ proto_register_ptp(void) {
         &ett_ptp_v2_clockType,
         &ett_ptp_v2_physicalLayerProtocol,
         &ett_ptp_v2_protocolAddress,
+        &ett_ptp_v2_addressTable,
+        &ett_ptp_v2_acceptableRecord,
         &ett_ptp_v2_ptptext,
         &ett_ptp_v2_faultRecord,
         &ett_ptp_v2_timeInterval,
@@ -7393,6 +7596,9 @@ proto_register_ptp(void) {
         { &ei_ptp_v2_pdfup_no_pdresp,   { "ptp.v2.pdelay_fup_without_resp", PI_PROTOCOL, PI_WARN, "No Response for this Peer Delay Follow Up", EXPFILL }},
         { &ei_ptp_v2_period_invalid,    { "ptp.v2.period.invalid", PI_PROTOCOL, PI_WARN, "Period invalid", EXPFILL }},
         { &ei_ptp_v2_as_tlv_in_non_as,  { "ptp.v2.as_tlv_in_non_as", PI_PROTOCOL, PI_WARN, "TLV defined for 802.1AS but this is PTPv2", EXPFILL }},
+        { &ei_ptp_v2_mm_protAddrLen,    { "ptp.v2.mm.even.address.leng", PI_PROTOCOL, PI_WARN, "Protocol Address length is odd", EXPFILL }},
+        { &ei_ptp_v2_mmGrandTblPad,     { "ptp.v2.mm.tlv.wrong.len", PI_PROTOCOL, PI_WARN, "Grandmaster cluster table should not have a pad", EXPFILL }},
+        { &ei_ptp_v2_mmUnuTblPad,       { "ptp.v2.mm.tlv.wrong.len", PI_PROTOCOL, PI_WARN, "Unicast master table lacks pad", EXPFILL }},
     };
 
     expert_module_t* expert_ptp;
