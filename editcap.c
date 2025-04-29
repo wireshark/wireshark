@@ -1907,6 +1907,10 @@ main(int argc, char *argv[])
 
         case '?':              /* Bad options - print usage */
         default:
+            /* wslog arguments are okay */
+            if (ws_log_is_wslog_arg(opt))
+                break;
+
             switch(ws_optopt) {
             case'F':
                 list_capture_types(stdout);

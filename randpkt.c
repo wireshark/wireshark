@@ -214,6 +214,10 @@ main(int argc, char *argv[])
                 /* FALLTHROUGH */
 
             default:
+                /* wslog arguments are okay */
+                if (ws_log_is_wslog_arg(opt))
+                    break;
+
                 usage(true);
                 ret = WS_EXIT_INVALID_OPTION;
                 goto clean_exit;

@@ -456,8 +456,14 @@ main(int argc, char **argv)
                 break;
             case '?':
                 print_usage(EXIT_FAILURE);
+                break;
             default:
+                /* wslog arguments are okay */
+                if (ws_log_is_wslog_arg(opt))
+                    break;
+
                 ws_assert_not_reached();
+                break;
         }
     }
 

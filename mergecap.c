@@ -307,6 +307,11 @@ main(int argc, char *argv[])
                 }
                 break;
             case '?':              /* Bad options if GNU getopt */
+            default:
+                /* wslog arguments are okay */
+                if (ws_log_is_wslog_arg(opt))
+                    break;
+
                 switch(ws_optopt) {
                     case'F':
                         list_capture_types();

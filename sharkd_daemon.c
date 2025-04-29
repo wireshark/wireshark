@@ -344,6 +344,10 @@ sharkd_init(int argc, char **argv)
                     break;
 
                 default:
+                    /* wslog arguments are okay */
+                    if (ws_log_is_wslog_arg(opt))
+                        break;
+
                     if (!ws_optopt)
                         fprintf(stderr, "This option isn't supported: %s\n", argv[ws_optind]);
                     fprintf(stderr, "Use sharkd -h for details of supported options\n");
