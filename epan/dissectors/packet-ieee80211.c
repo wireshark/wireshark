@@ -21347,7 +21347,6 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
       distance = tvb_get_ntohieee_double(tvb, offset);
       proto_tree_add_double_format_value(ietree, hf_ieee80211_vs_aruba_gps_distance, tvb,
                         offset, 8, distance, "%.6f", distance);
-      offset += 8;
       tag_len -= 8;
 
       if (tag_len > 0) {
