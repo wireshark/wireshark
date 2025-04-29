@@ -24,6 +24,7 @@
 #include <epan/to_str.h>
 #include <epan/sequence_analysis.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/application_flavor.h>
@@ -45,6 +46,7 @@ void proto_reg_handoff_frame(void);
 static int proto_frame;
 static int proto_pkt_comment;
 static int proto_syscall;
+static int proto_darwin;
 
 static int hf_frame_arrival_time_local;
 static int hf_frame_arrival_time_utc;
@@ -117,6 +119,7 @@ static int frame_tap;
 static dissector_handle_t docsis_handle;
 static dissector_handle_t sysdig_handle;
 static dissector_handle_t systemd_journal_handle;
+static dissector_handle_t darwin_handle;
 
 /* Preferences */
 static bool show_file_off;
@@ -182,6 +185,7 @@ static dissector_table_t wtap_encap_dissector_table;
 static dissector_table_t wtap_fts_rec_dissector_table;
 static dissector_table_t block_pen_dissector_table;
 static dissector_table_t binary_option_pen_dissector_table;
+static dissector_table_t packet_block_option_dissector_table;
 
 /* The number of tree items required to add an exception to the tree */
 #define EXCEPTION_TREE_ITEMS 10
@@ -501,7 +505,9 @@ handle_packet_option(wtap_block_t block _U_, unsigned option_id,
 		break;
 
 	default:
-		/* Process these too? */
+		dissector_try_uint_with_data(packet_block_option_dissector_table,
+			option_id, cb_data->tvb,
+			cb_data->pinfo, cb_data->tree, false, optval);
 		break;
 	}
 
@@ -975,6 +981,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		cb_data.data.optval = NULL;
 		wtap_block_foreach_option(fr_data->pkt_block,
 		    handle_packet_option, &cb_data);
+	}
+
+	/* If there is Darwin data, call the dissector */
+	if (p_get_proto_data(wmem_file_scope(), pinfo, proto_darwin, 0) != NULL) {
+		call_dissector(darwin_handle, tvb, pinfo, fh_tree);
 	}
 
 	if (do_frame_dissection) {
@@ -1621,6 +1632,8 @@ proto_register_frame(void)
 	    "PcapNG custom block PEN", proto_frame, FT_UINT32, BASE_DEC);
 	binary_option_pen_dissector_table = register_dissector_table("pcapng_custom_binary_option",
 	    "PcapNG custom binary option PEN", proto_frame, FT_UINT32, BASE_DEC);
+	packet_block_option_dissector_table = register_dissector_table("pcapng_packet_block_option",
+	    "PcapNG packet block option", proto_frame, FT_UINT32, BASE_DEC);
 	register_capture_dissector_table("wtap_encap", "Wiretap encapsulation type");
 
 	/* You can't disable dissection of "Frame", as that would be
@@ -1663,6 +1676,9 @@ proto_reg_handoff_frame(void)
 	docsis_handle = find_dissector_add_dependency("docsis", proto_frame);
 	sysdig_handle = find_dissector_add_dependency("sysdig", proto_frame);
 	systemd_journal_handle = find_dissector_add_dependency("systemd_journal", proto_frame);
+	darwin_handle = find_dissector_add_dependency("darwin", proto_frame);
+
+	proto_darwin = proto_registrar_get_id_byname("darwin");
 }
 
 /*

@@ -60,6 +60,9 @@ struct packet_provider_funcs {
 	const char *(*get_interface_name)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	const char *(*get_interface_description)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);
+	int32_t(*get_process_id)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+	const char *(*get_process_name)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+	const uint8_t *(*get_process_uuid)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
 };
 
 /**
@@ -149,6 +152,13 @@ WS_DLL_PUBLIC wtap_block_t epan_get_modified_block(const epan_t *session, const 
 WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, uint32_t interface_id, unsigned section_number);
 
 WS_DLL_PUBLIC const char *epan_get_interface_description(const epan_t *session, uint32_t interface_id, unsigned section_number);
+
+WS_DLL_PUBLIC int32_t epan_get_process_id(const epan_t *session, uint32_t process_info_id, unsigned section_number);
+
+WS_DLL_PUBLIC const char *epan_get_process_name(const epan_t *session, uint32_t process_info_id, unsigned section_number);
+
+WS_DLL_PUBLIC const uint8_t *epan_get_process_uuid(const epan_t *session, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
+
 
 const nstime_t *epan_get_frame_ts(const epan_t *session, uint32_t frame_num);
 

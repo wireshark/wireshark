@@ -536,6 +536,42 @@ epan_get_frame_ts(const epan_t *session, uint32_t frame_num)
 	return abs_ts;
 }
 
+int32_t
+epan_get_process_id(const epan_t *session, uint32_t process_info_id, unsigned section_number)
+{
+	if (session->funcs.get_process_id)
+		return session->funcs.get_process_id(session->prov, process_info_id, section_number);
+
+	/* NOTE:
+	 * On UNIX and UNIX-like operating systems, `0` is valid process id
+	 * value, and it is reserved for the kernel.
+	 * On other operating systems, the kernel process id can be mapped
+	 * to a different integer value.
+	 * The common underlying assumption is that on every operating system,
+	 * the value `-1` is not mapped to any valid process id, and hence
+	 * can represent the "not found" case.
+	 */
+	return -1;
+}
+
+const char *
+epan_get_process_name(const epan_t *session, uint32_t process_info_id, unsigned section_number)
+{
+	if (session->funcs.get_process_name)
+		return session->funcs.get_process_name(session->prov, process_info_id, section_number);
+
+	return NULL;
+}
+
+const uint8_t *
+epan_get_process_uuid(const epan_t *session, uint32_t process_info_id, unsigned section_number, size_t *uuid_size)
+{
+	if (session->funcs.get_process_uuid)
+		return session->funcs.get_process_uuid(session->prov, process_info_id, section_number, uuid_size);
+
+	return NULL;
+}
+
 void
 epan_free(epan_t *session)
 {

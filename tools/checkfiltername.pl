@@ -395,6 +395,7 @@ sub is_from_other_protocol_allowed {
 	if (($proto_filename eq "packet-cimetrics.c") && (index($_[0], "llc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "cip") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-cipsafety.c") && (index($_[0], "enip") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-darwin.c") && (index($_[0], "darwin") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-dcerpc-netlogon.c") && (index($_[0], "ntlmssp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-dcom-oxid.c") && (index($_[0], "dcom") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-dvb-data-mpe.c") && (index($_[0], "mpeg_sect") >= 0)) {return 1;}
