@@ -167,6 +167,7 @@ static int ett_icmp_ext_object;
 /* MPLS extensions */
 static int ett_icmp_mpls_stack_object;
 
+static expert_field ei_icmp_type_error;
 static expert_field ei_icmp_type_deprecated;
 static expert_field ei_icmp_resp_not_found;
 static expert_field ei_icmp_checksum;
@@ -1587,6 +1588,11 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				 ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, " (%s)", type_str);
         switch (icmp_type) {
+	case ICMP_UNREACH:
+	case ICMP_REDIRECT:
+	case ICMP_TIMXCEED:
+		expert_add_info(pinfo, ti, &ei_icmp_type_error);
+		break;
 	case ICMP_SOURCEQUENCH:
 	case ICMP_ALTHOST:
 	case ICMP_IREQ:
@@ -2426,6 +2432,7 @@ void proto_register_icmp(void)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_icmp_type_error, { "icmp.type.error", PI_RESPONSE_CODE, PI_NOTE, "Type indicates an error", EXPFILL }},
 		{ &ei_icmp_type_deprecated, { "icmp.type.deprecated", PI_DEPRECATED, PI_NOTE, "Type is deprecated", EXPFILL }},
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
 		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},

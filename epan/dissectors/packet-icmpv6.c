@@ -662,6 +662,7 @@ static int ett_icmpv6_cga_param_name;
 static int ett_icmpv6_mpl_seed_info;
 static int ett_icmpv6_mpl_seed_info_bm;
 
+static expert_field ei_icmpv6_type_error;
 static expert_field ei_icmpv6_invalid_option_length;
 static expert_field ei_icmpv6_undecoded_option;
 static expert_field ei_icmpv6_unknown_data;
@@ -4373,9 +4374,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         icmp6_tree = proto_item_add_subtree(ti, ett_icmpv6);
 
         /* Type */
-        proto_tree_add_item(icmp6_tree, hf_icmpv6_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     icmp6_type = tvb_get_uint8(tvb, offset);
+    if (!(icmp6_type & 0x80)) {
+        expert_add_info(pinfo, ti, &ei_icmpv6_type_error);
+    }
     offset += 1;
 
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(icmp6_type, icmpv6_type_val, "Unknown (%d)"));
@@ -6628,6 +6632,7 @@ proto_register_icmpv6(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_icmpv6_type_error, { "icmpv6.type.error", PI_RESPONSE_CODE, PI_NOTE, "Type indicates an error", EXPFILL }},
         { &ei_icmpv6_invalid_option_length, { "icmpv6.invalid_option_length", PI_MALFORMED, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_icmpv6_undecoded_option, { "icmpv6.undecoded.option", PI_UNDECODED, PI_NOTE, "Undecoded option", EXPFILL }},
         { &ei_icmpv6_unknown_data, { "icmpv6.unknown_data.expert", PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)", EXPFILL }},
