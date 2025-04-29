@@ -77,6 +77,6 @@ class TestRawsharkIO:
         capture_file = capture_file('dhcp.pcap')
         testout_file = result_file(testout_pcap)
         raw_dhcp_cmd = cat_dhcp_command('raw')
-        rawshark_cmd = '{0} | "{1}" -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, cmd_rawshark)
+        rawshark_cmd = '{0} | "{1}" --log-fatal=warning -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, cmd_rawshark)
         rawshark_stdout = subprocess.check_output(rawshark_cmd, shell=True, encoding='utf-8', env=test_env)
         assert rawshark_stdout == io_baseline_str

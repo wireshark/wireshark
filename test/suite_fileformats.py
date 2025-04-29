@@ -214,6 +214,7 @@ class TestFileFormatsPcapngDsb:
         p12_keyfile = os.path.join(dirs.key_dir, 'key.p12')
         outfile = result_file('rsasnakeoil2-dsb.pcapng')
         proc = subprocess.run((cmd_editcap,
+            '--log-fatal', 'warning',
             '--inject-secrets', 'tls,%s' % rsa_keyfile,
             '--inject-secrets', 'tls,%s' % p12_keyfile,
             capture_file('rsasnakeoil2.pcap'), outfile

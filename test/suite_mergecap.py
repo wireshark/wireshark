@@ -65,6 +65,7 @@ class TestMergecapPcap:
         mergecap_proc = subprocess.run((cmd_mergecap,
             '-V',
             '-F', 'pcap',
+            '--log-fatal', 'warning',
             '-w', testout_file,
             capture_file('dhcp.pcap'),
         ), capture_output=True, encoding='utf-8', env=test_env)

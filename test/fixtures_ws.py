@@ -167,7 +167,7 @@ def features(cmd_tshark, make_env):
     '''Returns an object describing available features in tshark.'''
     try:
         tshark_v = subprocess.check_output(
-            (cmd_tshark, '--version'),
+            (cmd_tshark, '--log-fatal', 'warning', '--version'),
             stderr=subprocess.PIPE,
             universal_newlines=True,
             env=make_env()
