@@ -5361,7 +5361,7 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       }
       break;
     case INTERNAL_IP6_NETMASK: /* 9 Only in IKEv1 */
-      proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, ENC_NA);
+      proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 16, ENC_NA);
       break;
     case INTERNAL_IP6_DNS: /* 10 */
       if (value_len % 16 == 0)
