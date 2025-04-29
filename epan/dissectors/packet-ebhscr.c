@@ -1330,8 +1330,8 @@ static int dissect_ebhscr_mipi_csi2(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		expert_add_info(pinfo, ti, &ei_ebhscr_warn_mjr_hdr_status_flag);
 	}
 
-	ti = proto_tree_add_item(mipi_csi2_mhdr_tree, hf_mipi_csi2_mjr_hdr_frame_counter, tvb, 28, 2, ENC_BIG_ENDIAN);
-	ti = proto_tree_add_item(mipi_csi2_mhdr_tree, hf_mipi_csi2_mjr_hdr_line_counter, tvb, 30, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(mipi_csi2_mhdr_tree, hf_mipi_csi2_mjr_hdr_frame_counter, tvb, 28, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(mipi_csi2_mhdr_tree, hf_mipi_csi2_mjr_hdr_line_counter, tvb, 30, 2, ENC_BIG_ENDIAN);
 
 	if (ebhscr_current_payload_length < MIPI_CSI2_PKT_HDR_LEN) {
 		return tvb_captured_length(tvb);
@@ -1340,12 +1340,12 @@ static int dissect_ebhscr_mipi_csi2(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	ti = proto_tree_add_item(tree, hf_mipi_csi2_payload_pkt_hdr, tvb, 32, 8, ENC_BIG_ENDIAN);
 	mipi_csi2_payload_pkt_header_subtree = proto_item_add_subtree(ti, ett_ebhscr_status);
 
-	ti = proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_dt, tvb, 32, 1, ENC_BIG_ENDIAN);
-	ti = proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_vc, tvb, 33, 1, ENC_BIG_ENDIAN);
-	ti = proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_ecc, tvb, 35, 1, ENC_BIG_ENDIAN);
-	ti = proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_crc, tvb, 36, 2, ENC_LITTLE_ENDIAN);
-	ti = proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_wc_lsb, tvb, 38, 2, ENC_LITTLE_ENDIAN);
-	ti = proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_wc_msb, tvb, 38, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_dt, tvb, 32, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_vc, tvb, 33, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_ecc, tvb, 35, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_crc, tvb, 36, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_wc_lsb, tvb, 38, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mipi_csi2_payload_pkt_header_subtree, hf_mipi_csi2_payload_pkt_hdr_wc_msb, tvb, 38, 2, ENC_LITTLE_ENDIAN);
 
 	ebhscr_current_payload_length -= MIPI_CSI2_PKT_HDR_LEN;
 	uint32_t const headers_length = EBHSCR_HEADER_LENGTH + MIPI_CSI2_PKT_HDR_LEN;
@@ -1402,16 +1402,16 @@ static int dissect_ebhscr_csi2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 		csi2_frame_header_sections_subtree[i] = proto_item_add_subtree(ti, ett_ebhscr_status);
 
-		ti = proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_payload_byte_offset, tvb, field_offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_payload_byte_offset, tvb, field_offset, 4, ENC_BIG_ENDIAN);
 		field_offset += 4;
 
-		ti = proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_bytes_total, tvb, field_offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_bytes_total, tvb, field_offset, 4, ENC_BIG_ENDIAN);
 		field_offset += 4;
 
-		ti = proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_bytes_per_line, tvb, field_offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_bytes_per_line, tvb, field_offset, 2, ENC_BIG_ENDIAN);
 		field_offset += 2;
 
-		ti = proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_number_lines, tvb, field_offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_number_lines, tvb, field_offset, 2, ENC_BIG_ENDIAN);
 		field_offset += 2;
 
 		/* Next 2 bytes are reserved */
@@ -1426,7 +1426,7 @@ static int dissect_ebhscr_csi2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		}
 		field_offset += 1;
 
-		ti = proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_mipi_data_type, tvb, field_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csi2_frame_header_sections_subtree[i], hf_csi2_frame_header_mipi_data_type, tvb, field_offset, 1, ENC_BIG_ENDIAN);
 		/* field_offset += 1; */
 
 		ebhscr_current_payload_length -= CSI2_FRAME_SECTION_SIZE_BYTES;
