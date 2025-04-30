@@ -3447,6 +3447,12 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
 
         memcpy(&bh, ld->saved_shb, sizeof(pcapng_block_header_t));
 
+        ws_assert(global_ld.pcapng_passthrough);
+        capture_src *pcap_src = g_array_index(ld->pcaps, capture_src *, 0);
+        if (pcap_src->cap_pipe_info.pcapng.byte_swapped) {
+            bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
+        }
+
         successful = pcapng_write_block(ld->pdh, ld->saved_shb, bh.block_total_length, &ld->bytes_written, err);
 
         ws_debug("%s: wrote saved passthrough SHB %d", G_STRFUNC, successful);
