@@ -67,6 +67,17 @@ static int hf_json_3gpp_supportedFeatures;
 
 static int hf_json_3gpp_suppfeat;
 
+static int hf_json_3gpp_suppfeat_nlmf_broadcast_1_es3xx;
+
+static int hf_json_3gpp_suppfeat_nlmf_loc_1_es3xx;
+static int hf_json_3gpp_suppfeat_nlmf_loc_2_sat;
+static int hf_json_3gpp_suppfeat_nlmf_loc_3_mutiqos;
+static int hf_json_3gpp_suppfeat_nlmf_loc_4_mbsr;
+
+static int hf_json_3gpp_suppfeat_nlmf_loc_5_ranging_sl;
+static int hf_json_3gpp_suppfeat_nlmf_loc_6_intres;
+static int hf_json_3gpp_suppfeat_nlmf_loc_7_cimlr;
+
 static int hf_json_3gpp_suppfeat_npcf_am_1_slicesupport;
 static int hf_json_3gpp_suppfeat_npcf_am_2_pendingtransaction;
 static int hf_json_3gpp_suppfeat_npcf_am_3_ueambrauthorization;
@@ -211,6 +222,8 @@ static int hf_json_3gpp_suppfeat_nsmf_pdusession_20_dlset;
 
 static int hf_json_3gpp_suppfeat_nsmf_pdusession_21_n9fsc;
 
+#define NLMF_BROADCAST "/lmf-broadcast/v1/"
+#define NLMF_LOC "/lmf-loc/v1/"
 #define NPCF_AM_POLICY_CONTROL "/npcf-am-policy-control/v1/policies"
 #define NPCF_SM_POLICY_CONTROL "/npcf-smpolicycontrol/v1/sm-policies" /* inconsistency naming from 3gpp */
 #define NPCF_UE_POLICY_CONTROL "/npcf-ue-policy-control/v1/policies"
@@ -268,6 +281,81 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 	}
 
 	return;
+}
+
+static void
+dissect_3gpp_supportfeatures_nlmf_broadcast(tvbuff_t* suppfeat_tvb, proto_tree* sub_tree, packet_info* pinfo _U_, int offset _U_, int len, uint8_t *hex_ascii)
+{
+	int offset_reverse = len - 1;
+
+	/* TS 29.572 ch6.2.9 Feature negotiation */
+
+	static int * const json_3gpp_suppfeat_nlmf_broadcast_list_1[] = {
+		&hf_json_3gpp_suppfeat_nlmf_broadcast_1_es3xx,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_nlmf_broadcast_list_1, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_nlmf_loc_list_2[] = {
+		&hf_json_3gpp_suppfeat_nlmf_loc_5_ranging_sl,
+		&hf_json_3gpp_suppfeat_nlmf_loc_6_intres,
+		&hf_json_3gpp_suppfeat_nlmf_loc_7_cimlr,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_nlmf_loc_list_2, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	if (offset_reverse > -1) {
+		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+	}
+}
+
+static void
+dissect_3gpp_supportfeatures_nlmf_loc(tvbuff_t* suppfeat_tvb, proto_tree* sub_tree, packet_info* pinfo _U_, int offset _U_, int len, uint8_t *hex_ascii)
+{
+	int offset_reverse = len - 1;
+
+	/* TS 29.572 ch6.1.9 Feature negotiation */
+
+	static int * const json_3gpp_suppfeat_nlmf_loc_list_1[] = {
+		&hf_json_3gpp_suppfeat_nlmf_loc_1_es3xx,
+		&hf_json_3gpp_suppfeat_nlmf_loc_2_sat,
+		&hf_json_3gpp_suppfeat_nlmf_loc_3_mutiqos,
+		&hf_json_3gpp_suppfeat_nlmf_loc_4_mbsr,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_nlmf_loc_list_1, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_nlmf_loc_list_2[] = {
+		&hf_json_3gpp_suppfeat_nlmf_loc_5_ranging_sl,
+		&hf_json_3gpp_suppfeat_nlmf_loc_6_intres,
+		&hf_json_3gpp_suppfeat_nlmf_loc_7_cimlr,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_nlmf_loc_list_2, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	if (offset_reverse > -1) {
+		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+	}
 }
 
 static void
@@ -800,7 +888,15 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		}
 	}
 
-	if (strcmp(path, NPCF_AM_POLICY_CONTROL) == 0) {
+	if (strcmp(path, NLMF_BROADCAST) == 0) {
+		/* TS 29.572 ch6.2.9 Feature negotiation */
+		dissect_3gpp_supportfeatures_nlmf_broadcast(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
+
+	} else if (strcmp(path, NLMF_LOC) == 0) {
+		/* TS 29.572 ch6.1.9 Feature negotiation */
+		dissect_3gpp_supportfeatures_nlmf_loc(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
+
+	} else if (strcmp(path, NPCF_AM_POLICY_CONTROL) == 0) {
 		/* TS 29.507 ch5.8 Feature negotiation */
 		dissect_3gpp_supportfeatures_npcf_am_policy_control(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
 
@@ -952,6 +1048,48 @@ proto_register_json_3gpp(void)
 			{ "Supported Features", "json.3gpp.suppfeat",
 			  FT_STRING, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_nlmf_broadcast_1_es3xx,
+			{ "ES3XX", "json.3gpp.suppfeat.es3xx",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_1_es3xx,
+			{ "ES3XX", "json.3gpp.suppfeat.es3xx",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_2_sat,
+			{ "SAT", "json.3gpp.suppfeat.sat",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_3_mutiqos,
+			{ "MUTIQOS", "json.3gpp.suppfeat.mutiqos",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_4_mbsr,
+			{ "MBSR", "json.3gpp.suppfeat.mbsr",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_5_ranging_sl,
+			{ "Ranging SL", "json.3gpp.suppfeat.ranging_sl",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_6_intres,
+			{ "INTRES", "json.3gpp.suppfeat.intres",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_nlmf_loc_7_cimlr,
+			{ "CIMLR", "json.3gpp.suppfeat.cimlr",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
 		},
 
 		{ &hf_json_3gpp_suppfeat_npcf_am_1_slicesupport,
