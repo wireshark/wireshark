@@ -620,10 +620,10 @@ static const value_string responses [] = {
 static tpm_entry *get_command_entry(wmem_tree_t *tree, uint32_t pnum)
 {
 	tpm_entry *entry = (tpm_entry *)wmem_tree_lookup32(tree, pnum);
-	DISSECTOR_ASSERT(entry != NULL);
-	tpm_entry *command_entry = (tpm_entry *)wmem_tree_lookup32(tree, entry->com_pnum);
-	DISSECTOR_ASSERT(command_entry != NULL);
+	if (entry == NULL)
+		return NULL;
 
+	tpm_entry *command_entry = (tpm_entry *)wmem_tree_lookup32(tree, entry->com_pnum);
 	return command_entry;
 }
 
@@ -682,8 +682,10 @@ dissect_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
 	tpm_entry *command_entry = get_command_entry(cmd_tree, pinfo->num);
 	uint32_t i;
 
-	for (i = 0; i < command_entry->num_auths; i++)
-		dissect_auth_common(tvb, pinfo, auth, tree, offset);
+	if (command_entry != NULL) {
+		for (i = 0; i < command_entry->num_auths; i++)
+			dissect_auth_common(tvb, pinfo, auth, tree, offset);
+	}
 }
 
 static void
@@ -990,6 +992,11 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	int *offset, uint32_t param_size)
 {
 	tpm_entry *entry = get_command_entry(cmd_tree, pinfo->num);
+	if (entry == NULL) {
+		/* Entry not found, treat as generic data */
+		proto_tree_add_item(tree, hf_params, tvb, *offset, param_size, ENC_NA);
+		*offset += param_size;
+	}
 
 	switch (entry->command) {
 	case 0x12e: /* Create Primary */
