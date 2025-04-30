@@ -116,28 +116,24 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
 #.FN_BODY SubjectPublicKeyInfo/subjectPublicKey
   tvbuff_t *bs_tvb = NULL;
-# proto_tree *subtree;
 
-  dissect_ber_bitstring(false, actx, NULL, tvb, offset,
-                        NULL, 0, hf_index, -1, &bs_tvb);
+  offset = dissect_ber_bitstring(false, actx, tree, tvb, offset,
+                                 NULL, 0, hf_index, -1, &bs_tvb);
 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
   if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
-    offset += dissect_pkixalgs_RSAPublicKey(false, bs_tvb, 0, actx, tree, hf_index);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x509af_SubjectPublicKey);
+    dissect_pkixalgs_RSAPublicKey(false, bs_tvb, 0, actx, subtree, hf_x509af_subjectPublicKey_rsa);
 
-# TODO: PKCS#1 only defines RSA; DH and DSA are from PKIX1Algorithms2008
-# } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */
-#   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
-#   offset += dissect_DSAPublicKey(false, bs_tvb, 0, actx, subtree, hf_dsa_y);
-#
-# } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10046.2.1")) { /* dhpublicnumber */
-#   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
-#   offset += dissect_DHPublicKey(false, bs_tvb, 0, actx, subtree, hf_dh_y);
-#
-  } else {
-    offset = dissect_ber_bitstring(false, actx, tree, tvb, offset,
-                                   NULL, 0, hf_index, -1, NULL);
+  } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x509af_SubjectPublicKey);
+    dissect_pkixalgs_DSAPublicKey(false, bs_tvb, 0, actx, subtree, hf_x509af_subjectPublicKey_dsa);
+
+  } else if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.10046.2.1")) { /* dhpublicnumber */
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x509af_SubjectPublicKey);
+    dissect_pkixalgs_DHPublicKey(false, bs_tvb, 0, actx, subtree, hf_x509af_subjectPublicKey_dh);
+
   }
 
 #.FN_PARS Extension/extnId

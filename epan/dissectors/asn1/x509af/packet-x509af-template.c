@@ -45,10 +45,14 @@ static int x509af_eo_tap;
 static int proto_x509af;
 static int hf_x509af_algorithm_id;
 static int hf_x509af_extension_id;
+static int hf_x509af_subjectPublicKey_dh;
+static int hf_x509af_subjectPublicKey_dsa;
+static int hf_x509af_subjectPublicKey_rsa;
 #include "packet-x509af-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_pkix_crl;
+static int ett_x509af_SubjectPublicKey;
 #include "packet-x509af-ett.c"
 static const char *algorithm_id;
 static void
@@ -152,12 +156,25 @@ void proto_register_x509af(void) {
       { "Extension Id", "x509af.extension.id",
         FT_OID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_x509af_subjectPublicKey_dh,
+      { "DH Public Key", "x509af.subjectPublicKey.dh",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509af_subjectPublicKey_dsa,
+      { "DSA Public Key", "x509af.subjectPublicKey.dsa",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509af_subjectPublicKey_rsa,
+      { "RSA Public Key", "x509af.subjectPublicKey.rsa",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 #include "packet-x509af-hfarr.c"
   };
 
   /* List of subtrees */
   static int *ett[] = {
     &ett_pkix_crl,
+    &ett_x509af_SubjectPublicKey,
 #include "packet-x509af-ettarr.c"
   };
 

@@ -4,7 +4,8 @@
 #.IMPORT ../x509af/x509af-exp.cnf
 
 #.EXPORTS
-
+DHPublicKey
+DSAPublicKey
 RSAPublicKey
 DigestInfo
 
@@ -32,8 +33,6 @@ HashAlgorithm B "1.2.840.113549.1.1.8" "id-mgf1"
 Prime-p B "1.2.840.10045.1.1" "prime-field"
 
 #.NO_EMIT
-DSAPublicKey
-DHPublicKey
 DSA-Sig-Value
 ECDSA-Sig-Value
 
