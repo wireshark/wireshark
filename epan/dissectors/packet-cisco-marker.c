@@ -74,6 +74,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree_add_item(marker_tree, hf_cisco_erspan_utcoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+= 2;
 
+    /* TODO: is this field really 6 bytes?? */
     proto_tree_add_item(marker_tree, hf_cisco_erspan_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset+=8;
 

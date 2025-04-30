@@ -2900,7 +2900,7 @@ proto_register_rtmpt(void)
                     NULL, 0x0, "RTMPT Header stream ID", HFILL }},
 
                 { &hf_rtmpt_header_ets,
-                  { "Extended timestamp", "rtmpt.header.ets", FT_UINT24, BASE_DEC,
+                  { "Extended timestamp", "rtmpt.header.ets", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "RTMPT Message Header extended timestamp", HFILL }},
 
 /* Stream Control Messages */
