@@ -6479,15 +6479,11 @@ mptcp_get_meta_from_token(struct tcp_analysis* tcpd, tcp_flow_t *tcp_flow, uint3
 
             /* already exists, thus some meta may already have been configured */
             if(mptcpd->meta_flow[0].static_flags & MPTCP_META_HAS_TOKEN) {
-                assignedMetaId = 1;
+                tcp_flow->mptcp_subflow->meta = &mptcpd->meta_flow[1];
             }
             else if(mptcpd->meta_flow[1].static_flags & MPTCP_META_HAS_TOKEN) {
-                assignedMetaId = 0;
+                tcp_flow->mptcp_subflow->meta = &mptcpd->meta_flow[0];
             }
-            else {
-                DISSECTOR_ASSERT_NOT_REACHED();
-            }
-            tcp_flow->mptcp_subflow->meta = &mptcpd->meta_flow[assignedMetaId];
         }
         DISSECTOR_ASSERT(tcp_flow->mptcp_subflow->meta);
 
