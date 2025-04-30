@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <jtckdint.h>
+
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <wsutil/time_util.h>

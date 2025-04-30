@@ -9,12 +9,12 @@
 #include "config.h"
 
 #include <stdlib.h>
+#include "jtckdint.h"
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 
-#include <wsutil/safe-math.h>
 #include <wsutil/array.h>
 
 static void
@@ -645,7 +645,7 @@ sint64_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 static enum ft_result
 sint64_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_int64_add(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	if (ckd_add(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
 		*err_ptr = ws_strdup_printf("sint64_add: overflow");
 		return FT_ERROR;
 	}
@@ -655,7 +655,7 @@ sint64_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 static enum ft_result
 _sint64_subtract(int64_t *sint_dst, int64_t sint_a, int64_t sint_b, char **err_ptr)
 {
-	if (!psnip_safe_int64_sub(sint_dst, sint_a, sint_b)) {
+	if (ckd_sub(sint_dst, sint_a, sint_b)) {
 		*err_ptr = ws_strdup_printf("sint64_subtract: overflow");
 		return FT_ERROR;
 	}
@@ -671,7 +671,7 @@ sint64_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_
 static enum ft_result
 sint64_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_int64_mul(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	if (ckd_mul(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
 		*err_ptr = ws_strdup_printf("sint64_multiply: overflow");
 		return FT_ERROR;
 	}
@@ -684,12 +684,12 @@ sint64_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 	if (b->value.sinteger64 == 0) {
 		*err_ptr = ws_strdup_printf("sint64_divide: division by zero");
 		return FT_ERROR;
-	}
-
-	if (!psnip_safe_int64_div(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	} else if (a->value.sinteger64 == INT64_MIN && b->value.sinteger64 == -1) {
+		dst->value.sinteger64 = INT64_MIN; // wrap around value
 		*err_ptr = ws_strdup_printf("sint64_divide: overflow");
 		return FT_ERROR;
 	}
+	dst->value.sinteger64 = a->value.sinteger64 / b->value.sinteger64;
 	return FT_OK;
 }
 
@@ -699,19 +699,19 @@ sint64_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 	if (b->value.sinteger64 == 0) {
 		*err_ptr = ws_strdup_printf("sint64_modulo: division by zero");
 		return FT_ERROR;
-	}
-
-	if (!psnip_safe_int64_mod(&dst->value.sinteger64, a->value.sinteger64, b->value.sinteger64)) {
+	} else if (a->value.sinteger64 == INT64_MIN && b->value.sinteger64 == -1) {
+		dst->value.sinteger64 = INT64_MIN; // wrap around value
 		*err_ptr = ws_strdup_printf("sint64_modulo: overflow");
 		return FT_ERROR;
 	}
+	dst->value.sinteger64 = a->value.sinteger64 % b->value.sinteger64;
 	return FT_OK;
 }
 
 static enum ft_result
 uint64_add(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_uint64_add(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (ckd_add(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_add: overflow");
 		return FT_ERROR;
 	}
@@ -723,16 +723,15 @@ uint64_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_
 {
 	if (b->value.uinteger64 > a->value.uinteger64) {
 		/* Uses signed arithmetic. */
-		if (a->value.uinteger64 > INT64_MAX ||
-				b->value.uinteger64 > INT64_MAX) {
+		if (ckd_sub(&dst->value.sinteger64, a->value.uinteger64, b->value.uinteger64)) {
 			*err_ptr = ws_strdup_printf("uint64_subtract: signed overflow");
 			return FT_ERROR;
 		}
 		FTYPE_LOOKUP(FT_INT64, dst->ftype);
-		return _sint64_subtract(&dst->value.sinteger64, (int64_t)a->value.uinteger64, (int64_t)b->value.uinteger64, err_ptr);
+		return FT_OK;
 	}
 
-	if (!psnip_safe_uint64_sub(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (ckd_sub(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_subtract: overflow");
 		return FT_ERROR;
 	}
@@ -742,7 +741,7 @@ uint64_subtract(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_
 static enum ft_result
 uint64_multiply(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	if (!psnip_safe_uint64_mul(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
+	if (ckd_mul(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
 		*err_ptr = ws_strdup_printf("uint64_multiply: overflow");
 		return FT_ERROR;
 	}
@@ -757,10 +756,7 @@ uint64_divide(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_uint64_div(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
-		*err_ptr = ws_strdup_printf("uint64_divide: overflow");
-		return FT_ERROR;
-	}
+	dst->value.uinteger64 = a->value.uinteger64 / b->value.uinteger64;
 	return FT_OK;
 }
 
@@ -772,10 +768,7 @@ uint64_modulo(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_pt
 		return FT_ERROR;
 	}
 
-	if (!psnip_safe_uint64_mod(&dst->value.uinteger64, a->value.uinteger64, b->value.uinteger64)) {
-		*err_ptr = ws_strdup_printf("uint64_modulo: overflow");
-		return FT_ERROR;
-	}
+	dst->value.uinteger64 = a->value.uinteger64 % b->value.uinteger64;
 	return FT_OK;
 }
 
