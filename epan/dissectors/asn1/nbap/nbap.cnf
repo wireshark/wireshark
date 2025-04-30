@@ -958,12 +958,11 @@ uint32_t payload_crc_value;
   nbap_private_data->hsdsch_macdflow_id = hsdsch_macdflow_id;
 
   num_items = nbap_private_data->num_items;
-DISSECTOR_ASSERT(num_items < maxNrOfMACdFlows+1);
-DISSECTOR_ASSERT(num_items > 0);
 
-hsdsch_macdflow_ids = nbap_private_data->hsdsch_macdflow_ids;
-hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
-
+  if ((num_items > 0) && (num_items < maxNrOfMACdFlows+1)) {
+    hsdsch_macdflow_ids = nbap_private_data->hsdsch_macdflow_ids;
+    hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
+  }
 #.FN_BODY BindingID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   uint16_t binding_id_port;

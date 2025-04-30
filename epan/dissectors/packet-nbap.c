@@ -23669,12 +23669,11 @@ dissect_nbap_HSDSCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   nbap_private_data->hsdsch_macdflow_id = hsdsch_macdflow_id;
 
   num_items = nbap_private_data->num_items;
-DISSECTOR_ASSERT(num_items < maxNrOfMACdFlows+1);
-DISSECTOR_ASSERT(num_items > 0);
 
-hsdsch_macdflow_ids = nbap_private_data->hsdsch_macdflow_ids;
-hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
-
+  if ((num_items > 0) && (num_items < maxNrOfMACdFlows+1)) {
+    hsdsch_macdflow_ids = nbap_private_data->hsdsch_macdflow_ids;
+    hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
+  }
 
   return offset;
 }
