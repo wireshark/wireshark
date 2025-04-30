@@ -263,11 +263,13 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
 
 
     DissectorTable dt;
+    name = g_strdup(name);
+    ui_name = g_strdup(ui_name);
     dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
     dt->table = NULL;
     dt->heur_list = register_heur_dissector_list_with_description(name, ui_name, proto_id);
-    dt->name = g_strdup(name);
-    dt->ui_name = g_strdup(ui_name);
+    dt->name = name;
+    dt->ui_name = ui_name;
     dt->created = true;
     dt->expired = false;
 
