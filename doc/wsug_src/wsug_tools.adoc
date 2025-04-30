@@ -93,6 +93,19 @@ version].
 include::capinfos-h.txt[]
 ----
 
+=== __captype__: Prints the types of capture files
+
+`captype` can print capture file type information about capture files.
+For more information on `captype` consult your local manual page (`man
+captype`) or link:{wireshark-man-page-url}captype.html[the online
+version].
+
+[#AppToolscaptypeEx]
+.Help information available from `captype`
+----
+include::captype-h.txt[]
+----
+
 [#AppToolsrawshark]
 
 === __rawshark__: Dump and analyze network traffic.

@@ -203,6 +203,7 @@ set(WSUG_FILES
 	wsug_src/wsug_use.adoc
 	wsug_src/wsug_work.adoc
 	wsug_src/capinfos-h.txt
+	wsug_src/captype-h.txt
 	wsug_src/dumpcap-h.txt
 	wsug_src/editcap-F.txt
 	wsug_src/editcap-T.txt
