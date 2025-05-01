@@ -223,6 +223,7 @@
 #define ZBEE_ZCL_CID_METER_IDENTIFICATION           0x0b01
 #define ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT     0x0b02
 #define ZBEE_ZCL_CID_APPLIANCE_STATISTICS           0x0b03
+#define ZBEE_ZCL_CID_DIAGNOSTICS                    0x0b05
 
 #define ZBEE_ZCL_CID_ZLL                            0x1000
 

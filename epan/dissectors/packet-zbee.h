@@ -1644,6 +1644,7 @@
 #define ZBEE_PROTOABBREV_ZCL_APPLEVTALT     "zbee_zcl_ha.applevtalt"
 #define ZBEE_PROTOABBREV_ZCL_APPLIDT        "zbee_zcl_ha.applident"
 #define ZBEE_PROTOABBREV_ZCL_APPLSTATS      "zbee_zcl_ha.applstats"
+#define ZBEE_PROTOABBREV_ZCL_DIAGNOSTICS    "zbee_zcl_ha.diagnostics"
 #define ZBEE_PROTOABBREV_ZCL_METIDT         "zbee_zcl_ha.metidt"
 #define ZBEE_PROTOABBREV_ZCL_IAS_ZONE       "zbee_zcl_ias.zone"
 #define ZBEE_PROTOABBREV_ZCL_IAS_ACE        "zbee_zcl_ias.ace"

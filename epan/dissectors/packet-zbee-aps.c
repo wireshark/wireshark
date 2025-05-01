@@ -648,6 +648,7 @@ const range_string zbee_aps_cid_names[] = {
     {ZBEE_ZCL_CID_METER_IDENTIFICATION,             ZBEE_ZCL_CID_METER_IDENTIFICATION,             "Meter Identification"},
     {ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT,       ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT,       "Appliance Events And Alerts"},
     {ZBEE_ZCL_CID_APPLIANCE_STATISTICS,             ZBEE_ZCL_CID_APPLIANCE_STATISTICS,             "Appliance Statistics"},
+    {ZBEE_ZCL_CID_DIAGNOSTICS,                      ZBEE_ZCL_CID_DIAGNOSTICS,                      "Diagnostics"},
 
     {ZBEE_ZCL_CID_ZLL,                              ZBEE_ZCL_CID_ZLL,                              "ZLL Commissioning"},
 
