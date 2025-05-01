@@ -140,7 +140,7 @@ WSLUA_CONSTRUCTOR Conversation_find(lua_State* L) {
        `convtypes.LTP`, `convtypes.MCTP`, `convtypes.NVME_MI`, `convtypes.BP`, `convtypes.SNMP`,
        `convtypes.QUIC`, `convtypes.IDN`, `convtypes.IP`, `convtypes.IPV6`, `convtypes.ETH`,
        `convtypes.ETH_NN`, `convtypes.ETH_NV`, `convtypes.ETH_IN`, `convtypes.ETH_IV`,
-       `convtypes.VSPC_VMOTION`, `convtypes.OPENVPN`, `convtypes.PROXY`, `onvtypes.DNP3` */
+       `convtypes.VSPC_VMOTION`, `convtypes.OPENVPN`, `convtypes.PROXY`, `convtypes.DNP3` */
 
 #define WSLUA_ARG_Conversation_find_ADDR1 3 /* First <<lua_class_Address,``Address``>> of the conversation. */
 #define WSLUA_OPTARG_Conversation_find_ADDR2 4 /* Second <<lua_class_Address,``Address``>> of theconversation. (defaults to nil) */
@@ -235,7 +235,7 @@ WSLUA_CONSTRUCTOR Conversation_find_by_id(lua_State* L) {
        `convtypes.LTP`, `convtypes.MCTP`, `convtypes.NVME_MI`, `convtypes.BP`, `convtypes.SNMP`,
        `convtypes.QUIC`, `convtypes.IDN`, `convtypes.IP`, `convtypes.IPV6`, `convtypes.ETH`,
        `convtypes.ETH_NN`, `convtypes.ETH_NV`, `convtypes.ETH_IN`, `convtypes.ETH_IV`,
-       `convtypes.VSPC_VMOTION`, `convtypes.OPENVPN`, `convtypes.PROXY`, `onvtypes.DNP3` */
+       `convtypes.VSPC_VMOTION`, `convtypes.OPENVPN`, `convtypes.PROXY`, `convtypes.DNP3` */
 #define WSLUA_ARG_Conversation_find_by_id_ID 3 /* Conversation or session specific ID */
 #define WSLUA_OPTARG_Conversation_find_by_id_CREATE 4 /* Boolean. If conversation doesn't exist, create it (default true) */
 
