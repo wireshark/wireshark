@@ -51,6 +51,8 @@ def check_capinfos_info(cmd_capinfos, cap_file):
         'packets': None,
         'datasize': None,
         'timeend': None,
+        'interfaces': None,
+        'userappl': [],
     }
     str_pats = {
         'filetype': 'File type',
@@ -60,8 +62,12 @@ def check_capinfos_info(cmd_capinfos, cap_file):
     int_pats = {
         'packets': 'Number of packets',
         'datasize': 'Data size',
+        'interfaces': 'Number of interfaces in file',
     }
-    capinfos_out = get_capture_info(cmd_capinfos, ('-tEcdMe',), cap_file)
+    str_list_pats = {
+        'userappl': 'Capture application',
+    }
+    capinfos_out = get_capture_info(cmd_capinfos, ('-MtEcdeIF',), cap_file)
 
     for ci_line in capinfos_out.splitlines():
         for sp_key in str_pats:
@@ -75,6 +81,12 @@ def check_capinfos_info(cmd_capinfos, cap_file):
             int_res = re.search(int_pat, ci_line)
             if int_res is not None:
                 cap_info[ip_key] = int(int_res.group(1))
+
+        for sp_key, sp_value in str_list_pats.items():
+            str_pat = r'{}:\s+([\S ]+)'.format(sp_value)
+            str_res = re.search(str_pat, ci_line)
+            if str_res is not None:
+                cap_info[sp_key].append(str_res.group(1))
 
     return cap_info
 

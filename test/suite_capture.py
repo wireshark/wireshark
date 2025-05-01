@@ -15,6 +15,7 @@ import socket
 import subprocess
 import subprocesstest
 from subprocesstest import cat_dhcp_command, cat_cap_file_command, count_output, grep_output, check_packet_count
+from suite_text2pcap import check_capinfos_info
 import sys
 import threading
 import time
@@ -308,16 +309,38 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap, cmd_capinfos, result_file):
 def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture_file, result_file):
     if sys.platform == 'win32':
         pytest.skip('Test requires OS fifo support.')
-    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False, mixed_endian=False, env=None):
+    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False, mixed_endian=False, be_first=False, env=None):
+
+        # many_interfaces.pcapng.1 : 64 packets written by "Passthrough test #1"
+        # many_interfaces.pcapng.2 : 15 packets written by "Passthrough test #2"
+        # many_interfaces.pcapng.3 : 9 packets written by "Passthrough test #3"
+        # Each has 11 interfaces and is Little Endian.
+        # dhcp_big_endian.pcapng : 4 packets, Big Endian, 1 IDB UA "pcap_writer.lua"
+        # aka Big Endian test001.pcapng from https://github.com/hadrielk/pcapng-test-generator/
+        # All of these source files have a single SHB and the IDBs immediately
+        # after the SHB and before and EPBs.
+
+        # It would be good to add another (longer) Big Endian file, to test
+        # Big Endian-only multiple inputs.
+
         # Make sure we always test multiple SHBs in an input.
         in_files_l = [ [
             capture_file('many_interfaces.pcapng.1'),
             capture_file('many_interfaces.pcapng.2')
             ] ]
+
+        # Currently byte swapped SHBs are only supported as passthrough;
+        # i.e., with a single input. So with multi_input we add a third
+        # Little Endian file.
         if multi_input:
             in_files_l.append([ capture_file('many_interfaces.pcapng.3') ])
+
         if mixed_endian:
-            in_files_l[0].append(capture_file('dhcp_big_endian.pcapng'))
+            if be_first:
+                in_files_l[0].insert(0, capture_file('dhcp_big_endian.pcapng'))
+            else:
+                in_files_l[0].append(capture_file('dhcp_big_endian.pcapng'))
+
         fifo_files = []
         fifo_procs = []
         # Default values for our validity tests
@@ -325,12 +348,11 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             'filename': None,
             'packet_count': 0,
             'idb_count': 0,
-            'ua_pt1_count': 0,
-            'ua_pt2_count': 0,
-            'ua_pt3_count': 0,
-            'ua_dc_count': 0,
+            'userappl_list': [],
         }
-        check_vals = [ check_val_d ]
+        check_vals = [ check_val_d.copy() ]
+
+        autostop_packets = 40
 
         for in_files in in_files_l:
             fifo_file = result_file('dumpcap_pcapng_sections_{}.fifo'.format(len(fifo_files) + 1))
@@ -343,72 +365,46 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             cat_cmd = cat_cap_file_command(in_files)
             fifo_procs.append(subprocess.Popen(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
 
+            for in_file in in_files:
+                cap_info = check_capinfos_info(cmd_capinfos, in_file)
+                check_vals[-1]['packet_count'] += cap_info['packets']
+                check_vals[-1]['idb_count'] += cap_info['interfaces']
+                if not multi_input:
+                    check_vals[-1]['userappl_list'].extend(cap_info.get('userappl', []))
+                if multi_output and check_vals[-1]['packet_count'] >= autostop_packets:
+                    # XXX - We happen to know for each of our input files there
+                    # is but one SHB and all IDBs appear before any EPBs, thus
+                    # all IDBs (and User Application opts, for SHB passthrough)
+                    # should be present if any of its packets are in a given
+                    # output file. With more complicated pcapng files, at best
+                    # for output files before the last we could only set bounds
+                    # for the number of IDBs and User Application options.
+                    check_vals.append(check_val_d.copy())
+                    check_vals[-1]['packet_count'] = check_vals[-2]['packet_count'] - autostop_packets
+                    check_vals[-2]['packet_count'] = autostop_packets
+                    if multi_input:
+                        check_vals[-1]['idb_count'] = check_vals[-2]['idb_count']
+                    else:
+                        check_vals[-1]['idb_count'] = cap_info['interfaces']
+                        check_vals[-1]['userappl_list'] = cap_info.get('userappl', [])
+
         if multi_output:
             rb_unique = 'sections_rb_' + uuid.uuid4().hex[:6] # Random ID
             testout_file = result_file('testout.{}.pcapng'.format(rb_unique))
             testout_glob = result_file('testout.{}_*.pcapng'.format(rb_unique))
-            check_vals.append(check_val_d.copy())
             # check_vals[]['filename'] will be filled in below
         else:
             testout_file = result_file(testout_pcapng)
             check_vals[0]['filename'] = testout_file
 
         # Capture commands
-        if not multi_input and not multi_output:
-            # Passthrough SHBs, single output file
-            capture_cmd_args = (
-                '-i', fifo_files[0],
-                '-w', testout_file
-            )
-            check_vals[0]['packet_count'] = 79
-            check_vals[0]['idb_count'] = 22
-            check_vals[0]['ua_pt1_count'] = 1
-            check_vals[0]['ua_pt2_count'] = 1
-        elif not multi_input and multi_output:
-            # Passthrough SHBs, multiple output files
-            capture_cmd_args = (
-                '-i', fifo_files[0],
-                '-w', testout_file,
-                '-a', 'files:2',
-                '-b', 'packets:53'
-            )
-            check_vals[0]['packet_count'] = 53
-            check_vals[0]['idb_count'] = 11
-            check_vals[0]['ua_pt1_count'] = 1
-            check_vals[1]['packet_count'] = 26
-            check_vals[1]['idb_count'] = 22
-            check_vals[1]['ua_pt1_count'] = 1
-            check_vals[1]['ua_pt2_count'] = 1
-        elif multi_input and not multi_output:
-            # Dumpcap SHBs, single output file
-            capture_cmd_args = (
-                '-i', fifo_files[0],
-                '-i', fifo_files[1],
-                '-w', testout_file
-            )
-            check_vals[0]['packet_count'] = 88
-            check_vals[0]['idb_count'] = 33
-            check_vals[0]['ua_dc_count'] = 1
-        else:
-            # Dumpcap SHBs, multiple output files
-            capture_cmd_args = (
-                '-i', fifo_files[0],
-                '-i', fifo_files[1],
-                '-w', testout_file,
-                '-a', 'files:2',
-                '-b', 'packets:53'
-            )
-            check_vals[0]['packet_count'] = 53
-            check_vals[0]['idb_count'] = 11
-            check_vals[0]['ua_dc_count'] = 1
-            check_vals[1]['packet_count'] = 35
-            check_vals[1]['idb_count'] = 33
-            check_vals[1]['ua_dc_count'] = 1
-
-        # dhcp_big_endian.pcapng : 4 packets, Big Endian, 1 IDB, no UA option
-        if mixed_endian:
-            check_vals[-1]['packet_count'] += 4
-            check_vals[-1]['idb_count'] += 1
+        capture_cmd_args = ['-w', testout_file]
+        for fifo_file in fifo_files:
+            capture_cmd_args.append('-i')
+            capture_cmd_args.append(fifo_file)
+        if multi_output:
+            capture_cmd_args.append('-b')
+            capture_cmd_args.append(f'packets:{autostop_packets}')
 
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
 
@@ -418,9 +414,10 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
         rb_files = []
         if multi_output:
             rb_files = sorted(glob.glob(testout_glob))
-            assert len(rb_files) == 2
-            check_vals[0]['filename'] = rb_files[0]
-            check_vals[1]['filename'] = rb_files[1]
+            # zip(strict=True) keyword arg added in Python 3.10
+            assert len(rb_files) == len(check_vals)
+            for check_val, rb_file in zip(check_vals, rb_files):
+                check_val['filename'] = rb_file
 
         for rbf in rb_files:
             assert os.path.isfile(rbf)
@@ -439,40 +436,37 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
                 out_hash.update(f.read())
             assert in_hash.hexdigest() == out_hash.hexdigest()
 
-        # many_interfaces.pcapng.1 : 64 packets written by "Passthrough test #1"
-        # many_interfaces.pcapng.2 : 15 packets written by "Passthrough test #2"
-        # many_interfaces.pcapng.3 : 9 packets written by "Passthrough test #3"
-        # Each has 11 interfaces.
-        idb_compare_eq = True
-        if multi_input and multi_output:
-            # Having multiple inputs forces the use of threads. In our
-            # case this means that non-packet block counts in the first
-            # file in is nondeterministic.
-            idb_compare_eq = False
-        for check_val in check_vals:
+        last = True
+        for check_val in reversed(check_vals):
+            # Iterate in reversed order; if there multiple outputs, the last
+            # file is special (i.e., is guaranteed to have all the IDBs and
+            # other non-packet blocks and options.)
             check_packet_count(cmd_capinfos, check_val['packet_count'], check_val['filename'])
 
-            tshark_proc = subprocesstest.check_run(capture_command(cmd_tshark,
-                '-r', check_val['filename'],
-                '-V',
-                '-X', 'read_format:MIME Files Format'
-            ), capture_output=True, env=env)
-            # XXX Are there any other sanity checks we should run?
-            if idb_compare_eq:
-                assert count_output(tshark_proc.stdout, r'Block \d+: Interface Description Block \d+') \
-                        == check_val['idb_count']
+            cap_out_info = check_capinfos_info(cmd_capinfos, check_val['filename'])
+            assert check_val['packet_count'] == cap_out_info['packets']
+
+            if multi_input and multi_output and not last:
+                # Having multiple inputs forces the use of threads. In our
+                # case this means that non-packet block counts in files before
+                # the last is nondeterministic. We also expect any non-packet
+                # blocks before the first packet block to be read in each
+                # input as part of the initial pcapng_open.
+                assert cap_out_info['interfaces'] >= check_val['idb_count']
             else:
-                assert count_output(tshark_proc.stdout, r'Block \d+: Interface Description Block \d+') \
-                        >= check_val['idb_count']
-                idb_compare_eq = True
-            assert count_output(tshark_proc.stdout, r'Option: User Application = Passthrough test #1') \
-                        == check_val['ua_pt1_count']
-            assert count_output(tshark_proc.stdout, r'Option: User Application = Passthrough test #2') \
-                        == check_val['ua_pt2_count']
-            assert count_output(tshark_proc.stdout, r'Option: User Application = Passthrough test #3') \
-                        == check_val['ua_pt3_count']
-            assert count_output(tshark_proc.stdout, r'Option: User Application = Dumpcap \(Wireshark\)') \
-                        == check_val['ua_dc_count']
+                assert cap_out_info['interfaces'] == check_val['idb_count']
+
+            if multi_input:
+                # Multiple inputs, so dumpcap written SHB with its own User
+                # Application option (including the version number, so check
+                # a substring.)
+                assert len(cap_out_info['userappl']) == 1
+                assert 'Dumpcap (Wireshark)' in cap_out_info['userappl'][0]
+            else:
+                assert cap_out_info['userappl'] == check_val['userappl_list']
+
+            # XXX Are there any other sanity checks we should run?
+            last = False
     return check_dumpcap_pcapng_sections_real
 
 class TestWiresharkCapture:
@@ -609,6 +603,14 @@ class TestDumpcapPcapngMixedEndian:
     def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections, base_env):
         '''Capture from a single pcapng source using Dumpcap and write two files'''
         check_dumpcap_pcapng_sections(self, multi_output=True, mixed_endian=True, env=base_env)
+
+    def test_dumpcap_pcapng_single_in_single_out_be(self, check_dumpcap_pcapng_sections, base_env):
+        '''Capture from a single pcapng source using Dumpcap and write a single file'''
+        check_dumpcap_pcapng_sections(self, mixed_endian=True, be_first=True, env=base_env)
+
+    def test_dumpcap_pcapng_single_in_multi_out_be(self, check_dumpcap_pcapng_sections, base_env):
+        '''Capture from a single pcapng source using Dumpcap and write two files'''
+        check_dumpcap_pcapng_sections(self, multi_output=True, mixed_endian=True, be_first=True, env=base_env)
 
     # dumpcap doesn't support capturing from mixed-endian pipes with multiple
     # inputs (i.e., when not just passing through the SHBs and IDBs).
