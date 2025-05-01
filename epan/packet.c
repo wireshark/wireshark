@@ -420,6 +420,14 @@ struct data_source *add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const
 	return src;
 }
 
+void
+set_data_source_name(packet_info *pinfo, struct data_source *src, const char *name)
+{
+	if (src) {
+		src->name = wmem_strdup(pinfo->pool, name);
+	}
+}
+
 void set_data_source_media_type(struct data_source *src, data_source_media_type_e media_type)
 {
 	if (src) {
@@ -437,7 +445,7 @@ remove_last_data_source(packet_info *pinfo)
 }
 
 char*
-get_data_source_name(const struct data_source *src)
+get_data_source_description(const struct data_source *src)
 {
 	unsigned length = tvb_captured_length(src->tvb);
 
@@ -455,23 +463,41 @@ get_data_source_tvb(const struct data_source *src)
 }
 
 /*
- * Find and return the tvb associated with the given data source name
+ * Find and return data source with the given name.
  */
-tvbuff_t *
-get_data_source_tvb_by_name(packet_info *pinfo, const char *name)
+struct data_source *
+get_data_source_by_name(const packet_info *pinfo, const char *name)
 {
 	if (!pinfo) {
 		return NULL;
 	}
-	GSList *source;
-	for (source = pinfo->data_src; source; source = source->next) {
+	for (GSList *source = pinfo->data_src; source; source = source->next) {
 		struct data_source *this_source = (struct data_source *)source->data;
 		if (this_source->name && strcmp(this_source->name, name) == 0) {
-			return this_source->tvb;
+			return this_source;
 		}
 	}
 	return NULL;
 }
+
+/*
+ * Find and return the data source associated with a given tvb.
+ */
+struct data_source *
+get_data_source_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb)
+{
+	if (!pinfo) {
+		return NULL;
+	}
+	for (GSList *source = pinfo->data_src; source; source = source->next) {
+		struct data_source *this_source = (struct data_source *)source->data;
+		if (this_source->tvb == tvb) {
+			return this_source;
+		}
+	}
+	return NULL;
+}
+	
 
 data_source_media_type_e get_data_source_media_type(const struct data_source *src)
 {

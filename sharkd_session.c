@@ -4477,10 +4477,10 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
             json_dumper_begin_object(&dumper);
 
             {
-                char *src_name = get_data_source_name(src);
+                char *src_description = get_data_source_description(src);
 
-                sharkd_json_value_string("name", src_name);
-                wmem_free(NULL, src_name);
+                sharkd_json_value_string("name", src_description);
+                wmem_free(NULL, src_description);
             }
 
             tvb = get_data_source_tvb(src);

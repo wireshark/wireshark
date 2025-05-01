@@ -849,6 +849,14 @@ WS_DLL_PUBLIC struct data_source* add_new_data_source(packet_info *pinfo, tvbuff
     const char *name);
 
 /**
+ * Set the name for the data source.
+ * @param pinfo pinfo from whose pool to allocate a copy of the data source
+ * @param src The data source.
+ * @param name new name for the data source
+ */
+WS_DLL_PUBLIC void set_data_source_name(packet_info *pinfo, struct data_source *src, const char *name);
+
+/**
  * Set the media type for the data source. This will be used as a hint
  * to display the source's tvbuff.
  * @param src The data source.
@@ -860,11 +868,31 @@ WS_DLL_PUBLIC void set_data_source_media_type(struct data_source *src, data_sour
 WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
 
 /*
- * Return the data source name, tvb.
+ * Return the data source description.
  */
-WS_DLL_PUBLIC char *get_data_source_name(const struct data_source *src);
+WS_DLL_PUBLIC char *get_data_source_description(const struct data_source *src);
+
+/*
+ * Return the tvb for the data source.
+ */
 WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb(const struct data_source *src);
-WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb_by_name(packet_info *pinfo, const char *name);
+
+/**
+ * Find and return data source with the given name.
+ * @param pinfo packet_info for the packet whose data sources are to be searched
+ * @param name name of the data source
+ * @return the data source or NULL if not found
+ */
+WS_DLL_PUBLIC struct data_source *get_data_source_by_name(const packet_info *pinfo, const char *name);
+
+/**
+ * Find and return data source with the given tvb.
+ * @param pinfo packet_info for the packet whose data sources are to be searched
+ * @param tvb tvb of the data source
+ * @return the data source or NULL if not found
+ */
+WS_DLL_PUBLIC struct data_source *get_data_source_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb);
+
 /**
  * Get a data source's media type.
  * @param src The data source.

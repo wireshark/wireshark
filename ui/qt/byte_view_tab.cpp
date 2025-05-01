@@ -299,11 +299,11 @@ void ByteViewTab::selectedFrameChanged(QList<int> frames)
         GSList *src_le;
         for (src_le = edt_->pi.data_src; src_le != NULL; src_le = src_le->next) {
             struct data_source *source;
-            char* source_name;
+            char* source_description;
             source = (struct data_source *)src_le->data;
-            source_name = get_data_source_name(source);
-            addTab(source_name, source);
-            wmem_free(NULL, source_name);
+            source_description = get_data_source_description(source);
+            addTab(source_description, source);
+            wmem_free(NULL, source_description);
         }
     }
     else

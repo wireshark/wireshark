@@ -763,17 +763,17 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             return;
         }
         else {
-            tvbuff_t *reassembled_tvb;
+            struct data_source *source;
             /* Show link back to segment where alert was detected. */
             ti = proto_tree_add_uint(tree, hf_snort_reassembled_from, tvb, 0, 0,
                                      alert->original_frame);
             proto_item_set_generated(ti);
 
             /* Should find this if look late enough.. */
-            reassembled_tvb = get_data_source_tvb_by_name(pinfo, "Reassembled TCP");
-            if (reassembled_tvb) {
+            source = get_data_source_by_name(pinfo, "Reassembled TCP");
+            if (source != NULL) {
                 /* Will look for content using the TVB instead of just this frame's one */
-                tvb = reassembled_tvb;
+                tvb = get_data_source_tvb(source);
             }
             /* TODO: for correctness, would be good to lookup + remember the offset of the source
              * frame within the reassembled PDU frame, to make sure we find the content in the
