@@ -39,18 +39,18 @@ enum {
     NUM_FLOW_COLUMNS
 };
 
-static const char *flow_titles[] = { " Plane    ",
-                                     "eAxC ID",
-                                     "Direction    ",
-                                     "Frames   ",
-                                     "Largest PDU   ",
+static const char *flow_titles[] = { " Plane",
+                                     "eAxC ID ",
+                                     "Direction  ",
+                                     "Frames ",
+                                     "Largest PDU  ",
                                      "Section Types        ",
                                      "Section IDs        ",
                                      "Extensions",
                                      "Highest Slot",
                                      "Missing SNs   ",
-                                     "PRBs ",
-                                     "Zero-PRBs       ",
+                                     "PRBs",
+                                     "Zero-PRBs      ",
                                      "REs ",
                                      "Zero-REs"
                                    };
@@ -222,7 +222,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n=============================================================================================================================================================================================\n");
+    printf("\n====================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -266,10 +266,10 @@ oran_stat_draw(void *phs)
         }
 
         /* Print this row */
-        printf("%s %11u %16s %11u %15u %18s %20s %18s %13u %12u %8u %11u %11u %10u\n",
+        printf("%6s %8u %11s %9u %13u %17s %20s %18s %13u %12u %8u %10u %10u %10u\n",
                (row->base_info.userplane) ? "U" : "C",
                row->base_info.eaxc,
-               (row->base_info.uplink) ? "Uplink" : "Downlink",
+               (row->base_info.uplink) ? "UL" : "DL",
                row->num_frames,
                row->largest_pdu,
                sections,
