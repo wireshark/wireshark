@@ -5,10 +5,14 @@
  * - 3GPP TS 24.301
  * - 3GPP TS 24.501
  * - 3GPP TS 29.274
+ * - 3GPP TS 29.500
  * - 3GPP TS 29.502
+ * - 3GPP TS 29.503
  * - 3GPP TS 29.507
+ * - 3GPP TS 29.512
  *   3GPP TS 29.525
  * - 3GPP TS 29.571
+ * - 3GPP TS 29.572
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
