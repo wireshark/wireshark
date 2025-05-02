@@ -17,8 +17,7 @@ Graph::Graph(QCustomPlot* parent) :
     graph_(NULL),
     bars_(NULL),
     visible_(false),
-    y_axis_factor_(1),
-    start_time_(NSTIME_INIT_ZERO)
+    y_axis_factor_(default_y_axis_factor_)
 {
     Q_ASSERT(parent_ != NULL);
     graph_ = parent_->addGraph(parent_->xAxis, parent_->yAxis);
@@ -121,7 +120,6 @@ void Graph::clearAllData()
     if (bars_) {
         bars_->data()->clear();
     }
-    nstime_set_zero(&start_time_);
 }
 
 bool Graph::setPlotStyle(PlotStyles style)
@@ -223,33 +221,4 @@ bool Graph::setPlotStyle(PlotStyles style)
     applyCurrentColor();
 
     return type_changed;
-}
-
-// This returns what graph key offset corresponds with relative time 0.0,
-// i.e. when absolute times are used the difference between abs_ts and
-// rel_ts of the first tapped packet. Generally the same for all graphs
-// that are displayed and have some data, unless they're on the opposite
-// sides of time references.
-// XXX - If the graph spans a time reference, it's not clear how we want
-// to switch from relative to absolute times.
-double Graph::startOffset() const
-{
-    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
-        return nstime_to_sec(&start_time_);
-    }
-    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
-        return nstime_to_sec(&start_time_);
-    }
-    return 0.0;
-}
-
-nstime_t Graph::startTime() const
-{
-    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
-        return start_time_;
-    }
-    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
-        return start_time_;
-    }
-    return nstime_t(NSTIME_INIT_ZERO);
 }

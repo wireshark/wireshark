@@ -21,6 +21,7 @@ class QCustomPlot;
 class Graph : public QObject {
     Q_OBJECT
 public:
+    static const int default_y_axis_factor_ = 1;
     const qreal graph_line_width_ = 1.0;
     enum PlotStyles { psLine, psDotLine, psStepLine, psDotStepLine, psImpulse, psBar, psStackedBar, psDot, psSquare, psDiamond, psCross, psPlus, psCircle };
 
@@ -38,7 +39,6 @@ public:
     QCPBars* bars() const { return bars_; }
     bool addToLegend();
     bool setPlotStyle(PlotStyles style);
-    nstime_t startTime() const;
 
 protected:
     QCustomPlot* parent_;
@@ -48,12 +48,10 @@ protected:
     QBrush color_;
     bool visible_;
     unsigned int y_axis_factor_;
-    nstime_t start_time_;
 
     void applyCurrentColor();
     bool removeFromLegend();
     void clearAllData();
-    double startOffset() const;
 };
 
 #endif // GRAPH_H

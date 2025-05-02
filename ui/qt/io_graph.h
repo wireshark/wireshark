@@ -80,6 +80,7 @@ public:
     void setValueUnits(int val_units);
     QString valueUnitField() const { return vu_field_; }
     void setValueUnitField(const QString& vu_field);
+    nstime_t startTime() const;
     unsigned int movingAveragePeriod() const { return moving_avg_period_; }
     void setInterval(int interval);
     int packetFromTime(double ts) const;
@@ -110,6 +111,7 @@ private:
     void removeTapListener();
 
     bool showsZero() const;
+    double startOffset() const;
 
     template<class DataMap> double maxValueFromGraphData(const DataMap& map);
     template<class DataMap> void scaleGraphData(DataMap& map, int scalar);
@@ -121,6 +123,7 @@ private:
     QString full_filter_; // Includes vu_field_ if used
     io_graph_item_unit_t val_units_;
     QString vu_field_;
+    nstime_t start_time_;
     int hf_index_;
     int interval_;
     bool asAOT_; // Average Over Time interpretation

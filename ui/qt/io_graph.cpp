@@ -36,6 +36,7 @@ IOGraph::IOGraph(QCustomPlot* parent) :
     tap_registered_(true),
     need_retap_(false),
     val_units_(IOG_ITEM_UNIT_FIRST),
+    start_time_(NSTIME_INIT_ZERO),
     hf_index_(-1),
     interval_(0),
     asAOT_(false),
@@ -270,6 +271,35 @@ void IOGraph::setValueUnitField(const QString& vu_field)
     }
 }
 
+// This returns what graph key offset corresponds with relative time 0.0,
+// i.e. when absolute times are used the difference between abs_ts and
+// rel_ts of the first tapped packet. Generally the same for all graphs
+// that are displayed and have some data, unless they're on the opposite
+// sides of time references.
+// XXX - If the graph spans a time reference, it's not clear how we want
+// to switch from relative to absolute times.
+double IOGraph::startOffset() const
+{
+    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
+        return nstime_to_sec(&start_time_);
+    }
+    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
+        return nstime_to_sec(&start_time_);
+    }
+    return 0.0;
+}
+
+nstime_t IOGraph::startTime() const
+{
+    if (graph_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(graph_->keyAxis()->ticker())) {
+        return start_time_;
+    }
+    if (bars_ && qSharedPointerDynamicCast<QCPAxisTickerDateTime>(bars_->keyAxis()->ticker())) {
+        return start_time_;
+    }
+    return nstime_t(NSTIME_INIT_ZERO);
+}
+
 int IOGraph::packetFromTime(double ts) const
 {
     int idx = ts * SCALE_F / interval_;
@@ -292,6 +322,7 @@ void IOGraph::clearAllData()
     if (items_.size()) {
         reset_io_graph_items(&items_[0], items_.size(), hf_index_);
     }
+    nstime_set_zero(&start_time_);
     Graph::clearAllData();
 }
 
