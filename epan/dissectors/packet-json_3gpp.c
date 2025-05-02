@@ -10,6 +10,7 @@
  * - 3GPP TS 29.503
  * - 3GPP TS 29.507
  * - 3GPP TS 29.512
+ * - 3GPP TS 29.517
  *   3GPP TS 29.525
  * - 3GPP TS 29.571
  * - 3GPP TS 29.572
@@ -70,6 +71,44 @@ static int hf_json_3gpp_supportedFeatures;
 
 
 static int hf_json_3gpp_suppfeat;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_1_serviceexperience;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_2_uemobility;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_3_uecommunication;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_4_exceptions;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_5_es3xx;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_6_enena;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_7_userdatacongestion;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_8_performancedata;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_9_dispersion;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_10_collectivebehaviour;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_11_serviceexperienceext;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_12_msqoemetrics;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_13_msconsumption;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_14_msnetassinvocation;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_15_msdynpolicyinvocation;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_16_msaccessactivity;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_17_dataaccprofileid;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_18_allapplications;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_19_gnssassistdata;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_20_performancedataext_aiml;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_21_uemobilityext_aiml;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_22_enperformancedata;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_23_uecommunicationext_ena;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_24_serviceexperienceext2_ena;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_25_enhdatamgmt;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_26_exteventfilters;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_27_datavoltransfertime;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_28_mseventexposure;
+
+static int hf_json_3gpp_suppfeat_naf_eventexposure_29_pereventrepreq;
+static int hf_json_3gpp_suppfeat_naf_eventexposure_30_relativeproximity;
 
 static int hf_json_3gpp_suppfeat_nlmf_broadcast_1_es3xx;
 
@@ -269,6 +308,7 @@ static int hf_json_3gpp_suppfeat_nudm_pp_1_patchreport;
 static int hf_json_3gpp_suppfeat_nudm_pp_2_expectedbehaviourmap;
 static int hf_json_3gpp_suppfeat_nudm_pp_3_membersdata;
 
+#define NAF_EVENTEXPOSTURE "/naf-eventexposure/v1/"
 #define NLMF_BROADCAST "/lmf-broadcast/v1/"
 #define NLMF_LOC "/lmf-loc/v1/"
 #define NPCF_AM_POLICY_CONTROL "/npcf-am-policy-control/v1/policies"
@@ -332,6 +372,128 @@ dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
 	}
 
 	return;
+}
+
+static void
+dissect_3gpp_supportfeatures_naf_eventexposure(tvbuff_t* suppfeat_tvb, proto_tree* sub_tree, packet_info* pinfo _U_, int offset _U_, int len, uint8_t *hex_ascii)
+{
+	int offset_reverse = len - 1;
+
+	/* TS 29.517 ch5.8 Feature negotiation */
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_1[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_1_serviceexperience,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_2_uemobility,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_3_uecommunication,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_4_exceptions,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_1, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_2[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_5_es3xx,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_6_enena,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_7_userdatacongestion,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_8_performancedata,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_2, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_3[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_9_dispersion,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_10_collectivebehaviour,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_11_serviceexperienceext,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_12_msqoemetrics,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_3, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_4[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_13_msconsumption,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_14_msnetassinvocation,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_15_msdynpolicyinvocation,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_16_msaccessactivity,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_4, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_5[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_17_dataaccprofileid,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_18_allapplications,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_19_gnssassistdata,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_20_performancedataext_aiml,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_5, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_6[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_21_uemobilityext_aiml,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_22_enperformancedata,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_23_uecommunicationext_ena,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_24_serviceexperienceext2_ena,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_6, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_7[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_25_enhdatamgmt,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_26_exteventfilters,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_27_datavoltransfertime,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_28_mseventexposure,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_7, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	static int * const json_3gpp_suppfeat_naf_eventexposure_list_8[] = {
+		&hf_json_3gpp_suppfeat_naf_eventexposure_29_pereventrepreq,
+		&hf_json_3gpp_suppfeat_naf_eventexposure_30_relativeproximity,
+		NULL
+	};
+	proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_naf_eventexposure_list_8, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
+	offset_reverse--;
+
+	if (offset_reverse == -1) {
+		return;
+	}
+
+	if (offset_reverse > -1) {
+		proto_tree_add_format_text(sub_tree, suppfeat_tvb, 0, (offset_reverse - len));
+	}
 }
 
 static void
@@ -475,7 +637,7 @@ dissect_3gpp_supportfeatures_npcf_am_policy_control(tvbuff_t* suppfeat_tvb, prot
 }
 
 static void
-dissect_3gpp_supportfeatures_npcf_sm_policy_controlL(tvbuff_t* suppfeat_tvb, proto_tree* sub_tree, packet_info* pinfo _U_, int offset _U_, int len, uint8_t *hex_ascii)
+dissect_3gpp_supportfeatures_npcf_sm_policy_control(tvbuff_t* suppfeat_tvb, proto_tree* sub_tree, packet_info* pinfo _U_, int offset _U_, int len, uint8_t *hex_ascii)
 {
 	int offset_reverse = len - 1;
 
@@ -1120,7 +1282,11 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 		}
 	}
 
-	if (strcmp(path, NLMF_BROADCAST) == 0) {
+	if (strcmp(path, NAF_EVENTEXPOSTURE) == 0) {
+		/* TS 29.517 ch5.8 Feature negotiation */
+		dissect_3gpp_supportfeatures_naf_eventexposure(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
+		
+	} else if (strcmp(path, NLMF_BROADCAST) == 0) {
 		/* TS 29.572 ch6.2.9 Feature negotiation */
 		dissect_3gpp_supportfeatures_nlmf_broadcast(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
 
@@ -1134,7 +1300,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
 	} else if (strcmp(path, NPCF_SM_POLICY_CONTROL) == 0) {
 		/* TS 29.512 ch5.8 Feature negotiation */
-		dissect_3gpp_supportfeatures_npcf_sm_policy_controlL(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
+		dissect_3gpp_supportfeatures_npcf_sm_policy_control(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
 
 	} else if (strcmp(path, NPCF_UE_POLICY_CONTROL) == 0) {
 		/* TS 29.525 ch5.8 Feature negotiation */
@@ -1296,6 +1462,166 @@ proto_register_json_3gpp(void)
 			{ "Supported Features", "json.3gpp.suppfeat",
 			  FT_STRING, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
+		},
+
+
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_1_serviceexperience,
+			{ "ServiceExperience", "json.3gpp.suppfeat.serviceexperience",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_2_uemobility,
+			{ "UeMobility", "json.3gpp.suppfeat.uemobility",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_3_uecommunication,
+			{ "UeCommunication", "json.3gpp.suppfeat.uecommunication",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_4_exceptions,
+			{ "Exceptions", "json.3gpp.suppfeat.exceptions",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_5_es3xx,
+			{ "ES3XX", "json.3gpp.suppfeat.es3xx",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_6_enena,
+			{ "EneNA", "json.3gpp.suppfeat.enena",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_7_userdatacongestion,
+			{ "UserDataCongestion", "json.3gpp.suppfeat.userdatacongestion",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_8_performancedata,
+			{ "PerformanceData", "json.3gpp.suppfeat.performancedata",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_9_dispersion,
+			{ "Dispersion", "json.3gpp.suppfeat.dispersion",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_10_collectivebehaviour,
+			{ "CollectiveBehaviour", "json.3gpp.suppfeat.collectivebehaviour",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_11_serviceexperienceext,
+			{ "ServiceExperienceExt", "json.3gpp.suppfeat.serviceexperienceext",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_12_msqoemetrics,
+			{ "MSQoeMetrics", "json.3gpp.suppfeat.msqoemetrics",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_13_msconsumption,
+			{ "MSConsumption", "json.3gpp.suppfeat.msconsumption",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_14_msnetassinvocation,
+			{ "MSNetAssInvocation", "json.3gpp.suppfeat.msnetassinvocation",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_15_msdynpolicyinvocation,
+			{ "MSDynPolicyInvocation", "json.3gpp.suppfeat.msdynpolicyinvocation",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_16_msaccessactivity,
+			{ "MSAccessActivity", "json.3gpp.suppfeat.msaccessactivity",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_17_dataaccprofileid,
+			{ "DataAccProfileId", "json.3gpp.suppfeat.dataaccprofileid",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_18_allapplications,
+			{ "AllApplications", "json.3gpp.suppfeat.allapplications",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_19_gnssassistdata,
+			{ "GNSSAssistData", "json.3gpp.suppfeat.gnssassistdata",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_20_performancedataext_aiml,
+			{ "PerformanceDataExt_AIML", "json.3gpp.suppfeat.performancedataext_aiml",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_21_uemobilityext_aiml,
+			{ "UeMobilityExt_AIML", "json.3gpp.suppfeat.uemobilityext_aiml",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_22_enperformancedata,
+			{ "EnPerformanceData", "json.3gpp.suppfeat.enperformancedata",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_23_uecommunicationext_ena,
+			{ "UeCommunicationExt_eNA", "json.3gpp.suppfeat.uecommunicationext_ena",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_24_serviceexperienceext2_ena,
+			{ "ServiceExperienceExt2_eNA", "json.3gpp.suppfeat.serviceexperienceext2_ena",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_25_enhdatamgmt,
+			{ "EnhDataMgmt", "json.3gpp.suppfeat.enhdatamgmt",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_26_exteventfilters,
+			{ "ExtEventFilters", "json.3gpp.suppfeat.exteventfilters",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_27_datavoltransfertime,
+			{ "DataVolTransferTime", "json.3gpp.suppfeat.datavoltransfertime",
+			FT_BOOLEAN, 4, NULL, 0x4,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_28_mseventexposure,
+			{ "MSEventExposure", "json.3gpp.suppfeat.mseventexposure",
+			FT_BOOLEAN, 4, NULL, 0x8,
+			NULL, HFILL }
+		},
+
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_29_pereventrepreq,
+			{ "PerEventRepReq", "json.3gpp.suppfeat.pereventrepreq",
+			FT_BOOLEAN, 4, NULL, 0x1,
+			NULL, HFILL }
+		},
+		{ &hf_json_3gpp_suppfeat_naf_eventexposure_30_relativeproximity,
+			{ "RelativeProximity", "json.3gpp.suppfeat.relativeproximity",
+			FT_BOOLEAN, 4, NULL, 0x2,
+			NULL, HFILL }
 		},
 
 		{ &hf_json_3gpp_suppfeat_nlmf_broadcast_1_es3xx,
