@@ -318,7 +318,8 @@ static ei_register_info expertitems[] = {
     {&ei_value_partial_decode, { "cose.partial_decode", PI_MALFORMED, PI_WARN, "Value is only partially decoded", EXPFILL}},
 };
 
-unsigned cose_param_key_hash(const void *ptr) {
+/* Compatible with GHashFunc signature. */
+static unsigned cose_param_key_hash(const void *ptr) {
     const cose_param_key_t *obj = (const cose_param_key_t *)ptr;
     unsigned val = 0;
     if (obj->principal) {
@@ -330,7 +331,8 @@ unsigned cose_param_key_hash(const void *ptr) {
     return val;
 }
 
-gboolean cose_param_key_equal(const void *a, const void *b) {
+/* Compatible with GEqualFunc signature. */
+static gboolean cose_param_key_equal(const void *a, const void *b) {
     const cose_param_key_t *aobj = (const cose_param_key_t *)a;
     const cose_param_key_t *bobj = (const cose_param_key_t *)b;
 
@@ -354,7 +356,8 @@ gboolean cose_param_key_equal(const void *a, const void *b) {
     return match;
 }
 
-void cose_param_key_free(void *ptr) {
+/* Compatible with GDestroyNotify signature. */
+static void cose_param_key_free(void *ptr) {
     cose_param_key_t *obj = (cose_param_key_t *)ptr;
     if (obj->principal) {
         g_variant_unref(obj->principal);

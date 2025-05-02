@@ -134,6 +134,7 @@ typedef struct _gtp_hdr {
 #define GTP_MSG_END_MARKER          0xFE /* 254 */
 #define GTP_MSG_TPDU                0xFF
 
+/* Used by custom dissector */
 extern value_string_ext cause_type_ext;
 
 static const value_string gtp_sel_mode_vals[] = {

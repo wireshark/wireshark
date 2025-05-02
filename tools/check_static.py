@@ -161,7 +161,7 @@ class DefinedSymbols:
                 fun = self.global_symbols[f]
                 print(self.filename, '' if not self.from_generated_file else '(GENERATED)',
                       '(' + fun + ')',
-                      'is not referred to so could be static?', '(declared in header)' if mentioned_in_header else '')
+                      'is not referred to so could be static?', '(declared in header but not referred to)' if mentioned_in_header else '')
                 issues_found += 1
 
 

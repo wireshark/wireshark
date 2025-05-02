@@ -30,7 +30,6 @@
 #include <wsutil/array.h>
 #include "packet-x509af.h"
 #include "packet-tls-utils.h"
-#include "packet-reload.h"
 
 void proto_register_reload(void);
 void proto_reg_handoff_reload(void);
@@ -3341,7 +3340,7 @@ static int dissect_probeans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   return length;
 }
 
-extern int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t offset, uint16_t length)
+static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t offset, uint16_t length)
 {
   uint32_t    message_body_length;
   uint32_t    extensions_length;

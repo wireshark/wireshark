@@ -104,12 +104,6 @@ struct dccp_analysis {
 	nstime_t	ts_prev;
 };
 
-/** Get the current number of DCCP streams
- *
- * @return The number of DCCP streams
- */
-WS_DLL_PUBLIC uint32_t get_dccp_stream_count(void);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

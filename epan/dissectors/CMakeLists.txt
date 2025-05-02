@@ -562,7 +562,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ranap.h
 	packet-rdm.h
 	packet-rdt.h
-	packet-reload.h
 	packet-rlc-lte.h
 	packet-rlc-nr.h
 	packet-rmi.h

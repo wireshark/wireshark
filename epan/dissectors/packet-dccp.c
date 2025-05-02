@@ -563,7 +563,7 @@ dccpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, c
 }
 
 /* Return the current stream count */
-uint32_t get_dccp_stream_count(void)
+static uint32_t get_dccp_stream_count(void)
 {
     return dccp_stream_count;
 }

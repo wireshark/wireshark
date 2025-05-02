@@ -56,21 +56,6 @@ typedef struct {
     GVariant *label;
 } cose_param_key_t;
 
-/** Compatible with GHashFunc signature.
- */
-WS_DLL_PUBLIC
-unsigned cose_param_key_hash(const void *ptr);
-
-/** Compatible with GEqualFunc signature.
- */
-WS_DLL_PUBLIC
-gboolean cose_param_key_equal(const void *a, const void *b);
-
-/** Compatible with GDestroyNotify signature.
- */
-WS_DLL_PUBLIC
-void cose_param_key_free(void *ptr);
-
 /// User data for header/key-parameter dissectors
 typedef struct {
     /// Principal value (alg or kty) of the map, if defined.
