@@ -262,6 +262,16 @@ static int hf_tecmp_payload_status_dev_vendor_technica_voltage;
 static int hf_tecmp_payload_status_dev_vendor_technica_temperature;
 static int hf_tecmp_payload_status_dev_vendor_technica_temperature_chassis;
 static int hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon;
+static int hf_tecmp_payload_status_dev_vendor_technica_lifecycle_counter;
+static int hf_tecmp_payload_status_dev_vendor_technica_error_flags;
+static int hf_tecmp_payload_status_dev_vendor_technica_error_flags_port1;
+static int hf_tecmp_payload_status_dev_vendor_technica_error_flags_port2;
+static int hf_tecmp_payload_status_dev_vendor_technica_error_flags_port3;
+static int hf_tecmp_payload_status_dev_vendor_technica_error_flags_port4;
+static int hf_tecmp_payload_status_dev_vendor_technica_sfpa_tx_frames;
+static int hf_tecmp_payload_status_dev_vendor_technica_sfpb_tx_frames;
+static int hf_tecmp_payload_status_dev_vendor_technica_sfpc_tx_frames;
+static int hf_tecmp_payload_status_dev_vendor_technica_sfpd_tx_frames;
 
 #define VENDOR_TECHNICA_TEMP_MAX 127
 #define VENDOR_TECHNICA_TEMP_NA  -128
@@ -284,6 +294,12 @@ static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_detected_cnt
 static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_missing_cnt;
 static int hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt;
 
+static int hf_tecmp_payload_status_bus_vendor_technica_serdes_error;
+static int hf_tecmp_payload_status_bus_vendor_technica_serdes_error_no_ack;
+static int hf_tecmp_payload_status_bus_vendor_technica_serdes_error_crc;
+static int hf_tecmp_payload_status_bus_vendor_technica_serdes_error_ecc_error_1bit;
+static int hf_tecmp_payload_status_bus_vendor_technica_serdes_error_ecc_error_2bit;
+static int hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved;
 
 /* Status Configuration Data Technica Engineering */
 static int hf_tecmp_payload_status_cfg_vendor_technica_version;
@@ -350,8 +366,10 @@ static int ett_tecmp_payload_eth_raw_frame;
 static int ett_tecmp_status_bus_data;
 static int ett_tecmp_status_bus_data_entry;
 static int ett_tecmp_status_dev_vendor_data;
+static int ett_tecmp_status_dev_vendor_data_error_flags;
 static int ett_tecmp_status_bus_vendor_data;
 static int ett_tecmp_status_bus_vendor_data_flags;
+static int ett_tecmp_status_bus_vendor_data_bus_errors;
 static int ett_tecmp_ctrl_message_10baset1s_flags;
 static int ett_tecmp_ctrl_message_10baset1s_events_errors;
 
@@ -501,8 +519,11 @@ static const value_string tecmp_device_ids_specific[] = {
     {0, NULL}
 };
 
-#define TECMP_DEVICE_TYPE_CM_10BASE_T1S 0x0c
-#define TECMP_DEVICE_TYPE_CM_ILAS_COMBO 0x0e
+
+#define TECMP_DEVICE_TYPE_CM_10BASE_T1S     0x0c
+#define TECMP_DEVICE_TYPE_CM_ILAS_COMBO     0x0e
+#define TECMP_DEVICE_TYPE_CM_SERDES_GMSL23  0x40
+#define TECMP_DEVICE_TYPE_CM_SERDES_ASAML   0x48
 
 /* Device Types */
 /* Updated by ID Registry */
@@ -517,8 +538,10 @@ static const value_string tecmp_device_types[] = {
     {TECMP_DEVICE_TYPE_CM_ILAS_COMBO, "ILaS Sniffer"},
     {0x10, "Sensor specific"},
     {0x20, "Logger"},
+    {TECMP_DEVICE_TYPE_CM_SERDES_GMSL23, "CM SerDes GMSL2/3"},
     {0x42, "CM MultiGigabit"},
     {0x46, "CM Sense"},
+    {TECMP_DEVICE_TYPE_CM_SERDES_ASAML, "CM SerDes ASA ML"},
     {0, NULL}
 };
 
@@ -1496,6 +1519,49 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
             offset += 2;
 
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt, tvb, offset, 2, ENC_NA);
+        } else if (device_type == TECMP_DEVICE_TYPE_CM_SERDES_GMSL23 || device_type == TECMP_DEVICE_TYPE_CM_SERDES_ASAML) {
+
+            static int * const error_flags_i2c[] = {
+                &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_no_ack,
+                NULL
+            };
+
+            static int * const error_flags_serdes[] = {
+                &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_crc,
+                &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_ecc_error_1bit,
+                &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_ecc_error_2bit,
+                NULL
+            };
+
+            switch ((entry_number - 1) % 7) {
+            case 0:
+            case 1:
+                /* 0, 1: I2C */
+                proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_bus_vendor_technica_serdes_error, ett_tecmp_status_bus_vendor_data_bus_errors, error_flags_i2c, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
+                // offset += 1;
+                break;
+
+            case 2:
+                /* 2: GPIO */
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                // offset += 1;
+                break;
+
+            default:
+                /* 3, 4, 5, 6: SerDes streams */
+                proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_bus_vendor_technica_serdes_error, ett_tecmp_status_bus_vendor_data_bus_errors, error_flags_serdes, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
+                // offset += 1;
+
+            }
         } else {
             if (bytes_remaining >= 1) {
                 proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_status, tvb, offset, 1, ENC_NA);
@@ -1602,11 +1668,41 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
             temperature = tvb_get_int8(tvb, offset);
             if ( temperature == VENDOR_TECHNICA_TEMP_NA) {
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon, tvb, offset, 1, temperature, "%s", "Not Available");
+                offset += 1;
             } else {
                 ti = proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA);
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
                 }
+                offset += 1;
+            }
+
+            if (device_type == TECMP_DEVICE_TYPE_CM_SERDES_GMSL23 || device_type == TECMP_DEVICE_TYPE_CM_SERDES_ASAML) {
+                proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_lifecycle_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                static int * const error_flags[] = {
+                    &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port1,
+                    &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port2,
+                    &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port3,
+                    &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port4,
+                    NULL
+                };
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_dev_vendor_technica_error_flags, ett_tecmp_status_dev_vendor_data_error_flags, error_flags, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_sfpa_tx_frames, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_sfpb_tx_frames, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_sfpc_tx_frames, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_dev_vendor_technica_sfpd_tx_frames, tvb, offset, 4, ENC_BIG_ENDIAN);
+                //offset += 4;
             }
         }
 
@@ -2757,6 +2853,36 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_status_dev_vendor_technica_temperature_silicon,
             { "Temperature Silicon", "tecmp.payload.status_dev.vendor_technica.temperature_silicon",
             FT_INT8, BASE_DEC | BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_status_dev_vendor_technica_lifecycle_counter,
+            { "Lifecycle Counter [hours]", "tecmp.payload.status_dev.vendor_technica.lifecycle_counter",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_error_flags,
+            { "Error Flags", "tecmp.payload.status_dev.vendor_technica.error_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port1,
+            { "Port 1 Initialization Error", "tecmp.payload.status_dev.vendor_technica.error_flags.port1_init_error",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port2,
+            { "Port 2 Initialization Error", "tecmp.payload.status_dev.vendor_technica.error_flags.port2_init_error",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port3,
+            { "Port 3 Initialization Error", "tecmp.payload.status_dev.vendor_technica.error_flags.port3_init_error",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x04, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_error_flags_port4,
+            { "Port 4 Initialization Error", "tecmp.payload.status_dev.vendor_technica.error_flags.port4_init_error",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x08, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_sfpa_tx_frames,
+            { "SFP+ A TX Frames", "tecmp.payload.status_dev.vendor_technica.sfpa_tx_frames",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_sfpb_tx_frames,
+            { "SFP+ B TX Frames", "tecmp.payload.status_dev.vendor_technica.sfpb_tx_frames",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_sfpc_tx_frames,
+            { "SFP+ C TX Frames", "tecmp.payload.status_dev.vendor_technica.sfpc_tx_frames",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_dev_vendor_technica_sfpd_tx_frames,
+            { "SFP+ D TX Frames", "tecmp.payload.status_dev.vendor_technica.sfpd_tx_frames",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         /* Status Bus Vendor Data */
         { &hf_tecmp_payload_status_bus_vendor_technica_link_status,
@@ -2805,6 +2931,25 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_status_bus_vendor_technica_plca_symbols_empty_cycle_cnt,
             { "PLCA Empty Cycle Count", "tecmp.payload.status.bus.vendor_technica.plca_empty_cycle_count",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_tecmp_payload_status_bus_vendor_technica_serdes_error,
+            { "Bus Error", "tecmp.payload.status.bus.vendor_technica.bus_error",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_no_ack,
+            { "No Ack Error", "tecmp.payload.status.bus.vendor_technica.error.no_ack",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x1, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_crc,
+            { "CRC Error", "tecmp.payload.status.bus.vendor_technica.error.crc_error",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x1, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_ecc_error_1bit,
+            { "ECC 1-bit Error", "tecmp.payload.status.bus.vendor_technica.error.ecc_error_1_bit",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x2, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_serdes_error_ecc_error_2bit,
+            { "ECC 2-bit Error", "tecmp.payload.status.bus.vendor_technica.error.ecc_error_2_bit",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4, NULL, HFILL } },
+        { &hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved,
+            { "Reserved", "tecmp.payload.status.bus.vendor_technica.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         /* Status Config Vendor Data */
         { &hf_tecmp_payload_status_cfg_vendor_technica_version,
@@ -3095,10 +3240,12 @@ proto_register_tecmp_payload(void) {
         &ett_tecmp_payload_eth_raw,
         &ett_tecmp_payload_eth_raw_frame,
         &ett_tecmp_status_dev_vendor_data,
+        &ett_tecmp_status_dev_vendor_data_error_flags,
         &ett_tecmp_status_bus_data,
         &ett_tecmp_status_bus_data_entry,
         &ett_tecmp_status_bus_vendor_data,
         &ett_tecmp_status_bus_vendor_data_flags,
+        &ett_tecmp_status_bus_vendor_data_bus_errors,
         &ett_tecmp_ctrl_message_10baset1s_flags,
         &ett_tecmp_ctrl_message_10baset1s_events_errors,
     };
