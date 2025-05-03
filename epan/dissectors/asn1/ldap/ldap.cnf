@@ -549,7 +549,7 @@ ldap_conv_info_t *ldap_info;
   if(and_filter_string){
     and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,Filter_string);
   } else {
-    and_filter_string=Filter_string;
+    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s)",Filter_string);
   }
 
 #.FN_BODY Filter/and
@@ -574,7 +574,7 @@ ldap_conv_info_t *ldap_info;
   if(or_filter_string){
     or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,Filter_string);
   } else {
-    or_filter_string=Filter_string;
+    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s)",Filter_string);
   }
 
 
