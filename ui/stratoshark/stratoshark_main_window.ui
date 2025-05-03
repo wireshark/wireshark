@@ -438,6 +438,7 @@
     <addaction name="actionStatisticsEndpoints"/>
     <addaction name="actionStatisticsPacketLengths"/>
     <addaction name="actionStatisticsIOGraph"/>
+    <addaction name="actionStatisticsPlot"/>
     <addaction name="separator"/>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_UNSORTED"/>
     <addaction name="actionStatisticsFlowGraph"/>
@@ -1493,6 +1494,14 @@
    </property>
    <property name="toolTip">
     <string>Create graphs based on display filter fields</string>
+   </property>
+  </action>
+  <action name="actionStatisticsPlot">
+   <property name="text">
+    <string>Plots</string>
+   </property>
+   <property name="toolTip">
+    <string>Plot display filter fields over time</string>
    </property>
   </action>
   <action name="actionViewMainToolbar">

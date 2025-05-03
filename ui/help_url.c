@@ -323,6 +323,9 @@ topic_action_url(topic_action_e action)
     case(HELP_STAT_FLOW_GRAPH):
         url = user_guide_url("ChStatFlowGraph.html");
         break;
+    case(HELP_STATS_PLOT_DIALOG):
+        url = user_guide_url("ChStatPlots.html");
+        break;
 
     case(TOPIC_ACTION_NONE):
     default:

@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PlotDialog</class>
+ <widget class="QDialog" name="PlotDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>850</width>
+    <height>640</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+       <item>
+        <widget class="QCustomPlot" name="plot" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>90</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ElidedLabel" name="hintLabel">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Zoom in X axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Zoom out X axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Zoom in Y axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zoom out Y axis&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset plot to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle time origin&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;td&gt;Toggle top axis&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="RowMoveTreeView" name="plotUat">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QDialogButtonBox" name="leftButtonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::StandardButton::Reset</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="newToolButton">
+       <property name="toolTip">
+        <string>Add a new plot.</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="deleteToolButton">
+       <property name="toolTip">
+        <string>Remove the selected plot(s).</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="copyToolButton">
+       <property name="toolTip">
+        <string>Duplicate the selected plot(s).</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="moveUpwardsToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Move the selected plot(s) upwards.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="moveDownwardsToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Move the selected plot(s) downwards.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="clearToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Clear all plots.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="automaticUpdateCheckBox">
+       <property name="text">
+        <string>Automatic update</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="rightButtonBox">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::StandardButton::Close|QDialogButtonBox::StandardButton::Help|QDialogButtonBox::StandardButton::Save</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset Plot</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset the plot to its initial state.</string>
+   </property>
+   <property name="shortcut">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionMoveUp10">
+   <property name="text">
+    <string>Move Up 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Up 10 Pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionMoveLeft10">
+   <property name="text">
+    <string>Move Left 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Left 10 Pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionMoveRight10">
+   <property name="text">
+    <string>Move Right 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Right 10 Pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionMoveDown10">
+   <property name="text">
+    <string>Move Down 10 Pixels</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Down 10 Pixels</string>
+   </property>
+   <property name="shortcut">
+    <string>Down</string>
+   </property>
+  </action>
+  <action name="actionMoveUp1">
+   <property name="text">
+    <string>Move Up 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Up 1 Pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Up</string>
+   </property>
+  </action>
+  <action name="actionMoveLeft1">
+   <property name="text">
+    <string>Move Left 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Left 1 Pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Left</string>
+   </property>
+  </action>
+  <action name="actionMoveRight1">
+   <property name="text">
+    <string>Move Right 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Right 1 Pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Right</string>
+   </property>
+  </action>
+  <action name="actionMoveDown1">
+   <property name="text">
+    <string>Move Down 1 Pixel</string>
+   </property>
+   <property name="toolTip">
+    <string>Move down 1 Pixel</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Down</string>
+   </property>
+  </action>
+  <action name="actionGoToPacket">
+   <property name="text">
+    <string>Go To Packet Under Cursor</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to packet currently under the cursor</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
+  </action>
+  <action name="actionToggleTimeOrigin">
+   <property name="text">
+    <string>Time origin</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle between time relative to first data point and time relative to capture start</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
+   </property>
+  </action>
+  <action name="actionLogScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Log scale</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle Y-axis between logarithmic and linear scale</string>
+   </property>
+  </action>
+  <action name="actionCrosshairs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Crosshairs</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle crosshairs</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="actionTopAxis">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Top axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle top axis on and off</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
+   </property>
+  </action>
+  <action name="actionLegend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Legend</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle legend</string>
+   </property>
+  </action>
+  <action name="actionZoomInX">
+   <property name="text">
+    <string>Zoom In X Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In X Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="actionZoomOutX">
+   <property name="text">
+    <string>Zoom Out X Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out X Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+X</string>
+   </property>
+  </action>
+  <action name="actionZoomInY">
+   <property name="text">
+    <string>Zoom In Y Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In Y Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Y</string>
+   </property>
+  </action>
+  <action name="actionZoomOutY">
+   <property name="text">
+    <string>Zoom Out Y Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out Y Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Y</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>widgets/elided_label.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RowMoveTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/rowmove_tree_view.h</header>
+  </customwidget>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>widgets/qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>rightButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>PlotDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>767</x>
+     <y>614</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

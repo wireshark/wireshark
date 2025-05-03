@@ -663,6 +663,7 @@ Each menu item brings up a new window showing specific statistics.
 |menu:Endpoints[]|| Display a list of endpoints (traffic to/from an address), see <<ChStatEndpointsWindow>>.
 |menu:Packet Lengths[]||See <<ChStatPacketLengths>>
 |menu:I/O Graphs[]|| Display user specified graphs (e.g., the number of packets in the course of time), see <<ChStatIOGraphs>>.
+|menu:Plots[]|| Plot display filter field values over time, see <<ChStatPlots>>.
 |menu:Service Response Time[]|| Display the time between a request and the corresponding response, see <<ChStatSRT>>.
 |menu:DHCP (BOOTP)[]||See <<ChStatDHCPBOOTP>>
 |menu:NetPerfMeter[]||See <<ChStatNetPerfMeter>>

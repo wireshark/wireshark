@@ -485,6 +485,8 @@ private slots:
     void statCommandIOGraph(const char *, void *);
     void showIOGraphDialog(io_graph_item_unit_t value_units, QString);
 
+    void showPlotDialog(const QString& y_field = QString(), bool filtered = false);
+
     void connectTelephonyMenuActions();
 
     RtpStreamDialog *openTelephonyRtpStreamsDialog();

@@ -575,6 +575,107 @@ the one containing the packet if the duration is longer than the interval.)
 // For example, the calculated equivalent of “Packets” is a “COUNT FRAMES” Y Axis with a Y Field set to “frame”.
 // XXX - No longer true as of eb4e2cca69.
 
+[#ChStatPlots]
+
+=== The “Plots” Window
+
+Lets you plot display filter field values over time.
+
+.The “Plots” window
+image::images/ws-stats-plots.png[{screenshot-attrs}]
+
+As shown above, this window contains a plot drawing area along with a customizable list of plots.
+Plots are saved in your current <<ChCustConfigProfilesSection,profile>>.
+Each plot shows the value of the specified field (see Y Field below) at each point in time.
+Hovering over the plot shows the packet number of the selected plot at any given time.
+Clicking on the plot takes you to the corresponding packet in the packet list.
+You can drag the plots around with a left click and zoom on a specific area with a right click.
+
+Individual plots can be configured using the following options:
+
+Enabled::
+Draw or don’t draw this plot.
+
+Group #::
+If you don't want all plots on the same graph, you can use this field to
+group them. Each one will be shown in a distinct graph.
+
+Plot Name::
+The name of this plot.
+
+Display Filter::
+Limits the plot to packets that match this filter.
+
+Color::
+The color to use for plotting the plot’s lines or points.
+
+Style::
+How to visually represent the plot’s data, e.g., by drawing a line, circle, plus, etc.
+
+Y Field::
+The display filter field from which to extract values for the Y axis.
+
+Y Axis Factor::
+Scale the Y axis for this plot by multiplying by a constant factor, e.g. to
+present multiple plots at a similar scale.
+
+The plot as a whole can be configured using the controls under the plot list:
+
+btn:[{plus}]::
+Add a new plot.
+
+btn:[-]::
+Remove the selected plot(s).
+
+btn:[Copy]::
+Copy the selected plot(s).
+
+btn:[⌃]:: Move the selected plot(s) up in the list.
+
+btn:[⌄]:: Move the selected plot(s) down in the list.
+
+btn:[Clear]::
+Remove all plots.
+
+Automatic updates::
+Redraw each plot automatically.
+
+Time origin::
+Switch between showing the time relative to first data point and time relative to capture
+start (not available in pcapng).
+
+Log scale::
+Switch between linear and logarithmic Y axis.
+
+Crosshairs::
+Enable/disable the crosshairs cursor.
+
+Top axis::
+Show the axis scale also on top of the plot.
+
+Enable legend::
+Show a plot legend.
+
+The main dialog buttons along the bottom let you do the following:
+
+btn:[Help] will take you to this section of the User’s Guide.
+
+btn:[Reset] will autoscale the axes to fully display all plots.
+
+btn:[Copy] will copy values from selected plot to the clipboard in CSV
+(Comma Separated Values) format.
+
+btn:[Copy from] will let you copy plots from another profile to the current dialog.
+
+btn:[Close] will close this dialog.
+
+btn:[Save As...] will save the currently displayed plot as an image.
+
+[TIP]
+====
+You can see a list of useful keyboard shortcuts by right-clicking on the plot.
+====
+
 [#ChStatSRT]
 
 === Service Response Time

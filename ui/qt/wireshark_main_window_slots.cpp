@@ -123,6 +123,7 @@ DIAG_ON(frame-larger-than=)
 #include "iax2_analysis_dialog.h"
 #include "interface_toolbar.h"
 #include "io_graph_dialog.h"
+#include "plot_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "lbm_stream_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
@@ -3492,6 +3493,8 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
 
     connect(main_ui_->actionStatisticsIOGraph, &QAction::triggered, this, [=]() { statCommandIOGraph(NULL, NULL); });
 
+    connect(main_ui_->actionStatisticsPlot, &QAction::triggered, this, [=]() { showPlotDialog(); });
+
     connect(main_ui_->actionStatisticsFlowGraph, &QAction::triggered, this, [=]() {
         SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
         sequence_dialog->show();
@@ -3734,6 +3737,57 @@ void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_id
     IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
+}
+
+// Plot Dialog
+// XXX - The code here is identical on Stratoshark's side. Can we unify the two?
+void WiresharkMainWindow::showPlotDialog(const QString& y_field, bool filtered)
+{
+    PlotDialog* dialog = nullptr;
+    // Try to find an already existing dialog
+    QList<PlotDialog*> plotDialogs = findChildren<PlotDialog*>();
+    // GeometryStateDialogs aren't parented on Linux and Windows
+    // (see geometry_state_dialog.h), so we search for a Plot
+    // Dialog in all the top level widgets.
+    if (plotDialogs.isEmpty()) {
+        foreach(QWidget * topLevelWidget, mainApp->topLevelWidgets()) {
+            if (qobject_cast<PlotDialog*>(topLevelWidget)) {
+                plotDialogs << qobject_cast<PlotDialog*>(topLevelWidget);
+            }
+        }
+    }
+    foreach(PlotDialog* foundPlotDialog, plotDialogs) {
+        if (!foundPlotDialog->fileClosed()) {
+            dialog = foundPlotDialog;
+            break;
+        }
+    }
+
+    if (dialog == nullptr) {
+        bool showDefault = y_field.isEmpty();   /* Don't generate default plots if we already have a field to plot. */
+        dialog = new PlotDialog(*this, capture_file_, showDefault);
+        connect(dialog, &PlotDialog::goToPacket, packet_list_, &PacketList::goToPacket);
+    }
+
+    if (!y_field.isEmpty()) {
+        /* Add mew plot with supplied parameters */
+        QString d_filter = QString();
+        if (filtered) {
+            const DisplayFilterEdit* df_edit = qobject_cast<DisplayFilterEdit*>(df_combo_box_->lineEdit());
+            if (df_edit) d_filter = df_edit->text();
+        }
+
+        dialog->addPlot(true, d_filter, y_field);
+    }
+
+    if (dialog->isMinimized()) {
+        dialog->showNormal();
+    }
+    else {
+        dialog->show();
+    }
+    dialog->raise();
+    dialog->activateWindow();
 }
 
 // Telephony Menu

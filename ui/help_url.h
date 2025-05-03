@@ -119,7 +119,8 @@ typedef enum {
     HELP_NEW_PACKET_DIALOG,
     HELP_IAX2_ANALYSIS_DIALOG,
     HELP_TELEPHONY_RTP_PLAYER_DIALOG,
-    HELP_STAT_FLOW_GRAPH
+    HELP_STAT_FLOW_GRAPH,
+    HELP_STATS_PLOT_DIALOG
 } topic_action_e;
 
 /** Given a page in the Wireshark User's Guide return its URL. Returns a

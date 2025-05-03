@@ -1103,6 +1103,7 @@ int main(int argc, char *qt_argv[])
     // in Qt dialogs are not registered during startup because they only get
     // loaded when the dialog is shown.  Register them here.
     profile_register_persconffile("io_graphs");
+    profile_register_persconffile("plots");
     profile_register_persconffile("import_hexdump.json");
     profile_register_persconffile("remote_hosts.json");
 

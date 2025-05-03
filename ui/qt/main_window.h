@@ -70,6 +70,7 @@ public slots:
     virtual void filterPackets(QString, bool) = 0;
     virtual void showPreferencesDialog(QString module_name) = 0;
     virtual void showIOGraphDialog(io_graph_item_unit_t, QString) = 0;
+    virtual void showPlotDialog(const QString&, bool) = 0;
     void layoutPanes();
     void applyRecentPaneGeometry();
     void updateForUnsavedChanges();

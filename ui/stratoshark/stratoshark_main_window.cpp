@@ -2425,6 +2425,7 @@ void StratosharkMainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(have_captured_packets);
     main_ui_->actionStatisticsProtocolHierarchy->setEnabled(have_captured_packets);
     main_ui_->actionStatisticsIOGraph->setEnabled(have_captured_packets);
+    main_ui_->actionStatisticsPlot->setEnabled(have_captured_packets);
 }
 
 void StratosharkMainWindow::setMenusForFileSet(bool enable_list_files) {

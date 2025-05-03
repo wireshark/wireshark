@@ -31,7 +31,6 @@ protected:
 private:
     int m_size;
     bool m_horiz;
-
 };
 
 #endif // QCP_SPACER_LEGEND_ITEM_H

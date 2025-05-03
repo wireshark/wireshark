@@ -28,6 +28,7 @@
 #include <ui/qt/follow_stream_action.h>
 #include <ui/qt/main_window.h>
 #include <ui/qt/io_graph_action.h>
+#include <ui/qt/plot_action.h>
 #include <ui/qt/protocol_preferences_menu.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/alert_box.h>
@@ -329,6 +330,8 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     }
 
     ctx_menu->addMenu(IOGraphAction::createMenu(finfo->headerInfo(), ctx_menu));
+
+    ctx_menu->addMenu(PlotAction::createMenu(finfo->headerInfo(), ctx_menu));
 
     submenu = ctx_menu->addMenu(tr("Copy"));
     submenu->setToolTipsVisible(true);

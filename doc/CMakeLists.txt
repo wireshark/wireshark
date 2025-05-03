@@ -353,6 +353,7 @@ set(WSUG_GRAPHICS
 	wsug_src/images/ws-stats-lte-mac-traffic.png
 	wsug_src/images/ws-stats-lte-rlc-traffic.png
 	wsug_src/images/ws-stats-packet-lengths.png
+	wsug_src/images/ws-stats-plots.png
 	wsug_src/images/ws-stats-srt-smb2.png
 	wsug_src/images/ws-stats-wlan-traffic.png # GTK+
 	wsug_src/images/ws-statusbar-empty.png

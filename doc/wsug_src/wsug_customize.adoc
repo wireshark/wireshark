@@ -1255,6 +1255,8 @@ Most UATs are stored in the
 
 * <<ChStatIOGraphs,I/O Graphs>> (io_graphs)
 
+* <<ChStatPlots,Plots>> (plots)
+
 * <<ChK12ProtocolsSection,K12 Protocols>> (k12_protos)
 
 * <<ChObjectIdentifiers,Object Identifier Names and Associated Syntaxes>> ()
