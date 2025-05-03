@@ -16,6 +16,8 @@
 #include <string.h>
 
 #include <maxminddb.h>
+#include "ws_version.h"
+#include "vcs_version.h"
 
 #define MAX_ADDR_LEN 46
 #define MMDBR_STRINGIFY(x) MMDBR_STRINGIFY_S(x)
@@ -53,6 +55,16 @@ static const char **lookup_keys[] = {
     empty_key
 };
 
+static const char *
+get_ws_vcs_version_info(void)
+{
+#ifdef WIRESHARK_VCS_VERSION
+        return " (" WIRESHARK_VCS_VERSION ")";
+#else
+        return "";
+#endif
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -72,10 +84,16 @@ main(int argc, char *argv[])
 
     // If we need to handle anything beyond "-f" we'll probably want to
     // link with GLib and use GOption.
-    int arg_idx = 0;
-    while (arg_idx < argc - 1) {
+    size_t arg_idx;
+    for (arg_idx = 0; arg_idx < (unsigned)argc; arg_idx++) {
         if (strcmp(argv[arg_idx], "-f") == 0) {
-            arg_idx++;
+            if (++arg_idx == (unsigned)argc) {
+                fprintf(stdout, "ERROR Missing dbfile argument");
+                if (mmdbs) {
+                    free(mmdbs);
+                }
+                return EXIT_FAILURE;
+            }
             const char *db_arg = argv[arg_idx];
             MMDB_s try_mmdb;
             mmdb_err = MMDB_open(db_arg, 0, &try_mmdb);
@@ -97,15 +115,42 @@ main(int argc, char *argv[])
                 fprintf(stdout, "ERROR %s\n", MMDB_strerror(mmdb_err));
             }
         }
-        arg_idx++;
+        if ((strcmp(argv[arg_idx], "-v") == 0) ||
+            (strcmp(argv[arg_idx], "--version") == 0)) {
+            fprintf(stderr, "mmdbresolve (Wireshark) %u.%u.%u%s\n",
+                    WIRESHARK_VERSION_MAJOR, WIRESHARK_VERSION_MINOR, WIRESHARK_VERSION_MICRO,
+                    get_ws_vcs_version_info());
+            fprintf(stderr, "using libmaxminddb version %s\n\n", MMDB_lib_version());
+            if (mmdbs) {
+                free(mmdbs);
+            }
+            return EXIT_FAILURE;
+        }
+        if ((strcmp(argv[arg_idx], "-h") == 0) ||
+            (strcmp(argv[arg_idx], "--help") == 0)) {
+            fprintf(stderr, "mmdbresolve (Wireshark) %u.%u.%u%s\n",
+                    WIRESHARK_VERSION_MAJOR, WIRESHARK_VERSION_MINOR, WIRESHARK_VERSION_MICRO,
+                    get_ws_vcs_version_info());
+            fprintf(stderr, "Read IPv4 and IPv6 addresses on stdin and print their IP geolocation information on stdout.\n");
+            fprintf(stderr, "See https://www.wireshark.org for more information.\n");
+            fprintf(stderr, "\nUsage: mmdbresolve [-v|-h] -f <dbfile> [-f <dbfile>] ...\n");
+            fprintf(stderr, "\nOptions:\n");
+            fprintf(stderr, "  -v: display version info and exit\n");
+            fprintf(stderr, "  -h: display this help and exit\n");
+            fprintf(stderr, "  -f: path to a MaxMind Database file\n\n");
+            if (mmdbs) {
+                free(mmdbs);
+            }
+            return EXIT_FAILURE;
+        }
     }
 
     fprintf(stdout, "mmdbresolve.status: %s\n", mmdb_count > 0 ? "true": "false");
     fprintf(stdout, "# End init\n");
     fflush(stdout);
 
-    if (arg_idx != argc || mmdb_count < 1) {
-        fprintf(stderr, "Usage: mmdbresolve -f db_file [-f db_file ...]\n");
+    if (arg_idx != (unsigned)argc || mmdb_count < 1) {
+        fprintf(stderr, "Usage: mmdbresolve [-v] [-h] -f db_file [-f db_file ...]\n");
         return EXIT_FAILURE;
     }
 

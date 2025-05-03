@@ -1,0 +1,11 @@
+mmdbresolve (Wireshark) 4.5.0 (v4.5.0rc0-2347-gdf110b8c5e5d)
+Read IPv4 and IPv6 addresses on stdin and print their IP geolocation information on stdout.
+See https://www.wireshark.org for more information.
+
+Usage: mmdbresolve [-v|-h] -f <dbfile> [-f <dbfile>] ...
+
+Options:
+  -v: display version info and exit
+  -h: display this help and exit
+  -f: path to a MaxMind Database file
+

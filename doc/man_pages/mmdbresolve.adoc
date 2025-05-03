@@ -13,6 +13,8 @@ mmdbresolve - Read IPv4 and IPv6 addresses and print their IP geolocation inform
 
 [manarg]
 *mmdbresolve*
+[ *-v* ]
+[ *-h* ]
 *-f <dbfile>*
 [ *-f <dbfile>* ]
 __...__
@@ -28,6 +30,12 @@ At startup an "[init]" section is printed that shows the status of each database
 itself.
 
 == OPTIONS
+
+-v::
+Print version information and exit.
+
+-h::
+Print help information and exit.
 
 -f::
 Path to a MaxMind Database file. Multiple databases may be specified.

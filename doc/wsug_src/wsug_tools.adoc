@@ -311,4 +311,19 @@ link:{wireshark-man-page-url}reordercap.html[the online version].
 include::reordercap-h.txt[]
 ----
 
+[#AppToolsmmdbresolve]
+
+=== __mmdbresolve__: Resolve IP geolocation information
+
+`mmdbresolve` reads IPv4 and IPv6 addresses on stdin and prints their IP geolocation
+information on stdout. For more information on `mmdbresolve` consult your local
+manual page (`man mmdbresolve`) or
+link:{wireshark-man-page-url}mmdbresolve.html[the online version].
+
+[#AppToolsmmdbresolveEx]
+.Help information available from mmdbresolve
+----
+include::mmdbresolve-h.txt[]
+----
+
 // End of WSUG Appendix Tools
