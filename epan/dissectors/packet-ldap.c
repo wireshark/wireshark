@@ -1812,7 +1812,7 @@ dissect_ldap_T_and_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
   if(and_filter_string){
     and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,Filter_string);
   } else {
-    and_filter_string=Filter_string;
+    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s)",Filter_string);
   }
 
   return offset;
@@ -1857,7 +1857,7 @@ dissect_ldap_T_or_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
   if(or_filter_string){
     or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,Filter_string);
   } else {
-    or_filter_string=Filter_string;
+    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s)",Filter_string);
   }
 
 
