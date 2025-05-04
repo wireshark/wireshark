@@ -173,6 +173,10 @@ typedef struct recent_settings_tag {
     GList      *custom_colors;
     GList      *gui_additional_toolbars;
     GList      *interface_toolbars;
+
+    bool        gui_tsgd_throughput_show;            /* tcp_stream_dialog throughput checkbox */
+    bool        gui_tsgd_goodput_show;               /* tcp_stream_dialog goodput checkbox */
+    double      gui_tsgd_ma_window_size;             /* tcp_stream_dialog ma_window_size */
 } recent_settings_t;
 
 /** Global recent settings. */

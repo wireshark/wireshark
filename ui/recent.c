@@ -85,6 +85,9 @@
 #define RECENT_GUI_FOLLOW_DELTA                 "gui.follow_delta"
 #define RECENT_GUI_SHOW_BYTES_DECODE            "gui.show_bytes_decode"
 #define RECENT_GUI_SHOW_BYTES_SHOW              "gui.show_bytes_show"
+#define RECENT_GUI_TSD_MA_WINDOW_SIZE           "gui.tsd_ma_window_size"
+#define RECENT_GUI_TSD_THROUGHPUT_SHOW          "gui.tsd_throughput_show"
+#define RECENT_GUI_TSD_GOODPUT_SHOW             "gui.tsd_goodput_show"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -799,6 +802,15 @@ write_recent_boolean(FILE *rf, const char *description, const char *name,
 }
 
 static void
+write_recent_double(FILE *rf, const char *description, const char *name,
+                    double value)
+{
+    fprintf(rf, "\n# %s.\n", description);
+    char buf[G_ASCII_DTOSTR_BUF_SIZE];
+    fprintf(rf, "%s: %s\n", name, g_ascii_dtostr(buf, sizeof(buf), value));
+}
+
+static void
 write_recent_enum(FILE *rf, const char *description, const char *name,
                   const value_string *values, unsigned value)
 {
@@ -1222,6 +1234,16 @@ write_profile_recent(void)
     fprintf(rf, RECENT_GUI_INTERFACE_TOOLBAR_SHOW ": %s\n", string_list);
     g_free(string_list);
 
+    write_recent_double(rf, "TCP Stream Graphs Moving Average Window Size",
+            RECENT_GUI_TSD_MA_WINDOW_SIZE,
+            recent.gui_tsgd_ma_window_size);
+    write_recent_boolean(rf, "TCP Stream Graphs Dialog Throughput show (hide)",
+            RECENT_GUI_TSD_THROUGHPUT_SHOW,
+            recent.gui_tsgd_throughput_show);
+    write_recent_boolean(rf, "TCP Stream Graphs Dialog Goodput show (hide)",
+            RECENT_GUI_TSD_GOODPUT_SHOW,
+            recent.gui_tsgd_goodput_show);
+
     fclose(rf);
 
     /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -1322,6 +1344,7 @@ read_set_recent_pair_static(char *key, const char *value,
 {
     long num;
     int32_t num_int32;
+    double val_as_dbl;
     char *p;
     GList *col_l, *col_l_elt;
     col_width_data *cfmt;
@@ -1484,6 +1507,19 @@ read_set_recent_pair_static(char *key, const char *value,
         recent.gui_additional_toolbars = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_INTERFACE_TOOLBAR_SHOW) == 0) {
         recent.interface_toolbars = prefs_get_string_list(value);
+    } else if (strcmp(key, RECENT_GUI_TSD_THROUGHPUT_SHOW) == 0) {
+        parse_recent_boolean(value, &recent.gui_tsgd_throughput_show);
+    } else if (strcmp(key, RECENT_GUI_TSD_GOODPUT_SHOW) == 0) {
+        parse_recent_boolean(value, &recent.gui_tsgd_goodput_show);
+    } else if (strcmp(key, RECENT_GUI_TSD_MA_WINDOW_SIZE) == 0) {
+        val_as_dbl = g_ascii_strtod(value, &p);
+        if (p == value || *p != '\0') {
+            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
+        }
+        if (val_as_dbl <= 0) {
+            return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
+        }
+        recent.gui_tsgd_ma_window_size = val_as_dbl;
     } else {
         return PREFS_SET_NO_SUCH_PREF;
     }
@@ -1643,6 +1679,11 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_follow_delta          = FOLLOW_DELTA_NONE;
     recent.gui_show_bytes_decode     = DecodeAsNone;
     recent.gui_show_bytes_show       = SHOW_ASCII;
+
+    /* defaults for the TCP Stream Graph Dialog */
+    recent.gui_tsgd_ma_window_size = 1.0;
+    recent.gui_tsgd_throughput_show = true;
+    recent.gui_tsgd_goodput_show = false;
 
     /* pane size of zero will autodetect */
     recent.gui_geometry_main_upper_pane   = 0;

@@ -27,6 +27,7 @@
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "ui/qt/widgets/qcp_axis_ticker_si.h"
+#include "ui/recent.h"
 
 #include <QCursor>
 #include <QDir>
@@ -782,13 +783,16 @@ void TCPStreamDialog::showWidgetsForGraphType()
 #ifdef MA_1_SECOND
         ui->maWindowSizeLabel->setVisible(true);
         ui->maWindowSizeSpinBox->setVisible(true);
+        ui->maWindowSizeSpinBox->setValue(recent.gui_tsgd_ma_window_size);
 #else
         ui->maWindowSizeLabel->setVisible(false);
         ui->maWindowSizeSpinBox->setVisible(false);
 #endif
         ui->showSegLengthCheckBox->setVisible(true);
         ui->showThroughputCheckBox->setVisible(true);
+        ui->showThroughputCheckBox->setChecked(recent.gui_tsgd_throughput_show);
         ui->showGoodputCheckBox->setVisible(true);
+        ui->showGoodputCheckBox->setChecked(recent.gui_tsgd_goodput_show);
     } else {
         ui->maWindowSizeLabel->setVisible(false);
         ui->maWindowSizeSpinBox->setVisible(false);
@@ -2155,6 +2159,9 @@ void TCPStreamDialog::on_maWindowSizeSpinBox_valueChanged(double new_ma_size)
     if (new_ma_size > 0.0) {
         ma_window_size_ = new_ma_size;
         graph_updater_.triggerUpdate(1000, /*reset_axes =*/false);
+
+        /* update the recent kv */
+        recent.gui_tsgd_ma_window_size = new_ma_size;
     }
 }
 
@@ -2243,6 +2250,9 @@ void TCPStreamDialog::on_showThroughputCheckBox_stateChanged(int state)
         tput_graph_->setVisible(visible);
         ui->streamPlot->replot();
     }
+
+    /* update the recent kv */
+    recent.gui_tsgd_throughput_show = ui->showThroughputCheckBox->isChecked();
 }
 
 void TCPStreamDialog::on_showGoodputCheckBox_stateChanged(int state)
@@ -2252,6 +2262,9 @@ void TCPStreamDialog::on_showGoodputCheckBox_stateChanged(int state)
         goodput_graph_->setVisible(visible);
         ui->streamPlot->replot();
     }
+
+    /* update the recent kv */
+    recent.gui_tsgd_goodput_show = ui->showGoodputCheckBox->isChecked();
 }
 
 void TCPStreamDialog::on_showRcvWinCheckBox_stateChanged(int state)
