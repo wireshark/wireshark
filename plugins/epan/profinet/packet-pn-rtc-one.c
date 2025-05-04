@@ -367,7 +367,7 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
 }
 
 
-/* Universal dissector for flexibel PROFIsafe Data 8 to 64 Bits */
+/* Universal dissector for flexible PROFIsafe Data 8 to 64 Bits */
 static int
 dissect_pn_io_ps_uint(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, uint8_t *drep,

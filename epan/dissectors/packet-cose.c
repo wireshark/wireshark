@@ -374,9 +374,9 @@ static const cose_hash_props_t cose_hash_props_list[] = {
     {-44, GCRY_MD_SHA512, 64},
     {-43, GCRY_MD_SHA384, 48},
     {-18, GCRY_MD_SHAKE128, 32},
-    {-17, GCRY_MD_SHA512, 32}, // trucated
+    {-17, GCRY_MD_SHA512, 32}, // truncated
     {-16, GCRY_MD_SHA256, 32},
-    {-15, GCRY_MD_SHA256, 16}, // trucated
+    {-15, GCRY_MD_SHA256, 16}, // truncated
     {-14, GCRY_MD_SHA1, 20},
 };
 /// Derived lookup map

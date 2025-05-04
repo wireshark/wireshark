@@ -1391,7 +1391,7 @@ iostat_reset(void *arg)
     }
 }
 
-/* Our listeneer is being removed, free our memory. */
+/* Our listener is being removed, free our memory. */
 static void
 iostat_finish(void *arg)
 {

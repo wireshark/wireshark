@@ -1559,7 +1559,7 @@ static const val64_string sti_fuel_type_types[10] = {
     { STI_FUEL_TYPE_HYBRID, "Hybrid" },
     { STI_FUEL_TYPE_HYDROGEN, "Hydrogen" },
     { STI_FUEL_TYPE_NAT_GAS_LIQUID, "NAT gas liquefied" },
-    { STI_FUEL_TYPE_NAT_GAS_COMP, "NAT gas comppressed" },
+    { STI_FUEL_TYPE_NAT_GAS_COMP, "NAT gas compressed" },
     { STI_FUEL_TYPE_PROPANE, "Propane" },
     { 0, NULL }
 };

@@ -94,7 +94,7 @@ The setup script is `tools/rpm-setup.sh`; its options are:
 You must first install Xcode.
 
 As with Windows we provide pre-built third party libraries which will be automatically installed if you set the WIRESHARK_BASE_DIR CMake variable to a directory that is writable by you, such as _wireshark-third-party_ at the same level as your Wireshark source code directory.
-You can alternatiely use two scripts to install the packages and libraries required to build Wireshark and its documentation:
+You can alternatively use two scripts to install the packages and libraries required to build Wireshark and its documentation:
 `tools/macos-setup-brew.sh`, which will use the https://brew.sh/[Homebrew] package manager and `tools/macos-setup.sh`, which will build any required libraries and tools locally, except for Qt 6.
 
 `tools/macos-setup-brew.sh` supports the following options:

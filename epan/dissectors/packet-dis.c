@@ -20711,7 +20711,7 @@ void proto_register_dis(void)
         {
             &ei_entityidentifier_not_yet_received,
             { "dis.entity_identifier_not_found", PI_PROTOCOL, PI_WARN,
-              "The Entity Idenfier was not found for this entity state update", EXPFILL }
+              "The Entity Identifier was not found for this entity state update", EXPFILL }
         }
     };
 
