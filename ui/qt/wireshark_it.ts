@@ -9964,15 +9964,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Visual Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza di campionamento visivo:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust the sampling rate used for the waveform display. Higher values display higher frequency harmonics but take additional processing time. Values between 1 kHz and 48 kHz are supported.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Regola la frequenza di campionamento utilizzata per la visualizzazione della forma d&apos;onda. Valori più alti visualizzano armoniche a frequenza più alta, ma richiedono tempi di elaborazione più lunghi. Sono supportati valori compresi tra 1 kHz e 48 kHz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source> Hz</source>
-        <translation type="unfinished"></translation>
+        <translation> Hz</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -10324,7 +10324,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Resampling waveform...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricampionamento della forma d&apos;onda...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>

@@ -399,7 +399,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconegut/da</translation>
+        <translation>Desconegut</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
@@ -701,7 +701,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconegut/da</translation>
+        <translation>Desconegut</translation>
     </message>
     <message>
         <source>Adapter %1</source>
@@ -976,7 +976,7 @@
     </message>
     <message>
         <source>unknown</source>
-        <translation>desconegut/da</translation>
+        <translation>desconegut</translation>
     </message>
 </context>
 <context>
@@ -1003,7 +1003,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconegut/da</translation>
+        <translation>Desconegut</translation>
     </message>
     <message>
         <source>File</source>
@@ -1151,15 +1151,15 @@
     </message>
     <message>
         <source>Captured</source>
-        <translation>Capturat/da</translation>
+        <translation>Capturat</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation>Mostrat/da</translation>
+        <translation>Mostrat</translation>
     </message>
     <message>
         <source>Marked</source>
-        <translation>Marcat/da</translation>
+        <translation>Marcat</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -1907,7 +1907,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>ColumnListModel</name>
     <message>
         <source>Displayed</source>
-        <translation>Mostrat/da</translation>
+        <translation>Mostrat</translation>
     </message>
     <message>
         <source>Title</source>
@@ -2319,7 +2319,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>unknown</source>
-        <translation>desconegut/da</translation>
+        <translation>desconegut</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
@@ -3168,11 +3168,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Created</source>
-        <translation>Creat/da</translation>
+        <translation>Creat</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation>Modificat/da</translation>
+        <translation>Modificat</translation>
     </message>
     <message>
         <source>Size</source>
@@ -3183,27 +3183,27 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>FilterAction</name>
     <message>
         <source>Selected</source>
-        <translation>Seleccionat/da</translation>
+        <translation>Seleccionat</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>No seleccionat/da</translation>
+        <translation>No seleccionat</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>…i seleccionat/da</translation>
+        <translation>…i seleccionat</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>…o seleccionat/da</translation>
+        <translation>…o seleccionat</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>…i no seleccionat/da</translation>
+        <translation>…i no seleccionat</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>…o no seleccionat/da</translation>
+        <translation>…o no seleccionat</translation>
     </message>
 </context>
 <context>
@@ -7795,7 +7795,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Displayed</source>
-        <translation>Mostrat/da</translation>
+        <translation>Mostrat</translation>
     </message>
     <message>
         <source>&amp;Marked packets only</source>
@@ -8654,31 +8654,31 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>UNKNOWN</source>
-        <translation>DESCONEGUT/DA</translation>
+        <translation>DESCONEGUT</translation>
     </message>
     <message>
         <source>Selected</source>
-        <translation>Seleccionat/da</translation>
+        <translation>Seleccionat</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation>No seleccionat/da</translation>
+        <translation>No seleccionat</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation>…i seleccionat/da</translation>
+        <translation>…i seleccionat</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation>…o seleccionat/da</translation>
+        <translation>…o seleccionat</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation>…i no seleccionat/da</translation>
+        <translation>…i no seleccionat</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation>…o no seleccionat/da</translation>
+        <translation>…o no seleccionat</translation>
     </message>
     <message>
         <source>A </source>
@@ -8934,7 +8934,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Unknown (%1)</source>
-        <translation>Desconegut/da (%1)</translation>
+        <translation>Desconegut (%1)</translation>
     </message>
     <message>
         <source>CCCH</source>
@@ -8962,7 +8962,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconegut/da</translation>
+        <translation>Desconegut</translation>
     </message>
     <message>
         <source>Values</source>
@@ -9032,7 +9032,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Changed</source>
-        <translation>Modificat/da</translation>
+        <translation>Modificat</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
@@ -9963,15 +9963,15 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Visual Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxes de mostres visual:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust the sampling rate used for the waveform display. Higher values display higher frequency harmonics but take additional processing time. Values between 1 kHz and 48 kHz are supported.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajusta la taxa de mostreig que es fa servir per a mostrar l&apos;ona. Valor més alts mostren freqüències més altes però requereixen temps de processament addicional. S&apos;admeten els valors entre 1 kHz i 48 kHz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source> Hz</source>
-        <translation type="unfinished"></translation>
+        <translation> Hz</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -10323,7 +10323,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Resampling waveform...</source>
-        <translation type="unfinished"></translation>
+        <translation>Es remostreja l&apos;ona...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -10391,7 +10391,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconegut/da</translation>
+        <translation>Desconegut</translation>
     </message>
 </context>
 <context>
@@ -10438,7 +10438,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Lost</source>
-        <translation>Perdut/da</translation>
+        <translation>Perdut</translation>
     </message>
     <message>
         <source>Max Delta (ms)</source>
@@ -12811,7 +12811,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Desconegut/da</translation>
+        <translation>Desconegut</translation>
     </message>
 </context>
 <context>
@@ -14275,11 +14275,11 @@ a:hover {
     </message>
     <message>
         <source>Packet Lengths</source>
-        <translation>Llargàries dels paquets</translation>
+        <translation>Longitud dels paquets</translation>
     </message>
     <message>
         <source>Packet length statistics</source>
-        <translation>Estadístiques de llargàries dels paquets</translation>
+        <translation>Estadístiques de longituds dels paquets</translation>
     </message>
     <message>
         <source>Sametime</source>
