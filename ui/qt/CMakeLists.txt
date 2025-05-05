@@ -685,11 +685,13 @@ set(WIRESHARK_QT_TS
 	wireshark_en.ts # lupdate -pluralonly
 	wireshark_es.ts
 	wireshark_fr.ts
+	wireshark_ga_IE.ts
 	wireshark_hu.ts
 	wireshark_it.ts
 	wireshark_ja_JP.ts
 	wireshark_ko.ts
 	wireshark_pl.ts
+	wireshark_pt_BR.ts
 	wireshark_ru.ts
 	wireshark_sv.ts
 	wireshark_tr_TR.ts
