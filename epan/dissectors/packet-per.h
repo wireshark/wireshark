@@ -84,9 +84,8 @@ WS_DLL_PUBLIC uint32_t dissect_per_relative_oid_str(tvbuff_t *tvb, uint32_t offs
 WS_DLL_PUBLIC uint32_t dissect_per_boolean(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, bool *bool_val);
 
 WS_DLL_PUBLIC uint32_t dissect_per_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int32_t *value);
-
+WS_DLL_PUBLIC uint32_t dissect_per_integer64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t *value);
 WS_DLL_PUBLIC uint32_t dissect_per_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t min, uint32_t max, uint32_t *value, bool has_extension);
-
 WS_DLL_PUBLIC uint32_t dissect_per_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint64_t min, uint64_t max, uint64_t *value, bool has_extension);
 
 WS_DLL_PUBLIC uint32_t dissect_per_real(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value);

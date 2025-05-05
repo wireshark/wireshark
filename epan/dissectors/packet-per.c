@@ -1193,9 +1193,6 @@ DEBUG_ENTRY("dissect_per_boolean");
 	return offset+1;
 }
 
-
-
-
 /* we currently only handle integers up to 32 bits in length. */
 uint32_t
 dissect_per_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int32_t *value)
@@ -1248,7 +1245,6 @@ dissect_per_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree
 		REPORT_DISSECTOR_BUG("PER integer field that's not an FT_INT* or FT_UINT*");
 	}
 
-
 	actx->created_item = it;
 
 	if(value){
@@ -1257,8 +1253,8 @@ dissect_per_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree
 
 	return offset;
 }
-/* 64 bits experimental version, internal for now */
-static uint32_t
+
+uint32_t
 dissect_per_integer64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t *value)
 {
 	uint32_t i, length;
