@@ -842,6 +842,7 @@ static int hf_rtcp_mcptt_participant_ref;
 static int hf_rtcp_mcptt_ssrc;
 static int hf_rtcp_mcptt_num_users;
 static int hf_rtcp_mcptt_user_id_len;
+static int hf_rtcp_spare8;
 static int hf_rtcp_spare16;
 static int hf_rtcp_mcptt_num_ssrc;
 static int hf_rtcp_mcptt_func_alias;
@@ -2677,7 +2678,7 @@ dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, pr
         /* ECGI - 56 bits = MCC + MNC + ECI*/
         dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_ECGI, true);
         offset += 3;
-        proto_tree_add_item(tree, hf_rtcp_mcptt_tac, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_rtcp_mcptt_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
     case 3:
@@ -2898,7 +2899,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 /* Message Type */
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_type, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_rtcp_spare8, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             case 13:
@@ -8335,6 +8336,11 @@ proto_register_rtcp(void)
         },
         { &hf_rtcp_mcptt_user_id_len,
             { "User ID length", "rtcp.app_data.mcptt.user_id_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_spare8,
+            { "Spare", "rtcp.spare8",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

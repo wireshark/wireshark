@@ -1215,7 +1215,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			    val_to_str(packet_type, vines_arp_packet_type_vals,
 			      "Unknown (0x%02x)"));
 
-		proto_tree_add_item(vines_arp_tree, hf_vines_arp_packet_type, tvb, 1, 1, ENC_NA);
+		proto_tree_add_item(vines_arp_tree, hf_vines_arp_packet_type, tvb, 1, 1, ENC_BIG_ENDIAN);
 
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,

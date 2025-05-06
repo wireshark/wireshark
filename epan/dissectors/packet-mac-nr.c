@@ -2992,7 +2992,7 @@ static int dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
                                             tvb, offset, 1, ENC_NA);
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
-                                            tvb, offset, 2, ENC_NA);
+                                            tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset++;
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
                                             tvb, offset, 1, ENC_NA);

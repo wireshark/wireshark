@@ -3322,7 +3322,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             data_len = tvb_reported_length(tvb) - offset;
             if (data_len == 1)
             {
-                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
             }
         }
@@ -3356,7 +3356,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             data_len = tvb_reported_length(tvb) - offset;
             if (data_len == 1)
             {
-                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
             }
         }
@@ -3484,7 +3484,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_APSME_RM_BIND_ENTRY_BY_ID:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
         }
         break;
@@ -3496,7 +3496,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_APSME_GET_BIND_ENTRY_BY_ID:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
@@ -3515,7 +3515,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dst_endpoint, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_bind_type, tvb, offset, 1, ENC_NA);
@@ -3538,7 +3538,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dst_endpoint, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_bind_type, tvb, offset, 1, ENC_NA);
@@ -3560,7 +3560,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dst_endpoint, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_bind_type, tvb, offset, 1, ENC_NA);
@@ -5045,7 +5045,7 @@ dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     ncp_ll_hdr_tree = proto_item_add_subtree(proto_root, ett_zbncp_hdr);
 
     /* hdr */
-    proto_tree_add_item(ncp_ll_hdr_tree, hf_zbncp_hdr_sign, tvb, offset, 2, ENC_ASCII);
+    proto_tree_add_item(ncp_ll_hdr_tree, hf_zbncp_hdr_sign, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* pkt length without sign */

@@ -506,7 +506,7 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 1;
 
   if (action == 0x09) {
-    proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui_type, tvb, offset, 1, ENC_NA);
@@ -533,7 +533,7 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
                         ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui_type, tvb, offset, 1, ENC_NA);
@@ -581,7 +581,7 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
                         ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(tree, hf_wifi_dpp_tcp_oui_type, tvb, offset, 1, ENC_NA);

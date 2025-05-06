@@ -8478,7 +8478,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_FASTIP << 16) | 17) : /* NIC_IP */
             ti = proto_tree_add_item(pdutree, hf_pie_fastip_nic_ip,
-                                     tvb, offset, length, ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_FASTIP << 16) | 200) : /* TCP_HANDSHAKE_RTT_USEC */
             ti = proto_tree_add_item(pdutree, hf_pie_fastip_tcp_handshake_rtt_usec,
@@ -11175,7 +11175,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 318):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_stun_reflexive_ta_ipv4,
-                                     tvb, offset, length, ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 319):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_stun_reflexive_ta_port,
@@ -11304,7 +11304,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 350):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_framed_ip_address,
-                                     tvb, offset, length, ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 351):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_diameter_3gpp_user_location_info,
@@ -11658,7 +11658,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 200):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionguid,
-                                     tvb, offset, length, ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 201):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientversion,
@@ -12363,11 +12363,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_CISCO << 16) | 12236):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_ipv4_address,
-                                     tvb, offset, length, ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_CISCO << 16) | 12237):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_ipv4_address,
-                                     tvb, offset, length, ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_CISCO << 16) | 12240):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_transport_port,

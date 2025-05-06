@@ -9384,7 +9384,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, uns
     if ((options & ZBEE_ZCL_PART_OPT_INDIC_LEN) ==  0)
     {
         /* 1-byte length */
-        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
         *offset += 1;
     }
     else {

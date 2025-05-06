@@ -3562,7 +3562,7 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         /*
          * DL Data Packet Size
          */
-        proto_tree_add_item(tree, hf_pfcp_dldatapacketsize, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_dldatapacketsize, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -6192,7 +6192,7 @@ static void dissect_pfcp_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_pfcp_ethertype, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (offset < length) {
@@ -6232,7 +6232,7 @@ static void dissect_pfcp_ethertype_filter_id(tvbuff_t *tvb, packet_info *pinfo, 
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_pfcp_ethertype_filter_id, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_ethertype_filter_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     if (offset < length) {
@@ -6614,7 +6614,7 @@ dissect_pfcp_trace_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     /* (p+2) to q   IP Address of Trace Collection Entity */
     if (length_ipaddress == 4) {
-        proto_tree_add_item(tree, hf_pfcp_trace_information_ipv4, tvb, offset, length_ipaddress, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_trace_information_ipv4, tvb, offset, length_ipaddress, ENC_BIG_ENDIAN);
     } else if (length_ipaddress == 16) {
         proto_tree_add_item(tree, hf_pfcp_trace_information_ipv6, tvb, offset, length_ipaddress, ENC_NA);
     }
@@ -8336,7 +8336,7 @@ dissect_pfcp_nf_instance_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     int offset = 0;
 
     /* Octet 5 to 20    NF Instance ID */
-    proto_tree_add_item(tree, hf_pfcp_nf_instance_id, tvb, offset, length, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_nf_instance_id, tvb, offset, length, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -8945,7 +8945,7 @@ dissect_pfcp_ip_address_and_port_number_replacement(tvbuff_t *tvb, packet_info *
     }
     /* Destination Port Number (if present)*/
     if ((ip_address_and_port_number_replacement_flags & 0x4)) {
-        proto_tree_add_item(tree, hf_pfcp_ip_address_and_port_number_replacement_destination_port, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_ip_address_and_port_number_replacement_destination_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
     /* Source IPv4 address (if present)*/
@@ -8960,7 +8960,7 @@ dissect_pfcp_ip_address_and_port_number_replacement(tvbuff_t *tvb, packet_info *
     }
     /* Source Port Number (if present)*/
     if ((ip_address_and_port_number_replacement_flags & 0x20)) {
-        proto_tree_add_item(tree, hf_pfcp_ip_address_and_port_number_replacement_source_port, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_ip_address_and_port_number_replacement_source_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -10053,7 +10053,7 @@ dissect_pfcp_n6_routing_information(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     /* Source Port Number (if present)*/
     if ((n6_routing_information_flags & 0x4)) {
-        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_source_port, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_source_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
     /* Destination IPv4 address (if present)*/
@@ -10068,7 +10068,7 @@ dissect_pfcp_n6_routing_information(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     /* Destination Port Number (if present)*/
     if ((n6_routing_information_flags & 0x20)) {
-        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_destination_port, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_n6_routing_information_destination_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -11918,7 +11918,7 @@ dissect_pfcp_enterprise_bbf_ipv4_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, p
 {
     uint32_t prefix_len;
 
-    proto_tree_add_item(tree, hf_pfcp_bbf_ipv4_prefix, tvb, 0, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_bbf_ipv4_prefix, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(tree, hf_pfcp_bbf_ipv4_prefix_length, tvb, 4, 1, ENC_BIG_ENDIAN, &prefix_len);
     proto_item_append_text(proto_tree_get_parent(tree), " : %s/%d", tvb_ip_to_str(pinfo->pool, tvb, 0), prefix_len);
 
@@ -13031,7 +13031,7 @@ static int dissect_pfcp_nokia_serving_node_id(tvbuff_t *tvb, packet_info *pinfo,
      */
     if (serving_node_id_flags_val & 0x1) {
         /* 0 to 3    IPv4 address */
-        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_ipv4, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(proto_tree_get_parent(tree), "%s IPv4 %s", firstField ? " :" : ",", tvb_ip_to_str(pinfo->pool, tvb, offset));
         firstField = false;
         offset += 4;
@@ -13047,7 +13047,7 @@ static int dissect_pfcp_nokia_serving_node_id(tvbuff_t *tvb, packet_info *pinfo,
         /* p to (p+15)   UUID */
         e_guid_t guid;
 
-        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_uuid, tvb, offset, 16, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_nokia_serving_node_id_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
         tvb_get_guid(tvb, offset, &guid, ENC_BIG_ENDIAN);
         proto_item_append_text(proto_tree_get_parent(tree), "%s UUID %s", firstField ? " :" : ",", guid_to_str(pinfo->pool, &guid));
         offset += 16;

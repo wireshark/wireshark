@@ -373,9 +373,9 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
     if (strcmp(command_name, "READY") == 0) {
         switch (mechanism) {
             case MECH_CURVE:
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 8, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 8, ENC_NA);
                 offset += 8;
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, -1, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, -1, ENC_NA);
                 break;
             default:
                 /* Metadata */
@@ -445,13 +445,13 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                     proto_tree_add_item(tree, hf_zmtp_padding, tvb, offset, 70, ENC_NA);
                     offset += 70;
                     /* 32 bytes publickey */
-                    proto_tree_add_item(tree, hf_zmtp_curvezmq_publickey, tvb, offset, 32, ENC_ASCII);
+                    proto_tree_add_item(tree, hf_zmtp_curvezmq_publickey, tvb, offset, 32, ENC_NA);
                     offset += 32;
                     /* 8 bytes nonce */
-                    proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 8, ENC_ASCII);
+                    proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 8, ENC_NA);
                     offset += 8;
                     /* 80 bytes signature */
-                    proto_tree_add_item(tree, hf_zmtp_curvezmq_signature, tvb, offset, 80, ENC_ASCII);
+                    proto_tree_add_item(tree, hf_zmtp_curvezmq_signature, tvb, offset, 80, ENC_NA);
                     offset += 80;
                 }
                 else {
@@ -469,10 +469,10 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
         switch (mechanism) {
             case MECH_CURVE:
                 /* Nonce (16 bytes) */
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 16, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 16, ENC_NA);
                 offset += 16;
                 /* Box (128 bytes) */
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, 128, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, 128, ENC_NA);
                 offset += 128;
                 break;
             default:
@@ -489,13 +489,13 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                 break;
             case MECH_CURVE:
                 /* cookie (96 bytes) */
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_cookie, tvb, offset, 96, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_cookie, tvb, offset, 96, ENC_NA);
                 offset += 96;
                 /* nonce (8 bytes) */
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 8, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_nonce, tvb, offset, 8, ENC_NA);
                 offset += 8;
                 /* box (remainder) */
-                proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, -1, ENC_ASCII);
+                proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, -1, ENC_NA);
                 break;
             default:
                 /* Unexpected mechanism for receiving "INITIATE" */

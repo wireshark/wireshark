@@ -39,11 +39,16 @@ def name_has_one_of(name, substring_list):
 # An individual call to an API we are interested in.
 # Used by APICheck below.
 class Call:
-    def __init__(self, function_name, hf_name, macros, line_number=None, offset=None, length=None, fields=None):
+    def __init__(self, function_name, hf_name, macros, line_number=None, offset=None, length=None, fields=None, enc=None):
         self.hf_name = hf_name
         self.line_number = line_number
         self.fields = fields
+        self.enc = enc
+        if enc:
+            self.enc = self.enc.strip()
         self.length = None
+
+        # Substitute length if necessary
         if length:
             try:
                 #if offset.find('*') != -1 and offset.find('*') != 0 and offset.find('8') != -1:
@@ -90,6 +95,33 @@ item_lengths['FT_IPv4']   = 4
 item_lengths['FT_IPv6']   = 16
 
 # TODO: other types...
+
+
+def check_call_enc_matches_item(items_defined, call, item):
+    if call.enc is None:
+        return
+
+    if call.enc.find('|') != -1:
+        encs = call.enc.split('|')
+        encs = [enc.strip() for enc in encs]
+    else:
+        encs = [call.enc.strip()]
+
+    if call.hf_name in items_defined:
+        type = items_defined[call.hf_name].item_type
+        # TODO: checking each ENC_ value that appears, but not enforcing cases where there should be 2 values |d together
+        # TODO: should check extra logic here, like flags that should be given or only have significance sometimes, like
+        # order within a byte of ENC_BCD_DIGITS_0_9 for FT_STRING
+        for enc in encs:
+            if enc.startswith('ENC_') and enc.find('|') == -1 and type in compatible_encoding_args:
+                if type != 'FT_BOOLEAN' or items_defined[call.hf_name].get_field_width_in_bits() > 8:
+                    if not enc in compatible_encoding_args[type]:
+                        global warnings_found
+                        print('Warning:', item.file + ':' + str(call.line_number),
+                              item.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ', '"' + enc + '"', '-',
+                              compatible_encoding_args[type], 'allowed')
+                        warnings_found += 1
+
 
 
 # A check for a particular API function.
@@ -149,13 +181,28 @@ class APICheck:
                             if self.p.groups == 3:
                                 length = m.group(3)
 
+                        # Look for encoding arg
+                        # N.B. REs often won't extend to end of call, so may not include any encoding args..  TODO: extend them to );
+                        enc = None
+                        enc_start_index = to_check.find('ENC_')
+                        if enc_start_index != -1:
+                            enc_to_end = to_check[enc_start_index:]
+
+                            p = re.compile(r'(ENC_[A-Z_0-9\|\s]*)')
+                            enc_m = p.match(enc_to_end)
+
+                            if enc_m:
+                                enc = enc_m.group(1)
+                                #print(enc_m.group(1))
+
                         # Add call. We have length if re had 3 groups.
                         self.calls.append(Call(self.fun_name,
                                                m.group(2),
                                                macros,
                                                line_number=line_number,
                                                length=length,
-                                               fields=fields))
+                                               fields=fields,
+                                               enc=enc))
 
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
@@ -233,6 +280,104 @@ class APICheck:
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
                     warnings_found += 1
 
+            # Checking that encoding arg is compatible with item type
+            check_call_enc_matches_item(items_defined, call, self)
+
+
+# item type -> set<encodings>
+# TODO: need to capture that they may include endian *and* some other property..
+compatible_encoding_args = {
+    # doc/README.dissector says these should all be ENC_NA
+    'FT_NONE' :      set(['ENC_NA']),
+    'FT_BYTES' :     set(['ENC_NA']),
+    'FT_ETHER' :     set(['ENC_NA']),  # TODO: consider allowing 'ENC_LITTLE_ENDIAN' ?
+    'FT_IPv6' :      set(['ENC_NA']),
+    'FT_IPXNET' :    set(['ENC_NA']),
+    'FT_OID' :       set(['ENC_NA']),
+    'FT_REL_OID' :   set(['ENC_NA']),
+    'FT_AX25' :      set(['ENC_NA']),
+    'FT_VINES' :     set(['ENC_NA']),
+    'FT_SYSTEM_ID' : set(['ENC_NA']),
+    'FT_FCWWN' :     set(['ENC_NA']),
+
+    # TODO: FT_UINT_BYTES should have e.g., ENC_LITTLE_ENDIAN|ENC_NA
+
+    'FT_IPv4' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+
+
+    'FT_STRING' :    set(['ENC_ASCII',
+                          'ENC_UTF_8',
+                          'ENC_UTF_16',
+                          'ENC_UCS_2',
+                          'ENC_UCS_4',
+                          'ENC_WINDOWS_1250', 'ENC_WINDOWS_1251', 'ENC_WINDOWS_1252',
+                          'ENC_ISO_646_BASIC',
+                          'ENC_ISO_8859_1', 'ENC_ISO_8859_2', 'ENC_ISO_8859_3', 'ENC_ISO_8859_4',
+                          'ENC_ISO_8859_5', 'ENC_ISO_8859_6', 'ENC_ISO_8859_7', 'ENC_ISO_8859_8',
+                          'ENC_ISO_8859_9', 'ENC_ISO_8859_10', 'ENC_ISO_8859_11', 'ENC_ISO_8859_12',
+                          'ENC_ISO_8859_13', 'ENC_ISO_8859_14', 'ENC_ISO_8859_15', 'ENC_ISO_8859_16',
+                          'ENC_3GPP_TS_23_038_7BITS',
+                          'ENC_3GPP_TS_23_038_7BITS_UNPACKED',
+                          'ENC_ETSI_TS_102_221_ANNEX_A',
+                          'ENC_EBCDIC',
+                          'ENC_EBCDIC_CP037',
+                          'ENC_EBCDIC_CP500',
+                          'ENC_MAC_ROMAN',
+                          'ENC_CP437',
+                          'ENC_CP855',
+                          'ENC_CP866',
+                          'ENC_ASCII_7BITS',
+                          'ENC_T61',
+                          'ENC_BCD_DIGITS_0_9', 'ENC_BCD_SKIP_FIRST',
+                          'ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',   # These are allowed if ENC_BCD_DIGITS_0_9 is set..
+                          'ENC_KEYPAD_ABC_TBCD',
+                          'ENC_KEYPAD_BC_TBCD',
+                          'ENC_GB18030',
+                          'ENC_EUC_KR',
+                          'ENC_DECT_STANDARD_8BITS',
+                          'ENC_DECT_STANDARD_4BITS_TBCD',
+                          ]),
+
+    'FT_CHAR' :      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?
+
+    # Integral types
+    'FT_UINT8' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
+    'FT_INT8' :      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
+    'FT_UINT16' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT16' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT24' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT24' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT32' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT32' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT40' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT40' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT48' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT48' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT56' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT56' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT64' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT64' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+
+    'FT_GUID' :      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
+    'FT_EUI64' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
+
+    # It does seem harsh to need to set this when field is 8 bits of less..
+    'FT_BOOLEAN' :   set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
+
+
+    # N.B., these fields should also have an endian order...
+    'FT_ABSOLUTE_TIME' :  set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',
+                               'ENC_TIME_SECS_NSECS', 'ENC_TIME_NTP', 'ENC_TIME_TOD',
+                               'ENC_TIME_RTPS', 'ENC_TIME_SECS_USECS', 'ENC_TIME_SECS',
+                               'ENC_TIME_MSECS', 'ENC_TIME_USECS',
+                               'ENC_TIME_NSECS', 'ENC_TIME_SECS_NTP', 'ENC_TIME_RFC_3971',
+                               'ENC_TIME_MSEC_NTP', 'ENC_TIME_MIP6', 'ENC_TIME_CLASSIC_MAC_OS_SECS',
+                               'ENC_TIME_ZBEE_ZCL', 'ENC_TIME_MP4_FILE_SECS']),
+   'FT_RELATIVE_TIME' :   set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',
+                               'ENC_TIME_SECS_NSECS', 'ENC_TIME_SECS_USECS', 'ENC_TIME_SECS',
+                               'ENC_TIME_MSECS', 'ENC_TIME_USECS', 'ENC_TIME_NSECS'])
+
+}
 
 # Specialization of APICheck for add_item() calls
 class ProtoTreeAddItemCheck(APICheck):
@@ -316,7 +461,7 @@ class ProtoTreeAddItemCheck(APICheck):
                                 print('Warning:', self.file + ':' + str(line_number),
                                       self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
                                 warnings_found += 1
-                        self.calls.append(Call(self.fun_name, hf_name, macros, line_number=line_number, offset=m.group(2), length=m.group(3)))
+                        self.calls.append(Call(self.fun_name, hf_name, macros, line_number=line_number, offset=m.group(2), length=m.group(3), fields=None, enc=enc))
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern,
                             check_missing_items=False, field_arrays=None):
@@ -338,6 +483,11 @@ class ProtoTreeAddItemCheck(APICheck):
                                 self.fun_name + ' called for', call.hf_name, ' - ',
                                 'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
                             warnings_found += 1
+
+                # Checking that encoding arg is compatible with item type
+                check_call_enc_matches_item(items_defined, call, self)
+
+
             elif check_missing_items:
                 if call.hf_name in items_declared and call.hf_name not in items_declared_extern:
                 #not in common_hf_var_names:
@@ -440,7 +590,9 @@ field_widths = {
     'FT_UINT56'  : 56,
     'FT_INT56'   : 56,
     'FT_UINT64'  : 64,
-    'FT_INT64'   : 64
+    'FT_INT64'   : 64,
+
+    'FT_UINT1632' : 32  # from packet-dcerpc.h
 }
 
 def is_ignored_consecutive_filter(filter):
@@ -1198,7 +1350,6 @@ class Item:
                 '" has blurb of 0 - if no string, please set NULL instead')
             errors_found += 1
 
-        self.set_mask_value(macros)
 
         if check_consecutive:
             for previous_index,previous_item in enumerate(Item.previousItems):
@@ -1220,6 +1371,9 @@ class Item:
 
         self.display = display
         self.set_display_value(macros)
+
+        self.set_mask_value(macros)
+
 
         # Optionally check label (short and long).
         if check_label:
@@ -1282,7 +1436,7 @@ class Item:
 
 
     def __str__(self):
-        return 'Item ({0} {1} "{2}" {3} type={4}:{5} {6} mask={7})'.format(self.filename, self.hf, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
+        return 'Item ({0} {1} "{2}" "{3}" type={4}:{5} {6} mask={7})'.format(self.filename, self.hf, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
 
     def check_label(self, label, label_name):
         global warnings_found
@@ -1336,6 +1490,7 @@ class Item:
 
 
     def set_mask_value(self, macros):
+        self.mask_width = 0
         try:
             self.mask_read = True
             # PIDL generator adds annoying parenthesis and spaces around mask..
@@ -1357,6 +1512,17 @@ class Item:
                 self.mask_value = int(self.mask, 8)
             else:
                 self.mask_value = int(self.mask, 10)
+
+            # Also try to set mask_width
+            if self.mask_value > 0:
+                # Distance between first and last '1'
+                bitBools = bin(self.mask_value)[2:]
+                self.mask_width = bitBools.rfind('1') - bitBools.find('1') + 1
+            else:
+                # No mask is effectively a full mask..
+                self.mask_width = self.get_field_width_in_bits()
+
+
         except Exception:
             self.mask_read = False
             self.mask_value = 0
@@ -1397,19 +1563,11 @@ class Item:
             # Type field defined by macro?
             return
 
-        if self.mask_value > 0:
-            # Distance between first and last '1'
-            bitBools = bin(self.mask_value)[2:]
-            mask_width = bitBools.rfind('1') - bitBools.find('1') + 1
-        else:
-            # No mask is effectively a full mask..
-            mask_width = item_width
-
-        item_max = (2 ** mask_width)
+        item_max = (2 ** self.mask_width)
         if vs_max > item_max:
             global warnings_found
             print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", mask_width, 'bits',
+                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", self.mask_width, 'bits',
                   '( mask is', hex(self.mask_value), ')')
             warnings_found += 1
 
@@ -1420,19 +1578,11 @@ class Item:
             # Type field defined by macro?
             return
 
-        if self.mask_value > 0:
-            # Distance between first and last '1'
-            bitBools = bin(self.mask_value)[2:]
-            mask_width = bitBools.rfind('1') - bitBools.find('1') + 1
-        else:
-            # No mask is effectively a full mask..
-            mask_width = item_width
-
-        item_max = (2 ** mask_width)
+        item_max = (2 ** self.mask_width)
         if rs_max > item_max:
             global warnings_found
             print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has values", rs_min, rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", mask_width, 'bits',
+                  self.strings, "has values", rs_min, rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", self.mask_width, 'bits',
                   '( mask is', hex(self.mask_value), ')')
             warnings_found += 1
 
@@ -1506,7 +1656,7 @@ class Item:
 
     def get_field_width_in_bits(self):
         if self.item_type == 'FT_BOOLEAN':
-            if self.display == 'NULL':
+            if self.display == 'BASE_NONE':    # 'NULL' ?
                 return 8  # i.e. 1 byte
             elif self.display == 'SEP_DOT':   # from proto.h, only meant for FT_BYTES
                 return 64
@@ -1515,13 +1665,15 @@ class Item:
                     # For FT_BOOLEAN, modifier is just numerical number of bits. Round up to next nibble.
                     return int((int(self.display) + 3)/4)*4
                 except Exception:
-                    return None
+                    #print(self, self.display)
+                    return 8
         else:
             if self.item_type in field_widths:
                 # Lookup fixed width for this type
                 return field_widths[self.item_type]
             else:
-                return None
+                # Unknown type..
+                return 0
 
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:

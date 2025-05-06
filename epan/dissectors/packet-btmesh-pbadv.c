@@ -219,7 +219,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     sub_tree = proto_item_add_subtree(item, ett_btmesh_pbadv);
 
     uint32_t pbadv_link_id = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_btmesh_pbadv_linkid, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_btmesh_pbadv_linkid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     uint8_t pbadv_trnumber = tvb_get_uint8(tvb, offset);
@@ -247,7 +247,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             segn = (tvb_get_uint8(tvb, offset) & 0xFC) >> 2;
             offset += 1;
             total_length = (uint32_t)tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_total_length, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_total_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_fcs, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -319,7 +319,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             offset += 1;
             switch(gpcf_bearer_opcode) {
                 case LINK_OPEN:
-                    proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_bearer_opcode_device_UUID, tvb, offset, 16, ENC_NA);
+                    proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_bearer_opcode_device_UUID, tvb, offset, 16, ENC_BIG_ENDIAN);
                     offset += 16;
 
                 break;

@@ -322,7 +322,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /* There is data */
         if ((fragment_amount == 1) && (fragment_number == 0) && data_length) {
             /* Not fragmented - show payload now */
-            proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, tvb, offset, -1, ENC_ASCII);
+            proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, tvb, offset, -1, ENC_NA);
             col_append_fstr(pinfo->cinfo, COL_INFO, "  Data (%u bytes)", data_length);
 
             /* Check length is as signalled */
@@ -363,7 +363,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                                               &update_col_info, udpcp_tree);
                 if (next_tvb) {
                     /* Have reassembled data */
-                    proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, next_tvb, 0, -1, ENC_ASCII);
+                    proto_item *data_ti = proto_tree_add_item(udpcp_tree, hf_udpcp_payload, next_tvb, 0, -1, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "  Reassembled Data (%u bytes)", data_length);
 
                     /* Check length is as signalled */

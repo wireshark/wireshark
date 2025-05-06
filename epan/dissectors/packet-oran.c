@@ -2209,7 +2209,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         switch (sectionType) {
             case SEC_C_UNUSED_RB:    /* Section Type 0 - Table 7.4.2-1 */
                 /* reserved (15 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_reserved_15bits, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(c_section_tree, hf_oran_reserved_15bits, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 break;
 
@@ -2245,7 +2245,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case SEC_C_UE_SCHED:          /* Section Type 5  - Table 7.4.7-1 */
             case SEC_C_RRM_MEAS_REPORTS:  /* Section Type 10 - Table 7.4.12-1 */
                 /* ueId */
-                ueId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
+                ueId_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_BIG_ENDIAN, &ueId);
                 offset += 2;
                 if (ueId == 0x7fff) {
                     proto_item_append_text(ueId_ti, " (PRBs not scheduled for eAxC ID in transport header)");
@@ -2300,7 +2300,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
             case SEC_C_REQUEST_RRM_MEAS:   /* Section Type 11 - Request RRM Measurements */
                 /* Reserved (15 bits) */
-                proto_tree_add_item(c_section_tree, hf_oran_reserved_15bits, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(c_section_tree, hf_oran_reserved_15bits, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 break;
 
@@ -2312,10 +2312,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* ef */
         proto_tree_add_item_ret_boolean(c_section_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
         /* ueId */
-        proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_NA, &ueId);
+        proto_tree_add_item_ret_uint(c_section_tree, hf_oran_ueId, tvb, offset, 2, ENC_BIG_ENDIAN, &ueId);
         offset += 2;
         /* regularizationFactor */
-        proto_tree_add_item(c_section_tree, hf_oran_regularizationFactor, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(c_section_tree, hf_oran_regularizationFactor, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         /* reserved (4 bits) */
         proto_tree_add_item(c_section_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
@@ -4941,7 +4941,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             offset += 1;
 
             /* st4CmdLen */
-            len_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_NA, &st4_cmd_len);
+            len_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_len, tvb, offset, 2, ENC_BIG_ENDIAN, &st4_cmd_len);
             if (st4_cmd_len == 0) {
                 /* Meaning of 0 not yet defined (v15.00) */
                 proto_item_append_text(len_ti, " (reserved)");
@@ -4961,7 +4961,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
             /* ackNackReqId */
             proto_item *ack_nack_req_id_ti;
-            ack_nack_req_id_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_NA, &ack_nack_req_id);
+            ack_nack_req_id_ti = proto_tree_add_item_ret_uint(hdr_tree, hf_oran_st4_cmd_ack_nack_req_id, tvb, offset, 2, ENC_BIG_ENDIAN, &ack_nack_req_id);
             offset += 2;
             if (ack_nack_req_id == 0) {
                 proto_item_append_text(ack_nack_req_id_ti, " (no Section type 8 response expected)");
@@ -5851,7 +5851,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              (pref_support_udcompLen==2 && udcomplen_appears_present(includeUdCompHeader, tvb, offset));
 
             if (supported) {
-                ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_NA, &ud_comp_len);
+                ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_BIG_ENDIAN, &ud_comp_len);
                 if (ud_comp_len <= 1) {
                     proto_item_append_text(ud_comp_len_ti, " (reserved)");
                 }
