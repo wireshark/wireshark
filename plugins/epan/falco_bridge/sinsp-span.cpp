@@ -598,7 +598,12 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
     }
 
 #if SINSP_CHECK_VERSION(0, 18, 0)
-    g_strlcpy(field->display, ffi->m_display.c_str(), sizeof(field->display));
+    if (ffi->m_display.empty()) {
+        // Fall back to the filter name
+        g_strlcpy(field->display, ffi->m_name.c_str(), sizeof(field->display));
+    } else {
+        g_strlcpy(field->display, ffi->m_display.c_str(), sizeof(field->display));
+    }
     g_strlcpy(field->description, ffi->m_description.c_str(), sizeof(field->description));
 #else
     g_strlcpy(field->display, ffi->m_display, sizeof(field->display));

@@ -482,6 +482,7 @@ create_source_hfids(bridge_info* bi)
             }
 
             if(strlen(sfi.display) == 0) {
+                // Shouldn't happen since get_sinsp_source_field_info falls back to the filter name.
                 THROW_FORMATTED(DissectorError, "error in Falco bridge plugin %s: field %s is missing display name",
                    get_sinsp_source_name(bi->ssi), sfi.abbrev);
             }
