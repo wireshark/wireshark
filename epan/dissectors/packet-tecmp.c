@@ -487,6 +487,7 @@ static const value_string tecmp_device_id_prefixes[] = {
     {0x0060, "CM 100 High"},
     {0x0080, "CM Eth Combo"},
     {0x0090, "CM 1000 High"},
+    {0x00c0, "CM SerDes"},
     {0x00e0, "CM MultiGigabit"},
     {0, NULL}
 };
@@ -516,6 +517,10 @@ static const value_string tecmp_device_ids_specific[] = {
     {0x007d, "ILaS Sniffer 3"},
     {0x007e, "ILaS Sniffer 4"},
     {0x007f, "ILaS Sniffer 5"},
+    {0x00b8, "Network Interfacer 10BASE-T1S 0"},
+    {0x00b9, "Network Interfacer 10BASE-T1S 1"},
+    {0x00ba, "Network Interfacer 10BASE-T1S 2"},
+    {0x00bb, "Network Interfacer 10BASE-T1S 3"},
     {0, NULL}
 };
 
@@ -540,8 +545,10 @@ static const value_string tecmp_device_types[] = {
     {0x20, "Logger"},
     {TECMP_DEVICE_TYPE_CM_SERDES_GMSL23, "CM SerDes GMSL2/3"},
     {0x42, "CM MultiGigabit"},
+    {0x42, "EES"},
     {0x46, "CM Sense"},
     {TECMP_DEVICE_TYPE_CM_SERDES_ASAML, "CM SerDes ASA ML"},
+    {0x52, "Network Interfacer 10BASE-T1S"},
     {0, NULL}
 };
 
