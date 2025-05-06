@@ -2556,14 +2556,25 @@ UEContextResumeResponseTransfer                S ngap.n2_ie_type "UE_CONTEXT_RES
 UEContextSuspendRequestTransfer                S ngap.n2_ie_type "UE_CONTEXT_SUSPEND_REQ"
 SourceToTarget-TransparentContainer            S ngap.n2_ie_type "SRC_TO_TAR_CONTAINER"
 TargetToSource-TransparentContainer            S ngap.n2_ie_type "TAR_TO_SRC_CONTAINER"
+TargettoSource-Failure-TransparentContainer    S ngap.n2_ie_type "TAR_TO_SRC_FAIL_CONTAINER"
 RANStatusTransfer-TransparentContainer         S ngap.n2_ie_type "RAN_STATUS_TRANS_CONTAINER"
 SONConfigurationTransfer                       S ngap.n2_ie_type "SON_CONFIG_TRANSFER"
 NRPPa-PDU                                      S ngap.n2_ie_type "NRPPA_PDU"
 UERadioCapability                              S ngap.n2_ie_type "UE_RADIO_CAPABILITY"
+RIMInformationTransfer                         S ngap.n2_ie_type "RIM_INFO_TRANSFER"
+PC5QoSParameters                               S ngap.n2_ie_type "PC5_QOS_PARA"
+EarlyStatusTransfer-TransparentContainer       S ngap.n2_ie_type "EARLY_STATUS_TRANS_CONTAINER"
+UERadioCapabilityForPaging                     S ngap.n2_ie_type "UE_RADIO_CAPABILITY_FOR_PAGING"
 MBSSessionSetupOrModRequestTransfer            S ngap.n2_ie_type "MBS_SES_REQ"
 MBSSessionSetupOrModResponseTransfer           S ngap.n2_ie_type "MBS_SES_RSP"
 MBSSessionSetupOrModFailureTransfer            S ngap.n2_ie_type "MBS_SES_FAIL"
 MBSSessionReleaseResponseTransfer              S ngap.n2_ie_type "MBS_SES_REL_RSP"
+BroadcastTransportRequestTransfer              S ngap.n2_ie_type "BC_TRA_REQ"
+BroadcastTransportResponseTransfer             S ngap.n2_ie_type "BC_TRA_RSP"
+BroadcastTransportFailureTransfer              S ngap.n2_ie_type "BC_TRA_FAIL"
+MulticastSessionActivationRequestTransfer      S ngap.n2_ie_type "MBS_SES_ACT_REQ"
+MulticastSessionDeactivationRequestTransfer    S ngap.n2_ie_type "MBS_SES_DEACT_REQ"
+MulticastSessionUpdateRequestTransfer          S ngap.n2_ie_type "MBS_SES_UPD_REQ"
 
 #.FN_HDR AMFConfigurationUpdate
   set_message_label(actx, MTYPE_AMF_CONFIGURATION_UPDATE);
@@ -3230,6 +3241,11 @@ MBSSessionReleaseResponseTransfer              S ngap.n2_ie_type "MBS_SES_REL_RS
   if (json_tvb)
     col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TargetToSource-TransparentContainer");
 
+#.FN_HDR TargettoSource-Failure-TransparentContainer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TargettoSource-Failure-TransparentContainer");
+
 #.FN_HDR RANStatusTransfer-TransparentContainer
   tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
   if (json_tvb)
@@ -3250,6 +3266,26 @@ MBSSessionReleaseResponseTransfer              S ngap.n2_ie_type "MBS_SES_REL_RS
   if (json_tvb)
     col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapability");
 
+#.FN_HDR RIMInformationTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RIMInformationTransfer");
+
+#.FN_HDR PC5QoSParameters
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PC5QoSParameters");
+
+#.FN_HDR EarlyStatusTransfer-TransparentContainer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EarlyStatusTransfer-TransparentContainer");
+
+#.FN_HDR UERadioCapabilityForPaging
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityForPaging");
+
 #.FN_HDR MBSSessionSetupOrModRequestTransfer
   tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
   if (json_tvb)
@@ -3269,6 +3305,36 @@ MBSSessionReleaseResponseTransfer              S ngap.n2_ie_type "MBS_SES_REL_RS
   tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
   if (json_tvb)
     col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBSSessionReleaseResponseTransfer");
+
+#.FN_HDR BroadcastTransportRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BroadcastTransportRequestTransfer");
+
+#.FN_HDR BroadcastTransportResponseTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BroadcastTransportResponseTransfer");
+
+#.FN_HDR BroadcastTransportFailureTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BroadcastTransportFailureTransfer");
+
+#.FN_HDR MulticastSessionActivationRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MulticastSessionActivationRequestTransfer");
+
+#.FN_HDR MulticastSessionDeactivationRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MulticastSessionDeactivationRequestTransfer");
+
+#.FN_HDR MulticastSessionUpdateRequestTransfer
+  tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_json, 0);
+  if (json_tvb)
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MulticastSessionUpdateRequestTransfer");
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
