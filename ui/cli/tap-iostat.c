@@ -59,6 +59,7 @@ typedef struct _io_stat_t {
     unsigned int num_cols;         /* The number of columns of stats in the table */
     struct _io_stat_item_t *items;  /* Each item is a single cell in the table */
     nstime_t start_time;    /* Time of first frame matching the filter */
+    uint64_t last_relative_time;
     /* The following are all per-column fixed information arrays */
     const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     uint64_t *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
@@ -86,8 +87,66 @@ static char *io_decimal_point;
 
 #define NANOSECS_PER_SEC UINT64_C(1000000000)
 
-static uint64_t last_relative_time;
+/*
+ *  Reset an io_stat_item_t that's presumed to be one of io->items[].
+ *  Set its stats to 0 and remove any other items in its linked list.
+ */
+static void
+iostat_item_reset(io_stat_item_t *mit)
+{
+    io_stat_item_t *p, *cur;
 
+    mit->start_time = 0;
+    mit->frames = 0;
+    mit->num = 0;
+    mit->counter = 0;
+
+    /* Free up the linked list in both directions. Reset mit->prev
+     * to point back at mit to match the initialization in register_io_tap().
+     * The list appears to be circular (XXX: is this intentional?)
+     * so it's important to clear the transitive pointer back to the item
+     * being freed, even if we'd think that next item is about to be freed anyway.
+     */
+    cur = mit->prev;
+    mit->prev = mit;
+    while (cur != NULL && cur != mit && cur != cur->prev) {
+        p = cur->prev;
+        p->next = NULL;
+        g_free(cur);
+        cur = p;
+    }
+    cur = mit->next;
+    mit->next = NULL;
+    while (cur != NULL && cur != mit && cur != cur->next) {
+        p = cur->next;
+        p->prev = NULL;
+        g_free(cur);
+        cur = p;
+    }
+}
+
+/*
+ *  Free an io_stat_t and all the memory it allocated.
+ *  Assumes that the pointers in an incompletely created io_stat_t are null
+ *  if they haven't been allocated yet.
+ */
+static void
+iostat_io_free(io_stat_t *io)
+{
+    for (unsigned int i = 0; i < io->num_cols; i++) {
+        g_free((char*)io->filters[i]);
+        iostat_item_reset(&io->items[i]);
+    }
+    g_free(io->items);
+    g_free((gpointer)io->filters);
+    g_free(io->max_vals);
+    g_free(io->max_frame);
+    g_free(io->hf_indexes);
+    g_free(io->calc_type);
+    g_free(io);
+}
+
+/* Tap function: collect statistics of interest from the current packet. */
 static tap_packet_status
 iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_, tap_flags_t flags _U_)
 {
@@ -108,9 +167,9 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     if ((pinfo->rel_ts.secs >= 0) && (pinfo->rel_ts.nsecs >= 0)) {
         relative_time = ((uint64_t)pinfo->rel_ts.secs * UINT64_C(1000000)) +
                         ((uint64_t)((pinfo->rel_ts.nsecs+500)/1000));
-        last_relative_time = relative_time;
+        parent->last_relative_time = relative_time;
     } else {
-        relative_time = last_relative_time;
+        relative_time = parent->last_relative_time;
     }
 
     if (nstime_is_unset(&mit->parent->start_time)) {
@@ -1312,16 +1371,6 @@ iostat_draw(void *arg)
         printf("=");
     }
     printf("\n");
-    g_free(iot->items);
-    for (i = 0; i < iot->num_cols; i++) {
-        g_free((char*)iot->filters[i]);
-    }
-    g_free((gpointer)iot->filters);
-    g_free(iot->max_vals);
-    g_free(iot->max_frame);
-    g_free(iot->hf_indexes);
-    g_free(iot->calc_type);
-    g_free(iot);
     g_free(col_w);
     g_free(invl_fmt);
     g_free(full_fmt);
@@ -1330,7 +1379,38 @@ iostat_draw(void *arg)
     g_free(item_in_column);
 }
 
+/* A new capture file is being loaded (or the current one reloaded),
+ * reset our statistics.
+ */
+static void
+iostat_reset(void *arg)
+{
+    io_stat_item_t *mit = (io_stat_item_t *)arg;
+    io_stat_t *io = mit->parent;
 
+    nstime_set_unset(&io->start_time);
+    io->last_relative_time = UINT64_C(0);
+    for (unsigned int i=0; i<io->num_cols; i++) {
+        iostat_item_reset(&io->items[i]);
+        io->max_vals[i]  = 0;
+        io->max_frame[i] = 0;
+    }
+}
+
+/* Our listeneer is being removed, free our memory. */
+static void
+iostat_finish(void *arg)
+{
+    io_stat_item_t *mit = (io_stat_item_t *)arg;
+    io_stat_t *io = mit->parent;
+    iostat_io_free(io);
+}
+
+/*
+ *  Register a new iostat tap for column number i.
+ *  The new tap's tapdata (see doc/README.tapping) is io->items[i], not io itself.
+ *  We only set the draw/reset/finish functions if i == 0 so everything is handled only once.
+ */
 static bool
 register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
 {
@@ -1474,8 +1554,11 @@ register_io_tap(io_stat_t *io, unsigned int i, const char *filter, GString *err)
     }
     g_free(field);
 
-    error_string = register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
-                                       iostat_packet, i ? NULL : iostat_draw, NULL);
+    error_string = register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE,
+                                       i ? NULL : iostat_reset,
+                                       iostat_packet,
+                                       i ? NULL : iostat_draw,
+                                       i ? NULL : iostat_finish);
     if (error_string) {
         /* Accumulate errors about all the possible filters tried at the same
          * starting character.
@@ -1542,7 +1625,8 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         break;
     }
 
-    io = g_new(io_stat_t, 1);
+    io = g_new0(io_stat_t, 1);
+    io->last_relative_time = UINT64_C(0);
 
     /* If interval is 0, calculate statistics over the whole file by setting the interval to
     *  UINT64_MAX */
@@ -1585,6 +1669,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
     }
     if (io->interval < 1) {
         cmdarg_err("\ntshark: \"-z\" interval must be >=0.000001 seconds or \"0\" for the entire capture duration.\n");
+        iostat_io_free(io);
         return false;
     }
 
@@ -1613,7 +1698,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         }
     }
 
-    io->items      = g_new(io_stat_item_t, io->num_cols);
+    io->items      = g_new0(io_stat_item_t, io->num_cols);
     io->filters    = (const char **)g_malloc(sizeof(char *) * io->num_cols);
     io->max_vals   = g_new(uint64_t, io->num_cols);
     io->max_frame  = g_new(uint32_t, io->num_cols);
@@ -1674,8 +1759,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         cmdarg_err("\ntshark: Couldn't register io,stat tap: %s\n",
             err->str);
         g_string_free(err, TRUE);
-        g_free(io->items);
-        g_free(io);
+        iostat_io_free(io);
         return false;
     }
     g_string_free(err, TRUE);
