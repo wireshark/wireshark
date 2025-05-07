@@ -149,9 +149,26 @@ int nstime_cmp (const nstime_t *a, const nstime_t *b )
         }
     }
     if (a->secs == b->secs) {
-        return a->nsecs - b->nsecs;
+        if (a->nsecs == b->nsecs) {
+            return 0;
+        } else {
+            return a->nsecs > b->nsecs ? 1 : -1;
+        }
     } else {
-        return (int) (a->secs - b->secs);
+        return a->secs > b->secs ? 1 : -1;
+#if 0
+        /* The old behavior, in the common case, returned the difference in
+         * seconds, which could overflow. That was never promised, but if it
+         * is desired, a way to handle it with C23 checked arithmetic could be
+         * (ignoring hypothetical platforms with floating-point time_t): */
+        int ret;
+        if (ckd_sub(&ret, a->secs, b->secs)) {
+            /* We subtract b->secs, so if it's positive, there was underflow,
+             * and vice versa. */
+            ret = b->secs > 0 ? INT_MIN : INT_MAX;
+        }
+        return ret;
+#endif
     }
 }
 
