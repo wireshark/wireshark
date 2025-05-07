@@ -340,3 +340,49 @@ Node 1: 127.0.0.1:8080
 	0000028C  33 31 35 34 35 35 33 22  7d 0a                    3154553" }.
 ===================================================================
 """.replace("\r\n", "\n") in proc_stdout
+
+    def test_follow_websocket_compressed_server_only(self, cmd_tshark, capture_file, base_env):
+        '''Checks whether Follow Websocket correctly handles only server compressed data.'''
+        proc_stdout = subprocess.check_output((cmd_tshark,
+                        '-r', capture_file('websocket-compressed-server-only.pcap'),
+                        '-qz', 'follow,websocket,hex,0',
+                        ), encoding='utf-8', env=base_env)
+
+        assert """\
+===================================================================
+Follow: websocket,hex
+Filter: tcp.stream eq 0
+Node 0: 127.0.0.1:44920
+Node 1: 127.0.0.1:8080
+00000000  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 30     from cli ent.. 0
+0000000F  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 31     from cli ent.. 1
+0000001E  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 32     from cli ent.. 2
+0000002D  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 33     from cli ent.. 3
+0000003C  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 34     from cli ent.. 4
+0000004B  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 35     from cli ent.. 5
+0000005A  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 36     from cli ent.. 6
+00000069  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 37     from cli ent.. 7
+00000078  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 38     from cli ent.. 8
+00000087  66 72 6f 6d 20 63 6c 69  65 6e 74 2e 2e 20 39     from cli ent.. 9
+	00000000  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	00000010  74 2e 2e 20 30                                    t.. 0
+	00000015  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	00000025  74 2e 2e 20 31                                    t.. 1
+	0000002A  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	0000003A  74 2e 2e 20 32                                    t.. 2
+	0000003F  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	0000004F  74 2e 2e 20 33                                    t.. 3
+	00000054  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	00000064  74 2e 2e 20 34                                    t.. 4
+	00000069  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	00000079  74 2e 2e 20 35                                    t.. 5
+	0000007E  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	0000008E  74 2e 2e 20 36                                    t.. 6
+	00000093  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	000000A3  74 2e 2e 20 37                                    t.. 7
+	000000A8  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	000000B8  74 2e 2e 20 38                                    t.. 8
+	000000BD  70 6f 6e 67 3a 20 66 72  6f 6d 20 63 6c 69 65 6e  pong: fr om clien
+	000000CD  74 2e 2e 20 39                                    t.. 9
+===================================================================
+""".replace("\r\n", "\n") in proc_stdout

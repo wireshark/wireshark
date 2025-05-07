@@ -393,7 +393,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       z_streamp z_strm;
       gint8 wbits;
 
-      if (pinfo->destport == websocket_conv->server_port) {
+      if (pinfo->srcport == websocket_conv->server_port) {
         z_strm = websocket_conv->server_take_over_context;
         wbits = websocket_conv->server_wbits;
       } else {
