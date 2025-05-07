@@ -12,7 +12,7 @@
 
 #include <ui/qt/widgets/qcustomplot.h>
 
-Graph::Graph(QCustomPlot* parent) :
+Graph::Graph(QCustomPlot* parent, QCPAxis* keyAxis, QCPAxis* valueAxis) :
     parent_(parent),
     graph_(NULL),
     bars_(NULL),
@@ -20,7 +20,7 @@ Graph::Graph(QCustomPlot* parent) :
     y_axis_factor_(default_y_axis_factor_)
 {
     Q_ASSERT(parent_ != NULL);
-    graph_ = parent_->addGraph(parent_->xAxis, parent_->yAxis);
+    graph_ = parent_->addGraph(keyAxis, valueAxis);
     Q_ASSERT(graph_ != NULL);
 }
 

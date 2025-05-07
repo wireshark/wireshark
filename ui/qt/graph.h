@@ -14,6 +14,7 @@
 
 #include "wireshark_dialog.h"
 
+class QCPAxis;
 class QCPBars;
 class QCPGraph;
 class QCustomPlot;
@@ -25,7 +26,7 @@ public:
     const qreal graph_line_width_ = 1.0;
     enum PlotStyles { psLine, psDotLine, psStepLine, psDotStepLine, psImpulse, psBar, psStackedBar, psDot, psSquare, psDiamond, psCross, psPlus, psCircle };
 
-    explicit Graph(QCustomPlot* parent);
+    explicit Graph(QCustomPlot* parent, QCPAxis* keyAxis = nullptr, QCPAxis* valueAxis = nullptr);
     ~Graph();
     QString name() const { return name_; }
     void setName(const QString& name);
