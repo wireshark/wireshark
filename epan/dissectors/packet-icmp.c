@@ -822,7 +822,7 @@ dissect_interface_information_object(tvbuff_t * tvb, int offset,
 
 	/*if ifIndex is set, next 32 bits are ifIndex */
 	if (if_index_flag) {
-		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_index, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_index, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
@@ -881,7 +881,7 @@ dissect_interface_information_object(tvbuff_t * tvb, int offset,
 	}
 	/* MTU Sub Object */
 	if (mtu_flag) {
-		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_mtu, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_mtu, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 
 
@@ -924,7 +924,7 @@ dissect_interface_identification_object(tvbuff_t * tvb, int offset,
 			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_name_string, tvb, offset, obj_length - 4, ENC_ASCII);
 			break;
 		case ICMP_EXT_ECHO_IDENT_INDEX:
-			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_index, tvb, offset, 4, ENC_NA);
+			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_index, tvb, offset, 4, ENC_BIG_ENDIAN);
 			break;
 		case ICMP_EXT_ECHO_IDENT_ADDRESS:
 			proto_tree_add_item_ret_uint(ext_object_tree, hf_icmp_int_ident_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
@@ -1895,8 +1895,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	case ICMP_RTRADVERT:
 		if (addr_entry_size == 2) {
 			for (i = 0; i < num_addrs; i++) {
-				proto_tree_add_item(icmp_tree, hf_icmp_router_address, tvb, 8 + (i * 8), 4, ENC_NA);
-				proto_tree_add_item(icmp_tree, hf_icmp_pref_level, tvb, 12 + (i * 8), 4, ENC_NA);
+				proto_tree_add_item(icmp_tree, hf_icmp_router_address, tvb, 8 + (i * 8), 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(icmp_tree, hf_icmp_pref_level, tvb, 12 + (i * 8), 4, ENC_BIG_ENDIAN);
 			}
 			if ((icmp_code == 0) || (icmp_code == 16)) {
 				/* Mobile-Ip */

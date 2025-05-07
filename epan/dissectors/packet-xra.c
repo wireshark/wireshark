@@ -449,7 +449,7 @@ dissect_xra_tlv_cw_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, uint1
     ++tlv_index;
     switch (type) {
       case XRA_TLV_CW_INFO_NR_OF_INFO_BYTES:
-        proto_tree_add_item (xra_tlv_cw_info_tree, hf_xra_tlv_cw_info_nr_of_info_bytes, tvb, tlv_index, length, ENC_NA);
+        proto_tree_add_item (xra_tlv_cw_info_tree, hf_xra_tlv_cw_info_nr_of_info_bytes, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       case XRA_TLV_CW_INFO_BCH_DECODING_SUCCESFUL:
         proto_tree_add_item (xra_tlv_cw_info_tree, hf_xra_tlv_cw_info_bch_decoding_successful, tvb, tlv_index, length, ENC_NA);

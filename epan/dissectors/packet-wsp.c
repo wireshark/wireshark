@@ -4145,7 +4145,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
                 goto unknown_address_type;
             }
             proto_tree_add_item (addr_tree, hf_address_ipv4_addr,
-                    tvb, offset, 4, ENC_NA);
+                    tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
 
         case BT_IPv6:

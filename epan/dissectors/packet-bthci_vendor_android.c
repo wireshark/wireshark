@@ -774,7 +774,7 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 if (cp_enable_scmst) {
                     proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_cp_header_scmst, tvb, offset, 1, ENC_NA);
                 } else {
-                    proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_cp_header_scmst_reserved, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_cp_header_scmst_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
                 offset += 1;
 
@@ -993,16 +993,16 @@ dissect_bthci_vendor_android(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 break;
             case 0x0159: /* LE Energy Info */
                 if (status == STATUS_SUCCESS) {
-                    proto_tree_add_item(main_tree, hf_android_le_energy_total_rx_time, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(main_tree, hf_android_le_energy_total_rx_time, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(main_tree, hf_android_le_energy_total_tx_time, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(main_tree, hf_android_le_energy_total_tx_time, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(main_tree, hf_android_le_energy_total_idle_time, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(main_tree, hf_android_le_energy_total_idle_time, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(main_tree, hf_android_le_energy_total_energy_used, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(main_tree, hf_android_le_energy_total_energy_used, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                 }
 

@@ -1102,7 +1102,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				proto_tree_add_item(subtree, hf_bscvlc_header_length, tvb, start + 1, 2, ENC_NA);
+				proto_tree_add_item(subtree, hf_bscvlc_header_length, tvb, start + 1, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(subtree, hf_bscvlc_header_data, tvb, start + 3, npdu_length, ENC_NA);
 			}
 		}
@@ -1136,7 +1136,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				proto_tree_add_item(subtree, hf_bscvlc_header_length, tvb, start + 1, 2, ENC_NA);
+				proto_tree_add_item(subtree, hf_bscvlc_header_length, tvb, start + 1, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(subtree, hf_bscvlc_header_data, tvb, start + 3, npdu_length, ENC_NA);
 			}
 		}
@@ -1200,10 +1200,10 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				offset, 1, ENC_NA);
 		offset++;
 		proto_tree_add_item(subtree, hf_bscvlc_max_bvlc_length, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(subtree, hf_bscvlc_max_npdu_length, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		break;
 	case 0x06: /* Connect-Request */
@@ -1216,10 +1216,10 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				offset, 16, ENC_NA);
 		offset += 16;
 		proto_tree_add_item(subtree, hf_bscvlc_max_bvlc_length, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(subtree, hf_bscvlc_max_npdu_length, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		break;
 	case 0x07: /* Connect-Accept */
@@ -1232,17 +1232,17 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				offset, 16, ENC_NA);
 		offset += 16;
 		proto_tree_add_item(subtree, hf_bscvlc_max_bvlc_length, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(subtree, hf_bscvlc_max_npdu_length, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		break;
 	case 0x0C: /* Proprietary-Message */
 		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
 	                        ett_bscvlc_hdr, NULL, "%s", "Proprietary-Message");
 		proto_tree_add_item(subtree, hf_bscvlc_vendor_id, tvb,
-				offset, 2, ENC_NA);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(subtree, hf_bscvlc_proprietary_opt_type, tvb,
 				offset, 1, ENC_NA);

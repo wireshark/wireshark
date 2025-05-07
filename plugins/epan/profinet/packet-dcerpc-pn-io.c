@@ -5780,19 +5780,19 @@ uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
     offset = dissect_AM_Location(tvb, offset, pinfo, tree, drep);
 
     /* IM_Annotation */
-    proto_tree_add_item(tree, hf_pn_io_im_annotation, tvb, offset, 64, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_im_annotation, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     /* IM_OrderID */
-    proto_tree_add_item(tree, hf_pn_io_im_order_id, tvb, offset, 64, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_im_order_id, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     /* AM_HardwareRevision */
-    proto_tree_add_item(tree, hf_pn_io_am_hardware_revision, tvb, offset, 64, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_am_hardware_revision, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     /* IM_Serial_Number */
-    proto_tree_add_item(tree, hf_pn_io_im_serial_number, tvb, offset, 16, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_im_serial_number, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
     /* AM_DeviceIdentification */
@@ -5834,19 +5834,19 @@ uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
     offset = dissect_AM_Location(tvb, offset, pinfo, tree, drep);
 
     /* IM_Annotation */
-    proto_tree_add_item(tree, hf_pn_io_im_annotation, tvb, offset, 64, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_im_annotation, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     /* IM_OrderID */
-    proto_tree_add_item(tree, hf_pn_io_im_order_id, tvb, offset, 64, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_im_order_id, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     /* AM_SoftwareRevision */
-    proto_tree_add_item(tree, hf_pn_io_am_software_revision, tvb, offset, 64, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_am_software_revision, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     /* IM_Serial_Number */
-    proto_tree_add_item(tree, hf_pn_io_im_serial_number, tvb, offset, 16, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_im_serial_number, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
     /* IM_Software_Revision */
@@ -8267,7 +8267,7 @@ dissect_TSNNetworkControlDataReal_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_nme_name_length, &u16TSNNMENameLength);
 
     /* TSNNMEName */
-    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII);
     offset += u16TSNNMENameLength;
 
     /* Padding */
@@ -8280,7 +8280,7 @@ dissect_TSNNetworkControlDataReal_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_domain_name_length, &u16TSNDomainNameLength);
 
     /* TSNDomainName */
-    proto_tree_add_item(tree, hf_pn_io_tsn_domain_name, tvb, offset, u16TSNDomainNameLength, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_tsn_domain_name, tvb, offset, u16TSNDomainNameLength, ENC_ASCII);
     offset += u16TSNDomainNameLength;
 
     /* Padding */
@@ -8379,7 +8379,7 @@ dissect_TSNNetworkControlDataAdjust_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_nme_name_length, &u16TSNNMENameLength);
 
     /* TSNNMEName */
-    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII);
     offset += u16TSNNMENameLength;
 
     /* Padding */
@@ -8573,7 +8573,7 @@ dissect_TSNDomainQueueConfig_block(tvbuff_t* tvb, int offset,
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
 
-        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_config, tvb, offset, 8, ENC_NA);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_config, tvb, offset, 8, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_queue_config);
 
         /* TSNDomainQueueConfig */
@@ -8627,7 +8627,7 @@ dissect_TSNTimeData_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_message_timeout_factor, &u16MessageTimeoutFactor);
 
     /* TimeSyncProperties */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_time_sync_properties, tvb, offset, 2, ENC_NA);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_time_sync_properties, tvb, offset, 2, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_time_sync_properties);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -8642,7 +8642,7 @@ dissect_TSNTimeData_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_time_domain_name_length, &u8TimeDomainNameLength);
 
     /* TimeDomainName */
-    proto_tree_add_item(tree, hf_pn_io_time_domain_name, tvb, offset, u8TimeDomainNameLength, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pn_io_time_domain_name, tvb, offset, u8TimeDomainNameLength, ENC_ASCII);
     offset += u8TimeDomainNameLength;
 
     /* Padding */
@@ -8736,7 +8736,7 @@ dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
                 hf_pn_io_length_peer_port_name, &u8LengthPeerPortName);
 
             /* PeerPortName */
-            proto_tree_add_item(tree, hf_pn_io_peer_port_name, tvb, offset, u8LengthPeerPortName, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(tree, hf_pn_io_peer_port_name, tvb, offset, u8LengthPeerPortName, ENC_ASCII);
             offset += u8LengthPeerPortName;
 
             /* LengthPeerStationName */
@@ -8744,7 +8744,7 @@ dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
                 hf_pn_io_length_peer_station_name, &u8LengthPeerStationName);
 
             /* PeerStationName */
-            proto_tree_add_item(tree, hf_pn_io_peer_station_name, tvb, offset, u8LengthPeerStationName, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(tree, hf_pn_io_peer_station_name, tvb, offset, u8LengthPeerStationName, ENC_ASCII);
             offset += u8LengthPeerStationName;
 
             /* Padding */
@@ -8810,7 +8810,7 @@ dissect_TSNDomainPortIngressRateLimiter_block(tvbuff_t* tvb, int offset,
         u16NumberofEntries--;
 
         /* TSNDomainPortIngressRateLimiter */
-        sub_item_port_ingress = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_ingress_rate_limiter, tvb, offset, 8, ENC_NA);
+        sub_item_port_ingress = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_ingress_rate_limiter, tvb, offset, 8, ENC_BIG_ENDIAN);
         sub_tree_port_ingress = proto_item_add_subtree(sub_item_port_ingress, ett_pn_io_tsn_domain_port_ingress_rate_limiter);
 
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
@@ -8851,7 +8851,7 @@ dissect_TSNDomainQueueRateLimiter_block(tvbuff_t* tvb, int offset,
         u16NumberofEntries--;
 
         /* TSNDomainQueueRateLimiter */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_rate_limiter, tvb, offset, 8, ENC_NA);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_rate_limiter, tvb, offset, 8, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_queue_rate_limiter);
 
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
@@ -11329,7 +11329,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     {
         dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_uuid, &aruuid);
 
-        sub_item = proto_tree_add_item(tree, hf_pn_io_ar_uuid, tvb, offset, 16, ENC_NA);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_ar_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_info);
 
         proto_tree_add_item(sub_tree, hf_pn_io_ar_discriminator, tvb, offset, 6, ENC_NA);
@@ -13065,7 +13065,7 @@ dissect_CommunityName_block(tvbuff_t *tvb, int offset,
     offset += 1;
 
     /* community Name */
-    proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name, tvb, offset, u8CommunityNameLength, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(sub_tree, hf_pn_io_snmp_community_name, tvb, offset, u8CommunityNameLength, ENC_ASCII);
 
     proto_item_append_text(sub_item, ": %s",
         tvb_get_string_enc(pinfo->pool, tvb, offset, u8CommunityNameLength, ENC_ASCII|ENC_NA));

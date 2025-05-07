@@ -5991,7 +5991,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0068: /* LE Create BIG */
-            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
             offset++;
@@ -6018,7 +6018,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0069: /* LE Create BIG Test */
-            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_advertising_handle, tvb, offset, 1, ENC_NA);
             offset++;
@@ -6053,7 +6053,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x006A: /* LE Terminate BIG */
-            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_NA);
             offset++;
@@ -6063,7 +6063,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             {
             uint8_t num_bis;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
@@ -6086,7 +6086,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x006C: /* LE BIG Terminate Sync */
-            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_cmd_big_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             break;
 
@@ -6356,21 +6356,21 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_cmd_rtt_random_n, tvb, offset, 1, ENC_NA);
             offset += 1;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_nadm_sounding_capability, ett_cs_capability, hfx_bthci_cmd_nadm_sounding_capability, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_nadm_sounding_capability, ett_cs_capability, hfx_bthci_cmd_nadm_sounding_capability, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_nadm_random_capability, ett_cs_capability, hfx_bthci_cmd_nadm_random_capability, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_nadm_random_capability, ett_cs_capability, hfx_bthci_cmd_nadm_random_capability, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_sync_phys_supported, ett_cs_capability, hfx_bthci_cmd_cs_sync_phys_supported, ENC_NA);
             offset++;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_subfeatures_supported, ett_cs_capability, hfx_bthci_cmd_cs_subfeatures, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_cs_subfeatures_supported, ett_cs_capability, hfx_bthci_cmd_cs_subfeatures, ENC_BIG_ENDIAN);
             offset++;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tip1_times_supported, ett_cs_times, hfx_bthci_cmd_tip_times_supported, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tip1_times_supported, ett_cs_times, hfx_bthci_cmd_tip_times_supported, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tip2_times_supported, ett_cs_times, hfx_bthci_cmd_tip_times_supported, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tip2_times_supported, ett_cs_times, hfx_bthci_cmd_tip_times_supported, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tfcs_times_supported, ett_cs_times, hfx_bthci_cmd_tfcs_times_supported, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tfcs_times_supported, ett_cs_times, hfx_bthci_cmd_tfcs_times_supported, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tpm_times_supported, ett_cs_times, hfx_bthci_cmd_tpm_times_supported, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_tpm_times_supported, ett_cs_times, hfx_bthci_cmd_tpm_times_supported, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_cmd_tsw_time_supported, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -6672,7 +6672,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_phys, ett_phy_param, hfx_btcmd_le_phys, ENC_NA);
             offset += 1;
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_spacing_types, ett_spacing_types, hfx_bthci_cmd_spacing_types, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_spacing_types, ett_spacing_types, hfx_bthci_cmd_spacing_types, ENC_BIG_ENDIAN);
             offset += 2;
             break;
 

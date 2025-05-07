@@ -217,14 +217,14 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " (id=0x%x)", opt_id);
                                 offset_in_option += 2;
 
-                                proto_tree_add_item(opt_tree, hf_dsr_opt_rreq_targetaddress, tvb, offset_in_option, 4, ENC_NA); /* Opt rreq target address */
+                                proto_tree_add_item(opt_tree, hf_dsr_opt_rreq_targetaddress, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt rreq target address */
                                 offset_in_option += 4;
 
                                 if(opt_len > 6) {
                                         opt_hoplist_tree = proto_tree_add_subtree(opt_tree, tvb, offset_in_option, 1, ett_dsr_rreq_hoplist, &ti_hoplist, "Hop list" ); /* Opt hop list */
                                         proto_item_append_text(ti_hoplist, " :");
                                         for(i=0;i<(opt_len-4)/4;i++) {
-                                                proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_rreq_address, tvb, offset_in_option, 4, ENC_NA); /* Opt rreq address */
+                                                proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_rreq_address, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt rreq address */
                                                 proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset_in_option));
                                                 offset_in_option += 4;
                                         }
@@ -250,7 +250,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         opt_hoplist_tree = proto_tree_add_subtree(opt_tree, tvb, offset_in_option, 1, ett_dsr_rrep_hoplist, &ti_hoplist, "Hop list" ); /* Opt hop list */
                                         proto_item_append_text(ti_hoplist, " :");
                                         for(i=0;i<(opt_len-1)/4;i++) {
-                                                proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_rrep_address, tvb, offset_in_option, 4, ENC_NA); /*Opt rrep address */
+                                                proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_rrep_address, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /*Opt rrep address */
                                                 proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset_in_option));
                                                 offset_in_option += 4;
                                         }
@@ -276,15 +276,15 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 proto_tree_add_bits_item(opt_tree, hf_dsr_opt_err_salvage, tvb, offset_in_option*8+4, 4, ENC_BIG_ENDIAN); /*Opt err salvage */
                                 offset_in_option += 1;
 
-                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_src, tvb, offset_in_option, 4, ENC_NA); /*Opt err source address */
+                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_src, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /*Opt err source address */
                                 offset_in_option += 4;
 
-                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_dest, tvb, offset_in_option, 4, ENC_NA); /* Opt err dest address */
+                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_dest, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt err dest address */
                                 offset_in_option += 4;
 
                                 switch(opt_err_type) {
                                         case DSR_RERR_TYPE_UNREACHABLE:
-                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_unreach_addr, tvb, offset_in_option, 4, ENC_NA); /* Opt err unreachable node address */
+                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_unreach_addr, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt err unreachable node address */
                                                 /*offset_in_option += 4;*/
                                                 break;
                                         case DSR_RERR_TYPE_FLOWSTATENOTSUPPORTED:
@@ -294,14 +294,14 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 /*offset_in_option += 1;*/
                                                 break;
                                         case DSR_RERR_TYPE_UNKNOWNFLOW:
-                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_dest, tvb, offset_in_option, 4, ENC_NA);/* Opt err unknown flow original ip destination address */
+                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_dest, tvb, offset_in_option, 4, ENC_BIG_ENDIAN);/* Opt err unknown flow original ip destination address */
                                                 offset_in_option += 4;
 
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_id, tvb, offset_in_option, 2, ENC_BIG_ENDIAN);/* Opt err unknown flow id */
                                                 /*offset_in_option += 1;*/
                                                 break;
                                         case DSR_RERR_TYPE_DEFAULTFLOWUNKNOWN:
-                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_defaultflowunknown_dest, tvb, offset_in_option, 4, ENC_NA);/* opt err default flow unknown original ip destination address */
+                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_defaultflowunknown_dest, tvb, offset_in_option, 4, ENC_BIG_ENDIAN);/* opt err default flow unknown original ip destination address */
                                                 /*offset_in_option += 4;*/
                                                 break;
                                 }
@@ -324,7 +324,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 offset_in_option += 2;
 
                                 if(opt_len >= 6) {
-                                        proto_tree_add_item(opt_tree, hf_dsr_opt_ack_req_address, tvb, offset_in_option, 4, ENC_NA); /* Opt ack req id */
+                                        proto_tree_add_item(opt_tree, hf_dsr_opt_ack_req_address, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt ack req id */
                                         /*offset_in_option += 4;*/
                                 }
                                 break;
@@ -346,10 +346,10 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " (id=0x%x)", opt_id);
                                 offset_in_option += 2;
 
-                                proto_tree_add_item(opt_tree, hf_dsr_opt_ack_src, tvb, offset_in_option, 4, ENC_NA); /* Opt ack source address */
+                                proto_tree_add_item(opt_tree, hf_dsr_opt_ack_src, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt ack source address */
                                 offset_in_option += 4;
 
-                                proto_tree_add_item(opt_tree, hf_dsr_opt_ack_dest, tvb, offset_in_option, 4, ENC_NA); /* Opt ack dest address */
+                                proto_tree_add_item(opt_tree, hf_dsr_opt_ack_dest, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Opt ack dest address */
                                 /*offset_in_option += 4;*/
                                 break;
                         case DSR_OPT_TYPE_SRCRT:
@@ -377,7 +377,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                                         proto_item_append_text(ti_hoplist, " :");
                                         for(i=0;i<(opt_len-2)/4;i++) {
-                                                proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_srcrt_address, tvb, offset_in_option , 4, ENC_NA); /* Opt srcrt addresses */
+                                                proto_tree_add_item(opt_hoplist_tree, hf_dsr_opt_srcrt_address, tvb, offset_in_option , 4, ENC_BIG_ENDIAN); /* Opt srcrt addresses */
                                                 proto_item_append_text(ti_hoplist, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset_in_option));
                                                 offset_in_option  += 4;
                                         }
@@ -432,7 +432,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 proto_tree_add_item(opt_tree, hf_dsr_fs_opt_destflowid_id, tvb, offset_in_option, 2, ENC_BIG_ENDIAN); /* Flow ID */
                                 offset_in_option += 2;
 
-                                proto_tree_add_item(opt_tree, hf_dsr_fs_opt_destflowid_dest, tvb, offset_in_option, 4, ENC_NA); /* Original IP Dest Address */
+                                proto_tree_add_item(opt_tree, hf_dsr_fs_opt_destflowid_dest, tvb, offset_in_option, 4, ENC_BIG_ENDIAN); /* Original IP Dest Address */
                                 /*offset_in_option += 4;*/
                                 break;
                 }

@@ -3036,7 +3036,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                             for (; metric_len > 0; metric_len -= 2) {
                                 ti_opt = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_lc_object, tvb, opt_offset, 2, ENC_NA);
                                 flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_metric_lc_object);
-                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_lc, tvb, opt_offset, 2, ENC_NA);
+                                proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_lc, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                                 if (metric_constraint_flags & RPL_METRIC_FLAG_C) {
                                     proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                                     proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_metric_lc_object_flag_i, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
@@ -5016,13 +5016,13 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 /* Locator / Preference / Lifetime */
                 for (i=0; i < nb_locs; i++){
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_locator, tvb, offset, 8, ENC_NA);
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_locator, tvb, offset, 8, ENC_BIG_ENDIAN);
                     offset += 8;
 
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_preference, tvb, offset, 2, ENC_NA);
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_preference, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_lifetime, tvb, offset, 2, ENC_NA);
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_lifetime, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
                 }

@@ -1333,7 +1333,7 @@ handle_message_field(tvbuff_t      *tvb,
     handle_message_header_expected_byte(tvb, offset, field_tree, 0x01);
     offset += 1;
 
-    item = proto_tree_add_item(field_tree, hf_alljoyn_mess_body_header_typeid, tvb, offset, 1, ENC_NA);
+    item = proto_tree_add_item(field_tree, hf_alljoyn_mess_body_header_typeid, tvb, offset, 1, ENC_ASCII);
     type_id = tvb_get_uint8(tvb, offset);
     offset += 1;
 
@@ -1550,7 +1550,7 @@ handle_message_header_body(tvbuff_t    *tvb,
     header_item = proto_tree_add_item(message_tree, hf_alljoyn_mess_header, tvb, offset, MESSAGE_HEADER_LENGTH, ENC_NA);
     header_tree = proto_item_add_subtree(header_item, ett_alljoyn_header);
 
-    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_endian, tvb, offset + ENDIANNESS_OFFSET, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_endian, tvb, offset + ENDIANNESS_OFFSET, 1, ENC_ASCII);
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_type, tvb, offset + TYPE_OFFSET, 1, ENC_NA);
 
     /* The flags byte. */
@@ -1957,13 +1957,13 @@ ns_parse_answers_v1(tvbuff_t *tvb, int* offset, proto_tree* alljoyn_tree, uint8_
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
         /* The individual bits of the transport mask. */
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wfd,       tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_ice,       tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_lan,       tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wwan,      tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_tcp,       tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_bluetooth, tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_local,     tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wfd,       tvb, *offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_ice,       tvb, *offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_lan,       tvb, *offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wwan,      tvb, *offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_tcp,       tvb, *offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_bluetooth, tvb, *offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_local,     tvb, *offset, 2, ENC_BIG_ENDIAN);
 
         (*offset) += 2;
 

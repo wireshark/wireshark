@@ -456,7 +456,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         switch (type) {
             case 1: /* IP Address */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_ip, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
             break;
             case 2: /* Serial Number */
@@ -472,43 +472,43 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_item_append_text(tlv_item, ": %s", tvb_get_ether_name(tvb, offset));
                 break;
             case 7: /* License AP remaining  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_ap_remaining, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_ap_remaining, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 8: /* License PEF remaining  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_pef_remaining, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_pef_remaining, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 9: /* License RFP remaining  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_rfp_remaining, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_rfp_remaining, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 10: /* License xSec remaining  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_xsec_remaining, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_xsec_remaining, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 11: /* License ACR remaining  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_acr_remaining, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_acr_remaining, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 12: /* License AP used  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_ap_used, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_ap_used, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 13: /* License PEF used  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_pef_used, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_pef_used, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 14: /* License RFP used  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_rfp_used, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_rfp_used, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 15: /* License xSec used  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_xsec_used, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_xsec_used, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
             case 16: /* License ACR used  */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_acr_used, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_acr_used, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
             break;
         }

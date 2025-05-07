@@ -624,7 +624,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
         switch (tlv.type) {
             case BMPv4_TLV_TYPE_GROUP: {
 
-                proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_group_id, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_group_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
                 int list_length = tlv.length - 2 /* group id is not in list */;
@@ -635,7 +635,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
                 proto_item *subtree = proto_item_add_subtree(ti, ett_bmpv4_tlv_value);
 
                 for (int i = 0; i < list_count; i++) {
-                    proto_tree_add_item(subtree, hf_bmpv4_tlv_value_index, tvb, offset, BMPv4_TLV_LENGTH_GROUP_ITEM, ENC_NA);
+                    proto_tree_add_item(subtree, hf_bmpv4_tlv_value_index, tvb, offset, BMPv4_TLV_LENGTH_GROUP_ITEM, ENC_BIG_ENDIAN);
                     offset += BMPv4_TLV_LENGTH_GROUP_ITEM;
                 }
 
@@ -655,13 +655,13 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
             case BMPv4_TLV_TYPE_BGP_PATH_STATUS: {
                 bool has_reason = tlv.length > BMPv4_TLV_LENGTH_PATH_STATUS_STATUS_LENGTH;
 
-                proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_bmpv4_tlv_path_status_status, ett_bmpv4_tlv_path_status, hf_bmpv4_tlv_path_status, ENC_ASCII);
+                proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_bmpv4_tlv_path_status_status, ett_bmpv4_tlv_path_status, hf_bmpv4_tlv_path_status, ENC_BIG_ENDIAN);
                 offset += BMPv4_TLV_LENGTH_PATH_STATUS_STATUS_LENGTH;
 
                 if (!has_reason)
                     break;
 
-                proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_path_status_reason, tvb, offset, BMPv4_TLV_LENGTH_PATH_STATUS_REASON_LENGTH, ENC_ASCII);
+                proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_path_status_reason, tvb, offset, BMPv4_TLV_LENGTH_PATH_STATUS_REASON_LENGTH, ENC_BIG_ENDIAN);
                 offset += BMPv4_TLV_LENGTH_PATH_STATUS_REASON_LENGTH;
                 break;
             }
@@ -1266,7 +1266,7 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 {
     uint32_t single_event_length;
 
-    proto_tree_add_item_ret_uint(tree, hf_route_policy_single_event_length, tvb, offset, 2, ENC_NA, &single_event_length);
+    proto_tree_add_item_ret_uint(tree, hf_route_policy_single_event_length, tvb, offset, 2, ENC_BIG_ENDIAN, &single_event_length);
     offset += 2;
     single_event_length -=2;
 
@@ -1353,14 +1353,14 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
                 } else {
                     proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_reserved, tvb, offset, 12, ENC_NA);
                     offset += 12;
-                    proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_ipv4, tvb, offset, 4, ENC_NA);
+                    proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 }
 
-                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_router_id, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_router_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_as, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_policy_peer_as, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 while(policy_count){
@@ -1373,10 +1373,10 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
                     policy_tree = proto_item_add_subtree(policy_item, ett_bmp_route_policy_tlv_policy);
 
 
-                    proto_tree_add_item_ret_uint(policy_tree, hf_route_policy_tlv_policy_name_length, tvb, offset, 2, ENC_NA, &policy_name_length);
+                    proto_tree_add_item_ret_uint(policy_tree, hf_route_policy_tlv_policy_name_length, tvb, offset, 2, ENC_BIG_ENDIAN, &policy_name_length);
                     offset += 2;
 
-                    proto_tree_add_item_ret_uint(policy_tree, hf_route_policy_tlv_policy_item_id_length, tvb, offset, 2, ENC_NA, &policy_item_id_length);
+                    proto_tree_add_item_ret_uint(policy_tree, hf_route_policy_tlv_policy_item_id_length, tvb, offset, 2, ENC_BIG_ENDIAN, &policy_item_id_length);
                     offset += 2;
 
                     proto_item_append_text(policy_tree, ": (t=%d,l=%d)", policy_name_length, policy_item_id_length);
@@ -1477,7 +1477,7 @@ dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
     proto_tree_add_bitmask(tree, tvb, offset, hf_route_policy_flags, ett_bmp_route_policy_flags, route_policy_flags, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_route_policy_rd, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(tree, hf_route_policy_rd, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     proto_tree_add_item(tree, hf_route_policy_prefix_length, tvb, offset, 1, ENC_NA);
@@ -1489,17 +1489,17 @@ dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
     } else {
         proto_tree_add_item(tree, hf_route_policy_prefix_reserved, tvb, offset, 12, ENC_NA);
         offset += 12;
-        proto_tree_add_item(tree, hf_route_policy_prefix_ipv4, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_route_policy_prefix_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
-    proto_tree_add_item(tree, hf_route_policy_route_origin, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_route_policy_route_origin, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item_ret_uint(tree, hf_route_policy_event_count, tvb, offset, 1, ENC_NA, &event_count);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_route_policy_total_event_length, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_route_policy_total_event_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
    while(event_count){

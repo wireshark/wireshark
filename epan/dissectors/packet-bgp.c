@@ -5151,7 +5151,7 @@ static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, int 
               tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_mp_reach_nlri);
               proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
               proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_router_id_id, tvb, offset + 4, sub_length, ENC_NA);
+              proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_bgp_router_id_id, tvb, offset + 4, sub_length, ENC_BIG_ENDIAN);
           break;
           case BGP_NLRI_TLV_BGP_CONFEDERATION_MEMBER:
               tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_bgp_confederation_member, tvb, offset, sub_length+4, ENC_NA);
@@ -6359,7 +6359,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                                        length, "SRv6 End.X SID", 20);
                 break;
             }
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior, tvb, offset + 4, 2, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_bitmask(tlv_tree, tvb, offset + 6,
                                    hf_bgp_ls_sr_tlv_srv6_endx_sid_flags,
                                    ett_bgp_link_state, srv6_endx_sid_flags, ENC_BIG_ENDIAN);
@@ -6392,7 +6392,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                                        ((protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V2) || (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF_V3)) ? 26 : 28);
                 break;
             }
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior, tvb, offset + 4, 2, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_endpoint_behavior, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_bitmask(tlv_tree, tvb, offset + 6,
                                    hf_bgp_ls_sr_tlv_srv6_endx_sid_flags,
                                    ett_bgp_link_state, srv6_endx_sid_flags, ENC_BIG_ENDIAN);
@@ -6714,7 +6714,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             ti = proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
             if (length == BGP_NLRI_TLV_LEN_IPV4_ROUTER_ID) {
-                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_ipv4_router_id_value, tvb, offset + 4, BGP_NLRI_TLV_LEN_IPV4_ROUTER_ID, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_ipv4_router_id_value, tvb, offset + 4, BGP_NLRI_TLV_LEN_IPV4_ROUTER_ID, ENC_BIG_ENDIAN);
             } else if (length == BGP_NLRI_TLV_LEN_IPV6_ROUTER_ID) {
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_ipv6_router_id_value, tvb, offset + 4, BGP_NLRI_TLV_LEN_IPV6_ROUTER_ID, ENC_NA);
             } else {
@@ -6872,7 +6872,7 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, int offset, pac
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_lacp_mac, tvb,
                                 offset+1, 6, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_portk, tvb,
-                                offset+7, 2, ENC_NA);
+                                offset+7, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
             break;
@@ -6880,7 +6880,7 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, int offset, pac
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_rb_mac, tvb,
                                 offset+1, 6, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_rbprio, tvb,
-                                offset+7, 2, ENC_NA);
+                                offset+7, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
             break;
@@ -9885,7 +9885,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                         break;
 
                     case BGP_EXT_COM_STYPE_EXP_EIGRP_RID:
-                       proto_tree_add_item(community_tree, hf_bgp_ext_com_eigrp_rid, tvb, offset+4, 4, ENC_NA);
+                       proto_tree_add_item(community_tree, hf_bgp_ext_com_eigrp_rid, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                        proto_item_append_text(community_tree, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset+4));
                      break;
                 }
@@ -10525,7 +10525,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                 /* snarf each cluster identifier */
                 while (q < end) {
                     proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_id,
-                                        tvb, q - 3 + aoff, 4, ENC_NA);
+                                        tvb, q - 3 + aoff, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, " %s", tvb_ip_to_str(pinfo->pool, tvb, q-3+aoff));
                     proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(pinfo->pool, tvb, q-3+aoff));
                     q += 4;
@@ -11083,7 +11083,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_reserved, tvb, sub_pnt + 3, 1, ENC_NA);
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sid_value, tvb, sub_pnt + 4, 16, ENC_NA);
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sid_flags, tvb, sub_pnt + 20, 1, ENC_NA);
-                                        proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_srv6_endpoint_behavior, tvb, sub_pnt + 21, 2, ENC_NA);
+                                        proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_srv6_endpoint_behavior, tvb, sub_pnt + 21, 2, ENC_BIG_ENDIAN);
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_reserved, tvb, sub_pnt + 23, 1, ENC_NA);
 
                                         srv6_data_sstlv_item = proto_tree_add_item(stlv_tree,
@@ -11177,7 +11177,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_reserved, tvb, sub_pnt + 3, 1, ENC_NA);
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sid_value, tvb, sub_pnt + 4, 16, ENC_NA);
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sid_flags, tvb, sub_pnt + 20, 1, ENC_NA);
-                                        proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_srv6_endpoint_behavior, tvb, sub_pnt + 21, 2, ENC_NA);
+                                        proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_srv6_endpoint_behavior, tvb, sub_pnt + 21, 2, ENC_BIG_ENDIAN);
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_reserved, tvb, sub_pnt + 23, 1, ENC_NA);
 
                                         srv6_data_sstlv_item = proto_tree_add_item(stlv_tree,
@@ -11533,7 +11533,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                 offset = dissect_bgp_capability_item(tvb, tree, pinfo, offset, false);
             }
         } else if (major_error == BGP_MAJOR_ERROR_OPEN_MSG && minor_cease == 2 ) { /* Display Bad Peer AS Number */
-            proto_tree_add_item(tree, hf_bgp_notify_error_open_bad_peer_as, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_error_open_bad_peer_as, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_BIG_ENDIAN);
         } else {
             proto_tree_add_item(tree, hf_bgp_notify_data, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_NA);
         }

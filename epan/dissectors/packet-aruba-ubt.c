@@ -320,7 +320,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     }
 
     /* adding Switch Sequence Number to tree */
-    proto_tree_add_item(message_tree, hf_ubt_switch_seqno, tvb, offset, SEQ_NO_SIZE, ENC_NA);
+    proto_tree_add_item(message_tree, hf_ubt_switch_seqno, tvb, offset, SEQ_NO_SIZE, ENC_BIG_ENDIAN);
 
     /* appending to info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " seq:%d", tvb_get_uint32(tvb, offset, ENC_NA));
@@ -358,7 +358,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         /* adding type & length to TLV subtree */
         proto_tree_add_item(message_subtree2, hf_ubt_type, tvb, offset, TYPE_SIZE, ENC_NA);
         offset += TYPE_SIZE;
-        proto_tree_add_item(message_subtree2, hf_ubt_length, tvb, offset, LENGTH_SIZE, ENC_NA);
+        proto_tree_add_item(message_subtree2, hf_ubt_length, tvb, offset, LENGTH_SIZE, ENC_BIG_ENDIAN);
         offset += LENGTH_SIZE;
 
         /* Different data types */
