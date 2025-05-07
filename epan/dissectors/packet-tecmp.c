@@ -224,6 +224,44 @@ static int hf_tecmp_payload_analog_alt_sample_scalar;
 static int hf_tecmp_payload_analog_alt_sample_raw;
 static int hf_tecmp_payload_analog_alt_sample;
 
+/* GPIO */
+/* define 32 GPIOs for now */
+static int hf_tecmp_payload_data_gpio_0;
+static int hf_tecmp_payload_data_gpio_1;
+static int hf_tecmp_payload_data_gpio_2;
+static int hf_tecmp_payload_data_gpio_3;
+static int hf_tecmp_payload_data_gpio_4;
+static int hf_tecmp_payload_data_gpio_5;
+static int hf_tecmp_payload_data_gpio_6;
+static int hf_tecmp_payload_data_gpio_7;
+
+static int hf_tecmp_payload_data_gpio_8;
+static int hf_tecmp_payload_data_gpio_9;
+static int hf_tecmp_payload_data_gpio_10;
+static int hf_tecmp_payload_data_gpio_11;
+static int hf_tecmp_payload_data_gpio_12;
+static int hf_tecmp_payload_data_gpio_13;
+static int hf_tecmp_payload_data_gpio_14;
+static int hf_tecmp_payload_data_gpio_15;
+
+static int hf_tecmp_payload_data_gpio_16;
+static int hf_tecmp_payload_data_gpio_17;
+static int hf_tecmp_payload_data_gpio_18;
+static int hf_tecmp_payload_data_gpio_19;
+static int hf_tecmp_payload_data_gpio_20;
+static int hf_tecmp_payload_data_gpio_21;
+static int hf_tecmp_payload_data_gpio_22;
+static int hf_tecmp_payload_data_gpio_23;
+
+static int hf_tecmp_payload_data_gpio_24;
+static int hf_tecmp_payload_data_gpio_25;
+static int hf_tecmp_payload_data_gpio_26;
+static int hf_tecmp_payload_data_gpio_27;
+static int hf_tecmp_payload_data_gpio_28;
+static int hf_tecmp_payload_data_gpio_29;
+static int hf_tecmp_payload_data_gpio_30;
+static int hf_tecmp_payload_data_gpio_31;
+
 /* ILaS */
 static int hf_tecmp_payload_data_ilas_decoded_command;
 static int hf_tecmp_payload_data_ilas_decoded_address;
@@ -1275,6 +1313,12 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         NULL
     };
 
+    static int * const dataflags_gpio[] = {
+        &hf_tecmp_payload_data_flags_overflow,
+        &hf_tecmp_payload_data_flags_tx,
+        NULL
+    };
+
     static int * const dataflags_ilas[] = {
         &hf_tecmp_payload_data_flags_crc,
 
@@ -1359,6 +1403,10 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         case TECMP_DATA_TYPE_FR_DATA:
             proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_flexray_data, ENC_BIG_ENDIAN);
+            break;
+
+        case TECMP_DATA_TYPE_GPIO:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_data_flags, ett_tecmp_payload_dataflags, dataflags_gpio, ENC_BIG_ENDIAN);
             break;
 
         case TECMP_DATA_TYPE_ILAS:
@@ -2184,6 +2232,60 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
                 break;
 
+            case TECMP_DATA_TYPE_GPIO:
+                if (1 <= length) {
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_0, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_1, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_2, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_3, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_4, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_5, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_6, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_7, sub_tvb, offset2, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(sub_tvb, offset2));
+                    offset2 += 1;
+                }
+
+                if (2 <= length) {
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_8, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_9, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_10, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_11, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_12, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_13, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_14, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_15, sub_tvb, offset2, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(sub_tvb, offset2));
+                    offset2 += 1;
+                }
+
+                if (3 <= length) {
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_16, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_17, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_18, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_19, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_20, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_21, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_22, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_23, sub_tvb, offset2, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(sub_tvb, offset2));
+                    offset2 += 1;
+                }
+
+                if (4 <= length) {
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_24, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_25, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_26, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_27, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_28, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_29, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_30, sub_tvb, offset2, 1, ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_gpio_31, sub_tvb, offset2, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(sub_tvb, offset2));
+                    // offset2 += 1;
+                }
+                break;
+
             case TECMP_DATA_TYPE_ILAS:
                 proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_ilas_decoded_command, sub_tvb, offset2, 1, ENC_NA);
                 offset2 += 1;
@@ -2815,6 +2917,43 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_analog_alt_sample_scalar,                       { "Sample Scalar", "tecmp.payload.analog_alt.sample_scalar", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_analog_alt_sample_raw,                          { "Sample Raw", "tecmp.payload.analog_alt.sample_raw", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_analog_alt_sample,                              { "Sample", "tecmp.payload.analog_alt.sample", FT_DOUBLE, BASE_EXP, NULL, 0x0, NULL, HFILL } },
+
+        /* GPIO */
+        { &hf_tecmp_payload_data_gpio_0,                                    { "GPIO 0", "tecmp.payload.gpio_0", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_1,                                    { "GPIO 1", "tecmp.payload.gpio_1", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_2,                                    { "GPIO 2", "tecmp.payload.gpio_2", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_3,                                    { "GPIO 3", "tecmp.payload.gpio_3", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_4,                                    { "GPIO 4", "tecmp.payload.gpio_4", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_5,                                    { "GPIO 5", "tecmp.payload.gpio_5", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_6,                                    { "GPIO 6", "tecmp.payload.gpio_6", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_7,                                    { "GPIO 7", "tecmp.payload.gpio_7", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+
+        { &hf_tecmp_payload_data_gpio_8,                                    { "GPIO 8", "tecmp.payload.gpio_8", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_9,                                    { "GPIO 9", "tecmp.payload.gpio_9", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_10,                                   { "GPIO 10", "tecmp.payload.gpio_10", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_11,                                   { "GPIO 11", "tecmp.payload.gpio_11", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_12,                                   { "GPIO 12", "tecmp.payload.gpio_12", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_13,                                   { "GPIO 13", "tecmp.payload.gpio_13", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_14,                                   { "GPIO 14", "tecmp.payload.gpio_14", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_15,                                   { "GPIO 15", "tecmp.payload.gpio_15", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+
+        { &hf_tecmp_payload_data_gpio_16,                                   { "GPIO 16", "tecmp.payload.gpio_16", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_17,                                   { "GPIO 17", "tecmp.payload.gpio_17", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_18,                                   { "GPIO 18", "tecmp.payload.gpio_18", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_19,                                   { "GPIO 19", "tecmp.payload.gpio_19", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_20,                                   { "GPIO 20", "tecmp.payload.gpio_20", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_21,                                   { "GPIO 21", "tecmp.payload.gpio_21", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_22,                                   { "GPIO 22", "tecmp.payload.gpio_22", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_23,                                   { "GPIO 23", "tecmp.payload.gpio_23", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+
+        { &hf_tecmp_payload_data_gpio_24,                                   { "GPIO 24", "tecmp.payload.gpio_24", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_25,                                   { "GPIO 25", "tecmp.payload.gpio_25", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_26,                                   { "GPIO 26", "tecmp.payload.gpio_26", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_27,                                   { "GPIO 27", "tecmp.payload.gpio_27", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_28,                                   { "GPIO 28", "tecmp.payload.gpio_28", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_29,                                   { "GPIO 29", "tecmp.payload.gpio_29", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_30,                                   { "GPIO 30", "tecmp.payload.gpio_30", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_tecmp_payload_data_gpio_31,                                   { "GPIO 31", "tecmp.payload.gpio_31", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
 
         /* ILaS */
         { &hf_tecmp_payload_data_ilas_decoded_command,                      { "Decoded API Command", "tecmp.payload.ilas_decoded_command", FT_UINT8, BASE_DEC, VALS(tecmp_ilas_command_types), 0x0, NULL, HFILL } },
