@@ -9,6 +9,12 @@
 #ifndef __PCAP_MODULE_H__
 #define __PCAP_MODULE_H__
 
+#include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * These are the officially registered block types, from the pcapng
  * specification.
@@ -207,5 +213,25 @@ void pcapng_process_string_option(wtapng_block_t *wblock, uint16_t option_code,
 WS_DLL_PUBLIC
 void pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
                                  uint16_t option_length, const uint8_t *option_content);
+
+typedef uint32_t (*compute_option_size_func)(wtap_block_t, unsigned, wtap_opttype_e, wtap_optval_t*);
+
+typedef struct compute_options_size_t
+{
+    uint32_t size;
+    compute_option_size_func compute_option_size;
+} compute_options_size_t;
+
+WS_DLL_PUBLIC
+uint32_t pcapng_compute_options_size(wtap_block_t block, compute_option_size_func compute_option_size);
+
+typedef bool (*write_option_func)(wtap_dumper *, wtap_block_t, unsigned, wtap_opttype_e, wtap_optval_t*, int*);
+
+WS_DLL_PUBLIC
+bool pcapng_write_options(wtap_dumper *wdh, wtap_block_t block, write_option_func write_option, int *err);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PCAP_MODULE_H__ */

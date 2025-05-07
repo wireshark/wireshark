@@ -9,7 +9,8 @@
 #ifndef __W_PCAPNG_H__
 #define __W_PCAPNG_H__
 
-#include <glib.h>
+#include <stdint.h>
+
 #include "wtap.h"
 #include "ws_symbol_export.h"
 
