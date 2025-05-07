@@ -41,6 +41,21 @@ static int hf_rdpdr_deviceId;
 static int hf_rdpdr_dosName;
 static int hf_rdpdr_deviceDataLen;
 static int hf_rdpdr_deviceData;
+static int hf_rdpdr_numCapabilities;
+static int hf_rdpdr_padding;
+static int hf_rdpdr_capaType;
+static int hf_rdpdr_capaLen;
+static int hf_rdpdr_capaVersion;
+static int hf_rdpdr_capa_gen_osType;
+static int hf_rdpdr_capa_gen_osVersion;
+static int hf_rdpdr_capa_gen_protocolMajor;
+static int hf_rdpdr_capa_gen_protocolMinor;
+static int hf_rdpdr_capa_gen_ioCode1;
+static int hf_rdpdr_capa_gen_ioCode2;
+static int hf_rdpdr_capa_gen_extendedPdu;
+static int hf_rdpdr_capa_gen_extraFlags1;
+static int hf_rdpdr_capa_gen_extraFlags2;
+static int hf_rdpdr_capa_gen_specialTypeDeviceCap;
 static int hf_rdpdr_fileId;
 static int hf_rdpdr_completionId;
 static int hf_rdpdr_ioreq_dr_majorFunction;
@@ -56,6 +71,7 @@ static int hf_rdpdr_create_info;
 
 static int ett_rdpdr;
 static int ett_rdpdr_device;
+static int ett_rdpdr_capabilities;
 
 enum {
 	RDPDR_CTYP_CORE = 0x4472,
@@ -84,6 +100,23 @@ enum {
 	RDPDR_DTYP_PRINT = 0x04,
 	RDPDR_DTYP_FILESYSTEM = 0x08,
 	RDPDR_DTYP_SMARTCARD = 0x20,
+};
+
+enum {
+	CAP_GENERAL_TYPE = 0x0001,
+	CAP_PRINTER_TYPE = 0x0002,
+	CAP_PORT_TYPE = 0x0003,
+	CAP_DRIVE_TYPE = 0x0004,
+	CAP_SMARTCARD_TYPE = 0x0005
+};
+
+static const value_string rdpdr_capaType_vals[] = {
+	{ CAP_GENERAL_TYPE, "General" },
+	{ CAP_PRINTER_TYPE, "Printer" },
+	{ CAP_PORT_TYPE, "Port" },
+	{ CAP_DRIVE_TYPE, "Drive" },
+	{ CAP_SMARTCARD_TYPE, "Smartcard" },
+	{ 0x0, NULL},
 };
 
 enum {
@@ -253,10 +286,10 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 	if (component == RDPDR_CTYP_CORE) {
 		switch(packetId) {
 		case PAKID_CORE_SERVER_ANNOUNCE:
-			col_set_str(pinfo->cinfo, COL_INFO, "Server announce");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Server announce");
 			break;
 		case PAKID_CORE_DEVICELIST_ANNOUNCE: {
-			col_set_str(pinfo->cinfo, COL_INFO, "Device list announce");
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Device list announce");
 			uint32_t deviceCount;
 			proto_tree_add_item_ret_uint(tree, hf_rdpdr_deviceCount, tvb, offset, 4, ENC_LITTLE_ENDIAN, &deviceCount);
 			offset += 4;
@@ -460,6 +493,80 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 			break;
 		}
 
+		case PAKID_CORE_CLIENT_CAPABILITY:
+		case PAKID_CORE_SERVER_CAPABILITY: {
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str_const(packetId, rdpdr_packetid_vals, "<unknown command>"));
+
+			uint32_t ncapa;
+			proto_tree_add_item_ret_uint(tree, hf_rdpdr_numCapabilities, tvb, offset, 2, ENC_LITTLE_ENDIAN, &ncapa);
+			offset += 2;
+
+			proto_tree_add_item(tree, hf_rdpdr_padding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+
+
+			for (uint32_t i = 0; i < ncapa; i++) {
+				uint32_t capaType = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+				uint32_t capaLen = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+
+
+				tvbuff_t *capaTvb = tvb_new_subset_length(tvb, offset, capaLen);
+				offset += capaLen;
+
+				int subOffset = 0;
+				proto_tree *subtree = proto_tree_add_subtree(tree, capaTvb, 0, capaLen, ett_rdpdr_capabilities, NULL, val_to_str(capaType, rdpdr_capaType_vals, "<unknown>"));
+				proto_tree_add_item(subtree, hf_rdpdr_capaType, capaTvb, subOffset, 2, ENC_LITTLE_ENDIAN);
+				subOffset += 2;
+
+				proto_tree_add_item(subtree, hf_rdpdr_capaLen, capaTvb, subOffset, 2, ENC_LITTLE_ENDIAN);
+				subOffset += 2;
+
+				uint32_t capaVersion;
+				proto_tree_add_item_ret_uint(subtree, hf_rdpdr_capaVersion, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN, &capaVersion);
+				subOffset += 4;
+
+				switch (capaType) {
+				case CAP_GENERAL_TYPE:
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_osType, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_osVersion, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_protocolMajor, capaTvb, subOffset, 2, ENC_LITTLE_ENDIAN);
+					subOffset += 2;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_protocolMinor, capaTvb, subOffset, 2, ENC_LITTLE_ENDIAN);
+					subOffset += 2;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_ioCode1, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_ioCode2, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_extendedPdu, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_extraFlags1, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					proto_tree_add_item(subtree, hf_rdpdr_capa_gen_extraFlags2, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					subOffset += 4;
+
+					if (capaVersion == 0x00000002)
+						proto_tree_add_item(subtree, hf_rdpdr_capa_gen_specialTypeDeviceCap, capaTvb, subOffset, 4, ENC_LITTLE_ENDIAN);
+					break;
+
+				case CAP_PRINTER_TYPE:
+				case CAP_SMARTCARD_TYPE:
+				case CAP_PORT_TYPE:
+				case CAP_DRIVE_TYPE:
+					break;
+				}
+			}
+			break;
+		}
 		default:
 			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str_const(packetId, rdpdr_packetid_vals, "<unknown command>"));
 			break;
@@ -569,12 +676,87 @@ void proto_register_rdpdr(void) {
 			FT_UINT8, BASE_HEX, VALS(rdpdr_dr_createinfo_vals), 0x0,
 			NULL, HFILL }
 		},
-
+		{ &hf_rdpdr_numCapabilities,
+		  { "numCapabilities", "rdpdr.numcapabilities",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_padding,
+		  { "Padding", "rdpdr.padding",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capaType,
+		  { "Type", "rdpdr.capa.type",
+			FT_UINT16, BASE_HEX, VALS(rdpdr_capaType_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capaLen,
+		  { "Length", "rdpdr.capa.lenght",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capaVersion,
+		  { "Version", "rdpdr.capa.version",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_osType,
+		  { "osType", "rdpdr.capa.gen.ostype",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_osVersion,
+		  { "osVersion", "rdpdr.capa.gen.osversion",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_protocolMajor,
+		  { "protocolMajorVersion", "rdpdr.capa.gen.protocolmajor",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_protocolMinor,
+		  { "protocolMinorVersion", "rdpdr.capa.gen.protocolminor",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_ioCode1,
+		  { "ioCode1", "rdpdr.capa.gen.iocode1",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_ioCode2,
+		  { "ioCode2", "rdpdr.capa.gen.iocode2",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_extendedPdu,
+		  { "extendedPDU", "rdpdr.capa.gen.extendedpdu",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_extraFlags1,
+		  { "extraFlags1", "rdpdr.capa.gen.extraflags1",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_extraFlags2,
+		  { "extraFlags2", "rdpdr.capa.gen.extraflags2",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_capa_gen_specialTypeDeviceCap,
+		  { "specialTypeDeviceCap", "rdpdr.capa.gen.specialtypedevicecap",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
 	};
 
 	static int *ett[] = {
 		&ett_rdpdr,
 		&ett_rdpdr_device,
+		&ett_rdpdr_capabilities,
 	};
 
 	proto_rdpdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
