@@ -9083,7 +9083,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case (NTOP_BASE + 204):           /* ORACLE_QUERY_DURATION */
         case ((VENDOR_NTOP << 16) | 204): /* ORACLE_QUERY_DURATION */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_oracle_query_duration,
-                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 205):           /* DNS_QUERY */

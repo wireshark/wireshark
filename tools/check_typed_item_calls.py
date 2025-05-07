@@ -97,7 +97,143 @@ item_lengths['FT_IPv6']   = 16
 # TODO: other types...
 
 
-def check_call_enc_matches_item(items_defined, call, item):
+# Checking encoding args against item types.
+
+# item type -> set<encodings>
+# TODO: need to capture that they may include endian *and* some other property..
+compatible_encoding_args = {
+    # doc/README.dissector says these should all be ENC_NA
+    'FT_NONE' :      set(['ENC_NA']),
+    'FT_BYTES' :     set(['ENC_NA']),
+    'FT_ETHER' :     set(['ENC_NA']),  # TODO: consider allowing 'ENC_LITTLE_ENDIAN' ?
+    'FT_IPv6' :      set(['ENC_NA']),
+    'FT_IPXNET' :    set(['ENC_NA']),
+    'FT_OID' :       set(['ENC_NA']),
+    'FT_REL_OID' :   set(['ENC_NA']),
+    'FT_AX25' :      set(['ENC_NA']),
+    'FT_VINES' :     set(['ENC_NA']),
+    'FT_SYSTEM_ID' : set(['ENC_NA']),
+    'FT_FCWWN' :     set(['ENC_NA']),
+
+    # TODO: FT_UINT_BYTES should have e.g., ENC_LITTLE_ENDIAN|ENC_NA
+
+    'FT_IPv4' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+
+
+    'FT_STRING' :    set(['ENC_ASCII',
+                          'ENC_UTF_8',
+                          'ENC_UTF_16',
+                          'ENC_UCS_2',
+                          'ENC_UCS_4',
+                          'ENC_WINDOWS_1250', 'ENC_WINDOWS_1251', 'ENC_WINDOWS_1252',
+                          'ENC_ISO_646_BASIC',
+                          'ENC_ISO_8859_1', 'ENC_ISO_8859_2', 'ENC_ISO_8859_3', 'ENC_ISO_8859_4',
+                          'ENC_ISO_8859_5', 'ENC_ISO_8859_6', 'ENC_ISO_8859_7', 'ENC_ISO_8859_8',
+                          'ENC_ISO_8859_9', 'ENC_ISO_8859_10', 'ENC_ISO_8859_11', 'ENC_ISO_8859_12',
+                          'ENC_ISO_8859_13', 'ENC_ISO_8859_14', 'ENC_ISO_8859_15', 'ENC_ISO_8859_16',
+                          'ENC_3GPP_TS_23_038_7BITS',
+                          'ENC_3GPP_TS_23_038_7BITS_UNPACKED',
+                          'ENC_ETSI_TS_102_221_ANNEX_A',
+                          'ENC_EBCDIC',
+                          'ENC_EBCDIC_CP037',
+                          'ENC_EBCDIC_CP500',
+                          'ENC_MAC_ROMAN',
+                          'ENC_CP437',
+                          'ENC_CP855',
+                          'ENC_CP866',
+                          'ENC_ASCII_7BITS',
+                          'ENC_T61',
+                          'ENC_BCD_DIGITS_0_9', 'ENC_BCD_SKIP_FIRST',
+                          'ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',   # These are allowed if ENC_BCD_DIGITS_0_9 is set..
+                          'ENC_KEYPAD_ABC_TBCD',
+                          'ENC_KEYPAD_BC_TBCD',
+                          'ENC_GB18030',
+                          'ENC_EUC_KR',
+                          'ENC_DECT_STANDARD_8BITS',
+                          'ENC_DECT_STANDARD_4BITS_TBCD',
+                          ]),
+
+    'FT_CHAR' :      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?
+
+    # Integral types
+    'FT_UINT8' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
+    'FT_INT8' :      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
+    'FT_UINT16' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT16' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT24' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT24' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT32' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT32' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT40' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT40' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT48' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT48' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT56' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT56' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_UINT64' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+    'FT_INT64' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
+
+    'FT_GUID' :      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
+    'FT_EUI64' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
+
+    # It does seem harsh to need to set this when field is 8 bits of less..
+    'FT_BOOLEAN' :   set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
+
+
+    # N.B., these fields should also have an endian order...
+    'FT_ABSOLUTE_TIME' :  set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',
+                               'ENC_TIME_SECS_NSECS', 'ENC_TIME_NTP', 'ENC_TIME_TOD',
+                               'ENC_TIME_RTPS', 'ENC_TIME_SECS_USECS', 'ENC_TIME_SECS',
+                               'ENC_TIME_MSECS', 'ENC_TIME_USECS',
+                               'ENC_TIME_NSECS', 'ENC_TIME_SECS_NTP', 'ENC_TIME_RFC_3971',
+                               'ENC_TIME_MSEC_NTP', 'ENC_TIME_MIP6', 'ENC_TIME_CLASSIC_MAC_OS_SECS',
+                               'ENC_TIME_ZBEE_ZCL', 'ENC_TIME_MP4_FILE_SECS']),
+   'FT_RELATIVE_TIME' :   set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',
+                               'ENC_TIME_SECS_NSECS', 'ENC_TIME_SECS_USECS', 'ENC_TIME_SECS',
+                               'ENC_TIME_MSECS', 'ENC_TIME_USECS', 'ENC_TIME_NSECS'])
+}
+
+compatible_encoding_multiple_flags_allowed = set(['FT_ABSOLUTE_TIME', 'FT_RELATIVE_TIME', 'FT_STRING'])
+
+class EncodingCheckerBasic:
+    def __init__(self, type, allowed_encodings, allow_multiple):
+        self.type = type
+        self.allowed_encodings = allowed_encodings
+        self.allow_multiple = allow_multiple
+        self.encodings_seen = 0
+
+    def check(self, encoding, call, api_check):
+        type = self.type
+
+        # Are more encodings allowed?
+        if not self.allow_multiple and self.encodings_seen >= 1:
+            global errors_found
+            print('Error:', api_check.file + ':' + str(call.line_number),
+                  api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' with encoding', encoding, 'but only one encoding flag allowed for type')
+            # TODO: enable once error count is zero..
+            #errors_found += 1
+
+        # Is this encoding allowed for this type?
+        if not encoding in self.allowed_encodings:
+            global warnings_found
+            print('Warning:', api_check.file + ':' + str(call.line_number),
+                  api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ' + '"' + encoding + '"', '-',
+                  compatible_encoding_args[type], 'allowed')
+            warnings_found += 1
+        self.encodings_seen += 1
+
+# Factory for appropriate checker object
+def create_enc_checker(type):
+    if type in compatible_encoding_args:
+        allow_multiple = type in compatible_encoding_multiple_flags_allowed
+        checker = EncodingCheckerBasic(type, compatible_encoding_args[type], allow_multiple)
+        return checker
+    else:
+        return None
+
+
+
+def check_call_enc_matches_item(items_defined, call, api_check):
     if call.enc is None:
         return
 
@@ -112,15 +248,13 @@ def check_call_enc_matches_item(items_defined, call, item):
         # TODO: checking each ENC_ value that appears, but not enforcing cases where there should be 2 values |d together
         # TODO: should check extra logic here, like flags that should be given or only have significance sometimes, like
         # order within a byte of ENC_BCD_DIGITS_0_9 for FT_STRING
-        for enc in encs:
-            if enc.startswith('ENC_') and enc.find('|') == -1 and type in compatible_encoding_args:
-                if type != 'FT_BOOLEAN' or items_defined[call.hf_name].get_field_width_in_bits() > 8:
-                    if not enc in compatible_encoding_args[type]:
-                        global warnings_found
-                        print('Warning:', item.file + ':' + str(call.line_number),
-                              item.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ', '"' + enc + '"', '-',
-                              compatible_encoding_args[type], 'allowed')
-                        warnings_found += 1
+
+        checker = create_enc_checker(type)
+        if not checker is None:
+            for enc in encs:
+                if enc.startswith('ENC_'):
+                    if type != 'FT_BOOLEAN' or items_defined[call.hf_name].get_field_width_in_bits() > 8:
+                        checker.check(enc, call, api_check)
 
 
 
@@ -284,100 +418,6 @@ class APICheck:
             check_call_enc_matches_item(items_defined, call, self)
 
 
-# item type -> set<encodings>
-# TODO: need to capture that they may include endian *and* some other property..
-compatible_encoding_args = {
-    # doc/README.dissector says these should all be ENC_NA
-    'FT_NONE' :      set(['ENC_NA']),
-    'FT_BYTES' :     set(['ENC_NA']),
-    'FT_ETHER' :     set(['ENC_NA']),  # TODO: consider allowing 'ENC_LITTLE_ENDIAN' ?
-    'FT_IPv6' :      set(['ENC_NA']),
-    'FT_IPXNET' :    set(['ENC_NA']),
-    'FT_OID' :       set(['ENC_NA']),
-    'FT_REL_OID' :   set(['ENC_NA']),
-    'FT_AX25' :      set(['ENC_NA']),
-    'FT_VINES' :     set(['ENC_NA']),
-    'FT_SYSTEM_ID' : set(['ENC_NA']),
-    'FT_FCWWN' :     set(['ENC_NA']),
-
-    # TODO: FT_UINT_BYTES should have e.g., ENC_LITTLE_ENDIAN|ENC_NA
-
-    'FT_IPv4' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-
-
-    'FT_STRING' :    set(['ENC_ASCII',
-                          'ENC_UTF_8',
-                          'ENC_UTF_16',
-                          'ENC_UCS_2',
-                          'ENC_UCS_4',
-                          'ENC_WINDOWS_1250', 'ENC_WINDOWS_1251', 'ENC_WINDOWS_1252',
-                          'ENC_ISO_646_BASIC',
-                          'ENC_ISO_8859_1', 'ENC_ISO_8859_2', 'ENC_ISO_8859_3', 'ENC_ISO_8859_4',
-                          'ENC_ISO_8859_5', 'ENC_ISO_8859_6', 'ENC_ISO_8859_7', 'ENC_ISO_8859_8',
-                          'ENC_ISO_8859_9', 'ENC_ISO_8859_10', 'ENC_ISO_8859_11', 'ENC_ISO_8859_12',
-                          'ENC_ISO_8859_13', 'ENC_ISO_8859_14', 'ENC_ISO_8859_15', 'ENC_ISO_8859_16',
-                          'ENC_3GPP_TS_23_038_7BITS',
-                          'ENC_3GPP_TS_23_038_7BITS_UNPACKED',
-                          'ENC_ETSI_TS_102_221_ANNEX_A',
-                          'ENC_EBCDIC',
-                          'ENC_EBCDIC_CP037',
-                          'ENC_EBCDIC_CP500',
-                          'ENC_MAC_ROMAN',
-                          'ENC_CP437',
-                          'ENC_CP855',
-                          'ENC_CP866',
-                          'ENC_ASCII_7BITS',
-                          'ENC_T61',
-                          'ENC_BCD_DIGITS_0_9', 'ENC_BCD_SKIP_FIRST',
-                          'ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',   # These are allowed if ENC_BCD_DIGITS_0_9 is set..
-                          'ENC_KEYPAD_ABC_TBCD',
-                          'ENC_KEYPAD_BC_TBCD',
-                          'ENC_GB18030',
-                          'ENC_EUC_KR',
-                          'ENC_DECT_STANDARD_8BITS',
-                          'ENC_DECT_STANDARD_4BITS_TBCD',
-                          ]),
-
-    'FT_CHAR' :      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?
-
-    # Integral types
-    'FT_UINT8' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
-    'FT_INT8' :      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN', 'ENC_NA']),
-    'FT_UINT16' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT16' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT24' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT24' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT32' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT32' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT40' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT40' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT48' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT48' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT56' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT56' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_UINT64' :    set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-    'FT_INT64' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN', 'ENC_HOST_ENDIAN']),
-
-    'FT_GUID' :      set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
-    'FT_EUI64' :     set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
-
-    # It does seem harsh to need to set this when field is 8 bits of less..
-    'FT_BOOLEAN' :   set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN']),
-
-
-    # N.B., these fields should also have an endian order...
-    'FT_ABSOLUTE_TIME' :  set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',
-                               'ENC_TIME_SECS_NSECS', 'ENC_TIME_NTP', 'ENC_TIME_TOD',
-                               'ENC_TIME_RTPS', 'ENC_TIME_SECS_USECS', 'ENC_TIME_SECS',
-                               'ENC_TIME_MSECS', 'ENC_TIME_USECS',
-                               'ENC_TIME_NSECS', 'ENC_TIME_SECS_NTP', 'ENC_TIME_RFC_3971',
-                               'ENC_TIME_MSEC_NTP', 'ENC_TIME_MIP6', 'ENC_TIME_CLASSIC_MAC_OS_SECS',
-                               'ENC_TIME_ZBEE_ZCL', 'ENC_TIME_MP4_FILE_SECS']),
-   'FT_RELATIVE_TIME' :   set(['ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',
-                               'ENC_TIME_SECS_NSECS', 'ENC_TIME_SECS_USECS', 'ENC_TIME_SECS',
-                               'ENC_TIME_MSECS', 'ENC_TIME_USECS', 'ENC_TIME_NSECS'])
-
-}
 
 # Specialization of APICheck for add_item() calls
 class ProtoTreeAddItemCheck(APICheck):

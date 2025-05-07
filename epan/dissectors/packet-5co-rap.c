@@ -564,9 +564,9 @@ dissect_frame(tvbuff_t *tvb, packet_info* pinfo, proto_tree* fiveco_frame_tree, 
                         proto_tree_add_item(fiveco_easyip_tree, hf_fiveco_ext_easyip_mac, tvb,
                                                 i + 3, 6, ENC_NA);
                         proto_tree_add_item(fiveco_easyip_tree, hf_fiveco_ext_easyip_ip, tvb,
-                                                i + 9, 4, ENC_NA);
+                                                i + 9, 4, ENC_BIG_ENDIAN);
                         proto_tree_add_item(fiveco_easyip_tree, hf_fiveco_ext_easyip_mask, tvb,
-                                                i + 13, 4, ENC_NA);
+                                                i + 13, 4, ENC_BIG_ENDIAN);
                         i += 17;
                         break;
 
