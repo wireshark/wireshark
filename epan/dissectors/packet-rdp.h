@@ -28,16 +28,38 @@ typedef enum {
 	RDP_CHANNEL_RAIL,
 } rdp_known_channel_t;
 
+
+typedef struct {
+	wmem_array_t *currentPayload;
+	uint32_t packetLen;
+	uint32_t pendingLen;
+	uint32_t startFrame;
+	wmem_array_t *chunks;
+} rdp_channel_packet_context_t;
+
+typedef struct {
+	uint32_t startFrame;
+	uint32_t endFrame;
+	tvbuff_t* tvb;
+	bool reassembled;
+} rdp_channel_pdu_chunk_t;
+
 typedef struct _rdp_channel_def {
-    uint32_t     value;
+    uint32_t value;
     const char *strptr;
     rdp_known_channel_t channelType;
+
+    rdp_channel_packet_context_t current_sc;
+    rdp_channel_packet_context_t current_cs;
+    wmem_multimap_t *chunks_sc;
+    wmem_multimap_t *chunks_cs;
 } rdp_channel_def_t;
 
 typedef struct _rdp_server_address {
 	address addr;
 	uint16_t port;
 } rdp_server_address_t;
+
 
 
 typedef struct _rdp_conv_info_t {

@@ -21,6 +21,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/crc32-tvb.h>
 #include "packet-tls.h"
 #include "packet-t124.h"
 #include "packet-rdp.h"
@@ -1618,6 +1619,8 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
         channel->value = -1; /* unset */
         channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
         channel->channelType = find_known_channel_by_name(channel->strptr);
+        channel->chunks_cs = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        channel->chunks_sc = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
       }
 
       char *channelName = tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII);
@@ -1728,26 +1731,37 @@ static rdp_channel_def_t* find_channel(packet_info *pinfo, uint16_t channelId) {
 	return NULL;
 }
 
-static rdp_known_channel_t
-find_channel_type(packet_info *pinfo, uint16_t channelId) {
-	rdp_channel_def_t* channel = find_channel(pinfo, channelId);
-	if (!channel)
-		return RDP_CHANNEL_UNKNOWN;
 
-	return channel->channelType;
+static bool
+rdp_isServerAddressTarget(packet_info *pinfo)
+{
+	conversation_t *conv;
+	rdp_conv_info_t *rdp_info;
+
+	conv = find_conversation_pinfo(pinfo, 0);
+	if (!conv)
+		return false;
+
+	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
+	if (rdp_info) {
+		rdp_server_address_t *server = &rdp_info->serverAddr;
+		return addresses_equal(&server->addr, &pinfo->dst) && (pinfo->destport == server->port);
+	}
+
+	return false;
 }
 
 
 static int
 dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  rdp_known_channel_t channelType;
   uint32_t length = 0;
-  tvbuff_t *subtvb;
-  uint32_t compressed;
+  uint32_t compressed = 0;
+  uint32_t first = 0;
+  uint32_t last = 0;
 
   rdp_field_info_t flag_fields[] = {
-    {&hf_rdp_channelFlagFirst,        4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {&hf_rdp_channelFlagLast,         4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelFlagFirst,        4, &first, 0, RDP_FI_NOINCOFFSET, NULL },
+    {&hf_rdp_channelFlagLast,         4, &last, 0, RDP_FI_NOINCOFFSET, NULL },
     {&hf_rdp_channelFlagShowProtocol, 4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
     {&hf_rdp_channelFlagSuspend,      4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
     {&hf_rdp_channelFlagResume,       4, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
@@ -1766,58 +1780,110 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
   rdp_field_info_t channelPDU_fields[] =   {
     FI_SUBTREE(&hf_rdp_channelPDUHeader, 8, ett_rdp_channelPDUHeader, channel_fields),
-    FI_FIXEDLEN(&hf_rdp_virtualChannelData, -1),
     FI_TERMINATOR
   };
 
-  channelType = find_channel_type(pinfo, t124_get_last_channelId());
-  switch (channelType) {
-  case RDP_CHANNEL_DRDYNVC:
-  case RDP_CHANNEL_RAIL:
-  case RDP_CHANNEL_CLIPBOARD:
-  case RDP_CHANNEL_SOUND:
-  case RDP_CHANNEL_DISK:
-	  memset(&channelPDU_fields[1], 0, sizeof(channelPDU_fields[1]));
-	  break;
-  default:
-	  break;
-  }
 
   /* length is the uncompressed length, and the PDU may be compressed */
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, channelPDU_fields, 0);
 
-  if (compressed & CHANNEL_PACKET_COMPRESSED) {
+  first = !!(first & CHANNEL_FLAG_FIRST);
+  last = !!(last & CHANNEL_FLAG_LAST);
+  compressed = !!(compressed & CHANNEL_PACKET_COMPRESSED);
+
+  if (compressed) {
 	  dissect_rdp_nyi(tvb, offset, pinfo, tree, "Compressed channel PDU not implemented");
 	  return offset;
   }
 
-  switch (channelType) {
-  case RDP_CHANNEL_DRDYNVC:
-	  subtvb = tvb_new_subset_length(tvb, offset, length);
-	  offset += call_dissector(drdynvc_handle, subtvb, pinfo, tree);
-	  break;
-  case RDP_CHANNEL_RAIL:
-	  subtvb = tvb_new_subset_length(tvb, offset, length);
-	  offset += call_dissector(rail_handle, subtvb, pinfo, tree);
-	  break;
-  case RDP_CHANNEL_CLIPBOARD:
-	  subtvb = tvb_new_subset_length(tvb, offset, length);
-	  offset += call_dissector(cliprdr_handle, subtvb, pinfo, tree);
-	  break;
-  case RDP_CHANNEL_SOUND:
-	  subtvb = tvb_new_subset_length(tvb, offset, length);
-	  offset += call_dissector(snd_handle, subtvb, pinfo, tree);
-	  break;
-  case RDP_CHANNEL_DISK:
-	  subtvb = tvb_new_subset_length(tvb, offset, length);
-	  offset += call_dissector(rdpdr_handle, subtvb, pinfo, tree);
-	  break;
-  default: {
-	  rdp_channel_def_t* channel = find_channel(pinfo, t124_get_last_channelId());
-	  if (channel)
-		  col_append_fstr(pinfo->cinfo, COL_INFO, " channel=%s", channel->strptr);
-	  break;
-  }
+  rdp_channel_def_t* channel = find_channel(pinfo, t124_get_last_channelId());
+  if (channel)
+  {
+	  rdp_channel_pdu_chunk_t *chunk = NULL;
+	  uint32_t payloadLen = tvb_captured_length_remaining(tvb, offset);
+	  uint32_t key = crc32_ccitt_tvb_offset(tvb, offset, payloadLen);
+	  bool packetToServer = rdp_isServerAddressTarget(pinfo);
+	  wmem_multimap_t *chunksMap = packetToServer ? channel->chunks_cs : channel->chunks_sc;
+
+	  if (!PINFO_FD_VISITED(pinfo)) {
+		  rdp_channel_packet_context_t *context = packetToServer ? &channel->current_cs : &channel->current_sc;
+
+		  chunk = wmem_alloc(wmem_file_scope(), sizeof(*chunk));
+		  chunk->tvb = NULL;
+		  chunk->endFrame = 0;
+
+		  if (first) {
+			  context->packetLen = context->pendingLen = length;
+			  context->currentPayload = wmem_array_sized_new(wmem_file_scope(), 1, length);
+			  context->chunks = wmem_array_new(wmem_file_scope(), sizeof(rdp_channel_pdu_chunk_t *));
+			  context->startFrame = pinfo->num;
+		  }
+
+		  chunk->startFrame = context->startFrame;
+		  wmem_array_append(context->currentPayload, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
+		  context->pendingLen -= payloadLen;
+		  wmem_array_append(context->chunks, &chunk, 1);
+
+		  if (last) {
+			  if (context->pendingLen) {
+				  printf("%d: ooups context->pendingLen=%d\n", pinfo->num, context->pendingLen);
+			  }
+
+			  chunk->reassembled = !first;
+			  chunk->tvb = tvb_new_real_data(wmem_array_get_raw(context->currentPayload), context->packetLen, context->packetLen);
+
+			  for (unsigned i = 0; i < wmem_array_get_count(context->chunks); i++) {
+				  rdp_channel_pdu_chunk_t *c = *(rdp_channel_pdu_chunk_t**) wmem_array_index(context->chunks, i);
+				  c->endFrame = pinfo->num;
+			  }
+
+			  wmem_destroy_array(context->chunks);
+			  context->chunks = wmem_array_new(wmem_file_scope(), sizeof(rdp_channel_pdu_chunk_t *));
+		  }
+
+		  wmem_multimap_insert32(chunksMap, GUINT_TO_POINTER(key), pinfo->num, chunk);
+	  } else {
+		  chunk = (rdp_channel_pdu_chunk_t *)wmem_multimap_lookup32(chunksMap, GUINT_TO_POINTER(key), pinfo->num);
+	  }
+
+	  if (chunk && chunk->tvb) {
+		  tvbuff_t *showTvb;
+		  if (chunk->reassembled) {
+			  showTvb = chunk->tvb;
+			  add_new_data_source(pinfo, chunk->tvb, "Reassembled channel PDUs");
+		  } else {
+			  showTvb = tvb_new_subset_length(tvb, offset, length);
+		  }
+
+		  switch (channel->channelType) {
+			  case RDP_CHANNEL_DRDYNVC:
+				  offset += call_dissector(drdynvc_handle, showTvb, pinfo, tree);
+				  break;
+			  case RDP_CHANNEL_RAIL:
+				  offset += call_dissector(rail_handle, showTvb, pinfo, tree);
+				  break;
+			  case RDP_CHANNEL_CLIPBOARD:
+				  offset += call_dissector(cliprdr_handle, showTvb, pinfo, tree);
+				  break;
+			  case RDP_CHANNEL_SOUND:
+				  offset += call_dissector(snd_handle, showTvb, pinfo, tree);
+				  break;
+			  case RDP_CHANNEL_DISK:
+				  offset += call_dissector(rdpdr_handle, showTvb, pinfo, tree);
+				  break;
+			  default: {
+				  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", " channel=%s", channel->strptr);
+				  proto_tree_add_item(tree, hf_rdp_virtualChannelData, showTvb, 0, length, ENC_NA);
+				  break;
+			  }
+		  }
+	  } else {
+		  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "Virtual Channel PDU %s", channel->strptr);
+		  proto_tree_add_item(tree, hf_rdp_virtualChannelData, tvb, offset, -1, ENC_NA);
+	  }
+  } else {
+	  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "Virtual Channel PDU %d", t124_get_last_channelId());
+	  proto_tree_add_item(tree, hf_rdp_virtualChannelData, tvb, offset, -1, ENC_NA);
   }
 
   return offset;
@@ -2221,24 +2287,6 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	return offset;
 }
 
-static bool
-rdp_isServerAddressTarget(packet_info *pinfo)
-{
-	conversation_t *conv;
-	rdp_conv_info_t *rdp_info;
-
-	conv = find_conversation_pinfo(pinfo, 0);
-	if (!conv)
-		return false;
-
-	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
-	if (rdp_info) {
-		rdp_server_address_t *server = &rdp_info->serverAddr;
-		return addresses_equal(&server->addr, &pinfo->dst) && (pinfo->destport == server->port);
-	}
-
-	return false;
-}
 
 void
 rdp_transport_set_udp_conversation(const address *serverAddr, uint16_t serverPort, bool reliable, uint32_t reqId, uint8_t *cookie, conversation_t *conv)
@@ -2672,7 +2720,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   } /* (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) */
 
   /* Virtual Channel */
-  col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Virtual Channel PDU");
+  //col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Virtual Channel PDU");
 
   offset = dissect_rdp_securityHeader(tvb, offset, pinfo, tree, rdp_info, false, &flags);
 
