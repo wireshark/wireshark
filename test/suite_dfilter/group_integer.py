@@ -197,7 +197,7 @@ class TestDfilterUint64:
 
     def test_uint64_1(self, checkDFilterCount):
         dfilter = "nfs.fattr3.size == 264032"
-        checkDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 2)
 
     def test_uint64_2(self, checkDFilterCount):
         dfilter = "nfs.fattr3.size == 264000"

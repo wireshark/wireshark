@@ -121,13 +121,43 @@ function tap.packet(pinfo,tvb,frame)
 
     now = fi_now()
     if testlib.getPktCount(FRAME) == 1 then
-        testlib.test(PER_FRAME,"__eq-1", begin == fi_delta())
-        testlib.test(PER_FRAME,"NSTime.secs-1", fi_delta().secs == 0)
-        testlib.test(PER_FRAME,"NSTime.nsecs-1", fi_delta().nsecs == 0)
+        --
+        -- This is the first frame, so begin should be set to its time
+        -- stamp.
+        --
+        begin = fi_now()
+
+        --
+        -- And the delta time should not exist.
+        --
+        testlib.test(PER_FRAME,"__eq-1", nil == fi_delta)
+
+        --
+        -- And the time relative to the first frame should be zero.
+        --
+        testlib.test(PER_FRAME,"NSTime.secs-1", fi_rel().secs == 0)
+        testlib.test(PER_FRAME,"NSTime.nsecs-1", fi_rel().nsecs == 0)
         begin = fi_now()
     else
+        --
+        -- Thss is not the first frame, so the time relative to the
+        -- previous frame should be the difference between this frame's
+        -- time stamp and the previous frame's time stamp.
+        --
         testlib.test(PER_FRAME,"__sub__eq-1", now - previous == fi_delta())
+
+        --
+        -- And the time relative to the first frame should be the
+        -- difference between this frame's time stamp and the first
+        -- frame's time stamp.
+        --
         testlib.test(PER_FRAME,"__sub__eq-2", now - begin == fi_rel())
+
+        --
+        -- And it should also be the sum of the time difference between
+        -- the previous frame and the first frame and the time difference
+        -- between this frame and the previous frame.
+        --
         testlib.test(PER_FRAME,"__add-1", (previous - begin) + (now - previous) == fi_rel())
     end
     previous = now

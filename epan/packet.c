@@ -684,7 +684,18 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = NULL;
 
-	frame_delta_abs_time(edt->session, fd, 1, &edt->pi.rel_ts);
+	/*
+	 * This is time relative to the first frame in the capture,
+	 * regardless of what time reference frames precede it.
+	 *
+	 * XXX - should there be a field indicating whether the
+	 * frame *has* a relative time stamp?
+	 *
+	 * XXX - what is pinfo->rel_ts used for?  All times are
+	 * relative to some zero point on the t axis, so why
+	 * is pinfo->rel_ts used instead of pinfo->abs_ts?
+	 */
+	frame_rel_first_frame_time(edt->session, fd, &edt->pi.rel_ts);
 
 	if (rec->ts_rel_cap_valid) {
 		nstime_copy(&edt->pi.rel_cap_ts, &rec->ts_rel_cap);
@@ -784,7 +795,7 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = NULL;
 
-	frame_delta_abs_time(edt->session, fd, 1, &edt->pi.rel_ts);
+	frame_rel_first_frame_time(edt->session, fd, &edt->pi.rel_ts);
 
 	TRY {
 		/*

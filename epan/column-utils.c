@@ -1278,12 +1278,13 @@ col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   nstime_t del_rel_ts;
 
-  if (!fd->has_ts) {
+  /*
+   * If there's no relative time for this frame, leave the column blank.
+   */
+  if (!frame_rel_time(cinfo->epan, fd, &del_rel_ts)) {
     cinfo->columns[col].col_buf[0] = '\0';
     return;
   }
-
-  frame_delta_abs_time(cinfo->epan, fd, fd->frame_ref_num, &del_rel_ts);
 
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
@@ -1307,12 +1308,14 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   nstime_t del_cap_ts;
 
-  if (!fd->has_ts) {
+  /*
+   * If there's no time since the last captured frame, leave the
+   * column blank.
+   */
+  if (!frame_delta_time_prev_captured(cinfo->epan, fd, &del_cap_ts)) {
     cinfo->columns[col].col_buf[0] = '\0';
     return;
   }
-
-  frame_delta_abs_time(cinfo->epan, fd, fd->num - 1, &del_cap_ts);
 
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
@@ -1337,12 +1340,14 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
 {
   nstime_t del_dis_ts;
 
-  if (!fd->has_ts) {
+  /*
+   * If there's no time since the previous displayed frame, leave the
+   * column blank.
+   */
+  if (!frame_delta_time_prev_displayed(cinfo->epan, fd, &del_dis_ts)) {
     cinfo->columns[col].col_buf[0] = '\0';
     return;
   }
-
-  frame_delta_abs_time(cinfo->epan, fd, fd->prev_dis_num, &del_dis_ts);
 
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
@@ -1491,6 +1496,7 @@ col_set_epoch_time(const frame_data *fd, column_info *cinfo, const int col)
 void
 set_fd_time(const epan_t *epan, frame_data *fd, char *buf)
 {
+  nstime_t del_ts;
 
   switch (timestamp_get_type()) {
   case TS_ABSOLUTE:
@@ -1506,17 +1512,17 @@ set_fd_time(const epan_t *epan, frame_data *fd, char *buf)
     break;
 
   case TS_RELATIVE:
-    if (fd->has_ts) {
-      nstime_t del_rel_ts;
-
-      frame_delta_abs_time(epan, fd, fd->frame_ref_num, &del_rel_ts);
-
+    /*
+     * If there's no relative time for this frame, leave the
+     * column blank.
+     */
+    if (frame_rel_time(epan, fd, &del_ts)) {
       switch (timestamp_get_seconds_type()) {
       case TS_SECONDS_DEFAULT:
-        set_time_seconds(fd, &del_rel_ts, buf);
+        set_time_seconds(fd, &del_ts, buf);
         break;
       case TS_SECONDS_HOUR_MIN_SEC:
-        set_time_seconds(fd, &del_rel_ts, buf);
+        set_time_seconds(fd, &del_ts, buf);
         break;
       default:
         ws_assert_not_reached();
@@ -1527,17 +1533,17 @@ set_fd_time(const epan_t *epan, frame_data *fd, char *buf)
     break;
 
   case TS_DELTA:
-    if (fd->has_ts) {
-      nstime_t del_cap_ts;
-
-      frame_delta_abs_time(epan, fd, fd->num - 1, &del_cap_ts);
-
+    /*
+     * If there's no time since the previous captured frame, leave the
+     * column blank.
+     */
+    if (frame_delta_time_prev_captured(epan, fd, &del_ts)) {
       switch (timestamp_get_seconds_type()) {
       case TS_SECONDS_DEFAULT:
-        set_time_seconds(fd, &del_cap_ts, buf);
+        set_time_seconds(fd, &del_ts, buf);
         break;
       case TS_SECONDS_HOUR_MIN_SEC:
-        set_time_hour_min_sec(fd, &del_cap_ts, buf, col_decimal_point);
+        set_time_hour_min_sec(fd, &del_ts, buf, col_decimal_point);
         break;
       default:
         ws_assert_not_reached();
@@ -1548,17 +1554,17 @@ set_fd_time(const epan_t *epan, frame_data *fd, char *buf)
     break;
 
   case TS_DELTA_DIS:
-    if (fd->has_ts) {
-      nstime_t del_dis_ts;
-
-      frame_delta_abs_time(epan, fd, fd->prev_dis_num, &del_dis_ts);
-
+    /*
+     * If there is no time since the previous displayed frame, leave the
+     * column blank.
+     */
+    if (frame_delta_time_prev_displayed(epan, fd, &del_ts)) {
       switch (timestamp_get_seconds_type()) {
       case TS_SECONDS_DEFAULT:
-        set_time_seconds(fd, &del_dis_ts, buf);
+        set_time_seconds(fd, &del_ts, buf);
         break;
       case TS_SECONDS_HOUR_MIN_SEC:
-        set_time_hour_min_sec(fd, &del_dis_ts, buf, col_decimal_point);
+        set_time_hour_min_sec(fd, &del_ts, buf, col_decimal_point);
         break;
       default:
         ws_assert_not_reached();

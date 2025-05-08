@@ -534,11 +534,10 @@ epan_get_frame_ts(const epan_t *session, uint32_t frame_num)
 	if (session && session->funcs.get_frame_ts)
 		abs_ts = session->funcs.get_frame_ts(session->prov, frame_num);
 
-	if (!abs_ts) {
-		/* This can happen if frame_num doesn't have a ts */
-		ws_debug("!!! couldn't get frame ts for %u !!!\n", frame_num);
-	}
-
+	/* abs_ts will be null if we don't have a session, the session
+	   doesn't have a function to return time stamps, or that
+	   function returns null, e.g. because the frame doesn't
+	   *have* a time stamp. */
 	return abs_ts;
 }
 

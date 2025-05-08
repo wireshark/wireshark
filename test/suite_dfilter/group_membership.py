@@ -70,9 +70,18 @@ class TestDfilterMembership:
         dfilter = 'tcp.port in {1 .. 79,81 .. 3266,3268 .. 65535}'
         checkDFilterCount(dfilter, 0)
 
+    #
+    # XXX - http.pcap is a one-packet file, which now means that there
+    # is no "time relative to the previous packet" value in it.
+    #
+    # Even when we said the time relative to the previous packet is
+    # 0 if there is no previous packet, this wasn't checking the
+    # behavior with negative field values, as the value was zero,
+    # not negative.
+    #
     def test_membership_5_negative_range_float(self, checkDFilterCount):
         dfilter = 'frame.time_delta in {-2.0 .. 0.0}'
-        checkDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 0)
 
     def test_membership_6_both_negative_range_float(self, checkDFilterCount):
         dfilter = 'frame.time_delta in {-20 .. -0.7}'

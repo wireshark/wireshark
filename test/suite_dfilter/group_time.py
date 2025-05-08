@@ -110,7 +110,7 @@ class TestDfilterTimeRelative:
 
     def test_relative_time_2(self, checkDFilterCount):
         dfilter = "frame.time_delta > 0.7"
-        checkDFilterCount(dfilter, 0)
+        checkDFilterCount(dfilter, 1)
 
     def test_relative_time_3(self, checkDFilterCount):
         dfilter = "frame.time_delta < 0.7"

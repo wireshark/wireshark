@@ -201,11 +201,32 @@ lua_nstime_to_sec(const nstime_t *nstime)
 }
 
 static double
-lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, uint32_t prev_num)
+lua_delta_prev_captured_sec(const Pinfo pinfo, const frame_data *fd)
 {
     nstime_t del;
 
-    frame_delta_abs_time(pinfo->ws_pinfo->epan, fd, prev_num, &del);
+    /*
+     * XXX - there's no way to report "there *is* no delta time,
+     * because either 1) this frame has no time stamp, 2) the
+     * previous frame doesn't exist, or 2) it exists but *it*
+     * has no time stamp.
+     */
+    frame_delta_time_prev_captured(pinfo->ws_pinfo->epan, fd, &del);
+    return lua_nstime_to_sec(&del);
+}
+
+static double
+lua_delta_prev_displayed_sec(const Pinfo pinfo, const frame_data *fd)
+{
+    nstime_t del;
+
+    /*
+     * XXX - there's no way to report "there *is* no delta time,
+     * because either 1) this frame has no time stamp, 2) the
+     * previous frame doesn't exist, or 2) it exists but *it*
+     * has no time stamp.
+     */
+    frame_delta_time_prev_displayed(pinfo->ws_pinfo->epan, fd, &del);
     return lua_nstime_to_sec(&del);
 }
 
@@ -229,10 +250,10 @@ WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,abs_ts,lua_nstime_to_sec(&obj->ws_pinf
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,rel_ts,lua_nstime_to_sec(&obj->ws_pinfo->rel_ts));
 
 /* WSLUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last captured packet. */
-WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->num - 1));
+WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_ts,lua_delta_prev_captured_sec(obj, obj->ws_pinfo->fd));
 
 /* WSLUA_ATTRIBUTE Pinfo_delta_dis_ts RO Number of seconds passed since the last displayed packet. */
-WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_dis_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->fd->prev_dis_num));
+WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_dis_ts,lua_delta_prev_displayed_sec(obj, obj->ws_pinfo->fd));
 
 /* WSLUA_ATTRIBUTE Pinfo_curr_proto RO Which Protocol are we dissecting. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,curr_proto,ws_pinfo->current_proto);

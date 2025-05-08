@@ -1015,33 +1015,28 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta)) {
 				nstime_t     del_cap_ts;
 
-				/* XXX: pinfo->num - 1 might not *have* a
-			         * timestamp, even if this frame does. Would
-			         * the user prefer to see "delta from previous
-			         * captured frame that has a timestamp"?
-			         */
-				frame_delta_abs_time(pinfo->epan, pinfo->fd, pinfo->num - 1, &del_cap_ts);
-
-				item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
-							   0, 0, &(del_cap_ts));
-				proto_item_set_generated(item);
+				if (frame_delta_time_prev_captured(pinfo->epan, pinfo->fd, &del_cap_ts)) {
+					item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
+								   0, 0, &(del_cap_ts));
+					proto_item_set_generated(item);
+				}
 			}
 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta_displayed)) {
 				nstime_t del_dis_ts;
 
-				frame_delta_abs_time(pinfo->epan, pinfo->fd, pinfo->fd->prev_dis_num, &del_dis_ts);
-
-				item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
-							   0, 0, &(del_dis_ts));
-				proto_item_set_generated(item);
+				if (frame_delta_time_prev_displayed(pinfo->epan, pinfo->fd, &del_dis_ts)) {
+					item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
+								   0, 0, &(del_dis_ts));
+					proto_item_set_generated(item);
+				}
 			}
 
-			frame_delta_abs_time(pinfo->epan, pinfo->fd, pinfo->fd->frame_ref_num, &rel_ts);
-
-			item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
-						   0, 0, &(rel_ts));
-			proto_item_set_generated(item);
+			if (frame_rel_time(pinfo->epan, pinfo->fd, &rel_ts)) {
+				item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
+							   0, 0, &(rel_ts));
+				proto_item_set_generated(item);
+			}
 
 			if (pinfo->fd->ref_time) {
 				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);

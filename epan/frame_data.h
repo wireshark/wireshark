@@ -106,8 +106,21 @@ WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, uint32_t num,
                 const wtap_rec *rec, int64_t offset,
                 uint32_t cum_bytes);
 
-extern void frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata,
-                uint32_t prev_num, nstime_t *delta);
+extern bool frame_rel_first_frame_time(const struct epan_session *epan,
+                                       const frame_data *fdata,
+                                       nstime_t *delta);
+
+extern bool frame_rel_time(const struct epan_session *epan,
+                           const frame_data *fdata, nstime_t *delta);
+
+extern bool frame_delta_time_prev_captured(const struct epan_session *epan,
+                                           const frame_data *fdata,
+                                           nstime_t *delta);
+
+extern bool frame_delta_time_prev_displayed(const struct epan_session *epan,
+                                            const frame_data *fdata,
+                                            nstime_t *delta);
+
 /**
  * Sets the frame data struct values before dissection.
  */
