@@ -1171,10 +1171,10 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					offset, 1, ENC_NA);
 			offset++;
 			proto_tree_add_item(subtree, hf_bscvlc_error_class, tvb,
-					offset, 2, ENC_NA);
+					offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(subtree, hf_bscvlc_error_code, tvb,
-					offset, 2, ENC_NA);
+					offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(subtree, hf_bscvlc_result_data, tvb,
 					offset, packet_length - offset, ENC_NA);

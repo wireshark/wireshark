@@ -2072,7 +2072,7 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 		proto_tree_add_item(tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case OLB_O_UINT8_P_UINT8_S_UINT32:
-		proto_tree_add_item(tree, hf_smb2_olb_offset, tvb, olb->off_offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_smb2_olb_offset, tvb, olb->off_offset, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_smb2_reserved, tvb, olb->off_offset+1, 1, ENC_NA);
 		proto_tree_add_item(tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
 		break;
@@ -2132,7 +2132,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		proto_tree_add_item(parent_tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case OLB_O_UINT8_P_UINT8_S_UINT32:
-		proto_tree_add_item(parent_tree, hf_smb2_olb_offset, tvb, olb->off_offset, 1, ENC_NA);
+		proto_tree_add_item(parent_tree, hf_smb2_olb_offset, tvb, olb->off_offset, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(parent_tree, hf_smb2_reserved, tvb, olb->off_offset+1, 1, ENC_NA);
 		proto_tree_add_item(parent_tree, hf_smb2_olb_length, tvb, olb->len_offset, 4, ENC_LITTLE_ENDIAN);
 		break;

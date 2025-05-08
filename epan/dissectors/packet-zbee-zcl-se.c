@@ -10035,7 +10035,7 @@ proto_register_zbee_zcl_pp(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_pp_change_debt_recovery_balance_percentage,
-            { "Debt Recovery Balance Percentage", "zbee_zcl_se.pp.change_debt.recovery_balance_percentage", FT_UINT16, BASE_DEC, NULL,
+            { "Debt Recovery Balance Percentage", "zbee_zcl_se.pp.change_debt.recovery_balance_percentage", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_pp_emergency_credit_setup_issuer_event_id,
@@ -13280,6 +13280,7 @@ dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tv
     *offset += 4;
 
     /* Duration in minutes */
+    /* TODO: if really big endian, should use ENC_BIG_ENDIAN.. */
     proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_duration_in_minutes, tvb, *offset, 2, ENC_NA);
     *offset += 2;
 

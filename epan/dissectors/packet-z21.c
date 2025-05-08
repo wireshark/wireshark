@@ -2291,7 +2291,7 @@ proto_register_z21(void)
         },
         { &hf_z21_can_booster_power,
           { "CAN booster power", "z21.canboosterpower",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_z21_zlink_message_type,

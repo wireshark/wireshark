@@ -152,10 +152,10 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     if (l_bit)
     {
-        bitmask_ti = proto_tree_add_bitmask(cesoeth_tree, tvb, offset, hf_cesoeth_cw, ett_cesoeth_cw, cesoeth_l1_cw, ENC_NA);
+        bitmask_ti = proto_tree_add_bitmask(cesoeth_tree, tvb, offset, hf_cesoeth_cw, ett_cesoeth_cw, cesoeth_l1_cw, ENC_BIG_ENDIAN);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(m_bits, l1_m_names, "Unknown"));
     } else {
-        bitmask_ti = proto_tree_add_bitmask(cesoeth_tree, tvb, offset, hf_cesoeth_cw, ett_cesoeth_cw, cesoeth_l0_cw, ENC_NA);
+        bitmask_ti = proto_tree_add_bitmask(cesoeth_tree, tvb, offset, hf_cesoeth_cw, ett_cesoeth_cw, cesoeth_l0_cw, ENC_BIG_ENDIAN);
         if (m_bits)
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(m_bits, l0_m_names, "Unknown"));
     }

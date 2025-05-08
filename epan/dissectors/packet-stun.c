@@ -795,7 +795,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         proto_tree_add_item(stun_tree, hf_stun_length,  tvb, 2, 2, ENC_BIG_ENDIAN);
         /* MS-TURN Multiplexed TURN Channel */
         if (msg_type == MS_MULTIPLEX_TURN && msg_length >= 8) {
-            proto_tree_add_item(stun_tree, hf_stun_att_ms_turn_session_id, tvb, 4, 8, ENC_NA);
+            proto_tree_add_item(stun_tree, hf_stun_att_ms_turn_session_id, tvb, 4, 8, ENC_BIG_ENDIAN);
         }
     }
     if (msg_type == MS_MULTIPLEX_TURN && msg_length >= 8) {
@@ -1705,7 +1705,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool h
                 proto_tree_add_item(att_tree, hf_stun_att_ms_foundation, tvb, offset, 4, ENC_ASCII);
                 break;
             case MS_MULTIPLEXED_TURN_SESSION_ID:
-                proto_tree_add_item(att_tree, hf_stun_att_ms_multiplexed_turn_session_id, tvb, offset, 8, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_ms_multiplexed_turn_session_id, tvb, offset, 8, ENC_BIG_ENDIAN);
                 /* Trick to force decoding of MS-TURN Multiplexed TURN channels */
                 found_turn_attributes = true;
                 break;

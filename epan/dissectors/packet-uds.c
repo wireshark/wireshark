@@ -2530,13 +2530,13 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
                     offset += 1;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_challenge_server, tvb, offset, length_field, ENC_NA);
                     offset += length_field;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     if (length_field > 0) {
@@ -2549,26 +2549,26 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
                     offset += 1;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_challenge_server, tvb, offset, length_field, ENC_NA);
                     offset += length_field;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_cert_server, tvb, offset, length_field, ENC_NA);
                     dissect_uds_certificates_into_tree(tvb, pinfo, uds_tree, ti, offset, length_field);
                     offset += length_field;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_server, tvb, offset, length_field, ENC_NA);
                     offset += length_field;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     if (length_field > 0) {
@@ -2581,7 +2581,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     proto_tree_add_item(uds_tree, hf_uds_ars_auth_ret_param, tvb, offset, 1, ENC_NA);
                     offset += 1;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     if (length_field > 0) {
@@ -2599,13 +2599,13 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
                     offset += 16;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_challenge_server, tvb, offset, length_field, ENC_NA);
                     offset += length_field;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_needed_additional_parameter, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_needed_additional_parameter, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     if (length_field > 0) {
@@ -2623,7 +2623,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
                     offset += 16;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     if (length_field > 0) {
@@ -2641,13 +2641,13 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     dissect_unknown_ber(pinfo, tvb, offset, algo_tree);
                     offset += 16;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_server, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_server, tvb, offset, length_field, ENC_NA);
                     offset += length_field;
 
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_NA, &length_field);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_session_key_info, tvb, offset, 2, ENC_BIG_ENDIAN, &length_field);
                     offset += 2;
 
                     if (length_field > 0) {
@@ -2673,7 +2673,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     offset += 1;
 
                     unsigned length_cert_client;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_client, tvb, offset, 2, ENC_NA, &length_cert_client);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_client, tvb, offset, 2, ENC_BIG_ENDIAN, &length_cert_client);
                     offset += 2;
 
                     ti = proto_tree_add_item(uds_tree, hf_uds_ars_cert_client, tvb, offset, length_cert_client, ENC_NA);
@@ -2681,7 +2681,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     offset += length_cert_client;
 
                     unsigned length_challenge_client;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_client, tvb, offset, 2, ENC_NA, &length_challenge_client);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_client, tvb, offset, 2, ENC_BIG_ENDIAN, &length_challenge_client);
                     offset += 2;
 
                     if (length_challenge_client > 0 || enum_val == UDS_ARS_TYPES_VERIFY_CERT_BIDIRECTIONAL) {
@@ -2693,14 +2693,14 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
                 case UDS_ARS_TYPES_PROOF_OF_OWNERSHIP: {
                     unsigned length_proof_of_ownership_client;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_client, tvb, offset, 2, ENC_NA, &length_proof_of_ownership_client);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_client, tvb, offset, 2, ENC_BIG_ENDIAN, &length_proof_of_ownership_client);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_client, tvb, offset, length_proof_of_ownership_client, ENC_NA);
                     offset += length_proof_of_ownership_client;
 
                     unsigned length_ephemeral_public_key_client;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_client, tvb, offset, 2, ENC_NA, &length_ephemeral_public_key_client);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_ephemeral_public_key_client, tvb, offset, 2, ENC_BIG_ENDIAN, &length_ephemeral_public_key_client);
                     offset += 2;
 
                     if (length_ephemeral_public_key_client > 0) {
@@ -2716,7 +2716,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     offset += 2;
 
                     unsigned length_cert_data;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_data, tvb, offset, 2, ENC_NA, &length_cert_data);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_cert_data, tvb, offset, 2, ENC_BIG_ENDIAN, &length_cert_data);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_cert_data, tvb, offset, length_cert_data, ENC_NA);
@@ -2743,14 +2743,14 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     offset += 16;
 
                     unsigned length_proof_of_ownership_client;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_client, tvb, offset, 2, ENC_NA, &length_proof_of_ownership_client);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_proof_of_ownership_client, tvb, offset, 2, ENC_BIG_ENDIAN, &length_proof_of_ownership_client);
                     offset += 2;
 
                     proto_tree_add_item(uds_tree, hf_uds_ars_proof_of_ownership_client, tvb, offset, length_proof_of_ownership_client, ENC_NA);
                     offset += length_proof_of_ownership_client;
 
                     unsigned length_challenge_client;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_client, tvb, offset, 2, ENC_NA, &length_challenge_client);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_challenge_client, tvb, offset, 2, ENC_BIG_ENDIAN, &length_challenge_client);
                     offset += 2;
 
                     if (length_challenge_client > 0 || enum_val == UDS_ARS_TYPES_VERIFY_PROOF_OF_OWN_BIDIR) {
@@ -2759,7 +2759,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     }
 
                     unsigned length_additional_parameter;
-                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_additional_parameter, tvb, offset, 2, ENC_NA, &length_additional_parameter);
+                    proto_tree_add_item_ret_uint(uds_tree, hf_uds_ars_length_of_additional_parameter, tvb, offset, 2, ENC_BIG_ENDIAN, &length_additional_parameter);
                     offset += 2;
 
                     if (length_additional_parameter > 0) {
@@ -3104,7 +3104,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
             };
 
             uint64_t addmin_param;
-            proto_tree_add_bitmask_with_flags_ret_uint64(uds_tree, tvb, offset, hf_uds_sdt_administrative_param, ett_uds_sdt_admin_param, admin_param_flags, ENC_NA, BMT_NO_APPEND, &addmin_param);
+            proto_tree_add_bitmask_with_flags_ret_uint64(uds_tree, tvb, offset, hf_uds_sdt_administrative_param, ett_uds_sdt_admin_param, admin_param_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND, &addmin_param);
             offset += 2;
 
             proto_tree_add_item(uds_tree, hf_uds_sdt_signature_encryption_calculation, tvb, offset, 1, ENC_NA);

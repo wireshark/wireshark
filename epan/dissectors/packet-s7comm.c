@@ -3778,7 +3778,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
             offset += 1;
             proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
             offset += 2;
-            proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             if (rosctr == S7COMM_ROSCTR_JOB) {
                 offset = s7comm_decode_plc_controls_filename(tvb, pinfo, param_tree, offset);
@@ -3806,7 +3806,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
                 proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 if (function == S7COMM_FUNCUPLOAD) {
-                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_NA);
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 } else {
                     proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 4, ENC_NA);
@@ -3823,7 +3823,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
                 if (dlength > 0) {
                     item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
                     data_tree = proto_item_add_subtree(item, ett_s7comm_data);
-                    proto_tree_add_item(data_tree, hf_s7comm_data_length, tvb, offset, 2, ENC_NA);
+                    proto_tree_add_item(data_tree, hf_s7comm_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
                     offset += 2;
@@ -3850,7 +3850,7 @@ s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
                 }
                 offset += 2;
                 if (function == S7COMM_FUNCENDUPLOAD) {
-                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_NA);
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 } else {
                     proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 4, ENC_NA);
@@ -4216,27 +4216,27 @@ s7comm_decode_ud_tis_param(tvbuff_t *tvb,
         tp_tree = proto_item_add_subtree(item, ett_s7comm_prog_parameter);
         if (type == S7COMM_UD_TYPE_REQ) {
             if (tp_size >= 4) {
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param1, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param1, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param2, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param2, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
             if (tp_size >= 20) {
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param3, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param3, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_answersize, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_answersize, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param5, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param5, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(tp_tree, hf_s7comm_tis_param6, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param7, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param7, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param8, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param8, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_param9, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_param9, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(tp_tree, hf_s7comm_tis_trgevent, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(tp_tree, hf_s7comm_tis_trgevent, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
             if (tp_size >= 26) {
@@ -4271,9 +4271,9 @@ s7comm_decode_ud_tis_param(tvbuff_t *tvb,
                 }
             }
         } else {
-            proto_tree_add_item(tp_tree, hf_s7comm_tis_res_param1, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tp_tree, hf_s7comm_tis_res_param1, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tp_tree, hf_s7comm_tis_res_param2, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tp_tree, hf_s7comm_tis_res_param2, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
     }
     /* May be we don't know all values when here, so set offset to the given length */
@@ -4507,7 +4507,7 @@ s7comm_decode_ud_tis_istack(tvbuff_t *tvb,
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_continued_blocknr, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_continued_address, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_continued_address, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_register_db1_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -4519,21 +4519,21 @@ s7comm_decode_ud_tis_istack(tvbuff_t *tvb,
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_istack_reserved, tvb, offset, 4, ENC_NA);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu1, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu1, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu2, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu2, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu3, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu3, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu4, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu4, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar1, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar1, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar2, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar2, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             proto_tree_add_item(td_tree, hf_s7comm_tis_istack_reserved, tvb, offset, 2, ENC_NA);
             offset += 2;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_stw, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_stw, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_interrupted_blocktype, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -5055,10 +5055,10 @@ s7comm_decode_ud_tis_lstack(tvbuff_t *tvb,
         offset += 2;
         proto_tree_add_item(td_tree, hf_s7comm_tis_interrupted_blocknr, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(td_tree, hf_s7comm_tis_interrupted_address, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(td_tree, hf_s7comm_tis_interrupted_address, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(td_tree, hf_s7comm_tis_lstack_size, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(td_tree, hf_s7comm_tis_lstack_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(td_tree, hf_s7comm_tis_lstack_data, tvb, offset, len, ENC_NA);
         offset += len;
@@ -5127,19 +5127,19 @@ s7comm_decode_ud_tis_breakpoint(tvbuff_t *tvb,
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_breakpoint_blocknr, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_breakpoint_address, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_breakpoint_address, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(td_tree, hf_s7comm_tis_breakpoint_reserved, tvb, offset, 2, ENC_NA);
             offset += 2;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_stw, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_stw, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu1, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu1, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu2, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_accu2, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar1, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar1, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar2, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(td_tree, hf_s7comm_tis_register_ar2, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             proto_tree_add_item(td_tree, hf_s7comm_tis_register_db1_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;

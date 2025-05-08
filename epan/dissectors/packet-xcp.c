@@ -1642,6 +1642,7 @@ dissect_transport_layer_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 switch (ip_version) {
                 case 0:
+                    /* TODO: is this actually encoded in big-endian order.  If so, should change to use ENC_BIG_ENDIAN.. */
                     proto_tree_add_item(tree, hf_xcp_sub_command_eth_ipv4, tvb, offset, 4, ENC_NA);
                     offset += 4;
 

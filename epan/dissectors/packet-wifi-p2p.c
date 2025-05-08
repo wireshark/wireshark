@@ -983,7 +983,7 @@ static void dissect_advertisement_id(proto_item *tlv_root,
                                      tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_advertisement_id, tvb,
-                      offset+3, 4, ENC_NA);
+                      offset+3, 4, ENC_BIG_ENDIAN);
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_advertisement_id_service_mac_address, tvb,
                       offset+7, 6, ENC_NA);
@@ -1027,7 +1027,7 @@ static void dissect_session_id(proto_item *tlv_root,
                                tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_session_id, tvb,
-                      offset+3, 4, ENC_NA);
+                      offset+3, 4, ENC_BIG_ENDIAN);
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_session_id_session_mac_address, tvb,
                       offset+7, 6, ENC_NA);

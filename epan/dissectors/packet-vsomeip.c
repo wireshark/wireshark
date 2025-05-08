@@ -958,7 +958,7 @@ proto_register_vsomeip(void) {
 
         { &hf_vsomeip_serviceid,    { "Service ID", "vsomeip.service_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_vsomeip_instanceid,   { "Instance ID", "vsomeip.instance_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_vsomeip_majorver,     { "Major Version", "vsomeip.major_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_vsomeip_majorver,     { "Major Version", "vsomeip.major_version", FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_vsomeip_minorver,     { "Minor Version", "vsomeip.minor_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_vsomeip_eventgroupid, { "Eventgroup ID", "vsomeip.eventgroup_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_vsomeip_eventid,      { "Event ID", "vsomeip.event_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},

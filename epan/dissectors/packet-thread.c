@@ -1450,7 +1450,7 @@ dissect_thread_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 }
                 else {
                     /* Time out*/
-                    proto_tree_add_item(tlv_tree, hf_thread_address_tlv_timeout, tvb, offset, tlv_len, ENC_NA);
+                    proto_tree_add_item(tlv_tree, hf_thread_address_tlv_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
                 }
                 offset += tlv_len;
                 break;
@@ -1669,7 +1669,7 @@ dissect_thread_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 }
                 else {
                     /* Time out*/
-                    proto_tree_add_item(tlv_tree, hf_thread_nm_tlv_timeout, tvb, offset, tlv_len, ENC_NA);
+                    proto_tree_add_item(tlv_tree, hf_thread_nm_tlv_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
                 }
                 offset += tlv_len;
 
@@ -1903,7 +1903,7 @@ dissect_thread_bl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 }
                 else {
                     /* Time out*/
-                    proto_tree_add_item(tlv_tree, hf_thread_bl_tlv_timeout, tvb, offset, tlv_len, ENC_NA);
+                    proto_tree_add_item(tlv_tree, hf_thread_bl_tlv_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
                 }
                 offset += tlv_len;
 
@@ -2272,7 +2272,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         expert_add_info(pinfo, proto_root, &ei_thread_mc_len_too_long);
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_unknown, tvb, offset, tlv_len, ENC_NA);
                     } else {
-                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_commissioner_id, tvb, offset, tlv_len, ENC_NA|ENC_UTF_8);
+                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_commissioner_id, tvb, offset, tlv_len, ENC_UTF_8);
                     }
                     offset += tlv_len;
                 }
@@ -2399,7 +2399,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     if (tlv_len != 2) {
                         expert_add_info(pinfo, proto_root, &ei_thread_mc_len_size_mismatch);
                         //proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_unknown, tvb, offset, tlv_len, ENC_NA);
-                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_udp_port, tvb, offset, tlv_len, ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_udp_port, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
                     } else {
                         /* UDP Port */
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_udp_port, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
@@ -3074,7 +3074,7 @@ dissect_thread_nwd_with_server_decode(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         {
                             server_decode = 2;
                             proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_ipv6_address, tvb, offset, 16, ENC_NA);
-                            proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_port_number, tvb, offset  + 16, 2, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_port_number, tvb, offset  + 16, 2, ENC_BIG_ENDIAN);
                             offset += 18;
                             tlv_offset += 18;
                         }
@@ -3134,10 +3134,10 @@ dissect_thread_nwd_with_server_decode(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_seqno, tvb, offset, 1, ENC_NA);
                         offset += 1;
                         /* tlv_offset += 1; */
-                        proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_rrdelay, tvb, offset, 2, ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_rrdelay, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         /* tlv_offset += 2; */
-                        proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_mlrtimeout, tvb, offset, 4, ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_mlrtimeout, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                     }
                     else if(server_decode == 0) {
@@ -3175,7 +3175,7 @@ dissect_thread_nwd_with_server_decode(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         offset += 2;
                         tlv_offset = 2;
                         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_ipv6_address, tvb, offset, 16, ENC_NA);
-                        proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_port_number, tvb, offset  + 16, 2, ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_unicast_port_number, tvb, offset  + 16, 2, ENC_BIG_ENDIAN);
                         offset += 18;
                         tlv_offset += 18;
 

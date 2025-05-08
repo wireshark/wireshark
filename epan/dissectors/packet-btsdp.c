@@ -2406,7 +2406,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                             (supported_features & 0x08) ? "Favourites " : "");
                     break;
                 case 0x317:
-                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_pbap_pse_supported_features, ett_btsdp_supported_features,  hfx_pbap_pse_supported_features, ENC_NA, BMT_NO_APPEND);
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_pbap_pse_supported_features, ett_btsdp_supported_features,  hfx_pbap_pse_supported_features, ENC_BIG_ENDIAN, BMT_NO_APPEND);
                     supported_features = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s%s%s%s",
                             (supported_features & 0x001) ? "Download " : "",
@@ -2493,7 +2493,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                             (supported_features & 0x08) ? "MMS " : "");
                     break;
                 case 0x317:
-                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_NA, BMT_NO_APPEND);
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_BIG_ENDIAN, BMT_NO_APPEND);
                     supported_features = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
                             (supported_features & 0x01) ? "NotificationRegistration Feature " : "",
@@ -2518,7 +2518,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x317:
-                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_NA, BMT_NO_APPEND);
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_BIG_ENDIAN, BMT_NO_APPEND);
                     supported_features = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
                             (supported_features & 0x01) ? "NotificationRegistration Feature " : "",
@@ -3253,7 +3253,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
                     break;
                 case 0x317:
-                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_ctn_supported_features, ett_btsdp_supported_features,  hfx_ctn_supported_features, ENC_NA);
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_ctn_supported_features, ett_btsdp_supported_features,  hfx_ctn_supported_features, ENC_BIG_ENDIAN);
 
                     supported_features = tvb_get_ntohl(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
@@ -3273,15 +3273,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_MULTI_PROFILE_SC_UUID:
             switch (attribute) {
                 case 0x200:
-                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_mpsd_scenarios, ett_btsdp_supported_features,  hfx_mps_mpsd_scenarios, ENC_NA);
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_mpsd_scenarios, ett_btsdp_supported_features,  hfx_mps_mpsd_scenarios, ENC_BIG_ENDIAN);
 
                     break;
                 case 0x201:
-                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_mpmd_scenarios, ett_btsdp_supported_features,  hfx_mps_mpmd_scenarios, ENC_NA);
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_mpmd_scenarios, ett_btsdp_supported_features,  hfx_mps_mpmd_scenarios, ENC_BIG_ENDIAN);
 
                     break;
                 case 0x202:
-                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_supported_profile_and_protocol_dependency, ett_btsdp_supported_features,  hfx_mps_supported_profile_and_protocol_dependency, ENC_NA);
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_supported_profile_and_protocol_dependency, ett_btsdp_supported_features,  hfx_mps_supported_profile_and_protocol_dependency, ENC_BIG_ENDIAN);
 
                     break;
                 default:

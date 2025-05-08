@@ -101,6 +101,7 @@ item_lengths['FT_IPv6']   = 16
 
 # item type -> set<encodings>
 # TODO: need to capture that they may include endian *and* some other property..
+# TODO: should ENC_NA be allowed when e.g., FT_UINT16 field is called with 1-byte width?
 compatible_encoding_args = {
     # doc/README.dissector says these should all be ENC_NA
     'FT_NONE' :      set(['ENC_NA']),

@@ -543,7 +543,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     tvb, message + 16, len - 14, ENC_NA);
             } else if (type == MESSAGE_PC){
                 proto_tree_add_item(message_tree, hf_babel_message_index,
-                                    tvb, message + 2, 4, ENC_NA);
+                                    tvb, message + 2, 4, ENC_BIG_ENDIAN);
             }
         }
         i += len + 2;
