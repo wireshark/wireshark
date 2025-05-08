@@ -1515,14 +1515,7 @@ dissect_protobuf_message(tvbuff_t *tvb, unsigned offset, unsigned length, packet
     }
 
     if (is_top_level) {
-        if (col_get_text(pinfo->cinfo, COL_PROTOCOL) && strlen(col_get_text(pinfo->cinfo, COL_PROTOCOL))) {
-            col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
-        }
-        else {
-            col_clear(pinfo->cinfo, COL_PROTOCOL);
-            col_clear(pinfo->cinfo, COL_INFO);
-        }
-        col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "PB(%s)", message_name);
+        col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, "/", "PB(%s)", message_name);
     }
 
     /* support filtering with message name */
