@@ -944,10 +944,6 @@ void StratosharkMainWindow::popLiveCaptureInProgress() {
 }
 
 void StratosharkMainWindow::stopCapture() {
-//#ifdef HAVE_AIRPCAP
-//  if (airpcap_if_active)
-//    airpcap_set_toolbar_stop_capture(airpcap_if_active);
-//#endif
 
 #ifdef HAVE_LIBPCAP
     capture_stop(&cap_session_);
@@ -2867,11 +2863,6 @@ void StratosharkMainWindow::showCaptureOptionsDialog()
 
 void StratosharkMainWindow::startCaptureTriggered()
 {
-//#ifdef HAVE_AIRPCAP
-//  airpcap_if_active = airpcap_if_selected;
-//  if (airpcap_if_active)
-//    airpcap_set_toolbar_start_capture(airpcap_if_active);
-//#endif
 
 //  if (cap_open_w) {
 //    /*

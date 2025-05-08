@@ -97,13 +97,6 @@
 #  include <wsutil/file_util.h>
 #endif /* _WIN32 */
 
-#ifdef HAVE_AIRPCAP
-#  include <capture/airpcap.h>
-#  include <capture/airpcap_loader.h>
-//#  include "airpcap_dlg.h"
-//#  include "airpcap_gui_utils.h"
-#endif
-
 #include "epan/crypt/dot11decrypt_ws.h"
 
 /* Handle the addition of View menu items without request */
@@ -217,13 +210,6 @@ gather_wireshark_qt_compiled_info(feature_list l)
     } else {
         without_feature(l, "automatic updates");
     }
-#ifdef _WIN32
-#ifdef HAVE_AIRPCAP
-    gather_airpcap_compile_info(l);
-#else
-    without_feature(l, "AirPcap");
-#endif
-#endif /* _WIN32 */
 
 #ifdef HAVE_MINIZIP
     with_feature(l, "Minizip");
@@ -246,10 +232,6 @@ gather_wireshark_runtime_info(feature_list l)
     gather_caplibs_runtime_info(l);
 #endif
     epan_gather_runtime_info(l);
-
-#ifdef HAVE_AIRPCAP
-    gather_airpcap_runtime_info(l);
-#endif
 
     if (mainApp) {
         // Display information
@@ -438,12 +420,6 @@ int main(int argc, char *qt_argv[])
     int                  rf_open_errno;
 #ifdef HAVE_LIBPCAP
     char                *err_str, *err_str_secondary;
-#else
-#ifdef _WIN32
-#ifdef HAVE_AIRPCAP
-    char                *err_str;
-#endif
-#endif
 #endif
     char                *err_msg = NULL;
     df_error_t          *df_err = NULL;
@@ -571,48 +547,6 @@ int main(int argc, char *qt_argv[])
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
 
-#ifdef HAVE_AIRPCAP
-    /* Load the airpcap.dll.  This must also be done before collecting
-     * run-time version information. */
-    load_airpcap();
-#if 0
-    airpcap_dll_ret_val = load_airpcap();
-
-    switch (airpcap_dll_ret_val) {
-    case AIRPCAP_DLL_OK:
-        /* load the airpcap interfaces */
-        g_airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
-
-        if (g_airpcap_if_list == NULL || g_list_length(g_airpcap_if_list) == 0) {
-            if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
-                g_free(err_str);
-            }
-            airpcap_if_active = NULL;
-
-        } else {
-
-            /* select the first as default (THIS SHOULD BE CHANGED) */
-            airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
-        }
-        break;
-    /*
-     * XXX - Maybe we need to warn the user if one of the following happens???
-     */
-    case AIRPCAP_DLL_OLD:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_OLD\n");
-        break;
-
-    case AIRPCAP_DLL_ERROR:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
-        break;
-
-    case AIRPCAP_DLL_NOT_FOUND:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
-        break;
-    }
-#endif
-#endif /* HAVE_AIRPCAP */
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
