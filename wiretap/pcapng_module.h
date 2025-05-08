@@ -236,6 +236,31 @@ bool pcapng_write_options(wtap_dumper *wdh, pcapng_opt_byte_order_e byte_order,
                           wtap_block_t block, write_option_func write_option,
                           int *err, char **err_info);
 
+/*
+ * Handler routines for pcapng custom blocks with an enterprise number.
+ */
+typedef bool (*custom_option_parser)(FILE_T fh, uint32_t block_payload_length,
+    section_info_t* section_info,
+    wtapng_block_t* wblock,
+    int* err, char** err_info);
+typedef bool (*custom_option_processor)(wtapng_block_t* wblock,
+    section_info_t* section_info,
+    const uint8_t* value, uint16_t length);
+
+typedef struct pcapng_custom_block_enterprise_handler_t
+{
+    custom_option_parser parser;
+    custom_option_processor processor;
+    block_writer writer;
+} pcapng_custom_block_enterprise_handler_t;
+
+/*
+ * Register a handler for a pcapng custom block with an enterprise number.
+ */
+WS_DLL_PUBLIC
+void register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t* handler);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

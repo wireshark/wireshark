@@ -40,9 +40,6 @@
 #include "pcapng_module.h"
 #include "secrets-types.h"
 
-#include "pcapng-netflix-custom.h"
-#include "pcapng-netflix-custom-int.h"
-
 #define ROUND_TO_4BYTE(len) WS_ROUNDUP_4(len)
 
 static bool
@@ -350,17 +347,6 @@ register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
          break;
     }
 
-    if (block_handlers == NULL) {
-        /*
-         * Create the table of block handlers.
-         *
-         * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
-         * so we use "g_direct_hash()" and "g_direct_equal()".
-         */
-        block_handlers = g_hash_table_new_full(g_direct_hash,
-                                               g_direct_equal,
-                                               NULL, g_free);
-    }
     handler = g_new(block_handler, 1);
     handler->reader = reader;
     handler->writer = writer;
@@ -435,6 +421,8 @@ typedef struct {
 
 static GHashTable *option_handlers[NUM_BT_INDICES];
 
+static GHashTable *custom_enterprise_handlers;
+
 /* Return whether this block type is handled interally, or
  * if it is returned to the caller in pcapng_read().
  * This is used by pcapng_open() to decide if it can process
@@ -490,8 +478,7 @@ get_block_type_internal(unsigned block_type)
         /*
          * Do we have a handler for this block type?
          */
-        if (block_handlers != NULL &&
-            (g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type))) != NULL) {
+        if (g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type)) != NULL) {
                 /* Yes. We don't know if the handler sets this block internal
                  * or needs to return it to the pcap_read() caller without
                  * reading it. Since this is called by pcap_open(), play it
@@ -944,6 +931,7 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
                                     int *err, char **err_info)
 {
     uint32_t pen;
+    pcapng_custom_block_enterprise_handler_t* pen_handler;
     bool ret;
 
     if (!pcapng_process_custom_option_common(section_info, option_length,
@@ -951,15 +939,19 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
                                              &pen, err, err_info)) {
         return false;
     }
-    switch (pen) {
-    case PEN_NFLX:
-        ret = pcapng_process_nflx_custom_option(wblock, section_info, option_content + 4, option_length - 4);
-        break;
-    default:
+
+    pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
+
+    if (pen_handler != NULL)
+    {
+        ret = pen_handler->processor(wblock, section_info, option_content + 4, option_length - 4);
+    }
+    else
+    {
         ret = wtap_block_add_custom_binary_option_from_data(wblock->block, option_code, pen, option_content + 4, option_length - 4) == WTAP_OPTTYPE_SUCCESS;
         ws_debug("Custom option type %u (0x%04x) with unknown pen %u with custom data of length %u", option_code, option_code, pen, option_length - 4);
-        break;
     }
+
     ws_debug("returning %d", ret);
     return ret;
 }
@@ -2973,6 +2965,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
     return true;
 }
 
+void
+register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t* handler)
+{
+    g_hash_table_insert(custom_enterprise_handlers, GUINT_TO_POINTER(enterprise_number), handler);
+}
+
 static bool
 pcapng_handle_generic_custom_block(FILE_T fh, pcapng_block_header_t *bh,
                                    uint32_t pen, wtapng_block_t *wblock,
@@ -3010,6 +3008,7 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
 {
     pcapng_custom_block_t cb;
     uint32_t pen;
+    pcapng_custom_block_enterprise_handler_t* pen_handler;
 
     /* Is this block long enough to be an CB? */
     if (bh->block_total_length < MIN_CB_SIZE) {
@@ -3037,16 +3036,17 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     uint32_t block_payload_length = bh->block_total_length - MIN_CB_SIZE;
     ws_debug("pen %u, custom data and option length %u", pen, block_payload_length);
 
-    switch (pen) {
-        case PEN_NFLX:
-            if (!pcapng_read_nflx_custom_block(fh, block_payload_length, section_info, wblock, err, err_info))
-                return false;
-            break;
-        default:
-            if (!pcapng_handle_generic_custom_block(fh, bh, pen, wblock, err, err_info)) {
-                return false;
-            }
-            break;
+    pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
+
+    if (pen_handler != NULL)
+    {
+        if (!pen_handler->parser(fh, block_payload_length, section_info, wblock, err, err_info))
+            return false;
+    }
+    else
+    {
+        if (!pcapng_handle_generic_custom_block(fh, bh, pen, wblock, err, err_info))
+            return false;
     }
 
     wblock->rec->block = wblock->block;
@@ -3346,8 +3346,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
     /*
      * Do we have a handler for this block type?
      */
-    if (block_handlers != NULL &&
-        (handler = (block_handler *)g_hash_table_lookup(block_handlers,
+    if ((handler = (block_handler *)g_hash_table_lookup(block_handlers,
                                                         GUINT_TO_POINTER(bh->block_type))) != NULL) {
         /* Yes - call it to read this block type. */
         if (!handler->reader(fh, block_read, section_info->byte_swapped, wblock,
@@ -4883,10 +4882,10 @@ static bool pcapng_write_custom_string_option(wtap_dumper *wdh,
     if (!wtap_dump_file_write(wdh, &pen, sizeof(uint32_t), err))
         return false;
 
-    /* write custom data */
+        /* write custom data */
     if (!wtap_dump_file_write(wdh, optval->custom_stringval.string, stringlen, err)) {
-        return false;
-    }
+            return false;
+        }
 
     /* write padding (if any) */
     if (size % 4 != 0) {
@@ -4970,7 +4969,7 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
         return false;
 
     /* write custom data */
-        if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.generic_data.custom_data, optval->custom_binaryval.data.generic_data.custom_data_len, err)) {
+    if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.generic_data.custom_data, optval->custom_binaryval.data.generic_data.custom_data_len, err)) {
         return false;
     }
 
@@ -6757,8 +6756,7 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
             /*
              * Do we have a handler for this block type?
              */
-            if (block_handlers != NULL &&
-                (handler = (block_handler *)g_hash_table_lookup(block_handlers,
+            if ((handler = (block_handler *)g_hash_table_lookup(block_handlers,
                                                                 GUINT_TO_POINTER(rec->rec_header.ft_specific_header.record_type))) != NULL) {
                 /* Yes. Call it to write out this record. */
                 if (!handler->writer(wdh, rec, err, err_info))
@@ -6785,20 +6783,21 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
             break;
 
         case REC_TYPE_CUSTOM_BLOCK:
-            switch (rec->rec_header.custom_block_header.pen) {
-            case PEN_NFLX:
-                if (!pcapng_write_nflx_custom_block(wdh, rec, err, err_info)) {
+        {
+            pcapng_custom_block_enterprise_handler_t* pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(rec->rec_header.custom_block_header.pen));
+
+            if (pen_handler != NULL)
+            {
+                if (!pen_handler->writer(wdh, rec, err, err_info))
                     return false;
-                }
-                break;
-            default:
-                if (!pcapng_write_custom_block(wdh, rec, err, err_info)) {
+            }
+            else
+            {
+                if (!pcapng_write_custom_block(wdh, rec, err, err_info))
                     return false;
-                }
-                break;
             }
             break;
-
+        }
         default:
             /* We don't support writing this record type. */
             *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
@@ -7116,6 +7115,22 @@ void register_pcapng(void)
 
     wtap_register_backwards_compatibility_lua_name("PCAPNG",
                                                    pcapng_file_type_subtype);
+
+    /* Setup the tables that will be used to handle custom block options */
+
+    /*
+     * Create the table of option handlers for this block type.
+     *
+     * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+     * so we use "g_direct_hash()" and "g_direct_equal()".
+    */
+    block_handlers = g_hash_table_new_full(g_direct_hash,
+        g_direct_equal,
+        NULL, g_free);
+
+    custom_enterprise_handlers = g_hash_table_new_full(g_direct_hash,
+        g_direct_equal,
+        NULL, g_free);
 }
 
 /*

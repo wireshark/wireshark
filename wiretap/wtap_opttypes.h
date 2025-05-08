@@ -154,9 +154,6 @@ extern "C" {
 #define OPT_ISB_OSDROP       7
 #define OPT_ISB_USRDELIV     8
 
-struct wtap_block;
-typedef struct wtap_block *wtap_block_t;
-
 /*
  * Currently supported blocks; these are not the pcapng block type values
  * for them, they're identifiers used internally, and more than one
@@ -206,6 +203,37 @@ typedef enum {
     WTAP_BLOCK_CUSTOM,
     MAX_WTAP_BLOCK_TYPE_VALUE
 } wtap_block_type_t;
+
+struct wtap_block;
+typedef struct wtap_block* wtap_block_t;
+
+typedef void (*wtap_block_create_func)(wtap_block_t block);
+typedef void (*wtap_mand_free_func)(wtap_block_t block);
+typedef void (*wtap_mand_copy_func)(wtap_block_t dest_block, wtap_block_t src_block);
+
+/*
+ * Structure describing a type of block.
+ */
+typedef struct wtap_blocktype_t {
+    wtap_block_type_t block_type;    /**< internal type code for block */
+    const char* name;                /**< name of block */
+    const char* description;         /**< human-readable description of block */
+    wtap_block_create_func create;
+    wtap_mand_free_func free_mand;
+    wtap_mand_copy_func copy_mand;
+    GHashTable* options;             /**< hash table of known options */
+} wtap_blocktype_t;
+
+struct wtap_block
+{
+    struct wtap_blocktype_t* info;
+    void* mandatory_data;
+    GArray* options;
+    int ref_count;
+#ifdef DEBUG_COUNT_REFS
+    unsigned id;
+#endif
+};
 
 /**
  * Holds the required data from a WTAP_BLOCK_SECTION.
@@ -459,6 +487,19 @@ typedef struct {
 typedef void (*wtap_block_create_func)(wtap_block_t block);
 typedef void (*wtap_mand_free_func)(wtap_block_t block);
 typedef void (*wtap_mand_copy_func)(wtap_block_t dest_block, wtap_block_t src_block);
+
+/*
+ * Structure describing a type of option.
+ */
+typedef struct {
+    const char* name;                            /**< name of option */
+    const char* description;                     /**< human-readable description of option */
+    wtap_opttype_e data_type;                    /**< data type of that option */
+    unsigned flags;                                 /**< flags for the option */
+} wtap_opttype_t;
+
+#define GET_OPTION_TYPE(options, option_id) \
+    (const wtap_opttype_t *)g_hash_table_lookup((options), GUINT_TO_POINTER(option_id))
 
 /** Initialize block types.
  *
@@ -1060,30 +1101,6 @@ wtap_block_add_custom_binary_option_from_data(wtap_block_t block, unsigned optio
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nth_custom_binary_option_value(wtap_block_t block, unsigned option_id, uint32_t pen, unsigned idx, binary_optdata_t *value);
-
-/** Add an NFLX custom option to a block
- *
- * @param[in] block Block to which to add the option
- * @param[in] nflx_type NFLX option type
- * @param[in] nflx_custom_data pointer to the data
- * @param[in] nflx_custom_data_len length of custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, const char *nflx_custom_data, size_t nflx_custom_data_len);
-
-/** Get an NFLX custom option value from a block
- *
- * @param[in] block Block from which to get the option value
- * @param[in] nflx_type type of the option
- * @param[out] nflx_custom_data Returned value of NFLX custom option value
- * @param[in] nflx_custom_data_len size of buffer provided in nflx_custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *nflx_custom_data, size_t nflx_custom_data_len);
 
 /** Add an if_filter option value to a block
  *
