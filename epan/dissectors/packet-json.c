@@ -540,20 +540,13 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	/* Save pinfo*/
 	parser_data.pinfo = pinfo;
 	/* JSON dissector can be called in a JSON native file or when transported
-	 * by another protocol, will make entry in the Protocol column on summary display accordingly
+	 * by another protocol; for a JSON file, this dissector is called by the
+	 * frame dissector, which only sets COL_PROTOCOL and COL_INFO if the
+	 * dissector it calls fails, so this will make the entry in the Protocol
+	 * column accordingly.
 	 */
-	wmem_list_frame_t *proto = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-	if (proto) {
-		const char *name = proto_get_protocol_filter_name(GPOINTER_TO_INT(wmem_list_frame_data(proto)));
-
-		if (strcmp(name, "frame")) {
-			col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "JSON");
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "JSON");
-		} else {
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "JSON");
-			col_set_str(pinfo->cinfo, COL_INFO, "JSON");
-		}
-	}
+	col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "JSON");
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "JSON");
 
 	data_name = pinfo->match_string;
 	if (! (data_name && data_name[0])) {
