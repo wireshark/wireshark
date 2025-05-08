@@ -269,6 +269,15 @@ static int hf_tecmp_payload_data_ilas_decoded_data;
 static int hf_tecmp_payload_data_ilas_raw_sdu;
 static int hf_tecmp_payload_data_ilas_raw_crc;
 
+/* I2C */
+static int hf_tecmp_payload_data_i2c_address_7bit;
+static int hf_tecmp_payload_data_i2c_address_10bit;
+static int hf_tecmp_payload_data_i2c_address1;
+static int hf_tecmp_payload_data_i2c_address2;
+static int hf_tecmp_payload_data_i2c_direction;
+static int hf_tecmp_payload_data_i2c_control_char;
+static int hf_tecmp_payload_data_i2c_data_byte;
+
 /* TECMP Status Messages */
 /* Status Device */
 static int hf_tecmp_payload_status_vendor_id;
@@ -401,6 +410,7 @@ static int ett_tecmp_payload_analog_alt_flags;
 static int ett_tecmp_payload_analog_alt_sample;
 static int ett_tecmp_payload_eth_raw;
 static int ett_tecmp_payload_eth_raw_frame;
+static int ett_tecmp_payload_i2c_operation;
 static int ett_tecmp_status_bus_data;
 static int ett_tecmp_status_bus_data_entry;
 static int ett_tecmp_status_dev_vendor_data;
@@ -468,7 +478,8 @@ static const value_string msg_type_names[] = {
 #define TECMP_DATA_TYPE_MIPI_CSI2_V        0x0101
 #define TECMP_DATA_TYPE_MIPI_CSI2_L        0x0102
 #define TECMP_DATA_TYPE_SPI                0x0103
-#define TECMP_DATA_TYPE_I2C_7BIT           0x0104
+#define TECMP_DATA_TYPE_I2C                0x0104
+#define TECMP_DATA_TYPE_I2C_10BIT          0x0106
 #define TECMP_DATA_TYPE_TAPI               0x0200
 #define TECMP_DATA_TYPE_TAPI_INIT_STATE    0x0201
 #define TECMP_DATA_TYPE_TAPI_CORE_DUMP     0x0202
@@ -499,7 +510,8 @@ static const value_string tecmp_msgtype_names[] = {
     {TECMP_DATA_TYPE_MIPI_CSI2_V,          "MIPI-CSI2 V"},
     {TECMP_DATA_TYPE_MIPI_CSI2_L,          "MIPI-CSI2 L"},
     {TECMP_DATA_TYPE_SPI,                  "SPI"},
-    {TECMP_DATA_TYPE_I2C_7BIT,             "I2C 7 Bit"},
+    {TECMP_DATA_TYPE_I2C,                  "I2C"},
+    {TECMP_DATA_TYPE_I2C_10BIT,            "I2C 10 Bit"},
     {TECMP_DATA_TYPE_TAPI,                 "TAPI"},
     {TECMP_DATA_TYPE_TAPI_INIT_STATE,      "TAPI Initial State"},
     {TECMP_DATA_TYPE_TAPI_CORE_DUMP,       "TAPI Core Dump"},
@@ -803,6 +815,23 @@ static const value_string tecmp_payload_flexray_tx_mode[] = {
     {0x1, "Single Shot Transmission"},
     {0x2, "Continuous Transmission"},
     {0x3, "TX None"},
+    {0, NULL}
+};
+
+static const true_false_string tfs_tecmp_i2c_direction = {
+    "Read",
+    "Write"
+};
+
+#define TECMP_I2C_CONTROL_ACK_REPEATED_START 3
+#define TECMP_I2C_CONTROL_NACK_REPEATED_START 5
+static const value_string tecmp_i2c_control[] = {
+    {0x0, "NACK"},
+    {0x1, "ACK"},
+    {0x2, "ACK + STOP"},
+    {TECMP_I2C_CONTROL_ACK_REPEATED_START, "ACK + repeated START"},
+    {0x4, "NACK + STOP"},
+    {TECMP_I2C_CONTROL_NACK_REPEATED_START, "NACK + repeated START"},
     {0, NULL}
 };
 
@@ -2090,7 +2119,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             break;
         }
 
-        length = tvb_get_uint16(tvb, offset+12, ENC_BIG_ENDIAN);
+        length = tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN);
         ti_tecmp = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (int)length + 16, ENC_NA);
         proto_item_append_text(ti_tecmp, " (%s)", val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
@@ -2493,6 +2522,123 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     length2 -= 8;
                 }
                 dissect_ethernet_payload(sub_tvb, offset2, length2, pinfo, tree, tecmp_tree);
+            }
+                break;
+
+            case TECMP_DATA_TYPE_I2C:
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, ":");
+
+                uint32_t i2c_tmp;
+
+                proto_item *ti_op = NULL;
+                proto_tree *op_tree;
+                while (length - offset2 > 0) {
+                    if (ti_op != NULL) {
+                        proto_item_set_end(ti_op, sub_tvb, offset2);
+                    }
+
+                    op_tree = proto_tree_add_subtree_format(tecmp_tree, sub_tvb, offset2, -1, ett_tecmp_payload_i2c_operation, &ti_op, "Operation:");
+                    uint32_t first_address_byte = tvb_get_uint8(sub_tvb, offset2) & 0xFE;
+
+                    if ((first_address_byte & 0xF8) != 0xF0) {
+                        /* 7bit Addressing */
+
+                        uint32_t i2c_addr;
+                        bool write_read;
+                        proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_address_7bit, sub_tvb, offset2, 1, ENC_NA, &i2c_addr);
+                        proto_tree_add_item_ret_boolean(op_tree, hf_tecmp_payload_data_i2c_direction, sub_tvb, offset2, 1, ENC_NA, &write_read);
+                        offset2 += 1;
+
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " %s at 0x%02x (7 Bit): ", write_read ? "Read" : "Write", i2c_addr);
+                        proto_item_append_text(ti_op, " %s at 0x%02x (7 Bit):", write_read ? " Read" : "Write", i2c_addr);
+
+                        proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_control_char, sub_tvb, offset2, 1, ENC_NA, &i2c_tmp);
+                        offset2 += 1;
+                        if (i2c_tmp == TECMP_I2C_CONTROL_ACK_REPEATED_START || i2c_tmp == TECMP_I2C_CONTROL_NACK_REPEATED_START) {
+                            break;
+                        }
+
+                    } else {
+                        /* 10bit Addressing */
+
+                        /* Expected sequences for 10bit Addressing (see NXP UM10204):
+                           Write: S 1111 0xxW ACK yyyyyyyy ACK ...              for Address xx yyyy yyyy (W = Write, 0)
+                           Read:  S 1111 0xxW ACK yyyyyyyy ACK Sr 1111 0xxR ... for Address xx yyyy yyyy (R = Read, 1)
+                         */
+
+                        uint32_t i2c_addr;
+                        bool write_read;
+                        proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_address1, sub_tvb, offset2, 1, ENC_NA, &i2c_addr);
+                        proto_tree_add_item_ret_boolean(op_tree, hf_tecmp_payload_data_i2c_direction, sub_tvb, offset2, 1, ENC_NA, &write_read);
+                        offset2 += 1;
+
+                        proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_control_char, sub_tvb, offset2, 1, ENC_NA, &i2c_tmp);
+                        offset2 += 1;
+                        if (i2c_tmp == TECMP_I2C_CONTROL_ACK_REPEATED_START || i2c_tmp == TECMP_I2C_CONTROL_NACK_REPEATED_START) {
+                            break;
+                        }
+
+                        uint32_t addr_10bit_addr_byte2;
+                        proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_address2, sub_tvb, offset2, 1, ENC_NA, &addr_10bit_addr_byte2);
+                        offset2 += 1;
+
+                        proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_control_char, sub_tvb, offset2, 1, ENC_NA, &i2c_tmp);
+                        offset2 += 1;
+
+                        if (i2c_tmp == TECMP_I2C_CONTROL_NACK_REPEATED_START) {
+                            break;
+                        } else if (i2c_tmp == TECMP_I2C_CONTROL_ACK_REPEATED_START) {
+                            /* lets peak into the next byte, if we have repeated start with same address and read ... */
+                            if (tvb_get_uint8(sub_tvb, offset2) == (first_address_byte | 0x01)) {
+                                proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_address1, sub_tvb, offset2, 1, ENC_NA, &i2c_addr);
+                                proto_tree_add_item_ret_boolean(op_tree, hf_tecmp_payload_data_i2c_direction, sub_tvb, offset2, 1, ENC_NA, &write_read);
+                                offset2 += 1;
+
+                                proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_control_char, sub_tvb, offset2, 1, ENC_NA, &i2c_tmp);
+                                offset2 += 1;
+                                if (i2c_tmp == TECMP_I2C_CONTROL_ACK_REPEATED_START || i2c_tmp == TECMP_I2C_CONTROL_NACK_REPEATED_START) {
+                                    break;
+                                }
+                            } else {
+                                /* just repeated start in the middle of operation ... */
+                                break;
+                            }
+                        }
+
+                        uint32_t i2c_addr_10bit = (first_address_byte & 0x06) << 7 | addr_10bit_addr_byte2;
+                        uint32_t addr_len = write_read ? 6 : 4;
+                        proto_tree_add_uint_format_value(op_tree, hf_tecmp_payload_data_i2c_address_10bit, sub_tvb, offset2 - addr_len, addr_len, i2c_addr_10bit, "0x%03x", i2c_addr_10bit);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " %s at 0x%03x (10 Bit): ", write_read ? "Read" : "Write", i2c_addr_10bit);
+                        proto_item_append_text(ti_op, " %s at 0x%03x (10 Bit):", write_read ? " Read" : "Write", i2c_addr_10bit);
+                    }
+
+                    unsigned count = length - offset2;
+                    if (count % 2 != 0) {
+                        /* lets remove a padding byte */
+                        count -= 1;
+                    }
+
+                    /* and now the payload */
+                    for (unsigned i = 0; i < count; i++) {
+                        if ((i % 2 == 0)) {
+                            proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_data_byte, sub_tvb, offset2, 1, ENC_NA, &i2c_tmp);
+                            offset2 += 1;
+
+                            col_append_fstr(pinfo->cinfo, COL_INFO, "0x%02x ", i2c_tmp);
+                            proto_item_append_text(ti_op, " 0x%02x", i2c_tmp);
+                        } else {
+                            proto_tree_add_item_ret_uint(op_tree, hf_tecmp_payload_data_i2c_control_char, sub_tvb, offset2, 1, ENC_NA, &i2c_tmp);
+                            offset2 += 1;
+
+                            if (i2c_tmp == TECMP_I2C_CONTROL_ACK_REPEATED_START || i2c_tmp == TECMP_I2C_CONTROL_NACK_REPEATED_START) {
+                                proto_item_set_end(ti_op, sub_tvb, offset2);
+                                break;
+                            }
+                        }
+                    }
+                }
+                proto_item_set_end(ti_op, sub_tvb, offset2);
             }
                 break;
 
@@ -2962,6 +3108,15 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_ilas_raw_sdu,                              { "Raw SDU", "tecmp.payload.ilas_raw_sdu", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_data_ilas_raw_crc,                              { "Raw CRC", "tecmp.payload.ilas_raw_crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
+        /* I2C */
+        { &hf_tecmp_payload_data_i2c_address_7bit,                          { "Address 7bit", "tecmp.payload.i2c_address", FT_UINT8, BASE_HEX_DEC, NULL, 0xfe, NULL, HFILL} },
+        { &hf_tecmp_payload_data_i2c_address_10bit,                         { "Address 10bit", "tecmp.payload.i2c_address_10bit", FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_tecmp_payload_data_i2c_address1,                              { "Address (first part of 10bit address)", "tecmp.payload.i2c_10bit_address_first_byte", FT_UINT8, BASE_HEX_DEC, NULL, 0xfe, NULL, HFILL} },
+        { &hf_tecmp_payload_data_i2c_address2,                              { "Address (last 8bit of 10bit address)", "tecmp.payload.i2c_10bit_address_second_byte", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL} },
+        { &hf_tecmp_payload_data_i2c_direction,                             { "Direction", "tecmp.payload.i2c_direction", FT_BOOLEAN, 8, TFS(&tfs_tecmp_i2c_direction), 0x01, NULL, HFILL } },
+        { &hf_tecmp_payload_data_i2c_control_char,                          { "Control Char", "tecmp.payload.i2c_control", FT_UINT8, BASE_HEX_DEC, VALS(tecmp_i2c_control), 0x0, NULL, HFILL} },
+        { &hf_tecmp_payload_data_i2c_data_byte,                             { "Data Byte", "tecmp.payload.i2c_data", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+
         /* TX Data Flags */
         { &hf_tecmp_payload_data_flags_use_crc_value,                       { "Use CRC Value", "tecmp.payload.data_flags.use_crc_value", FT_BOOLEAN, 16, NULL, 0x2000, NULL, HFILL } },
         { &hf_tecmp_payload_data_flags_use_header_crc_value,                { "Use Header CRC Value", "tecmp.payload.data_flags.use_header_crc_value", FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_HDR_CRC_ERR, NULL, HFILL } },
@@ -2996,6 +3151,7 @@ proto_register_tecmp_payload(void) {
         &ett_tecmp_payload_analog_alt_sample,
         &ett_tecmp_payload_eth_raw,
         &ett_tecmp_payload_eth_raw_frame,
+        &ett_tecmp_payload_i2c_operation,
         &ett_tecmp_status_dev_vendor_data,
         &ett_tecmp_status_dev_vendor_data_error_flags,
         &ett_tecmp_status_bus_data,
