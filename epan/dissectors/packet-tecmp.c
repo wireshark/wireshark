@@ -545,7 +545,7 @@ static const value_string tecmp_device_types[] = {
     {0x20, "Logger"},
     {TECMP_DEVICE_TYPE_CM_SERDES_GMSL23, "CM SerDes GMSL2/3"},
     {0x42, "CM MultiGigabit"},
-    {0x42, "EES"},
+    {0x44, "EES"},
     {0x46, "CM Sense"},
     {TECMP_DEVICE_TYPE_CM_SERDES_ASAML, "CM SerDes ASA ML"},
     {0x52, "Network Interfacer 10BASE-T1S"},
@@ -1501,7 +1501,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res0, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_beacon_counter, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_beacon_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1, ENC_NA);
@@ -1510,22 +1510,22 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res1, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res2, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_res2, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_5b_decode_err_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_eos_delim_err_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_dtct_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_dtct_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_miss_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_miss_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_empty_cnt, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_empty_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
         } else if (device_type == TECMP_DEVICE_TYPE_CM_SERDES_GMSL23 || device_type == TECMP_DEVICE_TYPE_CM_SERDES_ASAML) {
 
             static int * const error_flags_i2c[] = {
@@ -1553,10 +1553,10 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
             case 2:
                 /* 2: GPIO */
-                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
                 // offset += 1;
                 break;
 
@@ -1580,8 +1580,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                 offset += 1;
             }
             if (bytes_remaining >= 4) {
-                ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_bus_vendor_technica_linkup_time, tvb,
-                    offset, 2, ENC_NA, &tmp);
+                ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_bus_vendor_technica_linkup_time, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
                 if (tmp == 0) {
                     proto_item_append_text(ti, " %s", "(no linkup detected yet)");
                 } else if (tmp == 0xffff) {
@@ -1894,7 +1893,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_append_text(ti_tecmp_bus, " %d", i);
                 tecmp_tree_bus = proto_item_add_subtree(ti_tecmp_bus, ett_tecmp_status_bus_data_entry);
 
-                ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_interface_id, tvb, offset, 4, ENC_NA, &tmp);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
                 descr = ht_interface_config_to_string(tmp);
                 if (descr != NULL) {
                     proto_item_append_text(ti, " (%s)", descr);
@@ -1903,8 +1902,8 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item_append_text(ti_tecmp_bus, ": (Interface ID: 0x%08x)", tmp);
                 }
 
-                proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_bus_total, tvb, offset + 4, 4, ENC_NA);
-                proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_bus_errors, tvb, offset + 8, 4, ENC_NA);
+                proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_bus_total, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tecmp_tree_bus, hf_tecmp_payload_status_bus_errors, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
                 offset += 12;
 
                 if (vendor_data_len > 0) {
@@ -2151,7 +2150,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_cycle, sub_tvb, offset2, 1, ENC_NA, &tmp);
                 fr_info.cc = (uint8_t)tmp;
 
-                proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_frame_id, sub_tvb, offset2 + 1, 2, ENC_NA, &tmp);
+                proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_frame_id, sub_tvb, offset2 + 1, 2, ENC_BIG_ENDIAN, &tmp);
                 fr_info.id = (uint16_t)tmp;
 
                 ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 3, 1, ENC_NA, &length2);
@@ -2841,8 +2840,8 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_timesync_event_device_id,                       { "Device ID", "tecmp.payload.timesync_event.device_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_timesync_event_interface_id,                    { "Interface ID", "tecmp.payload.timesync_event.interface_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_timesync_event_reserved,                        { "Reserved", "tecmp.payload.timesync_event.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_tecmp_payload_timesync_event_async,                           { "Async", "tecmp.payload.timesync_event.async", FT_UINT16, BASE_HEX, VALS(tecmp_timesync_event_flags), 0x0, NULL, HFILL } },
-        { &hf_tecmp_payload_timesync_event_time_delta,                      { "TimeDelta", "tecmp.payload.timesync_event.time_delta", FT_UINT16, BASE_HEX, VALS(tecmp_timesync_event_flags), 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_timesync_event_async,                           { "Async", "tecmp.payload.timesync_event.async", FT_UINT8, BASE_HEX, VALS(tecmp_timesync_event_flags), 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_timesync_event_time_delta,                      { "TimeDelta", "tecmp.payload.timesync_event.time_delta", FT_UINT8, BASE_HEX, VALS(tecmp_timesync_event_flags), 0x0, NULL, HFILL } },
     };
 
     static int *ett[] = {
