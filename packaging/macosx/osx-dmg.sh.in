@@ -54,10 +54,12 @@ do
 	shift 1
 done
 
-if lipo "$app_name.app/Contents/MacOS/$app_name" -verify_arch arm64 ; then
-	architecture="Arm 64"
+if lipo "$app_name.app/Contents/MacOS/$app_name" -verify_arch arm64 x86_64 ; then
+	architecture=""
+elif lipo "$app_name.app/Contents/MacOS/$app_name" -verify_arch arm64 ; then
+	architecture=" Arm 64"
 elif lipo "$app_name.app/Contents/MacOS/$app_name" -verify_arch x86_64 ; then
-	architecture="Intel 64"
+	architecture=" Intel 64"
 else
 	echo "Error: $app_name.app missing or has unknown architecture."
 	lipo "$app_name.app/Contents/MacOS/$app_name" -detailed_info
@@ -71,7 +73,7 @@ if [[ $app_name = Strato* ]] ; then
 fi
 
 app_vol_name="$app_name ${version}"
-app_img_name="$app_vol_name $architecture.dmg"
+app_img_name="${app_vol_name}${architecture}.dmg"
 
 printf "\nCreating application disk image %s\n" "$app_img_name"
 
@@ -82,7 +84,7 @@ printf "\nCreating application disk image %s\n" "$app_img_name"
 	"$app_img_name" || exit 1
 
 dsym_vol_name="$app_name dSYM ${version}"
-dsym_img_name="$dsym_vol_name $architecture.dmg"
+dsym_img_name="${dsym_vol_name}${architecture}.dmg"
 
 printf "\nCreating debugging symbols disk image %s\n" "$dsym_img_name"
 

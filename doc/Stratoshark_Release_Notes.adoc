@@ -33,6 +33,9 @@ The following changes have been made since version 0.9.1:
 
 * Cloudtrail log messages can now be viewed as formatted JSON data.
 
+* We now ship universal macOS installers instead of separate packages
+for Arm64 and Intel. wsbuglink:17294[]
+
 The following changes have been made since version 0.9.0:
 
 * The application icons have been updated.

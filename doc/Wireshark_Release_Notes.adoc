@@ -49,6 +49,9 @@ The following features are either new or have been significantly updated since v
   2013-03-08 and only supports up to Windows 8, which is no longer supported
   by Microsoft or Wireshark.
 
+* We now ship universal macOS installers instead of separate packages
+for Arm64 and Intel. wsbuglink:17294[]
+
 * Source packages are now compressed using zstd.
 
 * Live captures can be compressed while writing. (Previously there was
