@@ -49,6 +49,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/profile_tree_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_elided.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_si.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_spacer_legend_item.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_string_legend_item.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/range_syntax_lineedit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/resize_header_view.h
@@ -292,6 +293,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/profile_tree_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_elided.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_axis_ticker_si.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_spacer_legend_item.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/qcp_string_legend_item.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/range_syntax_lineedit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/resize_header_view.cpp

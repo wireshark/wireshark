@@ -50,6 +50,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/profile_tree_view.h
 	widgets/qcp_axis_ticker_elided.h
 	widgets/qcp_axis_ticker_si.h
+	widgets/qcp_spacer_legend_item.h
 	widgets/qcp_string_legend_item.h
 	widgets/range_syntax_lineedit.h
 	widgets/resize_header_view.h
@@ -323,6 +324,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/profile_tree_view.cpp
 	widgets/qcp_axis_ticker_elided.cpp
 	widgets/qcp_axis_ticker_si.cpp
+	widgets/qcp_spacer_legend_item.cpp
 	widgets/qcp_string_legend_item.cpp
 	widgets/range_syntax_lineedit.cpp
 	widgets/resize_header_view.cpp
