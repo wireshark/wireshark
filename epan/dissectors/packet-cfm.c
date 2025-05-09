@@ -792,7 +792,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				tvb, maid_offset, maid_ma_name_length, ENC_NA);
 		} else {
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_pvid,
-				tvb, maid_offset, 2, ENC_NA);
+				tvb, maid_offset, 2, ENC_BIG_ENDIAN);
 		}
 		break;
 	case MA_NAME_FMT_STRING:
@@ -805,7 +805,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				tvb, maid_offset, maid_ma_name_length, ENC_NA);
 		} else {
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_id,
-				tvb, maid_offset, 2, ENC_NA);
+				tvb, maid_offset, 2, ENC_BIG_ENDIAN);
 		}
 		break;
 	case MA_NAME_FMT_VPN_ID:
@@ -814,9 +814,9 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				tvb, maid_offset, maid_ma_name_length, ENC_NA);
 		} else {
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_vpnid_oui,
-				tvb, maid_offset, 3, ENC_NA);
+				tvb, maid_offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_vpnid_index,
-				tvb, maid_offset + 3, 4, ENC_NA);
+				tvb, maid_offset + 3, 4, ENC_BIG_ENDIAN);
 		}
 		break;
 	case MA_NAME_FMT_ICC:

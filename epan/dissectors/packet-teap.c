@@ -284,7 +284,7 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       break;
 
     case PAC_LIFETIME:
-      proto_tree_add_item(tree, hf_pac_attr_pac_lifetime, tvb, offset, 4, ENC_NA);
+      proto_tree_add_item(tree, hf_pac_attr_pac_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       break;
 
@@ -309,7 +309,7 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       break;
 
     case PAC_ACK:
-      proto_tree_add_item(tree, hf_pac_attr_pac_result, tvb, offset, len, ENC_NA);
+      proto_tree_add_item(tree, hf_pac_attr_pac_result, tvb, offset, len, ENC_BIG_ENDIAN);
       offset += len;
       break;
 
@@ -318,7 +318,7 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       break;
 
     case PAC_TYPE:
-      proto_tree_add_item(tree, hf_pac_attr_pac_type, tvb, offset, len, ENC_NA);
+      proto_tree_add_item(tree, hf_pac_attr_pac_type, tvb, offset, len, ENC_BIG_ENDIAN);
       offset += len;
       break;
 

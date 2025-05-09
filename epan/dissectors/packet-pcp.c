@@ -1554,7 +1554,7 @@ static int dissect_pcp_message_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /* number of label sets */
     int32_t nsets;
-    proto_tree_add_item_ret_int(pcp_label_tree, hf_pcp_label_nsets, tvb, offset, 4, ENC_NA, &nsets);
+    proto_tree_add_item_ret_int(pcp_label_tree, hf_pcp_label_nsets, tvb, offset, 4, ENC_BIG_ENDIAN, &nsets);
     offset += 4;
 
 

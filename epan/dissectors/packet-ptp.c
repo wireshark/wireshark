@@ -3407,7 +3407,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                 for (ii = 0; ii < actualTableSize; ii++) {
                     proto_tree  *record_subtree;
                     proto_item *acceptable_ti;
-                    acceptable_ti = proto_tree_add_item(acceptableTable_subtree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_NA);
+                    acceptable_ti = proto_tree_add_item(acceptableTable_subtree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_BIG_ENDIAN);
                     record_subtree = proto_item_add_subtree(acceptable_ti, ett_ptp_v2_acceptableRecord);
 
                     proto_tree_add_item(record_subtree, hf_ptp_v2_mm_clockidentity, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -4041,7 +4041,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
             proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_atoi_tlv_jumpseconds, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_atoi_tlv_timeofnextjump, tvb, offset, 6, ENC_NA);
+            proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_atoi_tlv_timeofnextjump, tvb, offset, 6, ENC_BIG_ENDIAN);
             offset += 6;
 
             dissect_ptp_v2_text(tvb, &offset, ptp_tlv_tree, hf_ptp_v2_atoi_tlv_displayname, hf_ptp_v2_atoi_tlv_displayname_length);
@@ -4172,7 +4172,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
           offset += 4;
 
           int auth_tlv_icv_length = tlv_length - 6;
-          proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_auth_tlv_icv, tvb, offset, auth_tlv_icv_length, ENC_BIG_ENDIAN);
+          proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_auth_tlv_icv, tvb, offset, auth_tlv_icv_length, ENC_NA);
           offset += auth_tlv_icv_length;
           break;
         }

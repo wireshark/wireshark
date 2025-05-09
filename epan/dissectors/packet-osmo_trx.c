@@ -357,7 +357,7 @@ static int dissect_otrxd_rx_hdr_v0(tvbuff_t *tvb, packet_info *pinfo,
 	dissect_otrxd_chdr_v0(tvb, pinfo, ti, tree, pi, &offset);
 
 	proto_tree_add_item(tree, hf_otrxd_rssi, tvb, offset++, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;
@@ -380,7 +380,7 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 		proto_item_append_text(ti, ", NOPE.ind");
 
 	/* C/I (Carrier to Interference ratio) */
-	proto_tree_add_item(tree, hf_otrxd_ci, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(tree, hf_otrxd_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;

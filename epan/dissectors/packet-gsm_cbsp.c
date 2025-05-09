@@ -433,33 +433,33 @@ dissect_cell_id_elem(uint8_t discr, tvbuff_t *tvb, packet_info *pinfo, unsigned 
 	case CBSP_CIDD_WHOLE_CGI:
 		mcc_mnc = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, true);
 		offset += 3;
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_NA, &lac);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_BIG_ENDIAN, &lac);
 		offset += 2;
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_ci, tvb, offset, 2, ENC_NA, &ci);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_ci, tvb, offset, 2, ENC_BIG_ENDIAN, &ci);
 		offset += 2;
 		proto_item_append_text(ti, ": %s, LAC 0x%04x, CI 0x%04x", mcc_mnc, lac, ci);
 		break;
 	case CBSP_CIDD_LAC_CI:
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_NA, &lac);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_BIG_ENDIAN, &lac);
 		offset += 2;
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_ci, tvb, offset, 2, ENC_NA, &ci);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_ci, tvb, offset, 2, ENC_BIG_ENDIAN, &ci);
 		offset += 2;
 		proto_item_append_text(ti, ": LAC 0%04x, CI 0x%04x", lac, ci);
 		break;
 	case CBSP_CIDD_CI:
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_ci, tvb, offset, 2, ENC_NA, &ci);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_ci, tvb, offset, 2, ENC_BIG_ENDIAN, &ci);
 		offset += 2;
 		proto_item_append_text(ti, ": CI 0x%04x", ci);
 		break;
 	case CBSP_CIDD_LAI:
 		mcc_mnc = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, true);
 		offset += 3;
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_NA, &lac);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_BIG_ENDIAN, &lac);
 		offset += 2;
 		proto_item_append_text(ti, ": %s, LAC 0x%04x", mcc_mnc, lac);
 		break;
 	case CBSP_CIDD_LAC:
-		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_NA, &lac);
+		proto_tree_add_item_ret_uint(tree, hf_cbsp_lac, tvb, offset, 2, ENC_BIG_ENDIAN, &lac);
 		offset += 2;
 		proto_item_append_text(ti, ": LAC 0x%04x", lac);
 		break;
@@ -629,7 +629,7 @@ dissect_bc_compl_list_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, uns
 			break;
 		offset += rc;
 
-		proto_tree_add_item_ret_uint(elem_tree, hf_cbsp_num_bcast_compl, tvb, offset, 2, ENC_NA,
+		proto_tree_add_item_ret_uint(elem_tree, hf_cbsp_num_bcast_compl, tvb, offset, 2, ENC_BIG_ENDIAN,
 					     &num_bc);
 		offset += 2;
 		proto_tree_add_item_ret_uint(elem_tree, hf_cbsp_num_bcast_info, tvb, offset++, 1, ENC_NA,

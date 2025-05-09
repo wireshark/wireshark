@@ -372,11 +372,11 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
             offset += 4;
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
-            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_send_secret, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_send_secret, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
-            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_recv_secret, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_recv_secret, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signing_opts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -396,7 +396,7 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
 
             data_tvb_len = tvb_reported_length_remaining(tvb, offset);
             if(data_tvb_len)
-                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_NA);
+                proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_BIG_ENDIAN);
             break;
         case FRAME_EXOPCODE_SACK:
             flag = tvb_get_uint8(tvb, offset);

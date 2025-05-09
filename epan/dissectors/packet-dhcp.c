@@ -3366,7 +3366,7 @@ dissect_dhcpopt_pcp_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		offset += 1;
 		ip_list_length += 1;
 		while (((list_length - 1)%4 == 0) && (ip_list_length < list_length) && tvb_reported_length_remaining(tvb,offset) >= 4) {
-			proto_tree_add_item(tree_pcp, hf_dhcp_option_pcp_server, tvb, offset, 4, ENC_NA);
+			proto_tree_add_item(tree_pcp, hf_dhcp_option_pcp_server, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			ip_list_length += 4;
 		}
@@ -4835,7 +4835,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 	switch(subopt)
 	{
 		case 1:
-			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_message_type, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_message_type, tvb, suboptoff, subopt_len, ENC_NA);
 			break;
 		case 2:
 			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_version, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
@@ -4853,30 +4853,30 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_boot_image_list_path, tvb, suboptoff, subopt_len, ENC_ASCII);
 			break;
 		case 7:
-			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_default_boot_image_id, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_default_boot_image_id, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			o43bsdp_va_tree = proto_item_add_subtree(ti, ett_dhcp_o43_bsdp_boot_image);
 			dissect_vendor_bsdp_boot_image(o43bsdp_va_tree, tvb, suboptoff);
-			proto_tree_add_item(o43bsdp_va_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, suboptoff+2, subopt_len-2, ENC_BIG_ENDIAN|ENC_NA);
+			proto_tree_add_item(o43bsdp_va_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, suboptoff+2, subopt_len-2, ENC_BIG_ENDIAN);
 			break;
 		case 8:
-			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_selected_boot_image_id, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_selected_boot_image_id, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			o43bsdp_vc_tree = proto_item_add_subtree(ti, ett_dhcp_o43_bsdp_boot_image);
 			dissect_vendor_bsdp_boot_image(o43bsdp_vc_tree, tvb, suboptoff);
-			proto_tree_add_item(o43bsdp_vc_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, suboptoff+2, subopt_len-2, ENC_BIG_ENDIAN|ENC_NA);
+			proto_tree_add_item(o43bsdp_vc_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, suboptoff+2, subopt_len-2, ENC_BIG_ENDIAN);
 			break;
 		case 9:
-			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_boot_image_list, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_boot_image_list, tvb, suboptoff, subopt_len, ENC_NA);
 			attributes_len = subopt_len;
 			attributes_off = suboptoff;
 			o43bsdp_vd_tree = proto_item_add_subtree(ti, ett_dhcp_o43_bsdp_image_desc_list);
 			while (attributes_len >= 5) {
 				string_len = tvb_get_uint8(tvb, attributes_off+4);
 				if (string_len > 0) {
-					tj = proto_tree_add_item(o43bsdp_vd_tree, hf_dhcp_option43_bsdp_image_desc, tvb, attributes_off, string_len+5, ENC_BIG_ENDIAN|ENC_NA);
+					tj = proto_tree_add_item(o43bsdp_vd_tree, hf_dhcp_option43_bsdp_image_desc, tvb, attributes_off, string_len+5, ENC_NA);
 					o43bsdp_vb_tree = proto_item_add_subtree(tj, ett_dhcp_o43_bsdp_image_desc);
 					dissect_vendor_bsdp_boot_image(o43bsdp_vb_tree, tvb, attributes_off);
-					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, attributes_off+2, 2, ENC_BIG_ENDIAN|ENC_NA);
-					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_name_len, tvb, attributes_off+4, 1, ENC_BIG_ENDIAN|ENC_NA);
+					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, attributes_off+2, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_name_len, tvb, attributes_off+4, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_name, tvb, attributes_off+5, string_len, ENC_UTF_8);
 				}
 				attributes_off += 5 + string_len;
@@ -4887,7 +4887,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_netboot_firmware, tvb, suboptoff, subopt_len, ENC_NA);
 			break;
 		case 11:
-			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_attributes_filter_list, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_attributes_filter_list, tvb, suboptoff, subopt_len, ENC_NA);
 			attributes_len = subopt_len;
 			attributes_off = suboptoff;
 			o43bsdp_va_tree = proto_item_add_subtree(ti, ett_dhcp_o43_bsdp_attributes);
@@ -4898,7 +4898,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 			}
 			break;
 		case 12:
-			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_message_size, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			proto_tree_add_item(o43bsdp_v_tree, hf_dhcp_option43_bsdp_message_size, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			break;
 	}
 

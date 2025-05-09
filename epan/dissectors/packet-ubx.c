@@ -1381,7 +1381,7 @@ static int dissect_ubx_nav_sat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(ubx_nav_sat_tree, hf_ubx_nav_sat_num_svs,
             tvb, 5, 1, ENC_NA);
     proto_tree_add_item(ubx_nav_sat_tree, hf_ubx_nav_sat_reserved1,
-            tvb, 6, 2, ENC_NA);
+            tvb, 6, 2, ENC_LITTLE_ENDIAN);
 
     for (unsigned i = 0; i < num_svs; i++) {
         const uint8_t gnss_id = tvb_get_uint8(tvb, 8 + 12 * i);

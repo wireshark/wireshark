@@ -4646,19 +4646,19 @@ dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	{
 		tf = proto_tree_add_item(tree, hf_avaya_ipphone, tvb, offset, 12, ENC_NA);
 		avaya_data = proto_item_add_subtree(tf, ett_avaya_ipphone_tlv);
-		proto_tree_add_item(avaya_data, hf_avaya_ipphone_ip, tvb, offset, 4, ENC_NA);
-		proto_tree_add_item(avaya_data, hf_avaya_ipphone_mask, tvb, offset+4, 4, ENC_NA);
-		proto_tree_add_item(avaya_data, hf_avaya_ipphone_gateway, tvb, offset+8, 4, ENC_NA);
+		proto_tree_add_item(avaya_data, hf_avaya_ipphone_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(avaya_data, hf_avaya_ipphone_mask, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(avaya_data, hf_avaya_ipphone_gateway, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 		break;
 	}
 	case 0x05:	/* CNA Server IP Address */
 	{
-		proto_tree_add_item(tree, hf_avaya_cna_server, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(tree, hf_avaya_cna_server, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 	}
 	case 0x06:	/* File Server */
 	{
-		proto_tree_add_item(tree, hf_avaya_file_server, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(tree, hf_avaya_file_server, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 	}
 	case 0x07:	/* 802.1Q Framing */

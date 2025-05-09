@@ -309,7 +309,7 @@ dissect_lengths(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     switch (nordic_ble_context->protover) {
     case 0:  /* Legacy version */
         hlen = 2 + UART_HEADER_LEN; /* 2 bytes legacy marker + UART header */
-        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_NA, &plen);
+        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_BIG_ENDIAN, &plen);
         offset += 1;
         break;
 
@@ -318,7 +318,7 @@ dissect_lengths(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
         hlen += 1; /* Add one byte for board id */
         offset += 1;
 
-        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_NA, &plen);
+        item = proto_tree_add_item_ret_uint(tree, hf_nordic_ble_payload_length, tvb, offset, 1, ENC_BIG_ENDIAN, &plen);
         offset += 1;
         break;
 
@@ -831,7 +831,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_packet_length,
             { "Length of packet", "nordic_ble.len",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_nordic_ble_flags,

@@ -203,9 +203,9 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			}
 			break;
 		case MCPS_TYPE_VPC_INFO:
-			proto_tree_add_item_ret_uint(tlv_tree, hf_mcp_vpc_domain, tvb, offset, 4, ENC_NA, &vpcdomain);
-			proto_tree_add_item_ret_uint(tlv_tree, hf_mcp_vpc_id, tvb, offset + 4, 4, ENC_NA, &vpcid);
-			proto_tree_add_item(tlv_tree, hf_mcp_vpc_vtep, tvb, offset + 8, 4, ENC_NA);
+			proto_tree_add_item_ret_uint(tlv_tree, hf_mcp_vpc_domain, tvb, offset, 4, ENC_BIG_ENDIAN, &vpcdomain);
+			proto_tree_add_item_ret_uint(tlv_tree, hf_mcp_vpc_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN, &vpcid);
+			proto_tree_add_item(tlv_tree, hf_mcp_vpc_vtep, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
 			vpcvtep_str = tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset + 8);
 			proto_item_append_text(tlv_tree, ": %u/%u/%s", vpcdomain, vpcid, vpcvtep_str);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "VpcInfo/%u,%u,%s ", vpcdomain, vpcid, vpcvtep_str);

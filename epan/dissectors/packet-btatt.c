@@ -13098,7 +13098,7 @@ proto_register_btatt(void)
         },
         { &hf_btatt_pnp_id_vendor_id_source,
             { "Vendor ID Source",                "btatt.pnp_id.vendor_id_source",
-            FT_UINT16, BASE_HEX, VALS(pnp_id_vendor_id_source_vals), 0,
+            FT_UINT8, BASE_HEX, VALS(pnp_id_vendor_id_source_vals), 0,
             NULL, HFILL }
         },
         { &hf_btatt_pnp_id_vendor_id,
@@ -15770,7 +15770,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_cgm_measurement_size,
             {"Size", "btatt.cgm_measurement.size",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_cgm_measurement_flags,
