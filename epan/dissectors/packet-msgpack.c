@@ -203,6 +203,9 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 				*value = wmem_strdup_printf(pinfo->pool, "%" PRId64, int64);
 			*offset += 9;
 			break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
 	}
 	subtree = proto_item_add_subtree(ti, ett_msgpack_num);
 	proto_tree_add_item(subtree, hf_msgpack_type, tvb, t_offset, 1, ENC_NA);
@@ -230,6 +233,9 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 	else if (type == 0xdf) {
 		len = tvb_get_ntohl(tvb, *offset + 1);
 		lensize = 4;
+	}
+	else {
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	label = wmem_strdup_printf(pinfo->pool, "%s: %u element%s", data ? (char*)data : "MsgPack Map", len, len > 1 ? "s" : "");
@@ -275,6 +281,9 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 		len = tvb_get_ntohl(tvb, *offset + 1);
 		lensize = 4;
 	}
+	else {
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 
 	label = wmem_strdup_printf(pinfo->pool, "%s %u element%s", data ? (char*)data : "MsgPack Array", len, len > 1 ? "s" : "");
 
@@ -315,6 +324,9 @@ static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	else if (type == 0xdb) {
 		len = tvb_get_ntohl(tvb, *offset + 1);
 		lensize = 4;
+	}
+	else {
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	lvalue = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offset + 1 + lensize, len, ENC_UTF_8);
@@ -362,6 +374,9 @@ static void dissect_msgpack_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 			len = tvb_get_ntohl(tvb, *offset + 1);
 			lensize = 4;
 			break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
 	}
 
 	lvalue = (char*)tvb_bytes_to_str(pinfo->pool, tvb, *offset + 1 + lensize, len);
@@ -400,7 +415,8 @@ static void dissect_msgpack_float(tvbuff_t* tvb, packet_info *pinfo, proto_tree*
 		if (value)
 			*value = lvalue;
 		*offset += 4;
-	} else {
+	}
+	else if (type == 0xcb) {
 		label = (data ? (char*)data : "MsgPack Double");
 		double d = tvb_get_ntohieee_double(tvb, *offset);
 		lvalue = wmem_strdup_printf(pinfo->pool, "%lf", d);
@@ -408,6 +424,9 @@ static void dissect_msgpack_float(tvbuff_t* tvb, packet_info *pinfo, proto_tree*
 		if (value)
 			*value = lvalue;
 		*offset += 8;
+	}
+	else {
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 	subtree = proto_item_add_subtree(ti, ett_msgpack_num);
 	proto_tree_add_item(subtree, hf_msgpack_type, tvb, s_offset, 1, ENC_NA);
@@ -441,6 +460,9 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
 	else if (type == 0xc9) {
 		len = tvb_get_ntohl(tvb, *offset + 2);
 		lensize = 4;
+	}
+	else {
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 	*offset += 1;
 
