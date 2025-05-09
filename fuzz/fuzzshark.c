@@ -366,7 +366,7 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 	frame_data_destroy(&fdlocal);
 
 	epan_dissect_reset(edt);
-	
+
 	wtap_rec_cleanup(&rec);
 	return 0;
 }
@@ -378,8 +378,6 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 int
 LLVMFuzzerInitialize(int *argc, char ***argv)
 {
-	int ret;
-
 	return fuzz_init(*argc, *argv);
 }
 
