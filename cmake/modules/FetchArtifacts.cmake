@@ -15,8 +15,14 @@ endif()
 # extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
 # doesn't allow source or build paths in INTERFACE_INCLUDE_DIRECTORIES.
 #
-if (NOT EXISTS ${WIRESHARK_BASE_DIR} OR NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR} OR NOT IS_WRITABLE ${WIRESHARK_BASE_DIR})
-  message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
+if(CMAKE_VERSION VERSION_LESS "3.29")
+  if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR})
+    message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
+  endif()
+else()
+  if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR} OR NOT IS_WRITABLE ${WIRESHARK_BASE_DIR})
+    message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
+  endif()
 endif()
 
 set(DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/_download)
