@@ -259,3 +259,9 @@ pcapng_write_nflx_custom_block(wtap_dumper *wdh, const wtap_rec *rec, int *err,
 
     return true;
 }
+
+void register_nflx_custom(void)
+{
+    /* Nothing to register, yet, because there isn't a way to
+       register things, yet. */
+}
