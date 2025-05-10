@@ -367,7 +367,6 @@ typedef struct custom_opt_s {
  * Structure describing a NFLX custom option.
  */
 typedef struct nflx_custom_opt_s {
-    bool nflx_use_little_endian;
     uint32_t nflx_type;
     size_t nflx_custom_data_len;
     char *nflx_custom_data;

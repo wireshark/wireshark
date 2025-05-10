@@ -193,7 +193,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
 
 bool
 pcapng_write_nflx_custom_block(wtap_dumper *wdh, const wtap_rec *rec, int *err,
-                               char **err_info _U_)
+                               char **err_info)
 {
     pcapng_block_header_t bh;
     uint32_t options_size = 0;
@@ -247,7 +247,8 @@ pcapng_write_nflx_custom_block(wtap_dumper *wdh, const wtap_rec *rec, int *err,
          * This block type supports only comments and custom options,
          * so it doesn't need a callback.
          */
-        if (!pcapng_write_options(wdh, rec->block, NULL, err))
+        if (!pcapng_write_options(wdh, OPT_LITTLE_ENDIAN, rec->block, NULL,
+                                  err, err_info))
             return false;
     }
 

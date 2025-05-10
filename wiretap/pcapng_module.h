@@ -225,10 +225,16 @@ typedef struct compute_options_size_t
 WS_DLL_PUBLIC
 uint32_t pcapng_compute_options_size(wtap_block_t block, compute_option_size_func compute_option_size);
 
-typedef bool (*write_option_func)(wtap_dumper *, wtap_block_t, unsigned, wtap_opttype_e, wtap_optval_t*, int*);
+typedef bool (*write_option_func)(wtap_dumper *wdh, wtap_block_t block,
+                                  unsigned option_id,
+                                  wtap_opttype_e option_type,
+                                  wtap_optval_t *optval,
+                                  int *err, char **err_info);
 
 WS_DLL_PUBLIC
-bool pcapng_write_options(wtap_dumper *wdh, wtap_block_t block, write_option_func write_option, int *err);
+bool pcapng_write_options(wtap_dumper *wdh, pcapng_opt_byte_order_e byte_order,
+                          wtap_block_t block, write_option_func write_option,
+                          int *err, char **err_info);
 
 #ifdef __cplusplus
 }

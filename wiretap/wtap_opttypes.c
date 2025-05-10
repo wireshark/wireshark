@@ -1358,7 +1358,6 @@ wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t type, const char 
     opt->value.custom_opt.data.nflx_data.type = type;
     opt->value.custom_opt.data.nflx_data.custom_data_len = custom_data_len;
     opt->value.custom_opt.data.nflx_data.custom_data = g_memdup2(custom_data, custom_data_len);
-    opt->value.custom_opt.data.nflx_data.use_little_endian = (block->info->block_type == WTAP_BLOCK_CUSTOM);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
