@@ -616,19 +616,26 @@ macOS Universal Package:
     - wireshark-macos-arm-package
   retry: 1
   script:
+    # Install a separate copy of pkg-config, otherwise we'll find a bunch of packages in /usr/local.
+    - curl -JLO https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+    - echo "6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591  pkg-config-0.29.2.tar.gz" | shasum --algorithm 256 --check
+    - mkdir _local
+    - tar -xf pkg-config-0.29.2.tar.gz
+    - cd pkg-config-0.29.2
+    - CFLAGS="-Wno-int-conversion" ./configure --prefix="$CI_PROJECT_DIR/_local" --with-internal-glib
+    - make
+    - make install
+    - cd ..
     - export WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party
     - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir $WIRESHARK_BASE_DIR ; fi
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-$MACOS_QT_VERSION
-    - export PATH="$PATH:$HOME/bin"
+    - export PATH="$CI_PROJECT_DIR/_local/bin:$PATH:$HOME/bin"
     - mkdir build
     - cd build
     - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    # macos-setup.sh installs libxml2, but we want the one from the macOS SDK.
     - cmake -G Ninja
       -DENABLE_CCACHE=ON
-      -DLIBXML2_INCLUDE_DIR=/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/libxml2
-      -DLIBXML2_LIBRARY=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libxml2.tbd
       -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
