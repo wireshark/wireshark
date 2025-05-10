@@ -869,10 +869,10 @@ pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
 static bool
 pcapng_process_custom_option_common(section_info_t *section_info,
                                     uint16_t option_length,
-                                    const uint8_t *option_content,
-                                    pcapng_opt_byte_order_e byte_order,
+                             const uint8_t *option_content,
+                             pcapng_opt_byte_order_e byte_order,
                                     uint32_t *pen,
-                                    int *err, char **err_info)
+                             int *err, char **err_info)
 {
     if (option_length < 4) {
         *err = WTAP_ERR_BAD_FILE;
@@ -1131,9 +1131,9 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 if (!pcapng_process_custom_binary_option(wblock, section_info,
                                                          option_code,
                                                          option_length,
-                                                         option_ptr,
-                                                         byte_order,
-                                                         err, err_info)) {
+                                                  option_ptr,
+                                                  byte_order,
+                                                  err, err_info)) {
                     g_free(option_content);
                     return false;
                 }
@@ -4295,17 +4295,8 @@ static uint32_t pcapng_compute_custom_binary_option_size(wtap_optval_t *optval)
     size_t size;
 
     /* PEN */
-    size = sizeof(uint32_t);
-    switch (optval->custom_binaryval.pen) {
-    case PEN_NFLX:
-        /* NFLX type */
-        size += sizeof(uint32_t);
-        size += optval->custom_binaryval.data.nflx_data.custom_data_len;
-        break;
-    default:
-        size += optval->custom_binaryval.data.generic_data.custom_data_len;
-        break;
-    }
+    size = sizeof(uint32_t) + optval->custom_binaryval.data.generic_data.custom_data_len;
+
     if (size > 65535) {
         size = 65535;
     }
@@ -4825,10 +4816,10 @@ static bool pcapng_write_if_filter_option(wtap_dumper *wdh, unsigned option_id, 
 }
 
 static bool pcapng_write_custom_string_option(wtap_dumper *wdh,
-                                              pcapng_opt_byte_order_e byte_order,
-                                              unsigned option_id,
-                                              wtap_optval_t *optval,
-                                              int *err, char **err_info)
+                                       pcapng_opt_byte_order_e byte_order,
+                                       unsigned option_id,
+                                       wtap_optval_t *optval,
+                                       int *err, char **err_info)
 {
     struct pcapng_option_header option_hdr;
     size_t pad;
@@ -4923,19 +4914,12 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
     size_t pad;
     size_t size;
     const uint32_t zero_pad = 0;
-    uint32_t pen, type;
+    uint32_t pen;
 
     if (option_id == OPT_CUSTOM_BIN_NO_COPY)
         return true;
     ws_debug("PEN %u", optval->custom_binaryval.pen);
-    switch (optval->custom_binaryval.pen) {
-    case PEN_NFLX:
-        size = sizeof(uint32_t) + sizeof(uint32_t) + optval->custom_binaryval.data.nflx_data.custom_data_len;
-        break;
-    default:
-        size = sizeof(uint32_t) + optval->custom_binaryval.data.generic_data.custom_data_len;
-        break;
-    }
+    size = sizeof(uint32_t) + optval->custom_binaryval.data.generic_data.custom_data_len;
     if (size > 65535) {
         /*
          * Too big to fit in the option.
@@ -4985,24 +4969,9 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
     if (!wtap_dump_file_write(wdh, &pen, sizeof(uint32_t), err))
         return false;
 
-    switch (optval->custom_binaryval.pen) {
-    case PEN_NFLX:
-        /* write NFLX type */
-        type = GUINT32_TO_LE(optval->custom_binaryval.data.nflx_data.type);
-        ws_debug("type=%d", type);
-        if (!wtap_dump_file_write(wdh, &type, sizeof(uint32_t), err))
-            return false;
-        /* write custom data */
-        if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.nflx_data.custom_data, optval->custom_binaryval.data.nflx_data.custom_data_len, err)) {
-            return false;
-        }
-        break;
-    default:
-        /* write custom data */
+    /* write custom data */
         if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.generic_data.custom_data, optval->custom_binaryval.data.generic_data.custom_data_len, err)) {
-            return false;
-        }
-        break;
+        return false;
     }
 
     /* write padding (if any) */
@@ -5181,8 +5150,8 @@ static bool write_block_option(wtap_block_t block,
     case OPT_CUSTOM_STR_COPY:
         if (!pcapng_write_custom_string_option(options->wdh,
                                                options->byte_order,
-                                               option_id, optval,
-                                               options->err, options->err_info))
+                                        option_id, optval,
+                                        options->err, options->err_info))
             return false;
         break;
     case OPT_CUSTOM_BIN_COPY:

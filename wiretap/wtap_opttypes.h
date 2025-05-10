@@ -370,11 +370,6 @@ typedef struct custom_binary_opt_s {
     uint32_t pen;     /* Private Enterprise Number of this option */
     union {
         binary_optdata_t generic_data;
-        struct nflx_custom_opt_data {
-            uint32_t type;
-            size_t custom_data_len;
-            char *custom_data;
-        } nflx_data;
     } data;
 } custom_binary_opt_t;
 

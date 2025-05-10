@@ -398,14 +398,7 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         break;
 
     case WTAP_OPTTYPE_CUSTOM_BINARY:
-        switch (opt->value.custom_binaryval.pen) {
-        case PEN_NFLX:
-            g_free(opt->value.custom_binaryval.data.nflx_data.custom_data);
-            break;
-        default:
-            g_free(opt->value.custom_binaryval.data.generic_data.custom_data);
-            break;
-        }
+        g_free(opt->value.custom_binaryval.data.generic_data.custom_data);
         break;
 
     case WTAP_OPTTYPE_IF_FILTER:
@@ -592,19 +585,9 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             break;
 
         case WTAP_OPTTYPE_CUSTOM_BINARY:
-            switch (src_opt->value.custom_binaryval.pen) {
-            case PEN_NFLX:
-                wtap_block_add_nflx_custom_option(dest_block,
-                                                  src_opt->value.custom_binaryval.data.nflx_data.type,
-                                                  src_opt->value.custom_binaryval.data.nflx_data.custom_data,
-                                                  src_opt->value.custom_binaryval.data.nflx_data.custom_data_len);
-                break;
-            default:
-                wtap_block_add_custom_binary_option(dest_block, src_opt->option_id,
-                                                    src_opt->value.custom_binaryval.pen,
-                                                    &src_opt->value.custom_binaryval.data.generic_data);
-                break;
-            }
+            wtap_block_add_custom_binary_option(dest_block, src_opt->option_id,
+                                                src_opt->value.custom_binaryval.pen,
+                                                &src_opt->value.custom_binaryval.data.generic_data);
             break;
 
         case WTAP_OPTTYPE_IF_FILTER:
@@ -1604,18 +1587,25 @@ wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t type, const char 
     ret = wtap_block_add_custom_binary_option_common(block, OPT_CUSTOM_BIN_COPY, PEN_NFLX, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opt->value.custom_binaryval.data.nflx_data.type = type;
-    opt->value.custom_binaryval.data.nflx_data.custom_data_len = custom_data_len;
-    opt->value.custom_binaryval.data.nflx_data.custom_data = g_memdup2(custom_data, custom_data_len);
+    opt->value.custom_binaryval.pen = PEN_NFLX;
+    // Integrate the Netflix type into the custom data
+    opt->value.custom_binaryval.data.generic_data.custom_data_len = custom_data_len+4;
+    opt->value.custom_binaryval.data.generic_data.custom_data = g_malloc(opt->value.custom_binaryval.data.generic_data.custom_data_len);
+    char* data = opt->value.custom_binaryval.data.generic_data.custom_data;
+    type = GUINT32_TO_LE(type);
+    memcpy(data, &type, sizeof(uint32_t));
+    data += sizeof(uint32_t);
+    memcpy(data, custom_data, custom_data_len);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
 wtap_opttype_return_val
-wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *nflx_custom_data _U_, size_t nflx_custom_data_len)
+wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *nflx_custom_data, size_t nflx_custom_data_len)
 {
     const wtap_opttype_t *opttype;
     wtap_option_t *opt;
     unsigned i;
+    char* real_custom_data;
 
     if (block == NULL) {
         return WTAP_OPTTYPE_BAD_BLOCK;
@@ -1632,22 +1622,30 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         opt = &g_array_index(block->options, wtap_option_t, i);
         if ((opt->option_id == OPT_CUSTOM_BIN_COPY) &&
             (opt->value.custom_binaryval.pen == PEN_NFLX) &&
-            (opt->value.custom_binaryval.data.nflx_data.type == nflx_type)) {
+            (opt->value.custom_binaryval.data.generic_data.custom_data_len >= sizeof(uint32_t))) {
+            uint32_t type;
+            memcpy(&type, opt->value.custom_binaryval.data.generic_data.custom_data, sizeof(uint32_t));
+            type = GUINT32_FROM_LE(type);
+            if (type == nflx_type)
             break;
         }
     }
     if (i == block->options->len) {
         return WTAP_OPTTYPE_NOT_FOUND;
     }
-    if (nflx_custom_data_len < opt->value.custom_binaryval.data.nflx_data.custom_data_len) {
+    if (nflx_custom_data_len+sizeof(uint32_t) < opt->value.custom_binaryval.data.generic_data.custom_data_len) {
         return WTAP_OPTTYPE_TYPE_MISMATCH;
     }
+
+    /* Custom data includes the type, so it's already been accounted for */
+    real_custom_data = ((char*)opt->value.custom_binaryval.data.generic_data.custom_data)+sizeof(uint32_t);
+
     switch (nflx_type) {
     case NFLX_OPT_TYPE_VERSION: {
         uint32_t *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(uint32_t));
-        src = (uint32_t *)opt->value.custom_binaryval.data.nflx_data.custom_data;
+        src = (uint32_t *)real_custom_data;
         dst = (uint32_t *)nflx_custom_data;
         *dst = GUINT32_FROM_LE(*src);
         break;
@@ -1656,7 +1654,7 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         struct nflx_tcpinfo *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(struct nflx_tcpinfo));
-        src = (struct nflx_tcpinfo *)opt->value.custom_binaryval.data.nflx_data.custom_data;
+        src = (struct nflx_tcpinfo *)real_custom_data;
         dst = (struct nflx_tcpinfo *)nflx_custom_data;
         dst->tlb_tv_sec = GUINT64_FROM_LE(src->tlb_tv_sec);
         dst->tlb_tv_usec = GUINT64_FROM_LE(src->tlb_tv_usec);
@@ -1737,7 +1735,7 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         struct nflx_dumpinfo *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(struct nflx_dumpinfo));
-        src = (struct nflx_dumpinfo *)opt->value.custom_binaryval.data.nflx_data.custom_data;
+        src = (struct nflx_dumpinfo *)real_custom_data;
         dst = (struct nflx_dumpinfo *)nflx_custom_data;
         dst->tlh_version = GUINT32_FROM_LE(src->tlh_version);
         dst->tlh_type = GUINT32_FROM_LE(src->tlh_type);
@@ -1762,14 +1760,14 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         uint64_t *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(uint64_t));
-        src = (uint64_t *)opt->value.custom_binaryval.data.nflx_data.custom_data;
+        src = (uint64_t *)real_custom_data;
         dst = (uint64_t *)nflx_custom_data;
         *dst = GUINT64_FROM_LE(*src);
         break;
     }
     case NFLX_OPT_TYPE_STACKNAME:
         ws_assert(nflx_custom_data_len >= 2);
-        memcpy(nflx_custom_data, opt->value.custom_binaryval.data.nflx_data.custom_data, nflx_custom_data_len);
+        memcpy(nflx_custom_data, real_custom_data, nflx_custom_data_len);
         break;
     default:
         return WTAP_OPTTYPE_NOT_FOUND;
