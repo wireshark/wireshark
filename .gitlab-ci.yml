@@ -625,7 +625,7 @@ macOS Universal Package:
     - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # macos-setup.sh installs libxml2, but we want the one from the macOS SDK.
-    - export PKG_CONFIG_LIBDIR=_DISABLED_
+    - mv /usr/local/lib/pkgconfig/libxml-2.0.pc /usr/local/lib/pkgconfig/libxml-2.0.pc.disable
     - cmake -G Ninja
       -DENABLE_CCACHE=ON
       -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
@@ -635,6 +635,7 @@ macOS Universal Package:
       -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
+    - mv /usr/local/lib/pkgconfig/libxml-2.0.pc.disable /usr/local/lib/pkgconfig/libxml-2.0.pc
     # The Falco libs 0.20.0 package at https://dev-libs.wireshark.org/macos/packages/falcosecurity-libs/
     # is missing uthash.h.
     - ( cd $WIRESHARK_BASE_DIR/macos-universal-master/include ; curl -JLO https://raw.githubusercontent.com/troydhanson/uthash/refs/tags/v1.9.8/src/uthash.h )
