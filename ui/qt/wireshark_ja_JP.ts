@@ -731,7 +731,7 @@
     </message>
     <message>
         <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation>イベントデータ</translation>
     </message>
 </context>
 <context>
@@ -762,7 +762,7 @@
     </message>
     <message>
         <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation>イベントに応じてテキストを表示</translation>
     </message>
     <message>
         <source>…as ASCII</source>
@@ -5448,7 +5448,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>JsonDataSourceView</name>
     <message>
         <source>Event JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>JSONイベント</translation>
     </message>
 </context>
 <context>
@@ -9934,15 +9934,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Visual Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>視覚サンプルレート:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust the sampling rate used for the waveform display. Higher values display higher frequency harmonics but take additional processing time. Values between 1 kHz and 48 kHz are supported.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;波形表示で用いられるサンプリングレートを調節します。 値を高くすると高周波の倍音も表示されますが、処理時間が多くかかります。1kHz〜48kHzの範囲の値が使用可能です。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source> Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘルツ</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -10294,7 +10294,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resampling waveform...</source>
-        <translation type="unfinished"></translation>
+        <translation>波形を再サンプリング...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
