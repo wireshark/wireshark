@@ -70,7 +70,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, uint32_t block_payload_length,
              */
             if (block_payload_length < MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t)) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = ws_strdup_printf("pcapng: total block length %u of a Netflix skip CB is too small (< %u)",
+                *err_info = ws_strdup_printf("pcapng: payload length %u of a Netflix skip CB is too small (< %u)",
                                             block_payload_length,
                                             MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t));
                 return false;
