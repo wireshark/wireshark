@@ -616,20 +616,15 @@ macOS Universal Package:
     - wireshark-macos-arm-package
   retry: 1
   script:
-    # Install a separate copy of pkg-config, otherwise we'll find a bunch of packages in /usr/local.
-    # - curl -JLO https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
-    # - echo "6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591  pkg-config-0.29.2.tar.gz" | shasum --algorithm 256 --check
-    # - mkdir _local
-    # - tar -xf pkg-config-0.29.2.tar.gz
-    # - cd pkg-config-0.29.2
-    # - CFLAGS="-Wno-int-conversion" ./configure --prefix="$CI_PROJECT_DIR/_local" --with-internal-glib
-    # - make
-    # - make install
-    # - cd ..
     - export WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party
-    - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir $WIRESHARK_BASE_DIR ; fi
-    - export CMAKE_PREFIX_PATH=/usr/local/Qt-$MACOS_QT_VERSION
-    # - export PATH="$CI_PROJECT_DIR/_local/bin:$PATH:$HOME/bin"
+    - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
+    - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir -p $WIRESHARK_BASE_DIR/Qt ; fi
+    - if [ ! -d $WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework ] ; then
+        python3 -m venv /tmp/aqt.venv ;
+        /tmp/aqt.venv/pip3 install aqtinstall ;
+        /tmp/aqt.venv/bin/aqt install-qt --outputdir /tmp/qt mac desktop 6.5.3 clang_64 --modules qt5compat qtmultimedia ;
+      fi
+    - export CMAKE_PREFIX_PATH=$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION
     - export PATH="$PATH:$HOME/bin"
     - export PKG_CONFIG_PATH=
     - mkdir build
