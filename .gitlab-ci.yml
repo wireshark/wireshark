@@ -620,9 +620,10 @@ macOS Universal Package:
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
     - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir -p $WIRESHARK_BASE_DIR/Qt ; fi
     - if [ ! -d $WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework ] ; then
-        python3 -m venv /tmp/aqt.venv ;
+        rm -rf /tmp/aqt.venv ;
+        /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/Current/bin/python3 -m venv /tmp/aqt.venv ;
         /tmp/aqt.venv/pip3 install aqtinstall ;
-        /tmp/aqt.venv/bin/aqt install-qt --outputdir /tmp/qt mac desktop 6.5.3 clang_64 --modules qt5compat qtmultimedia ;
+        /tmp/aqt.venv/bin/aqt install-qt --outputdir $WIRESHARK_BASE_DIR/Qt mac desktop 6.5.3 clang_64 --modules qt5compat qtmultimedia ;
       fi
     - export CMAKE_PREFIX_PATH=$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION
     - export PATH="$PATH:$HOME/bin"
@@ -663,10 +664,10 @@ macOS Universal Package:
     - stat -f "%N %z bytes" Wireshark*.dmg Stratoshark*.dmg
     - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg Stratoshark*.dmg ; done
     - if [ -n "$S3_DESTINATION_MACOS_UNIVERSAL" ] ; then
-        aws s3 cp Wireshark?[1-9]*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/"
-        aws s3 cp Wireshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/"
-        aws s3 cp Stratoshark?[0-9]*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/"
-        aws s3 cp Stratoshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/"
+        aws s3 cp Wireshark?[1-9]*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Wireshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Stratoshark?[0-9]*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Stratoshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
       fi
     - $CI_PROJECT_DIR/build/run/tshark --version
     - WIRESHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
@@ -680,8 +681,8 @@ macOS Universal Package:
     - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$STRATOSHARK_SPARKLE_SIGNATURE" "$STRATOSHARK_DMG_SHA256" > stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini
     - cp stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini stratoshark-release-info-${STRATOSHARK_VERSION}-macos-intel64.ini
     - if [ -n "$S3_DESTINATION_RELEASE" ] ; then
-        aws s3 cp wireshark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/"
-        aws s3 cp stratoshark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/"
+        aws s3 cp wireshark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp stratoshark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/" ;
       fi
     - cd ..
     - ninja test
