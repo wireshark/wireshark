@@ -617,16 +617,16 @@ macOS Universal Package:
   retry: 1
   script:
     - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
-    - export WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party
+    - export "WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party"
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
-    - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir -p $WIRESHARK_BASE_DIR/Qt ; fi
-    - if [ ! -d $WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework ] ; then
+    - if [ ! -d "$WIRESHARK_BASE_DIR" ] ; then mkdir -p "$WIRESHARK_BASE_DIR/Qt" ; fi
+    - if [ ! -d "$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework" ] ; then
         rm -rf /tmp/aqt.venv ;
         python3 -m venv /tmp/aqt.venv ;
         /tmp/aqt.venv/bin/pip3 install aqtinstall ;
         /tmp/aqt.venv/bin/aqt install-qt --outputdir $WIRESHARK_BASE_DIR/Qt mac desktop 6.5.3 clang_64 --modules qt5compat qtmultimedia ;
       fi
-    - export CMAKE_PREFIX_PATH=$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION
+    - export CMAKE_PREFIX_PATH="$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos"
     - export PKG_CONFIG_PATH=
     - mkdir build
     - cd build
@@ -634,7 +634,7 @@ macOS Universal Package:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja
       -DENABLE_CCACHE=ON
-      -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
+      -DWIRESHARK_BASE_DIR="$WIRESHARK_BASE_DIR"
       -DLIBXML2_INCLUDE_DIR=/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/libxml2
       -DLIBXML2_LIBRARY=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libxml2.tbd
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
