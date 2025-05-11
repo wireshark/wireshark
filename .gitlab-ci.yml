@@ -664,10 +664,10 @@ macOS Universal Package:
     - stat -f "%N %z bytes" Wireshark*.dmg Stratoshark*.dmg
     - for digest in sha512 sha256 sha1 ; do openssl $digest Wireshark*.dmg Stratoshark*.dmg ; done
     - if [ -n "$S3_DESTINATION_MACOS_UNIVERSAL" ] ; then
-        aws s3 cp Wireshark?[1-9]*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
-        aws s3 cp Wireshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
-        aws s3 cp Stratoshark?[0-9]*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
-        aws s3 cp Stratoshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Wireshark?[1-9]*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Wireshark?dSYM*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Stratoshark?[0-9]*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
+        aws s3 cp Stratoshark?dSYM*.dmg "$S3_DESTINATION_MACOS_UNIVERSAL/" ;
       fi
     - $CI_PROJECT_DIR/build/run/tshark --version
     - WIRESHARK_SPARKLE_SIGNATURE=$( age --decrypt --identity="$MACOS_AGE_IDENTITY" "$MACOS_SPARKLE_BLOB" | /usr/local/Sparkle-2.2.2/bin/sign_update --ed-key-file - Wireshark?[1-9]*.dmg )
