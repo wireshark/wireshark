@@ -228,10 +228,28 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
         WTAP_OPTTYPE_STRING,
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
-    static const wtap_opttype_t opt_custom = {
-        "opt_custom",
-        "Custom Option",
-        WTAP_OPTTYPE_CUSTOM,
+    static const wtap_opttype_t opt_custom_string = {
+        "opt_custom_string",
+        "Custom string option",
+        WTAP_OPTTYPE_CUSTOM_STRING,
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
+    };
+    static const wtap_opttype_t opt_custom_binary = {
+        "opt_custom_binary",
+        "Custom binary option",
+        WTAP_OPTTYPE_CUSTOM_BINARY,
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
+    };
+    static const wtap_opttype_t opt_nocopy_custom_string = {
+        "opt_nocopy_custom_string",
+        "Uncopied custom string option",
+        WTAP_OPTTYPE_CUSTOM_STRING,
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
+    };
+    static const wtap_opttype_t opt_nocopy_custom_binary = {
+        "opt_nocopy_custom_binary",
+        "Uncopied custom binary option",
+        WTAP_OPTTYPE_CUSTOM_BINARY,
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 
@@ -250,8 +268,9 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
 
     /*
      * Initialize the set of supported options.
-     * All blocks that support options at all support
-     * OPT_COMMENT and OPT_CUSTOM.
+     * All blocks that support options at all support OPT_COMMENT,
+     * OPT_CUSTOM_STR_COPY, OPT_CUSTOM_BIN_COPY, OPT_CUSTOM_STR_NO_COPY,
+     * and OPT_CUSTOM_BIN_NO_COPY.
      *
      * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
      * so we use "g_direct_hash()" and "g_direct_equal()".
@@ -260,13 +279,13 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_COMMENT),
                         (void *)&opt_comment);
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_STR_COPY),
-                        (void *)&opt_custom);
+                        (void *)&opt_custom_string);
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_BIN_COPY),
-                        (void *)&opt_custom);
+                        (void *)&opt_custom_binary);
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_STR_NO_COPY),
-                        (void *)&opt_custom);
+                        (void *)&opt_nocopy_custom_string);
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_CUSTOM_BIN_NO_COPY),
-                        (void *)&opt_custom);
+                        (void *)&opt_nocopy_custom_binary);
 
     blocktype_list[block_type] = blocktype;
 }
@@ -317,6 +336,9 @@ wtap_block_get_nth_option(wtap_block_t block, unsigned option_id, unsigned idx)
         return NULL;
     }
 
+    /*
+     * Look for the idx'th option of this type.
+     */
     opt_idx = 0;
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
@@ -370,13 +392,17 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         g_bytes_unref(opt->value.byteval);
         break;
 
-    case WTAP_OPTTYPE_CUSTOM:
-        switch (opt->value.custom_opt.pen) {
+    case WTAP_OPTTYPE_CUSTOM_STRING:
+        g_free(opt->value.custom_stringval.string);
+        break;
+
+    case WTAP_OPTTYPE_CUSTOM_BINARY:
+        switch (opt->value.custom_binaryval.pen) {
         case PEN_NFLX:
-            g_free(opt->value.custom_opt.data.nflx_data.custom_data);
+            g_free(opt->value.custom_binaryval.data.nflx_data.custom_data);
             break;
         default:
-            g_free(opt->value.custom_opt.data.generic_data.custom_data);
+            g_free(opt->value.custom_binaryval.data.generic_data.custom_data);
             break;
         }
         break;
@@ -557,13 +583,25 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             wtap_block_add_bytes_option_borrow(dest_block, src_opt->option_id, src_opt->value.byteval);
             break;
 
-        case WTAP_OPTTYPE_CUSTOM:
-            switch (src_opt->value.custom_opt.pen) {
+        case WTAP_OPTTYPE_CUSTOM_STRING:
+            wtap_block_add_custom_string_option(dest_block, src_opt->option_id,
+                                                src_opt->value.custom_stringval.pen,
+                                                src_opt->value.custom_stringval.string,
+                                                strlen(src_opt->value.custom_stringval.string));
+            break;
+
+        case WTAP_OPTTYPE_CUSTOM_BINARY:
+            switch (src_opt->value.custom_binaryval.pen) {
             case PEN_NFLX:
-                wtap_block_add_nflx_custom_option(dest_block, src_opt->value.custom_opt.data.nflx_data.type, src_opt->value.custom_opt.data.nflx_data.custom_data, src_opt->value.custom_opt.data.nflx_data.custom_data_len);
+                wtap_block_add_nflx_custom_option(dest_block,
+                                                  src_opt->value.custom_binaryval.data.nflx_data.type,
+                                                  src_opt->value.custom_binaryval.data.nflx_data.custom_data,
+                                                  src_opt->value.custom_binaryval.data.nflx_data.custom_data_len);
                 break;
             default:
-                wtap_block_add_custom_option(dest_block, src_opt->option_id, src_opt->value.custom_opt.pen, src_opt->value.custom_opt.data.generic_data.custom_data, src_opt->value.custom_opt.data.generic_data.custom_data_len);
+                wtap_block_add_custom_binary_option(dest_block, src_opt->option_id,
+                                                    src_opt->value.custom_binaryval.pen,
+                                                    &src_opt->value.custom_binaryval.data.generic_data);
                 break;
             }
             break;
@@ -1345,19 +1383,229 @@ wtap_block_get_nth_bytes_option_value(wtap_block_t block, unsigned option_id, un
     return WTAP_OPTTYPE_SUCCESS;
 }
 
+static bool
+custom_option_matches_with_pen(wtap_option_t *opt, unsigned option_id,
+                               uint32_t pen)
+{
+    ws_assert(option_id == OPT_CUSTOM_STR_COPY ||
+              option_id == OPT_CUSTOM_BIN_COPY ||
+              option_id == OPT_CUSTOM_STR_NO_COPY ||
+              option_id == OPT_CUSTOM_BIN_NO_COPY);
+
+    if (opt->option_id != option_id)
+        return false;  /* not the specified option type */
+    if ((opt->option_id == OPT_CUSTOM_STR_COPY ||
+        opt->option_id == OPT_CUSTOM_STR_NO_COPY) &&
+        opt->value.custom_stringval.pen != pen)
+        return false; /* custom option, but different PEN */
+    if ((opt->option_id == OPT_CUSTOM_BIN_COPY ||
+        opt->option_id == OPT_CUSTOM_BIN_NO_COPY) &&
+        opt->value.custom_binaryval.pen != pen)
+        return false; /* custom option, but different PEN */
+    return true;
+}
+
+static wtap_optval_t *
+wtap_block_get_nth_custom_option_with_pen(wtap_block_t block,
+                                          unsigned option_id,
+                                          uint32_t pen, unsigned idx)
+{
+    unsigned i;
+    wtap_option_t *opt;
+    unsigned opt_idx;
+
+    ws_assert(option_id == OPT_CUSTOM_STR_COPY ||
+              option_id == OPT_CUSTOM_BIN_COPY ||
+              option_id == OPT_CUSTOM_STR_NO_COPY ||
+              option_id == OPT_CUSTOM_BIN_NO_COPY);
+
+    if (block == NULL) {
+        return NULL;
+    }
+
+    /*
+     * This is a custom option; look for the idx'th option of this
+     * type *and* with the specified PEN.
+     */
+    opt_idx = 0;
+    for (i = 0; i < block->options->len; i++) {
+        opt = &g_array_index(block->options, wtap_option_t, i);
+        if (custom_option_matches_with_pen(opt, option_id, pen)) {
+            if (opt_idx == idx)
+                return &opt->value;
+            opt_idx++;
+        }
+    }
+
+    return NULL;
+}
+
+static wtap_opttype_return_val
+wtap_block_get_nth_custom_option_with_pen_common(wtap_block_t block,
+                                                 unsigned option_id,
+                                                 uint32_t pen,
+                                                 wtap_opttype_e type,
+                                                 unsigned idx,
+                                                 wtap_optval_t **optvalp)
+{
+    const wtap_opttype_t *opttype;
+    wtap_optval_t *optval;
+
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
+
+    opttype = GET_OPTION_TYPE(block->info->options, option_id);
+    if (opttype == NULL) {
+        /* There's no option for this block with that option ID */
+        return WTAP_OPTTYPE_NO_SUCH_OPTION;
+    }
+
+    /*
+     * Is this an option of the specified data type?
+     */
+    if (opttype->data_type != type) {
+        /*
+         * No.
+         */
+        return WTAP_OPTTYPE_TYPE_MISMATCH;
+    }
+
+    /*
+     * Can there be more than one instance of this option?
+     */
+    if (!(opttype->flags & WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED)) {
+        /*
+         * No.
+         */
+        return WTAP_OPTTYPE_NUMBER_MISMATCH;
+    }
+
+    optval = wtap_block_get_nth_custom_option_with_pen(block, option_id,
+                                                       pen, idx);
+    if (optval == NULL) {
+        /* Didn't find the option */
+        return WTAP_OPTTYPE_NOT_FOUND;
+    }
+
+    *optvalp = optval;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+static wtap_opttype_return_val
+wtap_block_add_custom_string_option_common(wtap_block_t block,
+                                           unsigned option_id,
+                                           uint32_t pen, wtap_option_t **optp)
+{
+    wtap_opttype_return_val ret;
+
+    ret = wtap_block_add_option_common(block, option_id,
+                                       WTAP_OPTTYPE_CUSTOM_STRING, optp);
+    if (ret != WTAP_OPTTYPE_SUCCESS) {
+        return ret;
+    }
+
+    (*optp)->value.custom_stringval.pen = pen;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_custom_string_option(wtap_block_t block, unsigned option_id,
+                                    uint32_t pen, const char *value,
+                                    size_t value_length)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_custom_string_option_common(block, option_id, pen, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.custom_stringval.string = g_strndup(value, value_length);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+static wtap_opttype_return_val
+wtap_block_add_custom_binary_option_common(wtap_block_t block,
+                                           unsigned option_id,
+                                           uint32_t pen,
+                                           wtap_option_t **optp)
+{
+    wtap_opttype_return_val ret;
+
+    ret = wtap_block_add_option_common(block, option_id,
+                                       WTAP_OPTTYPE_CUSTOM_BINARY, optp);
+    if (ret != WTAP_OPTTYPE_SUCCESS) {
+        return ret;
+    }
+
+    (*optp)->value.custom_binaryval.pen = pen;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_custom_binary_option(wtap_block_t block, unsigned option_id,
+                                    uint32_t pen, binary_optdata_t *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_custom_binary_option_common(block, option_id, pen, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.custom_binaryval.data.generic_data.custom_data_len = value->custom_data_len;
+    opt->value.custom_binaryval.data.generic_data.custom_data = g_memdup2(value->custom_data, value->custom_data_len);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_custom_binary_option_from_data(wtap_block_t block,
+                                              unsigned option_id,
+                                              uint32_t pen,
+                                              const void *data,
+                                              size_t data_size)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_custom_binary_option_common(block, option_id, pen, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.custom_binaryval.data.generic_data.custom_data_len = data_size;
+    opt->value.custom_binaryval.data.generic_data.custom_data = g_memdup2(data, data_size);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_nth_custom_binary_option_value(wtap_block_t block,
+                                              unsigned option_id,
+                                              uint32_t pen, unsigned idx,
+                                              binary_optdata_t *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_nth_custom_option_with_pen_common(block, option_id,
+                                                           pen,
+                                                           WTAP_OPTTYPE_CUSTOM_BINARY,
+                                                           idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->custom_binaryval.data.generic_data;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
 wtap_opttype_return_val
 wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t type, const char *custom_data, size_t custom_data_len)
 {
     wtap_opttype_return_val ret;
     wtap_option_t *opt;
 
-    ret = wtap_block_add_option_common(block, OPT_CUSTOM_BIN_COPY, WTAP_OPTTYPE_CUSTOM, &opt);
+    ret = wtap_block_add_custom_binary_option_common(block, OPT_CUSTOM_BIN_COPY, PEN_NFLX, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opt->value.custom_opt.pen = PEN_NFLX;
-    opt->value.custom_opt.data.nflx_data.type = type;
-    opt->value.custom_opt.data.nflx_data.custom_data_len = custom_data_len;
-    opt->value.custom_opt.data.nflx_data.custom_data = g_memdup2(custom_data, custom_data_len);
+    opt->value.custom_binaryval.data.nflx_data.type = type;
+    opt->value.custom_binaryval.data.nflx_data.custom_data_len = custom_data_len;
+    opt->value.custom_binaryval.data.nflx_data.custom_data = g_memdup2(custom_data, custom_data_len);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -1375,22 +1623,22 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
     if (opttype == NULL) {
         return WTAP_OPTTYPE_NO_SUCH_OPTION;
     }
-    if (opttype->data_type != WTAP_OPTTYPE_CUSTOM) {
+    if (opttype->data_type != WTAP_OPTTYPE_CUSTOM_BINARY) {
         return WTAP_OPTTYPE_TYPE_MISMATCH;
     }
 
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
         if ((opt->option_id == OPT_CUSTOM_BIN_COPY) &&
-            (opt->value.custom_opt.pen == PEN_NFLX) &&
-            (opt->value.custom_opt.data.nflx_data.type == nflx_type)) {
+            (opt->value.custom_binaryval.pen == PEN_NFLX) &&
+            (opt->value.custom_binaryval.data.nflx_data.type == nflx_type)) {
             break;
         }
     }
     if (i == block->options->len) {
         return WTAP_OPTTYPE_NOT_FOUND;
     }
-    if (nflx_custom_data_len < opt->value.custom_opt.data.nflx_data.custom_data_len) {
+    if (nflx_custom_data_len < opt->value.custom_binaryval.data.nflx_data.custom_data_len) {
         return WTAP_OPTTYPE_TYPE_MISMATCH;
     }
     switch (nflx_type) {
@@ -1398,7 +1646,7 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         uint32_t *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(uint32_t));
-        src = (uint32_t *)opt->value.custom_opt.data.nflx_data.custom_data;
+        src = (uint32_t *)opt->value.custom_binaryval.data.nflx_data.custom_data;
         dst = (uint32_t *)nflx_custom_data;
         *dst = GUINT32_FROM_LE(*src);
         break;
@@ -1407,7 +1655,7 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         struct nflx_tcpinfo *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(struct nflx_tcpinfo));
-        src = (struct nflx_tcpinfo *)opt->value.custom_opt.data.nflx_data.custom_data;
+        src = (struct nflx_tcpinfo *)opt->value.custom_binaryval.data.nflx_data.custom_data;
         dst = (struct nflx_tcpinfo *)nflx_custom_data;
         dst->tlb_tv_sec = GUINT64_FROM_LE(src->tlb_tv_sec);
         dst->tlb_tv_usec = GUINT64_FROM_LE(src->tlb_tv_usec);
@@ -1488,7 +1736,7 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         struct nflx_dumpinfo *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(struct nflx_dumpinfo));
-        src = (struct nflx_dumpinfo *)opt->value.custom_opt.data.nflx_data.custom_data;
+        src = (struct nflx_dumpinfo *)opt->value.custom_binaryval.data.nflx_data.custom_data;
         dst = (struct nflx_dumpinfo *)nflx_custom_data;
         dst->tlh_version = GUINT32_FROM_LE(src->tlh_version);
         dst->tlh_type = GUINT32_FROM_LE(src->tlh_type);
@@ -1513,33 +1761,18 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *
         uint64_t *src, *dst;
 
         ws_assert(nflx_custom_data_len == sizeof(uint64_t));
-        src = (uint64_t *)opt->value.custom_opt.data.nflx_data.custom_data;
+        src = (uint64_t *)opt->value.custom_binaryval.data.nflx_data.custom_data;
         dst = (uint64_t *)nflx_custom_data;
         *dst = GUINT64_FROM_LE(*src);
         break;
     }
     case NFLX_OPT_TYPE_STACKNAME:
         ws_assert(nflx_custom_data_len >= 2);
-        memcpy(nflx_custom_data, opt->value.custom_opt.data.nflx_data.custom_data, nflx_custom_data_len);
+        memcpy(nflx_custom_data, opt->value.custom_binaryval.data.nflx_data.custom_data, nflx_custom_data_len);
         break;
     default:
         return WTAP_OPTTYPE_NOT_FOUND;
     }
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
-wtap_opttype_return_val
-wtap_block_add_custom_option(wtap_block_t block, unsigned option_id, uint32_t pen, const char *custom_data, size_t custom_data_len)
-{
-    wtap_opttype_return_val ret;
-    wtap_option_t *opt;
-
-    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_CUSTOM, &opt);
-    if (ret != WTAP_OPTTYPE_SUCCESS)
-        return ret;
-    opt->value.custom_opt.pen = pen;
-    opt->value.custom_opt.data.generic_data.custom_data_len = custom_data_len;
-    opt->value.custom_opt.data.generic_data.custom_data = g_memdup2(custom_data, custom_data_len);
     return WTAP_OPTTYPE_SUCCESS;
 }
 

@@ -320,7 +320,8 @@ typedef enum {
     WTAP_OPTTYPE_BYTES,
     WTAP_OPTTYPE_IPv4,
     WTAP_OPTTYPE_IPv6,
-    WTAP_OPTTYPE_CUSTOM,
+    WTAP_OPTTYPE_CUSTOM_STRING,
+    WTAP_OPTTYPE_CUSTOM_BINARY,
     WTAP_OPTTYPE_IF_FILTER,
     WTAP_OPTTYPE_PACKET_VERDICT,
     WTAP_OPTTYPE_PACKET_HASH,
@@ -337,6 +338,7 @@ typedef enum {
     WTAP_OPTTYPE_NUMBER_MISMATCH = -4,
     WTAP_OPTTYPE_ALREADY_EXISTS = -5,
     WTAP_OPTTYPE_BAD_BLOCK = -6,
+    WTAP_OPTTYPE_PEN_MISMATCH = -7,
 } wtap_opttype_return_val;
 
 /* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
@@ -344,33 +346,37 @@ typedef enum {
 #define PEN_VCTR 46254
 
 /*
- * Structure describing a custom option.
+ * Structure giving the value of a custom string option; the value
+ * includes both the Private Enterprise Number and the data following it.
  */
+typedef struct custom_string_opt_s {
+    uint32_t pen;     /* Private Enterprise Number of this option */
+    char* string;
+} custom_string_opt_t;
 
-typedef struct custom_opt_s {
-    uint32_t pen;
+/*
+ * Structure giving the data of a custom binary option.
+ */
+typedef struct binary_optdata {
+    size_t custom_data_len;
+    void* custom_data;
+} binary_optdata_t;
+
+/*
+ * Structure giving the value of a custom binary option; the value
+ * includes both the Private Enterprise Number and the data following it.
+ */
+typedef struct custom_binary_opt_s {
+    uint32_t pen;     /* Private Enterprise Number of this option */
     union {
-        struct generic_custom_opt_data {
-            size_t custom_data_len;
-            char *custom_data;
-        } generic_data;
+        binary_optdata_t generic_data;
         struct nflx_custom_opt_data {
             uint32_t type;
             size_t custom_data_len;
             char *custom_data;
-            bool use_little_endian;
         } nflx_data;
     } data;
-} custom_opt_t;
-
-/*
- * Structure describing a NFLX custom option.
- */
-typedef struct nflx_custom_opt_s {
-    uint32_t nflx_type;
-    size_t nflx_custom_data_len;
-    char *nflx_custom_data;
-} nflx_custom_opt_t;
+} custom_binary_opt_t;
 
 /* Interface description data - if_filter option structure */
 
@@ -440,7 +446,8 @@ typedef union {
     ws_in6_addr ipv6val;
     char *stringval;
     GBytes *byteval;
-    custom_opt_t custom_opt;
+    custom_string_opt_t custom_stringval;
+    custom_binary_opt_t custom_binaryval;
     if_filter_opt_t if_filterval;
     packet_verdict_opt_t packet_verdictval;
     packet_hash_opt_t packet_hash;
@@ -1120,6 +1127,61 @@ wtap_block_get_bytes_option_value(wtap_block_t block, unsigned option_id, GBytes
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nth_bytes_option_value(wtap_block_t block, unsigned option_id, unsigned idx, GBytes** value) G_GNUC_WARN_UNUSED_RESULT;
 
+/** Add a string custom option, with a particular Private Enterprise
+ * Number, to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] pen Private Enterprise Number value for option
+ * @param[in] value Value of option
+ * @param[in] value_length Maximum length of string to copy.
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_custom_string_option(wtap_block_t block, unsigned option_id, uint32_t pen, const char *value, size_t value_length);
+
+/** Add a binary custom option, with a particular Private Enterprise
+ * Number, to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] pen Private Enterprise Number value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_custom_binary_option(wtap_block_t block, unsigned option_id, uint32_t pen, binary_optdata_t *value);
+
+/** Add a binary custom option, with a particular Private Enterprise
+ * Number, to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] pen Private Enterprise Number value for option
+ * @param[in] data Raw data of option
+ * @param[in] data_size Size of raw data
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_custom_binary_option_from_data(wtap_block_t block, unsigned option_id, uint32_t pen, const void *data, size_t data_size);
+
+/** Get binary custom option value for the nth instance of a particular option,
+ * with a particular Private Enterprise Number, in a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] pen Private Enterprise Number value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_nth_custom_binary_option_value(wtap_block_t block, unsigned option_id, uint32_t pen, unsigned idx, binary_optdata_t *value);
+
 /** Add an NFLX custom option to a block
  *
  * @param[in] block Block to which to add the option
@@ -1143,19 +1205,6 @@ wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, const 
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *nflx_custom_data, size_t nflx_custom_data_len);
-
-/** Add a custom option to a block
- *
- * @param[in] block Block to which to add the option
- * @param[in] option_id Identifier value for option
- * @param[in] pen PEN
- * @param[in] custom_data pointer to the data
- * @param[in] custom_data_len length of custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_custom_option(wtap_block_t block, unsigned option_id, uint32_t pen, const char *custom_data, size_t custom_data_len);
 
 /** Add an if_filter option value to a block
  *
