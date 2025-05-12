@@ -21250,12 +21250,29 @@ this supports:
   }
 }
 
-#define ARUBA_APNAME  3
+/* info from lswifi https://github.com/joshschmelzle/lswifi/blob/v0.1.49/lswifi/elements.py#L1526 */
+#define ARUBA_CAC 1
+#define ARUBA_MESH 2
+#define ARUBA_APNAME 3
+#define ARUBA_ARM 4
+#define ARUBA_SLB 5
+#define ARUBA_SJ_LOOP_PROTECT 6
+#define ARUBA_AUTO_MESH 7
+#define ARUBA_LCI 8
 #define ARUBA_GPS 9
+#define ARUBA_AP_HEALTH 10
 
 static const value_string ieee80211_vs_aruba_subtype_vals[] = {
+  { ARUBA_CAC, "CAC"},
+  { ARUBA_MESH, "Mesh"},
   { ARUBA_APNAME, "AP Name"},
+  { ARUBA_ARM, "ARM"},
+  { ARUBA_SLB, "SLB"},
+  { ARUBA_SJ_LOOP_PROTECT, "SJ Loop Protect"},
+  { ARUBA_AUTO_MESH, "Auto Mesh"},
+  { ARUBA_LCI, "LCI"},
   { ARUBA_GPS, "GPS Ellipse"},
+  { ARUBA_AP_HEALTH, "AP Health"},
   { 0,                 NULL }
 };
 static void
