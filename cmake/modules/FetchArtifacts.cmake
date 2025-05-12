@@ -24,7 +24,7 @@ set(manifest_file ${ARTIFACTS_DIR}/manifest.txt)
 
 if(APPLE)
   set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
-  set(OSX_APP_LIBPREFIX_ARGS "--libraries" ${ARTIFACTS_DIR})
+  set(OSX_APP_LIBPREFIX ${ARTIFACTS_DIR})
 else()
   message(FATAL_ERROR "No artifacts for this system")
 endif()

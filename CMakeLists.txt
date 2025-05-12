@@ -280,6 +280,8 @@ endif(WIN32)
 
 if(WIRESHARK_BASE_DIR AND APPLE)
 	include(FetchArtifacts)
+else()
+	set(OSX_APP_LIBPREFIX "/usr/local")
 endif()
 
 include(UseCustomIncludes)
@@ -3774,8 +3776,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	set_target_properties(wireshark_app_bundle PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET wireshark_app_bundle
 		POST_BUILD
-		# OSX_APP_LIBPREFIX_ARGS is set in FetchArtifacts.cmake if WIRESHARK_BASE_DIR is set
-		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh" ${OSX_APP_LIBPREFIX_ARGS}
+		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
 	)
 	add_dependencies(wireshark_app_bundle ${PROGLIST} chmodbpf path_helper)
@@ -3815,8 +3816,7 @@ if(ENABLE_APPLICATION_BUNDLE AND BUILD_stratoshark)
 	set_target_properties(stratoshark_app_bundle PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET stratoshark_app_bundle
 		POST_BUILD
-		# OSX_APP_LIBPREFIX_ARGS is set in FetchArtifacts.cmake if WIRESHARK_BASE_DIR is set
-		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh" --bundle Stratoshark.app  ${OSX_APP_LIBPREFIX_ARGS}
+		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh" --bundle Stratoshark.app
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
 	)
 
