@@ -411,6 +411,12 @@ static const value_string vmware_hb_build_number[] = {
     { 24411414, "ESXi 7.0 Update 3r" },
     { 24414501, "ESXi 8.0 Update 3c" },
     { 24449057, "ESXi Arm Edition v2.1" },
+    { 24569005, "ESXi 8.0e" },
+    { 24585291, "ESXi 7.0 Update 3s" },
+    { 24585300, "ESXi 8.0 Update 2d" },
+    { 24585383, "ESXi 8.0 Update 3d" },
+    { 24659227, "ESXi 8.0 Update 3e (Security Only)" },
+    { 24674464, "ESXi 8.0 Update 3e" },
     {0, NULL}
 };
 static value_string_ext vmware_hb_build_number_ext = VALUE_STRING_EXT_INIT(vmware_hb_build_number);
