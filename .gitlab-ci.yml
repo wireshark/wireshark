@@ -681,8 +681,10 @@ macOS Universal Package:
     - printf '[DEFAULT]\nsparkle_signature = %s\ndmg_sha256 = %s\n' "$STRATOSHARK_SPARKLE_SIGNATURE" "$STRATOSHARK_DMG_SHA256" > stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini
     - cp stratoshark-release-info-${STRATOSHARK_VERSION}-macos-arm64.ini stratoshark-release-info-${STRATOSHARK_VERSION}-macos-intel64.ini
     - if [ -n "$S3_DESTINATION_RELEASE" ] ; then
-        aws s3 cp wireshark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/" ;
-        aws s3 cp stratoshark-release-info-*-macos-*.ini "$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp wireshark-release-info-*-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp wireshark-release-info-*-macos-intel64.ini "$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp stratoshark-release-info-*-macos-arm64.ini "$S3_DESTINATION_RELEASE/" ;
+        aws s3 cp stratoshark-release-info-*-macos-intel64.ini "$S3_DESTINATION_RELEASE/" ;
       fi
     - cd ..
     - ninja test
