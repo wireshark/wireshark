@@ -5,12 +5,6 @@
 # To do:
 # - Add support for Windows and migrate win-setup.ps1 here.
 
-if(APPLE)
-  set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
-else()
-  message(FATAL_ERROR "No artifacts for this system")
-endif()
-
 # It would be nice to be able to make this self-contained, e.g. by
 # extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
 # doesn't allow source or build paths in INTERFACE_INCLUDE_DIRECTORIES.
@@ -27,6 +21,14 @@ set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-master)
 file(MAKE_DIRECTORY ${ARTIFACTS_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${ARTIFACTS_DIR})
 set(manifest_file ${ARTIFACTS_DIR}/manifest.txt)
+
+if(APPLE)
+  set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
+  set(OSX_APP_LIBPREFIX_ARGS "--libraries" ${ARTIFACTS_DIR})
+else()
+  message(FATAL_ERROR "No artifacts for this system")
+endif()
+
 
 set(artifacts)
 
