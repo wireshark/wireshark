@@ -41,6 +41,7 @@
 #include "secrets-types.h"
 
 #include "pcapng-netflix-custom.h"
+#include "pcapng-netflix-custom-int.h"
 
 #define ROUND_TO_4BYTE(len) WS_ROUNDUP_4(len)
 

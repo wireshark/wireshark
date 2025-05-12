@@ -40,6 +40,8 @@
 
 #include <epan/color_filters.h>
 
+#include <wiretap/pcapng-netflix-custom.h>
+
 void proto_register_frame(void);
 void proto_reg_handoff_frame(void);
 

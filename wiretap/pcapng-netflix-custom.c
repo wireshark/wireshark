@@ -12,6 +12,8 @@
 #include "pcapng.h"
 #include "pcapng_module.h"
 
+#include "pcapng-netflix-custom.h"
+
 #define NFLX_BLOCK_TYPE_EVENT   1
 #define NFLX_BLOCK_TYPE_SKIP    2
 
