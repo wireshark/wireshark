@@ -996,6 +996,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* Entry not found, treat as generic data */
 		proto_tree_add_item(tree, hf_params, tvb, *offset, param_size, ENC_NA);
 		*offset += param_size;
+		return;
 	}
 
 	switch (entry->command) {
