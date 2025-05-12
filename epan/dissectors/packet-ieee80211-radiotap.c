@@ -4096,6 +4096,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				it_root = proto_tree_add_item(item_tree, hf_radiotap_vht,
 						tvb, offset, 12, ENC_NA);
 				vht_tree = proto_item_add_subtree(it_root, ett_radiotap_vht);
+				/* TODO: which endian order is this field?  Currently treated as big endian.. */
 				it = proto_tree_add_item(vht_tree, hf_radiotap_vht_known,
 						tvb, offset, 2, ENC_NA);
 				vht_known_tree = proto_item_add_subtree(it, ett_radiotap_vht_known);
@@ -5084,7 +5085,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_antenna,
 		 {"Antenna", "radiotap.antenna",
-		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		  "Antenna number this frame was sent/received over (starting at 0)", HFILL}},
 
 		{&hf_radiotap_dbm_antsignal,

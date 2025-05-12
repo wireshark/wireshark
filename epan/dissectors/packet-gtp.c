@@ -9499,7 +9499,7 @@ decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_apn_length, tvb, offset, 1, ENC_NA, &apn_length);
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN, &apn_length);
     decode_apn(pinfo, tvb, offset + 1, (uint16_t)apn_length, ext_tree, NULL);
 
     offset += 1 + apn_length;

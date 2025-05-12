@@ -451,7 +451,7 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
             ett_daap_sub, &tag_ti, "Tag: ");
 
       proto_tree_add_item_ret_uint(tag_tree, hf_daap_name,
-            tvb, offset, 4, ENC_ASCII|ENC_NA, &tagname);
+            tvb, offset, 4, ENC_BIG_ENDIAN, &tagname);
       offset += 4;
       proto_tree_add_item_ret_uint(tag_tree, hf_daap_size,
             tvb, offset, 4, ENC_BIG_ENDIAN, &tagsize);

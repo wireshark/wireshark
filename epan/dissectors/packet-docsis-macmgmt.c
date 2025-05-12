@@ -3807,7 +3807,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
         };
         proto_tree_add_item (tlv_tree, hf_docsis_ucd_ofdma_timestamp_snapshot, tvb, pos, length, ENC_NA);
         proto_tree_add_bitmask_list(tlv_tree, tvb, pos, 5, timestamp_snapshot_parts, ENC_BIG_ENDIAN);
-        proto_tree_add_item (tlv_tree, hf_docsis_ucd_ofdma_timestamp_snapshot_minislot_count, tvb, pos+5, length-5, ENC_NA);
+        proto_tree_add_item (tlv_tree, hf_docsis_ucd_ofdma_timestamp_snapshot_minislot_count, tvb, pos+5, length-5, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -3847,7 +3847,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     case UCD_CENTER_FREQ_SUBC_0:
       if (length == 4)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ucd_cent_freq_subc0, tvb, pos, length, ENC_NA);
+        proto_tree_add_item (tlv_tree, hf_docsis_ucd_cent_freq_subc0, tvb, pos, length, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -3858,7 +3858,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
       if ((length % 4) == 0)
       {
         for(i = 0; i < length; i+=4) {
-          proto_tree_add_item (tlv_tree, hf_docsis_ucd_subcarrier_range, tvb, pos+i, 4, ENC_NA);
+          proto_tree_add_item (tlv_tree, hf_docsis_ucd_subcarrier_range, tvb, pos+i, 4, ENC_BIG_ENDIAN);
         }
       }
       else
@@ -3870,7 +3870,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
       if ((length % 4) == 0)
       {
         for(i = 0; i < length; i+=4) {
-          proto_tree_add_item (tlv_tree, hf_docsis_ucd_subcarrier_range, tvb, pos+i, 4, ENC_NA);
+          proto_tree_add_item (tlv_tree, hf_docsis_ucd_subcarrier_range, tvb, pos+i, 4, ENC_BIG_ENDIAN);
         }
       }
       else
@@ -4199,10 +4199,10 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
     pos++;
     tlvlen = tvb_get_uint8 (tvb, pos);
     if  (tlvtype == RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS || tlvtype == RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS) {
-      proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 2, ENC_NA, &tlvlen);
+      proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 2, ENC_BIG_ENDIAN, &tlvlen);
       pos += 2;
     } else {
-      proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 1, ENC_NA, &tlvlen);
+      proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 1, ENC_BIG_ENDIAN, &tlvlen);
       pos++;
     }
     proto_item_set_len(rngrsptlv_item, tlvlen + 2);
@@ -7815,7 +7815,7 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_dpd_length, tvb, pos, 2, ENC_BIG_ENDIAN);
       pos += 2;
     } else {
-      tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_dpd_length, tvb, pos, 1, ENC_NA);
+      tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_dpd_length, tvb, pos, 1, ENC_BIG_ENDIAN);
       pos++;
     }
 

@@ -105,7 +105,7 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     fc00_tree = proto_item_add_subtree(ti, ett_fc00);
 
     proto_tree_add_item(fc00_tree, hf_fc00_session_state, tvb,
-            SESSION_STATE_OFF, SESSION_STATE_LEN, ENC_NA);
+            SESSION_STATE_OFF, SESSION_STATE_LEN, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item(fc00_tree, hf_fc00_auth_challenge, tvb,
             CHALLENGE_OFF, CHALLENGE_LEN, ENC_NA);
@@ -114,8 +114,8 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree_add_item(auth_tree, hf_fc00_auth_type, tvb, CHALLENGE_OFF, 1, ENC_NA);
         proto_tree_add_item(auth_tree, hf_fc00_auth_hash_code, tvb, CHALLENGE_OFF+1, 7, ENC_NA);
         proto_tree_add_item(auth_tree, hf_fc00_auth_poly, tvb, CHALLENGE_OFF+8, 1, ENC_NA);
-        proto_tree_add_item(auth_tree, hf_fc00_auth_derivations, tvb, CHALLENGE_OFF+8, 2, ENC_NA);
-        proto_tree_add_item(auth_tree, hf_fc00_auth_additional, tvb, CHALLENGE_OFF+10, 2, ENC_NA);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_derivations, tvb, CHALLENGE_OFF+8, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_tree, hf_fc00_auth_additional, tvb, CHALLENGE_OFF+10, 2, ENC_BIG_ENDIAN);
     }
 
     proto_tree_add_item(fc00_tree, hf_fc00_random_nonce, tvb,

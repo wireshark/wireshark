@@ -19679,18 +19679,18 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
     offset += 4;
 
     number_of_aggregates = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_aggregates, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_aggregates, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     number_of_entities = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_entities, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_entities, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     number_of_silent_aggregates_types = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_aggregates_types, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_aggregates_types, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_entity_types, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_silent_entity_types, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6 * number_of_aggregates, ett_aggregate_id_list, NULL, "Aggregate ID List");
@@ -19715,7 +19715,7 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
     offset += 0;
 
     number_of_variable_datum_records = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_aggregate_number_of_variable_datum_records, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_dis_aggregate_number_of_variable_datum_records, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable datum", number_of_variable_datum_records);

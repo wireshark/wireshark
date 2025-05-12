@@ -3513,7 +3513,7 @@ static bool parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, int *
     bool ip_cm_sid;
 
     if ((serviceid & RDMA_IP_CM_SID_PREFIX_MASK) == RDMA_IP_CM_SID_PREFIX) {
-        service_id_item = proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_NA);
+        service_id_item = proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         proto_item_set_text(service_id_item, "%s", "IP CM ServiceID");
         service_id_tree = proto_item_add_subtree(service_id_item, ett_cm_sid);
 

@@ -832,7 +832,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     offset++;
 
                     proto_tree_add_item(component_tree, hf_splice_component_utc_splice_time, tvb,
-                        offset, 4, ENC_NA);
+                        offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 }
             }
@@ -958,7 +958,7 @@ dissect_scte35_avail_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return 0;
 
     /* Show the field. */
-    proto_tree_add_item(tree, hf_descriptor_provider_avail_id, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_descriptor_provider_avail_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -993,7 +993,7 @@ dissect_scte35_dtmf_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     /* Show the DTMF string field. */
     proto_tree_add_item(tree, hf_descriptor_dtmf, tvb,
-                        offset, dtmf_count, ENC_NA | ENC_ASCII);
+                        offset, dtmf_count, ENC_ASCII);
 
     offset += dtmf_count;
     return offset;

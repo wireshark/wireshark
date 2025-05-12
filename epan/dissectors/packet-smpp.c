@@ -3266,7 +3266,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_sar_total_segments,
             {   "SAR size", "smpp.sar_total_segments",
-                FT_UINT16, BASE_DEC, NULL, 0x00,
+                FT_UINT8, BASE_DEC, NULL, 0x00,
                 "Number of segments of a concatenated short message.",
                 HFILL
             }
@@ -3639,7 +3639,7 @@ proto_register_smpp(void)
         },
         {       &hf_smpp_broadcast_rep_num,
                 {       "Broadcast Message - Number of repetitions requested", "smpp.broadcast_rep_num",
-                        FT_UINT16, BASE_DEC, NULL, 0x00,
+                        FT_UINT8, BASE_DEC, NULL, 0x00,
                         "Cell Broadcast Message - Number of repetitions requested", HFILL
                 }
         },

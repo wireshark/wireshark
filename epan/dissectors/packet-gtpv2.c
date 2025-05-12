@@ -8915,7 +8915,7 @@ dissect_gtpv2_ie_pscell_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, true);
     offset += 3;
     proto_tree_add_item(tree, hf_gtpv2_ie_pscell_id_spare, tvb, offset, 5, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_ie_pscell_id_nr_cgi, tvb, offset, 5, ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_ie_pscell_id_nr_cgi, tvb, offset, 5, ENC_BIG_ENDIAN);
 
 }
 

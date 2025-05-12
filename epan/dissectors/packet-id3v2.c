@@ -350,7 +350,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 	offset += 4;
 
 	/* TODO: decode each flag */
-	proto_tree_add_item(frame_tree, hf_id3v2_frame_flags, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item(frame_tree, hf_id3v2_frame_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	if (frame_id[0] == 'T') {

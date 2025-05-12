@@ -579,7 +579,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     protocol_name_start = offset;
     protocol_name_length = tvb_strsize(tvb, offset);
     if (prot3gpp_tree) {
-        proto_tree_add_item(prot3gpp_tree, hf_log3gpp_protocol, tvb, offset, protocol_name_length, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(prot3gpp_tree, hf_log3gpp_protocol, tvb, offset, protocol_name_length, ENC_ASCII);
     }
     offset += protocol_name_length;
 
@@ -594,7 +594,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     protocol_option_start = offset;
     protocol_option_length = tvb_strsize(tvb, offset);
     if (prot3gpp_tree) {
-        proto_tree_add_item(prot3gpp_tree, hf_log3gpp_dissector_option, tvb, offset, protocol_option_length, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(prot3gpp_tree, hf_log3gpp_dissector_option, tvb, offset, protocol_option_length, ENC_ASCII);
     }
     offset += protocol_option_length;
 
