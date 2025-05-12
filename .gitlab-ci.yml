@@ -635,8 +635,6 @@ macOS Universal Package:
     - cmake -G Ninja
       -DENABLE_CCACHE=ON
       -DWIRESHARK_BASE_DIR="$WIRESHARK_BASE_DIR"
-      -DLIBXML2_INCLUDE_DIR=/Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk/usr/include/libxml2
-      -DLIBXML2_LIBRARY=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libxml2.tbd
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
