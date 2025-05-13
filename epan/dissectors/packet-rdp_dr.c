@@ -22,6 +22,9 @@
 
 #include "packet-rdp.h"
 #include "packet-rdpudp.h"
+#include "packet-dcerpc.h"
+#include "packet-dcerpc-rdpdr_smartcard.h"
+
 
 #define PNAME  "RDP disk redirection virtual channel Protocol"
 #define PSNAME "RDPDR"
@@ -62,11 +65,27 @@ static int hf_rdpdr_ioreq_dr_majorFunction;
 static int hf_rdpdr_ioreq_dr_minorFunction;
 static int hf_rdpdr_ioreq_sc_majorFunction;
 static int hf_rdpdr_ioreq_sc_minorFunction;
+static int hf_rdpdr_ioreq_sc_command;
+static int hf_rdpdr_ioreq_sc_returnCode;
+static int hf_rdpdr_printer_cacheEvent;
+static int hf_rdpdr_pnpNameLength;
+static int hf_rdpdr_pnpName;
+static int hf_rdpdr_driverNameLength;
+static int hf_rdpdr_driverName;
+static int hf_rdpdr_printerNameLength;
+static int hf_rdpdr_printerName;
+static int hf_rdpdr_cachedFieldsLength;
+static int hf_rdpdr_cachedFields;
 static int hf_rdpdr_resultCode;
 static int hf_rdpdr_ioStatus;
+static int hf_rdpdr_io_request_control_outputBufLen;
+static int hf_rdpdr_io_request_control_inputBufLen;
+static int hf_rdpdr_io_request_control_ioControlCode;
+static int hf_rdpdr_io_request_control_padding;
 static int hf_rdpdr_io_request_frame;
 static int hf_rdpdr_io_result_frame;
 static int hf_rdpdr_create_info;
+static int hf_rdpdr_device_name;
 
 
 static int ett_rdpdr;
@@ -202,18 +221,140 @@ static const value_string rdpdr_dr_createinfo_vals[] = {
 		{ 0x0, NULL},
 };
 
+enum {
+	SCARD_IOCTL_ESTABLISHCONTEXT = 0x00090014,
+	SCARD_IOCTL_RELEASECONTEXT = 0x00090018,
+	SCARD_IOCTL_ISVALIDCONTEXT = 0x0009001C,
+	SCARD_IOCTL_LISTREADERGROUPSA = 0x00090020,
+	SCARD_IOCTL_LISTREADERGROUPSW = 0x00090024,
+	SCARD_IOCTL_LISTREADERSA = 0x00090028,
+	SCARD_IOCTL_LISTREADERSW = 0x0009002C,
+	SCARD_IOCTL_INTRODUCEREADERGROUPA = 0x00090050,
+	SCARD_IOCTL_INTRODUCEREADERGROUPW = 0x00090054,
+	SCARD_IOCTL_FORGETREADERGROUPA = 0x00090058,
+	SCARD_IOCTL_FORGETREADERGROUPW = 0x0009005C,
+	SCARD_IOCTL_INTRODUCEREADERA = 0x00090060,
+	SCARD_IOCTL_INTRODUCEREADERW = 0x00090064,
+	SCARD_IOCTL_FORGETREADERA = 0x00090068,
+	SCARD_IOCTL_FORGETREADERW = 0x0009006C,
+	SCARD_IOCTL_ADDREADERTOGROUPA = 0x00090070,
+	SCARD_IOCTL_ADDREADERTOGROUPW = 0x00090074,
+	SCARD_IOCTL_REMOVEREADERFROMGROUPA = 0x00090078,
+	SCARD_IOCTL_REMOVEREADERFROMGROUPW = 0x0009007C,
+	SCARD_IOCTL_LOCATECARDSA = 0x00090098,
+	SCARD_IOCTL_LOCATECARDSW = 0x0009009C,
+	SCARD_IOCTL_GETSTATUSCHANGEA = 0x000900A0,
+	SCARD_IOCTL_GETSTATUSCHANGEW = 0x000900A4,
+	SCARD_IOCTL_CANCEL = 0x000900A8,
+	SCARD_IOCTL_CONNECTA = 0x000900AC,
+	SCARD_IOCTL_CONNECTW = 0x000900B0,
+	SCARD_IOCTL_RECONNECT = 0x000900B4,
+	SCARD_IOCTL_DISCONNECT = 0x000900B8,
+	SCARD_IOCTL_BEGINTRANSACTION = 0x000900BC,
+	SCARD_IOCTL_ENDTRANSACTION = 0x000900C0,
+	SCARD_IOCTL_STATE = 0x000900C4,
+	SCARD_IOCTL_STATUSA = 0x000900C8,
+	SCARD_IOCTL_STATUSW = 0x000900CC,
+	SCARD_IOCTL_TRANSMIT = 0x000900D0,
+	SCARD_IOCTL_CONTROL = 0x000900D4,
+	SCARD_IOCTL_GETATTRIB = 0x000900D8,
+	SCARD_IOCTL_SETATTRIB = 0x000900DC,
+	SCARD_IOCTL_ACCESSSTARTEDEVENT = 0x000900E0,
+	SCARD_IOCTL_LOCATECARDSBYATRA = 0x000900E8,
+	SCARD_IOCTL_LOCATECARDSBYATRW = 0x000900EC,
+	SCARD_IOCTL_READCACHEA = 0x000900F0,
+	SCARD_IOCTL_READCACHEW = 0x000900F4,
+	SCARD_IOCTL_WRITECACHEA = 0x000900F8,
+	SCARD_IOCTL_WRITECACHEW = 0x000900FC,
+	SCARD_IOCTL_GETTRANSMITCOUNT = 0x00090100,
+	SCARD_IOCTL_RELEASETARTEDEVENT = 0x000900E4,
+	SCARD_IOCTL_GETREADERICON = 0x00090104,
+	SCARD_IOCTL_GETDEVICETYPEID = 0x00090108,
+};
+
+enum {
+	RDPDR_ADD_PRINTER_EVENT = 0x00000001,
+	RDPDR_UPDATE_PRINTER_EVENT = 0x00000002,
+	RDPDR_DELETE_PRINTER_EVENT = 0x00000003,
+	RDPDR_RENAME_PRINTER_EVENT = 0x00000004,
+};
+
+#define STR_VALUE(v) { v, #v }
+static const value_string rdpdr_dr_ioControlCode_vals[] = {
+	STR_VALUE(SCARD_IOCTL_ESTABLISHCONTEXT),
+	STR_VALUE(SCARD_IOCTL_RELEASECONTEXT),
+	STR_VALUE(SCARD_IOCTL_ISVALIDCONTEXT),
+	STR_VALUE(SCARD_IOCTL_LISTREADERGROUPSA),
+	STR_VALUE(SCARD_IOCTL_LISTREADERGROUPSW),
+	STR_VALUE(SCARD_IOCTL_LISTREADERSA),
+	STR_VALUE(SCARD_IOCTL_LISTREADERSW),
+	STR_VALUE(SCARD_IOCTL_INTRODUCEREADERGROUPA),
+	STR_VALUE(SCARD_IOCTL_INTRODUCEREADERGROUPW),
+	STR_VALUE(SCARD_IOCTL_FORGETREADERGROUPA),
+	STR_VALUE(SCARD_IOCTL_FORGETREADERGROUPW),
+	STR_VALUE(SCARD_IOCTL_INTRODUCEREADERA),
+	STR_VALUE(SCARD_IOCTL_INTRODUCEREADERW),
+	STR_VALUE(SCARD_IOCTL_FORGETREADERA),
+	STR_VALUE(SCARD_IOCTL_FORGETREADERW),
+	STR_VALUE(SCARD_IOCTL_ADDREADERTOGROUPA),
+	STR_VALUE(SCARD_IOCTL_ADDREADERTOGROUPW),
+	STR_VALUE(SCARD_IOCTL_REMOVEREADERFROMGROUPA),
+	STR_VALUE(SCARD_IOCTL_REMOVEREADERFROMGROUPW),
+	STR_VALUE(SCARD_IOCTL_LOCATECARDSA),
+	STR_VALUE(SCARD_IOCTL_LOCATECARDSW),
+	STR_VALUE(SCARD_IOCTL_GETSTATUSCHANGEA),
+	STR_VALUE(SCARD_IOCTL_GETSTATUSCHANGEW),
+	STR_VALUE(SCARD_IOCTL_CANCEL),
+	STR_VALUE(SCARD_IOCTL_CONNECTA),
+	STR_VALUE(SCARD_IOCTL_CONNECTW),
+	STR_VALUE(SCARD_IOCTL_RECONNECT),
+	STR_VALUE(SCARD_IOCTL_DISCONNECT),
+	STR_VALUE(SCARD_IOCTL_BEGINTRANSACTION),
+	STR_VALUE(SCARD_IOCTL_ENDTRANSACTION),
+	STR_VALUE(SCARD_IOCTL_STATE),
+	STR_VALUE(SCARD_IOCTL_STATUSA),
+	STR_VALUE(SCARD_IOCTL_STATUSW),
+	STR_VALUE(SCARD_IOCTL_TRANSMIT),
+	STR_VALUE(SCARD_IOCTL_CONTROL),
+	STR_VALUE(SCARD_IOCTL_GETATTRIB),
+	STR_VALUE(SCARD_IOCTL_SETATTRIB),
+	STR_VALUE(SCARD_IOCTL_ACCESSSTARTEDEVENT),
+	STR_VALUE(SCARD_IOCTL_LOCATECARDSBYATRA),
+	STR_VALUE(SCARD_IOCTL_LOCATECARDSBYATRW),
+	STR_VALUE(SCARD_IOCTL_READCACHEA),
+	STR_VALUE(SCARD_IOCTL_READCACHEW),
+	STR_VALUE(SCARD_IOCTL_WRITECACHEA),
+	STR_VALUE(SCARD_IOCTL_WRITECACHEW),
+	STR_VALUE(SCARD_IOCTL_GETTRANSMITCOUNT),
+	STR_VALUE(SCARD_IOCTL_RELEASETARTEDEVENT),
+	STR_VALUE(SCARD_IOCTL_GETREADERICON),
+	STR_VALUE(SCARD_IOCTL_GETDEVICETYPEID),
+	{ 0x0, NULL},
+};
+
+static const value_string rdpdr_printer_cacheEvent_vals[] = {
+	STR_VALUE(RDPDR_ADD_PRINTER_EVENT),
+	STR_VALUE(RDPDR_UPDATE_PRINTER_EVENT),
+	STR_VALUE(RDPDR_DELETE_PRINTER_EVENT),
+	STR_VALUE(RDPDR_RENAME_PRINTER_EVENT),
+	{ 0x0, NULL},
+};
+
+#undef STR_VALUE
+
 typedef struct {
 	uint32_t completionId;
 	uint32_t reqFrame;
 	uint32_t resFrame;
 	uint32_t majorFn;
 	uint32_t minorFn;
+	uint32_t ioControlCode;
 } DrIoRequest;
 
 typedef struct {
 	uint32_t deviceType;
 	uint32_t deviceId;
-	char name[8];
+	char name[9];
 	wmem_multimap_t *ioRequests;
 } DrDevice;
 
@@ -260,7 +401,180 @@ rdpdr_get_conversation_data(packet_info *pinfo)
 }
 
 static int
-dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
+dissect_smartcard_req(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, proto_tree *tree, uint32_t ioControlCode)
+{
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s req", val_to_str_const(ioControlCode, rdpdr_dr_ioControlCode_vals, "<unknown>"));
+	if (ioControlCode == SCARD_IOCTL_ACCESSSTARTEDEVENT)
+		return in_offset + 4;
+
+	dcerpc_info di = { 0 };
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00};
+
+	dcerpc_call_value call_data = { 0 };
+	di.conformant_run = 0;
+	di.call_data = &call_data;
+	init_ndr_pointer_list(&di);
+
+	int offset = 16;
+	tvbuff_t *tvb = tvb_new_subset_remaining(in_tvb, in_offset);
+
+	switch (ioControlCode) {
+	case SCARD_IOCTL_ESTABLISHCONTEXT:
+		offset = scard_pack_dissect_struct_EstablishContext_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_ISVALIDCONTEXT:
+	case SCARD_IOCTL_RELEASECONTEXT:
+	case SCARD_IOCTL_CANCEL:
+		offset = scard_pack_dissect_struct_Context_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_LISTREADERSA:
+		offset = scard_pack_dissect_struct_ListReadersA_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_LISTREADERSW:
+		offset = scard_pack_dissect_struct_ListReadersW_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETDEVICETYPEID:
+		offset = scard_pack_dissect_struct_GetDeviceTypeId_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETSTATUSCHANGEA:
+		offset = scard_pack_dissect_struct_GetStatusChangeA_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETSTATUSCHANGEW:
+		offset = scard_pack_dissect_struct_GetStatusChangeW_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_CONNECTA:
+		offset = scard_pack_dissect_struct_ConnectA_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_CONNECTW:
+		offset = scard_pack_dissect_struct_ConnectW_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_DISCONNECT:
+	case SCARD_IOCTL_BEGINTRANSACTION:
+	case SCARD_IOCTL_ENDTRANSACTION:
+		offset = scard_pack_dissect_struct_HCardAndDisposition_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_STATE:
+		offset = scard_pack_dissect_struct_State_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_STATUSA:
+	case SCARD_IOCTL_STATUSW:
+		offset = scard_pack_dissect_struct_Status_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_TRANSMIT:
+		offset = scard_pack_dissect_struct_Transmit_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_READCACHEA:
+		offset = scard_pack_dissect_struct_ReadCacheA_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_READCACHEW:
+		offset = scard_pack_dissect_struct_ReadCacheW_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_WRITECACHEA:
+		offset = scard_pack_dissect_struct_WriteCacheA_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_WRITECACHEW:
+		offset = scard_pack_dissect_struct_WriteCacheW_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETATTRIB:
+		offset = scard_pack_dissect_struct_GetAttrib_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_RECONNECT:
+		offset = scard_pack_dissect_struct_Reconnect_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	default:
+		return in_offset;
+	}
+	return in_offset + dissect_deferred_pointers(pinfo, tvb, offset, &di, drep);
+}
+
+static int
+dissect_smartcard_resp(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, proto_tree *tree, uint32_t ioControlCode)
+{
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s resp", val_to_str_const(ioControlCode, rdpdr_dr_ioControlCode_vals, "<unknown>"));
+
+	dcerpc_info di = { 0 };
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00};
+
+	dcerpc_call_value call_data = { 0 };
+	di.conformant_run = 0;
+	di.call_data = &call_data;
+	init_ndr_pointer_list(&di);
+
+	int offset = 16;
+	proto_tree_add_item(tree, hf_rdpdr_ioreq_sc_returnCode, in_tvb, in_offset + 16, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	tvbuff_t *tvb = tvb_new_subset_remaining(in_tvb, in_offset);
+
+	switch (ioControlCode) {
+	case SCARD_IOCTL_ESTABLISHCONTEXT:
+		offset = scard_pack_dissect_struct_EstablishContext_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_ACCESSSTARTEDEVENT:
+	case SCARD_IOCTL_ISVALIDCONTEXT:
+	case SCARD_IOCTL_RELEASECONTEXT:
+	case SCARD_IOCTL_DISCONNECT:
+	case SCARD_IOCTL_CANCEL:
+	case SCARD_IOCTL_BEGINTRANSACTION:
+	case SCARD_IOCTL_ENDTRANSACTION:
+	case SCARD_IOCTL_WRITECACHEA:
+	case SCARD_IOCTL_WRITECACHEW:
+	case SCARD_IOCTL_SETATTRIB:
+	case SCARD_IOCTL_INTRODUCEREADERGROUPA:
+	case SCARD_IOCTL_INTRODUCEREADERGROUPW:
+	case SCARD_IOCTL_FORGETREADERGROUPA:
+	case SCARD_IOCTL_FORGETREADERGROUPW:
+	case SCARD_IOCTL_INTRODUCEREADERA:
+	case SCARD_IOCTL_INTRODUCEREADERW:
+	case SCARD_IOCTL_FORGETREADERA:
+	case SCARD_IOCTL_FORGETREADERW:
+	case SCARD_IOCTL_ADDREADERTOGROUPA:
+	case SCARD_IOCTL_ADDREADERTOGROUPW:
+	case SCARD_IOCTL_REMOVEREADERFROMGROUPA:
+	case SCARD_IOCTL_REMOVEREADERFROMGROUPW:
+		offset = scard_pack_dissect_struct_long_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_LISTREADERSA:
+	case SCARD_IOCTL_LISTREADERSW:
+		offset = scard_pack_dissect_struct_ListReaders_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETDEVICETYPEID:
+		offset = scard_pack_dissect_struct_GetDeviceTypeId_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETSTATUSCHANGEA:
+	case SCARD_IOCTL_GETSTATUSCHANGEW:
+		offset = scard_pack_dissect_struct_GetStatusChange_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_CONNECTA:
+	case SCARD_IOCTL_CONNECTW:
+		offset = scard_pack_dissect_struct_Connect_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_RECONNECT:
+		offset = scard_pack_dissect_struct_Reconnect_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_STATUSA:
+	case SCARD_IOCTL_STATUSW:
+		offset = scard_pack_dissect_struct_Status_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_TRANSMIT:
+		offset = scard_pack_dissect_struct_Transmit_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_READCACHEA:
+	case SCARD_IOCTL_READCACHEW:
+		offset = scard_pack_dissect_struct_ReadCache_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	case SCARD_IOCTL_GETATTRIB:
+		offset = scard_pack_dissect_struct_GetAttrib_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
+		break;
+	default:
+		return in_offset;
+	}
+
+	return in_offset + dissect_deferred_pointers(pinfo, tvb, offset, &di, drep);
+}
+
+
+static int
+dissect_rdpdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
 	proto_item *item;
 	int offset = 0;
@@ -318,6 +632,7 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 					device->deviceId = deviceId;
 					device->deviceType = deviceType;
 					memcpy(device->name, dosName, 8);
+					device->name[8] = 0;
 					device->ioRequests = wmem_multimap_new(wmem_file_scope(), idptr_hashFunc, idptr_equalFunc);
 
 					wmem_multimap_insert32(info->channels, &device->deviceId, pinfo->num, device);
@@ -364,53 +679,6 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 			proto_tree_add_item_ret_uint(tree, minorFnIdx, tvb, offset, 4, ENC_LITTLE_ENDIAN, &minorFn);
 			offset += 4;
 
-			switch (dtype) {
-			case RDPDR_DTYP_SMARTCARD:
-				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "SMARTCARD Fn");
-				break;
-			case RDPDR_DTYP_FILESYSTEM:
-			default:
-				switch(majorFn) {
-				case IRP_MJ_CREATE:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_CREATE");
-					break;
-				case IRP_MJ_CLOSE:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_CLOSE");
-					break;
-				case IRP_MJ_READ:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_READ");
-					break;
-				case IRP_MJ_WRITE:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_WRITE");
-					break;
-				case IRP_MJ_DEVICE_CONTROL:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_DEVICE_CONTROL");
-					break;
-				case IRP_MJ_QUERY_VOLUME_INFORMATION:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_QUERY_VOLUME_INFORMATION");
-					break;
-				case IRP_MJ_SET_VOLUME_INFORMATION:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_SET_VOLUME_INFORMATION");
-					break;
-				case IRP_MJ_QUERY_INFORMATION:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_QUERY_INFORMATION");
-					break;
-				case IRP_MJ_SET_INFORMATION:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_SET_INFORMATION");
-					break;
-				case IRP_MJ_DIRECTORY_CONTROL:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_DIRECTORY_CONTROL");
-					break;
-				case IRP_MJ_LOCK_CONTROL:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_LOCK_CONTROL");
-					break;
-				default:
-					col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS unhandled");
-					break;
-				}
-				break;
-			}
-
 			DrIoRequest *ioReq = NULL;
 			if (!PINFO_FD_VISITED(pinfo)) {
 				if (device) {
@@ -427,6 +695,65 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 			} else {
 				if (device)
 					ioReq = wmem_multimap_lookup32_le(device->ioRequests, &completionId, pinfo->num);
+			}
+
+			switch(majorFn) {
+			case IRP_MJ_CREATE:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_CREATE");
+				break;
+			case IRP_MJ_CLOSE:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_CLOSE");
+				break;
+			case IRP_MJ_READ:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_READ");
+				break;
+			case IRP_MJ_WRITE:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_WRITE");
+				break;
+			case IRP_MJ_DEVICE_CONTROL: {
+				uint32_t inputBufLen;
+				uint32_t ioControlCode;
+				//col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_DEVICE_CONTROL");
+				proto_tree_add_item(tree, hf_rdpdr_io_request_control_outputBufLen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item_ret_uint(tree, hf_rdpdr_io_request_control_inputBufLen, tvb, offset, 4, ENC_LITTLE_ENDIAN, &inputBufLen);
+				offset += 4;
+
+				proto_tree_add_item_ret_uint(tree, hf_rdpdr_io_request_control_ioControlCode, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ioControlCode);
+				offset += 4;
+
+				proto_tree_add_item(tree, hf_rdpdr_io_request_control_padding, tvb, offset, 20, ENC_NA);
+				offset += 20;
+
+				if (!PINFO_FD_VISITED(pinfo))
+					ioReq->ioControlCode = ioControlCode;
+
+				if (device && device->deviceType == RDPDR_DTYP_SMARTCARD)
+					dissect_smartcard_req(tvb, offset, pinfo, tree, ioControlCode);
+				break;
+			}
+			case IRP_MJ_QUERY_VOLUME_INFORMATION:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_QUERY_VOLUME_INFORMATION");
+				break;
+			case IRP_MJ_SET_VOLUME_INFORMATION:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_SET_VOLUME_INFORMATION");
+				break;
+			case IRP_MJ_QUERY_INFORMATION:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_QUERY_INFORMATION");
+				break;
+			case IRP_MJ_SET_INFORMATION:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_SET_INFORMATION");
+				break;
+			case IRP_MJ_DIRECTORY_CONTROL:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_DIRECTORY_CONTROL");
+				break;
+			case IRP_MJ_LOCK_CONTROL:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS IRP_MJ_LOCK_CONTROL");
+				break;
+			default:
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "FS unhandled");
+				break;
 			}
 
 			if (ioReq) {
@@ -462,11 +789,11 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 			proto_tree_add_item_ret_uint(tree, hf_rdpdr_ioStatus, tvb, offset, 4, ENC_LITTLE_ENDIAN, &statusCode);
 			offset += 4;
 
-			const char *name = NULL;
+			//const char *name = NULL;
 			DrIoRequest *ioReq = NULL;
 			DrDevice *device = wmem_multimap_lookup32_le(info->channels, &deviceId, pinfo->num);
 			if (device) {
-				name = device->name;
+				//name = device->name;
 				ioReq = wmem_multimap_lookup32_le(device->ioRequests, &completionId, pinfo->num);
 				if (ioReq) {
 					if (!PINFO_FD_VISITED(pinfo))
@@ -487,9 +814,12 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 						}
 						break;
 					}
+				} else if (device->deviceType == RDPDR_DTYP_SMARTCARD) {
+					if (ioReq->majorFn == IRP_MJ_DEVICE_CONTROL)
+						return dissect_smartcard_resp(tvb, offset, pinfo, tree, ioReq->ioControlCode);
 				}
 			}
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s%sIO completion completionId=0x%x status=0x%x", name ? name : "", name ? " " : "", completionId, statusCode);
+			//col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s%sIO completion completionId=0x%x status=0x%x", name ? name : "", name ? " " : "", completionId, statusCode);
 			break;
 		}
 
@@ -514,7 +844,7 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 				offset += capaLen;
 
 				int subOffset = 0;
-				proto_tree *subtree = proto_tree_add_subtree(tree, capaTvb, 0, capaLen, ett_rdpdr_capabilities, NULL, val_to_str(capaType, rdpdr_capaType_vals, "<unknown>"));
+				proto_tree *subtree = proto_tree_add_subtree(tree, capaTvb, 0, capaLen, ett_rdpdr_capabilities, NULL, val_to_str_const(capaType, rdpdr_capaType_vals, "<unknown>"));
 				proto_tree_add_item(subtree, hf_rdpdr_capaType, capaTvb, subOffset, 2, ENC_LITTLE_ENDIAN);
 				subOffset += 2;
 
@@ -572,6 +902,74 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 			break;
 		}
 	} else if (component == RDPDR_CTYP_PRN) {
+		switch (packetId) {
+		case PAKID_PRN_USING_XPS: {
+			proto_tree_add_item_ret_uint(tree, hf_rdpdr_deviceId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &deviceId);
+			offset += 4;
+
+			DrDevice *device = wmem_multimap_lookup32_le(info->channels, &deviceId, pinfo->num);
+			if (device) {
+				proto_item_set_generated(
+					proto_tree_add_string(tree, hf_rdpdr_device_name, tvb, 0, 0, device->name)
+				);
+
+				col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "PAKID_PRN_USING_XPS %s", device->name);
+			} else {
+				col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "PAKID_PRN_USING_XPS");
+			}
+			break;
+		}
+		case PAKID_PRN_CACHE_DATA: {
+			uint32_t eventId;
+			proto_tree_add_item_ret_uint(tree, hf_rdpdr_printer_cacheEvent, tvb, offset, 4, ENC_LITTLE_ENDIAN, &eventId);
+			offset += 4;
+
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str_const(eventId, rdpdr_printer_cacheEvent_vals, "<unknown command>"));
+			switch (eventId) {
+			case RDPDR_ADD_PRINTER_EVENT: {
+				uint32_t pnpNameLength, driveNameLength, printerNameLength, cachedFieldsLength;
+
+				proto_tree_add_item(tree, hf_rdpdr_dosName, tvb, offset, 8, ENC_ASCII);
+				offset += 8;
+
+				proto_tree_add_item_ret_uint(tree, hf_rdpdr_pnpNameLength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pnpNameLength);
+				offset += 4;
+
+				proto_tree_add_item_ret_uint(tree, hf_rdpdr_driverNameLength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &driveNameLength);
+				offset += 4;
+
+				proto_tree_add_item_ret_uint(tree, hf_rdpdr_printerNameLength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &printerNameLength);
+				offset += 4;
+
+				proto_tree_add_item_ret_uint(tree, hf_rdpdr_cachedFieldsLength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cachedFieldsLength);
+				offset += 4;
+
+				proto_tree_add_item(tree, hf_rdpdr_pnpName, tvb, offset, pnpNameLength, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+				offset += pnpNameLength;
+
+				proto_tree_add_item(tree, hf_rdpdr_driverName, tvb, offset, driveNameLength, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+				offset += driveNameLength;
+
+				proto_tree_add_item(tree, hf_rdpdr_printerName, tvb, offset, printerNameLength, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+				offset += printerNameLength;
+
+				proto_tree_add_item(tree, hf_rdpdr_cachedFields, tvb, offset, cachedFieldsLength, ENC_NA);
+				break;
+			}
+			case RDPDR_UPDATE_PRINTER_EVENT:
+				break;
+			case RDPDR_DELETE_PRINTER_EVENT:
+				break;
+			case RDPDR_RENAME_PRINTER_EVENT:
+				break;
+			default:
+				break;
+			}
+			break;
+		}
+		default:
+			break;
+		}
 
 	}
 
@@ -661,6 +1059,26 @@ void proto_register_rdpdr(void) {
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_rdpdr_io_request_control_outputBufLen,
+		  { "OutputBufferLen", "rdpdr.outputbuflen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_io_request_control_inputBufLen,
+		  { "InputBufferLen", "rdpdr.inputbuflen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_io_request_control_ioControlCode,
+		  { "IoControlCode", "rdpdr.iocontrolcode",
+			FT_UINT32, BASE_HEX, VALS(rdpdr_dr_ioControlCode_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_io_request_control_padding,
+		  { "Padding", "rdpdr.padding20",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_rdpdr_io_request_frame,
 		  { "Request in frame", "rdpdr.iorequestframe",
 			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
@@ -692,7 +1110,7 @@ void proto_register_rdpdr(void) {
 			NULL, HFILL }
 		},
 		{ &hf_rdpdr_capaLen,
-		  { "Length", "rdpdr.capa.lenght",
+		  { "Length", "rdpdr.capa.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -749,6 +1167,67 @@ void proto_register_rdpdr(void) {
 		{ &hf_rdpdr_capa_gen_specialTypeDeviceCap,
 		  { "specialTypeDeviceCap", "rdpdr.capa.gen.specialtypedevicecap",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_ioreq_sc_command,
+		  { "Command", "rdpdr.sc.command",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_ioreq_sc_returnCode,
+		  { "ReturnCode", "rdpdr.sc.returnCode",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+
+		{ &hf_rdpdr_device_name,
+		  { "Device", "rdpdr.device",
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_printer_cacheEvent,
+		  { "EventId", "rdpdr.printer.eventid",
+			FT_UINT32, BASE_HEX, VALS(rdpdr_printer_cacheEvent_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_pnpNameLength,
+		  { "PnPNameLen", "rdpdr.printer.pnpnamelen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_pnpName,
+		  { "PnPName", "rdpdr.printer.pnpname",
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_driverNameLength,
+		  { "DriverNameLen", "rdpdr.printer.drivernamelen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_driverName,
+		  { "DriverName", "rdpdr.printer.drivername",
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_printerNameLength,
+		  { "PrintNameLen", "rdpdr.printer.printnamelen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_printerName,
+		  { "PrinterName", "rdpdr.printer.printername",
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_cachedFieldsLength,
+		  { "CacheFieldsLen", "rdpdr.printer.cachefieldslen",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_rdpdr_cachedFields,
+		  { "CacheFields", "rdpdr.printer.cachefields",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 	};

@@ -31,6 +31,7 @@ set(PIDL_DISSECTOR_NAMES
 	misc
 	nspi
 	rcg
+	rdpdr_smartcard
 	rfr
 	samr
 	srvsvc
@@ -125,6 +126,9 @@ set(PIDL_DISSECTOR_nspi_EXTRA_DEPS
 	mapitags_enum.h
 )
 set(PIDL_DISSECTOR_rcg_EXTRA_DEPS
+	idl_types.h
+)
+set(PIDL_DISSECTOR_rdpdr_smartcard_EXTRA_DEPS
 	idl_types.h
 )
 set(PIDL_DISSECTOR_rfr_EXTRA_DEPS

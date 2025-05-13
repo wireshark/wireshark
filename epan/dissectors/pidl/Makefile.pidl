@@ -33,6 +33,7 @@ SUBDIRS = \
 	misc		\
 	nspi		\
 	rcg		\
+	rdpdr_smartcard \
 	rfr		\
 	samr		\
 	svcctl		\
@@ -152,6 +153,11 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 ../packet-dcerpc-rcg.c \
 ../packet-dcerpc-rcg.h: rcg/rcg.idl rcg/rcg.cnf \
 				idl_types.h  mapicodes_enum.h
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-rdpdr_smartcard.c \
+../packet-dcerpc-rdpdr_smartcard.h: rdpdr_smartcard/rdpdr_smartcard.idl rdpdr_smartcard/rdpdr_smartcard.cnf \
+				idl_types.h
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
 ../packet-dcerpc-rfr.c \
