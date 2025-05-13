@@ -332,6 +332,7 @@ static const value_string spnego_T_negResult_vals[] = {
   {   0, "accept-completed" },
   {   1, "accept-incomplete" },
   {   2, "reject" },
+  {   3, "request-mic" },
   { 0, NULL }
 };
 
