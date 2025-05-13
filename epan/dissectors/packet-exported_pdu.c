@@ -423,7 +423,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_P2P_DIRECTION:
                 pinfo->p2p_dir = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_p2p_dir, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_p2p_dir, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             case EXP_PDU_TAG_COL_INFO_TEXT:
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_col_info_str, tvb, offset, tag_len, ENC_UTF_8 | ENC_NA, pinfo->pool, &col_info_str);

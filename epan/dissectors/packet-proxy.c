@@ -269,7 +269,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
         case PP2_TYPE_SSL: /* SSL */
             proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_client, tvb, offset, 1, ENC_NA);
             offset += 1;
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_verify, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_verify, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             offset = dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset, next_offset);
         break;
@@ -413,7 +413,7 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
         return tvb_captured_length(tvb);
     }
-    proto_tree_add_item(proxy_tree, hf_proxy1_proto, tvb, offset, token_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(proxy_tree, hf_proxy1_proto, tvb, offset, token_length, ENC_ASCII);
     if (token_length == 4) {
         if (memcmp(buffer, "TCP4", 4) == 0) {
             tcp_ip_version = 4;
@@ -592,10 +592,10 @@ dissect_proxy_v2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (fam_pro){
         case 0x11: /* TCP over IPv4 */
         case 0x12: /* UDP over IPv4 */
-            proto_tree_add_item(proxy_tree, hf_proxy_src_ipv4, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy_src_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
             set_address_tvb(&src_addr, AT_IPv4, 4, tvb, offset);
             offset += 4;
-            proto_tree_add_item(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
             set_address_tvb(&dst_addr, AT_IPv4, 4, tvb, offset);
             offset += 4;
             proto_tree_add_item_ret_uint(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN, &srcport);

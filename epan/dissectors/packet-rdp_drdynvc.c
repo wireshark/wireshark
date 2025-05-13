@@ -433,6 +433,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 			} else {
 				char *channelName = "unknown";
+				/* TODO: what endianness is this?  Current is ENC_NA is big endian.. */
 				proto_tree_add_item(tree, hf_rdp_drdynvc_creationStatus, tvb, offset, 4, ENC_NA);
 
 				if (channel) {

@@ -210,7 +210,7 @@ dissect_lsdp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
             offset += 1;
 
             if(addr_len == 4) {
-                proto_tree_add_item(msg_tree, hf_lsdp_announce_addr_ipv4, tvb, offset, addr_len, ENC_NA);
+                proto_tree_add_item(msg_tree, hf_lsdp_announce_addr_ipv4, tvb, offset, addr_len, ENC_BIG_ENDIAN);
             } else if (addr_len==16) {
                 proto_tree_add_item(msg_tree, hf_lsdp_announce_addr_ipv6, tvb, offset, addr_len, ENC_NA);
             } else {

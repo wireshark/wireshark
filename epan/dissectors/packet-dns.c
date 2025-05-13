@@ -3970,7 +3970,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int         rr_len, initial_offset = cur_offset;
 
-      proto_tree_add_item(rr_tree, hf_dns_csync_soa, tvb, cur_offset, 4, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(rr_tree, hf_dns_csync_soa, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       cur_offset += 4;
 
       proto_tree_add_bitmask_with_flags(rr_tree, tvb, cur_offset,
@@ -4063,7 +4063,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               break;
             case DNS_SVCB_KEY_IPV4HINT:
               for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 4) {
-                proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv4hint_ip, tvb, cur_offset, 4, ENC_NA);
+                proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv4hint_ip, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(pinfo->pool, tvb, cur_offset));
                 cur_offset += 4;
               }
@@ -4155,7 +4155,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_ilnp_locator32_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
 
-      proto_tree_add_item(rr_tree, hf_dns_ilnp_locator32, tvb, cur_offset, 4, ENC_NA);
+      proto_tree_add_item(rr_tree, hf_dns_ilnp_locator32, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
       /*cur_offset += 4;*/
     }
     break;
@@ -4436,7 +4436,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 4;
 
       while (rr_len != 0 && nservers != 0) {
-        proto_tree_add_item(rr_tree, hf_dns_wins_server, tvb, cur_offset, 4, ENC_NA);
+        proto_tree_add_item(rr_tree, hf_dns_wins_server, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
 
         cur_offset += 4;
         rr_len     -= 4;

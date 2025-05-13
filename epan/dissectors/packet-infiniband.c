@@ -3667,10 +3667,10 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, int loca
 
     if (ipv == 4) {
         /* skip first 12 bytes of zero for sip */
-        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip4, tvb, local_offset + 12, 4, ENC_NA);
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip4, tvb, local_offset + 12, 4, ENC_BIG_ENDIAN);
         local_offset += 16;
         /* skip first 12 bytes of zero for dip */
-        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip4, tvb, local_offset + 12, 4, ENC_NA);
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip4, tvb, local_offset + 12, 4, ENC_BIG_ENDIAN);
     } else {
         proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip6, tvb, local_offset, 16, ENC_NA);
         local_offset += 16;
@@ -3751,12 +3751,12 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
 
     if (pinfo->dst.type == AT_IPv4) {
         local_gid  = (uint8_t *)wmem_alloc(pinfo->pool, 4);
-        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
+        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid_ipv4, tvb, local_offset + 12, 4, ENC_BIG_ENDIAN);
         (*(uint32_t*)local_gid) = tvb_get_ipv4(tvb, local_offset + 12);
         local_offset += 16;
 
         remote_gid = (uint8_t *)wmem_alloc(pinfo->pool, 4);
-        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
+        proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid_ipv4, tvb, local_offset + 12, 4, ENC_BIG_ENDIAN);
         (*(uint32_t*)remote_gid) = tvb_get_ipv4(tvb, local_offset + 12);
     } else {
         local_gid = (uint8_t *)wmem_alloc(pinfo->pool, GID_SIZE);

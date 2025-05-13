@@ -1833,10 +1833,10 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         if ( sublen == 5 ) {
             offset++;
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_affinity_tlv, tvb, offset, 4, ENC_NA);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_fgl_safe, tvb, offset, 4, ENC_NA);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_caps, tvb, offset, 4, ENC_NA);
-            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_flags, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_affinity_tlv, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_fgl_safe, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_caps, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_rt_capable_trill_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
 
         return 0;
@@ -1995,7 +1995,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
                                                 NULL, "SRv6 Capability (t=%u, l=%u)",
                                                 subtype, sublen);
         proto_tree_add_bitmask(rt_tree, tvb, offset, hf_isis_lsp_clv_srv6_cap_flags,
-                               ett_isis_lsp_clv_srv6_cap_flags, srv6_cap_flags, ENC_NA);
+                               ett_isis_lsp_clv_srv6_cap_flags, srv6_cap_flags, ENC_BIG_ENDIAN);
         return 0;
 
     case NODE_MSD:
@@ -2325,7 +2325,7 @@ dissect_lsp_srlg_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, in
     isis_data_t *isis _U_, int length)
 {
 
-    proto_tree_add_item(tree, hf_isis_lsp_srlg_system_id, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isis_lsp_srlg_system_id, tvb, offset, 6, ENC_NA);
     offset += 6;
 
     proto_tree_add_item(tree, hf_isis_lsp_srlg_pseudo_num, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2384,7 +2384,7 @@ dissect_lsp_appspec_srlg_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
         return;
     }
 
-    proto_tree_add_item(tree, hf_isis_lsp_appspec_srlg_system_id, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_isis_lsp_appspec_srlg_system_id, tvb, offset, 6, ENC_NA);
     offset += 6;
     length -= 6;
 
@@ -2894,7 +2894,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
     clv_pref_l = tvb_get_uint8(tvb, tlv_offset);
     tlv_offset++;
     if (clv_pref_l == 32) {
-        proto_tree_add_item(tree, hf_isis_lsp_sl_binding_fec_prefix_ipv4, tvb, tlv_offset, clv_pref_l/8, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_lsp_sl_binding_fec_prefix_ipv4, tvb, tlv_offset, clv_pref_l/8, ENC_BIG_ENDIAN);
     }
     else if (clv_pref_l == 128) {
         proto_tree_add_item(tree, hf_isis_lsp_sl_binding_fec_prefix_ipv6, tvb, tlv_offset, clv_pref_l/8, ENC_NA);
@@ -3824,7 +3824,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                                        srv6_endx_sid_flags, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, sub_tlv_offset+1, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, sub_tlv_offset+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior, tvb, sub_tlv_offset+3, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior, tvb, sub_tlv_offset+3, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, sub_tlv_offset+5, 16, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, sub_tlv_offset+21, 1, ENC_NA);
                 subsubclvs_len = tvb_get_uint8(tvb, sub_tlv_offset+21);
@@ -3873,7 +3873,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                                        srv6_endx_sid_flags, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, sub_tlv_offset+7, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, sub_tlv_offset+8, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior, tvb, sub_tlv_offset+9, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior, tvb, sub_tlv_offset+9, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, sub_tlv_offset+11, 16, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, sub_tlv_offset+27, 1, ENC_NA);
                 subsubclvs_len = tvb_get_uint8(tvb, sub_tlv_offset+27);
@@ -4289,7 +4289,7 @@ dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
         proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_flags, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_endpoint_behavior, tvb, offset+1, 2, ENC_NA);
+        proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_endpoint_behavior, tvb, offset+1, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_sid, tvb, offset+3, 16, ENC_NA);
         proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_subsubclvs_len, tvb, offset+19, 1, ENC_NA);
         subsubclvs_len = tvb_get_uint8(tvb, offset + 19);
@@ -4608,7 +4608,7 @@ dissect_lsp_mac_reachability(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
     offset += 2;
     proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_confidence, tvb, offset, 1, ENC_NA);
     offset += 1;
-    proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_reserved, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 

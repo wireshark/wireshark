@@ -1128,7 +1128,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
     offset += 1;
 
     length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(dlt_tree, hf_dlt_length, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(dlt_tree, hf_dlt_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if ((header_type & DLT_HDR_TYPE_WITH_ECU_ID) == DLT_HDR_TYPE_WITH_ECU_ID) {
@@ -1137,7 +1137,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
     }
 
     if ((header_type & DLT_HDR_TYPE_WITH_SESSION_ID) == DLT_HDR_TYPE_WITH_SESSION_ID) {
-        proto_tree_add_item(dlt_tree, hf_dlt_session_id, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(dlt_tree, hf_dlt_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 

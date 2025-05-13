@@ -390,7 +390,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_domain, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_domain, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_mac, tvb, offset, 6, ENC_NA);
@@ -399,10 +399,10 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 8, ENC_NA);
             offset += 8;
 
-            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_switch, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_switch, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_port, tvb, offset, 2, ENC_NA);
+            proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_irf_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
@@ -625,7 +625,7 @@ proto_register_lacp(void)
         /* HP IRF MAD LACP */
         { &hf_lacp_vendor_hp_length,
           { "Length",        "lacp.vendor.hp.length",
-            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            FT_UINT8,    BASE_DEC,    NULL,    0x0,
             "The length of HP TLV", HFILL }},
         { &hf_lacp_vendor_hp_irf_domain,
           { "IRF Domain",        "lacp.vendor.hp.irf_domain",
