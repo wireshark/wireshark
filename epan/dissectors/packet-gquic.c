@@ -1955,6 +1955,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
                     proto_item_append_text(ti_stream, " (Reserved for H2 HEADERS)");
 
+                    /* XXX - Set COL_PROTOCOL to "HTTP2"? */
                     col_set_str(pinfo->cinfo, COL_INFO, "H2");
 
                     tvb_h2 = tvb_new_subset_remaining(tvb, offset);

@@ -4013,8 +4013,6 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     conversation_t* conversation = find_or_create_conversation(pinfo);
     bool use_follow_tap = true;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP2");
-
     ti = proto_tree_add_item(tree, proto_http2, tvb, 0, -1, ENC_NA);
 
     http2_tree = proto_item_add_subtree(ti, ett_http2);
@@ -4232,9 +4230,16 @@ static int
 dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               void *data)
 {
-    /* XXX: Should tcp_dissect_pdus() set a fence after each PDU?
+    /* XXX - We really want to set COL_PROTOCOL only for the first PDU (so
+     * as not to set it on the first pass if the frame is rejected due to
+     * segmentation), but tcp_dissect_pdus doesn't make that easy.
+     * Maybe tcp_dissect_pdus() set the protocol column for the first
+     * PDU to either a string or the protocol short name?
+     *
+     * Should tcp_dissect_pdus() set a fence after each PDU?
      * If so the col_clear could be moved inside dissect_http2_pdu.
      */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP2");
     col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LENGTH,
