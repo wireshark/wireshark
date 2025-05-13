@@ -68,6 +68,11 @@ struct pcapng_option_header {
 };
 
 /*
+ * Minimum block size = size of block header + size of block trailer.
+ */
+#define MIN_BLOCK_SIZE  ((uint32_t)(sizeof(pcapng_block_header_t) + sizeof(uint32_t)))
+
+/*
  * Minimum IDB size = minimum block size + size of fixed length portion of IDB.
  */
 #define MIN_IDB_SIZE    ((uint32_t)(MIN_BLOCK_SIZE + sizeof(pcapng_interface_description_block_t)))
