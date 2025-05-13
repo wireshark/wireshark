@@ -26,6 +26,7 @@ typedef enum {
 	RDP_CHANNEL_SOUND,
 	RDP_CHANNEL_DISK,
 	RDP_CHANNEL_RAIL,
+	RDP_CHANNEL_CONCTRL,
 } rdp_known_channel_t;
 
 

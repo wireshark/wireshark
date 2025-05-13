@@ -42,6 +42,7 @@ static dissector_handle_t rail_handle;
 static dissector_handle_t cliprdr_handle;
 static dissector_handle_t snd_handle;
 static dissector_handle_t rdpdr_handle;
+static dissector_handle_t conctrl_handle;
 
 static int ett_rdp;
 
@@ -1560,6 +1561,8 @@ find_known_channel_by_name(const char *name) {
 		return RDP_CHANNEL_CLIPBOARD;
 	if (g_ascii_strcasecmp(name, "rail") == 0)
 		return RDP_CHANNEL_RAIL;
+	if (g_ascii_strcasecmp(name, "conctrl") == 0)
+		return RDP_CHANNEL_CONCTRL;
 	return RDP_CHANNEL_UNKNOWN;
 }
 
@@ -1870,6 +1873,9 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				  break;
 			  case RDP_CHANNEL_DISK:
 				  offset += call_dissector(rdpdr_handle, showTvb, pinfo, tree);
+				  break;
+			  case RDP_CHANNEL_CONCTRL:
+				  offset += call_dissector(conctrl_handle, showTvb, pinfo, tree);
 				  break;
 			  default: {
 				  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", " channel=%s", channel->strptr);
@@ -2607,7 +2613,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
       /*offset=*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, se_fields, 0);
 
-      break;
+      return tvb_captured_length(tvb);
 
     case SEC_INFO_PKT:
       pi        = proto_tree_add_item(tree, hf_rdp_clientInfoPDU, tvb, offset, -1, ENC_NA);
@@ -2624,7 +2630,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
       }
-      break;
+      return tvb_captured_length(tvb);
 
     case SEC_LICENSE_PKT:
       pi        = proto_tree_add_item(tree, hf_rdp_validClientLicenseData, tvb, offset, -1, ENC_NA);
@@ -2662,17 +2668,15 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         /* XXX: we assume the license is agreed in this exchange */
         rdp_info->licenseAgreed = pinfo->num;
       }
-      break;
+      return tvb_captured_length(tvb);
 
     case SEC_REDIRECTION_PKT:
       /* NotYetImplemented */
-      break;
+      return tvb_captured_length(tvb);
 
     default:
       break;
     }
-
-    return tvb_captured_length(tvb);
   } /* licensing stage */
 
   if (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) {
@@ -5559,6 +5563,7 @@ proto_reg_handoff_rdp(void)
   cliprdr_handle = find_dissector("rdp_cliprdr");
   snd_handle = find_dissector("rdp_snd");
   rdpdr_handle = find_dissector("rdpdr");
+  conctrl_handle = find_dissector("rdp_conctrl");
 
   heur_dissector_add("cotp_cr", dissect_rdp_cr_heur, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
   heur_dissector_add("cotp_cc", dissect_rdp_cc_heur, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);

@@ -1801,6 +1801,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_multitransport.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_conctrl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_cliprdr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_drdynvc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rdp_egfx.c
