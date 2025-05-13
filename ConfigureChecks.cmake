@@ -153,6 +153,34 @@ check_struct_has_member("struct tm"       tm_gmtoff      time.h       HAVE_STRUC
 include(CheckTypeSize)
 check_type_size("ssize_t"       SSIZE_T)
 
+# Unconditionally force use of 64-bit time_t on 32-bit platforms with glibc.
+check_symbol_exists(__GLIBC__	"time.h"	HAVE___GLIBC__)
+
+if(HAVE___GLIBC__ AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+	# _TIME_BITS=64 requires _FILE_OFFSET_BITS=64, which we should have
+	# already ensured is set by FindLFS, but this doesn't hurt
+	check_symbol_exists(_FILE_OFFSET_BITS	"time.h"	HAVE__FILE_OFFSET_BITS)
+	if (NOT HAVE__FILE_OFFSET_BITS)
+		list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_FILE_OFFSET_BITS=64)
+	endif()
+	check_symbol_exists(_TIME_BITS	"time.h"	HAVE__TIME_BITS)
+	if (NOT HAVE__TIME_BITS)
+		list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_TIME_BITS=64)
+	endif()
+endif()
+
+# Do we want to eventually just fail for non Y2038 compliant hosts (or all
+# less than 64-bit time_t hosts, if we don't want to consider theoretical
+# cases like unsigned 32 bit time_t?)
+# The only way to truly test this is to compile a program, especially
+# due to multiple architectures.
+#check_type_size("time_t"	TIME_T_SIZE)
+#if(TIME_T_SIZE_64 EQUAL 0)
+#	message("multiple architectures with possibly different time_t sizes.")
+#elseif(TIME_T_SIZE_64 LESS 8)
+#	message(FATAL_ERROR "time_t is less than 64-bit")
+#endif()
+
 #
 # Check if the libc vsnprintf() conforms to C99. If this fails we may
 # need to fall-back on GLib I/O.
