@@ -2282,7 +2282,7 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP3");
     // Only clear the columns if this is the first HTTP/3 STREAM in the packet.
-    if (!proto_is_frame_protocol(pinfo->layers, "http3")) {
+    if (proto_get_layer_num(pinfo, proto_http3) == 1) {
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
