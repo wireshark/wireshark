@@ -14,7 +14,9 @@
 #include "packet-tcp.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #define RESP_PORT 6379
 #define CRLF_LENGTH 2
@@ -52,9 +54,13 @@ static int hf_resp_array_length;
 static int hf_resp_fragment;
 
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements);
-static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str);
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
+
+static bool prefs_try_json_on_string = TRUE;
+
+static dissector_handle_t json_handle;
 
 static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_lenth, int array_depth) {
     uint8_t *string_value;
@@ -144,7 +150,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     uint8_t *bulk_string_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
     if (g_str_is_ascii(bulk_string_as_str)) {
         proto_item_append_text(resp_string_item, ": %s", bulk_string_as_str);
-        resp_bulk_string_enhance_colinfo_ascii(pinfo, array_depth, bulk_string_length, bulk_string_as_str);
+        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, bulk_string_length, bulk_string_as_str);
     } else if(array_depth == 0) {
         /* Otherwise, just append that we captured bulk strings (and only do so if they aren't part of an array */
         col_append_fstr(pinfo->cinfo, COL_INFO, " BulkString(%d)", bulk_string_length);
@@ -153,13 +159,33 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return bulk_string_string_length + CRLF_LENGTH + bulk_string_captured_length_with_crlf;
 }
 
-static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str) {
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str) {
     /* Request commands are arrays */
     if (RESP_REQUEST(pinfo) && array_depth == 1) {
         if (bulk_string_length < BULK_STRING_MAX_DISPLAY) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, " ", bulk_string_as_str);
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " BulkString(%d)", bulk_string_length);
+        }
+
+        /* Is it worth trying the JSON dissector? */
+        if (prefs_try_json_on_string &&                 /* preference enabled */
+            bulk_string_length >= 2 &&                  /* at least 2 chars long */
+            /* and has format {..} or [..] */
+            ((bulk_string_as_str[0] == '{' && bulk_string_as_str[bulk_string_length-1] == '}') ||
+             (bulk_string_as_str[0] == '[' && bulk_string_as_str[bulk_string_length-1] == ']'))) {
+
+            /* Create TVB just with string */
+            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, bulk_string_as_str, bulk_string_length, bulk_string_length);
+            add_new_data_source(pinfo, json_tvb, "JSON string");
+
+            /* Call JSON dissector on this TVB */
+            TRY {
+                call_dissector_only(json_handle, json_tvb, pinfo, tree, NULL);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
         }
         return;
     }
@@ -422,6 +448,8 @@ void proto_register_resp(void) {
     };
 
     proto_resp = proto_register_protocol("REdis Serialization Protocol", "RESP", "resp");
+
+    /* Preferences */
     module_t *resp_module = prefs_register_protocol(proto_resp, NULL);
     prefs_register_bool_preference(resp_module, "desegment_data",
                                    "Reassemble RESP data spanning multiple TCP segments",
@@ -429,6 +457,11 @@ void proto_register_resp(void) {
                                    " spanning multiple TCP segments. To use this option, you must also enable "
                                    "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &resp_desegment);
+    prefs_register_bool_preference(resp_module, "attempt_json_on_string",
+                                   "Try JSON on string data",
+                                   "For bulk string values that look like they might be JSON, try the dissector",
+                                   &prefs_try_json_on_string);
+
 
     expert_module_t *expert_pcp = expert_register_protocol(proto_resp);
     expert_register_field_array(expert_pcp, ei, array_length(ei));
@@ -442,4 +475,6 @@ void proto_register_resp(void) {
 
 void proto_reg_handoff_resp(void) {
     dissector_add_uint_with_preference("tcp.port", RESP_PORT, resp_handle);
+    json_handle = find_dissector("json");
+
 }
