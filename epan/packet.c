@@ -40,6 +40,8 @@
 #include <epan/prefs.h>
 #include <epan/range.h>
 
+#include <wiretap/pcapng-netflix-custom.h>
+
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>

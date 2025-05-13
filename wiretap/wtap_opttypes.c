@@ -361,7 +361,7 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         break;
 
     case WTAP_OPTTYPE_CUSTOM_BINARY:
-        g_free(opt->value.custom_binaryval.data.generic_data.custom_data);
+        g_free(opt->value.custom_binaryval.data.custom_data);
         break;
 
     case WTAP_OPTTYPE_IF_FILTER:
@@ -550,7 +550,7 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
         case WTAP_OPTTYPE_CUSTOM_BINARY:
             wtap_block_add_custom_binary_option(dest_block, src_opt->option_id,
                                                 src_opt->value.custom_binaryval.pen,
-                                                &src_opt->value.custom_binaryval.data.generic_data);
+                                                &src_opt->value.custom_binaryval.data);
             break;
 
         case WTAP_OPTTYPE_IF_FILTER:
@@ -1499,8 +1499,8 @@ wtap_block_add_custom_binary_option(wtap_block_t block, unsigned option_id,
     ret = wtap_block_add_custom_binary_option_common(block, option_id, pen, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opt->value.custom_binaryval.data.generic_data.custom_data_len = value->custom_data_len;
-    opt->value.custom_binaryval.data.generic_data.custom_data = g_memdup2(value->custom_data, value->custom_data_len);
+    opt->value.custom_binaryval.data.custom_data_len = value->custom_data_len;
+    opt->value.custom_binaryval.data.custom_data = g_memdup2(value->custom_data, value->custom_data_len);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -1517,8 +1517,8 @@ wtap_block_add_custom_binary_option_from_data(wtap_block_t block,
     ret = wtap_block_add_custom_binary_option_common(block, option_id, pen, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opt->value.custom_binaryval.data.generic_data.custom_data_len = data_size;
-    opt->value.custom_binaryval.data.generic_data.custom_data = g_memdup2(data, data_size);
+    opt->value.custom_binaryval.data.custom_data_len = data_size;
+    opt->value.custom_binaryval.data.custom_data = g_memdup2(data, data_size);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -1537,7 +1537,7 @@ wtap_block_get_nth_custom_binary_option_value(wtap_block_t block,
                                                            idx, &optval);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    *value = optval->custom_binaryval.data.generic_data;
+    *value = optval->custom_binaryval.data;
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -1552,9 +1552,9 @@ wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t type, const char 
         return ret;
     opt->value.custom_binaryval.pen = PEN_NFLX;
     // Integrate the Netflix type into the custom data
-    opt->value.custom_binaryval.data.generic_data.custom_data_len = custom_data_len+4;
-    opt->value.custom_binaryval.data.generic_data.custom_data = g_malloc(opt->value.custom_binaryval.data.generic_data.custom_data_len);
-    char* data = opt->value.custom_binaryval.data.generic_data.custom_data;
+    opt->value.custom_binaryval.data.custom_data_len = custom_data_len+4;
+    opt->value.custom_binaryval.data.custom_data = g_malloc(opt->value.custom_binaryval.data.custom_data_len);
+    char* data = opt->value.custom_binaryval.data.custom_data;
     type = GUINT32_TO_LE(type);
     memcpy(data, &type, sizeof(uint32_t));
     data += sizeof(uint32_t);

@@ -370,7 +370,6 @@ typedef enum {
 } wtap_opttype_return_val;
 
 /* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
-#define PEN_NFLX 10949
 #define PEN_VCTR 46254
 
 /*
@@ -396,9 +395,7 @@ typedef struct binary_optdata {
  */
 typedef struct custom_binary_opt_s {
     uint32_t pen;     /* Private Enterprise Number of this option */
-    union {
-        binary_optdata_t generic_data;
-    } data;
+    binary_optdata_t data;
 } custom_binary_opt_t;
 
 /* Interface description data - if_filter option structure */

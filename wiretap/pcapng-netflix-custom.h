@@ -15,7 +15,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Netflix custom options.
+ * Netflix custom blocks and options.
  *
  * https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
  */

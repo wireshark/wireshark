@@ -4294,7 +4294,7 @@ static uint32_t pcapng_compute_custom_binary_option_size(wtap_optval_t *optval)
     size_t size;
 
     /* PEN */
-    size = sizeof(uint32_t) + optval->custom_binaryval.data.generic_data.custom_data_len;
+    size = sizeof(uint32_t) + optval->custom_binaryval.data.custom_data_len;
 
     if (size > 65535) {
         size = 65535;
@@ -4918,7 +4918,7 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
     if (option_id == OPT_CUSTOM_BIN_NO_COPY)
         return true;
     ws_debug("PEN %u", optval->custom_binaryval.pen);
-    size = sizeof(uint32_t) + optval->custom_binaryval.data.generic_data.custom_data_len;
+    size = sizeof(uint32_t) + optval->custom_binaryval.data.custom_data_len;
     if (size > 65535) {
         /*
          * Too big to fit in the option.
@@ -4969,7 +4969,7 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
         return false;
 
     /* write custom data */
-    if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.generic_data.custom_data, optval->custom_binaryval.data.generic_data.custom_data_len, err)) {
+    if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.custom_data, optval->custom_binaryval.data.custom_data_len, err)) {
         return false;
     }
 
@@ -6045,7 +6045,7 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
         break;
     case OPT_CUSTOM_BIN_COPY:
         /* Custom options don't consider pad bytes part of the length */
-        size = (uint32_t)(optval->custom_binaryval.data.generic_data.custom_data_len + sizeof(uint32_t)) & 0xffff;
+        size = (uint32_t)(optval->custom_binaryval.data.custom_data_len + sizeof(uint32_t)) & 0xffff;
         option_hdr.type         = (uint16_t)option_id;
         option_hdr.value_length = (uint16_t)size;
         memcpy(*opt_ptrp, &option_hdr, 4);
@@ -6054,8 +6054,8 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
         memcpy(*opt_ptrp, &optval->custom_binaryval.pen, sizeof(uint32_t));
         *opt_ptrp += sizeof(uint32_t);
 
-        memcpy(*opt_ptrp, optval->custom_binaryval.data.generic_data.custom_data, optval->custom_binaryval.data.generic_data.custom_data_len);
-        *opt_ptrp += optval->custom_binaryval.data.generic_data.custom_data_len;
+        memcpy(*opt_ptrp, optval->custom_binaryval.data.custom_data, optval->custom_binaryval.data.custom_data_len);
+        *opt_ptrp += optval->custom_binaryval.data.custom_data_len;
 
         if ((size % 4)) {
             pad = 4 - (size % 4);

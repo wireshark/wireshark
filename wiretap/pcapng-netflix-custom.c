@@ -44,9 +44,9 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* 
         opt = &g_array_index(block->options, wtap_option_t, i);
         if ((opt->option_id == OPT_CUSTOM_BIN_COPY) &&
             (opt->value.custom_binaryval.pen == PEN_NFLX) &&
-            (opt->value.custom_binaryval.data.generic_data.custom_data_len >= sizeof(uint32_t))) {
+            (opt->value.custom_binaryval.data.custom_data_len >= sizeof(uint32_t))) {
             uint32_t type;
-            memcpy(&type, opt->value.custom_binaryval.data.generic_data.custom_data, sizeof(uint32_t));
+            memcpy(&type, opt->value.custom_binaryval.data.custom_data, sizeof(uint32_t));
             type = GUINT32_FROM_LE(type);
             if (type == nflx_type)
                 break;
@@ -55,12 +55,12 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* 
     if (i == block->options->len) {
         return WTAP_OPTTYPE_NOT_FOUND;
     }
-    if (nflx_custom_data_len + sizeof(uint32_t) < opt->value.custom_binaryval.data.generic_data.custom_data_len) {
+    if (nflx_custom_data_len + sizeof(uint32_t) < opt->value.custom_binaryval.data.custom_data_len) {
         return WTAP_OPTTYPE_TYPE_MISMATCH;
     }
 
     /* Custom data includes the type, so it's already been accounted for */
-    real_custom_data = ((char*)opt->value.custom_binaryval.data.generic_data.custom_data) + sizeof(uint32_t);
+    real_custom_data = ((char*)opt->value.custom_binaryval.data.custom_data) + sizeof(uint32_t);
 
     switch (nflx_type) {
     case NFLX_OPT_TYPE_VERSION: {
