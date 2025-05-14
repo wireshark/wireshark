@@ -397,12 +397,12 @@ static int hf_profinet_mrp_domain_uuid;
 static int hf_profinet_mrpic_domain_id;
 static int hf_profinet_mrpic_role;
 static int hf_profinet_mrpic_micposition;
-static int hf_profinet_tsn_domain_uuid;
-static int hf_profinet_tsn_nme_management_addr;
-static int hf_profinet_tsn_nme_management_addr_str_length;
-static int hf_profinet_tsn_nme_management_addr_subtype;
-static int hf_profinet_tsn_nme_name_uuid;
-static int hf_profinet_tsn_nme_parameter_uuid;
+static int hf_profinet_nme_domain_uuid;
+static int hf_profinet_nme_management_addr;
+static int hf_profinet_nme_management_addr_str_length;
+static int hf_profinet_nme_management_addr_subtype;
+static int hf_profinet_nme_name_uuid;
+static int hf_profinet_nme_parameter_uuid;
 static int hf_profinet_time_domain_number;
 static int hf_profinet_time_domain_uuid;
 static int hf_profinet_time_domain_master_identity;
@@ -816,10 +816,10 @@ static const value_string profinet_subtypes[] = {
 	{ 6,  "PTCP Status" },
 	{ 7,  "MauType Extension" },
 	{ 8,  "MRPIC Port Status" },
-	{ 9,  "TSN Domain"},
-	{ 10, "TSN NME Management Address"},
-	{ 11, "TSN NME Name UUID"},
-	{ 12, "TSN NME Parameter UUID"},
+	{ 9,  "NME domain identification"},
+	{ 10, "NME Management Address"},
+	{ 11, "NME Name UUID"},
+	{ 12, "NME Parameter UUID"},
 	{ 13, "AS Working Clock"},
 	{ 14, "AS Global Time"},
 	{ 0, NULL }
@@ -4087,47 +4087,47 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 		/*offset += 2;*/
 		break;
 	}
-	case 9:		/* LLDP_PNIO_TSNDOMAIN */
+	case 9:		/* LLDP_PNIO_NMEDOMAIN */
 	{
 		/* DomainUUID */
-		proto_tree_add_item(tree, hf_profinet_tsn_domain_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_profinet_nme_domain_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		/*offset += 16;*/
 		break;
 	}
-	case 10:	/* LLDP_PNIO_TSNNMEManagementAddr */
+	case 10:	/* LLDP_PNIO_NMEManagementAddr */
 	{
 		uint8_t management_string_length = 0;
 		management_string_length = tvb_get_uint8(tvb, offset);
 
 		/* Management Address String Length */
-		proto_tree_add_item(tree, hf_profinet_tsn_nme_management_addr_str_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_profinet_nme_management_addr_str_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		/* Management Address Subtype */
-		proto_tree_add_item(tree, hf_profinet_tsn_nme_management_addr_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_profinet_nme_management_addr_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		management_string_length -= 1;
 
 		/* Management Address */
-		proto_tree_add_item(tree, hf_profinet_tsn_nme_management_addr, tvb, offset, management_string_length, ENC_NA);
+		proto_tree_add_item(tree, hf_profinet_nme_management_addr, tvb, offset, management_string_length, ENC_NA);
 		/*offset += management_string_length;*/
 		break;
 	}
-	case 11:	/* LLDP_PNIO_TSNNMENameUUID */
+	case 11:	/* LLDP_PNIO_NMENameUUID */
 	{
-		/* TSNNMENameUUID */
-		proto_tree_add_item(tree, hf_profinet_tsn_nme_name_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		/* NMENameUUID */
+		proto_tree_add_item(tree, hf_profinet_nme_name_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		/*offset += 16;*/
 		break;
 	}
-	case 12:	/* LLDP_PNIO_TSNNMEParameterUUID */
+	case 12:	/* LLDP_PNIO_NMEParameterUUID */
 	{
 		/* NMEParameterUUID */
-		proto_tree_add_item(tree, hf_profinet_tsn_nme_parameter_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_profinet_nme_parameter_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		/*offset += 16;*/
 		break;
 	}
-	case 13:	/* LLDP_PNIO_TSNTimeDomain */
+	case 13:	/* LLDP_PNIO_TimeDomain */
 	{
 		/*TimeDomainNumber*/
 		proto_tree_add_item(tree, hf_profinet_time_domain_number, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6417,28 +6417,28 @@ proto_register_lldp(void)
 			{ "MRPIC MICPosition", "lldp.profinet.mrpic_micposition", FT_UINT16, BASE_HEX,
 			VALS(pn_io_mrpic_micposition_lldp), 0x0, NULL, HFILL }
 		},
-		{ &hf_profinet_tsn_domain_uuid,
-			{ "TSN DomainUUID", "lldp.profinet.tsn_domain_uuid", FT_GUID, BASE_NONE,
+		{ &hf_profinet_nme_domain_uuid,
+			{ "NME DomainUUID", "lldp.profinet.nme_domain_uuid", FT_GUID, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_profinet_tsn_nme_management_addr,
-			{ "TSN NME Management Address",	"lldp.profinet.tsn_nme_management_addr", FT_BYTES, BASE_NONE,
+		{ &hf_profinet_nme_management_addr,
+			{ "NME Management Address",	"lldp.profinet.nme_management_addr", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_profinet_tsn_nme_management_addr_str_length,
-			{ "TSN NME Management Address String Length", "lldp.profinet.tsn_nme_management_addr_str_length", FT_UINT8, BASE_HEX,
+		{ &hf_profinet_nme_management_addr_str_length,
+			{ "NME Management Address String Length", "lldp.profinet.nme_management_addr_str_length", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_profinet_tsn_nme_management_addr_subtype,
-			{ "TSN NME Management Address Subtype",	"lldp.profinet.tsn_nme_management_addr_subtype", FT_UINT8, BASE_HEX,
+		{ &hf_profinet_nme_management_addr_subtype,
+			{ "NME Management Address Subtype",	"lldp.profinet.nme_management_addr_subtype", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_profinet_tsn_nme_name_uuid,
-			{ "TSN NME Name UUID", "lldp.profinet.tsn_nme_name_uuid", FT_GUID, BASE_NONE,
+		{ &hf_profinet_nme_name_uuid,
+			{ "NME Name UUID", "lldp.profinet.nme_name_uuid", FT_GUID, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_profinet_tsn_nme_parameter_uuid,
-			{ "TSN NME Parameter UUID", "lldp.profinet.tsn_nme_parameter_uuid", FT_GUID, BASE_NONE,
+		{ &hf_profinet_nme_parameter_uuid,
+			{ "NME Parameter UUID", "lldp.profinet.nme_parameter_uuid", FT_GUID, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_time_domain_number,

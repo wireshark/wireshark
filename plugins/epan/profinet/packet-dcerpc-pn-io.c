@@ -210,7 +210,7 @@ static int hf_pn_io_iocr_properties_full_subframe_structure;
 static int hf_pn_io_data_length;
 static int hf_pn_io_ir_frame_data;
 static int hf_pn_io_frame_id;
-static int hf_pn_io_send_clock_factor;
+static int hf_pn_io_gating_cycle;
 static int hf_pn_io_reduction_ratio;
 static int hf_pn_io_phase;
 static int hf_pn_io_sequence;
@@ -538,67 +538,77 @@ static int hf_pn_io_number_of_subslots;
 /* static int hf_pn_io_maintenance_demanded_drop_budget; */
 /* static int hf_pn_io_error_drop_budget; */
 
-static int hf_pn_io_tsn_number_of_queues;
-static int hf_pn_io_tsn_max_supported_record_size;
-static int hf_pn_io_tsn_transfer_time_tx;
-static int hf_pn_io_tsn_transfer_time_rx;
-static int hf_pn_io_tsn_port_capabilities_time_aware;
-static int hf_pn_io_tsn_port_capabilities_preemption;
-static int hf_pn_io_tsn_port_capabilities_queue_masking;
-static int hf_pn_io_tsn_port_capabilities_reserved;
-static int hf_pn_io_tsn_forwarding_group;
-static int hf_pn_io_tsn_forwarding_group_ingress;
-static int hf_pn_io_tsn_forwarding_group_egress;
-static int hf_pn_io_tsn_stream_class;
-static int hf_pn_io_tsn_dependent_forwarding_delay;
-static int hf_pn_io_tsn_independent_forwarding_delay;
-static int hf_pn_io_tsn_forwarding_delay_block_number_of_entries;
-static int hf_pn_io_tsn_expected_neighbor_block_number_of_entries;
-static int hf_pn_io_tsn_port_id_block_number_of_entries;
+static int hf_pn_io_cim_number_of_queues;
+static int hf_pn_io_cim_net_max_supported_record_size;
+static int hf_pn_io_traffic_class_translate_entry;
+static int hf_pn_io_traffic_class_translate_entry_vid;
+static int hf_pn_io_traffic_class_translate_entry_reserved1;
+static int hf_pn_io_traffic_class_translate_entry_pcp;
+static int hf_pn_io_traffic_class_translate_entry_reserved2;
+static int hf_pn_io_cim_net_conf_upload_network_attributes_number_of_entries;
+static int hf_pn_io_cim_net_transfer_time_tx;
+static int hf_pn_io_cim_net_transfer_time_rx;
+static int hf_pn_io_port_capabilities_time_aware;
+static int hf_pn_io_port_capabilities_preemption;
+static int hf_pn_io_port_capabilities_queue_masking;
+static int hf_pn_io_port_capabilities_reserved;
+static int hf_pn_io_cim_station_forwarding_group;
+static int hf_pn_io_cim_station_forwarding_group_ingress;
+static int hf_pn_io_cim_station_forwarding_group_egress;
+static int hf_pn_io_cim_net_stream_class;
+static int hf_pn_io_cim_forwarding_delay_entry;
+static int hf_pn_io_cim_forwarding_delay_dependent;
+static int hf_pn_io_cim_forwarding_delay_reserved;
+static int hf_pn_io_cim_forwarding_delay_independent;
+static int hf_pn_io_cim_ingress_port_slot_nr;
+static int hf_pn_io_cim_station_forwarding_delay_block_number_of_entries;
+static int hf_pn_io_cim_station_expected_neighbor_block_number_of_entries;
+static int hf_pn_io_cim_station_port_capabilities_block_number_of_entries;
+static int hf_pn_io_cim_expected_network_attributes_uuid;
 
-static int hf_pn_io_tsn_nme_parameter_uuid;
-static int hf_pn_io_tsn_domain_vid_config;
-static int hf_pn_io_tsn_domain_vid_config_stream_high_vid;
-static int hf_pn_io_tsn_domain_vid_config_stream_high_red_vid;
-static int hf_pn_io_tsn_domain_vid_config_stream_low_vid;
-static int hf_pn_io_tsn_domain_vid_config_stream_low_red_vid;
-static int hf_pn_io_tsn_domain_vid_config_non_stream_vid;
-static int hf_pn_io_tsn_domain_vid_config_non_stream_vid_B;
-static int hf_pn_io_tsn_domain_vid_config_non_stream_vid_C;
-static int hf_pn_io_tsn_domain_vid_config_non_stream_vid_D;
-static int hf_pn_io_tsn_domain_vid_config_reserved;
-static int hf_pn_io_number_of_tsn_time_data_block_entries;
-static int hf_pn_io_number_of_tsn_domain_queue_rate_limiter_entries;
-static int hf_pn_io_number_of_tsn_domain_port_ingress_rate_limiter_entries;
-static int hf_pn_io_number_of_tsn_domain_port_config_entries;
+static int hf_pn_io_nme_parameter_uuid;
+static int hf_pn_io_nme_domain_vid_config;
+static int hf_pn_io_nme_domain_vid_config_stream_high_vid;
+static int hf_pn_io_nme_domain_vid_config_stream_high_red_vid;
+static int hf_pn_io_nme_domain_vid_config_stream_low_vid;
+static int hf_pn_io_nme_domain_vid_config_stream_low_red_vid;
+static int hf_pn_io_nme_domain_vid_config_non_stream_vid;
+static int hf_pn_io_nme_domain_vid_config_non_stream_vid_B;
+static int hf_pn_io_nme_domain_vid_config_non_stream_vid_C;
+static int hf_pn_io_nme_domain_vid_config_non_stream_vid_D;
+static int hf_pn_io_nme_domain_vid_config_reserved;
+static int hf_pn_io_number_of_nme_domain_time_data_block_entries;
+static int hf_pn_io_number_of_port_queue_egress_rate_limiter_entries;
+static int hf_pn_io_number_of_port_ingress_rate_limiter_entries;
+static int hf_pn_io_number_of_cim_station_port_status_entries;
 
-static int hf_pn_io_tsn_domain_port_config;
-static int hf_pn_io_tsn_domain_port_config_preemption_enabled;
-static int hf_pn_io_tsn_domain_port_config_boundary_port_config;
-static int hf_pn_io_tsn_domain_port_config_reserved;
+static int hf_pn_io_cim_station_port_status;
+static int hf_pn_io_cim_station_port_status_preemption_status ;
+static int hf_pn_io_cim_station_port_status_boundary_port_status;
+static int hf_pn_io_cim_station_port_status_reserved;
 
-static int hf_pn_io_tsn_domain_port_ingress_rate_limiter;
-static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_cir;
-static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_cbs;
-static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_envelope;
-static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_rank;
+static int hf_pn_io_port_ingress_rate_limiter;
+static int hf_pn_io_port_ingress_rate_limiter_cir;
+static int hf_pn_io_port_ingress_rate_limiter_cbs;
+static int hf_pn_io_port_ingress_rate_limiter_envelope;
+static int hf_pn_io_port_ingress_rate_limiter_rank;
 
-static int hf_pn_io_tsn_domain_queue_rate_limiter;
-static int hf_pn_io_tsn_domain_queue_rate_limiter_cir;
-static int hf_pn_io_tsn_domain_queue_rate_limiter_cbs;
-static int hf_pn_io_tsn_domain_queue_rate_limiter_envelope;
-static int hf_pn_io_tsn_domain_queue_rate_limiter_rank;
-static int hf_pn_io_tsn_domain_queue_rate_limiter_queue_id;
-static int hf_pn_io_tsn_domain_queue_rate_limiter_reserved;
+static int hf_pn_io_port_queue_egress_rate_limiter;
+static int hf_pn_io_port_queue_egress_rate_limiter_cir;
+static int hf_pn_io_port_queue_egress_rate_limiter_cbs;
+static int hf_pn_io_port_queue_egress_rate_limiter_envelope;
+static int hf_pn_io_port_queue_egress_rate_limiter_rank;
+static int hf_pn_io_port_queue_egress_rate_limiter_queue_id;
+static int hf_pn_io_port_queue_egress_rate_limiter_reserved;
 
-static int hf_pn_io_number_of_tsn_domain_queue_config_entries;
-static int hf_pn_io_tsn_domain_queue_config;
-static int hf_pn_io_tsn_domain_queue_config_queue_id;
-static int hf_pn_io_tsn_domain_queue_config_tci_pcp;
-static int hf_pn_io_tsn_domain_queue_config_shaper;
-static int hf_pn_io_tsn_domain_queue_config_preemption_mode;
-static int hf_pn_io_tsn_domain_queue_config_unmask_time_offset;
-static int hf_pn_io_tsn_domain_queue_config_mask_time_offset;
+static int hf_pn_io_number_of_nme_domain_queue_config_entries;
+static int hf_pn_io_nme_domain_queue_config;
+static int hf_pn_io_nme_domain_queue_config_queue_id;
+static int hf_pn_io_nme_domain_queue_config_tci_pcp;
+static int hf_pn_io_nme_domain_queue_config_shaper;
+static int hf_pn_io_nme_domain_queue_config_preemption_mode;
+static int hf_pn_io_nme_domain_queue_config_unmask_time_offset;
+static int hf_pn_io_nme_domain_queue_config_mask_time_offset;
 
 static int hf_pn_io_network_deadline;
 static int hf_pn_io_time_domain_number;
@@ -611,19 +621,30 @@ static int hf_pn_io_time_sync_properties_reserved;
 static int hf_pn_io_time_domain_uuid;
 static int hf_pn_io_time_domain_name_length;
 static int hf_pn_io_time_domain_name;
-static int hf_pn_io_tsn_nme_name_uuid;
-static int hf_pn_io_tsn_nme_name_length;
-static int hf_pn_io_tsn_nme_name;
-static int hf_pn_io_tsn_domain_uuid;
-static int hf_pn_io_tsn_domain_name_length;
-static int hf_pn_io_tsn_domain_name;
+static int hf_pn_io_nme_name_uuid;
+static int hf_pn_io_nme_name_address;
+static int hf_pn_io_nme_name_address_subtype;
+static int hf_pn_io_nme_name_length;
+static int hf_pn_io_nme_name;
+static int hf_pn_io_nme_domain_uuid;
+static int hf_pn_io_nme_domain_name_length;
+static int hf_pn_io_nme_domain_name;
 
-static int hf_pn_io_tsn_fdb_command;
-static int hf_pn_io_tsn_dst_add;
+static int hf_pn_io_min_ipg_breaking_point;
+static int hf_pn_io_min_ipg_frame_size;
+static int hf_pn_io_frame_send_offset_deviation;
+static int hf_pn_io_supported_burst_size;
+static int hf_pn_io_supported_burst_size_frames;
+static int hf_pn_io_supported_burst_size_octets;
 
-static int hf_pn_io_number_of_tsn_domain_sync_tree_entries;
-static int hf_pn_io_tsn_domain_sync_port_role;
-static int hf_pn_io_tsn_domain_port_id;
+static int hf_pn_io_cim_fdb_command;
+static int hf_pn_io_cim_dst_add;
+
+static int hf_pn_io_number_of_nme_domain_sync_tree_entries;
+static int hf_pn_io_cim_sync_tree_data_uuid;
+static int hf_pn_io_cim_stream_collection_uuid;
+static int hf_pn_io_nme_domain_sync_port_role;
+static int hf_pn_io_cim_station_element_id;
 
 static int hf_pn_io_maintenance_required_power_budget;
 static int hf_pn_io_maintenance_demanded_power_budget;
@@ -1008,13 +1029,17 @@ static int ett_pn_io_pe_measurement_id;
 static int ett_pn_io_pe_measurement_value;
 static int ett_pn_io_pe_operational_mode;
 
-static int ett_pn_io_tsn_domain_port_config;
-static int ett_pn_io_tsn_domain_port_ingress_rate_limiter;
-static int ett_pn_io_tsn_domain_queue_rate_limiter;
-static int ett_pn_io_tsn_domain_vid_config;
-static int ett_pn_io_tsn_domain_queue_config;
+static int ett_pn_io_cim_station_port_status;
+static int ett_pn_io_cim_forwarding_delay_entry;
+static int ett_pn_io_supported_burst_size;
+static int ett_pn_io_port_ingress_rate_limiter;
+static int ett_pn_io_port_queue_egress_rate_limiter;
+static int ett_pn_io_nme_domain_vid_config;
+static int ett_pn_io_nme_name_address;
+static int ett_pn_io_traffic_class_translate_entry;
+static int ett_pn_io_nme_domain_queue_config;
 static int ett_pn_io_time_sync_properties;
-static int ett_pn_io_tsn_domain_port_id;
+static int ett_pn_io_cim_station_element_id;
 
 static int ett_pn_io_snmp_command_name;
 
@@ -1216,31 +1241,32 @@ static const value_string pn_io_block_type[] = {
     { 0x0251, "PDPortStatistic"},
     { 0x0260, "OwnPort"},
     { 0x0261, "Neighbors"},
-    { 0x0270, "TSNNetworkControlDataReal"},
-    { 0x0271, "TSNNetworkControlDataAdjust"},
-    { 0x0272, "TSNDomainPortConfigBlock"},
-    { 0x0273, "TSNDomainQueueConfigBlock"},
-    { 0x0274, "TSNTimeDataBlock"},
-    { 0x0275, "TSNStreamPathData"},
-    { 0x0276, "TSNSyncTreeData"},
-    { 0x0277, "TSNUploadNetworkAttributes"},
+    { 0x0270, "CIMNetConfDataReal"},
+    { 0x0271, "CIMNetConfDataAdjust"},
+    { 0x0272, "CIMStationPortConfigBlock"},
+    { 0x0273, "CIMStationQueueConfigBlock"},
+    { 0x0274, "NMEDomainTimeDataBlock"},
+    { 0x0275, "CIMNetConfStreamPathData"},
+    { 0x0276, "CIMNetConfSyncTreeData"},
+    { 0x0277, "CIMNetConfUploadNetworkAttributes"},
     { 0x0278, "ForwardingDelayBlock"},
-    { 0x0279, "TSNExpectedNetworkAttributes"},
-    { 0x027A, "TSNStreamPathDataReal"},
-    { 0x027B, "TSNDomainPortIngressRateLimiterBlock"},
-    { 0x027C, "TSNDomainQueueRateLimiterBlock"},
-    { 0x027D, "TSNPortIDBlock"},
-    { 0x027E, "TSNExpectedNeighborBlock" },
+    { 0x0279, "CIMNetConfExpectedNetworkAttributes"},
+    { 0x027A, "CIMNetConfStreamPathDataReal"},
+    { 0x027B, "CIMStationPortIngressRateLimiterBlock"},
+    { 0x027C, "CIMStationEgressRateLimiterBlock"},
+    { 0x027D, "CIMStationPortCapabilitiesBlock"},
+    { 0x027E, "CIMStationExpectedNeighborBlock" },
+    { 0x027F, "NMEDomainConfigRealBlock" },
     { 0x0300, "CIMSNMPAdjust"},
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
-    { 0x0501, "TSNAddStreamReq"},
-    { 0x0502, "TSNAddStreamRsp"},
-    { 0x0503, "TSNRemoveStreamReq"},
-    { 0x0504, "TSNRemoveStreamRsp"},
-    { 0x0505, "TSNRenewStreamReq"},
-    { 0x0506, "TSNRenewStreamRsp"},
+    { 0x0501, "UNIAddStreamReq"},
+    { 0x0502, "UNIAddStreamRsp"},
+    { 0x0503, "UNIRemoveStreamReq"},
+    { 0x0504, "UNIRemoveStreamRsp"},
+    { 0x0505, "UNIRenewStreamReq"},
+    { 0x0506, "UNIRenewStreamRsp"},
     { 0x0600, "FSHelloBlock"},
     { 0x0601, "FSParameterBlock"},
     { 0x0602, "FastStartUpBlock"},
@@ -1516,7 +1542,9 @@ static const value_string pn_io_iocr_properties_rtclass[] = {
     { 0x00000002, "RT_CLASS_2" },
     { 0x00000003, "RT_CLASS_3" },
     { 0x00000004, "RT_CLASS_UDP" },
-    /*0x00000005 - 0x00000007 reserved */
+    { 0x00000005, "RT_CLASS_STREAM with 'Time-Aware stream'"},
+    { 0x00000006, "reserved" },
+    { 0x00000007, "reserved" },
     { 0, NULL }
 };
 
@@ -1733,16 +1761,16 @@ static const value_string pn_io_index[] = {
     { 0x80CF, "RS_AdjustObserver" },
     { 0x80D0, "Profiles covering condition monitoring - Record_0" },
     /*0x80D1 - 0x80DF reserved */
-    { 0x80F0, "TSNNetworkControlDataReal" },
-    { 0x80F1, "TSNStreamPathData" },
-    { 0x80F2, "TSNSyncTreeData" },
-    { 0x80F3, "TSNUploadNetworkAttributes" },
-    { 0x80F4, "TSNExpectedNetworkAttributes" },
-    { 0x80F5, "TSNNetworkControlDataAdjust" },
-    { 0x80F6, "TSNStreamPathDataReal for stream class High" },
-    { 0x80F7, "TSNStreamPathDataReal for stream class High Redundant" },
-    { 0x80F8, "TSNStreamPathDataReal for stream class Low" },
-    { 0x80F9, "TSNStreamPathDataReal for stream class Low Redundant" },
+    { 0x80F0, "CIMNetConfDataReal" },
+    { 0x80F1, "CIMNetConfStreamPathData" },
+    { 0x80F2, "CIMNetConfSyncTreeData" },
+    { 0x80F3, "CIMNetConfUploadNetworkAttributes" },
+    { 0x80F4, "CIMNetConfExpectedNetworkAttributes" },
+    { 0x80F5, "CIMNetConfDataAdjust" },
+    { 0x80F6, "CIMNetConfStreamPathDataReal for stream class High" },
+    { 0x80F7, "CIMNetConfStreamPathDataReal for stream class High Redundant" },
+    { 0x80F8, "CIMNetConfStreamPathDataReal for stream class Low" },
+    { 0x80F9, "CIMNetConfStreamPathDataReal for stream class Low Redundant" },
     /*0x80FA - 0x80FF reserved for CIM data */
     /*0x8100 - 0x81FF reserved */
     { 0x8200, "CIMSNMPAdjust" },
@@ -1909,10 +1937,10 @@ static const value_string pn_io_index[] = {
     { 0xF887, "AssetManagementData - eighth chunk" },
     { 0xF888, "AssetManagementData - ninth chunk" },
     { 0xF889, "AssetManagementData - tenth chunk" },
-    { 0xF8F0, "Stream Add using TSNAddStreamReq and TSNAddStreamRsp" },
+    { 0xF8F0, "Stream Add using UNIAddStreamReq and UNIAddStreamRsp" },
     { 0xF8F1, "PDRsiInstances" },
-    { 0xF8F2, "Stream Remove using TSNRemoveStreamReq and TSNRemoveStreamRsp" },
-    { 0xF8F3, "Stream Renew using TSNRenewStreamReq and TSNRenewStreamRsp" },
+    { 0xF8F2, "Stream Remove using UNIRemoveStreamReq and UNIRemoveStreamRsp" },
+    { 0xF8F3, "Stream Renew using UNIRenewStreamReq and UNIRenewStreamRsp" },
     { 0xFBFF, "Trigger index for RPC connection monitoring" },
     /*0xFC00 - 0xFFFF reserved for profiles */
     { 0, NULL }
@@ -3472,8 +3500,8 @@ static const value_string pn_io_pdportstatistic_counter_status_reserved[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_tsn_domain_vid_config_vals[] = {
-    { 0x00, "Reserved" },
+static const value_string pn_io_nme_domain_vid_config_vals[] = {
+    { 0x00, "Disabled" },
     { 0x64, "NonStreamVID-Default" },
     { 0x65, "StreamHighVID-Default" },
     { 0x66, "StreamHighRedVID-Default" },
@@ -3485,32 +3513,32 @@ static const value_string pn_io_tsn_domain_vid_config_vals[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_tsn_domain_port_config_preemption_enabled_vals[] = {
-    { 0x00, "Preemption support is disabled for this port" },
-    { 0x01, "Preemption support is enabled for this port" },
+static const value_string pn_io_cim_station_port_status_preemption_status_vals[] = {
+    { 0x00, "Preemption is inactive for this link (local port to remote port)" },
+    { 0x01, "Preemption is active for this link (local port to remote port)" },
     { 0, NULL }
 };
 
-static const value_string pn_io_tsn_domain_port_config_boundary_port_config_vals[] = {
+static const value_string pn_io_cim_station_port_status_boundary_port_status_vals[] = {
     { 0x00, "No boundary port" },
     { 0x01, "Boundary port with Remapping1" },
     { 0x02, "Boundary port with Remapping2" },
     { 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_cir[] = {
+static const range_string pn_io_port_ingress_rate_limiter_cir[] = {
     { 0x0000, 0x0000, "No Boundary Port" },
     { 0x0001, 0xFFFF, "Committed information rate in 0,1 Mbit/s"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_cbs[] = {
+static const range_string pn_io_port_ingress_rate_limiter_cbs[] = {
     { 0x0000, 0x0000, "No Boundary Port" },
     { 0x0001, 0xFFFF, "Committed burst size in octets"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_envelope[] = {
+static const range_string pn_io_port_ingress_rate_limiter_envelope[] = {
     { 0x0000, 0x0000, "No Boundary Port" },
     { 0x0001, 0x0001, "Best effort envelope"},
     { 0x0002, 0x0002, "RT_CLASS_X, RTA_CLASS_X envelope"},
@@ -3518,7 +3546,7 @@ static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_envelope[] 
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_rank[] = {
+static const range_string pn_io_port_ingress_rate_limiter_rank[] = {
     { 0x0000, 0x0000, "No Boundary Port" },
     { 0x0001, 0x0001, "CF1"},
     { 0x0002, 0x0002, "CF2"},
@@ -3529,43 +3557,43 @@ static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_rank[] = {
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_rate_limiter_cir[] = {
+static const range_string pn_io_port_queue_egress_rate_limiter_cir[] = {
     { 0x0000, 0x0000, "Used in case of no rate limiter" },
     { 0x0001, 0xFFFF, "Committed information rate in 0,1 Mbit/s"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_rate_limiter_cbs[] = {
+static const range_string pn_io_port_queue_egress_rate_limiter_cbs[] = {
     { 0x0000, 0x0000, "Used in case of no rate limiter" },
     { 0x0001, 0xFFFF, "Committed burst size in octets"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_rate_limiter_envelope[] = {
+static const range_string pn_io_port_queue_egress_rate_limiter_envelope[] = {
     { 0x00, 0x00, "Used in case of no rate limiter" },
     { 0x01, 0x01, "Best effort envelope"},
     { 0x02, 0xFF, "Reserved"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_rate_limiter_rank[] = {
+static const range_string pn_io_port_queue_egress_rate_limiter_rank[] = {
     { 0x00, 0x00, "Used in case of no boundary port" },
-    { 0x01, 0x01, "CF1"},
-    { 0x02, 0x02, "CF2"},
-    { 0x03, 0x03, "CF3"},
-    { 0x04, 0x04, "CF4"},
-    { 0x05, 0x05, "CF5"},
+    { 0x01, 0x01, "Rank 1 used to address CIR1, CBS1 and CF1"},
+    { 0x02, 0x02, "Rank 2 used to address CIR2, CBS2 and CF2"},
+    { 0x03, 0x03, "Rank 3 used to address CIR3, CBS3 and CF3"},
+    { 0x04, 0x04, "Rank 4 used to address CIR4, CBS4 and CF4"},
+    { 0x05, 0x05, "Rank 5 used to address CIR5, CBS5 and CF5"},
     { 0x06, 0xFF, "Reserved"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_rate_limiter_queue_id[] = {
+static const range_string pn_io_port_queue_egress_rate_limiter_queue_id[] = {
     { 0x00, 0x07, "Identifier of the queue" },
     { 0x08, 0xFF, "Reserved"},
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_rate_limiter_reserved[] = {
+static const range_string pn_io_port_queue_egress_rate_limiter_reserved[] = {
     { 0x00, 0xFF, "Reserved" },
     { 0, 0, NULL }
 };
@@ -3620,14 +3648,22 @@ static const value_string pn_io_time_sync_properties_vals[] = {
     { 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_queue_config_shaper[] = {
+static const value_string pn_io_nme_name_address_subtype[] = {
+    { 0x01, "The management address of the NME is coded as IPv4 address" },
+    { 0x06, "The management address of the NME is coded as MAC address" },
+    /*all others reserved */
+    { 0, NULL }
+};
+
+static const range_string pn_io_nme_domain_queue_config_shaper[] = {
     { 0x00, 0x00, "Reserved" },
-    { 0x01, 0x01, "Strict Priority" },
-    { 0x02, 0xFF, "Reserved" },
+    { 0x01, 0x01, "Strict priority (SP)" },
+    { 0x02, 0x02, "Enhancements for Transmission Selection (ETS)" },
+    { 0x03, 0xFF, "Reserved" },
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_domain_sync_port_role_vals[] = {
+static const range_string pn_io_nme_domain_sync_port_role_vals[] = {
     { 0x00,0x00, "The port is not part of the sync tree for this sync domain" },
     { 0x01,0x01, "Sync egress port for this sync domain" },
     { 0x02,0x02, "Sync ingress port for this sync domain" },
@@ -3635,7 +3671,39 @@ static const range_string pn_io_tsn_domain_sync_port_role_vals[] = {
     { 0, 0, NULL }
 };
 
-static const value_string pn_io_tsn_fdb_command[] = {
+static const range_string pn_io_min_ipg_breaking_point[] = {
+    { 0x0040,0x07D0, "RT_CLASS_X Frame size in octets when the minimal IPG the last time achievable Default: 0x0040" },
+    /* all others reserved */
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_min_ipg_frame_size[] = {
+    { 0x0028,0x07D0, "RT_CLASS_X Reachable interframe gap in bit times for a sequence of minimum sized frames. Default: 0x0060" },
+    /* all others reserved */
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_frame_send_offset_deviation[] = {
+    { 0x000A,0x03E8, "Maximum permissible deviation, later than expected, to the FrameSendOffset in nanoseconds. Default: 10 ns" },
+    /* all others reserved */
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_supported_burst_size_frames[] = {
+    { 0x00,0x00, "Reserved" },
+    { 0x01,0x00FF, "RT_CLASS_X Maximum number of frames per gating cycle Default: 0x00FF" },
+    { 0x0100,0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_supported_burst_size_octets[] = {
+    { 0x0000,0x003F, "Reserved" },
+    { 0x0040,0x6400, "RT_CLASS_X Maximum number of octets per gating cycle Default: 0x6400" },
+    { 0x6401,0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_cim_fdb_command[] = {
     { 0x01, "AddStreamEntry" },
     { 0x02, "RemoveStreamEntry" },
     { 0x03, "RemoveAllStreamEntries" },
@@ -3643,36 +3711,46 @@ static const value_string pn_io_tsn_fdb_command[] = {
     { 0, NULL }
 };
 
-static const range_string pn_io_tsn_transfer_time_tx_vals[] = {
+static const range_string pn_io_cim_net_transfer_time_tx_vals[] = {
     { 0x00000000, 0x00000000, "Reserved" },
-    { 0x00000001, 0x05F5E100, "Egress transfer time for the local interface of an endstation" },
-    { 0x05F5E101, 0xFFFFFFFF, "Reserved" },
+    { 0x00000001, 0x000F4240, "Egress transfer time for the local interface of an end station" },
+    { 0x000F4240, 0xFFFFFFFF, "Reserved" },
     { 0, 0, NULL }
 
 };
 
-static const range_string pn_io_tsn_transfer_time_rx_vals[] = {
+static const range_string pn_io_cim_net_transfer_time_rx_vals[] = {
 
     { 0x00000000, 0x00000000, "Reserved" },
-    { 0x00000001, 0x05F5E100, "Ingress transfer time for the local interface of an endstation" },
-    { 0x05F5E101, 0xFFFFFFFF, "Reserved" },
+    { 0x00000001, 0x000F4240, "Ingress transfer time for the local interface of an end station" },
+    { 0x000F4240, 0xFFFFFFFF, "Reserved" },
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_max_supported_record_size_vals[] = {
+static const range_string pn_io_cim_net_max_supported_record_size_vals[] = {
     { 0x00000000,0x00000FE3, "Reserved" },
     { 0x00000FE4,0x0000FFFF, "Describes the maximum supported size of RecordDataWrite." },
     {0x00010000,0xFFFFFFFF,"Reserved"},
     { 0, 0, NULL }
 };
-static const range_string pn_io_tsn_forwarding_group_vals[] = {
+
+static const range_string pn_io_traffic_class_translate_entry_vid_vals[] = {
     { 0x00,0x00, "Reserved" },
-    { 0x01,0xFF, "Identifier of logical port grouping. Identifies ports with equal forwarding delay values." },
+    { 0x01,0x0FFF, "Allowed" },
     { 0, 0, NULL }
 };
 
-static const value_string pn_io_tsn_stream_class_vals[] = {
+static const range_string pn_io_traffic_class_translate_entry_pcp_vals[] = {
+    { 0x00,0x07, "Allowed PCP values" },
+    { 0, 0, NULL }
+};
 
+static const range_string pn_io_cim_station_forwarding_group_vals[] = {
+    { 0x00,0xFF, "Identifier of logical port grouping. Identifies ports with equal forwarding delay values." },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_cim_net_stream_class_vals[] = {
     /*other reserved */
     { 0x01, "High" },
     { 0x02, "High Redundant" },
@@ -3681,39 +3759,43 @@ static const value_string pn_io_tsn_stream_class_vals[] = {
     { 0, NULL }
 };
 
-static const range_string pn_io_tsn_independent_forwarding_delay_vals[] = {
-
+static const range_string pn_io_cim_forwarding_delay_independent_vals[] = {
+    /*other reserved */
     { 0x00000000, 0x00000000, "Reserved" },
-    { 0x00000001, 0x000F4240, "Independent bridge delay value used for calculation" },
+    { 0x00000001, 0x000F4240, "Frame length independent port to port forwarding delay value of a bridge used for calculation" },
     { 0, 0, NULL }
 };
 
-static const range_string pn_io_tsn_dependent_forwarding_delay_vals[] = {
-
-    { 0x00000000, 0x00000000, "Reserved" },
-    { 0x00000001, 0x000C3500, "Octet size dependent bridge delay value used for calculation" },
-    { 0, 0, NULL }
+static const value_string pn_io_cim_forwarding_delay_dependent_vals[] = {
+    /*other reserved */
+    { 0x00, "Applies for Cut-Through forwarding" },
+    { 0x01, "10 Mbit/s: 800 ns" },
+    { 0x02, "100 Mbit/s: 80 ns" },
+    { 0x03, "1 Gbit/s: 8 ns" },
+    { 0x04, "2,5 Gbit/s: 3 200 ps" },
+    { 0x05, "5 Gbit/s: 1 600 ps" },
+    { 0x06, "10 Gbit/s: 800 ps" },
+    { 0, NULL }
 };
 
-static const value_string pn_io_tsn_number_of_queues_vals[] = {
-
+static const value_string pn_io_cim_number_of_queues_vals[] = {
     { 0x06, "The bridge supports six transmit queues at the port" },
     { 0x08, "The bridge supports eight transmit queues at the port" },
     { 0, NULL }
 };
 
-static const value_string pn_io_tsn_port_capabilities_time_aware_vals[] = {
+static const value_string pn_io_port_capabilities_time_aware_vals[] = {
     { 0x00, "This port is not usable within a Time Aware System"},
     { 0x01, "This port is usable within a Time Aware System" },
     { 0, NULL }
 };
-static const value_string pn_io_tsn_port_capabilities_preemption_vals[] = {
+static const value_string pn_io_port_capabilities_preemption_vals[] = {
     { 0x00, "Preemption is not supported at this port" },
     { 0x01, "Preemption is supported at this port"},
     { 0, NULL }
 };
 
-static const value_string pn_io_tsn_port_capabilities_queue_masking_vals[] = {
+static const value_string pn_io_port_capabilities_queue_masking_vals[] = {
     { 0x00, "Queue Masking is not supported at this port"},
     { 0x01, "Queue Masking is supported at this port" },
     { 0, NULL }
@@ -8177,210 +8259,294 @@ dissect_PDInterfaceAdjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-/* TSNNetworkControlDataReal */
+/* CIMNetConfDataReal */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_TSNNetworkControlDataReal_block(tvbuff_t* tvb, int offset,
-    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
+dissect_CIMNetConfDataReal_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
 {
     proto_item* sub_item;
     proto_tree* sub_tree;
 
     e_guid_t  nme_parameter_uuid;
     uint32_t u32NetworkDeadline;
-    uint16_t u16SendClockFactor;
+    uint16_t u16GatingCycle;
     uint16_t u16NumberofEntries;
-    uint16_t u16TSNNMENameLength;
-    uint16_t u16TSNDomainNameLength;
-    e_guid_t  tsn_nme_name_uuid;
-    e_guid_t  tsn_domain_uuid;
+    uint16_t u16NMENameLength;
+    uint16_t u16NMEDomainNameLength;
+    uint8_t  u8NMENameAddressSubtype;
+
+    e_guid_t  nme_name_uuid;
+    e_guid_t  nme_domain_uuid;
+    uint8_t  mac[6];
+    uint32_t ip;
+    uint32_t u32TrafficClassTranslationEntry;
 
     int bit_offset;
+    int offset_begin;
+    int offset_diff;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    offset_begin = offset;
 
     /* Padding */
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     /* NMEParameterUUID*/
-    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_parameter_uuid, &nme_parameter_uuid);
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_nme_parameter_uuid, &nme_parameter_uuid);
 
-    /* TSNDomainVIDConfig*/
-    sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_vid_config, tvb, offset, 16, ENC_NA);
-    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_vid_config);
+    /* NMEDomainVIDConfig*/
+    sub_item = proto_tree_add_item(tree, hf_pn_io_nme_domain_vid_config, tvb, offset, 16, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_nme_domain_vid_config);
     bit_offset = offset << 3;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_reserved, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_reserved, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
     bit_offset += 32;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_D, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid_D, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_C, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid_C, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_B, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid_B, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_low_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_low_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_high_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_high_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 
     offset += 16;
 
-    /* TSNDomainPortConfigBlock */
+    /* CIMStationPortConfigBlock */
     offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
 
     /* Network Deadline */
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_network_deadline, &u32NetworkDeadline);
 
-    /* SendClockFactor 16 */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_send_clock_factor, &u16SendClockFactor);
+    /* GatingCycle 16 */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_gating_cycle, &u16GatingCycle);
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_tsn_time_data_block_entries, &u16NumberofEntries);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_nme_domain_time_data_block_entries, &u16NumberofEntries);
 
-    /* TSNTimeDataBlock */
+    /* NMEDomainTimeDataBlock */
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
 
         offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
     }
 
-    /* TSNNMENameUUID */
-    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_name_uuid, &tsn_nme_name_uuid);
+    /* NMENameUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_nme_name_uuid, &nme_name_uuid);
 
-    /* TSNNMENameLength */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_nme_name_length, &u16TSNNMENameLength);
+    /* NMENameAddress*/
+    sub_item = proto_tree_add_item(tree, hf_pn_io_nme_name_address, tvb, offset, 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_nme_name_address);
 
-    /* TSNNMEName */
-    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII);
-    offset += u16TSNNMENameLength;
+    /* NMENameAddressSubtype */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_nme_name_address_subtype, &u8NMENameAddressSubtype);
+
+    if (u8NMENameAddressSubtype == 0x01) {
+        offset = dissect_pn_padding(tvb, offset, pinfo, sub_tree, 3);
+        /* IPAddress */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, sub_tree, hf_pn_io_ip_address, &ip);
+    }
+    else if(u8NMENameAddressSubtype == 0x06){
+        offset = dissect_pn_padding(tvb, offset, pinfo, sub_tree, 1);
+        /* MACAddressValue */
+        offset = dissect_pn_mac(tvb, offset, pinfo, sub_tree, hf_pn_io_macadd, mac);
+    }
+    /* NMENameLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_nme_name_length, &u16NMENameLength);
+
+    /* NMEName */
+    proto_tree_add_item(tree, hf_pn_io_nme_name, tvb, offset, u16NMENameLength, ENC_ASCII);
+    offset += u16NMENameLength;
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* TSNDomainUUID */
-    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_domain_uuid, &tsn_domain_uuid);
+    /* NMEDomainUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_nme_domain_uuid, &nme_domain_uuid);
 
-    /* TSNDomainNameLength */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_domain_name_length, &u16TSNDomainNameLength);
+    /* NMEDomainNameLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_nme_domain_name_length, &u16NMEDomainNameLength);
 
-    /* TSNDomainName */
-    proto_tree_add_item(tree, hf_pn_io_tsn_domain_name, tvb, offset, u16TSNDomainNameLength, ENC_ASCII);
-    offset += u16TSNDomainNameLength;
+    /* NMEDomainName */
+    proto_tree_add_item(tree, hf_pn_io_nme_domain_name, tvb, offset, u16NMEDomainNameLength, ENC_ASCII);
+    offset += u16NMEDomainNameLength;
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* NMEDomainConfigRealBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    /* optional : TrafficClassTranslationTable */
+    offset_diff = offset - offset_begin;
+    if (u16BodyLength != offset_diff) {
+        /* TrafficClassTranslationEntry */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_traffic_class_translate_entry, tvb, offset, 4, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_traffic_class_translate_entry);
+
+        /* TrafficClassTranslationEntry.VID */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_traffic_class_translate_entry_vid, &u32TrafficClassTranslationEntry);
+
+        /* TrafficClassTranslationEntry.PCP */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_traffic_class_translate_entry_pcp, &u32TrafficClassTranslationEntry);
+    }
 
     return offset;
 
 }
 
-/* TSNNetworkControlDataAdjust */
+/* CIMNetConfDataAdjust */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_TSNNetworkControlDataAdjust_block(tvbuff_t* tvb, int offset,
-    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
+dissect_CIMNetConfDataAdjust_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
 {
     proto_item* sub_item;
     proto_tree* sub_tree;
 
     e_guid_t  nme_parameter_uuid;
     uint32_t u32NetworkDeadline;
-    uint16_t u16SendClockFactor;
+    uint16_t u16GatingCycle;
     uint16_t u16NumberofEntries;
-    uint16_t u16TSNNMENameLength;
-    e_guid_t  tsn_nme_name_uuid;
+    uint16_t u16NMENameLength;
+    uint8_t  u8NMENameAddressSubtype;
+    e_guid_t  nme_name_uuid;
+    uint8_t  mac[6];
+    uint32_t ip;
+    uint32_t u32TrafficClassTranslationEntry;
 
     int bit_offset;
+    int offset_begin;
+    int offset_diff;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
     }
+    offset_begin = offset;
 
     /* Padding */
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     /* NMEParameterUUID*/
-    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_parameter_uuid, &nme_parameter_uuid);
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_nme_parameter_uuid, &nme_parameter_uuid);
 
-    /* TSNDomainVIDConfig*/
-    sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_vid_config, tvb, offset, 16, ENC_NA);
-    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_vid_config);
+    /* NMEDomainVIDConfig*/
+    sub_item = proto_tree_add_item(tree, hf_pn_io_nme_domain_vid_config, tvb, offset, 16, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_nme_domain_vid_config);
 
     bit_offset = offset << 3;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_reserved, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_reserved, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
     bit_offset += 32;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_D, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid_D, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_C, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid_C, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_B, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid_B, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_non_stream_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_low_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_low_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_high_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
     bit_offset += 12;
 
-    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_nme_domain_vid_config_stream_high_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 
     offset += 16;
 
-    /* TSNDomainPortConfigBlock */
+    /* CIMStationPortConfigBlock */
     offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
 
     /* Network Deadline */
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_network_deadline, &u32NetworkDeadline);
 
-    /* SendClockFactor 16 */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_send_clock_factor, &u16SendClockFactor);
+    /* GatingCycle 16 */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_gating_cycle, &u16GatingCycle);
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_tsn_time_data_block_entries, &u16NumberofEntries);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_nme_domain_time_data_block_entries, &u16NumberofEntries);
 
-    /* TSNTimeDataBlock */
+    /* NMEDomainTimeDataBlock */
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
 
         offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
     }
 
-    /* TSNNMENameUUID */
-    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_name_uuid, &tsn_nme_name_uuid);
+    /* NMENameUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_nme_name_uuid, &nme_name_uuid);
 
-    /* TSNNMENameLength */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_nme_name_length, &u16TSNNMENameLength);
+    /* NMENameAddress*/
+    sub_item = proto_tree_add_item(tree, hf_pn_io_nme_name_address, tvb, offset, 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_nme_name_address);
 
-    /* TSNNMEName */
-    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII);
-    offset += u16TSNNMENameLength;
+    /* NMENameAddressSubtype */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_nme_name_address_subtype, &u8NMENameAddressSubtype);
+
+    if (u8NMENameAddressSubtype == 0x01) {
+        offset = dissect_pn_padding(tvb, offset, pinfo, sub_tree, 3);
+        /* IPAddress */
+        offset = dissect_pn_ipv4(tvb, offset, pinfo, sub_tree, hf_pn_io_ip_address, &ip);
+    }
+    else if(u8NMENameAddressSubtype == 0x06){
+        offset = dissect_pn_padding(tvb, offset, pinfo, sub_tree, 1);
+        /* MACAddressValue */
+        offset = dissect_pn_mac(tvb, offset, pinfo, sub_tree, hf_pn_io_macadd, mac);
+    }
+
+    /* NMENameLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_nme_name_length, &u16NMENameLength);
+
+    /* NMEName */
+    proto_tree_add_item(tree, hf_pn_io_nme_name, tvb, offset, u16NMENameLength, ENC_ASCII);
+    offset += u16NMENameLength;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* optional : TrafficClassTranslationTable */
+    offset_diff = offset - offset_begin;
+    if (u16BodyLength != offset_diff) {
+        /* TrafficClassTranslationEntry */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_traffic_class_translate_entry, tvb, offset, 4, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_traffic_class_translate_entry);
+
+        /* TrafficClassTranslationEntry.VID */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_traffic_class_translate_entry_vid, &u32TrafficClassTranslationEntry);
+
+        /* TrafficClassTranslationEntry.PCP */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_traffic_class_translate_entry_pcp, &u32TrafficClassTranslationEntry);
+    }
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -8388,9 +8554,9 @@ dissect_TSNNetworkControlDataAdjust_block(tvbuff_t* tvb, int offset,
     return offset;
 }
 
-/* TSNStreamPathData */
+/* CIMNetConfStreamPathData */
 static int
-dissect_TSNStreamPathDataReal_block(tvbuff_t* tvb, int offset,
+dissect_CIMNetConfStreamPathDataReal_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, bool real)
 {
     uint8_t u8FDBCommand;
@@ -8399,6 +8565,8 @@ dissect_TSNStreamPathDataReal_block(tvbuff_t* tvb, int offset,
     uint16_t u16StreamClass;
     uint16_t u16SlotNumber;
     uint16_t u16SubSlotNumber;
+    e_guid_t cim_stream_collection_uuid;
+
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8411,7 +8579,7 @@ dissect_TSNStreamPathDataReal_block(tvbuff_t* tvb, int offset,
     if (!real) {
         /* FDBCommand */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_fdb_command, &u8FDBCommand);
+            hf_pn_io_cim_fdb_command, &u8FDBCommand);
     }
     else {
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
@@ -8420,36 +8588,40 @@ dissect_TSNStreamPathDataReal_block(tvbuff_t* tvb, int offset,
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_number_of_tsn_domain_sync_tree_entries, &u16NumberofEntries);
+        hf_pn_io_number_of_nme_domain_sync_tree_entries, &u16NumberofEntries);
 
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
         /* DestinationAddress */
-        offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_io_tsn_dst_add, dstAdd);
+        offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_io_cim_dst_add, dstAdd);
 
         /* StreamClass */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_stream_class, &u16StreamClass);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cim_net_stream_class, &u16StreamClass);
 
         /* IngressPort */
-        /* TSNDomainPortID */
+        /* CIMStationElementID */
         /*SlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNumber);
         /* SubSlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubSlotNumber);
 
         /* EgressPort */
-        /* TSNDomainPortID */
+        /* CIMStationElementID */
         /*SlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNumber);
         /* SubSlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubSlotNumber);
     }
+
+    /*CIMStreamCollectionUUID*/
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_cim_stream_collection_uuid, &cim_stream_collection_uuid);
+
     return offset;
 }
 
-/* TSNSyncTreeData */
+/* CIMNetConfSyncTreeData */
 static int
-dissect_TSNSyncTreeData_block(tvbuff_t* tvb, int offset,
+dissect_CIMNetConfSyncTreeData_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint16_t   u16NumberofEntries;
@@ -8457,6 +8629,8 @@ dissect_TSNSyncTreeData_block(tvbuff_t* tvb, int offset,
     uint16_t   u16SubslotNr;
     uint16_t   u16TimeDomainNumber;
     uint8_t    u8SyncPortRole;
+    e_guid_t   cim_sync_tree_data_uuid;
+
     proto_item* sub_item;
     proto_tree* sub_tree;
 
@@ -8467,13 +8641,13 @@ dissect_TSNSyncTreeData_block(tvbuff_t* tvb, int offset,
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_number_of_tsn_domain_sync_tree_entries, &u16NumberofEntries);
+        hf_pn_io_number_of_nme_domain_sync_tree_entries, &u16NumberofEntries);
 
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
-        /* TSNDomainPortID */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_id, tvb, offset, 4, ENC_NA);
-        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_port_id);
+        /* CIMStationElementID */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_cim_station_element_id, tvb, offset, 4, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_cim_station_element_id);
         /* SlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_slot_nr, &u16SlotNr);
         /*--*/
@@ -8482,18 +8656,22 @@ dissect_TSNSyncTreeData_block(tvbuff_t* tvb, int offset,
         /* TimeDomainNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_time_domain_number, &u16TimeDomainNumber);
         /* SyncPortRole */
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_domain_sync_port_role, &u8SyncPortRole);
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_nme_domain_sync_port_role, &u8SyncPortRole);
 
         /* Padding */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
     }
+
+    /* CIMSyncTreeDataUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_cim_sync_tree_data_uuid, &cim_sync_tree_data_uuid);
+
     return offset;
 }
 
-/* TSNDomainPortConfigBlock */
+/* CIMStationPortConfigBlock */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_TSNDomainPortConfig_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationPortStatus_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint16_t   u16NumberofEntries;
@@ -8501,7 +8679,7 @@ dissect_TSNDomainPortConfig_block(tvbuff_t* tvb, int offset,
     uint16_t   u16SubslotNr;
     proto_item* sub_item_port_config;
     proto_tree* sub_tree_port_config;
-    uint8_t    u8TSNDomainPortConfig;
+    uint8_t    u8CIMStationPortStatus;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8510,7 +8688,7 @@ dissect_TSNDomainPortConfig_block(tvbuff_t* tvb, int offset,
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_number_of_tsn_domain_port_config_entries, &u16NumberofEntries);
+        hf_pn_io_number_of_cim_station_port_status_entries, &u16NumberofEntries);
 
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
@@ -8522,41 +8700,41 @@ dissect_TSNDomainPortConfig_block(tvbuff_t* tvb, int offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
             hf_pn_io_subslot_nr, &u16SubslotNr);
 
-        /* TSNDomainPortConfig */
-        sub_item_port_config = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_config, tvb, offset, 1, ENC_NA);
-        sub_tree_port_config = proto_item_add_subtree(sub_item_port_config, ett_pn_io_tsn_domain_port_config);
+        /* CIMStationPortStatus */
+        sub_item_port_config = proto_tree_add_item(tree, hf_pn_io_cim_station_port_status, tvb, offset, 1, ENC_NA);
+        sub_tree_port_config = proto_item_add_subtree(sub_item_port_config, ett_pn_io_cim_station_port_status);
 
         dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree_port_config, drep,
-            hf_pn_io_tsn_domain_port_config_reserved, &u8TSNDomainPortConfig);
+            hf_pn_io_cim_station_port_status_reserved, &u8CIMStationPortStatus);
         dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree_port_config, drep,
-            hf_pn_io_tsn_domain_port_config_boundary_port_config, &u8TSNDomainPortConfig);
+            hf_pn_io_cim_station_port_status_boundary_port_status, &u8CIMStationPortStatus);
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree_port_config, drep,
-            hf_pn_io_tsn_domain_port_config_preemption_enabled, &u8TSNDomainPortConfig);
+            hf_pn_io_cim_station_port_status_preemption_status, &u8CIMStationPortStatus);
 
         /* Padding */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 3);
 
-        /* TSNDomainPortIngressRateLimiter */
+        /* PortIngressRateLimiter */
         offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
 
-        /* TSNDomainQueueConfigBlock */
+        /* CIMStationQueueConfigBlock */
         offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
 
-        /* TSNDomainQueueRateLimiterBlock */
+        /* CIMStationEgressRateLimiterBlock */
         offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
     }
     return offset;
 }
 
-/* TSNDomainQueueConfigBlock */
+/* CIMStationQueueConfigBlock */
 static int
-dissect_TSNDomainQueueConfig_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationQueueConfig_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint16_t   u16NumberofEntries;
     proto_item* sub_item;
     proto_tree* sub_tree;
-    uint64_t    u64TSNDomainQueueConfig;
+    uint64_t    u64NMEDomainQueueConfig;
     dcerpc_info di; /* fake dcerpc_info struct */
     dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     di.call_data = &dcv;
@@ -8568,34 +8746,34 @@ dissect_TSNDomainQueueConfig_block(tvbuff_t* tvb, int offset,
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_number_of_tsn_domain_queue_config_entries, &u16NumberofEntries);
+        hf_pn_io_number_of_nme_domain_queue_config_entries, &u16NumberofEntries);
 
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
 
-        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_config, tvb, offset, 8, ENC_BIG_ENDIAN);
-        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_queue_config);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_nme_domain_queue_config, tvb, offset, 8, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_nme_domain_queue_config);
 
-        /* TSNDomainQueueConfig */
+        /* NMEDomainQueueConfig */
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_config_mask_time_offset, &u64TSNDomainQueueConfig);
+            hf_pn_io_nme_domain_queue_config_mask_time_offset, &u64NMEDomainQueueConfig);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_config_unmask_time_offset, &u64TSNDomainQueueConfig);
+            hf_pn_io_nme_domain_queue_config_unmask_time_offset, &u64NMEDomainQueueConfig);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_config_preemption_mode, &u64TSNDomainQueueConfig);
+            hf_pn_io_nme_domain_queue_config_preemption_mode, &u64NMEDomainQueueConfig);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_config_shaper, &u64TSNDomainQueueConfig);
+            hf_pn_io_nme_domain_queue_config_shaper, &u64NMEDomainQueueConfig);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_config_tci_pcp, &u64TSNDomainQueueConfig);
+            hf_pn_io_nme_domain_queue_config_tci_pcp, &u64NMEDomainQueueConfig);
         offset = dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_config_queue_id, &u64TSNDomainQueueConfig);
+            hf_pn_io_nme_domain_queue_config_queue_id, &u64NMEDomainQueueConfig);
     }
     return offset;
 }
 
-/* TSNTimeDataBlock */
+/* NMEDomainTimeDataBlock */
 static int
-dissect_TSNTimeData_block(tvbuff_t* tvb, int offset,
+dissect_NMEDomainTimeData_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint16_t u16TimeDomainNumber;
@@ -8651,15 +8829,21 @@ dissect_TSNTimeData_block(tvbuff_t* tvb, int offset,
     return offset;
 }
 
-/* TSNUploadNetworkAttributesBlock */
+/* CIMNetConfUploadNetworkAttributesBlock */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_TSNUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
+dissect_CIMNetConfUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint32_t    u32TransferTimeTX;
     uint32_t    u32TransferTimeRX;
     uint32_t    u32MaxSupportedRecordSize;
+    proto_item  *sub_item;
+    proto_tree  *sub_tree;
+    uint32_t     u32SupportedBurstSize;
+    uint16_t     u16MinIPGBreakingPoint;
+    uint16_t     u16MinIPGFrameSize;
+    uint16_t     u16FrameSendOffsetDeviation;
 
     if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8669,29 +8853,48 @@ dissect_TSNUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
         /* Align to the next 32 bit twice */
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
-    /* TSNPortIDBlock */
+    /* CIMStationPortCapabilitiesBlock */
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
 
     /*MaxSupportedRecordSize*/
-    offset= dissect_dcerpc_uint32(tvb,offset,pinfo,tree,drep,hf_pn_io_tsn_max_supported_record_size,&u32MaxSupportedRecordSize);
+    offset= dissect_dcerpc_uint32(tvb,offset,pinfo,tree,drep,hf_pn_io_cim_net_max_supported_record_size,&u32MaxSupportedRecordSize);
 
     /* TransferTimeTX */
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_tsn_transfer_time_tx, &u32TransferTimeTX);
+        hf_pn_io_cim_net_transfer_time_tx, &u32TransferTimeTX);
 
     /* TransferTimeRX */
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_tsn_transfer_time_rx, &u32TransferTimeRX);
+        hf_pn_io_cim_net_transfer_time_rx, &u32TransferTimeRX);
 
-    /* TSNForwardingDelayBlock */
+    /* CIMStationForwardingDelayBlock */
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    /* SupportedBurstSize */
+    sub_item = proto_tree_add_item(tree, hf_pn_io_supported_burst_size, tvb, offset, 4, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_supported_burst_size);
+
+    /* SupportedBurstSize.Frames */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_supported_burst_size_frames, &u32SupportedBurstSize);
+
+    /* SupportedBurstSize.Octets */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_supported_burst_size_octets, &u32SupportedBurstSize);
+
+    /* MinIPGBreakingPoint */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_min_ipg_breaking_point, &u16MinIPGBreakingPoint);
+
+    /* MinIPGFrameSize */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_min_ipg_frame_size, &u16MinIPGFrameSize);
+
+    /* FrameSendOffsetDeviation */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_frame_send_offset_deviation, &u16FrameSendOffsetDeviation);
 
     return offset;
 }
 
-/* TSNExpectedNeighborBlock */
+/* CIMStationExpectedNeighborBlock */
 static int
-dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationExpectedNeighbor_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint8_t     u8NumberOfPeers;
@@ -8709,13 +8912,13 @@ dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
         return offset;
     }
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_expected_neighbor_block_number_of_entries, &u16NumberOfEntries);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cim_station_expected_neighbor_block_number_of_entries, &u16NumberOfEntries);
 
     while (u16NumberOfEntries > 0)
     {
         u16NumberOfEntries--;
 
-        /*TSNDomainPortID*/
+        /*CIMStationElementID*/
         /* SlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNr);
         /*--*/
@@ -8757,12 +8960,43 @@ dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
     return offset;
 }
 
-/* TSNExpectedNetworkAttributesBlock */
+/* NMEDomainConfigRealBlock */
+static int
+dissect_NMEDomainConfigReal_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
+{
+    e_guid_t cim_stream_collection_uuid;
+    e_guid_t cim_sync_tree_data_uuid;
+    e_guid_t cim_expected_network_attributes_uuid;
+
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    /* Padding */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /*CIMStreamCollectionUUID*/
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_cim_stream_collection_uuid, &cim_stream_collection_uuid);
+
+    /* CIMSyncTreeDataUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_cim_sync_tree_data_uuid, &cim_sync_tree_data_uuid);
+
+    /* CIMExpectedNetworkAttributesUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_cim_expected_network_attributes_uuid, &cim_expected_network_attributes_uuid);
+
+    return offset;
+}
+
+/* CIMNetConfExpectedNetworkAttributesBlock */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_TSNExpectedNetworkAttributes_block(tvbuff_t* tvb, int offset,
+dissect_CIMNetConfExpectedNetworkAttributes_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
+    e_guid_t cim_expected_network_attributes_uuid;
+
     if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
@@ -8772,27 +9006,30 @@ dissect_TSNExpectedNetworkAttributes_block(tvbuff_t* tvb, int offset,
     /* Align to the next 32 bit twice */
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
-    /* TSNPortIDBlock */
+    /* CIMStationPortCapabilitiesBlock */
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
 
-    /* TSNForwardingDelayBlock */
+    /* CIMStationForwardingDelayBlock */
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
 
-    /* TSNExpectedNeighborBlock */
+    /* CIMStationExpectedNeighborBlock */
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    /* CIMExpectedNetworkAttributesUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_cim_expected_network_attributes_uuid, &cim_expected_network_attributes_uuid);
 
     return offset;
 }
 
-/* TSNDomainPortIngressRateLimiterBlock */
+/* CIMStationPortIngressRateLimiterBlock */
 static int
-dissect_TSNDomainPortIngressRateLimiter_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationPortIngressRateLimiter_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint16_t   u16NumberofEntries;
     proto_item* sub_item_port_ingress;
     proto_tree* sub_tree_port_ingress;
-    uint64_t   u64TSNDomainPortIngressRateLimiter;
+    uint64_t   u64PortIngressRateLimiter;
     dcerpc_info di; /* fake dcerpc_info struct */
     dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     di.call_data = &dcv;
@@ -8804,36 +9041,36 @@ dissect_TSNDomainPortIngressRateLimiter_block(tvbuff_t* tvb, int offset,
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_number_of_tsn_domain_port_ingress_rate_limiter_entries, &u16NumberofEntries);
+        hf_pn_io_number_of_port_ingress_rate_limiter_entries, &u16NumberofEntries);
 
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
 
-        /* TSNDomainPortIngressRateLimiter */
-        sub_item_port_ingress = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_ingress_rate_limiter, tvb, offset, 8, ENC_BIG_ENDIAN);
-        sub_tree_port_ingress = proto_item_add_subtree(sub_item_port_ingress, ett_pn_io_tsn_domain_port_ingress_rate_limiter);
+        /* PortIngressRateLimiter */
+        sub_item_port_ingress = proto_tree_add_item(tree, hf_pn_io_port_ingress_rate_limiter, tvb, offset, 8, ENC_BIG_ENDIAN);
+        sub_tree_port_ingress = proto_item_add_subtree(sub_item_port_ingress, ett_pn_io_port_ingress_rate_limiter);
 
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
-            hf_pn_io_tsn_domain_port_ingress_rate_limiter_cir, &u64TSNDomainPortIngressRateLimiter);
+            hf_pn_io_port_ingress_rate_limiter_cir, &u64PortIngressRateLimiter);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
-            hf_pn_io_tsn_domain_port_ingress_rate_limiter_cbs, &u64TSNDomainPortIngressRateLimiter);
+            hf_pn_io_port_ingress_rate_limiter_cbs, &u64PortIngressRateLimiter);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
-            hf_pn_io_tsn_domain_port_ingress_rate_limiter_envelope, &u64TSNDomainPortIngressRateLimiter);
+            hf_pn_io_port_ingress_rate_limiter_envelope, &u64PortIngressRateLimiter);
         offset = dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
-            hf_pn_io_tsn_domain_port_ingress_rate_limiter_rank, &u64TSNDomainPortIngressRateLimiter);
+            hf_pn_io_port_ingress_rate_limiter_rank, &u64PortIngressRateLimiter);
     }
     return offset;
 }
 
-/* TSNDomainQueueRateLimiterBlock */
+/* CIMStationEgressRateLimiterBlock */
 static int
-dissect_TSNDomainQueueRateLimiter_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationEgressRateLimiter_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint16_t   u16NumberofEntries;
     proto_item* sub_item;
     proto_tree* sub_tree;
-    uint64_t   u64TSNDomainQueueRateLimiter;
+    uint64_t   u64PortQueueEgressRateLimiter;
     dcerpc_info di; /* fake dcerpc_info struct */
     dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
     di.call_data = &dcv;
@@ -8845,39 +9082,39 @@ dissect_TSNDomainQueueRateLimiter_block(tvbuff_t* tvb, int offset,
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-        hf_pn_io_number_of_tsn_domain_queue_rate_limiter_entries, &u16NumberofEntries);
+        hf_pn_io_number_of_port_queue_egress_rate_limiter_entries, &u16NumberofEntries);
 
     while (u16NumberofEntries > 0) {
         u16NumberofEntries--;
 
-        /* TSNDomainQueueRateLimiter */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_rate_limiter, tvb, offset, 8, ENC_BIG_ENDIAN);
-        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_queue_rate_limiter);
+        /* PortQueueEgressRateLimiter */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_port_queue_egress_rate_limiter, tvb, offset, 8, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_port_queue_egress_rate_limiter);
 
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_rate_limiter_cir, &u64TSNDomainQueueRateLimiter);
+            hf_pn_io_port_queue_egress_rate_limiter_cir, &u64PortQueueEgressRateLimiter);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_rate_limiter_cbs, &u64TSNDomainQueueRateLimiter);
+            hf_pn_io_port_queue_egress_rate_limiter_cbs, &u64PortQueueEgressRateLimiter);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_rate_limiter_envelope, &u64TSNDomainQueueRateLimiter);
+            hf_pn_io_port_queue_egress_rate_limiter_envelope, &u64PortQueueEgressRateLimiter);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_rate_limiter_rank, &u64TSNDomainQueueRateLimiter);
+            hf_pn_io_port_queue_egress_rate_limiter_rank, &u64PortQueueEgressRateLimiter);
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_rate_limiter_queue_id, &u64TSNDomainQueueRateLimiter);
+            hf_pn_io_port_queue_egress_rate_limiter_queue_id, &u64PortQueueEgressRateLimiter);
         offset = dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
-            hf_pn_io_tsn_domain_queue_rate_limiter_reserved, &u64TSNDomainQueueRateLimiter);
+            hf_pn_io_port_queue_egress_rate_limiter_reserved, &u64PortQueueEgressRateLimiter);
     }
     return offset;
 }
 
-/* TSNPortIDBlock */
+/* CIMStationPortCapabilitiesBlock */
 static int
-dissect_TSNPortID_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationPortCapabilities_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint8_t     u8NumberOfQueues;
     uint8_t     u8ForwardingGroup;
-    uint8_t     u8TSNPortCapabilities;
+    uint8_t     u8PortCapabilities;
     uint16_t    u16NumberOfEntries;
     uint16_t    u16SlotNr;
     uint16_t    u16SubslotNr;
@@ -8890,13 +9127,13 @@ dissect_TSNPortID_block(tvbuff_t* tvb, int offset,
         return offset;
     }
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_port_id_block_number_of_entries, &u16NumberOfEntries);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cim_station_port_capabilities_block_number_of_entries, &u16NumberOfEntries);
 
    while (u16NumberOfEntries > 0)
    {
         u16NumberOfEntries--;
 
-        /*TSNDomainPortID*/
+        /*CIMStationElementID*/
         /* SlotNumber */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNr);
         /*--*/
@@ -8913,28 +9150,28 @@ dissect_TSNPortID_block(tvbuff_t* tvb, int offset,
 
         /* NumberOfQueues */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_number_of_queues, &u8NumberOfQueues);
+            hf_pn_io_cim_number_of_queues, &u8NumberOfQueues);
 
-        /* TSNPortCapabilities */
+        /* PortCapabilities */
         /* bit 0 */
         dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_port_capabilities_time_aware, &u8TSNPortCapabilities);
+            hf_pn_io_port_capabilities_time_aware, &u8PortCapabilities);
 
         /* bit 1 */
         dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_port_capabilities_preemption, &u8TSNPortCapabilities);
+            hf_pn_io_port_capabilities_preemption, &u8PortCapabilities);
 
         /* bit 2 */
         dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_port_capabilities_queue_masking, &u8TSNPortCapabilities);
+            hf_pn_io_port_capabilities_queue_masking, &u8PortCapabilities);
 
         /* bit 3-7 */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_port_capabilities_reserved, &u8TSNPortCapabilities);
+            hf_pn_io_port_capabilities_reserved, &u8PortCapabilities);
 
         /* ForwardingGroup */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_forwarding_group, &u8ForwardingGroup);
+            hf_pn_io_cim_station_forwarding_group, &u8ForwardingGroup);
 
         /* Align to the next 32 bit */
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
@@ -8943,17 +9180,18 @@ dissect_TSNPortID_block(tvbuff_t* tvb, int offset,
     return offset;
 }
 
-/* TSNForwardingDelayBlock */
+/* CIMStationForwardingDelayBlock */
 static int
-dissect_TSNForwardingDelay_block(tvbuff_t* tvb, int offset,
+dissect_CIMStationForwardingDelay_block(tvbuff_t* tvb, int offset,
     packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     uint8_t     u8ForwardingGroupIngress;
     uint8_t     u8ForwardingGroupEgress;
-    uint16_t    u16NumberOfEntries;
-    uint16_t    u16StreamClass;
-    uint32_t    u32DependentForwardingDelay;
-    uint32_t    u32IndependentForwardingDelay;
+    uint16_t     u16NumberOfEntries;
+    uint16_t     u16StreamClass;
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+    uint32_t     u32ForwardingDelay;
 
     if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8961,33 +9199,37 @@ dissect_TSNForwardingDelay_block(tvbuff_t* tvb, int offset,
         return offset;
     }
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_forwarding_delay_block_number_of_entries, &u16NumberOfEntries);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cim_station_forwarding_delay_block_number_of_entries, &u16NumberOfEntries);
 
-   while (u16NumberOfEntries > 0)
-   {
-        u16NumberOfEntries--;
-
-        /*ForwardingGroupIngress*/
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_forwarding_group_ingress, &u8ForwardingGroupIngress);
-
-        /*ForwardingGroupEgress*/
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_forwarding_group_egress, &u8ForwardingGroupEgress);
-
-        /* StreamClass */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_stream_class, &u16StreamClass);
-
-        /* DependentForwardingDelay */
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_dependent_forwarding_delay, &u32DependentForwardingDelay);
-
-        /* IndependentForwardingDelay */
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_tsn_independent_forwarding_delay, &u32IndependentForwardingDelay);
-    }
-    return offset;
+    while (u16NumberOfEntries > 0)
+    {
+         u16NumberOfEntries--;
+ 
+         /*ForwardingGroupIngress*/
+         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+             hf_pn_io_cim_station_forwarding_group_ingress, &u8ForwardingGroupIngress);
+ 
+         /*ForwardingGroupEgress*/
+         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+             hf_pn_io_cim_station_forwarding_group_egress, &u8ForwardingGroupEgress);
+ 
+         /* StreamClass */
+         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+             hf_pn_io_cim_net_stream_class, &u16StreamClass);
+ 
+         /* ForwardingDelay */
+         sub_item = proto_tree_add_item(tree, hf_pn_io_cim_forwarding_delay_entry, tvb, offset, 4, ENC_BIG_ENDIAN);
+         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_cim_forwarding_delay_entry);
+ 
+         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+             hf_pn_io_cim_forwarding_delay_independent, &u32ForwardingDelay);
+         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+             hf_pn_io_cim_forwarding_delay_reserved, &u32ForwardingDelay);
+         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+             hf_pn_io_cim_forwarding_delay_dependent, &u32ForwardingDelay);
+     }
+ 
+     return offset;
 }
 
 /* PDPortStatistic for one subslot */
@@ -9269,7 +9511,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
     uint32_t  u32ReservedIntervalEnd;
     uint32_t  u32PLLWindow;
     uint32_t  u32SyncSendFactor;
-    uint16_t  u16SendClockFactor;
+    uint16_t  u16GatingCycle;
     uint16_t  u16SyncProperties;
     uint16_t  u16SyncFrameAddress;
     uint16_t  u16PTCPTimeoutFactor;
@@ -9314,9 +9556,9 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
         /* SyncSendFactor 32 enum */
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_sync_send_factor, &u32SyncSendFactor);
-        /* SendClockFactor 16 */
+        /* GatingCycle 16 */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                            hf_pn_io_send_clock_factor, &u16SendClockFactor);
+                            hf_pn_io_gating_cycle, &u16GatingCycle);
         /* SyncProperties 16 bitfield */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_sync_properties, &u16SyncProperties);
@@ -9329,7 +9571,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
 
         proto_item_append_text(item, ": Slot:0x%x/0x%x, Interval:%u-%u, PLLWin:%u, Send:%u, Clock:%u",
             u16SlotNr, u16SubslotNr, u32ReservedIntervalBegin, u32ReservedIntervalEnd,
-            u32PLLWindow, u32SyncSendFactor, u16SendClockFactor);
+            u32PLLWindow, u32SyncSendFactor, u16GatingCycle);
         break;
     case(2):
         /* PTCPSubdomainID */
@@ -9347,9 +9589,9 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
         /* SyncSendFactor 32 enum */
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_sync_send_factor, &u32SyncSendFactor);
-        /* SendClockFactor 16 */
+        /* GatingCycle 16 */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                            hf_pn_io_send_clock_factor, &u16SendClockFactor);
+                            hf_pn_io_gating_cycle, &u16GatingCycle);
         /* PTCPTimeoutFactor 16 enum */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_ptcp_timeout_factor, &u16PTCPTimeoutFactor);
@@ -9381,7 +9623,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
 
         proto_item_append_text(item, ": Interval:%u-%u, PLLWin:%u, Send:%u, Clock:%u",
             u32ReservedIntervalBegin, u32ReservedIntervalEnd,
-            u32PLLWindow, u32SyncSendFactor, u16SendClockFactor);
+            u32PLLWindow, u32SyncSendFactor, u16GatingCycle);
         break;
     default:
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -11496,7 +11738,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     uint16_t    u16LT;
     uint16_t    u16DataLength;
     uint16_t    u16FrameID;
-    uint16_t    u16SendClockFactor;
+    uint16_t    u16GatingCycle;
     uint16_t    u16ReductionRatio;
     uint16_t    u16Phase;
     uint16_t    u16Sequence;
@@ -11556,7 +11798,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_frame_id, &u16FrameID);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_send_clock_factor, &u16SendClockFactor);
+                        hf_pn_io_gating_cycle, &u16GatingCycle);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_reduction_ratio, &u16ReductionRatio);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -11599,7 +11841,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": %s, Ref:0x%x, Len:%u, FrameID:0x%x, Clock:%u, Ratio:%u, Phase:%u APIs:%u",
         val_to_str(u16IOCRType, pn_io_iocr_type, "0x%x"),
         u16IOCRReference, u16DataLength, u16FrameID,
-        u16SendClockFactor, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
+        u16GatingCycle, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
 
     while (u16NumberOfAPIs--) {
         api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_NA);
@@ -13755,51 +13997,54 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_Neighbors_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0270):
-        dissect_TSNNetworkControlDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMNetConfDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0271):
-        dissect_TSNNetworkControlDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMNetConfDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0272):
-        dissect_TSNDomainPortConfig_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationPortStatus_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0273):
-        dissect_TSNDomainQueueConfig_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationQueueConfig_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0274):
-        dissect_TSNTimeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_NMEDomainTimeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0275):
-        dissect_TSNStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, false);
+        dissect_CIMNetConfStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, FALSE);
         break;
     case(0x0276):
-        dissect_TSNSyncTreeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMNetConfSyncTreeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0277):
-        dissect_TSNUploadNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMNetConfUploadNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0278):
-        dissect_TSNForwardingDelay_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationForwardingDelay_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0279):
-        dissect_TSNExpectedNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMNetConfExpectedNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x027A):
-        dissect_TSNStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, true);
-    break;
+        dissect_CIMNetConfStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, TRUE);
+	break;
     case(0x027B):
-        dissect_TSNDomainPortIngressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationPortIngressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x027C):
-        dissect_TSNDomainQueueRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationEgressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x027D):
-        dissect_TSNPortID_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationPortCapabilities_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x027E):
-        dissect_TSNExpectedNeighbor_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_CIMStationExpectedNeighbor_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
-    case(0x0300):
+    case(0x027F):
+        dissect_NMEDomainConfigReal_block(tvb, offset, pinfo, sub_tree, sub_item, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x300):
         dissect_CIMSNMPAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0400):
@@ -14375,11 +14620,6 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
     case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
     case(0x8054):   /* PDPortMrpDataReal for one subslot */
-    case(0x80F0):   /* TSNNetworkControlDataReal */
-    case(0x80F2):   /* TSNSyncTreeData */
-    case(0x80F3):   /* TSNUploadNetworkAttributes */
-    case(0x80F4):   /* TSNExpectedNetworkAttributes */
-    case(0x80F5):   /* TSNNetworkControlDataAdjust */
     case(0x8060):   /* PDPortFODataReal for one subslot */
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
@@ -14391,7 +14631,11 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x80A0):   /* PROFIenergy ServiceRecord */
     case(0x80AF):   /* PE_EntityStatusData for one subslot */
     case(0x80CF):   /* RS_AdjustObserver */
-
+    case(0x80F0):   /* CIMNetConfDataReal */
+    case(0x80F2):   /* CIMNetConfSyncTreeData */
+    case(0x80F3):   /* CIMNetConfUploadNetworkAttributes */
+    case(0x80F4):   /* CIMNetConfExpectedNetworkAttributes */
+    case(0x80F5):   /* CIMNetConfDataAdjust */
     case(0x8200):   /* CIMSNMPAdjust */
 
     case(0xaff0):   /* I&M0 */
@@ -15817,8 +16061,8 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_send_clock_factor,
-      { "SendClockFactor", "pn_io.send_clock_factor",
+    { &hf_pn_io_gating_cycle,
+      { "GatingCycle", "pn_io.gating_cycle",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     }, /* XXX - special values */
@@ -16891,283 +17135,333 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_DEC_HEX, VALS(pn_io_preamble_length), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_max_supported_record_size,
-     { "MaxSupportedRecordSize", "pn_io.tsn_upload_network_attributes.max_supported_record_size",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_max_supported_record_size_vals), 0x0,
+    { &hf_pn_io_cim_net_conf_upload_network_attributes_number_of_entries,
+      { "CIMNetConfUploadNetworkAttributesNumberOfEntries", "pn_io.cim_net_conf_upload_network_attributes.number_of_entries",
+         FT_UINT16, BASE_DEC, NULL, 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_cim_net_max_supported_record_size,
+     { "MaxSupportedRecordSize", "pn_io.cim_net_conf_upload_network_attributes.max_supported_record_size",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_net_max_supported_record_size_vals), 0x0,
        NULL, HFILL }
     },
-    { &hf_pn_io_tsn_transfer_time_tx,
-     { "TransferTimeTX", "pn_io.tsn_upload_network_attributes.transfer_time_tx",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_transfer_time_tx_vals), 0x0,
+    { &hf_pn_io_traffic_class_translate_entry,
+     { "TrafficClassTranslateEntry", "pn_io.traffic_class_translate_entry",
+       FT_UINT32, BASE_HEX, NULL, 0x0,
        NULL, HFILL }
     },
-    { &hf_pn_io_tsn_transfer_time_rx,
-     { "TransferTimeRX", "pn_io.tsn_upload_network_attributes.transfer_time_rx",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_transfer_time_rx_vals), 0x0,
+    { &hf_pn_io_traffic_class_translate_entry_vid,
+     { "TrafficClassTranslateEntry.VID", "pn_io.traffic_class_translate_entry_vid",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_traffic_class_translate_entry_vid_vals), 0x3FFF,
        NULL, HFILL }
     },
-    { &hf_pn_io_tsn_number_of_queues,
-    { "NumberOfQueues", "pn_io.tsn_port_id_block.number_of_queues",
-      FT_UINT8, BASE_HEX, VALS(pn_io_tsn_number_of_queues_vals), 0x0,
+    { &hf_pn_io_traffic_class_translate_entry_reserved1,
+     { "TrafficClassTranslateEntry.Reserved1", "pn_io.traffic_class_translate_entry_reserved1",
+       FT_UINT32, BASE_HEX, NULL, 0xC000,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_traffic_class_translate_entry_pcp,
+     { "TrafficClassTranslateEntry.PCP", "pn_io.traffic_class_translate_entry_pcp",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_traffic_class_translate_entry_pcp_vals), 0x70000,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_traffic_class_translate_entry_reserved2,
+     { "TrafficClassTranslateEntry.Reserved2", "pn_io.traffic_class_translate_entry_reserved2",
+       FT_UINT32, BASE_HEX , NULL, 0xFFF80000,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_net_transfer_time_tx,
+     { "TransferTimeTX", "pn_io.cim_net_conf_upload_network_attributes.transfer_time_tx",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_net_transfer_time_tx_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_net_transfer_time_rx,
+     { "TransferTimeRX", "pn_io.cim_net_conf_upload_network_attributes.transfer_time_rx",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_net_transfer_time_rx_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_number_of_queues,
+    { "NumberOfQueues", "pn_io.cim_station_port_capabilities_block.number_of_queues",
+      FT_UINT8, BASE_HEX, VALS(pn_io_cim_number_of_queues_vals), 0x0,
       NULL, HFILL }
     },
-    { &hf_pn_io_tsn_forwarding_delay_block_number_of_entries,
-      { "TSNForwardingDelayBlockNumberOfEntries", "pn_io.tsn_forward_delaying_block.number_of_entries",
+    { &hf_pn_io_cim_station_forwarding_delay_block_number_of_entries,
+      { "CIMStationForwardingDelayBlockNumberOfEntries", "pn_io.cim_station_forward_delaying_block.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-  { &hf_pn_io_tsn_port_id_block_number_of_entries,
-      { "TSNPortIDBlockNumberOfEntries", "pn_io.tsn_port_id_block.number_of_entries",
+  { &hf_pn_io_cim_station_port_capabilities_block_number_of_entries,
+      { "CIMStationPortCapabilitiesBlockNumberOfEntries", "pn_io.cim_station_port_capabilities_block.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_expected_neighbor_block_number_of_entries,
-      { "TSNExpectedNeighborBlockNumberOfEntries", "pn_io.tsn_expected_neighbor_block.number_of_entries",
+    { &hf_pn_io_cim_station_expected_neighbor_block_number_of_entries,
+      { "CIMStationExpectedNeighborBlockNumberOfEntries", "pn_io.cim_station_expected_neighbor_block.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_port_capabilities_time_aware,
-       { "TSNPortCapabilities.TimeAware", "pn_io.tsn_port_capabilities.time_aware",
-         FT_UINT8, BASE_HEX, VALS(pn_io_tsn_port_capabilities_time_aware_vals), 0x01,
-         NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_port_capabilities_preemption,
-       { "TSNPortCapabilities.Preemption", "pn_io.tsn_port_capabilities.preemption",
-         FT_UINT8, BASE_HEX, VALS(pn_io_tsn_port_capabilities_preemption_vals), 0x02,
-         NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_port_capabilities_queue_masking,
-       { "TSNPortCapabilities.QueueMasking", "pn_io.tsn_port_capabilities.queue_masking",
-         FT_UINT8, BASE_HEX, VALS(pn_io_tsn_port_capabilities_queue_masking_vals), 0x04,
-         NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_port_capabilities_reserved,
-      { "TSNPortCapabilities.Reserved", "pn_io.tsn_port_capabilities_reserved",
-         FT_UINT8, BASE_HEX, NULL, 0xF8,
-         NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_forwarding_group,
-     { "ForwardingGroup", "pn_io.tsn_port_id_block.forwarding_group",
-       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_forwarding_group_vals), 0x0,
-       NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_forwarding_group_ingress,
-     { "ForwardingGroupIngress", "pn_io.tsn_port_id_block.forwarding_group_ingress",
-       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_forwarding_group_vals), 0x0,
-       NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_forwarding_group_egress,
-     { "ForwardingGroupEgress", "pn_io.tsn_port_id_block.forwarding_group_egress",
-       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_forwarding_group_vals), 0x0,
-       NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_stream_class,
-      { "StreamClass", "pn_io.tsn_forwarding_delay_entry.stream_class",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_stream_class_vals), 0x0,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_dependent_forwarding_delay,
-     { "DependentForwardDelay", "pn_io.tsn_forwarding_delay_entry.dependent_forwarding_delay",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_dependent_forwarding_delay_vals), 0x0,
-       NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_independent_forwarding_delay,
-     { "IndependentForwardDelay", "pn_io.tsn_forwarding_delay_entry.independent_forwarding_delay",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_independent_forwarding_delay_vals), 0x0,
-       NULL, HFILL }
-    },
-    { &hf_pn_io_tsn_nme_parameter_uuid,
-      { "NMEParameterUUID", "pn_io.tsn_nme_parameter_uuid",
+    { &hf_pn_io_cim_expected_network_attributes_uuid,
+      { "CIMExpectedNetworkAttributesUUID", "pn_io.cim_expected_network_attributes_uuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config,
-      { "TSNDomainVIDConfig", "pn_io.tsn_domain_vid_config",
-        FT_NONE, BASE_NONE, NULL, 0x0,
+    { &hf_pn_io_port_capabilities_time_aware,
+       { "PortCapabilities.TimeAware", "pn_io.port_capabilities.time_aware",
+         FT_UINT8, BASE_HEX, VALS(pn_io_port_capabilities_time_aware_vals), 0x01,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_port_capabilities_preemption,
+       { "PortCapabilities.Preemption", "pn_io.port_capabilities.preemption",
+         FT_UINT8, BASE_HEX, VALS(pn_io_port_capabilities_preemption_vals), 0x02,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_port_capabilities_queue_masking,
+       { "PortCapabilities.QueueMasking", "pn_io.port_capabilities.queue_masking",
+         FT_UINT8, BASE_HEX, VALS(pn_io_port_capabilities_queue_masking_vals), 0x04,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_port_capabilities_reserved,
+      { "PortCapabilities.Reserved", "pn_io.port_capabilities_reserved",
+         FT_UINT8, BASE_HEX, NULL, 0xF8,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_cim_station_forwarding_group,
+     { "ForwardingGroup", "pn_io.cim_station_port_capabilities_block.forwarding_group",
+       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_station_forwarding_group_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_station_forwarding_group_ingress,
+     { "ForwardingGroupIngress", "pn_io.cim_station_port_capabilities_block.forwarding_group_ingress",
+       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_station_forwarding_group_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_station_forwarding_group_egress,
+     { "ForwardingGroupEgress", "pn_io.cim_station_port_capabilities_block.forwarding_group_egress",
+       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_station_forwarding_group_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_net_stream_class,
+      { "StreamClass", "pn_io.cim_forwarding_delay_entry.stream_class",
+        FT_UINT16, BASE_HEX, VALS(pn_io_cim_net_stream_class_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_stream_high_vid,
-      { "TSNDomainVIDConfig.StreamHighVID", "pn_io.tsn_domain_vid_config.stream_high_vid",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_cim_forwarding_delay_entry,
+     { "ForwardingDelay", "pn_io.cim_forwarding_delay_entry",
+       FT_UINT32, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_forwarding_delay_independent,
+     { "ForwardingDelay.Independent", "pn_io.cim_forwarding_delay_entry.forwarding_delay_independent",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_forwarding_delay_independent_vals), 0x000FFFFF,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_forwarding_delay_reserved,
+     { "ForwardingDelay.Reserved", "pn_io.cim_forwarding_delay_entry.forwarding_delay_reserved",
+       FT_UINT32, BASE_HEX, NULL, 0x0FF00000,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_forwarding_delay_dependent,
+     { "ForwardingDelay.Dependent", "pn_io.cim_forwarding_delay_entry.forwarding_delay_dependent",
+       FT_UINT32, BASE_HEX , VALS(pn_io_cim_forwarding_delay_dependent_vals), 0xF0000000,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_cim_ingress_port_slot_nr,
+     { "IngressPortSlotNumber", "pn_io.cim_ingress_port.slot_nr",
+       FT_UINT16, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_nme_parameter_uuid,
+      { "NMEParameterUUID", "pn_io.nme_parameter_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_stream_high_red_vid,
-      { "TSNDomainVIDConfig.StreamHighRedVID", "pn_io.tsn_domain_vid_config.stream_high_red_vid",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config,
+    { "NMEDomainVIDConfig", "pn_io.nme_domain_vid_config",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_pn_io_nme_domain_vid_config_stream_high_vid,
+      { "NMEDomainVIDConfig.StreamHighVID", "pn_io.nme_domain_vid_config.stream_high_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_stream_low_vid,
-      { "TSNDomainVIDConfig.StreamLowVID", "pn_io.tsn_domain_vid_config.stream_low_vid",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config_stream_high_red_vid,
+      { "NMEDomainVIDConfig.StreamHighRedVID", "pn_io.nme_domain_vid_config.stream_high_red_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_stream_low_red_vid,
-      { "TSNDomainVIDConfig.StreamLowRedVID", "pn_io.tsn_domain_vid_config.stream_low_red_vid",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config_stream_low_vid,
+      { "NMEDomainVIDConfig.StreamLowVID", "pn_io.nme_domain_vid_config.stream_low_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid,
-      { "TSNDomainVIDConfig.NonStreamVID", "pn_io.tsn_domain_vid_config.non_stream_vid",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config_stream_low_red_vid,
+      { "NMEDomainVIDConfig.StreamLowRedVID", "pn_io.nme_domain_vid_config.stream_low_red_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid_B,
-      { "TSNDomainVIDConfig.NonStreamVIDB", "pn_io.tsn_domain_vid_config.non_stream_vid_B",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config_non_stream_vid,
+      { "NMEDomainVIDConfig.NonStreamVID", "pn_io.nme_domain_vid_config.non_stream_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid_C,
-      { "TSNDomainVIDConfig.NonStreamVIDC", "pn_io.tsn_domain_vid_config.non_stream_vid_C",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config_non_stream_vid_B,
+      { "NMEDomainVIDConfig.NonStreamVIDB", "pn_io.nme_domain_vid_config.non_stream_vid_B",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid_D,
-      { "TSNDomainVIDConfig.NonStreamVIDD", "pn_io.tsn_domain_vid_config.non_stream_vid_D",
-        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+    { &hf_pn_io_nme_domain_vid_config_non_stream_vid_C,
+      { "NMEDomainVIDConfig.NonStreamVIDC", "pn_io.nme_domain_vid_config.non_stream_vid_C",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_vid_config_reserved,
-      { "TSNDomainVIDConfig.Reserved", "pn_io.tsn_domain_vid_config.reserved",
+    { &hf_pn_io_nme_domain_vid_config_non_stream_vid_D,
+      { "NMEDomainVIDConfig.NonStreamVIDD", "pn_io.nme_domain_vid_config.non_stream_vid_D",
+        FT_UINT16, BASE_HEX, VALS(pn_io_nme_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_nme_domain_vid_config_reserved,
+      { "NMEDomainVIDConfig.Reserved", "pn_io.nme_domain_vid_config.reserved",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_number_of_tsn_domain_port_config_entries,
-      { "TSNDomainPortConfig.NumberOfEntries", "pn_io.tsn_domain_port_config.number_of_entries",
+    { &hf_pn_io_number_of_cim_station_port_status_entries,
+      { "CIMStationPortStatus.NumberOfEntries", "pn_io.cim_station_port_status.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_number_of_tsn_time_data_block_entries,
-      { "TSNTimeDataBlock.NumberOfEntries", "pn_io.tsn_time_data_block.number_of_entries",
+    { &hf_pn_io_number_of_nme_domain_time_data_block_entries,
+      { "NMEDomainTimeDataBlock.NumberOfEntries", "pn_io.nme_domain_time_data_block.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_number_of_tsn_domain_queue_rate_limiter_entries,
-      { "TSNDomainQueueRateLimiter.NumberOfEntries", "pn_io.tsn_domain_queue_rate_limiter.number_of_entries",
+    { &hf_pn_io_number_of_port_queue_egress_rate_limiter_entries,
+      { "PortQueueEgressRateLimiter.NumberOfEntries", "pn_io.port_queue_egress_rate_limiter.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_number_of_tsn_domain_port_ingress_rate_limiter_entries,
-      { "TSNDomainPortIngressRateLimiter.NumberOfEntries", "pn_io.tsn_domain_port_ingress_limiter.number_of_entries",
+    { &hf_pn_io_number_of_port_ingress_rate_limiter_entries,
+      { "PortIngressRateLimiter.NumberOfEntries", "pn_io.port_ingress_rate_limiter.number_of_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_config,
-      { "TSNDomainPortConfig", "pn_io.tsn_domain_port_config",
+    { &hf_pn_io_cim_station_port_status,
+      { "CIMStationPortStatus", "pn_io.cim_station_port_status",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_config_preemption_enabled,
-      { "TSNDomainPortConfig.PreemptionEnabled", "pn_io.tsn_domain_port_config.preemption_enabled",
-        FT_UINT8, BASE_HEX, VALS(pn_io_tsn_domain_port_config_preemption_enabled_vals), 0x01,
+    { &hf_pn_io_cim_station_port_status_preemption_status,
+      { "CIMStationPortStatus.PreemptionStatus", "pn_io.cim_station_port_status.preemption_status",
+        FT_UINT8, BASE_HEX, VALS(pn_io_cim_station_port_status_preemption_status_vals), 0x01,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_config_boundary_port_config,
-      { "TSNDomainPortConfig.BoundaryPortConfig", "pn_io.tsn_domain_port_config.boundary_port_config",
-        FT_UINT8, BASE_HEX, VALS(pn_io_tsn_domain_port_config_boundary_port_config_vals), 0x0E,
+    { &hf_pn_io_cim_station_port_status_boundary_port_status,
+      { "CIMStationPortStatus.BoundaryPortStatus", "pn_io.cim_station_port_status.boundary_port_status",
+        FT_UINT8, BASE_HEX, VALS(pn_io_cim_station_port_status_boundary_port_status_vals), 0x0E,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_config_reserved,
-      { "TSNDomainPortConfig.Reserved", "pn_io.tsn_domain_port_config.reserved",
+    { &hf_pn_io_cim_station_port_status_reserved,
+      { "CIMStationPortStatus.Reserved", "pn_io.cim_station_port_status.reserved",
         FT_UINT8, BASE_HEX, NULL, 0xF0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter,
-      { "TSNDomainPortIngressRateLimiter", "pn_io.tsn_domain_port_ingress_rate_limiter",
+    { &hf_pn_io_port_ingress_rate_limiter,
+      { "PortIngressRateLimiter", "pn_io.port_ingress_rate_limiter",
          FT_UINT64, BASE_HEX, NULL, 0x0,
          NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_cir,
-      { "TSNDomainPortIngressRateLimiter.Cir", "pn_io.tsn_domain_port_ingress_rate_limiter.cir",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_cir), 0x000000000000FFFF,
+    { &hf_pn_io_port_ingress_rate_limiter_cir,
+      { "PortIngressRateLimiter.Cir", "pn_io.port_ingress_rate_limiter.cir",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_ingress_rate_limiter_cir), 0x000000000000FFFF,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_cbs,
-      { "TSNDomainPortIngressRateLimiter.Cbs", "pn_io.tsn_domain_port_ingress_rate_limiter.cbs",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_cbs), 0x00000000FFFF0000,
+    { &hf_pn_io_port_ingress_rate_limiter_cbs,
+      { "PortIngressRateLimiter.Cbs", "pn_io.port_ingress_rate_limiter.cbs",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_ingress_rate_limiter_cbs), 0x00000000FFFF0000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_envelope,
-      { "TSNDomainPortIngressRateLimiter.Envelope", "pn_io.tsn_domain_port_ingress_rate_limiter.envelope",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_envelope), 0x0000FFFF00000000,
+    { &hf_pn_io_port_ingress_rate_limiter_envelope,
+      { "PortIngressRateLimiter.Envelope", "pn_io.port_ingress_rate_limiter.envelope",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_ingress_rate_limiter_envelope), 0x0000FFFF00000000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_rank,
-      { "TSNDomainPortIngressRateLimiter.Rank", "pn_io.tsn_domain_port_ingress_rate_limiter.rank",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_rank), 0xFFFF000000000000,
+    { &hf_pn_io_port_ingress_rate_limiter_rank,
+      { "PortIngressRateLimiter.Rank", "pn_io.port_ingress_rate_limiter.rank",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_ingress_rate_limiter_rank), 0xFFFF000000000000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter,
-      { "TSNDomainQueueRateLimiter", "pn_io.tsn_domain_port_queue_rate_limiter",
+    { &hf_pn_io_port_queue_egress_rate_limiter,
+      { "PortQueueEgressRateLimiter", "pn_io.port_queue_egress_rate_limiter",
         FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter_cir,
-      { "TSNDomainQueueRateLimiter.Cir", "pn_io.tsn_domain_port_queue_rate_limiter.cir",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_cir), 0x000000000000FFFF,
+    { &hf_pn_io_port_queue_egress_rate_limiter_cir,
+      { "PortQueueEgressRateLimiter.Cir", "pn_io.port_queue_egress_rate_limiter.cir",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_queue_egress_rate_limiter_cir), 0x000000000000FFFF,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter_cbs,
-      { "TSNDomainQueueRateLimiter.Cbs", "pn_io.tsn_domain_port_queue_rate_limiter.cbs",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_cbs), 0x00000000FFFF0000,
+    { &hf_pn_io_port_queue_egress_rate_limiter_cbs,
+      { "PortQueueEgressRateLimiter.Cbs", "pn_io.port_queue_egress_rate_limiter.cbs",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_queue_egress_rate_limiter_cbs), 0x00000000FFFF0000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter_envelope,
-      { "TSNDomainQueueRateLimiter.Envelope", "pn_io.tsn_domain_port_queue_rate_limiter.envelope",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_envelope), 0x000000FF00000000,
+    { &hf_pn_io_port_queue_egress_rate_limiter_envelope,
+      { "PortQueueEgressRateLimiter.Envelope", "pn_io.port_queue_egress_rate_limiter.envelope",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_queue_egress_rate_limiter_envelope), 0x000000FF00000000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter_rank,
-      { "TSNDomainQueueRateLimiter.Rank", "pn_io.tsn_domain_port_queue_rate_limiter.rank",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_rank), 0x0000FF0000000000,
+    { &hf_pn_io_port_queue_egress_rate_limiter_rank,
+      { "PortQueueEgressRateLimiter.Rank", "pn_io.port_queue_egress_rate_limiter.rank",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_queue_egress_rate_limiter_rank), 0x0000FF0000000000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter_queue_id,
-      { "TSNDomainQueueRateLimiter.QueueID", "pn_io.tsn_domain_port_queue_rate_limiter.queue_id",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_queue_id), 0x00FF000000000000,
+    { &hf_pn_io_port_queue_egress_rate_limiter_queue_id,
+      { "PortQueueEgressRateLimiter.QueueID", "pn_io.port_queue_egress_rate_limiter.queue_id",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_queue_egress_rate_limiter_queue_id), 0x00FF000000000000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_rate_limiter_reserved,
-      { "TSNDomainQueueRateLimiter.Reserved", "pn_io.tsn_domain_port_queue_rate_limiter.reserved",
-        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_reserved), 0xFF00000000000000,
+    { &hf_pn_io_port_queue_egress_rate_limiter_reserved,
+      { "PortQueueEgressRateLimiter.Reserved", "pn_io.port_queue_egress_rate_limiter.reserved",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_port_queue_egress_rate_limiter_reserved), 0xFF00000000000000,
         NULL, HFILL }
     },
-    { &hf_pn_io_number_of_tsn_domain_queue_config_entries,
-      { "TSNDomainQueueConfig.NumberOfEntries", "pn_io.tsn_domain_queue_config.number_of_entries",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
+    { &hf_pn_io_number_of_nme_domain_queue_config_entries,
+    { "NMEDomainQueueConfig.NumberOfEntries", "pn_io.nme_domain_queue_config.number_of_entries",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config,
-      { "TSNDomainQueueConfig", "pn_io.tsn_domain_queue_config",
+    { &hf_pn_io_nme_domain_queue_config,
+      { "NMEDomainQueueConfig", "pn_io.nme_domain_queue_config",
         FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config_queue_id,
-        { "TSNDomainQueueConfig.QueueID", "pn_io.tsn_domain_queue_config.queue_id",
+    { &hf_pn_io_nme_domain_queue_config_queue_id,
+        { "NMEDomainQueueConfig.QueueID", "pn_io.nme_domain_queue_config.queue_id",
           FT_UINT64, BASE_HEX, NULL, 0xF,
           NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config_tci_pcp,
-        { "TSNDomainQueueConfig.TciPcp", "pn_io.tsn_domain_queue_config.tci_pcp",
+    { &hf_pn_io_nme_domain_queue_config_tci_pcp,
+        { "NMEDomainQueueConfig.TciPcp", "pn_io.nme_domain_queue_config.tci_pcp",
           FT_UINT64, BASE_HEX, NULL, 0x70,
           NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config_shaper,
-        { "TSNDomainQueueConfig.Shaper", "pn_io.tsn_domain_queue_config.shaper",
-          FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_config_shaper), 0x3F80,
+    { &hf_pn_io_nme_domain_queue_config_shaper,
+        { "NMEDomainQueueConfig.Shaper", "pn_io.nme_domain_queue_config.shaper",
+          FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_nme_domain_queue_config_shaper), 0x3F80,
           NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config_preemption_mode,
-        { "TSNDomainQueueConfig.PreemptionMode", "pn_io.tsn_domain_queue_config.preemption_mode",
+    { &hf_pn_io_nme_domain_queue_config_preemption_mode,
+        { "NMEDomainQueueConfig.PreemptionMode", "pn_io.nme_domain_queue_config.preemption_mode",
           FT_UINT64, BASE_HEX, NULL, 0xC000,
           NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config_unmask_time_offset,
-      { "TSNDomainQueueConfig.UnmaskTimeOffset", "pn_io.tsn_domain_queue_config.unmask_time_offset",
+    { &hf_pn_io_nme_domain_queue_config_unmask_time_offset,
+      { "NMEDomainQueueConfig.UnmaskTimeOffset", "pn_io.nme_domain_queue_config.unmask_time_offset",
         FT_UINT64, BASE_HEX, NULL, 0xFFFFFF0000,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_queue_config_mask_time_offset,
-      { "TSNDomainQueueConfig.MaskTimeOffset", "pn_io.tsn_domain_queue_config.mask_time_offset",
+    { &hf_pn_io_nme_domain_queue_config_mask_time_offset,
+      { "NMEDomainQueueConfig.MaskTimeOffset", "pn_io.nme_domain_queue_config.mask_time_offset",
         FT_UINT64, BASE_HEX, NULL, 0xFFFFFF0000000000,
         NULL, HFILL }
     },
@@ -17226,61 +17520,111 @@ proto_register_pn_io (void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_nme_name_uuid,
-      { "TSNNMENameUUID", "pn_io.tsn_nme_name_uuid",
+    { &hf_pn_io_nme_name_uuid,
+      { "NMENameUUID", "pn_io.nme_name_uuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_nme_name_length,
-      { "TSNNMENameLength", "pn_io.tsn_nme_name_length",
+    { &hf_pn_io_nme_name_address,
+      { "NMENameAddress", "pn_io.nme_name_address",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_nme_name_address_subtype,
+      { "NMENameAddressSubtype", "pn_io.nme_name_address_subtype",
+        FT_UINT8, BASE_HEX, VALS(pn_io_nme_name_address_subtype), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_nme_name_length,
+      { "NMENameLength", "pn_io.nme_name_length",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_nme_name,
-      { "TSNNMEName", "pn_io.tsn_nme_name",
+    { &hf_pn_io_nme_name,
+      { "NMEName", "pn_io.nme_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_uuid,
-      { "TSNDomainUUID", "pn_io.tsn_domain_uuid",
+    { &hf_pn_io_nme_domain_uuid,
+      { "NMEDomainUUID", "pn_io.nme_domain_uuid",
         FT_GUID, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_name_length,
-      { "TSNDomainNameLength", "pn_io.tsn_domain_name_length",
+    { &hf_pn_io_nme_domain_name_length,
+      { "NMEDomainNameLength", "pn_io.nme_domain_name_length",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_name,
-      { "TSNDomainName", "pn_io.tsn_domain_name",
+    { &hf_pn_io_nme_domain_name,
+      { "NMEDomainName", "pn_io.nme_domain_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_fdb_command,
-      { "FDBCommand", "pn_io.tsn_fdb_command",
-        FT_UINT8, BASE_HEX, VALS(pn_io_tsn_fdb_command), 0x0,
+    { &hf_pn_io_min_ipg_breaking_point,
+      { "MinIPGBreakingPoint", "pn_io.min_ipg_breaking_point",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_min_ipg_breaking_point), 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_dst_add,
-      { "DestinationAddress", "pn_io.tsn_dst_add",
+    { &hf_pn_io_min_ipg_frame_size,
+      { "MinIPGFrameSize", "pn_io.min_ipg_frame_size",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_min_ipg_frame_size), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_frame_send_offset_deviation,
+      { "FrameSendOffsetDeviation", "pn_io.frame_send_offset_deviation",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_frame_send_offset_deviation), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_supported_burst_size,
+      { "SupportedBurstSize", "pn_io.supported_burst_size",
+        FT_UINT16, BASE_HEX, NULL , 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_supported_burst_size_frames,
+      { "SupportedBurstSize.Frames", "pn_io.supported_burst_size_frames",
+        FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_supported_burst_size_frames), 0xFFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_supported_burst_size_octets,
+      { "SupportedBurstSize.Octets", "pn_io.supported_burst_size_octets",
+        FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_supported_burst_size_octets), 0xFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_cim_fdb_command,
+      { "FDBCommand", "pn_io.cim_fdb_command",
+        FT_UINT8, BASE_HEX, VALS(pn_io_cim_fdb_command), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_cim_dst_add,
+      { "DestinationAddress", "pn_io.cim_dst_add",
         FT_ETHER, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_number_of_tsn_domain_sync_tree_entries,
-      { "NumberOfEntries", "pn_io.tsn_domain_sync_tree_entries",
+    { &hf_pn_io_number_of_nme_domain_sync_tree_entries,
+      { "NumberOfEntries", "pn_io.nme_domain_sync_tree_entries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_port_id,
-      { "TSNDomainPortID", "pn_io.tsn_domain_port_id",
+    { &hf_pn_io_cim_station_element_id,
+      { "CIMStationElementID", "pn_io.cim_station_element_id",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_tsn_domain_sync_port_role,
-      { "SyncPortRole", "pn_io.tsn_domain_sync_port_rule",
-        FT_UINT8,BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_sync_port_role_vals), 0x0,
+    { &hf_pn_io_cim_sync_tree_data_uuid,
+      { "CIMSyncTreeDataUUID", "pn_io.cim_sync_tree_data_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_cim_stream_collection_uuid,
+      { "CIMStreamCollectionUUID", "pn_io.cim_stream_collection_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_nme_domain_sync_port_role,
+    { "SyncPortRole", "pn_io.nme_domain_sync_port_rule",
+      FT_UINT8,BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_nme_domain_sync_port_role_vals), 0x0,
+      NULL, HFILL }
+    }, 
     { &hf_pn_io_mau_type,
       { "MAUType", "pn_io.mau_type",
         FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0,
@@ -19018,13 +19362,17 @@ proto_register_pn_io (void)
         &ett_pn_io_pe_measurement_value,
         &ett_pn_io_pe_operational_mode,
         &ett_pn_io_neighbor,
-        &ett_pn_io_tsn_domain_vid_config,
-        &ett_pn_io_tsn_domain_port_config,
-        &ett_pn_io_tsn_domain_queue_config,
-        &ett_pn_io_tsn_domain_port_ingress_rate_limiter,
-        &ett_pn_io_tsn_domain_queue_rate_limiter,
+		&ett_pn_io_nme_domain_vid_config,
+        &ett_pn_io_nme_name_address,
+        &ett_pn_io_traffic_class_translate_entry,
+        &ett_pn_io_cim_station_port_status,
+        &ett_pn_io_cim_forwarding_delay_entry,
+        &ett_pn_io_supported_burst_size,
+        &ett_pn_io_nme_domain_queue_config,
+        &ett_pn_io_port_ingress_rate_limiter,
+        &ett_pn_io_port_queue_egress_rate_limiter,
         &ett_pn_io_time_sync_properties,
-        &ett_pn_io_tsn_domain_port_id,
+		&ett_pn_io_cim_station_element_id,
         &ett_pn_io_snmp_command_name
     };
 
