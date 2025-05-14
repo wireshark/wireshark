@@ -234,9 +234,38 @@ typedef struct {
 } pcapng_t;
 
 /*
+ * XXX - TEMPORARY hack to allow current "built in" block types to successfully
+ * register
+ */
+static
+bool pcapng_block_approved(unsigned block_type)
+{
+    switch(block_type)
+    {
+    case BLOCK_TYPE_IRIG_TS:
+    case BLOCK_TYPE_ARINC_429:
+    case BLOCK_TYPE_HP_MIB:
+    case BLOCK_TYPE_HP_CEB:
+        /*
+         * Yes, and we don't already handle it.  Allow a plugin to
+         * handle it.
+         *
+         * (But why not submit the plugin source to Wireshark?)
+         */
+        return true;
+    }
+
+    if ((block_type >= BLOCK_TYPE_SYSDIG_MI) && (block_type <= BLOCK_TYPE_SYSDIG_EVF_V2_LARGE))
+        return true;
+
+    return false;
+}
+
+/*
  * Table for plugins to handle particular block types.
  *
- * A handler has a "read" routine and a "write" routine.
+ * A handler has a type, whether its internally handled and "read"
+ * and "write" routines.
  *
  * A "read" routine returns a block as a libwiretap record, filling
  * in the wtap_rec structure with the appropriate record type and
@@ -245,23 +274,27 @@ typedef struct {
  *
  * A "write" routine takes a libwiretap record and out a block.
  */
-typedef struct {
-    block_reader reader;
-    block_writer writer;
-} block_handler;
-
 static GHashTable *block_handlers;
 
 void
-register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
-                                   block_writer writer)
+register_pcapng_block_type_handler(pcapng_block_type_handler_t* handler)
 {
-    block_handler *handler;
+    if (handler == NULL) {
+        ws_warning("Attempt to register NULL plugin block type handler");
+        return;
+    }
+
+    /* Don't allow duplication of block types */
+    if (g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(handler->type)) != NULL) {
+        ws_warning("Attempt to register plugin for an existing block type 0x%08x not allowed",
+            handler->type);
+        return;
+    }
 
     /*
      * Is this a known block type?
      */
-    switch (block_type) {
+    switch (handler->type) {
 
     case BLOCK_TYPE_SHB:
     case BLOCK_TYPE_IDB:
@@ -273,26 +306,6 @@ register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
     case BLOCK_TYPE_DSB:
     case BLOCK_TYPE_CB_COPY:
     case BLOCK_TYPE_CB_NO_COPY:
-    case BLOCK_TYPE_SYSDIG_MI:
-    case BLOCK_TYPE_SYSDIG_PL_V1:
-    case BLOCK_TYPE_SYSDIG_FDL_V1:
-    case BLOCK_TYPE_SYSDIG_EVENT:
-    case BLOCK_TYPE_SYSDIG_IL_V1:
-    case BLOCK_TYPE_SYSDIG_UL_V1:
-    case BLOCK_TYPE_SYSDIG_PL_V2:
-    case BLOCK_TYPE_SYSDIG_EVF:
-    case BLOCK_TYPE_SYSDIG_PL_V3:
-    case BLOCK_TYPE_SYSDIG_PL_V4:
-    case BLOCK_TYPE_SYSDIG_PL_V5:
-    case BLOCK_TYPE_SYSDIG_PL_V6:
-    case BLOCK_TYPE_SYSDIG_PL_V7:
-    case BLOCK_TYPE_SYSDIG_PL_V8:
-    case BLOCK_TYPE_SYSDIG_PL_V9:
-    case BLOCK_TYPE_SYSDIG_EVENT_V2:
-    case BLOCK_TYPE_SYSDIG_EVF_V2:
-    case BLOCK_TYPE_SYSDIG_FDL_V2:
-    case BLOCK_TYPE_SYSDIG_IL_V2:
-    case BLOCK_TYPE_SYSDIG_UL_V2:
     case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
         /*
          * Yes; we already handle it, and don't allow a replacement to
@@ -301,45 +314,32 @@ register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
          * to the main Wireshark source).
          */
         ws_warning("Attempt to register plugin for block type 0x%08x not allowed",
-                     block_type);
+                     handler->type);
         return;
-
-    case BLOCK_TYPE_IRIG_TS:
-    case BLOCK_TYPE_ARINC_429:
-    case BLOCK_TYPE_HP_MIB:
-    case BLOCK_TYPE_HP_CEB:
-        /*
-         * Yes, and we don't already handle it.  Allow a plugin to
-         * handle it.
-         *
-         * (But why not submit the plugin source to Wireshark?)
-         */
-        break;
 
     default:
         /*
          * No; is it a local block type?
          */
-         if (!(block_type & 0x80000000)) {
-             /*
-              * No; don't allow a plugin to be registered for it, as
-              * the block type needs to be registered before it's used.
-              */
-            ws_warning("Attempt to register plugin for reserved block type 0x%08x not allowed",
-                         block_type);
-            return;
-         }
+        if (!(handler->type & 0x80000000)) {
+            if (!pcapng_block_approved(handler->type)) {
+                    /*
+                    * No; don't allow a plugin to be registered for it, as
+                    * the block type needs to be registered before it's used.
+                    */
+                ws_warning("Attempt to register plugin for reserved block type 0x%08x not allowed",
+                                handler->type);
+                return;
+            }
+        }
 
-         /*
-          * Yes; allow the registration.
-          */
-         break;
+        /*
+         * Yes; allow the registration.
+         */
+        break;
     }
 
-    handler = g_new(block_handler, 1);
-    handler->reader = reader;
-    handler->writer = writer;
-    g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
+    g_hash_table_insert(block_handlers, GUINT_TO_POINTER(handler->type),
                               handler);
 }
 
@@ -385,23 +385,6 @@ register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
  *     write the option gets an error.
  */
 
-/*
- * Block types indices in the table of tables of option handlers.
- *
- * Block types are not guaranteed to be sequential, so we map the
- * block types we support to a sequential set.  Furthermore, all
- * packet block types have the same set of options.
- */
-#define BT_INDEX_SHB        0
-#define BT_INDEX_IDB        1
-#define BT_INDEX_PBS        2  /* all packet blocks: PB/EPB/SPB */
-#define BT_INDEX_NRB        3
-#define BT_INDEX_ISB        4
-#define BT_INDEX_EVT        5
-#define BT_INDEX_DSB        6
-
-#define NUM_BT_INDICES      7
-
 typedef struct {
     option_parser parser;
     option_sizer sizer;
@@ -431,22 +414,6 @@ get_block_type_internal(unsigned block_type)
     case BLOCK_TYPE_NRB:
     case BLOCK_TYPE_DSB:
     case BLOCK_TYPE_ISB: /* XXX: ISBs should probably not be internal. */
-    case BLOCK_TYPE_SYSDIG_MI:
-    case BLOCK_TYPE_SYSDIG_PL_V1:
-    case BLOCK_TYPE_SYSDIG_FDL_V1:
-    case BLOCK_TYPE_SYSDIG_IL_V1:
-    case BLOCK_TYPE_SYSDIG_UL_V1:
-    case BLOCK_TYPE_SYSDIG_PL_V2:
-    case BLOCK_TYPE_SYSDIG_PL_V3:
-    case BLOCK_TYPE_SYSDIG_PL_V4:
-    case BLOCK_TYPE_SYSDIG_PL_V5:
-    case BLOCK_TYPE_SYSDIG_PL_V6:
-    case BLOCK_TYPE_SYSDIG_PL_V7:
-    case BLOCK_TYPE_SYSDIG_PL_V8:
-    case BLOCK_TYPE_SYSDIG_PL_V9:
-    case BLOCK_TYPE_SYSDIG_FDL_V2:
-    case BLOCK_TYPE_SYSDIG_IL_V2:
-    case BLOCK_TYPE_SYSDIG_UL_V2:
         return true;
 
     case BLOCK_TYPE_PB:
@@ -456,30 +423,20 @@ get_block_type_internal(unsigned block_type)
 
     case BLOCK_TYPE_CB_COPY:
     case BLOCK_TYPE_CB_NO_COPY:
-    case BLOCK_TYPE_SYSDIG_EVENT:
-    case BLOCK_TYPE_SYSDIG_EVENT_V2:
-    case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
     case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
         return false;
 
     default:
-#ifdef HAVE_PLUGINS
+        {
         /*
          * Do we have a handler for this block type?
          */
-        if (g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type)) != NULL) {
-                /* Yes. We don't know if the handler sets this block internal
-                 * or needs to return it to the pcap_read() caller without
-                 * reading it. Since this is called by pcap_open(), play it
-                 * safe and tell pcap_open() to stop processing blocks.
-                 * (XXX: Maybe the block type handler registration interface
-                 * should include some way of indicating whether blocks are
-                 * handled internally, which should hopefully be the same
-                 * for all blocks of a type.)
-                 */
-                return false;
+        pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type));
+        if (handler != NULL) {
+                return handler->internal;
         }
-#endif
+        }
+
         return true;
     }
     return false;
@@ -514,33 +471,17 @@ get_block_type_index(unsigned block_type, unsigned *bt_index)
             *bt_index = BT_INDEX_ISB;
             break;
 
-        case BLOCK_TYPE_SYSDIG_EVENT:
-        case BLOCK_TYPE_SYSDIG_EVENT_V2:
-        case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
-        case BLOCK_TYPE_SYSDIG_MI:
-        case BLOCK_TYPE_SYSDIG_PL_V1:
-        case BLOCK_TYPE_SYSDIG_FDL_V1:
-        case BLOCK_TYPE_SYSDIG_IL_V1:
-        case BLOCK_TYPE_SYSDIG_UL_V1:
-        case BLOCK_TYPE_SYSDIG_PL_V2:
-        case BLOCK_TYPE_SYSDIG_PL_V3:
-        case BLOCK_TYPE_SYSDIG_PL_V4:
-        case BLOCK_TYPE_SYSDIG_PL_V5:
-        case BLOCK_TYPE_SYSDIG_PL_V6:
-        case BLOCK_TYPE_SYSDIG_PL_V7:
-        case BLOCK_TYPE_SYSDIG_PL_V8:
-        case BLOCK_TYPE_SYSDIG_PL_V9:
-        case BLOCK_TYPE_SYSDIG_FDL_V2:
-        case BLOCK_TYPE_SYSDIG_IL_V2:
-        case BLOCK_TYPE_SYSDIG_UL_V2:
-            *bt_index = BT_INDEX_EVT;
-            break;
-
         case BLOCK_TYPE_DSB:
             *bt_index = BT_INDEX_DSB;
             break;
 
         default:
+            {
+            pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type));
+            if (handler != NULL) {
+                *bt_index = handler->bt_index;
+                break;
+            }
             /*
              * This is a block type we don't process; either we ignore it,
              * in which case the options don't get processed, or there's
@@ -550,6 +491,7 @@ get_block_type_index(unsigned block_type, unsigned *bt_index)
              * XXX - report an error?
              */
             return false;
+            }
     }
 
     return true;
@@ -843,7 +785,7 @@ pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
 }
 
 static bool
-pcapng_process_custom_option_common(section_info_t *section_info,
+pcapng_process_custom_option_common(const section_info_t *section_info,
                                     uint16_t option_length,
                              const uint8_t *option_content,
                              pcapng_opt_byte_order_e byte_order,
@@ -890,7 +832,7 @@ pcapng_process_custom_option_common(section_info_t *section_info,
 
 static bool
 pcapng_process_custom_string_option(wtapng_block_t *wblock,
-                                    section_info_t *section_info,
+                                    const section_info_t *section_info,
                                     uint16_t option_code,
                                     uint16_t option_length,
                                     const uint8_t *option_content,
@@ -3061,19 +3003,13 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 }
 
 static bool
-pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
-#ifdef HAVE_PLUGINS
-    const section_info_t *section_info,
-#else
-    const section_info_t *section_info _U_,
-#endif
+pcapng_read_unknown_block(wtap* wth, FILE_T fh,
+    pcapng_block_header_t *bh, section_info_t *section_info,
     wtapng_block_t *wblock,
     int *err, char **err_info)
 {
     uint32_t block_read;
-#ifdef HAVE_PLUGINS
-    block_handler *handler;
-#endif
+    pcapng_block_type_handler_t* handler;
 
     if (bh->block_total_length < MIN_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
@@ -3084,18 +3020,16 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 
     block_read = bh->block_total_length - MIN_BLOCK_SIZE;
 
-#ifdef HAVE_PLUGINS
     /*
      * Do we have a handler for this block type?
      */
-    if ((handler = (block_handler *)g_hash_table_lookup(block_handlers,
+    if ((handler = (pcapng_block_type_handler_t*)g_hash_table_lookup(block_handlers,
                                                         GUINT_TO_POINTER(bh->block_type))) != NULL) {
         /* Yes - call it to read this block type. */
-        if (!handler->reader(fh, block_read, section_info->byte_swapped, wblock,
+        if (!handler->reader(wth, fh, block_read, bh, section_info, wblock,
                              err, err_info))
             return false;
     } else
-#endif
     {
         /* No.  Skip over this unknown block. */
         if (!wtap_read_bytes(fh, NULL, block_read, err, err_info)) {
@@ -3304,37 +3238,9 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                 if (!pcapng_read_decryption_secrets_block(fh, &bh, section_info, wblock, err, err_info))
                     return false;
                 break;
-            case BLOCK_TYPE_SYSDIG_MI:
-            case BLOCK_TYPE_SYSDIG_PL_V1:
-            case BLOCK_TYPE_SYSDIG_FDL_V1:
-            case BLOCK_TYPE_SYSDIG_IL_V1:
-            case BLOCK_TYPE_SYSDIG_UL_V1:
-            case BLOCK_TYPE_SYSDIG_PL_V2:
-            case BLOCK_TYPE_SYSDIG_PL_V3:
-            case BLOCK_TYPE_SYSDIG_PL_V4:
-            case BLOCK_TYPE_SYSDIG_PL_V5:
-            case BLOCK_TYPE_SYSDIG_PL_V6:
-            case BLOCK_TYPE_SYSDIG_PL_V7:
-            case BLOCK_TYPE_SYSDIG_PL_V8:
-            case BLOCK_TYPE_SYSDIG_PL_V9:
-            case BLOCK_TYPE_SYSDIG_FDL_V2:
-            case BLOCK_TYPE_SYSDIG_IL_V2:
-            case BLOCK_TYPE_SYSDIG_UL_V2:
-                if (!pcapng_read_meta_event_block(fh, &bh, wblock, err, err_info))
-                    return false;
-                break;
             case(BLOCK_TYPE_CB_COPY):
             case(BLOCK_TYPE_CB_NO_COPY):
                 if (!pcapng_read_custom_block(fh, &bh, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_SYSDIG_EVENT):
-            case(BLOCK_TYPE_SYSDIG_EVENT_V2):
-            case(BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE):
-            case(BLOCK_TYPE_SYSDIG_EVF):
-            case(BLOCK_TYPE_SYSDIG_EVF_V2):
-            case(BLOCK_TYPE_SYSDIG_EVF_V2_LARGE):
-                if (!pcapng_read_sysdig_event_block(wth, fh, &bh, section_info, wblock, err, err_info))
                     return false;
                 break;
             case(BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT):
@@ -3342,11 +3248,19 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return false;
                 break;
             default:
+            {
+                pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(bh.block_type));
+                if (handler != NULL) {
+                    if (!handler->reader(wth, fh, bh.block_total_length - MIN_BLOCK_SIZE, &bh, section_info, wblock, err, err_info))
+                        return false;
+                    break;
+                }
                 ws_debug("Unknown block_type: 0x%08x (block ignored), block total length %d",
                          bh.block_type, bh.block_total_length);
-                if (!pcapng_read_unknown_block(fh, &bh, section_info, wblock, err, err_info))
+                if (!pcapng_read_unknown_block(wth, fh, &bh, section_info, wblock, err, err_info))
                     return false;
                 break;
+            }
         }
     }
 
@@ -3548,32 +3462,22 @@ pcapng_process_internal_block(wtap *wth, pcapng_t *pcapng, section_info_t *curre
             wtap_block_unref(wblock->block);
             break;
 
-        case BLOCK_TYPE_SYSDIG_MI:
-        case BLOCK_TYPE_SYSDIG_PL_V1:
-        case BLOCK_TYPE_SYSDIG_FDL_V1:
-        case BLOCK_TYPE_SYSDIG_IL_V1:
-        case BLOCK_TYPE_SYSDIG_UL_V1:
-        case BLOCK_TYPE_SYSDIG_PL_V2:
-        case BLOCK_TYPE_SYSDIG_PL_V3:
-        case BLOCK_TYPE_SYSDIG_PL_V4:
-        case BLOCK_TYPE_SYSDIG_PL_V5:
-        case BLOCK_TYPE_SYSDIG_PL_V6:
-        case BLOCK_TYPE_SYSDIG_PL_V7:
-        case BLOCK_TYPE_SYSDIG_PL_V8:
-        case BLOCK_TYPE_SYSDIG_PL_V9:
-        case BLOCK_TYPE_SYSDIG_FDL_V2:
-        case BLOCK_TYPE_SYSDIG_IL_V2:
-        case BLOCK_TYPE_SYSDIG_UL_V2:
-            /* Meta events */
-            ws_debug("block type Sysdig meta event");
-            pcapng_process_meta_event(wth, wblock);
-            /* Do not free wblock->block, it is consumed by pcapng_process_sysdig_meb */
-            break;
-
         default:
+        {
+            pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(wblock->type));
+            if (handler != NULL) {
+                if (handler->processor == NULL) {
+                    /* XXX - Is it okay to not have a processor? */
+                    break;
+                }
+                handler->processor(wth, wblock);
+                break;
+            }
+
             /* XXX - improve handling of "unknown" blocks */
             ws_debug("Unknown block type 0x%08x", wblock->type);
             break;
+        }
     }
 }
 
@@ -6350,9 +6254,7 @@ static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
 static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
                         int *err, char **err_info)
 {
-#ifdef HAVE_PLUGINS
-    block_handler *handler;
-#endif
+    pcapng_block_type_handler_t* handler;
 
     if (!pcapng_write_internal_blocks(wdh, err)) {
         return false;
@@ -6384,17 +6286,15 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
         case REC_TYPE_FT_SPECIFIC_EVENT:
         case REC_TYPE_FT_SPECIFIC_REPORT:
-#ifdef HAVE_PLUGINS
             /*
              * Do we have a handler for this block type?
              */
-            if ((handler = (block_handler *)g_hash_table_lookup(block_handlers,
+            if ((handler = (pcapng_block_type_handler_t*)g_hash_table_lookup(block_handlers,
                                                                 GUINT_TO_POINTER(rec->rec_header.ft_specific_header.record_type))) != NULL) {
                 /* Yes. Call it to write out this record. */
                 if (!handler->writer(wdh, rec, err, err_info))
                     return false;
             } else
-#endif
             {
                 /* No. */
                 *err = WTAP_ERR_UNWRITABLE_REC_TYPE;

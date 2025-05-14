@@ -10,6 +10,7 @@
 #define __PCAP_MODULE_H__
 
 #include "ws_symbol_export.h"
+#include "pcapng.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,20 +96,48 @@ typedef struct section_info_t {
 } section_info_t;
 
 /*
+ * Block types indices in the table of tables of option handlers.
+ *
+ * Block types are not guaranteed to be sequential, so we map the
+ * block types we support to a sequential set.  Furthermore, all
+ * packet block types have the same set of options.
+ */
+#define BT_INDEX_SHB        0
+#define BT_INDEX_IDB        1
+#define BT_INDEX_PBS        2  /* all packet blocks: PB/EPB/SPB */
+#define BT_INDEX_NRB        3
+#define BT_INDEX_ISB        4
+#define BT_INDEX_EVT        5
+#define BT_INDEX_DSB        6
+
+#define NUM_BT_INDICES      7
+
+/*
  * Reader and writer routines for pcapng block types.
  */
-typedef bool (*block_reader)(FILE_T fh, uint32_t block_read,
-                             bool byte_swapped, wtapng_block_t *wblock,
+typedef bool (*block_reader)(wtap* wth, FILE_T fh, uint32_t block_read,
+                             pcapng_block_header_t* bh, section_info_t* section_info,
+                             wtapng_block_t *wblock,
                              int *err, char **err_info);
 typedef bool (*block_writer)(wtap_dumper *wdh, const wtap_rec *rec,
                              int *err, char **err_info);
+typedef bool (*block_processor)(wtap* wth, wtapng_block_t* wblock);
+
+
+typedef struct pcapng_block_type_handler_t {
+    unsigned     type;           /* block_type as defined by pcapng */
+    block_reader reader;
+    block_writer writer;
+    block_processor processor;
+    bool         internal;       /* true if this block type shouldn't be returned from pcapng_read() */
+    unsigned     bt_index;       /* Block type index */
+} pcapng_block_type_handler_t;
 
 /*
  * Register a handler for a pcapng block type.
  */
 WS_DLL_PUBLIC
-void register_pcapng_block_type_handler(unsigned block_type, block_reader reader,
-                                        block_writer writer);
+void register_pcapng_block_type_handler(pcapng_block_type_handler_t* handler);
 
 /*
  * Handler routines for pcapng option type.

@@ -41,9 +41,9 @@ sysdig_has_nparams(unsigned block_type) {
  //   uint16_t Event type
  //   uint32_t Number of params (optional, sysdig_has_nparams)
 
-bool
-pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, pcapng_block_header_t* bh,
-    section_info_t* section_info,
+static bool
+pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_read _U_,
+    pcapng_block_header_t* bh, section_info_t* section_info,
     wtapng_block_t* wblock,
     int* err, char** err_info)
 {
@@ -294,17 +294,24 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
 }
 
 /* Process a Sysdig meta event block that we have just read. */
-void
+bool
 pcapng_process_meta_event(wtap* wth, wtapng_block_t* wblock)
 {
+    ws_debug("block type Sysdig meta event");
+
     // XXX add wtapng_process_meta_event(wth, wblock->block);
 
     /* Store meta event such that it can be saved by the dumper. */
     g_array_append_val(wth->meta_events, wblock->block);
+
+    /* Do not free wblock->block, it is consumed by pcapng_process_sysdig_meb */
+
+    return true;
 }
 
-bool
-pcapng_read_meta_event_block(FILE_T fh, pcapng_block_header_t* bh,
+static bool
+pcapng_read_meta_event_block(wtap* wth _U_, FILE_T fh, uint32_t block_read _U_,
+    pcapng_block_header_t* bh, section_info_t* section_info _U_,
     wtapng_block_t* wblock,
     int* err, char** err_info)
 {
@@ -354,8 +361,53 @@ pcapng_read_meta_event_block(FILE_T fh, pcapng_block_header_t* bh,
 
 void register_sysdig(void)
 {
-    /* Nothing to register, yet, because there isn't a way to
-       register things, yet. */
+    static pcapng_block_type_handler_t MI = { BLOCK_TYPE_SYSDIG_MI, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V1 = { BLOCK_TYPE_SYSDIG_PL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t FDL_V1 = { BLOCK_TYPE_SYSDIG_FDL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t EVENT = { BLOCK_TYPE_SYSDIG_EVENT, pcapng_read_sysdig_event_block, NULL, NULL, false, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t IL_V1 = { BLOCK_TYPE_SYSDIG_IL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t UL_V1 = { BLOCK_TYPE_SYSDIG_UL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V2 = { BLOCK_TYPE_SYSDIG_PL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t EVF = { BLOCK_TYPE_SYSDIG_EVF, pcapng_read_sysdig_event_block, NULL, NULL, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V3 = { BLOCK_TYPE_SYSDIG_PL_V3, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V4 = { BLOCK_TYPE_SYSDIG_PL_V4, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V5 = { BLOCK_TYPE_SYSDIG_PL_V5, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V6 = { BLOCK_TYPE_SYSDIG_PL_V6, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V7 = { BLOCK_TYPE_SYSDIG_PL_V7, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V8 = { BLOCK_TYPE_SYSDIG_PL_V8, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t PL_V9 = { BLOCK_TYPE_SYSDIG_PL_V9, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t EVENT_V2 = { BLOCK_TYPE_SYSDIG_EVENT_V2, pcapng_read_sysdig_event_block, NULL, NULL, false, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t EVENT_V2_LARGE = { BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, pcapng_read_sysdig_event_block, NULL, NULL, false, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t EVF_V2 = { BLOCK_TYPE_SYSDIG_EVF_V2, pcapng_read_sysdig_event_block, NULL, NULL, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t EVF_V2_LARGE = { BLOCK_TYPE_SYSDIG_EVF_V2_LARGE, pcapng_read_sysdig_event_block, NULL, NULL, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t FDL_V2 = { BLOCK_TYPE_SYSDIG_FDL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t IL_V2 = { BLOCK_TYPE_SYSDIG_IL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_handler_t UL_V2 = { BLOCK_TYPE_SYSDIG_UL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+
+
+    register_pcapng_block_type_handler(&MI);
+    register_pcapng_block_type_handler(&PL_V1);
+    register_pcapng_block_type_handler(&FDL_V1);
+    register_pcapng_block_type_handler(&EVENT);
+    register_pcapng_block_type_handler(&IL_V1);
+    register_pcapng_block_type_handler(&UL_V1);
+    register_pcapng_block_type_handler(&PL_V2);
+    register_pcapng_block_type_handler(&EVF);
+    register_pcapng_block_type_handler(&PL_V3);
+    register_pcapng_block_type_handler(&PL_V4);
+    register_pcapng_block_type_handler(&PL_V5);
+    register_pcapng_block_type_handler(&PL_V6);
+    register_pcapng_block_type_handler(&PL_V7);
+    register_pcapng_block_type_handler(&PL_V8);
+    register_pcapng_block_type_handler(&PL_V9);
+    register_pcapng_block_type_handler(&EVENT_V2);
+    register_pcapng_block_type_handler(&EVENT_V2_LARGE);
+    register_pcapng_block_type_handler(&EVF_V2);
+    register_pcapng_block_type_handler(&EVF_V2_LARGE);
+    register_pcapng_block_type_handler(&FDL_V2);
+    register_pcapng_block_type_handler(&IL_V2);
+    register_pcapng_block_type_handler(&UL_V2);
+
 }
 
 /*
