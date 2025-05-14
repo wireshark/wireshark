@@ -28,7 +28,6 @@ jobs:
           -DENABLE_CHECKHF_CONFLICT=ON
           -DENABLE_GNUTLS=OFF
           -DENABLE_KERBEROS=OFF
-          -DENABLE_LIBXML2=OFF
           -DENABLE_ILBC=OFF
           -DENABLE_LUA=OFF
           -DENABLE_LZ4=OFF

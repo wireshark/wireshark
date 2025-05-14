@@ -956,6 +956,7 @@ This guide assumes `paru` is being used.
   paru -S mingw-w64-cmake
   paru -S mingw-w64-glib2
   paru -S mingw-w64-libgcrypt
+  paru -S mingw-w64-libxml2
   paru -S mingw-w64-c-ares
   paru -S mingw-w64-speexdsp
   paru -S mingw-w64-libpcap
@@ -971,7 +972,6 @@ This guide assumes `paru` is being used.
   paru -S mingw-w64-snappy
   paru -S mingw-w64-opus
   paru -S mingw-w64-opencore-amr
-  paru -S mingw-w64-libxml2
   paru -S mingw-w64-libnghttp2
   paru -S mingw-w64-libssh
   paru -S mingw-w64-minizip

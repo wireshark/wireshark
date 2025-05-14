@@ -1349,6 +1349,8 @@ endif ()
 find_package(LEX REQUIRED)
 reset_find_package(PCRE2 PCRE2_DEBUG_LIBRARY)
 find_package(PCRE2 REQUIRED)
+reset_find_package(LibXml2)
+find_package(LibXml2 "2.9.7" REQUIRED)
 
 if (NOT WIN32)
 	find_package(Gettext)
@@ -1566,24 +1568,6 @@ ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 if (BUILD_stratoshark)
 	# libsinsp+libscap, required for falco-bridge
 	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP "0.17.1")
-endif()
-
-# CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry
-# storing the find_library result. Transfer it to the new cache variable such
-# that reset_find_package can detect and clear outdated cache variables.
-if(DEFINED LIBXML2_LIBRARIES AND NOT DEFINED LIBXML2_LIBRARY)
-	set(LIBXML2_LIBRARY ${LIBXML2_LIBRARIES} CACHE FILEPATH "")
-endif()
-# Call reset_find_package explicitly since variables are in upper case.
-reset_find_package(LIBXML2)
-ws_find_package(LibXml2 ENABLE_LIBXML2 HAVE_LIBXML2)
-if(NOT LIBXML2_FOUND)
-	# CMake 3.9 and below used LIBXML2_LIBRARIES as the name of
-	# the cache entry storing the find_library result.
-	# Current CMake (3.13) and below sets LIBXML2_LIBRARIES and LIBXML2_INCLUDE_DIRS
-	# to a non-empty value, be sure to clear it when not found.
-	set(LIBXML2_LIBRARIES "")
-	set(LIBXML2_INCLUDE_DIRS "")
 endif()
 
 # Capabilities to run dumpcap as non-root user.
@@ -2428,14 +2412,12 @@ if(USE_REPOSITORY)
 	if (OPUS_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${OPUS_DLL_DIR}/${OPUS_DLL}")
 	endif(OPUS_FOUND)
-	if (LIBXML2_FOUND)
-		foreach( _dll ${LIBXML2_DLLS} )
-			list (APPEND THIRD_PARTY_DLLS "${LIBXML2_DLL_DIR}/${_dll}")
-		endforeach(_dll)
-		foreach( _pdb ${LIBXML2_PDBS} )
-			list (APPEND THIRD_PARTY_PDBS "${LIBXML2_DLL_DIR}/${_pdb}")
-		endforeach(_pdb)
-	endif(LIBXML2_FOUND)
+	foreach( _dll ${LIBXML2_DLLS} )
+		list (APPEND THIRD_PARTY_DLLS "${LIBXML2_DLL_DIR}/${_dll}")
+	endforeach(_dll)
+	foreach( _pdb ${LIBXML2_PDBS} )
+		list (APPEND THIRD_PARTY_PDBS "${LIBXML2_DLL_DIR}/${_pdb}")
+	endforeach(_pdb)
 	if (SMI_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${SMI_DLL_DIR}/${SMI_DLL}")
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
@@ -3975,9 +3957,6 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if (OPUS_FOUND)
 		list(APPEND _rpmbuild_with_args --with opus)
-	endif()
-	if (LIBXML2_FOUND)
-		list(APPEND _rpmbuild_with_args --with libxml2)
 	endif()
 	if (NGHTTP2_FOUND)
 		list(APPEND _rpmbuild_with_args --with nghttp2)

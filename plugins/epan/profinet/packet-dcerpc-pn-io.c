@@ -71,13 +71,11 @@
 #include <wsutil/file_util.h>
 #include <epan/prefs.h>
 
-#ifdef HAVE_LIBXML2
 #include <wsutil/strtoi.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-#endif
 
 #include "packet-pn.h"
 
@@ -4307,7 +4305,6 @@ pnio_gsd_device_equal(const void *key1, const void *key2)
     return (a->vendor_id == b->vendor_id) && (a->device_id == b->device_id);
 }
 
-#ifdef HAVE_LIBXML2
 static wmem_map_t *
 pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx)
 {
@@ -4535,7 +4532,6 @@ pnio_load_gsd_device_profile(xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx,
     value->modules = pnio_load_gsd_device_modules(deviceNode, xpathCtx);
     value->submodules = pnio_load_gsd_device_submodules(deviceNode, xpathCtx);
 }
-#endif /* HAVE_LIBXML2 */
 
 static void
 pnio_load_gsd_files(void)
@@ -4547,7 +4543,6 @@ pnio_load_gsd_files(void)
         wmem_free_all(pnio_pref_scope);
     }
 
-#ifdef HAVE_LIBXML2
     char    *diropen = NULL;  /* saves the final networkpath to open for GSD-files */
     GDir    *dir;
     const char *filename;    /* saves the found GSD-file name */
@@ -4611,7 +4606,6 @@ pnio_load_gsd_files(void)
 
         g_dir_close(dir);
     }
-#endif /* HAVE_LIBXML2 */
 }
 typedef struct {
     address* device;
@@ -22044,11 +22038,9 @@ proto_register_pn_io (void)
         "Folder containing GSD files",     /* Title */
         "Place GSD files in this folder.", /* Description */
         &pnio_ps_networkpath);             /* Variable in which to save the GSD file folder path */
-#ifndef HAVE_LIBXML2
     prefs_register_static_text_preference(pnio_module, "pnio_no_libxml2",
         "This version of Wireshark was built without support for reading GSDML files.",
         "This version of Wireshark was built without libxml2 and does not support reading GSDML files.");
-#endif
     prefs_register_filename_preference(pnio_module, "pnio_configpath",
         "Config file for manual extraction",
         "Choose a config XML file",

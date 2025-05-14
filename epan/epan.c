@@ -100,10 +100,8 @@
 #include <brotli/decode.h>
 #endif
 
-#ifdef HAVE_LIBXML2
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
-#endif
 
 #ifndef _WIN32
 #include <signal.h>
@@ -325,10 +323,9 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 	}
 #endif
 #endif
-#ifdef HAVE_LIBXML2
+
 	xmlInitParser();
 	LIBXML_TEST_VERSION;
-#endif
 
 #ifndef _WIN32
 	// We might receive a SIGPIPE due to maxmind_db.
@@ -458,9 +455,9 @@ epan_cleanup(void)
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_deinit();
 #endif
-#ifdef HAVE_LIBXML2
+
 	xmlCleanupParser();
-#endif
+
 	except_deinit();
 	addr_resolv_cleanup();
 
@@ -917,11 +914,7 @@ epan_gather_compile_info(feature_list l)
 #endif /* HAVE_SNAPPY */
 
 	/* libxml2 */
-#ifdef HAVE_LIBXML2
 	with_feature(l, "libxml2 %s", LIBXML_DOTTED_VERSION);
-#else
-	without_feature(l, "libxml2");
-#endif /* HAVE_LIBXML2 */
 
 	/* libsmi */
 #ifdef HAVE_LIBSMI

@@ -76,11 +76,7 @@
 #include <wsutil/wslog.h>
 #include <string.h>
 
-#ifdef HAVE_LIBXML2
-	#define IF_LIBXML(x) x
-#else
-	#define IF_LIBXML(x)
-#endif
+#define IF_LIBXML(x) x
 
 void proto_register_epl(void);
 void proto_reg_handoff_epl(void);
@@ -5238,14 +5234,14 @@ static struct profile *profile_load(wmem_allocator_t *allocator, const char *pat
 		if (!epl_eds_load(profile, path))
 			profile_del(profile);
 	}
-#if HAVE_LIBXML2
+
 	else if (g_str_has_suffix(path, ".xdd") || g_str_has_suffix(path, ".xdc"))
 	{
 		profile = profile_new(allocator);
 		if (!epl_xdd_load(profile, path))
 			profile_del(profile);
 	}
-#endif
+
 	if (!profile)
 		report_failure("Profile '%s' couldn't be parsed", path);
 
@@ -6384,10 +6380,8 @@ proto_register_epl(void)
 	prefs_register_bool_preference(epl_module, "use_sdo_mappings", "Use SDO ObjectMappings for PDO dissection",
 		"Partition PDOs according to ObjectMappings sent via SDO", &use_sdo_mappings);
 
-#ifdef HAVE_LIBXML2
 	prefs_register_bool_preference(epl_module, "use_xdc_mappings", "Use XDC ObjectMappings for PDO dissection",
 		"If you want to parse the defaultValue (XDD) and actualValue (XDC) attributes for ObjectMappings in order to detect default PDO mappings, which may not be sent over SDO ", &use_xdc_mappings);
-#endif
 
 	prefs_register_bool_preference(epl_module, "interpret_untyped_as_le", "Interpret short (<64bit) data as little endian integers",
 		"If a data field has untyped data under 8 byte long, interpret it as unsigned little endian integer and show decimal and hexadecimal representation thereof. Otherwise use stock data dissector", &interpret_untyped_as_le);
@@ -6517,13 +6511,8 @@ epl_profile_uat_fld_fileopen_check_cb(void *record _U_, const char *path, unsign
 
 	if (g_str_has_suffix(path, ".xdd") || g_str_has_suffix(path, ".xdc"))
 	{
-#ifdef HAVE_LIBXML2
 		*err = NULL;
 		return true;
-#else
-		*err = ws_strdup_printf("*.xdd and *.xdc support not compiled in. %s", supported);
-		return false;
-#endif
 	}
 
 	*err = g_strdup(supported);

@@ -106,6 +106,8 @@ BASIC_LIST="
 	libpcap-dev
 	libpcre2-dev
 	libspeexdsp-dev
+	libxml2-dev
+	libxml2-utils
 	make
 	python3
 	"
@@ -193,7 +195,6 @@ ADDITIONAL_LIST="
 	libsnappy-dev
 	libspandsp-dev
 	libsystemd-dev
-	libxml2-dev
 	libzstd-dev
 	ninja-build
 	perl
@@ -214,7 +215,6 @@ DEBDEPS_LIST="
 	dh-python
 	docbook-xml
 	docbook-xsl
-	libxml2-utils
 	lintian
 	lsb-release
 	po-debconf

@@ -194,6 +194,8 @@ for Arm64 and Intel. wsbuglink:17294[]
   current OS default on Windows and macOS, if Wireshark is built with
   Qt 6.8 or later as the official installers do. wsbuglink:19328[]
 
+* LibXml2 is now a required dependency.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

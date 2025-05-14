@@ -24,7 +24,6 @@
 %bcond_with	spandsp
 %bcond_with	bcg729
 %bcond_with	amrnb
-%bcond_with	libxml2
 %bcond_with	nghttp2
 %bcond_with	nghttp3
 %bcond_with	sdjournal
@@ -161,9 +160,7 @@ BuildRequires:	speexdsp-devel
 BuildRequires:	(lua-devel or lua53-devel or compat-lua-devel or lua52-devel or lua51-devel)
 %endif
 
-%if %{with libxml2}
 BuildRequires:	libxml2-devel
-%endif
 
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
@@ -426,11 +423,6 @@ This package contains the Stratoshark GUI and desktop integration files.
   -DENABLE_AMRNB=ON \
 %else
   -DENABLE_AMRNB=OFF \
-%endif
-%if %{with libxml2}
-  -DENABLE_LIBXML2=ON \
-%else
-  -DENABLE_LIBXML2=OFF \
 %endif
 %if %{with nghttp2}
   -DENABLE_NGHTTP2=ON \

@@ -57,6 +57,7 @@ BASIC_LIST="
 	g++
 	glib-dev
 	libgcrypt-dev
+	libxml2-dev
 	flex
 	tiff-dev
 	c-ares-dev
@@ -78,7 +79,6 @@ ADDITIONAL_LIST="
 	libcap-dev
 	libcap-setcap
 	libpcap-dev
-	libxml2-dev
 	libmaxminddb-dev
 	krb5-dev
 	lz4-dev

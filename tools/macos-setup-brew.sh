@@ -104,6 +104,7 @@ REQUIRED_LIST=(
     c-ares
     glib
     libgcrypt
+    libxml2
     pcre2
     qt6
     speexdsp
@@ -119,7 +120,6 @@ OPTIONAL_LIST=(
     libnghttp3
     libsmi
     libssh
-    libxml2
     lua
     lz4
     minizip

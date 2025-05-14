@@ -24,11 +24,9 @@
 #include <wsutil/report_message.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/strtoi.h>
-#ifdef HAVE_LIBXML2
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
-#endif
 #include "file_wrappers.h"
 #include "wtap-int.h"
 
@@ -2266,7 +2264,6 @@ static ttl_result_t ttl_read_entry(wtap* wth, wtap_rec* rec, int* err, char** er
 
 }
 
-#ifdef HAVE_LIBXML2
 static bool
 ttl_xml_node_get_number(xmlNodePtr node, xmlXPathContextPtr ctx, double *ret) {
     xmlXPathObjectPtr result;
@@ -2383,7 +2380,6 @@ ttl_process_xml_config(ttl_t* ttl, const char* text, int size) {
     xmlFreeDoc(doc);
     return true;
 }
-#endif  /* HAVE_LIBXML2 */
 
 /* Maximum supported line length of preference files */
 #define MAX_LINELEN     1024
@@ -2717,7 +2713,6 @@ ttl_open(wtap* wth, int* err, char** err_info) {
                 return WTAP_OPEN_ERROR;
             }
             offset += TTL_LOGFILE_INFO_SIZE;
-#ifdef HAVE_LIBXML2
             unsigned int xml_len = header.header_size - offset;
             if (xml_len != 0) {
                 unsigned char* xml = g_try_malloc(xml_len);
@@ -2738,7 +2733,6 @@ ttl_open(wtap* wth, int* err, char** err_info) {
                 g_free(xml);
                 offset += xml_len;
             }
-#endif  /* HAVE_LIBXML2 */
         }
     }
 

@@ -81,6 +81,7 @@ BASIC_LIST="
 	glib2-devel
 	libgcrypt-devel
 	libpcap-devel
+	libxml2-devel
 	pcre2-devel
 	python3
 	"
@@ -89,7 +90,6 @@ ADDITIONAL_LIST="
 	krb5-devel
 	libcap-devel
 	libssh-devel
-	libxml2-devel
 	lz4
 	perl
 	perl-Parse-Yapp
