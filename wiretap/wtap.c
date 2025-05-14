@@ -1708,7 +1708,7 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
  * new record.
  */
 static void
-wtap_init_rec(wtap *wth, wtap_rec *rec)
+wtap_reset_rec(wtap *wth, wtap_rec *rec)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -1743,9 +1743,9 @@ bool
 wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 {
 	/*
-	 * Initialize the record to default values.
+	 * Reset the record to default values.
 	 */
-	wtap_init_rec(wth, rec);
+	wtap_reset_rec(wth, rec);
 
 	*err = 0;
 	*err_info = NULL;
@@ -1959,9 +1959,9 @@ wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info)
 {
 	/*
-	 * Initialize the record to default values.
+	 * Reset the record to default values.
 	 */
-	wtap_init_rec(wth, rec);
+	wtap_reset_rec(wth, rec);
 
 	*err = 0;
 	*err_info = NULL;
