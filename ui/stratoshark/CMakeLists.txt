@@ -144,7 +144,6 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/about_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/accordion_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/address_editor_frame.h
-	${CMAKE_SOURCE_DIR}/ui/qt/byte_view_tab.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_comment_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_properties_dialog.h
@@ -159,6 +158,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/conversation_colorize_action.h
 	${CMAKE_SOURCE_DIR}/ui/qt/conversation_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/conversation_hash_tables_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/data_source_tab.h
 	${CMAKE_SOURCE_DIR}/ui/qt/decode_as_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/display_filter_expression_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/dissector_tables_dialog.h
@@ -381,7 +381,6 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/about_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/accordion_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/address_editor_frame.cpp
-	${CMAKE_SOURCE_DIR}/ui/qt/byte_view_tab.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_comment_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_file_properties_dialog.cpp
@@ -396,6 +395,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/conversation_colorize_action.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/conversation_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/conversation_hash_tables_dialog.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/data_source_tab.cpp
 	# XXX Required by packet list
 	${CMAKE_SOURCE_DIR}/ui/qt/decode_as_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/display_filter_expression_dialog.cpp

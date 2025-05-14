@@ -47,7 +47,7 @@ DIAG_ON(frame-larger-than=)
 #include "ui/util.h"
 #include "ui/preference_utils.h"
 
-#include "byte_view_tab.h"
+#include "data_source_tab.h"
 #ifdef HAVE_LIBPCAP
 #include "capture_options_dialog.h"
 #endif
@@ -560,7 +560,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(mainApp, &WiresharkApplication::captureActive,
             this, &WiresharkMainWindow::captureActive);
 
-    byte_view_tab_ = new ByteViewTab(&master_split_);
+    data_source_tab_ = new DataSourceTab(&master_split_);
 
     // Packet list and proto tree must exist before these are called.
     setMenusForSelectedPacket();
@@ -2147,7 +2147,7 @@ void WiresharkMainWindow::initShowHideMainWidgets()
     shmw_actions[main_ui_->actionViewStatusBar] = main_ui_->statusBar;
     shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
-    shmw_actions[main_ui_->actionViewPacketBytes] = byte_view_tab_;
+    shmw_actions[main_ui_->actionViewPacketBytes] = data_source_tab_;
     shmw_actions[main_ui_->actionViewPacketDiagram] = packet_diagram_;
 
     foreach(QAction *shmwa, shmw_actions.keys()) {

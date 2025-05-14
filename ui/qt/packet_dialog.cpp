@@ -20,7 +20,7 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "byte_view_tab.h"
+#include "data_source_tab.h"
 #include "proto_tree.h"
 #include "main_application.h"
 
@@ -37,7 +37,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     WiresharkDialog(parent, cf),
     ui(new Ui::PacketDialog),
     proto_tree_(NULL),
-    byte_view_tab_(NULL)
+    data_source_tab_(NULL)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
@@ -73,9 +73,9 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     // dissection context.
     proto_tree_->setRootNode(edt_.tree);
 
-    byte_view_tab_ = new ByteViewTab(ui->packetSplitter, &edt_);
-    byte_view_tab_->setCaptureFile(cap_file_.capFile());
-    byte_view_tab_->selectedFrameChanged(QList<int>() << 0);
+    data_source_tab_ = new DataSourceTab(ui->packetSplitter, &edt_);
+    data_source_tab_->setCaptureFile(cap_file_.capFile());
+    data_source_tab_->selectedFrameChanged(QList<int>() << 0);
 
     // We have to load the splitter state after adding the proto tree
     // and byte view.
@@ -127,7 +127,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     Qt::CheckState state = Qt::Checked;
     if (!prefs.gui_packet_details_show_byteview) {
         state = Qt::Unchecked;
-        byte_view_tab_->setVisible(false);
+        data_source_tab_->setVisible(false);
     }
     ui->chkShowByteView->setCheckState(state);
     ui->layoutComboBox->setEnabled(state);
@@ -135,14 +135,14 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
 
-    connect(byte_view_tab_, SIGNAL(fieldSelected(FieldInformation *)),
+    connect(data_source_tab_, SIGNAL(fieldSelected(FieldInformation *)),
             proto_tree_, SLOT(selectedFieldChanged(FieldInformation *)));
     connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
-            byte_view_tab_, SLOT(selectedFieldChanged(FieldInformation *)));
+            data_source_tab_, SLOT(selectedFieldChanged(FieldInformation *)));
 
-    connect(byte_view_tab_, SIGNAL(fieldHighlight(FieldInformation *)),
+    connect(data_source_tab_, SIGNAL(fieldHighlight(FieldInformation *)),
             this, SLOT(setHintText(FieldInformation *)));
-    connect(byte_view_tab_, &ByteViewTab::fieldSelected,
+    connect(data_source_tab_, &DataSourceTab::fieldSelected,
             this, &PacketDialog::setHintTextSelected);
     connect(proto_tree_, &ProtoTree::fieldSelected,
             this, &PacketDialog::setHintTextSelected);
@@ -177,7 +177,7 @@ void PacketDialog::captureFileClosing()
             .arg(cap_file_.fileName())
             .arg(col_info_);
     ui->hintLabel->setText(closed_title);
-    byte_view_tab_->captureFileClosing();
+    data_source_tab_->captureFileClosing();
     WiresharkDialog::captureFileClosing();
 }
 
@@ -257,7 +257,7 @@ void PacketDialog::viewVisibilityStateChanged(int state)
 #endif
 {
     // Qt::PartiallyChecked is not possible
-    byte_view_tab_->setVisible(state == Qt::Checked);
+    data_source_tab_->setVisible(state == Qt::Checked);
     ui->layoutComboBox->setEnabled(state == Qt::Checked);
 
     prefs.gui_packet_details_show_byteview = (state == Qt::Checked ? true : false);

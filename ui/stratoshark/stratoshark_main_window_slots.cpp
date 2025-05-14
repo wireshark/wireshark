@@ -2389,7 +2389,7 @@ void StratosharkMainWindow::showHideMainWidgets(QAction *action)
     } else if (widget == proto_tree_) {
         recent.tree_view_show = show;
         main_ui_->actionViewPacketDetails->setChecked(show);
-    } else if (widget == byte_view_tab_) {
+    } else if (widget == data_source_tab_) {
         recent.byte_view_show = show;
         main_ui_->actionViewPacketBytes->setChecked(show);
     } else {

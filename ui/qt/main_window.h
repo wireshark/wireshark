@@ -29,7 +29,7 @@ class QMenu;
 class QSplitter;
 class QStackedWidget;
 
-class ByteViewTab;
+class DataSourceTab;
 class DisplayFilterCombo;
 class FieldInformation;
 class FunnelAction;
@@ -105,7 +105,7 @@ protected:
 
     PacketList *packet_list_;
     ProtoTree *proto_tree_;
-    ByteViewTab *byte_view_tab_;
+    DataSourceTab *data_source_tab_;
     PacketDiagram *packet_diagram_;
     DisplayFilterCombo *df_combo_box_;
     MainStatusBar *main_status_bar_;

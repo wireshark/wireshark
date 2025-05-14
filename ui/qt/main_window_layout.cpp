@@ -25,7 +25,7 @@
 #include <QStackedWidget>
 #include <QToolBar>
 
-#include <ui/qt/byte_view_tab.h>
+#include <ui/qt/data_source_tab.h>
 #include <ui/qt/packet_list.h>
 #include <ui/qt/packet_diagram.h>
 #include <ui/qt/proto_tree.h>
@@ -52,7 +52,7 @@ QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
         case layout_pane_content_pdetails:
             return proto_tree_;
         case layout_pane_content_pbytes:
-            return byte_view_tab_;
+            return data_source_tab_;
         case layout_pane_content_pdiagram:
             return packet_diagram_ ? packet_diagram_ : &empty_pane_;
         default:
@@ -87,7 +87,7 @@ void MainWindow::layoutPanes()
     bool frozen = packet_list_->freeze(); // Clears tree, byte view tabs, and diagram.
     packet_list_->setParent(main_stack_);
     proto_tree_->setParent(main_stack_);
-    byte_view_tab_->setParent(main_stack_);
+    data_source_tab_->setParent(main_stack_);
     if (packet_diagram_) {
         packet_diagram_->setParent(main_stack_);
     }
@@ -164,7 +164,7 @@ void MainWindow::layoutPanes()
     extra_split_.setVisible(ms_children.contains(&extra_split_));
     packet_list_->setVisible(ms_children.contains(packet_list_) && recent.packet_list_show);
     proto_tree_->setVisible(ms_children.contains(proto_tree_) && recent.tree_view_show);
-    byte_view_tab_->setVisible(ms_children.contains(byte_view_tab_) && recent.byte_view_show);
+    data_source_tab_->setVisible(ms_children.contains(data_source_tab_) && recent.byte_view_show);
     if (packet_diagram_) {
         packet_diagram_->setVisible(ms_children.contains(packet_diagram_) && recent.packet_diagram_show);
     }

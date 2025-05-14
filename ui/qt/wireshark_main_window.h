@@ -71,7 +71,7 @@
 #include "tlskeylog_launcher_dialog.h"
 
 class AccordionFrame;
-class ByteViewTab;
+class DataSourceTab;
 class CaptureOptionsDialog;
 class PrintDialog;
 class FileSetDialog;

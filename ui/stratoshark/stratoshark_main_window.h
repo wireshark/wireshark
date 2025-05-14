@@ -67,7 +67,7 @@
 #include "main_window.h"
 
 class AccordionFrame;
-class ByteViewTab;
+class DataSourceTab;
 class CaptureOptionsDialog;
 class PrintDialog;
 class FileSetDialog;

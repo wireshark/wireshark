@@ -10,7 +10,7 @@
 #ifndef PACKET_LIST_H
 #define PACKET_LIST_H
 
-#include "byte_view_tab.h"
+#include "data_source_tab.h"
 #include <ui/qt/models/packet_list_model.h>
 #include "proto_tree.h"
 #include "protocol_preferences_menu.h"

@@ -18,7 +18,7 @@
 
 #include <ui/qt/utils/field_information.h>
 
-class ByteViewTab;
+class DataSourceTab;
 class ProtoTree;
 
 namespace Ui {
@@ -58,7 +58,7 @@ private:
     pref_t *pref_packet_dialog_layout_;
     QString col_info_;
     ProtoTree *proto_tree_;
-    ByteViewTab *byte_view_tab_;
+    DataSourceTab *data_source_tab_;
     wtap_rec rec_;
     epan_dissect_t edt_;
 };

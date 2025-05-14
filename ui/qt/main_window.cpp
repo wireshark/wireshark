@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     cur_layout_(QVector<unsigned>()),
     packet_list_(nullptr),
     proto_tree_(nullptr),
-    byte_view_tab_(nullptr),
+    data_source_tab_(nullptr),
     packet_diagram_(nullptr),
     df_combo_box_(nullptr),
     main_status_bar_(nullptr),

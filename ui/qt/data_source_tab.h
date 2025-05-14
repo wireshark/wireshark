@@ -7,8 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BYTE_VIEW_TAB_H
-#define BYTE_VIEW_TAB_H
+#pragma once
 
 #include <config.h>
 
@@ -25,12 +24,12 @@
 
 #include <ui/qt/widgets/base_data_source_view.h>
 
-class ByteViewTab : public QTabWidget
+class DataSourceTab : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    explicit ByteViewTab(QWidget *parent = 0, epan_dissect_t *edt_fixed = 0);
+    explicit DataSourceTab(QWidget *parent = 0, epan_dissect_t *edt_fixed = 0);
 
 public slots:
     /* Set the capture file */
@@ -74,5 +73,3 @@ private slots:
 
     void captureActive(int);
 };
-
-#endif // BYTE_VIEW_TAB_H
