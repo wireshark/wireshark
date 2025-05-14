@@ -1000,6 +1000,7 @@ format_nstime_as_iso8601(char *buf, size_t buflen, const nstime_t *ns,
 	ptr += num_bytes;
 	remaining -= num_bytes;
 
+	num_bytes = 0;
 	if (precision != 0) {
 		/*
 		 * Append the fractional part.
