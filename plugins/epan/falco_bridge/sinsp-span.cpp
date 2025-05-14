@@ -691,14 +691,20 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
     return true;
 }
 
-char* get_evt_arg_name(void* sinp_evt_info, uint32_t arg_num) {
-    ppm_event_info* realinfo = (ppm_event_info*)sinp_evt_info;
+char* get_evt_arg_name(void* sinsp_evt_info, uint32_t arg_num) {
+    ppm_event_info* realinfo = (ppm_event_info*)sinsp_evt_info;
 
     if (arg_num > realinfo->nparams) {
         ws_warning("Arg number %u exceeds event parameter count %u", arg_num, realinfo->nparams);
         return NULL;
     }
     return realinfo->params[arg_num].name;
+}
+
+bool evt_creates_fd(void *sinsp_evt_info)
+{
+    ppm_event_info* realinfo = (ppm_event_info*)sinsp_evt_info;
+    return realinfo->flags & EF_CREATES_FD;
 }
 
 // Ensure that our caches can index evt_num - 1
@@ -929,7 +935,7 @@ sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, s
 }
 
 // Either have separate cached / non-cached params or pass a pointer to a pointer array.
-bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info) {
+bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sisnp_evt_info) {
     if (ssi->source) {
         return false;
     }
@@ -971,12 +977,12 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
 
     *sinsp_fields = sinsp_span->sfe_ptrs[frame_num - 1];
     *sinsp_field_len = sinsp_span->sfe_lengths[frame_num - 1];
-    *sinp_evt_info = (void*)sinsp_span->sfe_infos[frame_num - 1];
+    *sisnp_evt_info = (void*)sinsp_span->sfe_infos[frame_num - 1];
 
     return true;
 }
 
-bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info) {
+bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinsp_evt_info) {
     // Shouldn't happen
     if (frame_num > sinsp_span->sfe_ptrs.size()) {
         ws_warning("Frame number %u exceeds cache size %d", frame_num, (int) sinsp_span->sfe_ptrs.size());
@@ -985,7 +991,7 @@ bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t fram
 
     *sinsp_fields = sinsp_span->sfe_ptrs[frame_num - 1];
     *sinsp_field_len = sinsp_span->sfe_lengths[frame_num - 1];
-    *sinp_evt_info = (void*)sinsp_span->sfe_infos[frame_num - 1];
+    *sinsp_evt_info = (void*)sinsp_span->sfe_infos[frame_num - 1];
     return true;
 }
 

@@ -33,6 +33,9 @@ The following changes have been made since version 0.9.1:
 
 * Cloudtrail log messages can now be viewed as formatted JSON data.
 
+* The system call dissector now has a "falcobridge.fd.stream" field, which provides a unique number for each file descriptor.
+  The "Follow File Descriptor Stream" feature now uses this field to track streams. wsbuglink:20538[]
+
 * We now ship universal macOS installers instead of separate packages
 for Arm64 and Intel. wsbuglink:17294[]
 

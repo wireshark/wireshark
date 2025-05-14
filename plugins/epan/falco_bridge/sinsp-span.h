@@ -117,16 +117,17 @@ const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi);
 const char *get_sinsp_source_name(sinsp_source_info_t *ssi);
 const char* get_sinsp_source_description(sinsp_source_info_t *ssi);
 bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sinsp_field_info_t *field);
-char* get_evt_arg_name(void* sinp_evt_info, uint32_t arg_num);
 
 // libsinsp builtin syscall routines.
 void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr);
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
 //uint32_t process_syscall_capture(sinsp_span_t * sinsp_span, sinsp_source_info_t *ssi, uint32_t to_event);
 void close_sinsp_capture(sinsp_span_t *sinsp_span);
-bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info);
+bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sisnp_evt_info);
 sinsp_syscall_category_e get_syscall_parent_category(sinsp_source_info_t *ssi, size_t field_check_idx);
-bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinp_evt_info);
+bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t frame_num, sinsp_field_extract_t **sinsp_fields, uint32_t *sinsp_field_len, void** sinsp_evt_info);
+char* get_evt_arg_name(void* sinsp_evt_info, uint32_t arg_num);
+bool evt_creates_fd(void* sinsp_evt_info);
 
 // Extractor plugin routines.
 // These roughly match common_plugin_info
