@@ -10,7 +10,7 @@ This directory contains the source files needed to build the:
 - Lua Reference
 
 To build everything, build the `all_guides` target, e.g. `ninja
-all_guides` or `msbuild all_guides.vcxproj`. Requirements are listed
+all_guides` or `msbuild doc\all_guides.vcxproj`. Requirements are listed
 below.
 
 All of the documentation in this directory is written in

@@ -871,7 +871,6 @@ However, the version string may vary.
 
 [#ChToolsWindowsPerl]
 
-[discrete]
 ==== Windows
 
 Unless you need to run one of the check or code generation scripts in the _tools_ directory or have a need for Perl outside of Wireshark development you should probably avoid installing it on Windows.

@@ -558,7 +558,6 @@ You can see a list of useful keyboard shortcuts by right-clicking on the graph.
 
 [#ChStatIOGraphsMissingValues]
 
-[discrete]
 ==== Missing Values Are Zero
 
 Wireshark's I/O Graph window counts or calculates summary statistics over intervals.
