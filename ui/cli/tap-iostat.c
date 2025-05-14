@@ -1451,17 +1451,14 @@ iostat_init(const char *opt_arg, void *userdata _U_)
                1.1, the last interval becomes
                last interval is rounded up to value that is greater than the duration. */
             const gchar *invl_start = opt_arg+8;
-            gchar *intv_end;
-            int invl_len;
+            unsigned invl_len;
 
-            intv_end = g_strstr_len(invl_start, -1, ",");
-            invl_len = (int)(intv_end - invl_start);
-            invl_start = g_strstr_len(invl_start, invl_len, ".");
+            invl_start = strpbrk(invl_start, ".,");
 
-            if (invl_start != NULL) {
-                invl_len = (int)(intv_end - invl_start - 1);
+            if (invl_start != NULL && *invl_start == '.') {
+                invl_len = (unsigned)strcspn(invl_start + 1, ",");
                 if (invl_len)
-                    io->invl_prec = MIN(invl_len, 6);
+                    io->invl_prec = MIN(invl_len, 6U);
             }
         }
     }
