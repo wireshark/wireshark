@@ -1090,7 +1090,7 @@ iostat_draw(void *arg)
     iot = mit->parent;
     num_cols = iot->num_cols;
     col_w = g_new(column_width, num_cols);
-    fmts = (char **)g_malloc(sizeof(char *) * num_cols);
+    fmts = g_new0(char *, num_cols);
     duration = ((uint64_t)cfile.elapsed_time.secs * UINT64_C(1000000)) +
                 (uint64_t)((cfile.elapsed_time.nsecs + 500) / 1000);
 
@@ -1348,11 +1348,7 @@ iostat_draw(void *arg)
                     break;
                 }
 
-                if (last_row) {
-                    g_free(fmt);
-                } else {
-                    item_in_column[j] = item_in_column[j]->next;
-                }
+                item_in_column[j] = item_in_column[j]->next;
             } else {
                 printf(fmt, (uint64_t)0, (uint64_t)0);
             }
@@ -1369,6 +1365,9 @@ iostat_draw(void *arg)
     }
     printf("\n");
     g_free(col_w);
+    for (i=0; i<num_cols; ++i) {
+        g_free(fmts[i]);
+    }
     g_free(fmts);
     g_free(stat_cols);
     g_free(item_in_column);
