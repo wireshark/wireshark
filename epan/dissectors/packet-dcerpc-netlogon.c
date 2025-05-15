@@ -3905,9 +3905,12 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         cb_wstr_postprocess,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
-    ws_debug("1)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
+    ws_debug("1)Len %zu offset %d txt %s",
+        dcv->private_data ? strlen((char *)dcv->private_data) : 0,
+        offset,
+        dcv->private_data ? (char*)dcv->private_data : "(null)");
     vars = create_global_netlogon_auth_vars(pinfo, (char*)dcv->private_data, 0);
-    ws_debug("2)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
+    ws_debug("2)Txt %s", vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
@@ -8170,9 +8173,12 @@ netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, int offset,
         cb_wstr_postprocess,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
-    ws_debug("1)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
+    ws_debug("1)Len %zu offset %d txt %s",
+        dcv->private_data ? strlen((char *)dcv->private_data) : 0,
+        offset,
+        dcv->private_data ? (char*)dcv->private_data : "(null)");
     vars = create_global_netlogon_auth_vars(pinfo, (char*)dcv->private_data, 0);
-    ws_debug("2)Len %d offset %d txt %s",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
+    ws_debug("2)Txt %s", vars->client_name);
 
     ALIGN_TO_4_BYTES;
 
