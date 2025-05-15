@@ -248,7 +248,7 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 	uint32_t value;
 
 	switch (type) {
-	case WS_CTRL_CMD_UNSPEC:
+	case WS_CTRL_ATTR_UNSPEC:
 		break;
 	case WS_CTRL_ATTR_FAMILY_ID:
 		if (len == 2) {
