@@ -21,7 +21,7 @@ jobs:
           go-version: '1.22.x'
           check-latest: true
       - name: Install deps
-        run: ./tools/macos-setup-brew.sh --install-optional --install-doc-deps --install-dmg-deps --install-test-deps --install-stratoshark
+        run: ./tools/macos-setup-brew.sh --install-required --install-optional --install-doc-deps --install-dmg-deps --install-test-deps --install-stratoshark
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
       - name: Install dmgbuild
