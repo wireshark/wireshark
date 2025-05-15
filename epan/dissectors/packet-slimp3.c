@@ -387,7 +387,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     break;
 
                 default:
-                    proto_tree_add_item(slimp3_tree, hf_slimp3_display_unknown, tvb, offset + i1, 2, ENC_NA);
+                    proto_tree_add_item(slimp3_tree, hf_slimp3_display_unknown, tvb, offset + i1, 2, ENC_BIG_ENDIAN);
                     i1 += 2;
                     break;
                 }

@@ -1424,7 +1424,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree, session);
 		} else {
 			proto_tree_add_item(parent_tree, hf_pres_user_data, tvb, offset,
-					    tvb_reported_length_remaining(tvb,offset), ENC_NA);
+			                    tvb_reported_length_remaining(tvb,offset), ENC_BIG_ENDIAN);
 		}
 		return tvb_captured_length(tvb);
 	}

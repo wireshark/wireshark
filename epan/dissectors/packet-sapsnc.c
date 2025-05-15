@@ -169,7 +169,7 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	header_length-=2;
 
 	/* Build a tree for the flags */
-	sapsnc_flags = proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_flags, tvb, offset, 2, ENC_NA);
+	sapsnc_flags = proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 	sapsnc_flags_tree = proto_item_add_subtree(sapsnc_flags, ett_sapsnc);
 
 	offset+=1;
@@ -186,7 +186,7 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	/* If there's header remaining, we add the extra flags, length and fields */
 	if (header_length >= 6 && tvb_offset_exists(tvb, offset + 6)) {
 		/* Get the extra flags */
-		proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_ext_flags, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_ext_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
 		/* Get the extra field length */

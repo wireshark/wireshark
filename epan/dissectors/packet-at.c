@@ -1646,7 +1646,7 @@ dissect_cmux_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
         break;
     case 2:
-        proto_tree_add_item(tree, hf_cmux_port_speed, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        proto_tree_add_item(tree, hf_cmux_port_speed, tvb, offset, parameter_length, ENC_NA);
         break;
     case 3:
         proto_tree_add_uint(tree, hf_cmux_n1, tvb, offset, parameter_length, value);

@@ -36,7 +36,7 @@ static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 
 	len = tvb_get_uint32(tvb, *offset, ENC_BIG_ENDIAN);
 	obj_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 + len, ett_ref, NULL, label);
-	proto_tree_add_item(obj_tree, hf_drb_len, tvb, *offset, 4, ENC_NA);
+	proto_tree_add_item(obj_tree, hf_drb_len, tvb, *offset, 4, ENC_BIG_ENDIAN);
 	*offset += 4;
 	dissect_rbm_inline(tvb, pinfo, obj_tree, offset, &type, &value);
 	if (type)

@@ -1373,7 +1373,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_frame_crc, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
 
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_reserved_2, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_reserved_2, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
@@ -2338,7 +2338,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_lin_pid_parity,                   { "Parity", "asam-cmp.msg.lin.pid.parity", FT_UINT8, BASE_HEX, NULL, CMP_CANFD_PID_PARITY_MASK, NULL, HFILL } },
         { &hf_cmp_lin_reserved_2,                   { "Reserved", "asam-cmp.msg.lin.res_2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_lin_checksum,                     { "Checksum", "asam-cmp.msg.lin.checksum", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_cmp_lin_data_len,                     { "Data length", "asam-cmp.msg.lin.data_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_lin_data_len,                     { "Data length", "asam-cmp.msg.lin.data_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         { &hf_cmp_lin_flag_checksum_err,            { "Checksum Error", "asam-cmp.msg.lin.flags.checksum_err", FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
         { &hf_cmp_lin_flag_col_err,                 { "Collision Error", "asam-cmp.msg.lin.flags.col_err", FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },

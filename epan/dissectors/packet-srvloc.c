@@ -557,7 +557,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
                     foffset += 9;
                     if (svc == 50) {
                         if (tvb_get_uint8(tvb, foffset)==54) { /* TCP */
-                            proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_NA);
+                            proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_BIG_ENDIAN);
                             foffset += 2;
                         }
                         else
@@ -628,7 +628,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
             foffset += 5;
             if (svc == 50) {
                 if (tvb_get_uint8(tvb, foffset)==54) { /* TCP */
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_NA);
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_BIG_ENDIAN);
                     foffset += 1;
                 }
                 else

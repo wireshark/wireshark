@@ -5520,7 +5520,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             } else if (length == 1) {
                 ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags, ett_tcpflags, tcp_flags, ENC_NA);
             } else {
-                ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags16, ett_tcpflags, tcp_flags16, ENC_NA);
+                ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags16, ett_tcpflags, tcp_flags16, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -10998,7 +10998,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 274):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_section_type,
-                                     tvb, offset, length, ENC_ASCII);
+                                     tvb, offset, length, ENC_NA);
             break;
         case ((VENDOR_IXIA << 16) | 275):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_qr_flag,

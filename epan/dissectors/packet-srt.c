@@ -515,7 +515,7 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
         u8bits, "%u (%s)", u8bits, try_val_to_str(u8bits, se_desc));
 
     proto_tree_add_item(tree, hf_srt_km_resv2, tvb, baseoff + 11, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_srt_km_resv3, tvb, baseoff + 12, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_srt_km_resv3, tvb, baseoff + 12, 2, ENC_BIG_ENDIAN);
 
     u8bits = tvb_get_uint8(tvb, baseoff + 14); // km.slen
     slen = 4 * u8bits;
@@ -537,7 +537,7 @@ static void srt_format_kmx(proto_tree* tree, tvbuff_t* tvb, int baseoff, int blo
     if (blocklen == 4)
     {
         // Error report. Format as KMX state.
-        proto_tree_add_item(tree, hf_srt_srtkm_error, tvb, baseoff, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_srt_srtkm_error, tvb, baseoff, 4, ENC_BIG_ENDIAN);
     }
     else
     {

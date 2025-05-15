@@ -756,7 +756,7 @@ dissect_start_auth_session(tvbuff_t *tvb, packet_info *pinfo _U_,
 		proto_tree_add_item(tree, hf_alg_sym_mode, tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 	}
-	proto_tree_add_item(tree, hf_alg_hash, tvb, *offset, 2, ENC_NA);
+	proto_tree_add_item(tree, hf_alg_hash, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 }
 

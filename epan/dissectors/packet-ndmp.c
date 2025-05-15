@@ -1048,7 +1048,7 @@ dissect_tape_attr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_attr, ett_ndmp_tape_attr, attribute_flags, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_attr, ett_ndmp_tape_attr, attribute_flags, ENC_BIG_ENDIAN);
 
 	offset+=4;
 	return offset;
@@ -1320,7 +1320,7 @@ dissect_execute_cdb_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_execute_cdb_flags, ett_ndmp_execute_cdb_flags, cdb_flags, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_execute_cdb_flags, ett_ndmp_execute_cdb_flags, cdb_flags, ENC_BIG_ENDIAN);
 
 	offset += 4;
 	return offset;
@@ -1613,7 +1613,7 @@ dissect_tape_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_invalid, ett_ndmp_tape_invalid, invalid_tapes, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_invalid, ett_ndmp_tape_invalid, invalid_tapes, ENC_BIG_ENDIAN);
 
 	offset+=4;
 	return offset;
@@ -1647,7 +1647,7 @@ dissect_tape_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_flags, ett_ndmp_tape_flags, tape_flags, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_tape_flags, ett_ndmp_tape_flags, tape_flags, ENC_BIG_ENDIAN);
 
 	offset+=4;
 	return offset;
@@ -2349,7 +2349,7 @@ dissect_file_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_file_invalid, ett_ndmp_file_invalids, invalid_files, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_file_invalid, ett_ndmp_file_invalids, invalid_files, ENC_BIG_ENDIAN);
 
 	offset+=4;
 	return offset;
@@ -2646,7 +2646,7 @@ dissect_state_invalids(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_state_invalid, ett_ndmp_state_invalids, invalid_states, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_state_invalid, ett_ndmp_state_invalids, invalid_states, ENC_BIG_ENDIAN);
 
 	offset+=4;
 	return offset;

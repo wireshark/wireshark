@@ -3426,7 +3426,7 @@ static void dissect_frame_flex_info_section(tvbuff_t *tvb,
     case MAGIC_SERVER_RESPONSE:
     case MAGIC_SERVER_REQUEST:
       // None of the server initiated messages use flex frame encoding!
-      proto_tree_add_item(tree, hf_flex_extras, tvb, offset, size, ENC_UTF_8|ENC_STR_HEX);
+      proto_tree_add_item(tree, hf_flex_extras, tvb, offset, size, ENC_NA);
       proto_tree_add_expert_format(tree,
                                    pinfo,
                                    &ei_warn_unknown_flex_unsupported,
@@ -3446,7 +3446,7 @@ static void dissect_frame_flex_info_section(tvbuff_t *tvb,
                                       is_request_magic(magic));
       break;
     default:
-      proto_tree_add_item(tree, hf_flex_extras, tvb, offset, size, ENC_UTF_8|ENC_STR_HEX);
+      proto_tree_add_item(tree, hf_flex_extras, tvb, offset, size, ENC_NA);
       proto_tree_add_expert_format(tree,
                                    pinfo,
                                    &ei_warn_unknown_flex_unsupported,
@@ -3483,7 +3483,7 @@ static void dissect_frame_extras(tvbuff_t *tvb,
                             opcode, is_request_magic(magic), subdoc_path_len);
       break;
     default:
-      proto_tree_add_item(tree, hf_extras, tvb, offset, size, ENC_UTF_8|ENC_STR_HEX);
+      proto_tree_add_item(tree, hf_extras, tvb, offset, size, ENC_NA);
       proto_tree_add_expert_format(tree,
                                    pinfo,
                                    &ei_warn_unknown_extras,
