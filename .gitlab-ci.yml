@@ -24,7 +24,7 @@ variables:
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # The Qt versions that we ship in the development installers.
   WINDOWS_QT_VERSION: "6.8.1"
-  MACOS_QT_VERSION: "6.5.3"
+  MACOS_QT_VERSION: "6.8.3"
   # Enable color output in various tools.
   # CMake, Ninja, and others: https://bixense.com/clicolors/
   CLICOLOR_FORCE: "1"

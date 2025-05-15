@@ -190,6 +190,10 @@ for Arm64 and Intel. wsbuglink:17294[]
   "-z <tap>,tree", which use the stats_tree system) can be controlled via
   a preference "-o statistics.output_format".
 
+* The color scheme can be set to Light or Dark mode independently of the
+  current OS default on Windows and macOS, if Wireshark is built with
+  Qt 6.8 or later as the official installers do. wsbuglink:19328[]
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.
