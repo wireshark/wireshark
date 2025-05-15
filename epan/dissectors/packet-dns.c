@@ -367,6 +367,7 @@ static int hf_dns_rr_udp_payload_size;
 static int hf_dns_rr_udp_payload_size_mdns;
 static int hf_dns_soa_mname;
 static int hf_dns_soa_rname;
+static int hf_dns_soa_rname_name;
 static int hf_dns_soa_serial_number;
 static int hf_dns_soa_refresh_interval;
 static int hf_dns_soa_retry_interval;
@@ -1820,6 +1821,32 @@ get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
   return offset - start_offset;
 }
 
+/* Encode to the standard in RFC 1035, splitting the local_part and domain with a @ */
+static char*
+make_local_part_domain(const char* name)
+{
+  char* name_out = wmem_strdup(wmem_packet_scope(), name);
+  for (char* p = name_out; *p != '\0'; p++)
+  {
+    if (*p == '.')
+    {
+      *p = '@';
+      break;
+    }
+    else if (*p == '\\')
+    {
+      if ((*(p + 1) != '\0') && (*(p + 1) == '.'))
+      {
+        /* Skip over the \. because it's intended to be a . */
+        p += 2;
+      }
+    }
+  }
+
+  return name_out;
+}
+
+
 static double
 rfc1867_size(tvbuff_t *tvb, int offset)
 {
@@ -2555,6 +2582,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int           mname_len;
       const char   *rname;
       int           rname_len;
+      char         *name_out_formatted;
       proto_item   *ti_soa;
 
       used_bytes = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mname, &mname_len);
@@ -2567,6 +2595,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       used_bytes = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rname, &rname_len);
       name_out = format_text(pinfo->pool, (const unsigned char*)rname, rname_len);
       proto_tree_add_string(rr_tree, hf_dns_soa_rname, tvb, cur_offset, used_bytes, name_out);
+      name_out_formatted = make_local_part_domain(name_out);
+      ti_soa = proto_tree_add_string(rr_tree, hf_dns_soa_rname_name, tvb, cur_offset, used_bytes, name_out_formatted);
+      proto_item_set_generated(ti_soa);
       cur_offset += used_bytes;
 
       proto_tree_add_item(rr_tree, hf_dns_soa_serial_number, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
@@ -6598,6 +6629,11 @@ proto_register_dns(void)
       { "Responsible authority's mailbox", "dns.soa.rname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_soa_rname_name,
+      { "Responsible authority's mailbox name", "dns.soa.rname.name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL } },
 
     { &hf_dns_soa_serial_number,
       { "Serial Number", "dns.soa.serial_number",
