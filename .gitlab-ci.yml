@@ -624,7 +624,7 @@ macOS Universal Package:
         rm -rf /tmp/aqt.venv ;
         python3 -m venv /tmp/aqt.venv ;
         /tmp/aqt.venv/bin/pip3 install aqtinstall ;
-        /tmp/aqt.venv/bin/aqt install-qt --outputdir $WIRESHARK_BASE_DIR/Qt mac desktop 6.5.3 clang_64 --modules qt5compat qtmultimedia ;
+        /tmp/aqt.venv/bin/aqt install-qt --outputdir $WIRESHARK_BASE_DIR/Qt mac desktop $MACOS_QT_VERSION clang_64 --modules qt5compat qtmultimedia ;
       fi
     - export CMAKE_PREFIX_PATH="$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos"
     - export PKG_CONFIG_PATH=
