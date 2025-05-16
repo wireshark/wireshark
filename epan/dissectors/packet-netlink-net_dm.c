@@ -226,7 +226,7 @@ dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data _U_, struct packet_netlink_d
 static int
 dissect_net_dm_attrs_stats(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
-	enum ws_net_dm_attrs_port type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
+	enum ws_net_dm_attrs_stats type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
 
 	switch (type) {
 	case WS_NET_DM_ATTR_STATS_DROPPED:
