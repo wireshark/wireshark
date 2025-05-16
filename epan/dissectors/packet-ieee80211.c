@@ -20814,7 +20814,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       offset += 6;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_gtk, tvb,
-                          offset, tag_len - 7, ENC_NA);
+                          offset, tag_len - 8, ENC_NA);
 
       proto_item_append_text(item, ": MLO GTK KDE");
       break;
@@ -20834,7 +20834,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       offset += 1;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_igtk, tvb,
-                          offset, tag_len - 9, ENC_NA);
+                          offset, tag_len - 10, ENC_NA);
 
       proto_item_append_text(item, ": MLO IGTK KDE");
       break;
@@ -20854,7 +20854,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       offset += 1;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_bigtk, tvb,
-                          offset, tag_len - 9, ENC_NA);
+                          offset, tag_len - 10, ENC_NA);
 
       proto_item_append_text(item, ": MLO BIGTK KDE");
       break;
