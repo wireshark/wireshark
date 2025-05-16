@@ -574,7 +574,7 @@ static const value_string nfct_tuple_l4proto_attr_vals[] = {
 static int
 dissect_nfct_tuple_proto_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
 {
-	enum ws_ctattr_ip type = (enum ws_ctattr_ip) nla_type & NLA_TYPE_MASK;
+	enum ws_ctattr_l4proto type = (enum ws_ctattr_ip) nla_type & NLA_TYPE_MASK;
 
 	switch (type) {
 		case WS_CTA_PROTO_NUM:
@@ -847,7 +847,7 @@ static const value_string nfexp_conntrack_dir_vals[] = {
 static int
 dissect_nfexp_nat_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
-	enum ws_ctattr_expect type = (enum ws_ctattr_expect) nla_type & NLA_TYPE_MASK;
+	enum ws_ctattr_expect_nat type = (enum ws_ctattr_expect) nla_type & NLA_TYPE_MASK;
 	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
 
 	switch (type) {
