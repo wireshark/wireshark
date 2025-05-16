@@ -476,6 +476,7 @@ int main(int argc, char *qt_argv[])
 #endif
     char                *err_msg = NULL;
     df_error_t          *df_err = NULL;
+    e_prefs             *prefs_p;
 
     QString              dfilter, read_filter;
 #ifdef HAVE_LIBPCAP
@@ -809,7 +810,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     /* Read the preferences, but don't apply them yet. */
-    global_commandline_info.prefs_p = ws_app.readConfigurationFiles(false);
+    prefs_p = ws_app.readConfigurationFiles(false);
 
     /* Now let's see if any of preferences were overridden at the command
      * line, and store them. We have to do this before applying the
@@ -858,29 +859,23 @@ int main(int argc, char *qt_argv[])
     commandline_other_options(argc, argv, true);
 
     /* Convert some command-line parameters to QStrings */
-    if (global_commandline_info.cf_name != NULL)
-        cf_name = QString(global_commandline_info.cf_name);
-    if (global_commandline_info.rfilter != NULL)
-        read_filter = QString(global_commandline_info.rfilter);
-    if (global_commandline_info.dfilter != NULL)
-        dfilter = QString(global_commandline_info.dfilter);
+    cf_name = QString(commandline_get_cf_name());
+    read_filter = QString(commandline_get_rfilter());
+    dfilter = QString(commandline_get_dfilter());
 
     timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
 
 #ifdef HAVE_LIBPCAP
-    if (global_commandline_info.list_link_layer_types)
-        caps_queries |= CAPS_QUERY_LINK_TYPES;
-    if (global_commandline_info.list_timestamp_types)
-        caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
+    caps_queries = commandline_get_caps_queries();
 
-    if (global_commandline_info.start_capture || caps_queries) {
+    if (commandline_is_start_capture() || caps_queries) {
         /* We're supposed to do a live capture or get a list of link-layer/timestamp
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
         ret_val = capture_opts_default_iface_if_necessary(&global_capture_opts,
-        ((global_commandline_info.prefs_p->capture_device) && (*global_commandline_info.prefs_p->capture_device != '\0')) ? get_if_name(global_commandline_info.prefs_p->capture_device) : NULL);
+        ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
         if (ret_val != 0) {
             goto clean_exit;
         }
@@ -951,7 +946,7 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
-    if (!global_commandline_info.cf_name && !prefs.capture_no_interface_load) {
+    if (!cf_name.isEmpty() && !prefs.capture_no_interface_load) {
         wsApp->scanLocalInterfaces(nullptr);
     }
 
@@ -996,7 +991,7 @@ int main(int argc, char *qt_argv[])
         goto clean_exit;
     }
 
-    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, true);
+    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, true);
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
     wsApp->emitAppSignal(WiresharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
@@ -1028,6 +1023,9 @@ int main(int argc, char *qt_argv[])
     if (!cf_name.isEmpty()) {
         if (main_w->openCaptureFile(cf_name, read_filter, in_file_type)) {
 
+            char* jump_filter = commandline_get_jfilter();
+            uint32_t go_to_packet = commandline_get_go_to_packet();
+
             /* Open stat windows; we do so after creating the main window,
                to avoid Qt warnings, and after successfully opening the
                capture file, so we know we have something to compute stats
@@ -1037,32 +1035,32 @@ int main(int argc, char *qt_argv[])
                filter. */
             start_requested_stats();
 
-            if (global_commandline_info.go_to_packet != 0) {
+            if (go_to_packet != 0) {
                 /* Jump to the specified frame number, kept for backward
                    compatibility. */
-                cf_goto_frame(CaptureFile::globalCapFile(), global_commandline_info.go_to_packet, false);
-            } else if (global_commandline_info.jfilter != NULL) {
+                cf_goto_frame(CaptureFile::globalCapFile(), go_to_packet, false);
+            } else if (jump_filter != NULL) {
                 dfilter_t *jump_to_filter = NULL;
                 /* try to compile given filter */
-                if (!dfilter_compile(global_commandline_info.jfilter, &jump_to_filter, &df_err)) {
+                if (!dfilter_compile(jump_filter, &jump_to_filter, &df_err)) {
                     // Similar code in MainWindow::mergeCaptureFile().
                     QMessageBox::warning(main_w, QObject::tr("Invalid Display Filter"),
                                          QObject::tr("The filter expression \"%1\" isn't a valid display filter.\n(%2).")
-                                                 .arg(global_commandline_info.jfilter, df_err->msg),
+                                                 .arg(jump_filter, df_err->msg),
                                          QMessageBox::Ok);
                     df_error_free(&df_err);
                 } else {
                     /* Filter ok, jump to the first packet matching the filter
                        conditions. Default search direction is forward, but if
                        option j was given, search backwards */
-                    cf_find_packet_dfilter(CaptureFile::globalCapFile(), jump_to_filter, global_commandline_info.jump_backwards, false);
+                    cf_find_packet_dfilter(CaptureFile::globalCapFile(), jump_to_filter, commandline_get_jump_direction(), false);
                 }
             }
         }
     }
 #ifdef HAVE_LIBPCAP
     else {
-        if (global_commandline_info.start_capture) {
+        if (commandline_is_start_capture()) {
             if (global_capture_opts.save_file != NULL) {
                 /* Save the directory name for future file dialogs. */
                 /* (get_dirname overwrites filename) */
@@ -1082,7 +1080,7 @@ int main(int argc, char *qt_argv[])
             if (global_capture_opts.ifaces->len == 0)
                 collect_ifaces(&global_capture_opts);
             CaptureFile::globalCapFile()->window = main_w;
-            if (capture_start(&global_capture_opts, global_commandline_info.capture_comments,
+            if (capture_start(&global_capture_opts, commandline_get_capture_comments(),
                               main_w->captureSession(), main_w->captureInfoData(),
                               main_window_update)) {
                 /* The capture started.  Open stat windows; we do so after creating
@@ -1095,7 +1093,7 @@ int main(int argc, char *qt_argv[])
             }
         }
         /* if the user didn't supply a capture filter, use the one to filter out remote connections like SSH */
-        if (!global_commandline_info.start_capture && !global_capture_opts.default_options.cfilter) {
+        if (!commandline_is_start_capture() && !global_capture_opts.default_options.cfilter) {
             global_capture_opts.default_options.cfilter = g_strdup(get_conn_cfilter());
         }
     }

@@ -290,7 +290,7 @@ bool WiresharkMainWindow::openCaptureFile(QString cf_path, QString read_filter, 
 
 finish:
 #ifdef HAVE_LIBPCAP
-    if (global_commandline_info.quit_after_cap)
+    if (commandline_is_quit_after_capture())
         exit(0);
 #endif
     return ret;
@@ -567,7 +567,7 @@ void WiresharkMainWindow::captureCaptureUpdateFinished(capture_session *session)
     setWindowIcon(mainApp->normalIcon());
     popLiveCaptureInProgress();
 
-    if (global_commandline_info.quit_after_cap) {
+    if (commandline_is_quit_after_capture()) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -591,7 +591,7 @@ void WiresharkMainWindow::captureCaptureFixedFinished(capture_session *) {
     setWindowIcon(mainApp->normalIcon());
     popLiveCaptureInProgress();
 
-    if (global_commandline_info.quit_after_cap) {
+    if (commandline_is_quit_after_capture()) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -612,7 +612,7 @@ void WiresharkMainWindow::captureCaptureFailed(capture_session *) {
     setWindowIcon(mainApp->normalIcon());
     popLiveCaptureInProgress();
 
-    if (global_commandline_info.quit_after_cap) {
+    if (commandline_is_quit_after_capture()) {
         // Command line asked us to quit after capturing.
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
@@ -1549,7 +1549,7 @@ void WiresharkMainWindow::applyGlobalCommandLineOptions()
             }
         }
     }
-    if (global_commandline_info.full_screen) {
+    if (commandline_is_full_screen()) {
         this->showFullScreen();
     }
 }

@@ -289,9 +289,10 @@ QString MainWindow::replaceWindowTitleVariables(QString title)
     title.replace("%V", get_ws_vcs_version_info());
 
 #ifdef HAVE_LIBPCAP
-    if (global_commandline_info.capture_comments) {
+    char* capture_comment = commandline_get_first_capture_comment();
+    if (capture_comment) {
         // Use the first capture comment from command line.
-        title.replace("%C", (char *)g_ptr_array_index(global_commandline_info.capture_comments, 0));
+        title.replace("%C", capture_comment);
     } else {
         // No capture comment.
         title.remove("%C");

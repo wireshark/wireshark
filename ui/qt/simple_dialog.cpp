@@ -149,7 +149,7 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
 #ifdef HAVE_LIBPCAP
     // We want to quit after reading the capture file, hence
     // we don't actually open the error dialog.
-    if (global_commandline_info.quit_after_cap)
+    if (commandline_is_quit_after_capture())
         exit(0);
 #endif
 
@@ -166,7 +166,7 @@ vsimple_warning_message_box(const char *msg_format, va_list ap)
 #ifdef HAVE_LIBPCAP
     // We want to quit after reading the capture file, hence
     // we don't actually open the error dialog.
-    if (global_commandline_info.quit_after_cap)
+    if (commandline_is_quit_after_capture())
         exit(0);
 #endif
 
