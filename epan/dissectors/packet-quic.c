@@ -511,8 +511,20 @@ static inline uint8_t quic_draft_version(uint32_t version) {
         return 22;
     }
     /* Facebook mvfst, based on draft -27. */
-    if (version == 0xfaceb002 || version == 0xfaceb00e) {
+    if (version == 0xfaceb002 ||
+        version == 0xfaceb00e ||
+        version == 0xfaceb00f ||
+        version == 0xfaceb011 ||
+        version == 0xfaceb013) {
         return 27;
+    }
+    /* Facebook mvfst, experimental version with different salt. */
+    if (version == 0xfaceb014 || version == 0xfaceb015) {
+        return 27;
+    }
+    /* Facebook mvfst, "v1 alias" versions. */
+    if (version == 0xfaceb003 || version == 0xfaceb004) {
+        return 34;
     }
     /* GQUIC Q050, T050 and T051: they are not really based on any drafts,
      * but we must return a sensible value */
@@ -579,6 +591,8 @@ const range_string quic_version_vals[] = {
     { 0xfaceb003, 0xfaceb00d, "Facebook mvfst" },
     { 0xfaceb00e, 0xfaceb00e, "Facebook mvfst (Experimental)" },
     { 0xfaceb00f, 0xfaceb00f, "Facebook mvfst" },
+    { 0xfaceb010, 0xfaceb010, "Facebook mvfst" },
+    { 0xfaceb011, 0xfaceb015, "Facebook mvfst (Experimental)" },
     { 0xff000004, 0xff000004, "draft-04" },
     { 0xff000005, 0xff000005, "draft-05" },
     { 0xff000006, 0xff000006, "draft-06" },
@@ -3106,6 +3120,10 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
         0x0d, 0xed, 0xe3, 0xde, 0xf7, 0x00, 0xa6, 0xdb, 0x81, 0x93,
         0x81, 0xbe, 0x6e, 0x26, 0x9d, 0xcb, 0xf9, 0xbd, 0x2e, 0xd9
     };
+    static const uint8_t handshake_salt_mvfst_experimental[20] = {
+        0xca, 0x6b, 0x74, 0xa5, 0xce, 0x82, 0xfc, 0x04, 0x43, 0x6b,
+        0xf2, 0xea, 0x75, 0xe7, 0x8c, 0x56, 0xc8, 0xc0, 0x8d, 0x24
+    };
 
     gcry_error_t    err;
     uint8_t         secret[HASH_SHA2_256_LENGTH];
@@ -3118,6 +3136,9 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
                            cid->cid, cid->len, secret);
     } else if (version == 0x54303531) {
         err = hkdf_extract(GCRY_MD_SHA256, hanshake_salt_draft_t51, sizeof(hanshake_salt_draft_t51),
+                           cid->cid, cid->len, secret);
+    } else if (version == 0xfaceb014 || version == 0xfaceb015) {
+        err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_mvfst_experimental, sizeof(handshake_salt_mvfst_experimental),
                            cid->cid, cid->len, secret);
     } else if (is_quic_draft_max(version, 22)) {
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_22, sizeof(handshake_salt_draft_22),
