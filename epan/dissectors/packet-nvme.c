@@ -2629,7 +2629,7 @@ static void dissect_nvme_get_logpage_fw_slot_resp(proto_item *ti, tvbuff_t *cmd_
         len -= poff;
         if (len > max_len)
             len = max_len;
-        proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_rsvd1,  cmd_tvb, poff, len, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_rsvd1,  cmd_tvb, poff, len, ENC_NA);
     }
 }
 
@@ -8072,6 +8072,10 @@ proto_register_nvme(void)
         { &hf_nvme_cqe_get_features_dword0_arb[1],
             { "Arbitration Burst", "nvme.cqe.dword0.get_features.arb.ab",
                FT_UINT32, BASE_HEX, NULL, 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_get_features_dword0_arb[2],
+            { "Reserved", "nvme.cqe.dword0.get_features.arb.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0x000000f8, NULL, HFILL}
         },
         { &hf_nvme_cqe_get_features_dword0_arb[3],
             { "Low Priority Weight", "nvme.cqe.dword0.get_features.arb.lpw",
