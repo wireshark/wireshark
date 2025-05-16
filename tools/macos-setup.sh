@@ -396,7 +396,7 @@ uninstall_pcre2() {
     if [ -n "$installed_pcre2_version" ] && [ -s "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt" ] ; then
         echo "Uninstalling pcre2:"
         # PCRE2 10.39 installs pcre2unicode.3 twice, so this will return an error.
-        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt"; echo)
+        while read -r ; do $DO_RM -f -v "$REPLY" ; done < <(cat "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt"; echo)
         rm "pcre2-$installed_pcre2_version-done"
 
         if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
