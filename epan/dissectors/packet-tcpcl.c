@@ -1303,7 +1303,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         /* Only Start and End flags (bits 0 & 1) are valid in Data Segment */
-        if ((conv_hdr & ~(TCPCLV3_TYPE_MASK | TCPCLV3_DATA_FLAGS)) != 0) {
+        if ((conv_hdr & ~((uint8_t)TCPCLV3_TYPE_MASK | (uint8_t)TCPCLV3_DATA_FLAGS)) != 0) {
             expert_add_info(pinfo, item_flags, &ei_tcpclv3_data_flags);
         }
 
