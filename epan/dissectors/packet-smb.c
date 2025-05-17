@@ -3339,7 +3339,10 @@ dissect_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offse
 		item = proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, (const char *)si->sip->extra_info);
 		proto_item_set_generated(item);
 	}
-
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, ", FID: 0x%04x", si->sip->fid);
+	}
 
 	WORD_COUNT;
 
@@ -3882,6 +3885,12 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	WORD_COUNT;
 
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* desired access */
 	offset = dissect_access(tvb, tree, offset, hf_smb_desired_access);
 
@@ -4119,7 +4128,7 @@ dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 /* fids are scoped by tcp session */
 smb_fid_info_t *
 dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-    int len, uint16_t fid, bool is_created, bool is_closed, bool is_generated, smb_info_t* si)
+    int len, uint16_t fid, bool is_created, bool is_closed, bool is_generated, bool is_displayed, smb_info_t * si)
 {
 	smb_saved_info_t *sip;
 	proto_item       *it;
@@ -4138,7 +4147,13 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		proto_item_set_generated(it);
 	}
 	tr = proto_item_add_subtree(it, ett_smb_fid);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", fid);
+
+	if (fid != 0) {
+		if (is_displayed)
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", fid);
+		if (sip)
+			sip->fid = fid;  /* For the response */
+	}
 
 	if ((!pinfo->fd->visited) && is_created) {
 		fid_info = wmem_new(wmem_file_scope(), smb_fid_info_t);
@@ -4240,8 +4255,11 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
 
-	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 	if (fid_info) {
 		/* This command is used to create and open a new file or open
 		and truncate an existing file to zero length */
@@ -4292,7 +4310,10 @@ dissect_query_information2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4313,7 +4334,11 @@ dissect_close_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, true, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, true, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4334,7 +4359,11 @@ dissect_open_print_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4355,7 +4384,11 @@ dissect_create_new_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4376,7 +4409,11 @@ dissect_flush_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	si->smbtree = smb_tree;
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4400,7 +4437,11 @@ dissect_create_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 	if (fid_info) {
 		/* This command is used to create and open a new file or open
 		and truncate an existing file to zero length */
@@ -4496,7 +4537,10 @@ dissect_close_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, true, false, si);
+	si->smbtree = smb_tree;
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, true, false, true, si);
 	offset += 2;
 
 	/* last write time */
@@ -4534,6 +4578,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* file name */
 	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
+	proto_item_append_text(smb_tree, " (Path: %s)", wmem_strdup(wmem_file_scope(), fn));
 
 	if ((!pinfo->fd->visited) && si->sip) {
 		si->sip->extra_info_type = SMB_EI_FILENAME;
@@ -4816,7 +4861,10 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (uint16_t) fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (uint16_t) fid, false, false, false, true, si);
 	offset += 2;
 
 	/* read count */
@@ -5059,7 +5107,10 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* write count */
@@ -5146,6 +5197,11 @@ dissect_write_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	WORD_COUNT;
 
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* write count */
 	cnt = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5184,7 +5240,11 @@ dissect_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* lock count */
@@ -5213,6 +5273,12 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* 2 reserved bytes */
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
@@ -5264,7 +5330,11 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -5305,7 +5375,11 @@ dissect_seek_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* Seek Mode */
@@ -5331,6 +5405,12 @@ dissect_seek_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	WORD_COUNT;
 
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* offset */
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -5352,7 +5432,11 @@ dissect_set_information2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* create time */
@@ -5384,6 +5468,12 @@ dissect_query_information2_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 	uint16_t bc;
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* create time */
 	offset = dissect_smb_datetime(tvb, tree, offset,
@@ -5429,7 +5519,10 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, true, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, true, false, true, si);
 	offset += 2;
 
 	/* write count */
@@ -5472,6 +5565,12 @@ dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	uint16_t bc;
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* write count */
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5521,7 +5620,11 @@ dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* offset */
@@ -5566,6 +5669,12 @@ dissect_query_information_disk_response(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 	WORD_COUNT;
 
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* units */
 	proto_tree_add_item(tree, hf_smb_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -5603,7 +5712,11 @@ dissect_read_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* offset */
@@ -5636,6 +5749,12 @@ dissect_read_mpx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	uint8_t wc;
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* offset */
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -5756,7 +5875,11 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* total data length */
@@ -5812,6 +5935,12 @@ dissect_write_raw_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	WORD_COUNT;
 
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -5834,7 +5963,11 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* total data length */
@@ -5889,6 +6022,12 @@ dissect_write_mpx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	uint16_t bc;
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* response mask */
 	proto_tree_add_item(tree, hf_smb_response_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -6249,6 +6388,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *tr         = NULL;
 	int         old_offset = offset;
 	smb_locking_saved_info_t *ld = NULL;
+
 	static int * const locks[] = {
 		&hf_smb_lock_type_large,
 		&hf_smb_lock_type_cancel,
@@ -6282,7 +6422,11 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	/* lock type */
@@ -6511,6 +6655,12 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	DISSECTOR_ASSERT(si);
 
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* print the lock info from the request */
 	if ((si->sip != NULL) && (si->sip->extra_info_type == SMB_EI_LOCKDATA)) {
 		smb_locking_saved_info_t *ld;
@@ -6695,6 +6845,12 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	WORD_COUNT;
 
+	/* fid */
+	if (si->sip && si->sip->fid) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* next smb command */
 	cmd = tvb_get_uint8(tvb, offset);
 	if (cmd != 0xff) {
@@ -6749,10 +6905,12 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* file name */
 	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
+
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
+
 	COUNT_BYTES(fn_len);
 
 	/* Copied this portion of code from create_andx_request
@@ -6862,9 +7020,12 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	/* we add fid_info= to this call so that we save the result */
-	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
 
+	/* we add fid_info= to this call so that we save the result */
+	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 	offset += 2;
 
 	/* File Attributes */
@@ -6992,7 +7153,11 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (uint16_t) fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (uint16_t) fid, false, false, false, true, si);
 	offset += 2;
 
 	/* offset */
@@ -7129,6 +7294,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	WORD_COUNT;
 
+
 	/* next smb command */
 	cmd = tvb_get_uint8(tvb, offset);
 	if (cmd != 0xff) {
@@ -7147,11 +7313,11 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
 	offset += 2;
 
-	/* If we have seen the request, then print which FID this refers to */
-	/* first check if we have seen the request */
-	if ((si->sip != NULL) && (si->sip->frame_req > 0) && (si->sip->extra_info_type == SMB_EI_FID)) {
-		fid = GPOINTER_TO_INT(si->sip->extra_info);
-		dissect_smb_fid(tvb, pinfo, tree, 0, 0, (uint16_t) fid, false, false, false, si);
+	/* FID */
+	if (si->sip)
+		dissect_smb_fid(tvb, pinfo, tree, 0, 0, (uint16_t) si->sip->fid, false, false, false, true, si);
+	if (si->sip && si->sip->fid) {
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
 	}
 
 	if (si->sip && (si->sip->extra_info_type == SMB_EI_RWINFO)) {
@@ -7290,7 +7456,11 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (uint16_t) fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (uint16_t) fid, false, false, false, true, si);
 	offset += 2;
 
 	/* offset */
@@ -7445,6 +7615,12 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {    /* only display non-zero FIDs */
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* next smb command */
 	cmd = tvb_get_uint8(tvb, offset);
@@ -8054,6 +8230,12 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	uint16_t bc;
 
 	WORD_COUNT;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {    /* only display non-zero fids */
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 
 	/* next smb command */
 	cmd = tvb_get_uint8(tvb, offset);
@@ -9056,6 +9238,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		break;
 	case NT_TRANS_SSD:
+		/* NT SET SECURITY DESC */
 		if (nti) {
 			switch(nti->fid_type) {
 			case SMB_FID_TYPE_FILE:
@@ -9081,6 +9264,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD:
+		/* NT QUERY SECURITY DESC */
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
 		/* unknown 4 bytes */
@@ -9200,13 +9384,16 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	case NT_TRANS_IOCTL:
 		break;
 	case NT_TRANS_SSD: {
+		/* NT SET SECURITY DESC	*/
 		uint16_t fid;
 		smb_fid_info_t *fid_info;
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+
+		fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, false, si);
 		offset += 2;
+
 		if (nti) {
 			if (fid_info) {
 				nti->fid_type = fid_info->type;
@@ -9229,13 +9416,16 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD: {
+		/* QUERY SECURITY DESC */
 		uint16_t fid;
 		smb_fid_info_t *fid_info;
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+
+		fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, false, si);
 		offset += 2;
+
 		if (nti) {
 			if (fid_info) {
 				nti->fid_type = fid_info->type;
@@ -9292,7 +9482,10 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+		if (fid)
+			proto_item_append_text(si->smbtree, ", (FID: 0x%04x)", fid);
+
+		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 		offset += 2;
 
 		/* isfsctl */
@@ -9305,6 +9498,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		break;
 	}
 	case NT_TRANS_SSD:
+		/* NT SET SECURITY DESC	*/
 		offset += len;
 		break;
 	case NT_TRANS_NOTIFY: {
@@ -9315,7 +9509,10 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+		if (fid)
+			proto_item_append_text(si->smbtree, ", (FID: 0x%04x)", fid);
+
+		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 		offset += 2;
 
 		/* watch tree */
@@ -9333,6 +9530,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset += len;
 		break;
 	case NT_TRANS_QSD:
+		/* NT QUERY SECURITY DESC */
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
 		/* not decoded yet */
@@ -9372,6 +9570,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	DISSECTOR_ASSERT(si);
 	sip = si->sip;
+	si->smbtree = smb_tree;
 
 	WORD_COUNT;
 
@@ -9470,7 +9669,12 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		subcmd = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, offset, 2, subcmd);
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_ext_const(subcmd, &nt_cmd_vals_ext, "<unknown>"));
+			val_to_str_ext_const(subcmd, &nt_cmd_vals_ext, "<unknown>"));
+
+		if (!sc && sip && sip->fid) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", sip->fid);
+			proto_item_append_text(smb_tree, ", FID: 0x%04x", sip->fid);
+		}
 
 		if (!si->unidir && sip) {
 			if (!pinfo->fd->visited) {
@@ -9652,6 +9856,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 
 		break;
 	case NT_TRANS_SSD:
+		/* NT SET SECURITY DESC	*/
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -9659,6 +9864,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD:
+		/* NT QUERY SECURITY DESC */
 		if (nti) {
 			switch(nti->fid_type) {
 			case SMB_FID_TYPE_FILE:
@@ -9741,7 +9947,10 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+		if (fid)
+			proto_item_append_text(si->smbtree, ", (FID: 0x%04x)", fid);
+		fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, false, si);
+		si->sip->fid = fid;
 		offset += 2;
 
 		/* create action */
@@ -9844,6 +10053,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	case NT_TRANS_IOCTL:
 		break;
 	case NT_TRANS_SSD:
+		/* NT SET SECURITY DESC	*/
 		break;
 	case NT_TRANS_NOTIFY:
 		while (len) {
@@ -9906,6 +10116,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD:
+		/* NT QUERY SECURITY DESC */
 		/*
 		 * This appears to be the size of the security
 		 * descriptor; the calling sequence of
@@ -9968,6 +10179,7 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 	case NT_TRANS_IOCTL:
 		break;
 	case NT_TRANS_SSD:
+		/* NT SET SECURITY DESC	*/
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -9975,6 +10187,7 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD:
+		/* NT QUERY SECURITY DESC */
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
 		/* not decoded yet */
@@ -10018,6 +10231,11 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		col_append_str(pinfo->cinfo, COL_INFO, ", <unknown>");
 	}
 
+	/* FID */
+	if (si->sip && si->sip->fid) {    /* only display non-zero fids */
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
 	WORD_COUNT;
 
 	/* 3 reserved bytes */
@@ -10226,7 +10444,11 @@ dissect_write_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -10612,6 +10834,14 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	WORD_COUNT;
 
+	si->smbtree = smb_tree;
+
+	/* fid */
+	if (si->sip && si->sip->fid) {    /* only display non-zero fids */
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+	}
+
 	/* next smb command */
 	cmd = tvb_get_uint8(tvb, offset);
 	if (cmd != 0xff) {
@@ -10692,7 +10922,9 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		    tvb, 0, 0);
 		goto endofcommand;
 	}
+
 	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len, false, false, &bc);
+
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
@@ -10721,6 +10953,9 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
+	proto_item_append_text(smb_tree, ", Path: %s",
+		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
@@ -10746,6 +10981,8 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	WORD_COUNT;
 
+	si->smbtree = smb_tree;
+
 	/* next smb command */
 	cmd = tvb_get_uint8(tvb, offset);
 	if (cmd != 0xff) {
@@ -10770,7 +11007,11 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+	if (fid)
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", fid);
+	si->smbtree = smb_tree;
+
+	fid_info = dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 	offset += 2;
 
 	/* create action */
@@ -10887,7 +11128,8 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* if there was an error, add a generated filename to the tree */
 	if (si->nt_status) {
-		dissect_smb_fid(tvb, pinfo, tree, 0, 0, fid, true, true, true, si);
+		proto_item_append_text(smb_tree, " (FID: 0x%04x)", fid);
+		dissect_smb_fid(tvb, pinfo, tree, 0, 0, fid, true, true, true, true, si);
 	}
 
 	return offset;
@@ -11383,7 +11625,7 @@ dissect_smb_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		fn);
 	COUNT_BYTES_TRANS(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 
 	*bcp = bc;
@@ -11653,7 +11895,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* fid */
 		CHECK_BYTE_COUNT_TRANS(2);
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+		if (fid)
+			proto_item_append_text(si->smbtree ? si->smbtree : parent_tree, ", (FID: 0x%04x)", fid);
+
+		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 		COUNT_BYTES_TRANS(2);
 
 		/* level of interest */
@@ -11677,7 +11922,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* fid */
 		CHECK_BYTE_COUNT_TRANS(2);
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+		if (fid)
+			proto_item_append_text(si->smbtree, ", (FID: 0x%04x)", fid);
+
+		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 		COUNT_BYTES_TRANS(2);
 
 		/* level of interest */
@@ -11816,7 +12064,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 			    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
 		break;
 	}
@@ -12610,7 +12858,7 @@ int
 dissect_qfi_SMB_FILE_INTERNAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc)
 {
-	/* file id */
+	/* file index number */
 	CHECK_BYTE_COUNT_SUBR(8);
 	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
@@ -14317,10 +14565,11 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int                   padcnt;
 	bool                  dissected_trans;
 	proto_item	      *it;
-
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
+
+	si->smbtree = smb_tree;
 
 	if (wc == 8 || (wc == 9 && si->cmd == SMB_COM_TRANSACTION2_SECONDARY)) {
 		/*secondary client request*/
@@ -14382,8 +14631,11 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* fid */
 			fid = tvb_get_letohs(tvb, offset);
-			dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, si);
+			if (fid)
+				proto_item_append_text(smb_tree, ", (FID: 0x%04x)", fid);
+			si->smbtree = smb_tree;
 
+			dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, false, false, false, true, si);
 			offset += 2;
 		}
 
@@ -14494,6 +14746,10 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
  					    val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
 							   "Unknown (0x%02x)"));
+				proto_item_append_text(smb_tree, " %s",
+						val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
+							   "Unknown (0x%02x)"));
+
 				if (tdc)
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dc, tdc);
 
@@ -16743,7 +16999,10 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	case 0x00:	/*TRANS2_OPEN2*/
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, si);
+		if (fid)
+			proto_item_append_text(si->smbtree, ", (FID: 0x%04x)", fid);
+
+		dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, true, false, false, true, si);
 		offset += 2;
 
 		/*
@@ -17012,6 +17271,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
+
 				switch (t2i->subcmd) {
 
 				case 0x0001:	/* FIND_FIRST2 */
@@ -17072,6 +17332,12 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						val_to_str_ext(t2i->subcmd,
 							       &trans2_cmd_vals_ext,
 							       "<unknown (0x%02x)>"));
+
+				/* Don't display a zero FID in the Packet List or the Packet Detail's SMB header line*/
+				if (si->sip && si->sip->fid) {
+					proto_item_append_text(smb_tree, " (FID: 0x%04x)", si->sip->fid);
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", si->sip->fid);
+				}
 			}
 		}
 		break;
@@ -17711,6 +17977,14 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 				val_to_str_ext(cmd, &smb_cmd_vals_ext, "Unknown (0x%02x)"));
 		}
 
+		/* Only show the subcommand on the SMB header for Trans2 reqs/resps) */
+		if (cmd == 0x32) {
+			proto_item_append_text(smb_tree, ", %s %s (0x%02x)",
+				val_to_str_ext_const(cmd, &smb_cmd_vals_ext, "Unknown"),
+				(si->request)?"Request":"Response",
+				cmd);
+		}
+
 		cmd_tree = proto_tree_add_subtree_format(smb_tree, tvb, offset, -1,
 			ett_smb_command, &cmd_item, "%s %s (0x%02x)",
 			val_to_str_ext_const(cmd, &smb_cmd_vals_ext, "Unknown"),
@@ -17725,7 +17999,8 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 		if (sip && sip->fid) {
 			if ( (si->request && (!sip->fid_seen_in_request))
 			     || ((!si->request) && sip->fid_seen_in_request) ) {
-				dissect_smb_fid(tvb, pinfo, cmd_tree, offset, 0, sip->fid, false, false, true, si);
+				si->smbtree = smb_tree;
+				dissect_smb_fid(tvb, pinfo, cmd_tree, offset, 0, sip->fid, false, false, true, false, si);
 			}
 		}
 

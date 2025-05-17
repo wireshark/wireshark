@@ -3542,7 +3542,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * It's a FID.
 			 */
 			fid = tvb_get_letohs(s_tvb, 2);
-			dissect_smb_fid(s_tvb, pinfo, pipe_tree, offset, 2, (uint16_t) fid, false, false, false, smb_info);
+			dissect_smb_fid(s_tvb, pinfo, pipe_tree, offset, 2, (uint16_t) fid, false, false, false, true, smb_info);
 			if (tri != NULL)
 				tri->fid = fid;
 			break;
@@ -3574,7 +3574,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 			fid = tri->fid;
 			if (fid != -1)
-				dissect_smb_fid(d_tvb, pinfo, pipe_tree, 0, 0, (uint16_t) fid, false, false, true, smb_info);
+				dissect_smb_fid(d_tvb, pinfo, pipe_tree, 0, 0, (uint16_t) fid, false, false, true, true, smb_info);
 		} else {
 			function = -1;
 			fid = -1;

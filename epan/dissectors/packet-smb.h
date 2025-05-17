@@ -248,6 +248,7 @@ typedef struct smb_info {
   int	   info_count;
   smb_saved_info_t *sip;	/* smb_saved_info_t, if any, for this */
   conv_tables_t	   *ct;
+  proto_tree *smbtree;
 } smb_info_t;
 
 /*
@@ -285,7 +286,7 @@ typedef struct _smb_locking_saved_info_t {
 	smb_lock_info_t *unlocks;
 } smb_locking_saved_info_t;
 
-/* used for tracking fid/tid to filename/sharename openedframe closedframe */
+/* fsi used for tracking fid/tid to filename/sharename openedframe closedframe */
 typedef struct _smb_fid_saved_info_t {
 	char	*filename;
 	uint32_t	 create_flags;
@@ -321,7 +322,7 @@ typedef struct _smb_tid_into_t {
  * Dissect an smb FID
  */
 extern smb_fid_info_t *dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int len, uint16_t fid, bool is_created, bool is_closed, bool is_generated, smb_info_t* si);
+    int offset, int len, uint16_t fid, bool is_created, bool is_closed, bool is_generated, bool is_displayed, smb_info_t* si);
 
 /*
  * Dissect named pipe state information.
