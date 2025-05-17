@@ -471,6 +471,7 @@ proto_reg_handoff_rfc7468(void)
 {
     heur_dissector_add("wtap_file", dissect_rfc7468_heur, "RFC 7468 file", "rfc7468_wtap", proto_rfc7468, HEURISTIC_ENABLE);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RFC7468, rfc7468_handle);
+    dissector_add_string("media_type", "application/pem-certificate-chain", rfc7468_handle);
 
     ber_handle = find_dissector("ber");
 }
