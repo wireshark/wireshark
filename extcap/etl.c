@@ -612,9 +612,9 @@ void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG origin
     wtap_rec rec = { 0 };
 
     wtap_rec_init(&rec, 2048); // Appropriate size?
+    wtap_setup_packet_rec(&rec, pkt_encap);
     rec.rec_header.packet_header.caplen = total_packet_length;
     rec.rec_header.packet_header.len = original_packet_length;
-    rec.rec_header.packet_header.pkt_encap = pkt_encap;
     rec.rec_header.packet_header.interface_id = interface_id;
     rec.presence_flags = WTAP_HAS_INTERFACE_ID;
     rec.block = wtap_block_create(WTAP_BLOCK_PACKET);

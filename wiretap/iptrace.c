@@ -232,6 +232,9 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return false;
 	}
 
+	wtap_setup_packet_rec(rec, wth->file_encap);
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
 	/*
 	 * The if_type field of the frame header appears to be an SNMP
 	 * ifType value giving the type of the interface.  Check out the
@@ -287,8 +290,6 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return false;
 	}
 
-	rec->rec_type = REC_TYPE_PACKET;
-	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
@@ -486,6 +487,9 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return false;
 	}
 
+	wtap_setup_packet_rec(rec, wth->file_encap);
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
 	/*
 	 * The if_type field of the frame header appears to be an SNMP
 	 * ifType value giving the type of the interface.  Check out the
@@ -559,8 +563,6 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return false;
 	}
 
-	rec->rec_type = REC_TYPE_PACKET;
-	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;

@@ -80,7 +80,7 @@ static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type,
     return true;
 }
 
-static bool rfc7468_read_impl(FILE_T fh, wtap_rec *rec,
+static bool rfc7468_read_impl(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
     ws_buffer_clean(&rec->data);
@@ -105,7 +105,7 @@ static bool rfc7468_read_impl(FILE_T fh, wtap_rec *rec,
         }
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->presence_flags = 0;
     rec->ts.secs = 0;
     rec->ts.nsecs = 0;
@@ -120,7 +120,7 @@ static bool rfc7468_read(wtap *wth, wtap_rec *rec,
 {
     *data_offset = file_tell(wth->fh);
 
-    return rfc7468_read_impl(wth->fh, rec, err, err_info);
+    return rfc7468_read_impl(wth, wth->fh, rec, err, err_info);
 }
 
 static bool rfc7468_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
@@ -129,7 +129,7 @@ static bool rfc7468_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0)
         return false;
 
-    return rfc7468_read_impl(wth->random_fh, rec, err, err_info);
+    return rfc7468_read_impl(wth, wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val rfc7468_open(wtap *wth, int *err, char **err_info)

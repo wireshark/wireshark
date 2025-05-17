@@ -262,9 +262,7 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
 
             snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
-            /* All packets go to 3GPP protocol stub dissector */
-            rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LOG_3GPP;
-            rec->rec_type = REC_TYPE_PACKET;
+            wtap_setup_packet_rec(rec, wth->file_encap);
             rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
             rec->presence_flags = WTAP_HAS_TS;
 
@@ -387,9 +385,7 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         char timestamp_string[32];
         snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
-        /* Make sure all packets go to log3gpp dissector */
-        rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LOG_3GPP;
-        rec->rec_type = REC_TYPE_PACKET;
+        wtap_setup_packet_rec(rec, wth->file_encap);
         rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
         rec->presence_flags = WTAP_HAS_TS;
 

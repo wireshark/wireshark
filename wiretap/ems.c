@@ -142,7 +142,7 @@ wtap_open_return_val ems_open(wtap *wth, int *err, char **err_info) {
     return WTAP_OPEN_NOT_MINE;
 }
 
-static bool ems_read_message(FILE_T fh, wtap_rec *rec,
+static bool ems_read_message(wtap *wth, FILE_T fh, wtap_rec *rec,
         int *err, char **err_info) {
 
     ems_line line;
@@ -162,7 +162,7 @@ static bool ems_read_message(FILE_T fh, wtap_rec *rec,
 
         ws_buffer_append(&rec->data, line, end - line);
 
-        rec->rec_type = REC_TYPE_PACKET;
+        wtap_setup_packet_rec(rec, wth->file_encap);
         rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
         rec->presence_flags = WTAP_HAS_TS;
         rec->rec_header.packet_header.len = (uint32_t) (end - line);
@@ -186,7 +186,7 @@ static bool ems_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
     *offset = file_tell(wth->fh);
     ws_debug("reading at offset %" PRId64, *offset);
 
-    if (!ems_read_message(wth->fh, rec, err, err_info)) {
+    if (!ems_read_message(wth, wth->fh, rec, err, err_info)) {
         return false;
     }
 
@@ -201,7 +201,7 @@ static bool ems_seek_read(wtap *wth, int64_t offset, wtap_rec *rec,
         return false;
     }
 
-    if (!ems_read_message(wth->random_fh, rec, err, err_info)) {
+    if (!ems_read_message(wth, wth->random_fh, rec, err, err_info)) {
         return false;
     }
 

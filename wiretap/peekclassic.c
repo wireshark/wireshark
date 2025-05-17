@@ -450,7 +450,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh, wtap_rec *rec,
 	 */
 
 	/* fill in packet header values */
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	tsecs = (time_t) (timestamp/1000000);
@@ -662,7 +662,7 @@ static bool peekclassic_read_packet_v56(wtap *wth, FILE_T fh, wtap_rec *rec,
 	 */
 
 	/* fill in packet header values */
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	/* timestamp is in milliseconds since reference_time */

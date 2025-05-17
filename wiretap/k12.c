@@ -567,7 +567,7 @@ memiszero(const void *ptr, size_t count)
 }
 
 static bool
-process_packet_data(wtap_rec *rec, uint8_t *buffer,
+process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
                     unsigned record_len, k12_t *k12, int *err, char **err_info)
 {
     uint32_t type;
@@ -595,7 +595,7 @@ process_packet_data(wtap_rec *rec, uint8_t *buffer,
         return false;
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
 
@@ -725,7 +725,7 @@ static bool k12_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_
 
     } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET && (type & K12_MASK_PACKET) != K12_REC_D0020) || !src_id || !src_desc );
 
-    return process_packet_data(rec, buffer, (unsigned)len, k12, err, err_info);
+    return process_packet_data(wth, rec, buffer, (unsigned)len, k12, err, err_info);
 }
 
 
@@ -755,7 +755,7 @@ static bool k12_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, 
 
     buffer = k12->rand_read_buff;
 
-    status = process_packet_data(rec, buffer, (unsigned)len, k12, err, err_info);
+    status = process_packet_data(wth, rec, buffer, (unsigned)len, k12, err, err_info);
 
     K12_DBG(5,("k12_seek_read: DONE OK"));
 

@@ -47,7 +47,8 @@ void register_busmaster(void);
  */
 
 static bool
-busmaster_gen_packet(wtap_rec               *rec,
+busmaster_gen_packet(wtap                   *wth,
+                     wtap_rec               *rec,
                      const busmaster_priv_t *priv_entry, const msg_t *msg,
                      int                    *err, char **err_info)
 {
@@ -155,7 +156,7 @@ busmaster_gen_packet(wtap_rec               *rec,
         has_ts = true;
     }
 
-    rec->rec_type       = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = has_ts ? WTAP_HAS_TS : 0;
     rec->ts.secs        = secs;
@@ -362,7 +363,7 @@ busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
         case LOG_ENTRY_MSG:
             is_msg     = true;
             priv_entry = busmaster_find_priv_entry(wth->priv, *data_offset);
-            is_ok      = busmaster_gen_packet(rec, priv_entry, &state.msg, err, err_info);
+            is_ok      = busmaster_gen_packet(wth, rec, priv_entry, &state.msg, err, err_info);
             break;
         case LOG_ENTRY_EOF:
         case LOG_ENTRY_ERROR:
@@ -416,7 +417,7 @@ busmaster_seek_read(wtap   *wth, int64_t seek_off, wtap_rec *rec,
         return false;
     }
 
-    return busmaster_gen_packet(rec, priv_entry, &state.msg, err, err_info);
+    return busmaster_gen_packet(wth, rec, priv_entry, &state.msg, err, err_info);
 }
 
 static const struct supported_block_type busmaster_blocks_supported[] = {

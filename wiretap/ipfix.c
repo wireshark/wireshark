@@ -141,7 +141,7 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
  * errors (EOF is ok, since return value is still false).
  */
 static bool
-ipfix_read_message(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
+ipfix_read_message(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
     ipfix_message_header_t msg_hdr;
 
@@ -153,7 +153,7 @@ ipfix_read_message(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
      * to check it.
      */
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
     rec->rec_header.packet_header.len = msg_hdr.message_length;
@@ -292,7 +292,7 @@ ipfix_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
     *data_offset = file_tell(wth->fh);
     ws_debug("offset is initially %" PRId64, *data_offset);
 
-    if (!ipfix_read_message(wth->fh, rec, err, err_info)) {
+    if (!ipfix_read_message(wth, wth->fh, rec, err, err_info)) {
         ws_debug("couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return false;
@@ -316,7 +316,7 @@ ipfix_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 
     ws_debug("reading at offset %" PRIu64, seek_off);
 
-    if (!ipfix_read_message(wth->random_fh, rec, err, err_info)) {
+    if (!ipfix_read_message(wth, wth->random_fh, rec, err, err_info)) {
         ws_debug("couldn't read message header");
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;

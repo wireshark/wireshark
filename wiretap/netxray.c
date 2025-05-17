@@ -1615,7 +1615,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 		break;
 	}
 
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	if (netxray->version_major == 0) {
 		rec->presence_flags = WTAP_HAS_TS;

@@ -754,12 +754,11 @@ write_current_packet(bool cont)
              * aren't really used when writing, it doesn't matter.
              */
         } else {
-            rec.rec_type = REC_TYPE_PACKET;
+            wtap_setup_packet_rec(&rec, info_p->encapsulation);
             rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = data_length;
             rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
-            rec.rec_header.packet_header.pkt_encap = info_p->encapsulation;
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
             if (has_direction) {
                 wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);

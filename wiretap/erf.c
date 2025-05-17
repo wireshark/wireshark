@@ -722,7 +722,7 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
     uint64_t ts = pletoh64(&erf_header->ts);
 
     /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != file_type_subtype_erf) {*/
-      rec->rec_type = REC_TYPE_PACKET;
+      wtap_setup_packet_rec(rec, wth->file_encap);
       rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     /*
      * XXX: ERF_TYPE_META records should ideally be FT_SPECIFIC for display

@@ -64,6 +64,24 @@ WSLUA_METAMETHOD FrameInfo__tostring(lua_State* L) {
     WSLUA_RETURN(1); /* String of debug information. */
 }
 
+WSLUA_METHOD FrameInfo_setup_packet_rec(lua_State* L) {
+    /* calls wtap_setup_packet_rec() */
+#define WSLUA_ARG_FrameInfo_setup_packet_rec_ENCAP 2 /* The encapsulation type to use. */
+    FrameInfo fi = checkFrameInfo(L,1);
+    int encap = wslua_checkuint32(L, WSLUA_ARG_FrameInfo_setup_packet_rec_ENCAP);
+
+    wtap_setup_packet_rec(fi->rec, encap);
+
+    /*
+     * Always succeeds.
+     *
+     * XXX - can a method return nothing?
+     */
+    lua_pushboolean(L, true);
+
+    WSLUA_RETURN(1);
+}
+
 /* XXX: should this function be a method of File instead? */
 WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
     /* Tells Wireshark to read directly from given file into frame data buffer, for length bytes. Returns true if succeeded, else false. */
@@ -292,6 +310,7 @@ WSLUA_ATTRIBUTES FrameInfo_attributes[] = {
 };
 
 WSLUA_METHODS FrameInfo_methods[] = {
+    WSLUA_CLASS_FNREG(FrameInfo,setup_packet_rec),
     WSLUA_CLASS_FNREG(FrameInfo,read_data),
     { NULL, NULL }
 };

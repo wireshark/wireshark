@@ -1298,7 +1298,7 @@ blf_read_bytes(blf_params_t *params, uint64_t real_pos, void *target_buffer, uin
 
 static void
 blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, int pkt_encap, uint16_t channel, uint16_t hwchannel, unsigned caplen, unsigned len) {
-    params->rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(params->rec, pkt_encap);
     params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     params->rec->presence_flags = WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
     params->rec->ts_rel_cap_valid = false;
@@ -1343,7 +1343,6 @@ blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, in
     tmp_ts.nsecs = params->blf_data->start_offset_ns % (1000 * 1000 * 1000);
     nstime_delta(&params->rec->ts_rel_cap, &params->rec->ts, &tmp_ts);
 
-    params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
     params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel, hwchannel, NULL);
 
     /* TODO: before we had to remove comments and verdict here to not leak memory but APIs have changed ... */

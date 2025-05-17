@@ -196,7 +196,7 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)(item_header.length));
         g_free(tmpbuf);
 
-        params->rec->rec_type = REC_TYPE_PACKET;
+        wtap_setup_packet_rec(params->rec, WTAP_ENCAP_AUTOSAR_DLT);
         params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
         params->rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
         params->rec->tsprec = WTAP_TSPREC_USEC;
@@ -205,7 +205,6 @@ autosar_dlt_read_block(autosar_dlt_params_t *params, int64_t start_pos, int *err
 
         params->rec->rec_header.packet_header.caplen = (uint32_t)(item_header.length + sizeof header);
         params->rec->rec_header.packet_header.len = (uint32_t)(item_header.length + sizeof header);
-        params->rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_AUTOSAR_DLT;
         params->rec->rec_header.packet_header.interface_id = autosar_dlt_lookup_interface(params, header.ecu_id);
 
         return true;

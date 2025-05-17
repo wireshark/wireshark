@@ -1969,6 +1969,12 @@ void wtap_rec_reset(wtap_rec *rec);
 WS_DLL_PUBLIC
 void wtap_rec_cleanup(wtap_rec *rec);
 
+/**
+ * Set up a wtap_rec for a packet (REC_TYPE_PACKET).
+ */
+WS_DLL_PUBLIC
+void wtap_setup_packet_rec(wtap_rec *rec, int encap);
+
 /*
  * Types of compression for a file, including "none".
  */

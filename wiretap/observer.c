@@ -542,11 +542,18 @@ static bool
 process_packet_header(wtap *wth, packet_entry_header *packet_header,
     wtap_rec *rec, int *err, char **err_info)
 {
-    /* set the wiretap record metadata fields */
-    rec->rec_type = REC_TYPE_PACKET;
+    /*
+     * Set the wiretap record metadata fields.
+     *
+     * XXX - the link=layer type is per-packet, as it's in the packet
+     * header, but there's also a link-layer type in the file header,
+     * from which we get the file's encapsulation.  What relationship
+     * does the latter have to the former?  Do we ever need to make
+     * the file's encapsulation WTAP_ENCAP_PER_PACKET?
+     */
+    wtap_setup_packet_rec(rec, observer_to_wtap_encap(packet_header->network_type));
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    rec->rec_header.packet_header.pkt_encap = observer_to_wtap_encap(packet_header->network_type);
     if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
         rec->rec_header.packet_header.len = packet_header->network_size;
         rec->rec_header.packet_header.caplen = packet_header->captured_size;

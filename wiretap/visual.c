@@ -329,7 +329,7 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     /* Get the included length of data. This includes extra headers + payload */
     packet_size = pletoh16(&vpkt_hdr.incl_len);
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
@@ -504,8 +504,13 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
     /* Not sure about token ring. Just leaving alone for now. */
     case WTAP_ENCAP_TOKEN_RING:
-    default:
         break;
+
+    default:
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup_printf("visual: Unknown per-file encapsulation %d",
+                    wth->file_encap);
+        return false;
     }
 
     rec->rec_header.packet_header.caplen = packet_size;

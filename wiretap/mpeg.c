@@ -238,7 +238,7 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	if (!wtap_read_bytes_buffer(fh, &rec->data, packet_size, err, err_info))
 		return false;
 
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
 	rec->presence_flags = 0; /* we may or may not have a time stamp */

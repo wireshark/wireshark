@@ -64,7 +64,7 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     return false;
   }
 
-  rec->rec_type = REC_TYPE_PACKET;
+  wtap_setup_packet_rec(rec, wth->file_encap);
   rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
   /* The next 4 bytes are the packet length */

@@ -303,14 +303,13 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info)
 /* Parse the capture file.
    Returns true if we got a packet, false otherwise. */
 static bool
-parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec,
-             unsigned length, int64_t *next_packet_seek_start_ret,
-             int *err, char **err_info)
+parse_ascend(ascend_t *ascend, wtap *wth, FILE_T fh, wtap_rec *rec,
+             int64_t *next_packet_seek_start_ret, int *err, char **err_info)
 {
     ascend_state_t parser_state = {0};
     int retval;
 
-    ws_buffer_assure_space(&rec->data, length);
+    ws_buffer_assure_space(&rec->data, wth->snapshot_length);
     parser_state.fh = fh;
     parser_state.pseudo_header = &rec->rec_header.packet_header.pseudo_header.ascend;
 
@@ -366,7 +365,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec,
         if (ascend->inittime > parser_state.secs)
             ascend->inittime -= parser_state.secs;
         }
-        rec->rec_type = REC_TYPE_PACKET;
+        wtap_setup_packet_rec(rec, wth->file_encap);
         rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
         rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
         rec->ts.secs = parser_state.secs + ascend->inittime;
@@ -416,8 +415,8 @@ static bool ascend_read(wtap *wth, wtap_rec *rec, int *err,
         /* EOF or read error */
         return false;
     }
-    if (!parse_ascend(ascend, wth->fh, rec, wth->snapshot_length,
-                        &ascend->next_packet_seek_start, err, err_info))
+    if (!parse_ascend(ascend, wth, wth->fh, rec,
+                      &ascend->next_packet_seek_start, err, err_info))
         return false;
 
     /* Flex might have gotten an EOF and caused *err to be set to
@@ -440,8 +439,7 @@ static bool ascend_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
-    if (!parse_ascend(ascend, wth->random_fh, rec, wth->snapshot_length,
-                      NULL, err, err_info))
+    if (!parse_ascend(ascend, wth, wth->random_fh, rec, NULL, err, err_info))
         return false;
 
     /* Flex might have gotten an EOF and caused *err to be set to

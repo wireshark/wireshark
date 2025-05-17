@@ -317,13 +317,12 @@ pppdump_open(wtap *wth, int *err, char **err_info)
 
 /* Set part of the struct wtap_rec. */
 static void
-pppdump_set_phdr(wtap_rec *rec, int num_bytes, direction_enum direction)
+pppdump_set_phdr(wtap *wth, wtap_rec *rec, int num_bytes, direction_enum direction)
 {
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->rec_header.packet_header.len = num_bytes;
 	rec->rec_header.packet_header.caplen = num_bytes;
-	rec->rec_header.packet_header.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
 
 	rec->rec_header.packet_header.pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? true : false);
 }
@@ -368,7 +367,7 @@ pppdump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
 	*data_offset = state->pkt_cnt;
 	state->pkt_cnt++;
 
-	pppdump_set_phdr(rec, num_bytes, direction);
+	pppdump_set_phdr(wth, rec, num_bytes, direction);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = state->timestamp;
 	rec->ts.nsecs = state->tenths * 100000000;
@@ -773,7 +772,7 @@ pppdump_seek_read(wtap *wth,
 		num_bytes_to_skip = 0;
 	} while (direction != pid->dir);
 
-	pppdump_set_phdr(rec, num_bytes, pid->dir);
+	pppdump_set_phdr(wth, rec, num_bytes, pid->dir);
 
 	return true;
 }

@@ -34,7 +34,7 @@ static bool csids_read(wtap *wth, wtap_rec *rec,
         int *err, char **err_info, int64_t *data_offset);
 static bool csids_seek_read(wtap *wth, int64_t seek_off,
         wtap_rec *rec, int *err, char **err_info);
-static bool csids_read_packet(FILE_T fh, csids_t *csids,
+static bool csids_read_packet(wtap *wth, FILE_T fh, csids_t *csids,
         wtap_rec *rec, int *err, char **err_info);
 
 struct csids_header {
@@ -142,7 +142,7 @@ static bool csids_read(wtap *wth, wtap_rec *rec,
 
   *data_offset = file_tell(wth->fh);
 
-  return csids_read_packet( wth->fh, csids, rec, err, err_info );
+  return csids_read_packet( wth, wth->fh, csids, rec, err, err_info );
 }
 
 /* Used to read packets in random-access fashion */
@@ -158,7 +158,7 @@ csids_seek_read(wtap *wth,
   if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
     return false;
 
-  if( !csids_read_packet( wth->random_fh, csids, rec, err, err_info ) ) {
+  if( !csids_read_packet( wth, wth->random_fh, csids, rec, err, err_info ) ) {
     if( *err == 0 )
       *err = WTAP_ERR_SHORT_READ;
     return false;
@@ -167,7 +167,7 @@ csids_seek_read(wtap *wth,
 }
 
 static bool
-csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
+csids_read_packet(wtap *wth, FILE_T fh, csids_t *csids, wtap_rec *rec,
                   int *err, char **err_info)
 {
   struct csids_header hdr;
@@ -183,7 +183,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
    * it.
    */
 
-  rec->rec_type = REC_TYPE_PACKET;
+  wtap_setup_packet_rec(rec, wth->file_encap);
   rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
   rec->presence_flags = WTAP_HAS_TS;
   rec->rec_header.packet_header.len = hdr.caplen;

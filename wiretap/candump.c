@@ -36,7 +36,7 @@ void register_candump(void);
  */
 
 static bool
-candump_gen_packet(wtap_rec *rec, const msg_t *msg, int *err, char **err_info)
+candump_gen_packet(wtap *wth, wtap_rec *rec, const msg_t *msg, int *err, char **err_info)
 {
     /* Generate Exported PDU tags for the packet info */
     ws_buffer_clean(&rec->data);
@@ -87,7 +87,7 @@ candump_gen_packet(wtap_rec *rec, const msg_t *msg, int *err, char **err_info)
         ws_buffer_append(&rec->data, (uint8_t *)&can_frame, sizeof(can_frame));
     }
 
-    rec->rec_type       = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
     rec->ts             = msg->ts;
@@ -203,7 +203,7 @@ candump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
     candump_debug_printf("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
-    return candump_gen_packet(rec, &msg, err, err_info);
+    return candump_gen_packet(wth, rec, &msg, err, err_info);
 }
 
 static bool
@@ -227,7 +227,7 @@ candump_seek_read(wtap *wth , int64_t seek_off, wtap_rec *rec,
     if (!candump_parse(wth->random_fh, &msg, NULL, err, err_info))
         return false;
 
-    return candump_gen_packet(rec, &msg, err, err_info);
+    return candump_gen_packet(wth, rec, &msg, err, err_info);
 }
 
 static const struct supported_block_type candump_blocks_supported[] = {

@@ -1156,7 +1156,7 @@ static bool nstrace_set_start_time(wtap *wth, int file_version, int *err,
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             return false;\
         }\
-        (rec)->rec_type = REC_TYPE_PACKET;\
+        wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),type,ver);\
@@ -1342,7 +1342,7 @@ static bool nstrace_read_v10(wtap *wth, wtap_rec *rec,
             *err_info = g_strdup("nstrace: record size is less than record header size");\
             return false;\
         }\
-        (rec)->rec_type = REC_TYPE_PACKET;\
+        wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
@@ -1543,7 +1543,7 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
             return false;\
         }\
         nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
-        (rec)->rec_type = REC_TYPE_PACKET;\
+        wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
@@ -1742,7 +1742,7 @@ static bool nstrace_read_v30(wtap *wth, wtap_rec *rec,
 #define PACKET_DESCRIBE(rec,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) pd;\
-        (rec)->rec_type = REC_TYPE_PACKET;\
+        wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),type,ver);\
@@ -1837,7 +1837,7 @@ static bool nstrace_seek_read_v10(wtap *wth, int64_t seek_off,
 #define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
-        (rec)->rec_type = REC_TYPE_PACKET;\
+        wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
@@ -1962,7 +1962,7 @@ static bool nstrace_seek_read_v20(wtap *wth, int64_t seek_off,
 #define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
-        (rec)->rec_type = REC_TYPE_PACKET;\
+        wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         SETETHOFFSET_##ver(rec);\

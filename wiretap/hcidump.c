@@ -25,7 +25,7 @@ struct dump_hdr {
 
 #define DUMP_HDR_SIZE (sizeof(struct dump_hdr))
 
-static bool hcidump_read_packet(FILE_T fh, wtap_rec *rec,
+static bool hcidump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
 	struct dump_hdr dh;
@@ -46,7 +46,7 @@ static bool hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 		return false;
 	}
 
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = GUINT32_FROM_LE(dh.ts_sec);
@@ -64,7 +64,7 @@ static bool hcidump_read(wtap *wth, wtap_rec *rec,
 {
 	*data_offset = file_tell(wth->fh);
 
-	return hcidump_read_packet(wth->fh, rec, err, err_info);
+	return hcidump_read_packet(wth, wth->fh, rec, err, err_info);
 }
 
 static bool hcidump_seek_read(wtap *wth, int64_t seek_off,
@@ -73,7 +73,7 @@ static bool hcidump_seek_read(wtap *wth, int64_t seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	return hcidump_read_packet(wth->random_fh, rec, err, err_info);
+	return hcidump_read_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val hcidump_open(wtap *wth, int *err, char **err_info)

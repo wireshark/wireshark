@@ -251,7 +251,7 @@ static bool
 k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
     int *err, char **err_info)
 {
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, state->g_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
@@ -259,8 +259,6 @@ k12text_set_headers(wtap_rec *rec, k12text_state_t *state,
 	rec->ts.nsecs = 1000000*state->g_ms + 1000*state->g_ns;
 
 	rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = state->ii;
-
-	rec->rec_header.packet_header.pkt_encap = state->g_encap;
 
 	/* The file-encap is WTAP_ENCAP_PER_PACKET */
 	switch(state->g_encap) {

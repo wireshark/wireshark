@@ -156,9 +156,10 @@ int logcat_exported_pdu_length(const uint8_t *pd) {
     return length;
 }
 
-static bool logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
-    wtap_rec *rec, int *err, char **err_info)
+static bool logcat_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
+    int *err, char **err_info)
 {
+    struct logcat_phdr  *logcat = (struct logcat_phdr *) wth->priv;
     int                  packet_size;
     uint16_t             payload_length;
     unsigned             tmp[2];
@@ -196,7 +197,7 @@ static bool logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
         return false;
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
     rec->ts.secs = (time_t) GINT32_FROM_LE(log_entry->sec);
@@ -214,8 +215,7 @@ static bool logcat_read(wtap *wth, wtap_rec *rec,
 {
     *data_offset = file_tell(wth->fh);
 
-    return logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
-        rec, err, err_info);
+    return logcat_read_packet(wth, wth->fh, rec, err, err_info);
 }
 
 static bool logcat_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
@@ -224,8 +224,7 @@ static bool logcat_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return false;
 
-    if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->random_fh,
-         rec, err, err_info)) {
+    if (!logcat_read_packet(wth, wth->random_fh, rec, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return false;

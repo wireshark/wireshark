@@ -304,6 +304,8 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     }
     epdu_len = wtap_buffer_append_epdu_end(&rec->data);
 
+    wtap_setup_packet_rec(rec, wth->file_encap);
+
     /* Offset is milliseconds since the start of recording */
     ts.secs = offset / 1000;
     ts.nsecs = (offset % 1000) * 1000000;
@@ -311,7 +313,6 @@ rtpdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     rec->presence_flags |= WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.caplen = epdu_len + plen;
     rec->rec_header.packet_header.len = epdu_len + length;
-    rec->rec_type = REC_TYPE_PACKET;
 
     return wtap_read_bytes_buffer(fh, &rec->data, length, err, err_info);
 }

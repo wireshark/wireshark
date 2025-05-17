@@ -350,12 +350,11 @@ LLVMFuzzerTestOneInput(const uint8_t *buf, size_t real_len)
 
 	wtap_rec_init(&rec, len);
 
-	rec.rec_type = REC_TYPE_PACKET;
+	/* wtap_setup_packet_rec(&rec, WTAP_ENCAP_ETHERNET); */
+	wtap_setup_packet_rec(&rec, INT16_MAX);
 	rec.rec_header.packet_header.caplen = len;
 	rec.rec_header.packet_header.len = len;
 
-	/* whdr.pkt_encap = WTAP_ENCAP_ETHERNET; */
-	rec.rec_header.packet_header.pkt_encap = INT16_MAX;
 	rec.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN; /* most common flags... */
 
 	ws_buffer_append(&rec.data, buf, real_len);

@@ -1287,12 +1287,9 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
     size_t length;
     uint8_t *frame_buffer;
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
-
-    /* Make sure all packets go to Catapult DCT2000 dissector */
-    rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
 
     /* Fill in timestamp (capture base + packet offset) */
     rec->ts.secs = file_externals->start_secs + seconds;

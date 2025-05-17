@@ -765,7 +765,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
       return false;
     }
 
-  rec->rec_type = REC_TYPE_PACKET;
+  wtap_setup_packet_rec(rec, wth->file_encap);
   rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
   rec->presence_flags = WTAP_HAS_CAP_LEN;
 
@@ -790,7 +790,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
     }
 
   rec->rec_header.packet_header.len                       = pkt_len;
-  rec->rec_header.packet_header.pkt_encap                 = WTAP_ENCAP_ETHERNET;
   rec->rec_header.packet_header.pseudo_header.eth.fcs_len = -1;
 
   /*

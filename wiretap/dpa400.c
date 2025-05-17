@@ -105,7 +105,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 		get_ts(&hdr, &rec->ts);
 
-		rec->rec_type = REC_TYPE_PACKET;
+		wtap_setup_packet_rec(rec, wth->file_encap);
 		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = 0;
@@ -134,7 +134,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		ws_buffer_append(&rec->data, &chunk[0], 1);
 		ctr++;
 
-		rec->rec_type = REC_TYPE_PACKET;
+		wtap_setup_packet_rec(rec, wth->file_encap);
 		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = ctr;
@@ -172,7 +172,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 			ws_buffer_append(&rec->data, &chunk[0], 1);
 		}
 
-		rec->rec_type = REC_TYPE_PACKET;
+		wtap_setup_packet_rec(rec, wth->file_encap);
 		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = ctr;
@@ -183,7 +183,7 @@ static bool dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	case DPA400_TS_OVERFLOW: {
 		get_ts_overflow(&rec->ts);
 
-		rec->rec_type = REC_TYPE_PACKET;
+		wtap_setup_packet_rec(rec, wth->file_encap);
 		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->presence_flags = WTAP_HAS_TS;
 		rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len = ctr;

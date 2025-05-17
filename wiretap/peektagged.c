@@ -253,7 +253,6 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, char **err_info)
     uint32_t fileVersion = 0;
     uint32_t mediaType;
     uint32_t mediaSubType = 0;
-    int file_encap;
     static const int peektagged_encap[] = {
         WTAP_ENCAP_ETHERNET,
         WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
@@ -373,10 +372,8 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, char **err_info)
     /*
      * This is an Peek tagged file.
      */
-    file_encap = peektagged_encap[mediaSubType];
-
     wth->file_type_subtype = peektagged_file_type_subtype;
-    wth->file_encap = file_encap;
+    wth->file_encap = peektagged_encap[mediaSubType];
     wth->subtype_read = peektagged_read;
     wth->subtype_seek_read = peektagged_seek_read;
     wth->file_tsprec = WTAP_TSPREC_NSEC;
@@ -730,7 +727,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         return -1;
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.len    = length;

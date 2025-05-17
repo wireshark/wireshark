@@ -1208,7 +1208,7 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 	rec_length_remaining = hdr->length;
 
 	/* Initialize - we'll be setting some presence flags below. */
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = 0;
 

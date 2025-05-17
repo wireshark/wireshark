@@ -229,11 +229,12 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 
 /* Parse a <msg ...><rawMsg ...>XXXX</rawMsg></msg> into packet data. */
 static bool
-nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *rec, uint8_t *input, size_t len, int *err, char **err_info)
+nettrace_msg_to_packet(wtap *wth, wtap_rec *rec, uint8_t *input, size_t len, int *err, char **err_info)
 {
 /* Convenience macro. haystack must be >= input! */
 #define STRNSTR(haystack, needle) g_strstr_len(haystack, (len - ((uint8_t*)(haystack) - (uint8_t*)input)), needle)
 
+	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
 	bool status = true;
 	char *curr_pos, *next_msg_pos, *next_pos, *prev_pos;
 	exported_pdu_info_t  exported_pdu_info = {0};
@@ -262,7 +263,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 
 	curr_pos = input + CLEN(c_s_msg);
 
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = 0; /* start out assuming no special features */
 	rec->ts.secs = 0;
@@ -625,7 +626,7 @@ nettrace_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data
 	*data_offset = file_info->start_offset + msg_offset;
 
 	/* pass all of <msg....</msg> to nettrace_msg_to_packet() */
-	status = nettrace_msg_to_packet(file_info, rec, msg_start, msg_len, err, err_info);
+	status = nettrace_msg_to_packet(wth, rec, msg_start, msg_len, err, err_info);
 
 	/* Finally, shift our buffer to the end of this message to get ready for the next one.
 	 * Re-use msg_len to get the length of the data we're done with.
@@ -669,7 +670,7 @@ nettrace_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **
 	msg_end += CLEN(c_e_msg);
 	msg_len = (unsigned)(msg_end - file_info->buffer->data);
 
-	status = nettrace_msg_to_packet(file_info, rec, file_info->buffer->data, msg_len, err, err_info);
+	status = nettrace_msg_to_packet(wth, rec, file_info->buffer->data, msg_len, err, err_info);
 	g_byte_array_set_size(file_info->buffer, 0);
 	return status;
 }

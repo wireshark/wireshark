@@ -115,8 +115,8 @@ static peak_trc_column_map_t colmap[] = {
 void register_peak_trc(void);
 
 static bool
-peak_trc_write_packet(wtap_rec *rec, const peak_trc_msg_t *msg, int *err,
-                      gchar **err_info)
+peak_trc_write_packet(wtap* wth, wtap_rec *rec, const peak_trc_msg_t *msg,
+                      int *err, gchar **err_info)
 {
     (void)err;
     (void)err_info;
@@ -168,7 +168,7 @@ peak_trc_write_packet(wtap_rec *rec, const peak_trc_msg_t *msg, int *err,
                          sizeof(can_frame));
     }
 
-    rec->rec_type       = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
     rec->ts.secs        = msg->ts.secs;
@@ -762,7 +762,9 @@ static bool peak_trc_read_packet_v2(peak_trc_state_t* state, peak_trc_msg_t* msg
 }
 
 static bool
-peak_trc_read_packet(FILE_T fh, peak_trc_state_t* state, wtap_rec *rec, int *err, gchar **err_info, gint64 *data_offset)
+peak_trc_read_packet(wtap *wth, FILE_T fh, peak_trc_state_t* state,
+                     wtap_rec *rec, int *err, gchar **err_info,
+                     gint64 *data_offset)
 {
     peak_trc_msg_t msg = {0};
     char line_buffer[PEAK_TRC_MAX_LINE_SIZE];
@@ -815,7 +817,7 @@ peak_trc_read_packet(FILE_T fh, peak_trc_state_t* state, wtap_rec *rec, int *err
             }
         }
 
-        return peak_trc_write_packet(rec, &msg, err, err_info);
+        return peak_trc_write_packet(wth, rec, &msg, err, err_info);
     }
 
     return false;
@@ -831,7 +833,7 @@ peak_trc_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
     peak_trc_debug_printf("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
-    return peak_trc_read_packet(wth->fh, state, rec, err, err_info, data_offset);
+    return peak_trc_read_packet(wth, wth->fh, state, rec, err, err_info, data_offset);
 }
 
 static bool peak_trc_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err_info)
@@ -849,7 +851,7 @@ static bool peak_trc_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *
         return false;
     }
 
-    return peak_trc_read_packet(wth->random_fh, state, rec, err, err_info, NULL);
+    return peak_trc_read_packet(wth, wth->random_fh, state, rec, err, err_info, NULL);
 }
 
 static void peak_trc_close(wtap* wth)

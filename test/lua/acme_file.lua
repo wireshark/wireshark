@@ -662,9 +662,9 @@ function Packet:set_comment(comment)
     self["comment"] = comment
 end
 
-function Packet:set_wslua_fields(frame)
+function Packet:set_wslua_fields(frame, capture)
+    frame:setup_packet_rec(capture.encap)
     frame.time = self.timestamp
-    frame.rec_type = wtap_rec_types.PACKET
     frame.flags = wtap_presence_flags.TS  -- for timestamp
     if self.comment then
         frame.comment = self.comment
@@ -1375,7 +1375,7 @@ local function read_common(funcname, file, capture, frame, position, seeking)
     dprint2(funcname,": calling class object's read_data()")
     phdr:read_data(file, frame, line, seeking)
 
-    if not phdr:set_wslua_fields(frame) then
+    if not phdr:set_wslua_fields(frame, capture) then
         dprint(funcname, "failed to set Wireshark packet header info")
         return
     end

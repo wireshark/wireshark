@@ -347,7 +347,7 @@ create_pseudo_hdr(uint8_t *buf, uint8_t dat_trans_type, uint16_t dat_len,
 
 
 static bool
-camins_read_packet(FILE_T fh, wtap_rec *rec,
+camins_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     uint64_t *time_us, int *err, char **err_info)
 {
     uint8_t     dat_trans_type;
@@ -384,10 +384,9 @@ camins_read_packet(FILE_T fh, wtap_rec *rec,
         return false;
     offset += bytes_read;
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = 0; /* we may or may not have a time stamp */
-    rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_DVBCI;
     if (time_us) {
         rec->presence_flags = WTAP_HAS_TS;
         rec->ts.secs = (time_t)(*time_us / (1000 * 1000));
@@ -406,7 +405,7 @@ camins_read(wtap *wth, wtap_rec *rec, int *err,
 {
     *data_offset = file_tell(wth->fh);
 
-    return camins_read_packet(wth->fh, rec, (uint64_t *)(wth->priv),
+    return camins_read_packet(wth, wth->fh, rec, (uint64_t *)(wth->priv),
                               err, err_info);
 }
 
@@ -418,7 +417,7 @@ camins_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return false;
 
-    return camins_read_packet(wth->random_fh, rec, NULL, err, err_info);
+    return camins_read_packet(wth, wth->random_fh, rec, NULL, err, err_info);
 }
 
 

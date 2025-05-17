@@ -188,6 +188,9 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	if (!esc_read(fh, hdr, EYESDN_HDR_LENGTH, err, err_info))
 		return false;
 
+	wtap_setup_packet_rec(rec, WTAP_ENCAP_UNKNOWN);
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
 	/* extract information from header */
 	usecs = pntoh24(&hdr[0]);
 #ifdef TV64BITS
@@ -296,8 +299,6 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 		return false;
 	}
 
-	rec->rec_type = REC_TYPE_PACKET;
-	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = secs;
 	rec->ts.nsecs = usecs * 1000;

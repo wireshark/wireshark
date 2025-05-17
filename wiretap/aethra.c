@@ -329,10 +329,10 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 
 	packet_size = rec_size - (uint32_t)(sizeof *hdr - sizeof hdr->rec_size);
 
-	msecs = pletoh32(hdr->timestamp);
-	rec->rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
+	msecs = pletoh32(hdr->timestamp);
 	rec->ts.secs = aethra->start + (msecs / 1000);
 	rec->ts.nsecs = (msecs % 1000) * 1000000;
 	rec->rec_header.packet_header.caplen = packet_size;

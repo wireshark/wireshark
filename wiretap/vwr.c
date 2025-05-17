@@ -781,21 +781,21 @@ static bool         vwr_seek_read(wtap *, int64_t, wtap_rec *, int *, char **);
 
 static bool         vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *,
                                         int *, char **);
-static bool         vwr_process_rec_data(FILE_T fh, int rec_size,
-                                         wtap_rec *record, vwr_t *vwr,
-                                         int IS_TX, int log_mode, int *err,
+static bool         vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size,
+                                         wtap_rec *record, int IS_TX,
+                                         int log_mode, int *err,
                                          char **err_info);
 
 static int          vwr_get_fpga_version(wtap *, int *, char **);
 
-static bool         vwr_read_s1_W_rec(vwr_t *, wtap_rec *, const uint8_t *,
+static bool         vwr_read_s1_W_rec(wtap *, wtap_rec *, const uint8_t *,
                                       int, int *, char **);
-static bool         vwr_read_s2_W_rec(vwr_t *, wtap_rec *, const uint8_t *,
+static bool         vwr_read_s2_W_rec(wtap *, wtap_rec *, const uint8_t *,
                                       int, int, int *, char **);
 /* For FPGA version >= 48 (OCTO Platform), following function will be used */
-static bool         vwr_read_s3_W_rec(vwr_t *, wtap_rec *, const uint8_t *,
+static bool         vwr_read_s3_W_rec(wtap *, wtap_rec *, const uint8_t *,
                                       int, int, int, int *, char **);
-static bool         vwr_read_rec_data_ethernet(vwr_t *, wtap_rec *,
+static bool         vwr_read_rec_data_ethernet(wtap *, wtap_rec *,
                                                const uint8_t *, int,
                                                int, int *, char **);
 
@@ -885,7 +885,7 @@ static bool vwr_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
     *data_offset = (file_tell(wth->fh) - VW_RECORD_HEADER_LENGTH);
 
     /* got a frame record; read and process it */
-    if (!vwr_process_rec_data(wth->fh, rec_size, rec, vwr, IS_TX, log_mode,
+    if (!vwr_process_rec_data(wth, wth->fh, rec_size, rec, IS_TX, log_mode,
                               err, err_info))
        return false;
 
@@ -908,7 +908,7 @@ static bool vwr_seek_read(wtap *wth, int64_t seek_off, wtap_rec *record,
     if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, &log_mode, err, err_info))
         return false;                                  /* Read error or EOF */
 
-    return vwr_process_rec_data(wth->random_fh, rec_size, record, vwr, IS_TX,
+    return vwr_process_rec_data(wth, wth->random_fh, rec_size, record, IS_TX,
                                 log_mode, err, err_info);
 }
 
@@ -1137,10 +1137,11 @@ static int vwr_get_fpga_version(wtap *wth, int *err, char **err_info)
 /* The packet is constructed as a 38-byte VeriWave metadata header plus the raw */
 /*  MAC octets. */
 
-static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
+static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
                               const uint8_t *rec, int rec_size,
                               int *err, char **err_info)
 {
+    vwr_t            *vwr = (vwr_t *)wth->priv;
     uint8_t          *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
     const uint8_t    *s_ptr, *m_ptr;                      /* stats pointer */
@@ -1279,7 +1280,11 @@ static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
 
     /*
      * Fill up the per-packet header.
-     *
+     */
+    wtap_setup_packet_rec(record, wth->file_encap);
+    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
+    /*
      * We include the length of the metadata headers in the packet lengths.
      *
      * The maximum value of actual_octets is 8191, which, even after
@@ -1289,13 +1294,9 @@ static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
     record->rec_header.packet_header.len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
     record->rec_header.packet_header.caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
 
+    record->presence_flags = WTAP_HAS_TS;
     record->ts.secs   = (time_t)s_sec;
     record->ts.nsecs  = (int)(s_usec * 1000);
-    record->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
-
-    record->rec_type = REC_TYPE_PACKET;
-    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
-    record->presence_flags = WTAP_HAS_TS;
 
     ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
     data_ptr = ws_buffer_start_ptr(&record->data);
@@ -1414,10 +1415,11 @@ static bool vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
 }
 
 
-static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
+static bool vwr_read_s2_W_rec(wtap *wth, wtap_rec *record,
                               const uint8_t *rec, int rec_size,
                               int IS_TX, int *err, char **err_info)
 {
+    vwr_t            *vwr = (vwr_t *)wth->priv;
     uint8_t          *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
     const uint8_t    *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
@@ -1696,7 +1698,11 @@ static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
 
     /*
      * Fill up the per-packet header.
-     *
+     */
+    wtap_setup_packet_rec(record, wth->file_encap);
+    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
+    /*
      * We include the length of the metadata headers in the packet lengths.
      *
      * The maximum value of actual_octets is 8191, which, even after
@@ -1706,12 +1712,9 @@ static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
     record->rec_header.packet_header.len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
     record->rec_header.packet_header.caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
 
+    record->presence_flags = WTAP_HAS_TS;
     record->ts.secs   = (time_t)s_sec;
     record->ts.nsecs  = (int)(s_usec * 1000);
-
-    record->rec_type = REC_TYPE_PACKET;
-    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
-    record->presence_flags = WTAP_HAS_TS;
 
     ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
     data_ptr = ws_buffer_start_ptr(&record->data);
@@ -1830,11 +1833,12 @@ static bool vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
     return true;
 }
 
-static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
+static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
                               const uint8_t *rec, int rec_size,
                               int IS_TX, int log_mode, int *err,
                               char **err_info)
 {
+    vwr_t            *vwr = (vwr_t *)wth->priv;
     uint8_t          *data_ptr;
     int              bytes_written = 0;                  /* bytes output to buf so far */
     int              i;
@@ -1878,7 +1882,11 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
 
         /*
          * Fill up the per-packet header.
-         *
+         */
+        wtap_setup_packet_rec(record, wth->file_encap);
+        record->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
+        /*
          * We include the length of the metadata headers in the packet lengths.
          *
          * OCTO_MODIFIED_RF_LEN + 1 is less than WTAP_MAX_PACKET_SIZE_STANDARD will
@@ -1887,12 +1895,9 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         record->rec_header.packet_header.len = OCTO_MODIFIED_RF_LEN + 1;       /* 1st octet is reserved for detecting type of frame while displaying in wireshark */
         record->rec_header.packet_header.caplen = OCTO_MODIFIED_RF_LEN + 1;
 
+        record->presence_flags = WTAP_HAS_TS;
         record->ts.secs   = (time_t)s_sec;
         record->ts.nsecs  = (int)(s_usec * 1000);
-
-        record->rec_type = REC_TYPE_PACKET;
-        record->block = wtap_block_create(WTAP_BLOCK_PACKET);
-        record->presence_flags = WTAP_HAS_TS;
 
         ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
         data_ptr = ws_buffer_start_ptr(&record->data);
@@ -2198,7 +2203,11 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
 
         /*
          * Fill up the per-packet header.
-         *
+         */
+        wtap_setup_packet_rec(record, wth->file_encap);
+        record->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
+        /*
          * We include the length of the metadata headers in the packet lengths.
          */
         if (IS_TX == 4) {
@@ -2220,12 +2229,9 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
             return false;
         }
 
+        record->presence_flags = WTAP_HAS_TS;
         record->ts.secs   = (time_t)s_sec;
         record->ts.nsecs  = (int)(s_usec * 1000);
-
-        record->rec_type = REC_TYPE_PACKET;
-        record->block = wtap_block_create(WTAP_BLOCK_PACKET);
-        record->presence_flags = WTAP_HAS_TS;
 
         ws_buffer_assure_space(&record->data, record->rec_header.packet_header.caplen);
         data_ptr = ws_buffer_start_ptr(&record->data);
@@ -2549,11 +2555,12 @@ static bool vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
 /* Copy the actual packet data from the capture file into the target data block.         */
 /* The packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /*  MAC octets.                                                                          */
-static bool vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
+static bool vwr_read_rec_data_ethernet(wtap *wth, wtap_rec *record,
                                        const uint8_t *rec, int rec_size,
                                        int IS_TX, int *err,
                                        char **err_info)
 {
+    vwr_t            *vwr = (vwr_t *)wth->priv;
     uint8_t          *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
     const uint8_t *s_ptr, *m_ptr;                          /* stats and MPDU pointers */
@@ -2720,7 +2727,11 @@ static bool vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
 
     /*
      * Fill up the per-packet header.
-     *
+     */
+    wtap_setup_packet_rec(record, wth->file_encap);
+    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
+    /*
      * We include the length of the metadata headers in the packet lengths.
      *
      * The maximum value of actual_octets is 65535, which, even after
@@ -2730,12 +2741,9 @@ static bool vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
     record->rec_header.packet_header.len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets;
     record->rec_header.packet_header.caplen = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets;
 
+    record->presence_flags = WTAP_HAS_TS;
     record->ts.secs   = (time_t)s_sec;
     record->ts.nsecs  = (int)(s_usec * 1000);
-
-    record->rec_type = REC_TYPE_PACKET;
-    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
-    record->presence_flags = WTAP_HAS_TS;
 
     /*etap_hdr.vw_ip_length = (uint16_t)ip_len;*/
 
@@ -3342,9 +3350,10 @@ get_vht_rate(uint8_t mcs_index, uint16_t rflags, uint8_t nss)
 }
 
 static bool
-vwr_process_rec_data(FILE_T fh, int rec_size, wtap_rec *record, vwr_t *vwr,
+vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size, wtap_rec *record,
                      int IS_TX, int log_mode, int *err, char **err_info)
 {
+    vwr_t*     vwr = (vwr_t *)wth->priv;
     uint8_t*   rec;       /* local buffer (holds input record) */
     bool      ret = false;
 
@@ -3362,17 +3371,17 @@ vwr_process_rec_data(FILE_T fh, int rec_size, wtap_rec *record, vwr_t *vwr,
     switch (vwr->FPGA_VERSION)
     {
         case S1_W_FPGA:
-            ret = vwr_read_s1_W_rec(vwr, record, rec, rec_size, err, err_info);
+            ret = vwr_read_s1_W_rec(wth, record, rec, rec_size, err, err_info);
             break;
         case S2_W_FPGA:
-            ret = vwr_read_s2_W_rec(vwr, record, rec, rec_size, IS_TX, err, err_info);
+            ret = vwr_read_s2_W_rec(wth, record, rec, rec_size, IS_TX, err, err_info);
             break;
         case S3_W_FPGA:
-            ret = vwr_read_s3_W_rec(vwr, record, rec, rec_size, IS_TX, log_mode, err, err_info);
+            ret = vwr_read_s3_W_rec(wth, record, rec, rec_size, IS_TX, log_mode, err, err_info);
             break;
         case vVW510012_E_FPGA:
         case vVW510024_E_FPGA:
-            ret = vwr_read_rec_data_ethernet(vwr, record, rec, rec_size, IS_TX, err, err_info);
+            ret = vwr_read_rec_data_ethernet(wth, record, rec, rec_size, IS_TX, err, err_info);
             break;
         default:
             g_free(rec);

@@ -567,9 +567,8 @@ void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t pac
 
 	wtap_rec_init(&rec, example->sample_length);
 
-	rec.rec_type = REC_TYPE_PACKET;
+	wtap_setup_packet_rec(&rec, example->sample_wtap_encap);
 	rec.presence_flags = WTAP_HAS_TS;
-	rec.rec_header.packet_header.pkt_encap = example->sample_wtap_encap;
 
 	ps_header = &rec.rec_header.packet_header.pseudo_header;
 

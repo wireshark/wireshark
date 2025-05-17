@@ -74,7 +74,7 @@ static bool dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset);
 static bool dbs_etherwatch_seek_read(wtap *wth, int64_t seek_off,
     wtap_rec *rec, int *err, char **err_info);
-static bool parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
+static bool parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info);
 static unsigned parse_single_hex_dump_line(char* rec, uint8_t *buf,
     int byte_offset);
@@ -206,7 +206,7 @@ static bool dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_dbs_etherwatch_packet(wth->fh, rec, err, err_info);
+    return parse_dbs_etherwatch_packet(wth, wth->fh, rec, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
@@ -217,7 +217,7 @@ dbs_etherwatch_seek_read(wtap *wth, int64_t seek_off,
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return false;
 
-    return parse_dbs_etherwatch_packet(wth->random_fh, rec, err, err_info);
+    return parse_dbs_etherwatch_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
 /* Parse a packet */
@@ -265,7 +265,7 @@ unnumbered. Unnumbered has length 1, numbered 2.
 #define CTL_UNNUMB_MASK     0x03
 #define CTL_UNNUMB_VALUE    0x03
 static bool
-parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
+parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     int *err, char **err_info)
 {
     uint8_t *pd;
@@ -433,7 +433,7 @@ parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
         pd[length_pos+1] = (length) & 0xFF;
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 

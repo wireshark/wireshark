@@ -22,7 +22,7 @@ void register_eri_enb_log(void);
 
 #define MAX_LINE_LENGTH            131072
 
-static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
+static bool eri_enb_log_get_packet(wtap *wth, FILE_T fh, wtap_rec* rec,
 	int* err _U_, char** err_info _U_)
 {
 	static char line[MAX_LINE_LENGTH];
@@ -57,7 +57,7 @@ static bool eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
 			rec->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
 		}
 		/* We've got a full packet! */
-		rec->rec_type = REC_TYPE_PACKET;
+		wtap_setup_packet_rec(rec, wth->file_encap);
 		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 		rec->rec_header.packet_header.caplen = length;
 		rec->rec_header.packet_header.len = length;
@@ -79,7 +79,7 @@ static bool eri_enb_log_read(wtap* wth, wtap_rec* rec,
 {
 	*data_offset = file_tell(wth->fh);
 
-	return eri_enb_log_get_packet(wth->fh, rec, err, err_info);
+	return eri_enb_log_get_packet(wth, wth->fh, rec, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
@@ -91,7 +91,7 @@ static bool eri_enb_log_seek_read(wtap* wth, int64_t seek_off,
 		return false;
 	}
 
-	return eri_enb_log_get_packet(wth->random_fh, rec, err, err_info);
+	return eri_enb_log_get_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
 wtap_open_return_val

@@ -347,6 +347,9 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
     if (!wtap_read_bytes(fh, NULL, hdr_len, err, err_info))
         return false;
 
+    wtap_setup_packet_rec(rec, wth->file_encap);
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+
     if ( (pntoh32(&rec_hdr.kind) & NETTL_HDR_PDU_MASK) == 0 ) {
         /* not actually a data packet (PDU) trace record */
         rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
@@ -538,8 +541,6 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
             length, padlen);
         return false;
     }
-    rec->rec_type = REC_TYPE_PACKET;
-    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.len = length - padlen;
     if (caplen < padlen) {

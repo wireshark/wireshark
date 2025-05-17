@@ -491,10 +491,9 @@ static bool extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     wtap_rec            rec;
 
     wtap_rec_init(&rec, captured_length);
+    wtap_setup_packet_rec(&rec, extcap_dumper.encap);
 
-    rec.rec_type = REC_TYPE_PACKET;
     rec.presence_flags = WTAP_HAS_TS;
-
     rec.ts.secs = seconds;
     rec.ts.nsecs = (int) nanoseconds;
 
@@ -512,8 +511,6 @@ static bool extcap_dumper_dump(struct extcap_dumper extcap_dumper,
 
     rec.rec_header.packet_header.caplen = (uint32_t) captured_length;
     rec.rec_header.packet_header.len = (uint32_t) reported_length;
-
-    rec.rec_header.packet_header.pkt_encap = extcap_dumper.encap;
 
     ws_buffer_append(&rec.data, buffer, captured_length);
 

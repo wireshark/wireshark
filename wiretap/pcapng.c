@@ -2192,7 +2192,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         return false;
     }
 
-    wblock->rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(wblock->rec, iface_info.wtap_encap);
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
 
     ws_debug("encapsulation = %d (%s), pseudo header size = %d.",
@@ -2200,7 +2200,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              wtap_encap_description(iface_info.wtap_encap),
              pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header));
     wblock->rec->rec_header.packet_header.interface_id = packet.interface_id;
-    wblock->rec->rec_header.packet_header.pkt_encap = iface_info.wtap_encap;
     wblock->rec->tsprec = iface_info.tsprecision;
 
     memset((void *)&wblock->rec->rec_header.packet_header.pseudo_header, 0, sizeof(union wtap_pseudo_header));
@@ -2386,10 +2385,9 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header));
 
     /* No time stamp in a simple packet block; no options, either */
-    wblock->rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(wblock->rec, iface_info.wtap_encap);
     wblock->rec->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
     wblock->rec->rec_header.packet_header.interface_id = 0;
-    wblock->rec->rec_header.packet_header.pkt_encap = iface_info.wtap_encap;
     wblock->rec->tsprec = iface_info.tsprecision;
     wblock->rec->ts.secs = 0;
     wblock->rec->ts.nsecs = 0;
