@@ -2332,7 +2332,7 @@ dissect_dtls_ack(tvbuff_t *tvb, packet_info *pinfo,
 
   offset += 2;
   ti = proto_tree_add_none_format(dtls_ack_tree, hf_dtls_ack_record_numbers, tvb, offset, record_number_length,
-                                  "RecordNumbers (%u record number%s)",
+                                  "Record Numbers (%u record number%s)",
                                   record_number_length / 16, plurality(record_number_length / 16, "", "s"));
   dtls_ack_tree = proto_item_add_subtree(ti, ett_dtls_ack_record_numbers);
 
@@ -2342,7 +2342,7 @@ dissect_dtls_ack(tvbuff_t *tvb, packet_info *pinfo,
                             offset + i + 0, 8, ENC_BIG_ENDIAN, &epoch);
       proto_tree_add_item_ret_uint64(rn_tree, hf_dtls_record_sequence_number, tvb,
                             offset + i + 8, 8, ENC_BIG_ENDIAN, &number);
-      proto_item_set_text(rn_tree, "RecordNumber: epoch %" PRIu64 ", sequence number %" PRIu64, epoch, number);
+      proto_item_set_text(rn_tree, "Record Number: epoch %" PRIu64 ", sequence number %" PRIu64, epoch, number);
   }
 }
 
@@ -2852,7 +2852,7 @@ proto_register_dtls(void)
         NULL, HFILL }
     },
     { &hf_dtls_ack_record_numbers_length,
-      { "Record Number Length", "dtls.ack.record_numbers_length",
+      { "Record Numbers Length", "dtls.ack.record_numbers_length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
