@@ -8070,6 +8070,10 @@ proto_register_nvme(void)
             { "Arbitration Burst", "nvme.cqe.dword0.get_features.arb.ab",
                FT_UINT32, BASE_HEX, NULL, 0x7, NULL, HFILL}
         },
+        { &hf_nvme_cqe_get_features_dword0_arb[2],
+            { "Reserved", "nvme.cqe.dword0.get_features.arb.rsvd",
+               FT_UINT32, BASE_HEX, NULL, 0x000000f8, NULL, HFILL}
+        },
         { &hf_nvme_cqe_get_features_dword0_arb[3],
             { "Low Priority Weight", "nvme.cqe.dword0.get_features.arb.lpw",
                FT_UINT32, BASE_HEX, NULL, 0xff00, NULL, HFILL}
