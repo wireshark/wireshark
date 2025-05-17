@@ -66,6 +66,7 @@
 #define OUI_NINTENDO        0x001F32
 #define OUI_TURBOCELL       0x0020F6    /* KarlNet, who brought you Turbocell */
 #define OUI_ODVA            0x00216C    /* ODVA */
+#define OUI_BBF             0x00256D    /* Broadband Forum */
 #define OUI_AVAYA           0x00400D    /* Avaya */
 #define OUI_CISCOWL         0x004096    /* Cisco Wireless (Aironet) */
 #define OUI_MARVELL         0x005043    /* Marvell Semiconductor */

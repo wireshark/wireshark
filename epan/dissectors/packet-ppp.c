@@ -23,6 +23,7 @@
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
+#include <epan/oui.h>
 #include <epan/expert.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"
@@ -263,14 +264,11 @@ static int ett_vsncp_ipv6_hsgw_lla_iid_opt;
 static dissector_table_t vsncp_option_table;
 
 /*
-* VSNP (RFC3772) has no defined packet structure.
-* The following organisations have defined their own VSNPs,
-* any VSNCPs containing one of the below OUIs will result in the VSNP being parsed accordingly.
-*/
-#define OUI_BBF 0x00256D    /* Broadband Forum TR 456 */
-#define OUI_3GPP 0xCF0002   /* 3GPP X.S0057-0 */
-
-static uint32_t vsnp_oui = -1;
+ * VSNP (RFC3772) has no defined packet structure.
+ * XXX - Recording the OUI in a global variable is still deeply flawed.
+ *       This is only going to work for a single connection.
+ */
+static uint32_t vsnp_oui;
 static int proto_vsnp;
 
 /* 3GPP Variables */
@@ -4865,7 +4863,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     code = tvb_get_uint8(tvb, 0);
     length = tvb_get_ntohs(tvb, 2);
-    vsnp_oui = tvb_get_uint24(tvb, 4, ENC_NA);
+    vsnp_oui = tvb_get_uint24(tvb, 4, ENC_BIG_ENDIAN);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNCP");
     col_set_str(pinfo->cinfo, COL_INFO,
@@ -4922,7 +4920,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             col_set_str(pinfo->cinfo, COL_INFO, "Broadband Forum Session Data");
             /* TO DO: Add support for Broadband Forum's VSNP */
             break;
-        case OUI_3GPP:
+        case OUI_3GPP2:
             col_set_str(pinfo->cinfo, COL_INFO, "3GPP Session Data");
             tvbuff_t *next_tvb;
 
