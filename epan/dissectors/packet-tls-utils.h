@@ -138,7 +138,8 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794
 #define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_GREASE_3A3A                   14906
-#define SSL_HND_HELLO_EXT_ALPS                          17513 /* draft-vvv-tls-alps-01, temporary value used in BoringSSL implementation */
+#define SSL_HND_HELLO_EXT_ALPS_OLD                      17513 /* draft-vvv-tls-alps-01, previous value used in BoringSSL implementation */
+#define SSL_HND_HELLO_EXT_ALPS                          17613 /* draft-vvv-tls-alps-01, current value used in BoringSSL implementation */
 #define SSL_HND_HELLO_EXT_GREASE_4A4A                   19018
 #define SSL_HND_HELLO_EXT_GREASE_5A5A                   23130
 #define SSL_HND_HELLO_EXT_GREASE_6A6A                   27242
