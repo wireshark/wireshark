@@ -503,14 +503,14 @@ dissect_RTC3_with_security(tvbuff_t* tvb, int offset,
     {
         u16LengthSecurityData = tvb_captured_length_remaining(tvb, offset);
         proto_tree_add_item(tree, hf_pn_rt_security_data, tvb, offset, u16LengthSecurityData, ENC_NA);
-        proto_item* security_data_item = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, offset, u16LengthSecurityData, 
+        proto_item* security_data_item = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, offset, u16LengthSecurityData,
             "PROFINET IO Secure Data");
         proto_item_set_hidden(security_data_item);
         offset += u16LengthSecurityData;
-    }   
+    }
 
     return offset;
-    
+
 }
 /* for reassemble processing we need some inits.. */
 /* Register PNIO defrag table init routine.      */
@@ -695,6 +695,10 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     data_len = 0;
     pn_rt_tree = NULL;
     ti         = NULL;
+    u16CycleCounter     = 0;
+    u8DataStatus        = 0;
+    u8TransferStatus    = 0;
+    u8ProtectionMode    = 0;
 
     /*
      * Set the columns now, so that they'll be set correctly if we throw
@@ -783,7 +787,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             pszProtAddInfo = "RTC3, ";
             pszProtSummary = "Isochronous-Real-Time";
             pszProtComment = "0x0700-0x0FFF: RED: Real-Time(class=3): redundant, normal or DFP, without security";
-        }        
+        }
         bCyclic         = true;
     } else if (u16FrameID <= 0x7FFF && !isTimeAware) {
         pszProtShort    = "PN-RT";
@@ -1079,11 +1083,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /* user data length is packet len - frame id - optional cyclic status fields */
         data_len = pdu_len - 2 - 4;
     } else {
-        /* satisfy the gcc compiler, so it won't throw an "uninitialized" warning */
-        u16CycleCounter     = 0;
-        u8DataStatus        = 0;
-        u8TransferStatus    = 0;
-
         /* acyclic transfer has no fields at the end */
         snprintf (szFieldSummary, sizeof(szFieldSummary),
                   "%sID:0x%04x, Len:%4u",
@@ -1165,7 +1164,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
 
     /* get frame user data tvb (without header and footer) */
-    if (u16SecurityLength == security_data)
+    if ((u16SecurityLength == security_data) && bCyclic)
     {
         next_tvb = tvb_new_subset_length(tvb, 2, data_len);
         if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, pn_rt_tree, &hdtbl_entry, GUINT_TO_POINTER((uint32_t)u16FrameID))) {
@@ -1286,27 +1285,27 @@ proto_register_pn_rt(void)
           { "SecurityMetaData", "pn_rt.security_meta_data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-      
+
 		{ &hf_pn_rt_security_information,
 		  { "SecurityInformation", "pn_rt.security_information",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "", HFILL }},
-      
+
 		{ &hf_pn_rt_security_information_protection_mode,
 		  { "SecurityInformation.ProtectionMode", "pn_rt.security_information.protection_mode",
 		    FT_UINT8, BASE_HEX, VALS(pn_rt_security_information_protection_mode), 0x01,
 		    "", HFILL }},
-      
+
 		{ &hf_pn_rt_security_information_reserved,
 		  { "SecurityInformation.Reserved", "pn_rt.security_information.reserved",
 		    FT_UINT8, BASE_HEX, NULL, 0xFE,
 		    "", HFILL }},
-      
+
 		{ &hf_pn_rt_security_data,
 		  { "SecurityData", "pn_rt.security_data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "", HFILL }},
-      
+
         { &hf_pn_rt_transfer_status,
           { "TransferStatus", "pn_rt.transfer_status",
             FT_UINT8, BASE_DEC, NULL, 0x0,
