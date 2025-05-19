@@ -1838,7 +1838,7 @@ make_local_part_domain(const char* name)
       if ((*(p + 1) != '\0') && (*(p + 1) == '.'))
       {
         /* Skip over the \. because it's intended to be a . */
-        p += 2;
+        p += 1;
       }
     }
   }
