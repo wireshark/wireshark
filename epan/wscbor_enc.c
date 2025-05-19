@@ -89,7 +89,7 @@ void wscbor_enc_bstr(GByteArray *buf, const uint8_t *ptr, size_t len) {
 }
 
 void wscbor_enc_bstr_bytearray(GByteArray *buf, GByteArray *src) {
-    size_t len;
+    size_t len = 0;
     uint8_t *ptr = g_byte_array_steal(src, &len);
     wscbor_enc_bstr(buf, ptr, len);
     g_free(ptr);
