@@ -296,7 +296,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     offset = time_stamp (tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_millisecond, offset, 8);
   }
 
-  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_message_type, tvb, offset, 1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_message_type, tvb, offset, 1, ENC_ASCII);
   offset += 1;
 
   if (version == 3) {
@@ -313,20 +313,20 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   switch (nasdaq_itch_type) {
   case 'S': /* system event */
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_system_event, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_system_event, tvb, offset, 1, ENC_ASCII);
     /*offset += 1;*/
     break;
 
   case 'R': /* Stock Directory */
     offset = stock(tvb, pinfo, nasdaq_itch_tree, offset);
 
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_market_category, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_market_category, tvb, offset, 1, ENC_ASCII);
     offset += 1;
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_financial_status, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_financial_status, tvb, offset, 1, ENC_ASCII);
     offset += 1;
     proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_round_lot_size, tvb, offset, 6, ENC_ASCII);
     offset += 6;
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_round_lots_only, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_round_lots_only, tvb, offset, 1, ENC_ASCII);
     /*offset += 1;*/
     break;
 

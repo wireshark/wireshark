@@ -9289,6 +9289,7 @@ dissect_pfcp_area_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {;
     uint32_t value;
     /* Octet 5 to (n+4) Tunnel Password value */
+    /* TODO: should this be a 2-byte string? */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_area_session_id_value, tvb, 0, 2, ENC_UTF_8 | ENC_NA, &value);
     proto_item_append_text(item, "%u", value);
 }

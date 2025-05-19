@@ -530,7 +530,7 @@ dissect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 	}
 	if (is_smcdv1 || is_smcdv2) {
 		proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
-			offset, ISM_GID_LEN, ENC_NA);
+			offset, ISM_GID_LEN, ENC_BIG_ENDIAN);
 	}
 	offset += ISM_GID_LEN;
 	if (is_smcdv2) {
@@ -637,7 +637,7 @@ dissect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 			offset += 16; /* reserved */
 			while (num_of_gids != 0) {
 				proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
-					offset, ISM_GID_LEN, ENC_NA);
+					offset, ISM_GID_LEN, ENC_BIG_ENDIAN);
 				offset += ISM_GID_LEN;
 				proto_tree_add_item(tree, hf_smc_proposal_smc_chid, tvb, offset,
 						ISM_CHID_LEN, ENC_BIG_ENDIAN);
@@ -678,7 +678,7 @@ dissect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 	offset += PEERID_LEN;
 
 	proto_tree_add_item(tree, hf_smcd_accept_dmb_token, tvb,
-		offset, DMB_TOKEN_LEN, ENC_NA);
+		offset, DMB_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += DMB_TOKEN_LEN;
 
 	proto_tree_add_item(tree, hf_smcd_accept_dmbe_conn_index, tvb,
@@ -754,7 +754,7 @@ dissect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 	offset += PEERID_LEN;
 
 	proto_tree_add_item(tree, hf_smcd_confirm_dmb_token, tvb,
-		offset, DMB_TOKEN_LEN, ENC_NA);
+		offset, DMB_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += DMB_TOKEN_LEN;
 
 	proto_tree_add_item(tree, hf_smcd_confirm_dmbe_conn_index, tvb,

@@ -262,7 +262,7 @@ dissect_soupbintcp_common(
         /* Type */
         proto_tree_add_item(soupbintcp_tree,
                             hf_soupbintcp_packet_type,
-                            tvb, offset, 1, ENC_ASCII|ENC_NA);
+                            tvb, offset, 1, ENC_ASCII);
         offset += 1;
 
         switch (pkt_type) {
@@ -292,7 +292,7 @@ dissect_soupbintcp_common(
         case 'J': /* Login Reject */
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_reject_code,
-                                tvb, offset, 1, ENC_ASCII|ENC_NA);
+                                tvb, offset, 1, ENC_ASCII);
             break;
 
         case 'U': /* Unsequenced Data */

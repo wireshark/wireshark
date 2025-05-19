@@ -322,7 +322,7 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += SHICP_TOKEN_SIZE;
             }
             else if (payload_length == SHICP_ERROR_SIZE) {
-                proto_tree_add_item(shicp_tree, hf_shicp_error, tvb, offset, SHICP_ERROR_SIZE, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(shicp_tree, hf_shicp_error, tvb, offset, SHICP_ERROR_SIZE, ENC_NA);
                 break;
             }
             while (offset < payload_end) {

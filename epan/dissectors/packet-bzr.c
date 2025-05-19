@@ -171,7 +171,7 @@ dissect_body(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         cmd = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_ASCII);
         offset += 1;
 
         switch (cmd) {
@@ -183,7 +183,7 @@ dissect_body(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
             break;
         case 'o':
             proto_tree_add_item(tree, hf_bzr_result, tvb, offset, 1,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 1;
             break;
         case 'e':

@@ -199,7 +199,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
   int ret = 0;
   uint8_t more = tvb_get_uint8(tvb, offset);
 
-  hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII|ENC_NA);
+  hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII);
   proto_item_set_hidden(hidden_item);
 
   switch(more) {

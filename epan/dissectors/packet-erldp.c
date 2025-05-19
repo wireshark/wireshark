@@ -874,7 +874,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   proto_tree_add_item(tree, hf_erldp_length_2, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item_ret_uint(tree, hf_erldp_tag, tvb, offset, 1, ENC_ASCII|ENC_NA, &tag);
+  proto_tree_add_item_ret_uint(tree, hf_erldp_tag, tvb, offset, 1, ENC_ASCII, &tag);
   offset++;
 
   switch (tag) {

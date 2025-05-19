@@ -577,7 +577,7 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 	uint8_t media_protocol;
 
 	media_protocol = tvb_get_uint8(tvb, *offset);
-	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_NA|ENC_ASCII);
+	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_ASCII);
 	*offset += 1;
 
 	switch (media_protocol)
@@ -586,7 +586,7 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 	case 'S':
 	case 'O':
 	case 'F':
-		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_ASCII);
 		*offset += 1;
 		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 2, ENC_NA|ENC_ASCII);
 		break;

@@ -543,7 +543,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
   int    gs_offset, datalen;
 
   while (len > 0) {
-    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_ASCII);
 
     offset++;
     len--;

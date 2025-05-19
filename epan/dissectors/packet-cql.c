@@ -2132,6 +2132,7 @@ proto_register_cql(void)
 			}
 		},
 		{
+			/* TODO: should this be an FT_STRING field? */
 			&hf_cql_auth_token,
 			{
 				"Auth Token", "cql.auth_token",

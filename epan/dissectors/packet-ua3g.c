@@ -3422,12 +3422,12 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                         {
                             if (parameter_length == 2) {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_NA|ENC_ASCII);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_ASCII);
                             } else if (parameter_length == 4) {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_NA|ENC_ASCII);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_ASCII);
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, tvb, offset+3, 1, ENC_NA|ENC_ASCII);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, tvb, offset+3, 1, ENC_ASCII);
                             } else {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_value, tvb, offset, parameter_length, ENC_NA);
                             }
