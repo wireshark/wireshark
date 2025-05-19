@@ -14,7 +14,9 @@
 /*
  * For further information about the "Diagnostic Log and Trace" (DLT) protocol see:
  * - GENIVI Alliance (https://covesa.global/ and https://github.com/GENIVI/)
- * - AUTOSAR (https://www.autosar.org) -> AUTOSAR_SWS_DiagnosticLogAndTrace.pdf
+ * - AUTOSAR (https://www.autosar.org):
+ *     https://www.autosar.org/fileadmin/standards/R24-11/CP/AUTOSAR_CP_SWS_DiagnosticLogAndTrace.pdf
+ *     https://www.autosar.org/fileadmin/standards/R24-11/FO/AUTOSAR_FO_PRS_LogAndTraceProtocol.pdf
  */
 
 /* This dissector currently only supports Version 1 of DLT. */

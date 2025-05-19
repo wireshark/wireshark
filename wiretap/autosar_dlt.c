@@ -11,8 +11,8 @@
 
 /*
  * Sources for specification:
- * https://www.autosar.org/fileadmin/user_upload/standards/classic/21-11/AUTOSAR_SWS_DiagnosticLogAndTrace.pdf
- * https://www.autosar.org/fileadmin/user_upload/standards/foundation/21-11/AUTOSAR_PRS_LogAndTraceProtocol.pdf
+ * https://www.autosar.org/fileadmin/standards/R24-11/CP/AUTOSAR_CP_SWS_DiagnosticLogAndTrace.pdf
+ * https://www.autosar.org/fileadmin/standards/R24-11/FO/AUTOSAR_FO_PRS_LogAndTraceProtocol.pdf
  * https://github.com/COVESA/dlt-viewer
  */
 
