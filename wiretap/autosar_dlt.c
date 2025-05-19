@@ -84,14 +84,6 @@ autosar_dlt_add_interface(autosar_dlt_params_t *params, uint8_t ecu[4]) {
     if_descr_mand->interface_statistics = NULL;
     wtap_add_idb(params->wth, int_data);
 
-    if (params->wth->file_encap == WTAP_ENCAP_UNKNOWN) {
-        params->wth->file_encap = if_descr_mand->wtap_encap;
-    } else {
-        if (params->wth->file_encap != if_descr_mand->wtap_encap) {
-            params->wth->file_encap = WTAP_ENCAP_PER_PACKET;
-        }
-    }
-
     int32_t key = autosar_dlt_calc_key(ecu);
     uint32_t iface_id = params->dlt_data->next_interface_id++;
     g_hash_table_insert(params->dlt_data->ecu_to_iface_ht, GINT_TO_POINTER(key), GUINT_TO_POINTER(iface_id));
@@ -302,7 +294,7 @@ autosar_dlt_open(wtap *wth, int *err, char **err_info) {
     dlt->next_interface_id = 0;
 
     wth->priv = (void *)dlt;
-    wth->file_encap = WTAP_ENCAP_UNKNOWN;
+    wth->file_encap = WTAP_ENCAP_AUTOSAR_DLT;
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
     wth->subtype_read = autosar_dlt_read;
