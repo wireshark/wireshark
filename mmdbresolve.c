@@ -77,10 +77,10 @@ main(int argc, char *argv[])
     for (arg_idx = 0; arg_idx < (unsigned)argc; arg_idx++) {
         if ((strcmp(argv[arg_idx], "-v") == 0) ||
             (strcmp(argv[arg_idx], "--version") == 0)) {
-            fprintf(stderr, "mmdbresolve (Wireshark) %u.%u.%u%s\n",
+            fprintf(stdout, "mmdbresolve (Wireshark) %u.%u.%u%s\n",
                     WIRESHARK_VERSION_MAJOR, WIRESHARK_VERSION_MINOR, WIRESHARK_VERSION_MICRO,
                     get_ws_vcs_version_info());
-            fprintf(stderr, "using libmaxminddb version %s\n\n", MMDB_lib_version());
+            fprintf(stdout, "using libmaxminddb version %s\n\n", MMDB_lib_version());
             if (mmdbs) {
                 free(mmdbs);
             }
@@ -88,16 +88,16 @@ main(int argc, char *argv[])
         }
         if ((strcmp(argv[arg_idx], "-h") == 0) ||
             (strcmp(argv[arg_idx], "--help") == 0)) {
-            fprintf(stderr, "mmdbresolve (Wireshark) %u.%u.%u%s\n",
+            fprintf(stdout, "mmdbresolve (Wireshark) %u.%u.%u%s\n",
                     WIRESHARK_VERSION_MAJOR, WIRESHARK_VERSION_MINOR, WIRESHARK_VERSION_MICRO,
                     get_ws_vcs_version_info());
-            fprintf(stderr, "Read IPv4 and IPv6 addresses on stdin and print their IP geolocation information on stdout.\n");
-            fprintf(stderr, "See https://www.wireshark.org for more information.\n");
-            fprintf(stderr, "\nUsage: mmdbresolve [-v|-h] -f <dbfile> [-f <dbfile>] ...\n");
-            fprintf(stderr, "\nOptions:\n");
-            fprintf(stderr, "  -v: display version info and exit\n");
-            fprintf(stderr, "  -h: display this help and exit\n");
-            fprintf(stderr, "  -f: path to a MaxMind Database file\n\n");
+            fprintf(stdout, "Read IPv4 and IPv6 addresses on stdin and print their IP geolocation information on stdout.\n");
+            fprintf(stdout, "See https://www.wireshark.org for more information.\n");
+            fprintf(stdout, "\nUsage: mmdbresolve [-v|-h] -f <dbfile> [-f <dbfile>] ...\n");
+            fprintf(stdout, "\nOptions:\n");
+            fprintf(stdout, "  -v: display version info and exit\n");
+            fprintf(stdout, "  -h: display this help and exit\n");
+            fprintf(stdout, "  -f: path to a MaxMind Database file\n\n");
             if (mmdbs) {
                 free(mmdbs);
             }
