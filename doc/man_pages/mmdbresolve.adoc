@@ -14,7 +14,13 @@ mmdbresolve - Read IPv4 and IPv6 addresses and print their IP geolocation inform
 [manarg]
 *mmdbresolve*
 [ *-v* ]
+
+[manarg]
+*mmdbresolve*
 [ *-h* ]
+
+[manarg]
+*mmdbresolve*
 *-f <dbfile>*
 [ *-f <dbfile>* ]
 __...__
