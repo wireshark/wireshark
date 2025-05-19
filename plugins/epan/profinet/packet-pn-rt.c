@@ -490,7 +490,7 @@ dissect_RTC3_with_security(tvbuff_t* tvb, int offset,
     /* SecurityInformation */
 
     dissect_dcerpc_uint8(tvb, offset, pinfo, meta_data_tree, drep, hf_pn_rt_security_information_protection_mode, &u8ProtectionMode);
-    u8ProtectionMode &= 0x0F;
+    u8ProtectionMode &= 0x01;
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, meta_data_tree, drep, hf_pn_rt_security_information_reserved, &u8InformationReserved);
     u8InformationReserved >>= 1;
 
@@ -1029,7 +1029,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if ((u16SecurityLength == security_data) && bCyclic)
     {
         u8ProtectionMode = tvb_get_uint8(tvb, 2);
-        u8ProtectionMode &= 0x0F;
+        u8ProtectionMode &= 0x01;
 
         if (u8ProtectionMode == 0x00)
         {
@@ -1110,8 +1110,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /* APDU_Status for RTA frames with security. If AE, APDU_Status Info will not show because it is encrypted. */
         if ((u16SecurityLength == security_data) && bCyclic)
         {
-            u8ProtectionMode = tvb_get_uint8(tvb, 2);
-            u8ProtectionMode &= 0x0F;
             if (u8ProtectionMode == 0x00)
             {
                 /* add cycle counter */
@@ -1286,25 +1284,25 @@ proto_register_pn_rt(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-		{ &hf_pn_rt_security_information,
-		  { "SecurityInformation", "pn_rt.security_information",
-		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "", HFILL }},
+        { &hf_pn_rt_security_information,
+          { "SecurityInformation", "pn_rt.security_information",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }},
 
-		{ &hf_pn_rt_security_information_protection_mode,
-		  { "SecurityInformation.ProtectionMode", "pn_rt.security_information.protection_mode",
-		    FT_UINT8, BASE_HEX, VALS(pn_rt_security_information_protection_mode), 0x01,
-		    "", HFILL }},
+        { &hf_pn_rt_security_information_protection_mode,
+          { "SecurityInformation.ProtectionMode", "pn_rt.security_information.protection_mode",
+            FT_UINT8, BASE_HEX, VALS(pn_rt_security_information_protection_mode), 0x01,
+            "", HFILL }},
 
-		{ &hf_pn_rt_security_information_reserved,
-		  { "SecurityInformation.Reserved", "pn_rt.security_information.reserved",
-		    FT_UINT8, BASE_HEX, NULL, 0xFE,
-		    "", HFILL }},
+        { &hf_pn_rt_security_information_reserved,
+          { "SecurityInformation.Reserved", "pn_rt.security_information.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
+            "", HFILL }},
 
-		{ &hf_pn_rt_security_data,
-		  { "SecurityData", "pn_rt.security_data",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "", HFILL }},
+        { &hf_pn_rt_security_data,
+          { "SecurityData", "pn_rt.security_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "", HFILL }},
 
         { &hf_pn_rt_transfer_status,
           { "TransferStatus", "pn_rt.transfer_status",
