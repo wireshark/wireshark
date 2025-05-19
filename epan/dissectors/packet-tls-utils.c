@@ -1305,6 +1305,8 @@ static const value_string ssl_31_ciphersuite[] = {
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
     { 0xfeff, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
+    /* https://datatracker.ietf.org/doc/html/rfc9189 */
+    { 0xff85, "TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"},
     { 0xffe0, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
     { 0xffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA" },
     /* note that ciphersuites 0xff00 - 0xffff are private */
