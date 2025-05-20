@@ -17726,7 +17726,7 @@ dissect_PNIO_RTA_with_security(tvbuff_t* tvb, int offset,
         hf_pn_io_pdu_type_version, &u8PDUVersion);
     u8PDUVersion >>= 4;
     proto_item_append_text(sub_item, ", Type: %s, Version: %u",
-        val_to_str(u8PDUType, pn_io_pdu_type, "Unknown"),
+        val_to_str_const(u8PDUType, pn_io_pdu_type, "Unknown"),
         u8PDUVersion);
 
     /* additional flags */
