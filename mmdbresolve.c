@@ -81,9 +81,6 @@ main(int argc, char *argv[])
                     WIRESHARK_VERSION_MAJOR, WIRESHARK_VERSION_MINOR, WIRESHARK_VERSION_MICRO,
                     get_ws_vcs_version_info());
             fprintf(stdout, "using libmaxminddb version %s\n\n", MMDB_lib_version());
-            if (mmdbs) {
-                free(mmdbs);
-            }
             return EXIT_SUCCESS;
         }
         if ((strcmp(argv[arg_idx], "-h") == 0) ||
@@ -98,9 +95,6 @@ main(int argc, char *argv[])
             fprintf(stdout, "  -v: display version info and exit\n");
             fprintf(stdout, "  -h: display this help and exit\n");
             fprintf(stdout, "  -f: path to a MaxMind Database file\n\n");
-            if (mmdbs) {
-                free(mmdbs);
-            }
             return EXIT_SUCCESS;
         }
     }
