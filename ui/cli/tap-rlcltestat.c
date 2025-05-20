@@ -100,7 +100,6 @@ typedef struct rlc_lte_stat_t {
 } rlc_lte_stat_t;
 
 
-
 /* Reset RLC stats */
 static void
 rlc_lte_stat_reset(void *phs)
@@ -111,11 +110,29 @@ rlc_lte_stat_reset(void *phs)
     rlc_lte_stat->total_frames = 0;
     memset(&rlc_lte_stat->common_stats, 0, sizeof(rlc_lte_common_stats));
 
-    if (!list) {
-        return;
+    while (list != NULL) {
+        rlc_lte_ep_t *ptr = list;
+        list = list->next;
+        g_free(ptr);
+    }
+    rlc_lte_stat->ep_list = NULL;
+}
+
+
+/* Free memory used by tap */
+static void
+rlc_lte_stat_finish(void *phs)
+{
+    rlc_lte_stat_t *rlc_lte_stat = (rlc_lte_stat_t *)phs;
+    rlc_lte_ep_t *list = rlc_lte_stat->ep_list;
+
+    while (list != NULL) {
+        rlc_lte_ep_t *ptr = list;
+        list = list->next;
+        g_free(ptr);
     }
 
-    rlc_lte_stat->ep_list = NULL;
+    g_free(rlc_lte_stat);
 }
 
 
@@ -385,11 +402,11 @@ static bool rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /**********************************************/
 
     error_string = register_tap_listener("rlc-3gpp", hs,
-                                         filter, 0,
+                                         filter, TL_REQUIRES_NOTHING,
                                          rlc_lte_stat_reset,
                                          rlc_lte_stat_packet,
                                          rlc_lte_stat_draw,
-                                         NULL);
+                                         rlc_lte_stat_finish);
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);
