@@ -79,6 +79,7 @@ void JsonDataSourceView::markField(int start, int length, bool scroll_to)
 {
     selected_line_ = nullptr;
     int row_y = -line_height_;
+
     for (auto &text_block : text_blocks_) {
         for (auto &text_line : text_block.text_lines) {
             row_y += line_height_;
@@ -203,13 +204,18 @@ void JsonDataSourceView::keyPressEvent(QKeyEvent *event)
                 }
             }
         }
-        if (idx >= selectable_lines.size() && event->key() == Qt::Key_Up) {
+        if (idx >= selectable_lines.size() && event->key()) {
             idx = selectable_lines.size() - 1;
-        } else if (idx < 0 && event->key() == Qt::Key_Down) {
+        } else if (idx < 0 && event->key()) {
             idx = 0;
         }
         if (idx >= 0 && idx < selectable_lines.size()) {
             auto select_line = selectable_lines.at(idx);
+
+            setUpdatesEnabled(false);
+            emit byteSelected(select_line->field_start);
+            setUpdatesEnabled(true);
+
             markField(select_line->field_start, select_line->field_length, true);
         }
     }
@@ -240,6 +246,11 @@ void JsonDataSourceView::mousePressEvent(QMouseEvent *event)
     int ev_line = (event->pos().y() + verticalScrollBar()->value()) / line_height_;
     auto old_selected_line = selected_line_;
     selected_line_ = findTextLine(ev_line);
+
+    // byteSelected does the following:
+    // - Triggers selectedFieldChanged in ProtoTree, which clears the
+    //   selection and selects the corresponding (or no) item.
+    // - The new tree selection triggers markField.
 
     if (selected_line_ && selected_line_ != old_selected_line) {
         setUpdatesEnabled(false);
