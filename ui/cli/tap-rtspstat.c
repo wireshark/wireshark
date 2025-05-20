@@ -62,7 +62,7 @@ rtsp_init_hash( rtspstat_t *sp)
 {
 	int i;
 
-	sp->hash_responses = g_hash_table_new(g_direct_hash, g_direct_equal);
+	sp->hash_responses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
 	for (i=0 ; rtsp_status_code_vals[i].strptr ; i++ )
 	{
@@ -73,7 +73,7 @@ rtsp_init_hash( rtspstat_t *sp)
 		sc->sp = sp;
 		g_hash_table_insert( sc->sp->hash_responses, GINT_TO_POINTER(rtsp_status_code_vals[i].value), sc);
 	}
-	sp->hash_requests = g_hash_table_new( g_str_hash, g_str_equal);
+	sp->hash_requests = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 }
 static void
 rtsp_draw_hash_requests( char *key _U_ , rtsp_request_methode_t *data, char * format)
@@ -115,13 +115,25 @@ rtsp_reset_hash_requests(char *key _U_ , rtsp_request_methode_t *data, void *ptr
 }
 
 static void
-rtspstat_reset(void *psp  )
+rtspstat_reset(void *psp)
 {
 	rtspstat_t *sp = (rtspstat_t *)psp;
 
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)rtsp_reset_hash_responses, NULL);
 	g_hash_table_foreach( sp->hash_requests, (GHFunc)rtsp_reset_hash_requests, NULL);
 
+}
+
+static void
+rtspstat_finish(void *psp)
+{
+	rtspstat_t *sp = (rtspstat_t *)psp;
+
+	g_hash_table_destroy( sp->hash_responses);
+	g_hash_table_destroy( sp->hash_requests);
+
+	g_free(sp->filter);
+	g_free(sp);
 }
 
 static tap_packet_status
@@ -238,11 +250,11 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 			"rtsp",
 			sp,
 			filter,
-			0,
+			TL_REQUIRES_NOTHING,
 			rtspstat_reset,
 			rtspstat_packet,
 			rtspstat_draw,
-			NULL);
+			rtspstat_finish);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
