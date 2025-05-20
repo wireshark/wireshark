@@ -1820,7 +1820,7 @@ static int dissect_mq_od(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
             uTyp = tvb_get_uint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
             sObj = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
             if (pinfo)
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str_ext(uTyp, GET_VALS_EXTP(objtype)));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str_ext(uTyp, GET_VALS_EXTP(MQOT)));
             if (strip_trailing_blanks(sObj, 48) > 0)
             {
                 if (pinfo)
@@ -4018,7 +4018,7 @@ void proto_register_mq(void)
         {&hf_mq_tsh_ctlflgs2, {"Ctl Flag 2", "mq.tsh.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "TSH Control flags 2", HFILL}},
         {&hf_mq_tsh_luwid, {"LUW Ident.", "mq.tsh.luwid", FT_BYTES, BASE_NONE, NULL, 0x0, "TSH logical unit of work identifier", HFILL}},
         {&hf_mq_tsh_encoding, {"Encoding..", "mq.tsh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Encoding", HFILL}},
-        {&hf_mq_tsh_ccsid, {"CCSID.....", "mq.tsh.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "TSH CCSID", HFILL}},
+        {&hf_mq_tsh_ccsid, {"CCSID.....", "mq.tsh.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "TSH CCSID", HFILL}},
         {&hf_mq_tsh_reserved, {"Reserved..", "mq.tsh.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, "TSH Reserved", HFILL}},
 
         {&hf_mq_tsh_tcf_confirmreq, {"Confirm Req", "mq.tsh.tcf.confirmreq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF_CONFIRM_REQUEST, "TSH TCF Confirm request", HFILL}},
@@ -4036,7 +4036,7 @@ void proto_register_mq(void)
         {&hf_mq_tsh_tcf2_CmitIntv, {"CommitIntvl", "mq.tsh.tcf.cmitintv", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF2_CMIT_INTERVAL, "TSH TCF2 Commit Interval", HFILL}},
 
         {&hf_mq_api_replylen, {"Reply len..", "mq.api.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL}},
-        {&hf_mq_api_compcode, {"Compl Code.", "mq.api.completioncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(mqcc)), 0x0, "API Completion code", HFILL}},
+        {&hf_mq_api_compcode, {"Compl Code.", "mq.api.completioncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(MQCC)), 0x0, "API Completion code", HFILL}},
         {&hf_mq_api_reascode, {"Reason Code", "mq.api.reasoncode", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(MQRC), 0x0, "API Reason code", HFILL}},
         {&hf_mq_api_objecthdl, {"Object Hdl.", "mq.api.hobj", FT_UINT32, BASE_HEX, NULL, 0x0, "API Object handle", HFILL}},
 
@@ -4079,7 +4079,7 @@ void proto_register_mq(void)
         {&hf_mq_id_channel, {"ChannelNme", "mq.id.channelname", FT_STRING, BASE_NONE, NULL, 0x0, "ID channel name", HFILL}},
         {&hf_mq_id_cf2, {"CapFlag2..", "mq.id.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability flags 2", HFILL}},
         {&hf_mq_id_ecf2, {"ECapFlag2.", "mq.id.ecflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capability flags 2", HFILL}},
-        {&hf_mq_id_ccsid, {"ccsid.....", "mq.id.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "ID Coded Character Set ID", HFILL}},
+        {&hf_mq_id_ccsid, {"ccsid.....", "mq.id.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "ID Coded Character Set ID", HFILL}},
         {&hf_mq_id_qmgrname, {"QMgrName..", "mq.id.qm", FT_STRING, BASE_NONE, NULL, 0x0, "ID Queue Manager Name", HFILL}},
         {&hf_mq_id_HBInterval, {"HBInterval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL}},
         {&hf_mq_id_EFLLength, {"EFLLength.", "mq.id.efllength", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "ID EFL Length", HFILL}},
@@ -4265,7 +4265,7 @@ void proto_register_mq(void)
         {&hf_mq_msgreq_GlbMsgIdx, {"GlbMsgIdx", "mq.msgreq.glbmsgidx", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Global Message Index", HFILL}},
         {&hf_mq_msgreq_SelectIdx, {"SelectIdx", "mq.msgreq.selectIdx", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Selection Index", HFILL}},
         {&hf_mq_msgreq_MQMDVers, {"MQMDVers.", "mq.msgreq.mqmdvers", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "MSGREQ MQMD Version", HFILL}},
-        {&hf_mq_msgreq_ccsid, {"CCSID....", "mq.msgreq.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "MSGREQ ccsid", HFILL}},
+        {&hf_mq_msgreq_ccsid, {"CCSID....", "mq.msgreq.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "MSGREQ ccsid", HFILL}},
         {&hf_mq_msgreq_encoding, {"Encoding.", "mq.msgreq.encoding", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ encoding", HFILL}},
         {&hf_mq_msgreq_MsgSeqNum, {"MsgSeqNum", "mq.msgreq.msgseqnum", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Message Sequence Number", HFILL}},
         {&hf_mq_msgreq_offset, {"Offset...", "mq.msgreq.offset", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ Offset", HFILL}},
@@ -4307,7 +4307,7 @@ void proto_register_mq(void)
 
         {&hf_mq_od_StructID, {"StructID.........", "mq.od.structid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_mq_od_version, {"version..........", "mq.od.version", FT_UINT32, BASE_DEC, NULL, 0x0, "OD version", HFILL}},
-        {&hf_mq_od_objecttype, {"ObjType..........", "mq.od.objtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(objtype), 0x0, "OD object type", HFILL}},
+        {&hf_mq_od_objecttype, {"ObjType..........", "mq.od.objtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(MQOT), 0x0, "OD object type", HFILL}},
         {&hf_mq_od_objectname, {"ObjName..........", "mq.od.objname", FT_STRING, BASE_NONE, NULL, 0x0, "OD object name", HFILL}},
         {&hf_mq_od_objqmgrname, {"ObjQMgr..........", "mq.od.objqmgrname", FT_STRING, BASE_NONE, NULL, 0x0, "OD object queue manager name", HFILL}},
         {&hf_mq_od_dynqname, {"DynQName.........", "mq.od.dynqname", FT_STRING, BASE_NONE, NULL, 0x0, "OD dynamic queue name", HFILL}},
@@ -4323,7 +4323,7 @@ void proto_register_mq(void)
         {&hf_mq_od_altsecurid, {"Alt security id..", "mq.od.altsecid", FT_STRING, BASE_NONE, NULL, 0x0, "OD alternate security id", HFILL}},
         {&hf_mq_od_resolvqname, {"Resolved Q Name..", "mq.od.resolvq", FT_STRING, BASE_NONE, NULL, 0x0, "OD resolved queue name", HFILL}},
         {&hf_mq_od_resolvqmgrnm, {"Resolved QMgrName", "mq.od.resolvqmgr", FT_STRING, BASE_NONE, NULL, 0x0, "OD resolved queue manager name", HFILL}},
-        {&hf_mq_od_resolvobjtyp, {"Resolv Obj Type..", "mq.od.resolvedobjtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(objtype), 0x0, "OD resolved object type", HFILL}},
+        {&hf_mq_od_resolvobjtyp, {"Resolv Obj Type..", "mq.od.resolvedobjtype", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(MQOT), 0x0, "OD resolved object type", HFILL}},
 
         {&hf_mq_or_objname, {"Object name...", "mq.or.objname", FT_STRING, BASE_NONE, NULL, 0x0, "OR object name", HFILL}},
         {&hf_mq_or_objqmgrname, {"Object QMgr Nm", "mq.or.objqmgrname", FT_STRING, BASE_NONE, NULL, 0x0, "OR object queue manager name", HFILL}},
@@ -4344,7 +4344,7 @@ void proto_register_mq(void)
         {&hf_mq_md_expiry, {"Expiry  .", "mq.md.expiry", FT_INT32, BASE_DEC, NULL, 0x0, "MD expiry", HFILL}},
         {&hf_mq_md_feedback, {"Feedback.", "mq.md.feedback", FT_UINT32, BASE_DEC, NULL, 0x0, "MD feedback", HFILL}},
         {&hf_mq_md_encoding, {"Encoding.", "mq.md.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "MD encoding", HFILL}},
-        {&hf_mq_md_ccsid, {"CCSID....", "mq.md.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "MD character set", HFILL}},
+        {&hf_mq_md_ccsid, {"CCSID....", "mq.md.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "MD character set", HFILL}},
         {&hf_mq_md_format, {"Format...", "mq.md.format", FT_STRING, BASE_NONE, NULL, 0x0, "MD format", HFILL}},
         {&hf_mq_md_priority, {"Priority.", "mq.md.priority", FT_INT32, BASE_DEC, NULL, 0x0, "MD priority", HFILL}},
         {&hf_mq_md_persistence, {"Persist..", "mq.md.persistence", FT_UINT32, BASE_DEC, VALS(GET_VALSV(MQPER)), 0x0, "MD persistence", HFILL}},
@@ -4373,7 +4373,7 @@ void proto_register_mq(void)
         {&hf_mq_dlh_destq, {"Dest Q...", "mq.dlh.destq", FT_STRING, BASE_NONE, NULL, 0x0, "DLH destination queue", HFILL}},
         {&hf_mq_dlh_destqmgr, {"DestQMgr.", "mq.dlh.destqmgr", FT_STRING, BASE_NONE, NULL, 0x0, "DLH destination queue manager", HFILL}},
         {&hf_mq_dlh_encoding, {"Encoding.", "mq.dlh.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "DLH encoding", HFILL}},
-        {&hf_mq_dlh_ccsid, {"CCSID....", "mq.dlh.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "DLH character set", HFILL}},
+        {&hf_mq_dlh_ccsid, {"CCSID....", "mq.dlh.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "DLH character set", HFILL}},
         {&hf_mq_dlh_format, {"Format...", "mq.dlh.format", FT_STRING, BASE_NONE, NULL, 0x0, "DLH format", HFILL}},
         {&hf_mq_dlh_putappltype, {"PutAppTyp", "mq.dlh.putappltype", FT_INT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(MQAT), 0x0, "DLH put application type", HFILL}},
         {&hf_mq_dlh_putapplname, {"PutAppNme", "mq.dlh.putapplname", FT_STRING, BASE_NONE, NULL, 0x0, "DLH put application name", HFILL}},
@@ -4528,7 +4528,7 @@ void proto_register_mq(void)
         {&hf_mq_head_version, {"version.", "mq.head.version", FT_UINT32, BASE_DEC, NULL, 0x0, "Header version", HFILL}},
         {&hf_mq_head_length, {"Length..", "mq.head.length", FT_UINT32, BASE_DEC, NULL, 0x0, "Header length", HFILL}},
         {&hf_mq_head_encoding, {"Encoding", "mq.head.encoding", FT_UINT32, BASE_DEC, NULL, 0x0, "Header encoding", HFILL}},
-        {&hf_mq_head_ccsid, {"CCSID...", "mq.head.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "Header character set", HFILL}},
+        {&hf_mq_head_ccsid, {"CCSID...", "mq.head.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "Header character set", HFILL}},
         {&hf_mq_head_format, {"Format..", "mq.head.format", FT_STRING, BASE_NONE, NULL, 0x0, "Header format", HFILL}},
 
         {&hf_mq_head_flags, {"Flags...", "mq.head.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "Header flags", HFILL}},
@@ -4590,9 +4590,9 @@ void proto_register_mq(void)
         {&hf_mq_cih_compcode, {"ComplCode....", "mq.cih.compcode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Completion Code", HFILL}},
         {&hf_mq_cih_reasoncode, {"ReasonCode...", "mq.cih.reasoncode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Reason Code", HFILL}},
         {&hf_mq_cih_uowcontrols, {"UOWControls..", "mq.cih.uowcontrols", FT_UINT32, BASE_HEX_DEC, VALS(GET_VALSV(UOWControls)), 0x0, "Unit Of Work Controls", HFILL}},
-        {&hf_mq_cih_getwaitintv, {"GetWaitIntv..", "mq.cih.getwaitintv", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(WaitIntv)), 0x0, "Get Wait Interval", HFILL}},
+        {&hf_mq_cih_getwaitintv, {"GetWaitIntv..", "mq.cih.getwaitintv", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQWI)), 0x0, "Get Wait Interval", HFILL}},
         {&hf_mq_cih_linktype, {"LinkType.....", "mq.cih.linktype", FT_UINT32, BASE_DEC, VALS(GET_VALSV(LinkType)), 0x0, "LinkType", HFILL}},
-        {&hf_mq_cih_outdatalen, {"OutDataLen...", "mq.cih.outdatalen", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(OutDataLen)), 0x0, "Output Data Len", HFILL}},
+        {&hf_mq_cih_outdatalen, {"OutDataLen...", "mq.cih.outdatalen", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCODL)), 0x0, "Output Data Len", HFILL}},
         {&hf_mq_cih_facilkeeptime, {"FacilKeepTime", "mq.cih.facilkeeptime", FT_UINT32, BASE_DEC, NULL, 0x0, "Facility Keep Time", HFILL}},
         {&hf_mq_cih_adsdescriptor, {"ADSDescriptor", "mq.cih.adsdescr", FT_UINT32, BASE_DEC, VALS(GET_VALSV(ADSDescr)), 0x0, "ADS Descriptor", HFILL}},
         {&hf_mq_cih_converstask, {"ConversTask..", "mq.cih.converstask", FT_UINT32, BASE_DEC, VALS(GET_VALSV(ConvTaskOpt)), 0x0, "Conversational Task", HFILL}},
@@ -4618,7 +4618,7 @@ void proto_register_mq(void)
         {&hf_mq_cih_inputitem, {"InputItem....", "mq.cih.inputitem", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, "Input Item", HFILL}},
         {&hf_mq_cih_reserved4, {"Reserved4....", "mq.cih.reserved4", FT_STRING, BASE_NONE, NULL, 0x0, "Reserved 4", HFILL}},
 
-        {&hf_mq_rfh_ccsid, {"NmeValCCSID", "mq.rfh.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "RFH NameValue CCSID", HFILL}},
+        {&hf_mq_rfh_ccsid, {"NmeValCCSID", "mq.rfh.ccsid", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(MQCCSI)), 0x0, "RFH NameValue CCSID", HFILL}},
         {&hf_mq_rfh_length, {"Len.", "mq.rfh.length", FT_UINT32, BASE_DEC, NULL, 0x0, "RFH NameValue Length", HFILL}},
         {&hf_mq_rfh_string, {"Val.", "mq.rfh.string", FT_STRING, BASE_NONE, NULL, 0x0, "RFH NameValue", HFILL}},
 
