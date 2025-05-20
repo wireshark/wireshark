@@ -1743,6 +1743,25 @@ wtap_setup_packet_rec(wtap_rec *rec, int encap)
 	rec->rec_header.packet_header.pkt_encap = encap;
 }
 
+/**
+ * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).
+ */
+void
+wtap_setup_syscall_rec(wtap_rec *rec)
+{
+	rec->rec_type = REC_TYPE_SYSCALL;
+}
+
+/**
+ * Set up a wtap_rec for a systemd journal export entry
+ * (REC_TYPE_SYSTEMD_JOURNAL_EXPORT).
+ */
+void
+wtap_setup_systemd_journal_export_rec(wtap_rec *rec)
+{
+	rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+}
+
 bool
 wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 {

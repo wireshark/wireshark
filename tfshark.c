@@ -1198,7 +1198,7 @@ full_file_read(capture_file *cf, wtap_rec *rec, int *err, char **err_info)
         buffer_size += block_size;
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
+    wtap_setup_packet_rec(rec, cf->provider.wth->file_encap);
     rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
     rec->ts.secs = 0;
     rec->ts.nsecs = 0;

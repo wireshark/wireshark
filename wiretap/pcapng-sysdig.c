@@ -68,7 +68,7 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, pcapng_block_header_t* bh,
         return false;
     }
 
-    wblock->rec->rec_type = REC_TYPE_SYSCALL;
+    wtap_setup_syscall_rec(wblock->rec);
     wblock->rec->rec_header.syscall_header.record_type = bh->block_type;
     wblock->rec->presence_flags = WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;

@@ -508,7 +508,7 @@ read_common = function(funcname, file, capture, frame)
     local file_settings = capture.private_table
 
     -- first parse the record header, which will set the FrameInfo fields
-    if not parse_rec_header(funcname, file, file_settings, frame) then
+    if not parse_rec_header(funcname, file, capture, file_settings, frame) then
         dprint2(funcname, ": read_common: hit end of file or error")
         return false
     end
@@ -532,7 +532,7 @@ end
 
 ----------------------------------------
 -- the function to parse individual records
-parse_rec_header = function(funcname, file, file_settings, frame)
+parse_rec_header = function(funcname, file, capture, file_settings, frame)
     dprint2(funcname,": parse_rec_header() called")
 
     local line = file:read(file_settings.rec_hdr_len)
@@ -576,7 +576,7 @@ parse_rec_header = function(funcname, file, file_settings, frame)
         caplen = WTAP_MAX_PACKET_SIZE
     end
 
-    frame.rec_type = wtap_rec_types.PACKET
+    frame:setup_packet_rec(capture.encap)
 
     frame.captured_length = caplen
     frame.original_length = origlen

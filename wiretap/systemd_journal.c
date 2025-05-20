@@ -227,7 +227,7 @@ static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
         return false;
     }
 
-    rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+    wtap_setup_systemd_journal_export_rec(rec);
     rec->block = wtap_block_create(WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.systemd_journal_export_header.record_len = (uint32_t) fld_end;

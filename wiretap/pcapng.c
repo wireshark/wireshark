@@ -3054,7 +3054,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
         }
     }
 
-    wblock->rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+    wtap_setup_systemd_journal_export_rec(wblock->rec);
     wblock->rec->rec_header.systemd_journal_export_header.record_len = entry_length;
     wblock->rec->presence_flags = WTAP_HAS_CAP_LEN;
     if (have_ts) {

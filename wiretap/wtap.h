@@ -1975,6 +1975,19 @@ void wtap_rec_cleanup(wtap_rec *rec);
 WS_DLL_PUBLIC
 void wtap_setup_packet_rec(wtap_rec *rec, int encap);
 
+/**
+ * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).
+ */
+WS_DLL_PUBLIC
+void wtap_setup_syscall_rec(wtap_rec *rec);
+
+/**
+ * Set up a wtap_rec for a systemd journal export entry
+ * (REC_TYPE_SYSTEMD_JOURNAL_EXPORT).
+ */
+WS_DLL_PUBLIC
+void wtap_setup_systemd_journal_export_rec(wtap_rec *rec);
+
 /*
  * Types of compression for a file, including "none".
  */
