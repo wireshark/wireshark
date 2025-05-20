@@ -3337,7 +3337,7 @@ proto_reg_handoff_sysdig_event(void)
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2, sysdig_event_handle);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, sysdig_event_handle);
 
-    sinsp_dissector_handle = find_dissector("falcobridge");
+    sinsp_dissector_handle = find_dissector("falcoevents");
     elf_dissector_handle = find_dissector("elf");
 }
 

@@ -104,7 +104,7 @@ You can alternatively use two scripts to install the packages and libraries requ
 * `--install-dmg-deps` install packages required to build the .dmg file
 * `--install-sparkle-deps` install the Sparkle automatic updater
 * `--install-all` install everything
-* `--install-stratoshark` install libraries required to build Stratoshark and Falco bridge
+* `--install-stratoshark` install libraries required to build Stratoshark and the Falco Events plugin
 * `[other]` other options are passed as-is to brew
 
 `tools/macos-setup.sh` supports the following options:

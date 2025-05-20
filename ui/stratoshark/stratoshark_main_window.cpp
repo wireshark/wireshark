@@ -2245,7 +2245,7 @@ bool StratosharkMainWindow::addFollowStreamMenuItem(const void *key _U_, void *v
      */
     // XXX - Should we add matches for syscall properties, e.g. file descriptors?
     const char *short_name = (const char*)key;
-    if (g_strcmp0(short_name, "Falco Bridge") == 0) {
+    if (g_strcmp0(short_name, "Falco Events") == 0) {
         follow_action->setText(tr("File Descriptor Stream"));
     }
     // if (g_strcmp0(short_name, "TCP") == 0) {

@@ -1,4 +1,4 @@
-/* packet-falco-bridge.c
+/* packet-falco-events.c
  *
  * By Loris Degioanni
  * Copyright (C) 2021 Sysdig, Inc.
@@ -24,7 +24,7 @@
 //   - set_import_users
 
 #include "config.h"
-#define WS_LOG_DOMAIN "falco-bridge"
+#define WS_LOG_DOMAIN "falco-events"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -126,10 +126,10 @@ typedef struct fd_stream_info {
     uint32_t stream_index;
 } fd_stream_info;
 
-static int proto_falco_bridge;
+static int proto_falco_events;
 static int proto_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
 
-static int ett_falco_bridge;
+static int ett_falco_events;
 static int ett_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
 static int ett_lineage[N_PROC_LINEAGE_ENTRIES];
 
@@ -174,25 +174,25 @@ static int hf_fd_stream;
 
 static hf_register_info hf[] = {
     { &hf_sdp_source_id_size,
-        { "Plugin ID size", "falcobridge.id.size",
+        { "Plugin ID size", "falcoevents.id.size",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sdp_lengths,
-        { "Field Lengths", "falcobridge.lens",
+        { "Field Lengths", "falcoevents.lens",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sdp_source_id,
-        { "Plugin ID", "falcobridge.id",
+        { "Plugin ID", "falcoevents.id",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_fd_stream,
-        { "Stream index", "falcobridge.fd.stream",
+        { "Stream index", "falcoevents.fd.stream",
          FT_UINT32, BASE_DEC,
          NULL, 0x0,
          NULL, HFILL }
@@ -200,7 +200,7 @@ static hf_register_info hf[] = {
 };
 
 static void
-falco_bridge_cleanup(void) {
+falco_events_cleanup(void) {
     close_sinsp_capture(sinsp_span);
 }
 
@@ -498,7 +498,7 @@ create_source_hfids(bridge_info* bi)
                     fdisplay = BASE_OCT;
                     break;
                 default:
-                    THROW_FORMATTED(DissectorError, "error in Falco bridge plugin %s: format %d for field %s is not supported",
+                    THROW_FORMATTED(DissectorError, "error in Falco Events plugin %s: format %d for field %s is not supported",
                         get_sinsp_source_name(bi->ssi), sfi.display_format, sfi.abbrev);
                 }
                 break;
@@ -511,7 +511,7 @@ create_source_hfids(bridge_info* bi)
 
             if(strlen(sfi.display) == 0) {
                 // Shouldn't happen since get_sinsp_source_field_info falls back to the filter name.
-                THROW_FORMATTED(DissectorError, "error in Falco bridge plugin %s: field %s is missing display name",
+                THROW_FORMATTED(DissectorError, "error in Falco Events plugin %s: field %s is missing display name",
                    get_sinsp_source_name(bi->ssi), sfi.abbrev);
             }
 
@@ -579,10 +579,10 @@ create_source_hfids(bridge_info* bi)
             fld_cnt++;
         }
 
-        proto_register_field_array(proto_falco_bridge, bi->hf, fld_cnt);
+        proto_register_field_array(proto_falco_events, bi->hf, fld_cnt);
         if (addr_fld_cnt) {
-            proto_register_field_array(proto_falco_bridge, bi->hf_v4, addr_fld_cnt);
-            proto_register_field_array(proto_falco_bridge, bi->hf_v6, addr_fld_cnt);
+            proto_register_field_array(proto_falco_events, bi->hf_v4, addr_fld_cnt);
+            proto_register_field_array(proto_falco_events, bi->hf_v6, addr_fld_cnt);
         }
 
         // Useful hf ids
@@ -648,7 +648,7 @@ import_plugin(char* fname)
     create_source_hfids(bi);
 
     const char *source_name = get_sinsp_source_name(bi->ssi);
-    const char *plugin_name = g_strdup_printf("%s Falco Bridge Plugin", source_name);
+    const char *plugin_name = g_strdup_printf("%s Falco Events Plugin", source_name);
     bi->proto = proto_register_protocol(plugin_name, source_name, source_name);
 
     bi->media_type = DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM;
@@ -660,7 +660,7 @@ import_plugin(char* fname)
 
     static dissector_handle_t ct_handle;
     ct_handle = create_dissector_handle(dissect_sinsp_plugin, bi->proto);
-    dissector_add_uint("falcobridge.id", bi->source_id, ct_handle);
+    dissector_add_uint("falcoevents.id", bi->source_id, ct_handle);
 }
 
 static void
@@ -673,7 +673,7 @@ on_app_exit(void)
 
 static bool
 extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_fields* args) {
-    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_falco_bridge))) {
+    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_falco_events))) {
         // get_extracted_syscall_source_fields will fail noisily, so just bail out here.
         return false;
     }
@@ -857,7 +857,7 @@ static const fd_stream_info* get_fd_stream_info(packet_info *pinfo) {
 static char* sysdig_fd_build_filter(packet_info *pinfo, void *user_data _U_) {
     const fd_stream_info* fsi = get_fd_stream_info(pinfo);
     if (fsi) {
-        return ws_strdup_printf("falcobridge.fd.stream eq %u", fsi->stream_index);
+        return ws_strdup_printf("falcoevents.fd.stream eq %u", fsi->stream_index);
     }
     return NULL;
 }
@@ -867,14 +867,14 @@ static char *fd_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, 
     const fd_stream_info* fsi = get_fd_stream_info(pinfo);
     if (fsi) {
         *stream = fsi->stream_index;
-        return ws_strdup_printf("falcobridge.fd.stream eq %u", fsi->stream_index);
+        return ws_strdup_printf("falcoevents.fd.stream eq %u", fsi->stream_index);
     }
     return NULL;
 }
 
 static char *fd_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
 {
-    return ws_strdup_printf("falcobridge.fd.stream eq %u", stream);
+    return ws_strdup_printf("falcoevents.fd.stream eq %u", stream);
 }
 
 static char *fd_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
@@ -937,11 +937,11 @@ get_bridge_info(uint32_t source_id)
 }
 
 static int
-dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p)
+dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p)
 {
     int encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Bridge");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Events");
 
     // Some events don't have any data. Make sure we don't return 0 in that case
     // so that things like "protocols in frame" work.
@@ -963,8 +963,8 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         sysdig_event_param_data *event_param_data = (sysdig_event_param_data *) epd_p;
         dissect_sinsp_enriched(tvb, pinfo, tree, bi, event_param_data);
     } else {
-        proto_item *ti = proto_tree_add_item(tree, proto_falco_bridge, tvb, 0, 12, ENC_NA);
-        proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_bridge);
+        proto_item *ti = proto_tree_add_item(tree, proto_falco_events, tvb, 0, 12, ENC_NA);
+        proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_events);
 
         proto_tree_add_item(fb_tree, hf_sdp_source_id_size, tvb, 0, 4, encoding);
         proto_tree_add_item(fb_tree, hf_sdp_lengths, tvb, 4, 4, encoding);
@@ -1523,20 +1523,21 @@ void
 proto_register_falcoplugin(void)
 {
     // Opening requires a file path, so we do that in dissect_sinsp_enriched.
-    register_cleanup_routine(&falco_bridge_cleanup);
+    register_cleanup_routine(&falco_events_cleanup);
 
-    proto_falco_bridge = proto_register_protocol("Falco Bridge", "Falco Bridge", "falcobridge");
-    register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
+    proto_falco_events = proto_register_protocol("Falco Events", "Falco Events", "falcoevents");
+    register_dissector("falcoevents", dissect_falco_events, proto_falco_events);
+    proto_register_alias(proto_falco_events, "falcobridge");
 
     // Register the syscall conversation filters.
     // These show up in the "Conversation Filter" and "Colorize Conversation" context menus.
     // The first match is also used for "Go" menu navigation.
-    register_log_conversation_filter("falcobridge", "Thread", sysdig_syscall_filter_valid, sysdig_thread_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "Process", sysdig_syscall_filter_valid, sysdig_proc_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "Container", sysdig_syscall_container_filter_valid, sysdig_container_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "Process and Descendants", sysdig_syscall_filter_valid, sysdig_procdescendants_build_filter, NULL);
-    register_log_conversation_filter("falcobridge", "File Descriptor", sysdig_syscall_fd_filter_valid, sysdig_fd_build_filter, NULL);
-    add_conversation_filter_protocol("falcobridge");
+    register_log_conversation_filter("falcoevents", "Thread", sysdig_syscall_filter_valid, sysdig_thread_build_filter, NULL);
+    register_log_conversation_filter("falcoevents", "Process", sysdig_syscall_filter_valid, sysdig_proc_build_filter, NULL);
+    register_log_conversation_filter("falcoevents", "Container", sysdig_syscall_container_filter_valid, sysdig_container_build_filter, NULL);
+    register_log_conversation_filter("falcoevents", "Process and Descendants", sysdig_syscall_filter_valid, sysdig_procdescendants_build_filter, NULL);
+    register_log_conversation_filter("falcoevents", "File Descriptor", sysdig_syscall_fd_filter_valid, sysdig_fd_build_filter, NULL);
+    add_conversation_filter_protocol("falcoevents");
 
     // Register statistics taps
     container_io_tap = register_tap("container_io");
@@ -1544,7 +1545,7 @@ proto_register_falcoplugin(void)
     // Register the "follow" handlers
     fd_follow_tap = register_tap("fd_follow");
 
-    register_follow_stream(proto_falco_bridge, "fd_follow", fd_follow_conv_filter, fd_follow_index_filter, fd_follow_address_filter,
+    register_follow_stream(proto_falco_events, "fd_follow", fd_follow_conv_filter, fd_follow_index_filter, fd_follow_address_filter,
                            fd_port_to_display, fd_tap_listener, get_fd_stream_count, NULL);
 
     // Try to have a 1:1 mapping for as many Sysdig / Falco fields as possible.
@@ -1563,8 +1564,8 @@ proto_register_falcoplugin(void)
     proto_syscalls[SSC_OTHER] = proto_register_protocol("Unknown or Miscellaneous Falco", "Falco Misc", "falco");
 
     // Preferences
-    module_t *falco_bridge_module = prefs_register_protocol(proto_falco_bridge, NULL);
-    prefs_register_bool_preference(falco_bridge_module, "show_internal_events",
+    module_t *falco_events_module = prefs_register_protocol(proto_falco_events, NULL);
+    prefs_register_bool_preference(falco_events_module, "show_internal_events",
                                    "Show internal events",
                                    "Show internal libsinsp events in the event list.",
                                    &pref_show_internal);
@@ -1574,8 +1575,8 @@ proto_register_falcoplugin(void)
      * Create the dissector table that we will use to route the dissection to
      * the appropriate Falco plugin.
      */
-    ptype_dissector_table = register_dissector_table("falcobridge.id",
-                                                     "Falco Bridge Plugin ID", proto_falco_bridge, FT_UINT32, BASE_DEC);
+    ptype_dissector_table = register_dissector_table("falcoevents.id",
+                                                     "Falco Events Plugin ID", proto_falco_events, FT_UINT32, BASE_DEC);
 
     /*
      * Load the plugins
@@ -1642,7 +1643,7 @@ proto_register_falcoplugin(void)
      * Setup protocol subtree array
      */
     static int *ett[] = {
-        &ett_falco_bridge,
+        &ett_falco_events,
         &ett_syscalls[SSC_EVENT],
         &ett_syscalls[SSC_EVTARGS],
         &ett_syscalls[SSC_PROCESS],
@@ -1681,7 +1682,7 @@ proto_register_falcoplugin(void)
         &ett_lineage[15],
     };
 
-    proto_register_field_array(proto_falco_bridge, hf, array_length(hf));
+    proto_register_field_array(proto_falco_events, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_subtree_array(ett_lin, array_length(ett_lin));
 

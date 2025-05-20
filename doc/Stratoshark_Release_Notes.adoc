@@ -29,11 +29,14 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 0.9.1:
 
+* The Falco Bridge dissector has been renamed to Falco Events.
+  Filter fields now have a "falcoevents" protocol prefix, but a "falcobridge" protocol alias has been added for backward compatibility.
+
 * Stratoshark can now show field offsets for supported plugins.
 
 * Cloudtrail log messages can now be viewed as formatted JSON data.
 
-* The system call dissector now has a "falcobridge.fd.stream" field, which provides a unique number for each file descriptor.
+* The system call dissector now has a "falcoevents.fd.stream" field, which provides a unique number for each file descriptor.
   The "Follow File Descriptor Stream" feature now uses this field to track streams. wsbuglink:20538[]
 
 * We now ship universal macOS installers instead of separate packages

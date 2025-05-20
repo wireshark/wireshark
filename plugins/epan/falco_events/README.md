@@ -1,9 +1,9 @@
-# Falco Bridge
+# Falco Events
 
 This plugin is a bridge between [Falco plugins](https://github.com/falcosecurity/plugins/) and Wireshark, so that Falco plugins can be used as dissectors.
 It requires [libsinsp and libscap](https://github.com/falcosecurity/libs/).
 
-## Building the Falco Bridge plugin
+## Building the Falco Events plugin
 
 1. Download and compile [libsinsp and libscap](https://github.com/falcosecurity/libs/).
    You will probably want to pass `-DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF` to cmake.
@@ -28,7 +28,7 @@ You can find the global and per-user plugin folder locations on your system in A
 ## Conversations
 
 Falco plugins can mark individual fields with a conversation flag (EPF_CONVERSATION).
-The Falco Bridge dissector treats each of these as separate conversations, and for features such as navigation and packet list marking, the _first_ conversation field is used for matching packets.
+The Falco Events dissector treats each of these as separate conversations, and for features such as navigation and packet list marking, the _first_ conversation field is used for matching packets.
 
 ## Licensing
 

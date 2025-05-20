@@ -1566,7 +1566,7 @@ ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 
 if (BUILD_stratoshark)
-	# libsinsp+libscap, required for falco-bridge
+	# libsinsp+libscap, required for falco-events
 	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP "0.17.1")
 endif()
 
@@ -1888,7 +1888,7 @@ if(ENABLE_PLUGINS)
 	set(STRATOSHARK_PLUGIN_SRC_DIRS)
 	if(SINSP_FOUND)
 		list(APPEND STRATOSHARK_PLUGIN_SRC_DIRS
-			plugins/epan/falco_bridge
+			plugins/epan/falco_events
 		)
 	endif()
 	if(SPANDSP_FOUND)

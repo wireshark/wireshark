@@ -294,7 +294,7 @@ void print_cloudtrail_aws_region_config(int arg_num, const char *display, const 
 }
 
 
-// Load our plugins. This should match the behavior of the Falco Bridge dissector.
+// Load our plugins. This should match the behavior of the Falco Events dissector.
 static void load_plugins(sinsp &inspector) {
     WS_DIR *dir;
     WS_DIRENT *file;
