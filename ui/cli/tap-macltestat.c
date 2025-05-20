@@ -140,11 +140,29 @@ mac_lte_stat_reset(void *phs)
     /* Zero common stats */
     memset(&(mac_lte_stat->common_stats), 0, sizeof(mac_lte_common_stats));
 
-    if (!list) {
-        return;
+    while (list != NULL) {
+        mac_lte_ep_t *ptr = list;
+        list = list->next;
+        g_free(ptr);
+    }
+    mac_lte_stat->ep_list = NULL;
+}
+
+
+/* Free memory used by tap */
+static void
+mac_lte_stat_finish(void *phs)
+{
+    mac_lte_nr_stat_t *mac_lte_stat = (mac_lte_nr_stat_t *)phs;
+    mac_lte_ep_t *list = mac_lte_stat->ep_list;
+
+    while (list != NULL) {
+        mac_lte_ep_t *ptr = list;
+        list = list->next;
+        g_free(ptr);
     }
 
-    mac_lte_stat->ep_list = NULL;
+    g_free(mac_lte_stat);
 }
 
 
@@ -507,11 +525,11 @@ static bool mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     hs->ep_list = NULL;
 
     error_string = register_tap_listener("mac-3gpp", hs,
-                                         filter, 0,
+                                         filter, TL_REQUIRES_NOTHING,
                                          mac_lte_stat_reset,
                                          mac_lte_stat_packet,
                                          mac_lte_stat_draw,
-                                         NULL);
+                                         mac_lte_stat_finish);
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);
