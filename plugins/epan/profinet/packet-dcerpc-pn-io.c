@@ -4739,6 +4739,7 @@ typedef struct {
 typedef struct {
     bool use_manual_method;
     wmem_list_t* conversation_address_list;
+    wmem_allocator_t* scope;
 } ParserConvState;
 
 
@@ -5184,11 +5185,11 @@ static void parser_conv_start_element(GMarkupParseContext* context, const char* 
     (void)error;
     ParserConvState* state = (ParserConvState*)user_data;
     if (strcmp(element_name, "conversation") == 0) {
-        ConversationAddress* new_conversation_address = wmem_new0(wmem_file_scope(), ConversationAddress);
+        ConversationAddress* new_conversation_address = wmem_new0(state->scope, ConversationAddress);
         for (int i = 0; attribute_names[i] != NULL; i++) {
             if (strcmp(attribute_names[i], "device") == 0) {
                 const char* device_str = attribute_values[i];
-                uint8_t* device_bytes = wmem_alloc(wmem_file_scope(), 6 * sizeof(uint8_t));
+                uint8_t* device_bytes = wmem_alloc(state->scope, 6 * sizeof(uint8_t));
                 if (sscanf(device_str, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
                     &device_bytes[0],
                     &device_bytes[1],
@@ -5197,14 +5198,14 @@ static void parser_conv_start_element(GMarkupParseContext* context, const char* 
                     &device_bytes[4],
                     &device_bytes[5]) == 6) {
 
-                    address* addr_device = wmem_new0(wmem_file_scope(), address);
+                    address* addr_device = wmem_new0(state->scope, address);
                     set_address(addr_device, AT_ETHER, 6, device_bytes);
                     new_conversation_address->device = addr_device;
                 }
             }
             else if (strcmp(attribute_names[i], "controller") == 0) {
                 const char* controller_str = attribute_values[i];
-                uint8_t* controller_bytes = wmem_alloc(wmem_file_scope(), 6 * sizeof(uint8_t));
+                uint8_t* controller_bytes = wmem_alloc(state->scope, 6 * sizeof(uint8_t));
                 if (sscanf(controller_str, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
                     &controller_bytes[0],
                     &controller_bytes[1],
@@ -5213,7 +5214,7 @@ static void parser_conv_start_element(GMarkupParseContext* context, const char* 
                     &controller_bytes[4],
                     &controller_bytes[5]) == 6) {
 
-                    address* addr_controller = wmem_new0(wmem_file_scope(), address);
+                    address* addr_controller = wmem_new0(state->scope, address);
                     set_address(addr_controller, AT_ETHER, 6, controller_bytes);
                     new_conversation_address->controller = addr_controller;
                 }
@@ -5229,12 +5230,13 @@ static void parser_conv_start_element(GMarkupParseContext* context, const char* 
 }
 
 /* Creates conversations using information extracted from a configuration file */
-static bool gen_conversations(uint32_t packet_num, uint32_t current_fake_aruuid) {
+static bool gen_conversations(packet_info *pinfo, uint32_t current_fake_aruuid) {
     char* buf;
     ConversationAddress* stored_conversation;
     FILE* fp = NULL;
+    uint32_t packet_num = pinfo->num;
     if (pnio_configpath != NULL) {
-        GMarkupParser parser_manuall = {
+        GMarkupParser parser_manual = {
             .start_element = parser_conv_start_element,
             .end_element = NULL,
             .text = NULL,
@@ -5242,15 +5244,16 @@ static bool gen_conversations(uint32_t packet_num, uint32_t current_fake_aruuid)
             .error = NULL
         };
         ParserConvState state = { 0 };
-        state.conversation_address_list = wmem_list_new(wmem_file_scope());
-        GMarkupParseContext* context = g_markup_parse_context_new(&parser_manuall, 0, &state, NULL);
+        state.conversation_address_list = wmem_list_new(pinfo->pool);
+        state.scope = pinfo->pool;
+        GMarkupParseContext* context = g_markup_parse_context_new(&parser_manual, 0, &state, NULL);
         fp = ws_fopen(pnio_configpath, "rb");
         if (fp != NULL) {
             fseek(fp, 0, SEEK_END);
             long fsize = ftell(fp);
             fseek(fp, 0, SEEK_SET);
 
-            buf = (char*)wmem_alloc(wmem_file_scope(), fsize + 1);
+            buf = (char*)wmem_alloc(pinfo->pool, fsize + 1);
             if (fread(buf, 1, fsize, fp) != (size_t)fsize) {
                 fclose(fp);
                 return false;
@@ -5258,6 +5261,8 @@ static bool gen_conversations(uint32_t packet_num, uint32_t current_fake_aruuid)
             buf[fsize] = '\0';
             fclose(fp);
             if (!g_markup_parse_context_parse(context, buf, -1, NULL)) {
+                // XXX - Should probably handle parsing errors in some way,
+                // e.g. at least produce a warning.
                 g_markup_parse_context_free(context);
                 return false;
             }
@@ -5269,6 +5274,8 @@ static bool gen_conversations(uint32_t packet_num, uint32_t current_fake_aruuid)
                 if (stored_conversation != NULL) {
                     conversation_t* conversation = find_conversation(packet_num, stored_conversation->device, stored_conversation->controller, CONVERSATION_NONE, 0, 0, 0);
                     if (conversation == NULL) {
+                        // Create a new conversation (conversation_new copies
+                        // addresses to wmem_file_scope as well.)
                         conversation = conversation_new(packet_num, stored_conversation->device, stored_conversation->controller, CONVERSATION_NONE, 0, 0, 0);
                         stationInfo* station_info = wmem_new0(wmem_file_scope(), stationInfo);
                         init_pnio_rtc1_station(station_info);
@@ -5283,6 +5290,7 @@ static bool gen_conversations(uint32_t packet_num, uint32_t current_fake_aruuid)
     }
     return false;
 }
+
 /* Creates necessary objects for displaying PNIO data without AR information */
 static void extract_pnio_objects_withoutAR(packet_info* pinfo)
 {
@@ -5322,7 +5330,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
     /* Manual extraction method */
     if (extract_method == MANUAL_EXTRACTION) {
         if (*stateflag == 0) {
-            if (gen_conversations(pinfo->num, current_fake_aruuid)) {
+            if (gen_conversations(pinfo, current_fake_aruuid)) {
                 /* Uses now the config File to extract the needed Data */
                 extraction_file = pnio_configpath;
                 manual_flag = true;
@@ -5397,7 +5405,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
                             long fsize = ftell(fp);
                             fseek(fp, 0, SEEK_SET);
 
-                            buf = (char*)wmem_alloc(wmem_file_scope(), fsize + 1);
+                            buf = (char*)wmem_alloc(pinfo->pool, fsize + 1);
                             if (fread(buf, 1, fsize, fp) != (size_t)fsize) {
                                 fclose(fp);
                                 return;
