@@ -37,7 +37,7 @@ set_target_properties(writecap PROPERTIES
 target_compile_definitions(writecap
 	PRIVATE
 		# Necessary to avoid C4273 inconsistent DLL linkage on MSVC
-		ENABLE_STATIC
+		BUILD_SHARED_LIBS
 )
 
 target_link_libraries(writecap

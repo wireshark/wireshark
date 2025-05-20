@@ -80,7 +80,7 @@ if(WIN32)
 endif()
 
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
-option(ENABLE_STATIC            "Build Wireshark libraries statically" OFF)
+option(BUILD_SHARED_LIBS            "Build Wireshark libraries as shared" ON)
 option(USE_STATIC               "Always link statically with external libraries" OFF)
 option(ENABLE_PLUGINS           "Build with plugins" ON)
 option(ENABLE_PLUGIN_IFDEMO     "Build with plugin interface demo" OFF)

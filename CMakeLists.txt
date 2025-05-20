@@ -984,11 +984,6 @@ endif() # ! MSVC
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-if(ENABLE_STATIC)
-	set(BUILD_SHARED_LIBS 0)
-else()
-	set(BUILD_SHARED_LIBS 1)
-endif()
 
 function(test_compiler_flag _lang _this_flag _valid_flags_var)
 	string(MAKE_C_IDENTIFIER "${_lang}${_this_flag}_VALID" _flag_var)
@@ -3498,7 +3493,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	#
 	# Instead, we just include source files for the relevant code
 	# to be built as part of dumpcap, so that they're built with
-	# ENABLE_STATIC defined, and will be able to be built with
+	# BUILD_SHARED_LIBS defined, and will be able to be built with
 	# the static version of libwsutil.
 	#
 	set(dumpcap_FILES
@@ -3516,7 +3511,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	target_include_directories(dumpcap SYSTEM PRIVATE ${NL_INCLUDE_DIRS})
-	target_compile_definitions(dumpcap PRIVATE ENABLE_STATIC)
+	target_compile_definitions(dumpcap PRIVATE BUILD_SHARED_LIBS)
 	executable_link_mingw_unicode(dumpcap)
 	install(TARGETS dumpcap
 			RUNTIME	DESTINATION ${CMAKE_INSTALL_BINDIR}

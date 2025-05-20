@@ -31,9 +31,6 @@
 /*  Define to 1 if we check hf conflict */
 #cmakedefine ENABLE_CHECK_FILTER 1
 
-/* Link Wireshark libraries statically */
-#cmakedefine ENABLE_STATIC 1
-
 /* Enable AddressSanitizer (and LeakSanitizer on clang/gcc) */
 #cmakedefine ENABLE_ASAN 1
 
