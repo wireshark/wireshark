@@ -84,7 +84,18 @@ static void
 oran_stat_reset(void *phs)
 {
     oran_stat_t *oran_stat = (oran_stat_t *)phs;
+    g_list_free_full(oran_stat->flow_list, g_free);
     oran_stat->flow_list = NULL;
+}
+
+
+/* Free memory used by tap */
+static void
+oran_stat_finish(void *phs)
+{
+    oran_stat_t *oran_stat = (oran_stat_t *)phs;
+    g_list_free_full(oran_stat->flow_list, g_free);
+    g_free(oran_stat);
 }
 
 
@@ -212,10 +223,10 @@ oran_stat_draw(void *phs)
 
     /* Deref the struct */
     oran_stat_t *hs = (oran_stat_t*)phs;
-    GList *list = hs->flow_list, *tmp = NULL;
+    GList *tmp = NULL;
 
     /* TODO: sort rows by eAxC (ascending), Plane (control first), direction (DL first) */
-    list = g_list_sort(list, (GCompareFunc)compare_flows);
+    hs->flow_list = g_list_sort(hs->flow_list, (GCompareFunc)compare_flows);
 
     /* Show column titles */
     for (i=0; i < NUM_FLOW_COLUMNS; i++) {
@@ -225,7 +236,7 @@ oran_stat_draw(void *phs)
     printf("\n====================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
-    for (tmp = list; tmp; tmp=tmp->next) {
+    for (tmp = hs->flow_list; tmp; tmp=tmp->next) {
 
         oran_row_data *row = (oran_row_data*)tmp->data;
         char sections[64];
@@ -305,11 +316,11 @@ static bool oran_stat_init(const char *opt_arg, void *userdata _U_)
     hs = g_new0(oran_stat_t, 1);
 
     error_string = register_tap_listener("oran-fh-cus", hs,
-                                         filter, 0,
+                                         filter, TL_REQUIRES_NOTHING,
                                          oran_stat_reset,
                                          oran_stat_packet,
                                          oran_stat_draw,
-                                         NULL);
+                                         oran_stat_finish);
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);
