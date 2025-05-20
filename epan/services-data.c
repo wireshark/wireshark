@@ -6057,6 +6057,7 @@ static const ws_services_entry_t global_udp_services_table[] = {
     { 4416, "pjj-player-disc",  "PJJ Media Player discovery" },
     { 4418, "axysbridge",       "AXYS communication protocol" },
     { 4441, "netblox",          "Netblox Protocol" },
+    { 4503, "m-bus-oms",        "M-Bus-OMS over UDP" },
     { 4534, "armagetronad",     "Armagetron Advanced Game Server" },
     { 4557, "mtcevrunqss",      "Marathon everRun Quorum Service Server" },
     { 4558, "mtcevrunqman",     "Marathon everRun Quorum Service Manager" },
