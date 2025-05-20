@@ -3692,6 +3692,13 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 }
 
 int
+call_dissector_decrypt(dissector_handle_t handle, tvbuff_t *tvb,
+	       packet_info *pinfo, proto_tree *tree)
+{
+	return call_dissector_with_data(handle, tvb, pinfo, tree, NULL);
+}
+
+int
 call_data_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	DISSECTOR_ASSERT(data_handle->protocol != NULL);

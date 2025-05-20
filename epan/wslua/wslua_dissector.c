@@ -113,6 +113,38 @@ WSLUA_METAMETHOD Dissector__call(lua_State* L) {
     return Dissector_call(L);
 }
 
+WSLUA_METHOD Dissector_decrypt(lua_State* L) {
+    /* Calls a dissector against a given packet (or part of it). */
+#define WSLUA_ARG_Dissector_decrypt_TVB 2 /* The buffer to dissect. */
+#define WSLUA_ARG_Dissector_decrypt_PINFO 3 /* The packet info. */
+#define WSLUA_ARG_Dissector_decrypt_TREE 4 /* The tree on which to add the protocol items. */
+
+    Dissector volatile d = checkDissector(L,1);
+    Tvb tvb = checkTvb(L,WSLUA_ARG_Dissector_decrypt_TVB);
+    Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_decrypt_PINFO);
+    TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_decrypt_TREE);
+    volatile int len = 0;
+    char *decrypted = "Test";
+
+    if (! ( d && tvb && pinfo) ) return 0;
+
+    WRAP_NON_LUA_EXCEPTIONS(
+        len = call_dissector_decrypt(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
+    )
+
+    lua_pushinteger(L,(lua_Integer)len);
+    lua_pushstring(L,(const char *) decrypted);
+    WSLUA_RETURN(2); /* Number of bytes dissected and decrypted content */
+}
+
+WSLUA_METAMETHOD Dissector__decrypt(lua_State* L) {
+    /* Calls a dissector against a given packet (or part of it). */
+#define WSLUA_ARG_Dissector__decrypt_TVB 2 /* The buffer to dissect. */
+#define WSLUA_ARG_Dissector__decrypt_PINFO 3 /* The packet info. */
+#define WSLUA_ARG_Dissector__decrypt_TREE 4 /* The tree on which to add the protocol items. */
+    return Dissector_decrypt(L);
+}
+
 WSLUA_METAMETHOD Dissector__tostring(lua_State* L) {
     /* Gets the Dissector's description. */
     Dissector d = checkDissector(L,1);
@@ -131,12 +163,14 @@ WSLUA_METHODS Dissector_methods[] = {
     WSLUA_CLASS_FNREG(Dissector,get),
     WSLUA_CLASS_FNREG(Dissector,call),
     WSLUA_CLASS_FNREG(Dissector,list),
+    WSLUA_CLASS_FNREG(Dissector,decrypt),
     { NULL, NULL }
 };
 
 WSLUA_META Dissector_meta[] = {
     WSLUA_CLASS_MTREG(Dissector,tostring),
     WSLUA_CLASS_MTREG(Dissector,call),
+    WSLUA_CLASS_MTREG(Dissector,decrypt),
     { NULL, NULL }
 };
 
