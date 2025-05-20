@@ -68,6 +68,13 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 }
 
 
+static void
+protocolinfo_finish(void *prs)
+{
+	pci_t *rs = (pci_t *)prs;
+	g_free(rs);
+}
+
 
 static bool
 protocolinfo_init(const char *opt_arg, void *userdata _U_)
@@ -100,11 +107,10 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	rs = g_new(pci_t, 1);
 	rs->hf_index = hfi->id;
 	if ((field-filter) > 1) {
-		rs_filter = (char *)g_malloc(field-filter);
-		(void) g_strlcpy(rs_filter, filter, (field-filter));
+		rs_filter = (char *)g_strndup(filter, field-filter-1);
 	}
 
-	error_string = register_tap_listener("frame", rs, rs_filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL, NULL);
+	error_string = register_tap_listener("frame", rs, rs_filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL, protocolinfo_finish);
 	if (error_string) {
 		/* error, we failed to attach to the tap. complain and clean up */
 		cmdarg_err("Couldn't register proto,colinfo tap: %s",
@@ -115,6 +121,9 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 
 		return false;
 	}
+
+	/* register_tap_listener() copies the filter string, we need to free our version */
+	g_free(rs_filter);
 
 	return true;
 }
