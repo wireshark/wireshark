@@ -127,7 +127,7 @@ dissect_vlp16_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	proto_tree_add_item(vlp16_data_tree, hf_vlp16_data_factory_field2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 static int
@@ -192,7 +192,7 @@ dissect_vlp16_position(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	proto_tree_add_item(vlp16_tree, hf_vlp16_position_unused, tvb, offset, 234, ENC_NA);
 	offset += 234;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 void
