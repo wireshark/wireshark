@@ -868,7 +868,7 @@ int main(int argc, char *qt_argv[])
 #endif
     splash_update(RA_INTERFACES, NULL, NULL);
 
-    if (!cf_name.isEmpty() && !prefs.capture_no_interface_load) {
+    if (cf_name.isEmpty() && !prefs.capture_no_interface_load) {
         ssApp->scanLocalInterfaces(nullptr);
     }
 
