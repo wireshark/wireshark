@@ -1,4 +1,4 @@
-/* byte_view_text.cpp
+/* hex_data_source_view.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,7 +10,7 @@
 // Some code based on QHexView by Evan Teran
 // https://github.com/eteran/qhexview/
 
-#include "byte_view_text.h"
+#include "hex_data_source_view.h"
 
 #include <wsutil/str_util.h>
 
@@ -46,7 +46,7 @@ Q_DECLARE_METATYPE(bytes_view_type)
 Q_DECLARE_METATYPE(bytes_encoding_type)
 Q_DECLARE_METATYPE(DataPrinter::DumpType)
 
-ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
+HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
     BaseDataSourceView(data, parent),
     layout_(new QTextLayout()),
     encoding_(encoding),
@@ -84,19 +84,19 @@ ByteViewText::ByteViewText(const QByteArray &data, packet_char_enc encoding, QWi
 #endif
 }
 
-ByteViewText::~ByteViewText()
+HexDataSourceView::~HexDataSourceView()
 {
     ctx_menu_.clear();
     delete(layout_);
 }
 
-void ByteViewText::createContextMenu()
+void HexDataSourceView::createContextMenu()
 {
 
     action_allow_hover_selection_ = ctx_menu_.addAction(tr("Allow hover highlighting"));
     action_allow_hover_selection_->setCheckable(true);
     action_allow_hover_selection_->setChecked(true);
-    connect(action_allow_hover_selection_, &QAction::toggled, this, &ByteViewText::toggleHoverAllowed);
+    connect(action_allow_hover_selection_, &QAction::toggled, this, &HexDataSourceView::toggleHoverAllowed);
     ctx_menu_.addSeparator();
 
     QActionGroup * copy_actions = DataPrinter::copyActions(this);
@@ -121,7 +121,7 @@ void ByteViewText::createContextMenu()
     action_bytes_bits_->setCheckable(true);
 
     ctx_menu_.addActions(format_actions->actions());
-    connect(format_actions, &QActionGroup::triggered, this, &ByteViewText::setHexDisplayFormat);
+    connect(format_actions, &QActionGroup::triggered, this, &HexDataSourceView::setHexDisplayFormat);
 
     ctx_menu_.addSeparator();
 
@@ -145,16 +145,16 @@ void ByteViewText::createContextMenu()
     updateContextMenu();
 
     ctx_menu_.addActions(encoding_actions->actions());
-    connect(encoding_actions, &QActionGroup::triggered, this, &ByteViewText::setCharacterEncoding);
+    connect(encoding_actions, &QActionGroup::triggered, this, &HexDataSourceView::setCharacterEncoding);
 }
 
-void ByteViewText::toggleHoverAllowed(bool checked)
+void HexDataSourceView::toggleHoverAllowed(bool checked)
 {
     allow_hover_selection_ = ! checked;
     recent.gui_allow_hover_selection = checked;
 }
 
-void ByteViewText::updateContextMenu()
+void HexDataSourceView::updateContextMenu()
 {
 
     action_allow_hover_selection_->setChecked(recent.gui_allow_hover_selection);
@@ -187,14 +187,14 @@ void ByteViewText::updateContextMenu()
     }
 }
 
-void ByteViewText::markProtocol(int start, int length)
+void HexDataSourceView::markProtocol(int start, int length)
 {
     proto_start_ = start;
     proto_len_ = length;
     viewport()->update();
 }
 
-void ByteViewText::markField(int start, int length, bool scroll_to)
+void HexDataSourceView::markField(int start, int length, bool scroll_to)
 {
     field_start_ = start;
     field_len_ = length;
@@ -207,14 +207,14 @@ void ByteViewText::markField(int start, int length, bool scroll_to)
     viewport()->update();
 }
 
-void ByteViewText::markAppendix(int start, int length)
+void HexDataSourceView::markAppendix(int start, int length)
 {
     field_a_start_ = start;
     field_a_len_ = length;
     viewport()->update();
 }
 
-void ByteViewText::unmarkField()
+void HexDataSourceView::unmarkField()
 {
     proto_start_ = 0;
     proto_len_ = 0;
@@ -226,7 +226,7 @@ void ByteViewText::unmarkField()
     viewport()->update();
 }
 
-void ByteViewText::setMonospaceFont(const QFont &mono_font)
+void HexDataSourceView::setMonospaceFont(const QFont &mono_font)
 {
     QFont int_font(mono_font);
 
@@ -240,7 +240,7 @@ void ByteViewText::setMonospaceFont(const QFont &mono_font)
     viewport()->update();
 }
 
-void ByteViewText::updateByteViewSettings()
+void HexDataSourceView::updateByteViewSettings()
 {
     row_width_ = recent.gui_bytes_view == BYTES_BITS ? 8 : 16;
 
@@ -249,7 +249,7 @@ void ByteViewText::updateByteViewSettings()
     viewport()->update();
 }
 
-void ByteViewText::paintEvent(QPaintEvent *)
+void HexDataSourceView::paintEvent(QPaintEvent *)
 {
     updateLayoutMetrics();
 
@@ -325,12 +325,12 @@ void ByteViewText::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
 }
 
-void ByteViewText::resizeEvent(QResizeEvent *)
+void HexDataSourceView::resizeEvent(QResizeEvent *)
 {
     updateScrollbars();
 }
 
-void ByteViewText::mousePressEvent (QMouseEvent *event) {
+void HexDataSourceView::mousePressEvent (QMouseEvent *event) {
     if (data_.isEmpty() || !event || event->button() != Qt::LeftButton) {
         return;
     }
@@ -357,7 +357,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
     setUpdatesEnabled(true);
 }
 
-void ByteViewText::mouseMoveEvent(QMouseEvent *event)
+void HexDataSourceView::mouseMoveEvent(QMouseEvent *event)
 {
     if (marked_byte_offset_ >= 0 || allow_hover_selection_ ||
         (!allow_hover_selection_ && event->modifiers() & Qt::ControlModifier)) {
@@ -369,7 +369,7 @@ void ByteViewText::mouseMoveEvent(QMouseEvent *event)
     viewport()->update();
 }
 
-void ByteViewText::leaveEvent(QEvent *event)
+void HexDataSourceView::leaveEvent(QEvent *event)
 {
     hovered_byte_offset_ = -1;
     emit byteHovered(hovered_byte_offset_);
@@ -378,30 +378,30 @@ void ByteViewText::leaveEvent(QEvent *event)
     QAbstractScrollArea::leaveEvent(event);
 }
 
-void ByteViewText::contextMenuEvent(QContextMenuEvent *event)
+void HexDataSourceView::contextMenuEvent(QContextMenuEvent *event)
 {
     ctx_menu_.popup(event->globalPos());
 }
 
 // Private
 
-const int ByteViewText::separator_interval_ = DataPrinter::separatorInterval();
+const int HexDataSourceView::separator_interval_ = DataPrinter::separatorInterval();
 
-void ByteViewText::updateLayoutMetrics()
+void HexDataSourceView::updateLayoutMetrics()
 {
     em_width_  = stringWidth("M");
     // We might want to match ProtoTree::rowHeight.
     line_height_ = viewport()->fontMetrics().lineSpacing();
 }
 
-int ByteViewText::stringWidth(const QString &line)
+int HexDataSourceView::stringWidth(const QString &line)
 {
     return viewport()->fontMetrics().horizontalAdvance(line);
 }
 
 // Draw a line of byte view text for a given offset.
 // Text highlighting is handled using QTextLayout::FormatRange.
-void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y)
+void HexDataSourceView::drawLine(QPainter *painter, const int offset, const int row_y)
 {
     if (data_.isEmpty()) {
         return;
@@ -580,7 +580,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     layout_->draw(painter, QPointF(0.0, row_y));
 }
 
-bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode)
+bool HexDataSourceView::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode)
 {
     if (length < 1)
         return false;
@@ -613,7 +613,7 @@ bool ByteViewText::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int
     return true;
 }
 
-bool ByteViewText::addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, ByteViewText::HighlightMode mode)
+bool HexDataSourceView::addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, HexDataSourceView::HighlightMode mode)
 {
     int mark_end = mark_start + mark_length - 1;
     if (mark_start < 0 || mark_length < 1) return false;
@@ -648,7 +648,7 @@ bool ByteViewText::addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, 
     return addFormatRange(fmt_list, fmt_start, fmt_length, mode);
 }
 
-bool ByteViewText::addAsciiFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, ByteViewText::HighlightMode mode)
+bool HexDataSourceView::addAsciiFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, HexDataSourceView::HighlightMode mode)
 {
     int mark_end = mark_start + mark_length - 1;
     if (mark_start < 0 || mark_length < 1) return false;
@@ -667,13 +667,13 @@ bool ByteViewText::addAsciiFormatRange(QList<QTextLayout::FormatRange> &fmt_list
     return addFormatRange(fmt_list, fmt_start, fmt_length, mode);
 }
 
-void ByteViewText::scrollToByte(int byte)
+void HexDataSourceView::scrollToByte(int byte)
 {
     verticalScrollBar()->setValue(byte / row_width_);
 }
 
 // Offset character width
-int ByteViewText::offsetChars(bool include_pad)
+int HexDataSourceView::offsetChars(bool include_pad)
 {
     int padding = include_pad ? 2 : 0;
     if (! data_.isEmpty() && data_.size() > 0xffff) {
@@ -683,7 +683,7 @@ int ByteViewText::offsetChars(bool include_pad)
 }
 
 // Offset pixel width
-int ByteViewText::offsetPixels()
+int HexDataSourceView::offsetPixels()
 {
     if (show_offset_) {
         // One pad space before and after
@@ -694,7 +694,7 @@ int ByteViewText::offsetPixels()
 }
 
 // Hex pixel width
-int ByteViewText::hexPixels()
+int HexDataSourceView::hexPixels()
 {
     if (show_hex_) {
         // One pad space before and after
@@ -704,7 +704,7 @@ int ByteViewText::hexPixels()
     return 0;
 }
 
-int ByteViewText::asciiPixels()
+int HexDataSourceView::asciiPixels()
 {
     if (show_ascii_) {
         // Two pad spaces before, one after
@@ -715,12 +715,12 @@ int ByteViewText::asciiPixels()
     return 0;
 }
 
-int ByteViewText::totalPixels()
+int HexDataSourceView::totalPixels()
 {
     return offsetPixels() + hexPixels() + asciiPixels();
 }
 
-void ByteViewText::copyBytes(bool)
+void HexDataSourceView::copyBytes(bool)
 {
     QAction* action = qobject_cast<QAction*>(sender());
     if (!action) {
@@ -737,7 +737,7 @@ void ByteViewText::copyBytes(bool)
 
 // We do chunky (per-character) scrolling because it makes some of the
 // math easier. Should we do smooth scrolling?
-void ByteViewText::updateScrollbars()
+void HexDataSourceView::updateScrollbars()
 {
     const int length = static_cast<int>(data_.size());
     if (length > 0 && line_height_ > 0 && em_width_ > 0) {
@@ -748,7 +748,7 @@ void ByteViewText::updateScrollbars()
     }
 }
 
-int ByteViewText::byteOffsetAtPixel(QPoint pos)
+int HexDataSourceView::byteOffsetAtPixel(QPoint pos)
 {
     int byte = (verticalScrollBar()->value() + (pos.y() / line_height_)) * row_width_;
     int x = (horizontalScrollBar()->value() * em_width_) + pos.x();
@@ -765,7 +765,7 @@ int ByteViewText::byteOffsetAtPixel(QPoint pos)
     return byte;
 }
 
-void ByteViewText::setHexDisplayFormat(QAction *action)
+void HexDataSourceView::setHexDisplayFormat(QAction *action)
 {
     if (!action) {
         return;
@@ -776,7 +776,7 @@ void ByteViewText::setHexDisplayFormat(QAction *action)
     emit byteViewSettingsChanged();
 }
 
-void ByteViewText::setCharacterEncoding(QAction *action)
+void HexDataSourceView::setCharacterEncoding(QAction *action)
 {
     if (!action) {
         return;

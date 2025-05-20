@@ -19,7 +19,6 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/additional_toolbar.h
 	widgets/apply_line_edit.h
 	widgets/base_data_source_view.h
-	widgets/byte_view_text.h
 	widgets/capture_filter_combo.h
 	widgets/capture_filter_edit.h
 	widgets/clickable_label.h
@@ -40,6 +39,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/filter_expression_toolbar.h
 	widgets/find_line_edit.h
 	widgets/follow_stream_text.h
+	widgets/hex_data_source_view.h
 	widgets/interface_toolbar_lineedit.h
 	widgets/json_data_source_view.h
 	widgets/label_stack.h
@@ -292,7 +292,6 @@ endif()
 set(WIRESHARK_WIDGET_SRCS
 	widgets/additional_toolbar.cpp
 	widgets/apply_line_edit.cpp
-	widgets/byte_view_text.cpp
 	widgets/capture_filter_combo.cpp
 	widgets/capture_filter_edit.cpp
 	widgets/clickable_label.cpp
@@ -313,6 +312,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/filter_expression_toolbar.cpp
 	widgets/find_line_edit.cpp
 	widgets/follow_stream_text.cpp
+	widgets/hex_data_source_view.cpp
 	widgets/interface_toolbar_lineedit.cpp
 	widgets/json_data_source_view.cpp
 	widgets/label_stack.cpp

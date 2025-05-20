@@ -720,7 +720,7 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
+    <name>HexDataSourceView</name>
     <message>
         <source>Allow hover selection</source>
         <translation type="unfinished"></translation>

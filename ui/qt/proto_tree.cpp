@@ -665,7 +665,7 @@ void ProtoTree::itemClicked(const QModelIndex &index)
 {
     // selectionChanged() is not issued when some action would select
     // the same item as currently selected - but we want to make sure
-    // ByteViewText is highlighting that field. The BVT highlighted bytes
+    // HexDataSourceView is highlighting that field. The BVT highlighted bytes
     // might be different, due to hover highlighting or Find Packet "bytes".
     //
     // Unfortunately, clicked() is singled after selectionChanged(), so

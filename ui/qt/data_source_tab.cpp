@@ -22,7 +22,7 @@
 
 #include <ui/qt/main_window.h>
 #include <ui/qt/utils/variant_pointer.h>
-#include <ui/qt/widgets/byte_view_text.h>
+#include <ui/qt/widgets/hex_data_source_view.h>
 #include <ui/qt/widgets/json_data_source_view.h>
 
 // To do:
@@ -73,10 +73,10 @@ void DataSourceTab::captureActive(int cap)
 {
     if (cap == 0)
     {
-        QList<ByteViewText *> allBVTs = findChildren<ByteViewText *>();
+        QList<HexDataSourceView *> allBVTs = findChildren<HexDataSourceView *>();
         if (allBVTs.count() > 0)
         {
-            ByteViewText * bvt = allBVTs.at(0);
+            HexDataSourceView * bvt = allBVTs.at(0);
             tvbuff_t * stored = bvt->tvb();
 
             if (! stored)
@@ -125,7 +125,7 @@ void DataSourceTab::addTab(const char *name, const struct data_source *source)
             encoding = (packet_char_enc)cap_file_->current_frame->encoding;
         }
 
-        data_source_view = new ByteViewText(data, encoding, this);
+        data_source_view = new HexDataSourceView(data, encoding, this);
     }
     }
 
@@ -154,20 +154,20 @@ void DataSourceTab::addTab(const char *name, const struct data_source *source)
         // proto_find_field_from_offset() is OK. See #14363.
         //
         // XXX: It sounds appealing to clone the secondary data source tvbs
-        // and set them to be freed when the byte_view_text is freed, perhaps
+        // and set them to be freed when the hex_data_source_view is freed, perhaps
         // even doing so only when the capture file is closing. However, while
         // relatively simple for the few number of secondary data sources, it
         // would be a pain to change the pointers for every field_info.
         data_source_view->setTvb(tvb);
 
         connect(mainApp, &MainApplication::zoomMonospaceFont, data_source_view, &BaseDataSourceView::setMonospaceFont);
-        connect(data_source_view, &ByteViewText::byteSelected, this, &DataSourceTab::byteViewTextMarked);
+        connect(data_source_view, &HexDataSourceView::byteSelected, this, &DataSourceTab::byteViewTextMarked);
 
-        if (ByteViewText *byte_view_text = qobject_cast<ByteViewText *>(data_source_view)) {
-            connect(byte_view_text, &ByteViewText::byteHovered, this, &DataSourceTab::byteViewTextHovered);
-            connect(byte_view_text, &ByteViewText::byteViewSettingsChanged, this, &DataSourceTab::byteViewSettingsChanged);
-            connect(this, &DataSourceTab::byteViewSettingsChanged, byte_view_text, &ByteViewText::updateByteViewSettings);
-            connect(this, &DataSourceTab::byteViewUnmarkField, byte_view_text, &ByteViewText::unmarkField);
+        if (HexDataSourceView *hex_data_source_view = qobject_cast<HexDataSourceView *>(data_source_view)) {
+            connect(hex_data_source_view, &HexDataSourceView::byteHovered, this, &DataSourceTab::byteViewTextHovered);
+            connect(hex_data_source_view, &HexDataSourceView::byteViewSettingsChanged, this, &DataSourceTab::byteViewSettingsChanged);
+            connect(this, &DataSourceTab::byteViewSettingsChanged, hex_data_source_view, &HexDataSourceView::updateByteViewSettings);
+            connect(this, &DataSourceTab::byteViewUnmarkField, hex_data_source_view, &HexDataSourceView::unmarkField);
         }
     }
 

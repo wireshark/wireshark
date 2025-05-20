@@ -21,7 +21,7 @@
 #include <QScrollBar>
 
 // To do:
-// - Draw text by hand similar to ByteViewText. This would let us add
+// - Draw text by hand similar to HexDataSourceView. This would let us add
 //   extra information, e.g. a timestamp column and get rid of
 //   max_document_length_ in FollowStreamDialog.
 

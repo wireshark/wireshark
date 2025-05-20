@@ -32,7 +32,7 @@
 
 // To do:
 // - Add show as custom protocol in a Packet Details view
-// - Use ByteViewText to ShowAsHexDump and supplementary view for custom protocol
+// - Use HexDataSourceView to ShowAsHexDump and supplementary view for custom protocol
 // - Handle large data blocks
 
 Q_DECLARE_METATYPE(bytes_show_type)

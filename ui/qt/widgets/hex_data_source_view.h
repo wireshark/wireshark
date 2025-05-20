@@ -7,8 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef BYTE_VIEW_TEXT_H
-#define BYTE_VIEW_TEXT_H
+#pragma once
 
 #include <config.h>
 
@@ -28,16 +27,16 @@
 #include <ui/qt/utils/data_printer.h>
 #include <ui/qt/utils/idata_printable.h>
 
-// XXX - Is there any reason we shouldn't add ByteViewImage, etc?
+// XXX - Is there any reason we shouldn't add ImageDataSourceView, etc?
 
-class ByteViewText : public BaseDataSourceView, public IDataPrintable
+class HexDataSourceView : public BaseDataSourceView, public IDataPrintable
 {
     Q_OBJECT
     Q_INTERFACES(IDataPrintable)
 
 public:
-    explicit ByteViewText(const QByteArray &data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = nullptr);
-    ~ByteViewText();
+    explicit HexDataSourceView(const QByteArray &data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = nullptr);
+    ~HexDataSourceView();
 
     void setFormat(bytes_view_type format);
 
@@ -144,5 +143,3 @@ private slots:
     void toggleHoverAllowed(bool);
 
 };
-
-#endif // BYTE_VIEW_TEXT_H
