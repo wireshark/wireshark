@@ -1762,6 +1762,19 @@ wtap_setup_systemd_journal_export_rec(wtap_rec *rec)
 	rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
 }
 
+/**
+ * Set up a wtap_rec for a custom block (REC_TYPE_CUSTOM_BLCK).
+ */
+void
+wtap_setup_custom_block_rec(wtap_rec *rec, uint32_t pen,
+                            uint32_t payload_length, bool copy_allowed)
+{
+	rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
+	rec->rec_header.custom_block_header.pen = pen;
+	rec->rec_header.custom_block_header.length = payload_length;
+	rec->rec_header.custom_block_header.copy_allowed = copy_allowed;
+}
+
 bool
 wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *offset)
 {

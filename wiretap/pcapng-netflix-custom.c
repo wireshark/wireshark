@@ -204,8 +204,7 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* 
 #define MIN_NFLX_CB_SIZE ((uint32_t)sizeof(pcapng_nflx_custom_block_t))
 
 bool
-pcapng_read_nflx_custom_block(FILE_T fh, uint32_t block_payload_length,
-                              section_info_t *section_info,
+pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
                               wtapng_block_t *wblock,
                               int *err, char **err_info)
 {
@@ -213,15 +212,14 @@ pcapng_read_nflx_custom_block(FILE_T fh, uint32_t block_payload_length,
     unsigned opt_cont_buf_len;
     uint32_t type, skipped;
 
-    if (block_payload_length < MIN_NFLX_CB_SIZE) {
+    if (wblock->rec->rec_header.custom_block_header.length < MIN_NFLX_CB_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("pcapng: payload length %u of a Netflix CB is too small (< %u)",
-                                    block_payload_length, MIN_NFLX_CB_SIZE);
+                                     wblock->rec->rec_header.custom_block_header.length,
+                                     MIN_NFLX_CB_SIZE);
         return false;
     }
 
-    wblock->rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
-    wblock->rec->rec_header.custom_block_header.pen = PEN_NFLX;
     /* "NFLX Custom Block" read fixed part */
     if (!wtap_read_bytes(fh, &nflx_cb, sizeof nflx_cb, err, err_info)) {
         ws_debug("Failed to read nflx type");
@@ -236,7 +234,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, uint32_t block_payload_length,
              * We already know we have that much data in the block.
              */
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_EVENT_BLOCK;
-            opt_cont_buf_len = block_payload_length - MIN_NFLX_CB_SIZE;
+            opt_cont_buf_len = wblock->rec->rec_header.custom_block_header.length - MIN_NFLX_CB_SIZE;
             ws_debug("event");
             break;
         case NFLX_BLOCK_TYPE_SKIP:
@@ -246,11 +244,11 @@ pcapng_read_nflx_custom_block(FILE_T fh, uint32_t block_payload_length,
              *
              * Make sure we have that much data in the block.
              */
-            if (block_payload_length < MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t)) {
+            if (wblock->rec->rec_header.custom_block_header.length < MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t)) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("pcapng: payload length %u of a Netflix skip CB is too small (< %u)",
-                                            block_payload_length,
-                                            MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t));
+                                             wblock->rec->rec_header.custom_block_header.length,
+                                             MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t));
                 return false;
             }
             if (!wtap_read_bytes(fh, &skipped, sizeof(uint32_t), err, err_info)) {
@@ -262,7 +260,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, uint32_t block_payload_length,
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_SKIPPED_BLOCK;
             wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped = GUINT32_FROM_LE(skipped);
             wblock->internal = false;
-            opt_cont_buf_len = block_payload_length - MIN_NFLX_CB_SIZE - sizeof(uint32_t);
+            opt_cont_buf_len = wblock->rec->rec_header.custom_block_header.length - MIN_NFLX_CB_SIZE - sizeof(uint32_t);
             ws_debug("skipped: %u", wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
             break;
         default:

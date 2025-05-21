@@ -2910,35 +2910,6 @@ register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcap
 }
 
 static bool
-pcapng_handle_generic_custom_block(FILE_T fh, pcapng_block_header_t *bh,
-                                   uint32_t pen, wtapng_block_t *wblock,
-                                   int *err, char **err_info)
-{
-    unsigned to_read;
-
-    ws_debug("unknown pen %u", pen);
-    if (bh->block_total_length % 4) {
-        to_read = bh->block_total_length + 4 - (bh->block_total_length % 4);
-    } else {
-        to_read = bh->block_total_length;
-    }
-    to_read -= MIN_CB_SIZE;
-    wblock->rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
-    wblock->rec->presence_flags = 0;
-    wblock->rec->rec_header.custom_block_header.length = bh->block_total_length - MIN_CB_SIZE;
-    wblock->rec->rec_header.custom_block_header.pen = pen;
-    wblock->rec->rec_header.custom_block_header.copy_allowed = (bh->block_type == BLOCK_TYPE_CB_COPY);
-    if (!wtap_read_bytes_buffer(fh, &wblock->rec->data, to_read, err, err_info)) {
-        return false;
-    }
-    /*
-     * We return these to the caller in pcapng_read().
-     */
-    wblock->internal = false;
-    return true;
-}
-
-static bool
 pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
                          section_info_t *section_info,
                          wtapng_block_t *wblock,
@@ -2974,21 +2945,29 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     uint32_t block_payload_length = bh->block_total_length - MIN_CB_SIZE;
     ws_debug("pen %u, custom data and option length %u", pen, block_payload_length);
 
+    wtap_setup_custom_block_rec(wblock->rec, pen, block_payload_length,
+                                (bh->block_type == BLOCK_TYPE_CB_COPY));
+
     pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
 
     if (pen_handler != NULL)
     {
-        if (!pen_handler->parser(fh, block_payload_length, section_info, wblock, err, err_info))
+        if (!pen_handler->parser(fh, section_info, wblock, err, err_info))
             return false;
     }
     else
     {
-        if (!pcapng_handle_generic_custom_block(fh, bh, pen, wblock, err, err_info))
+        ws_debug("unknown pen %u", pen);
+        if (!wtap_read_bytes_buffer(fh, &wblock->rec->data,
+                                    block_payload_length, err, err_info))
             return false;
     }
 
     wblock->rec->block = wblock->block;
     wblock->block = NULL;
+    /*
+     * We return these to the caller in pcapng_read().
+     */
     wblock->internal = false;
 
     return true;

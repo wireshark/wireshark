@@ -239,8 +239,7 @@ bool pcapng_write_options(wtap_dumper *wdh, pcapng_opt_byte_order_e byte_order,
 /*
  * Handler routines for pcapng custom blocks with an enterprise number.
  */
-typedef bool (*custom_option_parser)(FILE_T fh, uint32_t block_payload_length,
-    section_info_t* section_info,
+typedef bool (*custom_option_parser)(FILE_T fh, section_info_t* section_info,
     wtapng_block_t* wblock,
     int* err, char** err_info);
 typedef bool (*custom_option_processor)(wtapng_block_t* wblock,

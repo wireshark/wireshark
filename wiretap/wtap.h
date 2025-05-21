@@ -1392,8 +1392,8 @@ typedef struct {
 } wtap_systemd_journal_export_header;
 
 typedef struct {
-    uint32_t  length;           /* length of the record */
     uint32_t  pen;              /* private enterprise number */
+    uint32_t  length;           /* length of the Custom Data plus options */
     bool      copy_allowed;     /* CB can be written */
     union {
         struct nflx {
@@ -1987,6 +1987,13 @@ void wtap_setup_syscall_rec(wtap_rec *rec);
  */
 WS_DLL_PUBLIC
 void wtap_setup_systemd_journal_export_rec(wtap_rec *rec);
+
+/**
+ * Set up a wtap_rec for a custom block (REC_TYPE_CUSTOM_BLOCK).
+ */
+WS_DLL_PUBLIC
+void wtap_setup_custom_block_rec(wtap_rec *rec, uint32_t pen,
+                                 uint32_t payload_length, bool copy_allowed);
 
 /*
  * Types of compression for a file, including "none".
