@@ -2679,8 +2679,14 @@ ttl_open(wtap* wth, int* err, char** err_info) {
     if (memcmp(header.magic, ttl_magic, sizeof(ttl_magic))) {
         return WTAP_OPEN_NOT_MINE;
     }
-
     /* This seems to be a TLL! */
+
+    /* Check for valid block size */
+    if (header.block_size == 0) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("ttl: block size cannot be 0");
+        return WTAP_OPEN_ERROR;
+    }
     /* Check for a valid header length */
     if (header.header_size < sizeof(ttl_fileheader_t)) {
         *err = WTAP_ERR_BAD_FILE;

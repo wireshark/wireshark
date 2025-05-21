@@ -175,6 +175,7 @@ static int hf_ttl_trace_data_entry_fr_eray_swnit_register;
 static int hf_ttl_trace_data_entry_fr_eray_acs_register;
 
 
+static expert_field ei_ttl_block_size_too_short;
 static expert_field ei_ttl_header_size_too_short;
 static expert_field ei_ttl_header_size_implausible;
 static expert_field ei_ttl_header_logfile_info_too_short;
@@ -1320,8 +1321,11 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     offset += 4;
     proto_tree_add_item_ret_uint(header_subtree, hf_ttl_header_file_format_version, tvb, offset, 4, ENC_LITTLE_ENDIAN, &format_version);
     offset += 4;
-    proto_tree_add_item_ret_uint(header_subtree, hf_ttl_header_block_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &block_size);
+    ti = proto_tree_add_item_ret_uint(header_subtree, hf_ttl_header_block_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &block_size);
     offset += 4;
+    if (block_size == 0) {
+        expert_add_info(pinfo, ti, &ei_ttl_block_size_too_short);
+    }
     ti = proto_tree_add_item(header_subtree, hf_ttl_header_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     if (header_length < sizeof(ttl_fileheader_t)) {
@@ -1358,9 +1362,11 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         ti = proto_tree_add_item(ttl_tree, hf_ttl_trace_data, tvb, offset, -1, ENC_NA);
         trace_data_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data);
 
-        while ((remaining = tvb_captured_length_remaining(tvb, offset)) > 0) {
-            dissect_ttl_block(tvb, pinfo, trace_data_subtree, offset, MIN((int)block_size, remaining));
-            offset += block_size;
+        if (block_size != 0) {
+            while ((remaining = tvb_captured_length_remaining(tvb, offset)) > 0) {
+                dissect_ttl_block(tvb, pinfo, trace_data_subtree, offset, MIN((int)block_size, remaining));
+                offset += block_size;
+            }
         }
 
     }
@@ -1680,6 +1686,10 @@ proto_register_file_ttl(void) {
     };
 
     static ei_register_info ei[] = {
+        { &ei_ttl_block_size_too_short,
+            { "ttl.block_size_too_short", PI_MALFORMED, PI_ERROR,
+                "block size is too short",
+                EXPFILL }},
         { &ei_ttl_header_size_too_short,
             { "ttl.header_size_too_short", PI_MALFORMED, PI_ERROR,
                 "header size is too short",
