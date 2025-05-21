@@ -48,6 +48,23 @@ typedef struct nflx_custom_opt_s {
 #define NFLX_TLB_TCPS_ESTABLISHED 4
 #define NFLX_TLB_IS_SYNCHRONIZED(state) (state >= NFLX_TLB_TCPS_ESTABLISHED)
 
+/*
+ * DO NOT USE sizeof (struct nflx_tcpinfo) AS THE SIZE OF THE CUSTOM
+ * OPTION DATA FOLLOWING THE TYPE. This structure has 64-bit integral
+ * type values in it, but the sum of the sizes of the elements plus
+ * internal padding is *not* a multiple of 8, so, on a platform
+ * on which 64-bit integral type values are aligned on an 8-byte
+ * boundary - i.e., on all 64-bit platforms on which we run,
+ * probably meaning on the majority of machines on which Wireshark
+ * is run these days, especially given that we don't support 32-bit
+ * Windows or macOS any more - it will have 4 bytes of unnamed padding
+ * at the end.
+ *
+ * The custom option data in capture files does *not* necessarily include
+ * the unnamed padding.
+ */
+#define OPT_NFLX_TCPINFO_SIZE 268U
+
 struct nflx_tcpinfo {
     uint64_t tlb_tv_sec;
     uint64_t tlb_tv_usec;
@@ -125,6 +142,10 @@ struct nflx_tcpinfo {
     uint32_t tlb_len;
 };
 
+/*
+ * This is 208 bytes long, and that's a multiple of 8, so the padding
+ * problem that struct nflx_tcpinfo has doesn't appear here.
+ */
 struct nflx_dumpinfo {
     uint32_t tlh_version;
     uint32_t tlh_type;

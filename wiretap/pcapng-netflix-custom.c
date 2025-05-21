@@ -75,7 +75,12 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* 
     case NFLX_OPT_TYPE_TCPINFO: {
         struct nflx_tcpinfo* src, * dst;
 
-        ws_assert(nflx_custom_data_len == sizeof(struct nflx_tcpinfo));
+        /*
+         * Do not use sizeof (struct nflx_tcpinfo); see the comment
+         * before the definition of OPT_NFLX_TCPINFO_SIZE in
+         * wiretap/pcapng-netflix-custom.h.
+         */
+        ws_assert(nflx_custom_data_len == OPT_NFLX_TCPINFO_SIZE);
         src = (struct nflx_tcpinfo*)real_custom_data;
         dst = (struct nflx_tcpinfo*)nflx_custom_data;
         dst->tlb_tv_sec = GUINT64_FROM_LE(src->tlb_tv_sec);
@@ -156,6 +161,11 @@ wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* 
     case NFLX_OPT_TYPE_DUMPINFO: {
         struct nflx_dumpinfo* src, * dst;
 
+        /*
+         * This, however, is safe; see the comment before the
+         * declaration of struct nflx_dumpinfo in
+         * wiretap/pcapng-netflix-custom.h.
+         */
         ws_assert(nflx_custom_data_len == sizeof(struct nflx_dumpinfo));
         src = (struct nflx_dumpinfo*)real_custom_data;
         dst = (struct nflx_dumpinfo*)nflx_custom_data;
