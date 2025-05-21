@@ -326,7 +326,7 @@ peak_trc_parse(wtap* wth, gint64* offset, int* err, char** err_info)
                     }
                 }
 
-                state->data_matcher = g_regex_new(regex_str->str, (GRegexCompileFlags)G_REGEX_OPTIMIZE, (GRegexMatchFlags)0, NULL);
+                state->data_matcher = g_regex_new(regex_str->str, (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_RAW), (GRegexMatchFlags)0, NULL);
                 g_string_free(regex_str, TRUE);
             }
 
@@ -601,7 +601,7 @@ static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* msg
     }
 
 #ifdef PEAK_TRC_DEBUG
-    for (int i = 0; i < cnt; i++)
+    for (int i = 0; i < column_count; i++)
         peak_trc_debug_printf("%d: %s\n", i, g_match_info_fetch(match_info, i));
 #endif
     g_match_info_free(match_info);
