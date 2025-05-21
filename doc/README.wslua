@@ -2,7 +2,7 @@ README.wslua
 
 This is a HOWTO for adding support for new Lua hooks/functions/abilities in
 Wireshark.   If you see any errors or have any improvements, submit patches -
-free software is a community effort....
+free software is a community effort…
 
 This is NOT a guide for how to write Lua plugins - that's documented already
 on the Wireshark webpages.

@@ -446,13 +446,13 @@ lua_script:<lua_script_filename>::
 Tells Wireshark to load the given script in addition to the default Lua scripts.
 
 lua_script[num]:argument::
-Tells Wireshark to pass the given argument to the lua script identified by
+Tells Wireshark to pass the given argument to the Lua script identified by
 _num_, which is the number indexed order of the _lua_script_ command. For
 example, if only one script was loaded with `-X lua_script:my.lua`, then `-X
 lua_script1:foo` will pass the string _foo_ to the _my.lua_ script. If two
 scripts were loaded, such as `-X lua_script:my.lua -X lua_script:other.lua`
 in that order, then a `-X lua_script2:bar` would pass the
-string _bar_ to the second lua script, ie., _other.lua_.
+string _bar_ to the second Lua script, ie., _other.lua_.
 
 read_format:<file_type>::
 Tells Wireshark to use a specific input file type, instead of determining it
@@ -1008,7 +1008,7 @@ While _NONE_ keeps the historical behaviour, the other options are built on thre
  _V_ (VLAN), _M_ (MAC Address), _I_ (Interface).
 The presence of packets which seem to be duplicates because they have the same payload but aren't filtered by the other preference _Ignore duplicate frames_,
 is a strong indication that a deinterlacing key is likely to change the interpretation.
-Check carefully the different values of Interface IDs, MAC Addresses, and VLAN Tags, to identify which deinterlacing key is appropriate for 
+Check carefully the different values of Interface IDs, MAC Addresses, and VLAN Tags, to identify which deinterlacing key is appropriate for
 isolating the conversations and bringing the proper interpretation, but keep in mind that capturing on different interfaces or VLANs doesn't necessarily
 mean that deinterlacing is needed.
 
