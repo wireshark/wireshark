@@ -792,7 +792,7 @@ static bool lua_load_plugin_script(const char* name,
                                    const char* dirname,
                                    const int file_count)
 {
-    ws_debug("Loading lua script: %s", filename);
+    ws_debug("Loading Lua script: %s", filename);
     if (file_count > 0 ? lua_load_script(filename, dirname, file_count) :
                          lua_load_plugin(filename)) {
         wslua_add_plugin(name, get_current_plugin_version(), filename);
@@ -837,7 +837,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, void *client_da
                 /* If we are in the root directory skip the special "init.lua"
                  * file that was already loaded before every other user script.
                  * (If we are below the root script directory we just treat it like any other
-                 * lua script.) */
+                 * Lua script.) */
                 continue;
             }
 
@@ -987,7 +987,7 @@ wslua_plugins_dump_all(void)
 }
 
 const char *wslua_plugin_type_name(void) {
-    return "lua script";
+    return "Lua script";
 }
 
 static ei_register_info* ws_lua_ei;

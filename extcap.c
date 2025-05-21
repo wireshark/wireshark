@@ -217,7 +217,7 @@ extcap_get_descriptions(extcap_plugin_description_callback callback, void *callb
 
     for (unsigned i = 0; i < tools_array->len; i++) {
         extcap_info *tool = (extcap_info *)tools_array->pdata[i];
-        callback(tool->basename, tool->version, "extcap", tool->full_path, callback_data);
+        callback(tool->basename, tool->version, "External Capture", tool->full_path, callback_data);
     }
 
     g_ptr_array_free(tools_array, true);

@@ -103,19 +103,19 @@ static void plugins_add_description(const char *name, const char *version,
     QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
     QStringList plugin_types;
     if (flags & WS_PLUGIN_DESC_DISSECTOR)
-        plugin_types << "dissector";
+        plugin_types << QObject::tr("Dissector");
     if (flags & WS_PLUGIN_DESC_FILE_TYPE)
-        plugin_types << "file type";
+        plugin_types << QObject::tr("File Type");
     if (flags & WS_PLUGIN_DESC_CODEC)
-        plugin_types << "codec";
+        plugin_types << QObject::tr("Codec");
     if (flags & WS_PLUGIN_DESC_EPAN)
-        plugin_types << "epan";
+        plugin_types << QObject::tr("Analysis");
     if (flags & WS_PLUGIN_DESC_TAP_LISTENER)
-        plugin_types << "tap listener";
+        plugin_types << QObject::tr("Tap Listener");
     if (flags & WS_PLUGIN_DESC_DFILTER)
-        plugin_types << "dfilter";
+        plugin_types << QObject::tr("Display Filter");
     if (plugin_types.empty())
-        plugin_types << "unknown";
+        plugin_types << QObject::tr("Unknown");
     QStringList plugin_row = QStringList() << name << version << plugin_types.join(", ") << filename;
     *plugin_data << plugin_row;
 }

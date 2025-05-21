@@ -7,11 +7,11 @@ include::../attributes.adoc[]
 
 == NAME
 
-extcap - The extcap interface
+extcap - The external capture interface
 
 == DESCRIPTION
 
-The extcap interface is a versatile plugin interface that allows external binaries
+The extcap (external capture) interface is a versatile plugin interface that allows external binaries
 to act as capture interfaces directly in Wireshark. It is used in scenarios, where
 the source of the capture is not a traditional capture model
 (live capture from an interface, from a pipe, from a file, etc). The typical
