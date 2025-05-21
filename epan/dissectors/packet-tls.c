@@ -2775,7 +2775,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             }
         } else if (frag_info->offset != 0) {
             // The full TVB is in the middle of a handshake message and needs more data.
-            tls_show_handshake_details(pinfo, tree, version, frag_info->type, false, false, false,
+            tls_show_handshake_details(pinfo, tree, version, frag_info->type, false, is_first_msg, false,
                     tvb, offset, offset_end - offset);
             if (fh) {
                 proto_tree_add_uint(tree, hf_tls_handshake_reassembled_in, tvb, 0, 0, fh->reassembled_in);
