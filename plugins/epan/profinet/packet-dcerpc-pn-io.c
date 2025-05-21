@@ -3087,7 +3087,7 @@ static const range_string pn_io_credential_id_credential_type[] = {
 static const range_string pn_io_number_of_octets[] = {
     { 0x0000, 0x0000, "Reserved" },
     { 0x0001, 0x0FFF, "Mandatory values" },
-    { 0x1000, 0xFFFF, "Optinal values" },
+    { 0x1000, 0xFFFF, "Optimal values" },
     { 0, 0, NULL }
 };
 
@@ -3622,7 +3622,7 @@ static const range_string pn_io_sack_degradation_threshold[] = {
 
 static const value_string pn_io_security_features_key_pair_generation[] = {
     { 0x0, "Not supported" },
-    { 0x1, "Suported" },
+    { 0x1, "Supported" },
     { 0, NULL }
 };
 
@@ -3631,7 +3631,7 @@ static const range_string pn_io_security_capability_usage[] = {
     { 0x01, 0x01, "Symmetric, authentication only" },
     { 0x02, 0x02, "Symmetric, authentication encryption" },
     { 0x03, 0x03, "Key derivation function" },
-    { 0x04, 0x04, "Key aggreement function" },
+    { 0x04, 0x04, "Key agreement function" },
     { 0x05, 0x05, "Digital signature function" },
     { 0x06, 0xFF, "Reserved" },
     { 0, 0, NULL }
@@ -3679,7 +3679,7 @@ static const range_string pn_io_security_operation[] = {
     { 0x0000, 0x0000, "Reserved" },
     { 0x0001, 0x0001, "Get Security Capabilities" },
     { 0x0002, 0x0002, "Get Available CredentialIDs" },
-    { 0x0003, 0x0003, "Get Security Configuation Parameters" },
+    { 0x0003, 0x0003, "Get Security Configuration Parameters" },
     { 0x0004, 0x0004, "Get EE Certification Path" },
     { 0x0005, 0x0005, "Get Trusted CA Certificate" },
     { 0x0006, 0x0006, "Generate Key Pair And CSR" },
@@ -5657,7 +5657,7 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
                                             }
                                         }
                                     }
-                                    /* Reset frameOffset, becouse the creation of output packet objects begins */
+                                    /* Reset frameOffset, because the creation of output packet objects begins */
                                     frameOffset = 0;
 
                                     /* OUTPUT-CR */
@@ -8373,7 +8373,7 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
 
             if (u16SecurityOperation >= 0x0004 && u16SecurityOperation <= 0x000B) {
                 /* CredentialID */
-                credential_item = proto_tree_add_item(tree, hf_pn_io_credential_id, tvb, offset, 4, ENC_NA);
+                credential_item = proto_tree_add_item(tree, hf_pn_io_credential_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 credential_tree = proto_item_add_subtree(credential_item, ett_pn_io_credential_id);
                 dissect_dcerpc_uint32(tvb, offset, pinfo, credential_tree, drep,
                     hf_pn_io_credential_id_credential_type, &u32CredentialIDCredentialType);
@@ -8401,7 +8401,7 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
                 //offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_private_key_length, &u16PrivateKeyLength);
 
                 /* PrivateKey */
-                proto_tree_add_item(tree, hf_pn_io_private_key, tvb, offset, u16PrivateKeyLength, ENC_ASCII);
+                proto_tree_add_item(tree, hf_pn_io_private_key, tvb, offset, u16PrivateKeyLength, ENC_NA);
                 offset += u16PrivateKeyLength;
             }
 
@@ -8427,7 +8427,7 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
                //     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
 
                     /* Certificate */
-                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
                     offset += u16CertificateLength;
 
                     /* Padding */
@@ -8445,14 +8445,14 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
             //    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_certificate_length, &u16CertificateLength);
 
                 /* Certificate */
-                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
                 offset += u16CertificateLength;
             }
 
             if (u16SecurityOperation == 0x000C) /* SetSecurityConfigurationParametersReq */
             {
                 /* SecurityConfigurationParameters */
-                configuration_item = proto_tree_add_item(tree, hf_pn_io_security_configuration_parameters, tvb, offset, 8, ENC_NA);
+                configuration_item = proto_tree_add_item(tree, hf_pn_io_security_configuration_parameters, tvb, offset, 8, ENC_BIG_ENDIAN);
                 configuration_tree = proto_item_add_subtree(configuration_item, ett_pn_io_security_configuration_parameters);
 
                 /* SecurityMode */
@@ -8482,7 +8482,7 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
         {
             /* SAMRequestData */
             tvbuff_t *eap_tvb;
-            // Get EAP Data lentgth
+            // Get EAP Data length
             uint16_t length = tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
             eap_tvb = tvb_new_subset_length(tvb, offset, length);
             if ((eap_tvb != NULL) && eap_handle != NULL){
@@ -8558,7 +8558,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
             {
             case(0x0001): /* GetSecurityCapabilitiesRsp */
                 /* SecurityFeatures */
-                features_item = proto_tree_add_item(tree, hf_pn_io_security_features, tvb, offset, 2, ENC_NA);
+                features_item = proto_tree_add_item(tree, hf_pn_io_security_features, tvb, offset, 2, ENC_BIG_ENDIAN);
                 features_tree = proto_item_add_subtree(features_item, ett_pn_io_security_features);
 
                 dissect_dcerpc_uint16(tvb, offset, pinfo, features_tree, drep, hf_pn_io_security_features_key_pair_generation, &u16KeyPairGeneration);
@@ -8572,7 +8572,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 while (u16NumberOfEntries--)
                 {
                     /* SecurityCapability */
-                    capability_item = proto_tree_add_item(tree, hf_pn_io_security_capability, tvb, offset, 2, ENC_NA);
+                    capability_item = proto_tree_add_item(tree, hf_pn_io_security_capability, tvb, offset, 2, ENC_BIG_ENDIAN);
                     capability_tree = proto_item_add_subtree(capability_item, ett_pn_io_security_capability);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, capability_item, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
                     u16SecurityCapabilityUsage &= 0xF;
@@ -8618,7 +8618,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 while (u16NumberOfEntries--)
                 {
                     /* CredentialID */
-                    credential_item = proto_tree_add_item(tree, hf_pn_io_credential_id, tvb, offset, 4, ENC_NA);
+                    credential_item = proto_tree_add_item(tree, hf_pn_io_credential_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                     credential_tree = proto_item_add_subtree(credential_item, ett_pn_io_credential_id);
                     dissect_dcerpc_uint32(tvb, offset, pinfo, credential_tree, drep,
                         hf_pn_io_credential_id_credential_type, &u32CredentialIDCredentialType);
@@ -8630,7 +8630,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 break;
             case(0x0003): /* GetSecurityConfigurationParametersRsp */
                 /* SecurityConfigurationParameters */
-                configuration_item = proto_tree_add_item(tree, hf_pn_io_security_configuration_parameters, tvb, offset, 8, ENC_NA);
+                configuration_item = proto_tree_add_item(tree, hf_pn_io_security_configuration_parameters, tvb, offset, 8, ENC_BIG_ENDIAN);
                 configuration_tree = proto_item_add_subtree(configuration_item, ett_pn_io_security_configuration_parameters);
 
                 /* SecurityMode */
@@ -8674,7 +8674,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                     offset += 2;
 
                     /* Certificate */
-                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                    proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
                     offset += u16CertificateLength;
 
                     /* Padding */
@@ -8689,7 +8689,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 offset += 2;
 
                 /* Certificate */
-                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_ASCII);
+                proto_tree_add_item(tree, hf_pn_io_certificate, tvb, offset, u16CertificateLength, ENC_NA);
                 offset += u16CertificateLength;
                 break;
             case(0x0006): // GenerateKeyPairAndCSRRsp
@@ -8720,7 +8720,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
             /* SAMResponseData */
             tvbuff_t *eap_tvb;
 
-            // Get EAP Data lentgth
+            // Get EAP Data length
             uint16_t length = tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
             eap_tvb = tvb_new_subset_length(tvb, offset, length);
             if ((eap_tvb != NULL) && eap_handle != NULL){
@@ -10456,7 +10456,7 @@ dissect_CIMNetConfDataReal_block(tvbuff_t* tvb, int offset,
     offset_diff = offset - offset_begin;
     if (u16BodyLength != offset_diff) {
         /* TrafficClassTranslationEntry */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_traffic_class_translate_entry, tvb, offset, 4, ENC_NA);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_traffic_class_translate_entry, tvb, offset, 4, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_traffic_class_translate_entry);
 
         /* TrafficClassTranslationEntry.VID */
@@ -10594,7 +10594,7 @@ dissect_CIMNetConfDataAdjust_block(tvbuff_t* tvb, int offset,
     offset_diff = offset - offset_begin;
     if (u16BodyLength != offset_diff) {
         /* TrafficClassTranslationEntry */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_traffic_class_translate_entry, tvb, offset, 4, ENC_NA);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_traffic_class_translate_entry, tvb, offset, 4, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_traffic_class_translate_entry);
 
         /* TrafficClassTranslationEntry.VID */
@@ -10927,7 +10927,7 @@ dissect_CIMNetConfUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
 
     /* SupportedBurstSize */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_supported_burst_size, tvb, offset, 4, ENC_NA);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_supported_burst_size, tvb, offset, 8, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_supported_burst_size);
 
     /* SupportedBurstSize.Frames */
@@ -11144,7 +11144,7 @@ dissect_CIMStationEgressRateLimiter_block(tvbuff_t* tvb, int offset,
         u16NumberofEntries--;
 
         /* PortQueueEgressRateLimiter */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_port_queue_egress_rate_limiter, tvb, offset, 8, ENC_NA);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_port_queue_egress_rate_limiter, tvb, offset, 8, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_port_queue_egress_rate_limiter);
 
         dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
@@ -14640,7 +14640,7 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
 
     /* RTCAlgorithm */
-    rtc_item = proto_tree_add_item(tree, hf_pn_io_rtc_algorithm, tvb, offset, 2, ENC_NA);
+    rtc_item = proto_tree_add_item(tree, hf_pn_io_rtc_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     rtc_tree = proto_item_add_subtree(rtc_item, ett_pn_io_rtc_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, rtc_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
@@ -14650,7 +14650,7 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     u16SecurityCapabilityAlgorithm >>= 8;
 
     /* RTAAlgorithm */
-    rta_item = proto_tree_add_item(tree, hf_pn_io_rta_algorithm, tvb, offset, 2, ENC_NA);
+    rta_item = proto_tree_add_item(tree, hf_pn_io_rta_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     rta_tree = proto_item_add_subtree(rta_item, ett_pn_io_rta_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
@@ -14660,7 +14660,7 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     u16SecurityCapabilityAlgorithm >>= 8;
 
     /* RPCAlgorithm */
-    rpc_item = proto_tree_add_item(tree, hf_pn_io_rpc_algorithm, tvb, offset, 2, ENC_NA);
+    rpc_item = proto_tree_add_item(tree, hf_pn_io_rpc_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     rpc_tree = proto_item_add_subtree(rpc_item, ett_pn_io_rpc_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, rpc_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
@@ -14670,7 +14670,7 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     u16SecurityCapabilityAlgorithm >>= 8;
 
     /* DerivationAlgorithm */
-    derivation_item = proto_tree_add_item(tree, hf_pn_io_derivation_algorithm, tvb, offset, 2, ENC_NA);
+    derivation_item = proto_tree_add_item(tree, hf_pn_io_derivation_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     derivation_tree = proto_item_add_subtree(derivation_item, ett_pn_io_derivation_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, derivation_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
@@ -14680,7 +14680,7 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     u16SecurityCapabilityAlgorithm >>= 8;
 
     /* AgreementAlgorithm */
-    agreement_item = proto_tree_add_item(tree, hf_pn_io_agreement_algorithm, tvb, offset, 2, ENC_NA);
+    agreement_item = proto_tree_add_item(tree, hf_pn_io_agreement_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     agreement_tree = proto_item_add_subtree(agreement_item, ett_pn_io_agreement_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, agreement_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
@@ -14689,8 +14689,8 @@ dissect_ARAlgorithmInfoBlock_block(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, agreement_tree, drep, hf_pn_io_security_capability_algorithm_key_agreement_function, &u16SecurityCapabilityAlgorithm);
     u16SecurityCapabilityAlgorithm >>= 8;
 
-    /* SigatureAlgorithm */
-    signature_item = proto_tree_add_item(tree, hf_pn_io_signature_algorithm, tvb, offset, 2, ENC_NA);
+    /* SignatureAlgorithm */
+    signature_item = proto_tree_add_item(tree, hf_pn_io_signature_algorithm, tvb, offset, 2, ENC_BIG_ENDIAN);
     signature_tree = proto_item_add_subtree(signature_item, ett_pn_io_signature_algorithm);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, signature_tree, drep, hf_pn_io_security_capability_usage, &u16SecurityCapabilityUsage);
@@ -19599,7 +19599,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_traffic_class_translate_entry_vid,
      { "TrafficClassTranslateEntry.VID", "pn_io.traffic_class_translate_entry_vid",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_traffic_class_translate_entry_vid_vals), 0x3FFF,
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_traffic_class_translate_entry_vid_vals), 0x00003FFF,
        NULL, HFILL }
     },
     { &hf_pn_io_traffic_class_translate_entry_reserved1,
@@ -19609,7 +19609,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_traffic_class_translate_entry_pcp,
      { "TrafficClassTranslateEntry.PCP", "pn_io.traffic_class_translate_entry_pcp",
-       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_traffic_class_translate_entry_pcp_vals), 0x70000,
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_traffic_class_translate_entry_pcp_vals), 0x00070000,
        NULL, HFILL }
     },
     { &hf_pn_io_traffic_class_translate_entry_reserved2,
@@ -20024,7 +20024,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_supported_burst_size,
       { "SupportedBurstSize", "pn_io.supported_burst_size",
-        FT_UINT16, BASE_HEX, NULL , 0x0,
+        FT_UINT64, BASE_HEX, NULL , 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_supported_burst_size_frames,
@@ -21852,7 +21852,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_credential_id,
     { "CredentialID", "pn_io.credential_id",
-        FT_UINT64, BASE_HEX, NULL, 0x0,
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_credential_id_credential_type,
@@ -21867,7 +21867,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_private_key_length,
         { "PrivateKeyLength", "pn_io.private_key_length",
-        FT_UINT16, BASE_DEC, NULL, 0xFFFF,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_private_key,
@@ -21877,7 +21877,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_certificate_length,
     { "CertificateLength", "pn_io.certificate_length",
-        FT_UINT16, BASE_DEC, NULL, 0xFFFF,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_certificate,
