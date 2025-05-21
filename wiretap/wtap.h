@@ -1438,6 +1438,7 @@ typedef struct wtap_rec {
     int       tsprec;            /* WTAP_TSPREC_ value for this record */
     nstime_t  ts_rel_cap;        /* time stamp relative from capture start */
     bool      ts_rel_cap_valid;  /* is ts_rel_cap valid and can be used? */
+    const char *rec_type_name;   /* name of this record type */
     union {
         wtap_packet_header packet_header;
         wtap_ft_specific_header ft_specific_header;
@@ -1974,6 +1975,20 @@ void wtap_rec_cleanup(wtap_rec *rec);
  */
 WS_DLL_PUBLIC
 void wtap_setup_packet_rec(wtap_rec *rec, int encap);
+
+/**
+ * Set up a wtap_rec for a file-type specific event
+ * (REC_TYPE_FT_SPECIFIC_EVENT);
+ */
+WS_DLL_PUBLIC
+void wtap_setup_ft_specific_event_rec(wtap_rec *rec);
+
+/**
+ * Set up a wtap_rec for a file-type specific report
+ * (REC_TYPE_FT_SPECIFIC_REPORT);
+ */
+WS_DLL_PUBLIC
+void wtap_setup_ft_specific_report_rec(wtap_rec *rec);
 
 /**
  * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).

@@ -567,54 +567,7 @@ void
 dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
     frame_data *fd, column_info *cinfo)
 {
-	const char *volatile record_type;
 	frame_data_t frame_dissector_data;
-
-	switch (rec->rec_type) {
-
-	case REC_TYPE_PACKET:
-		record_type = "Frame";
-		break;
-
-	case REC_TYPE_FT_SPECIFIC_EVENT:
-		record_type = "Event";
-		break;
-
-	case REC_TYPE_FT_SPECIFIC_REPORT:
-		record_type = "Report";
-		break;
-
-	case REC_TYPE_SYSCALL:
-		// We handle multiple types of data here, so use "Event"
-		// instead of "System Call"
-		record_type = "Event";
-		break;
-
-	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-		record_type = "Systemd Journal Entry";
-		break;
-
-	case REC_TYPE_CUSTOM_BLOCK:
-		switch (rec->rec_header.custom_block_header.pen) {
-		case PEN_NFLX:
-			record_type = "Black Box Log Block";
-			break;
-		default:
-			record_type = "PCAPNG Custom Block";
-			break;
-		}
-		break;
-
-	default:
-		/*
-		 * XXX - if we add record types that shouldn't be
-		 * dissected and displayed, but that need to at
-		 * least be processed somewhere, we need to somehow
-		 * indicate that to our caller.
-		 */
-		ws_assert_not_reached();
-		break;
-	}
 
 	if (cinfo != NULL)
 		col_init(cinfo, edt->session);
@@ -735,7 +688,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 		edt->tvb = tvb_new_real_data(ws_buffer_start_ptr(&rec->data),
                     fd->cap_len, fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
-		add_new_data_source(&edt->pi, edt->tvb, record_type);
+		add_new_data_source(&edt->pi, edt->tvb, rec->rec_type_name);
 
 		/* Even though dissect_frame() catches all the exceptions a
 		 * sub-dissector can throw, dissect_frame() itself may throw
@@ -749,7 +702,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 	CATCH2(FragmentBoundsError, ReportedBoundsError) {
 		proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
 					       "[Malformed %s: Packet Length]",
-					       record_type);
+					       rec->rec_type_name);
 	}
 	ENDTRY;
 	wtap_block_unref(rec->block);

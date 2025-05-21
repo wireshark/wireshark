@@ -1740,7 +1740,30 @@ void
 wtap_setup_packet_rec(wtap_rec *rec, int encap)
 {
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->rec_type_name = "Packet";
 	rec->rec_header.packet_header.pkt_encap = encap;
+}
+
+/**
+ * Set up a wtap_rec for a file-type specific event
+ * (REC_TYPE_FT_SPECIFIC_EVENT);
+ */
+void
+wtap_setup_ft_specific_event_rec(wtap_rec *rec)
+{
+	rec->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
+	rec->rec_type_name = "Event";
+}
+
+/**
+ * Set up a wtap_rec for a file-type specific report
+ * (REC_TYPE_FT_SPECIFIC_REPORT);
+ */
+void
+wtap_setup_ft_specific_report_rec(wtap_rec *rec)
+{
+	rec->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
+	rec->rec_type_name = "Report";
 }
 
 /**
@@ -1750,6 +1773,12 @@ void
 wtap_setup_syscall_rec(wtap_rec *rec)
 {
 	rec->rec_type = REC_TYPE_SYSCALL;
+	// We handle multiple types of data here, so use "Event"
+	// instead of "System Call"
+	//
+	// XXX - the wiretap code could set it, if it knows
+	// an appropriate string.
+	rec->rec_type_name = "Event";
 }
 
 /**
@@ -1760,6 +1789,7 @@ void
 wtap_setup_systemd_journal_export_rec(wtap_rec *rec)
 {
 	rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+	rec->rec_type_name = "Systemd Journal Entry";
 }
 
 /**
@@ -1770,6 +1800,7 @@ wtap_setup_custom_block_rec(wtap_rec *rec, uint32_t pen,
                             uint32_t payload_length, bool copy_allowed)
 {
 	rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
+	rec->rec_type_name = "PCAPNG Custom Block";
 	rec->rec_header.custom_block_header.pen = pen;
 	rec->rec_header.custom_block_header.length = payload_length;
 	rec->rec_header.custom_block_header.copy_allowed = copy_allowed;

@@ -587,10 +587,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	DISSECTOR_ASSERT(fr_data);
 
+	/*
+	 * Set the protocol to the record type name.
+	 */
+	pinfo->current_proto = pinfo->rec->rec_type_name;
+
 	switch (pinfo->rec->rec_type) {
 
 	case REC_TYPE_PACKET:
-		pinfo->current_proto = "Frame";
 		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
 			switch (PACK_FLAGS_DIRECTION(pack_flags)) {
 
@@ -703,30 +707,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		break;
 
 	case REC_TYPE_FT_SPECIFIC_EVENT:
-		pinfo->current_proto = "Event";
 		break;
 
 	case REC_TYPE_FT_SPECIFIC_REPORT:
-		pinfo->current_proto = "Report";
 		break;
 
 	case REC_TYPE_SYSCALL:
-		pinfo->current_proto = "System Call";
 		break;
 
 	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-		pinfo->current_proto = "Systemd Journal";
 		break;
 
 	case REC_TYPE_CUSTOM_BLOCK:
-		switch (pinfo->rec->rec_header.custom_block_header.pen) {
-		case PEN_NFLX:
-			pinfo->current_proto = "Black Box Log";
-			break;
-		default:
-			pinfo->current_proto = "PCAPNG Custom Block";
-			break;
-		}
 		break;
 
 	default:
@@ -786,8 +778,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		switch (pinfo->rec->rec_type) {
 		case REC_TYPE_PACKET:
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Frame %u: %u byte%s on wire",
-			    pinfo->num, frame_len, frame_plurality);
+			    "Frame %u: %s, %u byte%s on wire",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
 			if (generate_bits_field)
 				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
 			proto_item_append_text(ti, ", %u byte%s captured",
@@ -827,8 +820,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		case REC_TYPE_FT_SPECIFIC_EVENT:
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Event %u: %u byte%s on wire",
-			    pinfo->num, frame_len, frame_plurality);
+			    "Frame %u: %s, %u byte%s on wire",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
 			if (generate_bits_field)
 				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
 			proto_item_append_text(ti, ", %u byte%s captured",
@@ -841,8 +835,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		case REC_TYPE_FT_SPECIFIC_REPORT:
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Report %u: %u byte%s on wire",
-			    pinfo->num, frame_len, frame_plurality);
+			    "Frame %u: %s, %u byte%s on wire",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
 			if (generate_bits_field)
 				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
 			proto_item_append_text(ti, ", %u byte%s captured",
@@ -862,8 +857,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			 * be preferred?
 			 */
 			ti = proto_tree_add_protocol_format(tree, proto_syscall, tvb, 0, tvb_captured_length(tvb),
-			    "System Event %u: %u byte%s",
-			    pinfo->num, frame_len, frame_plurality);
+			    "Frame %u: %s, %u byte%s",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
 			break;
 
 		case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
@@ -875,21 +871,19 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			 * dissector).
 			 */
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Systemd Journal Entry %u: %u byte%s",
-			    pinfo->num, frame_len, frame_plurality);
+			    "Frame %u: %s, %u byte%s",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
 			break;
 
 		case REC_TYPE_CUSTOM_BLOCK:
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			                                    "Frame %u: %s, %u byte%s",
+			                                    pinfo->num, pinfo->rec->rec_type_name, frame_len, frame_plurality);
 			switch (pinfo->rec->rec_header.custom_block_header.pen) {
 			case PEN_NFLX:
-				ti = proto_tree_add_protocol_format(tree, proto_bblog, tvb, 0, tvb_captured_length(tvb),
-				                                    "Black Box Log %u: %u byte%s",
-				                                    pinfo->num, frame_len, frame_plurality);
 				break;
 			default:
-				ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-				                                    "PCAPNG Custom Block %u: %u byte%s",
-				                                    pinfo->num, frame_len, frame_plurality);
 				if (generate_bits_field) {
 					proto_item_append_text(ti, " (%u bits)", frame_len * 8);
 				}

@@ -212,6 +212,11 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
     unsigned opt_cont_buf_len;
     uint32_t type, skipped;
 
+    /*
+     * Set the record type name for this particular type of custom
+     * block.
+     */
+    wblock->rec->rec_type_name = "Black Box Log Block";
     if (wblock->rec->rec_header.custom_block_header.length < MIN_NFLX_CB_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("pcapng: payload length %u of a Netflix CB is too small (< %u)",
