@@ -31,6 +31,7 @@ The following changes have been made since version 0.9.1:
 
 * The Falco Bridge dissector has been renamed to Falco Events.
   Filter fields now have a "falcoevents" protocol prefix, but a "falcobridge" protocol alias has been added for backward compatibility.
+  wsbuglink:20397[]
 
 * Stratoshark can now show field offsets for supported plugins.
 
