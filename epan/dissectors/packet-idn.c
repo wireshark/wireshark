@@ -2032,6 +2032,7 @@ void proto_register_idn(void) {
 		&ett_idn_scanreply_header_tree,
 		&ett_idn_channel_message_header_tree,
 		&ett_protocol_version,
+		&ett_unit_id,
 		&ett_status,
 		&ett_idn_cnl,
 		&ett_cfl,

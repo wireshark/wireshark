@@ -721,7 +721,7 @@ proto_register_sysex(void)
               NULL, 0, "System Exclusive Message end (0xF7)", HFILL}},
     };
 
-    static int *sysex_subtrees[] = {
+    static int *ett[] = {
         &ett_sysex
     };
 
@@ -735,7 +735,7 @@ proto_register_sysex(void)
 
     proto_sysex = proto_register_protocol("MIDI System Exclusive", "SYSEX", "sysex");
     proto_register_field_array(proto_sysex, hf, array_length(hf));
-    proto_register_subtree_array(sysex_subtrees, array_length(sysex_subtrees));
+    proto_register_subtree_array(ett, array_length(ett));
     expert_sysex = expert_register_protocol(proto_sysex);
     expert_register_field_array(expert_sysex, ei, array_length(ei));
 

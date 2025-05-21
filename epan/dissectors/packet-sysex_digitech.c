@@ -1298,7 +1298,7 @@ proto_register_sysex_digitech(void)
               VALS(proto_checksum_vals), 0, NULL, HFILL }},
     };
 
-    static int *sysex_digitech_subtrees[] = {
+    static int *ett[] = {
         &ett_sysex_digitech
     };
 
@@ -1311,7 +1311,7 @@ proto_register_sysex_digitech(void)
 
     proto_sysex_digitech = proto_register_protocol("MIDI System Exclusive DigiTech", "SYSEX DigiTech", "sysex_digitech");
     proto_register_field_array(proto_sysex_digitech, hf, array_length(hf));
-    proto_register_subtree_array(sysex_digitech_subtrees, array_length(sysex_digitech_subtrees));
+    proto_register_subtree_array(ett, array_length(ett));
     expert_sysex_digitech = expert_register_protocol(proto_sysex_digitech);
     expert_register_field_array(expert_sysex_digitech, ei, array_length(ei));
 
