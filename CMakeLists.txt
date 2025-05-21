@@ -1364,6 +1364,8 @@ ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build one of the Qt GUIs?
 if(BUILD_wireshark OR BUILD_stratoshark)
+	# We don't use any QVulkan* classes, so tell Qt's CMake modules not to look for Vulkan.
+	set(CMAKE_DISABLE_FIND_PACKAGE_WrapVulkanHeaders ON)
 	if(USE_qt6)
 		set(qtver 6)
 		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
