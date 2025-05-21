@@ -917,6 +917,11 @@ WS_DLL_PUBLIC void mark_frame_as_depended_upon(frame_data *fd, uint32_t frame_nu
 typedef struct frame_data_s
 {
     int file_type_subtype;
+    /*
+     * This might be the block from the packet's wtap_rec or it might
+     * be a modified copy of that, as, for example, the comments
+     * might have been edited but not yet saved to the file.
+     */
     wtap_block_t pkt_block;         /**< NULL if not available */
     struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
 
