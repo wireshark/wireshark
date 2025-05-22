@@ -1293,8 +1293,7 @@ DEF_VALSE;
 
 static int dissect_mq_encoding(proto_tree* tree, int hfindex, tvbuff_t* tvb, const int start, int length, const unsigned encoding)
 {
-    char   sEnc[128] = "";
-    char* pEnc;
+    wmem_strbuf_t* pEnc = wmem_strbuf_new(wmem_packet_scope(), "");
     unsigned  uEnc;
 
     if (length == 2)
@@ -1305,75 +1304,72 @@ static int dissect_mq_encoding(proto_tree* tree, int hfindex, tvbuff_t* tvb, con
     {
         uEnc = tvb_get_uint32(tvb, start, encoding);
     }
-    pEnc = sEnc;
 
 #define CHECK_ENC(M, T) ((uEnc & M) == T)
-#define DOPRT(A) pEnc += snprintf(pEnc, sizeof(sEnc)-1-(pEnc-sEnc), A);
     if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_UNDEFINED))
     {
-        DOPRT("FLT_UNDEFINED");
+        wmem_strbuf_append(pEnc, "FLT_UNDEFINED");
     }
     else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_IEEE_NORMAL))
     {
-        DOPRT("FLT_IEEE_NORMAL");
+        wmem_strbuf_append(pEnc, "FLT_IEEE_NORMAL");
     }
     else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_IEEE_REVERSED))
     {
-        DOPRT("FLT_IEEE_REVERSED");
+        wmem_strbuf_append(pEnc, "FLT_IEEE_REVERSED");
     }
     else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_S390))
     {
-        DOPRT("FLT_S390");
+        wmem_strbuf_append(pEnc, "FLT_S390");
     }
     else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_TNS))
     {
-        DOPRT("FLT_TNS");
+        wmem_strbuf_append(pEnc, "FLT_TNS");
     }
     else
     {
-        DOPRT("FLT_UNKNOWN");
+        wmem_strbuf_append(pEnc, "FLT_UNKNOWN");
     }
 
-    DOPRT("/");
+    wmem_strbuf_append(pEnc, "/");
     if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK, MQ_MQENC_DECIMAL_UNDEFINED))
     {
-        DOPRT("DEC_UNDEFINED");
+        wmem_strbuf_append(pEnc, "DEC_UNDEFINED");
     }
     else if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK, MQ_MQENC_DECIMAL_NORMAL))
     {
-        DOPRT("DEC_NORMAL");
+        wmem_strbuf_append(pEnc, "DEC_NORMAL");
     }
     else if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK, MQ_MQENC_DECIMAL_REVERSED))
     {
-        DOPRT("DEC_REVERSED");
+        wmem_strbuf_append(pEnc, "DEC_REVERSED");
     }
     else
     {
-        DOPRT("DEC_UNKNOWN");
+        wmem_strbuf_append(pEnc, "DEC_UNKNOWN");
     }
 
-    DOPRT("/");
+    wmem_strbuf_append(pEnc, "/");
     if (CHECK_ENC(MQ_MQENC_INTEGER_MASK, MQ_MQENC_INTEGER_UNDEFINED))
     {
-        DOPRT("INT_UNDEFINED");
+        wmem_strbuf_append(pEnc, "INT_UNDEFINED");
     }
     else if (CHECK_ENC(MQ_MQENC_INTEGER_MASK, MQ_MQENC_INTEGER_NORMAL))
     {
-        DOPRT("INT_NORMAL");
+        wmem_strbuf_append(pEnc, "INT_NORMAL");
     }
     else if (CHECK_ENC(MQ_MQENC_INTEGER_MASK, MQ_MQENC_INTEGER_REVERSED))
     {
-        DOPRT("INT_REVERSED");
+        wmem_strbuf_append(pEnc, "INT_REVERSED");
     }
     else
     {
-        DOPRT("INT_UNKNOWN");
+        wmem_strbuf_append(pEnc, "INT_UNKNOWN");
     }
 #undef CHECK_ENC
-#undef DOPRT
 
     proto_tree_add_uint_format_value(tree, hfindex, tvb, start, length, uEnc,
-        "%8x-%d (%s)", uEnc, uEnc, sEnc);
+        "%8x-%d (%s)", uEnc, uEnc, pEnc->str);
 
     return length;
 }
