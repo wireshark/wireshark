@@ -810,9 +810,16 @@ void StratosharkMainWindow::removeInterfaceToolbar(const char *menu_title)
 
 void StratosharkMainWindow::updateStyleSheet()
 {
+    // TODO: The event type QEvent::ApplicationPaletteChange is sent to all
+    // top-level windows, which propagate QEvent::PaletteChange events to
+    // all children - but not those that use style sheets.
+    //
+    // Workaround this by updating the style sheets manually for all child
+    // widgets that have style sheets that do depend on the application
+    // palette (generally whether the theme is dark or not.) Some of these
+    // widgets only have style sheets that vary with whether theme is dark
+    // on macOS. (XXX - We could just update them all anyway.)
 #ifdef Q_OS_MAC
-    // TODO: The event type QEvent::ApplicationPaletteChange is not sent to all child widgets.
-    // Workaround this by doing it manually for all AccordionFrame.
     main_ui_->addressEditorFrame->updateStyleSheet();
     main_ui_->columnEditorFrame->updateStyleSheet();
     main_ui_->filterExpressionFrame->updateStyleSheet();
@@ -820,9 +827,9 @@ void StratosharkMainWindow::updateStyleSheet()
     main_ui_->preferenceEditorFrame->updateStyleSheet();
     main_ui_->searchFrame->updateStyleSheet();
 
-    df_combo_box_->updateStyleSheet();
     welcome_page_->updateStyleSheets();
 #endif
+    df_combo_box_->updateStyleSheet();
 }
 
 bool StratosharkMainWindow::eventFilter(QObject *obj, QEvent *event) {
