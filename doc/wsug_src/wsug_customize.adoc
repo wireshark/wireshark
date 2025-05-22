@@ -787,10 +787,16 @@ The _Type_ is the type of value to be shown. This can be a predefined type, ie. 
 The following settings are applicable when the _Type_ is set to "custom"
 
 The _Fields_ setting is the display filter name of the field to be shown in the column in the packet list.
+//For WS5.0: The _Custom Expression_ setting is the display filter name of the field to be shown in the column in the packet list.
 
-The _Field Occurrence_ setting is count of the given field in the frame, for fields that appear more than once in a frame.
+The _Field Occurrence_ setting is the count of the given field in the frame, for fields that appear more than once in a frame.
 
 Selecting _Resolved_ causes name resolution to be applied to the field value, when available.
+//For WS5.0: The _Display Format_ setting is to select what representation of the field is shown in the column.
+
+The _Width_ is the width of the column.
+
+The _Alignment_ is the alignment of the text in the column.
 
 ==== Font and Colors
 
@@ -829,6 +835,8 @@ Selecting _Show selected packet number_ adds the selected packet number to the c
 
 Selecting _Show file load time_ adds the time it took to load the capture file to the status bar, taking up some space in the status bar.
 
+The button _Restore Defaults_ allows you to get back to a working basic configuration.
+
 ==== Capture
 
 These preferences allow you to set the default conditions for packet capture.
@@ -841,6 +849,10 @@ Note that this can be multiple interfaces separated by a comma.
 
 Selecting _Capture packets in promiscuous mode_ causes the network interface(s) to capture on to be configured in promiscuous mode.
 This allows all (Ethernet) frames to be received by the network interface to be capture, not only those that are addressed to the capture interface.
+
+Selecting _Capture packets in monitor mode on 802.11 devices_ causes the WiFi interface(s) to capture on to be configured in monitor mode.
+This allows all WiFi frames to be received by the WiFi interface to be captured, not only those that are addressed to the capture interface.
+Results may vary, depending on the actual capabilities of the operating system, the WiFi driver software and WiFi interface itself.
 
 Selecting _Capture packets in pcapng format_ causes the Next-Generation packet capture file format to be used when capturing.
 This much more capable packet capture file format has many advantages over the original format, although not every external tool may be capable of handling packet captures in this format.
@@ -940,6 +952,8 @@ There are several way to do this, which can be controlled through the following 
 Selecting _Use captured DNS packet data for name resolution_ causes DNS response packets in the capture file to fill the network address resolution table.
 These can then be used to resolve addresses found in the packets.
 
+Selecting _Use SNI information from captured handshake packets_ causes TLS client hello packets with a Server Name Indication extension to fill the network address resolution table.
+
 Selecting _Use your system's DNS settings for name resolution_ causes DNS requests to be made as would be for other network applications.
 
 Selecting _Use a custom list of DNS servers for name resolution_ causes DNS requests to be made to manually configured DNS servers.
@@ -989,6 +1003,9 @@ The bytes in the byte field are normally shown as a concatenated sequence of hex
 This preference allows you to get the representation of each byte separated by a space.
 This may improve readability of the individual bytes in the byte field.
 
+The preference _Format absolute times like asctime_ allows you to define how absolute times are formatted, in the columns and in the protocol tree.
+Either in the old format used in previous Wireshark versions, or using the more unambiguous method defined in ISO 8601.
+
 Selecting _Look for incomplete dissectors_ causes expert items to be added to the dissection of packet data for which the dissector does not create an interpretation.
 Dissectors should strive to not skip packet bytes and this preference allows you to be made aware of this.
 
@@ -1036,6 +1053,8 @@ image::images/ws-pref-statistics.png[{screenshot-attrs}]
 
 The preference _Tap update interval in ms_ allows you to set how quickly protocol taps are being updated, partially determining the update speed of various dialogs and graphs.
 
+The preference _Maximum Flow Graph items to export as image_ allows you to set how dense or expansive the exported graph may become.
+
 Selecting _Enable the calculation of burst information_ allows the Statistics Tree system to calculate burst information.
 
 Selecting _Show burst count for item rather than rate_ allows the statistics nodes to show the count of events within the burst window instead of a burst rate.
@@ -1060,6 +1079,8 @@ Selecting _Always sort 'range' nodes in ascending order_ makes an exception for 
 
 Selecting _Display the full stats_tree plug-in name_ causes the full menu path of the Statistics Tree plugin to be shown in the title.
 
+The preference _Default output format_ allows you to select how you want the statistics to be saved by default, either as plain text or some structured format.
+
 ==== Advanced
 
 The “Advanced” pane will let you view and edit all of Wireshark’s preferences, similar to link:about:config[] and link:chrome:flags[] in the Firefox and Chrome web browsers.
@@ -1067,7 +1088,11 @@ The “Advanced” pane will let you view and edit all of Wireshark’s preferen
 .Advanced preferences
 image::images/ws-pref-advanced.png[{screenshot-attrs}]
 
-You can search for a preference by typing text into the “Search” entry.
+You can search for a preference by typing text into the “Search” entry. The search text will be matched against the internal name of the preference, but also associated help texts in order to improve discoverablility.
+
+Selecting _Show changed values_ resticts the list to settings having non-default values. This may help finding what has changed more easily.
+
+// XXX - this needs to go into its own (extended) subsection
 You can also pass preference names to Wireshark and TShark on the command line.
 For example, the __gui.prepend_window_title__ can be used to differentiate between different instances of Wireshark on your screen:
 
