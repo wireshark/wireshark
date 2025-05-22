@@ -166,9 +166,11 @@ static int hf_pn_RedundancyInfo_reserved;
 static int hf_pn_io_number_of_ARDATAInfo;
 
 static int hf_pn_io_cminitiator_activitytimeoutfactor;
-static int hf_pn_io_cminitiator_udprtport;
+static int hf_pn_io_initiator_udprtport;
 static int hf_pn_io_station_name_length;
 static int hf_pn_io_cminitiator_station_name;
+static int hf_pn_io_cmresponder_station_name;
+
 /* static int hf_pn_io_responder_station_name; */
 static int hf_pn_io_arproperties_StartupMode;
 
@@ -2052,6 +2054,10 @@ static const value_string pn_io_index[] = {
     { 0xF8F1, "PDRsiInstances" },
     { 0xF8F2, "Stream Remove using UNIRemoveStreamReq and UNIRemoveStreamRsp" },
     { 0xF8F3, "Stream Renew using UNIRenewStreamReq and UNIRenewStreamRsp" },
+    { 0xF900, "Security request using CIMSecurityServiceReq and CIMSecurityServiceRsp" },
+    { 0xF901, "CIMDCPService" },
+    { 0xF902, "Read Aurditable Event using CIMAurditableEventServiceReq and CIMAuditableEventServiceRsp" },
+    { 0xF920, "CIMElectricPowerReal" },
     { 0xFBFF, "Trigger index for RPC connection monitoring" },
     /*0xFC00 - 0xFFFF reserved for profiles */
     { 0, NULL }
@@ -12371,7 +12377,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 offset++;
 
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
-                                hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+                                hf_pn_io_initiator_udprtport, &u16UDPRTPort);
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
                                 hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
 
@@ -12436,7 +12442,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             /* RemoteAlarmReference */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
             /* InitiatorUDPRTPort*/
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_initiator_udprtport, &u16UDPRTPort);
             /* ResponderUDPRTPort*/
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
             /* CMInitiatorStationName*/
@@ -13675,7 +13681,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_cminitiator_activitytimeoutfactor, &u16TimeoutFactor);   /* XXX - special values */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+                        hf_pn_io_initiator_udprtport, &u16UDPRTPort);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
@@ -14211,7 +14217,7 @@ dissect_ARServerBlock(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    proto_tree_add_item (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII);
+    proto_tree_add_item (tree, hf_pn_io_cmresponder_station_name, tvb, offset, u16NameLength, ENC_ASCII);
     offset += u16NameLength;
     /* Padding to next 4 byte alignment in this block */
     u16padding = u16BodyLength - (2 + u16NameLength);
@@ -15857,9 +15863,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     remainingBytes = tvb_reported_length_remaining(tvb, offset);
     if (remainingBytes < 0)
         remainingBytes = 0;
-    if (remainingBytes +2 < u16BodyLength)
+    if (remainingBytes +2 < u16BlockLength)
     {
-        proto_item_append_text(sub_item, " Block_Length: %d greater than remaining Bytes, trying with Blocklen = remaining (%d)", u16BodyLength, remainingBytes);
+        proto_item_append_text(sub_item, " Block_Length: %d greater than remaining Bytes, trying with Blocklen = remaining (%d)", u16BlockLength, remainingBytes);
         u16BodyLength = remainingBytes;
     }
     increment_dissection_depth(pinfo);
@@ -18249,8 +18255,8 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },  /* XXX - special values */
-    { &hf_pn_io_cminitiator_udprtport,
-      { "CMInitiatorUDPRTPort", "pn_io.cminitiator_udprtport",
+    { &hf_pn_io_initiator_udprtport,
+      { "InitiatorUDPRTPort", "pn_io.initiator_udprtport",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },  /* XXX - special values */
@@ -18261,6 +18267,11 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_cminitiator_station_name,
       { "CMInitiatorStationName", "pn_io.cminitiator_station_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_cmresponder_station_name,
+      { "CMResponderStationName", "pn_io.cmresponder_station_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

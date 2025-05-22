@@ -49,6 +49,11 @@ int proto_pn_dcp;
 
 static int hf_pn_dcp_service_id;
 static int hf_pn_dcp_service_type;
+static int hf_pn_dcp_service_type_selection;
+static int hf_pn_dcp_service_type_reserved;
+static int hf_pn_dcp_service_type_response;
+static int hf_pn_dcp_service_type_reserved_1;
+static int hf_pn_dcp_service_type_reserved_2;
 static int hf_pn_dcp_xid;
 static int hf_pn_dcp_reserved8;
 static int hf_pn_dcp_reserved16;
@@ -129,6 +134,7 @@ static int ett_pn_dcp;
 static int ett_pn_dcp_block;
 
 static int ett_pn_dcp_rsi_properties_value;
+static int ett_pn_dcp_service_type;
 
 static expert_field ei_pn_dcp_block_parse_error;
 static expert_field ei_pn_dcp_block_error_unknown;
@@ -155,11 +161,17 @@ static const value_string pn_dcp_service_id[] = {
 #define PNDCP_SERVICE_TYPE_RESPONSE_SUCCESS     1
 #define PNDCP_SERVICE_TYPE_RESPONSE_UNSUPPORTED 5
 
-static const value_string pn_dcp_service_type[] = {
-    { PNDCP_SERVICE_TYPE_REQUEST,               "Request" },
-    { PNDCP_SERVICE_TYPE_RESPONSE_SUCCESS,      "Response Success" },
-    { PNDCP_SERVICE_TYPE_RESPONSE_UNSUPPORTED,  "Response - Request not supported" },
-    /* all others reserved */
+/* Bit 0 */
+static const value_string pn_dcp_service_type_selection[] = {
+    { 0x00, "Request" },
+    { 0x01, "Response" },
+    { 0, NULL }
+};
+
+/* Bit 2 */
+static const value_string pn_dcp_service_type_response[] = {
+    { 0x00, "Success" },
+    { 0x01, "ServiceID not supported" },
     { 0, NULL }
 };
 
@@ -1000,7 +1012,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-/* dissect the "tsn" suboption */
+/* dissect the "nme" suboption */
 static int
 dissect_PNDCP_Suboption_NME(tvbuff_t* tvb, int offset, packet_info* pinfo,
     proto_tree* tree, proto_item* block_item, proto_item* dcp_item,
@@ -1602,16 +1614,34 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
 {
     uint8_t   service_id;
     uint8_t   service_type;
+    uint8_t   service_type_selection;
     uint32_t  xid;
     uint16_t  response_delay;
     uint16_t  data_length;
     int       offset      = 0;
     char     *xid_str;
     bool      is_response = false;
-
+    proto_item *sub_item;
+    proto_tree *sub_tree;
 
     offset = dissect_pn_uint8 (tvb, offset, pinfo, tree, hf_pn_dcp_service_id, &service_id);
-    offset = dissect_pn_uint8 (tvb, offset, pinfo, tree, hf_pn_dcp_service_type, &service_type);
+
+    sub_item = proto_tree_add_item(tree, hf_pn_dcp_service_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_dcp_service_type);
+
+    service_type = tvb_get_uint8(tvb, offset);
+
+    dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_selection, &service_type_selection);
+
+    if (service_type_selection == PNDCP_SERVICE_TYPE_REQUEST){
+        offset = dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_reserved_2, &service_type_selection);
+    }
+    else {
+        dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_reserved, &service_type_selection);
+        dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_response, &service_type_selection);
+        offset = dissect_pn_uint8(tvb, offset, pinfo, sub_tree, hf_pn_dcp_service_type_reserved_1, &service_type_selection);
+    }
+    
     proto_tree_add_item_ret_uint(tree, hf_pn_dcp_xid, tvb, offset, 4, ENC_BIG_ENDIAN, &xid);
     offset += 4;
     if (service_id == PNDCP_SERVICE_ID_IDENTIFY && service_type == PNDCP_SERVICE_TYPE_REQUEST) {
@@ -1726,7 +1756,32 @@ proto_register_pn_dcp (void)
 
         { &hf_pn_dcp_service_type,
           { "ServiceType", "pn_dcp.service_type",
-            FT_UINT8, BASE_DEC, VALS(pn_dcp_service_type), 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
+    
+        { &hf_pn_dcp_service_type_selection,
+          { "Selection", "pn_dcp.service_type.selection",
+            FT_UINT8, BASE_DEC, VALS(pn_dcp_service_type_selection), 0x01,
+            NULL, HFILL }},
+                    
+        { &hf_pn_dcp_service_type_reserved,
+          { "Reserved", "pn_dcp.service_type.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x02,
+            NULL, HFILL }},
+    
+        { &hf_pn_dcp_service_type_response,
+          { "Response", "pn_dcp.service_type.response",
+            FT_UINT8, BASE_DEC, VALS(pn_dcp_service_type_response), 0x04,
+            NULL, HFILL }},
+    
+        { &hf_pn_dcp_service_type_reserved_1,
+          { "Reserved", "pn_dcp.service_type.reserved_1",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
+            NULL, HFILL }},
+    
+        { &hf_pn_dcp_service_type_reserved_2,
+          { "Reserved", "pn_dcp.service_type.reserved_2",
+            FT_UINT8, BASE_DEC, NULL, 0xFE,
             NULL, HFILL }},
 
         { &hf_pn_dcp_xid,

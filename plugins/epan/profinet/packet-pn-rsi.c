@@ -1012,8 +1012,6 @@ dissect_SecurityMetaData_block(tvbuff_t* tvb, int offset,
     /* SecurityLength */
     dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
         hf_pn_rsi_security_length_length, &u16SecurityLength);
-    u16SecurityLength <<= 5;
-    u16SecurityLength >>= 5;
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
         hf_pn_rsi_security_length_reserved, &u16LengthReserved);
     u16LengthReserved >>= 11;
