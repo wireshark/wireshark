@@ -92,17 +92,16 @@ static uint32_t dissect_mqpcf_getDigits(unsigned uCnt)
 {
     return (uint32_t)(log10((double)uCnt) + 1);
 }
+
+static GHashTable* MQCFINT_Parse_table;
 /*
-* Here we get a special value_string, that return another value_string
-* pointer instead of string value. This let us use the try_val_to_str
+* Use a hash table to get a value_string and then use the try_val_to_str
 * to get val_to_str value from the value of a parameter on a more
 * easier way than using switch cases.
 */
 const uint8_t *dissect_mqpcf_parm_getintval(unsigned uPrm, unsigned uVal)
 {
-    const value_string *pVs;
-    pVs = (const value_string *)try_val_to_str_ext(uPrm, GET_VALS_EXTP(MQCFINT_Parse));
-
+    const value_string* pVs = (const value_string*)g_hash_table_lookup(MQCFINT_Parse_table, GUINT_TO_POINTER(uPrm));
     if (pVs)
     {
         return (const uint8_t *)try_val_to_str(uVal, pVs);
@@ -247,12 +246,12 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
         if (bParse)
             snprintf(strPrm, sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d) %-30.30s",
                        "MQPrm", uDig, u + 1,
-                       uTyp, val_to_str_ext_const(uTyp, GET_VALS_EXTP(PrmTyp2), "      Unkn") + 6,
-                       uPrm, uPrm, val_to_str_ext_const(uPrm, GET_VALS_EXTP(PrmId), "Unknown"));
+                       uTyp, val_to_str_ext_const(uTyp, &mq_PrmTyp2_xvals, "      Unkn") + 6,
+                       uPrm, uPrm, val_to_str_ext_const(uPrm, &mq_PrmId_xvals, "Unknown"));
         else
             snprintf(strPrm, sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d)",
                        "XtraD", uDig, u + 1,
-                       uTyp, val_to_str_ext_const(uTyp, GET_VALS_EXTP(PrmTyp2), "      Unkn") + 6,
+                       uTyp, val_to_str_ext_const(uTyp, &mq_PrmTyp2_xvals, "      Unkn") + 6,
                        uPrm, uPrm);
 
         increment_dissection_depth(pinfo);
@@ -453,7 +452,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 uVal = tvb_get_uint32(tvb, offset + uLenF + 4, bLittleEndian);
 
                 tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s: %s 0x%08x (%d)",
-                                                     strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)") + 7, uVal, uVal);
+                                                     strPrm, val_to_str(uOpe, mq_FilterOP_vals, "       Unknown (0x%02x)") + 7, uVal, uVal);
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
                 proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
@@ -477,7 +476,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 strip_trailing_blanks(sStr, uSLn);
 
                 tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s: %s %s",
-                                                     strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)") + 7, sStr);
+                                                     strPrm, val_to_str(uOpe, mq_FilterOP_vals, "       Unknown (0x%02x)") + 7, sStr);
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
                 proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
@@ -499,12 +498,12 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                     uint8_t *sStrA = (uint8_t *)format_text_chr(pinfo->pool, tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 8, uSLn, ENC_ASCII), uSLn, '.');
                     uint8_t *sStrE = (uint8_t *)format_text_chr(pinfo->pool, tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 8, uSLn, ENC_EBCDIC), uSLn, '.');
                     tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s: %s A(%s) E(%s)",
-                                                         strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)") + 7, sStrA, sStrE);
+                                                         strPrm, val_to_str(uOpe, mq_FilterOP_vals, "       Unknown (0x%02x)") + 7, sStrA, sStrE);
                 }
                 else
                 {
                     tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s: %s <MISSING>",
-                                                         strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)") + 7);
+                                                         strPrm, val_to_str(uOpe, mq_FilterOP_vals, "       Unknown (0x%02x)") + 7);
                 }
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
@@ -619,24 +618,24 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
             {
                 snprintf(sTmp, sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d) CC(%d-%s) RC(%d-%s)",
                            MQ_TEXT_CFH,
-                           uTyp, val_to_str_const(uTyp, GET_VALSV(MQCFT), "Unknown"),
-                           uCmd, val_to_str_ext_const(uCmd, GET_VALS_EXTP(MQCMD), "Unknown"),
+                           uTyp, val_to_str_const(uTyp, mq_MQCFT_vals, "Unknown"),
+                           uCmd, val_to_str_ext_const(uCmd, &mq_MQCMD_xvals, "Unknown"),
                            uCnt,
-                           uCC, val_to_str_const(uCC, GET_VALSV(MQCC), "Unknown"),
-                           uRC, val_to_str_ext_const(uRC, GET_VALS_EXTP(MQRC), "Unknown"));
+                           uCC, val_to_str_const(uCC, mq_MQCC_vals, "Unknown"),
+                           uRC, val_to_str_ext_const(uRC, &mq_MQRC_xvals, "Unknown"));
             }
             else
             {
                 snprintf(sTmp, sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d)",
                            MQ_TEXT_CFH,
-                           uTyp, val_to_str_const(uTyp, GET_VALSV(MQCFT), "Unknown"),
-                           uCmd, val_to_str_ext_const(uCmd, GET_VALS_EXTP(MQCMD), "Unknown"),
+                           uTyp, val_to_str_const(uTyp, mq_MQCFT_vals, "Unknown"),
+                           uCmd, val_to_str_ext_const(uCmd, &mq_MQCMD_xvals, "Unknown"),
                            uCnt);
             }
 
             ti = proto_tree_add_item(tree, proto_mqpcf, tvb, offset, -1, ENC_NA);
 
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, GET_VALS_EXTP(MQCMD), "Unknown (0x%02x)"));
+            proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &mq_MQCMD_xvals, "Unknown (0x%02x)"));
             mqroot_tree = proto_item_add_subtree(ti, ett_mqpcf);
 
             mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeMQCFH, ett_mqpcf_cfh, NULL, sTmp);
@@ -679,6 +678,27 @@ static bool dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return false;
 }
 
+static void
+proto_init_mqpcf(void)
+{
+    /* Setup the hash table of value_strings here since this is where it's used */
+    if (MQCFINT_Parse_table == NULL)
+    {
+        MQCFINT_Parse_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+        mq_setup_MQCFINT_Parse_data(MQCFINT_Parse_table);
+    }
+}
+
+static void
+proto_shutdown_mqpcf(void)
+{
+    if (MQCFINT_Parse_table != NULL)
+    {
+        g_hash_table_destroy(MQCFINT_Parse_table);
+        MQCFINT_Parse_table = NULL;
+    }
+}
+
 void proto_register_mqpcf(void)
 {
     expert_module_t *expert_mqpcf;
@@ -688,16 +708,16 @@ void proto_register_mqpcf(void)
         { &hf_mqpcf_cfh_type     , { "Type.....", "mqpcf.cfh.type"      , FT_UINT32, BASE_DEC, VALS(mq_MQCFT_vals), 0x0, "CFH type", HFILL }},
         { &hf_mqpcf_cfh_length   , { "Length...", "mqpcf.cfh.length"    , FT_UINT32, BASE_DEC, NULL, 0x0, "CFH length", HFILL }},
         { &hf_mqpcf_cfh_version  , { "Version..", "mqpcf.cfh.version"   , FT_UINT32, BASE_DEC, NULL, 0x0, "CFH version", HFILL }},
-        { &hf_mqpcf_cfh_command  , { "Command..", "mqpcf.cfh.command"   , FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(MQCMD), 0x0, "CFH command", HFILL }},
+        { &hf_mqpcf_cfh_command  , { "Command..", "mqpcf.cfh.command"   , FT_UINT32, BASE_DEC | BASE_EXT_STRING, &mq_MQCMD_xvals, 0x0, "CFH command", HFILL }},
         { &hf_mqpcf_cfh_MsgSeqNbr, { "MsgSeqNbr", "mqpcf.cfh.MsgSeqNbr" , FT_UINT32, BASE_DEC, NULL, 0x0, "CFH message sequence number", HFILL }},
         { &hf_mqpcf_cfh_control  , { "Control..", "mqpcf.cfh.control"   , FT_UINT32, BASE_DEC, VALS(mq_MQCFC_vals), 0x0, "CFH control", HFILL }},
         { &hf_mqpcf_cfh_compcode , { "CompCode.", "mqpcf.cfh.compcode"  , FT_UINT32, BASE_DEC, VALS(mq_MQCC_vals), 0x0, "CFH completion code", HFILL }},
-        { &hf_mqpcf_cfh_reason   , { "ReasCode.", "mqpcf.cfh.reasoncode", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(MQRC), 0x0, "CFH reason code", HFILL }},
+        { &hf_mqpcf_cfh_reason   , { "ReasCode.", "mqpcf.cfh.reasoncode", FT_UINT32, BASE_DEC | BASE_EXT_STRING, &mq_MQRC_xvals, 0x0, "CFH reason code", HFILL }},
         { &hf_mqpcf_cfh_ParmCount, { "ParmCount", "mqpcf.cfh.ParmCount" , FT_UINT32, BASE_DEC, NULL, 0x0, "CFH parameter count", HFILL }},
 
-        { &hf_mq_pcf_prmtyp      , { "ParmTyp..", "mqpcf.parm.type"      , FT_UINT32 , BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(PrmTyp), 0x0, "MQPCF parameter type", HFILL }},
+        { &hf_mq_pcf_prmtyp      , { "ParmTyp..", "mqpcf.parm.type"      , FT_UINT32 , BASE_DEC | BASE_EXT_STRING, &mq_PrmTyp_xvals, 0x0, "MQPCF parameter type", HFILL }},
         { &hf_mq_pcf_prmlen      , { "ParmLen..", "mqpcf.parm.len"       , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter length", HFILL }},
-        { &hf_mq_pcf_prmid       , { "ParmID...", "mqpcf.parm.id"        , FT_UINT32 , BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(PrmId), 0x0, "MQPCF parameter id", HFILL }},
+        { &hf_mq_pcf_prmid       , { "ParmID...", "mqpcf.parm.id"        , FT_UINT32 , BASE_DEC | BASE_EXT_STRING, &mq_PrmId_xvals, 0x0, "MQPCF parameter id", HFILL }},
         { &hf_mq_pcf_prmidnovals , { "ParmID...", "mqpcf.parm.idNoVals"  , FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "MQPCF parameter id No Vals", HFILL }},
         { &hf_mq_pcf_filterop    , { "FilterOP.", "mqpcf.filter.op"      , FT_UINT32 , BASE_DEC, VALS(mq_FilterOP_vals), 0x0, "MQPCF Filter operator", HFILL }},
         { &hf_mq_pcf_prmccsid    , { "ParmCCSID", "mqpcf.parm.ccsid"     , FT_UINT32 , BASE_DEC | BASE_RANGE_STRING, RVALS(mq_MQCCSI_rvals), 0x0, "MQPCF parameter ccsid", HFILL }},
@@ -751,6 +771,9 @@ void proto_register_mqpcf(void)
                                    " You can limit the number of elements displayed, before it continues with the next Parameter.",
                                    10, &mq_pcf_maxlst);
 
+    /* Register the dissector init function */
+    register_init_routine(proto_init_mqpcf);
+    register_shutdown_routine(proto_shutdown_mqpcf);
 }
 
 void proto_reg_handoff_mqpcf(void)

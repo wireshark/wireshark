@@ -14,44 +14,6 @@
 #ifndef __PACKET_MQ_H__
 #define __PACKET_MQ_H__
 
-#define GET_VALSV(A) mq_##A##_vals
-#define GET_VALSV2(A) GET_VALSV(A)
-#define DEF_VALSX(A) extern value_string GET_VALSV(A)[]
- /* This Macro is used to cast a value_string to a const char *
- *  Used in value_string MQCFINT_Parse, because this value_string
- *  don't return a string for a specific value, but a value_string
- *  that can be used in another call to try_val_to_str
- */
-#define GET_VALSP(F) (const char *)GET_VALSV(F)
-#define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
-{
-#define DEF_VALSBX(A) value_string GET_VALSV(A)[] = \
-{
-#define DEF_VALS1(A)    { (uint32_t)MQ_##A, #A }
-#define DEF_VALS2(A, B) { (uint32_t)MQ_##A, B }
-#define DEF_VALSE \
-{ 0, NULL } \
-}
-
- /* VALS_EXT_STRING */
-#define GET_VALS_EXTV(A) mq_##A##_xvals
-#define GET_VALS_EXTP(A) (value_string_ext *)&GET_VALS_EXTV(A)
-#define DEF_VALS_EXTB(A) static value_string_ext GET_VALS_EXTV(A) = VALUE_STRING_EXT_INIT(mq_##A##_vals)
-#define DEF_VALS_EXTBX(A) value_string_ext GET_VALS_EXTV(A) = VALUE_STRING_EXT_INIT(mq_##A##_vals)
-#define DEF_VALS_EXTX(A)  extern value_string_ext GET_VALS_EXTV(A)
-
-/* | BASE_RANGE_STRING, GET_VALRV(RVALS(aaa)) */
-#define GET_VALRV(A) mq_##A##_rvals
-#define DEF_VALRX(A) extern const range_string GET_VALRV(A)[]
-#define GET_VALRP(F) (char *)GET_VALRV(F)
-#define DEF_VALRB(A) const range_string GET_VALRV(A)[] = \
-{
-#define DEF_VALR1(A)       { (uint32_t)MQ_##A, (uint32_t)MQ_##A, #A }
-#define DEF_VALR3(A, B, C) { (uint32_t)MQ_##A, (uint32_t)MQ_##B, C }
-#define DEF_VALRE \
-{ 0, 0, NULL } \
-}
-
 #define IS_EBCDIC(a) ((a == 500) || (a == 1047))
 
 #define MQ_PORT_TCP    1414
@@ -5876,37 +5838,38 @@ extern uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 extern int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tree,
     unsigned offset, unsigned bLittleEndian, bool bParse);
 
-DEF_VALSX(MQCC);
+extern void mq_setup_MQCFINT_Parse_data(GHashTable* table);
 
-DEF_VALS_EXTX(MQAT);
-DEF_VALS_EXTX(MQCMD);
-DEF_VALS_EXTX(MQRC);
-DEF_VALS_EXTX(MQOT);
-DEF_VALS_EXTX(PrmId);
-DEF_VALS_EXTX(PrmTyp);
-DEF_VALS_EXTX(PrmTyp2);
-DEF_VALS_EXTX(selector);
-DEF_VALS_EXTX(MQCFINT_Parse);
+extern value_string mq_MQCC_vals[];
 
-DEF_VALSX(MQCFC);
-DEF_VALSX(MQCFT);
+extern value_string_ext mq_MQAT_xvals;
+extern value_string_ext mq_MQCMD_xvals;
+extern value_string_ext mq_MQRC_xvals;
+extern value_string_ext mq_MQOT_xvals;
+extern value_string_ext mq_PrmId_xvals;
+extern value_string_ext mq_PrmTyp_xvals;
+extern value_string_ext mq_PrmTyp2_xvals;
+extern value_string_ext mq_selector_xvals;
 
-DEF_VALSX(MQPER);
-DEF_VALSX(MQPRT);
-DEF_VALSX(MQREADA);
-DEF_VALSX(MQPROP);
-DEF_VALSX(MQMT);
+extern value_string mq_MQCFC_vals[];
+extern value_string mq_MQCFT_vals[];
 
-DEF_VALSX(FilterOP);
-DEF_VALSX(UOWControls);
-DEF_VALSX(LinkType);
-DEF_VALSX(ADSDescr);
-DEF_VALSX(ConvTaskOpt);
-DEF_VALSX(TaskEndStatus);
+extern value_string mq_MQPER_vals[];
+extern value_string mq_MQPRT_vals[];
+extern value_string mq_MQREADA_vals[];
+extern value_string mq_MQPROP_vals[];
+extern value_string mq_MQMT_vals[];
 
-DEF_VALRX(MQCCSI);
-DEF_VALRX(MQWI);
-DEF_VALRX(MQCODL);
+extern value_string mq_FilterOP_vals[];
+extern value_string mq_UOWControls_vals[];
+extern value_string mq_LinkType_vals[];
+extern value_string mq_ADSDescr_vals[];
+extern value_string mq_ConvTaskOpt_vals[];
+extern value_string mq_TaskEndStatus_vals[];
+
+extern const range_string mq_MQCCSI_rvals[];
+extern const range_string mq_MQWI_rvals[];
+extern const range_string mq_MQCODL_rvals[];
 
 /*
  * Editor modelines - https://www.wireshark.org/tools/modelines.html
