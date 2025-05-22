@@ -931,68 +931,69 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 		}
 
-		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_QUEUE, &interface_queue)) {
-			proto_tree_add_uint(fh_tree, hf_frame_interface_queue, tvb, 0, 0, interface_queue);
-		}
+		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_QUEUE, &interface_queue)) {
+				proto_tree_add_uint(fh_tree, hf_frame_interface_queue, tvb, 0, 0, interface_queue);
+			}
 
-		if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_HASH) > 0) {
-			proto_tree *hash_tree;
-			proto_item *hash_item;
+			if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_HASH) > 0) {
+				proto_tree *hash_tree;
+				proto_item *hash_item;
 
-			hash_item = proto_tree_add_string(fh_tree, hf_frame_hash, tvb, 0, 0, "");
-			hash_tree = proto_item_add_subtree(hash_item, ett_hash);
-			fr_user_data.item = hash_item;
-			fr_user_data.tree = hash_tree;
-			fr_user_data.pinfo = pinfo;
-			fr_user_data.tvb = tvb;
-			fr_user_data.n_changes = 0;
-			wtap_block_foreach_option(fr_data->pkt_block, frame_add_hash, (void *)&fr_user_data);
-		}
+				hash_item = proto_tree_add_string(fh_tree, hf_frame_hash, tvb, 0, 0, "");
+				hash_tree = proto_item_add_subtree(hash_item, ett_hash);
+				fr_user_data.item = hash_item;
+				fr_user_data.tree = hash_tree;
+				fr_user_data.pinfo = pinfo;
+				fr_user_data.tvb = tvb;
+				fr_user_data.n_changes = 0;
+				wtap_block_foreach_option(fr_data->pkt_block, frame_add_hash, (void *)&fr_user_data);
+			}
 
-		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
-			proto_tree *flags_tree;
-			proto_item *flags_item;
-			static int * const flags[] = {
-				&hf_frame_pack_direction,
-				&hf_frame_pack_reception_type,
-				&hf_frame_pack_fcs_length,
-				&hf_frame_pack_reserved,
-				&hf_frame_pack_crc_error,
-				&hf_frame_pack_wrong_packet_too_long_error,
-				&hf_frame_pack_wrong_packet_too_short_error,
-				&hf_frame_pack_wrong_inter_frame_gap_error,
-				&hf_frame_pack_unaligned_frame_error,
-				&hf_frame_pack_start_frame_delimiter_error,
-				&hf_frame_pack_preamble_error,
-				&hf_frame_pack_symbol_error,
-				NULL
-			};
+			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
+				proto_tree *flags_tree;
+				proto_item *flags_item;
+				static int * const flags[] = {
+					&hf_frame_pack_direction,
+					&hf_frame_pack_reception_type,
+					&hf_frame_pack_fcs_length,
+					&hf_frame_pack_reserved,
+					&hf_frame_pack_crc_error,
+					&hf_frame_pack_wrong_packet_too_long_error,
+					&hf_frame_pack_wrong_packet_too_short_error,
+					&hf_frame_pack_wrong_inter_frame_gap_error,
+					&hf_frame_pack_unaligned_frame_error,
+					&hf_frame_pack_start_frame_delimiter_error,
+					&hf_frame_pack_preamble_error,
+					&hf_frame_pack_symbol_error,
+					NULL
+				};
 
-			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pack_flags);
-			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
-			proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pack_flags);
-		}
+				flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pack_flags);
+				flags_tree = proto_item_add_subtree(flags_item, ett_flags);
+				proto_tree_add_bitmask_list_value(flags_tree, tvb, 0, 0, flags, pack_flags);
+			}
 
-		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint64_option_value(fr_data->pkt_block, OPT_PKT_PACKETID, &packetid)) {
-			proto_tree_add_uint64(fh_tree, hf_frame_packet_id, tvb, 0, 0, packetid);
-		}
+			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint64_option_value(fr_data->pkt_block, OPT_PKT_PACKETID, &packetid)) {
+				proto_tree_add_uint64(fh_tree, hf_frame_packet_id, tvb, 0, 0, packetid);
+			}
 
-		if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_VERDICT) > 0) {
-			proto_tree *verdict_tree;
-			proto_item *verdict_item;
+			if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_VERDICT) > 0) {
+				proto_tree *verdict_tree;
+				proto_item *verdict_item;
 
-			verdict_item = proto_tree_add_string(fh_tree, hf_frame_verdict, tvb, 0, 0, "");
-			verdict_tree = proto_item_add_subtree(verdict_item, ett_verdict);
-			fr_user_data.item = verdict_item;
-			fr_user_data.tree = verdict_tree;
-			fr_user_data.pinfo = pinfo;
-			fr_user_data.tvb = tvb;
-			fr_user_data.n_changes = 0;
-			wtap_block_foreach_option(pinfo->rec->block, frame_add_verdict, (void *)&fr_user_data);
-		}
+				verdict_item = proto_tree_add_string(fh_tree, hf_frame_verdict, tvb, 0, 0, "");
+				verdict_tree = proto_item_add_subtree(verdict_item, ett_verdict);
+				fr_user_data.item = verdict_item;
+				fr_user_data.tree = verdict_tree;
+				fr_user_data.pinfo = pinfo;
+				fr_user_data.tvb = tvb;
+				fr_user_data.n_changes = 0;
+				wtap_block_foreach_option(pinfo->rec->block, frame_add_verdict, (void *)&fr_user_data);
+			}
 
-		if (pinfo->rec->rec_type == REC_TYPE_PACKET)
 			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pkt_encap);
+		}
 
 		if (pinfo->presence_flags & PINFO_HAS_TS) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time_local, tvb, 0, 0, &pinfo->abs_ts);
@@ -1065,8 +1066,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					   0, 0, cap_len, "%u byte%s (%u bits)",
 					   cap_len, cap_plurality, cap_len * 8);
 
-		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint64_option_value(fr_data->pkt_block, OPT_PKT_DROPCOUNT, &drop_count)) {
-			proto_tree_add_uint64(fh_tree, hf_frame_drop_count, tvb, 0, 0, drop_count);
+		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint64_option_value(fr_data->pkt_block, OPT_PKT_DROPCOUNT, &drop_count)) {
+				proto_tree_add_uint64(fh_tree, hf_frame_drop_count, tvb, 0, 0, drop_count);
+			}
 		}
 
 		if (generate_md5_hash) {
