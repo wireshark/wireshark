@@ -237,8 +237,6 @@ static const value_string role_vals[] = {
   { 0, NULL }
 };
 
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
 
 static void
 dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
@@ -340,7 +338,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
   proto_tree *root_id_tree;
   proto_tree *bridge_id_tree;
   proto_tree *cist_bridge_id_tree;
-  const char *sep;
 
   static int * const bpdu_flags[] = {
     &hf_bpdu_flags_tcack,
@@ -960,17 +957,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
 
           spt_agree_data = tvb_get_uint8(tvb, spt_offset);
 
-          sep = initial_sep;
-          proto_item_append_text(agreement_item, "%sAN: %d", sep, (spt_agree_data & 0x03));
+          proto_item_append_text(agreement_item, " (AN: %d", (spt_agree_data & 0x03));
 
           proto_tree_add_bitmask_list_value(agreement_tree, tvb, spt_offset, 1, agreements, spt_agree_data);
-          sep = cont_sep;
 
-          proto_item_append_text(agreement_item, "%sDAN: %d", sep, ((spt_agree_data & 0x0C) >> 2));
-
-          if (sep != initial_sep) {
-            proto_item_append_text(agreement_item, ")");
-          }
+          proto_item_append_text(agreement_item, ", DAN: %d)", ((spt_agree_data & 0x0C) >> 2));
           spt_offset += 2;
 
           proto_tree_add_item(agreement_tree, hf_bpdu_agreement_digest_format_id, tvb, spt_offset, 1, ENC_NA);
