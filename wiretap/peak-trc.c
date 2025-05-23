@@ -314,7 +314,7 @@ peak_trc_parse(wtap* wth, gint64* offset, int* err, char** err_info)
                     {
                         if (state->column_positions[col_type] == column_index)
                         {
-                            for (peak_trc_column_map_t* item = colmap; item->code != Col_Invalid; item++)
+                            for (peak_trc_column_map_t* item = colmap; item->type != Col_Invalid; item++)
                             {
                                 if ((int)item->type == col_type)
                                 {
@@ -396,7 +396,7 @@ peak_trc_parse(wtap* wth, gint64* offset, int* err, char** err_info)
                 }
 
                 /* Assign the column value if found */
-                for (peak_trc_column_map_t* item = colmap; item->code != Col_Invalid; item++)
+                for (peak_trc_column_map_t* item = colmap; item->type != Col_Invalid; item++)
                 {
                     if ((*iter)[0] == item->code)
                     {
