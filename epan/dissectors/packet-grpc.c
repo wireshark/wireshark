@@ -327,6 +327,7 @@ dissect_grpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, grpc_co
     unsigned offset = 0;
     unsigned tvb_len = tvb_reported_length(tvb);
     const char* proto_name;
+    bool saved_writable;
 
     DISSECTOR_ASSERT(grpc_ctx != NULL);
 
@@ -365,10 +366,12 @@ dissect_grpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, grpc_co
             break;
         }
         /* ready to add information into protocol columns and tree */
-        if (offset == 0) { /* change columns only when there is at least one grpc message will be parsed */
+        saved_writable = col_get_writable(pinfo->cinfo, COL_PROTOCOL);
+        if (offset == 0) { /* change columns only for the first grpc message */
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", proto_name);
-            col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+        } else {
+            col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
         }
         ti = proto_tree_add_item(tree, proto_grpc, tvb, offset, message_length + GRPC_MESSAGE_HEAD_LEN, ENC_NA);
         grpc_tree = proto_item_add_subtree(ti, ett_grpc_message);
@@ -379,6 +382,7 @@ dissect_grpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, grpc_co
         }
 
         offset = dissect_grpc_message(tvb, offset, GRPC_MESSAGE_HEAD_LEN + message_length, pinfo, grpc_tree, grpc_ctx);
+        col_set_writable(pinfo->cinfo, COL_PROTOCOL, saved_writable);
     }
 
     return tvb_captured_length(tvb);
