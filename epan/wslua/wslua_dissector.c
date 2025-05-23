@@ -124,13 +124,41 @@ WSLUA_METHOD Dissector_decrypt(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_decrypt_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_decrypt_TREE);
     volatile int len = 0;
-    char *decrypted = "Test";
+    struct data_source *ds, *ds_DTLS, *ds_TLS;
+    tvbuff_t *tvb_decrypted;
+    char *decrypted = "";
 
     if (! ( d && tvb && pinfo) ) return 0;
 
     WRAP_NON_LUA_EXCEPTIONS(
-        len = call_dissector_decrypt(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
+        len = call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
     )
+
+    ds_DTLS = get_data_source_by_name(pinfo->ws_pinfo, "Decrypted DTLS");
+    ds_TLS = get_data_source_by_name(pinfo->ws_pinfo, "Decrypted TLS");
+
+    if (ds_DTLS) {
+        ds = ds_DTLS;
+    }
+    else if (ds_TLS) {
+        ds = ds_TLS;
+    }
+    else {
+        ds = NULL;
+    }
+
+    if (ds) {
+        tvb_decrypted = get_data_source_tvb(ds);
+        if (tvb_decrypted) {
+            wmem_allocator_t *scope = NULL;
+            const int offset = 0;
+
+            len = tvb_reported_length(tvb_decrypted);
+            decrypted = (uint8_t *)wmem_alloc(scope, len + 1);
+            tvb_memcpy(tvb_decrypted, decrypted, offset, len);
+            decrypted[len] = '\0';
+        }
+    }
 
     lua_pushinteger(L,(lua_Integer)len);
     lua_pushstring(L,(const char *) decrypted);
