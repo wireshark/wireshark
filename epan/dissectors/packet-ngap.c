@@ -55,7 +55,7 @@
 #define PSNAME "NGAP"
 #define PFNAME "ngap"
 
-/* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 36412 */
+/* Dissector will use SCTP PPID 60 or SCTP port. IANA assigned port = 38412 */
 #define SCTP_PORT_NGAP 38412
 
 void proto_register_ngap(void);
