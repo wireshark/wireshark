@@ -1972,7 +1972,7 @@ dissect_full_rfc4571(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      */
     int offset = 0;
     uint32_t length = 0;
-    proto_tree_add_item_ret_uint(tree, hf_rfc4571_header_len, tvb, offset, 2, ENC_NA, &length);
+    proto_tree_add_item_ret_uint(tree, hf_rfc4571_header_len, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
     if (length == 0) {
         return 2;
     }

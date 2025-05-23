@@ -1162,7 +1162,7 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item(oxm_tree, hf_openflow_v5_oxm_value_vlan_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
             if (oxm_hm) {
-                proto_tree_add_item(oxm_tree, hf_openflow_v5_oxm_mask_vlan, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(oxm_tree, hf_openflow_v5_oxm_mask_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset+=2;
             }
             break;

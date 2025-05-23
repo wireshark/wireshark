@@ -1109,7 +1109,7 @@ dissect_openflow_v6_oxs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     } else if (oxs_class == OFPXSC_EXPERIMENTER) {
         proto_tree_add_item(tree, hf_openflow_v6_oxs_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(tree, hf_openflow_v6_oxs_experimenter_value, tvb, offset+4, oxs_payload_length - 4, ENC_NA);
+        proto_tree_add_item(tree, hf_openflow_v6_oxs_experimenter_value, tvb, offset+4, oxs_payload_length - 4, ENC_BIG_ENDIAN);
     }
     offset+=oxs_payload_length;
 
@@ -1385,7 +1385,7 @@ dissect_openflow_oxm_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item(oxm_tree, hf_openflow_v6_oxm_value_vlan_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
             if (header.oxm_hm) {
-                proto_tree_add_item(oxm_tree, hf_openflow_v6_oxm_mask_vlan, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(oxm_tree, hf_openflow_v6_oxm_mask_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset+=2;
             }
             break;
@@ -2590,13 +2590,13 @@ dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     case OFPAT_COPY_FIELD:
         /* uint16_t n_bits; */
-        proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_n_bits, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_n_bits, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         /* uint16_t src_offset; */
-        proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_src_offset, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_src_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         /* uint16_t dst_offset; */
-        proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_dst_offset, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_dst_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         /* uint8_t pad[2]; */
         proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_pad, tvb, offset, 2, ENC_NA);
@@ -2605,7 +2605,7 @@ dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     case OFPAT_METER:
         /* uint32_t meter_id; */
-        proto_tree_add_item(act_tree, hf_openflow_v6_action_meter_id, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(act_tree, hf_openflow_v6_action_meter_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
         break;
 
@@ -3402,7 +3402,7 @@ dissect_openflow_groupmod_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset+=4;
 
     /* uint16_t bucket_array_len; */
-    proto_tree_add_item(tree, hf_openflow_v6_groupmod_bucket_array_len, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_groupmod_bucket_array_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint8_t pad2[2]; */
@@ -3410,7 +3410,7 @@ dissect_openflow_groupmod_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset+=2;
 
     /* uint32_t command_bucket_id;  */
-    proto_tree_add_item(tree, hf_openflow_v6_groupmod_command_bucket_id, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_groupmod_command_bucket_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* struct ofp_bucket buckets[0]; */

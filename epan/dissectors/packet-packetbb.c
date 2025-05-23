@@ -300,7 +300,7 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, unsi
       break;
     }
     else if (tlvType == RFC7181_MSGTLV_CONT_SEQ_NUM) {
-      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_contseqnum, tvb, offset, len, ENC_NA);
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_contseqnum, tvb, offset, len, ENC_BIG_ENDIAN);
       break;
     }
 
@@ -341,7 +341,7 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, unsi
       proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_linkout, tvb, offset, 2, ENC_NA);
       proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_neighin, tvb, offset, 2, ENC_NA);
       proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_neighout, tvb, offset, 2, ENC_NA);
-      tlv_decoded_value_item = proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_value, tvb, offset, 2, ENC_NA);
+      tlv_decoded_value_item = proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_value, tvb, offset, 2, ENC_BIG_ENDIAN);
       proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_metric(tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN)));
       break;
     case RFC7181_ADDRTLV_MPR:

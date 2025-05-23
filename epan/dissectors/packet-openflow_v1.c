@@ -335,10 +335,10 @@ dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item(tree, hf_openflow_ofp_match_pad, tvb, offset, 2, ENC_NA);
     offset += 2;
     /* uint32_t nw_src; IP source address. */
-    proto_tree_add_item(tree, hf_openflow_ofp_source_addr, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_ofp_source_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     /* uint32_t nw_dst; IP destination address. */
-    proto_tree_add_item(tree, hf_openflow_ofp_dest_addr, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_ofp_dest_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     /* uint16_t tp_src; TCP/UDP source port. */
     proto_tree_add_item(tree, hf_openflow_ofp_source_port, tvb, offset, 2, ENC_BIG_ENDIAN);

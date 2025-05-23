@@ -8633,7 +8633,7 @@ proto_register_tds(void)
         },
         { &hf_tds_dbrpc_rpcname_len,
           { "DBRPC - RPC Name Length", "tds.dbrpc.rpcname_len",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_dbrpc_rpcname,

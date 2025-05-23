@@ -2961,9 +2961,9 @@ static bool parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb
         break;
     case RMPP_STOP:
     case RMPP_ABORT:
-        proto_tree_add_item(RMPP_header_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_NA);
+        proto_tree_add_item(RMPP_header_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
-        proto_tree_add_item(RMPP_header_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_NA);
+        proto_tree_add_item(RMPP_header_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
         break;
     default:
@@ -4889,7 +4889,7 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo
     local_offset += 64;
     proto_tree_add_item(SM_DR_header_tree, hf_opa_sm_dr_return_path, tvb, local_offset, 64, ENC_NA);
     local_offset += 64;
-    proto_tree_add_item(SM_DR_header_tree, hf_opa_sm_dr_reserved64, tvb, local_offset, 8, ENC_NA);
+    proto_tree_add_item(SM_DR_header_tree, hf_opa_sm_dr_reserved64, tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
     *offset = local_offset;
     if (!pref_parse_on_mad_status_error && (MAD.Status & 0x7FFF)) {
@@ -4917,15 +4917,15 @@ static int parse_PortInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offs
         PortInfoRecord_LinkDownReason_Entry_tree = proto_tree_add_subtree_format(PortInfoRecord_LinkDownReason_tree, tvb, local_offset, 16,
             ett_portinforecord_linkdownreason_entry, NULL, "Link Down Reason Entry %u", i);
 
-        proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_NA);
+        proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_reserved32, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
-        proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_NA);
+        proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_PortInfoRecord_LinkDownReason_NeighborLinkDownReason, tvb, local_offset, 1, ENC_NA);
         local_offset += 1;
         proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_PortInfoRecord_LinkDownReason_LinkDownReason, tvb, local_offset, 1, ENC_NA);
         local_offset += 1;
-        proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_PortInfoRecord_LinkDownReason_Timestamp, tvb, local_offset, 8, ENC_NA);
+        proto_tree_add_item(PortInfoRecord_LinkDownReason_Entry_tree, hf_opa_PortInfoRecord_LinkDownReason_Timestamp, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         local_offset += 8;
 
     }
@@ -5012,7 +5012,7 @@ static int parse_PathRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
     PathRecord_header_item = proto_tree_add_item(parentTree, hf_opa_PathRecord, tvb, local_offset, 64, ENC_NA);
     PathRecord_header_tree = proto_item_add_subtree(PathRecord_header_item, ett_pathrecord);
 
-    proto_tree_add_item(PathRecord_header_tree, hf_opa_reserved64, tvb, local_offset, 8, ENC_NA);
+    proto_tree_add_item(PathRecord_header_tree, hf_opa_reserved64, tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
     proto_tree_add_item(PathRecord_header_tree, hf_opa_PathRecord_DGID, tvb, local_offset, 16, ENC_NA);
     local_offset += 16;
@@ -5325,12 +5325,12 @@ static int parse_MultiPathRecord_GUID(proto_tree *parentTree, tvbuff_t *tvb, int
     local_offset += 8;
 
     for (i = 0; i < SGUIDCount; i++) {
-        SDGUID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_SGUID, tvb, local_offset, 8, ENC_NA);
+        SDGUID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_SGUID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         local_offset += 8;
         proto_item_prepend_text(SDGUID, "%u: ", i);
     }
     for (i = 0; i < DGUIDCount; i++) {
-        SDGUID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_DGUID, tvb, local_offset, 8, ENC_NA);
+        SDGUID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_DGUID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         local_offset += 8;
         proto_item_prepend_text(SDGUID, "%u: ", i);
     }
@@ -5414,12 +5414,12 @@ static int parse_MultiPathRecord_lid(proto_tree *parentTree, tvbuff_t *tvb, int 
     local_offset += 8;
 
     for (i = 0; i < SLIDCount; i++) {
-        SDLID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_SLID, tvb, local_offset, 4, ENC_NA);
+        SDLID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_SLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
         proto_item_prepend_text(SDLID, "%u: ", i);
     }
     for (i = 0; i < DLIDCount; i++) {
-        SDLID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_DLID, tvb, local_offset, 4, ENC_NA);
+        SDLID = proto_tree_add_item(MultiPathRecord_header_tree, hf_opa_MultiPathRecord_DLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
         proto_item_prepend_text(SDLID, "%u: ", i);
     }
@@ -5439,15 +5439,15 @@ static int parse_CableInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, int *off
     CableInfoRecord_header_item = proto_tree_add_item(parentTree, hf_opa_CableInfoRecord, tvb, local_offset, 72, ENC_NA);
     CableInfoRecord_header_tree = proto_item_add_subtree(CableInfoRecord_header_item, ett_cableinforecord);
 
-    proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Lid, tvb, local_offset, 4, ENC_NA);
+    proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Lid, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
     proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Port, tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Length, tvb, local_offset, 1, ENC_NA);
     proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_reserved, tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
-    proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Address, tvb, local_offset, 2, ENC_NA);
-    proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_PortType, tvb, local_offset, 2, ENC_NA);
+    proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Address, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_PortType, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
     proto_tree_add_item(CableInfoRecord_header_tree, hf_opa_CableInfoRecord_Data, tvb, local_offset, 64, ENC_NA);
     local_offset += 64;
@@ -5703,7 +5703,7 @@ static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, int *offset, MA
         local_offset += 1;
         break;
     case SA_ATTR_ID_INFORM_INFO_RECORD: /* InformInfoRecord */
-        proto_tree_add_item(SA_header_tree, hf_opa_sa_SubscriberLID, tvb, local_offset, 4, ENC_NA);
+        proto_tree_add_item(SA_header_tree, hf_opa_sa_SubscriberLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
         proto_tree_add_item(SA_header_tree, hf_opa_sa_Enum, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
@@ -5717,7 +5717,7 @@ static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, int *offset, MA
     case SA_ATTR_ID_SERVICE_RECORD: /* ServiceRecord */
         proto_tree_add_item(SA_header_tree, hf_opa_sa_ServiceID, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         local_offset += 8;
-        proto_tree_add_item(SA_header_tree, hf_opa_sa_ServiceLID, tvb, local_offset, 4, ENC_NA);
+        proto_tree_add_item(SA_header_tree, hf_opa_sa_ServiceLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
         proto_tree_add_item(SA_header_tree, hf_opa_sa_ServiceP_Key, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
