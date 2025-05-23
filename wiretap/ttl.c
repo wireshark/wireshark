@@ -225,6 +225,11 @@ uint16_t ttl_get_master_address(GHashTable* ht, uint16_t addr) {
                 return (addr - 1);
             }
             break;
+        case TTL_LOGGER_DEVICE_TDA4x:
+            if (function == TTL_LOGGER_TDA4x_FUNCTION_FLEXRAY1B) {
+                return (addr - 1);
+            }
+            break;
         case TTL_LOGGER_DEVICE_FPGAA:
             if (function == TTL_LOGGER_FPGAA_FUNCTION_FLEXRAY1B) {
                 return (addr - 1);
@@ -234,18 +239,18 @@ uint16_t ttl_get_master_address(GHashTable* ht, uint16_t addr) {
             switch (function) {
             case TTL_LOGGER_FPGAB_FUNCTION_ETHA_CH2:
             case TTL_LOGGER_FPGAB_FUNCTION_ETHB_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHA_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHB_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHC_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHD_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHE_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHF_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHG_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHH_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHI_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHJ_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHK_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHL_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6b_CH2:
                 return (addr - 14);
             default:
                 break;
@@ -496,6 +501,9 @@ int ttl_get_address_iface_type(uint16_t addr) {
             case TTL_LOGGER_TDA4x_FUNCTION_CAN9:
             case TTL_LOGGER_TDA4x_FUNCTION_CAN10:
             case TTL_LOGGER_TDA4x_FUNCTION_CAN11:
+            case TTL_LOGGER_TDA4x_FUNCTION_CAN12:
+            case TTL_LOGGER_TDA4x_FUNCTION_CAN13:
+            case TTL_LOGGER_TDA4x_FUNCTION_CAN14:
                 return WTAP_ENCAP_SOCKETCAN;
             default:
                 break;
@@ -515,6 +523,9 @@ int ttl_get_address_iface_type(uint16_t addr) {
             case TTL_LOGGER_FPGAA_FUNCTION_CAN9:
             case TTL_LOGGER_FPGAA_FUNCTION_CAN10:
             case TTL_LOGGER_FPGAA_FUNCTION_CAN11:
+            case TTL_LOGGER_FPGAA_FUNCTION_CAN12:
+            case TTL_LOGGER_FPGAA_FUNCTION_CAN13:
+            case TTL_LOGGER_FPGAA_FUNCTION_CAN14:
                 return WTAP_ENCAP_SOCKETCAN;
             case TTL_LOGGER_FPGAA_FUNCTION_LIN1:
             case TTL_LOGGER_FPGAA_FUNCTION_LIN2:
@@ -545,32 +556,32 @@ int ttl_get_address_iface_type(uint16_t addr) {
             switch (function) {
             case TTL_LOGGER_FPGAB_FUNCTION_ETHA_CH1:
             case TTL_LOGGER_FPGAB_FUNCTION_ETHB_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHA_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHB_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHC_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHD_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHE_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHF_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHG_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHH_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHI_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHJ_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHK_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHL_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6b_CH1:
             case TTL_LOGGER_FPGAB_FUNCTION_ETHA_CH2:
             case TTL_LOGGER_FPGAB_FUNCTION_ETHB_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHA_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHB_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHC_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHD_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHE_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHF_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHG_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHH_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHI_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHJ_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHK_CH2:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHL_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5b_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6a_CH2:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6b_CH2:
                 return WTAP_ENCAP_ETHERNET;
             default:
                 break;
@@ -1079,6 +1090,14 @@ const char* ttl_get_function_name(uint16_t addr) {
                 return "Serial5";
             case TTL_LOGGER_TDA4x_FUNCTION_SERIAL6:
                 return "Serial6";
+            case TTL_LOGGER_TDA4x_FUNCTION_SERIAL7:
+                return "Serial7";
+            case TTL_LOGGER_TDA4x_FUNCTION_SERIAL8:
+                return "Serial8";
+            case TTL_LOGGER_TDA4x_FUNCTION_SERIAL9:
+                return "Serial9";
+            case TTL_LOGGER_TDA4x_FUNCTION_SERIAL10:
+                return "Serial10";
             case TTL_LOGGER_TDA4x_FUNCTION_ANALOGIN1:
                 return "AnalogIn1";
             case TTL_LOGGER_TDA4x_FUNCTION_ANALOGIN2:
@@ -1099,6 +1118,17 @@ const char* ttl_get_function_name(uint16_t addr) {
                 return "KL15";
             case TTL_LOGGER_TDA4x_FUNCTION_KL30IN:
                 return "KL30";
+            case TTL_LOGGER_TDA4x_FUNCTION_FLEXRAY1A:
+            case TTL_LOGGER_TDA4x_FUNCTION_FLEXRAY1B:
+            case TTL_LOGGER_TDA4x_FUNCTION_FLEXRAY1AB:
+                return "FlexRay1";
+            case TTL_LOGGER_TDA4x_FUNCTION_CAN12:
+                return "CAN12";
+            case TTL_LOGGER_TDA4x_FUNCTION_CAN13:
+                return "CAN13";
+            case TTL_LOGGER_TDA4x_FUNCTION_CAN14:
+                return "CAN14";
+
             default:
                 break;
             }
@@ -1176,6 +1206,20 @@ const char* ttl_get_function_name(uint16_t addr) {
                 return "Serial5";
             case TTL_LOGGER_FPGAA_FUNCTION_SERIAL6:
                 return "Serial6";
+            case TTL_LOGGER_FPGAA_FUNCTION_SERIAL7:
+                return "Serial7";
+            case TTL_LOGGER_FPGAA_FUNCTION_SERIAL8:
+                return "Serial8";
+            case TTL_LOGGER_FPGAA_FUNCTION_SERIAL9:
+                return "Serial9";
+            case TTL_LOGGER_FPGAA_FUNCTION_SERIAL10:
+                return "Serial10";
+            case TTL_LOGGER_FPGAA_FUNCTION_CAN12:
+                return "CAN12";
+            case TTL_LOGGER_FPGAA_FUNCTION_CAN13:
+                return "CAN13";
+            case TTL_LOGGER_FPGAA_FUNCTION_CAN14:
+                return "CAN14";
             default:
                 break;
             }
@@ -1188,42 +1232,42 @@ const char* ttl_get_function_name(uint16_t addr) {
             case TTL_LOGGER_FPGAB_FUNCTION_ETHB_CH1:
             case TTL_LOGGER_FPGAB_FUNCTION_ETHB_CH2:
                 return "EthernetB";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHA_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHA_CH2:
-                return "AutomotiveEthernetA";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHB_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHB_CH2:
-                return "AutomotiveEthernetB";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHC_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHC_CH2:
-                return "AutomotiveEthernetC";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHD_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHD_CH2:
-                return "AutomotiveEthernetD";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHE_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHE_CH2:
-                return "AutomotiveEthernetE";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHF_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHF_CH2:
-                return "AutomotiveEthernetF";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHG_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHG_CH2:
-                return "AutomotiveEthernetG";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHH_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHH_CH2:
-                return "AutomotiveEthernetH";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHI_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHI_CH2:
-                return "AutomotiveEthernetI";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHJ_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHJ_CH2:
-                return "AutomotiveEthernetJ";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHK_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHK_CH2:
-                return "AutomotiveEthernetK";
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHL_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHL_CH2:
-                return "AutomotiveEthernetL";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1a_CH2:
+                return "AutomotiveEthernet1a";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1b_CH2:
+                return "AutomotiveEthernet1b";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2a_CH2:
+                return "AutomotiveEthernet2a";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2b_CH2:
+                return "AutomotiveEthernet2b";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3a_CH2:
+                return "AutomotiveEthernet3a";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3b_CH2:
+                return "AutomotiveEthernet3b";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4a_CH2:
+                return "AutomotiveEthernet4a";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4b_CH2:
+                return "AutomotiveEthernet4b";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5a_CH2:
+                return "AutomotiveEthernet5a";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5b_CH2:
+                return "AutomotiveEthernet5b";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6a_CH2:
+                return "AutomotiveEthernet6a";
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6b_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6b_CH2:
+                return "AutomotiveEthernet6b";
             default:
                 break;
             }
@@ -2415,12 +2459,12 @@ ttl_is_master_slave_relation_correct(uint16_t master, uint16_t slave) {
         case TTL_LOGGER_DEVICE_FPGAB:
             switch (function) {
             case TTL_LOGGER_FPGAB_FUNCTION_ETHA_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHA_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHC_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHE_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHG_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHI_CH1:
-            case TTL_LOGGER_FPGAB_FUNCTION_AETHK_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH1a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH2a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH3a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH4a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH5a_CH1:
+            case TTL_LOGGER_FPGAB_FUNCTION_AETH6a_CH1:
                 return (slave == (master + 1));
             default:
                 break;
