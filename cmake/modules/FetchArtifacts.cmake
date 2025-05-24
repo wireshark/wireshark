@@ -19,8 +19,13 @@ set(DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/_download)
 file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
 set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-master)
 file(MAKE_DIRECTORY ${ARTIFACTS_DIR})
+file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/etc/xml)
 list(APPEND CMAKE_PREFIX_PATH ${ARTIFACTS_DIR})
 set(manifest_file ${ARTIFACTS_DIR}/manifest.txt)
+
+# Make sure we look for our fetched artifacts first.
+set(Asciidoctor_ROOT ${ARTIFACTS_DIR})
+set(WIRESHARK_XML_CATALOG_PATH ${ARTIFACTS_DIR}/etc/xml/catalog.xml)
 
 if(APPLE)
   set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
@@ -29,13 +34,19 @@ else()
   message(FATAL_ERROR "No artifacts for this system")
 endif()
 
-
 set(artifacts)
+set(external_artifacts)
 
 function(add_artifact archive_path sha256_hash)
   # XXX Should this be a list of lists instead?
   list(APPEND artifacts "${archive_path}:${sha256_hash}")
   set(artifacts ${artifacts} PARENT_SCOPE)
+endfunction()
+
+function(add_external_artifact archive_url sha256_hash destination_subdir)
+  # XXX Should this be a list of lists instead?
+  list(APPEND external_artifacts "${archive_url}:${sha256_hash}:${destination_subdir}")
+  set(external_artifacts ${external_artifacts} PARENT_SCOPE)
 endfunction()
 
 # ExternalProject_Add isn't a good choice here because it assumes that
@@ -63,8 +74,30 @@ function(download_artifacts)
   endforeach()
 endfunction()
 
+function(download_external_artifacts)
+  foreach(external_artifact ${external_artifacts})
+    string(REGEX MATCH "(https://[^:]+):([^:]+):([^:]+)" _ "${external_artifact}")
+    set(archive_url ${CMAKE_MATCH_1})
+    set(sha256_hash ${CMAKE_MATCH_2})
+    set(destination_subdir ${CMAKE_MATCH_3})
+    get_filename_component(archive_file ${archive_url} NAME)
+    message(STATUS "Fetching ${archive_file}")
+    file(DOWNLOAD
+      ${archive_url}
+      ${DOWNLOAD_DIR}/${archive_file}
+      EXPECTED_HASH SHA256=${sha256_hash}
+      # SHOW_PROGRESS
+    )
+    file(ARCHIVE_EXTRACT
+      INPUT ${DOWNLOAD_DIR}/${archive_file}
+      DESTINATION ${ARTIFACTS_DIR}/${destination_subdir}
+    )
+  endforeach()
+endfunction()
+
 function(update_artifacts)
-  list(JOIN artifacts "\n" list_manifest_contents)
+  set(all_artifacts ${artifacts} ${external_artifacts})
+  list(JOIN all_artifacts "\n" list_manifest_contents)
   set(file_manifest_contents)
 if (EXISTS ${manifest_file})
 # IS_READABLE requires CMake 3.29
@@ -80,11 +113,13 @@ if (EXISTS ${manifest_file})
     file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
   endforeach()
   download_artifacts()
+  download_external_artifacts()
   # XXX Should we generate the manifest file using configure_file?
   file(WRITE ${manifest_file} ${list_manifest_contents})
 endfunction()
 
 if(APPLE)
+  add_artifact(asciidoctor/asciidoctor-bundle-2.0.23-1-macos-x86_64.tar.xz c033d8873a1c9833fadf5ce97be5fc7321c4bef8485776a27cd6284233641301)
   add_artifact(bcg729/bcg729-1.1.1-1-macos-universal.tar.xz 0e302ac5816fbff353d33a428d25eeaad04d5e2ccd6df20a0003f14431aa63a4)
   add_artifact(brotli/brotli-1.1.0-1-macos-universal.tar.xz afb52675ff9d26a44776b1c53ddb03cf6079ee452ee12a6d2844a58256e7704b)
   add_artifact(c-ares/c-ares-1.34.5-1-macos-universal.tar.xz 158fc19f00529a568738cad60c47bc19374de18935fe12ac5f39364ba2cb0b90)
@@ -109,6 +144,10 @@ if(APPLE)
   add_artifact(zlib-ng/zlib-ng-2.2.4-1-macos-universal.tar.xz 52f1f054be4c97320b4417ebad5d4d8e278f615efac8fbec94abb4986100cbb0)
   add_artifact(zstd/zstd-1.5.7-1-macos-universal.tar.xz a7bfa6fdc228badbe30da5b89fc875e1c9bad52ee692df117aba9721798249d0)
 
+  add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 etc/xml)
+
   if(BUILD_stratoshark OR BUILD_falcodump)
     add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.20.0-1-macos-universal.tar.xz d6ee1e8a03ca986dc082685f13e95c573f13ab8d957b792ff281321226712c8c)
     add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-05-07-1-macos-universal.tar.xz 8253e9239db3217dc58ba246a59cd7452f5acecc6c514c967540087016843ee9)
@@ -116,3 +155,8 @@ if(APPLE)
 endif()
 
 update_artifacts()
+
+unset(manifest_file)
+unset(download_prefix)
+unset(artifacts)
+unset(external_artifacts)
