@@ -411,7 +411,9 @@ struct quic_info_data {
     uint32_t        version;
     wmem_list_t     *server_endpoints; /**< List of server endpoints, primarily used with 0 length DCIDs */
     bool            skip_decryption : 1; /**< Set to 1 if no keys are available. */
-    bool            client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. */
+    bool            client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. Set to 0 if a Retry packet has been received and the DCID might need to be cleared. */
+    bool            client_retry_processed : 1; /**< Set to 1 if the client has responded to a Retry packet. */
+    bool            server_initial_seen : 1; /**< Set to 1 if the server has responded to a client Initial with its own Initial. */
     bool            client_loss_bits_recv : 1; /**< The client is able to read loss bits info */
     bool            client_loss_bits_send : 1; /**< The client wants to send loss bits info */
     bool            server_loss_bits_recv : 1; /**< The server is able to read loss bits info */
@@ -437,6 +439,7 @@ struct quic_info_data {
     quic_cid_item_t client_cids;    /**< SCID of client from first Initial Packet. */
     quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
     quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
+    quic_cid_t      client_odcid;   /**< Original DCID, if there has been a Retry seen. */
     dissector_handle_t app_handle;  /**< Application protocol handle (NULL if unknown). */
     dissector_handle_t zrtt_app_handle;  /**< Application protocol handle (NULL if unknown) for 0-RTT data. */
     wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (uint64_t -> quic_stream_state), sent by the client. */
@@ -1089,6 +1092,9 @@ quic_cids_has_match(const quic_cid_item_t *items, quic_cid_t *raw_cid)
         // actual CID, so accept any prefix match against "cid".
         // Note that this explicitly matches an empty CID.
         if (raw_cid->len >= cid->len && !memcmp(raw_cid->cid, cid->cid, cid->len)) {
+            // For multipath, set the sequence number and path id
+            // XXX - It might be better to return the match so that
+            // raw_cid could be a const pointer?
             raw_cid->seq_num = cid->seq_num;
             raw_cid->path_id = cid->path_id;
             return true;
@@ -1423,7 +1429,7 @@ quic_connection_add_cid(quic_info_data_t *conn, quic_cid_t *new_cid, bool from_s
 static void
 quic_connection_create_or_update(quic_info_data_t **conn_p,
                                  packet_info *pinfo, uint32_t long_packet_type,
-                                 uint32_t version, const quic_cid_t *scid,
+                                 uint32_t version, quic_cid_t *scid,
                                  const quic_cid_t *dcid, bool from_server)
 {
     quic_info_data_t *conn = *conn_p;
@@ -1441,32 +1447,101 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
                 // new Initial cipher and clear the first server CID such that
                 // the next server Initial Packet can link the connection with
                 // that new SCID.
+                // XXX - If it's responding to a Retry Packet, it should have
+                // a DCID and Retry token provided in a Retry Packet that
+                // caused client_dcid_set to be set to false. If not, then
+                // the Client may be ignoring the Retry Packet (whether as
+                // a duplicate for the Server, or injected by an attacker.)
+                // XXX - Can the server provided connection ID (and hence the
+                // new DCID here) be zero-length?
+                wmem_map_remove(quic_initial_connections, &conn->client_dcid_initial);
                 quic_connection_update_initial(conn, scid, dcid);
                 wmem_map_remove(quic_server_connections, &conn->server_cids.data);
                 memset(&conn->server_cids, 0, sizeof(quic_cid_t));
+                // The client is only allowed to respond to a Retry packet
+                // once; subsequent ones MUST be ignored.
+                conn->client_retry_processed = true;
             }
             break;
         }
         /* fallthrough */
-    case QUIC_LPT_RETRY:
     case QUIC_LPT_HANDSHAKE:
-        // Remember CID from first server Retry/Handshake packet
+        // Remember CID from first server Handshake packet
         // (or from the first server Initial packet, since draft -13).
-        if (from_server && conn) {
-            if (long_packet_type == QUIC_LPT_RETRY) {
-                // Retry Packet: the next Initial Packet from the
-                // client should start a new cryptographic handshake. Erase the
-                // current "Initial DCID" such that the next client Initial
-                // packet populates the new value.
-                wmem_map_remove(quic_initial_connections, &conn->client_dcid_initial);
-                memset(&conn->client_dcid_initial, 0, sizeof(quic_cid_t));
-                conn->client_dcid_set = false;
-            }
-            if (conn->server_cids.data.len == 0 && scid->len) {
+        if (from_server && conn && !conn->server_initial_seen) {
+            conn->server_initial_seen = true;
+            if (scid->len) {
                 memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
                 quic_cids_insert(&conn->server_cids.data, conn, true);
+                // If the server sends an Initial packet, it must have
+                // received and accepted a client Initial packet. That
+                // means that we shouldn't erase the client DCID (i.e.,
+                // any Retry packets after the client Initial were duplicates
+                // or possibly injected by an attacker.)
+                conn->client_dcid_set = true;
             }
         }
+        break;
+    case QUIC_LPT_RETRY:
+        // If the client has already responded to one Retry packet with an
+        // Initial packet, it MUST discard any subsequent Retry packets that
+        // it receives.
+        // https://datatracker.ietf.org/doc/html/rfc9000#section-17.2.5.2-1
+        // It MUST not change its Destination Connection ID in response to
+        // a Retry packet after having already processed another Retry packet.
+        // https://datatracker.ietf.org/doc/html/rfc9000#section-7.2-7
+        // So we shouldn't do any of the handling below if a Retry packet
+        // has already been processed.
+        // (XXX - What if we've already seen a Server Initial packet? Also
+        // skip things below & warn that either packets are out of order or
+        // there's a collision/MitM?)
+        if (from_server && conn && !conn->client_retry_processed) {
+            // The next Initial Packet from the client should start a new
+            // cryptographic handshake. Indicate that the next client Initial
+            // Packet should replace the current "Initial DCID".
+            //
+            // However, save it for verification of the Retry Integrity Tag.
+            // Save it with the connection, because there could be multiple
+            // Retry packets, up to one per UDP datagram (e.g., if the
+            // TLS Client Hello is large enough to require more than one
+            // QUIC Client Initial packet.) Those will all use the same
+            // ODCID, because a server is not allowed to send another Retry
+            // after the client responds with a Retry token.
+            // https://datatracker.ietf.org/doc/html/rfc9000#section-8.1.2-2
+            if (conn->client_dcid_set) {
+                memcpy(&conn->client_odcid, &conn->client_dcid_initial, sizeof(quic_cid_t));
+                // We don't know for certain that the client won't ignore this
+                // Retry packet, so don't actually remove and erase the initial
+                // connection yet.
+                //wmem_map_remove(quic_initial_connections, &conn->client_dcid_initial);
+                //memset(&conn->client_dcid_initial, 0, sizeof(quic_cid_t));
+                conn->client_dcid_set = false;
+            }
+            if (scid->len) {
+                // A client MUST change the DCID it uses only in response
+                // to the first received Initial or Retry packet.
+                // https://datatracker.ietf.org/doc/html/rfc9000#section-7.2-8
+                // However, if the server sends more than one RETRY in rapid
+                // succession (e.g., in response to a fragmented Client Hello),
+                // the client might receive the second one first. It doesn't
+                // hurt much to save both SCIDs for connection tracking.
+                if (conn->server_cids.data.len == 0) {
+                    memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
+                    quic_cids_insert(&conn->server_cids.data, conn, true);
+                } else {
+                    quic_connection_add_cid(conn, scid, true);
+                }
+            }
+        }
+        // XXX - else if there's no connection (we missed the original
+        // Client Initial), should we remember the SCID or create a connection
+        // somehow so that we know if future Initial packets are responding
+        // to this? If we're missing the earlier packets, we can't tell if a
+        // the token with a Client Initial packet is a Retry token or a token
+        // provided in a NEW_TOKEN frame in a previous connections.
+        // https://datatracker.ietf.org/doc/html/rfc9000#section-8.1.1-1
+        // We don't have a function to create a connection from anything
+        // other than a Client Initial.
         break;
     }
 }
@@ -4648,7 +4723,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned    offset = 0;
     quic_datagram *dgram_info = NULL;
     quic_packet_info_t *quic_packet = NULL;
-    quic_cid_t  real_retry_odcid = {.len=0}, *retry_odcid = NULL;
+    quic_cid_t *retry_odcid = NULL;
     quic_cid_t  first_packet_dcid = {.len=0}; /* DCID of the first packet of the datagram */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
@@ -4671,15 +4746,14 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
         conn = quic_connection_find(pinfo, long_packet_type, &dcid, &from_server);
-        if (conn && long_packet_type == QUIC_LPT_RETRY && conn->client_dcid_set) {
-            // Save the original client DCID before erasure.
-            real_retry_odcid = conn->client_dcid_initial;
-            retry_odcid = &real_retry_odcid;
-        }
         if (!conn && tvb_bytes_exist(tvb, -16, 16) && (conn = quic_find_stateless_reset_token(pinfo, tvb, &from_server))) {
             dgram_info->stateless_reset = true;
         } else {
             quic_connection_create_or_update(&conn, pinfo, long_packet_type, version, &scid, &dcid, from_server);
+        }
+        if (conn && long_packet_type == QUIC_LPT_RETRY && conn->client_odcid.len) {
+            // We have the original client DCID.
+            retry_odcid = &conn->client_odcid;
         }
         dgram_info->conn = conn;
         dgram_info->from_server = from_server;

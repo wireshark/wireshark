@@ -949,6 +949,16 @@ class TestDissectQuic:
         self.check_quic_tls_handshake_reassembly(
             cmd_tshark, capture_file, test_env, extraArgs=['-2'])
 
+    def test_quic_multiple_retry(self, cmd_tshark, capture_file, test_env):
+        '''Verify that a second Retry is correctly ignored.'''
+        stdout = subprocess.check_output([cmd_tshark,
+                               '-r', capture_file('quic-double-retry.pcapng.gz'),
+                               '-zexpert,warn',
+                               ],
+                               encoding='utf-8', env=test_env)
+        assert not grep_output(stdout, 'Warns')
+        assert not grep_output(stdout, 'Errors')
+
 class TestDecompressSmb2:
     @staticmethod
     def extract_compressed_payload(cmd_tshark, capture_file, test_env, frame_num):
