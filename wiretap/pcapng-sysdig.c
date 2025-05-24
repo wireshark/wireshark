@@ -34,6 +34,21 @@ sysdig_has_nparams(unsigned block_type) {
         || block_type == BLOCK_TYPE_SYSDIG_EVF_V2_LARGE;
 }
 
+/**
+ * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).
+ */
+void
+wtap_setup_syscall_rec(wtap_rec* rec)
+{
+    rec->rec_type = REC_TYPE_SYSCALL;
+    // We handle multiple types of data here, so use "Event"
+    // instead of "System Call"
+    //
+    // XXX - the wiretap code could set it, if it knows
+    // an appropriate string.
+    rec->rec_type_name = "Event";
+}
+
  // Preamble:
  //   uint16_t CPU ID
  //   uint32_t Flags (optional, sysdig_has_flags)
@@ -346,6 +361,33 @@ pcapng_read_meta_event_block(wtap* wth _U_, FILE_T fh, uint32_t block_read _U_,
     return true;
 }
 
+static void sysdig_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
+static void mev_create(wtap_block_t block)
+{
+    block->mandatory_data = g_new0(wtapng_meta_event_mandatory_t, 1);
+}
+
+static void mev_free_mand(wtap_block_t block)
+{
+    wtapng_meta_event_mandatory_t* mand = (wtapng_meta_event_mandatory_t*)block->mandatory_data;
+    g_free(mand->mev_data);
+}
+
+static void mev_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
+{
+    wtapng_meta_event_mandatory_t* src = (wtapng_meta_event_mandatory_t*)src_block->mandatory_data;
+    wtapng_meta_event_mandatory_t* dst = (wtapng_meta_event_mandatory_t*)dest_block->mandatory_data;
+    dst->mev_block_type = src->mev_block_type;
+    dst->mev_data_len = src->mev_data_len;
+    g_free(dst->mev_data);
+    dst->mev_data = (uint8_t*)g_memdup2(src->mev_data, src->mev_data_len);
+}
+
 void register_sysdig(void)
 {
     static pcapng_block_type_handler_t MI = { BLOCK_TYPE_SYSDIG_MI, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
@@ -371,6 +413,17 @@ void register_sysdig(void)
     static pcapng_block_type_handler_t IL_V2 = { BLOCK_TYPE_SYSDIG_IL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
     static pcapng_block_type_handler_t UL_V2 = { BLOCK_TYPE_SYSDIG_UL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
 
+    static wtap_blocktype_t sysdig_block = { WTAP_BLOCK_SYSDIG_EVENT, "Sysdig event", "Sysdig Event Block", sysdig_create, NULL, NULL, NULL };
+    static wtap_blocktype_t mev_block = { WTAP_BLOCK_META_EVENT, "MEV", "Meta Event Block", mev_create, mev_free_mand, mev_copy_mand, NULL };
+
+    /*
+     * Register the Sysdig block and the (no) options that can appear in it.
+     */
+    wtap_opttype_block_register(&sysdig_block);
+    /*
+     * Register the Sysdig MEV, currently no options are defined.
+     */
+    wtap_opttype_block_register(&mev_block);
 
     register_pcapng_block_type_handler(&MI);
     register_pcapng_block_type_handler(&PL_V1);

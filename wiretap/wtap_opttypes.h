@@ -570,6 +570,13 @@ wtap_block_array_unref(GArray* block_array);
 WS_DLL_PUBLIC void
 wtap_block_array_ref(GArray* block_array);
 
+/** Register a block type handler
+ *
+ * @param[in] blocktype Block type to be registered
+ */
+WS_DLL_PUBLIC void
+wtap_opttype_block_register(wtap_blocktype_t* blocktype);
+
 /** Provide type of a block
  *
  * @param[in] block Block from which to retrieve mandatory data

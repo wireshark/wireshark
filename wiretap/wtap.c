@@ -1784,21 +1784,6 @@ wtap_setup_ft_specific_report_rec(wtap_rec *rec, int file_type_subtype,
 }
 
 /**
- * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).
- */
-void
-wtap_setup_syscall_rec(wtap_rec *rec)
-{
-	rec->rec_type = REC_TYPE_SYSCALL;
-	// We handle multiple types of data here, so use "Event"
-	// instead of "System Call"
-	//
-	// XXX - the wiretap code could set it, if it knows
-	// an appropriate string.
-	rec->rec_type_name = "Event";
-}
-
-/**
  * Set up a wtap_rec for a systemd journal export entry
  * (REC_TYPE_SYSTEMD_JOURNAL_EXPORT).
  */
