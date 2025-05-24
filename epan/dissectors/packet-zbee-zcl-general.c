@@ -16301,9 +16301,13 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
     offset++;
 
-    /* All touchlink commands begin with a transaction identifier.  */
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /* All commands in the touchlink commissioning command set (0x00-0x3f)
+     * are cluster inter-PAN command frames and begin with a transaction
+     * identifier. */
+    if (cmd_id < 0x40) {
+        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
