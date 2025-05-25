@@ -1032,19 +1032,26 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 	hfinfo1 = sttype_field_hfinfo(st_arg1);
 	ftype1 = sttype_field_ftenum(st_arg1);
 	if (!can_func(ftype1)) {
-		/* For "matches", implicitly convert to the value string, if
-		 * there is one. (FT_FRAMENUM and FT_PROTOCOL have a pointer
-		 * to something other than a value string in their ->strings
-		 * member, though we can't get here for a FT_PROTOCOL because
-		 * it supports "matches" on its bytes without conversion.)
+		/* For "matches" or "contains", implicitly convert to the value
+		 * string, if there is one. (FT_FRAMENUM and FT_PROTOCOL have a
+		 * pointer to something other than a value string in their
+		 * ->strings member, though we can't get here for a FT_PROTOCOL
+		 * because it supports comparisons on its bytes without
+		 * conversion.)
 		 */
-		if (st_op == STNODE_OP_MATCHES && hfinfo1->strings != NULL && hfinfo1->type != FT_FRAMENUM && hfinfo1->type != FT_PROTOCOL) {
-			sttype_field_set_value_string(st_arg1, true);
-		}
-		else {
+		switch (st_op) {
+		case STNODE_OP_MATCHES:
+		case STNODE_OP_CONTAINS:
+			if (hfinfo1->strings != NULL && hfinfo1->type != FT_FRAMENUM && hfinfo1->type != FT_PROTOCOL) {
+				sttype_field_set_value_string(st_arg1, true);
+				break;
+			}
+		/* FALLTHROUGH */
+		default:
 			FAIL(dfw, st_arg1, "%s (type=%s) cannot participate in %s comparison.",
 					hfinfo1->abbrev, ftype_pretty_name(ftype1),
 					stnode_todisplay(st_node));
+			break;
 		}
 	}
 
@@ -1060,6 +1067,8 @@ check_relation_LHS_FIELD(dfwork_t *dfw, stnode_op_t st_op,
 		}
 		/* Do this check even though you'd think that if
 		 * they're compatible, then can_func() would pass. */
+		/* XXX - Test this before compatible types and implicitly
+		 * convert to a value string in the STNODE_OP_CONTAINS case? */
 		if (!can_func(ftype2)) {
 			FAIL(dfw, st_arg2, "%s (type=%s) cannot participate in specified comparison.",
 					stnode_todisplay(st_arg2), ftype_pretty_name(ftype2));

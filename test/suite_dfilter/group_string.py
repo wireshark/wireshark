@@ -190,6 +190,11 @@ class TestDfilterString:
         dfilter = 'tcp.checksum.status == Unverified'
         checkDFilterSucceed(dfilter, 'Writing value strings without double quotes is deprecated')
 
+    def test_value_string_4(self, checkDFilterCount):
+        # Implicit conversion to value string with contains
+        dfilter = 'ip.proto contains "P"'
+        checkDFilterCount(dfilter, 1)
+
 class TestDfilterStringz:
     trace_file = "tftp.pcap"
 

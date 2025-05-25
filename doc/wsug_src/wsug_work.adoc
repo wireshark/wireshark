@@ -567,6 +567,13 @@ The meaning of != (all not equal) was changed in Wireshark 3.6.
 Before it used to mean "any not equal".
 ====
 
+////
+Mention that contains doesn't match the empty string on the right side?
+It always matches an empty byte array; there's no way to write an empty
+byte array literal, but it is possible for a dissector to add a "missing"
+zero-length FT_BYTES field to the tree.
+////
+
 All protocol fields have a type. <<ChWorkFieldTypes>> provides a list
 of the types with examples of how to use them in display filters.
 
@@ -770,7 +777,7 @@ frame[-4:] == 0.1.2.3
 The two examples above both check the last four bytes of a frame.
 
 Slices of string fields yield strings, and are indexed on codepoint
-boundaries after conversation of the string to UTF-8, not bytes.
+boundaries after conversion of the string to UTF-8, not bytes.
 ----
 http.content_type[0:4] == "text"
 smpp.message_text[:10] == "Абвгдеёжзи"
@@ -853,7 +860,7 @@ smpp.message[:8] == "Test"
 ----
 
 The first filter above does not match because of operator precedence
-left-to-right; `+@smpp.message_text` is converted to bytes before the
+left-to-right; `+@smpp.message_text+` is converted to bytes before the
 slice operator is applied, so the length of the necessary slice is 8.
 The other filters do not match because the literal string "Test" is
 always converted to its 4 octet UTF-8 representation when comparing
@@ -1025,6 +1032,45 @@ syntactically distinct. Field references, like other complex filters, make
 excellent use cases for <<ChWorkDefineFilterMacrosSection,macros>>,
 <<ChWorkDefineFilterSection,saved filters>>, and
 <<ChCustFilterButtons,filter buttons>>
+
+==== Implicit type conversions
+
+In addition to the implicit conversion of string literals for comparison
+with byte array fields (including protocols) mentioned above, integer
+and boolean fields with value strings can be compared with one of the strings
+that corresponds with a value.
+
+If there is a unique reverse mapping from the string literal into a
+numeric value, the string is converted into that number and the
+comparison function is applied using arithmetic rules. If the mapping
+is not unique, then equality and inequality can be tested, but not the
+ordered comparisons.
+
+This is in contrast with the `string()` and `vals()` functions, which
+convert the field value to a string and applies string (lexicographic)
+comparisons, as well as work with all operators that take strings.
+Therefore the following two filters give the same result:
+
+    gtpv2.message_type <= 35
+    gtpv2.message_type <= "Modify Bearer Response"
+
+whereas
+
+    vals(gtpv2.message_type) <= "Modify Bearer Response"
+
+matches all messages whose value string precedes "Modify Bearer Response"
+in lexicographical order, and
+
+    string(gtpv2.message_type) <= "35"
+
+matches all messages such that the message type comes before "35" in
+lexicographical order, i.e. would also match "170" (the message type
+for "Release Access Bearers Request.")
+
+For the "contains" and "matches" operators, which operate on strings
+(or byte arrays in the case of "contains"), fields on the left hand
+side are implicitly converted to their value strings for comparison.
+(To compare a field with a byte array, use the raw/at (@) operator.)
 
 [#ChWorkBuildDisplayFilterTransitional]
 

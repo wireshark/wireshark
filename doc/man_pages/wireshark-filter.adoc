@@ -523,9 +523,11 @@ The set of values can also contain ranges:
 
 === Implicit type conversions
 
-Fields which are sequences of bytes, including protocols, are implicitly
-converted to strings for comparisons against (double quoted) literal strings
-and raw strings.
+When fields which are sequences of bytes, including protocols, are compared
+with (double quoted) literal strings and raw strings, the literals are converted
+to their byte representation using the UTF-8 encoding. (To be precise, the
+original byte sequence is used, not the canonical normalized forms, so the
+precomposed é (U+00E9) and decomposed é (U+0065 U+0301) can match differently.)
 
 So, for instance, the following filters are equivalent:
 
@@ -567,7 +569,7 @@ comparison function is applied using arithmetic rules. If the mapping
 is not unique, then equality and inequality can be tested, but not the
 ordered comparisons.
 
-This is in contrast to the `string()` and `vals()` function, which
+This is in contrast with the `string()` and `vals()` functions, which
 convert the field value to a string and applies string (lexicographic)
 comparisons, as well as work with all operators that take strings.
 Therefore the following two filters give the same result:
@@ -587,6 +589,11 @@ in lexicographical order, and
 matches all messages such that the message type comes before "35" in
 lexicographical order, i.e. would also match "170" (the message type
 for "Release Access Bearers Request.")
+
+For the "contains" and "matches" operators, which operate on strings
+(or byte arrays in the case of "contains"), fields on the left hand
+side are implicitly converted to their value strings for comparison.
+(To compare a field with a byte array, use the raw/at (@) operator.)
 
 === Bitwise operators
 
