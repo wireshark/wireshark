@@ -33,6 +33,8 @@ extern "C" {
 #define LONGOPT_BASE_APPLICATION    3000
 // Base value for GUI specific long options
 #define LONGOPT_BASE_GUI            4000
+// Base value for logging related long options
+#define LONGOPT_BASE_WSLOG          5000
 
 #define LONGOPT_READ_CAPTURE_COMMON \
     {"read-file", ws_required_argument, NULL, 'r' }, \
