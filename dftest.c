@@ -44,6 +44,7 @@
 #include "wsutil/cmdarg_err.h"
 #include "ui/failure_message.h"
 #include "wsutil/version_info.h"
+#include "cli_main.h"
 
 static int opt_verbose;
 static int opt_debug_level; /* currently up to 2 */

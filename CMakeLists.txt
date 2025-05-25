@@ -3295,6 +3295,7 @@ if(BUILD_dftest)
 		epan
 	)
 	set(dftest_FILES
+		$<TARGET_OBJECTS:cli_main>
 		dftest.c
 	)
 	set_executable_resources(dftest "Dftest")
