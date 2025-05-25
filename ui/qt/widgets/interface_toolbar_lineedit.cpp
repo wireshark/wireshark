@@ -106,7 +106,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "}"
             )
             .arg(apsz.width() + frameWidth)
-            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
+            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name());
 
 #ifdef Q_OS_MAC
     style_sheet += QStringLiteral(

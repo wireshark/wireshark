@@ -76,9 +76,12 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     pref_client_bg_ = prefFromPrefPtr(&prefs.st_client_bg);
     pref_server_fg_ = prefFromPrefPtr(&prefs.st_server_fg);
     pref_server_bg_ = prefFromPrefPtr(&prefs.st_server_bg);
-    pref_valid_bg_ = prefFromPrefPtr(&prefs.gui_text_valid);
-    pref_invalid_bg_ = prefFromPrefPtr(&prefs.gui_text_invalid);
-    pref_deprecated_bg_ = prefFromPrefPtr(&prefs.gui_text_deprecated);
+    pref_valid_fg_ = prefFromPrefPtr(&prefs.gui_filter_valid_fg);
+    pref_valid_bg_ = prefFromPrefPtr(&prefs.gui_filter_valid_bg);
+    pref_invalid_fg_ = prefFromPrefPtr(&prefs.gui_filter_invalid_fg);
+    pref_invalid_bg_ = prefFromPrefPtr(&prefs.gui_filter_invalid_bg);
+    pref_deprecated_fg_ = prefFromPrefPtr(&prefs.gui_filter_deprecated_fg);
+    pref_deprecated_bg_ = prefFromPrefPtr(&prefs.gui_filter_deprecated_bg);
 
     cur_font_.fromString(prefs_get_string_value(pref_qt_gui_font_name_, pref_stashed));
 
@@ -296,33 +299,45 @@ void FontColorPreferencesFrame::updateWidgets()
     // Sample valid filter
     //
     QColor ss_bg = ColorUtils::fromColorT(prefs_get_color_value(pref_valid_bg_, pref_stashed));
+    QColor ss_fg = ColorUtils::fromColorT(prefs_get_color_value(pref_valid_fg_, pref_stashed));
     ui->validFilterBGPushButton->setStyleSheet(color_button_ss.arg(
                                                    ColorUtils::fromColorT(prefs_get_color_value(pref_valid_bg_, pref_stashed)).name())
                                                    .arg(0));
+    ui->validFilterFGPushButton->setStyleSheet(color_button_ss.arg(
+                                                 ColorUtils::fromColorT(prefs_get_color_value(pref_valid_fg_, pref_stashed)).name())
+                                                   .arg(margin));
     ui->validFilterSampleLineEdit->setStyleSheet(sample_text_ss.arg(
-                                                     ColorUtils::contrastingTextColor(ss_bg).name(),
+                                                     ss_fg.name(),
                                                      ss_bg.name()));
 
     //
     // Sample invalid filter
     //
     ss_bg = ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_bg_, pref_stashed));
+    ss_fg = ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_fg_, pref_stashed));
     ui->invalidFilterBGPushButton->setStyleSheet(color_button_ss.arg(
                                                      ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_bg_, pref_stashed)).name())
                                                      .arg(0));
+    ui->invalidFilterFGPushButton->setStyleSheet(color_button_ss.arg(
+                                                     ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_fg_, pref_stashed)).name())
+                                                       .arg(margin));
     ui->invalidFilterSampleLineEdit->setStyleSheet(sample_text_ss.arg(
-                                                       ColorUtils::contrastingTextColor(ss_bg).name(),
+                                                       ss_fg.name(),
                                                        ss_bg.name()));
 
     //
     // Sample warning filter
     //
     ss_bg = ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_bg_, pref_stashed));
+    ss_fg = ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_fg_, pref_stashed));
     ui->deprecatedFilterBGPushButton->setStyleSheet(color_button_ss.arg(
                                                         ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_bg_, pref_stashed)).name())
                                                         .arg(0));
+    ui->deprecatedFilterFGPushButton->setStyleSheet(color_button_ss.arg(
+                                                        ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_fg_, pref_stashed)).name())
+                                                        .arg(margin));
     ui->deprecatedFilterSampleLineEdit->setStyleSheet(sample_text_ss.arg(
-                                                          ColorUtils::contrastingTextColor(ss_bg).name(),
+                                                          ss_fg.name(),
                                                           ss_bg.name()));
 }
 
@@ -451,12 +466,27 @@ void FontColorPreferencesFrame::on_validFilterBGPushButton_clicked()
     changeColor(pref_valid_bg_);
 }
 
+void FontColorPreferencesFrame::on_validFilterFGPushButton_clicked()
+{
+    changeColor(pref_valid_fg_);
+}
+
 void FontColorPreferencesFrame::on_invalidFilterBGPushButton_clicked()
 {
     changeColor(pref_invalid_bg_);
 }
 
+void FontColorPreferencesFrame::on_invalidFilterFGPushButton_clicked()
+{
+    changeColor(pref_invalid_fg_);
+}
+
 void FontColorPreferencesFrame::on_deprecatedFilterBGPushButton_clicked()
 {
     changeColor(pref_deprecated_bg_);
+}
+
+void FontColorPreferencesFrame::on_deprecatedFilterFGPushButton_clicked()
+{
+    changeColor(pref_deprecated_fg_);
 }

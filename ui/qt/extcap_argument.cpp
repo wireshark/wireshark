@@ -215,7 +215,7 @@ bool ExtArgSelector::isValid()
 
     if (boxSelection)
     {
-        QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+        QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
         QString cmbBoxStyle("QComboBox { background-color: %1; } ");
         boxSelection->setStyleSheet(cmbBoxStyle.arg(valid ? QString("") : lblInvalidColor));
     }
@@ -396,7 +396,7 @@ bool ExtArgRadio::isValid()
 
     /* If nothing is selected, but a selection is required, the only thing that
      * can be marked is the label */
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
     _label->setStyleSheet (label_style.arg(valid ? QString("") : lblInvalidColor));
 
     return valid;
@@ -623,7 +623,7 @@ bool ExtArgText::isValid()
         }
     }
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
     QString txtStyle("QLineEdit { background-color: %1; } ");
     textBox->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
 
@@ -863,7 +863,7 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
     if (_argument == 0 || _argument->display == 0)
         return 0;
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
 
     QString text = QString().fromUtf8(_argument->display);
 

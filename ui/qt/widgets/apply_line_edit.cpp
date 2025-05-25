@@ -126,7 +126,7 @@ void ApplyLineEdit::handleValidation(QString newText)
             )
             .arg(frameWidth + 1)
             .arg(apply_button_->sizeHint().width() + frameWidth)
-            .arg(isValidText(newText, true) ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
+            .arg(isValidText(newText, true) ? QString("") : ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name());
 
     setStyleSheet(style_sheet);
 }

@@ -183,7 +183,7 @@ bool ExtArgMultiSelect::isValid()
         }
     }
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
     QString txtStyle("QTreeView { background-color: %1; } ");
     if (viewModel != 0)
         treeView->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));

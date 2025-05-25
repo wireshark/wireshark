@@ -156,7 +156,7 @@ bool ExtcapArgumentFileSelection::isValid()
     else if (! isRequired())
         valid = true;
 
-    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
     QString txtStyle("QLineEdit { background-color: %1; } ");
     textBox->setStyleSheet(txtStyle.arg(valid ? QString("") : lblInvalidColor));
 

@@ -3372,14 +3372,20 @@ prefs_register_modules(void)
         "Filter Colorized Background",
         &prefs.gui_colorized_bg, PREF_CUSTOM, &custom_cbs, true);
 
+    prefs_register_color_preference(gui_color_module, "color_filter_fg.valid", "Valid color filter foreground",
+        "Valid color filter foreground", &prefs.gui_filter_valid_fg);
     prefs_register_color_preference(gui_color_module, "color_filter_bg.valid", "Valid color filter background",
-        "Valid color filter background", &prefs.gui_text_valid);
+        "Valid color filter background", &prefs.gui_filter_valid_bg);
 
+    prefs_register_color_preference(gui_color_module, "color_filter_fg.invalid", "Invalid color filter foreground",
+        "Invalid color filter foreground", &prefs.gui_filter_invalid_fg);
     prefs_register_color_preference(gui_color_module, "color_filter_bg.invalid", "Invalid color filter background",
-        "Invalid color filter background", &prefs.gui_text_invalid);
+        "Invalid color filter background", &prefs.gui_filter_invalid_bg);
 
+    prefs_register_color_preference(gui_color_module, "color_filter_fg.deprecated", "Deprecated color filter foreground",
+        "Deprecated color filter foreground", &prefs.gui_filter_deprecated_fg);
     prefs_register_color_preference(gui_color_module, "color_filter_bg.deprecated", "Deprecated color filter background",
-        "Deprecated color filter background", &prefs.gui_text_deprecated);
+        "Deprecated color filter background", &prefs.gui_filter_deprecated_bg);
 
     prefs_register_enum_preference(gui_module, "fileopen.style",
                        "Where to start the File Open dialog box",
@@ -4336,26 +4342,44 @@ pre_init_prefs(void)
 
     if (gui_theme_is_dark) {
         // Green, red and yellow with HSV V = 84
-        prefs.gui_text_valid.red         = 0x0000; /* dark green */
-        prefs.gui_text_valid.green       = 0x66ff;
-        prefs.gui_text_valid.blue        = 0x0000;
-        prefs.gui_text_invalid.red       = 0x66FF; /* dark red */
-        prefs.gui_text_invalid.green     = 0x0000;
-        prefs.gui_text_invalid.blue      = 0x0000;
-        prefs.gui_text_deprecated.red    = 0x66FF; /* dark yellow / olive */
-        prefs.gui_text_deprecated.green  = 0x66FF;
-        prefs.gui_text_deprecated.blue   = 0x0000;
+        prefs.gui_filter_valid_bg.red         = 0x0000; /* dark green */
+        prefs.gui_filter_valid_bg.green       = 0x66ff;
+        prefs.gui_filter_valid_bg.blue        = 0x0000;
+        prefs.gui_filter_valid_fg.red         = 0xFFFF;
+        prefs.gui_filter_valid_fg.green       = 0xFFFF;
+        prefs.gui_filter_valid_fg.blue        = 0xFFFF;
+        prefs.gui_filter_invalid_bg.red       = 0x66FF; /* dark red */
+        prefs.gui_filter_invalid_bg.green     = 0x0000;
+        prefs.gui_filter_invalid_bg.blue      = 0x0000;
+        prefs.gui_filter_invalid_fg.red       = 0xFFFF;
+        prefs.gui_filter_invalid_fg.green     = 0xFFFF;
+        prefs.gui_filter_invalid_fg.blue      = 0xFFFF;
+        prefs.gui_filter_deprecated_bg.red    = 0x66FF; /* dark yellow / olive */
+        prefs.gui_filter_deprecated_bg.green  = 0x66FF;
+        prefs.gui_filter_deprecated_bg.blue   = 0x0000;
+        prefs.gui_filter_deprecated_fg.red    = 0xFFFF;
+        prefs.gui_filter_deprecated_fg.green  = 0xFFFF;
+        prefs.gui_filter_deprecated_fg.blue   = 0xFFFF;
     } else {
         // Green, red and yellow with HSV V = 20
-        prefs.gui_text_valid.red         = 0xAFFF; /* light green */
-        prefs.gui_text_valid.green       = 0xFFFF;
-        prefs.gui_text_valid.blue        = 0xAFFF;
-        prefs.gui_text_invalid.red       = 0xFFFF; /* light red */
-        prefs.gui_text_invalid.green     = 0xAFFF;
-        prefs.gui_text_invalid.blue      = 0xAFFF;
-        prefs.gui_text_deprecated.red    = 0xFFFF; /* light yellow */
-        prefs.gui_text_deprecated.green  = 0xFFFF;
-        prefs.gui_text_deprecated.blue   = 0xAFFF;
+        prefs.gui_filter_valid_bg.red         = 0xAFFF; /* light green */
+        prefs.gui_filter_valid_bg.green       = 0xFFFF;
+        prefs.gui_filter_valid_bg.blue        = 0xAFFF;
+        prefs.gui_filter_valid_fg.red         = 0x0000;
+        prefs.gui_filter_valid_fg.green       = 0x0000;
+        prefs.gui_filter_valid_fg.blue        = 0x0000;
+        prefs.gui_filter_invalid_bg.red       = 0xFFFF; /* light red */
+        prefs.gui_filter_invalid_bg.green     = 0xAFFF;
+        prefs.gui_filter_invalid_bg.blue      = 0xAFFF;
+        prefs.gui_filter_invalid_fg.red       = 0x0000;
+        prefs.gui_filter_invalid_fg.green     = 0x0000;
+        prefs.gui_filter_invalid_fg.blue      = 0x0000;
+        prefs.gui_filter_deprecated_bg.red    = 0xFFFF; /* light yellow */
+        prefs.gui_filter_deprecated_bg.green  = 0xFFFF;
+        prefs.gui_filter_deprecated_bg.blue   = 0xAFFF;
+        prefs.gui_filter_deprecated_fg.red    = 0x0000;
+        prefs.gui_filter_deprecated_fg.green  = 0x0000;
+        prefs.gui_filter_deprecated_fg.blue   = 0x0000;
     }
 
     prefs.gui_geometry_save_position = true;

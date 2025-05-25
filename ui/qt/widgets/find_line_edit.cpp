@@ -48,16 +48,16 @@ void FindLineEdit::keyPressEvent(QKeyEvent *event)
 
 void FindLineEdit::validateText()
 {
-    QString style("QLineEdit { background-color: %1; }");
+    QString style("QLineEdit { color: %1; background-color: %2; }");
 
     if (!use_regex_ || text().isEmpty()) {
         setStyleSheet(style.arg(QString("")));
     } else {
         QRegularExpression regexp(text(), QRegularExpression::UseUnicodePropertiesOption);
         if (regexp.isValid()) {
-            setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_text_valid).name()));
+            setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_filter_valid_fg).name(), ColorUtils::fromColorT(prefs.gui_filter_valid_bg).name()));
         } else {
-            setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_text_invalid).name()));
+            setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_filter_valid_fg).name(), ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name()));
         }
     }
 }

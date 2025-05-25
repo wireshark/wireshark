@@ -431,17 +431,17 @@ QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
         return QVariant();
 
     if (prof->status == PROF_STAT_DEFAULT && reset_default_)
-        return ColorUtils::fromColorT(&prefs.gui_text_deprecated);
+        return ColorUtils::fromColorT(&prefs.gui_filter_deprecated_bg);
 
     if (prof->status != PROF_STAT_DEFAULT && ! prof->is_global)
     {
         /* Highlights erroneous line */
         if (checkInvalid(index) || checkIfDeleted(index) || checkDuplicate(index) || ! checkNameValidity(prof->name))
-            return ColorUtils::fromColorT(&prefs.gui_text_invalid);
+            return ColorUtils::fromColorT(&prefs.gui_filter_invalid_bg);
 
         /* Highlights line, which has been duplicated by another index */
         if (checkDuplicate(index, true))
-            return ColorUtils::fromColorT(&prefs.gui_text_valid);
+            return ColorUtils::fromColorT(&prefs.gui_filter_valid_bg);
     }
 
     return QVariant();
