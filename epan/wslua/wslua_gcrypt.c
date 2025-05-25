@@ -45,12 +45,13 @@ WSLUA_CONSTRUCTOR GcryptCipher_open(lua_State* L) {
 #define WSLUA_ARG_GcryptCipher_open_ALGORITHM 1 /* Select the algorithm for this cipher. */
 #define WSLUA_ARG_GcryptCipher_open_MODE 2 /* Select mode for this algorithm */
 #define WSLUA_ARG_GcryptCipher_open_FLAGS 3 /* Set the flags for this cipher */
-    GcryptCipher gcry_cipher = (GcryptCipher)g_malloc(sizeof(gcry_cipher_hd_t));
     int algo = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_ALGORITHM);
     int mode = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_MODE);
     int flags = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_open_FLAGS);
+    GcryptCipher gcry_cipher = (GcryptCipher)g_malloc(sizeof(gcry_cipher_hd_t));
     gcry_error_t err = gcry_cipher_open(gcry_cipher, algo, mode, flags);
     if (err) {
+        g_free(gcry_cipher);
         lua_pushstring(L, gcry_strerror(err));
         return lua_error(L);
     }
@@ -128,6 +129,7 @@ WSLUA_METHOD GcryptCipher_info(lua_State* L) {
     }
     gcry_error_t err = gcry_cipher_info(*gcry_cipher, what, pbuffer, pnbytes);
     if (err) {
+        g_byte_array_free(ba, TRUE);
         lua_pushstring(L, gcry_strerror(err));
         return lua_error(L);
     }
@@ -198,6 +200,9 @@ WSLUA_METHOD GcryptCipher_encrypt(lua_State* L) {
     }
     gcry_error_t err = gcry_cipher_encrypt(*gcry_cipher, pout, out_length, pin, in_length);
     if (err) {
+        if (bain != NULL) {
+            g_byte_array_free(baout, TRUE);
+        }
         lua_pushstring(L, gcry_strerror(err));
         return lua_error(L);
     }
@@ -476,10 +481,12 @@ WSLUA_FUNCTION wslua_gcry_cipher_algo_info(lua_State* L) {
     }
     gcry_error_t err = gcry_cipher_algo_info(algo, what, pbuffer, pnbytes);
     if (what == GCRYCTL_TEST_ALGO) {
+        g_byte_array_free(ba, TRUE);
         lua_pushinteger(L, err);
         WSLUA_RETURN(1);
     }
     if (err) {
+        g_byte_array_free(ba, TRUE);
         lua_pushstring(L, gcry_strerror(err));
         return lua_error(L);
     }

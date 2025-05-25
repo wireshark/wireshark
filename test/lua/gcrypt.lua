@@ -60,10 +60,6 @@ testlib.init(taptests)
 
 -- Symmetric Cipher
 
-local function GcryptCipher_open(gcrypt, algorithm, mode, flags)
-    local value = GcryptCipher.open(algorithm, mode, flags)
-end
-
 local function GcryptCipher_ctl(gcrypt, cmd, buffer)
     gcrypt:ctl(cmd, buffer)
 end
@@ -126,13 +122,13 @@ end
 -- Symmetric Cipher
 
 testlib.testing(OPEN, "negative tests")
-testlib.test(OPEN,"GcryptCipher:open-0", not pcall(GcryptCipher_open))
-testlib.test(OPEN,"GcryptCipher:open-1", not pcall(GcryptCipher_open, 0xFFFF, GCRY_CIPHER_MODE_CBC, 0))
-testlib.test(OPEN,"GcryptCipher:open-2", not pcall(GcryptCipher_open, GCRY_CIPHER_AES, 0xFFFF, 0))
-testlib.test(OPEN,"GcryptCipher:open-3", not pcall(GcryptCipher_open, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, ""))
+testlib.test(OPEN,"GcryptCipher:open-0", not pcall(GcryptCipher.open))
+testlib.test(OPEN,"GcryptCipher:open-1", not pcall(GcryptCipher.open, 0xFFFF, GCRY_CIPHER_MODE_CBC, 0))
+testlib.test(OPEN,"GcryptCipher:open-2", not pcall(GcryptCipher.open, GCRY_CIPHER_AES, 0xFFFF, 0))
+testlib.test(OPEN,"GcryptCipher:open-3", not pcall(GcryptCipher.open, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, ""))
 
 testlib.testing(OPEN, "positive tests")
-testlib.test(OPEN,"GcryptCipher:open-4", GcryptCipher.open(GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, 0))
+testlib.test(OPEN,"GcryptCipher:open-4", pcall(GcryptCipher.open, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, 0))
 
 testlib.testing(CTL, "negative tests")
 testlib.test(CTL,"GcryptCipher:ctl-0", not pcall(GcryptCipher_ctl))
