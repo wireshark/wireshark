@@ -724,53 +724,21 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>分组字节流</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">分组字节流</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>将字节显示为十六进制</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">将字节显示为十六进制</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>根据分组显示文本</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">根据分组显示文本</translation>
     </message>
 </context>
 <context>
@@ -2247,6 +2215,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>将分组字节复制为 application/octet-stream MIME 数据。</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">分组字节流</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3985,6 +3964,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>GSM MAP 消息平均字节</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">将字节显示为十六进制</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">根据分组显示文本</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9076,6 +9094,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -725,53 +725,45 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Bytes do Pacote</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Bytes do Pacote</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>Permitir realce ao passar o mouse</translation>
+        <translation type="vanished">Permitir realce ao passar o mouse</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Exibir bytes em hexadecimal</translation>
+        <translation type="vanished">Exibir bytes em hexadecimal</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>…como decimal</translation>
+        <translation type="vanished">…como decimal</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>…como octal</translation>
+        <translation type="vanished">…como octal</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>…como bits</translation>
+        <translation type="vanished">…como bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>Exibir texto com base no pacote</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Exibir texto com base no pacote</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>…como ASCII</translation>
+        <translation type="vanished">…como ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>…como EBCDIC</translation>
+        <translation type="vanished">…como EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -2258,6 +2250,17 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Copiar bytes do pacote como dados MIME application/octet-stream.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4008,6 +4011,45 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>Número médio de bytes por mensagem GSM MAP</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">Permitir realce ao passar o mouse</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">Exibir bytes em hexadecimal</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">…como decimal</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">…como octal</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">…como bits</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">Exibir texto com base no pacote</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">…como ASCII</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">…como EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9133,6 +9175,30 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>Unacked (Outstanding) Bytes</source>
         <translation>Bytes Não Confirmados (Pendentes)</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Dissecador</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -724,53 +724,53 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>パケットバイト列</translation>
+        <translation type="vanished">パケットバイト列</translation>
     </message>
     <message>
         <source>Event data</source>
-        <translation>イベントデータ</translation>
+        <translation type="vanished">イベントデータ</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>ホーバーハイライトを許可</translation>
+        <translation type="vanished">ホーバーハイライトを許可</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>16進数でバイト列を表示</translation>
+        <translation type="vanished">16進数でバイト列を表示</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>10進数として...</translation>
+        <translation type="vanished">10進数として...</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>8進数として...</translation>
+        <translation type="vanished">8進数として...</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>ビット列として…</translation>
+        <translation type="vanished">ビット列として…</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>パケットをテキストベースで表示</translation>
+        <translation type="vanished">パケットをテキストベースで表示</translation>
     </message>
     <message>
         <source>Show text based on event</source>
-        <translation>イベントに応じてテキストを表示</translation>
+        <translation type="vanished">イベントに応じてテキストを表示</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>ASCII形式として…</translation>
+        <translation type="vanished">ASCII形式として…</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>EBCDIC形式として…</translation>
+        <translation type="vanished">EBCDIC形式として…</translation>
     </message>
 </context>
 <context>
@@ -2250,6 +2250,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>MIME形式データ(application/octet-stream)としてパケットバイト列をコピー</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">パケットバイト列</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished">イベントデータ</translation>
     </message>
 </context>
 <context>
@@ -3990,6 +4001,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>GSM MAPメッセージの平均バイト数</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">ホーバーハイライトを許可</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">16進数でバイト列を表示</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">10進数として...</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">8進数として...</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">ビット列として…</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">パケットをテキストベースで表示</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished">イベントに応じてテキストを表示</translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">ASCII形式として…</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">EBCDIC形式として…</translation>
     </message>
 </context>
 <context>
@@ -9100,6 +9150,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unacked (Outstanding) Bytes</source>
         <translation>ACKされていない(未処理の)バイト</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">ダイセクタ</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

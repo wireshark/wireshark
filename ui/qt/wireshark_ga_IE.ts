@@ -726,53 +726,45 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Bearta paicéad</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Bearta paicéad</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>Ceadaigh aibhsiú ainlithe</translation>
+        <translation type="vanished">Ceadaigh aibhsiú ainlithe</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Taispeáin bearta mar heicsidheachúlach</translation>
+        <translation type="vanished">Taispeáin bearta mar heicsidheachúlach</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>… mar dheachúlach</translation>
+        <translation type="vanished">… mar dheachúlach</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>…mar ochtach</translation>
+        <translation type="vanished">…mar ochtach</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>…mar ghiotáin</translation>
+        <translation type="vanished">…mar ghiotáin</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>Taispeáin téacs bunaithe ar an bpaicéad</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Taispeáin téacs bunaithe ar an bpaicéad</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>…mar ASCII</translation>
+        <translation type="vanished">…mar ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>…mar EBCDIC</translation>
+        <translation type="vanished">…mar EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -2266,6 +2258,17 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Cóipeáil bearta paicéad mar shonraí MIME feidhmchláir / octet-stream.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">Bearta paicéad</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4026,6 +4029,45 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>Meánlíon na mbeart in aghaidh na teachtaireachta MAP GSM</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">Ceadaigh aibhsiú ainlithe</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">Taispeáin bearta mar heicsidheachúlach</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">… mar dheachúlach</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">…mar ochtach</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">…mar ghiotáin</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">Taispeáin téacs bunaithe ar an bpaicéad</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">…mar ASCII</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">…mar EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9162,6 +9204,30 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Unacked (Outstanding) Bytes</source>
         <translation>Bearta (Outstanding) gan phacáil</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Dissector</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

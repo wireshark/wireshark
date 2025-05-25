@@ -724,53 +724,45 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Paket bayt</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Paket bayt</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>Fareyle vurgulamaya izin ver</translation>
+        <translation type="vanished">Fareyle vurgulamaya izin ver</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Baytları onaltılık olarak göster</translation>
+        <translation type="vanished">Baytları onaltılık olarak göster</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>…ondalık sayı olarak</translation>
+        <translation type="vanished">…ondalık sayı olarak</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>…sekizli olarak</translation>
+        <translation type="vanished">…sekizli olarak</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>…bit olarak</translation>
+        <translation type="vanished">…bit olarak</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>Pakete göre metni göster</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Pakete göre metni göster</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>…ASCII olarak</translation>
+        <translation type="vanished">…ASCII olarak</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>…EBCDIC olarak</translation>
+        <translation type="vanished">…EBCDIC olarak</translation>
     </message>
 </context>
 <context>
@@ -2249,6 +2241,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Paket baytlarını uygulama/sekizli akış MIME verileri olarak kopyalayın.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">Paket bayt</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3989,6 +3992,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>GSM HARİTA mesajı başına ortalama bayt sayısı</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">Fareyle vurgulamaya izin ver</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">Baytları onaltılık olarak göster</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">…ondalık sayı olarak</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">…sekizli olarak</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">…bit olarak</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">Pakete göre metni göster</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">…ASCII olarak</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">…EBCDIC olarak</translation>
     </message>
 </context>
 <context>
@@ -9093,6 +9135,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Tespit edici</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

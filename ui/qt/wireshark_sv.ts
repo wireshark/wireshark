@@ -725,53 +725,45 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Paketbyte</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Paketbyte</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>Tillåt markering vid hovring</translation>
+        <translation type="vanished">Tillåt markering vid hovring</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Visa byte hexadecimalt</translation>
+        <translation type="vanished">Visa byte hexadecimalt</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>… decimalt</translation>
+        <translation type="vanished">… decimalt</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>… oktalt</translation>
+        <translation type="vanished">… oktalt</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>… som bitar</translation>
+        <translation type="vanished">… som bitar</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>Visa text baserat på paket</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Visa text baserat på paket</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>… som ASCII</translation>
+        <translation type="vanished">… som ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>… som EBCDIC</translation>
+        <translation type="vanished">… som EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -2258,6 +2250,17 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Kopiera paketbyte som application/octet-stream MIME-data.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">Paketbyte</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4008,6 +4011,45 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>Genomsnittligt antal byte per GSM MAP-meddelande</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">Tillåt markering vid hovring</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">Visa byte hexadecimalt</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">… decimalt</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">… oktalt</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">… som bitar</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">Visa text baserat på paket</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">… som ASCII</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">… som EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9129,6 +9171,30 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Unacked (Outstanding) Bytes</source>
         <translation>Oackade (utestående) byte</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Dissekerare</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

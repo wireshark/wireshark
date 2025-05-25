@@ -725,53 +725,45 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Paketbytes</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Paketbytes</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>Hover-Auswahl erlauben</translation>
+        <translation type="vanished">Hover-Auswahl erlauben</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Bytes in Hexadezimal anzeigen</translation>
+        <translation type="vanished">Bytes in Hexadezimal anzeigen</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>...als Dezimal</translation>
+        <translation type="vanished">...als Dezimal</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>...als Oktal</translation>
+        <translation type="vanished">...als Oktal</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>…als Bits</translation>
+        <translation type="vanished">…als Bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>Text basierend auf den Paketen anzeigen</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Text basierend auf den Paketen anzeigen</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>…als ASCII</translation>
+        <translation type="vanished">…als ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>…als EBCDIC</translation>
+        <translation type="vanished">…als EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -2258,6 +2250,17 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Paketbytes als application/octet-stream MIME Daten kopieren.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4008,6 +4011,45 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>Durchschnittliche Bytesanzahl pro GSM MAP Nachricht</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">Hover-Auswahl erlauben</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">Bytes in Hexadezimal anzeigen</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">...als Dezimal</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">...als Oktal</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">…als Bits</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">Text basierend auf den Paketen anzeigen</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">…als ASCII</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">…als EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9129,6 +9171,30 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Unacked (Outstanding) Bytes</source>
         <translation>Nicht-ACK-bestätigte (ausstehende) Bytes</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Dissector</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

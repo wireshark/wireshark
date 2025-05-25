@@ -724,53 +724,45 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>패킷 바이트</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">패킷 바이트</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>마우스로 가리킬 때 강조 표시 허용</translation>
+        <translation type="vanished">마우스로 가리킬 때 강조 표시 허용</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>16진수로 바이트 표시</translation>
+        <translation type="vanished">16진수로 바이트 표시</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>10진수로 표시</translation>
+        <translation type="vanished">10진수로 표시</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>8진수로 표시</translation>
+        <translation type="vanished">8진수로 표시</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>비트 단위로 표시</translation>
+        <translation type="vanished">비트 단위로 표시</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>패킷의 내용을 텍스트로 표시</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">패킷의 내용을 텍스트로 표시</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>ASCII로 표시</translation>
+        <translation type="vanished">ASCII로 표시</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>EBCDIC으로 표시</translation>
+        <translation type="vanished">EBCDIC으로 표시</translation>
     </message>
 </context>
 <context>
@@ -2251,6 +2243,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>MIME 데이터(application/octet-stream)로 패킷 바이트를 복사합니다.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">패킷 바이트</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3991,6 +3994,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>GSM MAP 메시지당 평균 바이트</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">마우스로 가리킬 때 강조 표시 허용</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">16진수로 바이트 표시</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">10진수로 표시</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">8진수로 표시</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">비트 단위로 표시</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">패킷의 내용을 텍스트로 표시</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">ASCII로 표시</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">EBCDIC으로 표시</translation>
     </message>
 </context>
 <context>
@@ -9095,6 +9137,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unacked (Outstanding) Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">분해기</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

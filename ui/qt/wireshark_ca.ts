@@ -725,53 +725,53 @@
     </message>
 </context>
 <context>
-    <name>DataSourceTab</name>
+    <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation>Bytes del paquet</translation>
+        <translation type="vanished">Bytes del paquet</translation>
     </message>
     <message>
         <source>Event data</source>
-        <translation>Dades d&apos;esdeveniment</translation>
+        <translation type="vanished">Dades d&apos;esdeveniment</translation>
     </message>
 </context>
 <context>
-    <name>HexDataSourceView</name>
+    <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation>Permet ressaltat amb el ratolí a sobre</translation>
+        <translation type="vanished">Permet ressaltat amb el ratolí a sobre</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Mostra els bytes en hexadecimal</translation>
+        <translation type="vanished">Mostra els bytes en hexadecimal</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation>…en decimal</translation>
+        <translation type="vanished">…en decimal</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation>…en octal</translation>
+        <translation type="vanished">…en octal</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation>…en bits</translation>
+        <translation type="vanished">…en bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation>Mostra el text basat en el paquet</translation>
+        <translation type="vanished">Mostra el text basat en el paquet</translation>
     </message>
     <message>
         <source>Show text based on event</source>
-        <translation>Mostra el text basat en l&apos;esdeveniment</translation>
+        <translation type="vanished">Mostra el text basat en l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation>…en ASCII</translation>
+        <translation type="vanished">…en ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation>…en EBCDIC</translation>
+        <translation type="vanished">…en EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -2258,6 +2258,17 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>Copia els bytes de paquet com a dades MIME d&apos;aplicació/flux en octets.</translation>
+    </message>
+</context>
+<context>
+    <name>DataSourceTab</name>
+    <message>
+        <source>Packet bytes</source>
+        <translation type="unfinished">Bytes del paquet</translation>
+    </message>
+    <message>
+        <source>Event data</source>
+        <translation type="unfinished">Dades d&apos;esdeveniment</translation>
     </message>
 </context>
 <context>
@@ -4008,6 +4019,45 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Average number of bytes per GSM MAP message</source>
         <translation>Nombre mitjà de bytes per missatge GSM MAP</translation>
+    </message>
+</context>
+<context>
+    <name>HexDataSourceView</name>
+    <message>
+        <source>Allow hover highlighting</source>
+        <translation type="unfinished">Permet ressaltat amb el ratolí a sobre</translation>
+    </message>
+    <message>
+        <source>Show bytes as hexadecimal</source>
+        <translation type="unfinished">Mostra els bytes en hexadecimal</translation>
+    </message>
+    <message>
+        <source>…as decimal</source>
+        <translation type="unfinished">…en decimal</translation>
+    </message>
+    <message>
+        <source>…as octal</source>
+        <translation type="unfinished">…en octal</translation>
+    </message>
+    <message>
+        <source>…as bits</source>
+        <translation type="unfinished">…en bits</translation>
+    </message>
+    <message>
+        <source>Show text based on packet</source>
+        <translation type="unfinished">Mostra el text basat en el paquet</translation>
+    </message>
+    <message>
+        <source>Show text based on event</source>
+        <translation type="unfinished">Mostra el text basat en l&apos;esdeveniment</translation>
+    </message>
+    <message>
+        <source>…as ASCII</source>
+        <translation type="unfinished">…en ASCII</translation>
+    </message>
+    <message>
+        <source>…as EBCDIC</source>
+        <translation type="unfinished">…en EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9129,6 +9179,30 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Unacked (Outstanding) Bytes</source>
         <translation>Bytes UnAck (pendents)</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Dissector</translation>
+    </message>
+    <message>
+        <source>File Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tap Listener</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
