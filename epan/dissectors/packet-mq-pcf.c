@@ -40,6 +40,7 @@ void proto_reg_handoff_mqpcf(void);
 #define PCF_MAX_PARM 999
 #define PCF_MAX_LIST 20000
 
+/* Protocol preferences */
 static unsigned mq_pcf_maxprm = PCF_MAX_PARM;
 static unsigned mq_pcf_maxlst = PCF_MAX_LIST;
 
@@ -86,8 +87,6 @@ static int ett_mqpcf_grp;
 static int ett_mqpcf;
 static int ett_mqpcf_cfh;
 
-#define MQ_TEXT_CFH   "MQ Command Format Header"
-
 static uint32_t dissect_mqpcf_getDigits(unsigned uCnt)
 {
     return (uint32_t)(log10((double)uCnt) + 1);
@@ -113,16 +112,15 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, unsigned off
                                    unsigned uVal, int hfindex, unsigned iCnt, unsigned iMaxCnt,
                                    unsigned iDigit, bool bParse)
 {
-    header_field_info *hfinfo;
     const uint8_t *pVal = NULL;
 
     if (bParse)
         pVal = dissect_mqpcf_parm_getintval(uPrm, uVal);
 
-    hfinfo = proto_registrar_get_nth(hfindex);
 
     if (iMaxCnt > 1)
     {
+        header_field_info* hfinfo = proto_registrar_get_nth(hfindex);
         if (pVal)
         {
             proto_tree_add_int_format(tree, hfindex, tvb, offset, 4, uVal,
@@ -177,7 +175,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
     uint32_t u = 0;
     uint32_t tOfs = 0;
     uint32_t uLenF;
-    char    strPrm[256];
+    char    *strPrm;
     uint32_t uTyp;
     uint32_t uLen = 0;
     uint32_t uMax = 0;
@@ -244,12 +242,12 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
         uLenF = 12;
 
         if (bParse)
-            snprintf(strPrm, sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d) %-30.30s",
+            strPrm = wmem_strdup_printf(pinfo->pool, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d) %-30.30s",
                        "MQPrm", uDig, u + 1,
                        uTyp, val_to_str_ext_const(uTyp, &mq_PrmTyp2_xvals, "      Unkn") + 6,
                        uPrm, uPrm, val_to_str_ext_const(uPrm, &mq_PrmId_xvals, "Unknown"));
         else
-            snprintf(strPrm, sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d)",
+            strPrm = wmem_strdup_printf(pinfo->pool, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d)",
                        "XtraD", uDig, u + 1,
                        uTyp, val_to_str_ext_const(uTyp, &mq_PrmTyp2_xvals, "      Unkn") + 6,
                        uPrm, uPrm);
@@ -598,92 +596,72 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
     int offset = 0;
     unsigned bLittleEndian;
 
+    if (tvb_reported_length(tvb) < 36)
+    {
+        /* XXX - What should be displayed for a too short packet? */
+        return;
+    }
+
     bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-    if (tvb_reported_length(tvb) >= 36)
-    {
-        int iSizeMQCFH = 36;
-        uint32_t iCommand = tvb_get_uint32(tvb, offset + 12, bLittleEndian);
+    int iSizeMQCFH = 36;
+    uint32_t iCommand = tvb_get_uint32(tvb, offset + 12, bLittleEndian);
 
-        if (tree)
-        {
-            proto_item *ti;
-            proto_tree *mq_tree;
-            proto_tree *mqroot_tree;
-            char        sTmp[256];
-            uint32_t    uCnt;
-            uint32_t    uTyp;
-            uint32_t    uCmd;
-            uint32_t    uCC;
-            uint32_t    uRC;
+    proto_item *ti;
+    proto_tree *mq_tree;
+    proto_tree *mqroot_tree;
+    uint32_t    uTyp, uCnt, uCC, uRC;
 
-            uTyp = tvb_get_uint32(tvb, offset, bLittleEndian);
-            uCmd = tvb_get_uint32(tvb, offset + 12, bLittleEndian);
-            uCC = tvb_get_uint32(tvb, offset + 24, bLittleEndian);
-            uRC = tvb_get_uint32(tvb, offset + 28, bLittleEndian);
-            uCnt = tvb_get_uint32(tvb, offset + 32, bLittleEndian);
+    ti = proto_tree_add_item(tree, proto_mqpcf, tvb, offset, -1, ENC_NA);
+    proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &mq_MQCMD_xvals, "Unknown (0x%02x)"));
+    mqroot_tree = proto_item_add_subtree(ti, ett_mqpcf);
 
-            if (uCC || uRC)
-            {
-                snprintf(sTmp, sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d) CC(%d-%s) RC(%d-%s)",
-                           MQ_TEXT_CFH,
-                           uTyp, val_to_str_const(uTyp, mq_MQCFT_vals, "Unknown"),
-                           uCmd, val_to_str_ext_const(uCmd, &mq_MQCMD_xvals, "Unknown"),
-                           uCnt,
-                           uCC, val_to_str_const(uCC, mq_MQCC_vals, "Unknown"),
-                           uRC, val_to_str_ext_const(uRC, &mq_MQRC_xvals, "Unknown"));
-            }
-            else
-            {
-                snprintf(sTmp, sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d)",
-                           MQ_TEXT_CFH,
-                           uTyp, val_to_str_const(uTyp, mq_MQCFT_vals, "Unknown"),
-                           uCmd, val_to_str_ext_const(uCmd, &mq_MQCMD_xvals, "Unknown"),
-                           uCnt);
-            }
+    mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeMQCFH, ett_mqpcf_cfh, &ti, "MQ Command Format Header");
 
-            ti = proto_tree_add_item(tree, proto_mqpcf, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item_ret_uint(mq_tree, hf_mqpcf_cfh_type, tvb, offset + 0, 4, bLittleEndian, &uTyp);
+    proto_tree_add_item(mq_tree, hf_mqpcf_cfh_length, tvb, offset + 4, 4, bLittleEndian);
+    proto_tree_add_item(mq_tree, hf_mqpcf_cfh_version, tvb, offset + 8, 4, bLittleEndian);
+    proto_tree_add_item(mq_tree, hf_mqpcf_cfh_command, tvb, offset + 12, 4, bLittleEndian);
+    proto_tree_add_item(mq_tree, hf_mqpcf_cfh_MsgSeqNbr, tvb, offset + 16, 4, bLittleEndian);
+    proto_tree_add_item(mq_tree, hf_mqpcf_cfh_control, tvb, offset + 20, 4, bLittleEndian);
+    proto_tree_add_item_ret_uint(mq_tree, hf_mqpcf_cfh_compcode, tvb, offset + 24, 4, bLittleEndian, &uCC);
+    proto_tree_add_item_ret_uint(mq_tree, hf_mqpcf_cfh_reason, tvb, offset + 28, 4, bLittleEndian, &uRC);
+    proto_tree_add_item_ret_uint(mq_tree, hf_mqpcf_cfh_ParmCount, tvb, offset + 32, 4, bLittleEndian, &uCnt);
 
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &mq_MQCMD_xvals, "Unknown (0x%02x)"));
-            mqroot_tree = proto_item_add_subtree(ti, ett_mqpcf);
+    proto_item_append_text(ti, " [%d-%s] {%d-%s} PrmCnt(%d)",
+        uTyp, val_to_str_const(uTyp, mq_MQCFT_vals, "Unknown"),
+        iCommand, val_to_str_ext_const(iCommand, &mq_MQCMD_xvals, "Unknown"),
+        uCnt);
+    if (uCC)
+        proto_item_append_text(ti, " CC(%d-%s)", uCC, val_to_str_const(uCC, mq_MQCC_vals, "Unknown"));
 
-            mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeMQCFH, ett_mqpcf_cfh, NULL, sTmp);
+    if (uRC)
+        proto_item_append_text(ti, " RC(%d-%s)", uRC, val_to_str_ext_const(uRC, &mq_MQRC_xvals, "Unknown"));
 
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_type, tvb, offset + 0, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_length, tvb, offset + 4, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_version, tvb, offset + 8, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_command, tvb, offset + 12, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_MsgSeqNbr, tvb, offset + 16, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_control, tvb, offset + 20, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_compcode, tvb, offset + 24, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_reason, tvb, offset + 28, 4, bLittleEndian);
-            proto_tree_add_item(mq_tree, hf_mqpcf_cfh_ParmCount, tvb, offset + 32, 4, bLittleEndian);
-            dissect_mqpcf_parm(tvb, pinfo, mqroot_tree, offset + iSizeMQCFH, uCnt, bLittleEndian, true);
-        }
-    }
+    dissect_mqpcf_parm(tvb, pinfo, mqroot_tree, offset + iSizeMQCFH, uCnt, bLittleEndian, true);
 }
 
 static bool dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (data && tvb_reported_length(tvb) >= 36)
+    if ((data == NULL) || (tvb_reported_length(tvb) < 36))
+        return false;
+
+    mq_parm_t *p_mq_parm = (mq_parm_t *)data;
+    if (strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_ADMIN, 8) == 0
+        || strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_EVENT, 8) == 0
+        || strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_PCF, 8) == 0)
     {
-        mq_parm_t *p_mq_parm = (mq_parm_t *)data;
-        if (strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_ADMIN, 8) == 0
-            || strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_EVENT, 8) == 0
-            || strncmp((const char*)p_mq_parm->mq_format, MQ_MQFMT_PCF, 8) == 0)
-        {
-            /* Dissect the packet */
-            dissect_mqpcf(tvb, pinfo, tree, p_mq_parm);
-            return true;
-        }
-        if (strncmp((const char *)p_mq_parm->mq_format, "LPOO", 4) == 0)
-        {
-            unsigned bLittleEndian;
-            bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
-            dissect_mqpcf_parm(tvb, pinfo, tree, 0, (uint32_t)-1, bLittleEndian, false);
-            return true;
-        }
+        /* Dissect the packet */
+        dissect_mqpcf(tvb, pinfo, tree, p_mq_parm);
+        return true;
     }
+    if (strncmp((const char *)p_mq_parm->mq_format, "LPOO", 4) == 0)
+    {
+        unsigned bLittleEndian = ((p_mq_parm->mq_cur_ccsid.encod & MQ_MQENC_INTEGER_MASK) == MQ_MQENC_INTEGER_REVERSED) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
+        dissect_mqpcf_parm(tvb, pinfo, tree, 0, (uint32_t)-1, bLittleEndian, false);
+        return true;
+    }
+
     return false;
 }
 
