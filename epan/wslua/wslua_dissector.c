@@ -125,7 +125,7 @@ WSLUA_METHOD Dissector_decrypt(lua_State* L) {
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_decrypt_TREE);
     volatile int len = 0;
     struct data_source *ds, *ds_DTLS, *ds_TLS;
-    tvbuff_t *tvb_decrypted;
+    tvbuff_t *tvb_decrypted = NULL;
     char *decrypted = "";
 
     if (! ( d && tvb && pinfo) ) return 0;
@@ -162,7 +162,12 @@ WSLUA_METHOD Dissector_decrypt(lua_State* L) {
 
     lua_pushinteger(L,(lua_Integer)len);
     lua_pushstring(L,(const char *) decrypted);
-    WSLUA_RETURN(2); /* Number of bytes dissected and decrypted content */
+    if (tvb_decrypted) {
+        push_Tvb(L,tvb_decrypted);
+    } else {
+        lua_pushnil(L);
+    }
+    WSLUA_RETURN(3); /* Number of bytes dissected and decrypted content */
 }
 
 WSLUA_METAMETHOD Dissector__decrypt(lua_State* L) {
