@@ -540,8 +540,33 @@ const value_string ssl_extension_curves[] = {
     { 258, "ffdhe4096" }, /* RFC 7919 */
     { 259, "ffdhe6144" }, /* RFC 7919 */
     { 260, "ffdhe8192" }, /* RFC 7919 */
+    { 2570, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 4587, "SecP256r1MLKEM768" }, /* draft-kwiatkowski-tls-ecdhe-mlkem-02 */
+    { 4588, "X25519MLKEM768" }, /* draft-kwiatkowski-tls-ecdhe-mlkem-02 */
+    { 6682, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 10794, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 14906, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 19018, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 23130, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 25497, "X25519Kyber768Draft00 (OBSOLETE)" }, /* draft-tls-westerbaan-xyber768d00-02 */
+    { 25498, "SecP256r1Kyber768Draft00 (OBSOLETE)" }, /* draft-kwiatkowski-tls-ecdhe-kyber-01 */
+    { 27242, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 31354, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 35466, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 39578, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 43690, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 47802, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 51914, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 56026, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 60138, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 64250, "Reserved (GREASE)" }, /* RFC 8701 */
+    { 0xFF01, "arbitrary_explicit_prime_curves" },
+    { 0xFF02, "arbitrary_explicit_char2_curves" },
+    /* Below are various unofficial values that have been used for testing. */
     /* PQC key exchange algorithms from OQS-OpenSSL,
-        see https://github.com/open-quantum-safe/openssl/blob/OQS-OpenSSL_1_1_1-stable/oqs-template/oqs-kem-info.md */
+        see https://github.com/open-quantum-safe/oqs-provider/blob/main/oqs-template/oqs-kem-info.md
+        These use IANA unassigned values and this list may be incomplete.
+     */
     { 0x0200, "frodo640aes" },
     { 0x2F00, "p256_frodo640aes" },
     { 0x0201, "frodo640shake" },
@@ -626,30 +651,11 @@ const value_string ssl_extension_curves[] = {
     { 0x2F34, "p384_sntrup857" },
     { 0x0242, "sntrup1277" },
     { 0x2F42, "p521_sntrup1277" },
-    /* Other PQ key exchange algorithms:
+    /* Other PQ key exchange algorithms, using Reserved for Private Use values
         https://blog.cloudflare.com/post-quantum-for-all
 	https://www.ietf.org/archive/id/draft-tls-westerbaan-xyber768d00-02.txt */
-    { 0xFE30, "X25519Kyber512Draft00" },
-    { 0xFE31, "X25519Kyber768Draft00 (obsolete value)" },
-    { 0x6399, "X25519Kyber768Draft00" },
-    { 2570, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 6682, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 10794, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 14906, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 19018, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 23130, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 27242, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 31354, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 35466, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 39578, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 43690, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 47802, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 51914, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 56026, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 60138, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 64250, "Reserved (GREASE)" }, /* RFC 8701 */
-    { 0xFF01, "arbitrary_explicit_prime_curves" },
-    { 0xFF02, "arbitrary_explicit_char2_curves" },
+    { 0xFE30, "X25519Kyber512Draft00 (OBSOLETE)" },
+    { 0xFE31, "X25519Kyber768Draft00 (OBSOLETE)" },
     { 0x00, NULL }
 };
 
