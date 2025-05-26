@@ -1152,7 +1152,9 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
     // server host key (K_S / Q)
     char *data = (char *)tvb_memdup(wmem_packet_scope(), tvb, last_offset + 4, key_len);
-    ssh_hash_buffer_put_string(global_data->kex_server_host_key_blob, data, key_len);
+    if (global_data) {
+        ssh_hash_buffer_put_string(global_data->kex_server_host_key_blob, data, key_len);
+    }
 
     last_offset += 4;
     proto_tree_add_uint(tree, hf_ssh_hostkey_type_length, tvb, last_offset, 4, type_len);
@@ -3906,39 +3908,32 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, unsigned msg_code)
 {
         if(msg_code==SSH_MSG_USERAUTH_REQUEST){
-                unsigned   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_user_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                uint32_t  slen;
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_user_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_userauth_user_name, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_userauth_service_name, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_method_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_method_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
-                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_method_name, packet_tvb, offset, slen, ENC_ASCII);
-
-                uint8_t* key_type;
-                key_type = tvb_get_string_enc(pinfo->pool, packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                const uint8_t* key_type;
+                proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_userauth_method_name, packet_tvb, offset, slen, ENC_ASCII, pinfo->pool, &key_type);
                 offset += slen;
                 if (0 == strcmp(key_type, "none")) {
-                }else if (0 == strcmp(key_type, "publickey")) {
+                }else if (0 == strcmp(key_type, "publickey") || 0 == strcmp(key_type, "publickey-hostbound-v00@openssh.com")) {
                         uint8_t bHaveSignature = tvb_get_uint8(packet_tvb, offset);
                         int dissected_len = 0;
                         proto_tree_add_item(msg_type_tree, hf_ssh_userauth_have_signature, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
-                        slen = tvb_get_ntohl(packet_tvb, offset) ;
-                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                         offset += 4;
                         proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name, packet_tvb, offset, slen, ENC_ASCII);
                         offset += slen;
                         proto_item *blob_tree = NULL;
-                        slen = tvb_get_ntohl(packet_tvb, offset) ;
-                        proto_tree_add_item(msg_type_tree, hf_ssh_blob_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_blob_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                         offset += 4;
                         blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_blob, NULL, "Public key blob");
 //        proto_tree_add_item(blob_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3947,9 +3942,13 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                             expert_add_info_format(pinfo, blob_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, slen);
                         }
                         offset += slen;
+                        if (0 == strcmp(key_type, "publickey-hostbound-v00@openssh.com")) {
+                            // Host key - but should we add it to global data or not?
+                            offset += ssh_tree_add_hostkey(packet_tvb, offset, msg_type_tree, "Server host key",
+                                    ett_key_exchange_host_key, NULL);
+                        }
                         if(bHaveSignature){
-                                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                                proto_tree_add_item(msg_type_tree, hf_ssh_signature_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_signature_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                                 offset += 4;
                                 proto_item *signature_tree = NULL;
                                 signature_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_signautre, NULL, "Public key signature");
@@ -3963,14 +3962,12 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                         uint8_t bChangePassword = tvb_get_uint8(packet_tvb, offset);
                         proto_tree_add_item(msg_type_tree, hf_ssh_userauth_change_password, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
-                        slen = tvb_get_ntohl(packet_tvb, offset) ;
-                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_password_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_password_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                         offset += 4;
                         proto_tree_add_item(msg_type_tree, hf_ssh_userauth_password, packet_tvb, offset, slen, ENC_ASCII);
                         offset += slen;
                         if(bChangePassword){
-                            slen = tvb_get_ntohl(packet_tvb, offset) ;
-                            proto_tree_add_item(msg_type_tree, hf_ssh_userauth_new_password_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                            proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_new_password_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                             offset += 4;
                             proto_tree_add_item(msg_type_tree, hf_ssh_userauth_new_password, packet_tvb, offset, slen, ENC_ASCII);
                             offset += slen;
@@ -3980,8 +3977,7 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
 
         }else if(msg_code==SSH_MSG_USERAUTH_FAILURE){
                 unsigned   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_auth_failure_list_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_auth_failure_list_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_auth_failure_list, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
