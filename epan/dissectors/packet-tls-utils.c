@@ -5988,8 +5988,8 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
     memset(ssl_session->session.ech_confirmation, 0, sizeof(ssl_session->session.ech_confirmation));
     memset(ssl_session->session.hrr_ech_confirmation, 0, sizeof(ssl_session->session.hrr_ech_confirmation));
     memset(ssl_session->session.first_ech_auth_tag, 0, sizeof(ssl_session->session.first_ech_auth_tag));
-    ssl_session->session.ech = FALSE;
-    ssl_session->session.hrr_ech_declined = FALSE;
+    ssl_session->session.ech = false;
+    ssl_session->session.hrr_ech_declined = false;
     ssl_session->session.first_ch_ech_frame = 0;
 
     conversation_add_proto_data(conversation, proto_ssl, ssl_session);
@@ -9726,7 +9726,7 @@ ssl_dissect_hnd_ech_outer_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
     proto_item *ti;
 
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ext_length,
-                        hf->hf.hs_ext_ech_outer_ext_len, 2, G_MAXUINT8)) {
+                        hf->hf.hs_ext_ech_outer_ext_len, 2, UINT8_MAX)) {
         return offset_end;
     }
     offset += 1;
@@ -9885,7 +9885,7 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                 gcry_cipher_close(cipher);
                 break;
             }
-            guchar ech_auth_tag_calc[16];
+            unsigned char ech_auth_tag_calc[16];
             if (gcry_cipher_gettag(cipher, ech_auth_tag_calc, 16)) {
                 gcry_cipher_close(cipher);
                 break;
@@ -9904,10 +9904,10 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                     tvb_memcpy(ech_tvb, ssl->client_random.data, 2, 32);
                     uint32_t len_offset = ssl->ech_transcript.data_len;
                     if (ssl->ech_transcript.data_len > 0)
-                        ssl->ech_transcript.data = (guchar*)wmem_realloc(wmem_file_scope(), ssl->ech_transcript.data,
+                        ssl->ech_transcript.data = (unsigned char*)wmem_realloc(wmem_file_scope(), ssl->ech_transcript.data,
                                                                          ssl->ech_transcript.data_len + hello_length + 4);
                     else
-                        ssl->ech_transcript.data = (guchar*)wmem_alloc(wmem_file_scope(), hello_length + 4);
+                        ssl->ech_transcript.data = (unsigned char*)wmem_alloc(wmem_file_scope(), hello_length + 4);
                     ssl->ech_transcript.data[ssl->ech_transcript.data_len] = SSL_HND_CLIENT_HELLO;
                     ssl->ech_transcript.data[ssl->ech_transcript.data_len + 1] = 0;
                     tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len + 4, 0, 34);
@@ -10885,9 +10885,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         int hash_algo = ssl_get_digest_by_name(ssl_cipher_suite_dig(ssl->cipher_suite)->name);
         if (hash_algo) {
             SSL_MD mc;
-            guchar transcript_hash[DIGEST_MAX_SIZE];
-            guchar prk[DIGEST_MAX_SIZE];
-            guchar *ech_verify_out = NULL;
+            unsigned char transcript_hash[DIGEST_MAX_SIZE];
+            unsigned char prk[DIGEST_MAX_SIZE];
+            unsigned char *ech_verify_out = NULL;
             unsigned int  len;
             ssl_md_init(&mc, hash_algo);
             ssl_md_update(&mc, ssl->ech_transcript.data, ssl->ech_transcript.data_len);
@@ -10896,7 +10896,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 ssl_md_cleanup(&mc);
                 wmem_free(wmem_file_scope(), ssl->ech_transcript.data);
                 ssl->ech_transcript.data_len = 4 + len;
-                ssl->ech_transcript.data = (guchar*)wmem_alloc(wmem_file_scope(), 4 + len + 4 + offset_end - initial_offset);
+                ssl->ech_transcript.data = (unsigned char*)wmem_alloc(wmem_file_scope(), 4 + len + 4 + offset_end - initial_offset);
                 ssl->ech_transcript.data[0] = SSL_HND_MESSAGE_HASH;
                 ssl->ech_transcript.data[1] = 0;
                 ssl->ech_transcript.data[2] = 0;
@@ -10912,9 +10912,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 tvb_memcpy(tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, initial_offset - 4,
                            4 + offset_end - initial_offset);
                 if (is_hrr)
-                    ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, initial_offset-4, 38), 38);
+                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset-4, 38), 38);
                 else
-                    ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, initial_offset-4, 30), 30);
+                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset-4, 30), 30);
             } else {
                 uint8_t prefix[4] = {SSL_HND_SERVER_HELLO, 0x00, 0x00, 0x00};
                 prefix[2] = ((offset - initial_offset) >> 8);
@@ -10924,39 +10924,39 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                            offset_end - initial_offset);
                 ssl_md_update(&mc, prefix, 4);
                 if (is_hrr)
-                    ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, initial_offset, 34), 34);
+                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset, 34), 34);
                 else
-                    ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, initial_offset, 26), 26);
+                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset, 26), 26);
             }
             ssl->ech_transcript.data_len += 4 + offset_end - initial_offset;
             uint8_t zeros[8] = { 0 };
             uint32_t confirmation_offset = initial_offset + 26;
             if (is_hrr) {
                 uint32_t hrr_offset = initial_offset + 34;
-                ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, hrr_offset,
+                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset,
                                              tvb_get_uint8(tvb, hrr_offset) + 1), tvb_get_uint8(tvb, hrr_offset) + 1);
                 hrr_offset += tvb_get_uint8(tvb, hrr_offset) + 1;
-                ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, hrr_offset, 3), 3);
+                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, 3), 3);
                 hrr_offset += 3;
                 uint16_t extensions_end = hrr_offset + tvb_get_ntohs(tvb, hrr_offset) + 2;
-                ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, hrr_offset, 2), 2);
+                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, 2), 2);
                 hrr_offset += 2;
                 while (extensions_end - hrr_offset >= 4) {
                     if (tvb_get_ntohs(tvb, hrr_offset) == SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO &&
                         tvb_get_ntohs(tvb, hrr_offset + 2) == 8) {
                         confirmation_offset = hrr_offset + 4;
-                        ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, hrr_offset, 4), 4);
+                        ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, 4), 4);
                         ssl_md_update(&mc, zeros, 8);
                         hrr_offset += 12;
                     } else {
-                        ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, hrr_offset, tvb_get_ntohs(tvb, hrr_offset + 2) + 4),
+                        ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, tvb_get_ntohs(tvb, hrr_offset + 2) + 4),
                             tvb_get_ntohs(tvb, hrr_offset + 2) + 4);
                         hrr_offset += tvb_get_ntohs(tvb, hrr_offset + 2) + 4;
                     }
                 }
             } else {
                 ssl_md_update(&mc, zeros, 8);
-                ssl_md_update(&mc, (guchar *)tvb_get_ptr(tvb, initial_offset + 34, offset - initial_offset - 34),
+                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset + 34, offset - initial_offset - 34),
                               offset - initial_offset - 34);
             }
             ssl_md_final(&mc, transcript_hash, &len);
@@ -10969,14 +10969,14 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             memcpy(is_hrr ? ssl->session.hrr_ech_confirmation : ssl->session.ech_confirmation, ech_verify_out, 8);
             if (tvb_memeql(tvb, confirmation_offset, ech_verify_out, 8) == -1) {
                 if (is_hrr) {
-                    ssl->session.hrr_ech_declined = TRUE;
+                    ssl->session.hrr_ech_declined = true;
                     ssl->session.first_ch_ech_frame = 0;
                 }
                 memcpy(ssl->client_random.data, ssl->session.client_random.data, ssl->session.client_random.data_len);
                 ssl_print_data("Updated Client Random", ssl->client_random.data, 32);
             }
             wmem_free(NULL, ech_verify_out);
-            ssl->session.ech = TRUE;
+            ssl->session.ech = true;
         }
     }
 

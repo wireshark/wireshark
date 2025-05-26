@@ -1315,7 +1315,7 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                bool is_from_server,
                                const SslDecryptSession *ssl);
 
-extern gint
+extern int
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info *pinfo, proto_tree *tree, uint32_t offset,
                           uint32_t offset_end, SslSession *session,
