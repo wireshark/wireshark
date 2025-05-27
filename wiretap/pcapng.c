@@ -323,12 +323,12 @@ register_pcapng_block_type_handler(pcapng_block_type_handler_t* handler)
          */
         if (!(handler->type & 0x80000000)) {
             if (!pcapng_block_approved(handler->type)) {
-                    /*
-                    * No; don't allow a plugin to be registered for it, as
-                    * the block type needs to be registered before it's used.
-                    */
+                /*
+                 * No; don't allow a plugin to be registered for it, as
+                 * the block type needs to be registered before it's used.
+                 */
                 ws_warning("Attempt to register plugin for reserved block type 0x%08x not allowed",
-                                handler->type);
+                           handler->type);
                 return;
             }
         }
