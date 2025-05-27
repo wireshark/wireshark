@@ -31,6 +31,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
 #include <epan/column-info.h>
@@ -561,6 +562,225 @@ frame_add_verdict(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 	return true;
 }
 
+struct custom_binary_opt_cb_data {
+	packet_info *pinfo;
+	tvbuff_t *tvb;
+	proto_tree *tree;
+	proto_tree *fh_tree;
+};
+
+static void
+process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, proto_tree *fh_tree, wtap_optval_t *optval)
+{
+	size_t custom_data_len;
+	const uint8_t *custom_data;
+	uint32_t type;
+	struct nflx_tcpinfo tcpinfo;
+
+	custom_data_len = optval->custom_binaryval.data.custom_data_len;
+	custom_data = optval->custom_binaryval.data.custom_data;
+
+	/*
+	 * Make sure we have the type in the option data, and
+	 * extract it.
+	 *
+	 * It'a 32-bit little-endian unsigned integral value.
+	 */
+	if (custom_data_len < sizeof (uint32_t))
+		return;
+	type = pletoh32(custom_data);
+	custom_data_len -= sizeof (uint32_t);
+	custom_data += sizeof (uint32_t);
+
+	switch (type) {
+
+	case NFLX_OPT_TYPE_TCPINFO:
+		if (custom_data_len < OPT_NFLX_TCPINFO_SIZE)
+			return;
+		if (custom_data_len > sizeof (struct nflx_tcpinfo))
+			custom_data_len = sizeof (struct nflx_tcpinfo);
+		memcpy(&tcpinfo, custom_data, custom_data_len);
+		if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
+		    (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
+			/* TCP WS option has been sent and received. */
+			switch (pinfo->p2p_dir) {
+			case P2P_DIR_RECV:
+				pinfo->src_win_scale = tcpinfo.tlb_snd_scale;
+				pinfo->dst_win_scale = tcpinfo.tlb_rcv_scale;
+				break;
+			case P2P_DIR_SENT:
+				pinfo->src_win_scale = tcpinfo.tlb_rcv_scale;
+				pinfo->dst_win_scale = tcpinfo.tlb_snd_scale;
+				break;
+			case P2P_DIR_UNKNOWN:
+				pinfo->src_win_scale = -1; /* unknown */
+				pinfo->dst_win_scale = -1; /* unknown */
+				break;
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+			}
+		} else if (NFLX_TLB_IS_SYNCHRONIZED(tcpinfo.tlb_state)) {
+			/* TCP connection is in a synchronized state. */
+			pinfo->src_win_scale = -2; /* window scaling disabled */
+			pinfo->dst_win_scale = -2; /* window scaling disabled */
+		} else {
+			pinfo->src_win_scale = -1; /* unknown */
+			pinfo->dst_win_scale = -1; /* unknown */
+		}
+		if (proto_field_is_referenced(tree, proto_frame)) {
+			proto_tree *bblog_tree;
+			proto_item *bblog_item;
+			static int * const bblog_event_flags[] = {
+				&hf_frame_bblog_event_flags_rxbuf,
+				&hf_frame_bblog_event_flags_txbuf,
+				&hf_frame_bblog_event_flags_hdr,
+				&hf_frame_bblog_event_flags_verbose,
+				&hf_frame_bblog_event_flags_stack,
+				NULL
+			};
+			static int * const bblog_t_flags[] = {
+				&hf_frame_bblog_t_flags_ack_now,
+				&hf_frame_bblog_t_flags_delayed_ack,
+				&hf_frame_bblog_t_flags_no_delay,
+				&hf_frame_bblog_t_flags_no_opt,
+				&hf_frame_bblog_t_flags_sent_fin,
+				&hf_frame_bblog_t_flags_request_window_scale,
+				&hf_frame_bblog_t_flags_received_window_scale,
+				&hf_frame_bblog_t_flags_request_timestamp,
+				&hf_frame_bblog_t_flags_received_timestamp,
+				&hf_frame_bblog_t_flags_sack_permitted,
+				&hf_frame_bblog_t_flags_need_syn,
+				&hf_frame_bblog_t_flags_need_fin,
+				&hf_frame_bblog_t_flags_no_push,
+				&hf_frame_bblog_t_flags_prev_valid,
+				&hf_frame_bblog_t_flags_wake_socket_receive,
+				&hf_frame_bblog_t_flags_goodput_in_progress,
+				&hf_frame_bblog_t_flags_more_to_come,
+				&hf_frame_bblog_t_flags_listen_queue_overflow,
+				&hf_frame_bblog_t_flags_last_idle,
+				&hf_frame_bblog_t_flags_zero_recv_window_sent,
+				&hf_frame_bblog_t_flags_be_in_fast_recovery,
+				&hf_frame_bblog_t_flags_was_in_fast_recovery,
+				&hf_frame_bblog_t_flags_signature,
+				&hf_frame_bblog_t_flags_force_data,
+				&hf_frame_bblog_t_flags_tso,
+				&hf_frame_bblog_t_flags_toe,
+				&hf_frame_bblog_t_flags_unused_0,
+				&hf_frame_bblog_t_flags_unused_1,
+				&hf_frame_bblog_t_flags_lost_rtx_detection,
+				&hf_frame_bblog_t_flags_be_in_cong_recovery,
+				&hf_frame_bblog_t_flags_was_in_cong_recovery,
+				&hf_frame_bblog_t_flags_fast_open,
+				NULL
+			};
+			static int * const bblog_t_flags2[] = {
+				&hf_frame_bblog_t_flags2_plpmtu_blackhole,
+				&hf_frame_bblog_t_flags2_plpmtu_pmtud,
+				&hf_frame_bblog_t_flags2_plpmtu_maxsegsnt,
+				&hf_frame_bblog_t_flags2_log_auto,
+				&hf_frame_bblog_t_flags2_drop_after_data,
+				&hf_frame_bblog_t_flags2_ecn_permit,
+				&hf_frame_bblog_t_flags2_ecn_snd_cwr,
+				&hf_frame_bblog_t_flags2_ecn_snd_ece,
+				&hf_frame_bblog_t_flags2_ace_permit,
+				&hf_frame_bblog_t_flags2_first_bytes_complete,
+				NULL
+			};
+
+			bblog_item = proto_tree_add_string(fh_tree, hf_frame_bblog, tvb, 0, 0, "");
+			bblog_tree = proto_item_add_subtree(bblog_item, ett_bblog);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_ticks,          NULL, 0, 0, tcpinfo.tlb_ticks);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_serial_nr,      NULL, 0, 0, tcpinfo.tlb_sn);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_event_id,       NULL, 0, 0, tcpinfo.tlb_eventid);
+			proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_event_flags, ett_bblog_event_flags, bblog_event_flags, tcpinfo.tlb_eventflags);
+			proto_tree_add_int(bblog_tree,  hf_frame_bblog_errno,          NULL, 0, 0, tcpinfo.tlb_errno);
+			if (tcpinfo.tlb_eventflags & BBLOG_EVENT_FLAG_RXBUF) {
+				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_acc,   NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_acc);
+				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_ccc,   NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_ccc);
+				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_spare, NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_spare);
+			}
+			if (tcpinfo.tlb_eventflags & BBLOG_EVENT_FLAG_TXBUF) {
+				proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_acc,   NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_acc);
+				proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_ccc,   NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_ccc);
+				proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_spare, NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_spare);
+			}
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_state,          NULL, 0, 0, tcpinfo.tlb_state);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_starttime,      NULL, 0, 0, tcpinfo.tlb_starttime);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_iss,            NULL, 0, 0, tcpinfo.tlb_iss);
+			proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_t_flags, ett_bblog_t_flags, bblog_t_flags, tcpinfo.tlb_flags);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_una,        NULL, 0, 0, tcpinfo.tlb_snd_una);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_max,        NULL, 0, 0, tcpinfo.tlb_snd_max);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_cwnd,       NULL, 0, 0, tcpinfo.tlb_snd_cwnd);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_nxt,        NULL, 0, 0, tcpinfo.tlb_snd_nxt);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_recover,    NULL, 0, 0, tcpinfo.tlb_snd_recover);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_wnd,        NULL, 0, 0, tcpinfo.tlb_snd_wnd);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_ssthresh,   NULL, 0, 0, tcpinfo.tlb_snd_ssthresh);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_srtt,           NULL, 0, 0, tcpinfo.tlb_srtt);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_rttvar,         NULL, 0, 0, tcpinfo.tlb_rttvar);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_up,         NULL, 0, 0, tcpinfo.tlb_rcv_up);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_adv,        NULL, 0, 0, tcpinfo.tlb_rcv_adv);
+			proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_t_flags2, ett_bblog_t_flags2, bblog_t_flags2, tcpinfo.tlb_flags2);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_nxt,        NULL, 0, 0, tcpinfo.tlb_rcv_nxt);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_wnd,        NULL, 0, 0, tcpinfo.tlb_rcv_wnd);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_dupacks,        NULL, 0, 0, tcpinfo.tlb_dupacks);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_seg_qlen,       NULL, 0, 0, tcpinfo.tlb_segqlen);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_num_holes,  NULL, 0, 0, tcpinfo.tlb_snd_numholes);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_flex_1,         NULL, 0, 0, tcpinfo.tlb_flex1);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_flex_2,         NULL, 0, 0, tcpinfo.tlb_flex2);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_first_byte_in,  NULL, 0, 0, tcpinfo.tlb_fbyte_in);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_first_byte_out, NULL, 0, 0, tcpinfo.tlb_fbyte_out);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_scale,      NULL, 0, 0, tcpinfo.tlb_snd_scale);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_scale,      NULL, 0, 0, tcpinfo.tlb_rcv_scale);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_1,          NULL, 0, 0, tcpinfo._pad[0]);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_2,          NULL, 0, 0, tcpinfo._pad[1]);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_3,          NULL, 0, 0, tcpinfo._pad[2]);
+			proto_tree_add_uint(bblog_tree, hf_frame_bblog_payload_len,    NULL, 0, 0, tcpinfo.tlb_len);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+static bool
+handle_packet_option(wtap_block_t block _U_, unsigned option_id,
+    wtap_opttype_e option_type _U_, wtap_optval_t *optval, void *user_data)
+{
+	struct custom_binary_opt_cb_data *cb_data = (struct custom_binary_opt_cb_data *)user_data;
+
+	switch (option_id) {
+
+	case OPT_CUSTOM_STR_COPY:
+	case OPT_CUSTOM_STR_NO_COPY:
+		/* Display it */
+		break;
+
+	case OPT_CUSTOM_BIN_COPY:
+	case OPT_CUSTOM_BIN_NO_COPY:
+		/* Process it */
+		switch (optval->custom_binaryval.pen) {
+
+		case PEN_NFLX:
+			process_nflx_custom_binary_opt(cb_data->tvb,
+			    cb_data->pinfo, cb_data->tree, cb_data->fh_tree,
+			    optval);
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	default:
+		/* Process these too? */
+		break;
+	}
+
+	return true;
+}
+
 static int
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
@@ -1039,8 +1259,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	}
 
 	if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
-		struct nflx_tcpinfo tcpinfo;
-
 		if (do_frame_dissection) {
 			/* Check for existences of P2P pseudo header */
 			if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
@@ -1056,148 +1274,17 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 		}
 
-		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nflx_custom_option(fr_data->pkt_block,
-									      NFLX_OPT_TYPE_TCPINFO,
-									      (char *)&tcpinfo,
-									      sizeof(struct nflx_tcpinfo))) {
+		/*
+		 * Process custom options.
+		 */
+		struct custom_binary_opt_cb_data cb_data;
 
-			if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
-			    (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
-				/* TCP WS option has been sent and received. */
-				switch (pinfo->p2p_dir) {
-				case P2P_DIR_RECV:
-					pinfo->src_win_scale = tcpinfo.tlb_snd_scale;
-					pinfo->dst_win_scale = tcpinfo.tlb_rcv_scale;
-					break;
-				case P2P_DIR_SENT:
-					pinfo->src_win_scale = tcpinfo.tlb_rcv_scale;
-					pinfo->dst_win_scale = tcpinfo.tlb_snd_scale;
-					break;
-				case P2P_DIR_UNKNOWN:
-					pinfo->src_win_scale = -1; /* unknown */
-					pinfo->dst_win_scale = -1; /* unknown */
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-				}
-			} else if (NFLX_TLB_IS_SYNCHRONIZED(tcpinfo.tlb_state)) {
-				/* TCP connection is in a synchronized state. */
-				pinfo->src_win_scale = -2; /* window scaling disabled */
-				pinfo->dst_win_scale = -2; /* window scaling disabled */
-			} else {
-				pinfo->src_win_scale = -1; /* unknown */
-				pinfo->dst_win_scale = -1; /* unknown */
-			}
-			if (do_frame_dissection) {
-				proto_tree *bblog_tree;
-				proto_item *bblog_item;
-				static int * const bblog_event_flags[] = {
-					&hf_frame_bblog_event_flags_rxbuf,
-					&hf_frame_bblog_event_flags_txbuf,
-					&hf_frame_bblog_event_flags_hdr,
-					&hf_frame_bblog_event_flags_verbose,
-					&hf_frame_bblog_event_flags_stack,
-					NULL
-				};
-				static int * const bblog_t_flags[] = {
-					&hf_frame_bblog_t_flags_ack_now,
-					&hf_frame_bblog_t_flags_delayed_ack,
-					&hf_frame_bblog_t_flags_no_delay,
-					&hf_frame_bblog_t_flags_no_opt,
-					&hf_frame_bblog_t_flags_sent_fin,
-					&hf_frame_bblog_t_flags_request_window_scale,
-					&hf_frame_bblog_t_flags_received_window_scale,
-					&hf_frame_bblog_t_flags_request_timestamp,
-					&hf_frame_bblog_t_flags_received_timestamp,
-					&hf_frame_bblog_t_flags_sack_permitted,
-					&hf_frame_bblog_t_flags_need_syn,
-					&hf_frame_bblog_t_flags_need_fin,
-					&hf_frame_bblog_t_flags_no_push,
-					&hf_frame_bblog_t_flags_prev_valid,
-					&hf_frame_bblog_t_flags_wake_socket_receive,
-					&hf_frame_bblog_t_flags_goodput_in_progress,
-					&hf_frame_bblog_t_flags_more_to_come,
-					&hf_frame_bblog_t_flags_listen_queue_overflow,
-					&hf_frame_bblog_t_flags_last_idle,
-					&hf_frame_bblog_t_flags_zero_recv_window_sent,
-					&hf_frame_bblog_t_flags_be_in_fast_recovery,
-					&hf_frame_bblog_t_flags_was_in_fast_recovery,
-					&hf_frame_bblog_t_flags_signature,
-					&hf_frame_bblog_t_flags_force_data,
-					&hf_frame_bblog_t_flags_tso,
-					&hf_frame_bblog_t_flags_toe,
-					&hf_frame_bblog_t_flags_unused_0,
-					&hf_frame_bblog_t_flags_unused_1,
-					&hf_frame_bblog_t_flags_lost_rtx_detection,
-					&hf_frame_bblog_t_flags_be_in_cong_recovery,
-					&hf_frame_bblog_t_flags_was_in_cong_recovery,
-					&hf_frame_bblog_t_flags_fast_open,
-					NULL
-				};
-				static int * const bblog_t_flags2[] = {
-					&hf_frame_bblog_t_flags2_plpmtu_blackhole,
-					&hf_frame_bblog_t_flags2_plpmtu_pmtud,
-					&hf_frame_bblog_t_flags2_plpmtu_maxsegsnt,
-					&hf_frame_bblog_t_flags2_log_auto,
-					&hf_frame_bblog_t_flags2_drop_after_data,
-					&hf_frame_bblog_t_flags2_ecn_permit,
-					&hf_frame_bblog_t_flags2_ecn_snd_cwr,
-					&hf_frame_bblog_t_flags2_ecn_snd_ece,
-					&hf_frame_bblog_t_flags2_ace_permit,
-					&hf_frame_bblog_t_flags2_first_bytes_complete,
-					NULL
-				};
-
-				bblog_item = proto_tree_add_string(fh_tree, hf_frame_bblog, tvb, 0, 0, "");
-				bblog_tree = proto_item_add_subtree(bblog_item, ett_bblog);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_ticks,          NULL, 0, 0, tcpinfo.tlb_ticks);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_serial_nr,      NULL, 0, 0, tcpinfo.tlb_sn);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_event_id,       NULL, 0, 0, tcpinfo.tlb_eventid);
-				proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_event_flags, ett_bblog_event_flags, bblog_event_flags, tcpinfo.tlb_eventflags);
-				proto_tree_add_int(bblog_tree,  hf_frame_bblog_errno,          NULL, 0, 0, tcpinfo.tlb_errno);
-				if (tcpinfo.tlb_eventflags & BBLOG_EVENT_FLAG_RXBUF) {
-					proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_acc,   NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_acc);
-					proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_ccc,   NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_ccc);
-					proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_spare, NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_spare);
-				}
-				if (tcpinfo.tlb_eventflags & BBLOG_EVENT_FLAG_TXBUF) {
-					proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_acc,   NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_acc);
-					proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_ccc,   NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_ccc);
-					proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_spare, NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_spare);
-				}
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_state,          NULL, 0, 0, tcpinfo.tlb_state);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_starttime,      NULL, 0, 0, tcpinfo.tlb_starttime);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_iss,            NULL, 0, 0, tcpinfo.tlb_iss);
-				proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_t_flags, ett_bblog_t_flags, bblog_t_flags, tcpinfo.tlb_flags);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_una,        NULL, 0, 0, tcpinfo.tlb_snd_una);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_max,        NULL, 0, 0, tcpinfo.tlb_snd_max);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_cwnd,       NULL, 0, 0, tcpinfo.tlb_snd_cwnd);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_nxt,        NULL, 0, 0, tcpinfo.tlb_snd_nxt);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_recover,    NULL, 0, 0, tcpinfo.tlb_snd_recover);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_wnd,        NULL, 0, 0, tcpinfo.tlb_snd_wnd);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_ssthresh,   NULL, 0, 0, tcpinfo.tlb_snd_ssthresh);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_srtt,           NULL, 0, 0, tcpinfo.tlb_srtt);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rttvar,         NULL, 0, 0, tcpinfo.tlb_rttvar);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_up,         NULL, 0, 0, tcpinfo.tlb_rcv_up);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_adv,        NULL, 0, 0, tcpinfo.tlb_rcv_adv);
-				proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_t_flags2, ett_bblog_t_flags2, bblog_t_flags2, tcpinfo.tlb_flags2);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_nxt,        NULL, 0, 0, tcpinfo.tlb_rcv_nxt);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_wnd,        NULL, 0, 0, tcpinfo.tlb_rcv_wnd);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_dupacks,        NULL, 0, 0, tcpinfo.tlb_dupacks);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_seg_qlen,       NULL, 0, 0, tcpinfo.tlb_segqlen);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_num_holes,  NULL, 0, 0, tcpinfo.tlb_snd_numholes);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_flex_1,         NULL, 0, 0, tcpinfo.tlb_flex1);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_flex_2,         NULL, 0, 0, tcpinfo.tlb_flex2);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_first_byte_in,  NULL, 0, 0, tcpinfo.tlb_fbyte_in);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_first_byte_out, NULL, 0, 0, tcpinfo.tlb_fbyte_out);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_scale,      NULL, 0, 0, tcpinfo.tlb_snd_scale);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_scale,      NULL, 0, 0, tcpinfo.tlb_rcv_scale);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_1,          NULL, 0, 0, tcpinfo._pad[0]);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_2,          NULL, 0, 0, tcpinfo._pad[1]);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_3,          NULL, 0, 0, tcpinfo._pad[2]);
-				proto_tree_add_uint(bblog_tree, hf_frame_bblog_payload_len,    NULL, 0, 0, tcpinfo.tlb_len);
-			}
-		}
+		cb_data.pinfo = pinfo;
+		cb_data.tvb = tvb;
+		cb_data.tree = tree;
+		cb_data.fh_tree = fh_tree;
+		wtap_block_foreach_option(fr_data->pkt_block,
+		    handle_packet_option, &cb_data);
 	}
 
 	if (do_frame_dissection) {

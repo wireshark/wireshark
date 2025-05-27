@@ -272,7 +272,7 @@ typedef bool (*custom_option_parser)(FILE_T fh, section_info_t* section_info,
     wtapng_block_t* wblock,
     int* err, char** err_info);
 typedef bool (*custom_option_processor)(wtapng_block_t* wblock,
-    section_info_t* section_info,
+    section_info_t* section_info, uint16_t option_code,
     const uint8_t* value, uint16_t length);
 
 typedef struct pcapng_custom_block_enterprise_handler_t

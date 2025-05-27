@@ -875,7 +875,7 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
 
     if (pen_handler != NULL)
     {
-        ret = pen_handler->processor(wblock, section_info, option_content + 4, option_length - 4);
+        ret = pen_handler->processor(wblock, section_info, option_code, option_content + 4, option_length - 4);
     }
     else
     {

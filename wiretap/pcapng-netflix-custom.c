@@ -303,6 +303,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
 bool
 pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
                                   section_info_t *section_info,
+                                  uint16_t option_code,
                                   const uint8_t *value, uint16_t length)
 {
     struct nflx_dumpinfo dumpinfo;
@@ -313,6 +314,8 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
         ws_debug("Length = %u too small", length);
         return false;
     }
+    if (wtap_block_add_custom_binary_option_from_data(wblock->block, option_code, PEN_NFLX, value, length) != WTAP_OPTTYPE_SUCCESS)
+        return false;
     memcpy(&type, value, sizeof(uint32_t));
     type = GUINT32_FROM_LE(type);
     value += 4;
@@ -379,7 +382,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
         ws_debug("Unknown type: %u, length: %u", type, length);
         break;
     }
-    return wtap_block_add_nflx_custom_option(wblock->block, type, value, length) == WTAP_OPTTYPE_SUCCESS;
+    return true;
 }
 
 bool

@@ -21,12 +21,6 @@ extern "C" {
  */
 #define PEN_NFLX 10949
 
-typedef struct nflx_custom_opt_s {
-    uint32_t nflx_type2;
-    size_t nflx_custom_data_len;
-    char *nflx_custom_data;
-} nflx_custom_opt_t;
-
 #define NFLX_OPT_TYPE_VERSION    1
 #define NFLX_OPT_TYPE_TCPINFO    2
 #define NFLX_OPT_TYPE_DUMPINFO   4
@@ -163,30 +157,6 @@ struct nflx_dumpinfo {
     uint8_t  tlh_af;
     uint8_t  _pad[7];
 };
-
-/** Add an NFLX custom option to a block
- *
- * @param[in] block Block to which to add the option
- * @param[in] nflx_type NFLX option type
- * @param[in] nflx_custom_data pointer to the data
- * @param[in] nflx_custom_data_len length of custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, const char *nflx_custom_data, size_t nflx_custom_data_len);
-
-/** Get an NFLX custom option value from a block
- *
- * @param[in] block Block from which to get the option value
- * @param[in] nflx_type type of the option
- * @param[out] nflx_custom_data Returned value of NFLX custom option value
- * @param[in] nflx_custom_data_len size of buffer provided in nflx_custom_data
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
- */
-WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char *nflx_custom_data, size_t nflx_custom_data_len);
 
 #ifdef __cplusplus
 }
