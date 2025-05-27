@@ -123,7 +123,7 @@ static int hf_pad_2;
 static int hf_pad_3;
 static int hf_payload_len;
 
-static int proto_bblog_binary_options;
+static int proto_frame;
 
 static int hf_frame_bblog;
 static int hf_frame_bblog_ticks;
@@ -564,7 +564,7 @@ dissect_bblog_binary_option(tvbuff_t *tvb, packet_info *pinfo,
             pinfo->src_win_scale = -1; /* unknown */
             pinfo->dst_win_scale = -1; /* unknown */
         }
-        if (cbo_data->add_to_tree) {
+        if (proto_field_is_referenced(tree, proto_frame)) {
             proto_tree *bblog_tree;
             proto_item *bblog_item;
             static int * const frame_bblog_event_flags[] = {
@@ -776,6 +776,28 @@ proto_register_bblog(void)
         { &hf_pad_3,                          { "Padding",                                              "bblog.pad_3",                         FT_UINT8,   BASE_DEC,  NULL,                              0x0,                                 NULL, HFILL} },
         { &hf_payload_len,                    { "TCP Payload Length",                                   "bblog.payload_length",                FT_UINT32,  BASE_DEC,  NULL,                              0x0,                                 NULL, HFILL} },
     };
+
+    /* Setup protocol subtree array */
+    static int *ett[] = {
+        &ett_bblog,
+        &ett_bblog_flags,
+        &ett_bblog_t_flags,
+        &ett_bblog_t_flags2
+    };
+
+    /* Register the protocol name and description */
+    proto_bblog = proto_register_protocol("Black Box Log", "BBLog", "bblog");
+
+    /* Required function calls to register the header fields and subtrees */
+    proto_register_field_array(proto_bblog, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    bblog_handle = register_dissector("bblog", dissect_bblog, proto_bblog);
+}
+
+void
+proto_reg_handoff_bblog(void)
+{
+    dissector_handle_t bblog_option_handle;
 
     static hf_register_info hf_bblog_options[] = {
         { &hf_frame_bblog,
@@ -1229,14 +1251,6 @@ proto_register_bblog(void)
     	    NULL, HFILL}},
     };
 
-    /* Setup protocol subtree array */
-    static int *ett[] = {
-        &ett_bblog,
-        &ett_bblog_flags,
-        &ett_bblog_t_flags,
-        &ett_bblog_t_flags2
-    };
-
     static int *ett_frame_bblog_options[] = {
         &ett_frame_bblog,
         &ett_frame_bblog_event_flags,
@@ -1244,27 +1258,14 @@ proto_register_bblog(void)
     	&ett_frame_bblog_t_flags2
     };
 
-    /* Register the protocol name and description */
-    proto_bblog = proto_register_protocol("Black Box Log", "BBLog", "bblog");
-
-    /* Required function calls to register the header fields and subtrees */
-    proto_register_field_array(proto_bblog, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-    bblog_handle = register_dissector("bblog", dissect_bblog, proto_bblog);
+    proto_frame = proto_registrar_get_id_byname("frame");
 
     /* Register the protocol name and description for binary options */
-    proto_bblog_binary_options = proto_register_protocol("Black Box Log options", "BBLog-opts", "bblog-opts");
     proto_register_subtree_array(ett_frame_bblog_options, array_length(ett_frame_bblog_options));
-    proto_register_field_array(proto_bblog_binary_options, hf_bblog_options, array_length(hf_bblog_options));
-}
-
-void
-proto_reg_handoff_bblog(void)
-{
-    dissector_handle_t bblog_option_handle;
+    proto_register_field_array(proto_frame, hf_bblog_options, array_length(hf_bblog_options));
 
     dissector_add_uint("pcapng_custom_block", PEN_NFLX, bblog_handle);
-    bblog_option_handle = create_dissector_handle(dissect_bblog_binary_option, proto_bblog_binary_options);
+    bblog_option_handle = create_dissector_handle(dissect_bblog_binary_option, proto_frame);
     dissector_add_uint("pcapng_custom_binary_option", PEN_NFLX, bblog_option_handle);
 }
 

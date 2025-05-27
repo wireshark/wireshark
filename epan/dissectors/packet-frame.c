@@ -967,7 +967,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		cb_data.tvb = tvb;
 		cb_data.tree = fh_tree;
 		cb_data.data.optval = NULL;
-		cb_data.data.add_to_tree = do_frame_dissection;
 		wtap_block_foreach_option(fr_data->pkt_block,
 		    handle_packet_option, &cb_data);
 	}

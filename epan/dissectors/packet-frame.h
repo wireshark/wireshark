@@ -21,7 +21,6 @@
  */
 struct custom_binary_opt_data {
 	wtap_optval_t *optval;
-	bool add_to_tree;
 };
 
 /*
