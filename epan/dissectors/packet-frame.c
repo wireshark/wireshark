@@ -562,24 +562,30 @@ frame_add_verdict(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 	return true;
 }
 
-struct custom_binary_opt_cb_data {
-	packet_info *pinfo;
-	tvbuff_t *tvb;
-	proto_tree *tree;
-	proto_tree *fh_tree;
+struct custom_binary_opt_data {
+	wtap_optval_t *optval;
+	proto_tree *parent_tree;
 };
 
-static void
+struct custom_binary_opt_cb_data {
+	tvbuff_t *tvb;
+	packet_info *pinfo;
+	proto_tree *tree;
+	struct custom_binary_opt_data data;
+};
+
+static int
 process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, proto_tree *fh_tree, wtap_optval_t *optval)
+    proto_tree *tree, void *data)
 {
+	struct custom_binary_opt_data *cbo_data = (struct custom_binary_opt_data *)data;
 	size_t custom_data_len;
 	const uint8_t *custom_data;
 	uint32_t type;
 	struct nflx_tcpinfo tcpinfo;
 
-	custom_data_len = optval->custom_binaryval.data.custom_data_len;
-	custom_data = optval->custom_binaryval.data.custom_data;
+	custom_data_len = cbo_data->optval->custom_binaryval.data.custom_data_len;
+	custom_data = cbo_data->optval->custom_binaryval.data.custom_data;
 
 	/*
 	 * Make sure we have the type in the option data, and
@@ -588,7 +594,7 @@ process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
 	 * It'a 32-bit little-endian unsigned integral value.
 	 */
 	if (custom_data_len < sizeof (uint32_t))
-		return;
+		return (int)cbo_data->optval->custom_binaryval.data.custom_data_len;
 	type = pletoh32(custom_data);
 	custom_data_len -= sizeof (uint32_t);
 	custom_data += sizeof (uint32_t);
@@ -597,7 +603,7 @@ process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
 
 	case NFLX_OPT_TYPE_TCPINFO:
 		if (custom_data_len < OPT_NFLX_TCPINFO_SIZE)
-			return;
+			return (int) cbo_data->optval->custom_binaryval.data.custom_data_len;
 		if (custom_data_len > sizeof (struct nflx_tcpinfo))
 			custom_data_len = sizeof (struct nflx_tcpinfo);
 		memcpy(&tcpinfo, custom_data, custom_data_len);
@@ -628,7 +634,7 @@ process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
 			pinfo->src_win_scale = -1; /* unknown */
 			pinfo->dst_win_scale = -1; /* unknown */
 		}
-		if (proto_field_is_referenced(tree, proto_frame)) {
+		if (proto_field_is_referenced(cbo_data->parent_tree, proto_frame)) {
 			proto_tree *bblog_tree;
 			proto_item *bblog_item;
 			static int * const bblog_event_flags[] = {
@@ -688,7 +694,7 @@ process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
 				NULL
 			};
 
-			bblog_item = proto_tree_add_string(fh_tree, hf_frame_bblog, tvb, 0, 0, "");
+			bblog_item = proto_tree_add_string(tree, hf_frame_bblog, tvb, 0, 0, "");
 			bblog_tree = proto_item_add_subtree(bblog_item, ett_bblog);
 			proto_tree_add_uint(bblog_tree, hf_frame_bblog_ticks,          NULL, 0, 0, tcpinfo.tlb_ticks);
 			proto_tree_add_uint(bblog_tree, hf_frame_bblog_serial_nr,      NULL, 0, 0, tcpinfo.tlb_sn);
@@ -742,6 +748,7 @@ process_nflx_custom_binary_opt(tvbuff_t *tvb, packet_info *pinfo,
 	default:
 		break;
 	}
+	return (int)cbo_data->optval->custom_binaryval.data.custom_data_len;
 }
 
 static bool
@@ -760,12 +767,12 @@ handle_packet_option(wtap_block_t block _U_, unsigned option_id,
 	case OPT_CUSTOM_BIN_COPY:
 	case OPT_CUSTOM_BIN_NO_COPY:
 		/* Process it */
+		cb_data->data.optval = optval;
 		switch (optval->custom_binaryval.pen) {
 
 		case PEN_NFLX:
 			process_nflx_custom_binary_opt(cb_data->tvb,
-			    cb_data->pinfo, cb_data->tree, cb_data->fh_tree,
-			    optval);
+			    cb_data->pinfo, cb_data->tree, &cb_data->data);
 			break;
 
 		default:
@@ -1281,8 +1288,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		cb_data.pinfo = pinfo;
 		cb_data.tvb = tvb;
-		cb_data.tree = tree;
-		cb_data.fh_tree = fh_tree;
+		cb_data.tree = fh_tree;
+		cb_data.data.optval = NULL;
+		cb_data.data.parent_tree = parent_tree;
 		wtap_block_foreach_option(fr_data->pkt_block,
 		    handle_packet_option, &cb_data);
 	}
