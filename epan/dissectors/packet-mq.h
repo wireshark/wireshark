@@ -5831,6 +5831,7 @@ typedef struct _mq_parm_t
 
 #endif
 
+extern wmem_strbuf_t* mqpcf_get_encoding(const unsigned uEnc);
 extern int32_t strip_trailing_blanks(uint8_t *a_str, uint32_t a_size);
 extern const uint8_t* dissect_mqpcf_parm_getintval(unsigned uPrm, unsigned uVal);
 extern uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
@@ -5860,12 +5861,12 @@ extern value_string mq_MQREADA_vals[];
 extern value_string mq_MQPROP_vals[];
 extern value_string mq_MQMT_vals[];
 
-extern value_string mq_FilterOP_vals[];
-extern value_string mq_UOWControls_vals[];
-extern value_string mq_LinkType_vals[];
-extern value_string mq_ADSDescr_vals[];
-extern value_string mq_ConvTaskOpt_vals[];
-extern value_string mq_TaskEndStatus_vals[];
+extern value_string mq_MQCFOP_vals[];
+extern value_string mq_MQCUOWC_vals[];
+extern value_string mq_MQCLT_vals[];
+extern value_string mq_MQCADSD_vals[];
+extern value_string mq_MQCCT_vals[];
+extern value_string mq_MQCTES_vals[];
 
 extern const range_string mq_MQCCSI_rvals[];
 extern const range_string mq_MQWI_rvals[];

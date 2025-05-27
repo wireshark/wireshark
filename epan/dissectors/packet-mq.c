@@ -1313,83 +1313,19 @@ static const value_string mq_sidtype_vals[] =
 
 static int dissect_mq_encoding(proto_tree* tree, int hfindex, tvbuff_t* tvb, const int start, int length, const unsigned encoding)
 {
-    wmem_strbuf_t* pEnc = wmem_strbuf_new(wmem_packet_scope(), "");
     unsigned  uEnc;
 
     if (length == 2)
     {
-        uEnc = (int)tvb_get_uint16(tvb, start, encoding);
+        uEnc = tvb_get_uint16(tvb, start, encoding);
     }
     else
     {
         uEnc = tvb_get_uint32(tvb, start, encoding);
     }
 
-#define CHECK_ENC(M, T) ((uEnc & M) == T)
-    if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_UNDEFINED))
-    {
-        wmem_strbuf_append(pEnc, "FLT_UNDEFINED");
-    }
-    else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_IEEE_NORMAL))
-    {
-        wmem_strbuf_append(pEnc, "FLT_IEEE_NORMAL");
-    }
-    else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_IEEE_REVERSED))
-    {
-        wmem_strbuf_append(pEnc, "FLT_IEEE_REVERSED");
-    }
-    else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_S390))
-    {
-        wmem_strbuf_append(pEnc, "FLT_S390");
-    }
-    else if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_TNS))
-    {
-        wmem_strbuf_append(pEnc, "FLT_TNS");
-    }
-    else
-    {
-        wmem_strbuf_append(pEnc, "FLT_UNKNOWN");
-    }
-
-    wmem_strbuf_append(pEnc, "/");
-    if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK, MQ_MQENC_DECIMAL_UNDEFINED))
-    {
-        wmem_strbuf_append(pEnc, "DEC_UNDEFINED");
-    }
-    else if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK, MQ_MQENC_DECIMAL_NORMAL))
-    {
-        wmem_strbuf_append(pEnc, "DEC_NORMAL");
-    }
-    else if (CHECK_ENC(MQ_MQENC_DECIMAL_MASK, MQ_MQENC_DECIMAL_REVERSED))
-    {
-        wmem_strbuf_append(pEnc, "DEC_REVERSED");
-    }
-    else
-    {
-        wmem_strbuf_append(pEnc, "DEC_UNKNOWN");
-    }
-
-    wmem_strbuf_append(pEnc, "/");
-    if (CHECK_ENC(MQ_MQENC_INTEGER_MASK, MQ_MQENC_INTEGER_UNDEFINED))
-    {
-        wmem_strbuf_append(pEnc, "INT_UNDEFINED");
-    }
-    else if (CHECK_ENC(MQ_MQENC_INTEGER_MASK, MQ_MQENC_INTEGER_NORMAL))
-    {
-        wmem_strbuf_append(pEnc, "INT_NORMAL");
-    }
-    else if (CHECK_ENC(MQ_MQENC_INTEGER_MASK, MQ_MQENC_INTEGER_REVERSED))
-    {
-        wmem_strbuf_append(pEnc, "INT_REVERSED");
-    }
-    else
-    {
-        wmem_strbuf_append(pEnc, "INT_UNKNOWN");
-    }
-#undef CHECK_ENC
-
     proto_tree_add_uint_format_value(tree, hfindex, tvb, start, length, uEnc,
-        "%8x-%d (%s)", uEnc, uEnc, pEnc->str);
+        "%8x-%d (%s)", uEnc, uEnc, mqpcf_get_encoding(uEnc)->str);
 
     return length;
 }
@@ -4605,14 +4541,14 @@ void proto_register_mq(void)
         {&hf_mq_cih_returncode, {"ReturnCode...", "mq.cih.returncode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Return Code", HFILL}},
         {&hf_mq_cih_compcode, {"ComplCode....", "mq.cih.compcode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Completion Code", HFILL}},
         {&hf_mq_cih_reasoncode, {"ReasonCode...", "mq.cih.reasoncode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "Reason Code", HFILL}},
-        {&hf_mq_cih_uowcontrols, {"UOWControls..", "mq.cih.uowcontrols", FT_UINT32, BASE_HEX_DEC, VALS(mq_UOWControls_vals), 0x0, "Unit Of Work Controls", HFILL}},
+        {&hf_mq_cih_uowcontrols, {"UOWControls..", "mq.cih.uowcontrols", FT_UINT32, BASE_HEX_DEC, VALS(mq_MQCUOWC_vals), 0x0, "Unit Of Work Controls", HFILL}},
         {&hf_mq_cih_getwaitintv, {"GetWaitIntv..", "mq.cih.getwaitintv", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(mq_MQWI_rvals), 0x0, "Get Wait Interval", HFILL}},
-        {&hf_mq_cih_linktype, {"LinkType.....", "mq.cih.linktype", FT_UINT32, BASE_DEC, VALS(mq_LinkType_vals), 0x0, "LinkType", HFILL}},
+        {&hf_mq_cih_linktype, {"LinkType.....", "mq.cih.linktype", FT_UINT32, BASE_DEC, VALS(mq_MQCLT_vals), 0x0, "LinkType", HFILL}},
         {&hf_mq_cih_outdatalen, {"OutDataLen...", "mq.cih.outdatalen", FT_INT32, BASE_DEC | BASE_RANGE_STRING, RVALS(mq_MQCODL_rvals), 0x0, "Output Data Len", HFILL}},
         {&hf_mq_cih_facilkeeptime, {"FacilKeepTime", "mq.cih.facilkeeptime", FT_UINT32, BASE_DEC, NULL, 0x0, "Facility Keep Time", HFILL}},
-        {&hf_mq_cih_adsdescriptor, {"ADSDescriptor", "mq.cih.adsdescr", FT_UINT32, BASE_DEC, VALS(mq_ADSDescr_vals), 0x0, "ADS Descriptor", HFILL}},
-        {&hf_mq_cih_converstask, {"ConversTask..", "mq.cih.converstask", FT_UINT32, BASE_DEC, VALS(mq_ConvTaskOpt_vals), 0x0, "Conversational Task", HFILL}},
-        {&hf_mq_cih_taskendstatus, {"TaskEndStatus", "mq.cih.taskendstatus", FT_UINT32, BASE_DEC, VALS(mq_TaskEndStatus_vals), 0x0, "Status at End of Task", HFILL}},
+        {&hf_mq_cih_adsdescriptor, {"ADSDescriptor", "mq.cih.adsdescr", FT_UINT32, BASE_DEC, VALS(mq_MQCADSD_vals), 0x0, "ADS Descriptor", HFILL}},
+        {&hf_mq_cih_converstask, {"ConversTask..", "mq.cih.converstask", FT_UINT32, BASE_DEC, VALS(mq_MQCCT_vals), 0x0, "Conversational Task", HFILL}},
+        {&hf_mq_cih_taskendstatus, {"TaskEndStatus", "mq.cih.taskendstatus", FT_UINT32, BASE_DEC, VALS(mq_MQCTES_vals), 0x0, "Status at End of Task", HFILL}},
         {&hf_mq_cih_bridgefactokn, {"BridgeFacTokn", "mq.cih.bridgefactokn", FT_BYTES, BASE_NONE, NULL, 0x0, "Bridge facility token", HFILL}},
         {&hf_mq_cih_function, {"Function.....", "mq.cih.function", FT_STRING, BASE_NONE, NULL, 0x0, "MQ call name or CICS EIBFN function", HFILL}},
         {&hf_mq_cih_abendcode, {"AbendCode....", "mq.cih.abendcode", FT_STRING, BASE_NONE, NULL, 0x0, "Abend Code", HFILL}},

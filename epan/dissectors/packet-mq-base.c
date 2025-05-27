@@ -16,6 +16,68 @@
 
 #include "packet-mq.h"
 
+wmem_strbuf_t* mqpcf_get_encoding(const unsigned uEnc)
+{
+    wmem_strbuf_t* pEnc = wmem_strbuf_new(wmem_packet_scope(), "");
+    switch(uEnc & MQ_MQENC_FLOAT_MASK)
+    {
+    case MQ_MQENC_FLOAT_UNDEFINED:
+        wmem_strbuf_append(pEnc, "FLT_UNDEFINED");
+        break;
+    case MQ_MQENC_FLOAT_IEEE_NORMAL:
+        wmem_strbuf_append(pEnc, "FLT_IEEE_NORMAL");
+        break;
+    case MQ_MQENC_FLOAT_IEEE_REVERSED:
+        wmem_strbuf_append(pEnc, "FLT_IEEE_REVERSED");
+        break;
+    case MQ_MQENC_FLOAT_S390:
+        wmem_strbuf_append(pEnc, "FLT_S390");
+        break;
+    case MQ_MQENC_FLOAT_TNS:
+        wmem_strbuf_append(pEnc, "FLT_TNS");
+        break;
+    default:
+        wmem_strbuf_append(pEnc, "FLT_UNKNOWN");
+        break;
+    }
+
+    wmem_strbuf_append(pEnc, "/");
+    switch(uEnc & MQ_MQENC_DECIMAL_MASK)
+    {
+    case MQ_MQENC_DECIMAL_UNDEFINED:
+        wmem_strbuf_append(pEnc, "DEC_UNDEFINED");
+        break;
+    case MQ_MQENC_DECIMAL_NORMAL:
+        wmem_strbuf_append(pEnc, "DEC_NORMAL");
+        break;
+    case MQ_MQENC_DECIMAL_REVERSED:
+        wmem_strbuf_append(pEnc, "DEC_REVERSED");
+        break;
+    default:
+        wmem_strbuf_append(pEnc, "DEC_UNKNOWN");
+        break;
+    }
+
+    wmem_strbuf_append(pEnc, "/");
+    switch (uEnc & MQ_MQENC_INTEGER_MASK)
+    {
+    case MQ_MQENC_INTEGER_UNDEFINED:
+        wmem_strbuf_append(pEnc, "INT_UNDEFINED");
+        break;
+    case MQ_MQENC_INTEGER_NORMAL:
+        wmem_strbuf_append(pEnc, "INT_NORMAL");
+        break;
+    case MQ_MQENC_INTEGER_REVERSED:
+        wmem_strbuf_append(pEnc, "INT_REVERSED");
+        break;
+    default:
+        wmem_strbuf_append(pEnc, "INT_UNKNOWN");
+        break;
+    }
+
+    return pEnc;
+}
+
  /* This routine truncates the string at the first blank space */
 int32_t strip_trailing_blanks(uint8_t* a_str, uint32_t a_size)
 {
@@ -106,7 +168,7 @@ value_string mq_MQCFT_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_AuthInfoType_vals[] =
+static const value_string mq_MQAIT_vals[] =
 {
 /* 0*/ { MQ_MQAIT_ALL, "MQAIT_ALL" },
 /* 1*/ { MQ_MQAIT_CRL_LDAP, "MQAIT_CRL_LDAP" },
@@ -116,7 +178,7 @@ static const value_string mq_AuthInfoType_vals[] =
     { 0, NULL }
 };
 
-value_string mq_FilterOP_vals[] =
+value_string mq_MQCFOP_vals[] =
 {
 /*  1*/ { MQ_MQCFOP_LESS, "MQCFOP_LESS" },
 /*  2*/ { MQ_MQCFOP_EQUAL, "MQCFOP_EQUAL" },
@@ -141,7 +203,7 @@ value_string mq_MQPRT_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_TraceRouteRecording_vals[] =
+static const value_string mq_MQRECORDING_vals[] =
 {
 /* 0*/ { MQ_MQRECORDING_DISABLED, "MQRECORDING_DISABLED" },
 /* 1*/ { MQ_MQRECORDING_Q, "MQRECORDING_Q" },
@@ -149,28 +211,28 @@ static const value_string mq_TraceRouteRecording_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_TCPStackType_vals[] =
+static const value_string mq_MQTCPSTACK_vals[] =
 {
 /* 0*/ { MQ_MQTCPSTACK_SINGLE, "MQTCPSTACK_SINGLE" },
 /* 1*/ { MQ_MQTCPSTACK_MULTIPLE, "MQTCPSTACK_MULTIPLE" },
     { 0, NULL }
 };
 
-static const value_string mq_TCPKeepAlive_vals[] =
+static const value_string mq_MQTCPKEEP_vals[] =
 {
 /* 0*/ { MQ_MQTCPKEEP_NO, "MQTCPKEEP_NO" },
 /* 1*/ { MQ_MQTCPKEEP_YES, "MQTCPKEEP_YES" },
     { 0, NULL }
 };
 
-static const value_string mq_SharedQueueQueueManagerName_vals[] =
+static const value_string mq_MQSQQM_vals[] =
 {
 /* 0*/ { MQ_MQSQQM_USE, "MQSQQM_USE" },
 /* 1*/ { MQ_MQSQQM_IGNORE, "MQSQQM_IGNORE" },
     { 0, NULL }
 };
 
-static const value_string mq_ReceiveTimeoutType_vals[] =
+static const value_string mq_MQRCVTIME_vals[] =
 {
 /* 0*/ { MQ_MQRCVTIME_MULTIPLY, "MQRCVTIME_MULTIPLY" },
 /* 1*/ { MQ_MQRCVTIME_ADD, "MQRCVTIME_ADD" },
@@ -178,7 +240,7 @@ static const value_string mq_ReceiveTimeoutType_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_IPAddressVersion_vals[] =
+static const value_string mq_MQIPADDR_vals[] =
 {
 /* 0*/ { MQ_MQIPADDR_IPV4, "MQIPADDR_IPV4" },
 /* 1*/ { MQ_MQIPADDR_IPV6, "MQIPADDR_IPV6" },
@@ -199,7 +261,7 @@ static const value_string mq_DNSWLM_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_AdoptNewMCAType_vals[] =
+static const value_string mq_MQADOPT_TYPE_vals[] =
 {
 /*  0*/ { MQ_MQADOPT_TYPE_NO, "MQADOPT_TYPE_NO" },
 /*  1*/ { MQ_MQADOPT_TYPE_ALL, "MQADOPT_TYPE_ALL" },
@@ -210,7 +272,7 @@ static const value_string mq_AdoptNewMCAType_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_AdoptNewMCACheck_vals[] =
+static const value_string mq_MQADOPT_CHECK_vals[] =
 {
 /* 0*/ { MQ_MQADOPT_CHECK_NONE, "MQADOPT_CHECK_NONE" },
 /* 1*/ { MQ_MQADOPT_CHECK_ALL, "MQADOPT_CHECK_ALL" },
@@ -220,15 +282,7 @@ static const value_string mq_AdoptNewMCACheck_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_ActivityRecording_vals[] =
-{
-/* 0*/ { MQ_MQRECORDING_DISABLED, "MQRECORDING_DISABLED" },
-/* 1*/ { MQ_MQRECORDING_Q, "MQRECORDING_Q" },
-/* 2*/ { MQ_MQRECORDING_MSG, "MQRECORDING_MSG" },
-    { 0, NULL }
-};
-
-static const value_string mq_TransportType_vals[] =
+static const value_string mq_MQXPT_vals[] =
 {
 /* -1*/ { MQ_MQXPT_ALL, "MQXPT_ALL" },
 /*  0*/ { MQ_MQXPT_LOCAL, "MQXPT_LOCAL" },
@@ -241,14 +295,14 @@ static const value_string mq_TransportType_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_SSLClientAuthentication_vals[] =
+static const value_string mq_MQSCA_vals[] =
 {
 /* 0*/ { MQ_MQSCA_REQUIRED, "MQSCA_REQUIRED" },
 /* 1*/ { MQ_MQSCA_OPTIONAL, "MQSCA_OPTIONAL" },
     { 0, NULL }
 };
 
-static const value_string mq_PutAuthority_vals[] =
+static const value_string mq_MQPA_vals[] =
 {
 /* 1*/ { MQ_MQPA_DEFAULT, "MQPA_DEFAULT" },
 /* 2*/ { MQ_MQPA_CONTEXT, "MQPA_CONTEXT" },
@@ -257,7 +311,7 @@ static const value_string mq_PutAuthority_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_NonPersistentMsgSpeed_vals[] =
+static const value_string mq_MQNPMS_vals[] =
 {
 /* 1*/ { MQ_MQNPMS_NORMAL, "MQNPMS_NORMAL" },
 /* 2*/ { MQ_MQNPMS_FAST, "MQNPMS_FAST" },
@@ -285,14 +339,14 @@ static const value_string mq_MCAStatus_vals[] =
 };
 #endif
 
-static const value_string mq_MCAType_vals[] =
+static const value_string mq_MQCAT_vals[] =
 {
 /* 1*/ { MQ_MQMCAT_PROCESS, "MQMCAT_PROCESS" },
 /* 2*/ { MQ_MQMCAT_THREAD, "MQMCAT_THREAD" },
     { 0, NULL }
 };
 
-static const value_string mq_DataConversion_vals[] =
+static const value_string mq_MQCDC_vals[] =
 {
 /* 0*/ { MQ_MQCDC_NO_SENDER_CONVERSION, "MQCDC_NO_SENDER_CONVERSION" },
 /* 1*/ { MQ_MQCDC_SENDER_CONVERSION, "MQCDC_SENDER_CONVERSION" },
@@ -306,7 +360,7 @@ static const value_string mq_MQUS_vals[] =
 { 0, NULL }
 };
 
-static const value_string mq_ChannelType_vals[] =
+static const value_string mq_MQCHT_vals[] =
 {
 /*  1*/ { MQ_MQCHT_SENDER, "MQCHT_SENDER" },
 /*  2*/ { MQ_MQCHT_SERVER, "MQCHT_SERVER" },
@@ -372,15 +426,7 @@ static const value_string mq_MQOO_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CFConLoss_vals[] =
-{
-/* 0*/ { MQ_MQCFCONLOS_TERMINATE, "MQCFCONLOS_TERMINATE" },
-/* 1*/ { MQ_MQCFCONLOS_TOLERATE, "MQCFCONLOS_TOLERATE" },
-/* 2*/ { MQ_MQCFCONLOS_ASQMGR, "MQCFCONLOS_ASQMGR" },
-    { 0, NULL }
-};
-
-static const value_string mq_CLWLUseQ_vals[] =
+static const value_string mq_MQCLWL_USEQ_vals[] =
 {
 /* -3*/ { MQ_MQCLWL_USEQ_AS_Q_MGR, "MQCLWL_USEQ_AS_Q_MGR" },
 /*  0*/ { MQ_MQCLWL_USEQ_LOCAL, "MQCLWL_USEQ_LOCAL" },
@@ -404,7 +450,7 @@ static const value_string mq_MQQA_GET_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_IntraGroupQueuing_vals[] =
+static const value_string mq_MQIGQ_vals[] =
 {
 /* 0*/ { MQ_MQIGQ_DISABLED, "MQIGQ_DISABLED" },
 /* 1*/ { MQ_MQIGQ_ENABLED, "MQIGQ_ENABLED" },
@@ -418,7 +464,7 @@ static const value_string mq_MQQA_PUT_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_Shareability_vals[] =
+static const value_string mq_MQQA_vals[] =
 {
 /* 0*/ { MQ_MQQA_NOT_SHAREABLE, "MQQA_NOT_SHAREABLE" },
 /* 1*/ { MQ_MQQA_SHAREABLE, "MQQA_SHAREABLE" },
@@ -439,7 +485,7 @@ static const value_string mq_MQMDS_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_NonpersistentMsgCls_vals[] =
+static const value_string mq_MQNPM_vals[] =
 {
 /*  0*/ { MQ_MQNPM_CLASS_NORMAL, "MQNPM_CLASS_NORMAL" },
 /* 10*/ { MQ_MQNPM_CLASS_HIGH, "MQNPM_CLASS_HIGH" },
@@ -496,7 +542,7 @@ static const value_string mq_MQBND_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_QShrGrpDisp_vals[] =
+static const value_string m_MQQSGD_vals[] =
 {
 /* -1*/ { MQ_MQQSGD_ALL, "MQQSGD_ALL" },
 /*  0*/ { MQ_MQQSGD_Q_MGR, "MQQSGD_Q_MGR" },
@@ -537,7 +583,7 @@ value_string mq_MQPROP_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_EvtOrig_vals[] =
+static const value_string mq_MQEVO_vals[] =
 {
 /* 0*/ { MQ_MQEVO_OTHER, "MQEVO_OTHER" },
 /* 1*/ { MQ_MQEVO_CONSOLE, "MQEVO_CONSOLE" },
@@ -629,7 +675,7 @@ static const value_string mq_MQPL_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CommandInformationValues_vals[] =
+static const value_string mq_MQCMDI_vals[] =
 {
 /*  1*/ { MQ_MQCMDI_CMDSCOPE_ACCEPTED, "MQCMDI_CMDSCOPE_ACCEPTED" },
 /*  2*/ { MQ_MQCMDI_CMDSCOPE_GENERATED, "MQCMDI_CMDSCOPE_GENERATED" },
@@ -677,7 +723,7 @@ static const value_string mq_ActionOptions_vals[] =
 };
 #endif
 
-static const value_string mq_AsynchronousStateValues_vals[] =
+static const value_string mq_MQAS_vals[] =
 {
 /* 0*/ { MQ_MQAS_NONE, "MQAS_NONE" },
 /* 1*/ { MQ_MQAS_STARTED, "MQAS_STARTED" },
@@ -747,14 +793,14 @@ static const value_string mq_RemoveQueuesOptions_vals[] =
 };
 #endif
 
-static const value_string mq_IndoubtStatus_vals[] =
+static const value_string mq_MQCHIDS_vals[] =
 {
 /* 0*/ { MQ_MQCHIDS_NOT_INDOUBT, "MQCHIDS_NOT_INDOUBT" },
 /* 1*/ { MQ_MQCHIDS_INDOUBT, "MQCHIDS_INDOUBT" },
     { 0, NULL }
 };
 
-static const value_string mq_ChannelDisp_vals[] =
+static const value_string mq_MQCHLD_vals[] =
 {
 /* -1*/ { MQ_MQCHLD_ALL, "MQCHLD_ALL" },
 /*  1*/ { MQ_MQCHLD_DEFAULT, "MQCHLD_DEFAULT" },
@@ -764,7 +810,7 @@ static const value_string mq_ChannelDisp_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_ChannelStatus_vals[] =
+static const value_string mq_MQCHS_vals[] =
 {
 /*  0*/ { MQ_MQCHS_INACTIVE, "MQCHS_INACTIVE" },
 /*  1*/ { MQ_MQCHS_BINDING, "MQCHS_BINDING" },
@@ -781,7 +827,7 @@ static const value_string mq_ChannelStatus_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_ChannelSubStates_vals[] =
+static const value_string mq_MQCHSSTATE_vals[] =
 {
 /*    0*/ { MQ_MQCHSSTATE_OTHER, "MQCHSSTATE_OTHER" },
 /*  100*/ { MQ_MQCHSSTATE_END_OF_BATCH, "MQCHSSTATE_END_OF_BATCH" },
@@ -815,7 +861,7 @@ static const value_string mq_ChannelSharedRestartOptions_vals[] =
 };
 #endif
 
-static const value_string mq_ChannelStopOptions_vals[] =
+static const value_string mq_MQCHSR_STOP_vals[] =
 {
 /* 0*/ { MQ_MQCHSR_STOP_NOT_REQUESTED, "MQCHSR_STOP_NOT_REQUESTED" },
 /* 1*/ { MQ_MQCHSR_STOP_REQUESTED, "MQCHSR_STOP_REQUESTED" },
@@ -838,7 +884,7 @@ static const value_string mq_MQINBD_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_ChinitTraceAutoStart_vals[] =
+static const value_string mq_MQTRAXSTR_vals[] =
 {
 /* 0*/ { MQ_MQTRAXSTR_NO, "MQTRAXSTR_NO" },
 /* 1*/ { MQ_MQTRAXSTR_YES, "MQTRAXSTR_YES" },
@@ -887,7 +933,7 @@ static const value_string mq_MQFC_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_HandleStates_vals[] =
+static const value_string mq_MQHSTATE_vals[] =
 {
 /* 0*/ { MQ_MQHSTATE_INACTIVE, "MQHSTATE_INACTIVE" },
 /* 1*/ { MQ_MQHSTATE_ACTIVE, "MQHSTATE_ACTIVE" },
@@ -912,7 +958,7 @@ static const value_string mq_IndoubtOptions_vals[] =
 };
 #endif
 
-static const value_string mq_MessageChannelAgentStatus_vals[] =
+static const value_string mq_MQMCAS_vals[] =
 {
 /* 0*/ { MQ_MQMCAS_STOPPED, "MQMCAS_STOPPED" },
 /* 3*/ { MQ_MQMCAS_RUNNING, "MQMCAS_RUNNING" },
@@ -938,7 +984,7 @@ static const value_string mq_PurgeOptions_vals[] =
 };
 #endif
 
-static const value_string mq_PubSubCluster_vals[] =
+static const value_string mq_MQPSCLUS_vals[] =
 {
 /* 0*/ { MQ_MQPSCLUS_DISABLED, "MQPSCLUS_DISABLED" },
 /* 1*/ { MQ_MQPSCLUS_ENABLED, "MQPSCLUS_ENABLED" },
@@ -961,7 +1007,7 @@ static const value_string mq_PubSubSync_vals[] =
 };
 
 #if 0
-static const value_string mq_PubSubStatusType_vals[] =
+static const value_string mq_MQPSST_vals[] =
 {
 /* 0*/ { MQ_MQPSST_ALL, "MQPSST_ALL" },
 /* 1*/ { MQ_MQPSST_LOCAL, "MQPSST_LOCAL" },
@@ -972,7 +1018,7 @@ static const value_string mq_PubSubStatusType_vals[] =
 #endif
 
 #if 0
-static const value_string mq_PubSubStatus_vals[] =
+static const value_string mq_MQPS_STATUS_vals[] =
 {
 /* 0*/ { MQ_MQPS_STATUS_INACTIVE, "MQPS_STATUS_INACTIVE" },
 /* 1*/ { MQ_MQPS_STATUS_STARTING, "MQPS_STATUS_STARTING" },
@@ -986,7 +1032,7 @@ static const value_string mq_PubSubStatus_vals[] =
 #endif
 
 #if 0
-static const value_string mq_QueueManagerDefinitionTypes_vals[] =
+static const value_string mq_MQQMDT_vals[] =
 {
 /* 1*/ { MQ_MQQMDT_EXPLICIT_CLUSTER_SENDER, "MQQMDT_EXPLICIT_CLUSTER_SENDER" },
 /* 2*/ { MQ_MQQMDT_AUTO_CLUSTER_SENDER, "MQQMDT_AUTO_CLUSTER_SENDER" },
@@ -997,7 +1043,7 @@ static const value_string mq_QueueManagerDefinitionTypes_vals[] =
 #endif
 
 #if 0
-static const value_string mq_QueueManagerFacility_vals[] =
+static const value_string mq_MQQMFAC_vals[] =
 {
 /* 1*/ { MQ_MQQMFAC_IMS_BRIDGE, "MQQMFAC_IMS_BRIDGE" },
 /* 2*/ { MQ_MQQMFAC_DB2, "MQQMFAC_DB2" },
@@ -1006,7 +1052,7 @@ static const value_string mq_QueueManagerFacility_vals[] =
 #endif
 
 #if 0
-static const value_string mq_QueueManagerStatus_vals[] =
+static const value_string mq_MQQMSTA_vals[] =
 {
 /* 1*/ { MQ_MQQMSTA_STARTING, "MQQMSTA_STARTING" },
 /* 2*/ { MQ_MQQMSTA_RUNNING, "MQQMSTA_RUNNING" },
@@ -1017,7 +1063,7 @@ static const value_string mq_QueueManagerStatus_vals[] =
 #endif
 
 #if 0
-static const value_string mq_QueueManagerTypes_vals[] =
+static const value_string mq_MQQMT_vals[] =
 {
 /* 0*/ { MQ_MQQMT_NORMAL, "MQQMT_NORMAL" },
 /* 1*/ { MQ_MQQMT_REPOSITORY, "MQQMT_REPOSITORY" },
@@ -1026,7 +1072,7 @@ static const value_string mq_QueueManagerTypes_vals[] =
 #endif
 
 #if 0
-static const value_string mq_QuiesceOptions_vals[] =
+static const value_string mq_MQQO_vals[] =
 {
 /* 0*/ { MQ_MQQO_NO, "MQQO_NO" },
 /* 1*/ { MQ_MQQO_YES, "MQQO_YES" },
@@ -1034,7 +1080,7 @@ static const value_string mq_QuiesceOptions_vals[] =
 };
 #endif
 
-static const value_string mq_QueueStatusOpenTypes_vals[] =
+static const value_string mq_MQQSOT_vals[] =
 {
 /* 1*/ { MQ_MQQSOT_ALL, "MQQSOT_ALL" },
 /* 2*/ { MQ_MQQSOT_INPUT, "MQQSOT_INPUT" },
@@ -1043,7 +1089,7 @@ static const value_string mq_QueueStatusOpenTypes_vals[] =
 };
 
 #if 0
-static const value_string mq_NameListTypes_vals[] =
+static const value_string mq_MQNT_vals[] =
 {
 /*    0*/ { MQ_MQNT_NONE, "MQNT_NONE" },
 /*    1*/ { MQ_MQNT_Q, "MQNT_Q" },
@@ -1054,7 +1100,7 @@ static const value_string mq_NameListTypes_vals[] =
 };
 #endif
 
-static const value_string mq_QSGStatus_vals[] =
+static const value_string mq_MQQSGS_vals[] =
 {
 /* 0*/ { MQ_MQQSGS_UNKNOWN, "MQQSGS_UNKNOWN" },
 /* 1*/ { MQ_MQQSGS_CREATED, "MQQSGS_CREATED" },
@@ -1074,23 +1120,16 @@ static const value_string mq_QueueStatusType_vals[] =
 };
 #endif
 
-static const value_string mq_QueueStatusOptionsYesNo_vals[] =
+static const value_string mq_MQQSO_vals[] =
 {
 /* 0*/ { MQ_MQQSO_NO, "MQQSO_NO" },
-/* 1*/ { MQ_MQQSO_YES, "MQQSO_YES" },
-    { 0, NULL }
-};
-
-static const value_string mq_QueueStatusOpenOptions_vals[] =
-{
-/* 0*/ { MQ_MQQSO_NO, "MQQSO_NO" },
-/* 1*/ { MQ_MQQSO_SHARED, "MQQSO_SHARED" },
+/* 1*/ { MQ_MQQSO_SHARED, "MQQSO_YES/MQQSO_SHARED" },
 /* 2*/ { MQ_MQQSO_EXCLUSIVE, "MQQSO_EXCLUSIVE" },
     { 0, NULL }
 };
 
 #if 0
-static const value_string mq_QueueStatusUncommittedMessages_vals[] =
+static const value_string mq_MQQSUM_vals[] =
 {
 /* 0*/ { MQ_MQQSUM_NO, "MQQSUM_NO" },
 /* 1*/ { MQ_MQQSUM_YES, "MQQSUM_YES" },
@@ -1098,7 +1137,7 @@ static const value_string mq_QueueStatusUncommittedMessages_vals[] =
 };
 #endif
 
-static const value_string mq_ReplaceOptions_vals[] =
+static const value_string mq_MQRP_vals[] =
 {
 /* 0*/ { MQ_MQRP_NO, "MQRP_NO" },
 /* 1*/ { MQ_MQRP_YES, "MQRP_YES" },
@@ -1143,7 +1182,7 @@ static const value_string mq_MQRQ_vals[] =
 };
 
 #if 0
-static const value_string mq_RefreshTypes_vals[] =
+static const value_string mq_MQRT_vals[] =
 {
 /* 1*/ { MQ_MQRT_CONFIGURATION, "MQRT_CONFIGURATION" },
 /* 2*/ { MQ_MQRT_EXPIRY, "MQRT_EXPIRY" },
@@ -1276,7 +1315,7 @@ static const value_string mq_MQZAET_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_InhibitPublications_vals[] =
+static const value_string mq_MQTA_PUB_vals[] =
 {
 /* 0*/ { MQ_MQTA_PUB_AS_PARENT, "MQTA_PUB_AS_PARENT" },
 /* 1*/ { MQ_MQTA_PUB_INHIBITED, "MQTA_PUB_INHIBITED" },
@@ -1284,7 +1323,7 @@ static const value_string mq_InhibitPublications_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_MsgDelivery_vals[] =
+static const value_string mq_MQDLV_vals[] =
 {
 /* 0*/ { MQ_MQDLV_AS_PARENT, "MQDLV_AS_PARENT" },
 /* 1*/ { MQ_MQDLV_ALL, "MQDLV_ALL" },
@@ -1294,7 +1333,7 @@ static const value_string mq_MsgDelivery_vals[] =
 };
 
 #if 0
-static const value_string mq_ClusterCacheType_vals[] =
+static const value_string mq_MQCLCT_vals[] =
 {
 /* 0*/ { MQ_MQCLCT_STATIC, "MQCLCT_STATIC" },
 /* 1*/ { MQ_MQCLCT_DYNAMIC, "MQCLCT_DYNAMIC" },
@@ -1302,7 +1341,7 @@ static const value_string mq_ClusterCacheType_vals[] =
 };
 #endif
 
-static const value_string mq_InhibitSubscriptions_vals[] =
+static const value_string mq_MQTA_SUB_vals[] =
 {
 /* 0*/ { MQ_MQTA_SUB_AS_PARENT, "MQTA_SUB_AS_PARENT" },
 /* 1*/ { MQ_MQTA_SUB_INHIBITED, "MQTA_SUB_INHIBITED" },
@@ -1310,21 +1349,21 @@ static const value_string mq_InhibitSubscriptions_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_ProxySubscriptions_vals[] =
+static const value_string mq_MQTA_PROXY_vals[] =
 {
 /* 1*/ { MQ_MQTA_PROXY_SUB_FORCE, "MQTA_PROXY_SUB_FORCE" },
 /* 2*/ { MQ_MQTA_PROXY_SUB_FIRSTUSE, "MQTA_PROXY_SUB_FIRSTUSE" },
     { 0, NULL }
 };
 
-static const value_string mq_WildcardOperation_vals[] =
+static const value_string mq_MQTA_vals[] =
 {
 /* 1*/ { MQ_MQTA_BLOCK, "MQTA_BLOCK" },
 /* 2*/ { MQ_MQTA_PASSTHRU, "MQTA_PASSTHRU" },
     { 0, NULL }
 };
 
-static const value_string mq_TopicType_vals[] =
+static const value_string mq_MQTOPT_vals[] =
 {
 /* 0*/ { MQ_MQTOPT_LOCAL, "MQTOPT_LOCAL" },
 /* 1*/ { MQ_MQTOPT_CLUSTER, "MQTOPT_CLUSTER" },
@@ -1333,7 +1372,7 @@ static const value_string mq_TopicType_vals[] =
 };
 
 #if 0
-static const value_string mq_SelectorTypes_vals[] =
+static const value_string mq_MQSELTYPE_vals[] =
 {
 /* 0*/ { MQ_MQSELTYPE_NONE, "MQSELTYPE_NONE" },
 /* 1*/ { MQ_MQSELTYPE_STANDARD, "MQSELTYPE_STANDARD" },
@@ -1343,7 +1382,7 @@ static const value_string mq_SelectorTypes_vals[] =
 #endif
 
 #if 0
-static const value_string mq_SuspendStatus_vals[] =
+static const value_string mq_MQSUS_vals[] =
 {
 /* 0*/ { MQ_MQSUS_NO, "MQSUS_NO" },
 /* 1*/ { MQ_MQSUS_YES, "MQSUS_YES" },
@@ -1352,7 +1391,7 @@ static const value_string mq_SuspendStatus_vals[] =
 #endif
 
 #if 0
-static const value_string mq_SyncpointPubSub_vals[] =
+static const value_string mq_MQSYNCPOINT_vals[] =
 {
 /* 0*/ { MQ_MQSYNCPOINT_YES, "MQSYNCPOINT_YES" },
 /* 1*/ { MQ_MQSYNCPOINT_IFPER, "MQSYNCPOINT_IFPER" },
@@ -1392,14 +1431,6 @@ static const value_string mq_MQSUB_DURABLE_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_MQQSO_vals[] =
-{
-/* 0*/ { MQ_MQQSO_NO, "MQQSO_NO" },
-/* 1*/ { MQ_MQQSO_YES, "SHARED/YES" },
-/* 2*/ { MQ_MQQSO_EXCLUSIVE, "MQQSO_EXCLUSIVE" },
-    { 0, NULL }
-};
-
 static const value_string mq_MQSUBTYPE_vals[] =
 {
 /* -2*/ { MQ_MQSUBTYPE_USER, "MQSUBTYPE_USER" },
@@ -1411,7 +1442,7 @@ static const value_string mq_MQSUBTYPE_vals[] =
 };
 
 #if 0
-static const value_string mq_SubscriptionDestinationClass_vals[] =
+static const value_string mq_MQDC_vals[] =
 {
 /* 1*/ { MQ_MQDC_MANAGED, "MQDC_MANAGED" },
 /* 2*/ { MQ_MQDC_PROVIDED, "MQDC_PROVIDED" },
@@ -1429,7 +1460,7 @@ static const value_string mq_MQRU_PUBLISH_vals[] =
 #endif
 
 #if 0
-static const value_string mq_TimeUnits_vals[] =
+static const value_string mq_MQTIME_vals[] =
 {
 /* 0*/ { MQ_MQTIME_UNIT_MINS, "MQTIME_UNIT_MINS" },
 /* 1*/ { MQ_MQTIME_UNIT_SECS, "MQTIME_UNIT_SECS" },
@@ -1438,7 +1469,7 @@ static const value_string mq_TimeUnits_vals[] =
 #endif
 
 #if 0
-static const value_string mq_VariableUser_vals[] =
+static const value_string mq_MQVU_vals[] =
 {
 /* 1*/ { MQ_MQVU_FIXED_USER, "MQVU_FIXED_USER" },
 /* 2*/ { MQ_MQVU_ANY_USER, "MQVU_ANY_USER" },
@@ -1447,7 +1478,7 @@ static const value_string mq_VariableUser_vals[] =
 #endif
 
 #if 0
-static const value_string mq_WildcardSchema_vals[] =
+static const value_string mq_MQWS_vals[] =
 {
 /* 0*/ { MQ_MQWS_DEFAULT, "MQWS_DEFAULT" },
 /* 1*/ { MQ_MQWS_CHAR, "MQWS_CHAR" },
@@ -1472,7 +1503,7 @@ static const value_string mq_MQUNDELIVERED_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_UOWStates_vals[] =
+static const value_string mq_MQUOWST_vals[] =
 {
 /* 0*/ { MQ_MQUOWST_NONE, "MQUOWST_NONE" },
 /* 1*/ { MQ_MQUOWST_ACTIVE, "MQUOWST_ACTIVE" },
@@ -1481,7 +1512,7 @@ static const value_string mq_UOWStates_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_UOWTypes_vals[] =
+static const value_string mq_MQUOWT_vals[] =
 {
 /* 0*/ { MQ_MQUOWT_Q_MGR, "MQUOWT_Q_MGR" },
 /* 1*/ { MQ_MQUOWT_CICS, "MQUOWT_CICS" },
@@ -1517,7 +1548,7 @@ static const value_string mq_MQUSAGE_DS_vals[] =
 };
 
 #if 0
-static const value_string mq_ActivityOperations_vals[] =
+static const value_string mq_MQOPER_vals[] =
 {
 /*  0*/ { MQ_MQOPER_UNKNOWN, "MQOPER_UNKNOWN" },
 /*  1*/ { MQ_MQOPER_BROWSE, "MQOPER_BROWSE" },
@@ -1536,7 +1567,7 @@ static const value_string mq_ActivityOperations_vals[] =
 };
 #endif
 
-static const value_string mq_ConnInfoType_vals[] =
+static const value_string mq_MQIACF_CONN_INFO_vals[] =
 {
 /* 1111*/ { MQ_MQIACF_CONN_INFO_CONN, "MQIACF_CONN_INFO_CONN" },
 /* 1112*/ { MQ_MQIACF_CONN_INFO_HANDLE, "MQIACF_CONN_INFO_HANDLE" },
@@ -1571,7 +1602,7 @@ static const value_string mq_MQPSPROP_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_PubSubScope_vals[] =
+static const value_string mq_MQSCOPE_vals[] =
 {
 /* 0*/ { MQ_MQSCOPE_ALL, "MQSCOPE_ALL" },
 /* 1*/ { MQ_MQSCOPE_AS_PARENT, "MQSCOPE_AS_PARENT" },
@@ -1629,7 +1660,7 @@ static const value_string mq_MQMULC_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_IGQPutAuthority_vals[] =
+static const value_string mq_MQIGQPA_vals[] =
 {
 /* 1*/ { MQ_MQIGQPA_DEFAULT, "MQIGQPA_DEFAULT" },
 /* 2*/ { MQ_MQIGQPA_CONTEXT, "MQIGQPA_CONTEXT" },
@@ -1638,14 +1669,14 @@ static const value_string mq_IGQPutAuthority_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_SecurityCase_vals[] =
+static const value_string mq_MQSCYC_vals[] =
 {
 /* 0*/ { MQ_MQSCYC_UPPER, "MQSCYC_UPPER" },
 /* 1*/ { MQ_MQSCYC_MIXED, "MQSCYC_MIXED" },
     { 0, NULL }
 };
 
-static const value_string mq_ChlauthType_vals[] =
+static const value_string mq_MQCAUT_vals[] =
 {
 /* 0*/ { MQ_MQCAUT_ALL, "MQCAUT_ALL" },
 /* 1*/ { MQ_MQCAUT_BLOCKUSER, "MQCAUT_BLOCKUSER" },
@@ -1657,7 +1688,7 @@ static const value_string mq_ChlauthType_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_UserSource_vals[] =
+static const value_string mq_MQUSRC_vals[] =
 {
 /* 0*/ { MQ_MQUSRC_MAP, "MQUSRC_MAP" },
 /* 1*/ { MQ_MQUSRC_NOACCESS, "MQUSRC_NOACCESS" },
@@ -1665,14 +1696,14 @@ static const value_string mq_UserSource_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_Warning_vals[] =
+static const value_string mq_MQWARN_vals[] =
 {
 /* 0*/ { MQ_MQWARN_NO, "MQWARN_NO" },
 /* 1*/ { MQ_MQWARN_YES, "MQWARN_YES" },
     { 0, NULL }
 };
 
-static const value_string mq_CertValPolicy_vals[] =
+static const value_string mq_MQ_CERT_vals[] =
 {
 /* 0*/ { MQ_MQ_CERT_VAL_POLICY_ANY, "MQ_CERT_VAL_POLICY_ANY" },
 /* 1*/ { MQ_MQ_CERT_VAL_POLICY_RFC5280, "MQ_CERT_VAL_POLICY_RFC5280" },
@@ -1686,14 +1717,14 @@ static const value_string mq_MQCHAD_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_ChlAuthRecords_vals[] =
+static const value_string mq_MQCHLA_vals[] =
 {
 /* 0*/ { MQ_MQCHLA_DISABLED, "MQCHLA_DISABLED" },
 /* 1*/ { MQ_MQCHLA_ENABLED, "MQCHLA_ENABLED" },
     { 0, NULL }
 };
 
-static const value_string mq_DefClusXmitTyp_vals[] =
+static const value_string mq_MQCLXQ_vals[] =
 {
 /* 0*/ { MQ_MQCLXQ_SCTQ, "MQCLXQ_SCTQ" },
 /* 1*/ { MQ_MQCLXQ_CHANNEL, "MQCLXQ_CHANNEL" },
@@ -1726,7 +1757,7 @@ static const value_string mq_MQCAP_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_FipsRequired_vals[] =
+static const value_string mq_MQSSL_vals[] =
 {
 /* 0*/ { MQ_MQSSL_FIPS_NO, "MQSSL_FIPS_NO" },
 /* 1*/ { MQ_MQSSL_FIPS_YES, "MQSSL_FIPS_YES" },
@@ -1740,7 +1771,7 @@ static const value_string mq_MQSP_vals[] =
     { 0, NULL }
 };
 
-value_string mq_UOWControls_vals[] =
+value_string mq_MQCUOWC_vals[] =
 {
 /* 0x00000111*/ { MQ_MQCUOWC_ONLY, "MQCUOWC_ONLY" },
 /* 0x00010000*/ { MQ_MQCUOWC_CONTINUE, "MQCUOWC_CONTINUE" },
@@ -1752,14 +1783,14 @@ value_string mq_UOWControls_vals[] =
     { 0, NULL }
 };
 
-value_string mq_LinkType_vals[] =
+value_string mq_MQCLT_vals[] =
 {
 /* 1*/ { MQ_MQCLT_PROGRAM, "MQCLT_PROGRAM" },
 /* 2*/ { MQ_MQCLT_TRANSACTION, "MQCLT_TRANSACTION" },
     { 0, NULL }
 };
 
-value_string mq_ADSDescr_vals[] =
+value_string mq_MQCADSD_vals[] =
 {
 /* 0x00000000*/ { MQ_MQCADSD_NONE, "MQCADSD_NONE" },
 /* 0x00000001*/ { MQ_MQCADSD_SEND, "MQCADSD_SEND" },
@@ -1768,14 +1799,14 @@ value_string mq_ADSDescr_vals[] =
     { 0, NULL }
 };
 
-value_string mq_ConvTaskOpt_vals[] =
+value_string mq_MQCCT_vals[] =
 {
 /* 0x00000000*/ { MQ_MQCCT_NO, "MQCCT_NO" },
 /* 0x00000001*/ { MQ_MQCCT_YES, "MQCCT_YES" },
     { 0, NULL }
 };
 
-value_string mq_TaskEndStatus_vals[] =
+value_string mq_MQCTES_vals[] =
 {
 /* 0x00000000*/ { MQ_MQCTES_NOSYNC, "MQCTES_NOSYNC" },
 /* 0x00000100*/ { MQ_MQCTES_COMMIT, "MQCTES_COMMIT" },
@@ -1784,14 +1815,14 @@ value_string mq_TaskEndStatus_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CFRecoverability_vals[] =
+static const value_string mq_MQCFR_vals[] =
 {
 /* 0*/ { MQ_MQCFR_NO, "MQCFR_NO" },
 /* 1*/ { MQ_MQCFR_YES, "MQCFR_YES" },
     { 0, NULL }
 };
 
-static const value_string mq_DSBlock_vals[] =
+static const value_string mq_MQDSB_vals[] =
 {
 /* 0*/ { MQ_MQDSB_DEFAULT, "MQDSB_DEFAULT" },
 /* 1*/ { MQ_MQDSB_8K, "MQDSB_8K" },
@@ -1806,7 +1837,7 @@ static const value_string mq_DSBlock_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_DSExpand_vals[] =
+static const value_string mq_MQDSE_vals[] =
 {
 /* 0*/ { MQ_MQDSE_DEFAULT, "MQDSE_DEFAULT" },
 /* 1*/ { MQ_MQDSE_YES, "MQDSE_YES" },
@@ -1814,7 +1845,7 @@ static const value_string mq_DSExpand_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_OffloadUse_vals[] =
+static const value_string mq_MQCFOFFLD_vals[] =
 {
 /* 0*/ { MQ_MQCFOFFLD_NONE, "MQCFOFFLD_NONE" },
 /* 1*/ { MQ_MQCFOFFLD_SMDS, "MQCFOFFLD_SMDS" },
@@ -1823,14 +1854,14 @@ static const value_string mq_OffloadUse_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CFAutomaticRecovery_vals[] =
+static const value_string mq_MQRECAUTO_vals[] =
 {
 /* 0*/ { MQ_MQRECAUTO_NO, "MQRECAUTO_NO" },
 /* 1*/ { MQ_MQRECAUTO_YES, "MQRECAUTO_YES" },
     { 0, NULL }
 };
 
-static const value_string mq_CFLossConnectivity_vals[] =
+static const value_string mq_MQCFCONLOS_vals[] =
 {
 /* 0*/ { MQ_MQCFCONLOS_TERMINATE, "MQCFCONLOS_TERMINATE" },
 /* 1*/ { MQ_MQCFCONLOS_TOLERATE, "MQCFCONLOS_TOLERATE" },
@@ -1838,7 +1869,7 @@ static const value_string mq_CFLossConnectivity_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CFStatus_vals[] =
+static const value_string mq_MQCFSTATUS_vals[] =
 {
 /*  0*/ { MQ_MQCFSTATUS_NOT_FOUND, "MQCFSTATUS_NOT_FOUND" },
 /*  1*/ { MQ_MQCFSTATUS_ACTIVE, "MQCFSTATUS_ACTIVE" },
@@ -1859,7 +1890,7 @@ static const value_string mq_CFStatus_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CFStatusType_vals[] =
+static const value_string mq_MQIACF_CF_STATUS_vals[] =
 {
 /* 1136*/ { MQ_MQIACF_CF_STATUS_SUMMARY, "MQIACF_CF_STATUS_SUMMARY" },
 /* 1137*/ { MQ_MQIACF_CF_STATUS_CONNECT, "MQIACF_CF_STATUS_CONNECT" },
@@ -1868,14 +1899,14 @@ static const value_string mq_CFStatusType_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_CFStructType_vals[] =
+static const value_string mq_MQCFTYPE_vals[] =
 {
 /* 0*/ { MQ_MQCFTYPE_APPL, "MQCFTYPE_APPL" },
 /* 1*/ { MQ_MQCFTYPE_ADMIN, "MQCFTYPE_ADMIN" },
     { 0, NULL }
 };
 
-static const value_string mq_AccessOptions_vals[] =
+static const value_string mq_MQCFACCESS_vals[] =
 {
 /* 0*/ { MQ_MQCFACCESS_ENABLED, "MQCFACCESS_ENABLED" },
 /* 1*/ { MQ_MQCFACCESS_SUSPENDED, "MQCFACCESS_SUSPENDED" },
@@ -1883,7 +1914,7 @@ static const value_string mq_AccessOptions_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_OpenMode_vals[] =
+static const value_string mq_MQS_OPENMODE_vals[] =
 {
 /* 0*/ { MQ_MQS_OPENMODE_NONE, "MQS_OPENMODE_NONE" },
 /* 1*/ { MQ_MQS_OPENMODE_READONLY, "MQS_OPENMODE_READONLY" },
@@ -1892,7 +1923,7 @@ static const value_string mq_OpenMode_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_SMDSStatus_vals[] =
+static const value_string mq_MQS_STATUS_vals[] =
 {
 /* 0*/ { MQ_MQS_STATUS_CLOSED, "MQS_STATUS_CLOSED" },
 /* 1*/ { MQ_MQS_STATUS_CLOSING, "MQS_STATUS_CLOSING" },
@@ -1906,7 +1937,7 @@ static const value_string mq_SMDSStatus_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_SMDSAvail_vals[] =
+static const value_string mq_MQS_AVAIL_vals[] =
 {
 /* 0*/ { MQ_MQS_AVAIL_NORMAL, "MQS_AVAIL_NORMAL" },
 /* 1*/ { MQ_MQS_AVAIL_ERROR, "MQS_AVAIL_ERROR" },
@@ -1914,7 +1945,7 @@ static const value_string mq_SMDSAvail_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_SMDSExpandSt_vals[] =
+static const value_string mq_MQS_EXPANDST_vals[] =
 {
 /* 0*/ { MQ_MQS_EXPANDST_NORMAL, "MQS_EXPANDST_NORMAL" },
 /* 1*/ { MQ_MQS_EXPANDST_FAILED, "MQS_EXPANDST_FAILED" },
@@ -1958,7 +1989,7 @@ static const value_string mq_MQPSST_vals[] =
     { 0, NULL }
 };
 
-static const value_string mq_SMDSUsage_vals[] =
+static const value_string mq_MQUSAGE_SMDS_vals[] =
 {
 /* 0*/ { MQ_MQUSAGE_SMDS_AVAILABLE, "MQUSAGE_SMDS_AVAILABLE" },
 /* 1*/ { MQ_MQUSAGE_SMDS_NO_DATA, "MQUSAGE_SMDS_NO_DATA" },
@@ -4956,7 +4987,7 @@ void mq_setup_MQCFINT_Parse_data(GHashTable* table)
 /*   12*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_USAGE), (void*)(&mq_MQUS_vals));
 /*   16*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_MSG_DELIVERY_SEQUENCE), (void*)(&mq_MQMDS_vals));
 /*   20*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_Q_TYPE), (void*)(&mq_MQQT_vals));
-/*   23*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SHAREABILITY), (void*)(&mq_Shareability_vals));
+/*   23*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SHAREABILITY), (void*)(&mq_MQQA_vals));
 /*   24*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TRIGGER_CONTROL), (void*)(&mq_MQTC_vals));
 /*   28*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TRIGGER_TYPE), (void*)(&mq_MQTT_vals));
 /*   30*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SYNCPOINT), (void*)(&mq_MQSP_vals));
@@ -4978,28 +5009,28 @@ void mq_setup_MQCFINT_Parse_data(GHashTable* table)
 /*   56*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHANNEL_AUTO_DEF_EVENT), (void*)(&mq_MQEVR_vals));
 /*   57*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INDEX_TYPE), (void*)(&mq_MQIT_vals));
 /*   61*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_DEF_BIND), (void*)(&mq_MQBND_vals));
-/*   63*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_QSG_DISP), (void*)(&mq_QShrGrpDisp_vals));
-/*   64*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INTRA_GROUP_QUEUING), (void*)(&mq_IntraGroupQueuing_vals));
-/*   65*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_IGQ_PUT_AUTHORITY), (void*)(&mq_IGQPutAuthority_vals));
-/*   66*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_AUTH_INFO_TYPE), (void*)(&mq_AuthInfoType_vals));
-/*   71*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_RECOVER), (void*)(&mq_CFRecoverability_vals));
+/*   63*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_QSG_DISP), (void*)(&m_MQQSGD_vals));
+/*   64*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INTRA_GROUP_QUEUING), (void*)(&mq_MQIGQ_vals));
+/*   65*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_IGQ_PUT_AUTHORITY), (void*)(&mq_MQIGQPA_vals));
+/*   66*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_AUTH_INFO_TYPE), (void*)(&mq_MQAIT_vals));
+/*   71*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_RECOVER), (void*)(&mq_MQCFR_vals));
 /*   73*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHANNEL_EVENT), (void*)(&mq_MQEVR_vals));
 /*   74*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_BRIDGE_EVENT), (void*)(&mq_MQEVR_vals));
 /*   75*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SSL_EVENT), (void*)(&mq_MQEVR_vals));
-/*   77*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SHARED_Q_Q_MGR_NAME), (void*)(&mq_SharedQueueQueueManagerName_vals));
-/*   78*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_NPM_CLASS), (void*)(&mq_NonpersistentMsgCls_vals));
-/*   92*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SSL_FIPS_REQUIRED), (void*)(&mq_FipsRequired_vals));
-/*   93*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_IP_ADDRESS_VERSION), (void*)(&mq_IPAddressVersion_vals));
+/*   77*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SHARED_Q_Q_MGR_NAME), (void*)(&mq_MQSQQM_vals));
+/*   78*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_NPM_CLASS), (void*)(&mq_MQNPM_vals));
+/*   92*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SSL_FIPS_REQUIRED), (void*)(&mq_MQSSL_vals));
+/*   93*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_IP_ADDRESS_VERSION), (void*)(&mq_MQIPADDR_vals));
 /*   94*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_LOGGER_EVENT), (void*)(&mq_MQEVR_vals));
-/*   98*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CLWL_USEQ), (void*)(&mq_CLWLUseQ_vals));
+/*   98*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CLWL_USEQ), (void*)(&mq_MQCLWL_USEQ_vals));
 /*   99*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_COMMAND_EVENT), (void*)(&mq_MQEVR_vals));
-/*  102*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ADOPTNEWMCA_CHECK), (void*)(&mq_AdoptNewMCACheck_vals));
-/*  103*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ADOPTNEWMCA_TYPE), (void*)(&mq_AdoptNewMCAType_vals));
+/*  102*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ADOPTNEWMCA_CHECK), (void*)(&mq_MQADOPT_CHECK_vals));
+/*  103*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ADOPTNEWMCA_TYPE), (void*)(&mq_MQADOPT_TYPE_vals));
 /*  106*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_DNS_WLM), (void*)(&mq_DNSWLM_vals));
-/*  112*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_RECEIVE_TIMEOUT_TYPE), (void*)(&mq_ReceiveTimeoutType_vals));
-/*  115*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TCP_KEEP_ALIVE), (void*)(&mq_TCPKeepAlive_vals));
-/*  116*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TCP_STACK_TYPE), (void*)(&mq_TCPStackType_vals));
-/*  117*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHINIT_TRACE_AUTO_START), (void*)(&mq_ChinitTraceAutoStart_vals));
+/*  112*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_RECEIVE_TIMEOUT_TYPE), (void*)(&mq_MQRCVTIME_vals));
+/*  115*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TCP_KEEP_ALIVE), (void*)(&mq_MQTCPKEEP_vals));
+/*  116*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TCP_STACK_TYPE), (void*)(&mq_MQTCPSTACK_vals));
+/*  117*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHINIT_TRACE_AUTO_START), (void*)(&mq_MQTRAXSTR_vals));
 /*  119*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHINIT_CONTROL), (void*)(&mq_MQSVC_CONTROL_vals));
 /*  120*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CMD_SERVER_CONTROL), (void*)(&mq_MQSVC_CONTROL_vals));
 /*  122*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_MONITORING_CHANNEL), (void*)(&mq_MQMON_vals));
@@ -5014,13 +5045,13 @@ void mq_setup_MQCFINT_Parse_data(GHashTable* table)
 /*  133*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACCOUNTING_MQI), (void*)(&mq_MQMON_vals));
 /*  134*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACCOUNTING_Q), (void*)(&mq_MQMON_vals));
 /*  136*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACCOUNTING_CONN_OVERRIDE), (void*)(&mq_MQMON_vals));
-/*  137*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TRACE_ROUTE_RECORDING), (void*)(&mq_TraceRouteRecording_vals));
-/*  138*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACTIVITY_RECORDING), (void*)(&mq_ActivityRecording_vals));
-/*  141*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SECURITY_CASE), (void*)(&mq_SecurityCase_vals));
+/*  137*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TRACE_ROUTE_RECORDING), (void*)(&mq_MQRECORDING_vals));
+/*  138*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACTIVITY_RECORDING), (void*)(&mq_MQRECORDING_vals));
+/*  141*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SECURITY_CASE), (void*)(&mq_MQSCYC_vals));
 /*  175*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_DURABLE_SUB), (void*)(&mq_MQSUB_DURABLE_vals));
 /*  176*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_MULTICAST), (void*)(&mq_MQMC_vals));
-/*  181*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INHIBIT_PUB), (void*)(&mq_InhibitPublications_vals));
-/*  182*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INHIBIT_SUB), (void*)(&mq_InhibitSubscriptions_vals));
+/*  181*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INHIBIT_PUB), (void*)(&mq_MQTA_PUB_vals));
+/*  182*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_INHIBIT_SUB), (void*)(&mq_MQTA_SUB_vals));
 /*  184*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_DEF_PUT_RESPONSE_TYPE), (void*)(&mq_MQPRT_vals));
 /*  185*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TOPIC_DEF_PERSISTENCE), (void*)(&mq_MQPER_vals));
 /*  187*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUBSUB_MODE), (void*)(&mq_PubSubMode_vals));
@@ -5028,36 +5059,36 @@ void mq_setup_MQCFINT_Parse_data(GHashTable* table)
 /*  189*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_READ_AHEAD), (void*)(&mq_MQREADA_vals));
 /*  190*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PROPERTY_CONTROL), (void*)(&mq_MQPROP_vals));
 /*  193*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_BASE_TYPE), (void*)(&mq_MQOT_vals));
-/*  195*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PM_DELIVERY), (void*)(&mq_MsgDelivery_vals));
-/*  196*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_NPM_DELIVERY), (void*)(&mq_MsgDelivery_vals));
-/*  199*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PROXY_SUB), (void*)(&mq_ProxySubscriptions_vals));
+/*  195*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PM_DELIVERY), (void*)(&mq_MQDLV_vals));
+/*  196*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_NPM_DELIVERY), (void*)(&mq_MQDLV_vals));
+/*  199*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PROXY_SUB), (void*)(&mq_MQTA_PROXY_vals));
 /*  203*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUBSUB_NP_MSG), (void*)(&mq_MQUNDELIVERED_vals));
 /*  205*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUBSUB_NP_RESP), (void*)(&mq_MQUNDELIVERED_vals));
 /*  207*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUBSUB_SYNC_PT), (void*)(&mq_PubSubSync_vals));
-/*  208*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TOPIC_TYPE), (void*)(&mq_TopicType_vals));
-/*  216*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_WILDCARD_OPERATION), (void*)(&mq_WildcardOperation_vals));
-/*  218*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SUB_SCOPE), (void*)(&mq_PubSubScope_vals));
-/*  219*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUB_SCOPE), (void*)(&mq_PubSubScope_vals));
+/*  208*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_TOPIC_TYPE), (void*)(&mq_MQTOPT_vals));
+/*  216*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_WILDCARD_OPERATION), (void*)(&mq_MQTA_vals));
+/*  218*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SUB_SCOPE), (void*)(&mq_MQSCOPE_vals));
+/*  219*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUB_SCOPE), (void*)(&mq_MQSCOPE_vals));
 /*  221*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_GROUP_UR), (void*)(&mq_MQGUR_vals));
-/*  222*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_UR_DISP), (void*)(&mq_QShrGrpDisp_vals));
+/*  222*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_UR_DISP), (void*)(&m_MQQSGD_vals));
 /*  223*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_COMM_INFO_TYPE), (void*)(&mq_MQCIT_vals));
-/*  224*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_OFFLOAD), (void*)(&mq_OffloadUse_vals));
-/*  229*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_OFFLDUSE), (void*)(&mq_OffloadUse_vals));
+/*  224*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_OFFLOAD), (void*)(&mq_MQCFOFFLD_vals));
+/*  229*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_OFFLDUSE), (void*)(&mq_MQCFOFFLD_vals));
 /*  232*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_COMM_EVENT), (void*)(&mq_MQEVR_vals));
 /*  233*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_MCAST_BRIDGE), (void*)(&mq_MQMCB_vals));
 /*  234*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_USE_DEAD_LETTER_Q), (void*)(&mq_MQUSEDLQ_vals));
 /*  239*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACTIVITY_CONN_OVERRIDE), (void*)(&mq_MQMON_vals));
 /*  240*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_ACTIVITY_TRACE), (void*)(&mq_MQMON_vals));
 /*  243*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_XR_CAPABILITY), (void*)(&mq_MQCAP_vals));
-/*  244*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_RECAUTO), (void*)(&mq_CFAutomaticRecovery_vals));
-/*  245*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_QMGR_CFCONLOS), (void*)(&mq_CFConLoss_vals));
-/*  246*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_CFCONLOS), (void*)(&mq_CFLossConnectivity_vals));
+/*  244*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_RECAUTO), (void*)(&mq_MQRECAUTO_vals));
+/*  245*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_QMGR_CFCONLOS), (void*)(&mq_MQCFCONLOS_vals));
+/*  246*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CF_CFCONLOS), (void*)(&mq_MQCFCONLOS_vals));
 /*  247*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_SUITE_B_STRENGTH), (void*)(&mq_MQ_SUITE_B_vals));
-/*  248*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHLAUTH_RECORDS), (void*)(&mq_ChlAuthRecords_vals));
-/*  249*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUBSUB_CLUSTER), (void*)(&mq_PubSubCluster_vals));
-/*  250*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_DEF_CLUSTER_XMIT_Q_TYPE), (void*)(&mq_DefClusXmitTyp_vals));
+/*  248*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CHLAUTH_RECORDS), (void*)(&mq_MQCHLA_vals));
+/*  249*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PUBSUB_CLUSTER), (void*)(&mq_MQPSCLUS_vals));
+/*  250*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_DEF_CLUSTER_XMIT_Q_TYPE), (void*)(&mq_MQCLXQ_vals));
 /*  251*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_PROT_POLICY_CAPABILITY), (void*)(&mq_MQCAP_vals));
-/*  252*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CERT_VAL_POLICY), (void*)(&mq_CertValPolicy_vals));
+/*  252*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CERT_VAL_POLICY), (void*)(&mq_MQ_CERT_vals));
 /*  254*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_REVERSE_DNS_LOOKUP), (void*)(&mq_MQRDNS_vals));
 /*  255*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CLUSTER_PUB_ROUTE), (void*)(&mq_MQCLROUTE_vals));
 /*  256*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIA_CLUSTER_OBJECT_STATE), (void*)(&mq_MQCLST_vals));
@@ -5073,39 +5104,39 @@ void mq_setup_MQCFINT_Parse_data(GHashTable* table)
 /* 1001*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_Q_MGR_ATTRS), (void*)(&mq_PrmId_vals));
 /* 1002*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_Q_ATTRS), (void*)(&mq_PrmId_vals));
 /* 1005*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_FORCE), (void*)(&mq_MQFC_vals));
-/* 1006*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_REPLACE), (void*)(&mq_ReplaceOptions_vals));
+/* 1006*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_REPLACE), (void*)(&mq_MQRP_vals));
 /* 1010*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_EVENT_APPL_TYPE), (void*)(&mq_MQAT_vals));
-/* 1011*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_EVENT_ORIGIN), (void*)(&mq_EvtOrig_vals));
+/* 1011*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_EVENT_ORIGIN), (void*)(&mq_MQEVO_vals));
 /* 1012*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_PARAMETER_ID), (void*)(&mq_PrmId_vals));
 /* 1016*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OBJECT_TYPE), (void*)(&mq_MQOT_vals));
 /* 1020*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_REASON_QUALIFIER), (void*)(&mq_MQRQ_vals));
 /* 1021*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_COMMAND), (void*)(&mq_MQCMD_vals));
-/* 1023*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_TYPE), (void*)(&mq_QueueStatusOpenTypes_vals));
+/* 1023*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_TYPE), (void*)(&mq_MQQSOT_vals));
 /* 1026*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_Q_STATUS_ATTRS), (void*)(&mq_PrmId_vals));
-/* 1028*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_HANDLE_STATE), (void*)(&mq_HandleStates_vals));
+/* 1028*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_HANDLE_STATE), (void*)(&mq_MQHSTATE_vals));
 /* 1093*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CLUSTER_Q_MGR_ATTRS), (void*)(&mq_PrmId_vals));
-/* 1098*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_INPUT_TYPE), (void*)(&mq_QueueStatusOpenOptions_vals));
-/* 1099*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_OUTPUT), (void*)(&mq_QueueStatusOptionsYesNo_vals));
-/* 1100*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_SET), (void*)(&mq_QueueStatusOptionsYesNo_vals));
-/* 1101*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_INQUIRE), (void*)(&mq_QueueStatusOptionsYesNo_vals));
-/* 1102*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_BROWSE), (void*)(&mq_QueueStatusOptionsYesNo_vals));
+/* 1098*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_INPUT_TYPE), (void*)(&mq_MQQSO_vals));
+/* 1099*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_OUTPUT), (void*)(&mq_MQQSO_vals));
+/* 1100*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_SET), (void*)(&mq_MQQSO_vals));
+/* 1101*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_INQUIRE), (void*)(&mq_MQQSO_vals));
+/* 1102*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_OPEN_BROWSE), (void*)(&mq_MQQSO_vals));
 /* 1103*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_Q_STATUS_TYPE), (void*)(&mq_PrmId_vals));
 /* 1106*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SECURITY_TYPE), (void*)(&mq_MQSECTYPE_vals));
 /* 1107*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CONNECTION_ATTRS), (void*)(&mq_PrmId_vals));
-/* 1110*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CONN_INFO_TYPE), (void*)(&mq_ConnInfoType_vals));
+/* 1110*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CONN_INFO_TYPE), (void*)(&mq_MQIACF_CONN_INFO_vals));
 /* 1115*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_AUTHORIZATION_LIST), (void*)(&mq_MQAUTH_vals));
 /* 1118*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_ENTITY_TYPE), (void*)(&mq_MQZAET_vals));
-/* 1120*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_COMMAND_INFO), (void*)(&mq_CommandInformationValues_vals));
-/* 1126*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_QSG_DISPS), (void*)(&mq_QShrGrpDisp_vals));
-/* 1128*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_UOW_STATE), (void*)(&mq_UOWStates_vals));
+/* 1120*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_COMMAND_INFO), (void*)(&mq_MQCMDI_vals));
+/* 1126*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_QSG_DISPS), (void*)(&m_MQQSGD_vals));
+/* 1128*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_UOW_STATE), (void*)(&mq_MQUOWST_vals));
 /* 1129*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SECURITY_ITEM), (void*)(&mq_MQSECITEM_vals));
-/* 1130*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_STATUS), (void*)(&mq_CFStatus_vals));
-/* 1132*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_UOW_TYPE), (void*)(&mq_UOWTypes_vals));
+/* 1130*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_STATUS), (void*)(&mq_MQCFSTATUS_vals));
+/* 1132*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_UOW_TYPE), (void*)(&mq_MQUOWT_vals));
 /* 1133*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_ATTRS), (void*)(&mq_PrmId_vals));
-/* 1135*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STATUS_TYPE), (void*)(&mq_CFStatusType_vals));
-/* 1139*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_TYPE), (void*)(&mq_CFStructType_vals));
-/* 1149*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_Q_MGR_STATUS), (void*)(&mq_QSGStatus_vals));
-/* 1150*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_DB2_CONN_STATUS), (void*)(&mq_QSGStatus_vals));
+/* 1135*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STATUS_TYPE), (void*)(&mq_MQIACF_CF_STATUS_vals));
+/* 1139*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_TYPE), (void*)(&mq_MQCFTYPE_vals));
+/* 1149*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_Q_MGR_STATUS), (void*)(&mq_MQQSGS_vals));
+/* 1150*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_DB2_CONN_STATUS), (void*)(&mq_MQQSGS_vals));
 /* 1154*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SECURITY_SWITCH), (void*)(&mq_MQSECSW_vals));
 /* 1155*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SECURITY_SETTING), (void*)(&mq_MQSECSW_vals));
 /* 1157*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_USAGE_TYPE), (void*)(&mq_PrmId_vals));
@@ -5139,49 +5170,49 @@ void mq_setup_MQCFINT_Parse_data(GHashTable* table)
 /* 1289*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SUB_TYPE), (void*)(&mq_MQSUBTYPE_vals));
 /* 1300*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_RETAINED_PUBLICATION), (void*)(&mq_MQQSO_vals));
 /* 1302*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_TOPIC_STATUS_TYPE), (void*)(&mq_PrmId_vals));
-/* 1308*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_ASYNC_STATE), (void*)(&mq_AsynchronousStateValues_vals));
+/* 1308*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_ASYNC_STATE), (void*)(&mq_MQAS_vals));
 /* 1308*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_PS_STATUS_TYPE), (void*)(&mq_MQPSST_vals));
 /* 1322*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_LOG_COMPRESSION), (void*)(&mq_MQCOMPRESS_vals));
 /* 1324*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_MULC_CAPTURE), (void*)(&mq_MQMULC_vals));
 /* 1325*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_PERMIT_STANDBY), (void*)(&mq_MQSTDBY_vals));
-/* 1328*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_SMDS_BLOCK_SIZE), (void*)(&mq_DSBlock_vals));
-/* 1329*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_SMDS_EXPAND), (void*)(&mq_DSExpand_vals));
-/* 1332*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_ACCESS), (void*)(&mq_AccessOptions_vals));
-/* 1335*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_USAGE_SMDS), (void*)(&mq_SMDSUsage_vals));
-/* 1341*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_USAGE_OFFLOAD_MSGS), (void*)(&mq_OffloadUse_vals));
-/* 1348*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_OPENMODE), (void*)(&mq_OpenMode_vals));
-/* 1349*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_STATUS), (void*)(&mq_SMDSStatus_vals));
-/* 1350*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_AVAIL), (void*)(&mq_SMDSAvail_vals));
-/* 1352*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CHLAUTH_TYPE), (void*)(&mq_ChlauthType_vals));
-/* 1376*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_EXPANDST), (void*)(&mq_SMDSExpandSt_vals));
+/* 1328*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_SMDS_BLOCK_SIZE), (void*)(&mq_MQDSB_vals));
+/* 1329*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_SMDS_EXPAND), (void*)(&mq_MQDSE_vals));
+/* 1332*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CF_STRUC_ACCESS), (void*)(&mq_MQCFACCESS_vals));
+/* 1335*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_USAGE_SMDS), (void*)(&mq_MQUSAGE_SMDS_vals));
+/* 1341*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_USAGE_OFFLOAD_MSGS), (void*)(&mq_MQCFOFFLD_vals));
+/* 1348*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_OPENMODE), (void*)(&mq_MQS_OPENMODE_vals));
+/* 1349*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_STATUS), (void*)(&mq_MQS_STATUS_vals));
+/* 1350*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_AVAIL), (void*)(&mq_MQS_AVAIL_vals));
+/* 1352*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_CHLAUTH_TYPE), (void*)(&mq_MQCAUT_vals));
+/* 1376*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SMDS_EXPANDST), (void*)(&mq_MQS_EXPANDST_vals));
 /* 1409*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_LDAP_CONNECTION_STATUS), (void*)(&mq_MQLDAPC_vals));
 /* 1414*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACF_SYSP_ZHYPERWRITE), (void*)(&mq_MQSYSP_vals));
-/* 1501*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_XMIT_PROTOCOL_TYPE), (void*)(&mq_TransportType_vals));
-/* 1508*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_PUT_AUTHORITY), (void*)(&mq_PutAuthority_vals));
-/* 1511*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_TYPE), (void*)(&mq_ChannelType_vals));
-/* 1515*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_DATA_CONVERSION), (void*)(&mq_DataConversion_vals));
-/* 1517*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_MCA_TYPE), (void*)(&mq_MCAType_vals));
+/* 1501*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_XMIT_PROTOCOL_TYPE), (void*)(&mq_MQXPT_vals));
+/* 1508*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_PUT_AUTHORITY), (void*)(&mq_MQPA_vals));
+/* 1511*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_TYPE), (void*)(&mq_MQCHT_vals));
+/* 1515*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_DATA_CONVERSION), (void*)(&mq_MQCDC_vals));
+/* 1517*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_MCA_TYPE), (void*)(&mq_MQCAT_vals));
 /* 1523*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_INSTANCE_TYPE), (void*)(&mq_MQOT_vals));
-/* 1527*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_STATUS), (void*)(&mq_ChannelStatus_vals));
-/* 1528*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_INDOUBT_STATUS), (void*)(&mq_IndoubtStatus_vals));
-/* 1542*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_MCA_STATUS), (void*)(&mq_MessageChannelAgentStatus_vals));
-/* 1543*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_STOP_REQUESTED), (void*)(&mq_ChannelStopOptions_vals));
-/* 1562*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_NPM_SPEED), (void*)(&mq_NonPersistentMsgSpeed_vals));
-/* 1568*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_SSL_CLIENT_AUTH), (void*)(&mq_SSLClientAuthentication_vals));
+/* 1527*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_STATUS), (void*)(&mq_MQCHS_vals));
+/* 1528*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_INDOUBT_STATUS), (void*)(&mq_MQCHIDS_vals));
+/* 1542*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_MCA_STATUS), (void*)(&mq_MQMCAS_vals));
+/* 1543*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_STOP_REQUESTED), (void*)(&mq_MQCHSR_STOP_vals));
+/* 1562*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_NPM_SPEED), (void*)(&mq_MQNPMS_vals));
+/* 1568*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_SSL_CLIENT_AUTH), (void*)(&mq_MQSCA_vals));
 /* 1575*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_HDR_COMPRESSION), (void*)(&mq_MQCOMPRESS_vals));
 /* 1576*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_MSG_COMPRESSION), (void*)(&mq_MQCOMPRESS_vals));
-/* 1580*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_DISP), (void*)(&mq_ChannelDisp_vals));
+/* 1580*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_DISP), (void*)(&mq_MQCHLD_vals));
 /* 1581*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_INBOUND_DISP), (void*)(&mq_MQINBD_vals));
-/* 1582*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_TYPES), (void*)(&mq_ChannelType_vals));
+/* 1582*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_TYPES), (void*)(&mq_MQCHT_vals));
 /* 1599*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_LISTENER_STATUS), (void*)(&mq_MQSVC_STATUS_vals));
 /* 1601*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_LISTENER_CONTROL), (void*)(&mq_MQSVC_CONTROL_vals));
-/* 1609*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_SUBSTATE), (void*)(&mq_ChannelSubStates_vals));
-/* 1614*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_DEF_CHANNEL_DISP), (void*)(&mq_ChannelDisp_vals));
-/* 1622*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_AUTH_INFO_TYPES), (void*)(&mq_AuthInfoType_vals));
+/* 1609*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_CHANNEL_SUBSTATE), (void*)(&mq_MQCHSSTATE_vals));
+/* 1614*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_DEF_CHANNEL_DISP), (void*)(&mq_MQCHLD_vals));
+/* 1622*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_AUTH_INFO_TYPES), (void*)(&mq_MQAIT_vals));
 /* 1627*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_NEW_SUBSCRIBER_HISTORY), (void*)(&mq_MQNSH_vals));
 /* 1629*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_USE_CLIENT_ID), (void*)(&mq_MQUCI_vals));
-/* 1638*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_USER_SOURCE), (void*)(&mq_UserSource_vals));
-/* 1639*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_WARNING), (void*)(&mq_Warning_vals));
+/* 1638*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_USER_SOURCE), (void*)(&mq_MQUSRC_vals));
+/* 1639*/ g_hash_table_insert(table, GUINT_TO_POINTER(MQ_MQIACH_WARNING), (void*)(&mq_MQWARN_vals));
 }
 
 /*
