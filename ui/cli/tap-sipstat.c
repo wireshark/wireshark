@@ -69,7 +69,7 @@ sip_init_hash(sipstat_t *sp)
 	int i;
 
 	/* Create responses table */
-	sp->hash_responses = g_hash_table_new(g_int_hash, g_int_equal);
+	sp->hash_responses = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 
 	/* Add all response codes */
 	for (i=0; sip_response_code_vals[i].strptr; i++)
@@ -84,8 +84,12 @@ sip_init_hash(sipstat_t *sp)
 		g_hash_table_insert(sc->sp->hash_responses, key, sc);
 	}
 
-	/* Create empty requests table */
-	sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
+	/* Create empty requests table
+	 * NB. the sip_request_method_t value is created in sipstat_packet()
+	 * with its response member pointing at the same string as was allocated for the key.
+	 * Thus it needs no special memory handling, it's freed when GLib frees the key.
+	 */
+	sp->hash_requests = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 }
 
 static void
@@ -126,7 +130,7 @@ sip_reset_hash_requests(char *key _U_ , sip_request_method_t *data, void *ptr _U
 }
 
 static void
-sipstat_reset(void *psp  )
+sipstat_reset(void *psp)
 {
 	sipstat_t *sp = (sipstat_t *)psp;
 	if (sp) {
@@ -143,6 +147,15 @@ sipstat_reset(void *psp  )
 	}
 }
 
+static void
+sipstat_finish(void *psp)
+{
+	sipstat_t *sp = (sipstat_t *)psp;
+	g_free(sp->filter);
+	g_hash_table_destroy(sp->hash_responses);
+	g_hash_table_destroy(sp->hash_requests);
+	g_free(sp);
+}
 
 /* Main entry point to SIP tap */
 static tap_packet_status
@@ -317,11 +330,11 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 			"sip",
 			sp,
 			filter,
-			0,
+			TL_REQUIRES_NOTHING,
 			sipstat_reset,
 			sipstat_packet,
 			sipstat_draw,
-			NULL);
+			sipstat_finish);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
