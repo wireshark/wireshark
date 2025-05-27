@@ -217,6 +217,7 @@ struct ssh_flow_data {
     wmem_array_t    *kex_shared_secret;
     bool            do_decrypt;
     bool            ext_ping_openssh_offered;
+    bool            ext_kex_strict;
     ssh_bignum      new_keys[6];
 };
 
@@ -668,7 +669,7 @@ static int ssh_try_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data,
         int offset, proto_tree *tree);
-static void ssh_choose_algo(char *client, char *server, char **result);
+static bool ssh_choose_algo(char *client, char *server, char **result);
 static void ssh_set_mac_length(struct ssh_peer_data *peer_data);
 static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data);
 
@@ -1366,6 +1367,16 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                     global_data->peer_data[is_response].sequence_number++;
                     ssh_debug_printf("%s->sequence_number{SSH_MSG_NEWKEYS=%d}++ > %d\n", is_response?"server":"client", global_data->peer_data[is_response].seq_num_new_key, global_data->peer_data[is_response].sequence_number);
                 }
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    /* "After sending or receiving a SSH2_MSG_NEWKEYS message,
+                     * reset the packet sequence number to zero. This behaviour
+                     * persists for the duration of the connection (i.e. not
+                     * just the first SSH2_MSG_NEWKEYS) */
+                    if (global_data->ext_kex_strict) {
+                        global_data->peer_data[is_response].sequence_number = 0;
+                        ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", is_response?"server":"client");
+                    }
+                }
 
                 // the client sent SSH_MSG_NEWKEYS
                 if (!is_response) {
@@ -1879,7 +1890,7 @@ ssh_gslist_compare_strings(const void *a, const void *b)
 }
 
 /* expects that *result is NULL */
-static void
+static bool
 ssh_choose_algo(char *client, char *server, char **result)
 {
     char **server_strings = NULL;
@@ -1887,8 +1898,12 @@ ssh_choose_algo(char *client, char *server, char **result)
     char **step;
     GSList *server_list = NULL;
 
+    static const char* client_strict = "kex-strict-c-v00@openssh.com";
+    static const char* server_strict = "kex-strict-s-v00@openssh.com";
+    bool kex_strict = false;
+
     if (!client || !server || !result || *result)
-        return;
+        return false;
 
     server_strings = g_strsplit(server, ",", 0);
     for (step = server_strings; *step; step++) {
@@ -1904,9 +1919,28 @@ ssh_choose_algo(char *client, char *server, char **result)
         }
     }
 
+    /* Check for the OpenSSH strict key exchange extension designed to
+     * mitigate the Terrapin attack by resetting the packet sequence
+     * number to zero after a SSH2_MSG_NEWKEYS message.
+     * https://www.openssh.com/txt/release-9.6
+     * Also see PROTOCOL in the OpenSSH source distribution.
+     *
+     * OpenSSH says this is activated "when an endpoint that supports this
+     * extension observes this algorithm name in a peer's KEXINIT packet".
+     * We'll have to assume that any endpoint that supports this also
+     * indicates support for it in its own first SSH2_MSG_KEXINIT.
+     */
+    if (g_strv_contains((const char* const*)client_strings, client_strict) &&
+        g_strv_contains((const char* const*)server_strings, server_strict)) {
+
+        kex_strict = true;
+    }
+
     g_strfreev(client_strings);
     g_slist_free(server_list);
     g_strfreev(server_strings);
+
+    return kex_strict;
 }
 
 static int
@@ -2002,7 +2036,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset,
         !global_data->kex)
     {
         /* Note: we're ignoring first_kex_packet_follows. */
-        ssh_choose_algo(
+        global_data->ext_kex_strict = ssh_choose_algo(
             global_data->peer_data[CLIENT_PEER_DATA].kex_proposal,
             global_data->peer_data[SERVER_PEER_DATA].kex_proposal,
             &global_data->kex);
