@@ -580,8 +580,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	const color_filter_t *color_filter;
 	dissector_handle_t dissector_handle;
 	fr_foreach_t fr_user_data;
-	struct nflx_tcpinfo tcpinfo;
-	bool tcpinfo_filled = false;
 
 	tree=parent_tree;
 
@@ -591,10 +589,69 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	 * Set the protocol to the record type name.
 	 */
 	pinfo->current_proto = pinfo->rec->rec_type_name;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->rec->rec_type_name);
 
+	if (wtap_block_count_option(fr_data->pkt_block, OPT_COMMENT) > 0) {
+		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
+		comments_tree = proto_item_add_subtree(item, ett_comments);
+		fr_user_data.item = item;
+		fr_user_data.tree = comments_tree;
+		fr_user_data.pinfo = pinfo;
+		fr_user_data.tvb = tvb;
+		fr_user_data.n_changes = 0;
+		wtap_block_foreach_option(fr_data->pkt_block, frame_add_comment, (void *)&fr_user_data);
+	}
+
+	cap_len = tvb_captured_length(tvb);
+	frame_len = tvb_reported_length(tvb);
+
+	/* If FRAME is not referenced from any filters we don't need to
+	   worry about generating any tree items.
+
+	   We do, however, have to worry about generating expert infos,
+	   as those have to show up if, for example, the user requests
+	   the expert info dialog.
+
+	   Therefore, the dissection code has to be careful about
+	   what stuff it does only if do_frame_dissection is true.
+
+	   XXX - all these tricks to optimize dissection if only some
+	   information is required are fragile.  Something better that
+	   handles this automatically would be useful. */
+	bool do_frame_dissection = proto_field_is_referenced(tree, proto_frame);
+	cap_plurality = plurality(cap_len, "", "s");
+	frame_plurality = plurality(frame_len, "", "s");
+
+	/* Put in frame header information. */
 	switch (pinfo->rec->rec_type) {
 
 	case REC_TYPE_PACKET:
+		if (do_frame_dissection) {
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			    "Frame %u: %s, %u byte%s on wire",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
+			if (generate_bits_field)
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			proto_item_append_text(ti, ", %u byte%s captured",
+			    cap_len, cap_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)",
+				    cap_len * 8);
+			}
+			if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+				const char *interface_name = epan_get_interface_name(pinfo->epan,
+				    pinfo->rec->rec_header.packet_header.interface_id,
+				    pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0);
+				if (interface_name != NULL) {
+					proto_item_append_text(ti, " on interface %s, id %u",
+					    interface_name, pinfo->rec->rec_header.packet_header.interface_id);
+				} else {
+					proto_item_append_text(ti, " on unnamed interface, id %u",
+					    pinfo->rec->rec_header.packet_header.interface_id);
+				}
+			}
+		}
 		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
 			switch (PACK_FLAGS_DIRECTION(pack_flags)) {
 
@@ -605,10 +662,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			case PACK_FLAGS_DIRECTION_INBOUND:
 				pinfo->p2p_dir = P2P_DIR_RECV;
+				if (do_frame_dissection)
+					proto_item_append_text(ti, " (inbound)");
 				break;
 
 			case PACK_FLAGS_DIRECTION_OUTBOUND:
 				pinfo->p2p_dir = P2P_DIR_SENT;
+				if (do_frame_dissection)
+					proto_item_append_text(ti, " (outbound)");
 				break;
 			}
 		}
@@ -668,170 +729,44 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				break;
 			}
 		}
-
-		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nflx_custom_option(fr_data->pkt_block,
-									      NFLX_OPT_TYPE_TCPINFO,
-									      (char *)&tcpinfo,
-									      sizeof(struct nflx_tcpinfo))) {
-			tcpinfo_filled = true;
-			if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
-			    (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
-				/* TCP WS option has been sent and received. */
-				switch (pinfo->p2p_dir) {
-				case P2P_DIR_RECV:
-					pinfo->src_win_scale = tcpinfo.tlb_snd_scale;
-					pinfo->dst_win_scale = tcpinfo.tlb_rcv_scale;
-					break;
-				case P2P_DIR_SENT:
-					pinfo->src_win_scale = tcpinfo.tlb_rcv_scale;
-					pinfo->dst_win_scale = tcpinfo.tlb_snd_scale;
-					break;
-				case P2P_DIR_UNKNOWN:
-					pinfo->src_win_scale = -1; /* unknown */
-					pinfo->dst_win_scale = -1; /* unknown */
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-				}
-			} else if (NFLX_TLB_IS_SYNCHRONIZED(tcpinfo.tlb_state)) {
-				/* TCP connection is in a synchronized state. */
-				pinfo->src_win_scale = -2; /* window scaling disabled */
-				pinfo->dst_win_scale = -2; /* window scaling disabled */
-			} else {
-				pinfo->src_win_scale = -1; /* unknown */
-				pinfo->dst_win_scale = -1; /* unknown */
-			}
-		} else {
-			tcpinfo_filled = false;
-		}
 		break;
 
 	case REC_TYPE_FT_SPECIFIC_EVENT:
+		if (do_frame_dissection) {
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			    "Frame %u: %s, %u byte%s on wire",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
+			if (generate_bits_field)
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			proto_item_append_text(ti, ", %u byte%s captured",
+			cap_len, cap_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)",
+				cap_len * 8);
+			}
+		}
 		break;
 
 	case REC_TYPE_FT_SPECIFIC_REPORT:
+		if (do_frame_dissection) {
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			    "Frame %u: %s, %u byte%s on wire",
+			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
+			    frame_plurality);
+			if (generate_bits_field)
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			proto_item_append_text(ti, ", %u byte%s captured",
+			cap_len, cap_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)",
+				cap_len * 8);
+			}
+		}
 		break;
 
 	case REC_TYPE_SYSCALL:
-		break;
-
-	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-		break;
-
-	case REC_TYPE_CUSTOM_BLOCK:
-		break;
-
-	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		break;
-	}
-	if (wtap_block_count_option(fr_data->pkt_block, OPT_COMMENT) > 0) {
-		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
-		comments_tree = proto_item_add_subtree(item, ett_comments);
-		fr_user_data.item = item;
-		fr_user_data.tree = comments_tree;
-		fr_user_data.pinfo = pinfo;
-		fr_user_data.tvb = tvb;
-		fr_user_data.n_changes = 0;
-		wtap_block_foreach_option(fr_data->pkt_block, frame_add_comment, (void *)&fr_user_data);
-	}
-
-	cap_len = tvb_captured_length(tvb);
-	frame_len = tvb_reported_length(tvb);
-
-	/* If FRAME is not referenced from any filters we don't need to
-	   worry about generating any tree items.
-
-	   We do, however, have to worry about generating expert infos,
-	   as those have to show up if, for example, the user requests
-	   the expert info dialog.
-
-	   Therefore, the dissection code has to be careful about
-	   what stuff it does only if do_frame_dissection is true.
-
-	   XXX - all these tricks to optimize dissection if only some
-	   information is required are fragile.  Something better that
-	   handles this automatically would be useful. */
-	bool do_frame_dissection = proto_field_is_referenced(tree, proto_frame);
-	cap_plurality = plurality(cap_len, "", "s");
-	frame_plurality = plurality(frame_len, "", "s");
-
-	if (do_frame_dissection) {
-		/* Put in frame header information. */
-		switch (pinfo->rec->rec_type) {
-		case REC_TYPE_PACKET:
-			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Frame %u: %s, %u byte%s on wire",
-			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
-			    frame_plurality);
-			if (generate_bits_field)
-				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
-			proto_item_append_text(ti, ", %u byte%s captured",
-			    cap_len, cap_plurality);
-			if (generate_bits_field) {
-				proto_item_append_text(ti, " (%u bits)",
-				    cap_len * 8);
-			}
-			if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-				const char *interface_name = epan_get_interface_name(pinfo->epan,
-				    pinfo->rec->rec_header.packet_header.interface_id,
-				    pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0);
-				if (interface_name != NULL) {
-					proto_item_append_text(ti, " on interface %s, id %u",
-					    interface_name, pinfo->rec->rec_header.packet_header.interface_id);
-				} else {
-					proto_item_append_text(ti, " on unnamed interface, id %u",
-					    pinfo->rec->rec_header.packet_header.interface_id);
-				}
-			}
-			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_FLAGS, &pack_flags)) {
-				switch (PACK_FLAGS_DIRECTION(pack_flags)) {
-
-				case PACK_FLAGS_DIRECTION_INBOUND:
-					proto_item_append_text(ti, " (inbound)");
-					break;
-
-				case PACK_FLAGS_DIRECTION_OUTBOUND:
-					proto_item_append_text(ti, " (outbound)");
-					break;
-
-				default:
-					break;
-				}
-			}
-			break;
-
-		case REC_TYPE_FT_SPECIFIC_EVENT:
-			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Frame %u: %s, %u byte%s on wire",
-			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
-			    frame_plurality);
-			if (generate_bits_field)
-				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
-			proto_item_append_text(ti, ", %u byte%s captured",
-			cap_len, cap_plurality);
-			if (generate_bits_field) {
-				proto_item_append_text(ti, " (%u bits)",
-				cap_len * 8);
-			}
-			break;
-
-		case REC_TYPE_FT_SPECIFIC_REPORT:
-			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-			    "Frame %u: %s, %u byte%s on wire",
-			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
-			    frame_plurality);
-			if (generate_bits_field)
-				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
-			proto_item_append_text(ti, ", %u byte%s captured",
-			cap_len, cap_plurality);
-			if (generate_bits_field) {
-				proto_item_append_text(ti, " (%u bits)",
-				cap_len * 8);
-			}
-			break;
-
-		case REC_TYPE_SYSCALL:
+		if (do_frame_dissection) {
 			/*
 			 * This gives us a top-of-tree "syscall" protocol
 			 * with "frame" fields underneath. Should we create
@@ -843,9 +778,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			    "Frame %u: %s, %u byte%s",
 			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
 			    frame_plurality);
-			break;
+		}
+		break;
 
-		case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
+	case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
+		if (do_frame_dissection) {
 			/*
 			 * XXX - we need to rethink what's handled by
 			 * packet-record.c, what's handled by packet-frame.c.
@@ -857,9 +794,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			    "Frame %u: %s, %u byte%s",
 			    pinfo->num, pinfo->rec->rec_type_name, frame_len,
 			    frame_plurality);
-			break;
+		}
+		break;
 
-		case REC_TYPE_CUSTOM_BLOCK:
+	case REC_TYPE_CUSTOM_BLOCK:
+		if (do_frame_dissection) {
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
 			                                    "Frame %u: %s, %u byte%s",
 			                                    pinfo->num, pinfo->rec->rec_type_name, frame_len, frame_plurality);
@@ -877,10 +816,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				                       pinfo->rec->rec_header.custom_block_header.copy_allowed ? "" : " not");
 				break;
 			}
-			break;
-
 		}
+		break;
 
+	default:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Record type %u",
+		    pinfo->rec->rec_type);
+		call_data_dissector(tvb, pinfo, parent_tree);
+		return tvb_captured_length(tvb);
+	}
+
+	if (do_frame_dissection) {
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 	} else {
 		fh_tree = NULL;
@@ -1089,8 +1036,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->ignored);
 		proto_item_set_generated(ti);
+	}
 
-		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+	if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+		struct nflx_tcpinfo tcpinfo;
+
+		if (do_frame_dissection) {
 			/* Check for existences of P2P pseudo header */
 			if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
 				proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
@@ -1103,7 +1054,41 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_tree_add_uint(fh_tree, hf_link_number, tvb,
 						    0, 0, pinfo->link_number);
 			}
-			if (tcpinfo_filled) {
+		}
+
+		if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nflx_custom_option(fr_data->pkt_block,
+									      NFLX_OPT_TYPE_TCPINFO,
+									      (char *)&tcpinfo,
+									      sizeof(struct nflx_tcpinfo))) {
+
+			if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
+			    (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
+				/* TCP WS option has been sent and received. */
+				switch (pinfo->p2p_dir) {
+				case P2P_DIR_RECV:
+					pinfo->src_win_scale = tcpinfo.tlb_snd_scale;
+					pinfo->dst_win_scale = tcpinfo.tlb_rcv_scale;
+					break;
+				case P2P_DIR_SENT:
+					pinfo->src_win_scale = tcpinfo.tlb_rcv_scale;
+					pinfo->dst_win_scale = tcpinfo.tlb_snd_scale;
+					break;
+				case P2P_DIR_UNKNOWN:
+					pinfo->src_win_scale = -1; /* unknown */
+					pinfo->dst_win_scale = -1; /* unknown */
+					break;
+				default:
+					DISSECTOR_ASSERT_NOT_REACHED();
+				}
+			} else if (NFLX_TLB_IS_SYNCHRONIZED(tcpinfo.tlb_state)) {
+				/* TCP connection is in a synchronized state. */
+				pinfo->src_win_scale = -2; /* window scaling disabled */
+				pinfo->dst_win_scale = -2; /* window scaling disabled */
+			} else {
+				pinfo->src_win_scale = -1; /* unknown */
+				pinfo->dst_win_scale = -1; /* unknown */
+			}
+			if (do_frame_dissection) {
 				proto_tree *bblog_tree;
 				proto_item *bblog_item;
 				static int * const bblog_event_flags[] = {
@@ -1213,7 +1198,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_tree_add_uint(bblog_tree, hf_frame_bblog_payload_len,    NULL, 0, 0, tcpinfo.tlb_len);
 			}
 		}
+	}
 
+	if (do_frame_dissection) {
 		if (show_file_off) {
 			proto_tree_add_int64_format_value(fh_tree, hf_frame_file_off, tvb,
 						    0, 0, pinfo->fd->file_off,
