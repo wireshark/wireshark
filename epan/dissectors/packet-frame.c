@@ -746,35 +746,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	   as those have to show up if, for example, the user requests
 	   the expert info dialog.
 
-	   NOTE: if any expert infos are added in the "frame is referenced"
-	   arm of the conditional, they must also be added to the "frame
-	   is not referenced" arm.  See, for example, issue #18312.
+	   Therefore, the dissection code has to be careful about
+	   what stuff it does only if do_frame_dissection is true.
 
 	   XXX - all these tricks to optimize dissection if only some
 	   information is required are fragile.  Something better that
 	   handles this automatically would be useful. */
-	if (!proto_field_is_referenced(tree, proto_frame)) {
-		tree=NULL;
-		if (pinfo->presence_flags & PINFO_HAS_TS) {
-			if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000)
-				expert_add_info_format(pinfo, NULL, &ei_arrive_time_out_of_range,
-								    "Arrival Time: Fractional second %09ld is invalid,"
-								    " the valid range is 0-1000000000",
-								    (long) pinfo->abs_ts.nsecs);
-		}
-		if (frame_len < cap_len) {
-			/*
-			 * A reported length less than a captured length
-			 * is bogus, as you cannot capture more data
-			 * than there is in a packet.
-			 */
-			expert_add_info(pinfo, NULL, &ei_len_lt_caplen);
-		}
-	} else {
-		/* Put in frame header information. */
-		cap_plurality = plurality(cap_len, "", "s");
-		frame_plurality = plurality(frame_len, "", "s");
+	bool do_frame_dissection = proto_field_is_referenced(tree, proto_frame);
+	cap_plurality = plurality(cap_len, "", "s");
+	frame_plurality = plurality(frame_len, "", "s");
 
+	if (do_frame_dissection) {
+		/* Put in frame header information. */
 		switch (pinfo->rec->rec_type) {
 		case REC_TYPE_PACKET:
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
@@ -899,39 +882,45 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
+	} else {
+		fh_tree = NULL;
+	}
 
-		if (pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER &&
-		   (proto_field_is_referenced(tree, hf_frame_section_number))) {
-			/* Show it as 1-origin */
-			proto_tree_add_uint(fh_tree, hf_frame_section_number, tvb,
-					    0, 0, pinfo->rec->section_number + 1);
+	if (pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER &&
+	    do_frame_dissection &&
+	    (proto_field_is_referenced(tree, hf_frame_section_number))) {
+		/* Show it as 1-origin */
+		proto_tree_add_uint(fh_tree, hf_frame_section_number, tvb,
+				    0, 0, pinfo->rec->section_number + 1);
+	}
+
+	if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID &&
+	    do_frame_dissection &&
+	    ((proto_field_is_referenced(tree, hf_frame_interface_id) || proto_field_is_referenced(tree, hf_frame_interface_name) || proto_field_is_referenced(tree, hf_frame_interface_description)))) {
+		unsigned section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
+		const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id, section_number);
+		const char *interface_description = epan_get_interface_description(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id, section_number);
+		proto_tree *if_tree;
+		proto_item *if_item;
+
+		if (interface_name) {
+			if_item = proto_tree_add_uint_format_value(fh_tree, hf_frame_interface_id, tvb, 0, 0,
+								   pinfo->rec->rec_header.packet_header.interface_id, "%u (%s)",
+								   pinfo->rec->rec_header.packet_header.interface_id, interface_name);
+			if_tree = proto_item_add_subtree(if_item, ett_ifname);
+			proto_tree_add_string(if_tree, hf_frame_interface_name, tvb, 0, 0, interface_name);
+		} else {
+			if_item = proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->rec->rec_header.packet_header.interface_id);
 		}
 
-		if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID &&
-		   (proto_field_is_referenced(tree, hf_frame_interface_id) || proto_field_is_referenced(tree, hf_frame_interface_name) || proto_field_is_referenced(tree, hf_frame_interface_description))) {
-			unsigned section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
-			const char *interface_name = epan_get_interface_name(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id, section_number);
-			const char *interface_description = epan_get_interface_description(pinfo->epan, pinfo->rec->rec_header.packet_header.interface_id, section_number);
-			proto_tree *if_tree;
-			proto_item *if_item;
-
-			if (interface_name) {
-				if_item = proto_tree_add_uint_format_value(fh_tree, hf_frame_interface_id, tvb, 0, 0,
-									   pinfo->rec->rec_header.packet_header.interface_id, "%u (%s)",
-									   pinfo->rec->rec_header.packet_header.interface_id, interface_name);
-				if_tree = proto_item_add_subtree(if_item, ett_ifname);
-				proto_tree_add_string(if_tree, hf_frame_interface_name, tvb, 0, 0, interface_name);
-			} else {
-				if_item = proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->rec->rec_header.packet_header.interface_id);
-			}
-
-			if (interface_description) {
-				if_tree = proto_item_add_subtree(if_item, ett_ifname);
-				proto_tree_add_string(if_tree, hf_frame_interface_description, tvb, 0, 0, interface_description);
-			}
+		if (interface_description) {
+			if_tree = proto_item_add_subtree(if_item, ett_ifname);
+			proto_tree_add_string(if_tree, hf_frame_interface_description, tvb, 0, 0, interface_description);
 		}
+	}
 
-		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+	if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
+		if (do_frame_dissection) {
 			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(fr_data->pkt_block, OPT_PKT_QUEUE, &interface_queue)) {
 				proto_tree_add_uint(fh_tree, hf_frame_interface_queue, tvb, 0, 0, interface_queue);
 			}
@@ -994,17 +983,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pkt_encap);
 		}
+	}
 
-		if (pinfo->presence_flags & PINFO_HAS_TS) {
+	if (pinfo->presence_flags & PINFO_HAS_TS) {
+		if (do_frame_dissection) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time_local, tvb, 0, 0, &pinfo->abs_ts);
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time_utc, tvb, 0, 0, &pinfo->abs_ts);
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb, 0, 0, &pinfo->abs_ts);
-			if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000) {
-				expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
-								  "Arrival Time: Fractional second %09ld is invalid,"
-								  " the valid range is 0-1000000000",
-								  (long) pinfo->abs_ts.nsecs);
-			}
+		}
+		if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000) {
+			expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
+							  "Arrival Time: Fractional second %09ld is invalid,"
+							  " the valid range is 0-1000000000",
+							  (long) pinfo->abs_ts.nsecs);
+		}
+		if (do_frame_dissection) {
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
 			proto_item_set_generated(item);
@@ -1046,22 +1039,28 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_item_set_generated(item);
 			}
 		}
+	}
 
+	if (do_frame_dissection) {
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 				    0, 0, pinfo->num);
 
 		item = proto_tree_add_uint_format_value(fh_tree, hf_frame_len, tvb,
 						  0, 0, frame_len, "%u byte%s (%u bits)",
 						  frame_len, frame_plurality, frame_len * 8);
-		if (frame_len < cap_len) {
-			/*
-			 * A reported length less than a captured length
-			 * is bogus, as you cannot capture more data
-			 * than there is in a packet.
-			 */
-			expert_add_info(pinfo, item, &ei_len_lt_caplen);
-		}
+	} else {
+		item = NULL;
+	}
+	if (frame_len < cap_len) {
+		/*
+		 * A reported length less than a captured length
+		 * is bogus, as you cannot capture more data
+		 * than there is in a packet.
+		 */
+		expert_add_info(pinfo, item, &ei_len_lt_caplen);
+	}
 
+	if (do_frame_dissection) {
 		proto_tree_add_uint_format_value(fh_tree, hf_frame_capture_len, tvb,
 					   0, 0, cap_len, "%u byte%s (%u bits)",
 					   cap_len, cap_plurality, cap_len * 8);
