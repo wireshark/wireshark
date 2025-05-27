@@ -16,9 +16,14 @@
 #include <wiretap/wtap.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
-#include "packet-bblog.h"
 
-#define PEN_NFLX 10949
+#include <epan/dissectors/packet-frame.h>
+
+#include <wiretap/pcapng-netflix-custom.h>
+
+#include <wsutil/pint.h>
+
+#include "packet-bblog.h"
 
 void proto_register_bblog(void);
 void proto_reg_handoff_bblog(void);
@@ -118,10 +123,108 @@ static int hf_pad_2;
 static int hf_pad_3;
 static int hf_payload_len;
 
+static int proto_bblog_binary_options;
+
+static int hf_frame_bblog;
+static int hf_frame_bblog_ticks;
+static int hf_frame_bblog_serial_nr;
+static int hf_frame_bblog_event_id;
+static int hf_frame_bblog_event_flags;
+static int hf_frame_bblog_event_flags_rxbuf;
+static int hf_frame_bblog_event_flags_txbuf;
+static int hf_frame_bblog_event_flags_hdr;
+static int hf_frame_bblog_event_flags_verbose;
+static int hf_frame_bblog_event_flags_stack;
+static int hf_frame_bblog_errno;
+static int hf_frame_bblog_rxb_acc;
+static int hf_frame_bblog_rxb_ccc;
+static int hf_frame_bblog_rxb_spare;
+static int hf_frame_bblog_txb_acc;
+static int hf_frame_bblog_txb_ccc;
+static int hf_frame_bblog_txb_spare;
+static int hf_frame_bblog_state;
+static int hf_frame_bblog_starttime;
+static int hf_frame_bblog_iss;
+static int hf_frame_bblog_t_flags;
+static int hf_frame_bblog_t_flags_ack_now;
+static int hf_frame_bblog_t_flags_delayed_ack;
+static int hf_frame_bblog_t_flags_no_delay;
+static int hf_frame_bblog_t_flags_no_opt;
+static int hf_frame_bblog_t_flags_sent_fin;
+static int hf_frame_bblog_t_flags_request_window_scale;
+static int hf_frame_bblog_t_flags_received_window_scale;
+static int hf_frame_bblog_t_flags_request_timestamp;
+static int hf_frame_bblog_t_flags_received_timestamp;
+static int hf_frame_bblog_t_flags_sack_permitted;
+static int hf_frame_bblog_t_flags_need_syn;
+static int hf_frame_bblog_t_flags_need_fin;
+static int hf_frame_bblog_t_flags_no_push;
+static int hf_frame_bblog_t_flags_prev_valid;
+static int hf_frame_bblog_t_flags_wake_socket_receive;
+static int hf_frame_bblog_t_flags_goodput_in_progress;
+static int hf_frame_bblog_t_flags_more_to_come;
+static int hf_frame_bblog_t_flags_listen_queue_overflow;
+static int hf_frame_bblog_t_flags_last_idle;
+static int hf_frame_bblog_t_flags_zero_recv_window_sent;
+static int hf_frame_bblog_t_flags_be_in_fast_recovery;
+static int hf_frame_bblog_t_flags_was_in_fast_recovery;
+static int hf_frame_bblog_t_flags_signature;
+static int hf_frame_bblog_t_flags_force_data;
+static int hf_frame_bblog_t_flags_tso;
+static int hf_frame_bblog_t_flags_toe;
+static int hf_frame_bblog_t_flags_unused_0;
+static int hf_frame_bblog_t_flags_unused_1;
+static int hf_frame_bblog_t_flags_lost_rtx_detection;
+static int hf_frame_bblog_t_flags_be_in_cong_recovery;
+static int hf_frame_bblog_t_flags_was_in_cong_recovery;
+static int hf_frame_bblog_t_flags_fast_open;
+static int hf_frame_bblog_snd_una;
+static int hf_frame_bblog_snd_max;
+static int hf_frame_bblog_snd_cwnd;
+static int hf_frame_bblog_snd_nxt;
+static int hf_frame_bblog_snd_recover;
+static int hf_frame_bblog_snd_wnd;
+static int hf_frame_bblog_snd_ssthresh;
+static int hf_frame_bblog_srtt;
+static int hf_frame_bblog_rttvar;
+static int hf_frame_bblog_rcv_up;
+static int hf_frame_bblog_rcv_adv;
+static int hf_frame_bblog_t_flags2;
+static int hf_frame_bblog_t_flags2_plpmtu_blackhole;
+static int hf_frame_bblog_t_flags2_plpmtu_pmtud;
+static int hf_frame_bblog_t_flags2_plpmtu_maxsegsnt;
+static int hf_frame_bblog_t_flags2_log_auto;
+static int hf_frame_bblog_t_flags2_drop_after_data;
+static int hf_frame_bblog_t_flags2_ecn_permit;
+static int hf_frame_bblog_t_flags2_ecn_snd_cwr;
+static int hf_frame_bblog_t_flags2_ecn_snd_ece;
+static int hf_frame_bblog_t_flags2_ace_permit;
+static int hf_frame_bblog_t_flags2_first_bytes_complete;
+static int hf_frame_bblog_rcv_nxt;
+static int hf_frame_bblog_rcv_wnd;
+static int hf_frame_bblog_dupacks;
+static int hf_frame_bblog_seg_qlen;
+static int hf_frame_bblog_snd_num_holes;
+static int hf_frame_bblog_flex_1;
+static int hf_frame_bblog_flex_2;
+static int hf_frame_bblog_first_byte_in;
+static int hf_frame_bblog_first_byte_out;
+static int hf_frame_bblog_snd_scale;
+static int hf_frame_bblog_rcv_scale;
+static int hf_frame_bblog_pad_1;
+static int hf_frame_bblog_pad_2;
+static int hf_frame_bblog_pad_3;
+static int hf_frame_bblog_payload_len;
+
 static int ett_bblog;
 static int ett_bblog_flags;
 static int ett_bblog_t_flags;
 static int ett_bblog_t_flags2;
+
+static int ett_frame_bblog;
+static int ett_frame_bblog_event_flags;
+static int ett_frame_bblog_t_flags;
+static int ett_frame_bblog_t_flags2;
 
 static int * const bblog_event_flags[] = {
   &hf_event_flags_rxbuf,
@@ -401,6 +504,183 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_bblog_binary_option(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, void *data)
+{
+    struct custom_binary_opt_data *cbo_data = (struct custom_binary_opt_data *)data;
+    size_t custom_data_len;
+    const uint8_t *custom_data;
+    uint32_t type;
+    struct nflx_tcpinfo tcpinfo;
+
+    custom_data_len = cbo_data->optval->custom_binaryval.data.custom_data_len;
+    custom_data = cbo_data->optval->custom_binaryval.data.custom_data;
+
+    /*
+     * Make sure we have the type in the option data, and
+     * extract it.
+     *
+     * It'a 32-bit little-endian unsigned integral value.
+     */
+    if (custom_data_len < sizeof (uint32_t))
+        return (int)cbo_data->optval->custom_binaryval.data.custom_data_len;
+    type = pletoh32(custom_data);
+    custom_data_len -= sizeof (uint32_t);
+    custom_data += sizeof (uint32_t);
+
+    switch (type) {
+
+    case NFLX_OPT_TYPE_TCPINFO:
+        if (custom_data_len < OPT_NFLX_TCPINFO_SIZE)
+            return (int) cbo_data->optval->custom_binaryval.data.custom_data_len;
+        if (custom_data_len > sizeof (struct nflx_tcpinfo))
+            custom_data_len = sizeof (struct nflx_tcpinfo);
+        memcpy(&tcpinfo, custom_data, custom_data_len);
+        if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
+            (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
+            /* TCP WS option has been sent and received. */
+            switch (pinfo->p2p_dir) {
+            case P2P_DIR_RECV:
+                pinfo->src_win_scale = tcpinfo.tlb_snd_scale;
+                pinfo->dst_win_scale = tcpinfo.tlb_rcv_scale;
+                break;
+            case P2P_DIR_SENT:
+                pinfo->src_win_scale = tcpinfo.tlb_rcv_scale;
+                pinfo->dst_win_scale = tcpinfo.tlb_snd_scale;
+                break;
+            case P2P_DIR_UNKNOWN:
+                pinfo->src_win_scale = -1; /* unknown */
+                pinfo->dst_win_scale = -1; /* unknown */
+                break;
+            default:
+                DISSECTOR_ASSERT_NOT_REACHED();
+            }
+        } else if (NFLX_TLB_IS_SYNCHRONIZED(tcpinfo.tlb_state)) {
+            /* TCP connection is in a synchronized state. */
+            pinfo->src_win_scale = -2; /* window scaling disabled */
+            pinfo->dst_win_scale = -2; /* window scaling disabled */
+        } else {
+            pinfo->src_win_scale = -1; /* unknown */
+            pinfo->dst_win_scale = -1; /* unknown */
+        }
+        if (cbo_data->add_to_tree) {
+            proto_tree *bblog_tree;
+            proto_item *bblog_item;
+            static int * const frame_bblog_event_flags[] = {
+                &hf_frame_bblog_event_flags_rxbuf,
+                &hf_frame_bblog_event_flags_txbuf,
+                &hf_frame_bblog_event_flags_hdr,
+                &hf_frame_bblog_event_flags_verbose,
+                &hf_frame_bblog_event_flags_stack,
+                NULL
+            };
+            static int * const frame_bblog_t_flags[] = {
+                &hf_frame_bblog_t_flags_ack_now,
+                &hf_frame_bblog_t_flags_delayed_ack,
+                &hf_frame_bblog_t_flags_no_delay,
+                &hf_frame_bblog_t_flags_no_opt,
+                &hf_frame_bblog_t_flags_sent_fin,
+                &hf_frame_bblog_t_flags_request_window_scale,
+                &hf_frame_bblog_t_flags_received_window_scale,
+                &hf_frame_bblog_t_flags_request_timestamp,
+                &hf_frame_bblog_t_flags_received_timestamp,
+                &hf_frame_bblog_t_flags_sack_permitted,
+                &hf_frame_bblog_t_flags_need_syn,
+                &hf_frame_bblog_t_flags_need_fin,
+                &hf_frame_bblog_t_flags_no_push,
+                &hf_frame_bblog_t_flags_prev_valid,
+                &hf_frame_bblog_t_flags_wake_socket_receive,
+                &hf_frame_bblog_t_flags_goodput_in_progress,
+                &hf_frame_bblog_t_flags_more_to_come,
+                &hf_frame_bblog_t_flags_listen_queue_overflow,
+                &hf_frame_bblog_t_flags_last_idle,
+                &hf_frame_bblog_t_flags_zero_recv_window_sent,
+                &hf_frame_bblog_t_flags_be_in_fast_recovery,
+                &hf_frame_bblog_t_flags_was_in_fast_recovery,
+                &hf_frame_bblog_t_flags_signature,
+                &hf_frame_bblog_t_flags_force_data,
+                &hf_frame_bblog_t_flags_tso,
+                &hf_frame_bblog_t_flags_toe,
+                &hf_frame_bblog_t_flags_unused_0,
+                &hf_frame_bblog_t_flags_unused_1,
+                &hf_frame_bblog_t_flags_lost_rtx_detection,
+                &hf_frame_bblog_t_flags_be_in_cong_recovery,
+                &hf_frame_bblog_t_flags_was_in_cong_recovery,
+                &hf_frame_bblog_t_flags_fast_open,
+                NULL
+            };
+            static int * const frame_bblog_t_flags2[] = {
+                &hf_frame_bblog_t_flags2_plpmtu_blackhole,
+                &hf_frame_bblog_t_flags2_plpmtu_pmtud,
+                &hf_frame_bblog_t_flags2_plpmtu_maxsegsnt,
+                &hf_frame_bblog_t_flags2_log_auto,
+                &hf_frame_bblog_t_flags2_drop_after_data,
+                &hf_frame_bblog_t_flags2_ecn_permit,
+                &hf_frame_bblog_t_flags2_ecn_snd_cwr,
+                &hf_frame_bblog_t_flags2_ecn_snd_ece,
+                &hf_frame_bblog_t_flags2_ace_permit,
+                &hf_frame_bblog_t_flags2_first_bytes_complete,
+                NULL
+            };
+
+            bblog_item = proto_tree_add_string(tree, hf_frame_bblog, tvb, 0, 0, "");
+            bblog_tree = proto_item_add_subtree(bblog_item, ett_bblog);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_ticks,          NULL, 0, 0, tcpinfo.tlb_ticks);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_serial_nr,      NULL, 0, 0, tcpinfo.tlb_sn);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_event_id,       NULL, 0, 0, tcpinfo.tlb_eventid);
+            proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_event_flags, ett_frame_bblog_event_flags, frame_bblog_event_flags, tcpinfo.tlb_eventflags);
+            proto_tree_add_int(bblog_tree,  hf_frame_bblog_errno,          NULL, 0, 0, tcpinfo.tlb_errno);
+            if (tcpinfo.tlb_eventflags & BBLOG_EVENT_FLAG_RXBUF) {
+                proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_acc,   NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_acc);
+                proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_ccc,   NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_ccc);
+                proto_tree_add_uint(bblog_tree, hf_frame_bblog_rxb_spare, NULL, 0, 0, tcpinfo.tlb_rxbuf_tls_sb_spare);
+            }
+            if (tcpinfo.tlb_eventflags & BBLOG_EVENT_FLAG_TXBUF) {
+                proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_acc,   NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_acc);
+                proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_ccc,   NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_ccc);
+                proto_tree_add_uint(bblog_tree, hf_frame_bblog_txb_spare, NULL, 0, 0, tcpinfo.tlb_txbuf_tls_sb_spare);
+            }
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_state,          NULL, 0, 0, tcpinfo.tlb_state);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_starttime,      NULL, 0, 0, tcpinfo.tlb_starttime);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_iss,            NULL, 0, 0, tcpinfo.tlb_iss);
+            proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_t_flags, ett_frame_bblog_t_flags, frame_bblog_t_flags, tcpinfo.tlb_flags);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_una,        NULL, 0, 0, tcpinfo.tlb_snd_una);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_max,        NULL, 0, 0, tcpinfo.tlb_snd_max);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_cwnd,       NULL, 0, 0, tcpinfo.tlb_snd_cwnd);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_nxt,        NULL, 0, 0, tcpinfo.tlb_snd_nxt);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_recover,    NULL, 0, 0, tcpinfo.tlb_snd_recover);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_wnd,        NULL, 0, 0, tcpinfo.tlb_snd_wnd);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_ssthresh,   NULL, 0, 0, tcpinfo.tlb_snd_ssthresh);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_srtt,           NULL, 0, 0, tcpinfo.tlb_srtt);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_rttvar,         NULL, 0, 0, tcpinfo.tlb_rttvar);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_up,         NULL, 0, 0, tcpinfo.tlb_rcv_up);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_adv,        NULL, 0, 0, tcpinfo.tlb_rcv_adv);
+            proto_tree_add_bitmask_value(bblog_tree, NULL, 0, hf_frame_bblog_t_flags2, ett_frame_bblog_t_flags2, frame_bblog_t_flags2, tcpinfo.tlb_flags2);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_nxt,        NULL, 0, 0, tcpinfo.tlb_rcv_nxt);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_wnd,        NULL, 0, 0, tcpinfo.tlb_rcv_wnd);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_dupacks,        NULL, 0, 0, tcpinfo.tlb_dupacks);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_seg_qlen,       NULL, 0, 0, tcpinfo.tlb_segqlen);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_num_holes,  NULL, 0, 0, tcpinfo.tlb_snd_numholes);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_flex_1,         NULL, 0, 0, tcpinfo.tlb_flex1);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_flex_2,         NULL, 0, 0, tcpinfo.tlb_flex2);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_first_byte_in,  NULL, 0, 0, tcpinfo.tlb_fbyte_in);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_first_byte_out, NULL, 0, 0, tcpinfo.tlb_fbyte_out);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_snd_scale,      NULL, 0, 0, tcpinfo.tlb_snd_scale);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_rcv_scale,      NULL, 0, 0, tcpinfo.tlb_rcv_scale);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_1,          NULL, 0, 0, tcpinfo._pad[0]);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_2,          NULL, 0, 0, tcpinfo._pad[1]);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_pad_3,          NULL, 0, 0, tcpinfo._pad[2]);
+            proto_tree_add_uint(bblog_tree, hf_frame_bblog_payload_len,    NULL, 0, 0, tcpinfo.tlb_len);
+        }
+        break;
+
+    default:
+        break;
+    }
+    return (int)cbo_data->optval->custom_binaryval.data.custom_data_len;
+}
+
 void
 proto_register_bblog(void)
 {
@@ -497,6 +777,458 @@ proto_register_bblog(void)
         { &hf_payload_len,                    { "TCP Payload Length",                                   "bblog.payload_length",                FT_UINT32,  BASE_DEC,  NULL,                              0x0,                                 NULL, HFILL} },
     };
 
+    static hf_register_info hf_bblog_options[] = {
+        { &hf_frame_bblog,
+          { "Black Box Log", "frame.bblog",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_frame_bblog_ticks,
+          { "Ticks", "frame.bblog.ticks",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_serial_nr,
+          { "Serial Number", "frame.bblog.serial_nr",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_event_id,
+          { "Event Identifier", "frame.bblog.event_id",
+            FT_UINT8, BASE_DEC, VALS(event_identifier_values), 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_event_flags,
+          { "Event Flags", "frame.bblog.event_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_event_flags_rxbuf,
+          { "Receive buffer information", "frame.bblog.event_flags_rxbuf",
+            FT_BOOLEAN, 16, TFS(&tfs_available_not_available), BBLOG_EVENT_FLAG_RXBUF,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_event_flags_txbuf,
+          { "Send buffer information", "frame.bblog.event_flags_txbuf",
+            FT_BOOLEAN, 16, TFS(&tfs_available_not_available), BBLOG_EVENT_FLAG_TXBUF,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_event_flags_hdr,
+          { "TCP header", "frame.bblog.event_flags_hdr",
+            FT_BOOLEAN, 16, TFS(&tfs_available_not_available), BBLOG_EVENT_FLAG_HDR,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_event_flags_verbose,
+          { "Additional information", "frame.bblog.event_flags_verbose",
+            FT_BOOLEAN, 16, TFS(&tfs_available_not_available), BBLOG_EVENT_FLAG_VERBOSE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_event_flags_stack,
+          { "Stack specific information", "frame.bblog.event_flags_stack",
+            FT_BOOLEAN, 16, TFS(&tfs_available_not_available), BBLOG_EVENT_FLAG_STACKINFO,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_errno,
+          { "Error Number", "frame.bblog.errno",
+            FT_INT32, BASE_DEC, VALS(errno_values), 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rxb_acc,
+          { "Receive Buffer ACC", "frame.bblog.rxb_acc",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rxb_ccc,
+          { "Receive Buffer CCC", "frame.bblog.rxb_ccc",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rxb_spare,
+          { "Receive Buffer Spare", "frame.bblog.rxb_spare",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_txb_acc,
+          { "Send Buffer ACC", "frame.bblog.txb_acc",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_txb_ccc,
+          { "Send Buffer CCC", "frame.bblog.txb_ccc",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_txb_spare,
+          { "Send Buffer Spare", "frame.bblog.txb_spare",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_state,
+          { "TCP State", "frame.bblog.state",
+            FT_UINT32, BASE_DEC, VALS(tcp_state_values), 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_starttime,
+          { "Starttime", "frame.bblog.starttime",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_iss,
+          { "Initial Sending Sequence Number (ISS)", "frame.bblog.iss",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_t_flags,
+          { "TCB Flags", "frame.bblog.t_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_ack_now,
+          { "Ack now", "frame.bblog.t_flags_ack_now",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_ACKNOW,
+          NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_delayed_ack,
+          { "Delayed ack", "frame.bblog.t_flags_delayed_ack",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_DELACK,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_no_delay,
+          { "No delay", "frame.bblog.t_flags_no_delay",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_NODELAY,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_no_opt,
+          { "No options", "frame.bblog.t_flags_no_opt",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_NOOPT,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_sent_fin,
+          { "Sent FIN", "frame.bblog.t_flags_sent_fin",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_SENTFIN,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_request_window_scale,
+          { "Have or will request Window Scaling", "frame.bblog.t_flags_request_window_scale",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_REQ_SCALE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_received_window_scale,
+          { "Peer has requested Window Scaling", "frame.bblog.t_flags_received_window_scale",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_RCVD_SCALE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_request_timestamp,
+          { "Have or will request Timestamps", "frame.bblog.t_flags_request_timestamp",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_REQ_TSTMP,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_received_timestamp,
+          { "Peer has requested Timestamp", "frame.bblog.t_flags_received_timestamp",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_RCVD_TSTMP,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_sack_permitted,
+          { "SACK permitted", "frame.bblog.t_flags_sack_permitted",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_SACK_PERMIT,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_need_syn,
+          { "Need SYN", "frame.bblog.t_flags_need_syn",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_NEEDSYN,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_need_fin,
+          { "Need FIN", "frame.bblog.t_flags_need_fin",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_NEEDFIN,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_no_push,
+          { "No push", "frame.bblog.t_flags_no_push",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_NOPUSH,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_prev_valid,
+          { "Saved values for bad retransmission valid", "frame.bblog.t_flags_prev_valid",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_PREVVALID,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_wake_socket_receive,
+          { "Wakeup receive socket", "frame.bblog.t_flags_wake_socket_receive",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_WAKESOR,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_goodput_in_progress,
+          { "Goodput measurement in progress", "frame.bblog.t_flags_goodput_in_progress",
+            FT_BOOLEAN, 32, NULL, BBLOG_T_FLAGS_GPUTINPROG,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_more_to_come,
+          { "More to come", "frame.bblog.t_flags_more_to_come",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_MORETOCOME,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_listen_queue_overflow,
+          { "Listen queue overflow", "frame.bblog.t_flags_listen_queue_overflow",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_LQ_OVERFLOW,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_last_idle,
+          { "Connection was previously idle", "frame.bblog.t_flags_last_idle",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_LASTIDLE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_zero_recv_window_sent,
+          { "Sent a RCV.WND = 0 in response", "frame.bblog.t_flags_zero_recv_window_sent",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_RXWIN0SENT,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_be_in_fast_recovery,
+          { "Currently in fast recovery", "frame.bblog.t_flags_be_in_fast_recovery",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_FASTRECOVERY,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_was_in_fast_recovery,
+          { "Was in fast recovery", "frame.bblog.t_flags_was_in_fast_recovery",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_WASFRECOVERY,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_signature,
+          { "MD5 signature required", "frame.bblog.t_flags_signature",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_SIGNATURE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_force_data,
+          { "Force data", "frame.bblog.t_flags_force_data",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_FORCEDATA,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_tso,
+          { "TSO", "frame.bblog.t_flags_tso",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_TSO,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_toe,
+          { "TOE", "frame.bblog.t_flags_toe",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_TOE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_unused_0,
+          { "Unused 1", "frame.bblog.t_flags_unused_0",
+            FT_BOOLEAN, 32, NULL, BBLOG_T_FLAGS_UNUSED0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_unused_1,
+          { "Unused 2", "frame.bblog.t_flags_unused_1",
+            FT_BOOLEAN, 32, NULL, BBLOG_T_FLAGS_UNUSED1,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_lost_rtx_detection,
+          { "Lost retransmission detection", "frame.bblog.t_flags_lost_rtx_detection",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_LRD,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_be_in_cong_recovery,
+          { "Currently in congestion avoidance", "frame.bblog.t_flags_be_in_cong_recovery",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_CONGRECOVERY,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_was_in_cong_recovery,
+          { "Was in congestion avoidance", "frame.bblog.t_flags_was_in_cong_recovery",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS_WASCRECOVERY,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags_fast_open,
+          { "TFO", "frame.bblog.t_flags_tfo",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS_FASTOPEN,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_snd_una,
+          { "Oldest Unacknowledged Sequence Number (SND.UNA)", "frame.bblog.snd_una",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_max,
+          { "Newest Sequence Number Sent (SND.MAX)", "frame.bblog.snd_max",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_cwnd,
+          { "Congestion Window", "frame.bblog.snd_cwnd",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_nxt,
+          { "Next Sequence Number (SND.NXT)", "frame.bblog.snd_nxt",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_recover,
+          { "Recovery Sequence Number (SND.RECOVER)", "frame.bblog.snd_recover",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_wnd,
+          { "Send Window (SND.WND)", "frame.bblog.snd_wnd",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_ssthresh,
+          { "Slowstart Threshold (SSTHREASH)", "frame.bblog.snd_ssthresh",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_srtt,
+          { "Smoothed Round Trip Time (SRTT)", "frame.bblog.srtt",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rttvar,
+          { "Round Trip Timer Variance (RTTVAR)", "frame.bblog.rttvar",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rcv_up,
+          { "Receive Urgent Pointer (RCV.UP)", "frame.bblog.rcv_up",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rcv_adv,
+          { "Receive Advanced (RCV.ADV)", "frame.bblog.rcv_adv",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_t_flags2,
+          { "TCB Flags2", "frame.bblog.t_flags2",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_plpmtu_blackhole,
+          { "PMTU blackhole detection", "frame.bblog.t_flags2_plpmtu_blackhole",
+            FT_BOOLEAN, 32, TFS(&tfs_active_inactive), BBLOG_T_FLAGS2_PLPMTU_BLACKHOLE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_plpmtu_pmtud,
+          { "Path MTU discovery", "frame.bblog.t_flags2_plpmtu_pmtud",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS2_PLPMTU_PMTUD,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_plpmtu_maxsegsnt,
+          { "Last segment sent was a full segment", "frame.bblog.t_flags2_plpmtu_maxsegsnt",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS2_PLPMTU_MAXSEGSNT,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_log_auto,
+          { "Connection auto-logging", "frame.bblog.t_flags2_log_auto",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS2_LOG_AUTO,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_drop_after_data,
+          { "Drop connection after all data has been acknowledged", "frame.bblog.t_flags2_drop_after_data",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS2_DROP_AFTER_DATA,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_ecn_permit,
+          { "ECN", "frame.bblog.t_flags2_ecn_permit",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), BBLOG_T_FLAGS2_ECN_PERMIT,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_ecn_snd_cwr,
+          { "ECN CWR queued", "frame.bblog.t_flags2_ecn_snd_cwr",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS2_ECN_SND_CWR,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_ecn_snd_ece,
+          { "ECN ECE queued", "frame.bblog.t_flags2_ecn_snd_ece",
+            FT_BOOLEAN, 32, TFS(&tfs_yes_no), BBLOG_T_FLAGS2_ECN_SND_ECE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_ace_permit,
+          { "Accurate ECN mode", "frame.bblog.t_flags2_ace_permit",
+            FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), BBLOG_T_FLAGS2_ACE_PERMIT,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_t_flags2_first_bytes_complete,
+          { "First bytes in/out", "frame.bblog.t_flags2_first_bytes_complete",
+            FT_BOOLEAN, 32, TFS(&tfs_available_not_available), BBLOG_T_FLAGS2_FIRST_BYTES_COMPLETE,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_rcv_nxt,
+          { "Receive Next (RCV.NXT)", "frame.bblog.rcv_nxt",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_rcv_wnd,
+          { "Receive Window (RCV.WND)", "frame.bblog.rcv_wnd",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_dupacks,
+          { "Duplicate Acknowledgements", "frame.bblog.dupacks",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_seg_qlen,
+          { "Segment Queue Length", "frame.bblog.seg_qlen",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_num_holes,
+          { "Number of Holes", "frame.bblog.snd_num_holes",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_flex_1,
+          { "Flex 1", "frame.bblog.flex_1",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_flex_2,
+          { "Flex 2", "frame.bblog.flex_2",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_first_byte_in,
+          { "Time of First Byte In", "frame.bblog.first_byte_in",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_first_byte_out,
+          { "Time of First Byte Out", "frame.bblog.first_byte_out",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
+        { &hf_frame_bblog_snd_scale,
+          { "Snd.Wind.Shift", "frame.bblog.snd_shift",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_rcv_scale,
+          { "Rcv.Wind.Shift", "frame.bblog.rcv_shift",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_pad_1,
+          { "Padding", "frame.bblog.pad_1",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_pad_2,
+          { "Padding", "frame.bblog.pad_2",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_pad_3,
+          { "Padding", "frame.bblog.pad_3",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_frame_bblog_payload_len,
+          { "TCP Payload Length", "frame.bblog.payload_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+    	    NULL, HFILL}},
+    };
+
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_bblog,
@@ -505,20 +1237,35 @@ proto_register_bblog(void)
         &ett_bblog_t_flags2
     };
 
+    static int *ett_frame_bblog_options[] = {
+        &ett_frame_bblog,
+        &ett_frame_bblog_event_flags,
+        &ett_frame_bblog_t_flags,
+    	&ett_frame_bblog_t_flags2
+    };
+
     /* Register the protocol name and description */
     proto_bblog = proto_register_protocol("Black Box Log", "BBLog", "bblog");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_bblog, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
     bblog_handle = register_dissector("bblog", dissect_bblog, proto_bblog);
+
+    /* Register the protocol name and description for binary options */
+    proto_bblog_binary_options = proto_register_protocol("Black Box Log options", "BBLog-opts", "bblog-opts");
+    proto_register_subtree_array(ett_frame_bblog_options, array_length(ett_frame_bblog_options));
+    proto_register_field_array(proto_bblog_binary_options, hf_bblog_options, array_length(hf_bblog_options));
 }
 
 void
 proto_reg_handoff_bblog(void)
 {
+    dissector_handle_t bblog_option_handle;
+
     dissector_add_uint("pcapng_custom_block", PEN_NFLX, bblog_handle);
+    bblog_option_handle = create_dissector_handle(dissect_bblog_binary_option, proto_bblog_binary_options);
+    dissector_add_uint("pcapng_custom_binary_option", PEN_NFLX, bblog_option_handle);
 }
 
 /*
