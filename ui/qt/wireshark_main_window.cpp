@@ -346,6 +346,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     }
     gbl_cur_main_window_ = this;
 #ifdef HAVE_LIBPCAP
+    info_data_.ui.ui = this;
     capture_input_init(&cap_session_, CaptureFile::globalCapFile());
 #endif
 

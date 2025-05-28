@@ -883,7 +883,6 @@ void StratosharkMainWindow::startCapture() {
     collect_ifaces(&global_capture_opts);
 
     CaptureFile::globalCapFile()->window = this;
-    info_data_.ui.ui = this;
     if (capture_start(&global_capture_opts, NULL, &cap_session_, &info_data_,
                       main_window_update)) {
         /* The capture succeeded, which means the capture filter syntax is
