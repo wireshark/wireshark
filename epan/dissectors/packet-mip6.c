@@ -1197,7 +1197,7 @@ static int hf_mip6_opt_load_inf_used_capacity;
 static int hf_mip6_opt_load_inf_maximum_capacity;
 static int hf_mip6_opt_alt_ip4;
 
-/* Mobile Node Group Identifier Optionm */
+/* Mobile Node Group Identifier Options */
 static int hf_mip6_opt_mng_sub_type;
 static int hf_mip6_opt_mng_reserved;
 static int hf_mip6_opt_mng_mng_id;

@@ -4797,7 +4797,7 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 			*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
 
 			if (b < 0x80) {
-				/* end successfully becauseof last byte's msb(most significant bit) is zero */
+				/* end successfully because of last byte's msb(most significant bit) is zero */
 				return i + 1;
 			}
 		}
@@ -4814,7 +4814,7 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 			*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
 
 			if (b < 0x80) {
-				/* end successfully becauseof last byte's msb(most significant bit) is zero */
+				/* end successfully because of last byte's msb(most significant bit) is zero */
 				*value = (*value >> 1) ^ ((*value & 1) ? -1 : 0);
 				return i + 1;
 			}

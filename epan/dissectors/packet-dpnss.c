@@ -809,7 +809,7 @@ static const value_string dpnss_serv_mark_vals[] = {
 
 static const value_string dpnss_sup_serv_par_str_vals[] = {
     { DPNSS_NONE,                   "None"},
-    { DPNSS_SERV_MAR,               "Servive Marking"},
+    { DPNSS_SERV_MAR,               "Service Marking"},
     { DPNSS_STATUS,                 "Status"},
     { DPNSS_ROUTE_RES_CLASS,        "Route Restriction Class"},
     { DPNSS_CBR_GRP,                "Call Barring Group"},

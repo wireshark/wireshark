@@ -1088,9 +1088,9 @@ The “Advanced” pane will let you view and edit all of Wireshark’s preferen
 .Advanced preferences
 image::images/ws-pref-advanced.png[{screenshot-attrs}]
 
-You can search for a preference by typing text into the “Search” entry. The search text will be matched against the internal name of the preference, but also associated help texts in order to improve discoverablility.
+You can search for a preference by typing text into the “Search” entry. The search text will be matched against the internal name of the preference, but also associated help texts in order to improve discoverability.
 
-Selecting _Show changed values_ resticts the list to settings having non-default values. This may help finding what has changed more easily.
+Selecting _Show changed values_ restricts the list to settings having non-default values. This may help finding what has changed more easily.
 
 // XXX - this needs to go into its own (extended) subsection
 You can also pass preference names to Wireshark and TShark on the command line.

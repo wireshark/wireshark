@@ -98,6 +98,7 @@ amsterdam
 anacap
 analysed
 analysing
+analytics
 analyzers
 analyzes
 andsp
@@ -207,6 +208,7 @@ backedup
 backend
 backhaul
 backoff
+backw
 bacnet
 bangladesh
 barbados
@@ -381,6 +383,7 @@ chennai
 chinese
 chipset
 chksum
+chlauth
 chmod
 choco
 chocolatey
@@ -581,6 +584,7 @@ dcmake
 dcname
 dcomp
 dct3trace
+ddstlv
 deact
 deactivated
 deactivating
@@ -1386,6 +1390,8 @@ keyset
 keysyms
 keytab
 knxip
+koi8r
+koi8u
 kolkata
 korean
 krb5kdc
@@ -1495,6 +1501,7 @@ lz4frame
 macaddr
 macaddress
 macau
+macce
 macos
 macosx
 macros
@@ -1621,7 +1628,11 @@ mplstp
 mpquic
 mpsse
 mptcp
+mqauth
+mqbacf
 mqcacf
+mqcach
+mqcft
 mqcmd
 mqiacf
 mqiach
@@ -1632,6 +1643,7 @@ mrpic
 msbuild
 mscldap
 msgasy
+msgasync
 msgflag
 msgid
 msglen
@@ -2124,6 +2136,7 @@ qam16
 qam64
 qcustomplot
 qmgmt
+qmopt
 qnet6
 qnsview
 qosinfo
@@ -3172,6 +3185,7 @@ vrfid
 vserver
 vsomeip
 vtotal
+vtstatus
 vxlan
 waitpid
 wakeup

@@ -215,7 +215,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     // First of all, we have two degenerate plots that are always kept at the
     // top and at the bottom. They only feature the top and bottom x axes
     // respectively, and they are always at index 0 and axisRectCount() - 1.
-    // This is a workaroud to avoid plots of different sizes when keeping the
+    // This is a workaround to avoid plots of different sizes when keeping the
     // top and bottom axes on only one of them, as described here:
     // https://www.qcustomplot.com/index.php/support/forum/2770
     // Then we have one or more "real" plots. We always keep at least one plot,
