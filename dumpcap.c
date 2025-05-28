@@ -2500,12 +2500,28 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, uint
  */
 static bool is_data_block(uint32_t block_type)
 {
-    // Any block types that lead to calling wtap_read_bytes_buffer in
-    // wiretap/pcapng.c should be listed here.
+    /* This should be the negation of get_block_type_internal in
+     * wiretap/pcapng.c, but dumpcap doesn't link with wiretap, and
+     * wouldn't know about blocks registered by plugins without running
+     * the registration routines.
+     *
+     * This is used for reporting packet counts. It affects autostop
+     * and file switching conditions, and is also reported via the
+     * sync pipe in capture child mode. In capture child mode, if the
+     * count reported is too small (i.e., false is returned for blocks
+     * that pcapng_read returns to the caller), then the parent process
+     * lags behind (and can report a "No packets captured error."). If
+     * the count reported is too large, then some parents (e.g. tshark)
+     * abort the capture because wtap_read will return an error.
+     *
+     * This errs on the side of returning false for unknown block types.
+     */
     switch (block_type) {
         case BLOCK_TYPE_PB:
         case BLOCK_TYPE_EPB:
         case BLOCK_TYPE_SPB:
+        case BLOCK_TYPE_CB_COPY:
+        case BLOCK_TYPE_CB_NO_COPY:
         case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
         case BLOCK_TYPE_SYSDIG_EVENT:
         case BLOCK_TYPE_SYSDIG_EVENT_V2:
