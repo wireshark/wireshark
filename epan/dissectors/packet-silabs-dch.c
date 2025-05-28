@@ -39,7 +39,6 @@ static int proto_silabs_dch;
 
 // Field identifiers, populated by registration.
 /* Debug Channel Header */
-static int hf_dch;
 static int hf_dch_version;
 static int hf_dch_timestamp;
 static int hf_dch_type;
@@ -400,7 +399,7 @@ static int dissect_silabs_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   const char *dch_message_type_str;
 
   // Create the top-level DCH subtree.
-  dch_root = proto_tree_add_item(tree, hf_dch, tvb, offset, -1, ENC_NA);
+  dch_root = proto_tree_add_item(tree, proto_silabs_dch, tvb, offset, -1, ENC_NA);
   dch_tree = proto_item_add_subtree(dch_root, ett_silabs_dch);
 
   // Decode version, add it to DCH subtree.
@@ -927,7 +926,7 @@ static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, ui
  */
 static const ProtocolInfo *get_protocol_info(uint8_t protocol_id)
 {
-  ProtocolInfo *protocol_info = (ProtocolInfo *)wmem_alloc(wmem_packet_scope(), sizeof(ProtocolInfo));
+  ProtocolInfo *protocol_info = wmem_new(wmem_packet_scope(), ProtocolInfo);
 
   switch (protocol_id)
   {
@@ -972,7 +971,7 @@ static const ProtocolInfo *get_protocol_info(uint8_t protocol_id)
  */
 static const Efr32AppendedInfo *get_efr32_appended_info(uint8_t appended_info_cfg)
 {
-  Efr32AppendedInfo *appended_info = (Efr32AppendedInfo *)wmem_alloc(wmem_packet_scope(), sizeof(Efr32AppendedInfo));
+  Efr32AppendedInfo *appended_info = wmem_new(wmem_packet_scope(), Efr32AppendedInfo);
   memset(appended_info, 0, sizeof(Efr32AppendedInfo)); // Initialize all fields to 0 or false
   bool isRx = (appended_info_cfg & 0x00000040) != 0;
   uint8_t var_len = (appended_info_cfg & 0x00000038) >> 3;
@@ -1180,8 +1179,6 @@ void proto_register_silabs_dch(void)
 {
   static hf_register_info hf[] = {
       /* Debug Channel Header */
-      {&hf_dch,
-       {"Silabs Debug Channel", "silabs-dch", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
       {&hf_dch_version,
        {"Version", "silabs-dch.version", FT_UINT16, BASE_DEC, NULL, 0x0, "Debug Channel Version", HFILL}},
       {&hf_dch_timestamp,
