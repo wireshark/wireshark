@@ -85,6 +85,7 @@ typedef struct sinsp_field_extract_t {
     uint16_t field_idx;          // out for syscalls
 } sinsp_field_extract_t;
 
+#define PLUGIN_EVENT_HEADER_SIZE (26 + 4 + 4 + 4) // sizeof(ss_plugin_event) + plugin ID length + data length + plugin ID
 typedef struct plugin_field_extract_t {
     uint32_t field_id;          // out for syscalls, in for plugins
     const char *field_name;     // in

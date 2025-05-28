@@ -1080,8 +1080,9 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
                 status = false;
             }
 #if SINSP_CHECK_VERSION(0, 21, 0)
-            if (offsets.at(i).start && offsets.at(i).length && offsets.at(i).start[0] != UINT32_MAX && offsets.at(i).length[0] != UINT32_MAX) {
-                int start = (int) offsets.at(i).start[0];
+            if (offsets.at(i).start && offsets.at(i).length && offsets.at(i).start[0] >= PLUGIN_EVENT_HEADER_SIZE && offsets.at(i).length[0] > 0) {
+                // We dissect data in its own TVB,
+                int start = (int) offsets.at(i).start[0] - PLUGIN_EVENT_HEADER_SIZE;
                 int length = (int) offsets.at(i).length[0];
                 if (start == 0 && length == 0) {
                     sinsp_fields[i].is_generated = true;
