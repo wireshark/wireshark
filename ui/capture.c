@@ -508,28 +508,31 @@ capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
     wtap_rec_init(&rec, 1514);
     while (to_read > 0) {
         wtap_cleareof(wth);
-        if (wtap_read(wth, &rec, &err, &err_info, &data_offset)) {
-            if (rec.rec_type == REC_TYPE_PACKET) {
-                capture_packet_info_t cpinfo;
-
-                /* Setup the capture packet structure */
-                cpinfo.counts = cap_info->counts.counts_hash;
-
-                cap_info->counts.total++;
-                if (!try_capture_dissector("wtap_encap",
-                                            rec.rec_header.packet_header.pkt_encap,
-                                            ws_buffer_start_ptr(&rec.data),
-                                            0,
-                                            rec.rec_header.packet_header.caplen,
-                                            &cpinfo,
-                                            &rec.rec_header.packet_header.pseudo_header))
-                    cap_info->counts.other++;
-
-                /*ws_warning("new packet");*/
-                to_read--;
-            }
-            wtap_rec_reset(&rec);
+        if (!wtap_read(wth, &rec, &err, &err_info, &data_offset)) {
+            /* Read failed. capture_input_new_packets should handle
+             * aborting the capture, etc. if necessary. */
+            break;
         }
+        if (rec.rec_type == REC_TYPE_PACKET) {
+            capture_packet_info_t cpinfo;
+
+            /* Setup the capture packet structure */
+            cpinfo.counts = cap_info->counts.counts_hash;
+
+            cap_info->counts.total++;
+            if (!try_capture_dissector("wtap_encap",
+                                        rec.rec_header.packet_header.pkt_encap,
+                                        ws_buffer_start_ptr(&rec.data),
+                                        0,
+                                        rec.rec_header.packet_header.caplen,
+                                        &cpinfo,
+                                        &rec.rec_header.packet_header.pseudo_header))
+                cap_info->counts.other++;
+
+            /*ws_warning("new packet");*/
+            to_read--;
+        }
+        wtap_rec_reset(&rec);
     }
     wtap_rec_cleanup(&rec);
 
