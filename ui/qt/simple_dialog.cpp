@@ -28,7 +28,6 @@
 #include <QMessageBox>
 #include <QMutex>
 #include <QRegularExpression>
-#include <QTextCodec>
 
 /* Simple dialog function - Displays a dialog box with the supplied message
  * text.
@@ -205,8 +204,10 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
 #else
     //
     // On UN*X, who knows?  Assume the locale's encoding.
+    // Note on Qt 6 the process locale encoding is always UTF-8 and this
+    // is the same as above.
     //
-    message = QTextCodec::codecForLocale()->toUnicode(vmessage);
+    message = QString().fromLocal8Bit(vmessage, -1);
 #endif
     g_free(vmessage);
 
