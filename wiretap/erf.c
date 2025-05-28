@@ -740,7 +740,8 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
        * chosen by wth->file_type_subtype?
        */
       /* For now just treat all Provenance records as reports */
-      rec->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
+      wtap_setup_ft_specific_report_rec(rec, erf_file_type_subtype,
+                                        0x00000000); /* XXX - record type */
       rec->block = wtap_block_create(WTAP_BLOCK_FT_SPECIFIC_REPORT);
       /* XXX: phdr ft_specific_record_phdr? */
     }
@@ -1829,6 +1830,7 @@ static bool erf_dump(
     /* We can only convert packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
       *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+      *err_info = wtap_unwritable_rec_type_err_string(rec);
       return false;
     }
 

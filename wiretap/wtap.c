@@ -1733,6 +1733,17 @@ wtap_reset_rec(wtap *wth, wtap_rec *rec)
 	ws_buffer_clean(&rec->data);
 }
 
+
+/**
+ * Return an error string for WTAP_ERR_UNWRITABLE_REC_TYPE.
+ */
+char *
+wtap_unwritable_rec_type_err_string(const wtap_rec *rec)
+{
+	return g_strdup_printf("%s records aren't supported by this file type",
+	    rec->rec_type_name);
+}
+
 /**
  * Set up a wtap_rec for a packet (REC_TYPE_PACKET).
  */
@@ -1749,10 +1760,13 @@ wtap_setup_packet_rec(wtap_rec *rec, int encap)
  * (REC_TYPE_FT_SPECIFIC_EVENT);
  */
 void
-wtap_setup_ft_specific_event_rec(wtap_rec *rec)
+wtap_setup_ft_specific_event_rec(wtap_rec *rec, int file_type_subtype,
+                                 unsigned record_type)
 {
 	rec->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
 	rec->rec_type_name = "Event";
+	rec->rec_header.ft_specific_header.file_type_subtype = file_type_subtype;
+	rec->rec_header.ft_specific_header.record_type = record_type;
 }
 
 /**
@@ -1760,10 +1774,13 @@ wtap_setup_ft_specific_event_rec(wtap_rec *rec)
  * (REC_TYPE_FT_SPECIFIC_REPORT);
  */
 void
-wtap_setup_ft_specific_report_rec(wtap_rec *rec)
+wtap_setup_ft_specific_report_rec(wtap_rec *rec, int file_type_subtype,
+                                 unsigned record_type)
 {
 	rec->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
 	rec->rec_type_name = "Report";
+	rec->rec_header.ft_specific_header.file_type_subtype = file_type_subtype;
+	rec->rec_header.ft_specific_header.record_type = record_type;
 }
 
 /**
@@ -1793,7 +1810,7 @@ wtap_setup_systemd_journal_export_rec(wtap_rec *rec)
 }
 
 /**
- * Set up a wtap_rec for a custom block (REC_TYPE_CUSTOM_BLCK).
+ * Set up a wtap_rec for a custom block (REC_TYPE_CUSTOM_BLOCK).
  */
 void
 wtap_setup_custom_block_rec(wtap_rec *rec, uint32_t pen,

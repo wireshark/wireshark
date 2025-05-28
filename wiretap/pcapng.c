@@ -6287,17 +6287,34 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
         case REC_TYPE_FT_SPECIFIC_EVENT:
         case REC_TYPE_FT_SPECIFIC_REPORT:
             /*
+             * Is this an event or report for our file type?
+             */
+            if (rec->rec_header.ft_specific_header.file_type_subtype != pcapng_file_type_subtype) {
+                /*
+                 * No. We can't write that.
+                 */
+                *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+                *err_info = g_strdup_printf("%s records for \"%s\" files aren't supported for this file type",
+                    rec->rec_type_name,
+                    wtap_file_type_subtype_name(rec->rec_header.ft_specific_header.file_type_subtype));
+                return false;
+            }
+
+            /*
              * Do we have a handler for this block type?
              */
-            if ((handler = (pcapng_block_type_handler_t*)g_hash_table_lookup(block_handlers,
-                                                                GUINT_TO_POINTER(rec->rec_header.ft_specific_header.record_type))) != NULL) {
-                /* Yes. Call it to write out this record. */
-                if (!handler->writer(wdh, rec, err, err_info))
-                    return false;
-            } else
-            {
-                /* No. */
+            handler = (pcapng_block_type_handler_t*)g_hash_table_lookup(block_handlers,
+                                                                        GUINT_TO_POINTER(rec->rec_header.ft_specific_header.record_type));
+            if (handler == NULL) {
+                /* No. We can't write that. */
                 *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+                *err_info = g_strdup_printf("Pcapng blocks of type 0x%8x aren't supported",
+                                            rec->rec_header.ft_specific_header.record_type);
+                return false;
+            }
+
+            /* Yes. Call it to write out this record. */
+            if (!handler->writer(wdh, rec, err, err_info)) {
                 return false;
             }
             break;
@@ -6333,6 +6350,7 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
         default:
             /* We don't support writing this record type. */
             *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+            *err_info = wtap_unwritable_rec_type_err_string(rec);
             return false;
     }
 

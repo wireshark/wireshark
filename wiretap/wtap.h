@@ -1367,8 +1367,9 @@ typedef struct {
     (ll_dependent_errors))
 
 typedef struct {
-    unsigned  record_type;      /* the type of record this is - file type-specific value */
-    uint32_t  record_len;       /* length of the record */
+    int      file_type_subtype; /* the type of file this is for */
+    unsigned record_type;       /* the type of record this is - file type-specific value */
+    uint32_t record_len;        /* length of the record */
 } wtap_ft_specific_header;
 
 typedef struct {
@@ -1971,6 +1972,12 @@ WS_DLL_PUBLIC
 void wtap_rec_cleanup(wtap_rec *rec);
 
 /**
+ * Return an error string for WTAP_ERR_UNWRITABLE_REC_TYPE.
+ */
+WS_DLL_PUBLIC
+char *wtap_unwritable_rec_type_err_string(const wtap_rec *rec);
+
+/**
  * Set up a wtap_rec for a packet (REC_TYPE_PACKET).
  */
 WS_DLL_PUBLIC
@@ -1981,14 +1988,16 @@ void wtap_setup_packet_rec(wtap_rec *rec, int encap);
  * (REC_TYPE_FT_SPECIFIC_EVENT);
  */
 WS_DLL_PUBLIC
-void wtap_setup_ft_specific_event_rec(wtap_rec *rec);
+void wtap_setup_ft_specific_event_rec(wtap_rec *rec, int file_type_subtype,
+                                      unsigned record_type);
 
 /**
  * Set up a wtap_rec for a file-type specific report
  * (REC_TYPE_FT_SPECIFIC_REPORT);
  */
 WS_DLL_PUBLIC
-void wtap_setup_ft_specific_report_rec(wtap_rec *rec);
+void wtap_setup_ft_specific_report_rec(wtap_rec *rec, int file_type_subtype,
+                                       unsigned record_type);
 
 /**
  * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).

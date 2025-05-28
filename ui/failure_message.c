@@ -435,9 +435,12 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
          * and the file type and subtype we're writing; note that,
          * and report the record number and file type/subtype.
          */
-        cmdarg_err("Record%s has a record type that can't be saved in a \"%s\" file.",
+        cmdarg_err("Record%s has a record type that can't be saved in a \"%s\" file.\n"
+                   "(%s)",
                    in_frame_string,
-                   wtap_file_type_subtype_name(file_type_subtype));
+                   wtap_file_type_subtype_name(file_type_subtype),
+                   err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
         break;
 
     case WTAP_ERR_UNWRITABLE_REC_DATA:
