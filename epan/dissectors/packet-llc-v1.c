@@ -166,7 +166,7 @@ static int hf_llc_v1_mcs;                         /* INTEGER_0_31_ */
 static int hf_llc_v1_redundancyVersion;           /* INTEGER_0_3_ */
 static int hf_llc_v1_useCsiRnti_01;               /* T_useCsiRnti_01 */
 static int hf_llc_v1_carrierIndicator;            /* INTEGER_1_7_ */
-static int hf_llc_v1_freqDomainResources_01;      /* BIT_STRING */
+static int hf_llc_v1_freqDomainResourcesBits;     /* BIT_STRING */
 static int hf_llc_v1_vrbToPrbMapping_01;          /* T_vrbToPrbMapping_01 */
 static int hf_llc_v1_prbBundlingSizeIndicagor;    /* INTEGER_0_1_ */
 static int hf_llc_v1_mcs_TB1;                     /* INTEGER_0_31_ */
@@ -2347,7 +2347,7 @@ dissect_llc_v1_INTEGER_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static const per_sequence_t Dci_11_sequence[] = {
   { &hf_llc_v1_useCsiRnti_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_llc_v1_T_useCsiRnti_01 },
   { &hf_llc_v1_carrierIndicator, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_llc_v1_INTEGER_1_7_ },
-  { &hf_llc_v1_freqDomainResources_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_llc_v1_BIT_STRING },
+  { &hf_llc_v1_freqDomainResourcesBits, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_llc_v1_BIT_STRING },
   { &hf_llc_v1_timeDomainResources, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_llc_v1_INTEGER_0_15_ },
   { &hf_llc_v1_vrbToPrbMapping_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_llc_v1_T_vrbToPrbMapping_01 },
   { &hf_llc_v1_prbBundlingSizeIndicagor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_llc_v1_INTEGER_0_1_ },
@@ -4240,8 +4240,8 @@ void proto_register_llc_v1(void) {
       { "carrierIndicator", "llc-v1.carrierIndicator",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_7_", HFILL }},
-    { &hf_llc_v1_freqDomainResources_01,
-      { "freqDomainResources", "llc-v1.freqDomainResources",
+    { &hf_llc_v1_freqDomainResourcesBits,
+      { "freqDomainResources", "llc-v1.freqDomainResourcesBits",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING", HFILL }},
     { &hf_llc_v1_vrbToPrbMapping_01,

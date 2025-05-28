@@ -40,6 +40,7 @@ E2SM-LLC-EventTrigger
 
 #.FIELD_RENAME
 GlobalGNB-ID/gNB-ID gnb-id-choice
+Dci-11/freqDomainResources freqDomainResourcesBits
 
 #.FIELD_ATTR
 
