@@ -2655,10 +2655,9 @@ static const value_string rtcp_mcptt_loc_type_vals[] = {
 };
 
 static int
-dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree, uint32_t mcptt_fld_len)
+dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree* tree)
 {
     uint32_t loc_type;
-    int start_offset = offset;
     static int * const ECGI_flags[] = {
         &hf_rtcp_mcptt_enodebid,
         &hf_rtcp_mcptt_cellid,
@@ -2716,10 +2715,6 @@ dissect_rtcp_mcptt_location_ie(tvbuff_t* tvb, packet_info* pinfo, int offset, pr
     default:
         proto_tree_add_expert(tree, pinfo, &ei_rtcp_mcptt_location_type, tvb, offset-1, 1);
         break;
-    }
-    if ((unsigned)(offset - start_offset) != mcptt_fld_len) {
-        proto_tree_add_item(tree, hf_rtcp_app_data_padding, tvb, offset, offset - start_offset, ENC_BIG_ENDIAN);
-        offset += (offset - start_offset);
     }
 
     return offset;
@@ -2958,8 +2953,8 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 /* Number of SSRCs*/
                 proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_ssrc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ssrc);
                 offset += 1;
-                proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                proto_tree_add_item(sub_tree, hf_rtcp_spare8, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
 
                 while (num_ssrc > 0) {
                     proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2993,18 +2988,18 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
             case 19:
                 /* Location */
-                offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
+                offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree);
                 break;
             case 20:
                 /* List of Locations */
             {
                 uint32_t num_loc;
-                /* Number of SSRCs*/
+                /* Number of Locations*/
                 proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_loc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_loc);
                 offset += 1;
 
                 while (num_loc > 0) {
-                    offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
+                    offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree);
                     num_loc--;
                 }
                 break;
