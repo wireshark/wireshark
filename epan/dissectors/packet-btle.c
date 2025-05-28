@@ -1460,7 +1460,8 @@ static gint
 dissect_periodic_sync_wr_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset, packet_info *pinfo, guint32 interface_id, guint32 adapter_id)
 {
     /* The first part of LL_PERIODIC_SYNC_WR_IND is identical to LL_PERIODIC_SYNC_IND */
-    offset += dissect_periodic_sync_ind(tvb, btle_tree, offset, pinfo, interface_id, adapter_id);
+    /* dissect_periodic_sync_ind returns the new offset, not bytes dissected. */
+    offset = dissect_periodic_sync_ind(tvb, btle_tree, offset, pinfo, interface_id, adapter_id);
 
     proto_tree_add_item(btle_tree, hf_control_sync_info_rsp_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
