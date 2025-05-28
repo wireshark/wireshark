@@ -173,7 +173,7 @@ struct pcapng_option {
 
 /* OPT_EPB_HASH sub-types */
 #define OPT_HASH_2COMP    0
-#define OPT_HASH_XOR	  1
+#define OPT_HASH_XOR      1
 #define OPT_HASH_CRC32    2
 #define OPT_HASH_MD5      3
 #define OPT_HASH_SHA1     4
@@ -5510,13 +5510,13 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
     case OPT_NS_DNSNAME:
         size = strlen(optval->stringval);
         if (size > 65535) {
-        	/*
-        	 * Too big to fit in the option.
-        	 * Don't write anything.
-        	 *
-        	 * XXX - truncate it?  Report an error?
-        	 */
-        	return true;
+            /*
+             * Too big to fit in the option.
+             * Don't write anything.
+             *
+             * XXX - truncate it?  Report an error?
+             */
+            return true;
         }
 
         /* Put option header */
@@ -5546,13 +5546,13 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
         stringlen = strlen(optval->custom_stringval.string);
         size = sizeof(uint32_t) + stringlen;
         if (size > 65535) {
-        	/*
-        	 * Too big to fit in the option.
-        	 * Don't write anything.
-        	 *
-        	 * XXX - truncate it?  Report an error?
-        	 */
-        	return true;
+            /*
+             * Too big to fit in the option.
+             * Don't write anything.
+             *
+             * XXX - truncate it?  Report an error?
+             */
+            return true;
         }
 
         /* Put option header and PEN */
@@ -6144,19 +6144,19 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data,
 static bool pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
                                int *err, char **err_info)
 {
-	wtap_block_t idb_copy;
+    wtap_block_t idb_copy;
 
-	/*
-	 * Add a copy of this IDB to our array of IDBs.
-	 */
-	idb_copy = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
-	wtap_block_copy(idb_copy, idb);
-	g_array_append_val(wdh->interface_data, idb_copy);
+    /*
+     * Add a copy of this IDB to our array of IDBs.
+     */
+    idb_copy = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+    wtap_block_copy(idb_copy, idb);
+    g_array_append_val(wdh->interface_data, idb_copy);
 
-	/*
-	 * And write it to the output file.
-	 */
-	return pcapng_write_if_descr_block(wdh, idb_copy, err, err_info);
+    /*
+     * And write it to the output file.
+     */
+    return pcapng_write_if_descr_block(wdh, idb_copy, err, err_info);
 }
 
 static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
