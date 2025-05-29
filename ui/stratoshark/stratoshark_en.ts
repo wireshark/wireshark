@@ -2632,9 +2632,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Save parameter(s) on capture start</source>
-        <translation type="unfinished">Save parameter on capture start</translation>
+        <translation>
+            <numerusform>Save parameter on capture start</numerusform>
+            <numerusform>Save parameters on capture start</numerusform>
+        </translation>
     </message>
 </context>
 <context>
