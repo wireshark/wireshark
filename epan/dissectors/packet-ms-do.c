@@ -667,7 +667,7 @@ proto_register_do(void)
         },
         { &hf_do_message_id,
             { "Message Id", "msdo.MessageId",
-              FT_UINT32, BASE_DEC | BASE_EXT_STRING, &message_types_ext, 0x0,
+              FT_UINT8, BASE_DEC | BASE_EXT_STRING, &message_types_ext, 0x0,
               NULL, HFILL }
         },
 

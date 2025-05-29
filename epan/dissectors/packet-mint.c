@@ -387,7 +387,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(mint_data_tree, hf_mint_data_seqno, tvb,
-			offset, 4, ENC_NA);
+			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(mint_data_tree, hf_mint_data_unknown1, tvb,
 			offset, 4, ENC_NA);

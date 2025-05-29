@@ -677,7 +677,7 @@ dissect_sock_diag_inet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, st
 	offset += 1;
 
 	/* XXX states (bit of sk_state) */
-	proto_tree_add_item(tree, hf_netlink_sock_diag_inet_states, tvb, offset, 4, ENC_NA);
+	proto_tree_add_item(tree, hf_netlink_sock_diag_inet_states, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_sock_diag_inet_sockid(tvb, info, nl_data, tree, offset, af_family);

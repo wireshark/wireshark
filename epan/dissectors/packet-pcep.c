@@ -1864,7 +1864,7 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tv
                break;
 
             case 26:  /* SR PCE CAPABILITY */
-               proto_tree_add_item(sub_tlv, hf_pcep_sr_pce_capability_sub_tlv_reserved, tvb, offset + 4 + j, 2, ENC_NA);
+               proto_tree_add_item(sub_tlv, hf_pcep_sr_pce_capability_sub_tlv_reserved, tvb, offset + 4 + j, 2, ENC_BIG_ENDIAN);
                proto_tree_add_bitmask(sub_tlv, tvb, offset+4+j+2, hf_pcep_sr_pce_capability_sub_tlv_flags, ett_pcep_obj, sr_pce_capability_sub_tlv_flags, ENC_NA);
                proto_tree_add_item(sub_tlv, hf_pcep_sr_pce_capability_sub_tlv_msd, tvb, offset + 4 + j + 3, 1, ENC_NA);
                break;
@@ -1961,7 +1961,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
 
             case 7:   /* VENDOR-INFORMATION-TLV (RFC7470)*/
                 proto_tree_add_item(tlv, hf_pcep_tlv_enterprise_number, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_tlv_enterprise_specific_info, tvb, offset+4+j + 4, tlv_length - 4, ENC_STR_HEX);
+                proto_tree_add_item(tlv, hf_pcep_tlv_enterprise_specific_info, tvb, offset+4+j + 4, tlv_length - 4, ENC_NA);
                 break;
 
             case 16:    /* STATEFUL-PCE-CAPABILITY TLV */
@@ -1976,7 +1976,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_sender_address, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_lsp_id, tvb, offset+4+j + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_id, tvb, offset+4+j + 6, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_extended_tunnel_id, tvb, offset+4+j + 8, 4, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_extended_tunnel_id, tvb, offset+4+j + 8, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_ipv4_lsp_id_tunnel_endpoint_address, tvb, offset+4+j + 12, 4, ENC_BIG_ENDIAN);
                 break;
 
@@ -2005,7 +2005,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                 break;
 
             case 26:    /* SR-PCE-CAPABILITY TLV Deprecated */
-                proto_tree_add_item(tlv, hf_pcep_sr_pce_capability_reserved, tvb, offset + 4 + j, 2, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_sr_pce_capability_reserved, tvb, offset + 4 + j, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_bitmask(tlv, tvb, offset+4+j+2, hf_pcep_sr_pce_capability_flags, ett_pcep_obj, tlv_sr_pce_capability_flags, ENC_NA);
                 proto_tree_add_item(tlv, hf_pcep_sr_pce_capability_msd, tvb, offset + 4 + j + 3, 1, ENC_NA);
                 break;
@@ -2043,10 +2043,10 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                 in which the TLV is present */
                 if (association_type==6) {
                   if (tlv_length==8) {
-                    proto_tree_add_item(tlv, hf_pcep_association_id_extended_color, tvb, offset + 4 + j, 4, ENC_NA);
-                    proto_tree_add_item(tlv, hf_pcep_association_id_extended_ipv4_endpoint, tvb, offset + 8 + j, 4, ENC_NA);
+                    proto_tree_add_item(tlv, hf_pcep_association_id_extended_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv, hf_pcep_association_id_extended_ipv4_endpoint, tvb, offset + 8 + j, 4, ENC_BIG_ENDIAN);
                   } else if (tlv_length==20) {
-                     proto_tree_add_item(tlv, hf_pcep_association_id_extended_color, tvb, offset + 4 + j, 4, ENC_NA);
+                     proto_tree_add_item(tlv, hf_pcep_association_id_extended_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
                      proto_tree_add_item(tlv, hf_pcep_association_id_extended_ipv6_endpoint, tvb, offset + 8 + j, 16, ENC_NA);
                   } else {
                     proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
@@ -2083,8 +2083,8 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
 
             case 40:    /* SRCPAG-INFO TLV */
                 proto_tree_add_item(tlv, hf_pcep_srcpag_info_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_srcpag_info_destination_endpoint, tvb, offset + 4 + j + 4, 4, ENC_NA);
-                proto_tree_add_item(tlv, hf_pcep_srcpag_info_preference, tvb, offset + 4 + j + 8, 4, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_destination_endpoint, tvb, offset + 4 + j + 4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_preference, tvb, offset + 4 + j + 8, 4, ENC_BIG_ENDIAN);
                 break;
 
             case 55:   /* TE-PATH-BINDING TLV */
@@ -2617,7 +2617,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_PCEPF_SUBOBJ, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_length, tvb, offset+1, 1, ENC_NA);
             proto_tree_add_bitmask(pcep_subobj_unnumb_interfaceID, tvb, offset+2, hf_pcep_subobj_unnumb_interfaceID_flags, ett_pcep_obj, flags, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_reserved_rrobj, tvb, offset+3, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_unnumb_interfaceID, hf_pcep_subobj_unnumb_interfaceID_reserved_rrobj, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -4128,7 +4128,7 @@ dissect_pcep_obj_vendor_information(proto_tree *pcep_object_tree, packet_info *p
 
     proto_tree_add_item(pcep_object_tree, hf_pcep_enterprise_number, tvb, offset2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(pcep_object_tree, hf_pcep_enterprise_specific_info, tvb, offset2 + 4,
-                        obj_length - OBJ_HDR_LEN - 4, ENC_STR_HEX);
+                        obj_length - OBJ_HDR_LEN - 4, ENC_NA);
 }
 
 /*------------------------------------------------------------------------------
@@ -4191,14 +4191,14 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     }
 
     proto_tree_add_item(pcep_object_tree, hf_pcep_association_reserved,
-                        tvb, offset2, 2, ENC_NA);
+                        tvb, offset2, 2, ENC_BIG_ENDIAN);
     offset2 += 2; /* consume reserved bytes */
     ti = proto_tree_add_item(pcep_object_tree, hf_pcep_association_flags,
-                             tvb, offset2, 2, ENC_NA);
+                             tvb, offset2, 2, ENC_BIG_ENDIAN);
     pcep_association_flags =
         proto_item_add_subtree(ti, ett_pcep_obj_association);
     proto_tree_add_item(pcep_association_flags, hf_pcep_association_flags_r,
-                        tvb, offset2, 2, ENC_NA);
+                        tvb, offset2, 2, ENC_BIG_ENDIAN);
     offset2 += 2; /* consume flags */
     proto_tree_add_item(pcep_object_tree, hf_pcep_association_type,
                         tvb, offset2, 2, ENC_BIG_ENDIAN);
@@ -4723,17 +4723,17 @@ proto_register_pcep(void)
 
         { &hf_PCEPF_NOTI_TYPE,
           { "Notification Value", "pcep.notification.value1",
-            FT_UINT32, BASE_DEC, VALS(pcep_notification_types_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(pcep_notification_types_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_PCEPF_NOTI_VAL1,
           { "Notification Type", "pcep.notification.type2",
-            FT_UINT32, BASE_DEC, VALS(pcep_notification_values1_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(pcep_notification_values1_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_PCEPF_NOTI_VAL2,
           { "Notification Type", "pcep.notification.type",
-            FT_UINT32, BASE_DEC, VALS(pcep_notification_values2_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(pcep_notification_values2_vals), 0x0,
             NULL, HFILL }
         },
 
@@ -5091,7 +5091,7 @@ proto_register_pcep(void)
         },
         { &hf_PCEPF_SUBOBJ_XRO,
           { "Type", "pcep.subobj.label",
-            FT_UINT32, BASE_DEC, VALS(pcep_subobj_xro_vals), 0x7F,
+            FT_UINT8, BASE_DEC, VALS(pcep_subobj_xro_vals), 0x7F,
             NULL, HFILL }
         },
         { &hf_pcep_xro_flags_f,
@@ -5655,6 +5655,7 @@ proto_register_pcep(void)
             FT_UINT16, BASE_HEX, NULL, 0xFF00,
             NULL, HFILL }
         },
+        /* TODO: only 1 byte, no mask needed? */
         { &hf_pcep_subobj_unnumb_interfaceID_reserved_rrobj,
           { "Reserved", "pcep.subobj.unnumb_interfaceID.reserved",
             FT_UINT16, BASE_HEX, NULL, 0x00FF,

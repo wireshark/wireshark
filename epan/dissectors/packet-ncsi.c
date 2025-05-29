@@ -503,10 +503,10 @@ dissect_ncsi_aen(tvbuff_t *tvb, proto_tree *tree)
     switch (type) {
     case 0x00: //Link Status Change
         ncsi_proto_tree_add_lstat(tvb, tree, 20);
-        proto_tree_add_item(tree, hf_ncsi_aen_lsc_oemstat, tvb, 24, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_ncsi_aen_lsc_oemstat, tvb, 24, 4, ENC_BIG_ENDIAN);
         break;
     case 0x02: //Host Network Controller Driver Status
-        proto_tree_add_item(tree, hf_ncsi_aen_hcds, tvb, 20, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_ncsi_aen_hcds, tvb, 20, 4, ENC_BIG_ENDIAN);
         break;
     case 0x03: //Delayed Response Ready
 		proto_tree_add_item(tree, hf_ncsi_aen_drr_orig_type, tvb, 20, 1, ENC_NA);
@@ -655,7 +655,7 @@ ncsi_proto_tree_add_cap(tvbuff_t *tvb, proto_tree *tree, int offset)
             ett_ncsi_cap_mf, cap_mf_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_ncsi_cap_buf, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_ncsi_cap_buf, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_cap_aen,
@@ -714,9 +714,7 @@ ncsi_proto_tree_add_setlink(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ncsi_ls,
             ett_ncsi_ls, ls_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
-    proto_tree_add_item(tree, hf_ncsi_ls_oemls, tvb, offset + 4, 4, ENC_NA);
-
-
+    proto_tree_add_item(tree, hf_ncsi_ls_oemls, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 }
 
 /* Code to actually dissect the packets */
@@ -793,9 +791,9 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     reason_code = 0;
     if (type != 0xff && type & 0x80) {
         proto_tree_add_item_ret_uint(ncsi_payload_tree, hf_ncsi_resp, tvb,
-                16, 2, ENC_NA, &resp_code);
+                16, 2, ENC_BIG_ENDIAN, &resp_code);
         proto_tree_add_item_ret_uint(ncsi_payload_tree, hf_ncsi_reason, tvb,
-                18, 2, ENC_NA, &reason_code);
+                18, 2, ENC_BIG_ENDIAN, &reason_code);
     }
 
     if (type == NCSI_TYPE_AEN) {
@@ -835,15 +833,15 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     case 0x10:
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_bf, tvb,
-                16, 4, ENC_NA);
+                16, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_bf_arp, tvb,
-                16, 4, ENC_NA);
+                16, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_bf_dhcpc, tvb,
-                16, 4, ENC_NA);
+                16, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_bf_dhcps, tvb,
-                16, 4, ENC_NA);
+                16, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_bf_netbios, tvb,
-                16, 4, ENC_NA);
+                16, 4, ENC_BIG_ENDIAN);
         break;
     case NCSI_TYPE_OEM:
     case NCSI_TYPE_OEM | 0x80:
@@ -853,7 +851,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_oem_id, tvb,
-                16 + poffset, 4, ENC_NA);
+                16 + poffset, 4, ENC_BIG_ENDIAN);
 
         if (tvb_get_uint32(tvb, 16 + poffset, ENC_BIG_ENDIAN) == NCSI_OEM_MLX) {
             proto_item *opti;
@@ -937,13 +935,13 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_baddr, tvb, 33, 1, ENC_NA);
                 proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_peid, tvb, 34, 1, ENC_NA);
                 proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_pidx, tvb, 35, 1, ENC_NA);
-                proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_paddr, tvb, 36, 2, ENC_NA);
+                proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_paddr, tvb, 36, 2, ENC_BIG_ENDIAN);
 
                 proto_tree_add_bitmask_with_flags(oem_payload_tree, tvb, 30, hf_ncsi_mlnx_ifm, ett_ncsi_mlnx_ifm, mlnx_ifm_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
                 /* IP Filter Mode */
 
-                proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_v4addr, tvb, 40, 4, ENC_NA);
+                proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_v4addr, tvb, 40, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_v6local, tvb, 44, 16, ENC_NA);
                 proto_tree_add_item(oem_payload_tree, hf_ncsi_mlnx_v6gbl, tvb, 60, 16, ENC_NA);
             } else if (mlnx_cmd == 0x13 && mlnx_param == 0x2) { /* Get Temperature (Command = 0x13, parameter 0x2) */

@@ -876,7 +876,7 @@ dissect_butype_attrs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_butype_attr, ett_ndmp_butype_attrs, attribute_flags, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_butype_attr, ett_ndmp_butype_attrs, attribute_flags, ENC_BIG_ENDIAN);
 
 	offset += 4;
 	return offset;
@@ -946,7 +946,7 @@ dissect_fs_invalid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		NULL
 		};
 
-	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_fs_invalid, ett_ndmp_fs_invalid, invalid_flags, ENC_NA);
+	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ndmp_fs_invalid, ett_ndmp_fs_invalid, invalid_flags, ENC_BIG_ENDIAN);
 
 	offset+=4;
 	return offset;
