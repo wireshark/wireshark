@@ -64,7 +64,7 @@ static int hf_frame_file_off;
 static int hf_frame_md5_hash;
 static int hf_frame_marked;
 static int hf_frame_ignored;
-static int hf_link_number;
+static int hf_frame_link_number;
 static int hf_frame_packet_id;
 static int hf_frame_hash;
 static int hf_frame_hash_bytes;
@@ -98,7 +98,7 @@ static int hf_frame_pack_symbol_error;
 static int hf_frame_wtap_encap;
 static int hf_frame_cb_pen;
 static int hf_frame_cb_copy_allowed;
-static int hf_comments_text;
+static int hf_frame_comment;
 
 static int ett_frame;
 static int ett_ifname;
@@ -316,7 +316,7 @@ frame_add_comment(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 		if (newline == NULL) {
 			/* Single-line comment, no special treatment needed */
 			comment_item = proto_tree_add_string_format(fr_user_data->tree,
-					hf_comments_text,
+					hf_frame_comment,
 					fr_user_data->tvb, 0, 0,
 					ch,
 					"%s", ch);
@@ -327,7 +327,7 @@ frame_add_comment(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 			 */
 			*newline = '\0';
 			comment_item = proto_tree_add_string_format(fr_user_data->tree,
-					hf_comments_text,
+					hf_frame_comment,
 					fr_user_data->tvb, 0, 0,
 					ch,
 					"%s [...]", ch);
@@ -336,7 +336,7 @@ frame_add_comment(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 				/* Add each line as a separate item under
 				 * the comment tree
 				 */
-				proto_tree_add_string_format(comments_tree, hf_comments_text,
+				proto_tree_add_string_format(comments_tree, hf_frame_comment,
 					fr_user_data->tvb, 0, 0,
 					ch,
 					"%s", ch);
@@ -369,7 +369,7 @@ frame_add_comment(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 					*newline = '\n';
 				}
 				/* Add truncation notice */
-				proto_tree_add_string_format(comments_tree, hf_comments_text,
+				proto_tree_add_string_format(comments_tree, hf_frame_comment,
 					fr_user_data->tvb, 0, 0,
 					"",
 					"[comment truncated at %d line%s]",
@@ -380,7 +380,7 @@ frame_add_comment(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e opt
 			 * item, so searches still work like before
 			 */
 			hidden_item = proto_tree_add_string(comments_tree,
-					hf_comments_text,
+					hf_frame_comment,
 					fr_user_data->tvb, 0, 0,
 					option->stringval);
 			proto_item_set_hidden(hidden_item);
@@ -953,7 +953,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			/* Check for existences of MTP2 link number */
 			if ((pinfo->pseudo_header != NULL) &&
 			    (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
-				proto_tree_add_uint(fh_tree, hf_link_number, tvb,
+				proto_tree_add_uint(fh_tree, hf_frame_link_number, tvb,
 						    0, 0, pinfo->link_number);
 			}
 		}
@@ -1354,7 +1354,7 @@ proto_register_frame(void)
 		    FT_INT8, BASE_DEC, VALS(p2p_dirs), 0x0,
 		    NULL, HFILL }},
 
-		{ &hf_link_number,
+		{ &hf_frame_link_number,
 		  { "Link Number", "frame.link_nr",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
@@ -1479,7 +1479,7 @@ proto_register_frame(void)
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_SYMBOL_ERROR,
 		    NULL, HFILL }},
 
-		{ &hf_comments_text,
+		{ &hf_frame_comment,
 		  { "Comment", "frame.comment",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
