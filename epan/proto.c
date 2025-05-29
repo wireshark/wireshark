@@ -7064,11 +7064,19 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 
 		case FT_ABSOLUTE_TIME:
 		{
+			const nstime_t *value = fvalue_get_time(finfo->value);
 			int flags = ABS_TIME_TO_STR_SHOW_ZONE;
 			if (prefs.display_abs_time_ascii < ABS_TIME_ASCII_COLUMN) {
 				flags |= ABS_TIME_TO_STR_ISO8601;
 			}
-			tmp_str = abs_time_to_str_ex(NULL, fvalue_get_time(finfo->value), hfinfo->display, flags);
+			if (hfinfo->strings) {
+				const char *time_string = try_time_val_to_str(value, (const time_value_string*)hfinfo->strings);
+				if (time_string != NULL) {
+					label_len = proto_strlcpy(display_label_str, time_string, label_str_size);
+					break;
+				}
+			}
+			tmp_str = abs_time_to_str_ex(NULL, value, hfinfo->display, flags);
 			label_len = proto_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
