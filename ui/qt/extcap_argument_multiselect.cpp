@@ -209,6 +209,9 @@ void ExtArgMultiSelect::setDefaultValue()
 {
     QStringList checked;
 
+    if (viewModel == 0)
+        return;
+
     checked = defaultValue().split(",", Qt::SkipEmptyParts);
     for (int row = 0; row < viewModel->rowCount(); row++)
         checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
