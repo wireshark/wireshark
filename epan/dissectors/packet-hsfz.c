@@ -375,12 +375,74 @@ void proto_register_hsfz(void) {
         "A table to define names for diagnostic addresses", udf_diag_addr_uat);
 }
 
+
+/**********************************
+ *********** Heuristics ***********
+ **********************************/
+
+static bool
+test_hsfz(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data)
+{
+    unsigned caplen = tvb_captured_length(tvb);
+
+    // Check minimum length...
+    if (caplen < HSFZ_HDR_LEN)
+        return false;
+
+    // Check packet length
+    unsigned msg_len = get_hsfz_message_len(pinfo, tvb, offset, data);
+    if (msg_len != caplen || msg_len > 0x000fffff)
+        return false;
+
+    // Check the control word
+    uint16_t hsfz_ctrlword = tvb_get_ntohs(tvb, offset + 4);
+    if (try_val_to_str(hsfz_ctrlword, hsfz_ctrlwords) == NULL)
+        return false;
+
+    // Nothing against the packet. Assume it's ours...
+    return true;
+}
+
+static bool
+dissect_hsfz_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    // Test if packet matches protocol...
+    if (!test_hsfz(pinfo, tvb, 0, data))
+        return false;
+
+    // Given that the packet matches, specify that dissect_hsfz_tcp will be called
+    // from now on for this "connection"...
+    conversation_t* conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, hsfz_handle_tcp);
+
+    // Do the dissection...
+    dissect_hsfz_tcp(tvb, pinfo, tree, data);
+
+    return true;
+}
+
+static bool
+dissect_hsfz_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    // Test if packet matches protocol...
+    if (!test_hsfz(pinfo, tvb, 0, data))
+        return false;
+
+    // Do the dissection...
+    return (dissect_hsfz_udp(tvb, pinfo, tree, data) != 0);
+}
+
 void proto_reg_handoff_hsfz(void) {
     hsfz_handle_tcp = register_dissector("hsfz_over_tcp", dissect_hsfz_tcp, proto_hsfz);
     hsfz_handle_udp = register_dissector("hsfz_over_udp", dissect_hsfz_udp, proto_hsfz);
 
+    // Register as classic dissector. Allows user to manually set a port to dissect.
     dissector_add_uint_range_with_preference("tcp.port", "", hsfz_handle_tcp);
     dissector_add_uint_range_with_preference("udp.port", "", hsfz_handle_udp);
+
+    // Register as heuristic dissector for both TCP and UDP
+    heur_dissector_add("tcp", dissect_hsfz_heur_tcp, "HSFZ over TCP", "hsfz_over_tcp", proto_hsfz, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_hsfz_heur_udp, "HSFZ over UDP", "hsfz_over_udp", proto_hsfz, HEURISTIC_ENABLE);
 
     uds_handle = find_dissector("uds_over_hsfz");
 }
