@@ -219,6 +219,9 @@ void ExtArgMultiSelect::setDefaultValue()
 {
     QStringList checked;
 
+    if (viewModel == 0)
+        return;
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     checked = defaultValue().split(",", Qt::SkipEmptyParts);
 #else
