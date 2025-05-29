@@ -509,7 +509,7 @@ $ export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
 
 Wireshark uses GLib's GSlice memory allocator, either indirectly via wmem or via various GLib API calls.
 GLib provides a `G_SLICE` environment variable that can be set to `always-malloc` (similar to `simple`) or `debug-blocks` (similar to `strict`).
-See https://developer-old.gnome.org/glib/stable/glib-running.html for details.
+See https://docs.gtk.org/glib/running.html for details.
 The C libraries on FreeBSD, Linux, and macOS also support memory allocation debugging via various environment variables.
 You can enable many of them by running `source tools/debug-alloc.env` in a POSIX shell.
 

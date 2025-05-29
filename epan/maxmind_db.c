@@ -55,7 +55,7 @@ static char mmdbr_stop_sentinel[] = "\x04"; // ASCII EOT. Could be anything.
 
 // The GLib documentation says that g_rw_lock_reader_lock can be called
 // recursively:
-//   https://developer-old.gnome.org/glib/stable/glib-Threads.html#g-rw-lock-reader-lock
+//   https://docs.gtk.org/glib/method.RWLock.reader_lock.html
 // However, g_rw_lock_reader_lock calls AcquireSRWLockShared
 //   https://gitlab.gnome.org/GNOME/glib/blob/master/glib/gthread-win32.c#L206
 // and SRW locks "cannot be acquired recursively"
