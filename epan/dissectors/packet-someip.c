@@ -611,12 +611,6 @@ static unsigned someip_parameter_base_type_list_num;
 void proto_register_someip(void);
 void proto_reg_handoff_someip(void);
 
-static void deregister_dynamic_hf_data(hf_register_info **hf_array, unsigned *hf_size);
-static void update_dynamic_hf_entries_someip_parameter_list(void);
-static void update_dynamic_hf_entries_someip_parameter_arrays(void);
-static void update_dynamic_hf_entries_someip_parameter_structs(void);
-static void update_dynamic_hf_entries_someip_parameter_unions(void);
-
 /* Segmentation support
  * https://gitlab.com/wireshark/wireshark/-/issues/18880
  */
@@ -1269,26 +1263,6 @@ post_update_someip_parameter_list_read_in_data(someip_parameter_list_uat_t *data
     }
 }
 
-static void
-reset_someip_parameter_list_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_list) {
-        deregister_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size);
-        g_hash_table_destroy(data_someip_parameter_list);
-        data_someip_parameter_list = NULL;
-    }
-
-    set_prefs_changed();
-}
-
-static void
-post_update_someip_parameter_list_cb(void) {
-    reset_someip_parameter_list_cb();
-
-    data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, &free_someip_parameter_list);
-    post_update_someip_parameter_list_read_in_data(someip_parameter_list, someip_parameter_list_num, data_someip_parameter_list);
-}
-
 UAT_HEX_CB_DEF(someip_parameter_enums, id, someip_parameter_enum_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_enums, name, someip_parameter_enum_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_enums, data_type, someip_parameter_enum_uat_t)
@@ -1583,26 +1557,6 @@ post_update_someip_parameter_array_read_in_data(someip_parameter_array_uat_t *da
     }
 }
 
-static void
-reset_someip_parameter_array_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_arrays) {
-        deregister_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size);
-        g_hash_table_destroy(data_someip_parameter_arrays);
-        data_someip_parameter_arrays = NULL;
-    }
-
-    set_prefs_changed();
-}
-
-static void
-post_update_someip_parameter_array_cb(void) {
-    reset_someip_parameter_array_cb();
-
-    data_someip_parameter_arrays = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_array);
-    post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
-}
-
 UAT_HEX_CB_DEF(someip_parameter_structs, id, someip_parameter_struct_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_structs, struct_name, someip_parameter_struct_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_structs, length_of_length, someip_parameter_struct_uat_t)
@@ -1760,26 +1714,6 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
             item->filter_string = data[i].filter_string;
         }
     }
-}
-
-static void
-reset_someip_parameter_struct_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_structs) {
-        deregister_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size);
-        g_hash_table_destroy(data_someip_parameter_structs);
-        data_someip_parameter_structs = NULL;
-    }
-
-    set_prefs_changed();
-}
-
-static void
-post_update_someip_parameter_struct_cb(void) {
-    reset_someip_parameter_struct_cb();
-
-    data_someip_parameter_structs = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_struct);
-    post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
 }
 
 UAT_HEX_CB_DEF(someip_parameter_unions, id, someip_parameter_union_uat_t)
@@ -1940,26 +1874,6 @@ post_update_someip_parameter_union_read_in_data(someip_parameter_union_uat_t *da
             }
         }
     }
-}
-
-static void
-reset_someip_parameter_union_cb(void) {
-    /* destroy old hash table, if it exists */
-    if (data_someip_parameter_unions) {
-        deregister_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size);
-        g_hash_table_destroy(data_someip_parameter_unions);
-        data_someip_parameter_unions = NULL;
-    }
-
-    set_prefs_changed();
-}
-
-static void
-post_update_someip_parameter_union_cb(void) {
-    reset_someip_parameter_union_cb();
-
-    data_someip_parameter_unions = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_union);
-    post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
 }
 
 UAT_HEX_CB_DEF(someip_parameter_base_type_list, id, someip_parameter_base_type_list_uat_t)
@@ -2242,11 +2156,9 @@ post_update_someip_parameter_typedef_list_cb(void) {
     }
 }
 
-
 static void
 deregister_dynamic_hf_data(hf_register_info **hf_array, unsigned *hf_size) {
     if (*hf_array) {
-        proto_deregister_all_fields_with_prefix(proto_someip, SOMEIP_NAME_PREFIX);
         for (unsigned i = 0; i < *hf_size; i++) {
             if ((*hf_array)[i].p_id != NULL) {
                 g_free((*hf_array)[i].p_id);
@@ -2263,6 +2175,52 @@ static void
 allocate_dynamic_hf_data(hf_register_info **hf_array, unsigned *hf_size, unsigned new_size) {
     *hf_array = g_new0(hf_register_info, new_size);
     *hf_size = new_size;
+}
+
+static void
+reset_someip_dynamic_parameter_cb(void) {
+    proto_deregister_all_fields_with_prefix(proto_someip, SOMEIP_NAME_PREFIX);
+
+    /* destroy old hash tables, if they exist */
+    if (data_someip_parameter_list) {
+        deregister_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size);
+        g_hash_table_destroy(data_someip_parameter_list);
+        data_someip_parameter_list = NULL;
+    }
+    if (data_someip_parameter_arrays) {
+        deregister_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size);
+        g_hash_table_destroy(data_someip_parameter_arrays);
+        data_someip_parameter_arrays = NULL;
+    }
+    if (data_someip_parameter_structs) {
+        deregister_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size);
+        g_hash_table_destroy(data_someip_parameter_structs);
+        data_someip_parameter_structs = NULL;
+    }
+    if (data_someip_parameter_unions) {
+        deregister_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size);
+        g_hash_table_destroy(data_someip_parameter_unions);
+        data_someip_parameter_unions = NULL;
+    }
+
+    set_prefs_changed();
+}
+
+static void
+post_update_someip_dynamic_parameter_cb(void) {
+    reset_someip_dynamic_parameter_cb();
+
+    data_someip_parameter_list = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, &free_someip_parameter_list);
+    post_update_someip_parameter_list_read_in_data(someip_parameter_list, someip_parameter_list_num, data_someip_parameter_list);
+
+    data_someip_parameter_arrays = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_array);
+    post_update_someip_parameter_array_read_in_data(someip_parameter_arrays, someip_parameter_arrays_num, data_someip_parameter_arrays);
+
+    data_someip_parameter_structs = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_struct);
+    post_update_someip_parameter_struct_read_in_data(someip_parameter_structs, someip_parameter_structs_num, data_someip_parameter_structs);
+
+    data_someip_parameter_unions = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_union);
+    post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
 }
 
 typedef struct _param_return_attibutes_t {
@@ -2480,7 +2438,9 @@ update_dynamic_union_hf_entry(void *key _U_, void *value, void *data) {
 }
 
 static void
-update_dynamic_hf_entries_someip_parameter_list(void) {
+update_dynamic_hf_entries_someip_parameter(void) {
+    proto_deregister_all_fields_with_prefix(proto_someip, SOMEIP_NAME_PREFIX);
+
     if (data_someip_parameter_list != NULL) {
         deregister_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size);
         allocate_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size, someip_parameter_list_num);
@@ -2488,10 +2448,6 @@ update_dynamic_hf_entries_someip_parameter_list(void) {
         g_hash_table_foreach(data_someip_parameter_list, update_dynamic_param_hf_entry, &pos);
         proto_register_field_array(proto_someip, dynamic_hf_param, pos);
     }
-}
-
-static void
-update_dynamic_hf_entries_someip_parameter_arrays(void) {
     if (data_someip_parameter_arrays != NULL) {
         deregister_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size);
         allocate_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size, someip_parameter_arrays_num);
@@ -2499,10 +2455,6 @@ update_dynamic_hf_entries_someip_parameter_arrays(void) {
         g_hash_table_foreach(data_someip_parameter_arrays, update_dynamic_array_hf_entry, &pos);
         proto_register_field_array(proto_someip, dynamic_hf_array, pos);
     }
-}
-
-static void
-update_dynamic_hf_entries_someip_parameter_structs(void) {
     if (data_someip_parameter_structs != NULL) {
         deregister_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size);
         allocate_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size, someip_parameter_structs_num);
@@ -2510,10 +2462,6 @@ update_dynamic_hf_entries_someip_parameter_structs(void) {
         g_hash_table_foreach(data_someip_parameter_structs, update_dynamic_struct_hf_entry, &pos);
         proto_register_field_array(proto_someip, dynamic_hf_struct, pos);
     }
-}
-
-static void
-update_dynamic_hf_entries_someip_parameter_unions(void) {
     if (data_someip_parameter_unions != NULL) {
         deregister_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size);
         allocate_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size, someip_parameter_unions_num);
@@ -4267,8 +4215,8 @@ proto_register_someip(void) {
         copy_someip_parameter_list_cb,                     /* copy callback         */
         update_someip_parameter_list,                      /* update callback       */
         free_someip_parameter_list_cb,                     /* free callback         */
-        post_update_someip_parameter_list_cb,              /* post update callback  */
-        reset_someip_parameter_list_cb,                    /* reset callback        */
+        post_update_someip_dynamic_parameter_cb,           /* post update callback  */
+        reset_someip_dynamic_parameter_cb,                 /* reset callback        */
         someip_parameter_list_uat_fields                   /* UAT field definitions */
     );
 
@@ -4309,8 +4257,8 @@ proto_register_someip(void) {
         copy_someip_parameter_array_cb,                    /* copy callback         */
         update_someip_parameter_array,                     /* update callback       */
         free_someip_parameter_array_cb,                    /* free callback         */
-        post_update_someip_parameter_array_cb,             /* post update callback  */
-        reset_someip_parameter_array_cb,                   /* reset callback        */
+        post_update_someip_dynamic_parameter_cb,           /* post update callback  */
+        reset_someip_dynamic_parameter_cb,                 /* reset callback        */
         someip_parameter_array_uat_fields                  /* UAT field definitions */
     );
 
@@ -4328,8 +4276,8 @@ proto_register_someip(void) {
         copy_someip_parameter_struct_cb,                   /* copy callback         */
         update_someip_parameter_struct,                    /* update callback       */
         free_someip_parameter_struct_cb,                   /* free callback         */
-        post_update_someip_parameter_struct_cb,            /* post update callback  */
-        reset_someip_parameter_struct_cb,                  /* reset callback        */
+        post_update_someip_dynamic_parameter_cb,           /* post update callback  */
+        reset_someip_dynamic_parameter_cb,                 /* reset callback        */
         someip_parameter_struct_uat_fields                 /* UAT field definitions */
     );
 
@@ -4347,8 +4295,8 @@ proto_register_someip(void) {
         copy_someip_parameter_union_cb,                    /* copy callback         */
         update_someip_parameter_union,                     /* update callback       */
         free_someip_parameter_union_cb,                    /* free callback         */
-        post_update_someip_parameter_union_cb,             /* post update callback  */
-        reset_someip_parameter_union_cb,                   /* reset callback        */
+        post_update_someip_dynamic_parameter_cb,           /* post update callback  */
+        reset_someip_dynamic_parameter_cb,                 /* reset callback        */
         someip_parameter_union_uat_fields                  /* UAT field definitions */
     );
 
@@ -4454,10 +4402,7 @@ proto_reg_handoff_someip(void) {
         initialized = true;
     }
 
-    update_dynamic_hf_entries_someip_parameter_list();
-    update_dynamic_hf_entries_someip_parameter_arrays();
-    update_dynamic_hf_entries_someip_parameter_structs();
-    update_dynamic_hf_entries_someip_parameter_unions();
+    update_dynamic_hf_entries_someip_parameter();
 }
 
 /*
