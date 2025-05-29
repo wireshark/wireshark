@@ -1017,7 +1017,7 @@ proto_register_tpncp(void)
      * we initialize the hf array in the handoff function when we have
      * access to the preference's value */
 
-    proto_tpncp = proto_register_protocol("AudioCodes TPNCP (TrunkPack Network Control Protocol)",
+    proto_tpncp = proto_register_protocol("TPNCP (TrunkPack Network Control Protocol)",
                                           "TPNCP", "tpncp");
 
     tpncp_handle = register_dissector("tpncp", dissect_tpncp, proto_tpncp);

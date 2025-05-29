@@ -1971,7 +1971,7 @@ proto_register_acdr(void)
 
     expert_module_t *expert_acdr;
 
-    proto_acdr = proto_register_protocol("AUDIOCODES DEBUG RECORDING", "AC DR", "acdr");
+    proto_acdr = proto_register_protocol("Debug Recording Trace", "AC DR", "acdr");
     proto_register_field_array(proto_acdr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

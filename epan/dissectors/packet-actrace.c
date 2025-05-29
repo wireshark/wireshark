@@ -780,7 +780,7 @@ void proto_register_actrace(void)
 	module_t *actrace_module;
 
 	/* Register protocol */
-	proto_actrace = proto_register_protocol("AudioCodes Trunk Trace", "ACtrace", "actrace");
+	proto_actrace = proto_register_protocol("Trunk Trace", "ACtrace", "actrace");
 	proto_register_field_array(proto_actrace, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
