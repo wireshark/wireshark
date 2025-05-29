@@ -3302,6 +3302,7 @@ if(BUILD_dftest)
 	add_executable(dftest ${dftest_FILES})
 	set_extra_executable_properties(dftest "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
+	executable_link_mingw_unicode(dftest)
 
 	install(TARGETS dftest RUNTIME
 		DESTINATION ${CMAKE_INSTALL_BINDIR}
