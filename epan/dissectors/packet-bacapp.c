@@ -2573,6 +2573,42 @@ fStageLimitValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned o
 static unsigned
 fObjectSelector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset);
 
+static unsigned
+fDeviceAddressProxyTableEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAccessToken(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationConstraint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationScope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthenticationClient(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthenticationPeer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthenticationEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationScopeDescription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationServer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
+static unsigned
+fAuthorizationStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *label);
+
 
 /**
  * register_bacapp
@@ -2934,6 +2970,7 @@ BACnetBinaryLightingPV[] = {
     { 3, "warn-off" },
     { 4, "warn-relinquish" },
     { 5, "stop" },
+    { 6, "toggle" },
     { 0, NULL }
 };
 
@@ -3033,6 +3070,7 @@ BACnetNetworkPortCommand [] = {
     { 7, "restart-port"},
     { 8, "generate-csr-file"},
     { 9, "validate-changes"},
+    { 10, "restart-device-discovery"},
     { 0,  NULL}
 };
 
@@ -3376,6 +3414,10 @@ BACnetLightingOperation[] = {
     { 8, "warn-off" },
     { 9, "warn-relinquish" },
     { 10, "stop" },
+    { 11, "restore-on" },
+    { 12, "default-on" },
+    { 13, "toggle-restor" },
+    { 14, "toggle-default" },
     { 0, NULL }
 };
 
@@ -3427,6 +3469,7 @@ BACnetConfirmedServiceChoice[] = {
     { 31, "confirmedCovNotificationMultiple"},
     { 32, "confirmedAuditNotification"},
     { 33, "auditLogQuery"},
+    { 34, "aurthRequest" },
     { 0,  NULL}
 };
 
@@ -4043,6 +4086,36 @@ BACnetErrorCode [] = {
     { 197, "tcp-error"},
     { 198, "ip-address-not-reachable"},
     { 199, "ip-error"},
+    { 200, "certificate-expired"},
+    { 201, "certificate-invalid"},
+    { 202, "certificate-malformed"},
+    { 203, "certificate-revoked"},
+    { 204, "unknown-key"},
+    { 205, "referenced-port-in-error"},
+    { 206, "not-enabled"},
+    { 207, "adjust-scope-required"},
+    { 208, "auth-scope-required"},
+    { 209, "bind-scope-required"},
+    { 210, "config-scope-required"},
+    { 211, "control-scope-required"},
+    { 212, "extended-scope-required"},
+    { 213, "incorrect-client"},
+    { 214, "install-scope-required"},
+    { 215, "insufficient-scope"},
+    { 216, "no-default-scope"},
+    { 217, "no-policy"},
+    { 218, "revoked-token"},
+    { 219, "override-scope-required"},
+    { 220, "inactive-token"},
+    { 221, "unknown-audience"},
+    { 222, "unknown-client"},
+    { 223, "unknown-scope"},
+    { 224, "view-scope-required"},
+    { 225, "incorrect-audience"},
+    { 226, "incorrect-client-origin"},
+    { 227, "invalid-array-size"},
+    { 228, "incorrect-issuer"},
+    { 229, "invalid-token"},
     { 0,   NULL}
 /* Enumerated values 0-255 are reserved for definition by ASHRAE.
    Enumerated values 256-65535 may be used by others subject to the
@@ -4582,6 +4655,18 @@ BACnetPropertyIdentifier [] = {
     { 4194335, "high_end_trim"},
     { 4194336, "low_end_trim"},
     { 4194337, "trim_fade_time"},
+    { 4194338, "device-address-proxy-enable"},
+    { 4194339, "device-address-proxy-table"},
+    { 4194340, "device-address-proxy-timeout"},
+    { 4194341, "default-on-value"},
+    { 4194342, "last-on-value"},
+    { 4194343, "authorization-cache"},
+    { 4194344, "authorization-groups"},
+    { 4194345, "authorization-policy"},
+    { 4194346, "authorization-scope"},
+    { 4194347, "authorization-server"},
+    { 4194348, "authorization-status"},
+    { 4194349, "max-proxied-i-ams-per-second"},
     { 0,   NULL}
 /* Enumerated values 0-511 are reserved for definition by ASHRAE.
    Enumerated values 512-4194303 may be used by others subject to
@@ -4917,9 +5002,12 @@ BACnetServicesSupported [] = {
     { 41, "subscribe-cov-property-multiple"},
     { 42, "confirmed-cov-notification-multiple"},
     { 43, "unconfirmed-cov-notification-multiple"},
-    { 44, "confirmed-audit-notification" },
-    { 45, "audit-log-query" },
-    { 46, "unconfirmed-audit-notification" },
+    { 44, "confirmed-audit-notification"},
+    { 45, "audit-log-query"},
+    { 46, "unconfirmed-audit-notification"},
+    { 47, "who-am-i"},
+    { 48, "you-are"},
+    { 49, "auth-request"},
     { 0,  NULL}
 };
 
@@ -5262,10 +5350,92 @@ BACnetSuccessFilter [] = {
     { 0, NULL }
 };
 
+static const value_string
+BACnetAuthorizationScopeStandard [] = {
+    { 0, "view" },
+    { 1, "adjust" },
+    { 2, "control" },
+    { 3, "override" },
+    { 4, "config" },
+    { 5, "bind" },
+    { 6, "install" },
+    { 7, "auth" },
+    { 8, "infrastructure" },
+    { 9, "reserved-9" },
+    { 10, "reserved-10" },
+    { 11, "reserved-11" },
+    { 12, "reserved-12" },
+    { 13, "reserved-13" },
+    { 14, "reserved-14" },
+    { 15, "reserved-15" },
+    { 16, "reserved-16" },
+    { 17, "reserved-17" },
+    { 18, "reserved-18" },
+    { 19, "reserved-19" },
+    { 20, "reserved-20" },
+    { 21, "reserved-21" },
+    { 22, "reserved-22" },
+    { 23, "reserved-23" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthorizationPosture[] = {
+    { 0, "open" },
+    { 1, "proprietary" },
+    { 2, "configured" },
+    { 3, "misconfigured-partial" },
+    { 4, "misconfigured-total" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthenticationDecision[] = {
+    { 0, "allow-match" },
+    { 1, "deny-mismatch" },
+    { 2, "deny-non-relay" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthorizationDecision[] = {
+    { 0, "allow-by-token" },
+    { 1, "allow-by-local-polic" },
+    { 2, "deny-no-token-or-policy" },
+    { 3, "deny-not-before" },
+    { 4, "deny-not-after" },
+    { 5, "deny-target-device" },
+    { 6, "deny-target-group" },
+    { 7, "deny-client-device" },
+    { 8, "deny-client-method" },
+    { 9, "deny-scope" },
+    { 10, "deny-issuer" },
+    { 11, "deny-revoked" },
+    { 12, "deny-signature" },
+    { 13, "deny-other" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthorizationConstraintOrigin[] = {
+    { 0, "direct-connect" },
+    { 1, "same-network" },
+    { 2, "any-network" },
+    { 0, NULL }
+};
+
+static const value_string
+BACnetAuthorizationConstraintAuthentication[] = {
+    { 0, "certified" },
+    { 1, "secure-path" },
+    { 2, "any-method" },
+    { 0, NULL }
+};
+
 
 /* These values are generated by tools/generate-bacnet-vendors.py from
  * https://bacnet.org/assigned-vendor-ids/
- * Version: "As of January 24, 2024"
+ * Version: "As of May 23, 2025"
  */
 
 static const value_string
@@ -6754,6 +6924,66 @@ BACnetVendorIdentifiers [] = {
     { 1483, "Clouder Oy" },
     { 1484, "Gebäude Automatisierung GmbH" },
     { 1485, "solvimus GmbH" },
+    { 1486, "GuangZhou Wangkong Ltd."},
+    { 1487, "SafeSquare GmbH"},
+    { 1488, "Heklatech AB"},
+    { 1489, "Silvair"},
+    { 1490, "Adveco"},
+    { 1491, "Eura Drives Electric Co., Ltd."},
+    { 1492, "Caleb Controls"},
+    { 1493, "InBiot Monitoring S.L"},
+    { 1494, "Qingdao Haier Air Conditioner Electric Co., Ltd."},
+    { 1495, "Hangzhou Weiyl Technology Co., Ltd."},
+    { 1496, "yord sàrl"},
+    { 1497, "Infinitum Electric"},
+    { 1498, "Red Bean Systems Limited"},
+    { 1499, "Blue Time Concept SA"},
+    { 1500, "Shenzhen INVT Electric Co., Ltd."},
+    { 1501, "Messung Systems Pvt Ltd."},
+    { 1502, "ABB Electrification Canada Inc."},
+    { 1503, "Core Controls"},
+    { 1504, "Noord Tech d.o.o."},
+    { 1505, "Varibits AS"},
+    { 1506, "Roger Sp. z o.o. sp.k."},
+    { 1507, "Viega GmbH & Co. KG"},
+    { 1508, "Astersoft"},
+    { 1509, "BIG-EU"},
+    { 1510, "Inferrix Limited"},
+    { 1511, "Richards Electric Motor Co."},
+    { 1512, "dAPPControls"},
+    { 1513, "Entouch Controls"},
+    { 1514, "Mavili Elektronik Ticaret ve Sanayi Anonim Sirketi"},
+    { 1515, "BubblyNet"},
+    { 1516, "AlMayssan Technical Services Co. Ltd."},
+    { 1517, "Viridi Parente, Inc."},
+    { 1518, "Novel Apps Corp."},
+    { 1519, "Oventrop (China) HVAC System Technology Co., Ltd."},
+    { 1521, "Lacroix Sofrel"},
+    { 1522, "MachineSens loT Trading Co., LLC"},
+    { 1523, "Elmec Inc."},
+    { 1524, "Beijing Haishi Software Co., Ltd."},
+    { 1525, "Radix Electrosystems Pvt. Ltd."},
+    { 1526, "Värmebaronen AB"},
+    { 1527, "Treau Inc., dba Gradient"},
+    { 1528, "WEST Solution AG"},
+    { 1529, "Trueway Controls Hongkong Limited"},
+    { 1530, "BuildingLogiX"},
+    { 1531, "Ifesca GmbH"},
+    { 1532, "Fellowes Inc."},
+    { 1533, "Caleffi S.p.A."},
+    { 1534, "JDRF Electromag"},
+    { 1536, "Wecon Technology Co., Ltd."},
+    { 1537, "Acacia Green Technologies Ltd."},
+    { 1538, "Degree Analytics"},
+    { 1539, "Roltek Teknoloji A.S."},
+    { 1540, "Digital Control Technology Limited"},
+    { 1541, "Kentima AB"},
+    { 1542, "Pergamon Perceptive Technologies"},
+    { 1543, "Prefect Controls Ltd."},
+    { 1544, "SenTech Corporation"},
+    { 1545, "S+S Regeltechnik GmbH"},
+    { 1546, "AirBox, Inc."},
+    { 1547, "RVE"},
     { 0, NULL }
 };
 static value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
@@ -9283,7 +9513,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
             offset = fLOPR(tvb, pinfo, tree, offset);
             break;
         case 55: /* list-of-session-keys */
-            fSessionKey(tvb, pinfo, tree, offset);
+            offset = fSessionKey(tvb, pinfo, tree, offset);
             break;
         case 77: /* object-name */
             offset = fObjectName(tvb, pinfo, tree, offset);
@@ -9841,6 +10071,24 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
             break;
         case 4194334: /* color-command */
             offset = fColorCommand(tvb, pinfo, tree, offset, ar);
+            break;
+        case 4194339: /* device-address-proxy-table */
+            offset = fDeviceAddressProxyTableEntry(tvb, pinfo, tree, offset, ar);
+            break;
+        case 4194343: /* authorization-cache */
+            offset = fAccessToken(tvb, pinfo, tree, offset, ar);
+            break;
+        case 4194345: /* authorization-policy */
+            offset = fAuthorizationPolicy(tvb, pinfo, tree, offset, ar);
+            break;
+        case 4194346: /* authorization-scope */
+            offset = fAuthorizationScopeDescription(tvb, pinfo, tree, offset, ar);
+            break;
+        case 4194347: /* authorization-server */
+            offset = fAuthorizationServer(tvb, pinfo, tree, offset, ar);
+            break;
+        case 4194348: /* authorization-status */
+            offset = fAuthorizationStatus(tvb, pinfo, tree, offset, ar);
             break;
 
         case 85:  /* present-value */
@@ -13196,6 +13444,635 @@ fObjectSelector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned of
 }
 
 static unsigned
+fDeviceAddressProxyTableEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* address */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAddress(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 1: /* i-am */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fIAmRequest(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* last-i-am-time */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "issued: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAccessToken(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+    proto_tree *subsubtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* issuer */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "issuer: ");
+            break;
+        case 1: /* issued */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "issued: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* audience */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                      ett_bacapp_value, NULL, "%s", "audience:");
+
+            while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+
+                offset = fSignedTag(tvb, pinfo, subsubtree, offset, "listener: ");
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+            }
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 3: /* not-before */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "not-before: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 4: /* not-after */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "not-after: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 5: /* client */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "client: ");
+            break;
+        case 6: /* constraint */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAuthorizationConstraint(tvb, pinfo, subtree, offset, "constraint: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 7: /* scope */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAuthorizationScope(tvb, pinfo, subtree, offset, "scope: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 8: /* key-id */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "key-id: ");
+            break;
+        case 9: /* signature */
+            offset = fOctetString(tvb, pinfo, subtree, offset, "signature", lvt);
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+unsigned
+bacnet_dissect_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    unsigned offset, const char *lable)
+{
+    return fAccessToken(tvb, pinfo, tree, offset, lable);
+}
+
+static unsigned
+fAuthenticationClient(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        offset = fBooleanTag(tvb, pinfo, subtree, offset, "authenticated: ");
+        offset = fUnsignedTag(tvb, pinfo, subtree, offset, "device: ");
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthorizationEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* time-stamp */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fDateTime(tvb, pinfo, subtree, offset, "time-stamp: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 1: /* address */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAddress(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* client */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAuthenticationClient(tvb, pinfo, subtree, offset, "client: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 3: /* token */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAccessToken(tvb, pinfo, subtree, offset, "token: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 4: /* decision */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, subtree, offset, "decision: ", BACnetAuthorizationDecision);
+            break;
+        case 5: /* decision-details */
+            offset = fCharacterString(tvb, pinfo, subtree, offset, "decision-details: ");
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthenticationPeer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* host */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fHostNPort(tvb, pinfo, subtree, offset, "host: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "device: ");
+            offset = fBooleanTag(tvb, pinfo, subtree, offset, "auth-aware: ");
+            offset = fBooleanTag(tvb, pinfo, subtree, offset, "router: ");
+            offset = fBooleanTag(tvb, pinfo, subtree, offset, "hub: ");
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthenticationEvent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+    case 0: /* time-stamp */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fDateTime(tvb, pinfo, subtree, offset, "time-stamp: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+    case 1: /* peer */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fAuthenticationPeer(tvb, pinfo, subtree, offset, "peer: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+    case 2: /* client */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fAuthenticationClient(tvb, pinfo, subtree, offset, "client: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+    case 3: /* decision */
+      offset = fApplicationTypesEnumerated(tvb, pinfo, subtree, offset, "decision: ", BACnetAuthenticationDecision);
+            break;
+    case 4: /* decision-details */
+      offset = fCharacterString(tvb, pinfo, subtree, offset, "decision-details: ");
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthorizationPolicy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+    proto_tree *subsubtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* not-before */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fDateTime(tvb, pinfo, subtree, offset, "not-before: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 1: /* not-after */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fDateTime(tvb, pinfo, subtree, offset, "not-after: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* clients */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", "clients:");
+
+      while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+          break;
+        }
+
+                offset = fApplicationTypes(tvb, pinfo, subsubtree, offset, "client: ");
+      }
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 3: /* constraint */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fAuthorizationConstraint(tvb, pinfo, subtree, offset, "constraint: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 4: /* scope */
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+      offset = fAuthorizationScope(tvb, pinfo, subtree, offset, "scope: ");
+      offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthorizationConstraint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+    offset = fApplicationTypesEnumerated(tvb, pinfo, subtree, offset, "origin: ", BACnetAuthorizationConstraintOrigin);
+    offset = fApplicationTypesEnumerated(tvb, pinfo, subtree, offset, "authentication: ", BACnetAuthorizationConstraintAuthentication);
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthorizationScope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0, len;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+    proto_tree *subsubtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* extended */
+            if (tag_is_opening(tag_info)) {
+                subsubtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "extended: ");
+                offset += fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+
+                while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        fTagHeaderTree(tvb, pinfo, subsubtree, offset, &tag_no, &tag_info, &lvt);
+                        offset += len;
+                        break;
+                    }
+
+                    offset = fCharacterString(tvb, pinfo, subsubtree, offset, "scope: ");
+                    if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+                }
+            } else {
+                expert_add_info(pinfo, subtree, &ei_bacapp_bad_tag);
+            }
+            break;
+        default: /* standard */
+            offset = fBitStringTagVS(tvb, pinfo, subtree, offset, "standard: ", BACnetAuthorizationScopeStandard);
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+unsigned
+bacnet_dissect_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    unsigned offset, const char *lable)
+{
+    return fAuthorizationScope(tvb, pinfo, tree, offset, lable);
+}
+
+static unsigned
+fAuthorizationScopeDescription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+    lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        offset = fCharacterString(tvb, pinfo, subtree, offset, "name: ");
+        offset = fCharacterString(tvb, pinfo, subtree, offset, "description: ");
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthorizationServer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* auth-server */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "auth-server: ");
+            break;
+        case 1: /* signing-key #1 */
+            offset = fOctetString(tvb, pinfo, subtree, offset, "signing-key #1: ", lvt);
+            break;
+        case 2: /* signing-key #2 */
+            offset = fOctetString(tvb, pinfo, subtree, offset, "signing-key #2: ", lvt);
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthorizationStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* posture */
+            offset = fApplicationTypesEnumerated(tvb, pinfo, subtree, offset, "posture: ", BACnetAuthorizationPosture);
+            break;
+        case 1: /* error */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fError(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* error-source */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fObjectPropertyReference(tvb, pinfo, subtree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 3: /* error-details */
+            offset = fCharacterString(tvb, pinfo, subtree, offset, "error-details: ");
+            break;
+        case 4: /* authentication-success */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+
+                offset = fAuthenticationEvent(tvb, pinfo, subtree, offset, "authentication-success");
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+            }
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 5: /* authentication-failure */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+
+                offset = fAuthenticationEvent(tvb, pinfo, subtree, offset, "authentication-failure");
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+            }
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 6: /* authorization-success */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+
+                offset = fAuthorizationEvent(tvb, pinfo, subtree, offset, "authorization-success");
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+            }
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 7: /* authorization-failure */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+
+                offset = fAuthorizationEvent(tvb, pinfo, subtree, offset, "authorization-failure");
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+            }
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            break;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+
+    return offset;
+}
+
+static unsigned
 fStageLimitValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     if (tvb_reported_length_remaining(tvb, offset) <= 0)
@@ -14586,6 +15463,140 @@ fAuditLogQueryAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
 }
 
 static unsigned
+fAuthRequestTokenRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *lable)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+    proto_tree *subsubtree = tree;
+
+    subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+        ett_bacapp_value, NULL, "%s", lable);
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+        lastoffset = offset;
+        /* check the tag.  A closing tag means we are done */
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+        if (tag_is_closing(tag_info)) {
+            return offset;
+        }
+
+        switch (tag_no) {
+        case 0: /* client */
+            offset = fUnsignedTag(tvb, pinfo, subtree, offset, "client: ");
+            break;
+        case 1: /* audience */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
+                      ett_bacapp_value, NULL, "%s", "audience:");
+
+            while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {
+                lastoffset = offset;
+                /* check the tag.  A closing tag means we are done */
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_closing(tag_info)) {
+                    break;
+                }
+
+                offset = fSignedTag(tvb, pinfo, subsubtree, offset, "listener: ");
+                if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+            }
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        case 2: /* scope */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAuthorizationScope(tvb, pinfo, subtree, offset, "scope: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            return offset;
+        }
+    }
+
+    return offset;
+}
+
+static unsigned
+fAuthRequestRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+
+        switch (tag_no) {
+        case 0: /* token */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAuthRequestTokenRequest(tvb, pinfo, subtree, offset, "token: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            return offset;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static unsigned
+fAuthRequestAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+
+        switch (tag_no) {
+        case 0: /* token */
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            offset = fAccessToken(tvb, pinfo, subtree, offset, "token: ");
+            offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+            break;
+        default:
+            return offset;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static unsigned
+fAuthRequestError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
+{
+    unsigned   lastoffset = 0;
+    uint8_t tag_no, tag_info;
+    uint32_t lvt;
+    proto_tree *subtree = tree;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+        lastoffset = offset;
+        fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+
+        switch (tag_no) {
+        case 0: /* error */
+            offset = fContextTaggedError(tvb, pinfo, subtree, offset);
+            break;
+        case 1: /* details */
+            offset = fCharacterString(tvb, pinfo, subtree, offset, "details: ");
+            break;
+        default:
+            return offset;
+        }
+        if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+    }
+    return offset;
+}
+
+static unsigned
 fWhoAmIRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned   lastoffset = 0;
@@ -15903,6 +16914,9 @@ fConfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
     case 33:
         offset = fAuditLogQueryRequest(tvb, pinfo, tree, offset);
         break;
+    case 34:
+        offset = fAuthRequestRequest(tvb, pinfo, tree, offset);
+        break;
     default:
         return offset;
     }
@@ -15960,6 +16974,9 @@ fConfirmedServiceAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
         break;
     case 33:
         offset = fAuditLogQueryAck(tvb, pinfo, tree, offset);
+        break;
+    case 34:
+        offset = fAuthRequestAck(tvb, pinfo, tree, offset);
         break;
     default:
         return offset;
@@ -16461,6 +17478,9 @@ fBACnetError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offse
         break;
     case 30:
         offset = fSubscribeCOVPropertyMultipleError(tvb, pinfo, tree, offset);
+        break;
+    case 34:
+        offset = fAuthRequestError(tvb, pinfo, tree, offset);
         break;
     default:
         offset = fError(tvb, pinfo, tree, offset);
