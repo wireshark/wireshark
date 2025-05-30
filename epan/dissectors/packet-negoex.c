@@ -255,7 +255,7 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
 
   TRY {
     /* The Random field */
-    proto_tree_add_item(tree, hf_negoex_random, tvb, offset, 32, ENC_ASCII);
+    proto_tree_add_item(tree, hf_negoex_random, tvb, offset, 32, ENC_NA);
     offset += 32;
 
     /* Protocol version */

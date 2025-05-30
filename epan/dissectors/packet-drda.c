@@ -2168,7 +2168,7 @@ dissect_drda_pkgnamct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     offset = dissect_drda_pkgnam(tvb_new_subset_length(tvb, 0, tvb_reported_length_remaining(tvb, 8)), pinfo, tree, data);
 
-    proto_tree_add_item(tree, hf_drda_pkgcnstkn, tvb, offset, 8, ENC_UTF_8);
+    proto_tree_add_item(tree, hf_drda_pkgcnstkn, tvb, offset, 8, ENC_NA);
     offset += 8;
 
     return offset;

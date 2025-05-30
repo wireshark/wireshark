@@ -2142,7 +2142,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_item *item_chdr = proto_tree_add_item(tree_tcpcl, hf_chdr_tree, tvb, offset, -1, ENC_NA);
         proto_tree *tree_chdr = proto_item_add_subtree(item_chdr, ett_chdr);
 
-        proto_item *item_magic = proto_tree_add_item(tree_chdr, hf_chdr_magic, tvb, offset, sizeof(magic), ENC_SEP_NONE);
+        proto_item *item_magic = proto_tree_add_item(tree_chdr, hf_chdr_magic, tvb, offset, sizeof(magic), ENC_NA);
         if (tvb_memeql(tvb, offset, magic, sizeof(magic)) != 0) {
             expert_add_info(pinfo, item_magic, &ei_invalid_magic);
             return 0;

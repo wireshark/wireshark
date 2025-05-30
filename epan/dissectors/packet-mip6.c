@@ -3569,7 +3569,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, pinfo->pool, &name);
                 proto_item_append_text(ti, " Network Name: %s", name);
             }else{
-                proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_data, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8);
+                proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_data, tvb, offset, net_name_len, ENC_NA);
             };
             offset = offset+net_name_len;
 

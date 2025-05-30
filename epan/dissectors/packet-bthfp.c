@@ -1850,7 +1850,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 i_char = (unsigned) (at_command - at_stream);
                 if (i_char) {
                     proto_tree_add_item(command_tree, hf_at_ignored, tvb, offset,
-                        i_char, ENC_NA | ENC_ASCII);
+                        i_char, ENC_NA);
                     offset += i_char;
                 }
 

@@ -2578,7 +2578,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 			if ((n_params > 0) && (n_params <= 250)) {
 				int null_count = (n_params + 7) / 8;
-				proto_tree_add_item(req_tree, hf_mysql_unused, tvb, offset, null_count, ENC_ASCII);
+				proto_tree_add_item(req_tree, hf_mysql_unused, tvb, offset, null_count, ENC_NA);
 				offset += null_count;
 
 				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_ASCII);

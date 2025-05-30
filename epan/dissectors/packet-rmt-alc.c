@@ -106,7 +106,7 @@ try_uncompress(tvbuff_t *tvb, packet_info *pinfo, int offset, /*int len,*/ proto
 
         proto_tree *uncompress_tree = proto_item_add_subtree(ti, ett_uncomp_payload);
         unsigned decomp_length = tvb_captured_length(uncompress_tvb);
-        proto_item *ti_uncomp = proto_tree_add_item(uncompress_tree, hf_uncomp_payload, uncompress_tvb, 0, decomp_length, ENC_ASCII);
+        proto_item *ti_uncomp = proto_tree_add_item(uncompress_tree, hf_uncomp_payload, uncompress_tvb, 0, decomp_length, ENC_NA);
         proto_item_set_generated(ti_uncomp);
 
         proto_tree *payload_tree = proto_item_add_subtree(ti_uncomp, ett_uncomp_decode);
