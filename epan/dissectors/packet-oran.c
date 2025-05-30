@@ -106,6 +106,9 @@ static int hf_oran_numSymbol;
 static int hf_oran_ef;
 static int hf_oran_beamId;
 
+static int hf_oran_sinrCompHdrIqWidth_pref;
+static int hf_oran_sinrCompHdrMeth_pref;
+
 static int hf_oran_ciCompHdr;
 static int hf_oran_ciCompHdrIqWidth;
 static int hf_oran_ciCompHdrMeth;
@@ -535,6 +538,7 @@ static unsigned pref_ru_port_id_bits    = 4;
 /* TODO: ideally should be per-flow */
 static unsigned pref_sample_bit_width_uplink   = 14;
 static unsigned pref_sample_bit_width_downlink = 14;
+static unsigned pref_sample_bit_width_sinr   = 14;
 
 /* 8.3.3.15 Compression schemes */
 #define COMP_NONE                             0
@@ -550,6 +554,9 @@ static unsigned pref_sample_bit_width_downlink = 14;
 /* TODO: these ideally should be per-flow too */
 static int pref_iqCompressionUplink = COMP_BLOCK_FP;
 static int pref_iqCompressionDownlink = COMP_BLOCK_FP;
+
+static int pref_iqCompressionSINR = COMP_BLOCK_FP;
+
 
 /* Is udCompHeader present (both directions) */
 static int pref_includeUdCompHeaderUplink = 2;     /* start heuristic */
@@ -2262,6 +2269,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 unsigned bit_offset = offset*8;
 
+                /* sinr iqWidth */
+                proto_item *iq_width_item = proto_tree_add_uint(c_section_tree, hf_oran_sinrCompHdrIqWidth_pref, tvb, 0, 0, pref_sample_bit_width_sinr);
+                proto_item_append_text(iq_width_item, " (from preferences)");
+                proto_item_set_generated(iq_width_item);
+
+                /* sinr compMethod */
+                proto_item *sinr_comp_meth_item = proto_tree_add_uint(c_section_tree, hf_oran_sinrCompHdrMeth_pref, tvb, 0, 0, pref_iqCompressionSINR);
+                proto_item_append_text(sinr_comp_meth_item, " (from preferences)");
+                proto_item_set_generated(sinr_comp_meth_item);
+
+                /* Add SINR entries for each PRB */
                 for (unsigned prb=0; prb < numPrbu; prb++) {
                     /* TODO: create a subtree for each PRB entry with good summary? */
 
@@ -2270,32 +2288,36 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     /* N.B., using width/method from UL U-plane preferences, not certain that this is correct.. */
 
-                    /* sinrCompParam */
+                    /* sinrCompParam (udCompParam format, may be empty) */
                     uint32_t exponent = 0;  /* N.B. init to silence warnings, but will always be set if read in COMP_BLOCK_FP case */
                     uint16_t sReSMask;
                     bit_offset = dissect_udcompparam(tvb, pinfo, c_section_tree, bit_offset/8,
-                                                     pref_iqCompressionUplink, &exponent, &sReSMask,
+                                                     pref_iqCompressionSINR, &exponent, &sReSMask,
                                                      true) * 8; /* last param is for_sinr */
 
                     /* sinrValues for this PRB. */
                     /* TODO: not sure how numSinrPerPrb interacts with rb==1... */
                     for (unsigned n=0; n < num_sinr_per_prb; n++) {
-                        unsigned sinr_bits = tvb_get_bits32(tvb, bit_offset, pref_sample_bit_width_uplink, ENC_BIG_ENDIAN);
+                        unsigned sinr_bits = tvb_get_bits32(tvb, bit_offset, pref_sample_bit_width_sinr, ENC_BIG_ENDIAN);
 
-                        /* TODO: using uplink compression settings from preferences.  This isn't right.. */
-                        float value = decompress_value(sinr_bits, pref_iqCompressionUplink, pref_sample_bit_width_uplink, exponent);
-                        unsigned sample_len_in_bytes = ((bit_offset%8)+pref_sample_bit_width_uplink+7)/8;
+                        /* Using SINR compression settings from preferences */
+                        float value = decompress_value(sinr_bits,
+                                                       pref_iqCompressionSINR, pref_sample_bit_width_sinr,
+                                                       exponent);
+                        unsigned sample_len_in_bytes = ((bit_offset%8)+pref_sample_bit_width_sinr+7)/8;
                         proto_item *val_ti = proto_tree_add_float(c_section_tree, hf_oran_sinr_value, tvb,
                                                                    bit_offset/8, sample_len_in_bytes, value);
                         /* Show here which subcarriers share which values (they all divide 12..) */
                         proto_item_append_text(val_ti, " (PRB=%u, subcarriers %u-%u)",
                                                startPrbu+(prb*(rb+1)),
                                                n*(12/num_sinr_per_prb), (n+1)*(12/num_sinr_per_prb)-1);
-
-                        bit_offset += pref_sample_bit_width_uplink;
+                        bit_offset += pref_sample_bit_width_sinr;
                     }
+
+                    /* 1-byte alignment per PRB (7.2.11) */
+                    offset = (bit_offset+7)/8;
+                    bit_offset = offset*8;
                 }
-                offset = (bit_offset+7)/8;
                 break;
             }
             case SEC_C_REQUEST_RRM_MEAS:   /* Section Type 11 - Request RRM Measurements */
@@ -6975,13 +6997,13 @@ proto_register_oran(void)
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
             RVALS(ud_comp_header_meth), 0x0f,
             "Defines the compression method for the user data in every section in the C-Plane message", HFILL}
-         },
+        },
         { &hf_oran_udCompHdrMeth_pref,
           { "User Data Compression Method", "oran_fh_cus.udCompHdrMeth",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
             RVALS(ud_comp_header_meth), 0x0,
             "Defines the compression method for the user data in every section in the C-Plane message", HFILL}
-         },
+        },
         /* 8.3.3.18 */
         { &hf_oran_udCompLen,
           { "udCompLen", "oran_fh_cus.udCompLen",
@@ -7003,6 +7025,19 @@ proto_register_oran(void)
             NULL, 0x0,
             "Defines the IQ bit width for the user data in every section in the C-Plane message", HFILL}
         },
+
+        { &hf_oran_sinrCompHdrIqWidth_pref,
+          { "SINR IQ width", "oran_fh_cus.sinrCompHdrWidth",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
+            "Defines the IQ bit width for SINR data in section type 9", HFILL}
+        },
+        { &hf_oran_sinrCompHdrMeth_pref,
+          { "SINR Compression Method", "oran_fh_cus.sinrCompHdrMeth",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(ud_comp_header_meth), 0x0,
+            "Defines the compression method for SINR data in section type 9", HFILL}
+         },
 
         /* Section 8.3.3.15 (not always present - depends upon meth) */
         { &hf_oran_udCompParam,
@@ -8486,6 +8521,11 @@ proto_register_oran(void)
         "configuration of the O-RU. This preference instructs the dissector to expect "
         "this field to be present in downlink messages",
         &pref_includeUdCompHeaderDownlink, udcomphdr_present_options, false);
+
+    prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_sinr", "IQ Bitwidth SINR",
+        "The bit width of a sample in SINR", 10, &pref_sample_bit_width_sinr);
+    prefs_register_enum_preference(oran_module, "oran.ud_comp_sinr", "SINR Compression",
+        "SINR Compression", &pref_iqCompressionSINR, ul_compression_options, false);
 
     prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
         "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
