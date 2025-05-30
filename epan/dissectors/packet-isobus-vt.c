@@ -339,6 +339,17 @@ static int hf_isobus_vt_vtstatus_vtbusycodes_outofmemory;
 static int hf_isobus_vt_vtstatus_vtfunctioncodes;
 static int hf_isobus_vt_wrksetmain_bitmask;
 static int hf_isobus_vt_wrksetmain_version;
+static int hf_isobus_vt_screencapture_item;
+static int hf_isobus_vt_screencapture_path;
+static int hf_isobus_vt_screencapture_response_errorcodes;
+static int hf_isobus_vt_screencapture_response_errorcodes_flags;
+static int hf_isobus_vt_screen_capture_response_error_not_enabled;
+static int hf_isobus_vt_screen_capture_response_error_vt_transfer_is_busy;
+static int hf_isobus_vt_screen_capture_response_error_item_unsupported;
+static int hf_isobus_vt_screen_capture_response_error_path_unsupported;
+static int hf_isobus_vt_screen_capture_response_error_removable_media_is_full_or_unavailable;
+static int hf_isobus_vt_screen_capture_response_error_other;
+static int hf_isobus_vt_screencapture_response_imageid;
 
 
 #define VT_SOFT_KEY_ACTIVATION                  0
@@ -400,6 +411,7 @@ static int hf_isobus_vt_wrksetmain_version;
 #define VT_GET_TEXT_FONT_DATA                   195
 #define VT_GET_WINDOW_MASK_DATA                 196
 #define VT_GET_SUPPORTED_OBJECTS                197
+#define VT_SCREEN_CAPTURE                       198
 #define VT_GET_HARDWARE                         199
 #define VT_STORE_VERSION                        208
 #define VT_LOAD_VERSION                         209
@@ -474,6 +486,7 @@ static const value_string vt_function_code[] = {
     { VT_GET_TEXT_FONT_DATA                  , "Get Text Font Data" },
     { VT_GET_WINDOW_MASK_DATA                , "Get Window Mask Data" },
     { VT_GET_SUPPORTED_OBJECTS               , "Get Supported Objects" },
+    { VT_SCREEN_CAPTURE                      , "Screen capture" },
     { VT_GET_HARDWARE                        , "Get Hardware" },
     { VT_STORE_VERSION                       , "Store Version" },
     { VT_LOAD_VERSION                        , "Load Version" },
@@ -647,6 +660,21 @@ static const range_string vt_versions[] = {
     { 0, 0, NULL }
 };
 
+static const range_string screencapture_items[] = {
+    { 0, 0, "Screen Image" },
+    { 1, 239, "Reserved" },
+    { 240, 255, "Manufacturer Proprietary" },
+    { 0, 0, NULL }
+};
+
+static const range_string screencapture_path[] = {
+    { 0, 0, "Reserved" },
+    { 1, 1, "VT accessible storage/removable media" },
+    { 2, 239, "Reserved" },
+    { 240, 255, "Manufacturer Proprietary" },
+    { 0, 0, NULL }
+};
+
 static const value_string line_direction[] = {
     { 0, "Top left to bottom right" },
     { 1, "Bottom left to top right" },
@@ -800,6 +828,19 @@ static const value_string draw_text_background[] = {
     { 0, NULL }
 };
 
+
+
+static int * const screencapture_response_errorcodes_flag_fields[] = {
+    &hf_isobus_vt_screen_capture_response_error_not_enabled,
+    &hf_isobus_vt_screen_capture_response_error_vt_transfer_is_busy,
+    &hf_isobus_vt_screen_capture_response_error_item_unsupported,
+    &hf_isobus_vt_screen_capture_response_error_path_unsupported,
+    &hf_isobus_vt_screen_capture_response_error_removable_media_is_full_or_unavailable,
+    &hf_isobus_vt_screen_capture_response_error_other,
+    NULL
+};
+
+
 static value_string object_id_strings[MAX_OBJECT_ID_DB_SIZE];
 
 /* Initialize the subtree pointers */
@@ -816,6 +857,7 @@ static int ett_isobus_vt_auxiliarycapabilities_inputunit;
 static int ett_isobus_vt_auxiliarycapabilities_inputunit_set;
 static int ett_isobus_vt_auxiliaryassignmenttype2_flags;
 static int ett_isobus_vt_auxiliaryinputtype2status_operatingstate;
+static int ett_isobus_vt_screencapture_response_errorcodes_flags;
 
 static const char *object_id_translation = "";
 
@@ -4316,6 +4358,62 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         current_vt_version = version;
     }
         break;
+    case VT_SCREEN_CAPTURE:
+    {
+        // item and path is common between command/response
+        proto_tree_add_item(tree,
+            hf_isobus_vt_screencapture_item, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(tree,
+            hf_isobus_vt_screencapture_path, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        if(direction == vt_to_ecu)
+        {
+            // screen capture response
+            uint32_t error_codes;
+            ti = proto_tree_add_item_ret_uint(tree,
+                hf_isobus_vt_screencapture_response_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
+            offset += 1;
+
+            if(error_codes)
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, "Screen capture failed");
+                proto_tree_add_bitmask(tree, tvb, offset, hf_isobus_vt_screencapture_response_errorcodes_flags,
+                                       ett_isobus_vt_screencapture_response_errorcodes_flags,
+                                       screencapture_response_errorcodes_flag_fields, ENC_BIG_ENDIAN);
+
+
+                proto_item_append_text(ti, ": ");
+                if (error_codes & 0x01)
+                    proto_item_append_text(ti, "Screen capture is not enabled");
+                if (error_codes & 0x02)
+                    proto_item_append_text(ti, "VT transfer is busy");
+                if (error_codes & 0x04)
+                    proto_item_append_text(ti, "Item unsupported request");
+                if (error_codes & 0x08)
+                    proto_item_append_text(ti, "Path unsupported request");
+                if (error_codes & 0x10)
+                    proto_item_append_text(ti, "Removable media path is full or unavailable");
+                if (error_codes & 0x20)
+                    proto_item_append_text(ti, "Other error");
+            }
+            else
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, "Screen capture successful");
+                proto_item_append_text(ti, ": no error");
+            }
+
+            proto_tree_add_item(tree,
+                hf_isobus_vt_screencapture_response_imageid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        }
+        else
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, "Screen capture");
+        }
+    }
+        break;
     }
 	return tvb_captured_length(tvb);
 }
@@ -5961,6 +6059,61 @@ proto_register_isobus_vt(void)
           { "Version",                  "isobus.vt.working_set_maintenance.version",
             FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(vt_versions), 0x0,
             NULL, HFILL }
+        },
+        { &hf_isobus_vt_screencapture_item,
+          { "Item",                  "isobus.vt.screencapture.item",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(screencapture_items), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screencapture_path,
+          { "Path",                  "isobus.vt.screencapture.path",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(screencapture_path), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screencapture_response_errorcodes,
+          { "Error codes",           "isobus.vt.screencapture_response.errorcodes",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screencapture_response_errorcodes_flags,
+          { "Error flags",           "isobus.vt.screencapture_response.errorcodes.flags",
+            FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL }
+        },
+        { &hf_isobus_vt_screen_capture_response_error_not_enabled,
+          { "Screen capture is not enabled", "isobus.vt.screencapture_response.errorcodes.flags.command_was_not_sent",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screen_capture_response_error_vt_transfer_is_busy,
+          { "VT transfer is busy", "isobus.vt.screencapture_response.errorcodes.flags.vt_transfer_is_busy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screen_capture_response_error_item_unsupported,
+          { "The specified item is not supported", "isobus.vt.screencapture_response.errorcodes.flags.item_unsupported",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screen_capture_response_error_path_unsupported,
+          { "The specified path is not supported", "isobus.vt.screencapture_response.errorcodes.flags.path_unsupported",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screen_capture_response_error_removable_media_is_full_or_unavailable,
+          { "Removable media path is full or unavailable", "isobus.vt.screencapture_response.errorcodes.flags.media_full_or_unavailable",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screen_capture_response_error_other,
+          { "Other error", "isobus.vt.screencapture_response.errorcodes.flags.other_error",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_isobus_vt_screencapture_response_imageid,
+          { "Image ID",              "isobus.vt.screencapture_response.imageid",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
@@ -5977,7 +6130,8 @@ proto_register_isobus_vt(void)
         &ett_isobus_vt_auxiliarycapabilities_inputunit,
         &ett_isobus_vt_auxiliarycapabilities_inputunit_set,
         &ett_isobus_vt_auxiliaryassignmenttype2_flags,
-        &ett_isobus_vt_auxiliaryinputtype2status_operatingstate
+        &ett_isobus_vt_auxiliaryinputtype2status_operatingstate,
+        &ett_isobus_vt_screencapture_response_errorcodes_flags,
     };
 
     module_t *vt_module;
