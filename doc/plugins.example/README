@@ -13,7 +13,7 @@ to load it otherwise.
 
 Note that the out-of-tree method builds the plugin using CMake's Config-file
 mechanism[1] for configuration. In other words the plugin build system uses
-the Wireshark headers that were installed on the system using "make install"
+the Wireshark headers that were installed on the system using "sudo make install-headers"
 or equivalent (as configured from WiresharkConfig.cmake). This is not the same
 as an in-tree build.
 
