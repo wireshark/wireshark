@@ -26,6 +26,12 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/802_11-utils.h>
+#include <wsutil/strtoi.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
+
+void register_peektagged(void);
 
 /* CREDITS
  *
@@ -65,6 +71,9 @@ typedef struct peektagged_section_header {
         uint32_t section_const;          /* little-endian 0x00000200 */
 } peektagged_section_header_t;
 
+/* Size of the "header" sections */
+#define MAX_SECTION_SIZE    4096
+#define SECTION_CONST_VALUE 0x00000200
 /*
  * Network subtype values.
  *
@@ -153,257 +162,77 @@ typedef struct {
         bool            has_fcs;
 } peektagged_t;
 
-static bool peektagged_read(wtap *wth, wtap_rec *rec,
-    int *err, char **err_info, int64_t *data_offset);
-static bool peektagged_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
-    int *err, char **err_info);
-
 static int peektagged_file_type_subtype = -1;
 
-void register_peektagged(void);
-
-static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
-                                char **err_info)
+static uint32_t
+peektagged_get_file_version(xmlDocPtr doc)
 {
-    int c;
-    const char *cp;
+    xmlNodePtr root_element;
 
-    cp = pattern;
-    while (*cp)
-    {
-        c = file_getc(wth->fh);
-        if (c == EOF)
-        {
-            *err = file_error(wth->fh, err_info);
-            if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-                return -1;      /* error */
-            return 0;   /* EOF */
-        }
-        if (c == *cp)
-            cp++;
-        else
-        {
-            if (c == pattern[0])
-                cp = &pattern[1];
-            else
-                cp = pattern;
-        }
-    }
-    return (*cp == '\0' ? 1 : 0);
-}
-
-
-static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
-                                        const char *separators, int *err,
-                                        char **err_info)
-{
-    int c;
-    char *cp;
-    int i;
-
-    for (cp = buffer, i = 0; i < buflen; i++, cp++)
-    {
-        c = file_getc(wth->fh);
-        if (c == EOF)
-        {
-            *err = file_error(wth->fh, err_info);
-            if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-                return -1;      /* error */
-            return 0;   /* EOF */
-        }
-        if (strchr (separators, c) != NULL)
-        {
-            *cp = '\0';
-            break;
-        }
-        else
-            *cp = c;
-    }
-    return i;
-}
-
-
-static int wtap_file_read_number (wtap *wth, uint32_t *num, int *err,
-                                char **err_info)
-{
-    int ret;
-    char str_num[12];
-    unsigned long value;
-    char *p;
-
-    ret = wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<",
-                                         err, err_info);
-    if (ret == 0 || ret == -1) {
-        /* 0 means EOF, which means "not a valid Peek tagged file";
-           -1 means error, and "err" has been set. */
-        return ret;
-    }
-    value = strtoul (str_num, &p, 10);
-    if (p == str_num || value > UINT32_MAX)
+    root_element = xmlDocGetRootElement(doc);
+    if (root_element == NULL)
         return 0;
-    *num = (uint32_t)value;
-    return 1;
+
+    if (xmlStrcmp(root_element->name, (const xmlChar*)"VersionInfo") != 0)
+        return 0;
+
+    for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+        if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"FileVersion") == 0) {
+            uint32_t value;
+            xmlChar* str_version = xmlNodeGetContent(cur);
+            if (str_version == NULL)
+                return 0;
+
+            if (!ws_strtou32(str_version, NULL, &value)) {
+                xmlFree(str_version);
+                return 0;
+            }
+            xmlFree(str_version);
+            return value;
+        }
+    }
+
+    // Not found
+    return 0;
 }
 
-
-wtap_open_return_val peektagged_open(wtap *wth, int *err, char **err_info)
+static bool
+peektagged_get_media_info(xmlDocPtr doc, uint32_t *mediaType, uint32_t* mediaSubType)
 {
-    peektagged_section_header_t ap_hdr;
-    int ret;
-    uint32_t fileVersion = 0;
-    uint32_t mediaType;
-    uint32_t mediaSubType = 0;
-    static const int peektagged_encap[] = {
-        WTAP_ENCAP_ETHERNET,
-        WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-        WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-        WTAP_ENCAP_IEEE_802_11_WITH_RADIO
-    };
-    #define NUM_PEEKTAGGED_ENCAPS array_length(peektagged_encap)
-    peektagged_t *peektagged;
+    xmlNodePtr root_element;
+    bool found_media_type = false,
+         found_media_subtype = false;
 
-    if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info)) {
-        if (*err != WTAP_ERR_SHORT_READ)
-            return WTAP_OPEN_ERROR;
-        return WTAP_OPEN_NOT_MINE;
+    root_element = xmlDocGetRootElement(doc);
+    if (root_element == NULL)
+        return false;
+
+    if (xmlStrcmp(root_element->name, (const xmlChar*)"Session") != 0)
+        return false;
+
+    for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+        if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"MediaType") == 0) {
+            xmlChar* str_type = xmlNodeGetContent(cur);
+            if (str_type != NULL) {
+                if (ws_strtou32(str_type, NULL, mediaType))
+                    found_media_type = true;
+
+                xmlFree(str_type);
+            }
+        }
+        else if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"MediaSubType") == 0) {
+            xmlChar* str_type = xmlNodeGetContent(cur);
+
+            if (str_type != NULL) {
+                if (ws_strtou32(str_type, NULL, mediaSubType))
+                    found_media_subtype = true;
+
+                xmlFree(str_type);
+            }
+        }
     }
 
-    if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
-        return WTAP_OPEN_NOT_MINE;      /* doesn't begin with a "\177ver" section */
-
-    /*
-     * XXX - we should get the length of the "\177ver" section, check
-     * that it's followed by a little-endian 0x00000200, and then,
-     * when reading the XML, make sure we don't go past the end of
-     * that section, and skip to the end of that section when
-     * we have the file version (and possibly check to make sure all
-     * tags are properly opened and closed).
-     */
-    ret = wtap_file_read_pattern (wth, "<FileVersion>", err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        /* 0 means EOF, which means "not a valid Peek tagged file" */
-        return WTAP_OPEN_NOT_MINE;
-    }
-    ret = wtap_file_read_number (wth, &fileVersion, err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        /* 0 means EOF, which means "not a valid Peek tagged file" */
-        return WTAP_OPEN_NOT_MINE;
-    }
-
-    /* If we got this far, we assume it's a Peek tagged file. */
-    if (fileVersion != 9) {
-        /* We only support version 9. */
-        *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = ws_strdup_printf("peektagged: version %u unsupported",
-            fileVersion);
-        return WTAP_OPEN_ERROR;
-    }
-
-    /*
-     * XXX - once we've skipped the "\177ver" section, we should
-     * check for a "sess" section and fail if we don't see it.
-     * Then we should get the length of the "sess" section, check
-     * that it's followed by a little-endian 0x00000200, and then,
-     * when reading the XML, make sure we don't go past the end of
-     * that section, and skip to the end of the section when
-     * we have the file version (and possibly check to make sure all
-     * tags are properly opened and closed).
-     */
-    ret = wtap_file_read_pattern (wth, "<MediaType>", err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("peektagged: <MediaType> tag not found");
-        return WTAP_OPEN_ERROR;
-    }
-    /* XXX - this appears to be 0 in both the EtherPeek and AiroPeek
-       files we've seen; should we require it to be 0? */
-    ret = wtap_file_read_number (wth, &mediaType, err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("peektagged: <MediaType> value not found");
-        return WTAP_OPEN_ERROR;
-    }
-
-    ret = wtap_file_read_pattern (wth, "<MediaSubType>", err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("peektagged: <MediaSubType> tag not found");
-        return WTAP_OPEN_ERROR;
-    }
-    ret = wtap_file_read_number (wth, &mediaSubType, err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("peektagged: <MediaSubType> value not found");
-        return WTAP_OPEN_ERROR;
-    }
-    if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
-        || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
-        *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = ws_strdup_printf("peektagged: network type %u unknown or unsupported",
-            mediaSubType);
-        return WTAP_OPEN_ERROR;
-    }
-
-    ret = wtap_file_read_pattern (wth, "pkts", err, err_info);
-    if (ret == -1)
-        return WTAP_OPEN_ERROR;
-    if (ret == 0) {
-        *err = WTAP_ERR_SHORT_READ;
-        return WTAP_OPEN_ERROR;
-    }
-
-    /* skip 8 zero bytes */
-    if (!wtap_read_bytes (wth->fh, NULL, 8, err, err_info)) {
-        return WTAP_OPEN_ERROR;
-    }
-
-    /*
-     * This is an Peek tagged file.
-     */
-    wth->file_type_subtype = peektagged_file_type_subtype;
-    wth->file_encap = peektagged_encap[mediaSubType];
-    wth->subtype_read = peektagged_read;
-    wth->subtype_seek_read = peektagged_seek_read;
-    wth->file_tsprec = WTAP_TSPREC_NSEC;
-
-    peektagged = g_new(peektagged_t, 1);
-    wth->priv = (void *)peektagged;
-    switch (mediaSubType) {
-
-    case PEEKTAGGED_NST_ETHERNET:
-    case PEEKTAGGED_NST_802_11:
-    case PEEKTAGGED_NST_802_11_2:
-        peektagged->has_fcs = false;
-        break;
-
-    case PEEKTAGGED_NST_802_11_WITH_FCS:
-        peektagged->has_fcs = true;
-        break;
-    }
-
-    wth->snapshot_length   = 0; /* not available in header */
-
-    /*
-     * Add an IDB; we don't know how many interfaces were involved,
-     * so we just say one interface, about which we only know
-     * the link-layer type, snapshot length, and time stamp
-     * resolution.
-     */
-    wtap_add_generated_idb(wth);
-
-    return WTAP_OPEN_MINE;
+    return (found_media_type && found_media_subtype);
 }
 
 /*
@@ -925,6 +754,168 @@ peektagged_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         return false;
     }
     return true;
+}
+
+wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
+{
+    peektagged_section_header_t ap_hdr;
+    xmlDocPtr doc;
+    uint32_t length;
+    uint32_t fileVersion, mediaType = 0, mediaSubType = 0;
+    uint8_t sectionData[MAX_SECTION_SIZE];
+    const int peektagged_encap[] = {
+        WTAP_ENCAP_ETHERNET,
+        WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+        WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+        WTAP_ENCAP_IEEE_802_11_WITH_RADIO
+    };
+#define NUM_PEEKTAGGED_ENCAPS array_length(peektagged_encap)
+    peektagged_t* peektagged;
+
+    if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
+    }
+
+    if (memcmp(ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
+        return WTAP_OPEN_NOT_MINE;      /* doesn't begin with a "\177ver" section */
+
+    length = GUINT32_TO_LE(ap_hdr.section_len);
+    if ((length >= MAX_SECTION_SIZE) || (GUINT32_TO_LE(ap_hdr.section_const) != SECTION_CONST_VALUE))
+        return WTAP_OPEN_NOT_MINE;
+
+    if (!wtap_read_bytes(wth->fh, sectionData, (int)length, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
+    }
+    sectionData[length] = 0;
+
+    /* Now section data can be parsed into a proper structure */
+    doc = xmlParseMemory(sectionData, (int)length);
+    if (doc == NULL)
+        return WTAP_OPEN_NOT_MINE;
+
+    fileVersion = peektagged_get_file_version(doc);
+    xmlFreeDoc(doc);
+    if (fileVersion == 0) {
+        /* Something when wrong trying to retrieve file version, so
+           consider this not a Peek tagged file */
+        return WTAP_OPEN_NOT_MINE;
+    }
+
+    /* If we got this far, we assume it's a Peek tagged file. */
+    if (fileVersion != 9) {
+        /* We only support version 9. */
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = ws_strdup_printf("peektagged: version %u unsupported",
+            fileVersion);
+        return WTAP_OPEN_ERROR;
+    }
+
+    /*
+     * Now check for a "sess" section and fail if we don't see it.
+     * Then we should get the length of the "sess" section, check
+     * that it's followed by a little-endian 0x00000200, and then,
+     * when reading the XML, make sure we don't go past the end of
+     * that section, and skip to the end of the section when
+     * we have the file version (and possibly check to make sure all
+     * tags are properly opened and closed).
+     */
+
+    if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info))
+        return WTAP_OPEN_ERROR;
+
+    if (memcmp(ap_hdr.section_id, "sess", sizeof(ap_hdr.section_id)) != 0) {
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = ws_strdup_printf("peektagged: Unknown section ID 0x%08x", pntoh32(ap_hdr.section_id));
+        return WTAP_OPEN_ERROR;
+    }
+
+    length = GUINT32_TO_LE(ap_hdr.section_len);
+    if ((length >= MAX_SECTION_SIZE) || (GUINT32_TO_LE(ap_hdr.section_const) != SECTION_CONST_VALUE))
+        return WTAP_OPEN_NOT_MINE;
+
+    if (!wtap_read_bytes(wth->fh, sectionData, (int)length, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
+    }
+    sectionData[length] = 0;
+
+    /* Now section data can be parsed into a proper structure */
+    doc = xmlParseMemory(sectionData, (int)length);
+    if (doc == NULL) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("peektagged: session section XML couldn't be parsed");
+        return WTAP_OPEN_ERROR;
+    }
+
+    if (!peektagged_get_media_info(doc, &mediaType, &mediaSubType)) {
+        xmlFreeDoc(doc);
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("peektagged: session media tag(s) not found");
+        return WTAP_OPEN_ERROR;
+    }
+
+    xmlFreeDoc(doc);
+
+    if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
+        || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = ws_strdup_printf("peektagged: network type %u unknown or unsupported",
+            mediaSubType);
+        return WTAP_OPEN_ERROR;
+    }
+
+    /*
+     * Now check for a "pkts" section and fail if we don't see it.
+     */
+    if (!wtap_read_bytes(wth->fh, &ap_hdr, (int)sizeof(ap_hdr), err, err_info))
+        return WTAP_OPEN_ERROR;
+
+    if (memcmp(ap_hdr.section_id, "pkts", sizeof(ap_hdr.section_id)) != 0) {
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = ws_strdup_printf("peektagged: Unknown section ID 0x%08x", pntoh32(ap_hdr.section_id));
+        return WTAP_OPEN_ERROR;
+    }
+
+    /*
+     * This is an Peek tagged file.
+     */
+    wth->file_type_subtype = peektagged_file_type_subtype;
+    wth->file_encap = peektagged_encap[mediaSubType];
+    wth->subtype_read = peektagged_read;
+    wth->subtype_seek_read = peektagged_seek_read;
+    wth->file_tsprec = WTAP_TSPREC_NSEC;
+
+    peektagged = g_new(peektagged_t, 1);
+    wth->priv = (void*)peektagged;
+    switch (mediaSubType) {
+
+    case PEEKTAGGED_NST_ETHERNET:
+    case PEEKTAGGED_NST_802_11:
+    case PEEKTAGGED_NST_802_11_2:
+        peektagged->has_fcs = false;
+        break;
+
+    case PEEKTAGGED_NST_802_11_WITH_FCS:
+        peektagged->has_fcs = true;
+        break;
+    }
+
+    wth->snapshot_length = 0; /* not available in header */
+
+    /*
+     * Add an IDB; we don't know how many interfaces were involved,
+     * so we just say one interface, about which we only know
+     * the link-layer type, snapshot length, and time stamp
+     * resolution.
+     */
+    wtap_add_generated_idb(wth);
+
+    return WTAP_OPEN_MINE;
 }
 
 static const struct supported_block_type peektagged_blocks_supported[] = {
