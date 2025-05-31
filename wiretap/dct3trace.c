@@ -22,6 +22,9 @@
 #include <errno.h>
 
 #include <wsutil/strtoi.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
 
 /*
    Example downlink data:
@@ -46,24 +49,33 @@
 
  */
 
+typedef struct dct3trace_file_info {
+	GByteArray* buffer;		// holds current chunk of file
+	int64_t start_offset;		// where in the file the start of the buffer points
+} dct3trace_file_info_t;
+
+/* We expect to find all the info we need to tell if this file is ours
+ * within this many bytes. Must include the beginTime attribute.
+ */
+#define MAGIC_BUF_SIZE 512
+
+ /* String constants sought in the XML data.
+  * Written as strings instead of lists of chars for readability.
+  * Use the CLEN() macro to get the length of the constant without counting
+  * the null byte at the end.
+  */
+#define CLEN(x) (sizeof(x)-1)
 
 /* Magic text to check */
-static const char dct3trace_magic_line1[] = "<?xml version=\"1.0\"?>";
+static const unsigned char c_xml_magic[] = "<?xml";
 static const char dct3trace_magic_line2[] = "<dump>";
 static const char dct3trace_magic_record_start[]  = "<l1 ";
 static const char dct3trace_magic_record_end[]  = "</l1>";
-static const char dct3trace_magic_l2_start[]  = "<l2 ";
-#if 0 /* Not used ?? */
-static const char dct3trace_magic_l2_end[]  = "</l2>";
-#endif
-static const char dct3trace_magic_end[]  = "</dump>";
+
+#define RINGBUFFER_START_SIZE INT_MAX
+#define RINGBUFFER_CHUNK_SIZE 1024
 
 #define MAX_PACKET_LEN 23
-
-static bool dct3trace_read(wtap *wth, wtap_rec *rec,
-	int *err, char **err_info, int64_t *data_offset);
-static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, int *err, char **err_info);
 
 static int dct3trace_file_type_subtype = -1;
 
@@ -122,97 +134,395 @@ hex2bin(uint8_t *out, uint8_t *out_end, char *in)
 }
 
 static bool
-xml_get_int(int *val, const char *str, const char *pattern, int *err, char **err_info)
+xml_get_int(const char* name, xmlChar* str, int* val, int* err, char** err_info)
 {
-	const char *ptr, *endptr;
-	char *start, *end;
-	char buf[32];
-
-	ptr = strstr(str, pattern);
-	if (ptr == NULL) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("dct3trace: %s not found", pattern);
-		return false;
-	}
-	/*
-	 * XXX - should we just skip past the pattern and check for ="?
-	 */
-	start = strchr(ptr, '"');
-	if (start == NULL) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("dct3trace: opening quote for %s not found", pattern);
-		return false;
-	}
-	start++;
-	/*
-	 * XXX - should we just use ws_strtoi32() and check whether
-	 * the character following the number is a "?
-	 */
-	end = strchr(start, '"');
-	if (end == NULL) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("dct3trace: closing quote for %s not found", pattern);
-		return false;
-	}
-	if (end - start > 31) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("dct3trace: %s value is too long", pattern);
-		return false;
-	}
-
-	memcpy(buf, start, end - start);
-	buf[end - start] = '\0';
-	/*
-	 * XXX - should we allow negative numbers in all cases?  Or are
-	 * there cases where the number is unsigned?
-	 */
-	if (!ws_strtoi32(buf, &endptr, val)) {
-		*err = WTAP_ERR_BAD_FILE;
-		if (errno == ERANGE) {
-			if (*val < 0)
-				*err_info = ws_strdup_printf("dct3trace: %s value is too small, minimum is %d", pattern, *val);
+	if (str != NULL) {
+		if (!ws_strtoi32(str, NULL, val)) {
+			*err = WTAP_ERR_BAD_FILE;
+			if (errno == ERANGE) {
+				if (*val < 0)
+					*err_info = ws_strdup_printf("dct3trace: %s value is too small, minimum is %d", name, *val);
+				else
+					*err_info = ws_strdup_printf("dct3trace: %s value is too large, maximum is %d", name, *val);
+			}
 			else
-				*err_info = ws_strdup_printf("dct3trace: %s value is too large, maximum is %d", pattern, *val);
-		} else
-			*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
-		return false;
+				*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", name, str);
+			return false;
+		}
 	}
-	if (*endptr != '\0') {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
-		return false;
-	}
+
 	return true;
 }
 
-
-wtap_open_return_val dct3trace_open(wtap *wth, int *err, char **err_info)
+static bool
+dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int* err, char** err_info)
 {
-	char line1[64], line2[64];
+	xmlDocPtr           doc;
+	xmlNodePtr root_element;
+	bool status = true;
+	uint8_t databuf[MAX_PACKET_LEN], * bufp;
+	int local_len = 0;
+	bool have_data = false;
 
-	/* Look for Gammu DCT3 trace header */
-	if (file_gets(line1, sizeof(line1), wth->fh) == NULL ||
-		file_gets(line2, sizeof(line2), wth->fh) == NULL)
+	doc = xmlParseMemory(text, (int)len);
+	if (doc == NULL) {
+		return false;
+	}
+
+	root_element = xmlDocGetRootElement(doc);
+	if (root_element == NULL) {
+		ws_debug("empty xml doc");
+		status = false;
+		goto end;
+	}
+
+	//Sanity check
+	if (xmlStrcmp(root_element->name, (const xmlChar*)"l1") != 0) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = ws_strdup("dct3trace: Did not start with \"<l1\"");
+		status = false;
+		goto end;
+	}
+
+	/* Walk the attributes of the l1 tag */
+	bufp = &databuf[0];
+	for (xmlAttrPtr attr = root_element->properties; attr; attr = attr->next) {
+		int channel, tmp;
+		if (xmlStrcmp(attr->name, (const xmlChar*)"direction") == 0) {
+			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+			if (str != NULL) {
+				rec->rec_header.packet_header.pseudo_header.gsm_um.uplink = !strstr(str, "down");
+				xmlFree(str);
+			}
+		}
+		else if (xmlStrcmp(attr->name, (const xmlChar*)"logicalchannel") == 0) {
+			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+			status = xml_get_int("logicalchannel", str, &channel, err, err_info);
+			xmlFree(str);
+			if (!status)
+				goto end;
+
+			switch (channel)
+			{
+			case 128: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SDCCH; break;
+			case 112: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SACCH; break;
+			case 176: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_FACCH; break;
+			case 96: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_CCCH; break;
+			case 80: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_BCCH; break;
+			default: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_UNKNOWN; break;
+			}
+		}
+		else if (xmlStrcmp(attr->name, (const xmlChar*)"data") == 0) {
+			have_data = true; /* Found data */
+			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+			local_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], str);
+			xmlFree(str);
+			if (local_len == -1)
+			{
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
+				status = false;
+				goto end;
+			}
+
+		}
+		else if (!rec->rec_header.packet_header.pseudo_header.gsm_um.uplink) {
+			/* Parse downlink only fields */
+
+			if (xmlStrcmp(attr->name, (const xmlChar*)"physicalchannel") == 0) {
+				xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+				status = xml_get_int("physicalchannel", str, &tmp, err, err_info);
+				xmlFree(str);
+				if (!status)
+					goto end;
+
+				rec->rec_header.packet_header.pseudo_header.gsm_um.arfcn = tmp;
+			}
+			else if (xmlStrcmp(attr->name, (const xmlChar*)"sequence") == 0) {
+				xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+				status = xml_get_int("sequence", str, &tmp, err, err_info);
+				xmlFree(str);
+				if (!status)
+					goto end;
+
+				rec->rec_header.packet_header.pseudo_header.gsm_um.tdma_frame = tmp;
+			}
+			else if (xmlStrcmp(attr->name, (const xmlChar*)"bsic") == 0) {
+				xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+				status = xml_get_int("bsic", str, &tmp, err, err_info);
+				xmlFree(str);
+				if (!status)
+					goto end;
+
+				rec->rec_header.packet_header.pseudo_header.gsm_um.bsic = tmp;
+			}
+			else if (xmlStrcmp(attr->name, (const xmlChar*)"error") == 0) {
+				xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+				status = xml_get_int("error", str, &tmp, err, err_info);
+				xmlFree(str);
+				if (!status)
+					goto end;
+
+				rec->rec_header.packet_header.pseudo_header.gsm_um.error = tmp;
+			}
+			else if (xmlStrcmp(attr->name, (const xmlChar*)"timeshift") == 0) {
+				xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+				status = xml_get_int("timeshift", str, &tmp, err, err_info);
+				xmlFree(str);
+				if (!status)
+					goto end;
+
+				rec->rec_header.packet_header.pseudo_header.gsm_um.timeshift = tmp;
+			}
+		}
+	}
+
+	if (!have_data)
 	{
+		for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+			/* Get data from l2 tag */
+			if ((cur->type == XML_ELEMENT_NODE) && (xmlStrcmp(cur->name, (const xmlChar*)"l2") == 0)) {
+				for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+
+					/* For uplink packets we might not get the raw L1, so have to recreate it from the L2 */
+					/* Parse L2 header if didn't get data from L1 <l2 ...> */
+					if (xmlStrcmp(attr->name, (const xmlChar*)"data") == 0) {
+						int data_len;
+
+						have_data = true; /* Found data */
+
+						/*
+						 * We know we have no data already, so we know
+						 * we have enough room for the header.
+						 */
+						switch(rec->rec_header.packet_header.pseudo_header.gsm_um.channel)
+						{
+						case GSM_UM_CHANNEL_SACCH:
+						case GSM_UM_CHANNEL_FACCH:
+						case GSM_UM_CHANNEL_SDCCH:
+							/* Add LAPDm B header */
+							memset(bufp, 0x1, 2);
+							local_len = 3;
+							break;
+						default:
+							/* Add LAPDm Bbis header */
+							local_len = 1;
+							break;
+						}
+						bufp += local_len;
+
+						xmlChar* str = xmlNodeListGetString(cur->doc, attr->children, 1);
+						data_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], str);
+						xmlFree(str);
+						if (data_len == -1)
+						{
+							*err = WTAP_ERR_BAD_FILE;
+							*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
+							return false;
+						}
+						local_len += data_len;
+
+						/* Add LAPDm length byte */
+						*(bufp - 1) = data_len << 2 | 0x1;
+					}
+				}
+			}
+		}
+	}
+
+	if (have_data) {
+		/* We've got a full packet! */
+		wtap_setup_packet_rec(rec, wth->file_encap);
+		rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+		rec->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
+		rec->ts.secs = 0;
+		rec->ts.nsecs = 0;
+		rec->rec_header.packet_header.caplen = local_len;
+		rec->rec_header.packet_header.len = local_len;
+
+		/* Append data to the packet buffer */
+		ws_buffer_append(&rec->data, databuf, rec->rec_header.packet_header.caplen);
+	}
+	else {
+		/* If not got any data return error */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("dct3trace: record without data");
+		status = false;
+	}
+
+end:
+	xmlFreeDoc(doc);
+	return status;
+}
+
+/* Read from fh and store into buffer, until buffer contains needle.
+ * Returns location of needle once found, or NULL if it's never found
+ * (due to either EOF or read error).
+ */
+static uint8_t*
+read_until(GByteArray* buffer, const unsigned char* needle, FILE_T fh, int* err, char** err_info)
+{
+	uint8_t read_buffer[RINGBUFFER_CHUNK_SIZE];
+	uint8_t* found_it;
+	int bytes_read = 0;
+
+	while (NULL == (found_it = g_strstr_len(buffer->data, buffer->len, needle))) {
+		bytes_read = file_read(read_buffer, RINGBUFFER_CHUNK_SIZE, fh);
+		if (bytes_read < 0) {
+			*err = file_error(fh, err_info);
+			break;
+		}
+		if (bytes_read == 0) {
+			break;
+		}
+		g_byte_array_append(buffer, read_buffer, bytes_read);
+	}
+	return found_it;
+}
+
+/* Find the next packet and parse it; called from wtap_read(). */
+static bool dct3trace_read(wtap *wth, wtap_rec *rec,
+    int *err, char **err_info, int64_t *data_offset)
+{
+	dct3trace_file_info_t* file_info = (dct3trace_file_info_t*)wth->priv;
+	uint8_t* buf_start;
+	uint8_t* msg_start, * msg_end;
+	unsigned msg_offset = 0;
+	size_t msg_len = 0;
+	bool status = false;
+
+	/* Make sure we have a start and end of message in our buffer -- end first */
+	msg_end = read_until(file_info->buffer, dct3trace_magic_record_end, wth->fh, err, err_info);
+	if (msg_end == NULL) {
+		goto end;
+	}
+
+	buf_start = file_info->buffer->data;
+	/* Now search backwards for the message start
+	 * (doing it this way should skip over any empty "<msg ... />" tags we have)
+	 */
+	msg_start = g_strrstr_len(buf_start, (unsigned)(msg_end - buf_start), dct3trace_magic_record_start);
+	if (msg_start == NULL || msg_start > msg_end) {
+		*err_info = ws_strdup_printf("dct3trace: Found \"%s\" without matching \"%s\"", dct3trace_magic_record_end, dct3trace_magic_record_start);
+		*err = WTAP_ERR_BAD_FILE;
+		goto end;
+	}
+
+	/* We know we have a message, what's its offset from the buffer start? */
+	msg_offset = (unsigned)(msg_start - buf_start);
+	msg_end += CLEN(dct3trace_magic_record_end);
+	msg_len = (unsigned)(msg_end - msg_start);
+
+	/* Tell Wireshark to put us at the start of the "<msg" for seek_read later */
+	*data_offset = file_info->start_offset + msg_offset;
+
+	/* pass all of <l1....</l1> to dct3trace_get_packet() */
+	status = dct3trace_get_packet(wth, rec, msg_start, msg_len, err, err_info);
+
+	/* Finally, shift our buffer to the end of this message to get ready for the next one.
+	 * Re-use msg_len to get the length of the data we're done with.
+	 */
+	msg_len = msg_end - file_info->buffer->data;
+	while (G_UNLIKELY(msg_len > UINT_MAX)) {
+		g_byte_array_remove_range(file_info->buffer, 0, UINT_MAX);
+		msg_len -= UINT_MAX;
+	}
+	g_byte_array_remove_range(file_info->buffer, 0, (unsigned)msg_len);
+	file_info->start_offset += msg_len;
+
+end:
+	if (status == false) {
+		/* There's no more to read. Empty out the buffer */
+		g_byte_array_set_size(file_info->buffer, 0);
+	}
+
+	return status;
+}
+
+
+/* Used to read packets in random-access fashion */
+static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
+	wtap_rec *rec, int *err, char **err_info)
+{
+	dct3trace_file_info_t* file_info = (dct3trace_file_info_t*)wth->priv;
+	bool status = false;
+	uint8_t* msg_end;
+	unsigned msg_len = 0;
+
+	/* We stored the offset of the "<msg" for this packet */
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return false;
+
+	msg_end = read_until(file_info->buffer, dct3trace_magic_record_end, wth->random_fh, err, err_info);
+	if (msg_end == NULL) {
+		return false;
+	}
+	msg_end += CLEN(dct3trace_magic_record_end);
+	msg_len = (unsigned)(msg_end - file_info->buffer->data);
+
+	status = dct3trace_get_packet(wth, rec, file_info->buffer->data, msg_len, err, err_info);
+	g_byte_array_set_size(file_info->buffer, 0);
+	return status;
+}
+
+/* Clean up any memory we allocated for dealing with this file.
+ * Set as the subtype_close function in the file_open function below.
+ * (wiretap frees wth->priv itself)
+ */
+static void
+dct3trace_close(wtap* wth)
+{
+	dct3trace_file_info_t* file_info = (dct3trace_file_info_t*)wth->priv;
+
+	if (file_info != NULL && file_info->buffer != NULL) {
+		g_byte_array_free(file_info->buffer, true);
+		file_info->buffer = NULL;
+	}
+}
+
+wtap_open_return_val dct3trace_open(wtap* wth, int* err, char** err_info)
+{
+	char magic_buf[MAGIC_BUF_SIZE + 1];
+	int bytes_read;
+	const char* curr_pos;
+	dct3trace_file_info_t* file_info;
+	int64_t start_offset;
+
+	start_offset = file_tell(wth->fh); // Most likely 0 but doesn't hurt to check
+	bytes_read = file_read(magic_buf, MAGIC_BUF_SIZE, wth->fh);
+
+	if (bytes_read < 0) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-			return WTAP_OPEN_ERROR;
+		return WTAP_OPEN_ERROR;
+	}
+	if (bytes_read == 0) {
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	/* Don't compare line endings */
-	if( strncmp(dct3trace_magic_line1, line1, strlen(dct3trace_magic_line1)) != 0 ||
-		strncmp(dct3trace_magic_line2, line2, strlen(dct3trace_magic_line2)) != 0)
-	{
+	if (memcmp(magic_buf, c_xml_magic, CLEN(c_xml_magic)) != 0) {
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	wth->file_encap = WTAP_ENCAP_GSM_UM;
+	curr_pos = g_strstr_len(magic_buf, bytes_read, dct3trace_magic_line2);
+	if (!curr_pos) {
+		return WTAP_OPEN_NOT_MINE;
+	}
+	curr_pos += CLEN(dct3trace_magic_line2);
+
+	/* Ok it's our file. From here we'll need to free memory */
+	file_info = g_new0(dct3trace_file_info_t, 1);
+	file_info->start_offset = start_offset + (curr_pos - magic_buf);
+	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
+	g_byte_array_append(file_info->buffer, curr_pos, (unsigned)(bytes_read - (curr_pos - magic_buf)));
+
 	wth->file_type_subtype = dct3trace_file_type_subtype;
-	wth->snapshot_length = 0; /* not known */
+	wth->file_encap = WTAP_ENCAP_GSM_UM;
+	wth->file_tsprec = WTAP_TSPREC_SEC;
 	wth->subtype_read = dct3trace_read;
 	wth->subtype_seek_read = dct3trace_seek_read;
-	wth->file_tsprec = WTAP_TSPREC_SEC;
+	wth->subtype_close = dct3trace_close;
+	wth->snapshot_length = 0;/* not known */
+	wth->priv = (void*)file_info;
 
 	/*
 	 * Add an IDB; we don't know how many interfaces were
@@ -223,183 +533,6 @@ wtap_open_return_val dct3trace_open(wtap *wth, int *err, char **err_info)
 	wtap_add_generated_idb(wth);
 
 	return WTAP_OPEN_MINE;
-}
-
-
-static bool dct3trace_get_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
-	int *err, char **err_info)
-{
-	char line[1024];
-	uint8_t databuf[MAX_PACKET_LEN], *bufp;
-	bool have_data = false;
-	int len = 0;
-
-	bufp = &databuf[0];
-	while (file_gets(line, sizeof(line), fh) != NULL)
-	{
-		if( memcmp(dct3trace_magic_end, line, strlen(dct3trace_magic_end)) == 0 )
-		{
-			/* Return on end of file </dump> */
-			*err = 0;
-			return false;
-		}
-		else if( memcmp(dct3trace_magic_record_end, line, strlen(dct3trace_magic_record_end)) == 0 )
-		{
-			/* Return on end of record </l1> */
-			if( have_data )
-			{
-				/* We've got a full packet! */
-				wtap_setup_packet_rec(rec, wth->file_encap);
-				rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
-				rec->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
-				rec->ts.secs = 0;
-				rec->ts.nsecs = 0;
-				rec->rec_header.packet_header.caplen = len;
-				rec->rec_header.packet_header.len = len;
-
-				*err = 0;
-
-				/* Append data to the packet buffer */
-				ws_buffer_append(&rec->data, databuf, rec->rec_header.packet_header.caplen);
-
-				return true;
-			}
-			else
-			{
-				/* If not got any data return error */
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup("dct3trace: record without data");
-				return false;
-			}
-		}
-		else if( memcmp(dct3trace_magic_record_start, line, strlen(dct3trace_magic_record_start)) == 0 )
-		{
-			/* Parse L1 header <l1 ...>*/
-			int channel, tmp;
-			char *ptr;
-
-			rec->rec_header.packet_header.pseudo_header.gsm_um.uplink = !strstr(line, "direction=\"down\"");
-			if (!xml_get_int(&channel, line, "logicalchannel", err, err_info))
-				return false;
-
-			/* Parse downlink only fields */
-			if( !rec->rec_header.packet_header.pseudo_header.gsm_um.uplink )
-			{
-				if (!xml_get_int(&tmp, line, "physicalchannel", err, err_info))
-					return false;
-				rec->rec_header.packet_header.pseudo_header.gsm_um.arfcn = tmp;
-				if (!xml_get_int(&tmp, line, "sequence", err, err_info))
-					return false;
-				rec->rec_header.packet_header.pseudo_header.gsm_um.tdma_frame = tmp;
-				if (!xml_get_int(&tmp, line, "bsic", err, err_info))
-					return false;
-				rec->rec_header.packet_header.pseudo_header.gsm_um.bsic = tmp;
-				if (!xml_get_int(&tmp, line, "error", err, err_info))
-					return false;
-				rec->rec_header.packet_header.pseudo_header.gsm_um.error = tmp;
-				if (!xml_get_int(&tmp, line, "timeshift", err, err_info))
-					return false;
-				rec->rec_header.packet_header.pseudo_header.gsm_um.timeshift = tmp;
-			}
-
-			switch( channel )
-			{
-				case 128: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SDCCH; break;
-				case 112: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SACCH; break;
-				case 176: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_FACCH; break;
-				case 96: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_CCCH; break;
-				case 80: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_BCCH; break;
-				default: rec->rec_header.packet_header.pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_UNKNOWN; break;
-			}
-
-			/* Read data (if have it) into databuf */
-			ptr = strstr(line, "data=\"");
-			if( ptr )
-			{
-				have_data = true; /* If has data... */
-				len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], ptr+6);
-				if (len == -1)
-				{
-					*err = WTAP_ERR_BAD_FILE;
-					*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
-					return false;
-				}
-			}
-		}
-		else if( !have_data && memcmp(dct3trace_magic_l2_start, line, strlen(dct3trace_magic_l2_start)) == 0 )
-		{
-			/* For uplink packets we might not get the raw L1, so have to recreate it from the L2 */
-			/* Parse L2 header if didn't get data from L1 <l2 ...> */
-			int data_len;
-			char *ptr = strstr(line, "data=\"");
-
-			if( !ptr )
-			{
-				continue;
-			}
-
-			have_data = true;
-
-			/*
-			 * We know we have no data already, so we know
-			 * we have enough room for the header.
-			 */
-			if( rec->rec_header.packet_header.pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SACCH || rec->rec_header.packet_header.pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_FACCH || rec->rec_header.packet_header.pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SDCCH )
-			{
-				/* Add LAPDm B header */
-				memset(bufp, 0x1, 2);
-				len = 3;
-			}
-			else
-			{
-				/* Add LAPDm Bbis header */
-				len = 1;
-			}
-			bufp += len;
-
-			data_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], ptr+6);
-			if (data_len == -1)
-			{
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
-				return false;
-			}
-			len += data_len;
-
-			/* Add LAPDm length byte */
-			*(bufp - 1) = data_len << 2 | 0x1;
-		}
-	}
-
-	*err = file_error(fh, err_info);
-	if (*err == 0)
-	{
-		*err = WTAP_ERR_SHORT_READ;
-	}
-	return false;
-}
-
-
-/* Find the next packet and parse it; called from wtap_read(). */
-static bool dct3trace_read(wtap *wth, wtap_rec *rec,
-    int *err, char **err_info, int64_t *data_offset)
-{
-	*data_offset = file_tell(wth->fh);
-
-	return dct3trace_get_packet(wth, wth->fh, rec, err, err_info);
-}
-
-
-/* Used to read packets in random-access fashion */
-static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
-	wtap_rec *rec, int *err, char **err_info)
-{
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-	{
-		return false;
-	}
-
-	return dct3trace_get_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
 static const struct supported_block_type dct3trace_blocks_supported[] = {
