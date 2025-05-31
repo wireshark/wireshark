@@ -4,6 +4,9 @@
  */
 
 #include "config.h"
+
+#include <wsutil/ws_padding_to.h>
+
 #include "wtap-int.h"
 #include "pcapng-sysdig-int.h"
 #include "file_wrappers.h"
@@ -197,7 +200,6 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
     int* err, char** err_info)
 {
     pcapng_block_header_t bh;
-    const uint32_t zero_pad = 0;
     uint32_t pad_len;
     uint32_t options_size = 0;
     bool has_flags = sysdig_has_flags(rec->rec_header.syscall_header.record_type);
@@ -211,12 +213,7 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
         return false;
     }
 
-    if ((rec->rec_header.syscall_header.event_data_len + event_header_len + preamble_len) % 4) {
-        pad_len = 4 - ((rec->rec_header.syscall_header.event_data_len + event_header_len + preamble_len) % 4);
-    }
-    else {
-        pad_len = 0;
-    }
+    pad_len = WS_PADDING_TO_4(rec->rec_header.syscall_header.event_data_len + event_header_len + preamble_len);
 
     if (rec->block != NULL) {
         /* Compute size of all the options */
@@ -272,10 +269,8 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
         return false;
 
     /* Write padding (if any) */
-    if (pad_len != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
-            return false;
-    }
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* Write options, if we have any */
     if (options_size != 0) {

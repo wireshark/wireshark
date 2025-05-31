@@ -147,6 +147,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_getopt.h
 	ws_mempbrk.h
 	ws_mempbrk_int.h
+	ws_padding_to.h
 	ws_pipe.h
 	ws_roundup.h
 	ws_strptime.h

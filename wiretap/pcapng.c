@@ -30,6 +30,7 @@
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
 #include <wsutil/unicode-utils.h>
 
 #include "wtap-int.h"
@@ -2079,10 +2080,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     /*
      * How much padding is there at the end of the packet data?
      */
-    if ((packet.cap_len % 4) != 0)
-        padding = 4 - (packet.cap_len % 4);
-    else
-        padding = 0;
+    padding = WS_PADDING_TO_4(packet.cap_len);
 
     /*
      * Is this block long enough to hold the packet data?
@@ -2292,10 +2290,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     /*
      * How much padding is there at the end of the packet data?
      */
-    if ((simple_packet.cap_len % 4) != 0)
-        padding = 4 - (simple_packet.cap_len % 4);
-    else
-        padding = 0;
+    padding = WS_PADDING_TO_4(simple_packet.cap_len);
 
     /*
      * Is this block long enough to hold the packet data?
@@ -4147,7 +4142,6 @@ static bool pcapng_write_option_eofopt(wtap_dumper *wdh, int *err)
 static bool pcapng_write_uint8_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
-    const uint32_t zero_pad = 0;
 
     option_hdr.type         = (uint16_t)option_id;
     option_hdr.value_length = (uint16_t)1;
@@ -4157,7 +4151,7 @@ static bool pcapng_write_uint8_option(wtap_dumper *wdh, unsigned option_id, wtap
     if (!wtap_dump_file_write(wdh, &optval->uint8val, 1, err))
         return false;
 
-    if (!wtap_dump_file_write(wdh, &zero_pad, 3, err))
+    if (!pcapng_write_padding(wdh, 3, err))
         return false;
 
     return true;
@@ -4221,8 +4215,6 @@ static bool pcapng_write_string_option(wtap_dumper *wdh,
 {
     struct pcapng_option_header option_hdr;
     size_t size = strlen(optval->stringval);
-    const uint32_t zero_pad = 0;
-    uint32_t pad;
 
     if (size == 0)
         return true;
@@ -4274,19 +4266,8 @@ static bool pcapng_write_string_option(wtap_dumper *wdh,
     if (!wtap_dump_file_write(wdh, optval->stringval, size, err))
         return false;
 
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
     /* write padding (if any) */
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return false;
-    }
-
-    return true;
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 #if 0
@@ -4294,8 +4275,6 @@ static bool pcapng_write_bytes_option(wtap_dumper *wdh, unsigned option_id, wtap
 {
     struct pcapng_option_header option_hdr;
     size_t size = g_bytes_get_size(optval->byteval);
-    const uint32_t zero_pad = 0;
-    uint32_t pad;
 
     if (size == 0)
         return true;
@@ -4318,19 +4297,8 @@ static bool pcapng_write_bytes_option(wtap_dumper *wdh, unsigned option_id, wtap
     if (!wtap_dump_file_write(wdh, optval->stringval, size, err))
         return false;
 
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
     /* write padding (if any) */
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return false;
-    }
-
-    return true;
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 static bool pcapng_write_ipv4_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
@@ -4367,11 +4335,10 @@ static bool pcapng_write_ipv6_option(wtap_dumper *wdh, unsigned option_id, wtap_
 static bool pcapng_write_if_filter_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
 {
     if_filter_opt_t* filter = &optval->if_filterval;
-    uint32_t size, pad;
+    uint32_t size;
     uint8_t filter_type;
     size_t filter_data_len;
     struct pcapng_option_header option_hdr;
-    const uint32_t zero_pad = 0;
 
     switch (filter->type) {
 
@@ -4409,11 +4376,6 @@ static bool pcapng_write_if_filter_option(wtap_dumper *wdh, unsigned option_id, 
         return true;
     }
     size = (uint32_t)(filter_data_len + 1);
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
 
     option_hdr.type         = option_id;
     option_hdr.value_length = size;
@@ -4443,11 +4405,7 @@ static bool pcapng_write_if_filter_option(wtap_dumper *wdh, unsigned option_id, 
     }
 
     /* write padding (if any) */
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return false;
-    }
-    return true;
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 static bool pcapng_write_custom_string_option(wtap_dumper *wdh,
@@ -4457,10 +4415,8 @@ static bool pcapng_write_custom_string_option(wtap_dumper *wdh,
                                        int *err, char **err_info)
 {
     struct pcapng_option_header option_hdr;
-    size_t pad;
     size_t stringlen;
     size_t size;
-    const uint32_t zero_pad = 0;
     uint32_t pen;
 
     if (option_id == OPT_CUSTOM_STR_NO_COPY)
@@ -4518,25 +4474,14 @@ static bool pcapng_write_custom_string_option(wtap_dumper *wdh,
     if (!wtap_dump_file_write(wdh, &pen, sizeof(uint32_t), err))
         return false;
 
-        /* write custom data */
+    /* write custom data */
     if (!wtap_dump_file_write(wdh, optval->custom_stringval.string, stringlen, err)) {
-            return false;
-        }
-
-    /* write padding (if any) */
-    if (size % 4 != 0) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err)) {
-            return false;
-        }
+        return false;
     }
     ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
 
-    return true;
+    /* write padding (if any) */
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
@@ -4546,9 +4491,7 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
                                               int *err, char **err_info)
 {
     struct pcapng_option_header option_hdr;
-    size_t pad;
     size_t size;
-    const uint32_t zero_pad = 0;
     uint32_t pen;
 
     if (option_id == OPT_CUSTOM_BIN_NO_COPY)
@@ -4608,21 +4551,10 @@ static bool pcapng_write_custom_binary_option(wtap_dumper *wdh,
     if (!wtap_dump_file_write(wdh, optval->custom_binaryval.data.custom_data, optval->custom_binaryval.data.custom_data_len, err)) {
         return false;
     }
-
-    /* write padding (if any) */
-    if (size % 4 != 0) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err)) {
-            return false;
-        }
-    }
     ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
 
-    return true;
+    /* write padding (if any) */
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 static bool pcapng_write_packet_verdict_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
@@ -4631,8 +4563,6 @@ static bool pcapng_write_packet_verdict_option(wtap_dumper *wdh, unsigned option
     struct pcapng_option_header option_hdr;
     uint8_t type;
     size_t size;
-    const uint32_t zero_pad = 0;
-    uint32_t pad;
 
     size = pcapng_compute_packet_verdict_option_size(optval);
 
@@ -4698,12 +4628,7 @@ static bool pcapng_write_packet_verdict_option(wtap_dumper *wdh, unsigned option
     }
 
     /* write padding (if any) */
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return false;
-    }
-    return true;
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 static bool pcapng_write_packet_hash_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
@@ -4712,8 +4637,6 @@ static bool pcapng_write_packet_hash_option(wtap_dumper *wdh, unsigned option_id
     struct pcapng_option_header option_hdr;
     uint8_t type;
     size_t size;
-    const uint32_t zero_pad = 0;
-    uint32_t pad;
 
     size = pcapng_compute_packet_hash_option_size(optval);
 
@@ -4755,12 +4678,7 @@ static bool pcapng_write_packet_hash_option(wtap_dumper *wdh, unsigned option_id
         return false;
 
     /* write padding (if any) */
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return false;
-    }
-    return true;
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
 }
 
 static bool write_block_option(wtap_block_t block,
@@ -5062,7 +4980,6 @@ pcapng_write_simple_packet_block(wtap_dumper* wdh, const wtap_rec* rec,
     const union wtap_pseudo_header* pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     pcapng_block_header_t bh;
     pcapng_simple_packet_block_t spb;
-    const uint32_t zero_pad = 0;
     uint32_t pad_len;
     uint32_t phdr_len;
 
@@ -5073,12 +4990,7 @@ pcapng_write_simple_packet_block(wtap_dumper* wdh, const wtap_rec* rec,
     }
 
     phdr_len = (uint32_t)pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
-    if ((phdr_len + rec->rec_header.packet_header.caplen) % 4) {
-        pad_len = 4 - ((phdr_len + rec->rec_header.packet_header.caplen) % 4);
-    }
-    else {
-        pad_len = 0;
-    }
+    pad_len = WS_PADDING_TO_4(phdr_len + rec->rec_header.packet_header.caplen);
 
     /* write (simple) packet block header */
     bh.block_type = BLOCK_TYPE_SPB;
@@ -5103,10 +5015,8 @@ pcapng_write_simple_packet_block(wtap_dumper* wdh, const wtap_rec* rec,
         return false;
 
     /* write padding (if any) */
-    if (pad_len != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
-            return false;
-    }
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* write block footer */
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -5125,7 +5035,6 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     pcapng_enhanced_packet_block_t epb;
     uint32_t options_size = 0;
     uint64_t ts;
-    const uint32_t zero_pad = 0;
     uint32_t pad_len;
     uint32_t phdr_len;
     wtap_block_t int_data;
@@ -5138,11 +5047,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     }
 
     phdr_len = (uint32_t)pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
-    if ((phdr_len + rec->rec_header.packet_header.caplen) % 4) {
-        pad_len = 4 - ((phdr_len + rec->rec_header.packet_header.caplen) % 4);
-    } else {
-        pad_len = 0;
-    }
+    pad_len = WS_PADDING_TO_4(phdr_len + rec->rec_header.packet_header.caplen);
 
     if (rec->block != NULL) {
         /* Compute size of all the options */
@@ -5246,10 +5151,8 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
 
     /* write padding (if any) */
-    if (pad_len != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
-            return false;
-    }
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* Write options, if we have any */
     if (options_size != 0) {
@@ -5272,7 +5175,6 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
                                           int *err, char **err_info _U_)
 {
     pcapng_block_header_t bh;
-    const uint32_t zero_pad = 0;
     uint32_t pad_len;
 
     /* Don't write anything we're not willing to read. */
@@ -5281,11 +5183,7 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
     }
 
-    if (rec->rec_header.systemd_journal_export_header.record_len % 4) {
-        pad_len = 4 - (rec->rec_header.systemd_journal_export_header.record_len % 4);
-    } else {
-        pad_len = 0;
-    }
+    pad_len = WS_PADDING_TO_4(rec->rec_header.systemd_journal_export_header.record_len);
 
     /* write systemd journal export block header */
     bh.block_type = BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT;
@@ -5303,10 +5201,8 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
 
     /* write padding (if any) */
-    if (pad_len != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
-            return false;
-    }
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* write block footer */
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -5323,7 +5219,6 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
 {
     pcapng_block_header_t bh;
     pcapng_custom_block_t cb;
-    const uint32_t zero_pad = 0;
     uint32_t pad_len;
 
     /* Don't write anything we are not supposed to. */
@@ -5337,11 +5232,7 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
     }
 
-    if (rec->rec_header.custom_block_header.length % 4) {
-        pad_len = 4 - (rec->rec_header.custom_block_header.length % 4);
-    } else {
-        pad_len = 0;
-    }
+    pad_len = WS_PADDING_TO_4(rec->rec_header.custom_block_header.length);
 
     /* write block header */
     bh.block_type = BLOCK_TYPE_CB_COPY;
@@ -5366,11 +5257,8 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
     }
 
     /* write padding (if any) */
-    if (pad_len > 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err)) {
-            return false;
-        }
-    }
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* write block footer */
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -5387,7 +5275,9 @@ pcapng_write_decryption_secrets_block(wtap_dumper *wdh, wtap_block_t sdata, int 
     pcapng_block_header_t bh;
     pcapng_decryption_secrets_block_t dsb;
     wtapng_dsb_mandatory_t *mand_data = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(sdata);
-    unsigned pad_len = (4 - (mand_data->secrets_len & 3)) & 3;
+    uint32_t pad_len;
+
+    pad_len = WS_PADDING_TO_4(mand_data->secrets_len);
 
     /* write block header */
     bh.block_type = BLOCK_TYPE_DSB;
@@ -5405,11 +5295,10 @@ pcapng_write_decryption_secrets_block(wtap_dumper *wdh, wtap_block_t sdata, int 
 
     if (!wtap_dump_file_write(wdh, mand_data->secrets_data, mand_data->secrets_len, err))
         return false;
-    if (pad_len) {
-        const uint32_t zero_pad = 0;
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
-            return false;
-    }
+
+    /* write padding (if any) */
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* write block footer */
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -5424,7 +5313,9 @@ pcapng_write_meta_event_block(wtap_dumper *wdh, wtap_block_t mev_data, int *err)
 {
     pcapng_block_header_t bh;
     wtapng_meta_event_mandatory_t *mand_data = (wtapng_meta_event_mandatory_t *)wtap_block_get_mandatory_data(mev_data);
-    unsigned pad_len = (4 - (mand_data->mev_data_len & 3)) & 3;
+    uint32_t pad_len;
+
+    pad_len = WS_PADDING_TO_4(mand_data->mev_data_len);
 
     /* write block header */
     bh.block_type = mand_data->mev_block_type;
@@ -5438,11 +5329,9 @@ pcapng_write_meta_event_block(wtap_dumper *wdh, wtap_block_t mev_data, int *err)
     if (!wtap_dump_file_write(wdh, mand_data->mev_data, mand_data->mev_data_len, err))
         return false;
 
-    if (pad_len) {
-        const uint32_t zero_pad = 0;
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
-            return false;
-    }
+    /* write padding (if any) */
+    if (!pcapng_write_padding(wdh, pad_len, err))
+        return false;
 
     /* write block footer */
     if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -5529,13 +5418,8 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
         memcpy(*opt_ptrp, optval->stringval, size);
         *opt_ptrp += size;
 
-        if ((size % 4)) {
-            pad = 4 - (size % 4);
-        } else {
-            pad = 0;
-        }
-
         /* put padding (if any) */
+        pad = WS_PADDING_TO_4(size);
         if (pad != 0) {
             memset(*opt_ptrp, 0, pad);
             *opt_ptrp += pad;
@@ -5567,13 +5451,8 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
         memcpy(*opt_ptrp, optval->custom_stringval.string, size);
         *opt_ptrp += size;
 
-        if ((size % 4)) {
-            pad = 4 - (size % 4);
-        } else {
-            pad = 0;
-        }
-
         /* put padding (if any) */
+        pad = WS_PADDING_TO_4(size);
         if (pad != 0) {
             memset(*opt_ptrp, 0, pad);
             *opt_ptrp += pad;
@@ -5593,13 +5472,8 @@ put_nrb_option(wtap_block_t block _U_, unsigned option_id, wtap_opttype_e option
         memcpy(*opt_ptrp, optval->custom_binaryval.data.custom_data, optval->custom_binaryval.data.custom_data_len);
         *opt_ptrp += optval->custom_binaryval.data.custom_data_len;
 
-        if ((size % 4)) {
-            pad = 4 - (size % 4);
-        } else {
-            pad = 0;
-        }
-
         /* put padding (if any) */
+        pad = WS_PADDING_TO_4(size);
         if (pad != 0) {
             memset(*opt_ptrp, 0, pad);
             *opt_ptrp += pad;
