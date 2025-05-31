@@ -5206,8 +5206,9 @@ set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient
 
         wmem_map_t *channel_info = other_peer_data->channel_info;
         if (channel_info) {
-            uint32_t sender_channel;
-            if (wmem_map_lookup_extended(channel_info, GUINT_TO_POINTER(recipient_channel), NULL, (void**)&sender_channel)) {
+            void *sender_channel_p;
+            if (wmem_map_lookup_extended(channel_info, GUINT_TO_POINTER(recipient_channel), NULL, &sender_channel_p)) {
+                uint32_t sender_channel = GPOINTER_TO_UINT(sender_channel_p);
                 /* Yes. See the handle for the other side too. */
                 if (other_peer_data->channel_handles == NULL) {
                     other_peer_data->channel_handles = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
