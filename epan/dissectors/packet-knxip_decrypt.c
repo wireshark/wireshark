@@ -21,6 +21,9 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
 #include <wsutil/inet_addr.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
 
 #define TEXT_BUFFER_SIZE  128
 
@@ -531,6 +534,135 @@ static void make_created_hash( uint8_t created_hash[] _U_, const char* created _
   // TODO: created_hash = MSB128(SHA256(created))
 }
 
+static void read_knx_keyring_xml_backbone_element(xmlNodePtr backbone, uint8_t password_hash[], uint8_t created_hash[], FILE* f2)
+{
+  bool address_valid = false;
+  uint8_t multicast_address[IPA_SIZE] = { 0 };
+
+  /* Parse out the attributes of the Backbone element */
+  for (xmlAttrPtr attr = backbone->properties; attr; attr = attr->next)
+  {
+    if (xmlStrcmp(attr->name, (const xmlChar*)"MulticastAddress") == 0)
+    {
+      xmlChar* str_address = xmlNodeListGetString(backbone->doc, attr->children, 1);
+      if (str_address != NULL)
+      {
+        read_ip_addr(multicast_address, str_address);
+        address_valid = true;
+        xmlFree(str_address);
+      }
+    }
+    else if (xmlStrcmp(attr->name, (const xmlChar*)"Key") == 0)
+    {
+      if (address_valid)
+      {
+        xmlChar* str_key = xmlNodeListGetString(backbone->doc, attr->children, 1);
+        if (str_key != NULL)
+        {
+          add_mca_key(multicast_address, str_key, password_hash, created_hash, f2);
+          xmlFree(str_key);
+        }
+      }
+    }
+  }
+
+}
+
+static void read_knx_keyring_xml_group_element(xmlNodePtr group, uint8_t password_hash[], uint8_t created_hash[], FILE* f2)
+{
+  bool address_valid = false;
+  uint16_t addr = 0;
+
+  /* Parse out the attributes of the Group element */
+  for (xmlAttrPtr attr = group->properties; attr; attr = attr->next)
+  {
+      if (xmlStrcmp(attr->name, (const xmlChar*)"Address") == 0)
+      {
+        xmlChar* str_address = xmlNodeListGetString(group->doc, attr->children, 1);
+        if (str_address != NULL)
+        {
+          addr = read_ga(str_address);
+          address_valid = true;
+          xmlFree(str_address);
+        }
+      }
+      else if (xmlStrcmp(attr->name, (const xmlChar*)"Key") == 0)
+      {
+        if (address_valid)
+        {
+          xmlChar* str_key = xmlNodeListGetString(group->doc, attr->children, 1);
+          add_ga_key(addr, str_key, password_hash, created_hash, f2);
+          xmlFree(str_key);
+          }
+        }
+        else if (xmlStrcmp(attr->name, (const xmlChar*)"Senders") == 0)
+        {
+          if (address_valid)
+          {
+            xmlChar* str_senders = xmlNodeListGetString(group->doc, attr->children, 1);
+            if (str_senders != NULL)
+            {
+              // Add senders given by space separated list of KNX IAs
+              static const char delim[] = " ,";
+              const char* token = strtok(str_senders, delim);
+              while (token)
+              {
+                add_ga_sender(addr, token, f2);
+                token = strtok(NULL, delim);
+              }
+              xmlFree(str_senders);
+          }
+        }
+      }
+    }
+
+}
+
+static void read_knx_keyring_xml_device_element(xmlNodePtr device, uint8_t password_hash[], uint8_t created_hash[], FILE* f2)
+{
+  bool address_valid = false;
+  uint16_t addr = 0;
+
+  /* Parse out the attributes of the Device element */
+  for (xmlAttrPtr attr = device->properties; attr; attr = attr->next)
+  {
+    if (xmlStrcmp(attr->name, (const xmlChar*)"IndividualAddress") == 0)
+    {
+      xmlChar* str_address = xmlNodeListGetString(device->doc, attr->children, 1);
+      if (str_address != NULL)
+      {
+        addr = read_ia(str_address);
+        address_valid = true;
+        xmlFree(str_address);
+      }
+    }
+    else if (xmlStrcmp(attr->name, (const xmlChar*)"ToolKey") == 0)
+    {
+      if (address_valid)
+      {
+        xmlChar* str_key = xmlNodeListGetString(device->doc, attr->children, 1);
+        if (str_key != NULL)
+        {
+          add_ia_key(addr, str_key, password_hash, created_hash, f2);
+          xmlFree(str_key);
+        }
+      }
+    }
+    else if (xmlStrcmp(attr->name, (const xmlChar*)"SequenceNumber") == 0)
+    {
+      if (address_valid)
+      {
+        xmlChar* str_seq = xmlNodeListGetString(device->doc, attr->children, 1);
+        if (str_seq != NULL)
+        {
+          add_ia_seq(addr, str_seq, f2);
+          xmlFree(str_seq);
+        }
+      }
+    }
+  }
+}
+
 // Read KNX security key info from keyring XML file.
 //
 // An example keyring XML file is
@@ -539,265 +671,112 @@ static void make_created_hash( uint8_t created_hash[] _U_, const char* created _
 // Corresponding test is
 //   suite_decryption.case_decrypt_knxip.test_knxip_keyring_xml_import
 //
-// We do not use LibXml2 here, because
-// (1) we want to be platform independent,
-// (2) we just want to extract some data from the keyring XML file,
-// (3) we want to avoid the complicated recursive DOM processing implied by LibXml2.
-//
 // Resulting decoded and decrypted 16-byte keys with context info are optionally written to a "key info" text file.
 // This may be useful, as these keys are not directly available from the keyring XML file .
-void read_knx_keyring_xml_file( const char* key_file, const char* password, const char* key_info_file )
+void read_knx_keyring_xml_file(const char* key_file, const char* password, const char* key_info_file)
 {
+  xmlDocPtr doc;
+  xmlNodePtr root_element = NULL;
+  xmlNodePtr key_ring = NULL;
+  uint8_t password_hash[KNX_KEY_LENGTH] = { 0 };
+  uint8_t created_hash[KNX_KEY_LENGTH] = {0};
+
   // Clear old keyring data
   clear_keyring_data();
 
-  // Read new data from keyring XML file
-  FILE* f = ws_fopen( key_file, "r" );
+  doc = xmlReadFile(key_file, NULL, 0);
+  if (doc == NULL)
+    return;
+
+  root_element = xmlDocGetRootElement(doc);
+  if (root_element == NULL)
+  {
+    xmlFreeDoc(doc);
+    return;
+  }
+
+  /* Find the Keyring element */
+  if (xmlStrcmp(root_element->name, (const xmlChar*)"Keyring") == 0)
+  {
+    key_ring = root_element;
+  }
+  else
+  {
+    for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next)
+    {
+      if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"Keyring") == 0)
+      {
+        key_ring = cur;
+        break;
+      }
+    }
+  }
+
+  if (key_ring == NULL)
+    return;
 
   // Optionally write extracted data to key info file
   FILE* f2 = (!key_info_file || !*key_info_file) ? NULL :
     (strcmp( key_info_file, "-" ) == 0) ? stdout :
     ws_fopen( key_info_file, "w" );
 
-  if( f )
+  make_password_hash(password_hash, password);
+
+  /* Parse out the attributes of the Keyring element */
+  for (xmlAttrPtr attr = key_ring->properties; attr; attr = attr->next)
   {
-    uint8_t backbone_mca[ IPA_SIZE ];
-    uint8_t backbone_mca_valid = 0;
-    uint16_t group_ga = 0;
-    uint8_t group_ga_valid = 0;
-    uint16_t device_ia = 0;
-    uint8_t device_ia_valid = 0;
-    char name[ TEXT_BUFFER_SIZE ];
-    char value[ TEXT_BUFFER_SIZE ];
-    uint8_t password_hash[ KNX_KEY_LENGTH ];
-    uint8_t created_hash[ KNX_KEY_LENGTH ];
-    char tag_name[ TEXT_BUFFER_SIZE ];
-    uint8_t tag_name_done = 0;
-    uint8_t tag_end = 0;
-    uint8_t in_tag = 0;
-
-    memset( backbone_mca, 0, IPA_SIZE );
-    *name = '\0';
-    *value = '\0';
-    memset( password_hash, 0, KNX_KEY_LENGTH );
-    memset( created_hash, 0, KNX_KEY_LENGTH );
-    *tag_name = '\0';
-
-    make_password_hash( password_hash, password );
-
-    ws_debug( "%s:", key_file );
-
-    int c = fgetc( f );
-
-    while( c >= 0 )
+    if (xmlStrcmp(attr->name, (const xmlChar*)"Created") == 0)
     {
-      if( c == '<' )  // tag start
-      {
-        in_tag = 1;
-        tag_end = 0;
-        *tag_name = 0;
-        tag_name_done = 0;
-        *name = '\0';
-        *value = '\0';
-      }
-      else if( c == '>' )  // tag end
-      {
-        in_tag = 0;
-      }
-      else if( c == '/' )
-      {
-        if( in_tag )  // "</" or "/>"
-        {
-          tag_end = 1;
-          *tag_name = 0;
-          tag_name_done = 0;
-          *name = '\0';
-          *value = '\0';
-        }
-      }
-      else if( g_ascii_isalpha( c ) || c == '_' )  // possibly tag name, or attribute name
-      {
-        size_t length = 0;
-        name[ length++ ] = (char) c;
-        while( (c = fgetc( f )) >= 0 )
-        {
-          if( g_ascii_isalnum( c ) || c == '_' )
-          {
-            if( length < sizeof name - 1 )
-            {
-              name[ length++ ] = (char) c;
-            }
-          }
-          else
-          {
-            break;
-          }
-        }
-        name[ length ] = '\0';
-        *value = '\0';
-
-        if( !tag_name_done )  // tag name
-        {
-          snprintf( tag_name, sizeof tag_name, "%s", name );
-          *name = '\0';
-          tag_name_done = 1;
-        }
-        else  // Check for name="value" construct
-        {
-          while( c >= 0 && g_ascii_isspace( c ) ) c = fgetc( f );
-
-          if( c == '=' )
-          {
-            while( (c = fgetc( f )) >= 0 && g_ascii_isspace( c ) );
-
-            if( c == '"' )
-            {
-              length = 0;
-
-              while( (c = fgetc( f )) >= 0 )
-              {
-                if( c == '"' )
-                {
-                  c = fgetc( f );
-                  if( c != '"' )
-                  {
-                    break;
-                  }
-                }
-                if( length < sizeof value - 1 )
-                {
-                  value[ length++ ] = (char) c;
-                }
-              }
-
-              value[ length ] = 0;
-
-              if( !tag_end )
-              {
-                // Found name="value" construct between < and >
-                ws_debug( "%s %s=%s", tag_name, name, value );
-
-                // Process name/value pair
-                if( strcmp( tag_name, "Keyring" ) == 0 )
-                {
-                  if( strcmp( name, "Created" ) == 0 )
-                  {
-                    make_created_hash( created_hash, value );
-                  }
-                }
-                else if( strcmp( tag_name, "Backbone" ) == 0 )
-                {
-                  group_ga_valid = 0;
-                  device_ia_valid = 0;
-
-                  if( strcmp( name, "MulticastAddress" ) == 0 )
-                  {
-                    read_ip_addr( backbone_mca, value );
-                    backbone_mca_valid = 1;
-                  }
-                  else if( strcmp( name, "Key" ) == 0 )
-                  {
-                    if( backbone_mca_valid )
-                    {
-                      add_mca_key( backbone_mca, value, password_hash, created_hash, f2 );
-                    }
-                  }
-                }
-                else if( strcmp( tag_name, "Group" ) == 0 )
-                {
-                  backbone_mca_valid = 0;
-                  device_ia_valid = 0;
-
-                  if( strcmp( name, "Address" ) == 0 )
-                  {
-                    group_ga = read_ga( value );
-                    group_ga_valid = 1;
-                  }
-                  else if( strcmp( name, "Key" ) == 0 )
-                  {
-                    if( group_ga_valid )
-                    {
-                      add_ga_key( group_ga, value, password_hash, created_hash, f2 );
-                    }
-                  }
-                  else if( strcmp( name, "Senders" ) == 0 )
-                  {
-                    if( group_ga_valid )
-                    {
-                      // Add senders given by space separated list of KNX IAs
-                      static const char delim[] = " ,";
-                      const char* token = strtok( value, delim );
-                      while( token )
-                      {
-                        add_ga_sender( group_ga, token, f2 );
-                        token = strtok( NULL, delim );
-                      }
-                    }
-                  }
-                }
-                else if( strcmp( tag_name, "Device" ) == 0 )
-                {
-                  backbone_mca_valid = 0;
-                  group_ga_valid = 0;
-
-                  if( strcmp( name, "IndividualAddress" ) == 0 )
-                  {
-                    device_ia = read_ia( value );
-                    device_ia_valid = 1;
-                  }
-                  else if( strcmp( name, "ToolKey" ) == 0 )
-                  {
-                    if( device_ia_valid )
-                    {
-                      add_ia_key( device_ia, value, password_hash, created_hash, f2 );
-                    }
-                  }
-                  else if( strcmp( name, "SequenceNumber" ) == 0 )
-                  {
-                    if( device_ia_valid )
-                    {
-                      add_ia_seq( device_ia, value, f2 );
-                    }
-                  }
-                }
-                else
-                {
-                  backbone_mca_valid = 0;
-                  group_ga_valid = 0;
-                  device_ia_valid = 0;
-                }
-              }
-            }
-          }
-        }
-
-        if( c < 0 )  // EOF
-        {
-          break;
-        }
-
-        continue;
-      }
-      else
-      {
-        if( !g_ascii_isspace( c ) )
-        {
-          tag_name_done = 1;
-          *name = '\0';
-          *value = '\0';
-        }
-      }
-
-      c = fgetc( f );
+      xmlChar* str_created = xmlNodeListGetString(key_ring->doc, attr->children, 1);
+      if (str_created != NULL)
+       {
+         make_created_hash(created_hash, str_created);
+         xmlFree(str_created);
+       }
     }
-
-    fclose( f );
   }
 
-  if( f2 && f2 != stdout )
+  /* Parse out subelements of Keyring element */
+  for (xmlNodePtr cur = key_ring->children; cur != NULL; cur = cur->next)
   {
-    fclose( f2 );
+    if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"Backbone") == 0)
+    {
+      read_knx_keyring_xml_backbone_element(cur, password_hash, created_hash, f2);
+    }
+    else if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"Interface") == 0)
+    {
+      for (xmlNodePtr group = cur->children; group != NULL; group = group->next)
+      {
+        if (group->type == XML_ELEMENT_NODE && xmlStrcmp(group->name, (const xmlChar*)"Group") == 0)
+        {
+          read_knx_keyring_xml_group_element(group, password_hash, created_hash, f2);
+        }
+      }
+    }
+    else if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"GroupAddresses") == 0)
+    {
+      for (xmlNodePtr group = cur->children; group != NULL; group = group->next)
+      {
+        if (group->type == XML_ELEMENT_NODE && xmlStrcmp(group->name, (const xmlChar*)"Group") == 0)
+        {
+          read_knx_keyring_xml_group_element(group, password_hash, created_hash, f2);
+        }
+      }
+    }
+    else if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"Devices") == 0)
+    {
+      for (xmlNodePtr device = cur->children; device != NULL; device = device->next)
+      {
+        if (device->type == XML_ELEMENT_NODE && xmlStrcmp(device->name, (const xmlChar*)"Device") == 0)
+        {
+          read_knx_keyring_xml_device_element(device, password_hash, created_hash, f2);
+        }
+      }
+    }
   }
+
+  if (f2 && f2 != stdout)
+    fclose(f2);
 }
 
 /*

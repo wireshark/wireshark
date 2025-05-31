@@ -4104,7 +4104,7 @@ void proto_reg_handoff_knxip( void )
 
   /* Evaluate preferences
   */
-  if( pref_key_file_name )
+  if ((pref_key_file_name != NULL) && (pref_key_file_name[0] != '\0'))
   {
     /* Read Keyring.XML file (containing decryption keys, exported from ETS) */
     read_knx_keyring_xml_file( pref_key_file_name, pref_key_file_pwd, pref_key_info_file_name );
