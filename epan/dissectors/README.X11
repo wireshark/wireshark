@@ -9,9 +9,17 @@ epan/dissectors directory, run the following commands:
   git clone https://gitlab.freedesktop.org/xorg/proto/xcbproto.git
   git clone https://gitlab.freedesktop.org/mesa/mesa.git
 
-This generates code that gets errors at run time when done with the tip
-of the main branch of the Mesa repository, for reasons as yet
-undetermined; it works with the 24.3-branchpoint tag.
+You should probably check out a release-tag version of both
+repositories.  The current tip of the main branch for xcbproto has what
+might be an error in the XML file for the Sync extension:
+
+https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/issues/26
+
+so the xcb-proto-1.17.0 tag should be checked out.
+
+The current tip of the main branch of the Mesa repository causes the
+scripts to generate code that gets errors at run time, for reasons as
+yet undetermined; it works with the 24.3-branchpoint tag.
 
 Please be aware that the Mesa repository is rather large. As of this writing,
 the full git history is 587MiB and the source itself is roughly 250MiB. The
