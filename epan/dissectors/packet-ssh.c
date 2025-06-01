@@ -2536,9 +2536,9 @@ ssh_keylog_process_line(const char *line)
     uint8_t c;
     for (size_t i = 0; i < key_len/2; i ++) {
         char v0 = key[i * 2];
-        int8_t h0 = (v0>='0' && v0<='9')?v0-'0':(v0>='a' && v0<='f')?v0-'a'+10:(v0>='A' && v0<='F')?v0-'A'+10:-1;
+        int8_t h0 = ws_xton(v0);
         char v1 = key[i * 2 + 1];
-        int8_t h1 = (v1>='0' && v1<='9')?v1-'0':(v1>='a' && v1<='f')?v1-'a'+10:(v1>='A' && v1<='F')?v1-'A'+10:-1;
+        int8_t h1 = ws_xton(v1);
 
         if (h0==-1 || h1==-1) {
             ws_debug("ssh: can't process key, invalid hex number: %c%c", v0, v1);
@@ -2552,9 +2552,9 @@ ssh_keylog_process_line(const char *line)
     }
     for (size_t i = 0; i < cookie_len/2; i ++) {
         char v0 = cookie[i * 2];
-        int8_t h0 = (v0>='0' && v0<='9')?v0-'0':(v0>='a' && v0<='f')?v0-'a'+10:(v0>='A' && v0<='F')?v0-'A'+10:-1;
+        int8_t h0 = ws_xton(v0);
         char v1 = cookie[i * 2 + 1];
-        int8_t h1 = (v1>='0' && v1<='9')?v1-'0':(v1>='a' && v1<='f')?v1-'a'+10:(v1>='A' && v1<='F')?v1-'A'+10:-1;
+        int8_t h1 = ws_xton(v1);
 
         if (h0==-1 || h1==-1) {
             ws_debug("ssh: can't process cookie, invalid hex number: %c%c", v0, v1);
