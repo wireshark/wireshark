@@ -1174,6 +1174,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
                      struct ssh_flow_data *global_data)
 {
     proto_tree *tree = NULL;
+    proto_item *ti;
     int last_offset;
     int remaining_len;
     unsigned key_len, type_len;
@@ -1194,7 +1195,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, key_len + 4, ett_idx, NULL,
                                   tree_title);
 
-    proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
+    ti = proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
 
     // server host key (K_S / Q)
     char *data = (char *)tvb_memdup(wmem_packet_scope(), tvb, last_offset + 4, key_len);
@@ -1209,25 +1210,29 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
     if (0 == strcmp(key_type, "ssh-rsa")) {
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_e);
-        ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_n);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_rsa_n);
     } else if (0 == strcmp(key_type, "ssh-dss")) {
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_p);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_q);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_g);
-        ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_y);
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostkey_dsa_y);
     } else if (g_str_has_prefix(key_type, "ecdsa-sha2-")) {
         offset += ssh_tree_add_string(tvb, offset, tree,
                                       hf_ssh_hostkey_ecdsa_curve_id, hf_ssh_hostkey_ecdsa_curve_id_length);
-        ssh_tree_add_string(tvb, offset, tree,
+        offset += ssh_tree_add_string(tvb, offset, tree,
                             hf_ssh_hostkey_ecdsa_q, hf_ssh_hostkey_ecdsa_q_length);
     } else if (g_str_has_prefix(key_type, "ssh-ed")) {
-        ssh_tree_add_string(tvb, offset, tree,
+        offset += ssh_tree_add_string(tvb, offset, tree,
                             hf_ssh_hostkey_eddsa_key, hf_ssh_hostkey_eddsa_key_length);
     } else {
         remaining_len = key_len - (type_len + 4);
         proto_tree_add_item(tree, hf_ssh_hostkey_data, tvb, offset, remaining_len, ENC_NA);
+        offset += remaining_len;
     }
 
+    if (last_offset + (int)key_len != offset) {
+        expert_add_info_format(/*pinfo*/NULL, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but hostkey length is %d bytes", offset - last_offset, key_len);
+    }
     return 4+key_len;
 }
 
@@ -5264,17 +5269,12 @@ ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += slen;
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                if (0 == strcmp(request_name, "hostkeys-00@openssh.com")) {
-                    unsigned   alen;
-                    proto_item *ti;
-                    int dissected_len = 0;
-                    ti = proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_global_request_hostkeys_array_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &alen);
-                    offset += 4;
-                    dissected_len = ssh_dissect_public_key_blob(tvb_new_subset_length(packet_tvb, offset, alen), pinfo, msg_type_tree);
-                    if(dissected_len!=(int)alen){
-                        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, alen);
+                if (0 == strcmp(request_name, "hostkeys-00@openssh.com") ||
+                    0 == strcmp(request_name, "hostkeys-prove-00@openssh.com")) {
+                    while (tvb_reported_length_remaining(packet_tvb, offset)) {
+                        offset += ssh_tree_add_hostkey(packet_tvb, offset, msg_type_tree,
+                                "Server host key", ett_key_exchange_host_key, NULL);
                     }
-                    offset += alen;
                 }
         }
         return offset;
