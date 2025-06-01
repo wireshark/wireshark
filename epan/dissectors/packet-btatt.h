@@ -15,6 +15,7 @@
 
 #include <epan/expert.h>
 #include "packet-bluetooth.h"
+#include "packet-btl2cap.h"
 
 #define ATT_OPCODE_ERROR_RESPONSE               0x01
 #define ATT_OPCODE_EXCHANGE_MTU_REQUEST         0x02
@@ -49,7 +50,7 @@
 #define ATT_OPCODE_HANDLE_VALUE_CONFIRMATION    0x1E
 
 typedef struct _btatt_data_t {
-    bluetooth_data_t  *bluetooth_data;
+    btl2cap_data_t  *l2cap_data;
     uint8_t   opcode;
     /* ATT handle for currently processed packet (optional) */
     uint32_t  handle;
@@ -86,7 +87,7 @@ extern const value_string characteristic_presentation_namespace_description_btsi
 
 bluetooth_uuid_t
 get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode,
-    bluetooth_data_t *bluetooth_data);
+    btl2cap_data_t *l2cap_data);
 
 WS_DLL_PUBLIC bool bluetooth_gatt_has_no_parameter(uint8_t opcode);
 WS_DLL_PUBLIC expert_field ei_btatt_invalid_usage;
