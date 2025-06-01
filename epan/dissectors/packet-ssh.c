@@ -42,6 +42,7 @@
 // Define this to get hex dumps more similar to what you get in openssh. If not defined, dumps look more like what you get with other dissectors.
 #define OPENSSH_STYLE
 
+#include <jtckdint.h>
 #include <errno.h>
 
 #include <epan/packet.h>
@@ -466,6 +467,7 @@ static int ett_ssh_pqhybrid_client;
 static int ett_ssh_pqhybrid_server;
 
 static expert_field ei_ssh_packet_length;
+static expert_field ei_ssh_padding_length;
 static expert_field ei_ssh_packet_decode;
 static expert_field ei_ssh_channel_number;
 static expert_field ei_ssh_invalid_keylen;
@@ -4041,6 +4043,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 {
     int offset = 0;      // TODO:
     int dissected_len = 0;
+    tvbuff_t* payload_tvb;
 
     char* plaintext = message->plain_data;
     unsigned plaintext_len = message->data_len;
@@ -4050,13 +4053,12 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     tvbuff_t *packet_tvb = tvb_new_child_real_data(tvb, plaintext, plaintext_len, plaintext_len);
     add_new_data_source(pinfo, packet_tvb, "Decrypted Packet");
 
-    unsigned   plen, len;
-    uint8_t padding_length;
+    unsigned   plen;
+    uint32_t   padding_length;
     unsigned   remain_length;
-    int     last_offset=offset;
     unsigned   msg_code;
 
-    proto_item *ti;
+    proto_item *ti, *padding_ti;
     proto_item *msg_type_tree = NULL;
 
     /*
@@ -4088,10 +4090,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
             return offset;
         }
     }
-    plen = tvb_get_ntohl(packet_tvb, offset) ;
+    /* XXX - Defragmentation needs to be done in ssh_decrypt_packet, and the
+     * checks there should mean that the above never has an effect. (It's
+     * copied from ssh_dissect_key_exchange.)
+     */
+    plen = tvb_get_ntohl(packet_tvb, offset);
 
     if (ssh_desegment && pinfo->can_desegment) {
-        if (plen +4 >  remain_length) {
+        if (plen + 4 > remain_length) {
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = plen+4 - remain_length;
             return offset;
@@ -4103,19 +4109,34 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     ti = proto_tree_add_uint(tree, hf_ssh_packet_length, packet_tvb,
                     offset, 4, plen);
-    if (plen >= 0xffff) {
+    if (plen < 12) {
+        /* plen MUST be at least 12 (minimum packet size is 16, and plen does
+         * not include the packet_length field itself.)
+         */
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_length, "Packet length is %d, MUST be at least 12", plen);
+    } else if (plen >= 0xffff) {
         expert_add_info_format(pinfo, ti, &ei_ssh_packet_length, "Overly large number %d", plen);
         plen = remain_length-4;
     }
     offset+=4;
 
     /* padding length */
-    padding_length = tvb_get_uint8(packet_tvb, offset);
-    proto_tree_add_uint(tree, hf_ssh_padding_length, packet_tvb, offset, 1, padding_length);
+    padding_ti = proto_tree_add_item_ret_uint(tree, hf_ssh_padding_length, packet_tvb, offset, 1, ENC_NA, &padding_length);
+    /* RFC 4253 6: "There MUST be at least four bytes of padding." */
+    if (padding_length < 4) {
+        expert_add_info_format(pinfo, padding_ti, &ei_ssh_padding_length, "Padding length is %d, MUST be at least 4", padding_length);
+    }
+    unsigned payload_length;
+    if (ckd_sub(&payload_length, plen, padding_length + 1)) {
+        expert_add_info_format(pinfo, padding_ti, &ei_ssh_padding_length, "Padding length is too large [%d], implies a negative payload length", padding_length);
+        payload_length = 0;
+    }
     offset += 1;
 
     /* msg_code */
     msg_code = tvb_get_uint8(packet_tvb, offset);
+    /* XXX - Payload compression could have been negotiated */
+    payload_tvb = tvb_new_subset_length(packet_tvb, offset, (int)payload_length);
 
     /* Transport layer protocol */
     /* Generic (1-19) */
@@ -4123,18 +4144,19 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (generic)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        dissected_len = ssh_dissect_transport_generic(packet_tvb, pinfo, offset+1, peer_data, msg_type_tree, msg_code) - offset;
-        // offset = ssh_dissect_transport_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+        dissected_len = ssh_dissect_transport_generic(payload_tvb, pinfo, 1, peer_data, msg_type_tree, msg_code);
     }
     /* Algorithm negotiation (20-29) */
+    /* Normally these messages are all dissected in ssh_dissect_key_exchange */
     else if(msg_code >=20 && msg_code <= 29) {
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (algorithm negotiation)");
-//TODO: See if the complete dissector should be refactored to always got through here first        offset = ssh_dissect_transport_algorithm_negotiation(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+//TODO: See if the complete dissector should be refactored to always go through here first        offset = ssh_dissect_transport_algorithm_negotiation(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
     }
     /* Key exchange method specific (reusable) (30-49) */
+    /* Normally these messages are all dissected in ssh_dissect_key_exchange */
     else if (msg_code >=30 && msg_code <= 49) {
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (key exchange method specific)");
-//TODO: See if the complete dissector should be refactored to always got through here first                offset = global_data->kex_specific_dissector(msg_code, packet_tvb, pinfo, offset, msg_type_tree);
+//TODO: See if the complete dissector should be refactored to always go through here first                offset = global_data->kex_specific_dissector(msg_code, packet_tvb, pinfo, offset, msg_type_tree);
     }
 
     /* User authentication protocol */
@@ -4143,16 +4165,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: User Authentication (generic)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        dissected_len = ssh_dissect_userauth_generic(packet_tvb, pinfo, offset+1, msg_type_tree, msg_code) - offset;
-        // TODO: offset = ssh_dissect_userauth_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+        dissected_len = ssh_dissect_userauth_generic(payload_tvb, pinfo, 1, msg_type_tree, msg_code);
     }
     /* User authentication method specific (reusable) (60-79) */
     else if (msg_code >= 60 && msg_code <= 79) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: User Authentication: (method specific)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        // TODO: offset = ssh_dissect_userauth_specific(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        dissected_len = ssh_dissect_userauth_specific(packet_tvb, pinfo, offset+1, msg_type_tree, msg_code) - offset;
+        dissected_len = ssh_dissect_userauth_specific(payload_tvb, pinfo, 1, msg_type_tree, msg_code);
     }
 
     /* Connection protocol */
@@ -4161,16 +4181,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection (generic)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        // TODO: offset = ssh_dissect_connection_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        dissected_len = ssh_dissect_connection_generic(packet_tvb, pinfo, offset+1, msg_type_tree, msg_code) - offset;
+        dissected_len = ssh_dissect_connection_generic(payload_tvb, pinfo, 1, msg_type_tree, msg_code);
     }
     /* Channel related messages (90-127) */
     else if (msg_code >= 90 && msg_code <= 127) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection: (channel related message)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        // TODO: offset = ssh_dissect_connection_channel(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        dissected_len = ssh_dissect_connection_specific(packet_tvb, pinfo, peer_data, offset+1, msg_type_tree, msg_code, message) - offset;
+        dissected_len = ssh_dissect_connection_specific(payload_tvb, pinfo, peer_data, 1, msg_type_tree, msg_code, message);
     }
 
     /* Reserved for client protocols (128-191) */
@@ -4179,28 +4197,29 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Client protocol");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset+=1;
-        // TODO: offset = ssh_dissect_client(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+        // TODO: dissected_len = ssh_dissect_client(payload_tvb, pinfo, global_data, 1, msg_type_tree, is_response, msg_code);
     }
 
     /* Local extensions (192-255) */
     else if (msg_code >= 192 && msg_code <= 255) {
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Local extension");
-        dissected_len = ssh_dissect_local_extension(packet_tvb, pinfo, offset, peer_data, msg_type_tree, msg_code) - offset;
+        dissected_len = ssh_dissect_local_extension(payload_tvb, pinfo, 0, peer_data, msg_type_tree, msg_code) - offset;
     }
 
-    len = plen+4-padding_length-(offset-last_offset);
-    if (len > 0) {
-        proto_tree_add_item(msg_type_tree, hf_ssh_payload, packet_tvb, offset, len, ENC_NA);
+    /* XXX - ssh_dissect_key_exchange only adds undecoded payload here,
+     * i.e., tvb_reported_length_remaining(payload_tvb, dissected_len)
+     */
+    if (payload_length > 0) {
+        proto_tree_add_item(msg_type_tree, hf_ssh_payload, packet_tvb, offset, payload_length, ENC_NA);
     }
-    if(dissected_len!=(int)len){
-//        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, len);
-        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes [%d]", dissected_len, len, msg_code);
+    if(dissected_len!=(int)payload_length){
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but payload length is %d bytes [%d]", dissected_len, payload_length, msg_code);
     }
-    offset +=len;
+    offset += payload_length;
 
     /* padding */
     proto_tree_add_item(tree, hf_ssh_padding_string, packet_tvb, offset, padding_length, ENC_NA);
-    offset+= padding_length;
+    offset += padding_length;
 
     if (peer_data->mac_length) {
         ssh_tree_add_mac(tree, tvb, offset, peer_data->mac_length, hf_ssh_mac_string, hf_ssh_mac_status, &ei_ssh_mac_bad, pinfo, message->calc_mac,
@@ -6484,7 +6503,8 @@ proto_register_ssh(void)
 
     static ei_register_info ei[] = {
         { &ei_ssh_packet_length,  { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
-        { &ei_ssh_packet_decode,  { "ssh.packet_decode.error", PI_PROTOCOL, PI_WARN, "Packet decoded length not equal to packet length", EXPFILL }},
+        { &ei_ssh_padding_length,  { "ssh.padding_length.error", PI_PROTOCOL, PI_WARN, "Invalid padding length", EXPFILL }},
+        { &ei_ssh_packet_decode,  { "ssh.packet_decode.error", PI_UNDECODED, PI_WARN, "Packet decoded length not equal to packet length", EXPFILL }},
         { &ei_ssh_channel_number, { "ssh.channel_number.error", PI_PROTOCOL, PI_WARN, "Coud not find channel", EXPFILL }},
         { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }},
         { &ei_ssh_mac_bad,        { "ssh.mac_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad MAC", EXPFILL }},
