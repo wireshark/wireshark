@@ -31,6 +31,9 @@
 #include "wsutil/str_util.h"
 #include <wsutil/inet_addr.h>
 #include <wsutil/ws_assert.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
 #include <glib.h>
 
 /* String constants sought in the XML data.
@@ -46,17 +49,6 @@ static const unsigned char c_threegpp_doc_no[] = "32.423";
 static const unsigned char c_begin_time[] = "<traceCollec beginTime=\"";
 static const unsigned char c_s_msg[] = "<msg";
 static const unsigned char c_e_msg[] = "</msg>";
-static const unsigned char c_s_rawmsg[] = "<rawMsg";
-static const unsigned char c_change_time[] = "changeTime=\"";
-static const unsigned char c_function[] = "function=\"";
-static const unsigned char c_proto_name[] = "name=\"";
-//static const unsigned char c_address[] = "ddress"; /* omit the 'a' to cater for "Address" */
-static const unsigned char c_s_initiator[] = "<initiator";
-static const unsigned char c_e_initiator[] = "</initiator>";
-static const unsigned char c_s_target[] = "<target";
-static const unsigned char c_e_target[] = "</target>";
-static const unsigned char c_protocol[] = "protocol=\"";
-static const unsigned char c_empty_element[] = "/>";
 
 /* These are protocol names we may put in the exported-pdu data based on
  * what's in the XML. They're defined here as constants so we can use
@@ -120,14 +112,13 @@ void register_nettrace_3gpp_32_423(void);
 /* Parse a string IPv4 or IPv6 address into bytes for exported_pdu_info.
  * Also parses the port pairs and transport layer type.
  */
-static char*
-nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exported_pdu_info_t *exported_pdu_info)
+static void
+nettrace_parse_address(char* curr_pos, bool is_src_addr, exported_pdu_info_t *exported_pdu_info)
 {
 	unsigned port=0;
 	ws_in6_addr ip6_addr;
 	uint32_t ip4_addr;
 	char *err; //for strtol function
-	char saved_next_char;
 
 	GMatchInfo *match_info;
 	static GRegex *regex = NULL;
@@ -155,10 +146,6 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 	 }
 
 	/* curr_pos pointing to first char of "address" */
-	/* Ensure we don't overrun the intended input.  The input will always
-	 * be a mutable buffer, so modifying it is safe. */
-	saved_next_char = *next_pos;
-	*next_pos = '\0'; /* Insert a NUL terminator. */
 	g_regex_match (regex, curr_pos, 0, &match_info);
 
 	if (g_match_info_matches (match_info)) {
@@ -171,13 +158,10 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 		matched_transport = g_match_info_fetch_named(match_info, "transport"); //will be empty string if transport not in trace
 	} else {
 		g_match_info_free(match_info);
-		*next_pos = saved_next_char;
-		return next_pos;
+		return;
 	}
 
 	g_match_info_free(match_info);
-	*next_pos = saved_next_char;
-
 	if (ws_inet_pton6(matched_ipaddress, &ip6_addr)) {
 		if (is_src_addr) {
 			exported_pdu_info->presence_flags |= EXP_PDU_TAG_IP6_SRC_BIT;
@@ -223,45 +207,52 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 	}
 	g_free(matched_ipaddress);
 	g_free(matched_transport);
-	return next_pos;
 }
-
 
 /* Parse a <msg ...><rawMsg ...>XXXX</rawMsg></msg> into packet data. */
 static bool
-nettrace_msg_to_packet(wtap *wth, wtap_rec *rec, uint8_t *input, size_t len, int *err, char **err_info)
+nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int* err, char** err_info)
 {
-/* Convenience macro. haystack must be >= input! */
-#define STRNSTR(haystack, needle) g_strstr_len(haystack, (len - ((uint8_t*)(haystack) - (uint8_t*)input)), needle)
-
-	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
-	bool status = true;
-	char *curr_pos, *next_msg_pos, *next_pos, *prev_pos;
-	exported_pdu_info_t  exported_pdu_info = {0};
-
-	char* raw_msg_pos;
-	char* start_msg_tag_cont;
-	char function_str[MAX_FUNCTION_LEN+1];
-	char name_str[MAX_NAME_LEN+1];
-	char proto_name_str[MAX_PROTO_LEN+1];
-	char dissector_table_str[MAX_DTBL_LEN+1];
+	nettrace_3gpp_32_423_file_info_t* file_info = (nettrace_3gpp_32_423_file_info_t*)wth->priv;
+	xmlDocPtr           doc;
+	xmlNodePtr root_element;
+	exported_pdu_info_t  exported_pdu_info = { 0 };
+	char function_str[MAX_FUNCTION_LEN + 1];
+	char name_str[MAX_NAME_LEN + 1];
+	char proto_name_str[MAX_PROTO_LEN + 1];
+	char dissector_table_str[MAX_DTBL_LEN + 1];
 	int dissector_table_val = 0;
-
-	int function_str_len = 0;
-	int name_str_len = 0;
-	int proto_str_len, dissector_table_str_len, raw_data_len, pkt_data_len, exp_pdu_tags_len, i;
-	uint8_t *packet_buf;
-	int val1, val2;
+	bool found_raw = false;
 	bool use_proto_table = false;
+	bool status = true;
 
-	/* We should always and only be called with a <msg....</msg> payload */
-	if (0 != strncmp(input, c_s_msg, CLEN(c_s_msg))) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not start with \"%s\"", c_s_msg);
+	doc = xmlParseMemory(text, (int)len);
+	if (doc == NULL) {
 		return false;
 	}
 
-	curr_pos = input + CLEN(c_s_msg);
+	root_element = xmlDocGetRootElement(doc);
+	if (root_element == NULL) {
+		ws_debug("empty xml doc");
+		status = false;
+		goto end;
+	}
+
+	//Sanity check
+	if (xmlStrcmp(root_element->name, (const xmlChar*)"msg") != 0) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = ws_strdup("nettrace_3gpp_32_423: Did not start with \"<msg\"");
+		status = false;
+		goto end;
+	}
+
+	if (root_element->children == NULL) {
+		/* There is no rawmsg here. */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("Had \"<msg />\" with no \"<rawMsg>\"");
+		status = false;
+		goto end;
+	}
 
 	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
@@ -273,293 +264,272 @@ nettrace_msg_to_packet(wtap *wth, wtap_rec *rec, uint8_t *input, size_t len, int
 	exported_pdu_info.presence_flags = 0;
 	exported_pdu_info.ptype = EXP_PDU_PT_NONE;
 
-	prev_pos = curr_pos;
-	/* Look for the end of the tag first */
-	next_msg_pos = STRNSTR(curr_pos, ">");
-	if (!next_msg_pos) {
-		/* Something's wrong, bail out */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("Did not find end of tag \">\"");
-		status = false;
-		goto end;
-	}
-	/* Check if its a tag close "/>" */
-	if (*(next_msg_pos - 1) == '/') {
-		/* There is no rawmsg here. Should have been caught before we got called */
-		*err = WTAP_ERR_INTERNAL;
-		*err_info = g_strdup("Had \"<msg />\" with no \"<rawMsg>\"");
-		status = false;
-		goto end;
-	}
-	start_msg_tag_cont = curr_pos = prev_pos;
-	next_msg_pos = STRNSTR(curr_pos, c_e_msg);
-	if (!next_msg_pos) {
-		/* Something's wrong, bail out */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_e_msg);
-		status = false;
-		goto end;
-	}
+	//Start with attributes not existing
+	function_str[0] = '\0';
+	name_str[0] = '\0';
 
-	/* Check if we have a time stamp "changeTime"
-	 * expressed in number of seconds and milliseconds (nbsec.ms).
-	 * Only needed if we have a "beginTime" for this file.
-	 */
-	if (!nstime_is_unset(&(file_info->start_time))) {
-		int scan_found;
-		unsigned second = 0, ms = 0;
-
-		curr_pos = STRNSTR(start_msg_tag_cont, c_change_time);
-		/* Check if we have the tag or if we passed the end of the current message */
-		if (curr_pos != NULL) {
-			curr_pos += CLEN(c_change_time);
-			scan_found = sscanf(curr_pos, "%u.%u", &second, &ms);
-
-			if (scan_found == 2) {
-				unsigned start_ms = file_info->start_time.nsecs / 1000000;
-				unsigned elapsed_ms = start_ms + ms;
-				if (elapsed_ms > 1000) {
-					elapsed_ms -= 1000;
-					second++;
+	/* Walk the attributes of the message */
+	for (xmlAttrPtr attr = root_element->properties; attr; attr = attr->next) {
+		if (xmlStrcmp(attr->name, (const xmlChar*)"function") == 0) {
+			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+			if (str != NULL) {
+				size_t function_str_len = strlen(str);
+				if (function_str_len > MAX_FUNCTION_LEN) {
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = ws_strdup_printf("nettrace_3gpp_32_423: function_str_len > %d", MAX_FUNCTION_LEN);
+					xmlFree(str);
+					status = false;
+					goto end;
 				}
-				rec->presence_flags |= WTAP_HAS_TS;
-				rec->ts.secs = file_info->start_time.secs + second;
-				rec->ts.nsecs = (elapsed_ms * 1000000);
+
+				(void)g_strlcpy(function_str, str, (size_t)function_str_len + 1);
+				ascii_strdown_inplace(function_str);
+
+				xmlFree(str);
+			}
+		}
+		else if (xmlStrcmp(attr->name, (const xmlChar*)"name") == 0) {
+			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
+			if (str != NULL) {
+				size_t name_str_len = strlen(str);
+				if (name_str_len > MAX_NAME_LEN) {
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = ws_strdup_printf("nettrace_3gpp_32_423: name_str_len > %d", MAX_NAME_LEN);
+					xmlFree(str);
+					status = false;
+					goto end;
+				}
+
+				(void)g_strlcpy(name_str, str, (size_t)name_str_len + 1);
+				ascii_strdown_inplace(name_str);
+				xmlFree(str);
+			}
+		}
+		else if (xmlStrcmp(attr->name, (const xmlChar*)"changeTime") == 0) {
+
+			/* Check if we have a time stamp "changeTime"
+			 * expressed in number of seconds and milliseconds (nbsec.ms).
+			 * Only needed if we have a "beginTime" for this file.
+			 */
+			if (!nstime_is_unset(&(file_info->start_time))) {
+				int scan_found;
+				unsigned second = 0, ms = 0;
+
+				xmlChar* str_time = xmlNodeListGetString(root_element->doc, attr->children, 1);
+				if (str_time != NULL) {
+					scan_found = sscanf(str_time, "%u.%u", &second, &ms);
+
+					if (scan_found == 2) {
+						unsigned start_ms = file_info->start_time.nsecs / 1000000;
+						unsigned elapsed_ms = start_ms + ms;
+						if (elapsed_ms > 1000) {
+							elapsed_ms -= 1000;
+							second++;
+						}
+						rec->presence_flags |= WTAP_HAS_TS;
+						rec->ts.secs = file_info->start_time.secs + second;
+						rec->ts.nsecs = (elapsed_ms * 1000000);
+					}
+
+					xmlFree(str_time);
+				}
 			}
 		}
 	}
 
-	/* See if we have a "function" */
-	function_str[0] = '\0';	/* if we don't have a function */
-	curr_pos = STRNSTR(start_msg_tag_cont, c_function);
-	if (curr_pos != NULL) {
-		/* extract the function */
-		curr_pos += CLEN(c_function);
-		next_pos = STRNSTR(curr_pos, "\"");
-		function_str_len = (int)(next_pos - curr_pos);
-		if (function_str_len > MAX_FUNCTION_LEN) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: function_str_len > %d", MAX_FUNCTION_LEN);
-			goto end;
+	/* Check the children of the msg root */
+	proto_name_str[0] = '\0';
+	dissector_table_str[0] = '\0';
+	for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+		if (cur->type == XML_ELEMENT_NODE) {
+			if (xmlStrcmp(cur->name, (const xmlChar*)"initiator") == 0) {
+				xmlChar* initiator_content = xmlNodeGetContent(cur);
+
+				nettrace_parse_address(initiator_content, true/* SRC */, &exported_pdu_info);
+				xmlFree(initiator_content);
+			}
+			else if (xmlStrcmp(cur->name, (const xmlChar*)"target") == 0) {
+				xmlChar* target_content = xmlNodeGetContent(cur);
+
+				nettrace_parse_address(target_content, false/* DST */, &exported_pdu_info);
+				xmlFree(target_content);
+			}
+			else if (xmlStrcmp(cur->name, (const xmlChar*)"rawMsg") == 0) {
+				bool found_protocol = false;
+				xmlChar* raw_content;
+				xmlNodePtr raw_node = cur;
+
+				for (xmlAttrPtr attr = raw_node->properties; attr; attr = attr->next) {
+					if (xmlStrcmp(attr->name, (const xmlChar*)"protocol") == 0) {
+
+						xmlChar* str = xmlNodeListGetString(raw_node->doc, attr->children, 1);
+						if (str != NULL) {
+							size_t proto_str_len = strlen(str);
+							if (proto_str_len > MAX_PROTO_LEN) {
+								xmlFree(str);
+								status = false;
+								goto end;
+							}
+							(void)g_strlcpy(proto_name_str, str, (size_t)proto_str_len + 1);
+							ascii_strdown_inplace(proto_name_str);
+							found_protocol = true;
+						}
+					}
+				}
+
+				if (!found_protocol) {
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = ws_strdup("nettrace_3gpp_32_423: Did not find \"protocol\"");
+					status = false;
+					goto end;
+				}
+
+				/* Do string matching and replace with Wiresharks protocol name */
+				if (strcmp(proto_name_str, "gtpv2-c") == 0) {
+					/* Change to gtpv2 */
+					proto_name_str[5] = '\0';
+				}
+				else if (strcmp(proto_name_str, "nas") == 0) {
+					if (strcmp(function_str, "s1") == 0) {
+						/* Change to nas-eps_plain */
+						(void)g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
+					}
+					else if (strcmp(function_str, "n1") == 0) {
+						/* Change to nas-5gs */
+						(void)g_strlcpy(proto_name_str, c_nas_5gs, sizeof(c_nas_5gs));
+					}
+					else {
+						*err = WTAP_ERR_BAD_FILE;
+						*err_info = ws_strdup_printf("nettrace_3gpp_32_423: No handle of message \"%s\" on function \"%s\" ", proto_name_str, function_str);
+						status = false;
+						goto end;
+					}
+				}
+				else if (strcmp(proto_name_str, "map") == 0) {
+					/* For GSM map, it looks like the message data is stored like SendAuthenticationInfoArg
+					 * use the GSM MAP dissector table to dissect the content.
+					 */
+					exported_pdu_info.proto_col_str = g_strdup("GSM MAP");
+
+					if (strcmp(name_str, "sai_request") == 0) {
+						use_proto_table = true;
+						(void)g_strlcpy(dissector_table_str, c_sai_req, sizeof(c_sai_req));
+						dissector_table_val = 56;
+						exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
+					}
+					else if (strcmp(name_str, "sai_response") == 0) {
+						use_proto_table = true;
+						(void)g_strlcpy(dissector_table_str, c_sai_rsp, sizeof(c_sai_rsp));
+						dissector_table_val = 56;
+						exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
+					}
+					else {
+						g_free(exported_pdu_info.proto_col_str);
+						exported_pdu_info.proto_col_str = NULL;
+					}
+				}
+
+				raw_content = xmlNodeGetContent(raw_node);
+				if ((raw_content == NULL) || (raw_content[0] == '\0')) {
+					xmlFree(raw_content);
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = ws_strdup("nettrace_3gpp_32_423: No raw data bytes");
+					status = false;
+					goto end;
+				}
+
+				/* Fill packet buff */
+				ws_buffer_clean(&rec->data);
+				if (use_proto_table == false) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_DISSECTOR_NAME, proto_name_str, (uint16_t)strlen(proto_name_str));
+				}
+				else {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_DISSECTOR_TABLE_NAME, dissector_table_str, (uint16_t)strlen(dissector_table_str));
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL, dissector_table_val);
+				}
+
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
+					wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
+					g_free(exported_pdu_info.proto_col_str);
+					exported_pdu_info.proto_col_str = NULL;
+				}
+
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
+				}
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
+				}
+
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_SRC_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
+				}
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
+				}
+
+				if (exported_pdu_info.presence_flags & (EXP_PDU_TAG_SRC_PORT_BIT | EXP_PDU_TAG_DST_PORT_BIT)) {
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_PORT_TYPE, exported_pdu_info.ptype);
+				}
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_SRC_PORT_BIT) {
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_SRC_PORT, exported_pdu_info.src_port);
+				}
+				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DST_PORT, exported_pdu_info.dst_port);
+				}
+
+				/* Add end of options */
+				size_t raw_data_len = strlen(raw_content);
+				int exp_pdu_tags_len = wtap_buffer_append_epdu_end(&rec->data);
+
+				/* Convert the hex raw msg data to binary and write to the packet buf*/
+				size_t pkt_data_len = raw_data_len / 2;
+				ws_buffer_assure_space(&rec->data, pkt_data_len);
+				uint8_t* packet_buf = ws_buffer_end_ptr(&rec->data);
+
+				const char* curr_pos = raw_content;
+				for (size_t i = 0; i < pkt_data_len; i++) {
+					char chr1, chr2;
+					int val1, val2;
+
+					chr1 = *curr_pos++;
+					chr2 = *curr_pos++;
+					val1 = g_ascii_xdigit_value(chr1);
+					val2 = g_ascii_xdigit_value(chr2);
+					if ((val1 != -1) && (val2 != -1)) {
+						*packet_buf++ = ((uint8_t)val1 * 16) + val2;
+					}
+					else {
+						/* Something wrong, bail out */
+						*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Could not parse hex data, bufsize %zu index %zu %c%c",
+							(pkt_data_len + exp_pdu_tags_len),
+							i, chr1, chr2);
+						*err = WTAP_ERR_BAD_FILE;
+						xmlFree(raw_content);
+						status = false;
+						goto end;
+					}
+				}
+				ws_buffer_increase_length(&rec->data, pkt_data_len);
+
+				rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
+				rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(&rec->data);
+
+				found_raw = true;
+				xmlFree(raw_content);
+			}
 		}
-
-		(void) g_strlcpy(function_str, curr_pos, (size_t)function_str_len + 1);
-		ascii_strdown_inplace(function_str);
-
 	}
 
-	/* See if we have a "name" */
-	name_str[0] = '\0';	/* if we don't have a name */
-	curr_pos = STRNSTR(start_msg_tag_cont, c_proto_name);
-	if (curr_pos != NULL) {
-		/* extract the name */
-		curr_pos += CLEN(c_proto_name);
-		next_pos = STRNSTR(curr_pos, "\"");
-		name_str_len = (int)(next_pos - curr_pos);
-		if (name_str_len > MAX_NAME_LEN) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: name_str_len > %d", MAX_NAME_LEN);
-			goto end;
-		}
-
-		(void) g_strlcpy(name_str, curr_pos, (size_t)name_str_len + 1);
-		ascii_strdown_inplace(name_str);
-
-	}
-	/* Check if we have "<initiator>"
-	 *  It might contain an address
-	 */
-	curr_pos = STRNSTR(start_msg_tag_cont, c_s_initiator);
-	/* Check if we have the tag or if we passed the end of the current message */
-	if (curr_pos != NULL) {
-		curr_pos += CLEN(c_s_initiator);
-		next_pos = STRNSTR(curr_pos, c_e_initiator);
-		if (next_pos == NULL) {
-			//Handle if the xml element is self-closing
-			next_pos = STRNSTR(curr_pos, c_empty_element);
-		}
-		/* Find address */
-		//curr_pos = STRNSTR(curr_pos, c_address) - 1; //Not needed due to regex
-		if (curr_pos != NULL) {
-			nettrace_parse_address(curr_pos, next_pos, true/* SRC */, &exported_pdu_info);
-		}
-	}
-
-	/* Check if we have "<target>"
-	 *  It might contain an address
-	 */
-	curr_pos = STRNSTR(start_msg_tag_cont, c_s_target);
-	/* Check if we have the tag or if we passed the end of the current message */
-	if (curr_pos != NULL) {
-		curr_pos += CLEN(c_s_target);
-		next_pos = STRNSTR(curr_pos, c_e_target);
-		if (next_pos == NULL) {
-			//Handle if the xml element is self-closing
-			next_pos = STRNSTR(curr_pos, c_empty_element);
-		}
-		/* Find address */
-		//curr_pos = STRNSTR(curr_pos, c_address) - 1; //Not needed due to regex
-		if (curr_pos != NULL) {
-			/* curr_pos set below */
-			nettrace_parse_address(curr_pos, next_pos, false/* DST */, &exported_pdu_info);
-		}
-	}
-
-	/* Do we have a raw message in the <msg> </msg> section? */
-	raw_msg_pos = STRNSTR(start_msg_tag_cont, c_s_rawmsg);
-	if (raw_msg_pos == NULL) {
+	if (!found_raw) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_s_rawmsg);
+		*err_info = ws_strdup("nettrace_3gpp_32_423: Did not find \"<rawMsg\"");
 		status = false;
 		goto end;
 	}
-	curr_pos = STRNSTR(raw_msg_pos, c_protocol);
-	if (curr_pos == NULL) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_protocol);
-		status = false;
-		goto end;
-	}
-	curr_pos += CLEN(c_protocol);
-	next_pos = STRNSTR(curr_pos, "\"");
-	proto_str_len = (int)(next_pos - curr_pos);
-	if (proto_str_len > MAX_PROTO_LEN){
-		status = false;
-		goto end;
-	}
-	(void) g_strlcpy(proto_name_str, curr_pos, (size_t)proto_str_len+1);
-	ascii_strdown_inplace(proto_name_str);
-
-	/* Do string matching and replace with Wiresharks protocol name */
-	if (strcmp(proto_name_str, "gtpv2-c") == 0) {
-		/* Change to gtpv2 */
-		proto_name_str[5] = '\0';
-		proto_str_len = 5;
-	}
-	if (strcmp(proto_name_str, "nas") == 0) {
-		if (strcmp(function_str, "s1") == 0) {
-			/* Change to nas-eps_plain */
-			(void) g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
-			proto_str_len = CLEN(c_nas_eps);
-		} else if (strcmp(function_str, "n1") == 0) {
-			/* Change to nas-5gs */
-			(void) g_strlcpy(proto_name_str, c_nas_5gs, sizeof(c_nas_5gs));
-			proto_str_len = CLEN(c_nas_5gs);
-		} else {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: No handle of message \"%s\" on function \"%s\" ", proto_name_str, function_str);
-			status = false;
-			goto end;
-		}
-	}
-
-	if (strcmp(proto_name_str, "map") == 0) {
-		/* For GSM map, it looks like the message data is stored like SendAuthenticationInfoArg
-		 * use the GSM MAP dissector table to dissect the content.
-		 */
-		exported_pdu_info.proto_col_str = g_strdup("GSM MAP");
-
-		if (strcmp(name_str, "sai_request") == 0) {
-			use_proto_table = true;
-			(void) g_strlcpy(dissector_table_str, c_sai_req, sizeof(c_sai_req));
-			dissector_table_str_len = CLEN(c_sai_req);
-			dissector_table_val = 56;
-			exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
-		}
-		else if (strcmp(name_str, "sai_response") == 0) {
-			use_proto_table = true;
-			(void) g_strlcpy(dissector_table_str, c_sai_rsp, sizeof(c_sai_rsp));
-			dissector_table_str_len = CLEN(c_sai_rsp);
-			dissector_table_val = 56;
-			exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
-		} else {
-			g_free(exported_pdu_info.proto_col_str);
-			exported_pdu_info.proto_col_str = NULL;
-		}
-	}
-	/* Find the start of the raw data */
-	curr_pos = STRNSTR(next_pos, ">") + 1;
-	next_pos = STRNSTR(curr_pos, "<");
-	raw_data_len = (int)(next_pos - curr_pos);
-
-	/* Fill packet buff */
-	ws_buffer_clean(&rec->data);
-	if (use_proto_table == false) {
-		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_DISSECTOR_NAME, proto_name_str, proto_str_len);
-	}
-	else {
-		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_DISSECTOR_TABLE_NAME, dissector_table_str, dissector_table_str_len);
-		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL, dissector_table_val);
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_COL_PROT_BIT) {
-		wtap_buffer_append_epdu_string(&rec->data, EXP_PDU_TAG_COL_PROT_TEXT, exported_pdu_info.proto_col_str);
-		g_free(exported_pdu_info.proto_col_str);
-		exported_pdu_info.proto_col_str = NULL;
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
-		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
-	}
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
-		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
-	}
-
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_SRC_BIT) {
-		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
-	}
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
-		wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
-	}
-
-	if (exported_pdu_info.presence_flags & (EXP_PDU_TAG_SRC_PORT_BIT | EXP_PDU_TAG_DST_PORT_BIT)) {
-		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_PORT_TYPE, exported_pdu_info.ptype);
-	}
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_SRC_PORT_BIT) {
-		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_SRC_PORT, exported_pdu_info.src_port);
-	}
-	if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
-		wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DST_PORT, exported_pdu_info.dst_port);
-	}
-
-	/* Add end of options */
-	exp_pdu_tags_len = wtap_buffer_append_epdu_end(&rec->data);
-
-	/* Convert the hex raw msg data to binary and write to the packet buf*/
-	pkt_data_len = raw_data_len / 2;
-	ws_buffer_assure_space(&rec->data, pkt_data_len);
-	packet_buf = ws_buffer_end_ptr(&rec->data);
-
-	for (i = 0; i < pkt_data_len; i++) {
-		char chr1, chr2;
-
-		chr1 = *curr_pos++;
-		chr2 = *curr_pos++;
-		val1 = g_ascii_xdigit_value(chr1);
-		val2 = g_ascii_xdigit_value(chr2);
-		if ((val1 != -1) && (val2 != -1)) {
-			*packet_buf++ = ((uint8_t)val1 * 16) + val2;
-		}
-		else {
-			/* Something wrong, bail out */
-			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Could not parse hex data, bufsize %u index %u %c%c",
-				(pkt_data_len + exp_pdu_tags_len),
-				i,
-				chr1,
-				chr2);
-			*err = WTAP_ERR_BAD_FILE;
-			status = false;
-			goto end;
-		}
-	}
-	ws_buffer_increase_length(&rec->data, pkt_data_len);
-
-	rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
-	rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(&rec->data);
-
 end:
+	xmlFreeDoc(doc);
 	return status;
-#undef STRNSTR
 }
 
 /* Read from fh and store into buffer, until buffer contains needle.
