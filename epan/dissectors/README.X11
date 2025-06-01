@@ -6,8 +6,12 @@ latest protocol descriptions.
 
 Once you have those, you also need the XML protocol descriptions. In the
 epan/dissectors directory, run the following commands:
-  git clone git@gitlab.freedesktop.org:xorg/proto/xcbproto.git
-  git clone git@gitlab.freedesktop.org:mesa/mesa.git
+  git clone https://gitlab.freedesktop.org/xorg/proto/xcbproto.git
+  git clone https://gitlab.freedesktop.org/mesa/mesa.git
+
+This generates code that gets errors at run time when done with the tip
+of the main branch of the Mesa repository, for reasons as yet
+undetermined; it works with the 24.3-branchpoint tag.
 
 Please be aware that the Mesa repository is rather large. As of this writing,
 the full git history is 587MiB and the source itself is roughly 250MiB. The
@@ -15,7 +19,7 @@ space needed can be significantly reduced by downloading less commit history
 (such as with the git option --shallow-source, available since git 2.11) and
 performing a sparse checkout (available since git 2.25), e.g.,
 
-  git clone --shallow-since=2024-04-23 --sparse git@gitlab.freedesktop.org:mesa/mesa.git
+  git clone --shallow-since=2024-04-23 --sparse https://gitlab.freedesktop.org/mesa/mesa.git
   cd mesa
   git sparse-checkout add src/mapi/glapi/gen/
 
