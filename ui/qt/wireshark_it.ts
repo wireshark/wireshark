@@ -725,56 +725,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Byte del pacchetto</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="vanished">Dati evento</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Consenti la selezione al passaggio del mouse </translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Mostra byte in esadecimale</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">…come decimale</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">…come ottale</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">…come bit</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Mostra testo sulla base del pacchetto</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="vanished">Mostra testo sulla base dell&apos;evento</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…come ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…come EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -2264,11 +2214,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>DataSourceTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished">Byte del pacchetto</translation>
+        <translation>Byte del pacchetto</translation>
     </message>
     <message>
         <source>Event data</source>
-        <translation type="unfinished">Dati evento</translation>
+        <translation>Dati evento</translation>
     </message>
 </context>
 <context>
@@ -4025,39 +3975,39 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Consenti la selezione al passaggio del mouse </translation>
+        <translation>Consenti la selezione al passaggio del mouse </translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Mostra byte in esadecimale</translation>
+        <translation>Mostra byte in esadecimale</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">…come decimale</translation>
+        <translation>…come decimale</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">…come ottale</translation>
+        <translation>…come ottale</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">…come bit</translation>
+        <translation>…come bit</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Mostra testo sulla base del pacchetto</translation>
+        <translation>Mostra testo sulla base del pacchetto</translation>
     </message>
     <message>
         <source>Show text based on event</source>
-        <translation type="unfinished">Mostra testo sulla base dell&apos;evento</translation>
+        <translation>Mostra testo sulla base dell&apos;evento</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…come ASCII</translation>
+        <translation>…come ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…come EBCDIC</translation>
+        <translation>…come EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9183,27 +9133,27 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished">Decodificatore</translation>
+        <translation>Decodificatore</translation>
     </message>
     <message>
         <source>File Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di file</translation>
     </message>
     <message>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Codificatore</translation>
     </message>
     <message>
         <source>Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analisi</translation>
     </message>
     <message>
         <source>Tap Listener</source>
-        <translation type="unfinished"></translation>
+        <translation>Listener tap</translation>
     </message>
     <message>
         <source>Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro di visualizzazione</translation>
     </message>
 </context>
 <context>

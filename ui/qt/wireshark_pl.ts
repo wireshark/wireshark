@@ -726,48 +726,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Bajty pakietu</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Zezwalaj na podświetlanie po najechaniu myszką</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Pokaż szesnastkowo</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">…w postaci dziesiętnej</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">…w postaci ósemkowej</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">...jako bity</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Pokaż tekst na podstawie pakietu</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…jako ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…jako EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -4031,27 +3989,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Zezwalaj na podświetlanie po najechaniu myszką</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Pokaż szesnastkowo</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">…w postaci dziesiętnej</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">…w postaci ósemkowej</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">...jako bity</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Pokaż tekst na podstawie pakietu</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -4059,11 +4017,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…jako ASCII</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…jako EBCDIC</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

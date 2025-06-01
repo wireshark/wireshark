@@ -725,56 +725,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Bytes del paquet</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="vanished">Dades d&apos;esdeveniment</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Permet ressaltat amb el ratolí a sobre</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Mostra els bytes en hexadecimal</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">…en decimal</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">…en octal</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">…en bits</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Mostra el text basat en el paquet</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="vanished">Mostra el text basat en l&apos;esdeveniment</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…en ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…en EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -2264,11 +2214,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>DataSourceTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished">Bytes del paquet</translation>
+        <translation>Bytes del paquet</translation>
     </message>
     <message>
         <source>Event data</source>
-        <translation type="unfinished">Dades d&apos;esdeveniment</translation>
+        <translation>Dades d&apos;esdeveniment</translation>
     </message>
 </context>
 <context>
@@ -4025,39 +3975,39 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Permet ressaltat amb el ratolí a sobre</translation>
+        <translation>Permet ressaltat amb el ratolí a sobre</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Mostra els bytes en hexadecimal</translation>
+        <translation>Mostra els bytes en hexadecimal</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">…en decimal</translation>
+        <translation>…en decimal</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">…en octal</translation>
+        <translation>…en octal</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">…en bits</translation>
+        <translation>…en bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Mostra el text basat en el paquet</translation>
+        <translation>Mostra el text basat en el paquet</translation>
     </message>
     <message>
         <source>Show text based on event</source>
-        <translation type="unfinished">Mostra el text basat en l&apos;esdeveniment</translation>
+        <translation>Mostra el text basat en l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…en ASCII</translation>
+        <translation>…en ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…en EBCDIC</translation>
+        <translation>…en EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -9182,27 +9132,27 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished">Dissector</translation>
+        <translation>Dissector</translation>
     </message>
     <message>
         <source>File Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus de fitxer</translation>
     </message>
     <message>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Còdec</translation>
     </message>
     <message>
         <source>Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Anàlisi</translation>
     </message>
     <message>
         <source>Tap Listener</source>
-        <translation type="unfinished"></translation>
+        <translation>Detectors de TAP</translation>
     </message>
     <message>
         <source>Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de visualització</translation>
     </message>
 </context>
 <context>

@@ -724,48 +724,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">패킷 바이트</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">마우스로 가리킬 때 강조 표시 허용</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">16진수로 바이트 표시</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">10진수로 표시</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">8진수로 표시</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">비트 단위로 표시</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">패킷의 내용을 텍스트로 표시</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">ASCII로 표시</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">EBCDIC으로 표시</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -4000,27 +3958,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">마우스로 가리킬 때 강조 표시 허용</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">16진수로 바이트 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">10진수로 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">8진수로 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">비트 단위로 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">패킷의 내용을 텍스트로 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -4028,11 +3986,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">ASCII로 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">EBCDIC으로 표시</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

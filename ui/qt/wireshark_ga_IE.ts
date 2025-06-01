@@ -726,48 +726,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Bearta paicéad</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Ceadaigh aibhsiú ainlithe</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Taispeáin bearta mar heicsidheachúlach</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">… mar dheachúlach</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">…mar ochtach</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">…mar ghiotáin</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Taispeáin téacs bunaithe ar an bpaicéad</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…mar ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…mar EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -4035,27 +3993,27 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Ceadaigh aibhsiú ainlithe</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Taispeáin bearta mar heicsidheachúlach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">… mar dheachúlach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">…mar ochtach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">…mar ghiotáin</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Taispeáin téacs bunaithe ar an bpaicéad</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -4063,11 +4021,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…mar ASCII</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…mar EBCDIC</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -725,48 +725,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Paketbyte</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Tillåt markering vid hovring</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Visa byte hexadecimalt</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">… decimalt</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">… oktalt</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">… som bitar</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Visa text baserat på paket</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">… som ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">… som EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -4017,27 +3975,27 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Tillåt markering vid hovring</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Visa byte hexadecimalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">… decimalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">… oktalt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">… som bitar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Visa text baserat på paket</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -4045,11 +4003,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">… som ASCII</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">… som EBCDIC</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

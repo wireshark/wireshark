@@ -724,48 +724,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Paket bayt</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Fareyle vurgulamaya izin ver</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Baytları onaltılık olarak göster</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">…ondalık sayı olarak</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">…sekizli olarak</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">…bit olarak</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Pakete göre metni göster</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…ASCII olarak</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…EBCDIC olarak</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -3998,27 +3956,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Fareyle vurgulamaya izin ver</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Baytları onaltılık olarak göster</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">…ondalık sayı olarak</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">…sekizli olarak</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">…bit olarak</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Pakete göre metni göster</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -4026,11 +3984,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…ASCII olarak</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…EBCDIC olarak</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

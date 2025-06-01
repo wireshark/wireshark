@@ -725,48 +725,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">Paketbytes</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">Hover-Auswahl erlauben</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Bytes in Hexadezimal anzeigen</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">...als Dezimal</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">...als Oktal</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">…als Bits</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Text basierend auf den Paketen anzeigen</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…als ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…als EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -2256,7 +2214,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>DataSourceTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paket Bytes</translation>
     </message>
     <message>
         <source>Event data</source>
@@ -4017,27 +3975,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">Hover-Auswahl erlauben</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Bytes in Hexadezimal anzeigen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">...als Dezimal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">...als Oktal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">…als Bits</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Text basierend auf den Paketen anzeigen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -4045,11 +4003,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…als ASCII</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…als EBCDIC</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

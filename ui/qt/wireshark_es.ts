@@ -725,29 +725,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Mostrar bytes como hexadecimal</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">…como bits</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">Mostrar texto basado en paquete</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">…como ASCII</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">…como EBCDIC</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -3961,7 +3938,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">Mostrar bytes como hexadecimal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as decimal</source>
@@ -3973,11 +3950,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">…como bits</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">Mostrar texto basado en paquete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -3985,11 +3962,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">…como ASCII</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">…como EBCDIC</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -724,56 +724,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewTab</name>
-    <message>
-        <source>Packet bytes</source>
-        <translation type="vanished">パケットバイト列</translation>
-    </message>
-    <message>
-        <source>Event data</source>
-        <translation type="vanished">イベントデータ</translation>
-    </message>
-</context>
-<context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Allow hover highlighting</source>
-        <translation type="vanished">ホーバーハイライトを許可</translation>
-    </message>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">16進数でバイト列を表示</translation>
-    </message>
-    <message>
-        <source>…as decimal</source>
-        <translation type="vanished">10進数として...</translation>
-    </message>
-    <message>
-        <source>…as octal</source>
-        <translation type="vanished">8進数として...</translation>
-    </message>
-    <message>
-        <source>…as bits</source>
-        <translation type="vanished">ビット列として…</translation>
-    </message>
-    <message>
-        <source>Show text based on packet</source>
-        <translation type="vanished">パケットをテキストベースで表示</translation>
-    </message>
-    <message>
-        <source>Show text based on event</source>
-        <translation type="vanished">イベントに応じてテキストを表示</translation>
-    </message>
-    <message>
-        <source>…as ASCII</source>
-        <translation type="vanished">ASCII形式として…</translation>
-    </message>
-    <message>
-        <source>…as EBCDIC</source>
-        <translation type="vanished">EBCDIC形式として…</translation>
-    </message>
-</context>
-<context>
     <name>CaptureCommentDialog</name>
     <message>
         <source>Edit Capture Comments</source>
@@ -2256,11 +2206,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>DataSourceTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished">パケットバイト列</translation>
+        <translation>パケットバイト列</translation>
     </message>
     <message>
         <source>Event data</source>
-        <translation type="unfinished">イベントデータ</translation>
+        <translation>イベントデータ</translation>
     </message>
 </context>
 <context>
@@ -4007,39 +3957,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>HexDataSourceView</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished">ホーバーハイライトを許可</translation>
+        <translation>ホーバーハイライトを許可</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished">16進数でバイト列を表示</translation>
+        <translation>16進数でバイト列を表示</translation>
     </message>
     <message>
         <source>…as decimal</source>
-        <translation type="unfinished">10進数として...</translation>
+        <translation>10進数として...</translation>
     </message>
     <message>
         <source>…as octal</source>
-        <translation type="unfinished">8進数として...</translation>
+        <translation>8進数として...</translation>
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished">ビット列として…</translation>
+        <translation>ビット列として…</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished">パケットをテキストベースで表示</translation>
+        <translation>パケットに応じてテキストを表示</translation>
     </message>
     <message>
         <source>Show text based on event</source>
-        <translation type="unfinished">イベントに応じてテキストを表示</translation>
+        <translation>イベントに応じてテキストを表示</translation>
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished">ASCII形式として…</translation>
+        <translation>ASCII形式として…</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished">EBCDIC形式として…</translation>
+        <translation>EBCDIC形式として…</translation>
     </message>
 </context>
 <context>
@@ -9153,27 +9103,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished">ダイセクタ</translation>
+        <translation>ダイセクタ</translation>
     </message>
     <message>
         <source>File Type</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル形式</translation>
     </message>
     <message>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>コーデック</translation>
     </message>
     <message>
         <source>Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>分析</translation>
     </message>
     <message>
         <source>Tap Listener</source>
-        <translation type="unfinished"></translation>
+        <translation>タップリスナ</translation>
     </message>
     <message>
         <source>Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ</translation>
     </message>
 </context>
 <context>
