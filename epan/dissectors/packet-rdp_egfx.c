@@ -106,6 +106,7 @@ static int ett_egfx_deleteencodingcontext;
 
 static expert_field ei_egfx_pdulen_invalid;
 static expert_field ei_egfx_invalid_compression;
+static expert_field ei_egfx_invalid_offset;
 
 
 #define PNAME  "RDP Graphic pipeline channel Protocol"
@@ -672,7 +673,12 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			break;
 		}
 
-		offset = nextOffset;
+		if (offset < nextOffset)
+		{
+			expert_add_info(pinfo, item, &ei_egfx_invalid_offset);
+			offset = nextOffset;
+		}
+
 	}
 	return offset;
 }
@@ -951,6 +957,7 @@ void proto_register_rdp_egfx(void) {
 	static ei_register_info ei[] = {
 		{ &ei_egfx_pdulen_invalid, { "rdp_egfx.pdulength.invalid", PI_PROTOCOL, PI_ERROR, "Invalid length", EXPFILL }},
 		{ &ei_egfx_invalid_compression, { "rdp_egfx.compression.invalid", PI_PROTOCOL, PI_ERROR, "Invalid compression", EXPFILL }},
+		{ &ei_egfx_invalid_offset, { "rdp_egfx.invalid.offset", PI_PROTOCOL, PI_ERROR, "Invalid Offset", EXPFILL }},
 	};
 	expert_module_t* expert_egfx;
 
