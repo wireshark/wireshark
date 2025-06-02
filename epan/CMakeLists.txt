@@ -62,7 +62,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	crc6-tvb.h
 	crc8-tvb.h
 	decode_as.h
-	diam_dict.h
 	disabled_protos.h
 	conversation_filter.h
 	dccpservicecodes.h
@@ -272,7 +271,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 set(LIBWIRESHARK_FILES ${LIBWIRESHARK_NONGENERATED_FILES})
 
 add_lex_files(LEX_FILES LIBWIRESHARK_FILES
-	diam_dict.l
 	uat_load.l
 	protobuf_lang_scanner.l
 )
