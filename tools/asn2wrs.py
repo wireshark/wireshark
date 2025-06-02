@@ -2317,6 +2317,9 @@ class EthCnf:
     def omit_assignment(self, type, ident, module):
         if self.ectx.conform.use_item('OMIT_ASSIGNMENT', ident):
             return True
+        mident = "$%s$%s" % (module, ident)
+        if self.ectx.conform.use_item('OMIT_ASSIGNMENT', mident):
+            return True
         if self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*') or \
            self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*'+type) or \
            self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*/'+module) or \

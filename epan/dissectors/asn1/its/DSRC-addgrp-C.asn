@@ -1,0 +1,418 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ETSI TS 103 301 v2.2.2
+--
+-- https://forge.etsi.org/rep/ITS/asn1/is_ts103301
+--
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+--! @options: no-fields-header
+
+ETSI-ITS-DSRC-AddGrpC {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts103301 (103301) dsrc (6) addgrpc (0) major-version-2 (2) minor-version-1 (1)
+}
+
+DEFINITIONS AUTOMATIC TAGS::= BEGIN
+
+IMPORTS
+
+DeltaTime, FuelType, IntersectionID, LaneConnectionID, LaneID, NodeOffsetPointXY, NodeSetXY, PrioritizationResponseStatus, SignalGroupID, VehicleHeight
+FROM ETSI-ITS-DSRC {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts103301 (103301) dsrc (6) major-version-2 (2) minor-version-1 (1)
+}
+WITH SUCCESSORS
+
+Altitude, DeltaAltitude, StationID, VehicleMass
+FROM ETSI-ITS-CDD {
+  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) 102894 cdd (2) major-version-4 (4) minor-version-1 (1)
+}
+WITH SUCCESSORS;
+
+/**
+* This DF adds positioning support from the infrastructure to the vehicle.
+*
+* @field itsStationPositions: defines a list of ITS stations (e.g. vehicles) and their corresponding position on
+*                             the driving lane as defined in the lane topology of the MapData message or the GNSS position
+*                             deviation of the ITS Station from the high precision reference position in X/Y coordinates. It
+*                             enables accurate, real-time positioning support to the moving ITS entities by the infrastructure.*
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+ConnectionManeuverAssist-addGrpC ::=	SEQUENCE {
+  itsStationPosition ItsStationPositionList OPTIONAL,
+  ...
+}
+
+/**
+* This DF defines the trajectory for travelling through the conflict area of an intersection and connects 
+* e.g an ingress with an egress lane. The trajectory is defined by two or more nodes. 
+* The starting node overlaps e.g. with the node of the ingress lane towards the
+* conflict zone. The ending node overlaps e.g. with the first node of the connected egress lane. 
+* See the example in clause [ISO TS 19091] G.8.2.5.
+*
+* @field nodes: defines a list of nodes for the trajectory. It defines e.g. a geometric trajectory from an ingressing
+*               to a connected egressing lane and the X/Y position value of the first node of the trajectory is the same as
+*               the node of the ingress lane. The X/Y position of the last node is the same as the X/Y position of the first
+*               node of the egressing lane.
+* @field connectionID: defines the identifier of an allowed `maneuver` (e.g. ingress / egress relation). 
+*               A generic Lane offers one or more allowed `maneuvers`, therefore the trajectory is reference to the related `maneuver`.
+*
+* @note: @ref Reg-GenericLane allows providing up to 4 connecting trajectories. In case a lane has more than 4 connecting trajectories,
+* priority should be given to connecting trajectories of motorized traffic and complex manoeuvres.
+*
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+ConnectionTrajectory-addGrpC ::= SEQUENCE {
+  nodes         NodeSetXY,
+  connectionID  LaneConnectionID,
+  ...
+}
+
+/**
+* This DF defines a list of prioritization responses e.g. public transport acceleration.
+* The signal prioritization (e.g. public transport) procedure in this profile follows two strategies.
+* - For simple prioritization requests, the CAM/SPAT messages are used. 
+*   This allows the migration of old legal systems towards C-ITS.
+*   In this case, the CAM message is used to trigger the request towards the traffic light controller. 
+*   The traffic light controller checks the request and broadcasts the status for the priority request with this DF (see [ISO TS 19091] G.5.1.9).
+* - For more complex signal requests, the SignalRequestMessage/SignalStatusMessage messages are to be used.
+*
+* @field activePrioritizations: list of Prioritizations.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+IntersectionState-addGrpC ::=	SEQUENCE {
+  activePrioritizations  PrioritizationResponseList	OPTIONAL,
+  ...
+}
+
+/**
+* Lanes may have limitations regarding vehicle height (e.g. due to a tunnel) and vehicle weight (e.g. due to a bridge). 
+*
+* @field maxVehicleHeight: maximum allowed vehicle height
+* @field maxVehicleWeight: maximum allowed vehicle mass
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+LaneAttributes-addGrpC ::= SEQUENCE {
+  maxVehicleHeight  VehicleHeight OPTIONAL,
+  maxVehicleWeight  VehicleMass   OPTIONAL,
+  ...
+}
+
+/**
+* This DF defines a list of three-dimensional positions of signal heads in an intersection. 
+* It enables vehicles to identify the signal head location for optical evaluation of the traffic light. 
+* Combined with the SPAT/MapData messages, it enables e.g. driving vehicles to enhance safety decision in critical situations.
+*
+* @field signalHeadLocations: list of geo positions
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+MapData-addGrpC ::=	SEQUENCE {
+  signalHeadLocations  SignalHeadLocationList	OPTIONAL,
+  ...
+}
+
+/**
+* Priority and preemption have a considerable impact to the timing parameters in the SPAT message (eventState).
+* User acceptance is expected to increase if the reason for sudden changes in timing parameters is communicated to them.
+*
+* @field stateChangeReason: reason code
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+MovementEvent-addGrpC ::= SEQUENCE {
+  stateChangeReason  ExceptionalCondition OPTIONAL,
+  ...
+}
+
+/**
+* This DF defines additional attributes to support public transport and to enable a simple way of defining lane links.
+*
+* @field ptvRequest: defines control types attached to a node on a lane used by public transport for triggering
+*                    the transmission of messages (e.g. prioritization request). It includes control points for public transport prioritization. 
+*                    These control points are currently implemented by legacy systems using hardware sensors mounted on the roadside.
+* @field nodeLink:   defines a link to one or to a set of another node/lane from this node. The nodeLink allows to set a link between specific nodes 
+*                    of generic lanes or trajectories. This supports e.g. lane merging/diverging situations ([ISO TS 19091] G.8.2.7) and the linking of trajectories 
+*                    in the conflict zone to lanes (see example [ISO TS 19091] G.8.2.5).
+* @field node:       defines an identifier of this node.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+NodeAttributeSet-addGrpC  ::=	SEQUENCE {
+  ptvRequest  PtvRequestType  OPTIONAL,
+  nodeLink    NodeLink        OPTIONAL,
+  node        Node            OPTIONAL,
+  ...
+}
+
+/**
+* This DF includes the altitude data element defined in the common data dictionary [ETSI CDD].
+*
+* @field elevation: the data element is replaced by the ETSI `altitude` data element using the regional extension. 
+*                   The `altitude` data element is defined in Position3D-addGrpC of this profile.
+*                   Position3D-addGrpC extends the @ref Position3D using the regional extension framework.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+Position3D-addGrpC ::=	SEQUENCE {
+  altitude  Altitude,
+  ...
+}
+
+/**
+* This DF defines the driving restriction based on toxic emission type. 
+* The meaning of the word `restriction` is ambiguous as it may have a double interpretation, being:
+*  - only these vehicles are allowed OR 
+*  - these vehicles are not allowed and all others are. 
+* The former is what is intended by the base standard.
+*
+* @field emission: restriction baesed on emission.
+* @field fuel: restriction baesed on fuel.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+RestrictionUserType-addGrpC ::=	SEQUENCE {
+  emission  EmissionType OPTIONAL,
+  fuel      FuelType     OPTIONAL,
+  ...
+}
+
+/**
+* Some road authorities like to give priority to vehicles based on the type of fuel they use. In addition,
+* electric vehicles may receive priority based on their battery status.
+*
+* @field fuel: fuel used by vehicle.
+* @field batteryStatus: current batter status of vehicle.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+RequestorDescription-addGrpC ::= SEQUENCE {
+  fuel           FuelType      OPTIONAL,
+  batteryStatus  BatteryStatus OPTIONAL,
+  ...
+}
+
+/**
+* The traffic control centre (TCC) may advice a public transport vehicle (e.g. bus) to synchronize his travel time. 
+* This may happen when, for example, two busses, due to special traffic conditions, are out of schedule. 
+* The first might be too late, the second too fast. The consequence is that the second is driving
+* just behind the first and is empty as all passengers are within the first one. To avoid this often-occurring
+* situation, the TCC transmits time synchronization advices to the public transport vehicles using the
+* signal status message. 
+*
+* @field synchToSchedule: DeltaTime.
+* @field rejectedReason: RejectedReason.
+*
+* @Note: The @ref PrioritizationResponseStatus provides optionally the reason for prioritization response rejection.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+SignalStatusPackage-addGrpC ::= SEQUENCE {
+  synchToSchedule  DeltaTime      OPTIONAL,
+  rejectedReason   RejectedReason OPTIONAL,
+  ...
+}
+
+/**
+* This DF is used to provide real-time positioning information feedback to a specific ITS station 
+* (e.g. vehicle, pedestrian, bicycle) by infrastructure equipment.
+*  The position information includes, for example, the driving, crossing lane and/or the X/Y coordinates in relation to
+* the reference position of the MapData. The `timeReference` indicates the time stamp of the the
+* message (received from an ITS station) for which the positioning feedback has been computed.
+* 
+* @field stationID: unique identifier.
+* @field laneID: LaneID.
+* @field nodeXY: NodeOffsetPointXY.
+* @field timeReference: TimeReference.
+*
+* @note: The computation of the positioning feedback is out of focus of this standard.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+ItsStationPosition ::=	SEQUENCE {
+  stationID      StationID,
+  laneID         LaneID             OPTIONAL,
+  nodeXY         NodeOffsetPointXY  OPTIONAL,
+  timeReference  TimeReference      OPTIONAL,
+  ...
+}
+
+ItsStationPositionList ::=	SEQUENCE SIZE(1..5) OF ItsStationPosition
+
+/**
+* This DF is used to to identify a node of a lane (waypoint) by its `lane` and node identifier `id`. 
+*
+* The `intersectionID` is used if the referenced lane belongs to an adjacent intersection. If the node
+* belongs to a connection trajectory ([ISO TS 19091] G.5.1.2) the `connectionID` is used.
+*
+* @field id: unique identifier.
+* @field lane: identifier from lane.
+* @field connectionID: identifier from connection.
+* @field intersectionID: identifier from intersection.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+Node ::= SEQUENCE {
+  id              INTEGER,
+  lane            LaneID           OPTIONAL,
+  connectionID    LaneConnectionID OPTIONAL,
+  intersectionID  IntersectionID   OPTIONAL,
+  ...
+}
+
+NodeLink ::= SEQUENCE SIZE (1..5) OF Node
+
+/**
+* This DF is used to provide the prioritization status response and the
+* signal group identifier for a specific ITS station (e.g. vehicle).
+*
+* @field stationID: StationID.
+* @field priorState: PrioritizationResponseStatus.
+* @field signalGroup: SignalGroupID.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+PrioritizationResponse ::=	SEQUENCE {
+  stationID    StationID,
+  priorState   PrioritizationResponseStatus,
+  signalGroup  SignalGroupID,
+  ...
+}
+
+PrioritizationResponseList ::=	SEQUENCE SIZE(1..10) OF PrioritizationResponse
+
+/**
+* This DF defines the XYZ position of a signal head within an intersection
+* and indicates the related signal group identifier.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+SignalHeadLocation ::=	SEQUENCE {
+  nodeXY         NodeOffsetPointXY,
+  nodeZ          DeltaAltitude,
+  signalGroupID  SignalGroupID,
+  ...
+}
+
+SignalHeadLocationList ::=	SEQUENCE (SIZE(1..64)) OF	SignalHeadLocation
+
+/**
+* This DE defines an enumerated list of battery states.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+BatteryStatus ::= ENUMERATED {
+  unknown,
+  critical,
+  low,
+  good,
+  ...
+}
+
+/**
+* This DE defines an enumerated list of toxic emission types for vehicles.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+EmissionType ::= ENUMERATED {
+  euro1,
+  euro2,
+  euro3,
+  euro4,
+  euro5,
+  euro6,
+  ...
+}
+
+/**
+* This DE defines a list of reasons for sudden changes in
+* eventState parameters, thereby offering a reason for extended waiting times.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+ExceptionalCondition ::= ENUMERATED {
+  unknown,
+  publicTransportPriority,
+  emergencyVehiclePriority,
+  trainPriority,
+  bridgeOpen,
+  vehicleHeight,
+  weather,
+  trafficJam,
+  tunnelClosure,
+  meteringActive,
+  truckPriority,
+  bicyclePlatoonPriority,
+  vehiclePlatoonPriority,
+  ...
+}
+
+/**
+* This DE defines a list of activation requests used for C-ITS migration of legacy public 
+* transport prioritization systems. 
+* The activation points are used while approaching to an intersection.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+PtvRequestType  ::= ENUMERATED {
+  preRequest,
+  mainRequest,
+  doorCloseRequest,
+  cancelRequest,
+  emergencyRequest,
+  ...
+}
+
+/**
+* This DE defines a list of reasons for rejected priority requests.
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+RejectedReason ::= ENUMERATED {
+  unknown,
+  exceptionalCondition,
+  maxWaitingTimeExceeded,
+  ptPriorityDisabled,
+  higherPTPriorityGranted,
+  vehicleTrackingUnknown,
+  ...
+}
+
+/**
+* This DE defines a value in milliseconds in the current minute related to UTC time. 
+* The range of 60 000 covers one minute (60 seconds * 1 000 milliseconds)
+*
+* @category: Infrastructure information
+* @revision: V1.3.1
+*/
+TimeReference ::= INTEGER { oneMilliSec(1) } (0..60000)
+
+/** 
+* ## References:
+* 1. [ISO TS 19091]: "Intelligent transport systems - Cooperative ITS - Using V2I and I2V communications for applications related to signalized intersections".
+* 2. [SAE J2735]: "SURFACE VEHICLE STANDARD - V2X Communications Message Set Dictionary"
+*/
+
+END

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-its.c                                                               */
-/* asn2wrs.py -q -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn ISO_TS_19091.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM-PDU-Descriptions.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptionsv1.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn */
+/* asn2wrs.py -q -L -o its -c ./its.cnf -s ./packet-its-template -D . -O ../.. ETSI-ITS-CDD.asn ITS-ContainerV1.asn ISO_TS_14816.asn ISO_TS_14906_Application.asn DSRC.asn DSRC-region.asn DSRC-addgrp-C.asn GDD.asn ISO19321IVIv2.asn ETSI_TS_103301.asn CAMv1.asn CAM-PDU-Descriptions.asn DENMv1.asn DENM-PDU-Descriptions.asn TIS_TPG_Transactions_Descriptions.asn EVCSN-PDU-Descriptions.asn EV-RSR-PDU-Descriptions.asn CPM-OriginatingStationContainers.asn CPM-PDU-Descriptionsv1.asn CPM-PDU-Descriptions.asn CPM-PerceivedObjectContainer.asn CPM-PerceptionRegionContainer.asn CPM-SensorInformationContainer.asn VAM-PDU-Descriptions.asn IMZM-PDU-Descriptions.asn */
 
 /* packet-its-template.c
  *
@@ -988,7 +988,7 @@ static int hf_dsrc_app_vehicleMaxLadenWeight;     /* Int2 */
 static int hf_dsrc_app_vehicleTrainMaximumWeight;  /* Int2 */
 static int hf_dsrc_app_vehicleWeightUnladen;      /* Int2 */
 
-/* --- Module DSRC --- --- ---                                                */
+/* --- Module ETSI-ITS-DSRC --- --- ---                                       */
 
 static int hf_dsrc_dsrc_MapData_PDU;              /* MapData */
 static int hf_dsrc_dsrc_RTCMcorrections_PDU;      /* RTCMcorrections */
@@ -1189,6 +1189,14 @@ static int hf_dsrc_nopxyRegional;                 /* RegionalExtension */
 static int hf_dsrc_delta;                         /* NodeOffsetPointXY */
 static int hf_dsrc_attributes;                    /* NodeAttributeSetXY */
 static int hf_dsrc_NodeSetXY_item;                /* NodeXY */
+static int hf_dsrc_reportingPoint;                /* ReportingPoint */
+static int hf_dsrc_priorityLevel;                 /* PriorityLevel */
+static int hf_dsrc_length;                        /* TrainLength */
+static int hf_dsrc_route;                         /* RouteNumber */
+static int hf_dsrc_line;                          /* LineNumber */
+static int hf_dsrc_direction;                     /* TransitDirection */
+static int hf_dsrc_tour;                          /* TourNumber */
+static int hf_dsrc_version;                       /* VersionId */
 static int hf_dsrc_OverlayLaneList_item;          /* LaneID */
 static int hf_dsrc_semiMajor;                     /* SemiMajorAxisAccuracy */
 static int hf_dsrc_semiMinor;                     /* SemiMinorAxisAccuracy */
@@ -1210,6 +1218,7 @@ static int hf_dsrc_transitOccupancy;              /* TransitVehicleOccupancy */
 static int hf_dsrc_transitSchedule;               /* DeltaTime */
 static int hf_dsrc_rdRegional;                    /* T_RequestorDescriptionRegional */
 static int hf_dsrc_rdRegional_item;               /* RegionalExtension */
+static int hf_dsrc_ocit;                          /* OcitRequestorDescriptionContainer */
 static int hf_dsrc_rpvPosition;                   /* Position3D */
 static int hf_dsrc_rpvHeading;                    /* Angle */
 static int hf_dsrc_rpvSpeed;                      /* TransmissionAndSpeed */
@@ -1391,7 +1400,7 @@ static int hf_dsrc_TransitVehicleStatus_doorOpen;
 static int hf_dsrc_TransitVehicleStatus_charging;
 static int hf_dsrc_TransitVehicleStatus_atStopLine;
 
-/* --- Module AddGrpC --- --- ---                                             */
+/* --- Module ETSI-ITS-DSRC-AddGrpC --- --- ---                               */
 
 static int hf_AddGrpC_AddGrpC_ConnectionManeuverAssist_addGrpC_PDU;  /* ConnectionManeuverAssist_addGrpC */
 static int hf_AddGrpC_AddGrpC_ConnectionTrajectory_addGrpC_PDU;  /* ConnectionTrajectory_addGrpC */
@@ -2612,7 +2621,7 @@ static int ett_dsrc_app_SoundLevel;
 static int ett_dsrc_app_VehicleDimensions;
 static int ett_dsrc_app_VehicleWeightLimits;
 
-/* --- Module DSRC --- --- ---                                                */
+/* --- Module ETSI-ITS-DSRC --- --- ---                                       */
 
 static int ett_dsrc_RegionalExtension;
 static int ett_dsrc_MapData;
@@ -2680,6 +2689,7 @@ static int ett_dsrc_NodeListXY;
 static int ett_dsrc_NodeOffsetPointXY;
 static int ett_dsrc_NodeXY;
 static int ett_dsrc_NodeSetXY;
+static int ett_dsrc_OcitRequestorDescriptionContainer;
 static int ett_dsrc_OverlayLaneList;
 static int ett_dsrc_PositionalAccuracy;
 static int ett_dsrc_PositionConfidenceSet;
@@ -2736,7 +2746,10 @@ static int ett_dsrc_LaneAttributes_Vehicle;
 static int ett_dsrc_LaneDirection;
 static int ett_dsrc_TransitVehicleStatus;
 
-/* --- Module AddGrpC --- --- ---                                             */
+/* --- Module ETSI-ITS-DSRC-REGION --- --- ---                                */
+
+
+/* --- Module ETSI-ITS-DSRC-AddGrpC --- --- ---                               */
 
 static int ett_AddGrpC_ConnectionManeuverAssist_addGrpC;
 static int ett_AddGrpC_ConnectionTrajectory_addGrpC;
@@ -2757,9 +2770,6 @@ static int ett_AddGrpC_PrioritizationResponse;
 static int ett_AddGrpC_PrioritizationResponseList;
 static int ett_AddGrpC_SignalHeadLocation;
 static int ett_AddGrpC_SignalHeadLocationList;
-
-/* --- Module REGION --- --- ---                                              */
-
 
 /* --- Module GDD --- --- ---                                                 */
 
@@ -5738,22 +5748,6 @@ static int
 dissect_its_VehicleBreakdownSubCauseCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, false);
-
-  return offset;
-}
-
-
-static const value_string its_VehicleHeight_vals[] = {
-  { 126, "outOfRange" },
-  { 127, "unavailable" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_its_VehicleHeight(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 128U, NULL, false);
 
   return offset;
 }
@@ -10652,7 +10646,7 @@ dissect_dsrc_app_VehicleWeightLimits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-/* --- Module DSRC --- --- ---                                                */
+/* --- Module ETSI-ITS-DSRC --- --- ---                                       */
 
 
 static const value_string dsrc_RegionId_vals[] = {
@@ -13517,6 +13511,7 @@ static const value_string dsrc_BasicVehicleRole_vals[] = {
   {  20, "pedestrian" },
   {  21, "nonMotorized" },
   {  22, "military" },
+  {  23, "tram" },
   { 0, NULL }
 };
 
@@ -13524,7 +13519,7 @@ static const value_string dsrc_BasicVehicleRole_vals[] = {
 static int
 dissect_dsrc_BasicVehicleRole(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     23, NULL, true, 0, NULL);
+                                     23, NULL, true, 1, NULL);
 
   return offset;
 }
@@ -13723,6 +13718,107 @@ dissect_dsrc_T_RequestorDescriptionRegional(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+
+static int
+dissect_dsrc_ReportingPoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_PriorityLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_TrainLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_RouteNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4294967295U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_LineNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4294967295U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_TransitDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_TourNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4294967295U, NULL, false);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dsrc_VersionId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4294967295U, NULL, false);
+
+  return offset;
+}
+
+
+static const per_sequence_t dsrc_OcitRequestorDescriptionContainer_sequence[] = {
+  { &hf_dsrc_reportingPoint , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_ReportingPoint },
+  { &hf_dsrc_priorityLevel  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_PriorityLevel },
+  { &hf_dsrc_length         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_TrainLength },
+  { &hf_dsrc_route          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_RouteNumber },
+  { &hf_dsrc_line           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_LineNumber },
+  { &hf_dsrc_direction      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_TransitDirection },
+  { &hf_dsrc_tour           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_TourNumber },
+  { &hf_dsrc_version        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_VersionId },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_dsrc_OcitRequestorDescriptionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_dsrc_OcitRequestorDescriptionContainer, dsrc_OcitRequestorDescriptionContainer_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t dsrc_RequestorDescription_sequence[] = {
   { &hf_dsrc_rdId           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_dsrc_VehicleID },
   { &hf_dsrc_rdType         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_RequestorType },
@@ -13733,6 +13829,7 @@ static const per_sequence_t dsrc_RequestorDescription_sequence[] = {
   { &hf_dsrc_transitOccupancy, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_TransitVehicleOccupancy },
   { &hf_dsrc_transitSchedule, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_DeltaTime },
   { &hf_dsrc_rdRegional     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_T_RequestorDescriptionRegional },
+  { &hf_dsrc_ocit           , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_dsrc_OcitRequestorDescriptionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -13986,6 +14083,16 @@ dissect_dsrc_FuelType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   return offset;
 }
 
+
+
+static int
+dissect_dsrc_VehicleHeight(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, NULL, false);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_dsrc_MapData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -14030,7 +14137,10 @@ static int dissect_dsrc_SignalStatusMessage_PDU(tvbuff_t *tvb _U_, packet_info *
 }
 
 
-/* --- Module AddGrpC --- --- ---                                             */
+/* --- Module ETSI-ITS-DSRC-REGION --- --- ---                                */
+
+
+/* --- Module ETSI-ITS-DSRC-AddGrpC --- --- ---                               */
 
 
 static const value_string AddGrpC_TimeReference_vals[] = {
@@ -14156,7 +14266,7 @@ dissect_AddGrpC_IntersectionState_addGrpC(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static const per_sequence_t AddGrpC_LaneAttributes_addGrpC_sequence[] = {
-  { &hf_AddGrpC_maxVehicleHeight, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VehicleHeight },
+  { &hf_AddGrpC_maxVehicleHeight, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_dsrc_VehicleHeight },
   { &hf_AddGrpC_maxVehicleWeight, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_its_VehicleMass },
   { NULL, 0, 0, NULL }
 };
@@ -14544,9 +14654,6 @@ static int dissect_AddGrpC_SignalStatusPackage_addGrpC_PDU(tvbuff_t *tvb _U_, pa
   offset += 7; offset >>= 3;
   return offset;
 }
-
-
-/* --- Module REGION --- --- ---                                              */
 
 
 /* --- Module GDD --- --- ---                                                 */
@@ -25735,7 +25842,7 @@ void proto_register_its(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "Int2", HFILL }},
 
-/* --- Module DSRC --- --- ---                                                */
+/* --- Module ETSI-ITS-DSRC --- --- ---                                       */
 
     { &hf_dsrc_dsrc_MapData_PDU,
       { "MapData", "dsrc.MapData_element",
@@ -26533,6 +26640,38 @@ void proto_register_its(void)
       { "NodeXY", "dsrc.NodeXY_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_dsrc_reportingPoint,
+      { "reportingPoint", "dsrc.reportingPoint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_dsrc_priorityLevel,
+      { "priorityLevel", "dsrc.priorityLevel",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_dsrc_length,
+      { "length", "dsrc.length",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TrainLength", HFILL }},
+    { &hf_dsrc_route,
+      { "route", "dsrc.route",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RouteNumber", HFILL }},
+    { &hf_dsrc_line,
+      { "line", "dsrc.line",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "LineNumber", HFILL }},
+    { &hf_dsrc_direction,
+      { "direction", "dsrc.direction",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TransitDirection", HFILL }},
+    { &hf_dsrc_tour,
+      { "tour", "dsrc.tour",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TourNumber", HFILL }},
+    { &hf_dsrc_version,
+      { "version", "dsrc.version",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "VersionId", HFILL }},
     { &hf_dsrc_OverlayLaneList_item,
       { "LaneID", "dsrc.LaneID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -26617,6 +26756,10 @@ void proto_register_its(void)
       { "RegionalExtension", "dsrc.RegionalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_dsrc_ocit,
+      { "ocit", "dsrc.ocit_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OcitRequestorDescriptionContainer", HFILL }},
     { &hf_dsrc_rpvPosition,
       { "position", "dsrc.rpvPosition_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27334,7 +27477,7 @@ void proto_register_its(void)
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
 
-/* --- Module AddGrpC --- --- ---                                             */
+/* --- Module ETSI-ITS-DSRC-AddGrpC --- --- ---                               */
 
     { &hf_AddGrpC_AddGrpC_ConnectionManeuverAssist_addGrpC_PDU,
       { "ConnectionManeuverAssist-addGrpC", "AddGrpC.ConnectionManeuverAssist_addGrpC_element",
@@ -27398,7 +27541,7 @@ void proto_register_its(void)
         "PrioritizationResponseList", HFILL }},
     { &hf_AddGrpC_maxVehicleHeight,
       { "maxVehicleHeight", "AddGrpC.maxVehicleHeight",
-        FT_UINT32, BASE_DEC, VALS(its_VehicleHeight_vals), 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "VehicleHeight", HFILL }},
     { &hf_AddGrpC_maxVehicleWeight,
       { "maxVehicleWeight", "AddGrpC.maxVehicleWeight",
@@ -28195,8 +28338,8 @@ void proto_register_its(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ivi_LaneIds_item,
-      { "LaneID", "ivi.LaneID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+      { "LaneID", "ivi.LaneID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ivi_LanePositions_item,
       { "LanePosition", "ivi.LanePosition",
@@ -30846,8 +30989,8 @@ void proto_register_its(void)
         FT_UINT32, BASE_DEC, VALS(cpmv1_LongitudinalLanePositionConfidence_vals), 0,
         NULL, HFILL }},
     { &hf_cpmv1_laneID,
-      { "laneID", "cpmv1.laneID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+      { "laneID", "cpmv1.laneID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cpmv1_longitudinalLanePosition,
       { "longitudinalLanePosition", "cpmv1.longitudinalLanePosition_element",
@@ -30906,36 +31049,36 @@ void proto_register_its(void)
         FT_UINT32, BASE_DEC, VALS(cpmv1_OtherSublassType_vals), 0,
         "OtherSublassType", HFILL }},
     { &hf_cpmv1_nodeOffsetPointxy,
-      { "nodeOffsetPointxy", "cpmv1.nodeOffsetPointxy",
-        FT_UINT32, BASE_DEC, VALS(dsrc_NodeOffsetPointXY_vals), 0,
+      { "nodeOffsetPointxy", "cpmv1.nodeOffsetPointxy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cpmv1_nodeOffsetPointZ,
       { "nodeOffsetPointZ", "cpmv1.nodeOffsetPointZ",
         FT_UINT32, BASE_DEC, VALS(cpmv1_NodeOffsetPointZ_vals), 0,
         NULL, HFILL }},
     { &hf_cpmv1_node_Z1,
-      { "node-Z1", "cpmv1.node_Z1",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "node-Z1", "cpmv1.node_Z1_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "Offset_B10", HFILL }},
     { &hf_cpmv1_node_Z2,
-      { "node-Z2", "cpmv1.node_Z2",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "node-Z2", "cpmv1.node_Z2_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "Offset_B11", HFILL }},
     { &hf_cpmv1_node_Z3,
-      { "node-Z3", "cpmv1.node_Z3",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "node-Z3", "cpmv1.node_Z3_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "Offset_B12", HFILL }},
     { &hf_cpmv1_node_Z4,
-      { "node-Z4", "cpmv1.node_Z4",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "node-Z4", "cpmv1.node_Z4_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "Offset_B13", HFILL }},
     { &hf_cpmv1_node_Z5,
-      { "node-Z5", "cpmv1.node_Z5",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "node-Z5", "cpmv1.node_Z5_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "Offset_B14", HFILL }},
     { &hf_cpmv1_node_Z6,
-      { "node-Z6", "cpmv1.node_Z6",
-        FT_INT32, BASE_DEC, NULL, 0,
+      { "node-Z6", "cpmv1.node_Z6_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         "Offset_B16", HFILL }},
 
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
@@ -31560,7 +31703,7 @@ void proto_register_its(void)
     &ett_dsrc_app_VehicleDimensions,
     &ett_dsrc_app_VehicleWeightLimits,
 
-/* --- Module DSRC --- --- ---                                                */
+/* --- Module ETSI-ITS-DSRC --- --- ---                                       */
 
     &ett_dsrc_RegionalExtension,
     &ett_dsrc_MapData,
@@ -31628,6 +31771,7 @@ void proto_register_its(void)
     &ett_dsrc_NodeOffsetPointXY,
     &ett_dsrc_NodeXY,
     &ett_dsrc_NodeSetXY,
+    &ett_dsrc_OcitRequestorDescriptionContainer,
     &ett_dsrc_OverlayLaneList,
     &ett_dsrc_PositionalAccuracy,
     &ett_dsrc_PositionConfidenceSet,
@@ -31684,7 +31828,10 @@ void proto_register_its(void)
     &ett_dsrc_LaneDirection,
     &ett_dsrc_TransitVehicleStatus,
 
-/* --- Module AddGrpC --- --- ---                                             */
+/* --- Module ETSI-ITS-DSRC-REGION --- --- ---                                */
+
+
+/* --- Module ETSI-ITS-DSRC-AddGrpC --- --- ---                               */
 
     &ett_AddGrpC_ConnectionManeuverAssist_addGrpC,
     &ett_AddGrpC_ConnectionTrajectory_addGrpC,
@@ -31705,9 +31852,6 @@ void proto_register_its(void)
     &ett_AddGrpC_PrioritizationResponseList,
     &ett_AddGrpC_SignalHeadLocation,
     &ett_AddGrpC_SignalHeadLocationList,
-
-/* --- Module REGION --- --- ---                                              */
-
 
 /* --- Module GDD --- --- ---                                                 */
 

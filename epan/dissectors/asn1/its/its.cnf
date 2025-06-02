@@ -74,6 +74,7 @@ StandardLength2B
 RoadSectionId
 PathId
 IssuerIdentifier
+$ETSI-ITS-CDD$VehicleHeight
 
 #.NO_EMIT
 Code-Units WITHOUT_VALS
@@ -101,6 +102,8 @@ EfcDsrcApplication					dsrc_app
 IVI							ivi
 GDD							gdd
 DSRC						dsrc
+ETSI-ITS-DSRC						dsrc
+ETSI-ITS-DSRC-AddGrpC               AddGrpC
 RTCMEM-PDU-Descriptions                         rtcmem
 ETSI-ITS-CDDv1                                  itsv1
 ETSI-ITS-CDD                                    its
