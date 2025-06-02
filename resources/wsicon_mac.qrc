@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/wsicon">
+        <file alias="wsiconcap16.png">icons/wsiconcap16.png</file>
+        <file alias="wsiconcap32.png">icons/wsiconcap32.png</file>
+        <file alias="wsiconcap64.png">icons/wsiconcap64.png</file>
+        <file alias="wsiconcap128.png">icons/wsiconcap128.png</file>
+        <file alias="wsiconcap256.png">icons/wsiconcap256.png</file>
+        <file alias="wsiconcap512.png">icons/wsiconcap512.png</file>
+        <file alias="wsiconcap1024.png">icons/wsiconcap1024.png</file>
+    </qresource>
+</RCC>

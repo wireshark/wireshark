@@ -656,6 +656,9 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     if_notifier_(NULL),
     active_captures_(0),
     refresh_interfaces_pending_(false)
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+    , normal_icon_(windowIcon())
+#endif
 #ifdef HAVE_LIBPCAP
     , cached_if_list_(NULL)
 #endif

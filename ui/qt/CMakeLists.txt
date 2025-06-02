@@ -750,12 +750,18 @@ add_custom_command(
 set(CMAKE_AUTORCC_OPTIONS --format-version 1)
 list(APPEND CMAKE_AUTORCC_OPTIONS -compress-algo zlib)
 
+if (APPLE)
+	set(WS_ICON_QRC "wsicon_mac.qrc")
+else()
+	set(WS_ICON_QRC "wsicon.qrc")
+endif()
+
 qt_add_resources(WIRESHARK_QT_QRC
 	../../resources/about.qrc
 	../../resources/languages/languages.qrc
 	../../resources/layout.qrc
 	../../resources/stock_icons.qrc
-	../../resources/wsicon.qrc
+	${CMAKE_SOURCE_DIR}/resources/${WS_ICON_QRC}
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/authors.qrc
 	OPTIONS ${CMAKE_AUTORCC_OPTIONS}
