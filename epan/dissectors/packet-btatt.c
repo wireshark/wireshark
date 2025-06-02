@@ -4216,14 +4216,18 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
         btl2cap_data_t *l2cap_data)
 {
     request_data_t  *request_data;
-    wmem_tree_key_t  key[5];
+    wmem_tree_key_t  key[6];
     wmem_tree_t     *sub_wmemtree;
-    uint32_t         frame_number, curr_layer_num, direction;
+    uint32_t         frame_number, curr_layer_num, direction, cid;
 
     if (!l2cap_data)
         return NULL;
 
     curr_layer_num = pinfo->curr_layer_num;
+
+    /* For dynamic channels, use the channel's local CID. For fixed channels, use the CID from the PDU. */
+    cid = (l2cap_data->cid == BTL2CAP_FIXED_CID_ATT) ? l2cap_data->cid : l2cap_data->local_cid;
+
     // Request is always in opposite direction from response
     direction = pinfo->p2p_dir == P2P_DIR_SENT ? P2P_DIR_RECV : P2P_DIR_SENT;
 
@@ -4234,9 +4238,11 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
     key[2].length = 1;
     key[2].key    = &curr_layer_num;
     key[3].length = 1;
-    key[3].key    = &direction;
-    key[4].length = 0;
-    key[4].key    = NULL;
+    key[3].key    = &cid;
+    key[4].length = 1;
+    key[4].key    = &direction;
+    key[5].length = 0;
+    key[5].key    = NULL;
 
     frame_number = pinfo->num;
 
@@ -4338,12 +4344,13 @@ static void
 save_request(packet_info *pinfo, uint8_t opcode, union request_parameters_union parameters,
         btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[6];
-    uint32_t         frame_number, curr_layer_num, direction;
+    wmem_tree_key_t  key[7];
+    uint32_t         frame_number, curr_layer_num, direction, cid;
     request_data_t  *request_data;
 
     frame_number = pinfo->num;
     curr_layer_num = pinfo->curr_layer_num;
+    cid = (l2cap_data->cid == BTL2CAP_FIXED_CID_ATT) ? l2cap_data->cid : l2cap_data->local_cid;
     direction = pinfo->p2p_dir;
 
     key[0].length = 1;
@@ -4353,11 +4360,13 @@ save_request(packet_info *pinfo, uint8_t opcode, union request_parameters_union 
     key[2].length = 1;
     key[2].key    = &curr_layer_num;
     key[3].length = 1;
-    key[3].key    = &direction;
+    key[3].key    = &cid;
     key[4].length = 1;
-    key[4].key    = &frame_number;
-    key[5].length = 0;
-    key[5].key    = NULL;
+    key[4].key    = &direction;
+    key[5].length = 1;
+    key[5].key    = &frame_number;
+    key[6].length = 0;
+    key[6].key    = NULL;
 
     request_data = wmem_new0(wmem_file_scope(), request_data_t);
     request_data->opcode = opcode;
@@ -10729,8 +10738,19 @@ get_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data)
     uint32_t         frame_number;
     mtu_data_t      *mtu_data;
     wmem_tree_t     *sub_wmemtree;
-    unsigned         mtu = 23;
 
+    /* Default to the minimum MTU on each type of bearer */
+    unsigned         mtu = l2cap_data->cid == BTL2CAP_FIXED_CID_ATT ? 23 : 48;
+    if (l2cap_data->psm == BTL2CAP_PSM_EATT)
+    {
+        mtu = 64;
+    }
+
+    /* Currently, MTU isn't stored per bearer, because the L2CAP dissector
+     * doesn't parse/provide that information.
+     *
+     * Until someday when that happens, continue assuming that the MTU of
+     * the dynamic bearers is at least equal to that of the fixed bearer. */
     if (l2cap_data) {
         frame_number = pinfo->num;
 
@@ -10779,22 +10799,25 @@ static void
 save_value_fragment(packet_info *pinfo, tvbuff_t *tvb, int offset,
         uint32_t handle, unsigned data_offset, btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t   key[5];
-    uint32_t          frame_number;
+    wmem_tree_key_t   key[6];
+    uint32_t          frame_number, cid;
     fragment_data_t  *fragment_data;
 
     frame_number = pinfo->num;
+    cid = (l2cap_data->cid == BTL2CAP_FIXED_CID_ATT) ? l2cap_data->cid : l2cap_data->local_cid;
 
     key[0].length = 1;
     key[0].key    = &l2cap_data->interface_id;
     key[1].length = 1;
     key[1].key    = &l2cap_data->adapter_id;
     key[2].length = 1;
-    key[2].key    = &handle;
+    key[2].key    = &cid;
     key[3].length = 1;
-    key[3].key    = &frame_number;
-    key[4].length = 0;
-    key[4].key    = NULL;
+    key[3].key    = &handle;
+    key[4].length = 1;
+    key[4].key    = &frame_number;
+    key[5].length = 0;
+    key[5].key    = NULL;
 
     fragment_data = wmem_new(wmem_file_scope(), fragment_data_t);
     fragment_data->length = tvb_captured_length_remaining(tvb, offset);
@@ -10808,8 +10831,8 @@ save_value_fragment(packet_info *pinfo, tvbuff_t *tvb, int offset,
 static uint8_t *
 get_value(packet_info *pinfo, uint32_t handle, btl2cap_data_t *l2cap_data, unsigned *length)
 {
-    wmem_tree_key_t   key[4];
-    uint32_t          frame_number;
+    wmem_tree_key_t   key[5];
+    uint32_t          frame_number, cid;
     fragment_data_t  *fragment_data;
     wmem_tree_t      *sub_wmemtree;
     unsigned          last_offset = UINT_MAX;
@@ -10819,15 +10842,18 @@ get_value(packet_info *pinfo, uint32_t handle, btl2cap_data_t *l2cap_data, unsig
 
     if (l2cap_data) {
         frame_number = pinfo->num;
+        cid = (l2cap_data->cid == BTL2CAP_FIXED_CID_ATT) ? l2cap_data->cid : l2cap_data->local_cid;
 
         key[0].length = 1;
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
         key[2].length = 1;
-        key[2].key    = &handle;
-        key[3].length = 0;
-        key[3].key    = NULL;
+        key[2].key    = &cid;
+        key[3].length = 1;
+        key[3].key    = &handle;
+        key[4].length = 0;
+        key[4].key    = NULL;
 
         sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
         while (1) {
