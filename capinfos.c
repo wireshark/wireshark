@@ -175,7 +175,7 @@ typedef enum {
 } order_t;
 
 typedef struct _pkt_cmt {
-  int recno;
+  uint32_t recno;
   char *cmt;
   struct _pkt_cmt *next;
 } pkt_cmt;
@@ -633,9 +633,9 @@ print_stats(const char *filename, capture_info *cf_info)
     if (pkt_comments && cf_info->pkt_cmts != NULL) {
       for (p = cf_info->pkt_cmts; p != NULL; prev = p, p = p->next, g_free(prev)) {
         if (machine_readable){
-          printf("Packet %d Comment:    %s\n", p->recno, g_strescape(p->cmt, NULL));
+          printf("Packet %u Comment:    %s\n", p->recno, g_strescape(p->cmt, NULL));
         } else {
-          printf("Packet %d Comment:    %s\n", p->recno, p->cmt);
+          printf("Packet %u Comment:    %s\n", p->recno, p->cmt);
         }
         g_free(p->cmt);
       }
@@ -680,12 +680,16 @@ putquote(void)
     if (quote_char) putchar(quote_char);
 }
 
-static void
-print_stats_table_header_label(const char *label)
+static void G_GNUC_PRINTF(1, 2)
+print_stats_table_header_label(const char *fmt, ...)
 {
+    va_list ap;
+
     putsep();
     putquote();
-    printf("%s", label);
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+    va_end(ap);
     putquote();
 }
 
@@ -729,17 +733,9 @@ print_stats_table_header(capture_info *cf_info)
     if (cap_comment)        print_stats_table_header_label("Capture comment");
 
     if (pkt_comments && cf_info->pkt_cmts != NULL) {
-        char    *buf;
-        size_t   buf_len;
-        /* Packet 2^64 Comment" + NULL */
-        buf_len = strlen("Packet 18446744073709551616 Comment") + 1;
-        buf = (char *)g_malloc0(buf_len);
-
         for (p = cf_info->pkt_cmts; p != NULL; p = p->next) {
-            snprintf(buf, buf_len, "Packet %d Comment", p->recno);
-            print_stats_table_header_label(buf);
+            print_stats_table_header_label("Packet %u Comment", p->recno);
         }
-        g_free(buf);
     }
 
     printf("\n");
