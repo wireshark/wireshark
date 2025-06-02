@@ -109,8 +109,14 @@ endif::[]
 // how to make scaledwidth take precedence.
 :statusbar-attrs: scaledwidth="85%",height=22
 
+// Useful symbols
 :multiplication: ×
 :underscore: _
 :cmd: ⌘
+
+// This can be used to denote release note items that should be shown on the download page.
+ifdef::backend-html5[]
+:notable: pass:[<!-- notable -->]
+endif::[]
 
 :missing: Not yet written. If you would like to fix this, see https://gitlab.com/wireshark/wireshark/-/wikis/Development/SubmittingPatches.
