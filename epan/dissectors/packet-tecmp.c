@@ -428,8 +428,8 @@ static dissector_handle_t asam_cmp_handle;
 static expert_field ei_tecmp_payload_length_mismatch;
 static expert_field ei_tecmp_payload_header_crc_overflow;
 
-/* TECMP Type Names */
-
+/* TECMP Message Type Names */
+/* Updated by ID Registry */
 #define TECMP_MSG_TYPE_CTRL_MSG            0x00
 #define TECMP_MSG_TYPE_STATUS_DEV          0x01
 #define TECMP_MSG_TYPE_STATUS_BUS          0x02
@@ -439,10 +439,7 @@ static expert_field ei_tecmp_payload_header_crc_overflow;
 #define TECMP_MSG_TYPE_COUNTER_EVENT       0x0B
 #define TECMP_MSG_TYPE_TIMESYNC_EVENT      0x0C
 
-
-/* TECMP Type Names */
-/* Updated by ID Registry */
-static const value_string msg_type_names[] = {
+static const value_string tecmp_msg_type_names[] = {
     {TECMP_MSG_TYPE_CTRL_MSG,              "Control Message"},
     {TECMP_MSG_TYPE_STATUS_DEV,            "Status Device"},
     {TECMP_MSG_TYPE_STATUS_BUS,            "Status Bus"},
@@ -454,7 +451,7 @@ static const value_string msg_type_names[] = {
     {0, NULL}
 };
 
-/* TECMP Message Type Names */
+/* TECMP Data Type Names */
 /* Updated by ID Registry */
 #define TECMP_DATA_TYPE_NONE               0x0000
 #define TECMP_DATA_TYPE_CAN_RAW            0x0001
@@ -487,7 +484,7 @@ static const value_string msg_type_names[] = {
 #define TECMP_DATA_TYPE_TECMP_RAW          0xA000
 #define TECMP_DATA_TYPE_PRE_LABEL          0xB000
 
-static const value_string tecmp_msgtype_names[] = {
+static const value_string tecmp_data_type_names[] = {
     {TECMP_DATA_TYPE_NONE,                 "None (Undefined)"},
     {TECMP_DATA_TYPE_CAN_RAW,              "CAN(-FD) Raw"},
     {TECMP_DATA_TYPE_CAN_DATA,             "CAN Data"},
@@ -574,31 +571,38 @@ static const value_string tecmp_device_ids_specific[] = {
     {0, NULL}
 };
 
-
+#define TECMP_DEVICE_TYPE_CM_LIN_COMBO      0x02
+#define TECMP_DEVICE_TYPE_CM_CAN_COMBO      0x04
+#define TECMP_DEVICE_TYPE_CM_100_HIGH       0x06
+#define TECMP_DEVICE_TYPE_CM_100_HIGH_TC10  0x07
+#define TECMP_DEVICE_TYPE_CM_ETH_COMBO      0x08
+#define TECMP_DEVICE_TYPE_CM_1000_HIGH      0x0a
 #define TECMP_DEVICE_TYPE_CM_10BASE_T1S     0x0c
-#define TECMP_DEVICE_TYPE_CM_ILAS_COMBO     0x0e
+#define TECMP_DEVICE_TYPE_CM_ILAS_SNIFFER   0x0e
 #define TECMP_DEVICE_TYPE_CM_SERDES_GMSL23  0x40
+#define TECMP_DEVICE_TYPE_CM_MULTIGIGABIT   0x42
 #define TECMP_DEVICE_TYPE_CM_SERDES_ASAML   0x48
 
 /* Device Types */
 /* Updated by ID Registry */
 static const value_string tecmp_device_types[] = {
-    {0x02, "CM LIN Combo"},
-    {0x04, "CM CAN Combo"},
-    {0x06, "CM 100 High"},
-    {0x07, "CM 100 High TC10"},
-    {0x08, "CM Eth Combo"},
-    {0x0a, "CM 1000 High"},
-    {TECMP_DEVICE_TYPE_CM_10BASE_T1S, "CM 10BASE-T1S"},
-    {TECMP_DEVICE_TYPE_CM_ILAS_COMBO, "ILaS Sniffer"},
-    {0x10, "Sensor specific"},
-    {0x20, "Logger"},
-    {TECMP_DEVICE_TYPE_CM_SERDES_GMSL23, "CM SerDes GMSL2/3"},
-    {0x42, "CM MultiGigabit"},
-    {0x44, "EES"},
-    {0x46, "CM Sense"},
-    {TECMP_DEVICE_TYPE_CM_SERDES_ASAML, "CM SerDes ASA ML"},
-    {0x52, "Network Interfacer 10BASE-T1S"},
+    {TECMP_DEVICE_TYPE_CM_LIN_COMBO,        "CM LIN Combo"},
+    {TECMP_DEVICE_TYPE_CM_CAN_COMBO,        "CM CAN Combo"},
+    {TECMP_DEVICE_TYPE_CM_100_HIGH,         "CM 100 High"},
+    {TECMP_DEVICE_TYPE_CM_100_HIGH_TC10,    "CM 100 High TC10"},
+    {TECMP_DEVICE_TYPE_CM_ETH_COMBO,        "CM Eth Combo"},
+    {TECMP_DEVICE_TYPE_CM_1000_HIGH,        "CM 1000 High"},
+    {TECMP_DEVICE_TYPE_CM_10BASE_T1S,       "CM 10BASE-T1S"},
+    {TECMP_DEVICE_TYPE_CM_ILAS_SNIFFER,     "ILaS Sniffer"},
+    {0x10,                                  "Sensor specific"},
+    {0x20,                                  "Logger"},
+    {TECMP_DEVICE_TYPE_CM_SERDES_GMSL23,    "CM SerDes GMSL2/3"},
+    {TECMP_DEVICE_TYPE_CM_MULTIGIGABIT,     "CM MultiGigabit"},
+    {0x44,                                  "EES"},
+    {0x46,                                  "CM Sense"},
+    {TECMP_DEVICE_TYPE_CM_SERDES_ASAML,     "CM SerDes ASA ML"},
+    {0x50,                                  "BTS Revo"},
+    {0x52,                                  "Network Interfacer 10BASE-T1S"},
     {0, NULL}
 };
 
@@ -912,6 +916,151 @@ static const value_string tecmp_eth_raw_sfd[] = {
     {TECMP_ETH_RAW_SFD_SMD_C3, "SMD-C3"},
     {0, NULL}
 };
+
+/* Default Interface Names */
+static const value_string tecmp_default_iface_names_lin[] = {
+    {1, "LIN-A"},
+    {2, "LIN-B"},
+    {3, "LIN-C"},
+    {4, "LIN-D"},
+    {5, "LIN-E"},
+    {6, "LIN-F"},
+    {7, "LIN-G"},
+    {8, "LIN-H"},
+    {9, "LIN-I"},
+    {10, "LIN-J"},
+    {11, "ANA-1"},
+    {12, "ANA-2"},
+    {13, "ANA-3"},
+    {14, "ANA-4"},
+    {15, "ANADIFF-1"},
+    {16, "ANADIFF-1"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_can[] = {
+    {1, "CAN-A"},
+    {2, "CAN-B"},
+    {3, "CAN-C"},
+    {4, "CAN-D"},
+    {5, "CAN-E"},
+    {6, "CAN-F"},
+    {7, "FlexRay"},
+    {8, "RS-232-A"},
+    {9, "RS-232-B"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_100_high[] = {
+    {1, "100BASE-T1-1A"},
+    {2, "100BASE-T1-1B"},
+    {3, "100BASE-T1-2A"},
+    {4, "100BASE-T1-2B"},
+    {5, "100BASE-T1-3A"},
+    {6, "100BASE-T1-3B"},
+    {7, "100BASE-T1-4A"},
+    {8, "100BASE-T1-4B"},
+    {9, "100BASE-T1-5A"},
+    {10, "100BASE-T1-5B"},
+    {11, "100BASE-T1-6A"},
+    {12, "100BASE-T1-6B"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_eth_combo[] = {
+    {1, "100BASE-T1-1A"},
+    {2, "100BASE-T1-1B"},
+    {3, "100BASE-T1-2A"},
+    {4, "100BASE-T1-2B"},
+    {5, "1000BASE-T1-3A"},
+    {6, "1000BASE-T1-3B"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_1000_high[] = {
+    {1, "1000BASE-T1-1A"},
+    {2, "1000BASE-T1-1B"},
+    {3, "1000BASE-T1-2A"},
+    {4, "1000BASE-T1-2B"},
+    {5, "1000BASE-T1-3A"},
+    {6, "1000BASE-T1-3B"},
+    {7, "1000BASE-T1-4A"},
+    {8, "1000BASE-T1-4B"},
+    {9, "1000BASE-T1-5A"},
+    {10, "1000BASE-T1-5B"},
+    {11, "1000BASE-T1-6A"},
+    {12, "1000BASE-T1-6B"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_10base_t1s[] = {
+    {1, "10BASE-T1S-1"},
+    {2, "10BASE-T1S-2"},
+    {3, "10BASE-T1S-3"},
+    {4, "10BASE-T1S-4"},
+    {5, "10BASE-T1S-5"},
+    {6, "10BASE-T1S-6"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_ilas_sniffer[] = {
+    {1, "ILaS-1"},
+    {2, "ILaS-2"},
+    {3, "ILaS-3"},
+    {4, "ILaS-4"},
+    {5, "10BASE-T1S"},
+    {6, "ADC1"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_serdes_gsml[] = {
+    {1, "SerDes-Port-1-I2C-1"},
+    {2, "SerDes-Port-1-I2C-2"},
+    {3, "SerDes-Port-1-GPIO"},
+    {4, "SerDes-Port-1-Virtual-Channel-1"},
+    {5, "SerDes-Port-1-Virtual-Channel-2"},
+    {6, "SerDes-Port-1-Virtual-Channel-3"},
+    {7, "SerDes-Port-1-Virtual-Channel-4"},
+
+    {8, "SerDes-Port-2-I2C-1"},
+    {9, "SerDes-Port-2-I2C-2"},
+    {10, "SerDes-Port-2-GPIO"},
+    {11, "SerDes-Port-2-Virtual-Channel-1"},
+    {12, "SerDes-Port-2-Virtual-Channel-2"},
+    {13, "SerDes-Port-2-Virtual-Channel-3"},
+    {14, "SerDes-Port-2-Virtual-Channel-4"},
+
+    {15, "SerDes-Port-3-I2C-1"},
+    {16, "SerDes-Port-3-I2C-2"},
+    {17, "SerDes-Port-3-GPIO"},
+    {18, "SerDes-Port-3-Virtual-Channel-1"},
+    {19, "SerDes-Port-3-Virtual-Channel-2"},
+    {20, "SerDes-Port-3-Virtual-Channel-3"},
+    {21, "SerDes-Port-3-Virtual-Channel-4"},
+
+    {22, "SerDes-Port-4-I2C-1"},
+    {23, "SerDes-Port-4-I2C-2"},
+    {24, "SerDes-Port-4-GPIO"},
+    {25, "SerDes-Port-4-Virtual-Channel-1"},
+    {26, "SerDes-Port-4-Virtual-Channel-2"},
+    {27, "SerDes-Port-4-Virtual-Channel-3"},
+    {28, "SerDes-Port-4-Virtual-Channel-4"},
+    {0, NULL}
+};
+
+static const value_string tecmp_default_iface_names_serdes_asaml[] = {
+    {1, "SerDes-Port-1-I2C-1"},
+    {2, "SerDes-Port-1-I2C-2"},
+    {3, "SerDes-Port-1-I2C-3"},
+    {4, "SerDes-Port-1-I2C-4"},
+    {5, "SerDes-Port-1-GPIO"},
+    {6, "SerDes-Port-1-Virtual-Channel-1"},
+    {7, "SerDes-Port-1-Virtual-Channel-2"},
+    {8, "SerDes-Port-1-Virtual-Channel-3"},
+    {9, "SerDes-Port-1-Virtual-Channel-4"},
+    {0, NULL}
+};
+
 
 /********* UATs *********/
 
@@ -1379,7 +1528,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (!first) {
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
     }
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(data_type, tecmp_data_type_names, "Unknown (%d)"));
 
     ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
     add_interface_id_text_and_name(ti, tmp, tvb, offset);
@@ -1511,8 +1660,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static void
-dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, uint8_t device_type _U_,
-                                        uint8_t vendor_id) {
+dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *ti_root, uint8_t device_type _U_, uint8_t vendor_id) {
     proto_tree *tree = NULL;
     int offset = 0;
     unsigned data_length = 0;
@@ -1524,20 +1672,15 @@ dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
     case TECMP_VENDOR_ID_TECHNICA:
         proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_version, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_reserved, tvb, offset + 1, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_msg_id, tvb, offset + 2, 2,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_total_length, tvb, offset + 4, 4,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_total_num_seg, tvb, offset + 8, 2,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_num, tvb, offset + 10, 2,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_length, tvb,
-                                     offset + 12, 2, ENC_BIG_ENDIAN, &data_length);
+        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_msg_id, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_total_length, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_total_num_seg, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_num, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_length, tvb, offset + 12, 2, ENC_BIG_ENDIAN, &data_length);
+
         offset += 14;
         if (tvb_captured_length_remaining(tvb, offset) >= (int)data_length) {
-            proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_data, tvb, offset,
-                                data_length, ENC_NA);
+            proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_data, tvb, offset, data_length, ENC_NA);
         } else {
             proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_data, tvb, offset,
                                 tvb_captured_length_remaining(tvb, offset), ENC_NA);
@@ -1556,6 +1699,18 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     int bytes_remaining = 0;
     unsigned tmp = 0;
 
+    static int * const error_flags_i2c[] = {
+    &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_no_ack,
+    NULL
+    };
+
+    static int * const error_flags_serdes[] = {
+        &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_crc,
+        &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_ecc_1bit,
+        &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_ecc_2bit,
+        NULL
+    };
+
     proto_item_append_text(ti_root, " (%s)", val_to_str(vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
     tree = proto_item_add_subtree(ti_root, ett_tecmp_status_bus_vendor_data);
 
@@ -1563,9 +1718,9 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     case TECMP_VENDOR_ID_TECHNICA:
         bytes_remaining = tvb_captured_length_remaining(tvb, offset);
 
-        if (device_type == TECMP_DEVICE_TYPE_CM_ILAS_COMBO && entry_number < 5) {
+        if (device_type == TECMP_DEVICE_TYPE_CM_ILAS_SNIFFER && entry_number < 5) {
             /* Currently no parameters for this format but might be specified in a later specification. */
-        } else if ((device_type == TECMP_DEVICE_TYPE_CM_ILAS_COMBO && entry_number == 5) || device_type == TECMP_DEVICE_TYPE_CM_10BASE_T1S) {
+        } else if ((device_type == TECMP_DEVICE_TYPE_CM_ILAS_SNIFFER && entry_number == 5) || device_type == TECMP_DEVICE_TYPE_CM_10BASE_T1S) {
             static int * const vendor_data_flags_10BASE_T1S[] = {
                 &hf_tecmp_payload_status_bus_vendor_technica_10m_flags_plca_en,
                 &hf_tecmp_payload_status_bus_vendor_technica_10m_flags_beac_rcvd,
@@ -1603,20 +1758,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
             offset += 2;
 
             proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_plca_symb_empty_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
-        } else if (device_type == TECMP_DEVICE_TYPE_CM_SERDES_GMSL23 || device_type == TECMP_DEVICE_TYPE_CM_SERDES_ASAML) {
-
-            static int * const error_flags_i2c[] = {
-                &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_no_ack,
-                NULL
-            };
-
-            static int * const error_flags_serdes[] = {
-                &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_crc,
-                &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_ecc_1bit,
-                &hf_tecmp_payload_status_bus_vendor_technica_serdes_err_ecc_2bit,
-                NULL
-            };
-
+        } else if (device_type == TECMP_DEVICE_TYPE_CM_SERDES_GMSL23 ) {
             switch ((entry_number - 1) % 7) {
             case 0:
             case 1:
@@ -1644,7 +1786,40 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
                 proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
                 // offset += 1;
+            }
+        } else if (device_type == TECMP_DEVICE_TYPE_CM_SERDES_ASAML) {
+            switch ((entry_number - 1)) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                /* 0, 1, 2, 3: I2C */
+                proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_bus_vendor_technica_serdes_err, ett_tecmp_status_bus_vendor_data_bus_errors, error_flags_i2c, ENC_NA);
+                offset += 1;
 
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
+                // offset += 1;
+                break;
+
+            case 4:
+                /* 4: GPIO */
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
+                // offset += 1;
+                break;
+
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                /* 5, 6, 7, 8: SerDes streams */
+                proto_tree_add_bitmask(tree, tvb, offset, hf_tecmp_payload_status_bus_vendor_technica_serdes_err, ett_tecmp_status_bus_vendor_data_bus_errors, error_flags_serdes, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_serdes_reserved, tvb, offset, 1, ENC_NA);
+                // offset += 1;
             }
         } else {
             if (bytes_remaining >= 1) {
@@ -1652,8 +1827,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
                 offset += 1;
             }
             if (bytes_remaining >= 2) {
-                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1,
-                    ENC_NA);
+                proto_tree_add_item(tree, hf_tecmp_payload_status_bus_vendor_technica_link_quality, tvb, offset, 1, ENC_NA);
                 offset += 1;
             }
             if (bytes_remaining >= 4) {
@@ -1793,6 +1967,50 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
     }
 }
 
+static const char *
+default_interface_name(uint8_t device_type, uint32_t entry_number) {
+    switch (device_type) {
+    case TECMP_DEVICE_TYPE_CM_LIN_COMBO:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_lin, "LIN_COMBO_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_CAN_COMBO:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_can, "CAN_COMBO_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_100_HIGH:
+    case TECMP_DEVICE_TYPE_CM_100_HIGH_TC10:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_100_high, "100_HIGH_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_ETH_COMBO:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_eth_combo, "ETH_COMBO_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_1000_HIGH:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_1000_high, "1000_HIGH_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_10BASE_T1S:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_10base_t1s, "10BASE_T1S_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_ILAS_SNIFFER:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_ilas_sniffer, "ILaS_Sniffer_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_SERDES_GMSL23:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_serdes_gsml, "SerDes_GSML_Unknown");
+        break;
+
+    case TECMP_DEVICE_TYPE_CM_SERDES_ASAML:
+        return val_to_str_const(entry_number, tecmp_default_iface_names_serdes_asaml, "SerDes_ASAML_Unknown");
+        break;
+    }
+
+    return NULL;
+}
+
 static int
 dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset_orig, uint16_t msg_type, unsigned tecmp_msg_type) {
     proto_item *root_ti = NULL;
@@ -1914,7 +2132,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned vendor_id = 0;
     unsigned device_type = 0;
     unsigned offset = offset_orig;
-    unsigned i = 0;
+    uint32_t i = 0;
     unsigned tmp = 0;
     const char *descr;
     uint64_t timestamp_ns;
@@ -1972,6 +2190,11 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 ti = proto_tree_add_item_ret_uint(tecmp_tree_bus, hf_tecmp_payload_status_bus_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
                 descr = ht_interface_config_to_string(tmp);
+
+                if (descr == NULL) {
+                    descr = default_interface_name(device_type, i);
+                }
+
                 if (descr != NULL) {
                     proto_item_append_text(ti, " (%s)", descr);
                     proto_item_append_text(ti_tecmp_bus, ": (Interface ID: 0x%08x, %s)", tmp, descr);
@@ -2121,7 +2344,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         length = tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN);
         ti_tecmp = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (int)length + 16, ENC_NA);
-        proto_item_append_text(ti_tecmp, " (%s)", val_to_str(data_type, tecmp_msgtype_names, "Unknown (%d)"));
+        proto_item_append_text(ti_tecmp, " (%s)", val_to_str(data_type, tecmp_data_type_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
 
         offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id, &timestamp_ns);
@@ -3170,8 +3393,7 @@ proto_register_tecmp_payload(void) {
            PI_PROTOCOL, PI_WARN, "Header CRC may only be up to 0x07ff!", EXPFILL }},
     };
 
-    proto_tecmp_payload = proto_register_protocol("Technically Enhanced Capture Module Protocol Payload",
-        "TECMP Payload", "tecmp.payload");
+    proto_tecmp_payload = proto_register_protocol("Technically Enhanced Capture Module Protocol Payload", "TECMP Payload", "tecmp.payload");
     proto_register_field_array(proto_tecmp_payload, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_tecmp_payload = expert_register_protocol(proto_tecmp_payload);
@@ -3203,8 +3425,8 @@ proto_register_tecmp(void) {
         { &hf_tecmp_device_id,          { "Device ID", "tecmp.device_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_counter,            { "Counter", "tecmp.counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_version,            { "Version", "tecmp.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_tecmp_msgtype,            { "Message Type", "tecmp.message_type", FT_UINT8, BASE_HEX, VALS(msg_type_names), 0x0, NULL, HFILL } },
-        { &hf_tecmp_data_type,          { "Data Type", "tecmp.data_type", FT_UINT16, BASE_HEX, VALS(tecmp_msgtype_names), 0x0, NULL, HFILL } },
+        { &hf_tecmp_msgtype,            { "Message Type", "tecmp.message_type", FT_UINT8, BASE_HEX, VALS(tecmp_msg_type_names), 0x0, NULL, HFILL } },
+        { &hf_tecmp_data_type,          { "Data Type", "tecmp.data_type", FT_UINT16, BASE_HEX, VALS(tecmp_data_type_names), 0x0, NULL, HFILL } },
         { &hf_tecmp_res,                { "Reserved", "tecmp.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_flags,              { "Device Flags", "tecmp.dev_flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_flags_eos,          { "End of Segment", "tecmp.dev_flags.eos", FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
