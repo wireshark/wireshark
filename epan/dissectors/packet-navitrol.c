@@ -407,7 +407,7 @@ dissect_navitrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			tm_set_time.tm_mon = tvb_get_uint8(tvb, offset);
 			offset += 1;
 			tm_set_time.tm_year = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN)-1900;
-			offset += 4;
+			/* offset += 4; */
 
 			set_time_seconds = mktime(&tm_set_time);
 			ns_set_time.secs = set_time_seconds;
@@ -436,7 +436,7 @@ dissect_navitrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			tm_set_time.tm_min = tvb_get_uint16(tvb, offset, navitrol_endian);
 			offset += 2;
 			tm_set_time.tm_sec = tvb_get_uint16(tvb, offset, navitrol_endian);
-			offset += 2;
+			/* offset += 2; */
 			tm_set_time.tm_isdst = -1;
 
 			set_time_seconds = mktime(&tm_set_time);
