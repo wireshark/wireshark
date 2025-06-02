@@ -4903,7 +4903,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     };
 
     /* Update udCompHdr details in state for UL U-Plane */
-    if (!PINFO_FD_VISITED(pinfo) && state && direction==0) {
+    if (state && direction==0) {
         switch (sectionType) {
             case SEC_C_NORMAL:    /* Section Type 1 */
             case SEC_C_PRACH:     /* Section Type 3 */
@@ -5710,6 +5710,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Update/report status of conversation */
     uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
     flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+    /* Also look up C-PLANE state so may check current compression settings */
+    key = make_flow_key(eAxC, ORAN_C_PLANE);
+    flow_state_t* cplane_state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* Create conversation if doesn't exist yet */
@@ -5763,12 +5766,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* If uplink, load any udCompHdr settings written by C-Plane */
     bool ud_cmp_hdr_cplane = false;
-    if (state && direction == 0) {
+    if (cplane_state && direction == 0) {
         /* Initialise settings from udpCompHdr from C-Plane */
-        if (state->ul_ud_comp_hdr_set) {
-            sample_bit_width = state->ul_ud_comp_hdr_bit_width;
-            compression =      state->ul_ud_comp_hdr_compression;
-
+        if (cplane_state->ul_ud_comp_hdr_set) {
+            sample_bit_width = cplane_state->ul_ud_comp_hdr_bit_width;
+            compression =      cplane_state->ul_ud_comp_hdr_compression;
             ud_cmp_hdr_cplane = true;
         }
     }
