@@ -24,6 +24,7 @@
 #include <wsutil/crc16-plain.h> /* For FP Payload CRC. */
 #include <wsutil/crc11.h> /* For FP EDCH header CRC. */
 #include <wsutil/pint.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-umts_fp.h"
 #include "packet-nbap.h"
@@ -721,9 +722,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /* Advance bit offset */
                 crci_bit_offset += p_fp_info->chan_tf_size[chan];
                 /* Pad out to next byte */
-                if (crci_bit_offset % 8) {
-                    crci_bit_offset += (8 - (crci_bit_offset % 8));
-                }
+                crci_bit_offset = WS_ROUNDUP_8(crci_bit_offset);
             }
         }
     }
@@ -796,9 +795,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             data_bits  += p_fp_info->chan_tf_size[chan];
 
             /* Pad out to next byte */
-            if (bit_offset % 8) {
-                bit_offset += (8 - (bit_offset % 8));
-            }
+            bit_offset = WS_ROUNDUP_8(bit_offset);
         }
     }
 
@@ -875,9 +872,7 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         bit_offset += length;
 
         /* Pad out to next byte */
-        if (bit_offset % 8) {
-            bit_offset += (8 - (bit_offset % 8));
-        }
+        bit_offset = WS_ROUNDUP_8(bit_offset);
     }
 
     /* Data tree should cover entire length */
@@ -2919,9 +2914,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 mac_d_pdus_in_subframe += subframes[n].number_of_mac_d_pdus[i];
 
                 /* Pad out to next byte */
-                if (bit_offset % 8) {
-                    bit_offset += (8 - (bit_offset % 8));
-                }
+                bit_offset = WS_ROUNDUP_8(bit_offset);
             }
 
             if (tree) {

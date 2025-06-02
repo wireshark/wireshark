@@ -67,7 +67,10 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/unit_strings.h>
+
 #include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-rsvp.h"
 
 void proto_register_ospf(void);
@@ -2962,8 +2965,8 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
 {
     uint16_t tlv_type;
     uint16_t tlv_length;
-    int tlv_length_with_pad; /* The total length of the TLV including the type
-                                and length fields and any padding */
+    unsigned tlv_total_length; /* The total length of the TLV including the type
+                                  and length fields and any padding */
     uint32_t grace_period;
     uint8_t restart_reason;
     proto_tree *tlv_tree;
@@ -2979,10 +2982,10 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
         /* The total length of the TLV including the type, length, value and
          * pad bytes (TLVs are padded to 4 octet alignment).
          */
-        tlv_length_with_pad = tlv_length + 4 + ((4 - (tlv_length % 4)) % 4);
+        tlv_total_length = tlv_length + 4 + WS_PADDING_TO_4(tlv_length);
 
         tree_item = proto_tree_add_item(tree, hf_ospf_v2_grace_tlv, tvb, offset,
-                                        tlv_length_with_pad, ENC_NA);
+                                        tlv_total_length, ENC_NA);
         tlv_tree = proto_item_add_subtree(tree_item, ett_ospf_lsa_grace_tlv);
         proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, tlv_type, "%s (%u)",
                             val_to_str_const(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
@@ -3014,11 +3017,11 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
             proto_item_set_text(tree_item, "Unknown grace-LSA TLV");
             break;
         }
-        if (4 + tlv_length < tlv_length_with_pad) {
-            proto_tree_add_item(tlv_tree, hf_ospf_pad_bytes, tvb, offset + 4 + tlv_length, tlv_length_with_pad - (4 + tlv_length), ENC_NA);
+        if (4U + tlv_length < tlv_total_length) {
+            proto_tree_add_item(tlv_tree, hf_ospf_pad_bytes, tvb, offset + 4U + tlv_length, tlv_total_length - (4U + tlv_length), ENC_NA);
         }
-        offset += tlv_length_with_pad;
-        length -= tlv_length_with_pad;
+        offset += tlv_total_length;
+        length -= tlv_total_length;
     }
 }
 

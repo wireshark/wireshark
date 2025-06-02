@@ -26,9 +26,11 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/eap.h>
+#include <epan/ws_printf.h>
+
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
-#include <epan/ws_printf.h>
+#include <wsutil/ws_padding_to.h>
 
 #include "wimaxasncp_dict.h"
 
@@ -1819,11 +1821,7 @@ static unsigned dissect_wimaxasncp_tlvs(
         length = tvb_get_ntohs(tvb, offset + 2);
 #if 0   /* Commented out padding; As there is no mention of padding in
            the Latest specification */
-        pad = 4 - (length % 4);
-        if (pad == 4)
-        {
-            pad = 0;
-        }
+        pad = WS_PADDING_TO_4(length);
 #endif
         pad = 0;
         {

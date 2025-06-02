@@ -23,7 +23,10 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+
 #include <wsutil/array.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 
 void proto_register_xmcp(void);
@@ -416,6 +419,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
                         packet_info *pinfo)
 {
   proto_item *it;
+  unsigned attr_padding;
 
   switch (attr_type) {
   case XMCP_USERNAME:
@@ -794,9 +798,10 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
     expert_add_info(pinfo, attr_tree, &ei_xmcp_attr_type_unknown);
     break;
   }
-  if (attr_length % 4 != 0) {
+  attr_padding = WS_PADDING_TO_4(attr_length);
+  if (attr_padding != 0) {
     proto_tree_add_item(attr_tree, hf_xmcp_attr_padding, tvb, (offset+attr_length),
-                        (4 - (attr_length % 4)), ENC_NA);
+                        attr_padding, ENC_NA);
   }
   if (attr_length < get_xmcp_attr_min_len(attr_type)) {
     expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Length less than minimum for this attribute type");

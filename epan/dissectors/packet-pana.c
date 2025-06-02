@@ -19,7 +19,9 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/tfs.h>
+
 #include <wsutil/array.h>
+#include <wsutil/ws_padding_to.h>
 
 void proto_register_pana(void);
 void proto_reg_handoff_pana(void);
@@ -327,7 +329,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 
 
                 /* Check padding */
-                padding = (4 - (avp_length % 4)) % 4;
+                padding = WS_PADDING_TO_4(avp_length);
 
                 single_avp_tree = proto_tree_add_subtree_format(avp_tree, tvb, offset, avp_length + padding,
                                                                 ett_pana_avp_info, NULL, "%s (%s) length: %d bytes (%d padded bytes)",

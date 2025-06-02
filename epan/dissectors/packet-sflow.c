@@ -49,6 +49,8 @@
 
 #include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-sflow.h"
 
 #define SFLOW_UDP_PORTS "6343"
@@ -1265,8 +1267,7 @@ dissect_sflow_5_extended_user(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_user_source_user, tvb, offset, src_length, ENC_NA|ENC_ASCII);
     offset += src_length;
     /* get the correct offset by adding padding byte count */
-    if (src_length % 4)
-        offset += (4 - src_length % 4);
+    offset += WS_PADDING_TO_4(src_length);
 
     /* charset is not processed here, all chars are assumed to be ASCII */
     proto_tree_add_item(tree, hf_sflow_5_extended_user_destination_character_set, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1280,8 +1281,7 @@ dissect_sflow_5_extended_user(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_user_destination_user, tvb, offset, dest_length, ENC_NA|ENC_ASCII);
     offset += dest_length;
     /* get the correct offset by adding padding byte count */
-    if (dest_length % 4)
-        offset += (4 - dest_length % 4);
+    offset += WS_PADDING_TO_4(dest_length);
 
     return offset;
 }
@@ -1316,8 +1316,7 @@ dissect_sflow_5_extended_url(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_url_url, tvb, offset, url_length, ENC_NA|ENC_ASCII);
     offset += url_length;
     /* get the correct offset by adding padding byte count */
-    if (url_length % 4)
-        offset += (4 - url_length % 4);
+    offset += WS_PADDING_TO_4(url_length);
 
     host_length = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_5_extended_url_host_length, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1327,8 +1326,7 @@ dissect_sflow_5_extended_url(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_url_host, tvb, offset, host_length, ENC_NA|ENC_ASCII);
     offset += host_length;
     /* get the correct offset by adding padding byte count */
-    if (host_length % 4)
-        offset += (4 - host_length % 4);
+    offset += WS_PADDING_TO_4(host_length);
 
     return offset;
 }
@@ -1346,8 +1344,7 @@ dissect_sflow_5_extended_mpls_tunnel(tvbuff_t *tvb, proto_tree *tree, int offset
     proto_tree_add_item(tree, hf_sflow_5_extended_mpls_tunnel_name, tvb, offset, name_length, ENC_NA|ENC_ASCII);
     offset += name_length;
     /* get the correct offset by adding padding byte count */
-    if (name_length % 4)
-        offset += (4 - name_length % 4);
+    offset += WS_PADDING_TO_4(name_length);
 
     proto_tree_add_item(tree, hf_sflow_5_extended_mpls_tunnel_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1371,8 +1368,7 @@ dissect_sflow_5_extended_mpls_vc(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_mpls_vc_instance_name, tvb, offset, name_length, ENC_NA|ENC_ASCII);
     offset += name_length;
     /* get the correct offset by adding padding byte count */
-    if (name_length % 4)
-        offset += (4 - name_length % 4);
+    offset += WS_PADDING_TO_4(name_length);
 
     proto_tree_add_item(tree, hf_sflow_5_extended_mpls_vc_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1396,8 +1392,7 @@ dissect_sflow_5_extended_mpls_fec(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_mpls_ftn_description, tvb, offset, length, ENC_NA|ENC_ASCII);
     offset += length;
     /* get the correct offset by adding padding byte count */
-    if (length % 4)
-        offset += (4 - length % 4);
+    offset += WS_PADDING_TO_4(length);
 
     proto_tree_add_item(tree, hf_sflow_5_extended_mpls_ftn_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1462,8 +1457,7 @@ dissect_sflow_5_extended_80211_payload(tvbuff_t *tvb, proto_tree *tree, int offs
     proto_tree_add_item(tree, hf_sflow_5_extended_80211_payload, tvb, offset, length, ENC_NA);
     offset += length;
     /* get the correct offset by adding padding byte count */
-    if (length % 4)
-        offset += (4 - length % 4);
+    offset += WS_PADDING_TO_4(length);
 
     return offset;
 }
@@ -1479,8 +1473,7 @@ dissect_sflow_5_extended_80211_rx(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_80211_rx_ssid, tvb, offset, ssid_length, ENC_NA|ENC_ASCII);
     offset += ssid_length;
     /* get the correct offset by adding padding byte count */
-    if (ssid_length % 4)
-        offset += (4 - ssid_length % 4);
+    offset += WS_PADDING_TO_4(ssid_length);
 
     proto_tree_add_item(tree, hf_sflow_5_extended_80211_rx_bssid, tvb, offset, 6, ENC_NA);
     /* Padded to 4 byte offset */
@@ -1525,8 +1518,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree_add_item(tree, hf_sflow_5_extended_80211_tx_ssid, tvb, offset, ssid_length, ENC_NA|ENC_ASCII);
     offset += ssid_length;
     /* get the correct offset by adding padding byte count */
-    if (ssid_length % 4)
-        offset += (4 - ssid_length % 4);
+    offset += WS_PADDING_TO_4(ssid_length);
 
     proto_tree_add_item(tree, hf_sflow_5_extended_80211_tx_bssid, tvb, offset, 6, ENC_NA);
     /* Padded to 4 byte offset */
@@ -1777,8 +1769,7 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(flow_data_tree, hf_sflow_enterprise_data, tvb, offset, length, ENC_NA);
         offset += length;
         /* get the correct offset by adding padding byte count */
-        if (length % 4)
-            offset += (4 - length % 4);
+        offset += WS_PADDING_TO_4(length);
     }
     proto_item_set_end(ti, tvb, offset);
 
@@ -2161,8 +2152,7 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, int offset) {
         proto_tree_add_item(counter_data_tree, hf_sflow_enterprise_data, tvb, offset, length, ENC_NA);
         offset += length;
         /* get the correct offset by adding padding byte count */
-        if (length % 4)
-            offset += (4 - length % 4);
+        offset += WS_PADDING_TO_4(length);
     }
     proto_item_set_end(ti, tvb, offset);
 

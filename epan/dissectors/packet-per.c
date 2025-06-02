@@ -24,7 +24,10 @@ proper helper routines
 #include <epan/expert.h>
 #include <wsutil/str_util.h>
 #include <epan/tfs.h>
+
 #include <wsutil/array.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-per.h"
 
 void proto_register_per(void);
@@ -2179,7 +2182,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, uint32_t length, int * const *named_bits, int num_named_bits _U_)
 {
 	tvbuff_t *out_tvb = NULL;
-	uint32_t pad_length=0;
+	uint32_t pad_length;
 	uint64_t value;
 
 	out_tvb = tvb_new_octet_aligned(tvb, offset, length);
@@ -2188,8 +2191,8 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, uint32_t offset, 
 	if (hfi) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, ENC_BIG_ENDIAN);
 		proto_item_append_text(actx->created_item, " [bit length %u", length);
-		if (length%8) {
-			pad_length = 8-(length%8);
+		pad_length = WS_PADDING_TO_8(length);
+		if (pad_length!=0) {
 			proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
 		}
 

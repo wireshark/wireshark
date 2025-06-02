@@ -17,6 +17,8 @@
 
 #include <wiretap/tnef.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nspi.h"
 #include "packet-ber.h"
@@ -385,7 +387,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
           ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &name_string);
         offset += tag_length;
 
-        if((padding = (4 - tag_length % 4)) != 4) {
+        if((padding = WS_PADDING_TO_4(tag_length)) != 0) {
           proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
           offset += padding;
         }
@@ -459,7 +461,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* we may need to pad to a 4-byte boundary */
-    if((padding = (4 - (offset - start_offset) % 4)) != 4) {
+    if((padding = WS_PADDING_TO_4(offset - start_offset)) != 0) {
 
       /* we need to pad */
       proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);

@@ -27,7 +27,9 @@
 #include <epan/etypes.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
-#include <proto.h>
+#include <epan/proto.h>
+
+#include <wsutil/ws_roundup.h>
 
 #include "epan/dissectors/packet-ptp.h"
 
@@ -527,11 +529,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     bool concatenation_bit;
     do
     {
-        /* 4-byte boundary check for concatenation */
-        if (offset % 4 != 0)
-        {
-            offset = offset + 4 - (offset % 4);
-        }
+        /* align on a 4-byte boundary before checking for concatenation */
+        offset = WS_ROUNDUP_4(offset);
 
         /* Read ahead to eCPRI Payload Size */
         payload_size = tvb_get_ntohs(tvb, offset+2);

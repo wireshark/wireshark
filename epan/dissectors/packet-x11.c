@@ -44,6 +44,8 @@
 #include <epan/show_exception.h>
 #include <epan/prefs.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"
 
@@ -3169,6 +3171,28 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
       return decision;
 }
 
+static void pad_to_2_bytes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
+{
+      unsigned int padding;
+
+      padding = WS_PADDING_TO_2(*offsetp);
+      if (padding != 0) {
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, padding, ENC_NA);
+            *offsetp += padding;
+      }
+}
+
+static void pad_to_4_bytes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
+{
+      unsigned int padding;
+
+      padding = WS_PADDING_TO_4(*offsetp);
+      if (padding != 0) {
+            proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, padding, ENC_NA);
+            *offsetp += padding;
+      }
+}
+
 /************************************************************************
  ***                                                                  ***
  ***              D E C O D I N G   O N E   P A C K E T               ***
@@ -3239,7 +3263,6 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
       int length_of_reason;
       int number_of_formats_in_pixmap_formats;
       int number_of_screens_in_roots;
-      int unused;
       proto_item *ti;
       proto_tree *t;
 
@@ -3279,11 +3302,7 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
             *offsetp += 4;
             STRING8(vendor, length_of_vendor);
-            unused = (4 - (length_of_vendor % 4)) % 4;
-            if (unused > 0) {
-                proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, unused, ENC_NA);
-                *offsetp += unused;
-            }
+            pad_to_4_bytes(tvb, offsetp, t);
             LISTofPIXMAPFORMAT(pixmap_format, number_of_formats_in_pixmap_formats);
             LISTofSCREEN(screen, number_of_screens_in_roots);
       } else {

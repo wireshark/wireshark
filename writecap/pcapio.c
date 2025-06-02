@@ -45,6 +45,7 @@
 
 #include <wsutil/epochs.h>
 #include <wsutil/file_util.h>
+#include <wsutil/ws_padding_to.h>
 
 #include "pcapio.h"
 #include <wiretap/file_wrappers.h>
@@ -515,6 +516,7 @@ pcapng_write_string_option(pcapio_writer* pfile,
     size_t option_value_length;
     struct ws_option_tlv option;
     const uint32_t padding = 0;
+    unsigned option_padding_length;
 
     if (option_value == NULL)
         return true; /* nothing to write */
@@ -530,8 +532,9 @@ pcapng_write_string_option(pcapio_writer* pfile,
         if (!write_to_file(pfile, (const uint8_t*)option_value, (int) option_value_length, bytes_written, err))
             return false;
 
-        if (option_value_length % 4) {
-            if (!write_to_file(pfile, (const uint8_t*)&padding, 4 - option_value_length % 4, bytes_written, err))
+        option_padding_length = WS_PADDING_TO_4(option_value_length);
+        if (option_padding_length != 0) {
+            if (!write_to_file(pfile, (const uint8_t*)&padding, option_padding_length, bytes_written, err))
                 return false;
         }
     }
@@ -660,6 +663,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
     uint32_t block_total_length;
     uint32_t options_length;
     const uint32_t padding = 0;
+    unsigned option_padding_length;
 
     block_total_length = (uint32_t)(sizeof(struct idb) + sizeof(uint32_t));
     options_length = 0;
@@ -770,8 +774,9 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
             return false;
         if (!write_to_file(pfile, (const uint8_t*)filter, (int) strlen(filter), bytes_written, err))
             return false;
-        if ((strlen(filter) + 1) % 4) {
-            if (!write_to_file(pfile, (const uint8_t*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
+        option_padding_length = WS_PADDING_TO_4(strlen(filter) + 1);
+        if (option_padding_length != 0) {
+            if (!write_to_file(pfile, (const uint8_t*)&padding, option_padding_length, bytes_written, err))
                 return false;
         }
     }
@@ -820,7 +825,7 @@ pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
     const uint32_t padding = 0;
     uint8_t buff[8];
     uint8_t i;
-    uint8_t pad_len = 0;
+    uint8_t pad_len;
 
     block_total_length = (uint32_t)(sizeof(struct epb) +
                                     ADD_PADDING(caplen) +
@@ -849,9 +854,7 @@ pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
     if (!write_to_file(pfile, pd, caplen, bytes_written, err))
         return false;
     /* Use more efficient write in case of no "extras" */
-    if(caplen % 4) {
-        pad_len = 4 - (caplen % 4);
-    }
+    pad_len = WS_PADDING_TO_4(caplen);
     /*
      * If we have no options to write, just write out the padding and
      * the block total length with one fwrite() call.

@@ -21,6 +21,8 @@
 #include "erf_record.h"
 #include "pcap-encap.h"
 
+#include <wsutil/ws_roundup.h>
+
 /*
  * On some systems, the FDDI MAC addresses are bit-swapped.
  *
@@ -2224,8 +2226,7 @@ pcap_byteswap_nflog_pseudoheader(wtap_rec *rec)
 
 		/* Get the length of the TLV. */
 		size = tlv->tlv_length;
-		if (size % 4 != 0)
-			size += 4 - size % 4;
+		size = WS_ROUNDUP_4(size);
 
 		/* Is the TLV's length less than the minimum? */
 		if (size < sizeof(struct nflog_tlv)) {

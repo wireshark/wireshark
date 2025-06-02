@@ -108,6 +108,8 @@
 /* Use libgcrypt for cipher libraries. */
 #include <wsutil/wsgcrypt.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-ieee802154.h"
 #include "packet-sll.h"
 #include "packet-zbee-tlv.h"
@@ -202,10 +204,6 @@ static uint64_t ieee802154_tsch_asn;
 static const char  *ieee802154_user    = "User";
 
 static wmem_tree_t* mac_key_hash_handlers;
-
-#ifndef ROUND_UP
-#define ROUND_UP(_offset_, _align_) (((_offset_) + (_align_) - 1) / (_align_) * (_align_))
-#endif
 
 /*
  * Address Hash Tables
@@ -3513,9 +3511,7 @@ ieee802154_create_tap_tlv_tree(proto_tree *tree, tvbuff_t *tvb, int offset, uint
     *length = tvb_get_letohs(tvb, offset+2);
 
     subtree_length = 4 + *length;
-    if (*length % 4) {
-        subtree_length += (4 - *length % 4);
-    }
+    subtree_length += WS_PADDING_TO_4(*length);
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, subtree_length, ett_ieee802154_tap_tlv, &ti, "");
 
@@ -3659,17 +3655,19 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item_append_text(proto_tree_get_parent(tlvtree), "Unknown TLV");
                 break;
         } /* switch (tlv_type) */
+        offset += length;
 
-        if (length%4) {
+        unsigned padding_len = WS_PADDING_TO_4(length);
+        if (padding_len != 0) {
             uint32_t zero = 0;
             GByteArray *padding = g_byte_array_sized_new(4);
-            ti = proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_padding, tvb, offset+length, 4-length%4, ENC_NA, padding, NULL, NULL);
-            if (memcmp(&zero, padding->data, 4-length%4)) {
+            ti = proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_padding, tvb, offset, padding_len, ENC_NA, padding, NULL, NULL);
+            if (memcmp(&zero, padding->data, padding_len)) {
                 expert_add_info(NULL, ti, &ei_ieee802154_tap_tlv_padding_not_zeros);
             }
             g_byte_array_free(padding, true);
+            offset += padding_len;
         }
-        offset += ROUND_UP(length, 4);
     } /* while */
 
     /* if we have both slot start and frame start timestamp, show frame start offset */

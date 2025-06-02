@@ -26,8 +26,9 @@
 
 #include "config.h"
 
-#include <guid-utils.h>
 #include <stdio.h>      /* for sscanf() */
+
+#include <epan/guid-utils.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
@@ -42,6 +43,8 @@
 #include <epan/tfs.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/ws_roundup.h>
+
 #include "packet-tcp.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
@@ -4311,9 +4314,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += sec_addr_len;
     }
 
-    if (offset % 4) {
-        offset += 4 - offset % 4;
-    }
+    offset = WS_ROUNDUP_4(offset);
 
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                   hf_dcerpc_cn_num_results, &num_results);

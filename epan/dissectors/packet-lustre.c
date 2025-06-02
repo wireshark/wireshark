@@ -19,6 +19,8 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 #include "packet-lnet.h"
 
@@ -1618,7 +1620,7 @@ VALUE_STRING_ARRAY2(lfsck_type_vals);
  * Helper Functions
  *
 \********************************************************************/
-#define buffer_padding_length(_o) ((8 - ((_o) % 8)) % 8)
+#define buffer_padding_length(_o) WS_PADDING_TO_8((_o))
 
 static int
 add_extra_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree * tree)

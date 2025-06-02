@@ -69,6 +69,8 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
+#include <wsutil/ws_roundup.h>
+
 #include "packet-windows-common.h"
 #include "packet-tcp.h"
 #include "packet-tls.h"
@@ -1871,7 +1873,7 @@ static int dissect_mq_xid(tvbuff_t* tvb, proto_tree* tree, mq_parm_t* p_mq_parm,
             proto_tree_add_item(mq_tree, hf_mq_xa_xid_globalxid, tvb, offset + 6, iXidLength, ENC_NA);
             proto_tree_add_item(mq_tree, hf_mq_xa_xid_brq, tvb, offset + 6 + iXidLength, iBqLength, ENC_NA);
 
-            iSizeXid += (4 - (iSizeXid % 4)) % 4; /* Pad for alignment with 4 byte word boundary */
+            iSizeXid = WS_ROUNDUP_4(iSizeXid); /* Alignment to 4 byte word boundary */
             if (tvb_reported_length_remaining(tvb, offset) < iSizeXid)
                 iSizeXid = 0;
         }

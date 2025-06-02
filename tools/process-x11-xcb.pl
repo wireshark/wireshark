@@ -765,15 +765,12 @@ sub dissect_element($$$$$;$$)
                 print $impl $indent."*offsetp += $bytes;\n";
                 $length += $bytes;
             } else {
-                say $impl $indent.'if (*offsetp % '.$align.') {';
-                say $impl $indent."    proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, ($align - *offsetp % $align), ENC_NA);";
-                say $impl $indent."    *offsetp += ($align - *offsetp % $align);";
-                say $impl $indent."}";
+                say $impl $indent.'pad_to_'.$align.'_bytes(tvb, offsetp, t);';
                 if ($length % $align != 0) {
                     $length += $align - $length % $align;
                 }
                 if ($adjustlength) {
-                    say $impl $indent.'length = ((length + '.($align-1).') & ~'.($align-1).');';
+                    say $impl $indent.'length = WS_ROUNDUP_'.$align.'(length);';
                 }
             }
         }
@@ -1810,6 +1807,7 @@ if (-e "$mesadir/gl_API.xml") {
             or die ("Cannot open $srcdir/x11-glx-render-enum.h for writing\n");
     add_generated_header($enum, $srcdir . '/mesa');
     print $enum "static const value_string mesa_enum[] = {\n";
+    print $impl '#include <wsutil/ws_roundup.h>'."\n\n";
     print $impl '#include "x11-glx-render-enum.h"'."\n\n";
 
     print("Mesa glRender:\n");

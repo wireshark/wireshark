@@ -21,6 +21,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+
+#include <wsutil/ws_roundup.h>
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"
@@ -1094,8 +1097,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int len, remaining;
 	char *text;
 
-	if (offset % 2)
-		offset += 2 - (offset % 2);
+	offset = WS_ROUNDUP_2(offset);
 
 	/* Get remaining data in buffer as a string */
 
@@ -5801,8 +5803,7 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	/* Align start_offset on 4-byte boundary. */
 
-	if (start_offset % 4)
-		start_offset += 4 - (start_offset % 4);
+	start_offset = WS_ROUNDUP_4(start_offset);
 
 	/* Get string length */
 

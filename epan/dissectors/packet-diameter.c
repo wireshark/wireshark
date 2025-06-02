@@ -52,8 +52,11 @@
 #include <epan/strutil.h>
 #include <epan/afn.h>
 #include <epan/tfs.h>
+
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 #include "packet-tls.h"
@@ -872,7 +875,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	a = (diam_avp_t *)wmem_tree_lookup32_array(dictionary.avps,k);
 
 	len &= 0x00ffffff;
-	pad_len =  (len % 4) ? 4 - (len % 4) : 0 ;
+	pad_len = WS_PADDING_TO_4(len);
 
 	if (!a) {
 		a = &unknown_avp;

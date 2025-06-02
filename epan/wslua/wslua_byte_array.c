@@ -19,6 +19,8 @@
 
 #include "wslua.h"
 
+#include <wsutil/ws_roundup.h>
+
 /* WSLUA_CONTINUE_MODULE Tvb */
 
 
@@ -580,11 +582,7 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
     char *data;
-    size_t len = ba->len;
-
-    if ((len % 4) != 0) {
-        len += 4 - (len % 4);
-    }
+    size_t len = WS_ROUNDUP_4(ba->len);
 
     ba2 = g_byte_array_new();
     if (ba->len > 1) {

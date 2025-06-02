@@ -18,6 +18,8 @@
 #include <epan/wmem_scopes.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-pn.h"
 
 static int hf_pn_padding;
@@ -1110,12 +1112,10 @@ dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 int
 dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    unsigned padding = 0;
+    unsigned padding;
 
-
-    if (offset % 4) {
-        padding = 4 - (offset % 4);
-
+    padding = WS_PADDING_TO_4(offset);
+    if (padding != 0) {
         proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, padding, "data",
             "Padding: %u byte", padding);
     }

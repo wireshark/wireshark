@@ -19,6 +19,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-ieee80211.h"
 
 void proto_register_capwap_control(void);
@@ -3118,8 +3120,8 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned o
         }
         plen += maclength;
         /* 4 Bytes Alignment ? */
-        align = 4-((offset+plen)%4);
-        if (align != 4)
+        align = WS_PADDING_TO_4(offset+plen);
+        if (align != 0)
         {
             proto_tree_add_item(capwap_header_tree, hf_capwap_header_padding, tvb, offset+plen, align, ENC_NA);
             plen += align;
@@ -3146,8 +3148,8 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned o
 
         plen += wirelesslength;
         /* 4 Bytes Alignment ? */
-        align = 4-((offset+plen)%4);
-        if (align != 4)
+        align = WS_PADDING_TO_4(offset+plen);
+        if (align != 0)
         {
             proto_tree_add_item(capwap_header_tree, hf_capwap_header_padding, tvb, offset+plen, align, ENC_NA);
             plen += align;

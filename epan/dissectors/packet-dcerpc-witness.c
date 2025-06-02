@@ -216,6 +216,7 @@ static int witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb
 static int witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+ #include <wsutil/ws_roundup.h>
  #include "to_str.h"
 static int
 witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
@@ -358,8 +359,8 @@ PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		/* just a run to handle conformant arrays, no scalars to dissect */
 		return offset;
 	}
-	if (!di->no_align && (offset % 4)) {
-		offset += 4 - (offset % 4);
+	if (!di->no_align) {
+		offset = WS_ROUNDUP_4(offset);
 	}
 	proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	if (param & PIDL_SET_COL_INFO) {
@@ -377,8 +378,8 @@ PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		/* just a run to handle conformant arrays, no scalars to dissect */
 		return offset;
 	}
-	if (!di->no_align && (offset % 2)) {
-		offset += 2 - (offset % 2);
+	if (!di->no_align) {
+		offset = WS_ROUNDUP_2(offset);
 	}
 	proto_tree_add_item(tree, hfindex, tvb, offset, 16, ENC_BIG_ENDIAN);
 	if (param & PIDL_SET_COL_INFO) {

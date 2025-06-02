@@ -24,6 +24,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
 #include <epan/conversation.h>
+
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 
 #define RTITCP_MAGIC_NUMBER             0xdd54dd55
@@ -397,7 +400,7 @@ static unsigned dissect_attribute(tvbuff_t *tvb, packet_info *pinfo,
             break;
     }
 
-    padding = (4 - attribute_length%4)%4;
+    padding = WS_PADDING_TO_4(attribute_length);
     return (attribute_length+padding+4);
 }
 static proto_tree* print_header(proto_tree *tree, proto_tree *rtitcp_message, tvbuff_t *tvb, unsigned offset,

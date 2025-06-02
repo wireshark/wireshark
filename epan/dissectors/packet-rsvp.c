@@ -105,6 +105,8 @@
 
 #include <wsutil/array.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-rsvp.h"
 #include "packet-ip.h"
 #include "packet-diffserv-mpls-common.h"
@@ -3212,7 +3214,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
             break;
         }
 
-        padding = (4 - (tlv_len % 4)) % 4;
+        padding = WS_PADDING_TO_4(tlv_len);
         if (padding != 0)
             proto_tree_add_item(rsvp_ifid_subtree, hf_rsvp_ifid_tlv_padding, tvb, offset + tlv_off + tlv_len, padding, ENC_NA);
         tlv_off += tlv_len + padding;

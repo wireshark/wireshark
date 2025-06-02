@@ -22,6 +22,7 @@
 
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/ws_roundup.h>
 
 /*
  * See
@@ -1252,7 +1253,7 @@ static void k12_dump_src_setting(void *k _U_, void *v, void *p) {
            obj.record.stack_len);
 
     len = offset + obj.record.name_len + obj.record.stack_len;
-    len += (len % 4) ? 4 - (len % 4) : 0;
+    len = WS_ROUNDUP_4(len);
 
     obj.record.len = g_htonl(len);
     obj.record.name_len =  g_htons(obj.record.name_len);
@@ -1308,7 +1309,7 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
         g_hash_table_foreach(file_data->src_by_id,k12_dump_src_setting,wdh);
     }
     obj.record.len = 0x20 + rec->rec_header.packet_header.caplen;
-    obj.record.len += (obj.record.len % 4) ? 4 - obj.record.len % 4 : 0;
+    obj.record.len = WS_ROUNDUP_4(obj.record.len);
 
     len = obj.record.len;
 

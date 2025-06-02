@@ -21,6 +21,7 @@
 #include <epan/tfs.h>
 
 #include <wsutil/array.h>
+#include <wsutil/ws_roundup.h>
 
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
@@ -280,8 +281,7 @@ static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 	/* Align start_offset on 4-byte boundary. */
 
-	if (start_offset % 4)
-		start_offset += 4 - (start_offset % 4);
+	start_offset = WS_ROUNDUP_4(start_offset);
 
 	/* Get byte array value */
 
@@ -1005,8 +1005,8 @@ dissect_nt_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	switch(type){
 	case HND_TYPE_CTX_HANDLE:
-		if (!di->no_align && (offset % 4)) {
-			offset += 4 - (offset % 4);
+		if (!di->no_align) {
+			offset = WS_ROUNDUP_4(offset);
 		}
 		subtree = proto_tree_add_subtree(tree, tvb, offset, sizeof(e_ctx_hnd),
 					   ett_nt_policy_hnd, &item, "Policy Handle");
@@ -1293,8 +1293,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 	/* Align start_offset on 4-byte boundary. */
 
-	if (start_offset % 4)
-		start_offset += 4 - (start_offset % 4);
+	start_offset = WS_ROUNDUP_4(start_offset);
 
 	/* Get string value */
 
@@ -1326,8 +1325,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 	/* Align start_offset on 4-byte boundary. */
 
-	if (start_offset % 4)
-		start_offset += 4 - (start_offset % 4);
+	start_offset = WS_ROUNDUP_4(start_offset);
 
 	/* Get string value */
 

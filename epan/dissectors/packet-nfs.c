@@ -27,8 +27,11 @@
 #include <epan/srt_table.h>
 #include <epan/tap.h>
 #include <epan/tfs.h>
+
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-nfs.h"
 #include "packet-rpcrdma.h"
 
@@ -6363,7 +6366,7 @@ dissect_nfs4_bitmap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	if (type == NFS4_BITMAP_VALUES) {
 		/* Get the length of opaque including padding */
 		opaque_length = tvb_get_ntohl(tvb, opaque_offset);
-		opaque_padding = ((opaque_length % 4) ? (4 - (opaque_length % 4)) : 0);
+		opaque_padding = WS_PADDING_TO_4(opaque_length);
 		opaque_offset += 4;  /* Starting offset of bitmap values */
 	}
 

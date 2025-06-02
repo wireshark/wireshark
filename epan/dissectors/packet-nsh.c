@@ -24,6 +24,9 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
+
+#include <wsutil/ws_roundup.h>
+
 #include "packet-nsh.h"
 #include "packet-vxlan.h"
 
@@ -127,7 +130,7 @@ dissect_nsh_md_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nsh_tree, i
 				expert_add_info_format(pinfo, tlv_tree, &ei_nsh_tlv_incomplete_dissection, "TLV dissector did not dissect the whole data (%d != %d)", dissected, tlv_len);
 			}
 
-			offset += ((tlv_len + 3) / 4) * 4; // aligned up on 4-byte boundary
+			offset += WS_ROUNDUP_4(tlv_len); // aligned up on 4-byte boundary
 		}
 	}
 }

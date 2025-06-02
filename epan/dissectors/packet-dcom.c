@@ -58,8 +58,10 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
-
 #include <epan/prefs.h>
+
+#include <wsutil/ws_roundup.h>
+
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 
@@ -1313,9 +1315,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	/* alignment of 8 needed for a VARIANT */
-	if (offset % 8) {
-		offset += 8 - (offset % 8);
-	}
+	offset = WS_ROUNDUP_8(offset);
 
 	sub_item = proto_tree_add_item(tree, hfindex, tvb, offset, 0, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_variant);
@@ -1649,9 +1649,7 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	/* alignment of 4 needed */
-	if (offset % 4) {
-		offset += 4 - (offset % 4);
-	}
+	offset = WS_ROUNDUP_4(offset);
 
 	/* add subtree item */
 	sub_item = proto_tree_add_string(tree, hfindex, tvb, offset, 0, "");
@@ -1715,9 +1713,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	bool isPrintable;
 
 	/* alignment of 4 needed */
-	if (offset % 4) {
-		offset += 4 - (offset % 4);
-	}
+	offset = WS_ROUNDUP_4(offset);
 
 	/* add subtree item */
 	sub_item = proto_tree_add_string(tree, hfindex, tvb, offset, 0, "");

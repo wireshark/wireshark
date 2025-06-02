@@ -28,6 +28,9 @@
 #include <wsutil/wmem/wmem.h>
 #include <epan/wmem_scopes.h>
 
+#include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 #include "packet-tls.h"
 
@@ -858,13 +861,14 @@ dissect_saphdb_part_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			length -= 5;
 
 			if ((error_text_length > 0) && (tvb_reported_length_remaining(tvb, offset) >= error_text_length)) {
+				unsigned error_text_padding_length;
+
 				proto_tree_add_item(tree, hf_saphdb_part_error_text, tvb, offset, error_text_length, ENC_ASCII);
 				length -= error_text_length;
 
 				/* Align the error text length to 8 */
-				if ((error_text_length % 8) != 0) {
-					length += 8 - (error_text_length % 8);
-				}
+				error_text_padding_length = WS_PADDING_TO_8(error_text_length);
+				length += error_text_padding_length;
 			}
 			break;
 
@@ -971,9 +975,7 @@ dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	}
 
 	/* Align the buffer length to 8 */
-	if (bufferlength % 8 != 0) {
-		bufferlength += 8 - bufferlength % 8;
-	}
+	bufferlength = WS_ROUNDUP_8(bufferlength);
 
 	/* Adjust the length */
 	if (bufferlength < 0 || tvb_reported_length_remaining(tvb, offset) < bufferlength) {

@@ -26,6 +26,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/wslog.h>
+#include <wsutil/ws_padding_to.h>
 #include <writecap/pcapio.h>
 #include <wiretap/wtap.h>
 
@@ -162,7 +163,7 @@ static int sdj_dump_entries(sd_journal *jnl, pcapio_writer* fp)
 		}
 
 		if (data_end % 4) {
-			size_t pad_len = 4 - (data_end % 4);
+			size_t pad_len = WS_PADDING_TO_4(data_end);
 			memset(entry_buff+data_end, '\0', pad_len);
 			data_end += pad_len;
 		}

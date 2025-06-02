@@ -39,6 +39,7 @@
 #include <wsutil/crc32.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/ws_padding_to.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -121,7 +122,6 @@ static const struct {
 #define ERF_META_TAG_HEADERLEN 4
 #define ERF_META_TAG_TOTAL_ALIGNED_LENGTH(taglength)  ((((uint32_t)taglength + 0x3U) & ~0x3U) + ERF_META_TAG_HEADERLEN)
 #define ERF_META_TAG_ALIGNED_LENGTH(taglength)  ((((uint32_t)taglength + 0x3U) & ~0x3U))
-#define ERF_PADDING_TO_8(len) ((8 - len % 8) % 8)
 
 struct erf_if_info {
   int if_index;
@@ -1703,7 +1703,7 @@ static bool erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, uint6
     total_rlen += num_extra_ehdrs * 8;
   }
   /*padding to 8 byte alignment*/
-  total_rlen += ERF_PADDING_TO_8(total_rlen);
+  total_rlen += WS_PADDING_TO_8(total_rlen);
 
   if(total_rlen > 65535) {
     *err = WTAP_ERR_PACKET_TOO_LARGE;
@@ -1887,7 +1887,7 @@ static bool erf_dump(
     other_phdr.erf.ehdr_list[0].ehdr = non_erf_host_id_ehdr;
     total_rlen += 8;
 
-    padbytes = ERF_PADDING_TO_8(total_rlen);  /*calculate how much padding will be required */
+    padbytes = WS_PADDING_TO_8(total_rlen);  /*calculate how much padding will be required */
     if(rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len){ /*if packet has been snapped, we need to round down what we output*/
       round_down = (8 - padbytes) % 8;
       total_rlen -= round_down;

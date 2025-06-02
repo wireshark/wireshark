@@ -141,9 +141,11 @@
 #include <epan/uat.h>
 #include <epan/sminmpec.h>
 #include <epan/tfs.h>
+
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/array.h>
+#include <wsutil/ws_padding_to.h>
 
 void proto_register_dhcp(void);
 void proto_reg_handoff_dhcp(void);
@@ -2545,7 +2547,7 @@ dissect_dhcpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto_
 		proto_tree_add_item(tree, hf_dhcp_option77_user_class_binary_data, tvb, offset, ms_data_length, ENC_STRING);
 		offset += ms_data_length;
 		/* User Class Binary Data is padded to 4-byte boundary */
-		uint16_t padding_length = (4 - (ms_data_length % 4)) & 0x3;
+		uint16_t padding_length = WS_PADDING_TO_4(ms_data_length);
 		if (padding_length > 0) {
 			proto_tree_add_item(tree, hf_dhcp_option77_user_class_padding, tvb, offset, padding_length, ENC_NA);
 			offset += padding_length;

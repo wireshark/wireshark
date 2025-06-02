@@ -25,6 +25,9 @@
 #include <epan/epan.h>
 #include <epan/tfs.h>
 #include <epan/expert.h>
+
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-link16.h"
 
 #define DEFAULT_DIS_UDP_PORT 3000 /* Not IANA registered */
@@ -20288,10 +20291,9 @@ static int parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, int offset
     }
 
     /* Should alignment padding be added */
-    if (record_length % 8)
+    uint32_t alignmentPadding = WS_PADDING_TO_8(record_length);
+    if (alignmentPadding != 0)
     {
-        uint32_t alignmentPadding = (8 - (record_length % 8));
-
         proto_tree_add_item(tree, hf_dis_alignment_padding, tvb, offset, alignmentPadding, ENC_NA);
         offset += alignmentPadding;
     }

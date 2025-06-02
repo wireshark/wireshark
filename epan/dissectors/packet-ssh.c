@@ -1082,6 +1082,16 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     plen = tvb_get_ntohl(tvb, offset) ;
+
+    /*
+     * Amount of random padding.
+     *
+     * This is between 1 and 8; if the length is a multiple of 8,
+     * there are 8 bytes of padding, not 1 byte.
+     *
+     * That means this calculation is correct; do not use either
+     * WS_ROUNDUP_8() or WS_PADDING_TO_8() here.
+     */
     padding_length  = 8 - plen%8;
 
 

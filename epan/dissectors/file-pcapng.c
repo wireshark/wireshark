@@ -24,10 +24,13 @@
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
+
 #include <wiretap/pcapng_module.h>
 #include <wiretap/secrets-types.h>
+
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
+#include <wsutil/ws_padding_to.h>
 
 #include "file-pcapng.h"
 #include "packet-pcap_pktdata.h"
@@ -1335,11 +1338,11 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
         }
 
         /* Pad this option out to next 4 bytes */
-        if ((option_length % 4) != 0) {
-            proto_item_set_len(option_item, option_length + 2 * 2 + (4 - option_length % 4));
-            option_length = 4 - option_length % 4;
-            proto_tree_add_item(option_tree, hf_pcapng_option_padding, tvb, offset, option_length, ENC_NA);
-            offset += option_length;
+        unsigned option_padding = WS_PADDING_TO_4(option_length);
+        if (option_padding != 0) {
+            proto_item_set_len(option_item, option_length + 2 * 2 + option_padding);
+            proto_tree_add_item(option_tree, hf_pcapng_option_padding, tvb, offset, option_padding, ENC_NA);
+            offset += option_padding;
         } else
             proto_item_set_len(option_item, option_length + 2 * 2);
     }
@@ -1556,9 +1559,10 @@ dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     argp->info->frame_number += 1;
     offset += captured_length;
 
-    if (captured_length % 4) {
-        proto_tree_add_item(tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4) ? (4 - (captured_length % 4)) : 0), ENC_NA);
-        offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
+    unsigned padding = WS_PADDING_TO_4(captured_length);
+    if (padding != 0) {
+        proto_tree_add_item(tree, hf_pcapng_packet_padding, tvb, offset, padding, ENC_NA);
+        offset += padding;
     }
 
     dissect_options(tree, pinfo, BLOCK_TYPE_PB, tvb, offset, argp->info->encoding, NULL);
@@ -1609,9 +1613,10 @@ dissect_spb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     argp->info->frame_number += 1;
     offset += captured_length;
 
-    if (captured_length % 4) {
-        proto_tree_add_item(tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)?(4 - (captured_length % 4)):0), ENC_NA);
-        offset += ((captured_length % 4) ? (4 - (captured_length % 4)):0);
+    unsigned padding = WS_PADDING_TO_4(captured_length);
+    if (padding != 0) {
+        proto_tree_add_item(tree, hf_pcapng_packet_padding, tvb, offset, padding, ENC_NA);
+        offset += padding;
     }
 }
 
@@ -1722,13 +1727,12 @@ dissect_nrb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             offset += record_length;
         }
 
-        if (record_code != 0 && record_length % 4) {
-            proto_item_set_len(record_item, record_length + 2 * 2 + (4 - record_length % 4));
-            record_length = 4 - record_length % 4;
-            proto_tree_add_item(record_tree, hf_pcapng_record_padding, tvb, offset, record_length, ENC_NA);
-            offset += record_length;
-        } else
-            proto_item_set_len(record_item, record_length + 2 * 2);
+        unsigned padding = (record_code != 0) ? WS_PADDING_TO_4(record_length) : 0;
+        proto_item_set_len(record_item, record_length + 2 * 2 + padding);
+        if (padding != 0) {
+            proto_tree_add_item(record_tree, hf_pcapng_record_padding, tvb, offset, padding, ENC_NA);
+            offset += padding;
+        }
 
         if (str)
             proto_item_append_text(record_item, " = %s", str);
@@ -1805,9 +1809,10 @@ dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     argp->info->frame_number += 1;
     offset += captured_length;
 
-    if (captured_length % 4) {
-        proto_tree_add_item(tree, hf_pcapng_packet_padding, tvb, offset, ((captured_length % 4)? (4 - (captured_length % 4)):0), ENC_NA);
-        offset += ((captured_length % 4) ?(4 - (captured_length % 4)):0);
+    unsigned padding = WS_PADDING_TO_4(captured_length);
+    if (padding != 0) {
+        proto_tree_add_item(tree, hf_pcapng_packet_padding, tvb, offset, padding, ENC_NA);
+        offset += padding;
     }
 
     dissect_options(tree, pinfo, BLOCK_TYPE_EPB, tvb, offset, argp->info->encoding, NULL);

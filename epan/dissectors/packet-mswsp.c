@@ -16,11 +16,13 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/exceptions.h>
+#include <epan/to_str.h>
+
+#include <wsutil/ws_roundup.h>
 
 #include "packet-smb.h"
 #include "packet-smb2.h"
 #include "packet-dcom.h" /* HRESULT */
-#include "to_str.h"
 #include "packet-dcerpc-nt.h"
 
 void proto_register_mswsp(void);
@@ -4024,9 +4026,9 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 		len = type->tvb_get(tvb, offset, data);
 		data += elsize;
 		offset += len;
-		if (varsize && (offset % 4) ) { /* at begin or end of loop ??? */
-			int padding = 4 - (offset % 4);
-			offset += padding;
+		if (varsize) {
+			/* at begin or end of loop ??? */
+			offset = WS_ROUNDUP_4(offset);
 		}
 	}
 	return offset - offset_in;

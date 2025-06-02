@@ -17,6 +17,7 @@
 #include <epan/uat.h>
 
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/ws_padding_to.h>
 
 #include "packet-eapol.h"
 #include "packet-mka.h"
@@ -531,9 +532,8 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
   offset += ckn_len;
 
-  if (basic_param_set_len % 4) {
-    int padding_len = (4 - (basic_param_set_len % 4));
-
+  unsigned padding_len = WS_PADDING_TO_4(basic_param_set_len);
+  if (padding_len != 0) {
     proto_tree_add_item(basic_param_set_tree, hf_mka_padding, tvb, offset, padding_len, ENC_NA);
 
     offset += padding_len;
@@ -671,6 +671,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
   uint16_t distributed_sak_len;
   proto_tree *distributed_sak_tree;
   proto_item *ti;
+  unsigned padding_len;
 
   distributed_sak_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_distributed_sak_set, tvb, offset, distributed_sak_len + 4, ENC_NA);
@@ -780,9 +781,8 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
   }
 
 out:
-  if (distributed_sak_len % 4) {
-    int padding_len = (4 - (distributed_sak_len % 4));
-
+  padding_len = WS_PADDING_TO_4(distributed_sak_len);
+  if (padding_len != 0) {
     proto_tree_add_item(distributed_sak_tree, hf_mka_padding, tvb, offset, padding_len, ENC_NA);
 
     offset += padding_len;
@@ -817,9 +817,8 @@ dissect_distributed_cak(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *
   mka_add_ckn_info(distributed_cak_tree, tvb, offset, cak_len);
   offset += cak_len;
 
-  if (distributed_cak_len%4) {
-    int padding_len = (4 - (distributed_cak_len % 4));
-
+  unsigned padding_len = WS_PADDING_TO_4(distributed_cak_len);
+  if (padding_len != 0) {
     proto_tree_add_item(distributed_cak_tree, hf_mka_padding, tvb, offset, padding_len, ENC_NA);
 
     offset += padding_len;
@@ -927,9 +926,8 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
 
   offset += announcement_len;
 
-  if (announcement_len%4) {
-    int padding_len = (4 - (announcement_len % 4));
-
+  unsigned padding_len = WS_PADDING_TO_4(announcement_len);
+  if (padding_len != 0) {
     proto_tree_add_item(announcement_set_tree, hf_mka_padding, tvb, offset, padding_len, ENC_NA);
     offset += padding_len;
   }
@@ -1007,9 +1005,8 @@ dissect_unknown_param_set(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t
 
   offset += param_set_len;
 
-  if (param_set_len%4) {
-    int padding_len = (4 - (param_set_len % 4));
-
+  unsigned padding_len = WS_PADDING_TO_4(param_set_len);
+  if (padding_len != 0) {
     proto_tree_add_item(param_set_tree, hf_mka_padding, tvb, offset, padding_len, ENC_NA);
     offset += padding_len;
   }

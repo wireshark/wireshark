@@ -25,7 +25,9 @@
 #include <epan/to_str.h>
 #include <epan/export_object.h>
 #include <epan/tfs.h>
+
 #include <wsutil/array.h>
+#include <wsutil/ws_padding_to.h>
 
 #include "packet-windows-common.h"
 #include "packet-smb.h"
@@ -16007,7 +16009,7 @@ dissect_4_3_4_8(tvbuff_t *tvb, packet_info *pinfo,
 {
 	const char *fn;
 	int         fn_len;
-	int         pad;
+	unsigned    pad;
 
 	DISSECTOR_ASSERT(si);
 
@@ -16038,8 +16040,8 @@ dissect_4_3_4_8(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Pad to 4 bytes */
 
-	if (offset % 4) {
-		pad = 4 - (offset % 4);
+	pad = WS_PADDING_TO_4(offset);
+	if (pad != 0) {
 		CHECK_BYTE_COUNT_SUBR(pad);
 		COUNT_BYTES_SUBR(pad);
 	}
@@ -16056,7 +16058,7 @@ dissect_find_file_unix_info2(tvbuff_t *tvb, packet_info *pinfo,
 	const char *fn;
 	uint32_t    namelen;
 	int         fn_len;
-	int         pad;
+	unsigned    pad;
 
 	DISSECTOR_ASSERT(si);
 
@@ -16100,8 +16102,8 @@ dissect_find_file_unix_info2(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Pad to 4 bytes */
 
-	if (offset % 4) {
-		pad = 4 - (offset % 4);
+	pad = WS_PADDING_TO_4(offset);
+	if (pad != 0) {
 		CHECK_BYTE_COUNT_SUBR(pad);
 		COUNT_BYTES_SUBR(pad);
 	}

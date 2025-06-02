@@ -22,6 +22,8 @@
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
 
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-rpcrdma.h"
 #include "packet-frame.h"
 #include "packet-infiniband.h"
@@ -619,9 +621,9 @@ static void add_iwarp_padding(tvbuff_t *tvb, int offset,
     /* Size of payload data for current iWarp Read/Write */
     uint32_t bsize = tvb_reported_length_remaining(tvb, offset);
     /* Number of padding bytes needed */
-    uint32_t padding = (4 - (bsize%4)) % 4;
+    uint32_t padding = WS_PADDING_TO_4(bsize);
 
-    if (padding > 0) {
+    if (padding != 0) {
         /* Allocate buffer for the number of padding bytes that will be added */
         pbuf = (char *)wmem_alloc(pinfo->pool, padding);
         memset(pbuf, 0, padding);

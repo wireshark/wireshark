@@ -63,7 +63,10 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
+
 #include <wsutil/array.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 
 void proto_register_pcep(void);
@@ -2063,7 +2066,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                     proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_pst, tvb, offset + 4 + j + 4 + i, 1, ENC_NA);
                 }
 
-                padding = (4 - (psts % 4)) % 4;
+                padding = WS_PADDING_TO_4(psts);
                 if (padding != 0) {
                     proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset + 4 + j + 4 + psts, padding, ENC_NA);
                 }
@@ -2158,7 +2161,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                 proto_tree_add_item(tlv, hf_pcep_tlv_data, tvb, offset+4+j, tlv_length, ENC_NA);
         }
 
-        padding = (4 - (tlv_length % 4)) % 4;
+        padding = WS_PADDING_TO_4(tlv_length);
         if (padding != 0) {
             proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset+4+j+tlv_length, padding, ENC_NA);
         }
