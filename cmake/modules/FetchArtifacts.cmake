@@ -35,18 +35,17 @@ else()
 endif()
 
 set(artifacts)
-set(external_artifacts)
 
 function(add_artifact archive_path sha256_hash)
   # XXX Should this be a list of lists instead?
-  list(APPEND artifacts "${archive_path}:${sha256_hash}")
+  list(APPEND artifacts "${download_prefix}/${archive_path}:${sha256_hash}:.")
   set(artifacts ${artifacts} PARENT_SCOPE)
 endfunction()
 
 function(add_external_artifact archive_url sha256_hash destination_subdir)
   # XXX Should this be a list of lists instead?
-  list(APPEND external_artifacts "${archive_url}:${sha256_hash}:${destination_subdir}")
-  set(external_artifacts ${external_artifacts} PARENT_SCOPE)
+  list(APPEND artifacts "${archive_url}:${sha256_hash}:${destination_subdir}")
+  set(artifacts ${artifacts} PARENT_SCOPE)
 endfunction()
 
 # ExternalProject_Add isn't a good choice here because it assumes that
@@ -54,29 +53,10 @@ endfunction()
 # FetchContent or CPM (https://github.com/cpm-cmake/CPM.cmake) might be
 # good choices, but for now just using `file DOWNLOAD` and `file
 # ARCHIVE_EXTRACT` seem to do the job.
-function(download_artifacts)
+function(download_artifacts download_ok)
+  set(${download_ok} TRUE)
   foreach(artifact ${artifacts})
-    string(REGEX MATCH "([^:]+):([^:]+)" _ "${artifact}")
-    set(archive_path ${CMAKE_MATCH_1})
-    set(sha256_hash ${CMAKE_MATCH_2})
-    get_filename_component(archive_file ${archive_path} NAME)
-    message(STATUS "Fetching ${archive_file}")
-    file(DOWNLOAD
-      ${download_prefix}/${archive_path}
-      ${DOWNLOAD_DIR}/${archive_file}
-      EXPECTED_HASH SHA256=${sha256_hash}
-      # SHOW_PROGRESS
-    )
-    file(ARCHIVE_EXTRACT
-      INPUT ${DOWNLOAD_DIR}/${archive_file}
-      DESTINATION ${ARTIFACTS_DIR}
-    )
-  endforeach()
-endfunction()
-
-function(download_external_artifacts)
-  foreach(external_artifact ${external_artifacts})
-    string(REGEX MATCH "(https://[^:]+):([^:]+):([^:]+)" _ "${external_artifact}")
+    string(REGEX MATCH "(https://[^:]+):([^:]+):([^:]+)" _ "${artifact}")
     set(archive_url ${CMAKE_MATCH_1})
     set(sha256_hash ${CMAKE_MATCH_2})
     set(destination_subdir ${CMAKE_MATCH_3})
@@ -86,20 +66,27 @@ function(download_external_artifacts)
       ${archive_url}
       ${DOWNLOAD_DIR}/${archive_file}
       EXPECTED_HASH SHA256=${sha256_hash}
+      STATUS download_status
       # SHOW_PROGRESS
     )
+    list(POP_FRONT download_status retval)
+    if (NOT ${retval} EQUAL 0)
+      set(${download_ok} FALSE)
+      message(FATAL_ERROR "Unable to download ${archive_file}")
+      return()
+    endif()
     file(ARCHIVE_EXTRACT
       INPUT ${DOWNLOAD_DIR}/${archive_file}
       DESTINATION ${ARTIFACTS_DIR}/${destination_subdir}
     )
   endforeach()
+  set(download_ok ${download_ok} PARENT_SCOPE)
 endfunction()
 
 function(update_artifacts)
-  set(all_artifacts ${artifacts} ${external_artifacts})
-  list(JOIN all_artifacts "\n" list_manifest_contents)
+  list(JOIN artifacts "\n" list_manifest_contents)
   set(file_manifest_contents)
-if (EXISTS ${manifest_file})
+  if (EXISTS ${manifest_file})
 # IS_READABLE requires CMake 3.29
 # if (IS_READABLE ${manifest_file})
     file(READ ${manifest_file} file_manifest_contents)
@@ -112,10 +99,11 @@ if (EXISTS ${manifest_file})
   foreach(subdir IN ITEMS bin etc include lib libexec share)
     file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
   endforeach()
-  download_artifacts()
-  download_external_artifacts()
-  # XXX Should we generate the manifest file using configure_file?
-  file(WRITE ${manifest_file} ${list_manifest_contents})
+  download_artifacts(download_ok)
+  if(${download_ok})
+    # XXX Should we generate the manifest file using configure_file?
+    file(WRITE ${manifest_file} ${list_manifest_contents})
+  endif()
 endfunction()
 
 if(APPLE)
