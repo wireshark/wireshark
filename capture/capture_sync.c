@@ -680,7 +680,6 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
                 void (*update_cb)(void))
 {
 #ifdef _WIN32
-    size_t i_handles = 0;
     char control_id[ARGV_NUMBER_LEN];
 #endif
     GIOChannel *sync_pipe_read_io;
@@ -838,7 +837,6 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             char *pipe = ws_strdup_printf("%s%" PRIuMAX, EXTCAP_PIPE_PREFIX, (uintmax_t)interface_opts->extcap_pipe_h);
             argv = sync_pipe_add_arg(argv, &argc, pipe);
             g_free(pipe);
-            i_handles++;
 #else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->extcap_fifo);
 #endif

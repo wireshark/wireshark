@@ -806,6 +806,7 @@ static void test_getopt_opterr1(void)
     int argc;
 
 #ifdef _WIN32
+    DIAG_OFF(unreachable-code)
     g_test_skip("Not supported on Windows");
     return;
 #endif
@@ -845,6 +846,10 @@ static void test_getopt_opterr1(void)
     g_test_trap_subprocess(NULL, 0, 0);
     g_test_trap_assert_passed();
     g_test_trap_assert_stderr(PROGNAME ": unrecognized option: z\n");
+
+#ifdef _WIN32
+    DIAG_ON(unreachable-code)
+#endif
 }
 
 int main(int argc, char **argv)

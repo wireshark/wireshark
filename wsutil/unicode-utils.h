@@ -113,7 +113,7 @@ char * utf_16to8(const wchar_t *utf16str);
  * to be used to normalize command line arguments at program startup.
  *
  * @param argc The number of arguments.
- * @param argv The argument values (vector).
+ * @param wc_argv The argument values (vector).
  */
 WS_DLL_PUBLIC
 char **arg_list_utf_16to8(int argc, wchar_t *wc_argv[]);

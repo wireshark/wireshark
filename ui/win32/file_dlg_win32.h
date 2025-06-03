@@ -35,7 +35,8 @@ HANDLE set_thread_per_monitor_v2_awareness(void);
 
 /**
  * @brief revert_thread_per_monitor_v2_awareness
- * @param context
+ * @param context The current thread DPI awareness context, as
+ * returned by set_thread_per_monitor_v2_awareness.
  */
 void revert_thread_per_monitor_v2_awareness(HANDLE context);
 

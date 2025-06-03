@@ -46,7 +46,7 @@ char * protect_arg (const char *argv);
  * <server> may be "." for localhost. This does not check that a pipe server
  * has actually created the pipe, only that the name is the proper form.
  *
- * @param pipename The UTF-8 string to be checked
+ * @param pipe_name The UTF-8 string to be checked
  * @return TRUE if the string is a valid Windows pipe name.
  */
 WS_DLL_PUBLIC
@@ -89,7 +89,7 @@ const char * win32strexception(DWORD exception);
  * @param current_directory Current directory. Will be converted to its UTF-16 equivalent or NULL.
  * @param startup_info Same as CreateProcess.
  * @param process_information Same as CreateProcess.
- * @return
+ * @return true if process was created successfully.
  */
 WS_DLL_PUBLIC
 BOOL win32_create_process(const char *application_name, const char *command_line,
