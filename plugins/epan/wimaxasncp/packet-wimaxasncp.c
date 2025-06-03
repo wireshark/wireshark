@@ -26,13 +26,15 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/eap.h>
-#include <epan/ws_printf.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include <wsutil/ws_padding_to.h>
+#include <wsutil/strtoi.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
 
-#include "wimaxasncp_dict.h"
 
 /* Forward declarations we need below */
 void proto_register_wimaxasncp(void);
@@ -42,20 +44,12 @@ void proto_reg_handoff_wimaxasncp(void);
 static int proto_wimaxasncp;
 static int hf_wimaxasncp_version;
 static int hf_wimaxasncp_flags;
+static int hf_wimaxasncp_flags_r;
+static int hf_wimaxasncp_flags_t;
+static int hf_wimaxasncp_flags_reserved;
 static int hf_wimaxasncp_function_type;
 static int hf_wimaxasncp_op_id;
 static int hf_wimaxasncp_message_type;
-/* static int hf_wimaxasncp_qos_msg; */
-/* static int hf_wimaxasncp_ho_control_msg; */
-/* static int hf_wimaxasncp_data_path_control_msg; */
-/* static int hf_wimaxasncp_context_delivery_msg; */
-/* static int hf_wimaxasncp_r3_mobility_msg; */
-/* static int hf_wimaxasncp_paging_msg; */
-/* static int hf_wimaxasncp_rrm_msg; */
-/* static int hf_wimaxasncp_authentication_msg; */
-/* static int hf_wimaxasncp_ms_state_msg; */
-/* static int hf_wimaxasncp_reauthentication_msg; */
-/* static int hf_wimaxasncp_session_msg; */
 static int hf_wimaxasncp_length;
 static int hf_wimaxasncp_msid;
 static int hf_wimaxasncp_reserved1;
@@ -68,12 +62,9 @@ static int hf_wimaxasncp_tlv_value_bytes;
 static int hf_wimaxasncp_tlv_value_bitflags8;
 static int hf_wimaxasncp_tlv_value_bitflags16;
 static int hf_wimaxasncp_tlv_value_bitflags32;
-/* static int hf_wimaxasncp_tlv_value_protocol; */
-/* static int hf_wimaxasncp_tlv_value_vendor_id; */
 
 /* Preferences */
 static bool show_transaction_id_d_bit;
-static bool debug_enabled;
 
 /* Default WiMAX ASN control protocol port */
 #define WIMAXASNCP_DEF_UDP_PORT     2231
@@ -97,6 +88,7 @@ static int ett_wimaxasncp_port_range;
 static expert_field ei_wimaxasncp_tlv_type;
 static expert_field ei_wimaxasncp_function_type;
 static expert_field ei_wimaxasncp_op_id;
+static expert_field ei_wimaxasncp_decoder;
 static expert_field ei_wimaxasncp_message_type;
 static expert_field ei_wimaxasncp_length_bad;
 
@@ -106,46 +98,90 @@ static expert_field ei_wimaxasncp_length_bad;
 /* Offset to end of the length field in the header. */
 #define WIMAXASNCP_HEADER_LENGTH_END 6
 
-#define WIMAXASNCP_BIT32(n) (1U << (31 - (n)))
-#define WIMAXASNCP_BIT16(n) (1U << (15 - (n)))
-#define WIMAXASNCP_BIT8(n)  (1U << ( 7 - (n)))
-
-#define WIMAXASNCP_FLAGS_T  WIMAXASNCP_BIT8(6)
-#define WIMAXASNCP_FLAGS_R  WIMAXASNCP_BIT8(7)
-
 typedef struct {
     wmem_array_t* hf;
     wmem_array_t* ett;
 } wimaxasncp_build_dict_t;
 
-static wimaxasncp_dict_t *wimaxasncp_dict;
+typedef struct _wimaxasncp_tlv_new_t {
+    uint16_t type;
+    char* name;
+    char* description;
+    int decoder;
+    unsigned since;
+    int hf_root;
+    int hf_value;
+    int hf_ipv4;
+    int hf_ipv6;
+    int hf_bsid;
+    int hf_protocol;
+    int hf_port_low;
+    int hf_port_high;
+    int hf_ipv4_mask;
+    int hf_ipv6_mask;
+    int hf_vendor_id;
+    int hf_vendor_rest_of_info;
+    value_string* enum_vs;
+} wimaxasncp_tlv_new_t;
+
+wmem_list_t* wimaxasncp_tlvs = NULL;
 
 wimaxasncp_build_dict_t wimaxasncp_build_dict;
-
-static wimaxasncp_dict_tlv_t wimaxasncp_tlv_not_found =
-{
-    0, "Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    NULL, NULL, NULL
-};
 
 static dissector_handle_t wimaxasncp_handle;
 static dissector_handle_t eap_handle;
 
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+ * NWG versions
+ * ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_flag_vals[] =
+#define WIMAXASNCP_NWGVER_R10_V100  0
+#define WIMAXASNCP_NWGVER_R10_V120  1
+#define WIMAXASNCP_NWGVER_R10_V121  2
+#define WIMAXASNCP_NWGVER_NUM       3
+
+ /* -------------------------------------------------------------------------
+  * decode types
+  * ------------------------------------------------------------------------- */
+
+enum
 {
-    { WIMAXASNCP_BIT8(0), "Reserved" },
-    { WIMAXASNCP_BIT8(1), "Reserved" },
-    { WIMAXASNCP_BIT8(2), "Reserved" },
-    { WIMAXASNCP_BIT8(3), "Reserved" },
-    { WIMAXASNCP_BIT8(4), "Reserved" },
-    { WIMAXASNCP_BIT8(5), "Reserved" },
-    { WIMAXASNCP_FLAGS_T, "T - Source and Destination Identifier TLVs"},
-    { WIMAXASNCP_FLAGS_R, "R - Reset Next Expected Transaction ID"},
-    { 0,                  NULL}
+    WIMAXASNCP_TLV_UNKNOWN,
+    WIMAXASNCP_TLV_TBD,
+    WIMAXASNCP_TLV_COMPOUND,
+    WIMAXASNCP_TLV_BYTES,
+    WIMAXASNCP_TLV_ENUM8,
+    WIMAXASNCP_TLV_ENUM16,
+    WIMAXASNCP_TLV_ENUM32,
+    WIMAXASNCP_TLV_ETHER,
+    WIMAXASNCP_TLV_ASCII_STRING,
+    WIMAXASNCP_TLV_FLAG0,
+    WIMAXASNCP_TLV_BITFLAGS8,
+    WIMAXASNCP_TLV_BITFLAGS16,
+    WIMAXASNCP_TLV_BITFLAGS32,
+    WIMAXASNCP_TLV_ID,
+    WIMAXASNCP_TLV_HEX8,
+    WIMAXASNCP_TLV_HEX16,
+    WIMAXASNCP_TLV_HEX32,
+    WIMAXASNCP_TLV_DEC8,
+    WIMAXASNCP_TLV_DEC16,
+    WIMAXASNCP_TLV_DEC32,
+    WIMAXASNCP_TLV_IP_ADDRESS,   /* Note: IPv4 or IPv6, determined by length */
+    WIMAXASNCP_TLV_IPV4_ADDRESS,
+    WIMAXASNCP_TLV_PROTOCOL_LIST,
+    WIMAXASNCP_TLV_PORT_RANGE_LIST,
+    WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST,
+    WIMAXASNCP_TLV_EAP,
+    WIMAXASNCP_TLV_VENDOR_SPECIFIC
 };
+
+static int* const hf_wimaxasncp_flag_fields[] = {
+        &hf_wimaxasncp_flags_r,
+        &hf_wimaxasncp_flags_t,
+        &hf_wimaxasncp_flags_reserved,
+        NULL,
+};
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -480,54 +516,59 @@ static const wimaxasncp_func_msg_t wimaxasncp_func_to_msg_vals_map[] =
 
 /* ========================================================================= */
 
-static const wimaxasncp_dict_tlv_t *wimaxasncp_get_tlv_info(
-    uint16_t type)
+static wimaxasncp_tlv_new_t wimaxasncp_tlv_not_found =
 {
-    wimaxasncp_dict_tlv_t *res = NULL;
+    0, "Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    NULL
+};
 
-    if (wimaxasncp_dict)
+
+typedef struct {
+    wimaxasncp_tlv_new_t* res;
+    uint16_t type;
+} wimaxasncp_find_tlv_info_data_t;
+
+static void
+wimaxasncp_find_tlv_info(void* data, void* user_data)
+{
+    wimaxasncp_find_tlv_info_data_t* info_data = (wimaxasncp_find_tlv_info_data_t*)user_data;
+    wimaxasncp_tlv_new_t* tlv = (wimaxasncp_tlv_new_t*)data;
+
+    if (tlv->type == info_data->type)
     {
-        wimaxasncp_dict_tlv_t *tlv;
-
-        for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
+        /* if the TLV is defined for current NWG version */
+        if (tlv->since <= global_wimaxasncp_nwg_ver)
         {
-            if (tlv->type == type)
+            /* if the current TLV is newer then last found TLV, save it */
+            if ((info_data->res == NULL) || (tlv->since > info_data->res->since))
             {
-                /* if the TLV is defined for current NWG version */
-                if (tlv->since<= global_wimaxasncp_nwg_ver)
-                {
-                    /* if the current TLV is newer then last found TLV, save it */
-                    if (!res || (tlv->since > res->since))
-                    {
-                        res = tlv;
-                    }
-                }
+                info_data->res = tlv;
             }
         }
     }
+}
 
-    if (debug_enabled && !res)
-    {
-        g_print("fix-me: unknown TLV type: %u\n", type);
-    }
+static const wimaxasncp_tlv_new_t* wimaxasncp_get_tlv_info(uint16_t type)
+{
+    wimaxasncp_find_tlv_info_data_t data = {NULL, type };
+    wmem_list_foreach(wimaxasncp_tlvs, wimaxasncp_find_tlv_info, &data);
 
-    return res? res:&wimaxasncp_tlv_not_found;
+    if (data.res)
+        return data.res;
+
+    return &wimaxasncp_tlv_not_found;
 }
 
 /* ========================================================================= */
 
-static const char *wimaxasncp_get_enum_name(
-    const wimaxasncp_dict_tlv_t *tlv_info,
-    uint32_t code)
+static const char*
+wimaxasncp_get_enum_name(const wimaxasncp_tlv_new_t* tlv_info, uint32_t code)
 {
     if (tlv_info->enum_vs)
-    {
         return val_to_str_const(code, tlv_info->enum_vs, "Unknown");
-    }
-    else
-    {
-        return "Unknown";
-    }
+
+    return "Unknown";
 }
 
 /* ========================================================================= */
@@ -559,6 +600,7 @@ static const value_string wimaxasncp_decode_type_vals[] =
     { WIMAXASNCP_TLV_PROTOCOL_LIST,        "WIMAXASNCP_TLV_PROTOCOL_LIST"},
     { WIMAXASNCP_TLV_PORT_RANGE_LIST,      "WIMAXASNCP_TLV_PORT_RANGE_LIST"},
     { WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST, "WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST"},
+    { WIMAXASNCP_TLV_EAP,                  "WIMAXASNCP_TLV_EAP"},
     { WIMAXASNCP_TLV_VENDOR_SPECIFIC,      "WIMAXASNCP_TLV_VENDOR_SPECIFIC"},
     { 0, NULL}
 };
@@ -571,7 +613,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
     proto_tree *tree,
     proto_item *tlv_item,
     unsigned    offset,
-    const wimaxasncp_dict_tlv_t *tlv_info)
+    const wimaxasncp_tlv_new_t* tlv_info)
 {
     int          hf_value;
     uint32_t     ip;
@@ -606,7 +648,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
     proto_tree *tree,
     proto_item *tlv_item,
     unsigned    offset,
-    const wimaxasncp_dict_tlv_t *tlv_info)
+    const wimaxasncp_tlv_new_t* tlv_info)
 {
     int                hf_value;
     ws_in6_addr  ip;
@@ -642,7 +684,7 @@ static void wimaxasncp_proto_tree_add_ether_value(
     proto_item *tlv_item,
     unsigned    offset,
     unsigned    length,
-    const wimaxasncp_dict_tlv_t *tlv_info)
+    const wimaxasncp_tlv_new_t* tlv_info)
 {
     int           hf_value;
     const uint8_t *p;
@@ -678,7 +720,7 @@ static void wimaxasncp_dissect_tlv_value(
     packet_info        *pinfo,
     proto_tree         *tree,
     proto_item         *tlv_item,
-    const wimaxasncp_dict_tlv_t *tlv_info)
+    const wimaxasncp_tlv_new_t* tlv_info)
 {
     unsigned     offset          = 0;
     unsigned     length;
@@ -695,15 +737,6 @@ static void wimaxasncp_dissect_tlv_value(
         {
             /* encoding error */
             break;
-        }
-
-        if (tlv_info->enums == NULL)
-        {
-            if (debug_enabled)
-            {
-                g_print("fix-me: enum values missing for TLV %s (%u)\n",
-                        tlv_info->name, tlv_info->type);
-            }
         }
 
         if (tree)
@@ -733,15 +766,6 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->enums == NULL)
-        {
-            if (debug_enabled)
-            {
-                g_print("fix-me: enum values missing for TLV %s (%u)\n",
-                        tlv_info->name, tlv_info->type);
-            }
-        }
-
         if (tree)
         {
             uint16_t     value;
@@ -767,15 +791,6 @@ static void wimaxasncp_dissect_tlv_value(
         {
             /* encoding error */
             break;
-        }
-
-        if (tlv_info->enums == NULL)
-        {
-            if (debug_enabled)
-            {
-                g_print("fix-me: enum values missing for TLV %s (%u)\n",
-                        tlv_info->name, tlv_info->type);
-            }
         }
 
         if (tree)
@@ -848,11 +863,6 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->enums == NULL)
-        {
-            /* enum values missing */
-        }
-
         if (tree)
         {
             proto_tree *flags_tree;
@@ -903,11 +913,6 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->enums == NULL)
-        {
-            /* enum values missing */
-        }
-
         if (tree)
         {
             proto_tree *flags_tree;
@@ -956,11 +961,6 @@ static void wimaxasncp_dissect_tlv_value(
         {
             /* encoding error */
             break;
-        }
-
-        if (tlv_info->enums == NULL)
-        {
-            /* enum values missing */
         }
 
         if (tree)
@@ -1218,12 +1218,6 @@ static void wimaxasncp_dissect_tlv_value(
     }
     case WIMAXASNCP_TLV_TBD:
     {
-        if (debug_enabled)
-        {
-            g_print(
-                "fix-me: TBD: TLV %s (%u)\n", tlv_info->name, tlv_info->type);
-        }
-
         if (tree)
         {
             if (length) {
@@ -1753,11 +1747,7 @@ static void wimaxasncp_dissect_tlv_value(
         return;
     }
     default:
-        if (debug_enabled)
-        {
-            g_print(
-                "fix-me: unknown decoder: %d\n", tlv_info->decoder);
-        }
+        proto_tree_add_expert_format(tree, pinfo, &ei_wimaxasncp_decoder, tvb, offset, length, "Unknown decoder %d", tlv_info->decoder);
         break;
     }
 
@@ -1802,7 +1792,7 @@ static unsigned dissect_wimaxasncp_tlvs(
     offset = 0;
     while (offset < tvb_reported_length(tvb))
     {
-        const wimaxasncp_dict_tlv_t *tlv_info;
+        const wimaxasncp_tlv_new_t* tlv_info;
 
         proto_tree *tlv_tree;
         proto_item *tlv_item;
@@ -1987,21 +1977,17 @@ static unsigned dissect_wimaxasncp_backend(
 
         if (ui16 & 0x8000)
         {
-            proto_tree_add_uint_format(
+            proto_tree_add_uint_format_value(
                 tree, hf_wimaxasncp_transaction_id,
                 tvb, offset, 2, ui16,
-                "Transaction ID: D + 0x%04x (0x%04x)", mask & ui16, ui16);
+                "D + 0x%04x (0x%04x)", mask & ui16, ui16);
 
             tid = ui16 & mask;
             dbit_show = true;
         }
         else
         {
-            proto_tree_add_uint_format(
-                tree, hf_wimaxasncp_transaction_id,
-                tvb, offset, 2, ui16,
-                "Transaction ID: 0x%04x", ui16);
-
+            proto_tree_add_uint(tree, hf_wimaxasncp_transaction_id, tvb, offset, 2, ui16);
             tid = ui16;
         }
     }
@@ -2020,16 +2006,7 @@ static unsigned dissect_wimaxasncp_backend(
      * reserved
      * ------------------------------------------------------------------------
      */
-
-    ui16 = tvb_get_ntohs(tvb, offset);
-
-    if (tree)
-    {
-        proto_tree_add_uint(
-            tree, hf_wimaxasncp_reserved2,
-            tvb, offset, 2, ui16);
-    }
-
+    proto_tree_add_item(tree, hf_wimaxasncp_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* ------------------------------------------------------------------------
@@ -2099,7 +2076,7 @@ dissect_wimaxasncp(
     proto_item *packet_item     = NULL;
     proto_item *item            = NULL;
     proto_tree *wimaxasncp_tree = NULL;
-    tvbuff_t   *subtree;
+    tvbuff_t   *subtree_tvb;
 
     unsigned  offset;
     uint8_t ui8;
@@ -2107,7 +2084,7 @@ dissect_wimaxasncp(
     uint8_t      function_type;
     const char *function_type_name;
     proto_item  *function_type_item;
-    uint16_t     length;
+    uint32_t     length;
 
     const wimaxasncp_func_msg_t *p = NULL;
     const char *message_name;
@@ -2193,68 +2170,7 @@ dissect_wimaxasncp(
      * flags
      * ------------------------------------------------------------------------
      */
-
-    ui8 = tvb_get_uint8(tvb, offset);
-
-    if (tree)
-    {
-        proto_tree *flags_tree;
-
-        if (ui8 == 0)
-        {
-            proto_tree_add_uint_format(
-                wimaxasncp_tree, hf_wimaxasncp_flags,
-                tvb, offset, 1, ui8,
-                "Flags: 0x%02x", ui8);
-        }
-        else
-        {
-            unsigned j;
-            item = proto_tree_add_uint_format(
-                wimaxasncp_tree, hf_wimaxasncp_flags,
-                tvb, offset, 1, ui8,
-                "Flags: ");
-
-            if (ui8 & (WIMAXASNCP_FLAGS_T | WIMAXASNCP_FLAGS_R))
-            {
-                if (ui8 & WIMAXASNCP_FLAGS_T)
-                {
-                    proto_item_append_text(item, "T");
-                }
-
-                if (ui8 & WIMAXASNCP_FLAGS_R)
-                {
-                    proto_item_append_text(item, "R");
-                }
-
-                proto_item_append_text(item, " - ");
-            }
-
-            proto_item_append_text(item, "0x%02x", ui8);
-
-            flags_tree = proto_item_add_subtree(
-                item, ett_wimaxasncp_flags);
-
-            for (j = 0; j < 8; ++j)
-            {
-                uint8_t mask;
-                mask = 1U << (7 - j);
-
-                /* Only add flags that are set */
-                if (ui8 & mask)
-                {
-                    proto_tree_add_uint_format(
-                        flags_tree, hf_wimaxasncp_flags,
-                        tvb, offset, 1, ui8,
-                        "Bit #%u is set: %s",
-                        j,
-                        val_to_str(
-                            ui8 & mask, wimaxasncp_flag_vals, "Unknown"));
-                }
-            }
-        }
-    }
-
+    proto_tree_add_bitmask(wimaxasncp_tree, tvb, offset, hf_wimaxasncp_flags, ett_wimaxasncp_flags, hf_wimaxasncp_flag_fields, ENC_NA);
     offset += 1;
 
     /* ------------------------------------------------------------------------
@@ -2305,13 +2221,7 @@ dissect_wimaxasncp(
      * --------------------------------------------------------------------
      */
 
-    item = proto_tree_add_uint_format(
-        wimaxasncp_tree, hf_wimaxasncp_op_id,
-         tvb, offset, 1, ui8,
-        "OP ID: %s", val_to_str(ui8 >> 5, wimaxasncp_op_id_vals, unknown));
-
-    proto_item_append_text(item, " (%u)", ((ui8 >> 5) & 7));
-
+    item = proto_tree_add_item(wimaxasncp_tree, hf_wimaxasncp_op_id, tvb, offset, 1, ENC_NA);
 
     /* use the function type to find the message vals */
     for (i = 0; i < array_length(wimaxasncp_func_to_msg_vals_map); ++i)
@@ -2335,10 +2245,10 @@ dissect_wimaxasncp(
         message_name = unknown;
     }
 
-    item = proto_tree_add_uint_format(
+    item = proto_tree_add_uint_format_value(
         wimaxasncp_tree, hf_wimaxasncp_message_type,
         tvb, offset, 1, ui8,
-        "Message Type: %s", message_name);
+        "%s", message_name);
 
     proto_item_append_text(item, " (%u)", ui8 & 0x1F);
 
@@ -2351,7 +2261,6 @@ dissect_wimaxasncp(
     }
 
     col_add_str(pinfo->cinfo, COL_INFO, message_name);
-
     offset += 1;
 
     /* ------------------------------------------------------------------------
@@ -2359,34 +2268,18 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    length = tvb_get_ntohs(tvb, offset);
+    item = proto_tree_add_item_ret_uint(
+        wimaxasncp_tree, hf_wimaxasncp_length,
+        tvb, offset, 2, ENC_BIG_ENDIAN, &length);
 
-    if (tree)
-    {
-        proto_item_set_len(
-            packet_item, MAX(WIMAXASNCP_HEADER_LENGTH_END, length));
-
-        item = proto_tree_add_uint(
-            wimaxasncp_tree, hf_wimaxasncp_length,
-            tvb, offset, 2, length);
-    }
-
+    proto_item_set_len(packet_item, MAX(WIMAXASNCP_HEADER_LENGTH_END, length));
     offset += 2;
 
     if (length < WIMAXASNCP_HEADER_SIZE)
     {
-        expert_add_info(pinfo, item, &ei_wimaxasncp_length_bad);
-
-        if (tree)
-        {
-            proto_item_append_text(
-                item, " [error: specified length less than header size (20)]");
-        }
-
+        expert_add_info_format(pinfo, item, &ei_wimaxasncp_length_bad, "specified length (%u) less than header size (20)", length);
         if (length <= WIMAXASNCP_HEADER_LENGTH_END)
-        {
             return offset;
-        }
     }
 
     /* ------------------------------------------------------------------------
@@ -2394,13 +2287,13 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    subtree = tvb_new_subset_length_caplen(
+    subtree_tvb = tvb_new_subset_length_caplen(
         tvb, offset,
-        MIN(length, tvb_captured_length_remaining(tvb, offset)),
+        MIN((int)length, tvb_captured_length_remaining(tvb, offset)),
         length - WIMAXASNCP_HEADER_LENGTH_END);
 
     offset += dissect_wimaxasncp_backend(
-        subtree, pinfo, wimaxasncp_tree);
+        subtree_tvb, pinfo, wimaxasncp_tree);
 
     /* ------------------------------------------------------------------------
      * done, return the amount of data this dissector was able to dissect
@@ -2470,8 +2363,7 @@ static void add_reg_info(
 
 /* ========================================================================= */
 
-static void add_tlv_reg_info(
-    wimaxasncp_dict_tlv_t *tlv)
+static void add_tlv_reg_info(wimaxasncp_tlv_new_t* tlv)
 {
     char *name;
     char *abbrev;
@@ -2759,14 +2651,309 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
-        if (debug_enabled)
-        {
-            g_print(
-                "fix-me: unknown decoder: %d\n", tlv->decoder);
-        }
-
+        report_warning("WiMax: unknown decoder: %d\n", tlv->decoder);
         break;
     }
+}
+
+static int wimaxasncp_decode_type(const char* name)
+{
+    size_t i;
+    for (i = 0; i < array_length(wimaxasncp_decode_type_vals) - 1; ++i)
+    {
+        if (strcmp(name, wimaxasncp_decode_type_vals[i].strptr) == 0)
+        {
+            return wimaxasncp_decode_type_vals[i].value;
+        }
+    }
+
+    /* not found, emit some sort of error here? */
+
+    return WIMAXASNCP_TLV_TBD;
+}
+
+typedef struct wimaxasncp_dict_tlv_enum
+{
+    xmlChar* name;
+    unsigned code;
+
+} wimaxasncp_dict_tlv_enum_t;
+
+typedef struct wimaxasncp_dict_tlv
+{
+    xmlChar* name;
+    xmlChar* description;
+    uint16_t type;
+    int decoder;
+    unsigned since;
+    GSList* enums;
+
+} wimaxasncp_dict_tlv_t;
+
+
+static void
+wimaxasncp_dict_print_tlv_enum(void* data, void* user_data)
+{
+    wimaxasncp_dict_tlv_enum_t* tlv_enum = (wimaxasncp_dict_tlv_enum_t*)data;
+    FILE* fh = (FILE*)user_data;
+
+    fprintf(fh, "\tEnum: %s[%u]\n",
+        tlv_enum->name ? (char*)tlv_enum->name : "-",
+        tlv_enum->code);
+}
+
+static void
+wimaxasncp_dict_print_tlv(void* data, void* user_data)
+{
+    wimaxasncp_dict_tlv_t* tlv = (wimaxasncp_dict_tlv_t*)data;
+    FILE* fh = (FILE*)user_data;
+
+    char* str_decoder = val_to_str_wmem(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
+    fprintf(fh, "TLV: %s[%u] %s[%d] %s (since %u)\n",
+        tlv->name ? (char*)tlv->name : "-",
+        tlv->type,
+        str_decoder,
+        tlv->decoder,
+        tlv->description ? (char*)tlv->description : "",
+        tlv->since);
+    wmem_free(NULL, str_decoder);
+    g_slist_foreach(tlv->enums, wimaxasncp_dict_print_tlv_enum, fh);
+}
+
+void wimaxasncp_dict_print(FILE* fh, GSList* tlvs)
+{
+    fprintf(fh, "\n");
+
+    g_slist_foreach(tlvs, wimaxasncp_dict_print_tlv, fh);
+}
+
+static void
+wimaxasncp_print_tlv(void* data, void* user_data)
+{
+    wimaxasncp_tlv_new_t* tlv = (wimaxasncp_tlv_new_t*)data;
+    FILE* fh = (FILE*)user_data;
+
+    char* str_decoder = val_to_str_wmem(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
+    fprintf(fh,
+        "%s\n"
+        "  type                   = %u\n"
+        "  description            = %s\n"
+        "  decoder                = %s\n"
+        "  hf_root                = %d\n"
+        "  hf_value               = %d\n"
+        "  hf_ipv4                = %d\n"
+        "  hf_ipv6                = %d\n"
+        "  hf_bsid                = %d\n"
+        "  hf_protocol            = %d\n"
+        "  hf_port_low            = %d\n"
+        "  hf_port_high           = %d\n"
+        "  hf_ipv4_mask           = %d\n"
+        "  hf_ipv6_mask           = %d\n"
+        "  hf_vendor_id           = %d\n"
+        "  hf_vendor_rest_of_info = %d\n",
+        tlv->name,
+        tlv->type,
+        tlv->description,
+        str_decoder,
+        tlv->hf_root,
+        tlv->hf_value,
+        tlv->hf_ipv4,
+        tlv->hf_ipv6,
+        tlv->hf_bsid,
+        tlv->hf_protocol,
+        tlv->hf_port_low,
+        tlv->hf_port_high,
+        tlv->hf_ipv4_mask,
+        tlv->hf_ipv6_mask,
+        tlv->hf_vendor_id,
+        tlv->hf_vendor_rest_of_info);
+    wmem_free(NULL, str_decoder);
+}
+
+static bool
+wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
+{
+    xmlDocPtr doc;
+    xmlNodePtr root_element = NULL;
+    bool status = true;
+
+    doc = xmlReadFile(filename, NULL, XML_PARSE_NOENT);
+    if (doc == NULL)
+        return false;
+
+    root_element = xmlDocGetRootElement(doc);
+    if (root_element == NULL) {
+        status = false;
+        goto cleanup;
+    }
+
+    // Iterate through top-level child elements
+    for (xmlNodePtr current_node = root_element->children; current_node != NULL; current_node = current_node->next)
+    {
+        if (current_node->type != XML_ELEMENT_NODE)
+            continue;
+
+        // Process <base> element
+        if (xmlStrcmp(current_node->name, (const xmlChar*)"tlv") == 0)
+        {
+            wimaxasncp_dict_tlv_t* element = g_new0(wimaxasncp_dict_tlv_t, 1);
+            element->name = xmlGetProp(current_node, (const xmlChar*)"name");
+            element->description = xmlGetProp(current_node, (const xmlChar*)"description");
+            xmlChar* str_type = xmlGetProp(current_node, (const xmlChar*)"type");
+            if (str_type != NULL)
+            {
+                if (g_ascii_strncasecmp(str_type, "0x", 2) == 0)
+                {
+                    ws_hexstrtou16(str_type, NULL, &element->type);
+                }
+                else
+                {
+                    ws_strtou16(str_type, NULL, &element->type);
+                }
+                xmlFree(str_type);
+            }
+            xmlChar* str_since = xmlGetProp(current_node, (const xmlChar*)"since");
+            if (str_since != NULL)
+            {
+                ws_strtou32(str_since, NULL, &element->since);
+                xmlFree(str_since);
+            }
+            xmlChar* str_decoder = xmlGetProp(current_node, (const xmlChar*)"decoder");
+            if (str_decoder != NULL)
+            {
+                element->decoder = wimaxasncp_decode_type(str_decoder);
+                xmlFree(str_decoder);
+            }
+
+            for (xmlNodePtr tlv_children = current_node->children; tlv_children != NULL; tlv_children = tlv_children->next)
+            {
+                if (tlv_children->type != XML_ELEMENT_NODE)
+                    continue;
+
+                if (xmlStrcmp(tlv_children->name, (const xmlChar*)"enum") == 0)
+                {
+                    wimaxasncp_dict_tlv_enum_t* tlv_enum = g_new0(wimaxasncp_dict_tlv_enum_t, 1);
+                    tlv_enum->name = xmlGetProp(tlv_children, (const xmlChar*)"name");
+                    xmlChar* str_code = xmlGetProp(tlv_children, (const xmlChar*)"code");
+                    if (str_code != NULL)
+                    {
+                        if (g_ascii_strncasecmp(str_code, "0x", 2) == 0)
+                        {
+                            ws_hexstrtou32(str_code, NULL, &tlv_enum->code);
+                        }
+                        else if (g_ascii_isdigit(str_code[0]))
+                        {
+                            ws_strtou32(str_code, NULL, &tlv_enum->code);
+                        }
+                        else
+                        {
+                            GMatchInfo* match_info;
+                            static GRegex* regex = NULL;
+                            if (regex == NULL)
+                            {
+                                regex = g_regex_new("^(WIMAXASNCP_BIT)(\\d+)\\((\\d+)\\)$",
+                                    G_REGEX_DEFAULT, 0, NULL);
+                            }
+
+                            if (g_regex_match_full(regex, str_code, -1, 0, 0, &match_info, NULL))
+                            {
+                                unsigned bit_value = 0, bit_shift = 0;
+                                gchar* bit_value_str = g_match_info_fetch(match_info, 2);
+                                gchar* parenthesized_value_str = g_match_info_fetch(match_info, 3);
+
+                                ws_strtou32(bit_value_str, NULL, &bit_value);
+                                switch(bit_value)
+                                {
+                                case 8:
+                                    if (ws_strtou32(parenthesized_value_str, NULL, &bit_shift))
+                                        tlv_enum->code = 1 << (7 - bit_shift);
+                                    break;
+                                case 16:
+                                    if (ws_strtou32(parenthesized_value_str, NULL, &bit_shift))
+                                        tlv_enum->code = 1 << (15 - bit_shift);
+                                    break;
+                                case 32:
+                                    if (ws_strtou32(parenthesized_value_str, NULL, &bit_shift))
+                                        tlv_enum->code = 1 << (31 - bit_shift);
+                                    break;
+                                }
+
+                            }
+                            g_match_info_free(match_info);
+                        }
+                        xmlFree(str_code);
+                    }
+                    element->enums = g_slist_append(element->enums, tlv_enum);
+                }
+            }
+
+            (*tlvs) = g_slist_append((*tlvs), element);
+        }
+    }
+cleanup:
+    xmlFreeDoc(doc);
+
+    return status;
+}
+
+static void
+wimaxasncp_dict_enum_process(void* data, void* user_data)
+{
+    wimaxasncp_dict_tlv_enum_t* dict_enum = (wimaxasncp_dict_tlv_enum_t*)data;
+    wmem_array_t* array = (wmem_array_t*)user_data;
+
+    value_string item = { dict_enum->code, wmem_strdup(wmem_epan_scope(), dict_enum->name) };
+    wmem_array_append_one(array, item);
+}
+
+static void
+wimaxasncp_dict_process(void* data, void* user_data)
+{
+    wimaxasncp_dict_tlv_t* dict_tlv = (wimaxasncp_dict_tlv_t*)data;
+    wmem_list_t* tlvs = (wmem_list_t*)user_data;
+    wimaxasncp_tlv_new_t* tlv = wmem_new0(wmem_epan_scope(), wimaxasncp_tlv_new_t);
+
+    tlv->type = dict_tlv->type;
+    tlv->name = wmem_strdup(wmem_epan_scope(), dict_tlv->name);
+    tlv->description = wmem_strdup(wmem_epan_scope(), dict_tlv->description);
+    tlv->decoder = dict_tlv->decoder;
+    tlv->since = dict_tlv->since;
+
+    if (dict_tlv->enums != NULL)
+    {
+        /* Create array for enums */
+        wmem_array_t* array = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+
+        /* Copy each entry into value_string array */
+        g_slist_foreach(dict_tlv->enums, wimaxasncp_dict_enum_process, array);
+
+        /* Set enums to use with this TLV */
+        wmem_array_set_null_terminator(array);
+        tlv->enum_vs = (value_string*)wmem_array_get_raw(array);
+    }
+
+    add_tlv_reg_info(tlv);
+
+    wmem_list_append(tlvs, tlv);
+}
+
+static void
+wimaxasncp_dict_tlv_enum_clean(void* data, void* user_data _U_)
+{
+    wimaxasncp_dict_tlv_enum_t* dict_enum = (wimaxasncp_dict_tlv_enum_t*)data;
+    xmlFree(dict_enum->name);
+}
+
+static void
+wimaxasncp_dict_clean(void* data, void* user_data)
+{
+    wimaxasncp_dict_tlv_t* dict_tlv = (wimaxasncp_dict_tlv_t*)data;
+
+    xmlFree(dict_tlv->name);
+    xmlFree(dict_tlv->description);
+
+    g_slist_foreach(dict_tlv->enums, wimaxasncp_dict_tlv_enum_clean, user_data);
+    g_slist_free(dict_tlv->enums);
 }
 
 /* ========================================================================= */
@@ -2774,10 +2961,7 @@ static void add_tlv_reg_info(
 static void
 register_wimaxasncp_fields(const char* unused _U_)
 {
-    bool      debug_parser;
-    bool      dump_dict;
-    char     *dir;
-    char*    dict_error;
+    bool      dump_dict = getenv("WIRESHARK_DUMP_WIMAXASNCP_DICT") != NULL;
 
     /* ------------------------------------------------------------------------
      * List of header fields
@@ -2806,7 +2990,46 @@ register_wimaxasncp_fields(const char* unused _U_)
                     FT_UINT8,
                     BASE_HEX,
                     NULL,
-                    0xff,
+                    0,
+                    NULL,
+                    HFILL
+                }
+            },
+            {
+                &hf_wimaxasncp_flags_r,
+                {
+                    "R - Reset Next Expected Transaction ID",
+                    "wimaxasncp.flags.r",
+                    FT_UINT8,
+                    BASE_HEX,
+                    NULL,
+                    0x01,
+                    NULL,
+                    HFILL
+                }
+            },
+            {
+                &hf_wimaxasncp_flags_t,
+                {
+                    "T - Source and Destination Identifier TLVs",
+                    "wimaxasncp.flags.t",
+                    FT_UINT8,
+                    BASE_HEX,
+                    NULL,
+                    0x02,
+                    NULL,
+                    HFILL
+                }
+            },
+            {
+                &hf_wimaxasncp_flags_reserved,
+                {
+                    "Reserved",
+                    "wimaxasncp.flags.reserved",
+                    FT_UINT8,
+                    BASE_HEX,
+                    NULL,
+                    0xFC,
                     NULL,
                     HFILL
                 }
@@ -2850,171 +3073,6 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
-#if 0
-            {
-                &hf_wimaxasncp_qos_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.qos_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_ho_control_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.ho_control_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_data_path_control_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.data_path_control_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_context_delivery_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.context_delivery_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_r3_mobility_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.r3_mobility_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_paging_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.paging_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_rrm_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.rrm_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_authentication_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.authentication_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_ms_state_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.ms_state_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_reauthentication_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.reauthentication_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_session_msg,
-                {
-                    "Message Type",
-                    "wimaxasncp.session_msg",
-                    FT_UINT8,
-                    BASE_HEX,
-                    NULL,
-                    0x1F,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
             {
                 &hf_wimaxasncp_length,
                 {
@@ -3173,36 +3231,6 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
-#if 0
-            {
-                &hf_wimaxasncp_tlv_value_protocol,
-                {
-                    "Value",
-                    "wimaxasncp.tlv_value_protocol",
-                    FT_UINT16,
-                    BASE_DEC,
-                    NULL,
-                    0x0,
-                    NULL,
-                    HFILL
-                }
-            },
-#endif
-#if 0
-            {
-                &hf_wimaxasncp_tlv_value_vendor_id,
-                {
-                    "Vendor ID",
-                    "wimaxasncp.tlv_value_vendor_id",
-                    FT_UINT24,
-                    BASE_DEC,
-                    NULL,
-                    0x0,
-                    NULL,
-                    HFILL
-                }
-            }
-#endif
         };
 
     /* ------------------------------------------------------------------------
@@ -3230,141 +3258,52 @@ register_wimaxasncp_fields(const char* unused _U_)
         { &ei_wimaxasncp_tlv_type, { "wimaxasncp.tlv.type.unknown", PI_UNDECODED, PI_WARN, "Unknown tlv", EXPFILL }},
         { &ei_wimaxasncp_function_type, { "wimaxasncp.function_type.unknown", PI_UNDECODED, PI_WARN, "Unknown function type", EXPFILL }},
         { &ei_wimaxasncp_op_id, { "wimaxasncp.opid.unknown", PI_UNDECODED, PI_WARN, "Unknown message op", EXPFILL }},
+        { &ei_wimaxasncp_decoder, { "wimaxasncp.decoder.unknown", PI_UNDECODED, PI_WARN, "Unknown decoder", EXPFILL }},
         { &ei_wimaxasncp_message_type, { "wimaxasncp.message_type.unknown", PI_UNDECODED, PI_WARN, "Unknown message type", EXPFILL }},
         { &ei_wimaxasncp_length_bad, { "wimaxasncp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
     };
 
     expert_module_t* expert_wimaxasncp;
+    GSList* all_tlvs = NULL;
 
     /* ------------------------------------------------------------------------
      * load the XML dictionary
      * ------------------------------------------------------------------------
      */
-
-    debug_parser = getenv("WIRESHARK_DEBUG_WIMAXASNCP_DICT_PARSER") != NULL;
-    dump_dict    = getenv("WIRESHARK_DUMP_WIMAXASNCP_DICT") != NULL;
-
-    dir = ws_strdup_printf(
-        "%s" G_DIR_SEPARATOR_S "wimaxasncp",
-        get_datafile_dir());
-
-    wimaxasncp_dict =
-        wimaxasncp_dict_scan(dir, "dictionary.xml", debug_parser, &dict_error);
-
+    char* dir = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "wimaxasncp" G_DIR_SEPARATOR_S "dictionary.xml", get_datafile_dir());
+    bool success = wimaxasncp_dictionary_process_file(dir, &all_tlvs);
     g_free(dir);
 
-    if (dict_error)
-    {
-        report_failure("wimaxasncp - %s", dict_error);
-        g_free(dict_error);
-    }
-
-    if (wimaxasncp_dict && dump_dict)
-    {
-        wimaxasncp_dict_print(stdout, wimaxasncp_dict);
-    }
+    if (success && dump_dict)
+        wimaxasncp_dict_print(stdout, all_tlvs);
 
     /* ------------------------------------------------------------------------
      * build the hf and ett dictionary entries
      * ------------------------------------------------------------------------
      */
 
-    wimaxasncp_build_dict.hf =
-        wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
+    wimaxasncp_build_dict.hf = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
+    wmem_array_append(wimaxasncp_build_dict.hf, hf_base, array_length(hf_base));
 
-    wmem_array_append(
-        wimaxasncp_build_dict.hf, hf_base, array_length(hf_base));
+    wimaxasncp_build_dict.ett = wmem_array_new(wmem_epan_scope(), sizeof(int*));
+    wmem_array_append(wimaxasncp_build_dict.ett, ett_base, array_length(ett_base));
 
-    wimaxasncp_build_dict.ett =
-        wmem_array_new(wmem_epan_scope(), sizeof(int*));
-
-    wmem_array_append(
-        wimaxasncp_build_dict.ett, ett_base, array_length(ett_base));
-
-    if (wimaxasncp_dict)
-    {
-        wimaxasncp_dict_tlv_t *tlv;
-
-        /* For each TLV found in XML file */
-        for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
-        {
-            if (tlv->enums)
-            {
-                /* Create array for enums */
-                wimaxasncp_dict_enum_t *e;
-                wmem_array_t* array = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
-
-                /* Copy each entry into value_string array */
-                for (e = tlv->enums; e; e = e->next)
-                {
-                    value_string item = { e->code, e->name };
-                    wmem_array_append_one(array, item);
-                }
-
-                /* Set enums to use with this TLV */
-                wmem_array_set_null_terminator(array);
-                tlv->enum_vs = (value_string*)wmem_array_get_raw(array);
-            }
-
-            add_tlv_reg_info(tlv);
-        }
-    }
+    /* Convert the dictionary data to epan scoped data structures */
+    wimaxasncp_tlvs = wmem_list_new(wmem_epan_scope());
+    g_slist_foreach(all_tlvs, wimaxasncp_dict_process, wimaxasncp_tlvs);
 
     /* add an entry for unknown TLVs */
     add_tlv_reg_info(&wimaxasncp_tlv_not_found);
 
-    /* The following debug will only be printed if the debug_enabled variable
-     * is set programmatically.  Setting the value via preferences will not
-     * work as it will be set too late to affect this code path.
-     */
-    if (debug_enabled)
-    {
-        if (wimaxasncp_dict)
-        {
-            wimaxasncp_dict_tlv_t *tlv;
+    /* Clean up dictionary data */
+    g_slist_foreach(all_tlvs, wimaxasncp_dict_clean, NULL);
 
-            for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
-            {
-                ws_debug_printf(
-                    "%s\n"
-                    "  type                   = %u\n"
-                    "  description            = %s\n"
-                    "  decoder                = %s\n"
-                    "  hf_root                = %d\n"
-                    "  hf_value               = %d\n"
-                    "  hf_ipv4                = %d\n"
-                    "  hf_ipv6                = %d\n"
-                    "  hf_bsid                = %d\n"
-                    "  hf_protocol            = %d\n"
-                    "  hf_port_low            = %d\n"
-                    "  hf_port_high           = %d\n"
-                    "  hf_ipv4_mask           = %d\n"
-                    "  hf_ipv6_mask           = %d\n"
-                    "  hf_vendor_id           = %d\n"
-                    "  hf_vendor_rest_of_info = %d\n",
-                    tlv->name,
-                    tlv->type,
-                    tlv->description,
-                    val_to_str(
-                        tlv->decoder, wimaxasncp_decode_type_vals, "Unknown"),
-                    tlv->hf_root,
-                    tlv->hf_value,
-                    tlv->hf_ipv4,
-                    tlv->hf_ipv6,
-                    tlv->hf_bsid,
-                    tlv->hf_protocol,
-                    tlv->hf_port_low,
-                    tlv->hf_port_high,
-                    tlv->hf_ipv4_mask,
-                    tlv->hf_ipv6_mask,
-                    tlv->hf_vendor_id,
-                    tlv->hf_vendor_rest_of_info);
-            }
-        }
-    }
+    /* Optionally print the hfs created from the dictionary */
+    if (success && dump_dict)
+        wmem_list_foreach(wimaxasncp_tlvs, wimaxasncp_print_tlv, stdout);
 
-        /* Required function calls to register the header fields and subtrees
-         * used */
+    /* Required function calls to register the header fields and subtrees
+     * used */
     proto_register_field_array(
         proto_wimaxasncp,
         (hf_register_info*)wmem_array_get_raw(wimaxasncp_build_dict.hf),
@@ -3415,13 +3354,6 @@ proto_register_wimaxasncp(void)
             "Show transaction ID direction bit separately from the rest of "
             "the transaction ID field.",
             &show_transaction_id_d_bit);
-
-    prefs_register_bool_preference(
-            wimaxasncp_module,
-            "debug_enabled",
-            "Enable debug output",
-            "Print debug output to the console.",
-            &debug_enabled);
 
     prefs_register_enum_preference(
         wimaxasncp_module,

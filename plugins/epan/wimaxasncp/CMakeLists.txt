@@ -12,6 +12,10 @@ include(WiresharkPlugin)
 # Plugin name and version info (major minor micro extra)
 set_module_info(wimaxasncp 0 0 1 0)
 
+add_definitions(
+		${LIBXML2_DEFINITIONS}
+)
+
 set(DISSECTOR_SRC
 	packet-wimaxasncp.c
 )
@@ -19,10 +23,6 @@ set(DISSECTOR_SRC
 set(PLUGIN_FILES
 	plugin.c
 	${DISSECTOR_SRC}
-)
-
-add_lex_files(LEX_FILES PLUGIN_FILES
-	wimaxasncp_dict.l
 )
 
 set_source_files_properties(
@@ -38,7 +38,10 @@ register_plugin_files(plugin.c
 
 add_wireshark_plugin_library(wimaxasncp epan)
 
-target_link_libraries(wimaxasncp epan)
+target_link_libraries(wimaxasncp epan ${LIBXML2_LIBRARIES})
+
+target_include_directories(wimaxasncp SYSTEM PRIVATE ${LIBXML2_INCLUDE_DIRS})
+
 
 install_plugin(wimaxasncp epan)
 
@@ -52,8 +55,6 @@ CHECKAPI(
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_HEADERS}
-# LEX files commented out due to use of malloc, free etc.
-#	  ${LEX_FILES}
 )
 
 #
