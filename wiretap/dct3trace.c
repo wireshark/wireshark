@@ -187,7 +187,7 @@ dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int
 	/* Walk the attributes of the l1 tag */
 	bufp = &databuf[0];
 	for (xmlAttrPtr attr = root_element->properties; attr; attr = attr->next) {
-		int channel, tmp;
+		int channel = 0, tmp = 0;
 		if (xmlStrcmp(attr->name, (const xmlChar*)"direction") == 0) {
 			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
 			if (str != NULL) {
