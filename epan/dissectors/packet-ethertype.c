@@ -255,13 +255,13 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			gleantype = (tvb_get_uint8(tvb, ethertype_data->payload_offset) & 0xF0) >> 4;
 			switch (gleantype) {
 			case 4: /* IPv4 */
-				payload_etype = 0x0800;
+				payload_etype = ETHERTYPE_IP;
 				break;
 			case 6: /* IPv6 */
-				payload_etype = 0x86BB;
+				payload_etype = ETHERTYPE_IPv6;
 				break;
 			default: /* ARP */
-				payload_etype = 0x0806;
+				payload_etype = ETHERTYPE_ARP;
 			}
 			ethertype_data->etype = payload_etype;
 		// FIXME: Add glean to protocol-stack in frame-header
