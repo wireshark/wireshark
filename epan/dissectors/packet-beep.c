@@ -322,7 +322,7 @@ dissect_beep_mime_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (tree) {
 
     /* FIXME: Should calculate the whole length of the mime headers */
-    ti = proto_tree_add_item(tree, hf_beep_mime_header, tvb, offset, mime_length, ENC_NA|ENC_ASCII);
+    ti = proto_tree_add_item(tree, hf_beep_mime_header, tvb, offset, mime_length, ENC_ASCII);
     mime_tree = proto_item_add_subtree(ti, ett_mime_header);
   }
 
@@ -342,7 +342,7 @@ dissect_beep_mime_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
   else {  /* FIXME: Process the headers */
 
     if (tree) {
-      proto_tree_add_item(mime_tree, hf_beep_header, tvb, offset, mime_length, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(mime_tree, hf_beep_header, tvb, offset, mime_length, ENC_ASCII);
     }
 
     if ((cc = check_term(tvb, pinfo, offset + mime_length, mime_tree)) <= 0) {
@@ -470,7 +470,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       hdr = proto_tree_add_subtree(tree, tvb, offset, header_len(tvb, offset) + 2,
             ett_header, NULL, "Header");
 
-      ti = proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
+      ti = proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_ASCII);
       /* Include space */
       proto_item_set_len(ti, 4);
 
@@ -498,7 +498,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     else {  /* Protocol violation, so dissect rest as undissectable */
       if (tree && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
-                            tvb_reported_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
+                            tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
       }
       return -1;
     }
@@ -530,7 +530,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       if (tree && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
-                            tvb_reported_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
+                            tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
       }
 
       return -1;
@@ -558,7 +558,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
        */
 
       if (tree) {
-        proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_size, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_size, ENC_ASCII);
       }
 
       offset += pl_size;
@@ -583,7 +583,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     if (tree) {
-      ti = proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
+      ti = proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_ASCII);
       /* Include space */
       proto_item_set_len(ti, 4);
     }
@@ -614,7 +614,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       if (tree && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
-                            tvb_reported_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
+                            tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
       }
 
       return -1;
@@ -631,7 +631,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       tr = proto_tree_add_subtree(tree, tvb, offset, MIN(5, MAX(0, tvb_reported_length_remaining(tvb, offset))),
                                     ett_trailer, NULL, "Trailer");
 
-      proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_ASCII);
     }
 
     offset += 3;
@@ -642,7 +642,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       if (tree && (tvb_reported_length_remaining(tvb, offset) > 0)) {
         proto_tree_add_item(tree, hf_beep_payload_undissected, tvb, offset,
-                            tvb_reported_length_remaining(tvb, offset), ENC_NA|ENC_ASCII);
+                            tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
       }
 
       return -1;
@@ -688,7 +688,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (pl_size > 0) {
 
       if (tree) {
-        proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_size, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_size, ENC_ASCII);
       }
 
       offset += pl_size;            /* Advance past the payload */
@@ -818,7 +818,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Add the payload bit, only if we have a tree */
     if (tree && (pl_left > 0)) {
-      proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_left, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_left, ENC_ASCII);
     }
     offset += pl_left;
   }

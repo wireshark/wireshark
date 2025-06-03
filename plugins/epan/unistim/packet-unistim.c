@@ -514,7 +514,7 @@ dissect_basic_phone(proto_tree *msg_tree,
       case 0x02:
    /*Firmware Version*/
          proto_tree_add_item(msg_tree,hf_basic_phone_fw_ver,
-                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+                             tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x03:
@@ -531,7 +531,7 @@ dissect_basic_phone(proto_tree *msg_tree,
       case 0x08:
    /*Product Engineering Code*/
          proto_tree_add_item(msg_tree,hf_basic_prod_eng_code,
-                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+                             tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x09:
@@ -552,7 +552,7 @@ dissect_basic_phone(proto_tree *msg_tree,
          break;
       case 0x0b:
    /*not in pdf but get them*/
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0xff:
@@ -937,12 +937,12 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          break;
       case 0x12:
    /*Display Scroll with Data (before)*/
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x13:
    /*Display Scroll with Data (after)*/
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x14:
@@ -959,12 +959,12 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          break;
       case 0x15:
    /*Month Labels Download*/
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x16:
    /*Call Duration Timer Label Download*/
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=1;msg_len-=1;
          break;
       case 0x17:
@@ -1129,7 +1129,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_layer_number,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x31:
@@ -1678,7 +1678,7 @@ dissect_expansion_switch(proto_tree *msg_tree,
          offset+=1;
          msg_len-=1;
 
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          break;
       case 0x59:
          /*skip a byte for now, not sure what it means*/
@@ -2389,7 +2389,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_audio_sdes_rpt_source_desc,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_sdes_rpt_buk_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII);
          offset+=msg_len;
          break;
       case 0x11:

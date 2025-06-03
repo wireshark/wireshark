@@ -1808,13 +1808,13 @@ dissect_cpms_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (type == TYPE_ACTION) {
         switch (parameter_number) {
             case 0:
-                proto_tree_add_item(tree, hf_cpms_mem1, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(tree, hf_cpms_mem1, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 1:
-                proto_tree_add_item(tree, hf_cpms_mem2, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(tree, hf_cpms_mem2, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 2:
-                proto_tree_add_item(tree, hf_cpms_mem3, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(tree, hf_cpms_mem3, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             default:
                 return false;
@@ -1867,7 +1867,7 @@ dissect_cscs_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     /* For both ACTION and RESPONSE the first
      * and only parameter is the character set */
-    proto_tree_add_item(tree, hf_cscs_chset, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(tree, hf_cscs_chset, tvb, offset, parameter_length, ENC_ASCII);
     return true;
 }
 
@@ -1899,11 +1899,11 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case 1:
             if(role == ROLE_DTE) {
                 pitem = proto_tree_add_item(tree, hf_csim_command, tvb, offset,
-                                            parameter_length, ENC_NA | ENC_ASCII);
+                                            parameter_length, ENC_ASCII);
             }
             else {
                 pitem = proto_tree_add_item(tree, hf_csim_response, tvb, offset,
-                                            parameter_length, ENC_NA | ENC_ASCII);
+                                            parameter_length, ENC_ASCII);
             }
             hex_length = (parameter_length - 2); /* ignoring leading and trailing quotes */
             if (hex_length % 2 == 1) {
@@ -1980,7 +1980,7 @@ dissect_gmi_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (parameter_number > 1) return false;
 
-    proto_tree_add_item(tree, hf_gmi_manufacturer_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(tree, hf_gmi_manufacturer_id, tvb, offset, parameter_length, ENC_ASCII);
 
     return true;
 }
@@ -1996,7 +1996,7 @@ dissect_gmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (parameter_number > 1) return false;
 
-    proto_tree_add_item(tree, hf_gmm_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(tree, hf_gmm_model_id, tvb, offset, parameter_length, ENC_ASCII);
 
     return true;
 }
@@ -2012,7 +2012,7 @@ dissect_gmr_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (parameter_number > 1) return false;
 
-    proto_tree_add_item(tree, hf_gmr_revision_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(tree, hf_gmr_revision_id, tvb, offset, parameter_length, ENC_ASCII);
 
     return true;
 }
@@ -2030,7 +2030,7 @@ dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch (parameter_number) {
     case 0:
-        pitem = proto_tree_add_item(tree, hf_vts_dtmf, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        pitem = proto_tree_add_item(tree, hf_vts_dtmf, tvb, offset, parameter_length, ENC_ASCII);
         if (parameter_length != 1)
             expert_add_info(pinfo, pitem, &ei_vts_dtmf);
         break;
@@ -2057,10 +2057,10 @@ dissect_zpas_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     switch(parameter_number)
     {
         case 0:
-            proto_tree_add_item(tree, hf_zpas_network, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            proto_tree_add_item(tree, hf_zpas_network, tvb, offset, parameter_length, ENC_ASCII);
             break;
         case 1:
-            proto_tree_add_item(tree, hf_zpas_srv_domain, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            proto_tree_add_item(tree, hf_zpas_srv_domain, tvb, offset, parameter_length, ENC_ASCII);
             break;
     }
 
@@ -2180,7 +2180,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return tvb_reported_length(tvb);
 
     if (!command_number) {
-        proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
+        proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_ASCII);
     }
 
     at_stream = (uint8_t *) wmem_alloc(pinfo->pool, length + 1);
@@ -2211,7 +2211,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
 
                 proto_tree_add_item(command_tree, hf_at_command_line_prefix,
-                        tvb, offset, 2, ENC_NA | ENC_ASCII);
+                        tvb, offset, 2, ENC_ASCII);
                 offset += 2;
                 i_char += 2;
                 at_command = at_stream;
@@ -2254,14 +2254,14 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_at_cmd = at_cmds;
         if (at_command[0] == '\r') {
             pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset - 2,
-                    2, ENC_NA | ENC_ASCII);
+                    2, ENC_ASCII);
             i_at_cmd = NULL;
         } else {
             pitem = NULL;
             while (i_at_cmd->name) {
                 if (g_str_has_prefix(&at_command[0], i_at_cmd->name)) {
                     pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset,
-                            (int) strlen(i_at_cmd->name), ENC_NA | ENC_ASCII);
+                            (int) strlen(i_at_cmd->name), ENC_ASCII);
                     proto_item_append_text(pitem, " (%s)", i_at_cmd->long_name);
                     break;
                 }
@@ -2270,7 +2270,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (!pitem) {
                 pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset,
-                        i_char, ENC_NA | ENC_ASCII);
+                        i_char, ENC_ASCII);
             }
         }
 
@@ -2387,11 +2387,11 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             type, &at_command[i_char], parameter_number, parameter_length, at_info, &data) )) {
                         pitem = proto_tree_add_item(parameters_tree,
                                 hf_unknown_parameter, tvb, offset,
-                                parameter_length, ENC_NA | ENC_ASCII);
+                                parameter_length, ENC_ASCII);
                         expert_add_info(pinfo, pitem, &ei_unknown_parameter);
                     } else if (i_at_cmd && i_at_cmd->dissect_parameter == NULL) {
                         proto_tree_add_item(parameters_tree, hf_parameter, tvb, offset,
-                                parameter_length, ENC_NA | ENC_ASCII);
+                                parameter_length, ENC_ASCII);
                     }
                 }
             }
@@ -2475,7 +2475,7 @@ dissect_at_command_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                        data_stream, data_part_index, data_part_length,
                                        at_info) )) {
         pitem = proto_tree_add_item(data_part_tree, hf_unknown_parameter, tvb, offset,
-                                    data_part_length, ENC_NA | ENC_ASCII);
+                                    data_part_length, ENC_ASCII);
         expert_add_info(pinfo, pitem, &ei_unknown_parameter);
     }
     offset += data_part_length;
