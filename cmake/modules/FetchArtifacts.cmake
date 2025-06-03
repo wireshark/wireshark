@@ -137,8 +137,8 @@ if(APPLE)
   add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 etc/xml)
 
   if(BUILD_stratoshark OR BUILD_falcodump)
-    add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.20.0-1-macos-universal.tar.xz d6ee1e8a03ca986dc082685f13e95c573f13ab8d957b792ff281321226712c8c)
-    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-05-07-1-macos-universal.tar.xz 8253e9239db3217dc58ba246a59cd7452f5acecc6c514c967540087016843ee9)
+    add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.21.0-1-macos-universal.tar.xz b0ac98e6f1906f891a8aa8c552639a1d6595aee26adfb730da9ff643d5e4bfaf)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-06-03-1-macos-universal.tar.xz d34149abc6041e7e76a8096151b7a7de842b43a133e696bce2731a3e1f12655d)
   endif()
 endif()
 
