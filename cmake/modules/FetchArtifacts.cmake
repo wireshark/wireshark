@@ -9,30 +9,37 @@
 # extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
 # doesn't allow source or build paths in INTERFACE_INCLUDE_DIRECTORIES.
 #
-if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR})
-# IS_WRITABLE requires CMake 3.29
-# if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR} OR NOT IS_WRITABLE ${WIRESHARK_BASE_DIR})
-  message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
+
+if (APPLE)
+  if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR})
+  # IS_WRITABLE requires CMake 3.29
+  # if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR} OR NOT IS_WRITABLE ${WIRESHARK_BASE_DIR})
+    message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
+  endif()
+  set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-master)
+  set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
+  # Make sure we look for our fetched artifacts first.
+  set(Asciidoctor_ROOT ${ARTIFACTS_DIR})
+  file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/etc/xml)
+  set(WIRESHARK_XML_CATALOG_PATH ${ARTIFACTS_DIR}/etc/xml/catalog.xml)
+  set(OSX_APP_LIBPREFIX ${ARTIFACTS_DIR})
+elseif(WIN32)
+  set(ARTIFACTS_DIR ${_PROJECT_LIB_DIR})
+  set(download_prefix "https://dev-libs.wireshark.org/windows/packages")
+  # Make sure we look for our fetched artifacts first.
+  set(asciidoctor_version "2.0.23-1")
+  set(Asciidoctor_ROOT ${ARTIFACTS_DIR}/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws)
+  set(WIRESHARK_XML_CATALOG_PATH ${Asciidoctor_ROOT}/etc/xml/catalog.xml)
+else()
+  message(FATAL_ERROR "No artifacts for this system")
 endif()
 
 set(DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/_download)
 file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
-set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-master)
+
 file(MAKE_DIRECTORY ${ARTIFACTS_DIR})
-file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/etc/xml)
 list(APPEND CMAKE_PREFIX_PATH ${ARTIFACTS_DIR})
 set(manifest_file ${ARTIFACTS_DIR}/manifest.txt)
-
-# Make sure we look for our fetched artifacts first.
-set(Asciidoctor_ROOT ${ARTIFACTS_DIR})
-set(WIRESHARK_XML_CATALOG_PATH ${ARTIFACTS_DIR}/etc/xml/catalog.xml)
-
-if(APPLE)
-  set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
-  set(OSX_APP_LIBPREFIX ${ARTIFACTS_DIR})
-else()
-  message(FATAL_ERROR "No artifacts for this system")
-endif()
 
 set(artifacts)
 
@@ -96,9 +103,16 @@ function(update_artifacts)
     return()
   endif()
   # Start with a clean slate.
-  foreach(subdir IN ITEMS bin etc include lib libexec share)
-    file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
-  endforeach()
+  if(APPLE)
+    foreach(subdir IN ITEMS bin etc include lib libexec share)
+      file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
+    endforeach()
+  elseif(WIN32)
+    # XXX We need to do this more cleanly
+    foreach(subdir IN ITEMS asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws)
+      file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
+    endforeach()
+  endif()
   download_artifacts(download_ok)
   if(${download_ok})
     # XXX Should we generate the manifest file using configure_file?
@@ -141,6 +155,14 @@ if(APPLE)
     add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.21.0-1-macos-universal.tar.xz b0ac98e6f1906f891a8aa8c552639a1d6595aee26adfb730da9ff643d5e4bfaf)
     add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-06-11-1-macos-universal.tar.xz e23c3b3c469f9cc84d509d7880653b8e0743d11a20105188402fec5cef0fde9d)
   endif()
+elseif(WIN32)
+# To do:
+# - Move win-setup.ps1 here.
+  add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)
+
+  add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
 endif()
 
 update_artifacts()
@@ -149,3 +171,4 @@ unset(manifest_file)
 unset(download_prefix)
 unset(artifacts)
 unset(external_artifacts)
+unset(asciidoctor_version)

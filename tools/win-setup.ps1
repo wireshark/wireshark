@@ -12,7 +12,7 @@
 #requires -version 2
 
 # To do:
-# - Use Expand-Archive instead of `cmake -E tar`? That requires PS >= 5.0
+# - Move this to FetchArtifacts.cmake.
 
 <#
 .SYNOPSIS

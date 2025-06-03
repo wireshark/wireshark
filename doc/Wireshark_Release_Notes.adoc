@@ -205,6 +205,8 @@ for Arm64 and Intel. wsbuglink:17294[]
   available. When enabled "Associate IMSI" will be add on HTTP2 streams which
   has been found belong to a session.
 
+* Building the documentation on Windows no longer requires Java.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

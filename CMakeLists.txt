@@ -278,7 +278,7 @@ if(WIN32)
 	)
 endif(WIN32)
 
-if(WIRESHARK_BASE_DIR AND APPLE)
+if((WIRESHARK_BASE_DIR AND APPLE) OR (_PROJECT_LIB_DIR AND WIN32))
 	include(FetchArtifacts)
 else()
 	set(OSX_APP_LIBPREFIX "/usr/local")

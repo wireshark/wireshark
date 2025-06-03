@@ -8,12 +8,12 @@ INCLUDE(FindChocolatey)
 
 FIND_PROGRAM(ASCIIDOCTOR_EXECUTABLE
     NAMES
-        asciidoctorj.cmd
-        asciidoctorj.bat
-        asciidoctorj
         asciidoctor.cmd
         asciidoctor.bat
         asciidoctor
+        asciidoctorj.cmd
+        asciidoctorj.bat
+        asciidoctorj
         asciidoctor.ruby2.1
         # XXX Add Asciidoctor.js releases (asciidoctor-linux,
         # asciidoctor-macos, asciidoctor-win) if that ever becomes an option.
@@ -216,9 +216,9 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
         NAMES
-            asciidoctorj
             asciidoctor-pdf.bat
             asciidoctor-pdf
+            asciidoctorj
         PATHS
             /bin
             /usr/bin
@@ -272,9 +272,9 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     FIND_PROGRAM(ASCIIDOCTOR_EPUB_EXECUTABLE
         NAMES
-            asciidoctorj
             asciidoctor-epub3.bat
             asciidoctor-epub3
+            asciidoctorj
         PATHS
             /bin
             /usr/bin

@@ -517,29 +517,6 @@ choco install -y cmake
 
 Chocolatey ensures cmake.exe is on your path.
 
-[#ChSetupAsciidoctor]
-
-===== Install Asciidoctor, Xsltproc, And DocBook
-
-https://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby script or via a Java wrapper (AsciidoctorJ).
-The JavaScript flavor (Asciidoctor.js) isn’t yet supported.
-It is used in conjunction with Xsltproc and DocBook to generate the documentation you're reading and the User’s Guide.
-
-You can install AsciidoctorJ, Xsltproc, and DocBook using Chocolatey.
-AsciidoctorJ requires a Java runtime and there are https://en.wikipedia.org/wiki/List_of_Java_virtual_machines[many to choose from].
-Chocolatey doesn't support alternative package dependencies at the present time, including dependencies on Java.
-As a result, installing the asciidoctorj package won't automatically install a Java runtime -- you must install one separately.
-
-----
-choco install -y <your favorite Java runtime>
-choco install -y asciidoctorj xsltproc docbook-bundle
-----
-
-Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
-path and that xsltproc uses the DocBook catalog.
-
-// winget has no Asciidoctor, xsltproc, or DocBook packages.
-
 ===== Install winflexbison
 
 Get the winFlexBison installer from
@@ -874,13 +851,13 @@ the build using MSVC:
 
 ==== Using WSL2 on a Windows Host (Beginner Friendly)
 
-Using WSL2 on a Windows machine can provide a quick and easy way for beginners 
-to get started. This section will focus on using the official Debian 
+Using WSL2 on a Windows machine can provide a quick and easy way for beginners
+to get started. This section will focus on using the official Debian
 distribution installed from the `wsl` CLI command or Windows App Store.
 
-This will allow for a quick and easy way to build Wireshark. Please note 
-that while this guide is sufficient for an environment to build and test minor changes, 
-some changes and enhancements will still need to be built and tested for Windows 
+This will allow for a quick and easy way to build Wireshark. Please note
+that while this guide is sufficient for an environment to build and test minor changes,
+some changes and enhancements will still need to be built and tested for Windows
 as described in the sections above.
 
 To install WSL2 for the first time and Debian via the CLI run (as administrator):
@@ -890,17 +867,17 @@ To install WSL2 for the first time and Debian via the CLI run (as administrator)
 
 https://learn.microsoft.com/en-us/windows/wsl/install[Please see the documentation on WSL for help with installation.]
 
-From here following the build guide for Debian based Un*x systems should finish 
-the setup of the build environment. See <<ChSetupUNIX>> for 
-details on compiling, building, and running Wireshark on Debian. WSL2 supports 
-both X11 and Wayland to enable the use of GUI applications without any additional 
+From here following the build guide for Debian based Un*x systems should finish
+the setup of the build environment. See <<ChSetupUNIX>> for
+details on compiling, building, and running Wireshark on Debian. WSL2 supports
+both X11 and Wayland to enable the use of GUI applications without any additional
 requirements. Please see the https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-appsp[WSL2 reference of GUIs for more detail.]
 
 [NOTE]
 .For First Time Contributors
 ====
 It is highly recommended to review the source control process before attempting
-to build any changes. 
+to build any changes.
 
 Please see:
 

@@ -505,6 +505,7 @@ Release notes text:: Asciidoctor → _HTML_ → html2text.py
 
 https://asciidoctor.org/[Asciidoctor] comes in several flavors: a Ruby gem (Asciidoctor), a Java bundle (AsciidoctorJ), and transpiled JavaScript (Asciidoctor.js).
 The Ruby and Java flavors can be used to build Wireshark’s documentation, but the JavaScript flavor doesn’t support all of the features that we require.
+CMake will download a pre-built version of Ruby and the Asciidoctor gem on Windows.
 // We need docbook5, PDF & EPUB output and macros
 
 The guides and release notes were originally written in DocBook (hence the directory name).
