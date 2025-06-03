@@ -431,7 +431,7 @@ add_library(wsutil_static STATIC
 )
 
 target_compile_definitions(wsutil_static PRIVATE
-	BUILD_SHARED_LIBS
+	ENABLE_STATIC
 	BUILD_WSUTIL
 )
 

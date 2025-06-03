@@ -91,7 +91,7 @@
      * be necessary, e.g. if what's declared is an array whose size is
      * not given in the declaration.
      */
-    #ifdef BUILD_SHARED_LIBS
+    #ifdef ENABLE_STATIC
       /*
        * We're building all-static, so we're not building any DLLs.
        */
@@ -190,7 +190,14 @@
  * (not an executable) using MSVC.
  */
 #ifdef _MSC_VER
-#  ifdef BUILD_WSUTIL
+#  ifdef ENABLE_STATIC
+   /*
+    * We're building all-static, so we're not building any DLLs.
+    * Anything const and not initialized in the header (e.g., ws_utf8_seqlen)
+    * must be extern to avoid C2734.
+    */
+#    define WSUTIL_EXPORT  extern
+#  elif defined(BUILD_WSUTIL)
 #    define WSUTIL_EXPORT  __declspec(dllexport) extern
 #  else
 #    define WSUTIL_EXPORT  __declspec(dllimport) extern
