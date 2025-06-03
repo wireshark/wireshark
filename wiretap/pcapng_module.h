@@ -290,6 +290,20 @@ typedef struct pcapng_custom_block_enterprise_handler_t
 WS_DLL_PUBLIC
 void register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t* handler);
 
+/*
+ * Helper routines for modules.
+ */
+
+/*
+ * Write block header.
+ */
+WS_DLL_PUBLIC
+bool pcapng_write_block_header(wtap_dumper *wdh, uint32_t block_type,
+                               uint32_t block_content_length, int *err);
+
+/*
+ * Write padding after a chunk of data.
+ */
 static inline bool
 pcapng_write_padding(wtap_dumper *wdh, size_t pad, int *err)
 {
@@ -301,6 +315,13 @@ pcapng_write_padding(wtap_dumper *wdh, size_t pad, int *err)
 
     return true;
 }
+
+/*
+ * Write block footer.
+ */
+WS_DLL_PUBLIC
+bool pcapng_write_block_footer(wtap_dumper *wdh, uint32_t block_content_length,
+                               int *err);
 
 #ifdef __cplusplus
 }

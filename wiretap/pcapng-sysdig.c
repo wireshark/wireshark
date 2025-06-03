@@ -199,7 +199,7 @@ bool
 pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
     int* err, char** err_info)
 {
-    pcapng_block_header_t bh;
+    uint32_t block_content_length;
     uint32_t pad_len;
     uint32_t options_size = 0;
     bool has_flags = sysdig_has_flags(rec->rec_header.syscall_header.record_type);
@@ -220,11 +220,11 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
         options_size = pcapng_compute_options_size(rec->block, NULL);
     }
 
-    /* write sysdig event block header */
-    bh.block_type = rec->rec_header.syscall_header.record_type;
-    bh.block_total_length = MIN_BLOCK_SIZE + preamble_len + event_header_len + rec->rec_header.syscall_header.event_data_len + pad_len + options_size;
+    block_content_length = preamble_len + event_header_len + rec->rec_header.syscall_header.event_data_len + pad_len + options_size;
 
-    if (!wtap_dump_file_write(wdh, &bh, sizeof(bh), err))
+    /* write block header */
+    if (!pcapng_write_block_header(wdh, rec->rec_header.syscall_header.record_type,
+                                   block_content_length, err))
         return false;
 
     uint16_t cpu_id = rec->rec_header.syscall_header.cpu_id;
@@ -280,12 +280,7 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
     }
 
     /* write block footer */
-    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
-        sizeof bh.block_total_length, err))
-        return false;
-
-    return true;
-
+    return pcapng_write_block_footer(wdh, block_content_length, err);
 }
 
 /* Process a Sysdig meta event block that we have just read. */
