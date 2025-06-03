@@ -549,7 +549,7 @@ void PlotDialog::addPlot(bool checked, const QString& name, const QString& dfilt
 
     QVariantList newRowData;
     newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
-    newRowData.append(getLastPlotIdx() + 1),
+    newRowData.append(getLastPlotIdx() + 1);
     newRowData.append(name);
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
