@@ -1388,6 +1388,11 @@ static int hf_btcommon_eir_ad_biginfo_bis_access_address;
 static int hf_btcommon_eir_ad_broadcast_code;
 static int hf_btcommon_eir_ad_rsi;
 static int hf_btcommon_eir_ad_broadcast_name;
+static int hf_btcommon_eir_ad_pawr_timing_rsp_access_address;
+static int hf_btcommon_eir_ad_pawr_timing_num_subevents;
+static int hf_btcommon_eir_ad_pawr_timing_subevent_interval;
+static int hf_btcommon_eir_ad_pawr_timing_response_slot_delay;
+static int hf_btcommon_eir_ad_pawr_timing_response_slot_spacing;
 
 static int hf_btcommon_cod_class_of_device;
 static int hf_btcommon_cod_format_type;
@@ -2327,6 +2332,9 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x2E, "Resolvable Set Identifier" },
     {0x2F, "Advertising Interval - long" },
     {0x30, "Broadcast_Name" },
+    {0x31, "Encrypted Advertising Data" },
+    {0x32, "Periodic Advertising Response Timing Information" },
+    {0x34, "Electronic Shelf Label" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
@@ -11694,6 +11702,19 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             offset += length;
 
             break;
+        case 0x32: /* Periodic Advertising Response Timing Information */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_pawr_timing_rsp_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_pawr_timing_num_subevents, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_pawr_timing_subevent_interval, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_pawr_timing_response_slot_delay, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_pawr_timing_response_slot_spacing, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
         case 0xFF: /* Manufacturer Specific */ {
             uint16_t company_id;
 
@@ -12687,6 +12708,31 @@ proto_register_btcommon(void)
         { &hf_btcommon_eir_ad_broadcast_name,
           { "Broadcast Name", "btcommon.eir_ad.entry.broadcast_name",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_pawr_timing_rsp_access_address,
+          { "Response Access Address", "btcommon.eir_ad.entry.pawr_timing.rsp_access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_pawr_timing_num_subevents,
+          { "Number of Subevents", "btcommon.eir_ad.entry.pawr_timing.num_subevents",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_pawr_timing_subevent_interval,
+          { "Subevent Interval", "btcommon.eir_ad.entry.pawr_timing.subevent_interval",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(bluetooth_unit_1p25_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_pawr_timing_response_slot_delay,
+          { "Response Slot Delay", "btcommon.eir_ad.entry.pawr_timing.resp_slot_delay",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(bluetooth_unit_1p25_ms), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_pawr_timing_response_slot_spacing,
+          { "Response Slot Spacing", "btcommon.eir_ad.entry.pawr_timing.resp_slot_spacing",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(bluetooth_unit_1p25_ms), 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_cod_class_of_device,
