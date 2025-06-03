@@ -290,7 +290,7 @@ tap_packet_status Plot::tapPacket(packet_info* pinfo, epan_dissect_t* edt, const
     }
 
     GPtrArray* gp = proto_get_finfo_ptr_array(edt->tree, hf_index_);
-    bool one_valid = false;
+    if (!gp) return TAP_PACKET_DONT_REDRAW;
 
     // XXX - QCPGraph can't show more than one value per key, so effectively,
     // if a value is present multiple times at the same timestamp, either
@@ -302,6 +302,7 @@ tap_packet_status Plot::tapPacket(packet_info* pinfo, epan_dissect_t* edt, const
     // As an alternative, QCPCurve supports multiple values at the same key
     // (see https://www.qcustomplot.com/documentation/classQCPCurve.html), but
     // do we really need it?
+    bool one_valid = false;
     for (unsigned i = 0; i < gp->len; i++) {
         double value;
         const field_info* fip = static_cast<field_info*>(gp->pdata[i]);
