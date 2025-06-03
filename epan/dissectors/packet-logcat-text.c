@@ -70,10 +70,15 @@ void proto_register_logcat_text(void);
 void proto_reg_handoff_logcat_text(void);
 
 static int get_priority(const char *frame, const char *token, tvbuff_t *tvb,
-        proto_tree *maintree, int start_offset, packet_info *pinfo _U_) {
+        proto_tree *maintree, int start_offset, packet_info *pinfo) {
     int prio;
     char *p = g_strstr_len(frame + start_offset, -1, token);
     int offset = (int)(p - frame);
+
+    if (!p) {
+        proto_tree_add_expert(maintree, pinfo, &ei_malformed_token, tvb, start_offset, -1);
+        return (start_offset + 1);
+    }
 
     switch (*p) {
     case 'I':
