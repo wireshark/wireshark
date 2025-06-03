@@ -115,7 +115,8 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		int cipher;
 		int tmp_group_cipher; /* Keep between HS msg 2 and 3 */
 		unsigned char ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN]; /* session key used in decryption algorithm */
-	    int ptk_len;
+		int ptk_len;
+		int dh_group;
 	} wpa;
 
 
@@ -167,6 +168,7 @@ typedef struct _DOT11DECRYPT_EAPOL_PARSED {
 	uint16_t mic_len;
 	uint8_t *gtk;
 	uint16_t gtk_len;
+	uint16_t dh_group;
 
 	/* For fast bss transition akms */
 	uint8_t *mdid;
