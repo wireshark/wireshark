@@ -52,7 +52,6 @@
 
 #include <QMainWindow>
 #include <QPointer>
-#include <QTextCodec>
 
 #ifdef _WIN32
 # include <QTimer>
@@ -145,7 +144,6 @@ private:
 
     Ui::StratosharkMainWindow *main_ui_;
     QFont mono_font_;
-    QMap<QString, QTextCodec *> text_codec_map_;
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;
     QActionGroup *show_hide_actions_;
@@ -195,8 +193,6 @@ private:
 #endif // Q_OS_WIN
     bool testCaptureFileClose(QString before_what, FileCloseContext context = Default);
     void captureStop();
-
-    void findTextCodecs();
 
     void initMainToolbarIcons();
     void initShowHideMainWidgets();

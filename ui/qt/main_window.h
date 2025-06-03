@@ -28,6 +28,7 @@
 class QMenu;
 class QSplitter;
 class QStackedWidget;
+class QTextCodec;
 
 class DataSourceTab;
 class DisplayFilterCombo;
@@ -112,6 +113,7 @@ protected:
     MainStatusBar *main_status_bar_;
     ProfileSwitcher *profile_switcher_;
     bool use_capturing_title_;
+    QMap<QString, QTextCodec *> text_codec_map_;
 
 protected slots:
     void addDisplayFilterTranslationActions(QMenu *copy_menu);
@@ -120,6 +122,7 @@ protected slots:
 
 private:
     QString replaceWindowTitleVariables(QString title);
+    void findTextCodecs();
 
     QVector<QAction *> df_translate_actions_;
     static const char *translator_;

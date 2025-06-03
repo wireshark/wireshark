@@ -53,7 +53,6 @@
 
 #include <QMainWindow>
 #include <QPointer>
-#include <QTextCodec>
 
 #ifdef _WIN32
 # include <QTimer>
@@ -153,7 +152,6 @@ private:
 
     Ui::WiresharkMainWindow *main_ui_;
     QFont mono_font_;
-    QMap<QString, QTextCodec *> text_codec_map_;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     WirelessFrame *wireless_frame_;
 #endif
@@ -208,8 +206,6 @@ private:
 #endif // Q_OS_WIN
     bool testCaptureFileClose(QString before_what, FileCloseContext context = Default);
     void captureStop(bool discard = false);
-
-    void findTextCodecs();
 
     void initMainToolbarIcons();
     void initShowHideMainWidgets();
