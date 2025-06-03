@@ -2931,6 +2931,42 @@ Example using the "example_protocol" protocol:
 
 
 
+2.2.7 Initialization and Cleanup in Dissector Plugins
+
+- proto_register_foo() should be used to register protocol fields and can
+  also perform global (once-only) initialization.
+- proto_reg_handoff_foo() is called after registration and is typically used
+  to register the dissector with heuristic or static tables.
+
+There are no built-in dissect_init() or dissect_cleanup() hooks. If your plugin
+needs to allocate temporary memory per-packet or per-frame, use the pinfo->pool
+which is an ephemeral memory pool managed by Wireshark and reset after each packet.
+
+Example:
+
+    static int proto_foo = -1;
+
+    void proto_register_foo(void) {
+        static hf_register_info hf[] = {
+            { &hf_foo_field,
+              { "Foo Field", "foo.field",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            }
+        };
+        proto_foo = proto_register_protocol("Foo Protocol", "FOO", "foo");
+        proto_register_field_array(proto_foo, hf, array_length(hf));
+    }
+
+    void proto_reg_handoff_foo(void) {
+        dissector_handle_t foo_handle;
+
+        foo_handle = create_dissector_handle(dissect_foo, proto_foo);
+        dissector_add_uint("udp.port", FOO_PORT, foo_handle);
+    }
+
+
+
 2.3 Dynamic conversation dissector registration.
 
 
