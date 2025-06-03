@@ -5120,7 +5120,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_characteristic_user_description, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_characteristic_user_description, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -5569,7 +5569,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_device_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_device_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6174,7 +6174,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_model_number_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_model_number_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6190,7 +6190,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_serial_number_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_serial_number_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6206,7 +6206,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_firmware_revision_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_firmware_revision_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6222,7 +6222,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_hardware_revision_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_hardware_revision_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6238,7 +6238,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_software_revision_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_software_revision_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6254,7 +6254,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_manufacturer_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_manufacturer_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -6677,7 +6677,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_reported_length_remaining(tvb, offset);
 
         break;
@@ -6818,7 +6818,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
-            proto_tree_add_item(tree, hf_btatt_alert_text_string_information, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+            proto_tree_add_item(tree, hf_btatt_alert_text_string_information, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
             offset += tvb_captured_length_remaining(tvb, offset);
         }
 
@@ -7971,7 +7971,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
                 break;
             case  5: /* Request Name of Route */
-                proto_tree_add_item(tree, hf_btatt_ln_control_point_response_value_name_of_route, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+                proto_tree_add_item(tree, hf_btatt_ln_control_point_response_value_name_of_route, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
                 offset += tvb_captured_length_remaining(tvb, offset);
 
                 break;
@@ -8428,7 +8428,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_email_address, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_email_address, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -8479,7 +8479,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_first_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_first_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -8590,7 +8590,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_last_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_last_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -9029,7 +9029,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_language, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_language, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -9066,7 +9066,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
-            proto_tree_add_item(tree, hf_btatt_bond_management_control_point_authorization_code, tvb, offset, length -1, ENC_NA | ENC_UTF_8);
+            proto_tree_add_item(tree, hf_btatt_bond_management_control_point_authorization_code, tvb, offset, length -1, ENC_UTF_8);
             offset += tvb_reported_length_remaining(tvb, offset);
         }
         break;
@@ -9597,7 +9597,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_location_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_location_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -9613,7 +9613,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_uri, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_uri, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -9630,7 +9630,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        sub_item = proto_tree_add_item(tree, hf_btatt_http_headers, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        sub_item = proto_tree_add_item(tree, hf_btatt_http_headers, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
 
         call_dissector(http_handle, tvb_new_subset_remaining(tvb, offset), pinfo, sub_tree);
@@ -9667,7 +9667,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_http_entity_body, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_http_entity_body, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -9763,7 +9763,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_ots_object_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_ots_object_name, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -9912,7 +9912,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
         case 0x04: /* Execute */
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                proto_tree_add_item(tree, hf_btatt_ots_execute_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+                proto_tree_add_item(tree, hf_btatt_ots_execute_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
                 offset += tvb_reported_length_remaining(tvb, offset);
             }
 
@@ -9941,7 +9941,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 break;
             case 0x04: /* Execute */
                 if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                    proto_tree_add_item(tree, hf_btatt_ots_execute_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+                    proto_tree_add_item(tree, hf_btatt_ots_execute_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
                     offset += tvb_reported_length_remaining(tvb, offset);
                 }
 
@@ -10032,7 +10032,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         case 0x02: /* Name Ends With */
         case 0x03: /* Name Contains*/
         case 0x04: /* Name is Exactly */
-            proto_tree_add_item(tree, hf_btatt_ots_name_string, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+            proto_tree_add_item(tree, hf_btatt_ots_name_string, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
             offset += tvb_reported_length_remaining(tvb, offset);
 
             break;
@@ -10215,7 +10215,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         proto_tree_add_item(tree, hf_btatt_training_status_status, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_btatt_training_status_status_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        proto_tree_add_item(tree, hf_btatt_training_status_status_string, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8);
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
@@ -11651,7 +11651,7 @@ dissect_btgatt_nordic_uart_tx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    proto_tree_add_item(tree, hf_gatt_nordic_uart_tx, tvb, 0, tvb_captured_length(tvb), ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_gatt_nordic_uart_tx, tvb, 0, tvb_captured_length(tvb), ENC_ASCII);
 
     return tvb_captured_length(tvb);
 }
@@ -11664,7 +11664,7 @@ dissect_btgatt_nordic_uart_rx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    proto_tree_add_item(tree, hf_gatt_nordic_uart_rx, tvb, 0, tvb_captured_length(tvb), ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_gatt_nordic_uart_rx, tvb, 0, tvb_captured_length(tvb), ENC_ASCII);
 
     return tvb_captured_length(tvb);
 }
@@ -11988,7 +11988,7 @@ dissect_btgatt_microbit_led_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    proto_tree_add_item(tree, hf_gatt_microbit_led_text, tvb, 0, tvb_captured_length(tvb), ENC_NA | ENC_UTF_8);
+    proto_tree_add_item(tree, hf_gatt_microbit_led_text, tvb, 0, tvb_captured_length(tvb), ENC_UTF_8);
 
     return tvb_captured_length(tvb);
 }
