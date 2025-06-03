@@ -20,6 +20,7 @@ Plot::Plot(QCustomPlot* parent, QCPAxis* keyAxis, QCPAxis* valueAxis) :
     Graph(parent, keyAxis, valueAxis),
     first_packet_(NSTIME_INIT_UNSET),
     plot_start_time_(qQNaN()),
+    abs_time_(false),
     retap_needed_(false),
     hf_index_(-1)
 {
