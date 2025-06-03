@@ -1,6 +1,11 @@
-#
+# Create macros for using the lemon parser generator.
 
-find_program(LEMON_EXECUTABLE lemon)
+# If we're cross-compiling and /usr/share/lemon/lempar.c exists, try to
+# find the system lemon and use it. We need to build our own lemon
+# otherwise.
+if (CMAKE_CROSSCOMPILING AND EXISTS /usr/share/lemon/lempar.c)
+	find_program(LEMON_EXECUTABLE lemon)
+endif()
 
 if(LEMON_EXECUTABLE)
 	# Use system lemon
