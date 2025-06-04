@@ -248,9 +248,6 @@ workflow:
       -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so"
       -DTEST_EXTRA_ARGS=--disable-capture
       ..
-    # The Falco libs 0.20.0 package at https://dev-libs.wireshark.org/macos/packages/falcosecurity-libs/
-    # is missing uthash.h.
-    - ( cd $WIRESHARK_BASE_DIR/macos-universal-master/include ; curl -JLO https://raw.githubusercontent.com/troydhanson/uthash/refs/tags/v1.9.8/src/uthash.h )
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja test-programs
@@ -649,8 +646,8 @@ macOS Universal Package:
       -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
-    # The Falco libs 0.20.0 package at https://dev-libs.wireshark.org/macos/packages/falcosecurity-libs/
-    # is missing uthash.h.
+    # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
+    - sed -i .bak '/Requires.*zlib/d' $WIRESHARK_BASE_DIR/macos-universal-master/lib/pkgconfig/libscap.pc
     - ( cd $WIRESHARK_BASE_DIR/macos-universal-master/include ; curl -JLO https://raw.githubusercontent.com/troydhanson/uthash/refs/tags/v1.9.8/src/uthash.h )
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
