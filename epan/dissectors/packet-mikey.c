@@ -1274,6 +1274,13 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	int	    next_payload_offset;
 	int	    payload;
 	mikey_t	   *mikey;
+	tvbuff_t* real_data_tvb;
+	/* Check the version byte at index 0, should be 0x01. Otherwise it is probably base 64 encoded */
+	if (tvb_get_uint8(tvb, 0) == 0x01) {
+		real_data_tvb = tvb;
+	} else {
+		real_data_tvb = base64_tvb_to_new_tvb(tvb, 0, tvb_reported_length(tvb));
+	}
 
 	mikey = (mikey_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mikey, 0);
 
@@ -1284,12 +1291,12 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	}
 
 
-	tvb_ensure_bytes_exist(tvb, offset, 3);
+	tvb_ensure_bytes_exist(real_data_tvb, offset, 3);
 	next_payload_offset = offset + 2;
 	payload = -1;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_mikey, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item(tree, proto_mikey, real_data_tvb, 0, -1, ENC_NA);
 		mikey_tree = proto_item_add_subtree(ti, ett_mikey);
 	}
 
@@ -1300,8 +1307,8 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		int	    next_payload;
 		tvbuff_t   *subtvb;
 
-		next_payload = tvb_get_uint8(tvb, next_payload_offset);
-		subtvb = tvb_new_subset_remaining(tvb, offset);
+		next_payload = tvb_get_uint8(real_data_tvb, next_payload_offset);
+		subtvb = tvb_new_subset_remaining(real_data_tvb, offset);
 
 		if (mikey_tree) {
 			int hf = payload;
@@ -1319,14 +1326,14 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 			mikey_payload_tree = proto_item_add_subtree(sub_ti, ett_mikey_payload);
 			if ((payload != PL_HDR) && (payload != PL_SIGN))
-				add_next_payload(tvb, mikey_payload_tree, next_payload_offset);
+				add_next_payload(real_data_tvb, mikey_payload_tree, next_payload_offset);
 		}
 
 		len = dissect_payload(payload, mikey, subtvb, pinfo, mikey_payload_tree);
 		if (len <= 0) {
 			/* protocol violation or invalid data, stop dissecting
 			 * but accept the data retrieved so far */
-			return tvb_captured_length(tvb);
+			return tvb_captured_length(real_data_tvb);
 		}
 
 		if (sub_ti)
