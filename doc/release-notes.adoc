@@ -20,11 +20,22 @@ If you or your organization would like to contribute or become a sponsor, please
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2025-02[]
+* wssalink:2025-02[]
+Dissection engine crash.
+wsbuglink:20509[]. {notable}
+// cveidlink:2025-xxx[].
+// Fixed in master: 5321308630
+// Fixed in release-4.4: 29a4f378ab
+// Fixed in release-4.2: 8c186dbb38
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-120
+// * Fuzz job crash: fuzz-2025-04-25-7554.pcap. wsbuglink:20509[].
+
+// * wssalink:2025-03[]
 // Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+// wsbuglink:xxx[]. {notable}
 // cveidlink:2025-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.4: xxx
@@ -39,6 +50,15 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
+
+* Wireshark does not correctly decode LIN "go to sleep" in TECMP and CMP. wsbuglink:20463[].
+* Dissector bug, Protocol CIGI. wsbuglink:20496[].
+* Green power packets are not dissected when proto_version == ZBEE_VERSION_GREEN_POWER. wsbuglink:20497[].
+* Packet diagrams misalign or drop bitfields. wsbuglink:20507[]. {notable}
+* Corruption when setting heuristic dissector table UI name from Lua. wsbuglink:20523[]. {notable}
+* LDAP dissector incorrectly displays filters with singleton "&" wsbuglink:20527[]. {notable}
+* WebSocket per-message compression extentions: fail to decompress server messages (from the 2nd) due to parameter handling. wsbuglink:20531[].
+* The LL_PERIODIC_SYNC_WR_IND packet is not properly dissected (packet-btle.c) wsbuglink:20554[].
 
 // == Known Bugs
 
@@ -58,6 +78,22 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.5.. | ag packet- | sort -u)
 [commaize]
 --
+AT
+BT LE LL
+CIGI
+LDAP
+LIN
+Logcat Text
+genl
+net_dm
+netfilter
+nvme
+SSH
+TCPCL
+TLS
+WebSocket
+ZigBee
+ZigBee ZCL
 --
 
 === New and Updated Capture File Support
