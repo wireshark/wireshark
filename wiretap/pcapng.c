@@ -2352,8 +2352,8 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         return false;
 
     /* jump over potential padding bytes at end of the packet data */
-    if ((simple_packet.cap_len % 4) != 0) {
-        if (!wtap_read_bytes(fh, NULL, 4 - (simple_packet.cap_len % 4), err, err_info))
+    if (padding != 0) {
+        if (!wtap_read_bytes(fh, NULL, padding, err, err_info))
             return false;
     }
 
@@ -4054,19 +4054,11 @@ compute_block_option_size(wtap_block_t block _U_, unsigned option_id, wtap_optty
      */
     if (size != 0) {
         /*
-         * Yes.  Add the size of the option header to the size of the
-         * option data.
+         * Yes. The length of this option is 4 bytes for the option
+         * header, plus the size of the option data, rounded up
+         * to a multiple of 4 bytes (32 bits).
          */
-        options_size->size += 4;
-
-        /* Now add the size of the option value. */
-        options_size->size += size;
-
-        /* Add optional padding to 32 bits */
-        if ((size & 0x03) != 0)
-        {
-            options_size->size += 4 - (size & 0x03);
-        }
+        options_size->size += WS_ROUNDUP_4(4 + size);
     }
     return true; /* we always succeed */
 }
