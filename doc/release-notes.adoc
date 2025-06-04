@@ -22,9 +22,20 @@ If you or your organization would like to contribute or become a sponsor, please
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2025-02[]
+* wssalink:2025-02[]
+Dissection engine crash.
+wsbuglink:20509[]. {notable}
+// cveidlink:2025-xxx[].
+// Fixed in master: 5321308630
+// Fixed in release-4.4: 29a4f378ab
+// Fixed in release-4.2: 8c186dbb38
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
+// CWE-120
+// * Fuzz job crash: fuzz-2025-04-25-7554.pcap. wsbuglink:20509[].
+
+// * wssalink:2025-03[]
 // Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
+// wsbuglink:xxx[]. {notable}
 // cveidlink:2025-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.4: xxx
@@ -38,6 +49,14 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+* GRPC: protobuf_json only displays the truncated string value. wsbuglink:20392[].
+* Trailing octet after IPv4 packet end is not detected or displayed in raw bytes. wsbuglink:20423[].
+* Wireshark does not correctly decode LIN "go to sleep" in TECMP and CMP. wsbuglink:20463[].
+* Fuzz job crash: fuzz-2025-04-25-7554.pcap. wsbuglink:20509[].
+* WebSocket per-message compression extentions: fail to decompress server messages (from the 2nd) due to parameter handling. wsbuglink:20531[].
+* null. wsbuglink:20539[].
+* The LL_PERIODIC_SYNC_WR_IND packet is not properly dissected (packet-btle.c) wsbuglink:20554[].
 
 === New and Updated Features
 
@@ -55,9 +74,21 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.10.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.12.. | ag packet- | sort -u)
 [commaize]
 --
+ASAM CMP
+F1AP
+LIN
+Logcat Text
+genl
+net_dm
+netfilter
+nvme
+ProtoBuf
+Quake
+TECMP
+WebSocket
 --
 
 === New and Updated Capture File Support
