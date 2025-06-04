@@ -42146,13 +42146,18 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   if (conversation == NULL) {
     uint8_t *bssid = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, BSSID_KEY);
     uint8_t *sta = (uint8_t *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, STA_KEY);
-    if (keyinfo & KEY_INFO_KEY_ACK_MASK) { /* From AP */
-          set_address(&pinfo->src, wlan_address_type, 6, bssid);
-          set_address(&pinfo->dst, wlan_address_type, 6, sta);
+    /* bssid and sta might not be present if this is Bluetooth AMP (removed
+     * in Bluetooth v5.3), because all data packets have ToDS and FromDS set.
+     * XXX - Decryption might not work properly with AMP as a result. */
+    if (bssid && sta) {
+      if (keyinfo & KEY_INFO_KEY_ACK_MASK) { /* From AP */
+            set_address(&pinfo->src, wlan_address_type, 6, bssid);
+            set_address(&pinfo->dst, wlan_address_type, 6, sta);
 
-    } else {
-          set_address(&pinfo->src, wlan_address_type, 6, sta);
-          set_address(&pinfo->dst, wlan_address_type, 6, bssid);
+      } else {
+            set_address(&pinfo->src, wlan_address_type, 6, sta);
+            set_address(&pinfo->dst, wlan_address_type, 6, bssid);
+      }
     }
   }
 
