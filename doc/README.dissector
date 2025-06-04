@@ -2913,6 +2913,23 @@ upon the conversation index and values inside the request packets.
     }
 
 
+2.2.6 Registering your dissector for conversation filtering
+
+In cases where protocols define a conversation, you can register them through
+the UI menu of Wireshark by locating "Analyze -> Conversation Filter". This can
+reduce the task of isolating sessions and viewing them to a single click. For users
+that frequent a specific protocol in a conversation, this may save time and reduce errors.
+
+When you have a protocol to add to the UI, use the add_conversation_filter_protocol() function.
+Using this built-in function will allow you to add your dissector to a conversation, providing
+only the packets relevant to the specified protocol in a conversation.
+
+
+Example using the "example_protocol" protocol:
+    Use the add_conversation_filter_protocol() function with the conversation and your "example_protocol":
+        add_conversation_filter_protocol(example_protocol)
+
+
 
 2.3 Dynamic conversation dissector registration.
 
