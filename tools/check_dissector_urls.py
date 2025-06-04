@@ -139,6 +139,11 @@ def find_links_in_file(filename):
                 # A url must have a period somewhere
                 if '.' not in url:
                     continue
+
+                # Don't fetch this internal link..
+                if url.find('www.wireshark.org/tools/modelines') != -1:
+                    continue
+
                 global links, all_urls
                 links.append(Link(filename, line_number, url))
                 all_urls.add(url)
