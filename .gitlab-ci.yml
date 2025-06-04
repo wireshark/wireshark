@@ -516,7 +516,11 @@ Windows x64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A x64
+      -DENABLE_LTO=off
+      -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+      -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2025-06-03-1-x64-ws/libcloudtrail.so;$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2025-06-03-1-x64-ws/libgcpaudit.so"
+      -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
@@ -564,7 +568,11 @@ Windows Arm64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A arm64
+      -DENABLE_LTO=off
+      -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+      -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/wireshark-arm64-libs/falcosecurity-plugins-2025-06-03-1-arm64-ws/libcloudtrail.so;$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2025-06-03-1-arm64-ws/libgcpaudit.so"
+      -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
