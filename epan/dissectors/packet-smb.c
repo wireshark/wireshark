@@ -891,6 +891,7 @@ static expert_field ei_smb_nt_transaction_setup;
 static expert_field ei_smb_posix_ace_type;
 static expert_field ei_smb_info_level_unknown;
 static expert_field ei_smb_info_level_not_understood;
+static expert_field ei_smb_ea_list_length_too_short;
 
 static int smb_tap;
 static int smb_eo_tap;
@@ -12694,23 +12695,111 @@ dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	return offset;
 }
 
-/* this dissects the SMB_INFO_QUERY_EAS_FROM_LIST, SMB_INFO_QUERY_ALL_EAS,
-*  and TRANS2_SET_FILE_INFORMATION as described in 4.2.16.2 and
-*  [MS-CIFS] 2.2.6.9.   This the "EA (Extended Attribute) subtree.
-*/
+#define CHECK_EA_LIST_BYTES_SUBR(len)	\
+	CHECK_BYTE_COUNT_SUBR(len);	\
+	if (ea_list_size < len) {	\
+		*trunc = true;		\
+		return offset;		\
+	}
+
+#define COUNT_EA_LIST_BYTES_SUBR(len)	\
+	offset += len;			\
+	*bcp -= len;			\
+	ea_list_size -= len
+
+/*
+ * This dissects an SMB_GEA_LIST, as per [MS-CIFS] 2.2.1.2.1.1.
+ */
 static int
-dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_smb_gea_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc)
 {
-	uint8_t name_len;
-	uint32_t data_len;
+	uint32_t ea_list_size;
+	proto_item *ti;
+	uint32_t name_len;
+
 	/* EA size */
 
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item_ret_uint(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ea_list_size);
 	COUNT_BYTES_SUBR(4);
 
-	while (*bcp > 0) {
+	/*
+	 * List length *includes the size of the list length.
+	 * Make sure it's >= 4; fail if it isn't, subtract 4 from it
+	 * if it is.
+	 */
+	if (ea_list_size < 4) {
+		expert_add_info(pinfo, ti, &ei_smb_ea_list_length_too_short);
+		*trunc = true;
+		return offset;
+	}
+	ea_list_size -= 4;
+
+	while (*bcp != 0 && ea_list_size != 0) {
+		proto_item *item;
+		proto_tree *subtree;
+		char *display_string;
+		int start_offset = offset;
+
+		subtree = proto_tree_add_subtree(
+			tree, tvb, offset, 0, ett_smb_ea, &item, "Extended Attribute");
+
+		/* EA name length */
+
+		CHECK_EA_LIST_BYTES_SUBR(1);
+		proto_tree_add_item_ret_uint(
+			subtree, hf_smb_ea_name_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &name_len);
+		COUNT_EA_LIST_BYTES_SUBR(1);
+
+		/* EA name */
+
+		CHECK_EA_LIST_BYTES_SUBR(name_len + 1);
+		proto_tree_add_item_ret_display_string(
+			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
+			ENC_ASCII|ENC_NA,
+			pinfo->pool, &display_string);
+		proto_item_append_text(item, ": %s", display_string);
+		COUNT_EA_LIST_BYTES_SUBR(name_len + 1);
+
+		proto_item_set_len(item, offset - start_offset);
+	}
+
+	*trunc = false;
+	return offset;
+}
+
+/*
+ * This dissects an SMB_FEA_LIST, as per [MS-CIFS] 2.2.1.2.2.1.
+ */
+static int
+dissect_smb_fea_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, uint16_t *bcp, bool *trunc)
+{
+	uint32_t ea_list_size;
+	proto_item *ti;
+	uint32_t name_len;
+	uint32_t data_len;
+
+	/* EA size */
+
+	CHECK_BYTE_COUNT_SUBR(4);
+	ti = proto_tree_add_item_ret_uint(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ea_list_size);
+	COUNT_BYTES_SUBR(4);
+
+	/*
+	 * List length *includes the size of the list length.
+	 * Make sure it's >= 4; fail if it isn't, subtract 4 from it
+	 * if it is.
+	 */
+	if (ea_list_size < 4) {
+		expert_add_info(pinfo, ti, &ei_smb_ea_list_length_too_short);
+		*trunc = true;
+		return offset;
+	}
+	ea_list_size -= 4;
+
+	while (*bcp != 0 && ea_list_size != 0) {
 		proto_item *item;
 		proto_tree *subtree;
 		char *display_string;
@@ -12721,38 +12810,34 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* EA flags */
 
-		CHECK_BYTE_COUNT_SUBR(1);
+		CHECK_EA_LIST_BYTES_SUBR(1);
 		proto_tree_add_item(
 			subtree, hf_smb_ea_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		COUNT_BYTES_SUBR(1);
+		COUNT_EA_LIST_BYTES_SUBR(1);
 
 		/* EA name length */
 
-		name_len = tvb_get_uint8(tvb, offset);
-
-		CHECK_BYTE_COUNT_SUBR(1);
-		proto_tree_add_item(
-			subtree, hf_smb_ea_name_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		COUNT_BYTES_SUBR(1);
+		CHECK_EA_LIST_BYTES_SUBR(1);
+		proto_tree_add_item_ret_uint(
+			subtree, hf_smb_ea_name_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &name_len);
+		COUNT_EA_LIST_BYTES_SUBR(1);
 
 		/* EA data length */
 
-		data_len = tvb_get_letohs(tvb, offset);
-
-		CHECK_BYTE_COUNT_SUBR(2);
-		proto_tree_add_item(
-			subtree, hf_smb_ea_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		COUNT_BYTES_SUBR(2);
+		CHECK_EA_LIST_BYTES_SUBR(2);
+		proto_tree_add_item_ret_uint(
+			subtree, hf_smb_ea_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_len);
+		COUNT_EA_LIST_BYTES_SUBR(2);
 
 		/* EA name */
 
-		CHECK_BYTE_COUNT_SUBR(name_len + 1);
+		CHECK_EA_LIST_BYTES_SUBR(name_len + 1);
 		proto_tree_add_item_ret_display_string(
 			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
 			ENC_ASCII|ENC_NA,
 			pinfo->pool, &display_string);
 		proto_item_append_text(item, ": %s", display_string);
-		COUNT_BYTES_SUBR(name_len + 1);
+		COUNT_EA_LIST_BYTES_SUBR(name_len + 1);
 
 		/* EA data */
 
@@ -12764,7 +12849,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(
 			subtree, hf_smb_ea_data, tvb, offset, data_len, ENC_NA);
 
-		COUNT_BYTES_SUBR(data_len);
+		COUNT_EA_LIST_BYTES_SUBR(data_len);
 		proto_item_set_len(item, offset - start_offset);
 	}
 
@@ -13926,7 +14011,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 3:		/*Info Query EAs From List*/
 	case 4:		/*Info Query All EAs*/
-		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_smb_fea_list(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 6:		/*Info Is Name Valid*/
@@ -14080,11 +14165,11 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 2:		/*Info Set EAs*/
-		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_smb_fea_list(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 4:		/*Info Query All EAs - not in [MS-CIFS]*/
-		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_smb_fea_list(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 0x0101:	/*Set File Basic Info*/
@@ -14368,6 +14453,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 {
 	proto_item *item;
 	proto_tree *tree;
+	bool trunc;
 
 	DISSECTOR_ASSERT(si);
 
@@ -14378,13 +14464,22 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	switch(subcmd) {
 	case 0x0000:	/*TRANS2_OPEN2*/
-		/* XXX don't know how to decode FEAList */
+		/*
+		 * "List of extended attribute (EA) name/value pairs",
+		 * if present.
+		 *
+		 * Is this an SMB_FEA_LIST?
+		 */
+		offset = dissect_smb_fea_list(tvb, pinfo, tree, offset, &dc,
+		    &trunc);
 		break;
 	case 0x0001:	/*TRANS2_FIND_FIRST2*/
-		/* XXX don't know how to decode FEAList */
+		offset = dissect_smb_gea_list(tvb, pinfo, tree, offset, &dc,
+		    &trunc);
 		break;
 	case 0x0002:	/*TRANS2_FIND_NEXT2*/
-		/* XXX don't know how to decode FEAList */
+		offset = dissect_smb_gea_list(tvb, pinfo, tree, offset, &dc,
+		    &trunc);
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* no data field in this request */
@@ -14467,7 +14562,8 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		 */
 		break;
 	case 0x000d:	/*TRANS2_CREATE_DIRECTORY*/
-		/* XXX optional FEAList, unknown what FEAList looks like*/
+		offset = dissect_smb_fea_list(tvb, pinfo, tree, offset, &dc,
+		    &trunc);
 		break;
 	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/*XXX don't know how to decode this yet */
@@ -15235,7 +15331,6 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int                   fn_len;
 	const char           *fn;
 	int                   old_offset  = offset;
-	int		     ea_size = 0;
 	proto_item           *item;
 	proto_tree           *tree;
 	smb_transact2_info_t *t2i;
@@ -15296,16 +15391,10 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	offset = dissect_file_attributes(tvb, tree, offset);
 	*bcp -= 2;
 
-	/* ea length */
-	CHECK_BYTE_COUNT_SUBR(4);
-	ea_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	COUNT_BYTES_SUBR(4);
-
-	/* The EAs ... they are formatted as in MS-CIFS 2.2.1.2.2 */
-	CHECK_BYTE_COUNT_SUBR(ea_size);
-	proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, ea_size, NULL, "EAs");
-	COUNT_BYTES_SUBR(ea_size);
+	/* SMB_FEA_LIST, as per [MS-CIFS] 2.2.1.2.2.1. */
+	offset = dissect_smb_fea_list(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc)
+		return offset;
 
 	/* file name len */
 	CHECK_BYTE_COUNT_SUBR(1);
@@ -21940,6 +22029,7 @@ proto_register_smb(void)
 		{ &ei_smb_posix_ace_type, { "smb.posix_acl.ace_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown posix ace type", EXPFILL }},
 		{ &ei_smb_info_level_unknown, { "smb.info_level_unknown", PI_PROTOCOL, PI_WARN, "Information level unknown", EXPFILL }},
 		{ &ei_smb_info_level_not_understood, { "smb.info_level_not_understood", PI_PROTOCOL, PI_WARN, "Information level not understood", EXPFILL }},
+		{ &ei_smb_ea_list_length_too_short, { "smb.ea_length_too_short", PI_PROTOCOL, PI_ERROR, "EA list length too short - must be >= 4", EXPFILL }},
 	};
 
 	module_t *smb_module;
