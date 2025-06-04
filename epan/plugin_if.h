@@ -143,7 +143,6 @@ typedef struct _ext_toolbar_update_t
  * be sorted
  *
  * @param proto_id the proto item for the protocol this menu entry belongs too
- * @param name the entry name (the internal used one) for the menu item
  * @param menulabel the entry label (the displayed name) for the menu item
  * @param is_plugin must be set to true for plugin registration
  */
@@ -167,7 +166,6 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_set_parentmenu(
  * This will register a new sub menu entry, underneath the parent menu
  *
  * @param parent the parent menu for this submenu
- * @param name the entry name (the internal used one) for the menu item
  * @param menulabel the entry label (the displayed name) for the menu item
  */
 WS_DLL_PUBLIC ext_menu_t * ext_menubar_add_submenu(
@@ -179,10 +177,10 @@ WS_DLL_PUBLIC ext_menu_t * ext_menubar_add_submenu(
  * call the provided callback on activation
  *
  * @param parent_menu the parent menu for this entry
- * @param name the entry name (the internal used one) for the menu item
  * @param label the entry label (the displayed name) for the menu item
  * @param tooltip a tooltip to be displayed on mouse-over
  * @param callback the action which will be invoked after click on the menu item
+ * @param user_data a user data pointer
  */
 WS_DLL_PUBLIC void ext_menubar_add_entry(
         ext_menu_t * parent_menu,
@@ -206,7 +204,6 @@ WS_DLL_PUBLIC void ext_menubar_add_separator(ext_menu_t *parent_menu);
  * the predefined webbrowser
  *
  * @param parent_menu the parent menu for this entry
- * @param name the entry name (the internal used one) for the menu item
  * @param label the entry label (the displayed name) for the menu item
  * @param tooltip a tooltip to be displayed on mouse-over
  * @param url the url for the website
@@ -253,15 +250,16 @@ WS_DLL_PUBLIC void ext_toolbar_unregister_toolbar_by_name(const char * toolbar_n
  *  * EXT_TOOLBAR_SELECTION - every time the selection changes the callback fires
  *
  * @param parent_bar the parent toolbar for this entry
- * @param name the entry name (the internal used one) for the item
+ * @param type type of the toolbar item
  * @param label the entry label (the displayed name) for the item
  * @param defvalue the default value for the toolbar element
  * @param tooltip a tooltip to be displayed on mouse-over
  * @param capture_only entry is only active, if capture is active
- * @param callback the action which will be invoked after click on the item
  * @param value_list a non-null list of values, if the item type is EXT_TOOLBAR_SELECTOR
+ * @param is_required
  * @param valid_regex a validation regular expression for EXT_TOOLBAR_STRING
- *
+ * @param callback the action which will be invoked after click on the item
+ * @param user_data a user data pointer
  * @return a reference to the newly created toolbar entry
  */
 WS_DLL_PUBLIC ext_toolbar_t * ext_toolbar_add_entry(
