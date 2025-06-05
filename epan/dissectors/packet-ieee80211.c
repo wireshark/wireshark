@@ -11663,7 +11663,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
 {
   uint16_t    id, len;
   uint32_t    oui;
-  proto_item *item, *item_len;
+  proto_item *item;
   tvbuff_t *vendor_tvb;
   anqp_info_dissector_data_t anqp_info;
 
@@ -11683,7 +11683,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   }
   tree = proto_item_add_subtree(item, ett_gas_anqp);
   offset += 2;
-  item_len = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
   len = tvb_get_letohs(tvb, offset);
   offset += 2;
@@ -11723,14 +11723,25 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   case ANQP_INFO_NEIGHBOR_REPORT:
     {
       tvbuff_t *report_tvb;
-
-      ieee80211_tagged_field_data_t field_data = {
-        .item_tag = item,
-        .item_tag_length = item_len
-      };
+      static const uint8_t ids[] = { TAG_NEIGHBOR_REPORT };
 
       report_tvb = tvb_new_subset_length(tvb, offset, len);
-      dissect_neighbor_report(report_tvb, pinfo, tree, &field_data);
+      int report_offset = 0;
+      /* Cf. IEEE 802.11-2020 9.4.5.19 Neighbor Report ANQP-element with
+       * IEEE 802.11-2016 9.4.5.19 and IEEE 802.11-2012 8.4.4.19.
+       * The line "The Element ID and the Length fields of the Neighbor Report
+       * element... are not included" was removed as it made it impossible
+       * to include more than one Neighbor Element (using the overall ANQP
+       * Info length could not distinguish between extra length due to a second
+       * Neighbor Report and extra length due to optional subelements.)
+       * The headerless version was apparently never deployed so use the new
+       * specification (though we could test to see if the next octet is
+       * TAG_NEIGHBOR_REPORT and dissect with the older method if not.)
+       */
+      while (tvb_reported_length_remaining(report_tvb, report_offset)) {
+        report_offset += add_tagged_field(pinfo, tree, report_tvb, report_offset, 0,
+          ids, G_N_ELEMENTS(ids), NULL);
+      }
     }
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
