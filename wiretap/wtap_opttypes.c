@@ -1542,27 +1542,6 @@ wtap_block_get_nth_custom_binary_option_value(wtap_block_t block,
 }
 
 wtap_opttype_return_val
-wtap_block_add_nflx_custom_option(wtap_block_t block, uint32_t type, const char *custom_data, size_t custom_data_len)
-{
-    wtap_opttype_return_val ret;
-    wtap_option_t *opt;
-
-    ret = wtap_block_add_custom_binary_option_common(block, OPT_CUSTOM_BIN_COPY, PEN_NFLX, &opt);
-    if (ret != WTAP_OPTTYPE_SUCCESS)
-        return ret;
-    opt->value.custom_binaryval.pen = PEN_NFLX;
-    // Integrate the Netflix type into the custom data
-    opt->value.custom_binaryval.data.custom_data_len = custom_data_len+4;
-    opt->value.custom_binaryval.data.custom_data = g_malloc(opt->value.custom_binaryval.data.custom_data_len);
-    char* data = opt->value.custom_binaryval.data.custom_data;
-    type = GUINT32_TO_LE(type);
-    memcpy(data, &type, sizeof(uint32_t));
-    data += sizeof(uint32_t);
-    memcpy(data, custom_data, custom_data_len);
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
-wtap_opttype_return_val
 wtap_block_add_if_filter_option(wtap_block_t block, unsigned option_id, if_filter_opt_t* value)
 {
     wtap_opttype_return_val ret;
