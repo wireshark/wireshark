@@ -983,7 +983,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	int start;
 	int bvlc_length;
 	int packet_length;
-	int npdu_length;
+	int npdu_length = 0;
 	uint8_t bvlc_function;
 	uint8_t bvlc_control;
 	uint8_t bvlc_result;
