@@ -163,10 +163,7 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_read _U_,
         return false;
     }
 
-    unsigned pad_len = 0;
-    if ((event_len + preamble_len) % 4) {
-        pad_len = 4 - ((event_len + preamble_len) % 4);
-    }
+    unsigned pad_len = WS_PADDING_TO_4(event_len + preamble_len);
     if (pad_len && file_seek(fh, pad_len, SEEK_CUR, err) < 0) {
         return false;   /* Seek error */
     }

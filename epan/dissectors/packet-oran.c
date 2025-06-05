@@ -28,6 +28,9 @@
 
 #include <epan/tfs.h>
 
+#include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "epan/dissectors/packet-oran.h"
 
 /* N.B. dissector preferences are taking the place of (some) M-plane parameters, so unfortunately it can be
@@ -4147,9 +4150,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             }
 
             /* Pad out to next 4 bytes */
-            if ((offset-report_start_offset) % 4) {
-                offset += (4 - ((offset-report_start_offset) % 4));
-            }
+            offset += WS_PADDING_TO_4(offset-report_start_offset);
 
             /* End of measurement report tree */
             proto_item_set_end(mr_ti, tvb, offset);
@@ -5244,9 +5245,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     offset += antmask_length;
 
                     /* Pad to next 4-byte boundary */
-                    if (offset%4) {
-                        offset += (4-(offset%4));
-                    }
+                    offset = WS_ROUNDUP_4(offset);
                     break;
                 }
 

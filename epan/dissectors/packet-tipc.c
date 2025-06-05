@@ -27,6 +27,9 @@
 #include <epan/address_types.h>
 #include <epan/reassemble.h>
 
+#include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-tcp.h"
 
 void proto_register_tipc(void);
@@ -861,7 +864,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 	uint32_t msg_in_bundle_size;
 	uint8_t msg_in_bundle_user;
 	uint32_t b_inst_strlen;
-	int padlen;
+	unsigned padlen;
 
 	/* for fragmented messages */
 	int len, reported_len;
@@ -1022,8 +1025,8 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 				dissect_tipc(data_tvb, pinfo, top_tree, NULL);
 
-				/* the modulo is used to align the messages to 4 Bytes */
-				offset += msg_in_bundle_size + ((msg_in_bundle_size%4)?(4-(msg_in_bundle_size%4)):0);
+				/* round up message size to align the messages to 4 Bytes */
+				offset += WS_ROUNDUP_4(msg_in_bundle_size);
 			}
 			break;
 		case TIPCv2_LINK_PROTOCOL:
@@ -1101,7 +1104,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				proto_tree_add_item_ret_length(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, ENC_ASCII, &b_inst_strlen);
 				offset += b_inst_strlen;
 				/* the bearer instance string is padded with \0 to the next word boundary */
-				if ((padlen = ((b_inst_strlen%4)?(4-(b_inst_strlen%4)):0)) > 0) {
+				if ((padlen = WS_PADDING_TO_4(b_inst_strlen)) != 0) {
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_padding, tipc_tvb, offset, padlen, NULL, "%d byte%c", padlen, (padlen!=1?'s':0));
 					offset += padlen;
 				}

@@ -62,17 +62,20 @@
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
 
-#include <wsutil/array.h>
-#include "packet-rtcp.h"
-#include "packet-rtp.h"
-#include "packet-gsm_a_common.h"
-
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+
+#include <wsutil/array.h>
+#include <wsutil/ws_roundup.h>
+#include <wsutil/ws_padding_to.h>
+
+#include "packet-rtcp.h"
+#include "packet-rtp.h"
+#include "packet-gsm_a_common.h"
 
 void proto_register_rtcp(void);
 void proto_reg_handoff_rtcp(void);
@@ -2121,7 +2124,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     unsigned      sdes_type;
     proto_tree* PoC1_tree;
     proto_item* PoC1_item;
-    int padding;
+    unsigned padding;
 
     proto_item_append_text(subtype_item, " %s", val_to_str(rtcp_subtype, rtcp_app_poc1_floor_cnt_type_vals, "unknown (%u)"));
     col_add_fstr(pinfo->cinfo, COL_INFO, "(PoC1) %s", val_to_str(rtcp_subtype, rtcp_app_poc1_floor_cnt_type_vals, "unknown (%u)"));
@@ -2346,10 +2349,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
             }
 
             /* Move onto next 4-byte boundary */
-            if (offset % 4) {
-                int padding2 = (4 - (offset % 4));
-                offset += padding2;
-            }
+            offset = WS_ROUNDUP_4(offset);
         }
 
         /* Participants (optional) */
@@ -2586,11 +2586,7 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         break;
     }
 
-    padding = 0;
-    if (offset % 4) {
-        padding = (4 - (offset % 4));
-    }
-
+    padding = WS_PADDING_TO_4(offset);
     if (padding) {
         proto_tree_add_item(PoC1_tree, hf_rtcp_app_data_padding, tvb, offset, padding, ENC_BIG_ENDIAN);
         offset += padding;
@@ -2749,7 +2745,8 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
     while (packet_len > 0) {
         proto_item* ti;
-        int len_len, padding = 0;
+        unsigned len_len;
+        unsigned padding;
         int start_offset = offset;
         /* Field ID 8 bits*/
         ti = proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_id);
@@ -2767,9 +2764,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_len, tvb, offset, len_len, ENC_BIG_ENDIAN, &mcptt_fld_len);
         offset += len_len;
 
-        if ((1 + len_len + mcptt_fld_len) % 4) {
-            padding = (4 - ((1 + len_len + mcptt_fld_len) % 4));
-        }
+        padding = WS_PADDING_TO_4(1 + len_len + mcptt_fld_len);
         if (mcptt_fld_len != 0) {
             /* Field Value */
             switch (mcptt_fld_id) {
@@ -2869,11 +2864,11 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
                 proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_part_type_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fld_len);
                 offset += 1;
                 rem_len -= 1;
-                int part_type_padding = (4 - (fld_len % 4));
+                unsigned part_type_padding = WS_PADDING_TO_4(fld_len);
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_participant_type, tvb, offset, fld_len, ENC_UTF_8);
                 offset += fld_len;
                 rem_len -= fld_len;
-                if(part_type_padding > 0){
+                if(part_type_padding != 0){
                     uint32_t data;
                     proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_app_data_padding, tvb, offset, part_type_padding, ENC_BIG_ENDIAN, &data);
                     if (data != 0) {
@@ -3068,7 +3063,7 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
     while (packet_len > 0) {
         proto_item* ti;
-        int padding = 0;
+        unsigned padding;
         int start_offset = offset;
 
         /* Each MBMS subchannel control specific field consists of an 8-bit <Field ID> item,
@@ -3081,9 +3076,7 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mccp_len, tvb, offset, 1, ENC_BIG_ENDIAN, &mccp_fld_len);
         offset += 1;
         packet_len -= 1;
-        if ((2 + mccp_fld_len) % 4) {
-            padding = (4 - ((2 + mccp_fld_len) % 4));
-        }
+        padding = WS_PADDING_TO_4(2 + mccp_fld_len);
         switch (mccp_fld_id) {
         case 0:
         {
@@ -3150,6 +3143,9 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         }
         packet_len -= offset - start_offset;
         if (packet_len >= 4) {
+            /*
+             * XXX - what is this?  Where is it specified?
+             */
             uint32_t dword;
             if (mccp_fld_len % 4) {
                 dword = tvb_get_ntohl(tvb, offset);
@@ -3330,13 +3326,11 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
     }
 
     /* BYE packet padded out if string didn't fit in previous word */
-    if (offset % 4)
+    unsigned pad_size = WS_PADDING_TO_4(offset);
+    if (pad_size)
     {
-        int pad_size = (4 - (offset % 4));
-        int i;
-
         /* Check padding */
-        for (i = 0; i < pad_size; i++)
+        for (unsigned i = 0; i < pad_size; i++)
         {
             if ((!(tvb_offset_exists(tvb, offset + i))) ||
                 (tvb_get_uint8(tvb, offset + i) != 0))

@@ -18,6 +18,9 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <epan/expert.h>
+
+#include <wsutil/ws_padding_to.h>
+
 #include "packet-fc.h"
 #include "packet-fcct.h"
 #include "packet-fcfzs.h"
@@ -104,7 +107,8 @@ fcfzs_hash(const void *v)
 static void
 dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
-    int numzones, nummbrs, i, j, len;
+    int numzones, nummbrs, i, j;
+    unsigned len;
     proto_item* ti;
 
     /* The zoneset structure has the following format */
@@ -125,8 +129,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
                             len, ENC_ASCII);
         offset += len;
         /* Fill Bytes */
-        if (len % 4)
-            offset += 4 - (len % 4);
+        offset += WS_PADDING_TO_4(len);
 
 
         /* Number of zones */
@@ -144,8 +147,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
                                 len, ENC_ASCII);
             offset += len;
             /* Fill Bytes */
-            if (len % 4)
-                offset += 4 - (len % 4);
+            offset += WS_PADDING_TO_4(len);
 
             nummbrs = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_nummbrentries, tvb, offset,
