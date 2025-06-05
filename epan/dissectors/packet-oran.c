@@ -575,6 +575,8 @@ static bool udcomplen_heuristic_result = false;
 /* st6-4byte-alignment-required */
 static bool st6_4byte_alignment = false;
 
+static bool show_unscaled_values = false;
+
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
     { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                                           COMP_BLOCK_FP },
@@ -1802,6 +1804,9 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 static float uncompressed_to_float(uint32_t h)
 {
     int16_t i16 = h & 0x0000ffff;
+    if (show_unscaled_values) {
+        return (float)i16;
+    }
     return ((float)i16) / 0x7fff;
 }
 
@@ -1816,7 +1821,7 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
         case COMP_BLOCK_FP:         /* block floating point */
         case BFP_AND_SELECTIVE_RE:
         {
-            /* A.1.2 Block Floating Point Decompression Algorithm */
+            /* A.1.3 Block Floating Point Decompression Algorithm */
             int32_t cPRB = bits;
             uint32_t scaler = 1 << exponent;  /* i.e. 2^exponent */
 
@@ -1827,6 +1832,9 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
 
             /* Unscale */
             cPRB *= scaler;
+            if (show_unscaled_values) {
+                return (float)cPRB;
+            }
             uint32_t mantissa_scale_factor = (1 << (iq_width-1)) - 1;
             uint32_t exp_scale_factor = 1 << (iq_width+4);
 
@@ -8549,6 +8557,9 @@ proto_register_oran(void)
 
     prefs_register_bool_preference(oran_module, "oran.st6_4byte_alignment_required", "Use 4-byte alignment for ST6 sections",
         "Default is 1-byte alignment", &st6_4byte_alignment);
+
+    prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
+        "", &show_unscaled_values);
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
