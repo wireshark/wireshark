@@ -2135,7 +2135,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     wtap_setup_packet_rec(wblock->rec, iface_info.wtap_encap);
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
 
-    ws_debug("encapsulation = %d (%s), pseudo header size = %d.",
+    ws_debug("encapsulation = %d (%s), pseudo header size = %u.",
              iface_info.wtap_encap,
              wtap_encap_description(iface_info.wtap_encap),
              pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header));
@@ -2318,7 +2318,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
     ws_debug("packet data: packet_len %u",
              simple_packet.packet_len);
 
-    ws_debug("Need to read pseudo header of size %d",
+    ws_debug("Need to read pseudo header of size %u",
              pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header));
 
     /* No time stamp in a simple packet block; no options, either */
@@ -4974,7 +4974,7 @@ pcapng_write_simple_packet_block(wtap_dumper* wdh, const wtap_rec* rec,
         return false;
     }
 
-    phdr_len = (uint32_t)pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
+    phdr_len = pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
     pad_len = WS_PADDING_TO_4(phdr_len + rec->rec_header.packet_header.caplen);
 
     /* write (simple) packet block header */
@@ -5026,7 +5026,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         return false;
     }
 
-    phdr_len = (uint32_t)pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
+    phdr_len = pcap_get_phdr_size(rec->rec_header.packet_header.pkt_encap, pseudo_header);
     pad_len = WS_PADDING_TO_4(phdr_len + rec->rec_header.packet_header.caplen);
 
     if (rec->block != NULL) {

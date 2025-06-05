@@ -1626,7 +1626,7 @@ libpcap_dump_write_packet(wtap_dumper *wdh, const wtap_rec *rec,
     struct pcaprec_hdr *hdr, size_t hdr_size, int *err, char **err_info)
 {
 	const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
-	int phdrsize;
+	unsigned phdrsize;
 
 	phdrsize = pcap_get_phdr_size(wdh->file_encap, pseudo_header);
 

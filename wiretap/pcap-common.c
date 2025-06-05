@@ -2723,10 +2723,10 @@ wtap_encap_requires_phdr(int wtap_encap)
 	return false;
 }
 
-int
+unsigned
 pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 {
-	int hdrsize;
+	unsigned hdrsize;
 
 	switch (encap) {
 
@@ -2751,11 +2751,11 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-		hdrsize = (int)sizeof (struct pcap_bt_phdr);
+		hdrsize = (unsigned)sizeof (struct pcap_bt_phdr);
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-		hdrsize = (int)sizeof (struct pcap_bt_monitor_phdr);
+		hdrsize = (unsigned)sizeof (struct pcap_bt_monitor_phdr);
 		break;
 
 	case WTAP_ENCAP_NFC_LLCP:
@@ -2763,11 +2763,11 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
-		hdrsize = (int)sizeof (struct pcap_ppp_phdr);
+		hdrsize = (unsigned)sizeof (struct pcap_ppp_phdr);
 		break;
 
 	case WTAP_ENCAP_ERF:
-		hdrsize = (int)sizeof (struct erf_phdr);
+		hdrsize = (unsigned)sizeof (struct erf_phdr);
 
 		/*
 		 * If the type of record given in the pseudo header
@@ -2799,17 +2799,17 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		case ERF_TYPE_MC_AAL5:
 		case ERF_TYPE_MC_AAL2:
 		case ERF_TYPE_COLOR_MC_HDLC_POS:
-			hdrsize += (int)sizeof(struct erf_mc_hdr);
+			hdrsize += (unsigned)sizeof(struct erf_mc_hdr);
 			break;
 		case ERF_TYPE_AAL2:
-			hdrsize += (int)sizeof(struct erf_aal2_hdr);
+			hdrsize += (unsigned)sizeof(struct erf_aal2_hdr);
 			break;
 
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
 		case ERF_TYPE_COLOR_HASH_ETH:
-			hdrsize += (int)sizeof(struct erf_eth_hdr);
+			hdrsize += (unsigned)sizeof(struct erf_eth_hdr);
 			break;
 
 		default:
@@ -2818,7 +2818,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		break;
 
 	case WTAP_ENCAP_I2C_LINUX:
-		hdrsize = (int)sizeof (struct i2c_linux_file_hdr);
+		hdrsize = (unsigned)sizeof (struct i2c_linux_file_hdr);
 		break;
 
 	default:
