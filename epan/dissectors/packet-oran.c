@@ -4807,7 +4807,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                 offset += 2;
 
                 /* Look up request table in state (which really should be set by now, but test anyway). */
-                if (state) {
+                if (state && state->ack_nack_requests) {
                     ack_nack_request_t *request = wmem_tree_lookup32(state->ack_nack_requests, ackid);
                     if (request != NULL) {
                         /* On first pass, update with this response */
@@ -4837,7 +4837,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                        nackid);
 
                 /* Look up request table in state. */
-                if (state) {
+                if (state && state->ack_nack_requests) {
                     ack_nack_request_t *request = wmem_tree_lookup32(state->ack_nack_requests, nackid);
                     if (request) {
                         /* On first pass, update with this response */
@@ -5304,7 +5304,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             /* Set end of command tree */
             proto_item_set_end(command_ti, tvb, offset);
 
-            if (ack_nack_req_id != 0) {
+            if (ack_nack_req_id != 0 && state && state->ack_nack_requests) {
                 if (!PINFO_FD_VISITED(pinfo)) {
                     /* Add this request into conversation state on first pass */
                     ack_nack_request_t *request_details = wmem_new0(wmem_file_scope(), ack_nack_request_t);
