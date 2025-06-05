@@ -748,8 +748,7 @@ static void ssh_decryption_setup_cipher(struct ssh_peer_data *peer,
 static void ssh_decryption_set_mac_id(struct ssh_peer_data *peer);
 static void ssh_decryption_setup_mac(struct ssh_peer_data *peer,
         ssh_bignum *iv);
-static void ssh_increment_message_number(packet_info *pinfo,
-        struct ssh_flow_data *global_data, bool is_response);
+static ssh_packet_info_t* ssh_get_packet_info(packet_info *pinfo, bool is_response);
 static unsigned ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset);
 static bool ssh_decrypt_chacha20(gcry_cipher_hd_t hd, uint32_t seqnr,
@@ -1013,7 +1012,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
                 need_desegmentation);
 
             if (!*need_desegmentation) {
-                ssh_increment_message_number(pinfo, global_data, is_response);
+                ssh_get_packet_info(pinfo, is_response);
             }else{
                 break;
             }
@@ -3637,20 +3636,17 @@ ssh_calc_mac(struct ssh_peer_data *peer_data, uint32_t seqnr, uint8_t* data, uin
 }
 /* Decryption integrity check }}} */
 
-static void
-ssh_increment_message_number(packet_info *pinfo, struct ssh_flow_data *global_data,
-        bool is_response)
+static ssh_packet_info_t *
+ssh_get_packet_info(packet_info *pinfo, bool is_response)
 {
-    if (!PINFO_FD_VISITED(pinfo)) {
-        ssh_packet_info_t * packet = (ssh_packet_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ssh, 0);
-        if(!packet){
-            packet = wmem_new0(wmem_file_scope(), ssh_packet_info_t);
-            packet->from_server = is_response;
-            packet->messages = NULL;
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_ssh, 0, packet);
-        }
-        (void)global_data;
+    ssh_packet_info_t *packet = (ssh_packet_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ssh, 0);
+    if(!packet){
+        packet = wmem_new0(wmem_file_scope(), ssh_packet_info_t);
+        packet->from_server = is_response;
+        packet->messages = NULL;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_ssh, 0, packet);
     }
+    return packet;
 }
 
 static unsigned
@@ -3915,14 +3911,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
     if(plain){
         // Save message
 
-        ssh_packet_info_t *packet = (ssh_packet_info_t *)p_get_proto_data(
-                wmem_file_scope(), pinfo, proto_ssh, 0);
-        if(!packet){
-            packet = wmem_new0(wmem_file_scope(), ssh_packet_info_t);
-            packet->from_server = is_response;
-            packet->messages = NULL;
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_ssh, 0, packet);
-        }
+        ssh_packet_info_t *packet = ssh_get_packet_info(pinfo, is_response);
 
         int record_id = tvb_raw_offset(tvb)+offset;
         ssh_message_info_t *message;
