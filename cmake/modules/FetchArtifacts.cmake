@@ -138,7 +138,7 @@ if(APPLE)
 
   if(BUILD_stratoshark OR BUILD_falcodump)
     add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.21.0-1-macos-universal.tar.xz b0ac98e6f1906f891a8aa8c552639a1d6595aee26adfb730da9ff643d5e4bfaf)
-    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-06-03-1-macos-universal.tar.xz d34149abc6041e7e76a8096151b7a7de842b43a133e696bce2731a3e1f12655d)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-06-11-1-macos-universal.tar.xz e23c3b3c469f9cc84d509d7880653b8e0743d11a20105188402fec5cef0fde9d)
   endif()
 endif()
 

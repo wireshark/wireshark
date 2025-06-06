@@ -1006,14 +1006,13 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
 
     std::vector<ss_plugin_extract_field> fields;
 #if SINSP_CHECK_VERSION(0, 21, 0)
-    std::vector<ss_plugin_extract_value_offsets> offsets;
+    ss_plugin_extract_value_offsets offsets = {nullptr, nullptr};
 #endif
 
     // PPME_PLUGINEVENT_E events have the following format:
     // | scap_evt header | uint32_t sizeof(id) = 4 | uint32_t evt_datalen | uint32_t id | uint8_t[] evt_data |
 
     uint32_t payload_hdr[3] = {4, evt_datalen, ssi->source->id()};
-//    uint32_t payload_hdr_size = (nparams + 1) * 4;
     uint32_t tot_evt_len = (uint32_t)sizeof(scap_evt) + sizeof(payload_hdr) + evt_datalen;
     if (ssi->evt_storage_size < tot_evt_len) {
         while (ssi->evt_storage_size < tot_evt_len) {
@@ -1039,9 +1038,6 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
     // XXX Handle multiple paths, e.g. in/out byte counts.
 
     fields.resize(sinsp_field_len);
-#if SINSP_CHECK_VERSION(0, 21, 0)
-    offsets.resize(sinsp_field_len);
-#endif
     for (size_t i = 0; i < sinsp_field_len; i++) {
         fields.at(i).field_id = sinsp_fields[i].field_id;
         fields.at(i).field = sinsp_fields[i].field_name;
@@ -1053,14 +1049,11 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
         sinsp_fields[i].is_generated = false;
         sinsp_fields[i].data_start = 0;
         sinsp_fields[i].data_length = 0;
-#if SINSP_CHECK_VERSION(0, 21, 0)
-        offsets.at(i) = {nullptr, nullptr};
-#endif
     }
 
     bool status = true;
 #if SINSP_CHECK_VERSION(0, 21, 0)
-    if (!ssi->source->extract_fields_and_offsets(ssi->evt, sinsp_field_len, fields.data(), offsets.data())) {
+    if (!ssi->source->extract_fields_and_offsets(ssi->evt, sinsp_field_len, fields.data(), &offsets)) {
         status = false;
     }
 #else
@@ -1080,15 +1073,18 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
                 status = false;
             }
 #if SINSP_CHECK_VERSION(0, 21, 0)
-            if (offsets.at(i).start && offsets.at(i).length && offsets.at(i).start[0] >= PLUGIN_EVENT_HEADER_SIZE && offsets.at(i).length[0] > 0) {
-                // We dissect data in its own TVB,
-                int start = (int) offsets.at(i).start[0] - PLUGIN_EVENT_HEADER_SIZE;
-                int length = (int) offsets.at(i).length[0];
-                if (start == 0 && length == 0) {
-                    sinsp_fields[i].is_generated = true;
+            if (offsets.start && offsets.length) {
+                uint32_t start = offsets.start[i];
+                uint32_t length = offsets.length[i];
+                if (start >= PLUGIN_EVENT_HEADER_SIZE) {
+                    // We dissect data in its own TVB,
+                    start -= PLUGIN_EVENT_HEADER_SIZE;
+                    if (start == 0 && length == 0) {
+                        sinsp_fields[i].is_generated = true;
+                    }
+                    sinsp_fields[i].data_start = start;
+                    sinsp_fields[i].data_length = length;
                 }
-                sinsp_fields[i].data_start = start;
-                sinsp_fields[i].data_length = length;
             }
 #endif
         }
