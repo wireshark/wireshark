@@ -42,8 +42,6 @@
 #include "secrets-types.h"
 #include "pcapng-sysdig-int.h"
 
-#define ROUND_TO_4BYTE(len) WS_ROUNDUP_4(len)
-
 static bool
 pcapng_read(wtap *wth, wtap_rec *rec, int *err,
             char **err_info, int64_t *data_offset);
@@ -1015,7 +1013,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         opt_bytes_remaining -= sizeof (*oh);
 
         /* Round up option length to a multiple of 4. */
-        rounded_option_length = ROUND_TO_4BYTE(option_length);
+        rounded_option_length = WS_ROUNDUP_4(option_length);
 
         /* Sanity check: don't run past the end of the options. */
         if (rounded_option_length > opt_bytes_remaining) {
@@ -1199,7 +1197,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
      * See the comment in pcapng_read_block() for a long discussion
      * of this.
      */
-    bh->block_total_length = ROUND_TO_4BYTE(bh->block_total_length);
+    bh->block_total_length = WS_ROUNDUP_4(bh->block_total_length);
 
     /*
      * Is this block long enough to be an SHB?
@@ -2371,7 +2369,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 #define NRES_ENDOFRECORD 0
 #define NRES_IP4RECORD 1
 #define NRES_IP6RECORD 2
-#define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
 /* IPv6 + MAXDNSNAMELEN */
 #define INITIAL_NRB_REC_SIZE (16 + MAXDNSNAMELEN)
 
@@ -2460,13 +2457,13 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                                   wtapng_block_t *wblock,
                                   int *err, char **err_info)
 {
-    int block_read;
-    int to_read;
+    unsigned block_read;
+    unsigned to_read;
     pcapng_name_resolution_block_t nrb;
     Buffer nrb_rec;
     uint32_t v4_addr;
     unsigned record_len, opt_cont_buf_len;
-    char *namep;
+    const char *namep;
     int namelen;
     wtapng_nrb_mandatory_t *nrb_mand;
 
@@ -2511,9 +2508,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
         if ((size_t)(to_read - block_read) < sizeof nrb) {
             ws_buffer_free(&nrb_rec);
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = ws_strdup_printf("pcapng: %d bytes left in the block < NRB record header size %u",
-                                        to_read - block_read,
-                                        (unsigned)sizeof nrb);
+            *err_info = ws_strdup_printf("pcapng: %u bytes left in the block < NRB record header size %zu",
+                                        to_read - block_read, sizeof nrb);
             return false;
         }
         if (!wtap_read_bytes(fh, &nrb, sizeof nrb, err, err_info)) {
@@ -2521,19 +2517,19 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
             ws_debug("failed to read record header");
             return false;
         }
-        block_read += (int)sizeof nrb;
+        block_read += (unsigned)sizeof nrb;
 
         if (section_info->byte_swapped) {
             nrb.record_type = GUINT16_SWAP_LE_BE(nrb.record_type);
             nrb.record_len  = GUINT16_SWAP_LE_BE(nrb.record_len);
         }
 
-        if (to_read - block_read < nrb.record_len + PADDING4(nrb.record_len)) {
+        if (to_read - block_read < nrb.record_len + WS_PADDING_TO_4(nrb.record_len)) {
             ws_buffer_free(&nrb_rec);
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = ws_strdup_printf("pcapng: %d bytes left in the block < NRB record length + padding %u",
+            *err_info = ws_strdup_printf("pcapng: %u bytes left in the block < NRB record length + padding %u",
                                         to_read - block_read,
-                                        nrb.record_len + PADDING4(nrb.record_len));
+                                        nrb.record_len + WS_PADDING_TO_4(nrb.record_len));
             return false;
         }
         switch (nrb.record_type) {
@@ -2580,12 +2576,13 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                        ws_buffer_start_ptr(&nrb_rec), 4);
                 /* IPv4 address is in big-endian order in the file always, which is how we store
                    it internally as well, so don't byte-swap it */
-                for (namep = (char *)ws_buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
+                for (namep = (const char *)ws_buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
                      record_len != 0;
                      namep += namelen, record_len -= namelen) {
                     /*
-                     * Scan forward for a null
-                     * byte.
+                     * Scan forward for a null byte.
+                     *
+                     * This will never return a value > record_len.
                      */
                     namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
                     if (namelen == -1) {
@@ -2598,11 +2595,11 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                     nrb_mand->ipv4_addr_list = g_list_prepend(nrb_mand->ipv4_addr_list, tp);
                 }
 
-                if (!wtap_read_bytes(fh, NULL, PADDING4(nrb.record_len), err, err_info)) {
+                if (!wtap_read_bytes(fh, NULL, WS_PADDING_TO_4(nrb.record_len), err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return false;
                 }
-                block_read += PADDING4(nrb.record_len);
+                block_read += WS_PADDING_TO_4(nrb.record_len);
                 break;
             case NRES_IP6RECORD:
                 /*
@@ -2659,19 +2656,19 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                     nrb_mand->ipv6_addr_list = g_list_prepend(nrb_mand->ipv6_addr_list, tp);
                 }
 
-                if (!wtap_read_bytes(fh, NULL, PADDING4(nrb.record_len), err, err_info)) {
+                if (!wtap_read_bytes(fh, NULL, WS_PADDING_TO_4(nrb.record_len), err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return false;
                 }
-                block_read += PADDING4(nrb.record_len);
+                block_read += WS_PADDING_TO_4(nrb.record_len);
                 break;
             default:
                 ws_debug("unknown record type 0x%x", nrb.record_type);
-                if (!wtap_read_bytes(fh, NULL, nrb.record_len + PADDING4(nrb.record_len), err, err_info)) {
+                if (!wtap_read_bytes(fh, NULL, nrb.record_len + WS_PADDING_TO_4(nrb.record_len), err, err_info)) {
                     ws_buffer_free(&nrb_rec);
                     return false;
                 }
-                block_read += nrb.record_len + PADDING4(nrb.record_len);
+                block_read += nrb.record_len + WS_PADDING_TO_4(nrb.record_len);
                 break;
         }
     }
@@ -3069,7 +3066,7 @@ pcapng_read_and_check_block_trailer(FILE_T fh, pcapng_block_header_t *bh,
      * and this code won't detect that, but we're already not detecting
      * non-multiple-of-4 total lengths.
      */
-    block_total_length = ROUND_TO_4BYTE(block_total_length);
+    block_total_length = WS_ROUNDUP_4(block_total_length);
 
     if (block_total_length != bh->block_total_length) {
         *err = WTAP_ERR_BAD_FILE;
@@ -3176,7 +3173,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
          * it reports an error if the block total length isn't a
          * multiple of 4.)
          */
-        bh.block_total_length = ROUND_TO_4BYTE(bh.block_total_length);
+        bh.block_total_length = WS_ROUNDUP_4(bh.block_total_length);
 
         wblock->type = bh.block_type;
 
@@ -5556,7 +5553,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
             namelen = (uint16_t)(hostnamelen + 1);
             nrb.record_len = 4 + namelen;  /* 4 bytes IPv4 address length */
             /* 2 bytes record type, 2 bytes length field */
-            tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
+            tot_rec_len = 4 + nrb.record_len + WS_PADDING_TO_4(nrb.record_len);
 
             if (block_off + tot_rec_len > max_rec_data_size) {
                 /*
@@ -5604,8 +5601,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
             block_off += 4;
             memcpy(block_data + block_off, ipv4_hash_list_entry->name, namelen);
             block_off += namelen;
-            memset(block_data + block_off, 0, PADDING4(namelen));
-            block_off += PADDING4(namelen);
+            memset(block_data + block_off, 0, WS_PADDING_TO_4(namelen));
+            block_off += WS_PADDING_TO_4(namelen);
             ws_debug("added IPv4 record for %s", ipv4_hash_list_entry->name);
 
             i++;
@@ -5632,7 +5629,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
             namelen = (uint16_t)(hostnamelen + 1);
             nrb.record_len = 16 + namelen;  /* 16 bytes IPv6 address length */
             /* 2 bytes record type, 2 bytes length field */
-            tot_rec_len = 4 + nrb.record_len + PADDING4(nrb.record_len);
+            tot_rec_len = 4 + nrb.record_len + WS_PADDING_TO_4(nrb.record_len);
 
             if (block_off + tot_rec_len > max_rec_data_size) {
                 /*
@@ -5680,8 +5677,8 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, wtap_block_t sdata, int *er
             block_off += 16;
             memcpy(block_data + block_off, ipv6_hash_list_entry->name, namelen);
             block_off += namelen;
-            memset(block_data + block_off, 0, PADDING4(namelen));
-            block_off += PADDING4(namelen);
+            memset(block_data + block_off, 0, WS_PADDING_TO_4(namelen));
+            block_off += WS_PADDING_TO_4(namelen);
             ws_debug("added IPv6 record for %s", ipv6_hash_list_entry->name);
 
             i++;
