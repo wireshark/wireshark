@@ -9462,7 +9462,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                         gtpv2_information_element_instance_vals[info_elem].type == type &&
                         gtpv2_information_element_instance_vals[info_elem].instance == instance)
                     {
-                        proto_item_append_text(ie_tree, " %s: ", gtpv2_information_element_instance_vals[info_elem].info_element);
+                        proto_item_append_text(ie_tree, "%s: ", gtpv2_information_element_instance_vals[info_elem].info_element);
                         break;
                     }
                 }
