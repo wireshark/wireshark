@@ -528,6 +528,99 @@ register_pcapng_option_handler(unsigned block_type, unsigned option_code,
 }
 
 void
+pcapng_add_cb_section_info_data(section_info_t *section_info,
+                                uint32_t pen, void *data)
+{
+    g_hash_table_insert(section_info->custom_block_data,
+                        GUINT_TO_POINTER(pen), data);
+}
+
+void *
+pcapng_get_cb_section_info_data(section_info_t *section_info, uint32_t pen,
+                                const section_info_funcs_t *funcs)
+{
+    void *data;
+
+    if (section_info->custom_block_data == NULL) {
+        /*
+         * Create the table of custom block data for this section_info_t.
+         *
+         * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+         * so we use "g_direct_hash()" and "g_direct_equal()".
+         */
+        section_info->custom_block_data = g_hash_table_new_full(g_direct_hash,
+                                                                g_direct_equal,
+                                                                NULL,
+                                                                funcs->free);
+
+        /*
+         * The newly-created hash table is empty, so no point in looking
+         * for an element in it.
+         */
+        data = NULL;
+    } else {
+        /*
+         * We have the hash table; look for the entry.
+         */
+        data = g_hash_table_lookup(section_info->custom_block_data,
+                                   GUINT_TO_POINTER(pen));
+    }
+    if (data == NULL) {
+        /*
+         * No entry found - create a new one, and add it to the
+         * hash table.
+         */
+        data = funcs->new();
+        g_hash_table_insert(section_info->custom_block_data,
+                            GUINT_TO_POINTER(pen), data);
+    }
+    return data;
+}
+
+void *
+pcapng_get_lb_section_info_data(section_info_t *section_info,
+                                uint32_t block_type,
+                                const section_info_funcs_t *funcs)
+{
+    void *data;
+
+    if (section_info->local_block_data == NULL) {
+        /*
+         * Create the table of local block data for this section_info_t.
+         *
+         * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+         * so we use "g_direct_hash()" and "g_direct_equal()".
+         */
+        section_info->local_block_data = g_hash_table_new_full(g_direct_hash,
+                                                               g_direct_equal,
+                                                               NULL,
+                                                               funcs->free);
+
+        /*
+         * The newly-created hash table is empty, so no point in looking
+         * for an element in it.
+         */
+        data = NULL;
+    } else {
+        /*
+         * We have the hash table; look for the entry.
+         */
+        data = g_hash_table_lookup(section_info->local_block_data,
+                                   GUINT_TO_POINTER(block_type));
+    }
+    if (data == NULL) {
+        /*
+         * No entry found - create a new one, and add it to the
+         * hash table.
+         */
+        data = funcs->new();
+        g_hash_table_insert(section_info->local_block_data,
+                            GUINT_TO_POINTER(block_type), data);
+    }
+    return data;
+}
+
+void
 pcapng_process_uint8_option(wtapng_block_t *wblock,
                             uint16_t option_code, uint16_t option_length,
                             const uint8_t *option_content)
@@ -3846,6 +3939,10 @@ pcapng_close(wtap *wth)
         section_info_t *section_info = &g_array_index(pcapng->sections,
                                                       section_info_t, i);
         g_array_free(section_info->interfaces, true);
+        if (section_info->custom_block_data != NULL)
+            g_hash_table_destroy(section_info->custom_block_data);
+        if (section_info->local_block_data != NULL)
+            g_hash_table_destroy(section_info->local_block_data);
     }
     g_array_free(pcapng->sections, true);
 }

@@ -92,9 +92,8 @@ typedef struct section_info_t {
     uint16_t version_minor;        /**< Minor version number of this section */
     GArray *interfaces;            /**< Interfaces found in this section */
     int64_t shb_off;               /**< File offset of the SHB for this section */
-    uint32_t bblog_version;        /**< BBLog: version used */
-    uint64_t bblog_offset_tv_sec;  /**< BBLog: UTC offset */
-    uint64_t bblog_offset_tv_usec;
+    GHashTable *custom_block_data; /**< Table, indexed by PEN, for custom block data */
+    GHashTable *local_block_data;  /**< Table, indexed by block type, for local block data */
 } section_info_t;
 
 /*
@@ -322,6 +321,33 @@ pcapng_write_padding(wtap_dumper *wdh, size_t pad, int *err)
 WS_DLL_PUBLIC
 bool pcapng_write_block_footer(wtap_dumper *wdh, uint32_t block_content_length,
                                int *err);
+
+/*
+ * Structure holding allocation-and-initialization and free functions
+ * for section_info_t-associated custom or local block information.
+ */
+typedef struct {
+    void *(*new)(void);
+    GDestroyNotify free;
+} section_info_funcs_t;
+
+/*
+ * Find custom block information from a section_info_t; add a
+ * newly-created one and return it if none is found.
+ */
+WS_DLL_PUBLIC
+void *pcapng_get_cb_section_info_data(section_info_t *section_info,
+                                      uint32_t pen,
+                                      const section_info_funcs_t *funcs);
+
+/*
+ * Find local block information from a section_info_t; add a
+ * newly-created one and return it if none is found.
+ */
+WS_DLL_PUBLIC
+void *pcapng_get_lb_section_info_data(section_info_t *section_info,
+                                      uint32_t block_type,
+                                      const section_info_funcs_t *funcs);
 
 #ifdef __cplusplus
 }

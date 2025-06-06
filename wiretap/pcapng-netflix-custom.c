@@ -17,9 +17,37 @@
 #define NFLX_BLOCK_TYPE_EVENT   1
 #define NFLX_BLOCK_TYPE_SKIP    2
 
+/*
+ * Per-section information managed and used for Netflix BBLog blocks
+ * and options.
+ */
+typedef struct {
+    uint32_t bblog_version;        /**< BBLog: version used */
+    uint64_t bblog_offset_tv_sec;  /**< BBLog: UTC offset */
+    uint64_t bblog_offset_tv_usec;
+} pcapng_nflx_per_section_t;
+
 typedef struct pcapng_nflx_custom_block_s {
     uint32_t nflx_type;
 } pcapng_nflx_custom_block_t;
+
+static void *
+new_nflx_custom_block_data(void)
+{
+    return g_new0(pcapng_nflx_per_section_t, 1);
+}
+
+static const section_info_funcs_t nflx_custom_block_data_funcs = {
+	new_nflx_custom_block_data,
+	g_free
+};
+
+static pcapng_nflx_per_section_t *
+get_nflx_custom_blocK_data(section_info_t *section_info)
+{
+    return pcapng_get_cb_section_info_data(section_info, PEN_NFLX,
+                                           &nflx_custom_block_data_funcs);
+}
 
 wtap_opttype_return_val
 wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* nflx_custom_data, size_t nflx_custom_data_len)
@@ -309,6 +337,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
     struct nflx_dumpinfo dumpinfo;
     uint32_t type, version;
     int64_t dumptime, temp;
+    pcapng_nflx_per_section_t *nflx_per_section_info;
 
     if (length < 4) {
         ws_debug("Length = %u too small", length);
@@ -327,7 +356,8 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
             memcpy(&version, value, sizeof(uint32_t));
             version = GUINT32_FROM_LE(version);
             ws_debug("BBLog version: %u", version);
-            section_info->bblog_version = version;
+            nflx_per_section_info = get_nflx_custom_blocK_data(section_info);
+            nflx_per_section_info->bblog_version = version;
         } else {
             ws_debug("BBLog version parameter has strange length: %u", length);
         }
@@ -340,10 +370,11 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
             memcpy(ws_buffer_start_ptr(&wblock->rec->data), value, length);
             memcpy(&temp, value, sizeof(uint64_t));
             temp = GUINT64_FROM_LE(temp);
-            wblock->rec->ts.secs = section_info->bblog_offset_tv_sec + temp;
+            nflx_per_section_info = get_nflx_custom_blocK_data(section_info);
+            wblock->rec->ts.secs = nflx_per_section_info->bblog_offset_tv_sec + temp;
             memcpy(&temp, value + sizeof(uint64_t), sizeof(uint64_t));
             temp = GUINT64_FROM_LE(temp);
-            wblock->rec->ts.nsecs = (uint32_t)(section_info->bblog_offset_tv_usec + temp) * 1000;
+            wblock->rec->ts.nsecs = (uint32_t)(nflx_per_section_info->bblog_offset_tv_usec + temp) * 1000;
             if (wblock->rec->ts.nsecs >= 1000000000) {
                 wblock->rec->ts.secs += 1;
                 wblock->rec->ts.nsecs -= 1000000000;
@@ -355,9 +386,10 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
     case NFLX_OPT_TYPE_DUMPINFO:
         if (length == sizeof(struct nflx_dumpinfo)) {
             memcpy(&dumpinfo, value, sizeof(struct nflx_dumpinfo));
-            section_info->bblog_offset_tv_sec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_sec);
-            section_info->bblog_offset_tv_usec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_usec);
-            ws_debug("BBLog dumpinfo time offset: %" PRIu64, section_info->bblog_offset_tv_sec);
+            nflx_per_section_info = get_nflx_custom_blocK_data(section_info);
+            nflx_per_section_info->bblog_offset_tv_sec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_sec);
+            nflx_per_section_info->bblog_offset_tv_usec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_usec);
+            ws_debug("BBLog dumpinfo time offset: %" PRIu64, nflx_per_section_info->bblog_offset_tv_sec);
         } else {
             ws_debug("BBLog dumpinfo parameter has strange length: %u", length);
         }
