@@ -236,7 +236,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             col_append_str(pinfo->cinfo, COL_INFO, " Unknown service");
             proto_tree_add_item(main_tree, hf_data, tvb, offset, -1, ENC_NA);
         } else if (tvb_reported_length_remaining(tvb, offset) > 0) {
-            proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_NA | ENC_ASCII);
+            proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII);
 
             service = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
@@ -288,7 +288,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         if (response_frame == -1 || response_frame == (int64_t) pinfo->num) {
-            proto_tree_add_item(main_tree, hf_status, tvb, offset, 4, ENC_NA | ENC_ASCII);
+            proto_tree_add_item(main_tree, hf_status, tvb, offset, 4, ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%c%c%c%c", tvb_get_uint8(tvb, offset),
             tvb_get_uint8(tvb, offset + 1), tvb_get_uint8(tvb, offset + 2), tvb_get_uint8(tvb, offset + 3));
             offset += 4;

@@ -1327,7 +1327,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
          * Endpoint name may not be null terminated. This routine is supposed
          * to add the null at the end of the string buffer.
          */
-        proto_tree_add_item(admin_record_tree, hf_bundle_admin_endpoint_id, tvb, offset, endpoint_length, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(admin_record_tree, hf_bundle_admin_endpoint_id, tvb, offset, endpoint_length, ENC_ASCII);
         offset += endpoint_length;
 
         break;
@@ -1391,7 +1391,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         }
         proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
         offset += sdnv_length;
-        proto_tree_add_item(admin_record_tree, hf_bundle_admin_endpoint_id, tvb, offset, endpoint_length, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(admin_record_tree, hf_bundle_admin_endpoint_id, tvb, offset, endpoint_length, ENC_ASCII);
         offset += endpoint_length;
         break;
     } /* case ADMIN_REC_TYPE_CUSTODY_SIGNAL */

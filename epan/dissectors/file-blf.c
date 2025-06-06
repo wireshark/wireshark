@@ -703,7 +703,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             /* uint64_t reservedSystemVariable2 {}; */
             proto_tree_add_item(subtree, hf_blf_sys_var_reservedsystemvariable2, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
-            proto_tree_add_item(subtree, hf_blf_sys_var_name, tvb, offset, namelength, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(subtree, hf_blf_sys_var_name, tvb, offset, namelength, ENC_UTF_8);
             offset += namelength;
             proto_tree_add_item(subtree, hf_blf_sys_var_data, tvb, offset, datalength, ENC_NA);
             offset += datalength;

@@ -504,7 +504,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         switch (command) {
         case CMD_GET_FIRMWARE_VERSION:
-            proto_tree_add_item(main_tree, hf_firmware_version, tvb, offset, -1, ENC_NA | ENC_ASCII);
+            proto_tree_add_item(main_tree, hf_firmware_version, tvb, offset, -1, ENC_ASCII);
             offset += tvb_captured_length_remaining(tvb, offset);
             break;
 

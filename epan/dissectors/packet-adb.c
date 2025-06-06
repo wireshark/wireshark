@@ -685,7 +685,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_expert(crc_tree, pinfo, &ei_invalid_crc, tvb, offset, -1);
 
             if (is_service) {
-                proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII);
                 if (!pinfo->fd->visited && service_data) {
                     service_data->service = (char *) tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
                 }

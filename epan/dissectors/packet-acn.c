@@ -4427,7 +4427,7 @@ display_blob_field_value(tvbuff_t *tvb, proto_tree *field_tree, uint16_t field_n
           proto_tree_add_item(field_tree, hf_acn_blob_field_value_guid, tvb, blob_offset, field_length, ENC_BIG_ENDIAN);
         }
         else {
-          proto_tree_add_item(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, blob_offset3, ENC_UTF_8 | ENC_NA);
+          proto_tree_add_item(field_tree, hf_acn_blob_field_value_string, tvb, blob_offset, blob_offset3, ENC_UTF_8);
         }
         break;
       /* "ignore", handled above */
@@ -6579,7 +6579,7 @@ dissect_broker_assigned_dynamic_uids(tvbuff_t *tvb, proto_tree *tree, uint32_t o
     offset += 16;
 
     /* status code (2 bytes) */
-    proto_tree_add_item(tree, hf_rdmnet_broker_assigned_status_code, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_rdmnet_broker_assigned_status_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
 
@@ -7371,7 +7371,7 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   postamble_size = tvb_get_uint16(tvb, data_offset, ENC_BIG_ENDIAN);
   proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   data_offset += 2;
-  proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8 | ENC_NA);
+  proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8);
   data_offset += 12;
 
   /* one past the last data byte, not including the postamble */
@@ -7430,7 +7430,7 @@ dissect_rdmnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t dat
     data_offset += 2;
   }
   /* add ACN Packet ID */
-  proto_tree_add_item(rdmnet_tree, hf_rdmnet_packet_identifier, tvb, data_offset, 12, ENC_UTF_8 | ENC_NA);
+  proto_tree_add_item(rdmnet_tree, hf_rdmnet_packet_identifier, tvb, data_offset, 12, ENC_UTF_8);
   data_offset += 12;
 
   pdu_length = 0;
