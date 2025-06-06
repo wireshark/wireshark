@@ -1505,7 +1505,7 @@ static int ssh_dissect_kex_dh(uint8_t msg_code, tvbuff_t *tvb,
         if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini == 0){
             global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
             global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
-            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXDH_INIT}++ > %d\n", CLIENT_PEER_DATA?"serveur":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXDH_INIT}++ > %d\n", CLIENT_PEER_DATA?"server":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini;
         break;
@@ -1528,7 +1528,7 @@ static int ssh_dissect_kex_dh(uint8_t msg_code, tvbuff_t *tvb,
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
             global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
-            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXDH_REPLY}++ > %d\n", SERVER_PEER_DATA?"serveur":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXDH_REPLY}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep;
         break;
@@ -1564,7 +1564,7 @@ static int ssh_dissect_kex_dh_gex(uint8_t msg_code, tvbuff_t *tvb,
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
             global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
-            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_GROUP}++ > %d\n", SERVER_PEER_DATA?"serveur":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_GROUP}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp;
         break;
@@ -1579,7 +1579,7 @@ static int ssh_dissect_kex_dh_gex(uint8_t msg_code, tvbuff_t *tvb,
         if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini == 0){
             global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
             global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
-            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_INIT}++ > %d\n", CLIENT_PEER_DATA?"serveur":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_INIT}++ > %d\n", CLIENT_PEER_DATA?"server":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini;
         break;
@@ -1599,7 +1599,7 @@ static int ssh_dissect_kex_dh_gex(uint8_t msg_code, tvbuff_t *tvb,
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
             global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
-            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_REPLY}++ > %d\n", SERVER_PEER_DATA?"serveur":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_REPLY}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep;
         break;
@@ -1624,7 +1624,7 @@ static int ssh_dissect_kex_dh_gex(uint8_t msg_code, tvbuff_t *tvb,
         if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req == 0){
             global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
             global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
-            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_REQUEST}++ > %d\n", CLIENT_PEER_DATA?"serveur":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_REQUEST}++ > %d\n", CLIENT_PEER_DATA?"server":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
         }
         *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req;
         break;
@@ -1707,8 +1707,10 @@ static int ssh_dissect_kex_hybrid(uint8_t msg_code, tvbuff_t *tvb,
     case SSH_MSG_KEX_HYBRID_INIT:
         expert_add_info(pinfo, NULL, &ei_ssh2_kex_hybrid_msg_code_unknown);
         expert_add_info(pinfo, NULL, &ei_ssh2_kex_hybrid_msg_code);
-        ws_warning("KEX_HYBRID detected: KEX ALGORITHM = %s", kex_name);
-        ws_warning("KEX_HYBRID KEM support in Wireshark / TShark SSH dissector may be missing, partial or experimental");
+        if (!PINFO_FD_VISITED(pinfo)) {
+            ws_warning("KEX_HYBRID detected: KEX ALGORITHM = %s", kex_name);
+            ws_warning("KEX_HYBRID KEM support in Wireshark / TShark SSH dissector may be missing, partial or experimental");
+        }
         ws_noisy(">>> KEX_HYBRID KEM detected: msg_code = %u, offset = %d, kex = %s", msg_code, offset, kex_name);
         break;
     case SSH_MSG_KEX_HYBRID_REPLY:
@@ -1792,8 +1794,10 @@ ssh_dissect_kex_pq_hybrid(uint8_t msg_code, tvbuff_t *tvb,
         // Print warning when sntrup761x25519-sha512 or mlkem768x25519-sha256 is detected in KEX
         // This implementation currently rely on SHARED_SECRET only and do not work with PRIVATE_KEY
         const char *kex_name = global_data->kex;
-        ws_warning("POST-QUANTUM KEX_HYBRID detected: KEX = %s", kex_name);
-        ws_warning("SHARED_SECRET decryption is supported - PRIVATE_KEY decryption is not supported");
+        if (!PINFO_FD_VISITED(pinfo)) {
+            ws_warning("POST-QUANTUM KEX_HYBRID detected: KEX = %s", kex_name);
+            ws_warning("SHARED_SECRET decryption is supported - PRIVATE_KEY decryption is not supported");
+        }
         // Print noisy debug info
         ws_noisy(">>> HYBRID KEM: msg_code = %u, offset = %d, kex = %s", msg_code, offset, kex_name);
         }
@@ -1981,7 +1985,7 @@ ssh_get_message(packet_info *pinfo, int record_id)
 
     ssh_message_info_t *message = NULL;
     for (message = packet->messages; message; message = message->next) {
-        ws_debug("%u:looking for message %d now %d", pinfo->num, record_id, message->id);
+        ws_noisy("%u:looking for message %d now %d", pinfo->num, record_id, message->id);
         if (message->id == record_id) {
             return message;
         }
@@ -2554,12 +2558,12 @@ ssh_keylog_process_line(const char *line)
     key_len = strlen(key);
     cookie_len = strlen(cookie);
     if(key_len & 1){
-        ws_debug("ssh keylog: invalid format (key could at least be even!)");
+        ws_debug("ssh keylog: invalid format (key should at least be even!)");
         g_strfreev(split);
         return;
     }
     if(cookie_len & 1){
-        ws_debug("ssh keylog: invalid format (cookie could at least be even!)");
+        ws_debug("ssh keylog: invalid format (cookie should at least be even!)");
         g_strfreev(split);
         return;
     }
