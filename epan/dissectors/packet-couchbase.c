@@ -1255,7 +1255,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
       return;
     }
 
-    ti = proto_tree_add_item(pair_tree, hf_xattr_key, tvb, offset, mark - offset, ENC_ASCII | ENC_NA);
+    ti = proto_tree_add_item(pair_tree, hf_xattr_key, tvb, offset, mark - offset, ENC_ASCII);
     xattr_size -= (mark - offset) + 1;
     pair_len -= (mark - offset) + 1;
     offset = mark + 1;
@@ -1266,13 +1266,13 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
       return;
     }
 
-    proto_tree_add_item(pair_tree, hf_xattr_value, tvb, offset, mark - offset, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(pair_tree, hf_xattr_value, tvb, offset, mark - offset, ENC_ASCII);
     xattr_size -= (mark - offset) + 1;
     offset = mark + 1;
   }
 
   //The regular value
-  proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+  proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
 }
 
 /* Dissects the required extras for subdoc single-path packets */
@@ -2371,7 +2371,7 @@ dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
     offset += 4;
 
     proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
-                        ENC_ASCII | ENC_NA);
+                        ENC_ASCII);
     if (result_len > 0) {
         json_tvb = tvb_new_subset_length(tvb, offset, result_len);
         call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
@@ -2421,7 +2421,7 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
       offset += 4;
 
       proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
-                          ENC_ASCII | ENC_NA);
+                          ENC_ASCII);
       if (result_len > 0) {
         json_tvb = tvb_new_subset_length(tvb, offset, result_len);
         call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
@@ -2481,13 +2481,13 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       if (path_len) {
         proto_tree_add_item(multipath_tree, hf_multipath_path, tvb, offset, path_len,
-                            ENC_ASCII | ENC_NA);
+                            ENC_ASCII);
         offset += path_len;
       }
 
       if (spec_value_len > 0) {
         proto_tree_add_item(multipath_tree, hf_multipath_value, tvb, offset,
-                            spec_value_len, ENC_ASCII | ENC_NA);
+                            spec_value_len, ENC_ASCII);
         offset += spec_value_len;
       }
 
@@ -2630,7 +2630,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (has_json_value(request, opcode)) {
       tvbuff_t *json_tvb;
-      ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+      ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
       json_tvb = tvb_new_subset_length(tvb, offset, value_len);
       call_dissector(json_handle, json_tvb, pinfo, tree);
 
@@ -2643,7 +2643,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (opcode == CLIENT_OPCODE_HELLO) {
       int curr = offset, end = offset + value_len;
       proto_tree *hello_features_tree;
-      ti = proto_tree_add_item(tree, hf_hello_features, tvb, offset, value_len, ENC_ASCII);
+      ti = proto_tree_add_item(tree, hf_hello_features, tvb, offset, value_len, ENC_NA);
       hello_features_tree = proto_item_add_subtree(ti, ett_hello_features);
       while (curr < end) {
         proto_tree_add_item(hello_features_tree, hf_hello_features_feature, tvb, curr, 2, ENC_BIG_ENDIAN);
@@ -2652,11 +2652,11 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (!request && opcode == CLIENT_OPCODE_RANGE_SCAN_CREATE) {
       proto_tree_add_item(tree, hf_range_scan_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
     } else if (path_len != 0) {
-        ti = proto_tree_add_item(tree, hf_path, tvb, offset, path_len, ENC_ASCII | ENC_NA);
+        ti = proto_tree_add_item(tree, hf_path, tvb, offset, path_len, ENC_ASCII);
         value_len -= path_len;
         if (value_len > 0) {
             ti = proto_tree_add_item(tree, hf_value, tvb, offset + path_len,
-                                     value_len, ENC_ASCII | ENC_NA);
+                                     value_len, ENC_ASCII);
         }
     } else if (request && opcode == CLIENT_OPCODE_CREATE_BUCKET) {
       int sep, equals_pos, sep_pos, config_len;
@@ -2670,14 +2670,14 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
         expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
       } else {
-        proto_tree_add_item(tree, hf_bucket_type, tvb, offset, sep - offset, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_bucket_type, tvb, offset, sep - offset, ENC_ASCII);
         config_len = value_len - (sep - offset) - 1; //Don't include NULL byte in length
         if(config_len <= 0) {
           expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Separator not found in expected location");
         } else {
           offset = sep + 1;// Ignore NULL byte
 
-          ti = proto_tree_add_item(tree, hf_bucket_config, tvb, offset, config_len, ENC_ASCII | ENC_NA);
+          ti = proto_tree_add_item(tree, hf_bucket_config, tvb, offset, config_len, ENC_ASCII);
           config_tree = proto_item_add_subtree(ti, ett_config);
         }
 
@@ -2689,7 +2689,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info_format(pinfo, ti, &ei_illegal_value, "Each key needs a value");
             break; // Break out the while loop
           }
-          ti = proto_tree_add_item(config_tree, hf_config_key, tvb, offset, equals_pos - offset, ENC_ASCII | ENC_NA);
+          ti = proto_tree_add_item(config_tree, hf_config_key, tvb, offset, equals_pos - offset, ENC_ASCII);
           key_tree = proto_item_add_subtree(ti, ett_config_key);
           config_len -= (equals_pos - offset + 1);
           offset = equals_pos + 1;
@@ -2704,7 +2704,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Each key-value pair must be terminated by semi-colon");
             break; // Break out the while loop
           }
-          proto_tree_add_item(key_tree, hf_config_value, tvb, offset, sep_pos - offset, ENC_ASCII | ENC_NA);
+          proto_tree_add_item(key_tree, hf_config_value, tvb, offset, sep_pos - offset, ENC_ASCII);
           config_len -= (sep_pos - offset + 1);
           offset = sep_pos + 1;
         }
@@ -2720,14 +2720,14 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (request && opcode == CLIENT_OPCODE_GET_ERROR_MAP) {
       if (value_len != 2) {
         expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be 2");
-        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
       } else {
         ti = proto_tree_add_item(tree, hf_get_errmap_version, tvb, offset, value_len, ENC_BIG_ENDIAN);
       }
     } else if (request && opcode == CLIENT_OPCODE_DCP_SNAPSHOT_MARKER) {
         if (value_len < 20) {
             expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be at least 20");
-            ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+            ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
         }
 
         proto_tree_add_item(tree, hf_extras_start_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -2740,7 +2740,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (value_len > 20) {
             if (value_len < 36) {
                 expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be at least 36");
-                ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+                ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
             }
 
             proto_tree_add_item(tree, hf_extras_max_visible_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -2751,14 +2751,14 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (value_len > 36) {
                 if (value_len != 44) {
                     expert_add_info_format(pinfo, ti, &ei_warn_illegal_value_length, "Illegal Value length, should be 44");
-                    ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+                    ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
                 }
 
                 proto_tree_add_item(tree, hf_extras_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
             }
         }
     } else {
-      ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+      ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
 #ifdef HAVE_SNAPPY
       if (datatype & DT_SNAPPY) {
         tvbuff_t* decompressed_tvb = tvb_child_uncompress_snappy(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
@@ -3164,7 +3164,7 @@ static void d_s_o_clustermap_change_notification_req(tvbuff_t *tvb,
   }
   // The payload is the clustermap in JSON
   proto_tree_add_item(tree, hf_server_clustermap_value, tvb, offset, size,
-                      ENC_ASCII | ENC_NA);
+                      ENC_ASCII);
   tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
@@ -3182,7 +3182,7 @@ static void d_s_o_authenticate_req(tvbuff_t *tvb,
   }
   // The payload is an JSON object with the authentication request
   proto_tree_add_item(tree, hf_server_authentication, tvb, offset, size,
-                      ENC_ASCII | ENC_NA);
+                      ENC_ASCII);
   tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
@@ -3200,7 +3200,7 @@ static void d_s_o_active_external_users_req(tvbuff_t *tvb,
   }
   // The payload is an JSON array with the list of the users
   proto_tree_add_item(tree, hf_server_external_users, tvb, offset, size,
-                      ENC_ASCII | ENC_NA);
+                      ENC_ASCII);
   tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
@@ -3213,7 +3213,7 @@ static void d_s_o_get_authorization_req(tvbuff_t *tvb,
   if (size > 0) {
     // this is an error!
     proto_item *ti = proto_tree_add_item(tree, hf_value, tvb, offset, size,
-                                         ENC_ASCII | ENC_NA);
+                                         ENC_ASCII);
     expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_value,
                            "GetAuthorization shall not have a value");
   }
@@ -3234,7 +3234,7 @@ static void d_s_o_server_ignored_response(tvbuff_t *tvb,
     return;
   }
   proto_item *ti = proto_tree_add_item(tree, hf_value, tvb, offset, size,
-                                       ENC_ASCII | ENC_NA);
+                                       ENC_ASCII);
   if (get_status(tvb) == STATUS_SUCCESS) {
     expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_value,
                            "Success should not carry value");
@@ -3255,7 +3255,7 @@ static void d_s_o_authenticate_res(tvbuff_t *tvb ,
 
   // Payload is JSON (for success and if there is an error)
   proto_tree_add_item(tree, hf_server_authentication, tvb, offset, size,
-                      ENC_ASCII | ENC_NA);
+                      ENC_ASCII);
   tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 }
@@ -3271,7 +3271,7 @@ static void d_s_o_get_authorization_res(tvbuff_t *tvb,
 
   // Payload is JSON (for success and if there is an error)
   proto_tree_add_item(tree, hf_server_get_authorization, tvb, offset, size,
-                      ENC_ASCII | ENC_NA);
+                      ENC_ASCII);
   tvbuff_t *json_tvb = tvb_new_subset_length(tvb, offset, size);
   call_dissector(json_handle, json_tvb, pinfo, tree);
 
@@ -3529,7 +3529,7 @@ static void dissect_client_value(tvbuff_t *tvb,
     if (status == 0) {
       dissect_value(tvb, pinfo, tree, offset, size, subdoc_path_len, opcode, false, datatype);
     } else if (size) {
-      proto_tree_add_item(tree, hf_value, tvb, offset, size, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(tree, hf_value, tvb, offset, size, ENC_ASCII);
       if (status == STATUS_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
         tvbuff_t *json_tvb;
         json_tvb = tvb_new_subset_length(tvb, offset, size);
@@ -3563,7 +3563,7 @@ static void dissect_client_value(tvbuff_t *tvb,
 
         default:
           ti = proto_tree_add_item(tree, hf_value, tvb, offset, 0,
-                                   ENC_ASCII | ENC_NA);
+                                   ENC_ASCII);
           expert_add_info_format(pinfo, ti, &ei_value_missing,
                                  "%s with status %s (0x%x) must have Value",
                                  val_to_str_ext(opcode,
@@ -3600,7 +3600,7 @@ static void dissect_server_request_value(tvbuff_t *tvb,
       // Unknown packet type.. just dump the data
       if (size > 0) {
         proto_tree_add_item(tree, hf_value, tvb, offset, size,
-                            ENC_ASCII | ENC_NA);
+                            ENC_ASCII);
       }
       return;
   }
@@ -3632,7 +3632,7 @@ static void dissect_server_response_value(tvbuff_t *tvb,
       // Unknown packet type.. just dump the data
       if (size > 0) {
         proto_tree_add_item(tree, hf_value, tvb, offset, size,
-                            ENC_ASCII | ENC_NA);
+                            ENC_ASCII);
       }
       return;
   }
@@ -3669,7 +3669,7 @@ static void dissect_frame_value(tvbuff_t *tvb,
     default:
       // Unknown magic... just dump the data
       if (size > 0) {
-        proto_tree_add_item(tree, hf_value, tvb, offset, (int)size, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_value, tvb, offset, (int)size, ENC_ASCII);
       }
       return;
   }

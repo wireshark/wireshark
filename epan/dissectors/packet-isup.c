@@ -7936,24 +7936,24 @@ dissect_japan_chg_inf_type_crt(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
     proto_tree_add_item(parameter_tree, hf_japan_isup_crci1_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Initial units (IU) IA5 coded in two octets */
-    proto_tree_add_item(parameter_tree, hf_japan_isup_iu, parameter_tvb, offset, 2, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(parameter_tree, hf_japan_isup_iu, parameter_tvb, offset, 2, ENC_ASCII);
     offset += 2;
     /* Daytime Charge rate (DCR) (Octets A, B, C) IA5 coded in three octets */
-    proto_tree_add_item(parameter_tree, hf_japan_isup_dcr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(parameter_tree, hf_japan_isup_dcr, parameter_tvb, offset, 3, ENC_ASCII);
     offset+=3;
     if (len > 5) {
       /* Evening Charge rate (ECR) (Octets B, E, F) IA5 coded in three octets */
-      proto_tree_add_item(parameter_tree, hf_japan_isup_ecr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(parameter_tree, hf_japan_isup_ecr, parameter_tvb, offset, 3, ENC_ASCII);
       offset += 3;
     }
     if (len > 8) {
       /* Nighttime Charge rate (NCR) (Octet G,H,I) IA5 coded in three octets */
-      proto_tree_add_item(parameter_tree, hf_japan_isup_ncr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(parameter_tree, hf_japan_isup_ncr, parameter_tvb, offset, 3, ENC_ASCII);
       offset += 3;
     }
     if (len > 11) {
       /* Spare charge rate (SCR) (Octets J,K,L) IA5 coded in three octets */
-      proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_ASCII);
       offset += 3;
     }
   }
@@ -7968,24 +7968,24 @@ dissect_japan_chg_inf_type_crt(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
       proto_tree_add_item(parameter_tree, hf_japan_isup_crci1_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       /* Initial units (IU) IA5 coded in two octets */
-      proto_tree_add_item(parameter_tree, hf_japan_isup_iu, parameter_tvb, offset, 2, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(parameter_tree, hf_japan_isup_iu, parameter_tvb, offset, 2, ENC_ASCII);
       offset += 2;
       /* Daytime Charge rate (DCR) (Octets A, B, C) IA5 coded in three octets */
-      proto_tree_add_item(parameter_tree, hf_japan_isup_dcr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(parameter_tree, hf_japan_isup_dcr, parameter_tvb, offset, 3, ENC_ASCII);
       offset += 3;
       if (len > 5) {
         /* Evening Charge rate (ECR) (Octets B, E, F) IA5 coded in three octets */
-        proto_tree_add_item(parameter_tree, hf_japan_isup_ecr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_ecr, parameter_tvb, offset, 3, ENC_ASCII);
         offset += 3;
       }
       if (len > 8) {
         /* Nighttime Charge rate (NCR) (Octet G,H,I) IA5 coded in three octets */
-        proto_tree_add_item(parameter_tree, hf_japan_isup_ncr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_ncr, parameter_tvb, offset, 3, ENC_ASCII);
         offset += 3;
       }
       if (len > 11) {
         /* Spare charge rate (SCR) (Octets J,K,L) IA5 coded in three octets */
-        proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_ASCII);
         /*offset += 3;*/
       }
     }

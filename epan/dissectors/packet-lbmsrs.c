@@ -1255,7 +1255,7 @@ static unsigned dissect_rsocket_frame(uint64_t rsocket_frame_type,proto_tree* rs
                 break;
             }
 
-            proto_tree_add_item(rsocket_frame_tree, hf_lbmsrs_rsocket_mdata_mime_type, tvb, offset,mdata_mime_length, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(rsocket_frame_tree, hf_lbmsrs_rsocket_mdata_mime_type, tvb, offset,mdata_mime_length, ENC_ASCII);
             offset += mdata_mime_length;
 
             if ((total_payload_len - offset) < 1)
@@ -1273,7 +1273,7 @@ static unsigned dissect_rsocket_frame(uint64_t rsocket_frame_type,proto_tree* rs
                 break;
             }
 
-            proto_tree_add_item(rsocket_frame_tree, hf_lbmsrs_rsocket_data_mime_type, tvb, offset,data_mime_length, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(rsocket_frame_tree, hf_lbmsrs_rsocket_data_mime_type, tvb, offset,data_mime_length, ENC_ASCII);
             offset += data_mime_length;
             break;
         }
@@ -1458,7 +1458,7 @@ static unsigned dissect_lbmsrs_sir_ser(tvbuff_t * tvb, packet_info * pinfo, prot
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(sir_tree, hf_lbmsrs_sir_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(sir_tree, hf_lbmsrs_sir_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_INFO_INFO_T_SOURCE_LEN)
@@ -1478,7 +1478,7 @@ static unsigned dissect_lbmsrs_sir_ser(tvbuff_t * tvb, packet_info * pinfo, prot
         return (offset - start_offset);
     }
 
-    proto_tree_add_item(sir_tree, hf_lbmsrs_sir_source, tvb, offset, source_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(sir_tree, hf_lbmsrs_sir_source, tvb, offset, source_len, ENC_ASCII);
     offset += source_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_INFO_INFO_T_HOST_ID)
@@ -1701,7 +1701,7 @@ static unsigned dissect_lbmsrs_sdr(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(sdr_tree, hf_lbmsrs_sdr_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(sdr_tree, hf_lbmsrs_sdr_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
     proto_item_set_text(batch_item, "SDR:Topic:%s", name);
@@ -1753,7 +1753,7 @@ static unsigned dissect_lbmsrs_rir(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(rir_tree, hf_lbmsrs_rir_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(rir_tree, hf_lbmsrs_rir_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_RCV_INFO_INFO_T_DOMAIN_ID)
@@ -1859,7 +1859,7 @@ static unsigned dissect_lbmsrs_rer(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(rer_tree, hf_lbmsrs_rer_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(rer_tree, hf_lbmsrs_rer_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_RCV_END_INFO_T_DOMAIN_ID)
@@ -1966,7 +1966,7 @@ static unsigned dissect_lbmsrs_rdr(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(rdr_tree, hf_lbmsrs_rdr_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(rdr_tree, hf_lbmsrs_rdr_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_RCV_DELETE_INFO_T_DOMAIN_ID)
@@ -2073,7 +2073,7 @@ static unsigned dissect_lbmsrs_wir(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(wir_tree, hf_lbmsrs_wir_pattern, tvb, offset, pattern_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(wir_tree, hf_lbmsrs_wir_pattern, tvb, offset, pattern_len, ENC_ASCII);
     offset += pattern_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_WRCV_INFO_INFO_T_DOMAIN_ID)
@@ -2180,7 +2180,7 @@ static unsigned dissect_lbmsrs_wdr(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(wdr_tree, hf_lbmsrs_wdr_pattern, tvb, offset, pattern_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(wdr_tree, hf_lbmsrs_wdr_pattern, tvb, offset, pattern_len, ENC_ASCII);
     offset += pattern_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_WRCV_DELETE_INFO_T_DOMAIN_ID)
@@ -2287,7 +2287,7 @@ static unsigned dissect_lbmsrs_wer(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(wer_tree, hf_lbmsrs_wer_pattern, tvb, offset, pattern_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(wer_tree, hf_lbmsrs_wer_pattern, tvb, offset, pattern_len, ENC_ASCII);
     offset += pattern_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_WRCV_END_INFO_T_DOMAIN_ID)
@@ -2394,7 +2394,7 @@ static unsigned dissect_lbmsrs_sli(tvbuff_t * tvb, packet_info * pinfo,  proto_t
     }
     int len;
     char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
-    proto_tree_add_item(sli_tree, hf_lbmsrs_sli_topic, tvb, offset, topic_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(sli_tree, hf_lbmsrs_sli_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_LEAVE_INFO_T_SOURCE_LEN)
@@ -2413,7 +2413,7 @@ static unsigned dissect_lbmsrs_sli(tvbuff_t * tvb, packet_info * pinfo,  proto_t
         *can_dissect_further = false;
         return (offset - start_offset);
     }
-    proto_tree_add_item(sli_tree, hf_lbmsrs_sli_source, tvb, offset, source_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(sli_tree, hf_lbmsrs_sli_source, tvb, offset, source_len, ENC_ASCII);
     offset += source_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_SRC_LEAVE_INFO_T_CONTEXT_INSTANCE)
@@ -2839,7 +2839,7 @@ static unsigned dissect_lbmsrs_cnq(tvbuff_t * tvb, proto_tree * tree, unsigned o
         return 0;
     }
 
-    proto_tree_add_item(cnq_tree, hf_lbmsrs_cnq_name, tvb, offset, name_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(cnq_tree, hf_lbmsrs_cnq_name, tvb, offset, name_len, ENC_ASCII);
     offset += name_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_CONTEXT_NAME_QUERY_T_DOMAIN_ID)
@@ -2936,7 +2936,7 @@ static unsigned dissect_lbmsrs_cni(tvbuff_t * tvb, proto_tree * tree, unsigned o
         return 0;
     }
 
-    proto_tree_add_item(cni_tree, hf_lbmsrs_cni_name, tvb, offset, name_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(cni_tree, hf_lbmsrs_cni_name, tvb, offset, name_len, ENC_ASCII);
     offset += name_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_CONTEXT_NAME_INFO_T_DOMAIN_ID)
@@ -3061,7 +3061,7 @@ static unsigned dissect_lbmsrs_cne(tvbuff_t * tvb, proto_tree * tree, unsigned o
         return 0;
     }
 
-    proto_tree_add_item(cne_tree, hf_lbmsrs_cne_name, tvb, offset, name_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(cne_tree, hf_lbmsrs_cne_name, tvb, offset, name_len, ENC_ASCII);
     offset += name_len;
 
     if ((total_payload_len - offset) < L_LBM_SRS_CONTEXT_NAME_END_T_DOMAIN_ID)
@@ -3674,7 +3674,7 @@ static int dissect_lbmsrs_pdus(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         {
             return (offset - rsocket_frame_len);
         }
-        proto_tree_add_item(rsocket_frame_tree, hf_lbmsrs_rsocket_mdata, tvb, offset, rsocket_metadata_len,ENC_ASCII | ENC_NA);
+        proto_tree_add_item(rsocket_frame_tree, hf_lbmsrs_rsocket_mdata, tvb, offset, rsocket_metadata_len, ENC_ASCII);
         offset += rsocket_metadata_len;
     }
 

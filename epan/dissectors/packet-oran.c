@@ -2186,7 +2186,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             /* numSymbol */
             uint32_t numSymbol;
             proto_item *numsymbol_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
-            if ((sectionType == SEC_C_RRM_MEAS_REPORTS) && (numSymbol != 14)) {
+            if ((sectionType == SEC_C_RRM_MEAS_REPORTS) && (numSymbol != 14)) {     /* Section type 10 */
                 proto_item_append_text(numsymbol_ti, " (for ST10, should be 14!)");
                 expert_add_info_format(pinfo, numsymbol_ti, &ei_oran_st10_numsymbol_not_14,
                                        "numSymbol should be 14 for ST10 - found %u", numSymbol);
@@ -4662,7 +4662,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     else if (sectionType != SEC_C_LAA) {
          /* startSymbolId is in most section types */
         ssid_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
-        if (startSymbolId && (sectionType == SEC_C_RRM_MEAS_REPORTS)) {
+        if (startSymbolId && (sectionType == SEC_C_RRM_MEAS_REPORTS)) {      /* Section Type 10 */
             proto_item_append_text(ssid_ti, " (should be 0 for ST10!)");
             expert_add_info_format(pinfo, ssid_ti, &ei_oran_st10_startsymbolid_not_0,
                                    "startSymbolId should be 0 for ST10 - found %u", startSymbolId);

@@ -255,40 +255,40 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   case GEARMAN_COMMAND_ECHO_RES:
     if (!tree) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_echo_text, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_echo_text, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_CREATED:
   case GEARMAN_COMMAND_WORK_FAIL:
     if (!tree) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_job_handle, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_job_handle, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_OPTION_REQ:
   case GEARMAN_COMMAND_OPTION_RES:
     if (!tree) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_option_name, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_option_name, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SET_CLIENT_ID:
     if (!tree) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_client_id, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_client_id, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_GET_STATUS_UNIQUE:
     if (!tree) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_CAN_DO:
   case GEARMAN_COMMAND_CANT_DO:
     if (!tree) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   //
@@ -315,7 +315,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_result, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_result, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_STATUS_RES:
@@ -337,7 +337,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_JOB:
@@ -348,130 +348,130 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   case GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG:
     if (!tree) break;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_REDUCE_JOB:
   case GEARMAN_COMMAND_SUBMIT_REDUCE_JOB_BG:
     if (!tree) break;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_reducer, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_reducer, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_JOB_SCHED:
     if (!tree) break;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_minute, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_minute, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_hour, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_hour, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_month, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_month, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_month, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_month, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_week, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_week, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_JOB_EPOCH:
     if (!tree) break;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_epoch_time, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_epoch_time, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_ASSIGN:
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_ASSIGN_UNIQ:
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_ASSIGN_ALL:
     if (!tree) break;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
@@ -479,7 +479,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_WORK_STATUS:
@@ -493,7 +493,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_CAN_DO_TIMEOUT:
@@ -503,7 +503,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_timeout_value, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_timeout_value, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_STATUS_RES_UNIQUE:
@@ -525,11 +525,11 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     curr_offset += len;
     len = tvb_strsize(tvb, curr_offset);
-    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
     len = tvb_strnlen( tvb, curr_offset, -1 );
-    proto_tree_add_item(content_tree, hf_gearman_client_count, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(content_tree, hf_gearman_client_count, tvb, curr_offset, len, ENC_ASCII);
     break;
 
   default:

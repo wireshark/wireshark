@@ -768,7 +768,7 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item *ti = NULL;
     if ( buf != NULL && tmp_length > 0) {
         sanitize_buffer(buf, tmp_length, str_encoding);
-        ti = proto_tree_add_item(tree, hf_dlt_string, tvb, offset, str_len, ENC_ASCII | ENC_NA);
+        ti = proto_tree_add_item(tree, hf_dlt_string, tvb, offset, str_len, ENC_ASCII);
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s", buf);
     } else {
         expert_dlt_parsing_error(tree, pinfo, tvb, offset, str_len);
@@ -900,23 +900,23 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
     if (msg_type_info_comb == DLT_MSG_TYPE_INFO_CTRL_REQ) {
         switch (message_id) {
         case DLT_SERVICE_ID_SET_LOG_LEVEL:
-            proto_tree_add_item(tree, hf_dlt_service_application_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
-            proto_tree_add_item(tree, hf_dlt_service_context_id, tvb, offset + 4, 4, ENC_ASCII | ENC_NA );
+            proto_tree_add_item(tree, hf_dlt_service_application_id, tvb, offset, 4, ENC_ASCII);
+            proto_tree_add_item(tree, hf_dlt_service_context_id, tvb, offset + 4, 4, ENC_ASCII );
             proto_tree_add_item(tree, hf_dlt_service_new_log_level, tvb, offset + 8, 1, ENC_NA);
             proto_tree_add_item(tree, hf_dlt_service_reserved, tvb, offset + 9, 4, ENC_NA);
             ret = 13;
             break;
         case DLT_SERVICE_ID_SET_TRACE_STATUS:
-            proto_tree_add_item(tree, hf_dlt_service_application_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
-            proto_tree_add_item(tree, hf_dlt_service_context_id, tvb, offset + 4, 4, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(tree, hf_dlt_service_application_id, tvb, offset, 4, ENC_ASCII);
+            proto_tree_add_item(tree, hf_dlt_service_context_id, tvb, offset + 4, 4, ENC_ASCII);
             proto_tree_add_item(tree, hf_dlt_service_new_trace_status, tvb, offset + 8, 1, ENC_NA);
             proto_tree_add_item(tree, hf_dlt_service_reserved, tvb, offset + 9, 4, ENC_NA);
             ret = 13;
             break;
         case DLT_SERVICE_ID_GET_LOG_INFO:
             proto_tree_add_item(tree, hf_dlt_service_options, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(tree, hf_dlt_service_application_id, tvb, offset + 1, 4, ENC_ASCII | ENC_NA);
-            proto_tree_add_item(tree, hf_dlt_service_context_id, tvb, offset + 5, 4, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(tree, hf_dlt_service_application_id, tvb, offset + 1, 4, ENC_ASCII);
+            proto_tree_add_item(tree, hf_dlt_service_context_id, tvb, offset + 5, 4, ENC_ASCII);
             proto_tree_add_item(tree, hf_dlt_service_reserved, tvb, offset + 9, 4, ENC_NA);
             break;
         case DLT_SERVICE_ID_SET_MESSAGE_FILTERING:
@@ -959,7 +959,7 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
             offset += 2;
             /* loop over all app id entries */
             for (i=0; i<appid_count; i++) {
-                ti = proto_tree_add_item(subtree, hf_dlt_service_application_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
+                ti = proto_tree_add_item(subtree, hf_dlt_service_application_id, tvb, offset, 4, ENC_ASCII);
                 offset += 4;
                 subtree2 = proto_item_add_subtree(ti, ett_dlt_service_app_id);
 
@@ -967,7 +967,7 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
                 offset += 2;
                 /* loop over all ctx id entries */
                 for (j = 0; j < ctxid_count; j++) {
-                    ti = proto_tree_add_item(subtree2, hf_dlt_service_context_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
+                    ti = proto_tree_add_item(subtree2, hf_dlt_service_context_id, tvb, offset, 4, ENC_ASCII);
                     subtree3 = proto_item_add_subtree(ti, ett_dlt_service_ctx_id);
                     offset += 4;
 
@@ -979,14 +979,14 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
                     if (status == DLT_SERVICE_STATUS_LOG_LEVEL_DLT_LOG_TRACE_TEXT) {
                         proto_tree_add_item_ret_uint(subtree2, hf_dlt_service_count, tvb, offset, 2, encoding, &tmp_length);
                         offset += 2;
-                        proto_tree_add_item(subtree2, hf_dlt_service_ctx_desc, tvb, offset, tmp_length, ENC_ASCII | ENC_NA);
+                        proto_tree_add_item(subtree2, hf_dlt_service_ctx_desc, tvb, offset, tmp_length, ENC_ASCII);
                         offset += tmp_length;
                     }
                 }
                 if (status == DLT_SERVICE_STATUS_LOG_LEVEL_DLT_LOG_TRACE_TEXT) {
                     proto_tree_add_item_ret_uint(subtree, hf_dlt_service_count, tvb, offset, 2, encoding, &tmp_length);
                     offset += 2;
-                    proto_tree_add_item(subtree, hf_dlt_service_app_desc, tvb, offset, tmp_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(subtree, hf_dlt_service_app_desc, tvb, offset, tmp_length, ENC_ASCII);
                     offset += tmp_length;
                 }
             }
@@ -1003,7 +1003,7 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
             proto_tree_add_item(tree, hf_dlt_service_status, tvb, offset, 1, ENC_NA);
             proto_tree_add_item_ret_uint(tree, hf_dlt_service_length, tvb, offset + 1, 4, encoding, &tmp_length);
             if ((unsigned)len >= 5 + tmp_length) {
-                proto_tree_add_item(tree, hf_dlt_service_swVersion, tvb, offset + 5, tmp_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(tree, hf_dlt_service_swVersion, tvb, offset + 5, tmp_length, ENC_ASCII);
             } else {
                 expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, len);
             }
@@ -1173,10 +1173,10 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
         proto_tree_add_item(ext_hdr_tree, hf_dlt_num_of_args, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(ext_hdr_tree, hf_dlt_app_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(ext_hdr_tree, hf_dlt_app_id, tvb, offset, 4, ENC_ASCII);
         offset += 4;
 
-        proto_tree_add_item(ext_hdr_tree, hf_dlt_ctx_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(ext_hdr_tree, hf_dlt_ctx_id, tvb, offset, 4, ENC_ASCII);
         offset += 4;
     }
 
