@@ -143,13 +143,11 @@ add_lex_files(LEX_FILES WIRETAP_FILES
 	${WIRETAP_LEX_MODULE_FILES}
 	${CMAKE_CURRENT_SOURCE_DIR}/ascend_scanner.l
 	${CMAKE_CURRENT_SOURCE_DIR}/busmaster_scanner.l
-	${CMAKE_CURRENT_SOURCE_DIR}/candump_scanner.l
 )
 
 add_lemon_files(LEMON_FILES WIRETAP_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/ascend_parser.lemon
 	${CMAKE_CURRENT_SOURCE_DIR}/busmaster_parser.lemon
-	${CMAKE_CURRENT_SOURCE_DIR}/candump_parser.lemon
 )
 
 #
