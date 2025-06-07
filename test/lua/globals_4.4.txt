@@ -2078,8 +2078,6 @@
         ["ATM_NO_HEC"] = 2,
         ["ATM_RAW_CELL"] = 1,
         ["ATM_REASSEMBLY_ERROR"] = 8,
-        ["BBLOG_TYPE_EVENT_BLOCK"] = 1,
-        ["BBLOG_TYPE_SKIPPED_BLOCK"] = 2,
         ["BLOCK_NOT_SUPPORTED"] = 0,
         ["BTHCI_CHANNEL_ACL"] = 2,
         ["BTHCI_CHANNEL_COMMAND"] = 1,

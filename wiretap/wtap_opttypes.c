@@ -17,7 +17,6 @@
 #include "wtap.h"
 #include "wtap-int.h"
 #include "pcapng_module.h"
-#include "pcapng-netflix-custom.h"
 #include <wsutil/ws_assert.h>
 
 #include <wsutil/glib-compat.h>

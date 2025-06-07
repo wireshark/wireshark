@@ -1396,16 +1396,7 @@ typedef struct {
     uint32_t  pen;              /* private enterprise number */
     uint32_t  length;           /* length of the Custom Data plus options */
     bool      copy_allowed;     /* CB can be written */
-    union {
-        struct nflx {
-            uint32_t  type;             /* block type */
-            uint32_t  skipped;          /* Used if type == BBLOG_TYPE_SKIPPED_BLOCK */
-        } nflx_custom_data_header;
-    } custom_data_header;
 } wtap_custom_block_header;
-
-#define BBLOG_TYPE_EVENT_BLOCK   1
-#define BBLOG_TYPE_SKIPPED_BLOCK 2
 
 /*
  * The largest nstime.secs value that can be put into an unsigned
@@ -1452,7 +1443,7 @@ typedef struct wtap_rec {
      * XXX - some if not all of the rec_header information may belong
      * here, or may already be here.  Eliminating rec_header in favor
      * of this might simplify the process of adding new record/block
-     * types.
+     * types.  For example, some of it might belong in block->mandaory_data.
      *
      * It also has a type field that's somewhat equivalent to rec_type.
      *

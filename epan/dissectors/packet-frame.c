@@ -45,7 +45,6 @@ void proto_reg_handoff_frame(void);
 static int proto_frame;
 static int proto_pkt_comment;
 static int proto_syscall;
-static int proto_bblog;
 
 static int hf_frame_arrival_time_local;
 static int hf_frame_arrival_time_utc;
@@ -1592,7 +1591,6 @@ proto_register_frame(void)
 		proto_register_alias(proto_pkt_comment, "pkt_comment");
 	}
 	proto_syscall = proto_register_protocol("System Call", "Syscall", "syscall");
-	proto_bblog = proto_get_id_by_filter_name("bblog");
 
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_field_array(proto_frame, &hf_encap, 1);

@@ -21,6 +21,20 @@ extern "C" {
  */
 #define PEN_NFLX 10949
 
+/*
+ * Netflix BBLog custom block types.
+ */
+#define NFLX_BLOCK_TYPE_EVENT   1
+#define NFLX_BLOCK_TYPE_SKIP    2
+
+/*
+ * Mandatory data for a Netflix WTAP_BLOCK_CUSTOM.
+ */
+typedef struct nflx {
+    uint32_t  type;             /* block type */
+    uint32_t  skipped;          /* Used if type == NFLX_BLOCK_TYPE_SKIP */
+} wtapng_nflx_custom_mandatory_t;
+
 #define NFLX_OPT_TYPE_VERSION    1
 #define NFLX_OPT_TYPE_TCPINFO    2
 #define NFLX_OPT_TYPE_DUMPINFO   4

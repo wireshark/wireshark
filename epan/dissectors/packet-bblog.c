@@ -487,18 +487,22 @@ dissect_bblog_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static int
 dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    wtapng_nflx_custom_mandatory_t *bblog_cb_mand;
+
+    bblog_cb_mand = (wtapng_nflx_custom_mandatory_t *)wtap_block_get_mandatory_data(pinfo->rec->block);
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
-    switch (pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type) {
-    case BBLOG_TYPE_SKIPPED_BLOCK:
+    switch (bblog_cb_mand->type) {
+    case NFLX_BLOCK_TYPE_SKIP:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Number of skipped events: %u",
-                     pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+                     bblog_cb_mand->skipped);
         break;
-    case BBLOG_TYPE_EVENT_BLOCK:
+    case NFLX_BLOCK_TYPE_EVENT:
         dissect_bblog_event(tvb, pinfo, tree, data);
         break;
     default:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown type: %u",
-                     pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+                     bblog_cb_mand->type);
         break;
     }
     return tvb_captured_length(tvb);
