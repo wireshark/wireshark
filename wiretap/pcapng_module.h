@@ -116,8 +116,9 @@ typedef struct section_info_t {
 /*
  * Reader and writer routines for pcapng block types.
  */
-typedef bool (*block_reader)(wtap* wth, FILE_T fh, uint32_t block_read,
-                             pcapng_block_header_t* bh, section_info_t* section_info,
+typedef bool (*block_reader)(wtap* wth, FILE_T fh, uint32_t block_size,
+                             uint32_t block_content_size,
+                             section_info_t* section_info,
                              wtapng_block_t *wblock,
                              int *err, char **err_info);
 typedef bool (*block_writer)(wtap_dumper *wdh, const wtap_rec *rec,
