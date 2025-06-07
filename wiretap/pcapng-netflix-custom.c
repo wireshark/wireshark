@@ -46,199 +46,13 @@ get_nflx_custom_blocK_data(section_info_t *section_info)
                                            &nflx_custom_block_data_funcs);
 }
 
-wtap_opttype_return_val
-wtap_block_get_nflx_custom_option(wtap_block_t block, uint32_t nflx_type, char* nflx_custom_data, size_t nflx_custom_data_len)
-{
-    const wtap_opttype_t* opttype;
-    wtap_option_t* opt;
-    unsigned i;
-    char* real_custom_data;
-
-    if (block == NULL) {
-        return WTAP_OPTTYPE_BAD_BLOCK;
-    }
-    opttype = GET_OPTION_TYPE(block->info->options, OPT_CUSTOM_BIN_COPY);
-    if (opttype == NULL) {
-        return WTAP_OPTTYPE_NO_SUCH_OPTION;
-    }
-    if (opttype->data_type != WTAP_OPTTYPE_CUSTOM_BINARY) {
-        return WTAP_OPTTYPE_TYPE_MISMATCH;
-    }
-
-    for (i = 0; i < block->options->len; i++) {
-        opt = &g_array_index(block->options, wtap_option_t, i);
-        if ((opt->option_id == OPT_CUSTOM_BIN_COPY) &&
-            (opt->value.custom_binaryval.pen == PEN_NFLX) &&
-            (opt->value.custom_binaryval.data.custom_data_len >= sizeof(uint32_t))) {
-            uint32_t type;
-            memcpy(&type, opt->value.custom_binaryval.data.custom_data, sizeof(uint32_t));
-            type = GUINT32_FROM_LE(type);
-            if (type == nflx_type)
-                break;
-        }
-    }
-    if (i == block->options->len) {
-        return WTAP_OPTTYPE_NOT_FOUND;
-    }
-    if (nflx_custom_data_len + sizeof(uint32_t) < opt->value.custom_binaryval.data.custom_data_len) {
-        return WTAP_OPTTYPE_TYPE_MISMATCH;
-    }
-
-    /* Custom data includes the type, so it's already been accounted for */
-    real_custom_data = ((char*)opt->value.custom_binaryval.data.custom_data) + sizeof(uint32_t);
-
-    switch (nflx_type) {
-    case NFLX_OPT_TYPE_VERSION: {
-        uint32_t* src, * dst;
-
-        ws_assert(nflx_custom_data_len == sizeof(uint32_t));
-        src = (uint32_t*)real_custom_data;
-        dst = (uint32_t*)nflx_custom_data;
-        *dst = GUINT32_FROM_LE(*src);
-        break;
-    }
-    case NFLX_OPT_TYPE_TCPINFO: {
-        struct nflx_tcpinfo* src, * dst;
-
-        /*
-         * Do not use sizeof (struct nflx_tcpinfo); see the comment
-         * before the definition of OPT_NFLX_TCPINFO_SIZE in
-         * wiretap/pcapng-netflix-custom.h.
-         */
-        ws_assert(nflx_custom_data_len == OPT_NFLX_TCPINFO_SIZE);
-        src = (struct nflx_tcpinfo*)real_custom_data;
-        dst = (struct nflx_tcpinfo*)nflx_custom_data;
-        dst->tlb_tv_sec = GUINT64_FROM_LE(src->tlb_tv_sec);
-        dst->tlb_tv_usec = GUINT64_FROM_LE(src->tlb_tv_usec);
-        dst->tlb_ticks = GUINT32_FROM_LE(src->tlb_ticks);
-        dst->tlb_sn = GUINT32_FROM_LE(src->tlb_sn);
-        dst->tlb_stackid = src->tlb_stackid;
-        dst->tlb_eventid = src->tlb_eventid;
-        dst->tlb_eventflags = GUINT16_FROM_LE(src->tlb_eventflags);
-        dst->tlb_errno = GINT32_FROM_LE(src->tlb_errno);
-        dst->tlb_rxbuf_tls_sb_acc = GUINT32_FROM_LE(src->tlb_rxbuf_tls_sb_acc);
-        dst->tlb_rxbuf_tls_sb_ccc = GUINT32_FROM_LE(src->tlb_rxbuf_tls_sb_ccc);
-        dst->tlb_rxbuf_tls_sb_spare = GUINT32_FROM_LE(src->tlb_rxbuf_tls_sb_spare);
-        dst->tlb_txbuf_tls_sb_acc = GUINT32_FROM_LE(src->tlb_txbuf_tls_sb_acc);
-        dst->tlb_txbuf_tls_sb_ccc = GUINT32_FROM_LE(src->tlb_txbuf_tls_sb_ccc);
-        dst->tlb_txbuf_tls_sb_spare = GUINT32_FROM_LE(src->tlb_txbuf_tls_sb_spare);
-        dst->tlb_state = GINT32_FROM_LE(src->tlb_state);
-        dst->tlb_starttime = GUINT32_FROM_LE(src->tlb_starttime);
-        dst->tlb_iss = GUINT32_FROM_LE(src->tlb_iss);
-        dst->tlb_flags = GUINT32_FROM_LE(src->tlb_flags);
-        dst->tlb_snd_una = GUINT32_FROM_LE(src->tlb_snd_una);
-        dst->tlb_snd_max = GUINT32_FROM_LE(src->tlb_snd_max);
-        dst->tlb_snd_cwnd = GUINT32_FROM_LE(src->tlb_snd_cwnd);
-        dst->tlb_snd_nxt = GUINT32_FROM_LE(src->tlb_snd_nxt);
-        dst->tlb_snd_recover = GUINT32_FROM_LE(src->tlb_snd_recover);
-        dst->tlb_snd_wnd = GUINT32_FROM_LE(src->tlb_snd_wnd);
-        dst->tlb_snd_ssthresh = GUINT32_FROM_LE(src->tlb_snd_ssthresh);
-        dst->tlb_srtt = GUINT32_FROM_LE(src->tlb_srtt);
-        dst->tlb_rttvar = GUINT32_FROM_LE(src->tlb_rttvar);
-        dst->tlb_rcv_up = GUINT32_FROM_LE(src->tlb_rcv_up);
-        dst->tlb_rcv_adv = GUINT32_FROM_LE(src->tlb_rcv_adv);
-        dst->tlb_flags2 = GUINT32_FROM_LE(src->tlb_flags2);
-        dst->tlb_rcv_nxt = GUINT32_FROM_LE(src->tlb_rcv_nxt);
-        dst->tlb_rcv_wnd = GUINT32_FROM_LE(src->tlb_rcv_wnd);
-        dst->tlb_dupacks = GUINT32_FROM_LE(src->tlb_dupacks);
-        dst->tlb_segqlen = GINT32_FROM_LE(src->tlb_segqlen);
-        dst->tlb_snd_numholes = GINT32_FROM_LE(src->tlb_snd_numholes);
-        dst->tlb_flex1 = GUINT32_FROM_LE(src->tlb_flex1);
-        dst->tlb_flex2 = GUINT32_FROM_LE(src->tlb_flex2);
-        dst->tlb_fbyte_in = GUINT32_FROM_LE(src->tlb_fbyte_in);
-        dst->tlb_fbyte_out = GUINT32_FROM_LE(src->tlb_fbyte_out);
-        dst->tlb_snd_scale = src->tlb_snd_scale;
-        dst->tlb_rcv_scale = src->tlb_rcv_scale;
-        for (i = 0; i < 3; i++) {
-            dst->_pad[i] = src->_pad[i];
-        }
-        dst->tlb_stackinfo_bbr_cur_del_rate = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_cur_del_rate);
-        dst->tlb_stackinfo_bbr_delRate = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_delRate);
-        dst->tlb_stackinfo_bbr_rttProp = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_rttProp);
-        dst->tlb_stackinfo_bbr_bw_inuse = GUINT64_FROM_LE(src->tlb_stackinfo_bbr_bw_inuse);
-        dst->tlb_stackinfo_bbr_inflight = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_inflight);
-        dst->tlb_stackinfo_bbr_applimited = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_applimited);
-        dst->tlb_stackinfo_bbr_delivered = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_delivered);
-        dst->tlb_stackinfo_bbr_timeStamp = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_timeStamp);
-        dst->tlb_stackinfo_bbr_epoch = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_epoch);
-        dst->tlb_stackinfo_bbr_lt_epoch = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_lt_epoch);
-        dst->tlb_stackinfo_bbr_pkts_out = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_pkts_out);
-        dst->tlb_stackinfo_bbr_flex1 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex1);
-        dst->tlb_stackinfo_bbr_flex2 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex2);
-        dst->tlb_stackinfo_bbr_flex3 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex3);
-        dst->tlb_stackinfo_bbr_flex4 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex4);
-        dst->tlb_stackinfo_bbr_flex5 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex5);
-        dst->tlb_stackinfo_bbr_flex6 = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_flex6);
-        dst->tlb_stackinfo_bbr_lost = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_lost);
-        dst->tlb_stackinfo_bbr_pacing_gain = GUINT16_FROM_LE(src->tlb_stackinfo_bbr_lost);
-        dst->tlb_stackinfo_bbr_cwnd_gain = GUINT16_FROM_LE(src->tlb_stackinfo_bbr_lost);
-        dst->tlb_stackinfo_bbr_flex7 = GUINT16_FROM_LE(src->tlb_stackinfo_bbr_flex7);
-        dst->tlb_stackinfo_bbr_bbr_state = src->tlb_stackinfo_bbr_bbr_state;
-        dst->tlb_stackinfo_bbr_bbr_substate = src->tlb_stackinfo_bbr_bbr_substate;
-        dst->tlb_stackinfo_bbr_inhpts = src->tlb_stackinfo_bbr_inhpts;
-        dst->tlb_stackinfo_bbr_ininput = src->tlb_stackinfo_bbr_ininput;
-        dst->tlb_stackinfo_bbr_use_lt_bw = src->tlb_stackinfo_bbr_use_lt_bw;
-        dst->tlb_stackinfo_bbr_flex8 = src->tlb_stackinfo_bbr_flex8;
-        dst->tlb_stackinfo_bbr_pkt_epoch = GUINT32_FROM_LE(src->tlb_stackinfo_bbr_pkt_epoch);
-        dst->tlb_len = GUINT32_FROM_LE(src->tlb_len);
-        break;
-    }
-    case NFLX_OPT_TYPE_DUMPINFO: {
-        struct nflx_dumpinfo* src, * dst;
-
-        /*
-         * This, however, is safe; see the comment before the
-         * declaration of struct nflx_dumpinfo in
-         * wiretap/pcapng-netflix-custom.h.
-         */
-        ws_assert(nflx_custom_data_len == sizeof(struct nflx_dumpinfo));
-        src = (struct nflx_dumpinfo*)real_custom_data;
-        dst = (struct nflx_dumpinfo*)nflx_custom_data;
-        dst->tlh_version = GUINT32_FROM_LE(src->tlh_version);
-        dst->tlh_type = GUINT32_FROM_LE(src->tlh_type);
-        dst->tlh_length = GUINT64_FROM_LE(src->tlh_length);
-        dst->tlh_ie_fport = src->tlh_ie_fport;
-        dst->tlh_ie_lport = src->tlh_ie_lport;
-        for (i = 0; i < 4; i++) {
-            dst->tlh_ie_faddr_addr32[i] = src->tlh_ie_faddr_addr32[i];
-            dst->tlh_ie_laddr_addr32[i] = src->tlh_ie_laddr_addr32[i];
-        }
-        dst->tlh_ie_zoneid = src->tlh_ie_zoneid;
-        dst->tlh_offset_tv_sec = GUINT64_FROM_LE(src->tlh_offset_tv_sec);
-        dst->tlh_offset_tv_usec = GUINT64_FROM_LE(src->tlh_offset_tv_usec);
-        memcpy(dst->tlh_id, src->tlh_id, 64);
-        memcpy(dst->tlh_reason, src->tlh_reason, 32);
-        memcpy(dst->tlh_tag, src->tlh_tag, 32);
-        dst->tlh_af = src->tlh_af;
-        memcpy(dst->_pad, src->_pad, 7);
-        break;
-    }
-    case NFLX_OPT_TYPE_DUMPTIME: {
-        uint64_t* src, * dst;
-
-        ws_assert(nflx_custom_data_len == sizeof(uint64_t));
-        src = (uint64_t*)real_custom_data;
-        dst = (uint64_t*)nflx_custom_data;
-        *dst = GUINT64_FROM_LE(*src);
-        break;
-    }
-    case NFLX_OPT_TYPE_STACKNAME:
-        ws_assert(nflx_custom_data_len >= 2);
-        memcpy(nflx_custom_data, real_custom_data, nflx_custom_data_len);
-        break;
-    default:
-        return WTAP_OPTTYPE_NOT_FOUND;
-    }
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
 /*
  * Minimum length of the payload (custom block data plus options) of a
  * Netflix custom bock.
  */
 #define MIN_NFLX_CB_SIZE ((uint32_t)sizeof(pcapng_nflx_custom_block_t))
 
-bool
+static bool
 pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
                               wtapng_block_t *wblock,
                               int *err, char **err_info)
@@ -333,7 +147,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
  * Everything in this is little-endian, regardless of the byte order
  * of the host that wrote the file.
  */
-bool
+static bool
 pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
                                   section_info_t *section_info,
                                   uint16_t option_code,
@@ -427,7 +241,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
     return true;
 }
 
-bool
+static bool
 pcapng_write_nflx_custom_block(wtap_dumper *wdh, const wtap_rec *rec, int *err,
                                char **err_info)
 {
