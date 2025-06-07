@@ -588,11 +588,11 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 	case 'F':
 		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_ASCII);
 		*offset += 1;
-		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 2, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 2, ENC_ASCII);
 		break;
 
 	case 'T':
-		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 1, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 1, ENC_ASCII);
 		break;
 
 	case 'D':
@@ -600,7 +600,7 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 		*offset += 4;
 		proto_tree_add_item(tree, hf_ged125_Data_Playback_Formats, tvb, *offset, 4, ENC_BIG_ENDIAN);
 		*offset += 4;
-		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 9, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 9, ENC_ASCII);
 		break;
 	}
 
@@ -648,7 +648,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 			offset += 4;
 			if (length-4 > 0)
 			{
-				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_NA|ENC_ASCII);
+				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_ASCII);
 				offset += (length-4);
 			}
 			break;
@@ -660,7 +660,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 			offset += 1;
 			if (length-5 > 0)
 			{
-				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_NA|ENC_ASCII);
+				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_ASCII);
 				offset += (length-5);
 			}
 			break;
@@ -683,7 +683,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 		case 28: case 29: case 30: case 31: case 32: case 33: case 34:
 		case 37: case 38: case 39: case 40:
 		case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58:
-			proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length, ENC_NA|ENC_ASCII);
+			proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length, ENC_ASCII);
 			offset += length;
 			break;
 

@@ -80,22 +80,22 @@ dissect_mdp(tvbuff_t *mdp_tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         switch(mdp_type){
           case MDP_TLV_DEVICE_INFO:
-            proto_tree_add_item(tlv_tree, hf_mdp_device_info, mdp_tvb, offset, mdp_length, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_device_info, mdp_tvb, offset, mdp_length, ENC_UTF_8);
             break;
           case MDP_TLV_NETWORK_INFO:
-            proto_tree_add_item(tlv_tree, hf_mdp_network_info, mdp_tvb, offset, mdp_length, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_network_info, mdp_tvb, offset, mdp_length, ENC_UTF_8);
              break;
           case MDP_TLV_LONGITUDE:
-            proto_tree_add_item(tlv_tree, hf_mdp_longitude, mdp_tvb, offset, mdp_length, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_longitude, mdp_tvb, offset, mdp_length, ENC_UTF_8);
             break;
           case MDP_TLV_LATITUDE:
-            proto_tree_add_item(tlv_tree, hf_mdp_latitude, mdp_tvb, offset, mdp_length, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_latitude, mdp_tvb, offset, mdp_length, ENC_UTF_8);
             break;
           case MDP_TLV_TYPE_SIX:
-            proto_tree_add_item(tlv_tree, hf_mdp_type_six, mdp_tvb, offset, mdp_length, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_type_six, mdp_tvb, offset, mdp_length, ENC_UTF_8);
             break;
           case MDP_TLV_TYPE_SEVEN:
-            proto_tree_add_item(tlv_tree, hf_mdp_type_seven, mdp_tvb, offset, mdp_length, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_type_seven, mdp_tvb, offset, mdp_length, ENC_UTF_8);
             break;
           case MDP_TLV_END:
             break;

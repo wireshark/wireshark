@@ -965,7 +965,7 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
      */
     item = proto_tree_add_item(tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII);
     eap_identity_tree = proto_item_add_subtree(item, ett_identity);
-    proto_tree_add_item_ret_uint(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_NA, &eap_identity_prefix);
+    proto_tree_add_item_ret_uint(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_ASCII, &eap_identity_prefix);
     proto_tree_add_string(eap_identity_tree, hf_eap_identity_type,
       tvb, offset, 1, val_to_str_const(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"));
     offset += 1;
@@ -1053,7 +1053,7 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
        * a single-character prefix. (XXX - Perhaps not all of these should
        * be treated as prefixes. GAN might not use the prefix for fast
        * re-authentication.) */
-      proto_tree_add_item_ret_uint(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_NA, &eap_identity_prefix);
+      proto_tree_add_item_ret_uint(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_ASCII, &eap_identity_prefix);
       item = proto_tree_add_string(eap_identity_tree, hf_eap_identity_type,
         tvb, offset, 1, val_to_str_const(eap_identity_prefix, eap_identity_prefix_vals, "Unknown"));
 
@@ -1382,7 +1382,7 @@ dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
       offset += len;
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_cid_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
-      proto_tree_add_item(eap_tree, hf_eap_pax_cid, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_pax_cid, tvb, offset, len, ENC_ASCII);
       offset += len;
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_mac_ck_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
@@ -1466,7 +1466,7 @@ dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
       col_append_str(pinfo->cinfo, COL_INFO, " First Message");
       proto_tree_add_item(eap_tree, hf_eap_psk_rand_s, tvb, offset, 16, ENC_NA);
       offset += 16;
-      proto_tree_add_item(eap_tree, hf_eap_psk_id_s, tvb, offset, size + 5 - offset, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_psk_id_s, tvb, offset, size + 5 - offset, ENC_ASCII);
       offset = size;
       break;
     case 0x40: /* T == 1 - EAP-PSK Second Message */
@@ -1477,7 +1477,7 @@ dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
       offset += 16;
       proto_tree_add_item(eap_tree, hf_eap_psk_mac_p, tvb, offset, 16, ENC_NA);
       offset += 16;
-      proto_tree_add_item(eap_tree, hf_eap_psk_id_p, tvb, offset, size + 5 - offset, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_psk_id_p, tvb, offset, size + 5 - offset, ENC_ASCII);
       offset = size;
       break;
     case 0x80: /* T == 2 - EAP-PSK Third Message */
@@ -1566,7 +1566,7 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int 
   switch (type) {
     case SAKE_AT_SERVERID:
     case SAKE_AT_PEERID:
-      proto_tree_add_item(attr_tree, hf_eap_sake_attr_value_str, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(attr_tree, hf_eap_sake_attr_value_str, tvb, offset, len, ENC_ASCII);
       offset += len;
       break;
     case SAKE_AT_MSK_LIFE:
@@ -1651,7 +1651,7 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
     case GPSK_GPSK_1:
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_server_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
-      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII);
       offset += len;
       proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_server, tvb, offset, 32, ENC_NA);
       offset += 32;
@@ -1660,11 +1660,11 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
     case GPSK_GPSK_2:
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_peer_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
-      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_peer, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_peer, tvb, offset, len, ENC_ASCII);
       offset += len;
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_server_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
-      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII);
       offset += len;
       proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_peer, tvb, offset, 32, ENC_NA);
       offset += 32;
@@ -1689,7 +1689,7 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
       offset += 32;
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_server_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
-      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII);
       offset += len;
       offset = dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_pd_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
