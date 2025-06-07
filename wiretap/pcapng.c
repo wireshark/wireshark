@@ -637,7 +637,7 @@ pcapng_process_uint8_option(wtapng_block_t *wblock,
 
 void
 pcapng_process_uint32_option(wtapng_block_t *wblock,
-                             const section_info_t *section_info,
+                             section_info_t *section_info,
                              pcapng_opt_byte_order_e byte_order,
                              uint16_t option_code, uint16_t option_length,
                              const uint8_t *option_content)
@@ -694,7 +694,7 @@ pcapng_process_uint32_option(wtapng_block_t *wblock,
 
 void
 pcapng_process_timestamp_option(wtapng_block_t *wblock,
-                                const section_info_t *section_info,
+                                section_info_t *section_info,
                                 pcapng_opt_byte_order_e byte_order,
                                 uint16_t option_code, uint16_t option_length,
                                 const uint8_t *option_content)
@@ -753,7 +753,7 @@ pcapng_process_timestamp_option(wtapng_block_t *wblock,
 
 void
 pcapng_process_uint64_option(wtapng_block_t *wblock,
-                             const section_info_t *section_info,
+                             section_info_t *section_info,
                              pcapng_opt_byte_order_e byte_order,
                              uint16_t option_code, uint16_t option_length,
                              const uint8_t *option_content)
@@ -805,7 +805,7 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
 
 void
 pcapng_process_int64_option(wtapng_block_t *wblock,
-                            const section_info_t *section_info,
+                            section_info_t *section_info,
                             pcapng_opt_byte_order_e byte_order,
                             uint16_t option_code, uint16_t option_length,
                             const uint8_t *option_content)
@@ -877,7 +877,7 @@ pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
 }
 
 static bool
-pcapng_process_custom_option_common(const section_info_t *section_info,
+pcapng_process_custom_option_common(section_info_t *section_info,
                                     uint16_t option_length,
                              const uint8_t *option_content,
                              pcapng_opt_byte_order_e byte_order,
@@ -924,7 +924,7 @@ pcapng_process_custom_option_common(const section_info_t *section_info,
 
 static bool
 pcapng_process_custom_string_option(wtapng_block_t *wblock,
-                                    const section_info_t *section_info,
+                                    section_info_t *section_info,
                                     uint16_t option_code,
                                     uint16_t option_length,
                                     const uint8_t *option_content,
@@ -983,7 +983,7 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
 static bool
 pcapng_process_unhandled_option(wtapng_block_t *wblock,
                                 unsigned bt_index,
-                                const section_info_t *section_info,
+                                section_info_t *section_info,
                                 uint16_t option_code, uint16_t option_length,
                                 const uint8_t *option_content,
                                 int *err, char **err_info)
@@ -1008,7 +1008,7 @@ pcapng_process_unhandled_option(wtapng_block_t *wblock,
 static bool
 pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
                                 unsigned bt_index _U_,
-                                const section_info_t *section_info _U_,
+                                section_info_t *section_info _U_,
                                 uint16_t option_code _U_, uint16_t option_length _U_,
                                 const uint8_t *option_content _U_,
                                 int *err _U_, char **err_info _U_)
@@ -1022,7 +1022,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                        section_info_t *section_info,
                        unsigned opt_cont_buf_len,
                        bool (*process_option)(wtapng_block_t *,
-                                                  const section_info_t *,
+                                                  section_info_t *,
                                                   uint16_t, uint16_t,
                                                   const uint8_t *,
                                                   int *, char **),
@@ -1155,7 +1155,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 break;
             default:
                 if (process_option == NULL ||
-                    !(*process_option)(wblock, (const section_info_t *)section_info, option_code,
+                    !(*process_option)(wblock, (section_info_t *)section_info, option_code,
                                        option_length, option_ptr,
                                        err, err_info)) {
                     g_free(option_content);
@@ -1178,7 +1178,7 @@ typedef enum {
 
 static bool
 pcapng_process_section_header_block_option(wtapng_block_t *wblock,
-                                           const section_info_t *section_info,
+                                           section_info_t *section_info,
                                            uint16_t option_code,
                                            uint16_t option_length,
                                            const uint8_t *option_content,
@@ -1382,7 +1382,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
 static bool
 pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
-                                     const section_info_t *section_info,
+                                     section_info_t *section_info,
                                      uint16_t option_code,
                                      uint16_t option_length,
                                      const uint8_t *option_content,
@@ -1825,7 +1825,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 
 static bool
 pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh,
-                                     const section_info_t *section_info,
+                                     section_info_t *section_info,
                                      wtapng_block_t *wblock,
                                      int *err, char **err_info)
 {
@@ -1884,7 +1884,7 @@ pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh,
 
 static bool
 pcapng_process_packet_block_option(wtapng_block_t *wblock,
-                                   const section_info_t *section_info,
+                                   section_info_t *section_info,
                                    uint16_t option_code,
                                    uint16_t option_length,
                                    const uint8_t *option_content,
@@ -2326,7 +2326,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 
 static bool
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
-                                const section_info_t *section_info,
+                                section_info_t *section_info,
                                 wtapng_block_t *wblock,
                                 int *err, char **err_info)
 {
@@ -2504,7 +2504,7 @@ name_resolution_block_find_name_end(const char *p, unsigned record_len, int *err
 
 static bool
 pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
-                                            const section_info_t *section_info,
+                                            section_info_t *section_info,
                                             uint16_t option_code,
                                             uint16_t option_length,
                                             const uint8_t *option_content,
@@ -2775,7 +2775,7 @@ read_options:
 
 static bool
 pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
-                                                 const section_info_t *section_info,
+                                                 section_info_t *section_info,
                                                  uint16_t option_code,
                                                  uint16_t option_length,
                                                  const uint8_t *option_content,

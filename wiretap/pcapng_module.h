@@ -192,7 +192,7 @@ bool pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                             section_info_t *section_info,
                             unsigned opt_cont_buf_len,
                             bool (*process_option)(wtapng_block_t *,
-                                                   const section_info_t *,
+                                                   section_info_t *,
                                                    uint16_t, uint16_t,
                                                    const uint8_t *,
                                                    int *, char **),
@@ -210,28 +210,28 @@ void pcapng_process_uint8_option(wtapng_block_t *wblock,
 
 WS_DLL_PUBLIC
 void pcapng_process_uint32_option(wtapng_block_t *wblock,
-                                  const section_info_t *section_info,
+                                  section_info_t *section_info,
                                   pcapng_opt_byte_order_e byte_order,
                                   uint16_t option_code, uint16_t option_length,
                                   const uint8_t *option_content);
 
 WS_DLL_PUBLIC
 void pcapng_process_timestamp_option(wtapng_block_t *wblock,
-                                     const section_info_t *section_info,
+                                     section_info_t *section_info,
                                      pcapng_opt_byte_order_e byte_order,
                                      uint16_t option_code, uint16_t option_length,
                                      const uint8_t *option_content);
 
 WS_DLL_PUBLIC
 void pcapng_process_uint64_option(wtapng_block_t *wblock,
-                                  const section_info_t *section_info,
+                                  section_info_t *section_info,
                                   pcapng_opt_byte_order_e byte_order,
                                   uint16_t option_code, uint16_t option_length,
                                   const uint8_t *option_content);
 
 WS_DLL_PUBLIC
 void pcapng_process_int64_option(wtapng_block_t *wblock,
-                                 const section_info_t *section_info,
+                                 section_info_t *section_info,
                                  pcapng_opt_byte_order_e byte_order,
                                  uint16_t option_code, uint16_t option_length,
                                  const uint8_t *option_content);
