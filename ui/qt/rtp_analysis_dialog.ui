@@ -164,7 +164,7 @@
     <string>Prepare &amp;Filter</string>
    </property>
    <property name="toolTip">
-    <string>Prepare a filter matching the selected stream(s).</string>
+    <string>Prepare a filter matching the selected streams.</string>
    </property>
   </action>
   <widget class="QMenu" name="menuPrepareFilter">

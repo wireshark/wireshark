@@ -239,7 +239,7 @@
     <string>Mark Packets</string>
    </property>
    <property name="toolTip">
-    <string>Mark the packets of the selected stream(s).</string>
+    <string>Mark the packets of the selected streams.</string>
    </property>
    <property name="shortcut">
     <string>M</string>
@@ -305,7 +305,7 @@
     <string>Prepare &amp;Filter</string>
    </property>
    <property name="toolTip">
-    <string>Prepare a filter matching the selected stream(s).</string>
+    <string>Prepare a filter matching the selected streams.</string>
    </property>
    <property name="shortcut">
     <string>P</string>
@@ -327,7 +327,7 @@
     <string>&amp;Analyze</string>
    </property>
    <property name="toolTip">
-    <string>Open the analysis window for the selected stream(s) and add it to it</string>
+    <string>Open the analysis window for the selected streams and add it to it</string>
    </property>
    <property name="shortcut">
     <string>A</string>
