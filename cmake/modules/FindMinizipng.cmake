@@ -104,7 +104,13 @@ if(MINIZIPNG_FOUND)
       CACHE PATH "Path to Minizip DLL"
     )
 
-    AddWSWinDLLS(MINIZIPNG MINIZIPNG_HINTS "bz2*" "zstd*")
+    # minizip-ng from vcpkg provides bz2, zstd, zlib (*not* zlib-ng),
+    # and liblzma DLLs. liblzma used to be provided in the vcpkg-export
+    # (glib, libxml2, and zlib) bundle, but since vcpkg tag 2025.04.09
+    # isn't since libxml2 no longer depends on it by default.
+    # XXX - This can causes this zstd.dll to be used instead of the one
+    # from the separately packaged zstd
+    AddWSWinDLLS(MINIZIPNG MINIZIPNG_HINTS "bz2*" "liblzma*" "zstd*")
 
     mark_as_advanced(MINIZIPNG_DLL_DIR MINIZIPNG_DLLS MINIZIPNG_PDBS)
   endif()
