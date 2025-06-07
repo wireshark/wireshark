@@ -486,6 +486,7 @@ static expert_field ei_ssh2_kex_hybrid_msg_code;
 static expert_field ei_ssh2_kex_hybrid_msg_code_unknown;
 
 static bool ssh_desegment = true;
+static bool ssh_ignore_mac_failed;
 
 static dissector_handle_t ssh_handle;
 static dissector_handle_t sftp_handle;
@@ -595,6 +596,7 @@ static const char *ssh_debug_file_name;
 //#define CIPHER_AES192_GCM               0x00040002        -- does not exist
 #define CIPHER_AES256_GCM               0x00040004
 // DO NOT USE 0x00040000 (used by SSH_KEX_SNTRUP761X25519)
+#define CIPHER_NULL                     0x00080000
 
 #define CIPHER_MAC_SHA2_256             0x00020001
 
@@ -1994,7 +1996,7 @@ static int
 ssh_try_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_tree *tree)
 {
-    bool can_decrypt = peer_data->cipher != NULL;
+    bool can_decrypt = peer_data->cipher != NULL || peer_data->cipher_id == CIPHER_NULL;
     ssh_message_info_t *message = NULL;
 
     if (can_decrypt) {
@@ -3337,6 +3339,9 @@ ssh_decryption_set_cipher_id(struct ssh_peer_data *peer)
         peer->cipher_id = CIPHER_AES192_CTR;
     } else if (0 == strcmp(cipher_name, "aes256-ctr")) {
         peer->cipher_id = CIPHER_AES256_CTR;
+    } else if (0 == strcmp(cipher_name, "none")) {
+        peer->cipher_id = CIPHER_NULL;
+        peer->length_is_plaintext = 1;
     } else {
         peer->cipher = NULL;
         ws_debug("decryption not supported: %s", cipher_name);
@@ -3629,7 +3634,10 @@ ssh_calc_mac(struct ssh_peer_data *peer_data, uint32_t seqnr, uint8_t* data, uin
 
     memset(calc_mac, 0, DIGEST_MAX_SIZE);
 
-    if (ssh_hmac_init(&hm, peer_data->hmac_iv, peer_data->hmac_iv_len,md) != 0)
+    if (md == -1) {
+        return;
+    }
+    if (ssh_hmac_init(&hm, peer_data->hmac_iv, peer_data->hmac_iv_len, md) != 0)
         return;
 
     /* hash sequence number */
@@ -3989,6 +3997,38 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         // XXX - In -etm modes, should calculate MAC based on ciphertext.
         ssh_calc_mac(peer_data, seqnr, plain, data_len, calc_mac);
+    } else if (CIPHER_NULL == peer_data->cipher_id) {
+        if (ssh_desegment && pinfo->can_desegment && remaining < 4) {
+            /* Can do reassembly, and the packet length is split across
+             * segment boundaries. */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return tvb_captured_length(tvb);
+        }
+        message_length = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+        ssh_debug_printf("length: %d, remaining: %d\n", message_length, remaining);
+        if (message_length > SSH_MAX_PACKET_LEN || message_length < 8) {
+            ws_debug("ssh: unreasonable message length %u", message_length);
+            return tvb_captured_length(tvb);
+        }
+
+        if (message_length + 4 + mac_len > remaining) {
+            // Need desegmentation; as the message length was unencrypted
+            // AAD, we need no special handling here.
+            if (pinfo->can_desegment) {
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = message_length + 4 + mac_len - remaining;
+                return tvb_captured_length(tvb);
+            }
+            // If we can't desegment, we will have an exception below in
+            // the tvb_memdup. Advance the sequence number (not crucial).
+            peer_data->sequence_number++;
+        }
+        data_len = message_length + 4;
+        plain = tvb_memdup(pinfo->pool, tvb, offset, data_len);
+
+        // XXX - In -etm modes, should calculate MAC based on ciphertext.
+        ssh_calc_mac(peer_data, seqnr, plain, data_len, calc_mac);
     }
 
     if (mac_len && data_len) {
@@ -3999,10 +4039,9 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             ws_debug("MAC ERR");
             /* Bad MAC, just show the packet as encrypted. We can get
              * this for a known encryption type with no keys currently. */
-            /* XXX: The TLS dissector has a preference to show the attempt
-             * anyway if it failed.
-             */
-            return tvb_captured_length(tvb);
+            if (!ssh_ignore_mac_failed) {
+                return tvb_captured_length(tvb);
+            }
         }
     }
 
@@ -6546,6 +6585,11 @@ proto_register_ssh(void)
                        "Whether the SSH dissector should reassemble SSH buffers spanning multiple TCP segments. "
                        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                        &ssh_desegment);
+    prefs_register_bool_preference(ssh_module, "ignore_ssh_mac_failed",
+                        "Ignore Message Authentication Code (MAC) failure",
+                        "For troubleshooting purposes, decrypt even if the "
+                        "Message Authentication Code (MAC) check fails.",
+                        &ssh_ignore_mac_failed);
 
     ssh_master_key_map = g_hash_table_new_full(ssh_hash, ssh_equal, ssh_free_glib_allocated_bignum, ssh_free_glib_allocated_entry);
     prefs_register_filename_preference(ssh_module, "keylog_file", "Key log filename",
