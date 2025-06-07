@@ -1022,10 +1022,10 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                        section_info_t *section_info,
                        unsigned opt_cont_buf_len,
                        bool (*process_option)(wtapng_block_t *,
-                                                  section_info_t *,
-                                                  uint16_t, uint16_t,
-                                                  const uint8_t *,
-                                                  int *, char **),
+                                              section_info_t *,
+                                              uint16_t, uint16_t,
+                                              const uint8_t *,
+                                              int *, char **),
                        pcapng_opt_byte_order_e byte_order,
                        int *err, char **err_info)
 {
@@ -1155,7 +1155,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 break;
             default:
                 if (process_option == NULL ||
-                    !(*process_option)(wblock, (section_info_t *)section_info, option_code,
+                    !(*process_option)(wblock, section_info, option_code,
                                        option_length, option_ptr,
                                        err, err_info)) {
                     g_free(option_content);
