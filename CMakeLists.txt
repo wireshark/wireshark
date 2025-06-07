@@ -249,8 +249,8 @@ if(WIN32)
 	file(TO_CMAKE_PATH ${EXTRA_INSTALLER_DIR} _file_download_dir)
 
 	# Download Npcap required by the Windows installer
-	set(NPCAP_VERSION "1.79")
-	set(NPCAP_SHA256 "a95577ebbc67fc45b319e2ef3a55f4e9b211fe82ed4cb9d8be6b1a9e2425ce53")
+	set(NPCAP_VERSION "1.80")
+	set(NPCAP_SHA256 "ac4f26d7d9f994d6f04141b2266f02682def51af63c09c96a7268552c94a6535")
 	set(NPCAP_FILENAME "npcap-${NPCAP_VERSION}.exe")
 	set(NPCAP_URL "${LIBS_URL}/Npcap/${NPCAP_FILENAME}")
 	FetchContent_Declare(Npcap
