@@ -1982,7 +1982,7 @@ dissect_gtpv2_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
  */
 
 static void
-dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
+dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args)
 {
     int          offset = 0;
     const char *imsi_str;
@@ -1994,6 +1994,9 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     imsi_str =  dissect_e212_imsi(tvb, pinfo, tree,  offset, length, false);
     proto_item_append_text(item, "%s", imsi_str);
 
+    if (g_gtp_session) {
+        args->imsi = imsi_str;
+    }
 }
 
 /*
@@ -9339,10 +9342,11 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
 }
 
 static void
-track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv2_hdr_t * gtpv2_hdr, wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t last_teid _U_, address last_ip _U_)
+track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv2_hdr_t * gtpv2_hdr, session_args_t * args)
 {
     uint32_t session, frame_teid_cp;
     proto_item *it;
+    char *imsi = NULL;
 
     /* GTP session */
     if (tree) {
@@ -9350,6 +9354,14 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, session);
             proto_item_set_generated(it);
+
+            imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
+            if (args->imsi && !imsi) {
+                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+            } else if (!args->imsi && imsi) {
+                add_assoc_imsi_item(tvb, tree, imsi);
+            }
         }
     }
 
@@ -9362,14 +9374,19 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 && gtpv2_hdr->message != GTPV2_UPDATE_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_CREATE_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_CREATE_BEARER_RESPONSE
                 && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_RESPONSE)) {
                 /* If the lists are not empty*/
-                if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
+                if (wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
                     remove_frame_info(pinfo->num);
                 }
             }
 
             if (gtpv2_hdr->message == GTPV2_CREATE_SESSION_REQUEST){
                 /* If CPDPCREQ and not already in the list then we create a new session*/
-                add_gtp_session(pinfo->num, gtp_session_count++);
+                add_gtp_session(pinfo->num, gtp_session_count);
+
+                if (args->imsi) {
+                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                    wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                }
             }
             else if (gtpv2_hdr->message != GTPV2_CREATE_SESSION_RESPONSE) {
                 /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
@@ -9380,11 +9397,21 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     if (session) {
                         /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
                         add_gtp_session(pinfo->num, session);
+
+                        if (args->imsi) {
+                            imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                            wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+                        }
                     }
                 }
                 else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
                     /* If MBEAREQ and not already in the list then we create a new session*/
-                    add_gtp_session(pinfo->num, gtp_session_count++);
+                    add_gtp_session(pinfo->num, gtp_session_count);
+
+                    if (args->imsi) {
+                        imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                        wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                    }
                 }
             }
         }
@@ -9662,7 +9689,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         tap_queue_packet(gtpv2_tap, pinfo, gcrp);
     }
     if (args) {
-        track_gtpv2_session(tvb, pinfo, gtpv2_tree, gtpv2_hdr, args->teid_list, args->ip_list, args->last_teid, args->last_ip);
+        track_gtpv2_session(tvb, pinfo, gtpv2_tree, gtpv2_hdr, args);
     }
 
     /* Bit 5 represents a "P" flag. If the "P" flag is set to "0",

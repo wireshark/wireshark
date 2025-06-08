@@ -167,10 +167,14 @@ typedef struct session_args {
     uint32_t last_teid;
     address last_ip;
     uint8_t last_cause;
+    const char *imsi;
 } session_args_t;
 
 /* Relation between frame -> session */
 extern wmem_map_t* session_table;
+
+/* Relation between session -> IMSI */
+extern wmem_map_t* session_imsi;
 
 /* Relation between <teid,ip> -> frame */
 extern wmem_map_t* frame_map;

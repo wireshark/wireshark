@@ -2575,6 +2575,8 @@ uint32_t gtp_session_count;
 
 /* Relation between frame -> session */
 wmem_map_t* session_table;
+/* Relation between session -> imsi */
+wmem_map_t* session_imsi;
 /* Relation between <teid,ip> -> frame */
 wmem_map_t* frame_map;
 
@@ -13218,6 +13220,7 @@ proto_register_gtp(void)
     gtp_hdr_ext_dissector_table = register_dissector_table("gtp.hdr_ext", "GTP Header Extension", proto_gtp, FT_UINT16, BASE_DEC);
 
     session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    session_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_equal);
     register_init_routine(gtp_init);
     gtp_tap = register_tap("gtp");

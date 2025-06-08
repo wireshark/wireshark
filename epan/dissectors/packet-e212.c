@@ -3828,6 +3828,14 @@ is_imsi_string_valid(const char *imsi_str)
     return true;
 }
 
+void
+add_assoc_imsi_item(tvbuff_t *tvb _U_, proto_tree *tree, const char* imsi_str) {
+    proto_item *item;
+    item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, 0, 0, imsi_str);
+    proto_item_set_generated(item);
+}
+
+
 const char *
 dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, bool skip_first)
 {
