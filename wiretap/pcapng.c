@@ -3009,7 +3009,7 @@ pcapng_read_custom_block(FILE_T fh, uint32_t block_type,
 static bool
 pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh,
                                          uint32_t block_content_length,
-                                         pcapng_t *pn _U_,
+                                         section_info_t *section_info _U_,
                                          wtapng_block_t *wblock,
                                          int *err, char **err_info)
 {
@@ -3157,7 +3157,7 @@ pcapng_read_and_check_block_trailer(FILE_T fh, pcapng_block_header_t *bh,
 }
 
 static bool
-pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
+pcapng_read_block(wtap *wth, FILE_T fh,
                   section_info_t *section_info,
                   section_info_t *new_section_info,
                   wtapng_block_t *wblock,
@@ -3328,7 +3328,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return false;
                 break;
             case(BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT):
-                if (!pcapng_read_systemd_journal_export_block(wth, fh, block_content_length, pn, wblock, err, err_info))
+                if (!pcapng_read_systemd_journal_export_block(wth, fh, block_content_length, section_info, wblock, err, err_info))
                     return false;
                 break;
             default:
@@ -3795,7 +3795,7 @@ pcapng_open(wtap *wth, int *err, char **err_info)
          * for it and possibly other types based on block type, even without
          * reading them.
          */
-        if (!pcapng_read_block(wth, wth->fh, pcapng, current_section,
+        if (!pcapng_read_block(wth, wth->fh, current_section,
                               &new_section, &wblock, err, err_info)) {
             wtap_block_unref(wblock.block);
             if (*err == 0) {
@@ -3838,7 +3838,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
         /*
          * Read the next block.
          */
-        if (!pcapng_read_block(wth, wth->fh, pcapng, current_section,
+        if (!pcapng_read_block(wth, wth->fh, current_section,
                                &new_section, &wblock, err, err_info)) {
             ws_noisy("data_offset is finally %" PRId64, *data_offset);
             ws_debug("couldn't read packet block");
@@ -3901,7 +3901,7 @@ pcapng_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
      * that begins at or before the offset of the block we're reading.
      *
      * Yes, that's O(n) in the number of blocks, but we're unlikely to
-     * have many blocks and pretty unlikely to have more than one.
+     * have many sections and pretty unlikely to have more than one.
      */
     unsigned section_number = pcapng->sections->len - 1;
     for (;;) {
@@ -3921,7 +3921,7 @@ pcapng_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     wblock.rec = rec;
 
     /* read the block */
-    if (!pcapng_read_block(wth, wth->random_fh, pcapng, section_info,
+    if (!pcapng_read_block(wth, wth->random_fh, section_info,
                            &new_section, &wblock, err, err_info)) {
         ws_debug("couldn't read packet block (err=%d).", *err);
         wtap_block_unref(wblock.block);
