@@ -2082,10 +2082,11 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
 }
 
 static bool
-pcapng_read_packet_block(FILE_T fh, uint32_t block_content_length,
+pcapng_read_packet_block(FILE_T fh, uint32_t block_type,
+                         uint32_t block_content_length,
                          section_info_t *section_info,
                          wtapng_block_t *wblock,
-                         int *err, char **err_info, bool enhanced)
+                         int *err, char **err_info)
 {
     unsigned block_read;
     unsigned opt_cont_buf_len;
@@ -2099,6 +2100,7 @@ pcapng_read_packet_block(FILE_T fh, uint32_t block_content_length,
     uint64_t ts;
     int pseudo_header_len;
     int fcslen;
+    bool enhanced = (block_type == BLOCK_TYPE_EPB);
 
     wblock->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
@@ -3297,7 +3299,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return false;
                 break;
             case(BLOCK_TYPE_PB):
-                if (!pcapng_read_packet_block(fh, block_content_length, section_info, wblock, err, err_info, false))
+                if (!pcapng_read_packet_block(fh, bh.block_type, block_content_length, section_info, wblock, err, err_info))
                     return false;
                 break;
             case(BLOCK_TYPE_SPB):
@@ -3305,7 +3307,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return false;
                 break;
             case(BLOCK_TYPE_EPB):
-                if (!pcapng_read_packet_block(fh, block_content_length, section_info, wblock, err, err_info, true))
+                if (!pcapng_read_packet_block(fh, bh.block_type, block_content_length, section_info, wblock, err, err_info))
                     return false;
                 break;
             case(BLOCK_TYPE_NRB):
