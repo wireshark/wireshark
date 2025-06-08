@@ -1,4 +1,4 @@
-Editcap (Wireshark) 4.4.7 (v4.6.7rc0-0-g2167e12fc6f7)
+Editcap (Wireshark) 4.4.8 (v4.4.8rc0-1-ge836304fa14f)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
