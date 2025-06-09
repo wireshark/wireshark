@@ -3710,8 +3710,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		offset = (int)((unsigned char *) iter.this_arg - (unsigned char *) data);
 
-		if (iter.this_arg_index == IEEE80211_RADIOTAP_VENDOR_NAMESPACE
-		    && tree && !iter.tlv_mode) {
+		if (iter.this_arg_index == IEEE80211_RADIOTAP_VENDOR_NAMESPACE) {
 			proto_tree *ven_tree;
 			proto_item *vt;
 			const char *manuf_name;
