@@ -41,7 +41,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
     ui->setupUi(this);
 
     if (title.isEmpty())
-        title = QStringLiteral("Console");
+        title = tr("Console");
 
     loadGeometry(0, 0, title);
     loadSplitterState(ui->splitter);

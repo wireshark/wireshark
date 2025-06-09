@@ -844,7 +844,7 @@ void CaptureOptionsDialog::updateInterfaces()
             if (device->if_info.type == IF_EXTCAP) {
               ti->setIcon(col_extcap_,  QIcon(StockIcon("x-capture-options")));
               ti->setData(col_extcap_, Qt::UserRole, QString(device->if_info.name));
-              ti->setToolTip(col_extcap_, QStringLiteral("Extcap interface settings"));
+              ti->setToolTip(col_extcap_, tr("Extcap interface settings"));
             }
 
             ti->setText(col_interface_, device->display_name);

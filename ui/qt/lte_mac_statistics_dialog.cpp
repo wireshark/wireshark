@@ -843,7 +843,7 @@ void LteMacStatisticsDialog::tapDraw(void *ws_dlg_ptr)
     ws_dlg->drawCommonStats();
 
     // Update title
-    ws_dlg->setWindowSubtitle(QStringLiteral("3GPP Mac Statistics (%1 UEs, %2 frames)").
+    ws_dlg->setWindowSubtitle(tr("3GPP Mac Statistics (%1 UEs, %2 frames)").
                                   arg(ws_dlg->statsTreeWidget()->topLevelItemCount()).arg(ws_dlg->getFrameCount()));
 }
 
