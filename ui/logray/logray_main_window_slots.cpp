@@ -1131,7 +1131,7 @@ void LograyMainWindow::setEditCommentsMenu()
     }
     if (selectedRows().count() > 1) {
         main_ui_->menuPacketComment->addSeparator();
-        action = main_ui_->menuPacketComment->addAction(tr("Delete comments from %n event(s)", nullptr, static_cast<int>(selectedRows().count())));
+        action = main_ui_->menuPacketComment->addAction(tr("Delete comments from %Ln event(s)", "", static_cast<int>(selectedRows().count())));
         connect(action, &QAction::triggered, this, &LograyMainWindow::deleteCommentsFromPackets);
     }
 }
