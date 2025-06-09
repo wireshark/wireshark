@@ -10738,20 +10738,26 @@ get_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data)
     uint32_t         frame_number;
     mtu_data_t      *mtu_data;
     wmem_tree_t     *sub_wmemtree;
+    unsigned         mtu = 23;
 
-    /* Default to the minimum MTU on each type of bearer */
-    unsigned         mtu = l2cap_data->cid == BTL2CAP_FIXED_CID_ATT ? 23 : 48;
-    if (l2cap_data->psm == BTL2CAP_PSM_EATT)
-    {
-        mtu = 64;
-    }
-
-    /* Currently, MTU isn't stored per bearer, because the L2CAP dissector
-     * doesn't parse/provide that information.
-     *
-     * Until someday when that happens, continue assuming that the MTU of
-     * the dynamic bearers is at least equal to that of the fixed bearer. */
     if (l2cap_data) {
+        /* Default to the minimum MTU permitted on each type of bearer:
+         * LE ATT: 23 octets.
+         * BR/EDR ATT: 48 octets.
+         * Enhanced ATT over any transport: 64 octets.
+         */
+        mtu = l2cap_data->cid == BTL2CAP_FIXED_CID_ATT ? 23 : 48;
+
+        if (l2cap_data->psm == BTL2CAP_PSM_EATT) {
+            mtu = 64;
+        }
+
+        /* Currently, MTU isn't stored per bearer, because the L2CAP dissector
+         * doesn't parse/provide that information.
+         *
+         * Until someday when that happens, continue assuming that the MTU of
+         * the dynamic bearers is at least equal to that of the fixed bearer. */
+
         frame_number = pinfo->num;
 
         key[0].length = 1;
