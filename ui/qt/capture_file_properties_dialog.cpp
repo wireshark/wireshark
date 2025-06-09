@@ -227,9 +227,9 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             /* elapsed seconds */
             QString elapsed_str;
             unsigned int elapsed_time = (unsigned int)summary.elapsed_time;
-            if (elapsed_time/86400)
-            {
-                elapsed_str = QStringLiteral("%1 days ").arg(elapsed_time / 86400);
+            unsigned int days = elapsed_time / 86400;
+            if (days) {
+                elapsed_str = tr("%Ln day(s)", "", days) + " ";
             }
 
             elapsed_str += QStringLiteral("%1:%2:%3")

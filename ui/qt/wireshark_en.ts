@@ -799,6 +799,13 @@
         <source>Start / elapsed:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln day</numerusform>
+            <numerusform>%Ln days</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
@@ -1010,6 +1017,13 @@
     <message>
         <source>Elapsed</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln day</numerusform>
+            <numerusform>%Ln days</numerusform>
+        </translation>
     </message>
     <message>
         <source>Section %1</source>
