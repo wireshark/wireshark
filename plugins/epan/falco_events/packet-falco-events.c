@@ -167,30 +167,34 @@ sinsp_span_t *sinsp_span;
 /*
  * Fields
  */
-static int hf_sdp_source_id_size;
-static int hf_sdp_lengths;
-static int hf_sdp_source_id;
+
+// We originally showed the libscap event parameters with each plugin event.
+// It's not clear if they're useful, so comment them out for now. If there
+// are no complaints, this code should be removed.
+// static int hf_sdp_source_id_size;
+// static int hf_sdp_lengths;
+// static int hf_sdp_source_id;
 static int hf_fd_stream;
 
 static hf_register_info hf[] = {
-    { &hf_sdp_source_id_size,
-        { "Plugin ID size", "falcoevents.id.size",
-        FT_UINT32, BASE_DEC,
-        NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_sdp_lengths,
-        { "Field Lengths", "falcoevents.lens",
-        FT_UINT32, BASE_DEC,
-        NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_sdp_source_id,
-        { "Plugin ID", "falcoevents.id",
-        FT_UINT32, BASE_DEC,
-        NULL, 0x0,
-        NULL, HFILL }
-    },
+    // { &hf_sdp_source_id_size,
+    //     { "Plugin ID size", "falcoevents.id.size",
+    //     FT_UINT32, BASE_DEC,
+    //     NULL, 0x0,
+    //     NULL, HFILL }
+    // },
+    // { &hf_sdp_lengths,
+    //     { "Field Lengths", "falcoevents.lens",
+    //     FT_UINT32, BASE_DEC,
+    //     NULL, 0x0,
+    //     NULL, HFILL }
+    // },
+    // { &hf_sdp_source_id,
+    //     { "Plugin ID", "falcoevents.id",
+    //     FT_UINT32, BASE_DEC,
+    //     NULL, 0x0,
+    //     NULL, HFILL }
+    // },
     { &hf_fd_stream,
         { "Stream index", "falcoevents.fd.stream",
          FT_UINT32, BASE_DEC,
@@ -963,24 +967,24 @@ dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         sysdig_event_param_data *event_param_data = (sysdig_event_param_data *) epd_p;
         dissect_sinsp_enriched(tvb, pinfo, tree, bi, event_param_data);
     } else {
-        proto_item *ti = proto_tree_add_item(tree, proto_falco_events, tvb, 0, 12, ENC_NA);
-        proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_events);
+        // proto_item *ti = proto_tree_add_item(tree, proto_falco_events, tvb, 0, 12, ENC_NA);
+        // proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_events);
 
-        proto_tree_add_item(fb_tree, hf_sdp_source_id_size, tvb, 0, 4, encoding);
-        proto_tree_add_item(fb_tree, hf_sdp_lengths, tvb, 4, 4, encoding);
+        // proto_tree_add_item(fb_tree, hf_sdp_source_id_size, tvb, 0, 4, encoding);
+        // proto_tree_add_item(fb_tree, hf_sdp_lengths, tvb, 4, 4, encoding);
         /* Clear out stuff in the info column */
         col_clear(pinfo->cinfo,COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", source_id);
 
-        proto_item *idti = proto_tree_add_item(fb_tree, hf_sdp_source_id, tvb, 8, 4, encoding);
+        // proto_item *idti = proto_tree_add_item(fb_tree, hf_sdp_source_id, tvb, 8, 4, encoding);
         if (bi == NULL) {
-            proto_item_append_text(idti, " (NOT SUPPORTED)");
+            // proto_item_append_text(idti, " (NOT SUPPORTED)");
             col_append_str(pinfo->cinfo, COL_INFO, " (NOT SUPPORTED)");
             return consumed;
         }
 
         const char *source_name = get_sinsp_source_name(bi->ssi);
-        proto_item_append_text(idti, " (%s)", source_name);
+        proto_item_append_text(tree, " (%s)", source_name);
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", source_name);
 
         tvbuff_t *plugin_tvb = tvb;
@@ -990,7 +994,7 @@ dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             struct data_source *source = add_new_data_source(pinfo, plugin_tvb, source_name);
             set_data_source_media_type(source, DS_MEDIA_TYPE_APPLICATION_JSON);
         }
-        dissect_sinsp_plugin(plugin_tvb, pinfo, fb_tree, bi);
+        dissect_sinsp_plugin(plugin_tvb, pinfo, tree, bi);
     }
 
     return consumed;
@@ -1327,6 +1331,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
 
     proto_item* ti = proto_tree_add_item(tree, bi->proto, tvb, 0, payload_len, ENC_NA);
     proto_tree* fb_tree = proto_item_add_subtree(ti, ett_sinsp_span);
+    // proto_tree *fb_tree = tree;
 
     uint8_t* payload = (uint8_t*)tvb_get_ptr(tvb, 0, payload_len);
 
