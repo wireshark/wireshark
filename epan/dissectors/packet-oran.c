@@ -45,6 +45,7 @@
  * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining ("ignored, "shall")?
  * - re-order items (decl and hf definitions) to match spec order?
+ * - bitmask set for symbolMask used in various places
  */
 
 /* Prototypes */
@@ -521,8 +522,10 @@ static expert_field ei_oran_unsupported_compression_method;
 static expert_field ei_oran_ud_comp_len_wrong_size;
 static expert_field ei_oran_sresmask2_not_zero_with_rb;
 static expert_field ei_oran_st6_rb_shall_be_0;
+static expert_field ei_oran_st9_not_ul;
 static expert_field ei_oran_st10_numsymbol_not_14;
 static expert_field ei_oran_st10_startsymbolid_not_0;
+static expert_field ei_oran_st10_not_ul;
 static expert_field ei_oran_num_sinr_per_prb_unknown;
 static expert_field ei_oran_start_symbol_id_bits_ignored;
 
@@ -2972,7 +2975,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* 1 reserved bit */
                             proto_tree_add_item(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                            /* port beam ID (or UEID) */
+                            /* port beam ID (or UEID) (15 bits) */
                             uint32_t id;
                             proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
                                                                                          tvb, offset, 2, ENC_BIG_ENDIAN, &id);
@@ -2990,7 +2993,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         proto_item_append_text(extension_ti, " [ ");
 
                         if (numPortc > 0) {
-                            /* first portListIndex */
+                            /* first portListIndex is outside loop */
                             uint32_t port_list_index;
                             proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
                                                          offset, 1, ENC_BIG_ENDIAN, &port_list_index);
@@ -3007,7 +3010,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                 proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
                                 offset += 2;
 
-                                /* portListIndex */
+                                /* subsequent portListIndex */
                                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
                                                              offset, 1, ENC_BIG_ENDIAN, &port_list_index);
                                 offset += 1;
@@ -4048,9 +4051,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             proto_item_append_text(mr_ti, " (measTypeId=%u - %s)",
                                    meas_type_id, val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
             /* And section header */
-            proto_item_append_text(tree, " (measTypeId=%u - %s)",
-                                   meas_type_id, val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
+            proto_item_append_text(tree, " (%s)", val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
+            /* And Info column */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(meas_type_id, meas_type_id_vals, "unknown"));
 
+            /* Handle specific message type fields */
             switch (meas_type_id) {
                 case 1:
                 {
@@ -4167,7 +4172,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                              tvb, offset, 8, "", "Measurement Command");
             proto_tree *mc_tree = proto_item_add_subtree(mc_ti, ett_oran_measurement_command);
 
-            /* mf (1 bit) */
+            /* mf (1 bit).  1st measurement command is always preset */
             proto_tree_add_item_ret_boolean(mc_tree, hf_oran_mf, tvb, offset, 1, ENC_BIG_ENDIAN, &mf);
 
             /* measTypeId (7 bits) */
@@ -4566,7 +4571,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
     /* dataDirection */
     uint32_t direction = 0;
-    proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
+    proto_item *datadir_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     tap_info->uplink = (direction==0);
 
     /* Look up any existing conversation state for eAxC+plane */
@@ -4713,6 +4718,14 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     /* sectionType */
     proto_tree_add_item_ret_uint(section_tree, hf_oran_sectionType, tvb, offset, 1, ENC_NA, &sectionType);
     offset += 1;
+
+    /* Check that dataDirection is consistent with section type */
+    if (sectionType == SEC_C_SINR_REPORTING && direction != 0) {   /* Section Type 9 */
+        expert_add_info(pinfo, datadir_ti, &ei_oran_st9_not_ul);
+    }
+    if (sectionType == SEC_C_RRM_MEAS_REPORTS && direction != 0) {  /* Section Type 10 */
+        expert_add_info(pinfo, datadir_ti, &ei_oran_st10_not_ul);
+    }
 
     /* Note this section type in stats */
     if (sectionType < SEC_C_MAX_INDEX) {
@@ -8475,8 +8488,10 @@ proto_register_oran(void)
         { &ei_oran_ud_comp_len_wrong_size, { "oran_fh_cus.ud_comp_len_wrong_size", PI_MALFORMED, PI_WARN, "udCompLen does not match length of U-Plane section", EXPFILL }},
         { &ei_oran_sresmask2_not_zero_with_rb, { "oran_fh_cus.sresmask2_not_zero", PI_MALFORMED, PI_WARN, "sReSMask2 should be zero when rb set", EXPFILL }},
         { &ei_oran_st6_rb_shall_be_0, { "oran_fh_cus.st6_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set for Section Type 6", EXPFILL }},
+        { &ei_oran_st9_not_ul, { "oran_fh_cus.st9_not_ul", PI_MALFORMED, PI_WARN, "Section Type 9 should only be sent in uplink direction", EXPFILL }},
         { &ei_oran_st10_numsymbol_not_14, { "oran_fh_cus.st10_numsymbol_not_14", PI_MALFORMED, PI_WARN, "numSymbol should be 14 for Section Type 10", EXPFILL }},
         { &ei_oran_st10_startsymbolid_not_0, { "oran_fh_cus.st10_startsymbolid_not_0", PI_MALFORMED, PI_WARN, "startSymbolId should be 0 for Section Type 10", EXPFILL }},
+        { &ei_oran_st10_not_ul, { "oran_fh_cus.st10_not_ul", PI_MALFORMED, PI_WARN, "Section Type 10 should only be sent in uplink direction", EXPFILL }},
         { &ei_oran_num_sinr_per_prb_unknown, { "oran_fh_cus.unexpected_num_sinr_per_prb", PI_MALFORMED, PI_WARN, "invalid numSinrPerPrb value", EXPFILL }},
         { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }}
     };
