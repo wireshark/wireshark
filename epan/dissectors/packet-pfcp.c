@@ -1409,7 +1409,7 @@ typedef struct _pfcp_hdr {
 } pfcp_hdr_t;
 
 /* Relation between frame -> session */
-GHashTable* pfcp_session_table;
+wmem_map_t* pfcp_session_table;
 /* Relation between <seid,ip> -> frame */
 wmem_map_t* pfcp_frame_map;
 
@@ -2020,7 +2020,7 @@ pfcp_remove_frame_info(uint32_t f) {
 
 static void
 pfcp_add_session(uint32_t frame, uint32_t session) {
-    g_hash_table_insert(pfcp_session_table, GUINT_TO_POINTER(frame), GUINT_TO_POINTER(session));
+    wmem_map_insert(pfcp_session_table, GUINT_TO_POINTER(frame), GUINT_TO_POINTER(session));
 
 }
 
@@ -2054,12 +2054,23 @@ pfcp_ip_exists(address ip, wmem_list_t *ip_list) {
     return found;
 }
 
+/* wmem_map_foreach() callback used in fill_map() */
+static void
+pfcp_remove_session_from_table(void *key, void *val, void *userdata) {
+    unsigned fr = GPOINTER_TO_UINT(key);
+    unsigned session = GPOINTER_TO_UINT(val);
+    unsigned remove_session = GPOINTER_TO_UINT(userdata);
+
+    /* If it's the session we are looking for, we remove all the frame information */
+    if (session == remove_session) {
+        pfcp_remove_frame_info(fr);
+    }
+}
+
 static void
 pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
     wmem_list_frame_t *elem_ip, *elem_seid;
     pfcp_info_t *pfcp_info;
-    gpointer session_p, fr_p;
-    GHashTableIter iter;
     uint64_t seid;
     uint32_t session;
     address *ip;
@@ -2078,16 +2089,10 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
                 /* If the seid and ip already maps to a session, that means
                  * that we need to remove old info about that session */
                 /* We look for its session ID */
-                session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(frame)));
+                session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(frame)));
                 if (session) {
-                    g_hash_table_iter_init(&iter, pfcp_session_table);
-                    while (g_hash_table_iter_next(&iter, &fr_p, &session_p)) {
-                        /* If the msg has the same session ID and it's not the upd req we have to remove its info */
-                        if (GPOINTER_TO_UINT(session_p) == session) {
-                            /* If it's the session we are looking for, we remove all the frame information */
-                            pfcp_remove_frame_info(GPOINTER_TO_UINT(fr_p));
-                        }
-                    }
+                    /* If the msg has the same session ID and it's not the upd req we have to remove its info */
+                    wmem_map_foreach(pfcp_session_table, pfcp_remove_session_from_table, GUINT_TO_POINTER(session));
                 }
             }
             wmem_map_insert(pfcp_frame_map, pfcp_info, GUINT_TO_POINTER(frame));
@@ -2236,7 +2241,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
 
     /* PFCP session */
     if (tree) {
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
         if (session) {
             it = proto_tree_add_uint(tree, hf_pfcp_session, tvb, 0, 0, session);
             proto_item_set_generated(it);
@@ -2245,7 +2250,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* If the message does not have any session ID */
-        session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
+        session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
             /* If the message is not a SEREQ, SERES, SMREQ, SERES, SDREQ, SDRES, SRREQ or SRRES
              * then we remove its information from seid and ip lists
@@ -2274,7 +2279,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
                 the corresponding session ID */
                 if ((pfcp_get_frame(pinfo->dst, pfcp_hdr->seid, &frame_seid_cp) == 1)) {
                     /* Then we have to set its session ID */
-                    session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(frame_seid_cp)));
+                    session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(frame_seid_cp)));
                     if (session) {
                         /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
                         pfcp_add_session(pinfo->num, session);
@@ -3834,7 +3839,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     uint64_t f_seid_flags;
     address *ipv4 = NULL, *ipv6 = NULL;
     uint64_t seid_cp, *seid;
-    uint32_t *session;
+    uint32_t session;
 
     static int * const pfcp_f_seid_flags[] = {
         &hf_pfcp_spare_b7,
@@ -3877,7 +3882,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     }
 
     if (g_pfcp_session) {
-        session = (uint32_t *)g_hash_table_lookup(pfcp_session_table, &pinfo->num);
+        session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, &pinfo->num));
         if (!session) {
             /* We save the seid so that we could assignate its corresponding session ID later */
             args->last_seid = seid_cp;
@@ -10269,9 +10274,9 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int 
             if (g_pfcp_session && !PINFO_FD_VISITED(pinfo)) {
                 /* PFCP session */
                 /* If it's not already in the list */
-                session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
+                session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
                 if (!session) {
-                    session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(pcrp->req_frame)));
+                    session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(pcrp->req_frame)));
                     if (session) {
                         pfcp_add_session(pinfo->num, session);
                     }
@@ -13125,19 +13130,8 @@ static void
 pfcp_init(void)
 {
     pfcp_session_count = 1;
-    pfcp_session_table = g_hash_table_new(g_direct_hash, g_direct_equal);
-    pfcp_frame_map = wmem_map_new(wmem_file_scope(), pfcp_info_hash, pfcp_info_equal);
-
-}
-
-static void
-pfcp_cleanup(void)
-{
-    /* Free up state attached to the pfcp session structures */
-    if (pfcp_session_table != NULL) {
-        g_hash_table_destroy(pfcp_session_table);
-    }
-    pfcp_session_table = NULL;
+    pfcp_session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    pfcp_frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pfcp_info_hash, pfcp_info_equal);
 }
 
 void
@@ -18739,7 +18733,6 @@ proto_register_pfcp(void)
     prefs_register_uint_preference(module_pfcp, "pair_max_interval", "Max interval allowed in pair matching", "Request/reply pair matches only if their timestamps are closer than that value, in ms (default 0, i.e. don't use timestamps)", 10, &pref_pair_matching_max_interval_ms);
 
     register_init_routine(pfcp_init);
-    register_cleanup_routine(pfcp_cleanup);
 
     pfcp_tap = register_tap("pfcp");
 
