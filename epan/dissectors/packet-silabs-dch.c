@@ -210,8 +210,8 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int dissect_silabs_wisun_phr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len, int *crc_len);
 
 /* Helper functions */
-static const Efr32AppendedInfo *get_efr32_appended_info(uint8_t appended_info_cfg);
-static const ProtocolInfo *get_protocol_info(uint8_t protocol_id);
+static const Efr32AppendedInfo *get_efr32_appended_info(wmem_allocator_t *scope, uint8_t appended_info_cfg);
+static const ProtocolInfo *get_protocol_info(wmem_allocator_t *scope, uint8_t protocol_id);
 static int decode_wisun_phr_type(tvbuff_t *tvb, int offset, uint8_t phr_len, uint8_t phy_mode_id, int ota_payload_len);
 static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t radioinfo_channel, uint8_t radiocfg_id, uint8_t protocol_id);
 static uint16_t reverse_bits_uint16(uint16_t value);
@@ -493,7 +493,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   // decode radio appended info details
   last_index = offset + tvb_reported_length_remaining(tvb, offset) - 1;
   appended_info_cfg = tvb_get_uint8(tvb, last_index);
-  appended_info = get_efr32_appended_info(appended_info_cfg);
+  appended_info = get_efr32_appended_info(pinfo->pool, appended_info_cfg);
 
   // check if appended info len is invalid
   if (appended_info->isInvalid)
@@ -505,7 +505,7 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   // decode protocol
   status_byte = tvb_get_uint8(tvb, last_index - 1);
   protocol_id = 0x0000000F & status_byte;
-  protocol = get_protocol_info(protocol_id);
+  protocol = get_protocol_info(pinfo->pool, protocol_id);
 
   // determine OTA Payload -> (PHR + Payload + CRC)
   int crc_len = (protocol->crcLen != -1) ? protocol->crcLen : 2; // Dynamic crc length (indicated by -1) not supported yet, default to 2
@@ -924,9 +924,9 @@ static int decode_channel_number(tvbuff_t *tvb, proto_tree *tree, int offset, ui
  * @return pointer to ProtocolInfo struct
  *
  */
-static const ProtocolInfo *get_protocol_info(uint8_t protocol_id)
+static const ProtocolInfo *get_protocol_info(wmem_allocator_t *scope, uint8_t protocol_id)
 {
-  ProtocolInfo *protocol_info = wmem_new(wmem_packet_scope(), ProtocolInfo);
+  ProtocolInfo *protocol_info = wmem_new(scope, ProtocolInfo);
 
   switch (protocol_id)
   {
@@ -969,9 +969,9 @@ static const ProtocolInfo *get_protocol_info(uint8_t protocol_id)
  * @return pointer to Efr32AppendedInfo struct
  *
  */
-static const Efr32AppendedInfo *get_efr32_appended_info(uint8_t appended_info_cfg)
+static const Efr32AppendedInfo *get_efr32_appended_info(wmem_allocator_t *scope, uint8_t appended_info_cfg)
 {
-  Efr32AppendedInfo *appended_info = wmem_new(wmem_packet_scope(), Efr32AppendedInfo);
+  Efr32AppendedInfo *appended_info = wmem_new(scope, Efr32AppendedInfo);
   memset(appended_info, 0, sizeof(Efr32AppendedInfo)); // Initialize all fields to 0 or false
   bool isRx = (appended_info_cfg & 0x00000040) != 0;
   uint8_t var_len = (appended_info_cfg & 0x00000038) >> 3;
