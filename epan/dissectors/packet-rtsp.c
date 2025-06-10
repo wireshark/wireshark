@@ -47,7 +47,6 @@
 void proto_register_rtsp(void);
 
 static int rtsp_tap;
-static rtsp_info_value_t *rtsp_stat_info;
 
 /* http://www.iana.org/assignments/rtsp-parameters/rtsp-parameters.xml */
 
@@ -478,7 +477,8 @@ static const char *rtsp_methods[] = {
 #define RTSP_NMETHODS   array_length(rtsp_methods)
 
 static bool
-is_rtsp_request_or_reply(const unsigned char *line, size_t linelen, rtsp_type_t *type)
+is_rtsp_request_or_reply(const unsigned char *line, size_t linelen, rtsp_type_t *type,
+                         rtsp_info_value_t *rtsp_stat_info, wmem_allocator_t *pool)
 {
     unsigned      ii;
     const unsigned char *token, *next_token;
@@ -518,7 +518,7 @@ is_rtsp_request_or_reply(const unsigned char *line, size_t linelen, rtsp_type_t 
         {
             *type = RTSP_REQUEST;
             rtsp_stat_info->request_method =
-               wmem_strndup(wmem_packet_scope(), rtsp_methods[ii], len+1);
+               wmem_strndup(pool, rtsp_methods[ii], len+1);
             return true;
         }
     }
@@ -916,6 +916,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char   *transport_line = NULL;
     int           transport_linelen;
     sdp_setup_info_t *setup_info = NULL;
+    rtsp_info_value_t *rtsp_stat_info;
 
     rtsp_stat_info = wmem_new(pinfo->pool, rtsp_info_value_t);
     rtsp_stat_info->framenum = pinfo->num;
@@ -938,7 +939,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     line = tvb_get_ptr(tvb, offset, first_linelen);
     is_request_or_reply = is_rtsp_request_or_reply(line, first_linelen,
-        &rtsp_type_packet);
+        &rtsp_type_packet, rtsp_stat_info, pinfo->pool);
     if (is_request_or_reply) {
         /*
          * Yes, it's a request or response.
@@ -1069,7 +1070,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /*
          * OK, does it look like an RTSP request or response?
          */
-        is_request_or_reply = is_rtsp_request_or_reply(line, linelen, &rtsp_type_line);
+        is_request_or_reply = is_rtsp_request_or_reply(line, linelen, &rtsp_type_line,
+            rtsp_stat_info, pinfo->pool);
         if (is_request_or_reply)
             goto is_rtsp;
 
@@ -1503,7 +1505,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         first_linelen = tvb_find_line_end(new_tvb, 0, -1, &next_offset, false);
         line = tvb_get_ptr(new_tvb, 0, first_linelen);
         is_request_or_reply = is_rtsp_request_or_reply(line, first_linelen,
-            &rtsp_type_packet);
+            &rtsp_type_packet, rtsp_stat_info, pinfo->pool);
 
         if (!is_request_or_reply){
             setup_info = rtsp_create_setup_info(pinfo, session_id, base_uri);
