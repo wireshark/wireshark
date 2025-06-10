@@ -50,16 +50,6 @@ typedef enum {
     TIME_MODE_RELATIVE,
 } time_mode_t;
 
-typedef enum {
-    MSG_TYPE_STD,
-    MSG_TYPE_EXT,
-    MSG_TYPE_STD_RTR,
-    MSG_TYPE_EXT_RTR,
-    MSG_TYPE_STD_FD,
-    MSG_TYPE_EXT_FD,
-    MSG_TYPE_ERR,
-} msg_type_t;
-
 typedef struct {
     unsigned year;
     unsigned month;
@@ -74,20 +64,15 @@ typedef struct {
 } msg_time_t;
 
 typedef struct {
-    msg_date_t date;
-    msg_time_t time;
+    msg_date_t d;
+    msg_time_t t;
 } msg_date_time_t;
 
 typedef struct {
-    unsigned   length;
-    uint8_t    data[CANFD_MAX_DLEN];
-} msg_data_t;
-
-typedef struct {
     msg_time_t timestamp;
-    msg_type_t type;
+    wtap_can_msg_type_t type;
     uint32_t   id;
-    msg_data_t data;
+    wtap_can_msg_data_t data;
 } msg_t;
 
 typedef struct {
@@ -103,8 +88,7 @@ typedef struct {
     protocol_type_t  protocol;
     data_mode_t data_mode;
     time_mode_t time_mode;
-    msg_date_t  start_date;
-    msg_time_t  start_time;
+    msg_date_time_t  start;
 } busmaster_priv_t;
 
 typedef struct {

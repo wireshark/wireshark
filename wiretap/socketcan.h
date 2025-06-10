@@ -13,26 +13,38 @@
 #define SOCKETCAN_H__
 
 #include <gmodule.h>
+#include <wtap-int.h>
 
 #define CAN_MAX_DLEN   8
 #define CANFD_MAX_DLEN 64
 
-typedef struct can_frame {
-    uint32_t can_id;                       /* 32 bit CAN_ID + EFF/RTR/ERR flags */
-    uint8_t can_dlc;                      /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
-    uint8_t __pad;                        /* padding */
-    uint8_t __res0;                       /* reserved / padding */
-    uint8_t __res1;                       /* reserved / padding */
-    uint8_t data[CAN_MAX_DLEN];
-} can_frame_t;
+typedef enum {
+    MSG_TYPE_STD,
+    MSG_TYPE_EXT,
+    MSG_TYPE_STD_RTR,
+    MSG_TYPE_EXT_RTR,
+    MSG_TYPE_STD_FD,
+    MSG_TYPE_EXT_FD,
+    MSG_TYPE_ERR,
+} wtap_can_msg_type_t;
 
-typedef struct canfd_frame {
-    uint32_t can_id;                       /* 32 bit CAN_ID + EFF flag */
-    uint8_t len;                          /* frame payload length in byte */
-    uint8_t flags;                        /* additional flags for CAN FD */
-    uint8_t __res0;                       /* reserved / padding */
-    uint8_t __res1;                       /* reserved / padding */
-    uint8_t data[CANFD_MAX_DLEN];
-} canfd_frame_t;
+typedef struct {
+    uint8_t    length;
+    uint8_t    data[CANFD_MAX_DLEN];
+} wtap_can_msg_data_t;
+
+typedef struct {
+    nstime_t   ts;
+    uint32_t   id;
+    wtap_can_msg_type_t type;
+    uint8_t    flags;
+    wtap_can_msg_data_t data;
+} wtap_can_msg_t;
+
+extern void
+wtap_set_as_socketcan(wtap* wth, int file_type_subtype, int tsprec);
+
+extern bool
+wtap_socketcan_gen_packet(wtap* wth, wtap_rec* rec, const wtap_can_msg_t* msg, char* module_name, int* err, char** err_info);
 
 #endif  /* SOCKETCAN_H__ */

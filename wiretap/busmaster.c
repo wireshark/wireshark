@@ -6,13 +6,15 @@
  * Support for Busmaster log file format
  * Copyright (c) 2019 by Maksim Salau <maksim.salau@gmail.com>
  *
+ * See https://rbei-etas.github.io/busmaster/ for the BUSMASTER software.
+ *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "config.h"
 #include "busmaster.h"
 
-#include <wtap-int.h>
+#include <socketcan.h>
 #include <file_wrappers.h>
 #include <epan/dissectors/packet-socketcan.h>
 #include <wsutil/exported_pdu_tlvs.h>
@@ -38,92 +40,36 @@ static int busmaster_file_type_subtype = -1;
 
 void register_busmaster(void);
 
-/*
- * See
- *
- *    https://rbei-etas.github.io/busmaster/
- *
- * for the BUSMASTER software.
- */
 
 static bool
-busmaster_gen_packet(wtap                   *wth,
-                     wtap_rec               *rec,
-                     const busmaster_priv_t *priv_entry, const msg_t *msg,
-                     int                    *err, char **err_info)
+busmaster_gen_packet(wtap* wth,
+    wtap_rec* rec,
+    const busmaster_priv_t* priv_entry, const msg_t* msg,
+    int* err, char** err_info)
 {
-    time_t secs     = 0;
-    uint32_t nsecs  = 0;
+    wtap_can_msg_t     can_msg;
     bool has_ts = false;
-    bool is_fd  = (msg->type == MSG_TYPE_STD_FD)
-        || (msg->type == MSG_TYPE_EXT_FD);
-    bool is_eff = (msg->type == MSG_TYPE_EXT)
-        || (msg->type == MSG_TYPE_EXT_RTR)
-        || (msg->type == MSG_TYPE_EXT_FD);
-    bool is_rtr = (msg->type == MSG_TYPE_STD_RTR)
-        || (msg->type == MSG_TYPE_EXT_RTR);
-    bool is_err = (msg->type == MSG_TYPE_ERR);
 
-    if (!priv_entry)
-    {
-        *err      = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("Header is missing");
-        return false;
-    }
+    can_msg.id = msg->id;
+    can_msg.type = msg->type;
+    can_msg.flags = 0;     //Not used by BUSMASTER
+    can_msg.data = msg->data;
 
-    ws_buffer_clean(&rec->data);
-
-    if (is_fd)
-    {
-        canfd_frame_t canfd_frame = {0};
-
-        canfd_frame.can_id = g_htonl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
-            (is_eff ? CAN_EFF_FLAG : 0) |
-            (is_err ? CAN_ERR_FLAG : 0));
-        canfd_frame.flags  = CANFD_FDF;
-        canfd_frame.len    = msg->data.length;
-
-        memcpy(canfd_frame.data,
-               msg->data.data,
-               MIN(msg->data.length, sizeof(canfd_frame.data)));
-
-        ws_buffer_append(&rec->data,
-               (uint8_t *)&canfd_frame,
-               sizeof(canfd_frame));
-    }
-    else
-    {
-        can_frame_t can_frame = {0};
-
-        can_frame.can_id  = g_htonl((msg->id & (is_eff ? CAN_EFF_MASK : CAN_SFF_MASK)) |
-            (is_rtr ? CAN_RTR_FLAG : 0) |
-            (is_eff ? CAN_EFF_FLAG : 0) |
-            (is_err ? CAN_ERR_FLAG : 0));
-        can_frame.can_dlc = msg->data.length;
-
-        memcpy(can_frame.data,
-               msg->data.data,
-               MIN(msg->data.length, sizeof(can_frame.data)));
-
-        ws_buffer_append(&rec->data,
-               (uint8_t *)&can_frame,
-               sizeof(can_frame));
-    }
-
+    //Need to convert the timestamp
     if (priv_entry->time_mode == TIME_MODE_SYSTEM)
     {
         struct tm tm;
 
-        tm.tm_year  = priv_entry->start_date.year - 1900;
-        tm.tm_mon   = priv_entry->start_date.month - 1;
-        tm.tm_mday  = priv_entry->start_date.day;
-        tm.tm_hour  = msg->timestamp.hours;
-        tm.tm_min   = msg->timestamp.minutes;
-        tm.tm_sec   = msg->timestamp.seconds;
+        tm.tm_year = priv_entry->start.d.year - 1900;
+        tm.tm_mon = priv_entry->start.d.month - 1;
+        tm.tm_mday = priv_entry->start.d.day;
+        tm.tm_hour = msg->timestamp.hours;
+        tm.tm_min = msg->timestamp.minutes;
+        tm.tm_sec = msg->timestamp.seconds;
         tm.tm_isdst = -1;
 
-        secs   = mktime(&tm);
-        nsecs  = msg->timestamp.micros * 1000u;
+        can_msg.ts.secs = mktime(&tm);
+        can_msg.ts.nsecs = msg->timestamp.micros * 1000u;
         has_ts = true;
     }
     else if (priv_entry->time_mode == TIME_MODE_ABSOLUTE)
@@ -131,40 +77,42 @@ busmaster_gen_packet(wtap                   *wth,
         struct tm tm;
         uint32_t  micros;
 
-        tm.tm_year  = priv_entry->start_date.year - 1900;
-        tm.tm_mon   = priv_entry->start_date.month - 1;
-        tm.tm_mday  = priv_entry->start_date.day;
-        tm.tm_hour  = priv_entry->start_time.hours;
-        tm.tm_min   = priv_entry->start_time.minutes;
-        tm.tm_sec   = priv_entry->start_time.seconds;
+        tm.tm_year = priv_entry->start.d.year - 1900;
+        tm.tm_mon = priv_entry->start.d.month - 1;
+        tm.tm_mday = priv_entry->start.d.day;
+        tm.tm_hour = priv_entry->start.t.hours;
+        tm.tm_min = priv_entry->start.t.minutes;
+        tm.tm_sec = priv_entry->start.t.seconds;
         tm.tm_isdst = -1;
 
-        secs = mktime(&tm);
+        can_msg.ts.secs = mktime(&tm);
 
-        secs += msg->timestamp.hours * 3600;
-        secs += msg->timestamp.minutes * 60;
-        secs += msg->timestamp.seconds;
+        can_msg.ts.secs += msg->timestamp.hours * 3600;
+        can_msg.ts.secs += msg->timestamp.minutes * 60;
+        can_msg.ts.secs += msg->timestamp.seconds;
 
-        micros = priv_entry->start_time.micros + msg->timestamp.micros;
+        micros = priv_entry->start.t.micros + msg->timestamp.micros;
         if (micros >= 1000000u)
         {
             micros -= 1000000u;
-            secs   += 1;
+            can_msg.ts.secs += 1;
         }
 
-        nsecs  = micros * 1000u;
+        can_msg.ts.nsecs = micros * 1000u;
         has_ts = true;
     }
+    else
+    {
+        can_msg.ts.secs = 0;
+        can_msg.ts.nsecs = 0;
+    }
 
-    wtap_setup_packet_rec(rec, wth->file_encap);
-    rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
-    rec->presence_flags = has_ts ? WTAP_HAS_TS : 0;
-    rec->ts.secs        = secs;
-    rec->ts.nsecs       = nsecs;
+    if (!wtap_socketcan_gen_packet(wth, rec, &can_msg, "busmaster", err, err_info))
+        return false;
 
-    rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
-    rec->rec_header.packet_header.len    = (uint32_t)ws_buffer_length(&rec->data);
-
+    //Packet may not have timestamp
+    if (!has_ts)
+        rec->presence_flags &= (~WTAP_HAS_TS);
     return true;
 }
 
@@ -242,9 +190,7 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     wth->subtype_close     = busmaster_close;
     wth->subtype_read      = busmaster_read;
     wth->subtype_seek_read = busmaster_seek_read;
-    wth->file_type_subtype = busmaster_file_type_subtype;
-    wth->file_encap        = WTAP_ENCAP_SOCKETCAN;
-    wth->file_tsprec       = WTAP_TSPREC_USEC;
+    wtap_set_as_socketcan(wth, busmaster_file_type_subtype, WTAP_TSPREC_USEC);
 
     return WTAP_OPEN_MINE;
 }
@@ -363,7 +309,7 @@ busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
         case LOG_ENTRY_MSG:
             is_msg     = true;
             priv_entry = busmaster_find_priv_entry(wth->priv, *data_offset);
-            is_ok      = busmaster_gen_packet(wth, rec, priv_entry, &state.msg, err, err_info);
+            is_ok  = busmaster_gen_packet(wth, rec, priv_entry, &state.msg, err, err_info);
             break;
         case LOG_ENTRY_EOF:
         case LOG_ENTRY_ERROR:
