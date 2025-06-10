@@ -42,6 +42,8 @@
  * ...        : Argument list for msg_format
  */
 
+typedef QPair<QString,QString> MessagePair;
+
 QList<MessagePair> message_queue_;
 ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
@@ -119,10 +121,8 @@ simple_message_box(ESD_TYPE_E type, bool *notagain,
     va_list ap;
 
     va_start(ap, msg_format);
-    SimpleDialog sd(mainApp->mainWindow(), type, ESD_BTN_OK, msg_format, ap);
+    SimpleDialog sd(mainApp->mainWindow(), type, ESD_BTN_OK, msg_format, ap, secondary_msg);
     va_end(ap);
-
-    sd.setInformativeText(secondary_msg);
 
     QCheckBox *cb = NULL;
     if (notagain) {
@@ -186,7 +186,7 @@ simple_error_message_box(const char *msg_format, ...)
     va_end(ap);
 }
 
-SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap) :
+SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap, QString secondary) :
     check_box_(0),
     message_box_(0)
 {
@@ -211,10 +211,9 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
 #endif
     g_free(vmessage);
 
-    MessagePair msg_pair(message, QString());
     // Remove leading and trailing whitespace along with excessive newline runs.
-    QString primary = msg_pair.first.trimmed();
-    QString secondary = msg_pair.second.trimmed();
+    QString primary = message.trimmed();
+    secondary = secondary.trimmed();
     secondary.replace(QRegularExpression("\n\n+"), "\n\n");
 
     if (primary.isEmpty()) {
@@ -222,7 +221,11 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     }
 
     if (!parent || !mainApp->isInitialized() || mainApp->isReloadingLua()) {
-        message_queue_ << msg_pair;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        message_queue_.emplaceBack(primary, secondary);
+#else
+        message_queue_ << MessagePair(primary, secondary);
+#endif
         if (type > max_severity_) {
             max_severity_ = type;
         }

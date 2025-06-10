@@ -19,8 +19,6 @@
 #include <QPair>
 #include <QString>
 
-typedef QPair<QString,QString> MessagePair;
-
 class QCheckBox;
 class QMessageBox;
 class QWidget;
@@ -29,7 +27,7 @@ class QWidget;
 class SimpleDialog
 {
 public:
-    explicit SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap);
+    explicit SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap, QString secondary_msg = QString());
     ~SimpleDialog();
 
     static void displayQueuedMessages(QWidget *parent = 0);
