@@ -2007,7 +2007,7 @@ static void get_ErrorText(tvbuff_t *tvb, uint8_t *offset, proto_tree *iec104_hea
 {
 	if (length)
 	{
-		proto_tree_add_item(iec104_header_tree, hf_error_text, tvb, *offset, length, ENC_UTF_8 | ENC_NA);
+		proto_tree_add_item(iec104_header_tree, hf_error_text, tvb, *offset, length, ENC_UTF_8);
 		(*offset) += length;
 	}
 }

@@ -4518,7 +4518,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, ENC_APN_STR | ENC_NA);
+	proto_tree_add_item(tree, hf_gsm_a_gm_apn, tvb, curr_offset, len, ENC_APN_STR);
 	curr_offset += len;
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
@@ -4985,7 +4985,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				break;
 			case 0x0027:
 				if (link_dir == P2P_DIR_DL && e_len > 0) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_acs_info, tvb, curr_offset, e_len, ENC_NA|ENC_UTF_8);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_acs_info, tvb, curr_offset, e_len, ENC_UTF_8);
 				}
 				break;
 			case 0x0028:
@@ -5015,7 +5015,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_port_number, tvb, curr_offset+1, 2, ENC_BIG_ENDIAN);
 							break;
 						case 2:
-							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_auth_domain_name, tvb, curr_offset+1, e_len-1, ENC_APN_STR | ENC_NA);
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_auth_domain_name, tvb, curr_offset+1, e_len-1, ENC_APN_STR);
 							break;
 						case 3:
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_dns_serv_sec_info_spki_pin_set, tvb, curr_offset+1, e_len-1, ENC_NA);
@@ -5052,7 +5052,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 						case 2:
 							proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_fqdn_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &fqdn_len);
 							ie_offset++;
-							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_fqdn, tvb, ie_offset, fqdn_len, ENC_NA|ENC_APN_STR);
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecs_addr_fqdn, tvb, ie_offset, fqdn_len, ENC_APN_STR);
 							ie_offset += fqdn_len;
 							break;
 						default:
@@ -5097,7 +5097,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				break;
 			case 0x0035:
 				if (link_dir == P2P_DIR_DL && e_len > 1) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecsp_id, tvb, curr_offset, e_len, ENC_NA|ENC_UTF_8);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_ecsp_id, tvb, curr_offset, e_len, ENC_UTF_8);
 				}
 				break;
 			case 0x0036:
@@ -5121,7 +5121,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 					} else {
 						proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_pvs_name_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
 						ie_offset++;
-						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pvs_name, tvb, ie_offset, field_len, ENC_NA|ENC_APN_STR);
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pvs_name, tvb, ie_offset, field_len, ENC_APN_STR);
 						ie_offset += field_len;
 					}
 					proto_tree_add_bitmask_list_ret_uint64(pco_tree, tvb, ie_offset, 1, ind, ENC_BIG_ENDIAN, &flags);
@@ -5168,7 +5168,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				break;
 			case 0x003d:
 				if (link_dir == P2P_DIR_DL && e_len > 0) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn, tvb, curr_offset, e_len, ENC_NA|ENC_APN_STR);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn, tvb, curr_offset, e_len, ENC_APN_STR);
 				}
 				break;
 			 case 0x0041:
@@ -5187,7 +5187,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				break;
 			case 0x0052:
 				if (link_dir == P2P_DIR_UL && e_len > 0) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_sdnaepc_dn_specific_id, tvb, curr_offset, e_len, ENC_NA|ENC_UTF_8);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_sdnaepc_dn_specific_id, tvb, curr_offset, e_len, ENC_UTF_8);
 				}
 				break;
 			case 0x0056:

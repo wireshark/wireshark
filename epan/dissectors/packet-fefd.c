@@ -175,7 +175,7 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 proto_tree_add_uint(tlv_tree, hf_fefd_tlvlength, tvb,
                                     offset + TLV_LENGTH, 2, length);
                 proto_tree_add_item(tlv_tree, hf_fefd_sent_through_interface, tvb, offset + 4,
-                                    real_length - 4, ENC_NA|ENC_ASCII);
+                                    real_length - 4, ENC_ASCII);
             }
             offset += real_length;
             break;

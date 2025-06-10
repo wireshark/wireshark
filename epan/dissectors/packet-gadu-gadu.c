@@ -648,7 +648,7 @@ dissect_gadu_gadu_login80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_gadu_gadu_login_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_gadu_gadu_login80_lang, tvb, offset, 2, ENC_ASCII | ENC_NA);
+	proto_tree_add_item(tree, hf_gadu_gadu_login80_lang, tvb, offset, 2, ENC_ASCII);
 	offset += 2;
 
 	offset = dissect_gadu_gadu_login_hash(tvb, tree, offset);
@@ -1459,7 +1459,7 @@ dissect_gadu_gadu_dcc7_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_dcc_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_dcc_filename, tvb, offset, 255, ENC_ASCII | ENC_NA);
+	proto_tree_add_item(tree, hf_dcc_filename, tvb, offset, 255, ENC_ASCII);
 	offset += 255;
 
 	return offset;

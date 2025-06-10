@@ -398,9 +398,9 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       {
         proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_ac_byte, tvb, hlen, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_fc_byte, tvb, hlen+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_da, tvb, hlen+2, 6, ENC_NA|ENC_ASCII);
-        proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_sa, tvb, hlen+8, 6, ENC_NA|ENC_ASCII);
-        proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_rif, tvb, hlen+14, 18, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_da, tvb, hlen+2, 6, ENC_ASCII);
+        proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_sa, tvb, hlen+8, 6, ENC_ASCII);
+        proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_rif, tvb, hlen+14, 18, ENC_ASCII);
         proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_dsap, tvb, hlen+32, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_ssap, tvb, hlen+33, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dlsw_data_tree, hf_dlsw_dlc_header_ctrl, tvb, hlen+34, 1, ENC_BIG_ENDIAN);
@@ -457,7 +457,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_initial_pacing_window, tvb, offset+2, vlen-2, ENC_BIG_ENDIAN);
             break;
           case 0x84:
-            proto_tree_add_item(dlsw_vector_tree, hf_dlsw_version_string, tvb, offset+2, vlen-2, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(dlsw_vector_tree, hf_dlsw_version_string, tvb, offset+2, vlen-2, ENC_ASCII);
             break;
           case 0x85:
             tmp8 = tvb_get_uint8(tvb,offset+2);
@@ -496,7 +496,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_mac_address_list, tvb, offset+8, 6, ENC_NA);
             break;
           case 0x8a:
-            proto_tree_add_item(dlsw_vector_tree, hf_dlsw_netbios_name, tvb, offset+2, vlen-2, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(dlsw_vector_tree, hf_dlsw_netbios_name, tvb, offset+2, vlen-2, ENC_ASCII);
             break;
           case 0x8b:
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_vendor_oui, tvb, offset+2, vlen-2, ENC_BIG_ENDIAN);

@@ -292,7 +292,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return tvb_reported_length(tvb);
 
     if (!command_number) {
-        proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
+        proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_ASCII);
         col_str = (char *) wmem_alloc(pinfo->pool, length + 1);
         tvb_memcpy(tvb, col_str, offset, length);
         col_str[length] = '\0';
@@ -328,12 +328,12 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 if (i_char) {
                     proto_tree_add_item(command_tree, hf_at_ignored, tvb, offset,
-                        i_char, ENC_NA | ENC_ASCII);
+                        i_char, ENC_NA);
                     offset += i_char;
                 }
 
                 proto_tree_add_item(command_tree, hf_at_command_line_prefix,
-                        tvb, offset, 2, ENC_NA | ENC_ASCII);
+                        tvb, offset, 2, ENC_ASCII);
                 offset += 2;
                 i_char += 2;
                 at_command = at_stream;
@@ -373,14 +373,14 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_at_cmd = at_cmds;
         if (at_command[0] == '\r') {
             pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset - 2,
-                    2, ENC_NA | ENC_ASCII);
+                    2, ENC_ASCII);
             i_at_cmd = NULL;
         } else {
             pitem = NULL;
             while (i_at_cmd->name) {
                 if (g_str_has_prefix(&at_command[0], i_at_cmd->name)) {
                     pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset,
-                            (int) strlen(i_at_cmd->name), ENC_NA | ENC_ASCII);
+                            (int) strlen(i_at_cmd->name), ENC_ASCII);
                     proto_item_append_text(pitem, " (%s)", i_at_cmd->long_name);
                     break;
                 }
@@ -389,7 +389,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (!pitem) {
                 pitem = proto_tree_add_item(command_tree, hf_at_cmd, tvb, offset,
-                        i_char, ENC_NA | ENC_ASCII);
+                        i_char, ENC_ASCII);
             }
         }
 
@@ -551,11 +551,11 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             type, &at_command[i_char], parameter_number, parameter_length, &data) )) {
                         pitem = proto_tree_add_item(parameters_tree,
                                 hf_unknown_parameter, tvb, offset,
-                                parameter_length, ENC_NA | ENC_ASCII);
+                                parameter_length, ENC_ASCII);
                         expert_add_info(pinfo, pitem, &ei_unknown_parameter);
                     } else if (i_at_cmd && i_at_cmd->dissect_parameter == NULL) {
                         proto_tree_add_item(parameters_tree, hf_parameter, tvb, offset,
-                                parameter_length, ENC_NA | ENC_ASCII);
+                                parameter_length, ENC_ASCII);
                     }
                 }
             }
@@ -759,7 +759,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (role == ROLE_UNKNOWN) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Data: %s",
                 tvb_format_text(pinfo->pool, tvb, 0, tvb_reported_length(tvb)));
-        proto_tree_add_item(main_tree, hf_data, tvb, 0, tvb_captured_length(tvb), ENC_NA | ENC_ASCII);
+        proto_tree_add_item(main_tree, hf_data, tvb, 0, tvb_captured_length(tvb), ENC_ASCII);
         return tvb_reported_length(tvb);
     }
 
@@ -964,7 +964,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (fragment->idx > 0 && fragment->length > 0) {
             proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
-                    tvb_captured_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
+                    tvb_captured_length_remaining(tvb, offset), ENC_ASCII);
             reassembled_tvb = tvb_new_child_real_data(tvb, at_data,
                     fragment->idx + fragment->length, fragment->idx + fragment->length);
             add_new_data_source(pinfo, reassembled_tvb, "Reassembled HSP");

@@ -2767,7 +2767,7 @@ static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int of
    proto_tree_add_item_ret_uint(item_tree, hf_enip_lir_namelen, tvb, offset + 32, 1, ENC_LITTLE_ENDIAN, &name_length);
 
    /* Product Name */
-   proto_tree_add_item(item_tree, hf_enip_lir_name, tvb, offset + 33, name_length, ENC_ASCII | ENC_NA);
+   proto_tree_add_item(item_tree, hf_enip_lir_name, tvb, offset + 33, name_length, ENC_ASCII);
 
    /* Append product name to info column */
    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(pinfo->pool, tvb, offset + 33, name_length));
@@ -2816,7 +2816,7 @@ static void dissect_item_list_services_response(packet_info* pinfo, tvbuff_t* tv
    proto_tree_add_bitmask(item_tree, tvb, offset + 2, hf_enip_lsr_capaflags, ett_lsrcf, capability_bits, ENC_LITTLE_ENDIAN);
 
    /* Name of service */
-   proto_tree_add_item(item_tree, hf_enip_lsr_servicename, tvb, offset + 4, 16, ENC_ASCII | ENC_NA);
+   proto_tree_add_item(item_tree, hf_enip_lsr_servicename, tvb, offset + 4, 16, ENC_ASCII);
 
    /* Append service name to info column */
    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -5604,7 +5604,7 @@ int dissect_lldp_cip_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       {
          // The string is all the data, minus Subtype (1 byte).
          int string_len = total_len - 1;
-         proto_tree_add_item(tree, hf_elink_interface_label, tvb, offset, string_len, ENC_ASCII | ENC_NA);
+         proto_tree_add_item(tree, hf_elink_interface_label, tvb, offset, string_len, ENC_ASCII);
          break;
       }
 

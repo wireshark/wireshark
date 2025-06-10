@@ -611,7 +611,7 @@ decode_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipinfo *dat
                 datalength = data->payloadlength;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_format_text(pinfo->pool, tvb, data->offset, (uint32_t)datalength));
-            proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8 |ENC_NA);
+            proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8);
 
             break;
 
@@ -629,7 +629,7 @@ decode_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipinfo *dat
 
         default:
 
-            proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8);
 
         }
     }

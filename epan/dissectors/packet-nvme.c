@@ -4041,12 +4041,12 @@ dissect_nvmeof_fabric_connect_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree
     if (off <= 256) {
         CHECK_STOP_PARSE(256, 256);
         proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_subnqn, data_tvb,
-                            pkt_off + 256 - off, 256, ENC_ASCII | ENC_NA);
+                            pkt_off + 256 - off, 256, ENC_ASCII);
     }
     if (off <= 512) {
         CHECK_STOP_PARSE(512, 256);
         proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_hostnqn, data_tvb,
-                            pkt_off + 512 - off, 256, ENC_ASCII | ENC_NA);
+                            pkt_off + 512 - off, 256, ENC_ASCII);
     }
     if (off <= 768) {
         CHECK_STOP_PARSE(768, 256);

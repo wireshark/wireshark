@@ -8386,7 +8386,7 @@ static int dissect_nhdr_ctxinfo(tvbuff_t * tvb, int offset, packet_info * pinfo 
         int namelen = (int) hdrlen - len_dissected;
         if (namelen > 0)
         {
-            proto_tree_add_item(subtree, hf_lbmc_ctxinfo_name, tvb, offset + L_LBMC_CNTL_CTXINFO_HDR_T, hdrlen - L_LBMC_CNTL_CTXINFO_HDR_T, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(subtree, hf_lbmc_ctxinfo_name, tvb, offset + L_LBMC_CNTL_CTXINFO_HDR_T, hdrlen - L_LBMC_CNTL_CTXINFO_HDR_T, ENC_ASCII);
             len_dissected += namelen;
         }
         else

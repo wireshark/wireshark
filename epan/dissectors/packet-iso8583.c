@@ -902,7 +902,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   {
     len=4;
     proto_tree_add_item(iso8583_tree, hf_iso8583_mti, tvb,
-        offset, len, ENC_ASCII | ENC_NA);
+        offset, len, ENC_ASCII);
   }
   else
   {

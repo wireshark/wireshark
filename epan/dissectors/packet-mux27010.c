@@ -670,7 +670,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr, int offset,
             proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannel_iei_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
 
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset+1, cc->length_value-1, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset+1, cc->length_value-1, ENC_ASCII);
         break;
 
     /*Command pattern for Power saving control (C/R is set to 1)*/

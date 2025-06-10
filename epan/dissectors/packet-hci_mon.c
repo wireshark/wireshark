@@ -360,7 +360,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         offset = dissect_bd_addr(hf_bd_addr, pinfo, hci_mon_tree, tvb, offset, true, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
 
-        proto_tree_add_item(hci_mon_tree, hf_name, tvb, offset, 8, ENC_NA | ENC_ASCII);
+        proto_tree_add_item(hci_mon_tree, hf_name, tvb, offset, 8, ENC_ASCII);
         offset += 8;
 
         break;
@@ -436,10 +436,10 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item_ret_uint(hci_mon_tree, hf_ident_length, tvb, offset, 1, ENC_NA, &ident_length);
         offset += 1;
 
-        proto_tree_add_item(hci_mon_tree, hf_ident, tvb, offset, ident_length, ENC_NA | ENC_ASCII);
+        proto_tree_add_item(hci_mon_tree, hf_ident, tvb, offset, ident_length, ENC_ASCII);
         offset += ident_length;
 
-        proto_tree_add_item(hci_mon_tree, hf_message, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA | ENC_ASCII);
+        proto_tree_add_item(hci_mon_tree, hf_message, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
         offset = tvb_reported_length(tvb);
 
         break;

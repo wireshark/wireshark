@@ -642,7 +642,7 @@ add_vehicle_identification_eid_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 static void
 add_vehicle_identification_vin_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 {
-    proto_tree_add_item(doip_tree, hf_vin, tvb, DOIP_VEHICLE_IDENTIFICATION_VIN_OFFSET, DOIP_COMMON_VIN_LEN, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(doip_tree, hf_vin, tvb, DOIP_VEHICLE_IDENTIFICATION_VIN_OFFSET, DOIP_COMMON_VIN_LEN, ENC_ASCII);
 }
 
 
@@ -686,7 +686,7 @@ add_routing_activation_response_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 static void
 add_vehicle_announcement_message_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 {
-    proto_tree_add_item(doip_tree, hf_vin, tvb, DOIP_VEHICLE_ANNOUNCEMENT_VIN_OFFSET, DOIP_COMMON_VIN_LEN, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(doip_tree, hf_vin, tvb, DOIP_VEHICLE_ANNOUNCEMENT_VIN_OFFSET, DOIP_COMMON_VIN_LEN, ENC_ASCII);
     doip_prototree_add_with_resolv(doip_tree, hf_logical_address, hf_logical_address_name, tvb, DOIP_VEHICLE_ANNOUNCEMENT_ADDRESS_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_ADDRESS_LEN, ENC_BIG_ENDIAN, NULL);
     proto_tree_add_item(doip_tree, hf_eid, tvb, DOIP_VEHICLE_ANNOUNCEMENT_EID_OFFSET, DOIP_COMMON_EID_LEN, ENC_NA);
     proto_tree_add_item(doip_tree, hf_gid, tvb, DOIP_VEHICLE_ANNOUNCEMENT_GID_OFFSET, DOIP_VEHICLE_ANNOUNCEMENT_GID_LEN, ENC_NA);

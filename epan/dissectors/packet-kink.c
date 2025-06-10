@@ -505,7 +505,7 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree_add_uint(payload_kink_tgt_req_tree, hf_kink_realm_name_length, tvb, offset, 2, realm_name_length);
   offset += 2;
 
-  proto_tree_add_item(payload_kink_tgt_req_tree, hf_kink_realm_name, tvb, offset, realm_name_length, ENC_NA|ENC_ASCII);
+  proto_tree_add_item(payload_kink_tgt_req_tree, hf_kink_realm_name, tvb, offset, realm_name_length, ENC_ASCII);
 
   /* This part consider the padding. Payload_length don't contain the padding. */
   if(payload_length % PADDING != 0){
@@ -549,7 +549,7 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_princ_name_length, tvb, offset, 2, princ_name_length);
   offset += 2;
 
-  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_princ_name, tvb, offset, princ_name_length, ENC_NA|ENC_ASCII);
+  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_princ_name, tvb, offset, princ_name_length, ENC_ASCII);
 
   /* This part consider the padding. Princ_name_length don't contain the padding. */
   if((princ_name_length + FRONT_TGT_REP_HEADER) % PADDING != 0){
@@ -563,7 +563,7 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_tgt_length, tvb, offset, 2, tgt_length);
   offset += 2;
 
-  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_tgt, tvb, offset, tgt_length, ENC_NA|ENC_ASCII);
+  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_tgt, tvb, offset, tgt_length, ENC_ASCII);
   /*offset += tgt_length;*/
 
   /* This part consider the padding. Payload_length don't contain the padding. */

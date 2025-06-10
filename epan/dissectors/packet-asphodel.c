@@ -534,7 +534,7 @@ dissect_asphodel_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             if (tvb_captured_length(tvb) > 2)
             {
-                proto_tree_add_item(asphodel_tree, hf_asphodel_identifier, tvb, 2, -1, ENC_UTF_8 | ENC_NA);
+                proto_tree_add_item(asphodel_tree, hf_asphodel_identifier, tvb, 2, -1, ENC_UTF_8);
             }
         }
     }

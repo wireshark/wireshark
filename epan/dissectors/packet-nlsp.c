@@ -555,7 +555,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
 			    "Short management info entry");
 			return;
 		}
-		proto_tree_add_item(tree, hf_nlsp_mgt_info_name, tvb, offset, name_length, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_nlsp_mgt_info_name, tvb, offset, name_length, ENC_ASCII);
 	}
 }
 
@@ -762,7 +762,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, i
 	length -= 2;
 
 	if (length > 0) {
-		proto_tree_add_item(tree, hf_nlsp_svcs_info_service_name, tvb, offset, length, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_nlsp_svcs_info_service_name, tvb, offset, length, ENC_ASCII);
 	}
 }
 

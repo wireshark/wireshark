@@ -91,7 +91,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 
     case HPFOO_DEVICE_NAME:
         if (length > 0) {
-            proto_tree_add_item(tree, hf_hpsw_device_name, tvb, offset, length, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(tree, hf_hpsw_device_name, tvb, offset, length, ENC_ASCII);
         } else {
             expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device Name: Bad length %u", length);
         }
@@ -99,7 +99,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 
     case HPFOO_DEVICE_VERSION:
         if (length > 0) {
-            proto_tree_add_item(tree, hf_hpsw_device_version, tvb, offset, length, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(tree, hf_hpsw_device_version, tvb, offset, length, ENC_ASCII);
         } else {
             expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Version: Bad length %u", length);
         }
@@ -107,7 +107,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 
     case HPFOO_CONFIG_NAME:
         if (length > 0) {
-            proto_tree_add_item(tree, hf_hpsw_config_name, tvb, offset, length, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(tree, hf_hpsw_config_name, tvb, offset, length, ENC_ASCII);
         } else {
             expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Config Name: Bad length %u", length);
         }
@@ -139,7 +139,7 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 
     case HPFOO_DOMAIN:
         if (length > 0) {
-            proto_tree_add_item(tree, hf_hpsw_domain, tvb, offset, length, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(tree, hf_hpsw_domain, tvb, offset, length, ENC_ASCII);
         } else {
             expert_add_info_format(pinfo, ti, &ei_hpsw_tlvlength_bad, "Domain: Bad length %u", length);
         }

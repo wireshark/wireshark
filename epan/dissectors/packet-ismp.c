@@ -456,12 +456,12 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_hold_time, tvb, offset, tuple_length, ENC_BIG_ENDIAN);
 							break;
 						case EDP_TUPLE_INT_NAME:
-							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_interface_name, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
+							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_interface_name, tvb, offset, tuple_length, ENC_ASCII);
 							col_append_fstr(pinfo->cinfo, COL_INFO, ", ifName %s",
 								tvb_format_text(pinfo->pool, tvb, offset, tuple_length));
 							break;
 						case EDP_TUPLE_SYS_DESCRIPT:
-							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_system_description, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
+							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_system_description, tvb, offset, tuple_length, ENC_ASCII);
 							break;
 						case EDP_TUPLE_IPX_ADDR:
 							if (tuple_length != 4+6) {
@@ -473,7 +473,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 							break;
 						case EDP_TUPLE_UNKNOWN:
 						default:
-							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_unknown_tuple_data, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
+							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_unknown_tuple_data, tvb, offset, tuple_length, ENC_ASCII);
 							break;
 					}
 				}

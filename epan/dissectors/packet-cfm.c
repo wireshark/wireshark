@@ -766,7 +766,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			case MD_NAME_FMT_DOMAIN:
 			case MD_NAME_FMT_STRING:
 				proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_md_name_string,
-					tvb, maid_offset, maid_md_name_length, ENC_ASCII|ENC_NA);
+					tvb, maid_offset, maid_md_name_length, ENC_ASCII);
 				break;
 			default:
 				proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_md_name_hex,
@@ -797,7 +797,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		break;
 	case MA_NAME_FMT_STRING:
 		proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_string,
-			tvb, maid_offset, maid_ma_name_length, ENC_ASCII|ENC_NA);
+			tvb, maid_offset, maid_ma_name_length, ENC_ASCII);
 		break;
 	case MA_NAME_FMT_ID:
 		if (maid_ma_name_length != 2) {
@@ -825,7 +825,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				tvb, maid_offset, maid_ma_name_length, ENC_NA);
 		} else {
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_icc_umc,
-				tvb, maid_offset, 13, ENC_ASCII|ENC_NA);
+				tvb, maid_offset, 13, ENC_ASCII);
 		}
 		break;
 	case MA_NAME_FMT_ICC_CC:
@@ -834,9 +834,9 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				tvb, maid_offset, maid_ma_name_length, ENC_NA);
 		} else {
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_cc,
-				tvb, maid_offset, 2, ENC_ASCII|ENC_NA);
+				tvb, maid_offset, 2, ENC_ASCII);
 			proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_ma_name_icc_umc,
-				tvb, maid_offset + 2, 13, ENC_ASCII|ENC_NA);
+				tvb, maid_offset + 2, 13, ENC_ASCII);
 		}
 		break;
 	default:

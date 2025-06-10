@@ -1335,7 +1335,7 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_order, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
             case 0x02: /* Search Value */
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_value, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_value, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x03: /* Search Attribute */
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_attribute, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1443,10 +1443,10 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_message_type_sms_gsm,  tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x04:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x05:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x06:
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_read_status_reserved_6, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
@@ -1454,10 +1454,10 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_read_status_get_unread, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x07:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_recipient, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_recipient, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x08:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_originator, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_originator, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x09:
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_priority_reserved_6, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
@@ -1537,7 +1537,7 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_status_value, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x19:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_mse_time, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_mse_time, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             default:
                 proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
@@ -1687,10 +1687,10 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_send, tvb, offset, 1, ENC_NA);
                 break;
             case 0x04: /* Filter Period Begin */
-                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x05: /* Filter Period End */
-                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x06: /* Parameter Mask */
                 proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_ctn_application_parameter_data_parameter_mask, ett_obex_filter,  hfx_ctn_application_parameter_data_parameter_mask, ENC_BIG_ENDIAN);
@@ -1705,10 +1705,10 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_postpone_val, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             case 0x0A: /* Email URI */
-                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_email_uri, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_email_uri, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x0B: /* CSE Time */
-                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_cse_time, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_cse_time, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             case 0x0C: /* Recurrent */
                 proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_recurrent, tvb, offset, 1, ENC_NA);
@@ -1717,7 +1717,7 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_attach_id, tvb, offset, 1, ENC_NA);
                 break;
             case 0x0E: /* Last Update */
-                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_last_update, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_last_update, tvb, offset, parameter_length, ENC_ASCII);
                 break;
             default:
                 proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);

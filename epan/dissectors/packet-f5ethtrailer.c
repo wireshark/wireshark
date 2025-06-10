@@ -1929,7 +1929,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
                         tvb_get_string_enc(pinfo->pool, tvb, o,
                         rstcauselen - (o - startcause), ENC_ASCII));
                 proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
-                    rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
+                    rstcauselen - (o - startcause), ENC_ASCII);
                 break;
             default:
                 break;
@@ -2081,7 +2081,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         proto_item_set_hidden(pi);
         o += 1;
     }
-    pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII | ENC_NA);
+    pi = proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII);
     proto_item_prepend_text(pi, "VIP ");
 
     return trailer_length;
@@ -2375,7 +2375,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 tvb_get_string_enc(
                     pinfo->pool, tvb, o, rstcauselen - (o - startcause), ENC_ASCII));
             proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o,
-                rstcauselen - (o - startcause), ENC_ASCII | ENC_NA);
+                rstcauselen - (o - startcause), ENC_ASCII);
             /*o = startcause + rstcauselen;*/
             break;
         default:

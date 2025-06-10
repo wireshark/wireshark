@@ -350,9 +350,9 @@ dissect_greb_filter_list(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
         proto_tree_add_item(filter_item_tree, hf_greb_attr_filter_item_enabled, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(filter_item_tree, hf_greb_attr_filter_item_desc_length, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(filter_item_tree, hf_greb_attr_filter_item_desc_val, tvb, offset + 8,
-            filter_item_desc_length, ENC_UTF_8 | ENC_NA);
+            filter_item_desc_length, ENC_UTF_8);
         proto_tree_add_item(filter_item_tree, hf_greb_attr_filter_item_val, tvb, offset + 8 + filter_item_desc_length,
-            filter_item_length - 4 - filter_item_desc_length, ENC_UTF_8 | ENC_NA);
+            filter_item_length - 4 - filter_item_desc_length, ENC_UTF_8);
 
         offset += filter_item_length + 4;
     }
@@ -435,12 +435,12 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
                 case GREB_ATTRB_CIN:
                     proto_tree_add_item(attrb_tree, hf_greb_attr_val_string, tvb, offset, attrb_length,
-                        ENC_UTF_8 | ENC_NA);
+                        ENC_UTF_8);
                     break;
 
                 case GREB_ATTRB_DT_BRAS_NAME:
                     proto_tree_add_item(attrb_tree, hf_greb_attr_dt_bras_name, tvb, offset, attrb_length,
-                        ENC_UTF_8 | ENC_NA);
+                        ENC_UTF_8);
                     break;
 
                 case GREB_ATTRB_ERROR:

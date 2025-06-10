@@ -5684,7 +5684,7 @@ dissect_channel_scan_result(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset += 1;
 
         proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_timestamp_string,
-                            tvb, offset, timestamp_len, ENC_NA|ENC_ASCII);
+                            tvb, offset, timestamp_len, ENC_ASCII);
         offset += timestamp_len;
 
         proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_utilization,
@@ -5800,7 +5800,7 @@ dissect_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ieee1905_timestamp_string, tvb, offset,
-                        timestamp_len, ENC_NA|ENC_ASCII);
+                        timestamp_len, ENC_ASCII);
     offset += timestamp_len;
 
     return offset;
@@ -6498,7 +6498,7 @@ dissect_cac_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     uint8_t cac_radios = 0;
 
     proto_tree_add_item(tree, hf_ieee1905_cac_capa_country_code, tvb, offset,
-                        2, ENC_NA|ENC_ASCII);
+                        2, ENC_ASCII);
     offset += 2;
 
     cac_radios = tvb_get_uint8(tvb, offset);

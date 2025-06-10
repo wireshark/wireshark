@@ -7668,13 +7668,13 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_length_of_node_name, tvb, offset, 1, ENC_BIG_ENDIAN, &name_len);
     offset++;
     /* Node Name */
-    proto_tree_add_item(tree, hf_gtpv2_node_name, tvb, offset, name_len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_node_name, tvb, offset, name_len, ENC_UTF_8);
     offset = offset + name_len;
     /* Length of Node Realm */
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_length_of_node_realm, tvb, offset, 1, ENC_BIG_ENDIAN, &name_len);
     offset++;
     /* Node Realm */
-    proto_tree_add_item(tree, hf_gtpv2_node_realm, tvb, offset, name_len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_node_realm, tvb, offset, name_len, ENC_UTF_8);
     offset = offset + name_len;
     if(offset < length){
         proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length- offset);
@@ -8159,7 +8159,7 @@ dissect_gtpv2_mon_event_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mon_event_inf_scef_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &scef_id_len);
     offset++;
     /* Octet 10 to k SCEF ID */
-    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_scef_id, tvb, offset, scef_id_len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_scef_id, tvb, offset, scef_id_len, ENC_UTF_8);
     offset = offset + scef_id_len;
     /* Octet (k+1) to (k+2) Remaining Number of Reports */
     proto_tree_add_item(tree, hf_gtpv2_mon_event_inf_remaining_number_of_reports, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -8805,7 +8805,7 @@ dissect_gtpv2_ie_mon_event_ext_inf(tvbuff_t* tvb, packet_info* pinfo, proto_tree
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mon_event_ext_inf_scef_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &scef_id_len);
     offset++;
     /* Octet 11 to k SCEF ID */
-    proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_scef_id, tvb, offset, scef_id_len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_scef_id, tvb, offset, scef_id_len, ENC_UTF_8);
     offset = offset + scef_id_len;
     if (lrtp) {
         proto_tree_add_item(tree, hf_gtpv2_mon_event_ext_inf_remain_min_period_loc_report_type, tvb, offset, 4, ENC_BIG_ENDIAN);

@@ -1229,7 +1229,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			}
 			switch (g8) {
 			case 0x00: /* 7bit */
-				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_3GPP_TS_23_038_7BITS|ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_3GPP_TS_23_038_7BITS);
 				break;
 			case 0x04: /* 8bit */
 				/* XXX - ASCII, or some extended ASCII? */
@@ -1488,7 +1488,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x76:	/* Geographical Location Parameters / IARI */
 			if (ims_event) {
-				proto_tree_add_item(elem_tree, hf_ctlv_iari, tvb, pos, len, ENC_UTF_8 | ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_iari, tvb, pos, len, ENC_UTF_8);
 			}
 			break;
 		case 0x77:	/* GAD Shapes / IMPU list */
@@ -1497,7 +1497,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				while (i < len) {
 					if (tvb_get_uint8(tvb, pos+i) == 0x80) {
 						g8 = tvb_get_uint8(tvb, pos+i+1);
-						proto_tree_add_item(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA);
+						proto_tree_add_item(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8, ENC_UTF_8);
 						i += 2+g8;
 					} else {
 						break;

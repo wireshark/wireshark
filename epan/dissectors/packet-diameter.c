@@ -793,7 +793,7 @@ dissect_diameter_user_equipment_info_value(tvbuff_t *tvb, packet_info *pinfo, pr
 		/* IMEISV is 16 digits, but often transmitted BCD coded in 8 octets.
 		   Some implementations use IMEI (15 digits) instead of IMEISV */
 		if (len == 8) {
-			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN|ENC_NA);
+			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
 			return len;
 		} else if (len == 16) {
 			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_ASCII);

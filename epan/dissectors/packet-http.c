@@ -3812,7 +3812,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 					/* finally add cookie to tree */
 					proto_tree_add_item(cookie_tree, hf_http_cookie_pair,
-						tvb, value_offset + f, part_len, ENC_NA|ENC_ASCII);
+						tvb, value_offset + f, part_len, ENC_ASCII);
 					f += part_len;
 				}
 			}

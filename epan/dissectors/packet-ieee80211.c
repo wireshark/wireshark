@@ -30599,7 +30599,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         dissect_measurement_pilot_trans_ie(sub_tag_tvb, pinfo, sub_tag_tree, data);
         break;
       case NR_SUB_ID_CON_COU_STR:
-        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_country_code, tvb, offset, 2, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_country_code, tvb, offset, 2, ENC_ASCII);
         break;
       case NR_SUB_ID_BSS_TRN_CAN_PREF:
         proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_trn_can_pref, tvb, offset, 1, ENC_NA);
@@ -34937,7 +34937,7 @@ dissect_password_identifier(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, int len _U_)
 {
   proto_tree_add_item(tree, hf_ieee80211_sae_password_identifier, tvb, offset,
-                      len, ENC_NA|ENC_ASCII);
+                      len, ENC_ASCII);
   offset += len;
 
   return offset;

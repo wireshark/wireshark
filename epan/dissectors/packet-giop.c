@@ -4983,7 +4983,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
   /* Dissect GIOP header */
   header_tree = proto_tree_add_subtree(giop_tree, tvb, offset, GIOP_HEADER_SIZE, ett_giop_header, NULL, "GIOP Header");
-  proto_tree_add_item(header_tree, hf_giop_message_magic, tvb, 0, 4, ENC_NA|ENC_ASCII);
+  proto_tree_add_item(header_tree, hf_giop_message_magic, tvb, 0, 4, ENC_ASCII);
 
   header_version_tree = proto_tree_add_subtree_format(header_tree, tvb, 4, 2, ett_giop_header_version, &version_item,
                      "Version: %u.%u", header.GIOP_version.major, header.GIOP_version.minor);

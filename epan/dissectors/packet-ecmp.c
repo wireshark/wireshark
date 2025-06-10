@@ -1283,7 +1283,7 @@ static int get_data_type(packet_info* pinfo, int offset, uint8_t data_type, tvbu
 		offset+= 7;
 		break;
 	case 30: /*display string ID*/
-		proto_tree_add_item(ecmp_current_tree, hf_ecmp_string_id, tvb, offset, 2, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(ecmp_current_tree, hf_ecmp_string_id, tvb, offset, 2, ENC_ASCII);
 		offset++;
 		break;
 	case 32: /*display (ECMP) string*/
@@ -1548,7 +1548,7 @@ static void get_object_info_response(packet_info* pinfo, int offset, tvbuff_t *t
 				case 6:
 					/*display Units- ID string */
 					offset++;
-					proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_string_id, tvb, offset, 2, ENC_NA|ENC_ASCII);
+					proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_string_id, tvb, offset, 2, ENC_ASCII);
 					offset++;
 					break;
 				case 7:

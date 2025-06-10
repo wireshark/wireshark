@@ -407,7 +407,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t o
             expert_add_info_format(pinfo, tlv_item, &ei_lltd_tlv_length_invalid, "SSID length too large");
         }
 
-        proto_tree_add_item(tlv_tree, hf_lltd_ssid, tvb, offset+2, length, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tlv_tree, hf_lltd_ssid, tvb, offset+2, length, ENC_ASCII);
         break;
     case 0x07: /* IPv4 Address */
         if (length != 4)

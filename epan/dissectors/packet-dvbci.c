@@ -3277,12 +3277,12 @@ dissect_dvbci_payload_hlc(uint32_t tag, int len_field _U_,
   if (tag==T_HOST_COUNTRY) {
       proto_tree_add_item(tree, hf_dvbci_host_country,
               tvb, offset, tvb_reported_length_remaining(tvb, offset),
-              ENC_ISO_8859_1|ENC_NA);
+              ENC_ISO_8859_1);
   }
   else if (tag==T_HOST_LANGUAGE) {
       proto_tree_add_item(tree, hf_dvbci_host_language,
               tvb, offset, tvb_reported_length_remaining(tvb, offset),
-              ENC_ISO_8859_1|ENC_NA);
+              ENC_ISO_8859_1);
   }
 
   /* both apdus' body is only a country code, this can be shared */

@@ -564,7 +564,7 @@ dissect_navitrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	case nav_ErrorDescriptionRes: // Error description response v3
 		proto_tree_add_item(navitrol_tree, hf_navitrol_error_code, tvb, offset, 4, navitrol_endian);
 		offset += 4;
-		proto_tree_add_item(navitrol_tree, hf_navitrol_error_description, tvb, offset, 200, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(navitrol_tree, hf_navitrol_error_description, tvb, offset, 200, ENC_ASCII);
 		/* offset += 200; */
 		break;
 
@@ -578,7 +578,7 @@ dissect_navitrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		}
 		for (i = 0; i < error_count; i++)
 		{
-			proto_tree_add_item(navitrol_tree, hf_navitrol_error_description, tvb, offset, 200, ENC_NA|ENC_ASCII);
+			proto_tree_add_item(navitrol_tree, hf_navitrol_error_description, tvb, offset, 200, ENC_ASCII);
 			offset += 200;
 		}
 		break;
