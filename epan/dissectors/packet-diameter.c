@@ -333,7 +333,13 @@ static bool gbl_diameter_desegment = true;
 /* do not use IP/Port to search conversation of Diameter */
 static bool gbl_diameter_use_ip_port_for_conversation = true;
 
+/* add Association IMSI to all messages in session */
+static bool gbl_diameter_session_imsi = false;
+
 static wmem_tree_t *diameter_conversations;
+
+/* Relation between session -> imsi */
+static wmem_map_t* diam_session_imsi;
 
 /* Dissector tables */
 static dissector_table_t diameter_dissector_table;
@@ -456,6 +462,18 @@ dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
+dissect_diameter_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
+{
+	int length = tvb_reported_length(tvb);
+
+	if (gbl_diameter_session_imsi) {
+		diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+		diam_sub_dis->session_id = (const char *)tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_UTF_8|ENC_BIG_ENDIAN);
+	}
+	return length;
+}
+
+static int
 dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	bool save_writable;
@@ -557,6 +575,7 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 	uint32_t application_id = 0, cmd_code = 0, str_len;
+	const char *imsi = NULL;
 
 	if (diam_sub_dis) {
 		application_id = diam_sub_dis->application_id;
@@ -569,12 +588,18 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	case DIAM_APPID_3GPP_S7A:
 	case DIAM_APPID_3GPP_S13:
 		str_len = tvb_reported_length(tvb);
-		dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		imsi = dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		if (gbl_diameter_session_imsi && !diam_sub_dis->imsi) {
+			diam_sub_dis->imsi = imsi;
+		}
 		return str_len;
 	case DIAM_APPID_3GPP_SWX:
 		if (cmd_code != 305) {
 			str_len = tvb_reported_length(tvb);
-			dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+			imsi = dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+			if (gbl_diameter_session_imsi && !diam_sub_dis->imsi) {
+				diam_sub_dis->imsi = imsi;
+			}
 			return str_len;
 		}
 		// cmd_code 305 (Push-Profile), can be either a User Profile
@@ -711,11 +736,15 @@ dissect_diameter_subscription_id_data(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	uint32_t str_len;
 	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 	uint32_t subscription_id_type = diam_sub_dis_inf->subscription_id_type;
+	const char *imsi = NULL;
 
 	switch (subscription_id_type) {
 	case SUBSCRIPTION_ID_TYPE_IMSI:
 		str_len = tvb_reported_length(tvb);
-		dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		imsi = dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		if (gbl_diameter_session_imsi && !diam_sub_dis_inf->imsi) {
+			diam_sub_dis_inf->imsi = imsi;
+		}
 		return str_len;
 	case SUBSCRIPTION_ID_TYPE_E164:
 		str_len = tvb_reported_length(tvb);
@@ -1615,6 +1644,19 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* Dissect AVPs until the end of the packet is reached */
 	while (offset < packet_len) {
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
+	}
+
+	if (gbl_diameter_session_imsi) {
+		if (diam_sub_dis_inf->session_id && !wmem_map_contains(diam_session_imsi, diam_sub_dis_inf->session_id) && diam_sub_dis_inf->imsi) {
+			wmem_map_insert(diam_session_imsi,
+					wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->session_id),
+					wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->imsi));
+		} else if (diam_sub_dis_inf->session_id && !diam_sub_dis_inf->imsi){
+			const char *imsi = (const char *)wmem_map_lookup(diam_session_imsi, diam_sub_dis_inf->session_id);
+			if (imsi) {
+				add_assoc_imsi_item(tvb, diam_tree, imsi);
+			}
+		}
 	}
 
 	/* Handle requests for which no answers were found and
@@ -2608,6 +2650,7 @@ real_register_diameter_fields(void)
 	g_ptr_array_free(build_dict.ett,true);
 
 	diameter_conversations = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	diam_session_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 }
 
 static void
@@ -2671,6 +2714,12 @@ proto_register_diameter(void)
 		" In such cases need disable this option and only combination of End-To-End and Hop-By-Hop will be used to find request/response",
 		&gbl_diameter_use_ip_port_for_conversation);
 
+	prefs_register_bool_preference(diameter_module, "session_imsi",
+		"Add \"Association IMSI\" to all messages in one session",
+		"Take IMSI value of first AVP with E.212 encoding and add field \"Association IMSI\"(e212.assoc.imsi) to all messages"
+		" with the same Session-Id",
+		&gbl_diameter_session_imsi);
+
 	/*  Register some preferences we no longer support, so we can report
 	 *  them as obsolete rather than just illegal.
 	 */
@@ -2714,6 +2763,9 @@ proto_reg_handoff_diameter(void)
 
 	/* AVP Code: 124 MIP6-Feature-Vector */
 	dissector_add_uint("diameter.base", 124, create_dissector_handle(dissect_diameter_mip6_feature_vector, proto_diameter));
+
+	/* AVP Code: 263 Session-Id */
+	dissector_add_uint("diameter.base", 263, create_dissector_handle(dissect_diameter_session_id, proto_diameter));
 
 	/* AVP Code: 265 Supported-Vendor-Id */
 	dissector_add_uint("diameter.base", 265, create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));

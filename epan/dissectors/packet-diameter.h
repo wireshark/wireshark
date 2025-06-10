@@ -40,6 +40,8 @@ typedef struct _diam_sub_dis_t {
 	uint32_t subscription_id_type;     /* Store the Subscription-Id-Type for use when we dissect Subscription-Id-Data */
 	uint32_t user_equipment_info_type; /* Store the User-Equipment-Info-Type for use when we dissect User-Equipment-Info-Value */
 	bool parent_message_is_request; /* Whether the Diameter message that contains your AVP is a request */
+	const char *session_id;
+	const char *imsi; /* Store IMSI from first AVP with type E.212*/
 } diam_sub_dis_t;
 
 #define DIAM_APPID_3GPP_CX      16777216
