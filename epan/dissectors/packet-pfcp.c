@@ -1400,6 +1400,7 @@ typedef struct pfcp_session_args {
     address last_ip;
     uint8_t last_cause;
     pfcp_rule_ids_t last_rule_ids;
+    const char *imsi;
 } pfcp_session_args_t;
 
 typedef struct _pfcp_hdr {
@@ -1410,6 +1411,10 @@ typedef struct _pfcp_hdr {
 
 /* Relation between frame -> session */
 wmem_map_t* pfcp_session_table;
+
+/* Relation between session -> IMSI */
+wmem_map_t* pfcp_session_imsi;
+
 /* Relation between <seid,ip> -> frame */
 wmem_map_t* pfcp_frame_map;
 
@@ -2234,10 +2239,11 @@ pfcp_stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 }
 
 static void
-pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_hdr_t * pfcp_hdr, wmem_list_t *seid_list, wmem_list_t *ip_list, uint64_t last_seid _U_, address last_ip _U_)
+pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_hdr_t * pfcp_hdr, pfcp_session_args_t *args)
 {
     uint32_t session, frame_seid_cp;
     proto_item *it;
+    char *imsi = NULL;
 
     /* PFCP session */
     if (tree) {
@@ -2245,6 +2251,14 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
         if (session) {
             it = proto_tree_add_uint(tree, hf_pfcp_session, tvb, 0, 0, session);
             proto_item_set_generated(it);
+
+            imsi = wmem_map_lookup(pfcp_session_imsi, GUINT_TO_POINTER(session));
+            if (args->imsi && !imsi) {
+                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                wmem_map_insert(pfcp_session_imsi, GUINT_TO_POINTER(session), imsi);
+            } else if (!args->imsi && imsi) {
+                add_assoc_imsi_item(tvb, tree, imsi);
+            }
         }
     }
 
@@ -2266,13 +2280,19 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
                 pfcp_hdr->message != PFCP_MSG_SESSION_DELETION_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_DELETION_RESPONSE &&
                 pfcp_hdr->message != PFCP_MSG_SESSION_REPORT_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_REPORT_RESPONSE)) {
                 /* If the lists are not empty*/
-                if (wmem_list_count(seid_list) && wmem_list_count(ip_list)) {
+                if (wmem_list_count(args->seid_list) && wmem_list_count(args->ip_list)) {
                     pfcp_remove_frame_info(pinfo->num);
                 }
             }
             if (pfcp_hdr->message == PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST){
                 /* If SEREQ and not already in the list then we create a new session*/
-                pfcp_add_session(pinfo->num, pfcp_session_count++);
+                pfcp_add_session(pinfo->num, pfcp_session_count);
+
+                if (args->imsi) {
+                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                    wmem_map_insert(pfcp_session_imsi, GUINT_TO_POINTER(pfcp_session_count++), imsi);
+                }
+
             }
             else if (pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE) {
                 /* We have to check if its seid == seid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
@@ -2283,6 +2303,12 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
                     if (session) {
                         /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
                         pfcp_add_session(pinfo->num, session);
+
+                        if (args->imsi) {
+                            imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                            wmem_map_insert(pfcp_session_imsi, GUINT_TO_POINTER(session), imsi);
+                        }
+
                     }
                 }
             }
@@ -6291,11 +6317,12 @@ dissect_pfcp_suggested_buffering_packets_count(tvbuff_t *tvb, packet_info *pinfo
 /*
  *   8.2.101 User ID
  */
-static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args)
 {
     int offset = 0;
     uint64_t flags_val;
     uint32_t length_imsi, length_imei, length_msisdn, length_nai, length_supi, length_gpsi, length_pei;
+    const char *imsi_str;
 
     static int * const pfcp_user_id_flags[] = {
         &hf_pfcp_spare_b7,
@@ -6318,8 +6345,12 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_imsi, tvb, offset, 1, ENC_BIG_ENDIAN, &length_imsi);
         offset += 1;
         /* 7 to (a)    IMSI */
-        dissect_e212_imsi(tvb, pinfo, tree,  offset, length_imsi, false);
+        imsi_str = dissect_e212_imsi(tvb, pinfo, tree,  offset, length_imsi, false);
         offset += length_imsi;
+
+        if (g_pfcp_session) {
+            args->imsi = imsi_str;
+        }
     }
 
     /* Bit 2 - IMEIF: If this bit is set to "1", then the Length of IMEI and IMEI fields shall be present */
@@ -11261,7 +11292,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         tap_queue_packet(pfcp_tap, pinfo, pcrp);
     }
     if (g_pfcp_session) {
-        pfcp_track_session(tvb, pinfo, sub_tree, pfcp_hdr, args->seid_list, args->ip_list, args->last_seid, args->last_ip);
+        pfcp_track_session(tvb, pinfo, sub_tree, pfcp_hdr, args);
     }
 
     return length_total;
@@ -13131,6 +13162,7 @@ pfcp_init(void)
 {
     pfcp_session_count = 1;
     pfcp_session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    pfcp_session_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     pfcp_frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pfcp_info_hash, pfcp_info_equal);
 }
 
