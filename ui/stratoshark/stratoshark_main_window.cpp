@@ -1757,7 +1757,7 @@ bool StratosharkMainWindow::testCaptureFileClose(QString before_what, FileCloseC
             QPushButton *discard_button;
 
             msg_dialog.setIcon(QMessageBox::Question);
-            msg_dialog.setWindowTitle("Unsaved packets" UTF8_HORIZONTAL_ELLIPSIS);
+            msg_dialog.setWindowTitle(tr("Unsaved packets…"));
 
             /* This file has unsaved data or there's a capture in
                progress; ask the user whether to save the data. */

@@ -441,7 +441,7 @@ void RtpPlayerDialog::retapPackets()
         return;
     }
     lockUI();
-    ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
+    ui->hintLabel->setText("<i><small>" + tr("Decoding streams…") + "</i></small>");
     mainApp->processEvents();
 
     // Clear packets from existing streams before retap
@@ -485,7 +485,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     lockUI();
     // Show information for a user - it can last long time...
     playback_error_.clear();
-    ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
+    ui->hintLabel->setText("<i><small>" + tr("Decoding streams…") + "</i></small>");
     mainApp->processEvents();
 
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
@@ -1402,7 +1402,7 @@ void RtpPlayerDialog::on_playButton_clicked()
     double start_time;
     QList<RtpAudioStream *> streams_to_start;
 
-    ui->hintLabel->setText("<i><small>" + tr("Preparing to play...") + "</i></small>");
+    ui->hintLabel->setText("<i><small>" + tr("Preparing to play…") + "</i></small>");
     mainApp->processEvents();
     ui->pauseButton->setChecked(false);
 
@@ -2115,7 +2115,7 @@ void RtpPlayerDialog::on_visualSRSpinBox_editingFinished()
     lockUI();
     // Show information for a user - it can last a long time...
     playback_error_.clear();
-    ui->hintLabel->setText("<i><small>" + tr("Resampling waveform...") + "</i></small>");
+    ui->hintLabel->setText("<i><small>" + tr("Resampling waveform…") + "</i></small>");
     mainApp->processEvents();
 
     int row_count = ui->streamTreeWidget->topLevelItemCount();

@@ -293,7 +293,7 @@ void MainWindow::addDisplayFilterTranslationActions(QMenu *copy_menu) {
         if (idx == 0) {
             action_text = tr("Display filter as %1").arg(translator);
         } else {
-            action_text = tr(UTF8_HORIZONTAL_ELLIPSIS "as %1").arg(translator);
+            action_text = tr("…as %1").arg(translator);
         }
         QAction *xlate_action = copy_menu->addAction(action_text);
         xlate_action->setProperty(translator_, QVariant::fromValue(translator));

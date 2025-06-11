@@ -114,7 +114,7 @@ void FilterExpressionToolBar::customMenu(FilterExpressionToolBar * target, QActi
         actRemove->setData(filterAction->data());
         filterMenu->addSeparator();
     }
-    QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences..."));
+    QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences…"));
     connect(actFilter, &QAction::triggered, target, &FilterExpressionToolBar::toolBarShowPreferences);
 
     /* Forcing the menus to get closed, no matter which action has been triggered */

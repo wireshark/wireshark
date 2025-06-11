@@ -607,9 +607,9 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
 #if defined(HAVE_MINIZIP) || defined(HAVE_MINIZIPNG)
         QMenu * importMenu = new QMenu(tr("Import"), ctx_menu_);
-        action = importMenu->addAction(tr("From Zip File..."), this, SLOT(manageProfile()));
+        action = importMenu->addAction(tr("From Zip File…"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);
-        action = importMenu->addAction(tr("From Directory..."), this, SLOT(manageProfile()));
+        action = importMenu->addAction(tr("From Directory…"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
         ctx_menu_->addMenu(importMenu);
 
@@ -618,11 +618,11 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
             QMenu * exportMenu = new QMenu(tr("Export"), ctx_menu_);
             if (enable_edit)
             {
-                action = exportMenu->addAction(tr("Selected Personal Profile..."), this, SLOT(manageProfile()));
+                action = exportMenu->addAction(tr("Selected Personal Profile…"), this, SLOT(manageProfile()));
                 action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
                 action->setEnabled(enable_edit);
             }
-            action = exportMenu->addAction(tr("All Personal Profiles..."), this, SLOT(manageProfile()));
+            action = exportMenu->addAction(tr("All Personal Profiles…"), this, SLOT(manageProfile()));
             action->setProperty("dialog_action_", (int)ProfileDialog::ExportAllProfiles);
             ctx_menu_->addMenu(exportMenu);
         }
