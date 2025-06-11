@@ -1,2 +1,2 @@
 # Automatically switch to this profile if this display filter matches.
-auto_switch_filter: falcobridge.id == 2
+auto_switch_filter: falcoevents.id == 2
