@@ -265,6 +265,9 @@ static bool is_request_magic(uint8_t magic) {
 #define CLIENT_OPCODE_AUDIT_CONFIG_RELOAD     0x28
 #define CLIENT_OPCODE_SHUTDOWN                0x29
 
+#define CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS 0x2d
+#define CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS   0x2e
+
  /* Range operations.
   * These commands are used for range operations and exist within
   * protocol_binary.h for use in other projects. Range operations are
@@ -302,6 +305,9 @@ static bool is_request_magic(uint8_t magic) {
 
 #define CLIENT_OPCODE_GET_ALL_VB_SEQNOS       0x48
 
+#define CLIENT_OPCODE_GET_EX                  0x49
+#define CLIENT_OPCODE_GET_EX_REPLICA          0x4a
+
 /* DCP commands */
 #define CLIENT_OPCODE_DCP_OPEN_CONNECTION         0x50
 #define CLIENT_OPCODE_DCP_ADD_STREAM              0x51
@@ -325,6 +331,16 @@ static bool is_request_magic(uint8_t magic) {
 #define CLIENT_OPCODE_DCP_ABORT                   0x63
 #define CLIENT_OPCODE_DCP_SEQNO_ADVANCED          0x64
 #define CLIENT_OPCODE_DCP_OSO_SNAPSHOT            0x65
+
+#define CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT 0x70
+#define CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT 0x71
+#define CLIENT_OPCODE_MOUNT_FUSION_VB             0x72
+#define CLIENT_OPCODE_UNMOUNT_FUSION_VB           0x73
+#define CLIENT_OPCODE_SYNC_FUSION_LOGSTORE        0x74
+#define CLIENT_OPCODE_START_FUSION_UPLOADER       0x75
+#define CLIENT_OPCODE_STOP_FUSION_UPLOADER        0x76
+#define CLIENT_OPCODE_DELETE_FUSION_NAMESPACE     0x77
+#define CLIENT_OPCODE_GET_FUSION_NAMESPACES       0x78
 
  /* Commands from EP (eventually persistent) and bucket engines */
 #define CLIENT_OPCODE_STOP_PERSISTENCE        0x80
@@ -406,6 +422,11 @@ static bool is_request_magic(uint8_t magic) {
 #define CLIENT_OPCODE_RANGE_SCAN_CREATE       0xda
 #define CLIENT_OPCODE_RANGE_SCAN_CONTINUE     0xdb
 #define CLIENT_OPCODE_RANGE_SCAN_CANCEL       0xdc
+
+#define CLIENT_OPCODE_PREPARE_SNAPSHOT        0xe0
+#define CLIENT_OPCODE_RELEASE_SNAPSHOT        0xe1
+#define CLIENT_OPCODE_DOWNLOAD_SNAPSHOT       0xe2
+#define CLIENT_OPCODE_GET_FILE_FRAGMENT       0xe3
 
 #define CLIENT_OPCODE_SCRUB                   0xf0
 #define CLIENT_OPCODE_ISASL_REFRESH           0xf1
@@ -876,6 +897,8 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_AUDIT_PUT,                  "Audit Put"                },
   { CLIENT_OPCODE_AUDIT_CONFIG_RELOAD,        "Audit Config Reload"      },
   { CLIENT_OPCODE_SHUTDOWN,                   "Shutdown"                 },
+  { CLIENT_OPCODE_SET_ACTIVE_ENCRYPTION_KEYS, "Set Active Encryption Keys"},
+  { CLIENT_OPCODE_PRUNE_ENCRYPTION_KEYS,      "Prune Encryption Keys"    },
   { CLIENT_OPCODE_RGET,                       "Range Get"                },
   { CLIENT_OPCODE_RSET,                       "Range Set"                },
   { CLIENT_OPCODE_RSETQ,                      "Range Set Quietly"        },
@@ -901,6 +924,8 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_TAP_CHECKPOINT_START,       "TAP Checkpoint Start"     },
   { CLIENT_OPCODE_TAP_CHECKPOINT_END,         "TAP Checkpoint End"       },
   { CLIENT_OPCODE_GET_ALL_VB_SEQNOS,          "Get All VBucket Seqnos"   },
+  { CLIENT_OPCODE_GET_EX,                     "GetEx"                    },
+  { CLIENT_OPCODE_GET_EX_REPLICA,             "GetEx Replica"            },
   { CLIENT_OPCODE_DCP_OPEN_CONNECTION,        "DCP Open Connection"      },
   { CLIENT_OPCODE_DCP_ADD_STREAM,             "DCP Add Stream"           },
   { CLIENT_OPCODE_DCP_CLOSE_STREAM,           "DCP Close Stream"         },
@@ -923,6 +948,15 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_DCP_ABORT,                  "DCP Abort"                },
   { CLIENT_OPCODE_DCP_SEQNO_ADVANCED,         "DCP Seqno Advanced"       },
   { CLIENT_OPCODE_DCP_OSO_SNAPSHOT,           "DCP Out of Sequence Order Snapshot"},
+  { CLIENT_OPCODE_GET_FUSION_STORAGE_SNAPSHOT, "Get Fusion Storage Snapshot"},
+  { CLIENT_OPCODE_RELEASE_FUSION_STORAGE_SNAPSHOT, "Release Fusion Storage Snapshot"},
+  { CLIENT_OPCODE_MOUNT_FUSION_VB,            "Mount Fusion VBucket"     },
+  { CLIENT_OPCODE_UNMOUNT_FUSION_VB,          "Unmount Fusion VBucket"   },
+  { CLIENT_OPCODE_SYNC_FUSION_LOGSTORE,       "Sync Fusion Logstore"     },
+  { CLIENT_OPCODE_START_FUSION_UPLOADER,      "Start Fusion Uploader"    },
+  { CLIENT_OPCODE_STOP_FUSION_UPLOADER,       "Stop Fusion Uploader"     },
+  { CLIENT_OPCODE_DELETE_FUSION_NAMESPACE,    "Delete Fusion Namespace"  },
+  { CLIENT_OPCODE_GET_FUSION_NAMESPACES,      "Get Fusion Namespaces"    },
   { CLIENT_OPCODE_STOP_PERSISTENCE,           "Stop Persistence"         },
   { CLIENT_OPCODE_START_PERSISTENCE,          "Start Persistence"        },
   { CLIENT_OPCODE_SET_PARAM,                  "Set Parameter"            },
@@ -996,6 +1030,10 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_RANGE_SCAN_CREATE,          "RangeScan Create"         },
   { CLIENT_OPCODE_RANGE_SCAN_CONTINUE,        "RangeScan Continue"       },
   { CLIENT_OPCODE_RANGE_SCAN_CANCEL,          "RangeScan Cancel"         },
+  { CLIENT_OPCODE_PREPARE_SNAPSHOT,           "Prepare Snapshot"         },
+  { CLIENT_OPCODE_RELEASE_SNAPSHOT,           "Release Snapshot"         },
+  { CLIENT_OPCODE_DOWNLOAD_SNAPSHOT,          "Download Snapshot"        },
+  { CLIENT_OPCODE_GET_FILE_FRAGMENT,          "Get File Fragment"        },
   { CLIENT_OPCODE_SCRUB,                      "Scrub"                    },
   { CLIENT_OPCODE_ISASL_REFRESH,              "isasl Refresh"            },
   { CLIENT_OPCODE_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
@@ -1009,7 +1047,6 @@ static const value_string client_opcode_vals[] = {
   { CLIENT_OPCODE_ADJUST_TIMEOFDAY,           "Adjust Timeofday"         },
   { CLIENT_OPCODE_EWOULDBLOCK_CTL,            "EWOULDBLOCK Control"      },
   { CLIENT_OPCODE_GET_ERROR_MAP,              "Get Error Map"            },
-
   /* Internally defined values not valid here */
   { 0, NULL }
 };
