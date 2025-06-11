@@ -27,6 +27,10 @@
 #include <wsutil/pint.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/dtoa.h>
+#include <wsutil/filesystem.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #include <ftypes/ftypes.h>
 
@@ -521,6 +525,7 @@ static const char *reserved_filter_names[] = {
 };
 
 static GHashTable *proto_reserved_filter_names;
+static GQueue* saved_dir_queue;
 
 static int
 proto_compare_name(const void *p1_arg, const void *p2_arg)
@@ -575,6 +580,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	   void *client_data)
 {
 	proto_cleanup_base();
+	saved_dir_queue = g_queue_new();
 
 	proto_names        = g_hash_table_new(wmem_str_hash, g_str_equal);
 	proto_short_names  = g_hash_table_new(wmem_str_hash, g_str_equal);
@@ -748,6 +754,11 @@ proto_cleanup_base(void)
 
 	if (prefixes)
 		g_hash_table_destroy(prefixes);
+
+	if (saved_dir_queue != NULL) {
+		g_queue_clear_full(saved_dir_queue, g_free);
+		saved_dir_queue = NULL;
+	}
 }
 
 void
@@ -758,6 +769,51 @@ proto_cleanup(void)
 
 	g_slist_free(dissector_plugins);
 	dissector_plugins = NULL;
+}
+
+static bool
+ws_pushd(const char* dir)
+{
+	//Save the current working directory
+	const char* save_wd = get_current_working_dir();
+	if (save_wd != NULL)
+		g_queue_push_head(saved_dir_queue, g_strdup(save_wd));
+
+	//Change to the new one
+#ifdef _WIN32
+	SetCurrentDirectory(utf_8to16(dir));
+	return true;
+#else
+	return (chdir(dir) == 0);
+#endif
+}
+
+static bool
+ws_popd(void)
+{
+	int ret = 0;
+	char* saved_wd = g_queue_pop_head(saved_dir_queue);
+	if (saved_wd == NULL)
+		return false;
+
+	//Restore the previous one
+#ifdef _WIN32
+	SetCurrentDirectory(utf_8to16(saved_wd));
+#else
+	ret = chdir(saved_wd);
+#endif
+	g_free(saved_wd);
+	return (ret == 0);
+}
+
+void
+proto_execute_in_directory(const char* dir, proto_execute_in_directory_func func, void* param)
+{
+	if (ws_pushd(dir))
+	{
+		func(param);
+		ws_popd();
+	}
 }
 
 static bool

@@ -1108,6 +1108,21 @@ void proto_init(GSList *register_all_plugin_protocols_list,
 /** Frees memory used by proto routines. Called at program shutdown */
 extern void proto_cleanup(void);
 
+typedef void (*proto_execute_in_directory_func)(void* param);
+
+/** Execute a function for a protocol in a specific directory.
+ * This will change the current working directory, then execute
+ * the function and then restore the current working directory to
+ * its previous value.  This is intended to be called during protocol
+ * initialization (i.e. not thread safe)
+ *
+ * @param dir The new current working directory
+ * @param func Function to be called once the directory has been successfully changed
+ * @param param Optional parameter to be passed into the handling function
+ */
+WS_DLL_PUBLIC void proto_execute_in_directory(const char* dir, proto_execute_in_directory_func func, void* param);
+
+
 /** This function takes a tree and a protocol id as parameter and
     will return true/false for whether the protocol or any of the filterable
     fields in the protocol is referenced by any filters.
