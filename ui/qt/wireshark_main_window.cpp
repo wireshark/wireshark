@@ -2081,6 +2081,8 @@ void WiresharkMainWindow::initMainToolbarIcons()
     main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
     main_ui_->actionViewResetLayout->setIcon(StockIcon("x-reset-layout_2"));
     main_ui_->actionViewReload->setIcon(StockIcon("x-capture-file-reload"));
+    // XXX - What icon to use?
+    //main_ui_->actionViewRedissect->setIcon(StockIcon("x-capture-file-reload"));
 
     main_ui_->actionNewDisplayFilterExpression->setIcon(StockIcon("list-add"));
 }
@@ -2182,6 +2184,7 @@ void WiresharkMainWindow::initFreezeActions()
     QList<QAction *> freeze_actions = QList<QAction *>()
             << main_ui_->actionFileClose
             << main_ui_->actionViewReload
+            << main_ui_->actionViewRedissect
             << main_ui_->actionEditMarkSelected
             << main_ui_->actionEditMarkAllDisplayed
             << main_ui_->actionEditUnmarkAllDisplayed
@@ -2500,6 +2503,7 @@ void WiresharkMainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionViewZoomOut->setEnabled(have_captured_packets);
     main_ui_->actionViewNormalSize->setEnabled(have_captured_packets);
     main_ui_->actionViewResizeColumns->setEnabled(have_captured_packets);
+    main_ui_->actionViewRedissect->setEnabled(have_captured_packets);
 
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(have_captured_packets);
     main_ui_->actionStatisticsProtocolHierarchy->setEnabled(have_captured_packets);

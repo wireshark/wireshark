@@ -1166,12 +1166,18 @@ The same sort of thing can happen when capturing over a remote connection, e.g.,
   is running, e.g., a new DHCP lease takes effect, Wireshark won’t notice it.
 
 // XXX Is this true for all or only for DNS info?
+// It varies a little bit, see wsug_files.adoc for some info. Some address
+// information files are read in addr_resolv_init, which is called by epan_new,
+// which happens when opening a new file or when redissecting.
+// VLAN and ipxnets are read on demand; ethers were read on demand prior to
+// 5.0 (93fd22eac32a62148147ce46716a74425fbdc823). At least some OSes (Windows)
+// can be pretty slow repeatedly trying to scan the file.
 
 Name resolution in the packet list is done while the list is filled. If a name
 can be resolved after a packet is added to the list, its former entry won’t be
 changed. As the name resolution results are cached, you can use
-menu:View[Reload] to rebuild the packet list with the correctly resolved names.
-However, this isn’t possible while a capture is in progress.
+menu:View[Redissect Packets] to rebuild the packet list with
+the correctly resolved names.
 
 // XXX Add information about the address editor frame (View -> Name Resolution -> Edit Resolved Name)
 

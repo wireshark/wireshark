@@ -196,6 +196,9 @@ for Arm64 and Intel. wsbuglink:17294[]
 
 * LibXml2 is now a required dependency.
 
+* The View menu has an option to Redissect Packets manually, which can be useful
+  when address resolution or decryption secrets have changed.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

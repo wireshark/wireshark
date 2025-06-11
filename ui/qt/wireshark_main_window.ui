@@ -394,6 +394,7 @@
     <addaction name="menuInternals"/>
     <addaction name="separator"/>
     <addaction name="actionViewShowPacketInNewWindow"/>
+    <addaction name="actionViewRedissect"/>
     <addaction name="actionViewReload_as_File_Format_or_Capture"/>
     <addaction name="actionViewReload"/>
    </widget>
@@ -777,6 +778,7 @@
    <addaction name="actionFileSave"/>
    <addaction name="actionFileClose"/>
    <addaction name="actionViewReload"/>
+   <!-- XXX - Need an icon <addaction name="actionViewRedissect"/> -->
    <addaction name="separator"/>
    <addaction name="actionEditFindPacket"/>
    <addaction name="actionGoPreviousPacket"/>
@@ -1269,6 +1271,11 @@
   <action name="actionFileSetPreviousFile">
    <property name="text">
     <string>Previous File</string>
+   </property>
+  </action>
+  <action name="actionViewRedissect">
+   <property name="text">
+    <string>Redissect Packets</string>
    </property>
   </action>
   <action name="actionViewReload">

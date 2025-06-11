@@ -471,6 +471,8 @@ shows only the packet details and bytes of that packet, and will
 continue to do so even if another packet is selected in the main window.
 See <<ChWorkPacketSepView>> for details.
 
+|menu:Redissect Packets[]                           |                   |This menu item redissects the current packets. This can be useful if name resolution or decryption information has changed.
+
 |menu:Reload as File Format/Capture[]               |kbd:[Shift+Ctrl+F] |This menu item allows you to switch between viewing the list of frames contained in the current capture file (normal mode) and viewing its internal structure, if supported for the current file type.
 
 |menu:Reload[]                                      |kbd:[Ctrl+R]       |This menu item allows you to reload the current capture file.

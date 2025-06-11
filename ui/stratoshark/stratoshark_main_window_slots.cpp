@@ -2362,6 +2362,9 @@ void StratosharkMainWindow::connectViewMenuActions()
 
     connect(main_ui_->actionViewReload, &QAction::triggered, this,
             [this]() { reloadCaptureFile(); });
+
+    connect(main_ui_->actionViewRedissect, &QAction::triggered, this,
+            [this]() { redissectPackets(); });
 }
 
 void StratosharkMainWindow::showHideMainWidgets(QAction *action)
