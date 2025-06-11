@@ -173,7 +173,7 @@ sinsp_span_t *sinsp_span;
 // are no complaints, this code should be removed.
 // static int hf_sdp_source_id_size;
 // static int hf_sdp_lengths;
-// static int hf_sdp_source_id;
+static int hf_sdp_source_id;
 static int hf_fd_stream;
 
 static hf_register_info hf[] = {
@@ -189,12 +189,12 @@ static hf_register_info hf[] = {
     //     NULL, 0x0,
     //     NULL, HFILL }
     // },
-    // { &hf_sdp_source_id,
-    //     { "Plugin ID", "falcoevents.id",
-    //     FT_UINT32, BASE_DEC,
-    //     NULL, 0x0,
-    //     NULL, HFILL }
-    // },
+    { &hf_sdp_source_id,
+        { "Plugin ID", "falcoevents.id",
+        FT_UINT32, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_fd_stream,
         { "Stream index", "falcoevents.fd.stream",
          FT_UINT32, BASE_DEC,
@@ -976,9 +976,10 @@ dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         col_clear(pinfo->cinfo,COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", source_id);
 
-        // proto_item *idti = proto_tree_add_item(fb_tree, hf_sdp_source_id, tvb, 8, 4, encoding);
+        proto_item *idti = proto_tree_add_item(tree, hf_sdp_source_id, tvb, 8, 4, encoding);
+        proto_item_set_hidden(idti);
         if (bi == NULL) {
-            // proto_item_append_text(idti, " (NOT SUPPORTED)");
+            proto_item_append_text(idti, " (NOT SUPPORTED)");
             col_append_str(pinfo->cinfo, COL_INFO, " (NOT SUPPORTED)");
             return consumed;
         }
