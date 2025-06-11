@@ -63,6 +63,8 @@ The following bugs have been fixed since version 0.9.1:
 
 * Stratoshark says I can't capture on local interfaces. wsbuglink:20494[].
 
+* Stratoshark: Crash While Sorting on evt.buflen column. wsbuglink:20571[].
+
 The following bugs have been fixed since version 0.9.0:
 
 * Falco Bridge: Empty frame.protocols field. wsbuglink:20248[].
