@@ -1290,7 +1290,9 @@ dissect_rtcp_rtpfb_ccfb_fci( tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     proto_tree_add_item( media_source_ssrc_tree, hf_rtcp_rtpfb_ccfb_beginseq, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    const uint16_t num_of_reported_pkts = tvb_get_uint16( tvb, offset, ENC_BIG_ENDIAN) + 1;
+    /* Calculate number of reports for "the range begin_seq up to, but not including, begin_seq+num_reports" */
+    /* https://www.rfc-editor.org/errata/eid8166 */
+    const uint16_t num_of_reported_pkts = tvb_get_uint16( tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format( media_source_ssrc_tree, hf_rtcp_rtpfb_ccfb_numreports, tvb, offset, 2,
                                 num_of_reported_pkts, "Number of metric blocks: %" PRIu16, num_of_reported_pkts);
 
