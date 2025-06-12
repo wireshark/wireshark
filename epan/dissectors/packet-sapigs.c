@@ -146,13 +146,13 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	sapigs_info_function = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 32, ENC_ASCII);
 
 	/* Headers */
-	proto_tree_add_item(sapigs_tree, hf_sapigs_function, tvb, offset, 32, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(sapigs_tree, hf_sapigs_function, tvb, offset, 32, ENC_ASCII);
 	offset += 32;
-	proto_tree_add_item(sapigs_tree, hf_sapigs_listener, tvb, offset, 32, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(sapigs_tree, hf_sapigs_listener, tvb, offset, 32, ENC_ASCII);
 	offset += 32;
-	proto_tree_add_item(sapigs_tree, hf_sapigs_hostname, tvb, offset, 81, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(sapigs_tree, hf_sapigs_hostname, tvb, offset, 81, ENC_ASCII);
 	offset += 81;
-	proto_tree_add_item(sapigs_tree, hf_sapigs_id, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(sapigs_tree, hf_sapigs_id, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 	proto_tree_add_item(sapigs_tree, hf_sapigs_padd1, tvb, offset, 15, ENC_ASCII);
 	offset += 15;
@@ -168,40 +168,40 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	/* switch over function name value */
 	switch (str_to_val(sapigs_info_function, sapigs_function_lst, err_val)){
 		case 8:{	/* ADM:PING */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
 			break;
 		}
 		case 9:{	/* ADM:PONG */
 			break;
 		}
 		case 1:{	/* ADM:REGPW */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII);
 			break;
 		}
 		case 3:		/* ADM:REGIP */
 		case 5:{	/* ADM:FREEIP */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher, tvb, offset, 5, ENC_ASCII);
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_interpreter, tvb, offset, 16, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_interpreter, tvb, offset, 16, ENC_ASCII);
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_version, tvb, offset, 16, ENC_ASCII);
 			offset += 32;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_info, tvb, offset, 16, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_portwatcher_info, tvb, offset, 16, ENC_ASCII);
 			break;
 		}
 		case 6:{	/* ADM:ILLBEBACK */
 			illbeback_type = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 10, ENC_ASCII|ENC_NA);
 			if (strncmp("TransMagic", illbeback_type, 10) == 0){
 				/* data is raw after eye_catcher */
-				proto_tree_add_item(sapigs_tree, hf_sapigs_eye_catcher, tvb, offset, 10, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(sapigs_tree, hf_sapigs_eye_catcher, tvb, offset, 10, ENC_ASCII);
 				offset += 16;
 				proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, offset, -1, ENC_NA);
 			} else {
 				/* we receive sized data */
 				ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 5, ENC_ASCII), NULL, &data_length);
-				proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII);
 				offset += 5;
 				/* Data */
 				if ((data_length > 0) && (tvb_reported_length_remaining(tvb, offset) >= data_length)) {
@@ -214,19 +214,19 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		case 31:	/* IMGCONV */
 		case 33:	/* XMLCHART */
 		case 16:{	/* ADM:GETDUMP */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_eye_catcher, tvb, offset, 10, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_eye_catcher, tvb, offset, 10, ENC_ASCII);
 			offset += 10;
 			proto_tree_add_item(sapigs_tree, hf_sapigs_padd4, tvb, offset, 2, ENC_ASCII);
 			offset += 2;
-			proto_tree_add_item(sapigs_tree, hf_sapigs_codepage, tvb, offset, 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_codepage, tvb, offset, 4, ENC_ASCII);
 			offset += 4;
 			/* Data offset */
 			ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_offset);
-			proto_tree_add_item(sapigs_tree, hf_sapigs_offset_data, tvb, offset, 16, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_offset_data, tvb, offset, 16, ENC_ASCII);
 			offset += 16;
 			/* Data length */
 			ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_length);
-			proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 16, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 16, ENC_ASCII);
 			offset += 16;
 			data_offset += offset;
 			/* Definition tables */
@@ -259,7 +259,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			break;
 		}
 		case 34:{	/* CHART */
-			proto_tree_add_item(sapigs_tree, hf_sapigs_chart_config, tvb, offset, 32, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(sapigs_tree, hf_sapigs_chart_config, tvb, offset, 32, ENC_ASCII);
 			offset += 32;
 			proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, offset, -1, ENC_NA);
 			break;

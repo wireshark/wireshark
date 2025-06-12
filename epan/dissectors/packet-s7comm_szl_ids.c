@@ -6464,9 +6464,9 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
     offset += 2;
 
     /*Name data*/
-    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_name, tvb, offset, 32, ENC_ASCII);
     offset += 32;
-    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_short_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_short_name, tvb, offset, 32, ENC_ASCII);
     offset += 32;
     proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_dnn_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -6580,17 +6580,17 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
     offset += 2;
     proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_vendor, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_order_id, tvb, offset, 20, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_order_id, tvb, offset, 20, ENC_ASCII);
     offset += 20;
 
     /*I&M1 data*/
     iam1_item = proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_im1, tvb, offset, 54, ENC_NA);
     iam1_item_tree = proto_item_add_subtree(iam1_item, ett_s7comm_szl_xy78_xxxx_iam1);
-    proto_tree_add_item(iam1_item_tree, hf_s7comm_szl_xy78_xxxx_iam1_function, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(iam1_item_tree, hf_s7comm_szl_xy78_xxxx_iam1_function, tvb, offset, 32, ENC_ASCII);
     offset += 32;
-    proto_tree_add_item(iam1_item_tree, hf_s7comm_szl_xy78_xxxx_iam1_location, tvb, offset, 22, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(iam1_item_tree, hf_s7comm_szl_xy78_xxxx_iam1_location, tvb, offset, 22, ENC_ASCII);
     offset += 22;
-    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_asset_id, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy78_xxxx_asset_id, tvb, offset, 32, ENC_ASCII);
     offset += 32;
 
     /*check for TLVs*/

@@ -1401,7 +1401,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
     case Q931_CAUSE_REC_TIMER_EXP:
         if (len < 3)
             return;
-        proto_tree_add_item(tree, hf_q931_cause_call_rec_timer, tvb, offset, 3, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_q931_cause_call_rec_timer, tvb, offset, 3, ENC_ASCII);
         break;
 
     default:
@@ -1707,7 +1707,7 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
         if (netid_len > len)
             netid_len = len;
         if (netid_len != 0) {
-            proto_tree_add_item(tree, hf_q931_netid, tvb, offset, netid_len, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(tree, hf_q931_netid, tvb, offset, netid_len, ENC_ASCII);
             offset += netid_len;
             len -= netid_len;
         }
@@ -2043,7 +2043,7 @@ dissect_q931_cug_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 
     if (len == 0)
         return;
-    proto_tree_add_item(tree, hf_q931_cug_index_code, tvb, offset, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_q931_cug_index_code, tvb, offset, len, ENC_ASCII);
 }
 
 /*
@@ -2410,7 +2410,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
         break;
 
     case Q931_PROTOCOL_DISCRIMINATOR_IA5:
-        proto_tree_add_item(tree, hf_q931_user_information_str, tvb, offset, len, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_q931_user_information_str, tvb, offset, len, ENC_ASCII);
         break;
 
     default:

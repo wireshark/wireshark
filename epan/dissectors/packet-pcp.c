@@ -1810,10 +1810,10 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 2;
 
     /* Name */
-    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_name, tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_name, tvb, json_start_offset + name_offset, name_length, ENC_ASCII);
 
     /* Value */
-    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_value, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_value, tvb, json_start_offset + value_offset, value_length, ENC_ASCII);
 
     /* Add to subtree  */
     uint8_t *name = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);

@@ -3198,7 +3198,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
             proto_tree_add_uint_format_value(rsvp_ifid_subtree, hf_rsvp_type, tvb, offset + tlv_off, 2,
                                 tlv_type, "516 (ERROR_STRING)");
             proto_tree_add_item(rsvp_ifid_subtree, hf_rsvp_ifid_tlv_length, tvb, offset + tlv_off + 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_ifid_subtree, hf_rsvp_ifid_tlv_error_string, tvb, offset + tlv_off + 4, tlv_len - 4, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(rsvp_ifid_subtree, hf_rsvp_ifid_tlv_error_string, tvb, offset + tlv_off + 4, tlv_len - 4, ENC_ASCII);
             break;
 
         default:
@@ -4974,7 +4974,7 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
 
         name_len = tvb_get_uint8(tvb, offset2+3);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_attribute_name_length, tvb, offset2+3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_attribute_name, tvb, offset2+4, name_len, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_attribute_name, tvb, offset2+4, name_len, ENC_ASCII);
         proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s%s%s [%s]",
                             tvb_get_uint8(tvb, offset2),
                             tvb_get_uint8(tvb, offset2+1),
@@ -7533,7 +7533,7 @@ dissect_rsvp_call_attributes(proto_tree *ti _U_, packet_info* pinfo, proto_tree 
 
     switch(tlv_type){
         case 2:
-            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_attributes_endpont_id, tvb, offset2 + 4, tlv_len - 4, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_attributes_endpont_id, tvb, offset2 + 4, tlv_len - 4, ENC_ASCII);
         break;
     }
 }

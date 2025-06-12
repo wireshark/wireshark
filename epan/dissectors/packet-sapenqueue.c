@@ -193,12 +193,12 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	server_admin = proto_tree_add_item(tree, hf_sapenqueue_server_admin, tvb, offset, -1, ENC_NA);
 	server_admin_tree = proto_item_add_subtree(server_admin, ett_sapenqueue);
 
-	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	offset += 3;  /* Unknown bytes */
-	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -211,7 +211,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 1;
 	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_rc, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(server_admin_tree, hf_sapenqueue_server_admin_eyecatcher, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0){
@@ -249,7 +249,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				offset += 4;
 				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_unknown, tvb, offset, 8, ENC_NA);
 				offset += 8;
-				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_eyecatcher, tvb, offset, 4, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_eyecatcher, tvb, offset, 4, ENC_ASCII);
 				offset += 4;
 
 				/* As we don't have the right size yet, start with 1 byte */
@@ -282,7 +282,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				}
 				proto_item_set_len(trace_request_patterns, total_length);
 
-				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_eyecatcher, tvb, offset, 4, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(trace_request_tree, hf_sapenqueue_server_admin_trace_eyecatcher, tvb, offset, 4, ENC_ASCII);
 				break;
 			}
 			default:{

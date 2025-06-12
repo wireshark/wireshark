@@ -1612,7 +1612,7 @@ dissect_q2931_transit_network_sel_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_item(tree, hf_q2931_transit_network_sel_network_id, tvb, offset, len, ENC_NA|ENC_ASCII);
+	proto_tree_add_item(tree, hf_q2931_transit_network_sel_network_id, tvb, offset, len, ENC_ASCII);
 }
 
 /*

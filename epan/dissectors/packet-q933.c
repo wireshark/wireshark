@@ -1349,7 +1349,7 @@ dissect_q933_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 		if (netid_len > len)
 			netid_len = len;
 		if (netid_len != 0) {
-			proto_tree_add_item(tree, hf_q933_network_identification, tvb, offset, netid_len, ENC_NA|ENC_ASCII);
+			proto_tree_add_item(tree, hf_q933_network_identification, tvb, offset, netid_len, ENC_ASCII);
 			offset += netid_len;
 			len -= netid_len;
 		}
@@ -1748,7 +1748,7 @@ dissect_q933_user_user_ie(tvbuff_t *tvb, int offset, int len,
 	switch (octet) {
 
 	case Q933_PROTOCOL_DISCRIMINATOR_IA5:
-		proto_tree_add_item(tree, hf_q933_user_information_str, tvb, offset, len, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(tree, hf_q933_user_information_str, tvb, offset, len, ENC_ASCII);
 		break;
 
 	default:

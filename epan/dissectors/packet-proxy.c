@@ -481,7 +481,7 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     default:
-        proto_tree_add_item(proxy_tree, hf_proxy1_unknown, tvb, offset, header_length - 2 - offset, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(proxy_tree, hf_proxy1_unknown, tvb, offset, header_length - 2 - offset, ENC_ASCII);
         return tvb_captured_length(tvb);
     }
 

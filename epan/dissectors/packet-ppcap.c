@@ -478,7 +478,7 @@ dissect_ppcap_transport_protocol(tvbuff_t *tvb,proto_tree * ppcap_tree1, int off
 {
 	proto_tree_add_item(ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset = offset + 2;
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_transport_prot, tvb, offset, 4, ENC_ASCII | ENC_NA);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_transport_prot, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 
 	return offset;
@@ -493,7 +493,7 @@ dissect_ppcap_sctp_assoc(tvbuff_t *tvb _U_, proto_tree * tree _U_, int offset)
 	proto_tree_add_item(tree, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset = offset + 2;
 
-	proto_tree_add_item(tree, hf_ppcap_sctp_assoc, tvb, offset, length, ENC_ASCII | ENC_NA);
+	proto_tree_add_item(tree, hf_ppcap_sctp_assoc, tvb, offset, length, ENC_ASCII);
 
 	/* The string can be 1 -15 characters long but the IE is padded to 16 bytes*/
 

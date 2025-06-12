@@ -859,7 +859,7 @@ dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 	offset += 4;
 	proto_tree_add_item(header_tree, hf_saprfc_header_sap_rc, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(header_tree, hf_saprfc_header_conversation_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(header_tree, hf_saprfc_header_conversation_id, tvb, offset, 8, ENC_ASCII);
 	offset += 8;
 
 	/* Dissect the NCPIC Parameters according to the request type */
@@ -867,13 +867,13 @@ dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 	params_tree = proto_item_add_subtree(params, ett_saprfc);
 	switch (reqtype){
 		case 0x01:{		/* F_INITIALIZE_CONVERSATION */
-			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_sdest, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_sdest, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
-			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_lu, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_lu, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
-			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_tp, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_tp, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
-			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_ctype, tvb, offset, 1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_ctype, tvb, offset, 1, ENC_ASCII);
 			offset += 1;
 			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_client_info, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
@@ -881,7 +881,7 @@ dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 			break;
 		}
 		case 0x0f:{		/* F_SET_PARTNER_LU_NAME */
-			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_lu_name, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_lu_name, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
 			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_lu_name_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
@@ -890,7 +890,7 @@ dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 			break;
 		}
 		case 0x17:{		/* F_SET_SECURITY_TYPE */
-			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_security_password, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_security_password, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
 			proto_tree_add_item(params_tree, hf_saprfc_header_ncpic_parameters_security_password_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
@@ -979,16 +979,16 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			proto_tree_add_item(saprfc_tree, hf_saprfc_address, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			offset += 4;  /* Skip 4 bytes here */
-			proto_tree_add_item(saprfc_tree, hf_saprfc_service, tvb, offset, 10, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(saprfc_tree, hf_saprfc_service, tvb, offset, 10, ENC_ASCII);
 			offset += 10;
-			proto_tree_add_item(saprfc_tree, hf_saprfc_codepage, tvb, offset, 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(saprfc_tree, hf_saprfc_codepage, tvb, offset, 4, ENC_ASCII);
 			offset += 4;
 			offset += 6;  /* Skip 6 bytes here */
-			proto_tree_add_item(saprfc_tree, hf_saprfc_lu, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(saprfc_tree, hf_saprfc_lu, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
-			proto_tree_add_item(saprfc_tree, hf_saprfc_tp, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(saprfc_tree, hf_saprfc_tp, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
-			proto_tree_add_item(saprfc_tree, hf_saprfc_conversation_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(saprfc_tree, hf_saprfc_conversation_id, tvb, offset, 8, ENC_ASCII);
 			offset += 8;
 			proto_tree_add_item(saprfc_tree, hf_saprfc_appc_header_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;

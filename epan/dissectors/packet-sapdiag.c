@@ -1322,7 +1322,7 @@ dissect_sapdiag_dp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 	proto_tree_add_item(dp_tree, hf_sapdiag_dp_rq_id, tvb, offset, 2, ENC_BIG_ENDIAN);				/* 0x27 */
 	offset+=2;
 	offset+=40; /* Unknown 40 bytes (0x20 * 40) */													/* 0x29 */
-	proto_tree_add_item(dp_tree, hf_sapdiag_dp_terminal, tvb, offset, 15, ENC_ASCII|ENC_NA);		/* 0x51 */
+	proto_tree_add_item(dp_tree, hf_sapdiag_dp_terminal, tvb, offset, 15, ENC_ASCII);		/* 0x51 */
 }
 
 static void

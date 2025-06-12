@@ -784,14 +784,14 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	if (end_verb < 0) {
 		/* Just a command without parameters, e.g. "CMD POWERON" */
 		proto_tree_add_item(otrxc_tree, hf_otrxc_verb, tvb,
-				    offset, -1, ENC_ASCII | ENC_NA);
+		                    offset, -1, ENC_ASCII);
 		if (msg_type == OTRXC_MSG_TYPE_RESPONSE)
 			expert_add_info(pinfo, ti, &ei_otrxc_rsp_no_code);
 		return tvb_captured_length(tvb);
 	} else {
 		proto_tree_add_item(otrxc_tree, hf_otrxc_verb, tvb,
 				    offset, end_verb - offset,
-				    ENC_ASCII | ENC_NA);
+				    ENC_ASCII);
 		offset = end_verb;
 	}
 
@@ -805,7 +805,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 		end_status = tvb_find_uint8(tvb, offset, -1, (char) delimiter);
 		if (end_status > 0) {
 			proto_tree_add_item(otrxc_tree, hf_otrxc_status,
-					    tvb, offset, end_status - offset, ENC_ASCII | ENC_NA);
+			                    tvb, offset, end_status - offset, ENC_ASCII);
 			offset = end_status;
 
 			/* Another delimiter between the status code and parameters */
@@ -816,7 +816,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 		} else if (offset < msg_len) {
 			/* Response without parameters, e.g. "RSP POWEROFF 0" */
 			proto_tree_add_item(otrxc_tree, hf_otrxc_status,
-					    tvb, offset, msg_len - offset, ENC_ASCII | ENC_NA);
+			                    tvb, offset, msg_len - offset, ENC_ASCII);
 			return tvb_captured_length(tvb);
 		} else {
 			expert_add_info(pinfo, ti, &ei_otrxc_rsp_no_code);
@@ -826,7 +826,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (offset < msg_len) {
 		proto_tree_add_item(otrxc_tree, hf_otrxc_params,
-				    tvb, offset, -1, ENC_ASCII | ENC_NA);
+		                    tvb, offset, -1, ENC_ASCII);
 	}
 
 	return tvb_captured_length(tvb);

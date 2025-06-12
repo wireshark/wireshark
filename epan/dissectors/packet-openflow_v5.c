@@ -1831,7 +1831,7 @@ dissect_openflow_error_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     switch(error_type) {
     case OFPET_HELLO_FAILED:
         /* uint8_t data[0]; contains an ASCII text string */
-        proto_tree_add_item(tree, hf_openflow_v5_error_data_text, tvb, offset, length - 12, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_openflow_v5_error_data_text, tvb, offset, length - 12, ENC_ASCII);
         /*offset += length - 12;*/
         break;
 

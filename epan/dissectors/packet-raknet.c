@@ -559,7 +559,7 @@ raknet_dissect_unconnected_pong(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += 2;
 
     proto_tree_add_item(sub_tree, hf_raknet_0x1C_server_id_str, tvb, offset,
-                        str_size, ENC_NA|ENC_ASCII);
+                        str_size, ENC_ASCII);
     offset += str_size;
 
     return offset;

@@ -319,7 +319,7 @@ dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     len = tvb_strsize(tvb, 0);
 
-    proto_tree_add_item(tree, hf_quake2_userinfo, tvb, 0, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_quake2_userinfo, tvb, 0, len, ENC_ASCII);
 
     return len;
 }
@@ -332,7 +332,7 @@ dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     len = tvb_strsize(tvb, 0);
 
-    proto_tree_add_item(tree, hf_quake2_command, tvb, 0, len, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_quake2_command, tvb, 0, len, ENC_ASCII);
 
     return len;
 }

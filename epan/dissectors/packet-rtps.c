@@ -15252,7 +15252,7 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   rtps_tree = proto_item_add_subtree(ti, ett_rtps);
 
   /* magic */
-  proto_tree_add_item(rtps_tree, hf_rtps_magic, tvb, 0, 4, ENC_NA | ENC_ASCII);
+  proto_tree_add_item(rtps_tree, hf_rtps_magic, tvb, 0, 4, ENC_ASCII);
 
   /*  Protocol Version */
   version = rtps_util_add_protocol_version(rtps_tree, tvb, offset+4);

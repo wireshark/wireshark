@@ -428,10 +428,10 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
     header_tree = proto_item_add_subtree(ti, ett_osc_message_header);
 
     /* append path */
-    proto_tree_add_item(header_tree, hf_osc_message_path_type, tvb, path_offset, path_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(header_tree, hf_osc_message_path_type, tvb, path_offset, path_len, ENC_ASCII);
 
     /* append format */
-    proto_tree_add_item(header_tree, hf_osc_message_format_type, tvb, format_offset, format_len, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(header_tree, hf_osc_message_format_type, tvb, format_offset, format_len, ENC_ASCII);
 
     offset += path_len + format_len;
 
@@ -452,7 +452,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
             case OSC_STRING:
                 slen = tvb_strsize(tvb, offset);
                 if( (rem = slen%4) ) slen += 4-rem;
-                proto_tree_add_item(message_tree, hf_osc_message_string_type, tvb, offset, slen, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(message_tree, hf_osc_message_string_type, tvb, offset, slen, ENC_ASCII);
                 offset += slen;
                 break;
             case OSC_BLOB:
@@ -516,12 +516,12 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
             case OSC_SYMBOL:
                 slen = tvb_strsize(tvb, offset);
                 if( (rem = slen%4) ) slen += 4-rem;
-                proto_tree_add_item(message_tree, hf_osc_message_symbol_type, tvb, offset, slen, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(message_tree, hf_osc_message_symbol_type, tvb, offset, slen, ENC_ASCII);
                 offset += slen;
                 break;
             case OSC_CHAR:
                 offset += 3;
-                proto_tree_add_item(message_tree, hf_osc_message_char_type, tvb, offset, 1, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(message_tree, hf_osc_message_char_type, tvb, offset, 1, ENC_ASCII);
                 offset += 1;
                 break;
             case OSC_RGBA:

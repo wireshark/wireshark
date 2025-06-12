@@ -3175,7 +3175,7 @@ dissect_pfcp_redirect_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         offset+=2;
 
         /* 8-(8+a-1)  Redirect Server Address */
-        proto_tree_add_item(tree, hf_pfcp_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8 | ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8);
         offset += addr_len;
 
         /* - If the Redirect Address type is set to "IPv4 and IPv6 address", the Redirect Information IE shall include an IPv4 address
@@ -3188,7 +3188,7 @@ dissect_pfcp_redirect_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             offset+=2;
 
             /* (p+2)-(p+2+b-1)  Other Redirect Server Address */
-            proto_tree_add_item(tree, hf_pfcp_other_redirect_server_address, tvb, offset, other_addr_len, ENC_UTF_8 | ENC_NA);
+            proto_tree_add_item(tree, hf_pfcp_other_redirect_server_address, tvb, offset, other_addr_len, ENC_UTF_8);
             offset += other_addr_len;
         }
     }
@@ -8680,7 +8680,7 @@ dissect_pfcp_l2tp_user_authentication(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     if ((l2tp_user_authentication_flags & 0x1)) {
         proto_tree_add_item_ret_uint(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_name_len, tvb, offset, 1, ENC_BIG_ENDIAN, &l2tp_length);
         offset += 1;
-        proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_name, tvb, offset, l2tp_length, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_name, tvb, offset, l2tp_length, ENC_ASCII);
         offset += l2tp_length;
     }
 
@@ -8688,7 +8688,7 @@ dissect_pfcp_l2tp_user_authentication(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     if ((l2tp_user_authentication_flags & 0x2)) {
         proto_tree_add_item_ret_uint(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_challenge_len, tvb, offset, 1, ENC_BIG_ENDIAN, &l2tp_length);
         offset += 1;
-        proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_challenge, tvb, offset, l2tp_length, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_challenge, tvb, offset, l2tp_length, ENC_ASCII);
         offset += l2tp_length;
     }
 
@@ -8696,7 +8696,7 @@ dissect_pfcp_l2tp_user_authentication(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     if ((l2tp_user_authentication_flags & 0x4)) {
         proto_tree_add_item_ret_uint(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_response_len, tvb, offset, 1, ENC_BIG_ENDIAN, &l2tp_length);
         offset += 1;
-        proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_response, tvb, offset, l2tp_length, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_response, tvb, offset, l2tp_length, ENC_ASCII);
         offset += l2tp_length;
     }
 
@@ -8751,7 +8751,7 @@ dissect_pfcp_tunnel_preference(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static void
 dissect_pfcp_calling_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_item(tree, hf_pfcp_calling_number_value, tvb, 0, length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_calling_number_value, tvb, 0, length, ENC_ASCII);
 }
 
 /*
@@ -8760,7 +8760,7 @@ dissect_pfcp_calling_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static void
 dissect_pfcp_called_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_item(tree, hf_pfcp_called_number_value, tvb, 0, length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_called_number_value, tvb, 0, length, ENC_ASCII);
 }
 
 /*
@@ -9016,7 +9016,7 @@ dissect_pfcp_dns_query_response_filter(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_dns_query_filter_pattern_len, tvb, offset, 2, ENC_BIG_ENDIAN, &dns_query_length);
     offset += 2;
-    proto_tree_add_item(tree, hf_pfcp_dns_query_filter_pattern, tvb, offset, dns_query_length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_dns_query_filter_pattern, tvb, offset, dns_query_length, ENC_ASCII);
     offset += dns_query_length;
 
     if (offset < length) {
@@ -9030,7 +9030,7 @@ dissect_pfcp_dns_query_response_filter(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static void
 dissect_pfcp_event_notification_uri(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_item(tree, hf_pfcp_event_notification_uri, tvb, 0, length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_event_notification_uri, tvb, 0, length, ENC_ASCII);
 }
 
 
@@ -9314,7 +9314,7 @@ static void
 dissect_pfcp_tunnel_password(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {;
     /* Octet 5 to (n+4) Tunnel Password value */
-    proto_tree_add_item(tree, hf_pfcp_tunnel_password_value, tvb, 0, -1, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_tunnel_password_value, tvb, 0, -1, ENC_UTF_8);
 }
 
 /*
@@ -10120,7 +10120,7 @@ dissect_pfcp_n6_routing_information(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void
 dissect_pfcp_uri(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {
-    proto_tree_add_item(tree, hf_pfcp_uri, tvb, 0, length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_uri, tvb, 0, length, ENC_ASCII);
 }
 
 /*

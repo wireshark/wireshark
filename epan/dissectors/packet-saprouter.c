@@ -282,19 +282,19 @@ dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_
 		/* Dissect the hostname string */
 		len = tvb_strsize(tvb, offset);
 		hostname = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
-		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_hostname, tvb, offset, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_hostname, tvb, offset, len, ENC_ASCII);
 		offset += len;
 
 		/* Dissect the port string */
 		len = tvb_strsize(tvb, offset);
 		port = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, len - 1, ENC_ASCII);
-		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_service, tvb, offset, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_service, tvb, offset, len, ENC_ASCII);
 		offset += len;
 
 		/* Dissect the password string */
 		len = tvb_strsize(tvb, offset);
 		password = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
-		route_password = proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_password, tvb, offset, len, ENC_ASCII|ENC_NA);
+		route_password = proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_password, tvb, offset, len, ENC_ASCII);
 
 		/* If a password was found, add a expert warning in the security category */
 		if (len > 1){
@@ -345,69 +345,69 @@ dissect_errorstring(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 	uint32_t len;
 
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_counter, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_counter, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_error, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_error, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_return_code, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_return_code, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_component, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_component, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_release, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_release, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_version, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_version, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_module, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_module, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_line, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_line, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_detail, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_detail, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_time, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_time, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_system_call, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_system_call, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_errorno, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_errorno, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_errorno_text, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_errorno_text, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_error_count, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_error_count, tvb, offset, len, ENC_ASCII);
 	offset += len;
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_location, tvb, offset, len, ENC_ASCII|ENC_NA);
-	offset += len;
-
-	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII|ENC_NA);
-	offset += len;
-	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII|ENC_NA);
-	offset += len;
-	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII|ENC_NA);
-	offset += len;
-	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_location, tvb, offset, len, ENC_ASCII);
 	offset += len;
 
 	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
+	offset += len;
+	len = tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
+	offset += len;
+	len = tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
+	offset += len;
+	len = tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_saprouter_error_unknown, tvb, offset, len, ENC_ASCII);
+	offset += len;
+
+	len = tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII);
 }
 
 
@@ -472,7 +472,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if (tvb_reported_length_remaining(tvb, offset) >= 10 && tvb_strneql(tvb, offset, SAPROUTER_TYPE_NIPING_STRING, 10) == 0) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Niping message");
 
-		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, 10, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, 10, ENC_ASCII);
 		offset += 10;
 		proto_item_append_text(ti, ", Niping message");
 
@@ -485,7 +485,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	else if (tvb_strneql(tvb, offset, SAPROUTER_TYPE_ADMIN_STRING, eyecatcher_length) == 0) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Admin message");
 
-		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII);
 		offset += eyecatcher_length;
 		proto_item_append_text(ti, ", Admin message");
 
@@ -501,7 +501,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 				offset+=2; /* Skip 2 bytes */
 				/* Check if a password was supplied */
 				if (tvb_offset_exists(tvb, offset) && (tvb_strsize(tvb, offset) > 0)){
-					admin_password = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_password, tvb, offset, tvb_strsize(tvb, offset), ENC_ASCII|ENC_NA);
+					admin_password = proto_tree_add_item(saprouter_tree, hf_saprouter_admin_password, tvb, offset, tvb_strsize(tvb, offset), ENC_ASCII);
 					expert_add_info(pinfo, admin_password, &ei_saprouter_info_password_found);
 
 					/* Add the password to the credential tap */
@@ -516,7 +516,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			}
 			case 10:  /* Set Peer Trace */
 			case 11:{ /* Clear Peer Trace */
-				proto_tree_add_item(saprouter_tree, hf_saprouter_admin_address_mask, tvb, offset, 32, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(saprouter_tree, hf_saprouter_admin_address_mask, tvb, offset, 32, ENC_ASCII);
 				break;
 			}
 			case 6:  /* Cancel Route request */
@@ -569,7 +569,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		route_length = tvb_get_ntohl(tvb, offset + SAPROUTER_ROUTE_LENGTH_OFFSET);
 		route_offset = offset + SAPROUTER_ROUTE_OFFSET_OFFSET + 4;
 
-		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, 0, eyecatcher_length, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, 0, eyecatcher_length, ENC_ASCII);
 		offset += eyecatcher_length;
 		proto_item_append_text(ti, ", Route message");
 		/* Add the fields */
@@ -636,7 +636,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 		proto_item_append_text(ti, (opcode==0)? ", Error information" : ", Control message");
 		/* Add the fields */
-		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(saprouter_tree, hf_saprouter_type, tvb, offset, eyecatcher_length, ENC_ASCII);
 		offset += eyecatcher_length;
 		proto_tree_add_item(saprouter_tree, hf_saprouter_ni_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -671,7 +671,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			offset+=4;
 			if ((text_length >0) && tvb_offset_exists(tvb, offset+text_length)){
 				/* Add the control string tree */
-				proto_tree_add_item(saprouter_tree, hf_saprouter_control_string, tvb, offset, text_length, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(saprouter_tree, hf_saprouter_control_string, tvb, offset, text_length, ENC_ASCII);
 				offset += text_length;
 			}
 
@@ -682,7 +682,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 			/* Other opcodes */
 			} else {
-				proto_tree_add_item(saprouter_tree, hf_saprouter_control_unknown, tvb, offset, 4, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(saprouter_tree, hf_saprouter_control_unknown, tvb, offset, 4, ENC_ASCII);
 			}
 
 		}
