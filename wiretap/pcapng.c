@@ -3064,6 +3064,8 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
             break;
         default:
             ws_debug("Unknown type %u", type);
+            *err = WTAP_ERR_UNSUPPORTED;
+            *err_info = g_strdup_printf("pcapng Netflix BBLog block: unknown type %u", type);
             return FALSE;
     }
 
