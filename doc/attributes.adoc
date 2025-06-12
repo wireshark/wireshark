@@ -1,7 +1,7 @@
 // Common attributes
 
 :wireshark-version: 4.5.0
-:stratoshark-version: 0.9.2
+:stratoshark-version: 0.9.3
 
 // Required for btn, kbd:, and menu: macros.
 :experimental:
