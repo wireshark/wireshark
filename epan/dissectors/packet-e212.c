@@ -46,7 +46,7 @@ void proto_register_e212(void);
  * [2] https://htmlweb.ru/geo/oper.php?country=KZ
  */
 static const value_string E212_codes[] = {
-    /* 001 is used by some telecoms for internal TEST networks. */
+    {  1,   "Test network" }, /* 001 */
     {  202, "Greece" },
     {  203, "Unassigned" },
     {  204, "Netherlands" },
@@ -861,6 +861,7 @@ static const value_string E212_codes[] = {
 value_string_ext E212_codes_ext = VALUE_STRING_EXT_INIT(E212_codes);
 
 static const value_string mcc_mnc_2digits_codes[] = {
+    { 101,   "Test network" }, /* 00101 */
     { 20201, "Cosmote AE" },
     { 20202, "Cosmote AE" },
     { 20203, "OTE AE" },
@@ -2631,6 +2632,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
 value_string_ext mcc_mnc_2digits_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_2digits_codes);
 
 static const value_string mcc_mnc_3digits_codes[] = {
+    {  1001,   "Test network" }, /* 001001 */
     {  208500, "EDF" },
     {  208700, "Weaccess group" },
     {  208701, "GIP Vendée numérique" },
