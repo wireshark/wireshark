@@ -1359,7 +1359,7 @@ dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offse
 	 */
 	if (regex == NULL) {
 		regex = g_regex_new (
-			"^imsi-[0-9]{5,15}$",
+			"^imsi-([0-9]{5,15})$",
 			G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
 	}
 
@@ -1367,7 +1367,7 @@ dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offse
 	g_regex_match(regex, supi_str, 0, &match_info);
 
 	if (g_match_info_matches(match_info)) {
-		matched_imsi = g_match_info_fetch(match_info, 0); //will be empty string if imsi is not in supi
+		matched_imsi = g_match_info_fetch(match_info, 1); //will be empty string if imsi is not in supi
 		if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
 			add_assoc_imsi_item(supi_tvb, tree, matched_imsi);
 			g_free(matched_imsi);
