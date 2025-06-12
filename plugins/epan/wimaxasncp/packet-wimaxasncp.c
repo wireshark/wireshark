@@ -2852,7 +2852,7 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                             if (regex == NULL)
                             {
                                 regex = g_regex_new("^(WIMAXASNCP_BIT)(\\d+)\\((\\d+)\\)$",
-                                    G_REGEX_DEFAULT, 0, NULL);
+                                    (GRegexCompileFlags)0, 0, NULL);
                             }
 
                             if (g_regex_match_full(regex, str_code, -1, 0, 0, &match_info, NULL))
