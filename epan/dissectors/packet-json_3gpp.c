@@ -35,6 +35,7 @@
 #include <epan/tvbparse.h>
 #include <epan/proto_data.h>
 
+#include "packet-e212.h"
 #include "packet-gtpv2.h"
 #include "packet-gsm_a_common.h"
 #include "packet-json.h"
@@ -68,6 +69,8 @@ static int hf_json_3gpp_qosrules;
 static int hf_json_3gpp_qosflowdescription;
 static int hf_json_3gpp_suppFeat;
 static int hf_json_3gpp_supportedFeatures;
+static int hf_json_3gpp_supi;
+static int hf_json_3gpp_subscriberIdentifier;
 
 
 static int hf_json_3gpp_suppfeat;
@@ -1334,6 +1337,48 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 }
 
 static void
+dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_)
+{
+	tvbuff_t   *supi_tvb;
+	GMatchInfo *match_info;
+	static GRegex *regex = NULL;
+	char *matched_imsi = NULL;
+
+	if (len <= 0) {
+		return;
+	}
+
+	supi_tvb = tvb_new_subset_length(tvb, offset, len);
+
+	/* 3GPP TS 29.571
+	 * String identifying a Supi that shall contain either an IMSI, a network specific identifier,
+	 * a Global Cable Identifier (GCI) or a Global Line Identifier (GLI) as specified in clause 2.2A of 3GPP TS 23.003.
+	 *
+	 * We are interested in IMSI and will be formatted as follows:
+	 *   Pattern: '^imsi-[0-9]{5,15}$'
+	 */
+	if (regex == NULL) {
+		regex = g_regex_new (
+			"^imsi-[0-9]{5,15}$",
+			G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+	}
+
+	char *supi_str = tvb_get_string_enc(pinfo->pool, supi_tvb, 0, tvb_captured_length(supi_tvb), ENC_UTF_8);
+	g_regex_match(regex, supi_str, 0, &match_info);
+
+	if (g_match_info_matches(match_info)) {
+		matched_imsi = g_match_info_fetch(match_info, 0); //will be empty string if imsi is not in supi
+		if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
+			add_assoc_imsi_item(supi_tvb, tree, matched_imsi);
+			g_free(matched_imsi);
+		}
+	}
+	g_regex_unref(regex);
+
+	return;
+}
+
+static void
 register_static_headers(void) {
 
 	char* header_name;
@@ -1412,6 +1457,18 @@ register_static_headers(void) {
 			{"supportedFeatures", "json.3gpp.supportedFeatures",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_supi,
+			{"supi", "json.3gpp.supi",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_subscriberIdentifier,
+			{"subscriberIdentifier", "json.3gpp.subscriberIdentifier",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
 		}
 	};
 
@@ -1431,6 +1488,9 @@ register_static_headers(void) {
 
 		dissect_3gpp_supportfeatures,   /* suppFeat */
 		dissect_3gpp_supportfeatures,   /* supportedFeatures */
+
+		dissect_3gpp_supi,			/* supi */
+		dissect_3gpp_supi,			/* subscriberIdentifier */
 
 		NULL,   /* NONE */
 	};
@@ -2429,7 +2489,6 @@ proto_register_json_3gpp(void)
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-
 	};
 
 	static int *ett[] = {
