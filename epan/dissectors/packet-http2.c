@@ -50,6 +50,7 @@
 #include <epan/follow.h>
 #include <epan/addr_resolv.h>
 
+#include "packet-e212.h"
 #include "packet-tcp.h"
 #include "packet-tls.h"
 #include "wsutil/pint.h"
@@ -82,6 +83,9 @@ static bool http2_decompress_body = true;
 #else
 static bool http2_decompress_body;
 #endif
+
+/* add Association IMSI to all messages in stream */
+static bool http2_session_imsi = false;
 
 /* Try to dissect reassembled http2.data.data according to content-type later */
 static dissector_table_t media_type_dissector_table;
@@ -241,6 +245,7 @@ typedef struct {
     char *scheme;
     char *authority;
     char *path;
+    const char *imsi;
 } http2_stream_info_t;
 #endif
 /* struct to hold data per HTTP/2 session */
@@ -1957,6 +1962,36 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
     if (strcmp(header_name, HTTP2_HEADER_PATH) == 0) {
         stream_info->path = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+
+        if(http2_session_imsi) {
+            /* 3GPP Supi look up */
+            GMatchInfo *match_info;
+            static GRegex *regex = NULL;
+            char *matched_imsi = NULL;
+
+            /* 3GPP TS 29.571
+            * String identifying a Supi that shall contain either an IMSI, a network specific identifier,
+            * a Global Cable Identifier (GCI) or a Global Line Identifier (GLI) as specified in clause 2.2A of 3GPP TS 23.003.
+            *
+            * We are interested in IMSI and will be formatted as follows:
+            *   Pattern: '^imsi-[0-9]{5,15}$'
+            */
+            if (regex == NULL) {
+                regex = g_regex_new (
+                    ".*imsi-([0-9]{5,15}).*",
+                    G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+            }
+
+            g_regex_match(regex, stream_info->path, 0, &match_info);
+
+            if (g_match_info_matches(match_info)) {
+                matched_imsi = g_match_info_fetch(match_info, 1); //will be empty string if imsi is not in supi
+                if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
+                    stream_info->imsi = matched_imsi;
+                }
+            }
+            g_regex_unref(regex);
+        }
     }
 
     if (strcmp(header_name, HTTP2_HEADER_AUTHORITY) == 0) {
@@ -3553,7 +3588,13 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
 #ifdef HAVE_NGHTTP2
     /* decompress the header block */
     inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
+
     http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, false);
+
+    /* Add Associate IMSI if Supi was found in Path */
+    if (http2_session_imsi && stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
+        add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
+    }
 
     /* Display request/response links */
     if (pinfo->num > stream_info->request_in_frame_num && stream_info->request_in_frame_num > 0) {
@@ -3809,6 +3850,12 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
      * response is also in the same direction as the request.
      */
     http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, h2session, false, promised_stream_id);
+
+    /* Add Associate IMSI if Supi was found in Path */
+    if (http2_session_imsi && stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
+        add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
+    }
+
     if (pinfo->num == stream_info->request_in_frame_num && stream_info->response_in_frame_num > 0) {
         /* Request frame */
         proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_response_in, tvb, 0, 0, stream_info->response_in_frame_num));
@@ -4988,6 +5035,12 @@ proto_register_http2(void)
     prefs_register_uat_preference(http2_module, "fake_headers", "HTTP2 Fake Headers",
         "A table to define HTTP2 fake headers for parsing a HTTP2 stream conversation that first HEADERS frame is missing.",
         fake_headers_uat);
+
+    prefs_register_bool_preference(http2_module, "session_imsi",
+        "Add \"Association IMSI\" to all messages in a stream",
+        "Will look up Supi in path and if found then field \"Association IMSI\"(e212.assoc.imsi) will be added to all messages"
+        " within the same stream",
+        &http2_session_imsi);
 
     /* Fill hash table with static headers */
     register_static_headers();
