@@ -97,49 +97,33 @@ typedef struct section_info_t {
 } section_info_t;
 
 /*
- * Block types indices in the table of tables of option handlers.
- *
- * Block types are not guaranteed to be sequential, so we map the
- * block types we support to a sequential set.  Furthermore, all
- * packet block types have the same set of options.
- */
-#define BT_INDEX_SHB        0
-#define BT_INDEX_IDB        1
-#define BT_INDEX_PBS        2  /* all packet blocks: PB/EPB/SPB */
-#define BT_INDEX_NRB        3
-#define BT_INDEX_ISB        4
-#define BT_INDEX_EVT        5
-#define BT_INDEX_DSB        6
-
-#define NUM_BT_INDICES      7
-
-/*
  * Reader and writer routines for pcapng block types.
  */
-typedef bool (*block_reader)(wtap* wth, FILE_T fh, uint32_t block_size,
-                             uint32_t block_content_size,
+typedef bool (*block_reader)(wtap* wth, FILE_T fh, uint32_t block_type,
+                             uint32_t block_content_length,
                              section_info_t* section_info,
                              wtapng_block_t *wblock,
                              int *err, char **err_info);
 typedef bool (*block_writer)(wtap_dumper *wdh, const wtap_rec *rec,
                              int *err, char **err_info);
-typedef bool (*block_processor)(wtap* wth, wtapng_block_t* wblock);
+typedef bool (*block_processor)(wtap* wth, section_info_t* section_info _U_,
+                                wtapng_block_t* wblock);
 
 
-typedef struct pcapng_block_type_handler_t {
-    unsigned     type;           /* block_type as defined by pcapng */
+typedef struct pcapng_block_type_information_t {
+    unsigned     type;             /* block_type as defined by pcapng */
     block_reader reader;
-    block_writer writer;
     block_processor processor;
-    bool         internal;       /* true if this block type shouldn't be returned from pcapng_read() */
-    unsigned     bt_index;       /* Block type index */
-} pcapng_block_type_handler_t;
+    block_writer writer;
+    bool         internal;         /* true if this block type shouldn't be returned from pcapng_read() */
+    GHashTable   *option_handlers; /* Hash table of option handlers */
+} pcapng_block_type_information_t;
 
 /*
  * Register a handler for a pcapng block type.
  */
 WS_DLL_PUBLIC
-void register_pcapng_block_type_handler(pcapng_block_type_handler_t* handler);
+void register_pcapng_block_type_information(pcapng_block_type_information_t* handler);
 
 /*
  * Handler routines for pcapng option type.
@@ -151,6 +135,12 @@ typedef bool (*option_parser)(wtap_block_t block, bool byte_swapped,
 typedef uint32_t (*option_sizer)(unsigned option_id, wtap_optval_t *optval);
 typedef bool (*option_writer)(wtap_dumper *wdh, unsigned option_id,
                               wtap_optval_t *optval, int *err);
+
+/*
+ * Create a table of handlers for pcapng option codes.
+ */
+WS_DLL_PUBLIC
+GHashTable *pcapng_create_option_handler_table(void);
 
 /*
  * Register a handler for a pcapng option code for a particular block

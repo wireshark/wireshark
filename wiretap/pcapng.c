@@ -40,7 +40,6 @@
 #include "pcap-encap.h"
 #include "pcapng_module.h"
 #include "secrets-types.h"
-#include "pcapng-sysdig-int.h"
 
 static bool
 pcapng_read(wtap *wth, wtap_rec *rec, int *err,
@@ -210,34 +209,6 @@ typedef struct {
 } pcapng_t;
 
 /*
- * XXX - TEMPORARY hack to allow current "built in" block types to successfully
- * register
- */
-static
-bool pcapng_block_approved(unsigned block_type)
-{
-    switch(block_type)
-    {
-    case BLOCK_TYPE_IRIG_TS:
-    case BLOCK_TYPE_ARINC_429:
-    case BLOCK_TYPE_HP_MIB:
-    case BLOCK_TYPE_HP_CEB:
-        /*
-         * Yes, and we don't already handle it.  Allow a plugin to
-         * handle it.
-         *
-         * (But why not submit the plugin source to Wireshark?)
-         */
-        return true;
-    }
-
-    if ((block_type >= BLOCK_TYPE_SYSDIG_MI) && (block_type <= BLOCK_TYPE_SYSDIG_EVF_V2_LARGE))
-        return true;
-
-    return false;
-}
-
-/*
  * Table for plugins to handle particular block types.
  *
  * A handler has a type, whether its internally handled and "read"
@@ -253,7 +224,7 @@ bool pcapng_block_approved(unsigned block_type)
 static GHashTable *block_handlers;
 
 void
-register_pcapng_block_type_handler(pcapng_block_type_handler_t* handler)
+register_pcapng_block_type_information(pcapng_block_type_information_t* handler)
 {
     if (handler == NULL) {
         ws_warning("Attempt to register NULL plugin block type handler");
@@ -265,54 +236,6 @@ register_pcapng_block_type_handler(pcapng_block_type_handler_t* handler)
         ws_warning("Attempt to register plugin for an existing block type 0x%08x not allowed",
             handler->type);
         return;
-    }
-
-    /*
-     * Is this a known block type?
-     */
-    switch (handler->type) {
-
-    case BLOCK_TYPE_SHB:
-    case BLOCK_TYPE_IDB:
-    case BLOCK_TYPE_PB:
-    case BLOCK_TYPE_SPB:
-    case BLOCK_TYPE_NRB:
-    case BLOCK_TYPE_ISB:
-    case BLOCK_TYPE_EPB:
-    case BLOCK_TYPE_DSB:
-    case BLOCK_TYPE_CB_COPY:
-    case BLOCK_TYPE_CB_NO_COPY:
-    case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
-        /*
-         * Yes; we already handle it, and don't allow a replacement to
-         * be registered (if there's a bug in our code, or there's
-         * something we don't handle in that block, submit a change
-         * to the main Wireshark source).
-         */
-        ws_warning("Attempt to register plugin for block type 0x%08x not allowed",
-                     handler->type);
-        return;
-
-    default:
-        /*
-         * No; is it a local block type?
-         */
-        if (!(handler->type & 0x80000000)) {
-            if (!pcapng_block_approved(handler->type)) {
-                /*
-                 * No; don't allow a plugin to be registered for it, as
-                 * the block type needs to be registered before it's used.
-                 */
-                ws_warning("Attempt to register plugin for reserved block type 0x%08x not allowed",
-                           handler->type);
-                return;
-            }
-        }
-
-        /*
-         * Yes; allow the registration.
-         */
-        break;
     }
 
     g_hash_table_insert(block_handlers, GUINT_TO_POINTER(handler->type),
@@ -367,8 +290,6 @@ typedef struct {
     option_writer writer;
 } option_handler;
 
-static GHashTable *option_handlers[NUM_BT_INDICES];
-
 static GHashTable *custom_enterprise_handlers;
 
 /* Return whether this block type is handled interally, or
@@ -383,94 +304,42 @@ static GHashTable *custom_enterprise_handlers;
 static bool
 get_block_type_internal(unsigned block_type)
 {
-    switch (block_type) {
+    pcapng_block_type_information_t *handler;
 
-    case BLOCK_TYPE_SHB:
-    case BLOCK_TYPE_IDB:
-    case BLOCK_TYPE_NRB:
-    case BLOCK_TYPE_DSB:
-    case BLOCK_TYPE_ISB: /* XXX: ISBs should probably not be internal. */
+    handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type));
+
+    if (handler != NULL)
+        return handler->internal;
+    else
         return true;
-
-    case BLOCK_TYPE_PB:
-    case BLOCK_TYPE_EPB:
-    case BLOCK_TYPE_SPB:
-        return false;
-
-    case BLOCK_TYPE_CB_COPY:
-    case BLOCK_TYPE_CB_NO_COPY:
-    case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
-        return false;
-
-    default:
-        {
-        /*
-         * Do we have a handler for this block type?
-         */
-        pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type));
-        if (handler != NULL) {
-                return handler->internal;
-        }
-        }
-
-        return true;
-    }
-    return false;
 }
 
-static bool
-get_block_type_index(unsigned block_type, unsigned *bt_index)
+GHashTable *
+pcapng_create_option_handler_table(void)
 {
-    ws_assert(bt_index);
+    return g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+}
 
-    switch (block_type) {
+static GHashTable *
+get_option_handlers(unsigned block_type)
+{
+    pcapng_block_type_information_t *block_handler;
 
-        case BLOCK_TYPE_SHB:
-            *bt_index = BT_INDEX_SHB;
-            break;
-
-        case BLOCK_TYPE_IDB:
-            *bt_index = BT_INDEX_IDB;
-            break;
-
-        case BLOCK_TYPE_PB:
-        case BLOCK_TYPE_EPB:
-        case BLOCK_TYPE_SPB:
-            *bt_index = BT_INDEX_PBS;
-            break;
-
-        case BLOCK_TYPE_NRB:
-            *bt_index = BT_INDEX_NRB;
-            break;
-
-        case BLOCK_TYPE_ISB:
-            *bt_index = BT_INDEX_ISB;
-            break;
-
-        case BLOCK_TYPE_DSB:
-            *bt_index = BT_INDEX_DSB;
-            break;
-
-        default:
-            {
-            pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type));
-            if (handler != NULL) {
-                *bt_index = handler->bt_index;
-                break;
-            }
-            /*
-             * This is a block type we don't process; either we ignore it,
-             * in which case the options don't get processed, or there's
-             * a plugin routine to handle it, in which case that routine
-             * will do the option processing itself.
-             *
-             * XXX - report an error?
-             */
-            return false;
-            }
+    block_handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(block_type));
+    if (block_handler == NULL) {
+        /* No such block type. */
+        return NULL;
     }
 
-    return true;
+    if (block_handler->option_handlers == NULL) {
+        /*
+         * This block type doesn't support options other than
+         * those supported by all blocks.
+         */
+        return NULL;
+    }
+
+    return block_handler->option_handlers;
 }
 
 void
@@ -479,28 +348,53 @@ register_pcapng_option_handler(unsigned block_type, unsigned option_code,
                                option_sizer sizer,
                                option_writer writer)
 {
-    unsigned bt_index;
+    GHashTable *option_handlers;
     option_handler *handler;
 
-    if (!get_block_type_index(block_type, &bt_index))
+    /*
+     * Get the table of option handlers for this block type.
+     */
+    option_handlers = get_option_handlers(block_type);
+
+    /*
+     * If there isn't one, the block only supports the standard options
+     * (if it supports options at all; the SPB doesn't).
+     */
+    if (option_handlers == NULL)
         return;
 
-    if (option_handlers[bt_index] == NULL) {
+    /*
+     * Is this combination already registered?
+     */
+    handler = (option_handler *)g_hash_table_lookup(option_handlers,
+                                                    GUINT_TO_POINTER(option_code));
+    if (handler != NULL) {
+        if (handler->parser == parser &&
+            handler->sizer == sizer &&
+            handler->writer == writer) {
+            /*
+             * Yes. This might be a case where multiple block types
+             * share the same table, and some code registers the same
+             * option for all of those blocks, which is OK. Just
+             * ignore it.
+             */
+            return;
+        }
+
         /*
-         * Create the table of option handlers for this block type.
-         *
-         * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
-         * so we use "g_direct_hash()" and "g_direct_equal()".
+         * No. XXX - report this.
          */
-        option_handlers[bt_index] = g_hash_table_new_full(g_direct_hash,
-                                                          g_direct_equal,
-                                                          NULL, g_free);
+        return;
     }
+
+    /*
+     * No - register it.
+     */
     handler = g_new(option_handler, 1);
     handler->parser = parser;
     handler->sizer = sizer;
     handler->writer = writer;
-    g_hash_table_insert(option_handlers[bt_index],
+    g_hash_table_insert(option_handlers,
                         GUINT_TO_POINTER(option_code), handler);
 }
 
@@ -959,19 +853,24 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
 #ifdef HAVE_PLUGINS
 static bool
 pcapng_process_unhandled_option(wtapng_block_t *wblock,
-                                unsigned bt_index,
                                 section_info_t *section_info,
                                 uint16_t option_code, uint16_t option_length,
                                 const uint8_t *option_content,
                                 int *err, char **err_info)
 {
+    GHashTable *option_handlers;
     option_handler *handler;
+
+    /*
+     * Get the table of option handlers for this block type.
+     */
+    option_handlers = get_option_handlers(wblock->type);
 
     /*
      * Do we have a handler for this packet block option code?
      */
-    if (option_handlers[bt_index] != NULL &&
-        (handler = (option_handler *)g_hash_table_lookup(option_handlers[bt_index],
+    if (option_handlers != NULL &&
+        (handler = (option_handler *)g_hash_table_lookup(option_handlers,
                                                          GUINT_TO_POINTER((unsigned)option_code))) != NULL) {
         /* Yes - call the handler. */
         if (!handler->parser(wblock->block, section_info->byte_swapped,
@@ -984,7 +883,6 @@ pcapng_process_unhandled_option(wtapng_block_t *wblock,
 #else
 static bool
 pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
-                                unsigned bt_index _U_,
                                 section_info_t *section_info _U_,
                                 uint16_t option_code _U_, uint16_t option_length _U_,
                                 const uint8_t *option_content _U_,
@@ -1192,9 +1090,9 @@ pcapng_process_section_header_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         default:
-            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_SHB,
-                                                 section_info, option_code,
-                                                 option_length, option_content,
+            if (!pcapng_process_unhandled_option(wblock, section_info,
+                                                 option_code, option_length,
+                                                 option_content,
                                                  err, err_info))
                 return false;
             break;
@@ -1549,9 +1447,9 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         default:
-            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_IDB,
-                                                 section_info, option_code,
-                                                 option_length, option_content,
+            if (!pcapng_process_unhandled_option(wblock, section_info,
+                                                 option_code, option_length,
+                                                 option_content,
                                                  err, err_info))
                 return false;
             break;
@@ -1561,7 +1459,8 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
 
 /* "Interface Description Block" */
 static bool
-pcapng_read_if_descr_block(wtap *wth, FILE_T fh, uint32_t block_content_length,
+pcapng_read_if_descr_block(wtap *wth, FILE_T fh, uint32_t block_type _U_,
+                           uint32_t block_content_length,
                            section_info_t *section_info,
                            wtapng_block_t *wblock, int *err, char **err_info)
 {
@@ -1801,7 +1700,9 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, uint32_t block_content_length,
 }
 
 static bool
-pcapng_read_decryption_secrets_block(FILE_T fh, uint32_t block_content_length,
+pcapng_read_decryption_secrets_block(wtap *wth _U_, FILE_T fh,
+                                     uint32_t block_read _U_,
+                                     uint32_t block_content_length,
                                      section_info_t *section_info,
                                      wtapng_block_t *wblock,
                                      int *err, char **err_info)
@@ -2071,9 +1972,9 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         default:
-            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_PBS,
-                                                 section_info, option_code,
-                                                 option_length, option_content,
+            if (!pcapng_process_unhandled_option(wblock, section_info,
+                                                 option_code, option_length,
+                                                 option_content,
                                                  err, err_info))
                 return false;
             break;
@@ -2082,7 +1983,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
 }
 
 static bool
-pcapng_read_packet_block(FILE_T fh, uint32_t block_type,
+pcapng_read_packet_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
                          uint32_t block_content_length,
                          section_info_t *section_info,
                          wtapng_block_t *wblock,
@@ -2336,7 +2237,9 @@ pcapng_read_packet_block(FILE_T fh, uint32_t block_type,
 
 
 static bool
-pcapng_read_simple_packet_block(FILE_T fh, uint32_t block_content_length,
+pcapng_read_simple_packet_block(wtap *wth _U_, FILE_T fh,
+                                uint32_t block_type _U_,
+                                uint32_t block_content_length,
                                 section_info_t *section_info,
                                 wtapng_block_t *wblock,
                                 int *err, char **err_info)
@@ -2553,9 +2456,9 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
          * ns_dnsIP6addr  4
          */
         default:
-            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_NRB,
-                                                 section_info, option_code,
-                                                 option_length, option_content,
+            if (!pcapng_process_unhandled_option(wblock, section_info,
+                                                 option_code, option_length,
+                                                 option_content,
                                                  err, err_info))
                 return false;
             break;
@@ -2564,7 +2467,9 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
 }
 
 static bool
-pcapng_read_name_resolution_block(FILE_T fh, uint32_t block_content_length,
+pcapng_read_name_resolution_block(wtap *wth _U_, FILE_T fh,
+                                  uint32_t block_type _U_,
+                                  uint32_t block_content_length,
                                   section_info_t *section_info,
                                   wtapng_block_t *wblock,
                                   int *err, char **err_info)
@@ -2862,9 +2767,9 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         default:
-            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_ISB,
-                                                 section_info, option_code,
-                                                 option_length, option_content,
+            if (!pcapng_process_unhandled_option(wblock, section_info,
+                                                 option_code, option_length,
+                                                 option_content,
                                                  err, err_info))
                 return false;
             break;
@@ -2873,7 +2778,9 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
 }
 
 static bool
-pcapng_read_interface_statistics_block(FILE_T fh, uint32_t block_content_length,
+pcapng_read_interface_statistics_block(wtap *wth _U_, FILE_T fh,
+                                       uint32_t block_type _U_,
+                                       uint32_t block_content_length,
                                        section_info_t *section_info,
                                        wtapng_block_t *wblock,
                                        int *err, char **err_info)
@@ -2943,7 +2850,7 @@ register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcap
 }
 
 static bool
-pcapng_read_custom_block(FILE_T fh, uint32_t block_type,
+pcapng_read_custom_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
                          uint32_t block_content_length,
                          section_info_t *section_info, wtapng_block_t *wblock,
                          int *err, char **err_info)
@@ -3008,6 +2915,7 @@ pcapng_read_custom_block(FILE_T fh, uint32_t block_type,
 
 static bool
 pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh,
+                                         uint32_t block_type _U_,
                                          uint32_t block_content_length,
                                          section_info_t *section_info _U_,
                                          wtapng_block_t *wblock,
@@ -3163,6 +3071,7 @@ pcapng_read_block(wtap *wth, FILE_T fh,
                   wtapng_block_t *wblock,
                   int *err, char **err_info)
 {
+    pcapng_block_type_information_t *handler;
     block_return_val ret;
     pcapng_block_header_t bh;
     uint32_t block_content_length;
@@ -3217,6 +3126,12 @@ pcapng_read_block(wtap *wth, FILE_T fh,
          * null).
          */
         section_info = new_section_info;
+
+        /*
+         * Get information for this block type, for use when setting the
+         * internal flag.
+         */
+        handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(bh.block_type));
     } else {
         /*
          * Not an SHB.
@@ -3284,76 +3199,22 @@ pcapng_read_block(wtap *wth, FILE_T fh,
         block_content_length = bh.block_total_length - MIN_BLOCK_SIZE;
 
         /*
-         * ***DO NOT*** add any items to this table that are not
-         * standardized block types in the current pcapng spec at
-         *
-         *    https://pcapng.github.io/pcapng/draft-ietf-opsawg-pcapng.html
-         *
-         * All block types in this switch statement here must be
-         * listed there as standardized block types, ideally with
-         * a description.
+         * Do we have a handler for this block type?
          */
-        switch (bh.block_type) {
-            case(BLOCK_TYPE_IDB):
-                if (!pcapng_read_if_descr_block(wth, fh, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_PB):
-                if (!pcapng_read_packet_block(fh, bh.block_type, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_SPB):
-                if (!pcapng_read_simple_packet_block(fh, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_EPB):
-                if (!pcapng_read_packet_block(fh, bh.block_type, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_NRB):
-                if (!pcapng_read_name_resolution_block(fh, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_ISB):
-                if (!pcapng_read_interface_statistics_block(fh, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_DSB):
-                if (!pcapng_read_decryption_secrets_block(fh, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_CB_COPY):
-            case(BLOCK_TYPE_CB_NO_COPY):
-                if (!pcapng_read_custom_block(fh, bh.block_type, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            case(BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT):
-                if (!pcapng_read_systemd_journal_export_block(wth, fh, block_content_length, section_info, wblock, err, err_info))
-                    return false;
-                break;
-            default:
-            {
-                pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(bh.block_type));
-
-                /*
-                 * Do we have a handler for this block type?
-                 */
-                if (handler != NULL) {
-                    /* Yes - call it to read this block type. */
-                    if (!handler->reader(wth, fh, bh.block_type,
-                                         block_content_length, section_info,
-                                         wblock, err, err_info))
-                        return false;
-                } else {
-                    ws_debug("Unknown block_type: 0x%08x (block ignored), block total length %u",
-                             bh.block_type, bh.block_total_length);
-                    if (!pcapng_read_unknown_block(fh, block_content_length,
-                                                   section_info, wblock,
-                                                   err, err_info))
-                        return false;
-		}
-                break;
-            }
+        handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(bh.block_type));
+        if (handler != NULL) {
+            /* Yes - call it to read this block type. */
+            if (!handler->reader(wth, fh, bh.block_type,
+                                 block_content_length, section_info,
+                                 wblock, err, err_info))
+                return false;
+        } else {
+            ws_debug("Unknown block_type: 0x%08x (block ignored), block total length %u",
+                     bh.block_type, bh.block_total_length);
+            if (!pcapng_read_unknown_block(fh, block_content_length,
+                                           section_info, wblock,
+                                           err, err_info))
+                return false;
         }
     }
 
@@ -3364,11 +3225,32 @@ pcapng_read_block(wtap *wth, FILE_T fh,
         /* Not readable or not valid. */
         return false;
     }
+
     return true;
 }
 
-/* Process an IDB that we've just read. The contents of wblock are copied as needed. */
 static void
+pcapng_process_shb(wtap *wth, pcapng_t *pcapng, section_info_t new_section, wtapng_block_t *wblock, const int64_t *data_offset)
+{
+    /*
+     * Add this SHB to the table of SHBs.
+     */
+    g_array_append_val(wth->shb_hdrs, wblock->block);
+    g_array_append_val(wth->shb_iface_to_global, wth->interface_data->len);
+
+    /*
+     * Update the current section number, and add
+     * the updated section_info_t to the array of
+     * section_info_t's for this file.
+     */
+    pcapng->current_section_number++;
+    new_section.interfaces = g_array_new(false, false, sizeof(interface_info_t));
+    new_section.shb_off = *data_offset;
+    g_array_append_val(pcapng->sections, new_section);
+}
+
+/* Process an IDB that we've just read. The contents of wblock are copied as needed. */
+static bool
 pcapng_process_idb(wtap *wth, section_info_t *section_info,
                    wtapng_block_t *wblock)
 {
@@ -3430,11 +3312,16 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
     }
 
     g_array_append_val(section_info->interfaces, iface_info);
+
+    wtap_block_unref(wblock->block);
+
+    return true;
 }
 
 /* Process an NRB that we have just read. */
-static void
-pcapng_process_nrb(wtap *wth, wtapng_block_t *wblock)
+static bool
+pcapng_process_nrb(wtap *wth, section_info_t *section_info _U_,
+                   wtapng_block_t *wblock)
 {
     wtapng_process_nrb(wth, wblock->block);
 
@@ -3443,133 +3330,101 @@ pcapng_process_nrb(wtap *wth, wtapng_block_t *wblock)
     }
     /* Store NRB such that it can be saved by the dumper. */
     g_array_append_val(wth->nrbs, wblock->block);
+    /* Do not free wblock->block, it is consumed above */
+
+    return true;
 }
 
 /* Process a DSB that we have just read. */
-static void
-pcapng_process_dsb(wtap *wth, wtapng_block_t *wblock)
+static bool
+pcapng_process_dsb(wtap *wth, section_info_t *section_info _U_,
+                   wtapng_block_t *wblock)
 {
     wtapng_process_dsb(wth, wblock->block);
 
     /* Store DSB such that it can be saved by the dumper. */
     g_array_append_val(wth->dsbs, wblock->block);
+
+    /* Do not free wblock->block, it is consumed above */
+
+    return true;
+}
+
+/* Process a ISB that we have just read. */
+static bool
+pcapng_process_isb(wtap *wth, section_info_t *section_info _U_,
+                   wtapng_block_t *wblock)
+{
+    wtapng_if_stats_mandatory_t *if_stats_mand_block, *if_stats_mand;
+    wtap_block_t if_stats;
+    wtap_block_t wtapng_if_descr;
+    wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
+
+    /*
+     * Another interface statistics report
+     *
+     * XXX - given that they're reports, we should be
+     * supplying them in read calls, and displaying them
+     * in the "packet" list, so you can see what the
+     * statistics were *at the time when the report was
+     * made*.
+     *
+     * The statistics from the *last* ISB could be displayed
+     * in the summary, but if there are packets after the
+     * last ISB, that could be misleading.
+     *
+     * If we only display them if that ISB has an isb_endtime
+     * option, which *should* only appear when capturing ended
+     * on that interface (so there should be no more packet
+     * blocks or ISBs for that interface after that point,
+     * that would be the best way of showing "summary"
+     * statistics.
+     */
+    ws_debug("block type BLOCK_TYPE_ISB");
+    if_stats_mand_block = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
+    if (wth->interface_data->len <= if_stats_mand_block->interface_id) {
+        ws_debug("BLOCK_TYPE_ISB wblock.if_stats.interface_id %u >= number_of_interfaces",
+                 if_stats_mand_block->interface_id);
+    } else {
+        /* Get the interface description */
+        wtapng_if_descr = g_array_index(wth->interface_data, wtap_block_t, if_stats_mand_block->interface_id);
+        wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wtapng_if_descr);
+        if (wtapng_if_descr_mand->num_stat_entries == 0) {
+            /* First ISB found, no previous entry */
+            ws_debug("block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
+            wtapng_if_descr_mand->interface_statistics = g_array_new(false, false, sizeof(wtap_block_t));
+        }
+
+        if_stats = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
+        if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(if_stats);
+        if_stats_mand->interface_id  = if_stats_mand_block->interface_id;
+        if_stats_mand->ts_high       = if_stats_mand_block->ts_high;
+        if_stats_mand->ts_low        = if_stats_mand_block->ts_low;
+
+        wtap_block_copy(if_stats, wblock->block);
+        g_array_append_val(wtapng_if_descr_mand->interface_statistics, if_stats);
+        wtapng_if_descr_mand->num_stat_entries++;
+    }
+    wtap_block_unref(wblock->block);
+    return true;
 }
 
 static void
-pcapng_process_internal_block(wtap *wth, pcapng_t *pcapng, section_info_t *current_section, section_info_t new_section, wtapng_block_t *wblock, const int64_t *data_offset)
+pcapng_process_internal_block(wtap *wth, pcapng_t *pcapng, section_info_t *section, section_info_t new_section, wtapng_block_t *wblock, const int64_t *data_offset)
 {
-    wtap_block_t wtapng_if_descr;
-    wtap_block_t if_stats;
-    wtapng_if_stats_mandatory_t *if_stats_mand_block, *if_stats_mand;
-    wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
+    if (wblock->type == BLOCK_TYPE_SHB) {
+        pcapng_process_shb(wth, pcapng, new_section, wblock, data_offset);
+    } else {
+        pcapng_block_type_information_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(wblock->type));
 
-    switch (wblock->type) {
-
-        case(BLOCK_TYPE_SHB):
-            ws_debug("another section header block");
-
-            /*
-             * Add this SHB to the table of SHBs.
-             */
-            g_array_append_val(wth->shb_hdrs, wblock->block);
-            g_array_append_val(wth->shb_iface_to_global, wth->interface_data->len);
-
-            /*
-             * Update the current section number, and add
-             * the updated section_info_t to the array of
-             * section_info_t's for this file.
-             */
-            pcapng->current_section_number++;
-            new_section.interfaces = g_array_new(false, false, sizeof(interface_info_t));
-            new_section.shb_off = *data_offset;
-            g_array_append_val(pcapng->sections, new_section);
-            break;
-
-        case(BLOCK_TYPE_IDB):
-            /* A new interface */
-            ws_debug("block type BLOCK_TYPE_IDB");
-            pcapng_process_idb(wth, current_section, wblock);
-            wtap_block_unref(wblock->block);
-            break;
-
-        case(BLOCK_TYPE_DSB):
-            /* Decryption secrets. */
-            ws_debug("block type BLOCK_TYPE_DSB");
-            pcapng_process_dsb(wth, wblock);
-            /* Do not free wblock->block, it is consumed by pcapng_process_dsb */
-            break;
-
-        case(BLOCK_TYPE_NRB):
-            /* More name resolution entries */
-            ws_debug("block type BLOCK_TYPE_NRB");
-            pcapng_process_nrb(wth, wblock);
-            /* Do not free wblock->block, it is consumed by pcapng_process_nrb */
-            break;
-
-        case(BLOCK_TYPE_ISB):
-            /*
-             * Another interface statistics report
-             *
-             * XXX - given that they're reports, we should be
-             * supplying them in read calls, and displaying them
-             * in the "packet" list, so you can see what the
-             * statistics were *at the time when the report was
-             * made*.
-             *
-             * The statistics from the *last* ISB could be displayed
-             * in the summary, but if there are packets after the
-             * last ISB, that could be misleading.
-             *
-             * If we only display them if that ISB has an isb_endtime
-             * option, which *should* only appear when capturing ended
-             * on that interface (so there should be no more packet
-             * blocks or ISBs for that interface after that point,
-             * that would be the best way of showing "summary"
-             * statistics.
-             */
-            ws_debug("block type BLOCK_TYPE_ISB");
-            if_stats_mand_block = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
-            if (wth->interface_data->len <= if_stats_mand_block->interface_id) {
-                ws_debug("BLOCK_TYPE_ISB wblock.if_stats.interface_id %u >= number_of_interfaces",
-                         if_stats_mand_block->interface_id);
-            } else {
-                /* Get the interface description */
-                wtapng_if_descr = g_array_index(wth->interface_data, wtap_block_t, if_stats_mand_block->interface_id);
-                wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wtapng_if_descr);
-                if (wtapng_if_descr_mand->num_stat_entries == 0) {
-                    /* First ISB found, no previous entry */
-                    ws_debug("block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
-                    wtapng_if_descr_mand->interface_statistics = g_array_new(false, false, sizeof(wtap_block_t));
-                }
-
-                if_stats = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
-                if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(if_stats);
-                if_stats_mand->interface_id  = if_stats_mand_block->interface_id;
-                if_stats_mand->ts_high       = if_stats_mand_block->ts_high;
-                if_stats_mand->ts_low        = if_stats_mand_block->ts_low;
-
-                wtap_block_copy(if_stats, wblock->block);
-                g_array_append_val(wtapng_if_descr_mand->interface_statistics, if_stats);
-                wtapng_if_descr_mand->num_stat_entries++;
+        if (handler != NULL) {
+            /* XXX - Is it okay to not have a processor? */
+            if (handler->processor != NULL) {
+                handler->processor(wth, section, wblock);
             }
-            wtap_block_unref(wblock->block);
-            break;
-
-        default:
-        {
-            pcapng_block_type_handler_t* handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(wblock->type));
-            if (handler != NULL) {
-                if (handler->processor == NULL) {
-                    /* XXX - Is it okay to not have a processor? */
-                    break;
-                }
-                handler->processor(wth, wblock);
-                break;
-            }
-
+        } else {
             /* XXX - improve handling of "unknown" blocks */
             ws_debug("Unknown block type 0x%08x", wblock->type);
-            break;
         }
     }
 }
@@ -5284,9 +5139,10 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
 }
 
 static bool
-pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
-                          int *err, char **err_info _U_)
+pcapng_write_custom_block_copy(wtap_dumper *wdh, const wtap_rec *rec,
+                               int *err, char **err_info _U_)
 {
+    pcapng_custom_block_enterprise_handler_t *pen_handler;
     uint32_t block_content_length;
     pcapng_custom_block_t cb;
     uint32_t pad_len;
@@ -5296,41 +5152,59 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
         return true;
     }
 
-    /* Don't write anything we're not willing to read. */
-    if (rec->rec_header.custom_block_header.length > WTAP_MAX_PACKET_SIZE_STANDARD) {
-        *err = WTAP_ERR_PACKET_TOO_LARGE;
-        return false;
+    pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(rec->rec_header.custom_block_header.pen));
+    if (pen_handler != NULL)
+    {
+        if (!pen_handler->writer(wdh, rec, err, err_info))
+            return false;
     }
+    else
+    {
+        /* Don't write anything we're not willing to read. */
+        if (rec->rec_header.custom_block_header.length > WTAP_MAX_PACKET_SIZE_STANDARD) {
+            *err = WTAP_ERR_PACKET_TOO_LARGE;
+            return false;
+        }
 
-    pad_len = WS_PADDING_TO_4(rec->rec_header.custom_block_header.length);
+        pad_len = WS_PADDING_TO_4(rec->rec_header.custom_block_header.length);
 
-    /* write block header */
-    block_content_length = (uint32_t)sizeof(cb) + rec->rec_header.custom_block_header.length + pad_len;
-    ws_debug("writing %u bytes, %u padded, PEN %u",
-             (uint32_t)sizeof(cb) + rec->rec_header.custom_block_header.length,
-             block_content_length, rec->rec_header.custom_block_header.pen);
-    if (!pcapng_write_block_header(wdh, BLOCK_TYPE_CB_COPY,
-                                   block_content_length, err))
-        return false;
+        /* write block header */
+        block_content_length = (uint32_t)sizeof(cb) + rec->rec_header.custom_block_header.length + pad_len;
+        ws_debug("writing %u bytes, %u padded, PEN %u",
+                 (uint32_t)sizeof(cb) + rec->rec_header.custom_block_header.length,
+                 block_content_length, rec->rec_header.custom_block_header.pen);
+        if (!pcapng_write_block_header(wdh, BLOCK_TYPE_CB_COPY,
+                                       block_content_length, err))
+            return false;
 
-    /* write custom block header */
-    cb.pen = rec->rec_header.custom_block_header.pen;
-    if (!wtap_dump_file_write(wdh, &cb, sizeof cb, err)) {
-        return false;
+        /* write custom block header */
+        cb.pen = rec->rec_header.custom_block_header.pen;
+        if (!wtap_dump_file_write(wdh, &cb, sizeof cb, err)) {
+            return false;
+        }
+        ws_debug("wrote PEN = %u", cb.pen);
+
+        /* write custom data */
+        if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.custom_block_header.length, err)) {
+            return false;
+        }
+
+        /* write padding (if any) */
+        if (!pcapng_write_padding(wdh, pad_len, err))
+            return false;
+
+        /* write block footer */
+        return pcapng_write_block_footer(wdh, block_content_length, err);
     }
-    ws_debug("wrote PEN = %u", cb.pen);
+    return true;
+}
 
-    /* write custom data */
-    if (!wtap_dump_file_write(wdh, ws_buffer_start_ptr(&rec->data), rec->rec_header.custom_block_header.length, err)) {
-        return false;
-    }
-
-    /* write padding (if any) */
-    if (!pcapng_write_padding(wdh, pad_len, err))
-        return false;
-
-    /* write block footer */
-    return pcapng_write_block_footer(wdh, block_content_length, err);
+static bool
+pcapng_write_custom_block_no_copy(wtap_dumper *wdh _U_, const wtap_rec *rec _U_,
+                                  int *err _U_, char **err_info _U_)
+{
+    /* Don't write anything we are not supposed to. */
+    return true;
 }
 
 static bool
@@ -6170,7 +6044,8 @@ static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
 static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
                         int *err, char **err_info)
 {
-    pcapng_block_type_handler_t* handler;
+    uint32_t block_type;
+    pcapng_block_type_information_t* handler;
 
     if (!pcapng_write_internal_blocks(wdh, err)) {
         return false;
@@ -6189,14 +6064,10 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
                 (!(rec->presence_flags & WTAP_HAS_INTERFACE_ID) || rec->rec_header.packet_header.interface_id == 0) &&
                 (!(rec->presence_flags & WTAP_HAS_CAP_LEN) || rec->rec_header.packet_header.len == rec->rec_header.packet_header.caplen) &&
                 (rec->block == NULL || pcapng_compute_options_size(rec->block, compute_epb_option_size) == 0)) {
-                if (!pcapng_write_simple_packet_block(wdh, rec, err, err_info)) {
-                    return false;
-                }
+                block_type = BLOCK_TYPE_SPB;
             }
             else {
-                if (!pcapng_write_enhanced_packet_block(wdh, rec, err, err_info)) {
-                    return false;
-                }
+                block_type = BLOCK_TYPE_EPB;
             }
             break;
 
@@ -6216,53 +6087,27 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
                 return false;
             }
 
-            /*
-             * Do we have a handler for this block type?
-             */
-            handler = (pcapng_block_type_handler_t*)g_hash_table_lookup(block_handlers,
-                                                                        GUINT_TO_POINTER(rec->rec_header.ft_specific_header.record_type));
-            if (handler == NULL) {
-                /* No. We can't write that. */
-                *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-                *err_info = g_strdup_printf("Pcapng blocks of type 0x%8x aren't supported",
-                                            rec->rec_header.ft_specific_header.record_type);
-                return false;
-            }
-
-            /* Yes. Call it to write out this record. */
-            if (!handler->writer(wdh, rec, err, err_info)) {
-                return false;
-            }
+            block_type = rec->rec_header.ft_specific_header.record_type;
             break;
 
         case REC_TYPE_SYSCALL:
-            if (!pcapng_write_sysdig_event_block(wdh, rec, err, err_info)) {
-                return false;
-            }
+            block_type = rec->rec_header.syscall_header.record_type;
             break;
 
         case REC_TYPE_SYSTEMD_JOURNAL_EXPORT:
-            if (!pcapng_write_systemd_journal_export_block(wdh, rec, err, err_info)) {
-                return false;
-            }
+            block_type = BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT;
             break;
 
         case REC_TYPE_CUSTOM_BLOCK:
         {
-            pcapng_custom_block_enterprise_handler_t* pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(rec->rec_header.custom_block_header.pen));
-
-            if (pen_handler != NULL)
-            {
-                if (!pen_handler->writer(wdh, rec, err, err_info))
-                    return false;
+            /* Don't write anything we are not supposed to. */
+            if (!rec->rec_header.custom_block_header.copy_allowed) {
+                return true;
             }
-            else
-            {
-                if (!pcapng_write_custom_block(wdh, rec, err, err_info))
-                    return false;
-            }
+            block_type = BLOCK_TYPE_CB_COPY;
             break;
         }
+
         default:
             /* We don't support writing this record type. */
             *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
@@ -6270,7 +6115,21 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
             return false;
     }
 
-    return true;
+    /*
+     * Do we have a handler for this block type?
+     */
+    handler = (pcapng_block_type_information_t*)g_hash_table_lookup(block_handlers,
+                                                                        GUINT_TO_POINTER(block_type));
+    if (handler == NULL) {
+        /* No. We can't write that. */
+        *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+        *err_info = g_strdup_printf("Pcapng blocks of type 0x%8x aren't supported",
+                                    rec->rec_header.ft_specific_header.record_type);
+        return false;
+    }
+
+    /* Yes. Call it to write out this record. */
+    return handler->writer(wdh, rec, err, err_info);
 }
 
 /*
@@ -6630,6 +6489,53 @@ void register_pcapng(void)
     custom_enterprise_handlers = g_hash_table_new_full(g_direct_hash,
         g_direct_equal,
         NULL, g_free);
+
+    /* SHBs require special handling, so they don't have handlers here. */
+    static pcapng_block_type_information_t SHB = { BLOCK_TYPE_SHB, NULL, NULL, NULL, true, NULL };
+    SHB.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&SHB);
+
+    static pcapng_block_type_information_t IDB = { BLOCK_TYPE_IDB, pcapng_read_if_descr_block, pcapng_process_idb, NULL, true, NULL };
+    IDB.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&IDB);
+
+    static pcapng_block_type_information_t EPB = { BLOCK_TYPE_EPB, pcapng_read_packet_block, NULL, pcapng_write_enhanced_packet_block, false, NULL };
+    EPB.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&EPB);
+
+    static pcapng_block_type_information_t PB = { BLOCK_TYPE_PB, pcapng_read_packet_block, NULL, NULL, false, NULL };
+    /* PBs and EPBs have the same options. */
+    PB.option_handlers = EPB.option_handlers;
+    register_pcapng_block_type_information(&PB);
+
+    static pcapng_block_type_information_t SPB = { BLOCK_TYPE_SPB, pcapng_read_simple_packet_block, NULL, pcapng_write_simple_packet_block, false, NULL };
+    /* SPBs don't support options */
+    register_pcapng_block_type_information(&SPB);
+
+    static pcapng_block_type_information_t NRB = { BLOCK_TYPE_NRB, pcapng_read_name_resolution_block, pcapng_process_nrb, NULL, true, NULL };
+    NRB.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&NRB);
+
+    static pcapng_block_type_information_t ISB = { BLOCK_TYPE_ISB, pcapng_read_interface_statistics_block, pcapng_process_isb, NULL, true, NULL };
+    ISB.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&ISB);
+
+    static pcapng_block_type_information_t DSB = { BLOCK_TYPE_DSB, pcapng_read_decryption_secrets_block, pcapng_process_dsb, NULL, true, NULL };
+    DSB.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&DSB);
+
+    static pcapng_block_type_information_t CB_COPY = { BLOCK_TYPE_CB_COPY, pcapng_read_custom_block, NULL, pcapng_write_custom_block_copy, false, NULL };
+    CB_COPY.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&CB_COPY);
+
+    static pcapng_block_type_information_t CB_NO_COPY = { BLOCK_TYPE_CB_NO_COPY, pcapng_read_custom_block, NULL, pcapng_write_custom_block_no_copy, false, NULL };
+    /* Copy and no-copy and CBs have the same options. */
+    CB_NO_COPY.option_handlers = CB_COPY.option_handlers;
+    register_pcapng_block_type_information(&CB_NO_COPY);
+
+    static pcapng_block_type_information_t SYSTEMD_JOURNAL_EXPORT = { BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT, pcapng_read_systemd_journal_export_block, NULL, pcapng_write_systemd_journal_export_block, false, NULL };
+    SYSTEMD_JOURNAL_EXPORT.option_handlers = pcapng_create_option_handler_table();
+    register_pcapng_block_type_information(&SYSTEMD_JOURNAL_EXPORT);
 }
 
 /*

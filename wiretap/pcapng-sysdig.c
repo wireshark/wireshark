@@ -8,9 +8,8 @@
 #include <wsutil/ws_padding_to.h>
 
 #include "wtap-int.h"
-#include "pcapng-sysdig-int.h"
 #include "file_wrappers.h"
-
+#include "pcapng_module.h"
 
  /*
   * We split libscap events into two parts: A preamble from which we read metadata
@@ -206,7 +205,7 @@ pcapng_read_sysdig_event_block(wtap* wth, FILE_T fh, uint32_t block_type,
     return true;
 }
 
-bool
+static bool
 pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
     int* err, char** err_info)
 {
@@ -296,7 +295,8 @@ pcapng_write_sysdig_event_block(wtap_dumper* wdh, const wtap_rec* rec,
 
 /* Process a Sysdig meta event block that we have just read. */
 bool
-pcapng_process_meta_event(wtap* wth, wtapng_block_t* wblock)
+pcapng_process_meta_event(wtap* wth, section_info_t *section_info _U_,
+                          wtapng_block_t* wblock)
 {
     ws_debug("block type Sysdig meta event");
 
@@ -387,34 +387,34 @@ static void mev_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
 
 void register_sysdig(void)
 {
-    static pcapng_block_type_handler_t MI = { BLOCK_TYPE_SYSDIG_MI, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V1 = { BLOCK_TYPE_SYSDIG_PL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t FDL_V1 = { BLOCK_TYPE_SYSDIG_FDL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t EVENT = { BLOCK_TYPE_SYSDIG_EVENT, pcapng_read_sysdig_event_block, NULL, NULL, false, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t IL_V1 = { BLOCK_TYPE_SYSDIG_IL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t UL_V1 = { BLOCK_TYPE_SYSDIG_UL_V1, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V2 = { BLOCK_TYPE_SYSDIG_PL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t EVF = { BLOCK_TYPE_SYSDIG_EVF, pcapng_read_sysdig_event_block, NULL, NULL, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V3 = { BLOCK_TYPE_SYSDIG_PL_V3, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V4 = { BLOCK_TYPE_SYSDIG_PL_V4, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V5 = { BLOCK_TYPE_SYSDIG_PL_V5, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V6 = { BLOCK_TYPE_SYSDIG_PL_V6, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V7 = { BLOCK_TYPE_SYSDIG_PL_V7, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V8 = { BLOCK_TYPE_SYSDIG_PL_V8, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t PL_V9 = { BLOCK_TYPE_SYSDIG_PL_V9, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t EVENT_V2 = { BLOCK_TYPE_SYSDIG_EVENT_V2, pcapng_read_sysdig_event_block, NULL, NULL, false, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t EVENT_V2_LARGE = { BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, pcapng_read_sysdig_event_block, NULL, NULL, false, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t EVF_V2 = { BLOCK_TYPE_SYSDIG_EVF_V2, pcapng_read_sysdig_event_block, NULL, NULL, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t EVF_V2_LARGE = { BLOCK_TYPE_SYSDIG_EVF_V2_LARGE, pcapng_read_sysdig_event_block, NULL, NULL, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t FDL_V2 = { BLOCK_TYPE_SYSDIG_FDL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t IL_V2 = { BLOCK_TYPE_SYSDIG_IL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
-    static pcapng_block_type_handler_t UL_V2 = { BLOCK_TYPE_SYSDIG_UL_V2, pcapng_read_meta_event_block, NULL, pcapng_process_meta_event, true, BT_INDEX_EVT };
+    static pcapng_block_type_information_t MI = { BLOCK_TYPE_SYSDIG_MI, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V1 = { BLOCK_TYPE_SYSDIG_PL_V1, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t FDL_V1 = { BLOCK_TYPE_SYSDIG_FDL_V1, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t EVENT = { BLOCK_TYPE_SYSDIG_EVENT, pcapng_read_sysdig_event_block, NULL, pcapng_write_sysdig_event_block, false, NULL };
+    static pcapng_block_type_information_t IL_V1 = { BLOCK_TYPE_SYSDIG_IL_V1, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t UL_V1 = { BLOCK_TYPE_SYSDIG_UL_V1, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V2 = { BLOCK_TYPE_SYSDIG_PL_V2, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t EVF = { BLOCK_TYPE_SYSDIG_EVF, pcapng_read_sysdig_event_block, NULL, pcapng_write_sysdig_event_block, true, NULL };
+    static pcapng_block_type_information_t PL_V3 = { BLOCK_TYPE_SYSDIG_PL_V3, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V4 = { BLOCK_TYPE_SYSDIG_PL_V4, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V5 = { BLOCK_TYPE_SYSDIG_PL_V5, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V6 = { BLOCK_TYPE_SYSDIG_PL_V6, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V7 = { BLOCK_TYPE_SYSDIG_PL_V7, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V8 = { BLOCK_TYPE_SYSDIG_PL_V8, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t PL_V9 = { BLOCK_TYPE_SYSDIG_PL_V9, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t EVENT_V2 = { BLOCK_TYPE_SYSDIG_EVENT_V2, pcapng_read_sysdig_event_block, NULL, pcapng_write_sysdig_event_block, false, NULL };
+    static pcapng_block_type_information_t EVENT_V2_LARGE = { BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, pcapng_read_sysdig_event_block, NULL, pcapng_write_sysdig_event_block, false, NULL };
+    static pcapng_block_type_information_t EVF_V2 = { BLOCK_TYPE_SYSDIG_EVF_V2, pcapng_read_sysdig_event_block, NULL, pcapng_write_sysdig_event_block, true, NULL };
+    static pcapng_block_type_information_t EVF_V2_LARGE = { BLOCK_TYPE_SYSDIG_EVF_V2_LARGE, pcapng_read_sysdig_event_block, NULL, pcapng_write_sysdig_event_block, true, NULL };
+    static pcapng_block_type_information_t FDL_V2 = { BLOCK_TYPE_SYSDIG_FDL_V2, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t IL_V2 = { BLOCK_TYPE_SYSDIG_IL_V2, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
+    static pcapng_block_type_information_t UL_V2 = { BLOCK_TYPE_SYSDIG_UL_V2, pcapng_read_meta_event_block, pcapng_process_meta_event, NULL, true, NULL };
 
     static wtap_blocktype_t sysdig_block = { WTAP_BLOCK_SYSDIG_EVENT, "Sysdig event", "Sysdig Event Block", sysdig_create, NULL, NULL, NULL };
     static wtap_blocktype_t mev_block = { WTAP_BLOCK_META_EVENT, "MEV", "Meta Event Block", mev_create, mev_free_mand, mev_copy_mand, NULL };
 
     /*
-     * Register the Sysdig block and the (no) options that can appear in it.
+     * Register the Sysdig block; no options can appear in it..
      */
     wtap_opttype_block_register(&sysdig_block);
     /*
@@ -422,29 +422,28 @@ void register_sysdig(void)
      */
     wtap_opttype_block_register(&mev_block);
 
-    register_pcapng_block_type_handler(&MI);
-    register_pcapng_block_type_handler(&PL_V1);
-    register_pcapng_block_type_handler(&FDL_V1);
-    register_pcapng_block_type_handler(&EVENT);
-    register_pcapng_block_type_handler(&IL_V1);
-    register_pcapng_block_type_handler(&UL_V1);
-    register_pcapng_block_type_handler(&PL_V2);
-    register_pcapng_block_type_handler(&EVF);
-    register_pcapng_block_type_handler(&PL_V3);
-    register_pcapng_block_type_handler(&PL_V4);
-    register_pcapng_block_type_handler(&PL_V5);
-    register_pcapng_block_type_handler(&PL_V6);
-    register_pcapng_block_type_handler(&PL_V7);
-    register_pcapng_block_type_handler(&PL_V8);
-    register_pcapng_block_type_handler(&PL_V9);
-    register_pcapng_block_type_handler(&EVENT_V2);
-    register_pcapng_block_type_handler(&EVENT_V2_LARGE);
-    register_pcapng_block_type_handler(&EVF_V2);
-    register_pcapng_block_type_handler(&EVF_V2_LARGE);
-    register_pcapng_block_type_handler(&FDL_V2);
-    register_pcapng_block_type_handler(&IL_V2);
-    register_pcapng_block_type_handler(&UL_V2);
-
+    register_pcapng_block_type_information(&MI);
+    register_pcapng_block_type_information(&PL_V1);
+    register_pcapng_block_type_information(&FDL_V1);
+    register_pcapng_block_type_information(&EVENT);
+    register_pcapng_block_type_information(&IL_V1);
+    register_pcapng_block_type_information(&UL_V1);
+    register_pcapng_block_type_information(&PL_V2);
+    register_pcapng_block_type_information(&EVF);
+    register_pcapng_block_type_information(&PL_V3);
+    register_pcapng_block_type_information(&PL_V4);
+    register_pcapng_block_type_information(&PL_V5);
+    register_pcapng_block_type_information(&PL_V6);
+    register_pcapng_block_type_information(&PL_V7);
+    register_pcapng_block_type_information(&PL_V8);
+    register_pcapng_block_type_information(&PL_V9);
+    register_pcapng_block_type_information(&EVENT_V2);
+    register_pcapng_block_type_information(&EVENT_V2_LARGE);
+    register_pcapng_block_type_information(&EVF_V2);
+    register_pcapng_block_type_information(&EVF_V2_LARGE);
+    register_pcapng_block_type_information(&FDL_V2);
+    register_pcapng_block_type_information(&IL_V2);
+    register_pcapng_block_type_information(&UL_V2);
 }
 
 /*
