@@ -594,14 +594,23 @@ if args.common:
         if len(custom_tfs_entries[c]) > 2:
             print(c, 'appears', len(custom_tfs_entries[c]), 'times, in: ', custom_tfs_entries[c])
 
+# Show how often 'common' entries are used
 if args.common_usage:
+    actual_usage = []
+
     for c in common_tfs_entries:
         if c in common_usage:
-            print(c, 'used in', common_usage[c], 'dissectors')
+            actual_usage.append((c, common_usage[c]))
         else:
-            print('***', c, 'IS NOT USED! ***')
+            actual_usage.append((c, 0))
 
-# Show summary.
+    # Show in order sorted by usage
+    actual_usage.sort(reverse=True, key=lambda e : e[1])
+    for use in actual_usage:
+        emphasis = '**' if use[1] == 0 else ''
+        print(emphasis, use[0], 'used in', use[1], 'dissectors', emphasis)
+
+# Summary.
 print(warnings_found, 'warnings found')
 if errors_found:
     print(errors_found, 'errors found')
