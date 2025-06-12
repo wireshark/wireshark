@@ -5093,7 +5093,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   /* Try to extract node report regex data as generated fields (only if data contained) */
   if(tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN) > 0) {
-    regex = g_regex_new(artnet_poll_reply_node_report_regex, (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL);
+    regex = g_regex_new(artnet_poll_reply_node_report_regex, G_REGEX_DEFAULT, (GRegexMatchFlags) 0, NULL);
     DISSECTOR_ASSERT(regex != NULL);
     g_regex_match(
       regex,

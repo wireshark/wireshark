@@ -285,7 +285,7 @@ static bool look_for_pcre(content_t *content, tvbuff_t *tvb, unsigned start_offs
     GRegex *regex;
     GMatchInfo *match_info;
     bool match_found = false;
-    GRegexCompileFlags regex_compile_flags = (GRegexCompileFlags)0;
+    GRegexCompileFlags regex_compile_flags = G_REGEX_DEFAULT;
 
     /* Make sure pcre string is ready for regex library. */
     if (!content_convert_pcre_for_regex(content)) {
