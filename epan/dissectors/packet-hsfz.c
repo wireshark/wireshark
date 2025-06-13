@@ -263,6 +263,18 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         }
         break;
 
+    case HSFZ_CTRLWORD_ALIVE_CHECK:
+        if (hsfz_length == 2) {
+            dissect_hsfz_address(tvb, pinfo, hsfz_tree, offset, hf_hsfz_source_address);
+            offset += 1;
+            dissect_hsfz_address(tvb, pinfo, hsfz_tree, offset, hf_hsfz_target_address);
+        } else if (hsfz_length > 2) {
+            const uint8_t *ident_data;
+            proto_tree_add_item_ret_string(hsfz_tree, hf_hsfz_ident_string, tvb, offset, hsfz_length, ENC_ASCII, pinfo->pool, &ident_data);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ident_data);
+        }
+        break;
+
     case HSFZ_CTRLWORD_INCORRECT_DEST_ADDRESS:
     case HSFZ_CTRLWORD_OUT_OF_MEMORY:
         if (hsfz_ctrlword == HSFZ_CTRLWORD_INCORRECT_DEST_ADDRESS || hsfz_length >= 2) {
