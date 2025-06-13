@@ -3933,11 +3933,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* numElements */
                 unsigned num_elements;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_elements, tvb, offset, 1, ENC_BIG_ENDIAN, &num_elements);
+                proto_item *num_elements_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_elements, tvb, offset, 1, ENC_BIG_ENDIAN, &num_elements);
+                if (num_elements == 0) {
+                    num_elements = 256;
+                    proto_item_append_text(num_elements_ti, " (256");
+                }
+
                 offset += 1;
 
                 /* beamId value(s) */
-                switch (num_elements) {
+                switch (beam_type) {
                     case 0:
                         for (unsigned n=0; n < num_elements; n++) {
                             /* reserved (1 bit) + beamId */
