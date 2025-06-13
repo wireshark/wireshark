@@ -190,6 +190,10 @@ struct ssh_peer_data {
 struct ssh_flow_data {
     unsigned   version;
 
+    /* The address/port of the server */
+    address srv_addr;
+    unsigned srv_port;
+
     char*  kex;
     int   (*kex_specific_dissector)(uint8_t msg_code, tvbuff_t *tvb,
             packet_info *pinfo, int offset, proto_tree *tree,
@@ -807,12 +811,25 @@ ssh_debug_printf(const char* fmt _U_,...)
 
 #endif /* SSH_DECRYPT_DEBUG */
 
+static void
+ssh_set_server(struct ssh_flow_data *global_data, address *addr, uint32_t port)
+{
+    copy_address_wmem(wmem_file_scope(), &global_data->srv_addr, addr);
+    global_data->srv_port = port;
+}
+
 static bool
-ssh_packet_from_server(struct ssh_flow_data* session _U_, const packet_info* pinfo)
+ssh_packet_from_server(struct ssh_flow_data *session, const packet_info *pinfo)
 {
     bool ret;
-    ret = (pinfo->match_uint == pinfo->srcport);
-    ssh_debug_printf("packet_from_server: is from server - %s\n", (ret) ? "TRUE" : "FALSE");
+    if (session && session->srv_addr.type != AT_NONE) {
+        ret = (session->srv_port == pinfo->srcport) &&
+              addresses_equal(&session->srv_addr, &pinfo->src);
+    } else {
+        ret = (pinfo->match_uint == pinfo->srcport);
+    }
+
+    ssh_debug_printf("packet_from_server: is from server - %s\n", (ret)?"TRUE":"FALSE");
     return ret;
 }
 
@@ -864,6 +881,20 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->kex_shared_secret = wmem_array_new(wmem_file_scope(), 1);
         global_data->do_decrypt      = true;
         global_data->ext_ping_openssh_offered = false;
+
+        /* We expect to get the client message first. If this is from an
+         * an assigned server port, call it the server, otherwise call it
+         * the client.
+         * XXX - We don't unambigously know which side is the server and
+         * which the client until the KEX specific _INIT and _REPLY messages;
+         * we ought to be able to handle the cases where the version string or
+         * KEXINIT messages are out of order or where the client version string
+         * is missing. */
+        if (pinfo->match_uint == pinfo->srcport) {
+            ssh_set_server(global_data, &pinfo->src, pinfo->srcport);
+        } else {
+            ssh_set_server(global_data, &pinfo->dst, pinfo->destport);
+        }
 
         conversation_add_proto_data(conversation, proto_ssh, global_data);
     }
@@ -955,6 +986,23 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     ssh_debug_flush();
 
     return tvb_captured_length(tvb);
+}
+
+static bool
+dissect_ssh_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    conversation_t *conversation;
+
+    if (tvb_strneql(tvb, 0, "SSH-", 4) != 0) {
+        return false;
+    }
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, ssh_handle);
+
+    dissect_ssh(tvb, pinfo, tree, data);
+
+    return true;
 }
 
 static int
@@ -6605,6 +6653,8 @@ proto_reg_handoff_ssh(void)
     dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
     sftp_handle = find_dissector("sftp");
+
+    heur_dissector_add("tcp", dissect_ssh_heur, "SSH over TCP", "ssh_tcp", proto_ssh, HEURISTIC_ENABLE);
 }
 
 /*
