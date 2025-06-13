@@ -183,6 +183,8 @@ candump_parse(FILE_T fh, msg_t* msg, int64_t* offset, int* err, char** err_info)
 
         /* TODO: Interface name is tokens[1] */
 
+        if (tokens[2] == NULL)
+            break;
         char* id_end = strstr(tokens[2], "#");
         if (id_end == NULL)
             break;
