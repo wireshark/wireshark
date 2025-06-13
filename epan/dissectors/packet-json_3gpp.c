@@ -1288,7 +1288,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	if (strcmp(path, NAF_EVENTEXPOSTURE) == 0) {
 		/* TS 29.517 ch5.8 Feature negotiation */
 		dissect_3gpp_supportfeatures_naf_eventexposure(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
-		
+
 	} else if (strcmp(path, NLMF_BROADCAST) == 0) {
 		/* TS 29.572 ch6.2.9 Feature negotiation */
 		dissect_3gpp_supportfeatures_nlmf_broadcast(suppfeat_tvb, sub_tree, pinfo, offset, len, hex_ascii);
@@ -1370,7 +1370,10 @@ dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offse
 		matched_imsi = g_match_info_fetch(match_info, 1); //will be empty string if imsi is not in supi
 		if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
 			add_assoc_imsi_item(supi_tvb, tree, matched_imsi);
-			g_free(matched_imsi);
+			/* Add Associate IMSI to HTTP2 stream */
+			if (proto_is_frame_protocol(pinfo->layers, "http2")) {
+				http2_set_stream_imsi(pinfo, matched_imsi);
+			}
 		}
 	}
 	g_regex_unref(regex);

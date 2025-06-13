@@ -1491,6 +1491,31 @@ http2_get_stream_id(packet_info *pinfo)
     return h2session->current_stream_id;
 }
 
+void
+http2_set_stream_imsi(packet_info *pinfo, char* imsi)
+{
+    conversation_t *conversation;
+    http2_session_t *h2session;
+    http2_stream_info_t *stream_info;
+
+    conversation = find_conversation_pinfo(pinfo, 0);
+    if (!conversation) {
+        return;
+    }
+
+    h2session = (http2_session_t*)conversation_get_proto_data(conversation, proto_http2);
+    if (!h2session) {
+        return;
+    }
+
+    stream_info = get_stream_info(pinfo, h2session, false);
+    if (!stream_info) {
+        return;
+    }
+
+    stream_info->imsi = imsi;
+}
+
 static const char*
 http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, uint32_t stream_id)
 {
@@ -1515,6 +1540,12 @@ uint32_t
 http2_get_stream_id(packet_info *pinfo _U_)
 {
     return 0;
+}
+
+void
+http2_set_stream_imsi(packet_info *pinfo _U_, char* imsi _U_)
+{
+    return;
 }
 
 static const char*
