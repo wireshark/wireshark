@@ -175,6 +175,8 @@ candump_parse(FILE_T fh, msg_t* msg, int64_t* offset, int* err, char** err_info)
 
         tokens = g_strsplit(line_buffer, " ", 3);
 
+        if (tokens[0] == NULL)
+            break;
         if (sscanf(tokens[0], "(%d.%d)", &secs, &nsecs) != 2)
             break;
 
