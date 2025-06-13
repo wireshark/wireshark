@@ -526,6 +526,7 @@ static expert_field ei_oran_st9_not_ul;
 static expert_field ei_oran_st10_numsymbol_not_14;
 static expert_field ei_oran_st10_startsymbolid_not_0;
 static expert_field ei_oran_st10_not_ul;
+static expert_field ei_oran_se24_nothing_to_inherit;
 static expert_field ei_oran_num_sinr_per_prb_unknown;
 static expert_field ei_oran_start_symbol_id_bits_ignored;
 
@@ -812,8 +813,8 @@ static const value_string beam_type_vals[] = {
 static const value_string entry_type_vals[] = {
     { 0,  "inherit config from preceding entry (2 or 3) ueIdReset=0" },
     { 1,  "inherit config from preceding entry (2 or 3) ueIdReset=1" },
-    { 2,  "have transform precoding disabled" },
-    { 3,  "have transform precoding enabled" },
+    { 2,  "related parameters if have transform precoding disabled" },
+    { 3,  "related parameters if have transform precoding enabled" },
     { 0, NULL}
 };
 
@@ -3723,6 +3724,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 offset += 1;
 
+                bool seen_value_to_inherit = false;
+
                 /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
                 /* TODO: how to know when have seen last entry?  Zero byte (within last 3 bytes of space) are valid... */
                 while (offset < (extension_start_offset + extlen*4)) {
@@ -3754,6 +3757,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         case 0:
                         case 1:
                             /* No further fields for these */
+                            /* Error here if no previous values to inherit!! */
+                            if (!seen_value_to_inherit) {
+                                expert_add_info_format(pinfo, entry_type_ti, &ei_oran_se24_nothing_to_inherit,
+                                                       "SE24: have seen entry type %u, but no previous config (type 2 or 3) to inherit config from", entry_type);
+
+                            }
                             break;
 
                         case 2:
@@ -3821,6 +3830,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* Reserved (16 bits) */
                             proto_tree_add_item(entry_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
+
+                            /* Could now see entry types 0 or 1 - they have these values to inherit */
+                            seen_value_to_inherit = true;
                             break;
                         }
 
@@ -3829,8 +3841,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             break;
                     }
 
-                    proto_item_append_text(entry_ti, " (type %u - %s)",
-                                           entry_type, val_to_str_const(entry_type, entry_type_vals, "Unknown"));
+                    proto_item_append_text(entry_ti, " (type %u - %s) (dmrsPortNumber = %u)",
+                                           entry_type, val_to_str_const(entry_type, entry_type_vals, "Unknown"),
+                                           dmrs_port_number);
                     proto_item_set_end(entry_ti, tvb, offset);
                 }
                 break;
@@ -8492,6 +8505,7 @@ proto_register_oran(void)
         { &ei_oran_st10_numsymbol_not_14, { "oran_fh_cus.st10_numsymbol_not_14", PI_MALFORMED, PI_WARN, "numSymbol should be 14 for Section Type 10", EXPFILL }},
         { &ei_oran_st10_startsymbolid_not_0, { "oran_fh_cus.st10_startsymbolid_not_0", PI_MALFORMED, PI_WARN, "startSymbolId should be 0 for Section Type 10", EXPFILL }},
         { &ei_oran_st10_not_ul, { "oran_fh_cus.st10_not_ul", PI_MALFORMED, PI_WARN, "Section Type 10 should only be sent in uplink direction", EXPFILL }},
+        { &ei_oran_se24_nothing_to_inherit, { "oran_fh_cus.se24_nothing_to_inherit", PI_MALFORMED, PI_WARN, "SE10 doesn't have type 2 or 3 before trying to inherit", EXPFILL }},
         { &ei_oran_num_sinr_per_prb_unknown, { "oran_fh_cus.unexpected_num_sinr_per_prb", PI_MALFORMED, PI_WARN, "invalid numSinrPerPrb value", EXPFILL }},
         { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }}
     };
