@@ -97,6 +97,12 @@ typedef struct blf_channel_to_iface_entry {
     uint32_t        interface_id;
 } blf_channel_to_iface_entry_t;
 
+typedef struct blf_metadata_info {
+    size_t  metadata_cont;
+    size_t  payload_start;
+    bool    valid;
+} blf_metadata_info_t;
+
 static void
 blf_free_key(void *key) {
     g_free(key);
@@ -2847,75 +2853,33 @@ blf_read_linsleepmodeevent(blf_params_t* params, int* err, char** err_info, int6
     return true;
 }
 
-static char*
-blf_get_xml_channel_name(const char* start, const char* end) {
-    char* text;
-    size_t len;
-
-    if (start == NULL || end == NULL || end <= start) {
-        return NULL;
-    }
-
-    len = (size_t)(end - start);
-    text = g_try_malloc(len + 1);  /* Accommodate '\0' */
-    if (text == NULL) {
-        ws_debug("cannot allocate memory");
-        return NULL;
-    }
-    memcpy(text, start, len);
-    text[len] = '\0';
-
-    return text;
-}
-
 static bool
-blf_parse_xml_port(const char* start, const char* end, char** name, uint16_t* hwchannel, bool* simulated) {
+blf_parse_xml_port(const xmlChar* str, char** name, uint16_t* hwchannel, bool* simulated) {
     static const char name_magic[] = "name=";
     static const char hwchannel_magic[] = "hwchannel=";
     static const char simulated_magic[] = "simulated=";
 
-    char* text;
-    size_t len;
-    char** tokens;
-    const char* token;
+    if (str == NULL) return false;
 
-    if (start == NULL || end == NULL || name == NULL || end <= start) {
-        return false;
-    }
-
-    len = (size_t)(end - start);
-    text = g_try_malloc(len + 1);  /* Accommodate '\0' */
-    if (text == NULL) {
-        ws_debug("cannot allocate memory");
-        return false;
-    }
-    memcpy(text, start, len);
-    text[len] = '\0';
-
-    tokens = g_strsplit_set(text, ";", -1);
-    g_free(text);
+    char** tokens = g_strsplit_set((const gchar*)str, ";", -1);
     if (tokens == NULL) {
         ws_debug("cannot split XML port data");
         return false;
     }
 
-    *name = NULL;
-    *hwchannel = UINT16_MAX;
-    *simulated = false;
-
     for (int i = 0; tokens[i] != NULL; i++) {
-        token = tokens[i];
-        if (strncmp(token, name_magic, strlen(name_magic)) == 0) {
-            if (*name == NULL) { /* Avoid memory leak in case of malformed string */
+        const char* token = tokens[i];
+        if (name && strncmp(token, name_magic, strlen(name_magic)) == 0) {
+            if (*name == NULL) {    /* Avoid memory leak in case of repeated names */
                 *name = ws_strdup(token + strlen(name_magic));
             }
         }
-        else if (strncmp(token, hwchannel_magic, strlen(hwchannel_magic)) == 0) {
+        else if (hwchannel && strncmp(token, hwchannel_magic, strlen(hwchannel_magic)) == 0) {
             if (!ws_strtou16(token + strlen(hwchannel_magic), NULL, hwchannel)) {
                 *hwchannel = UINT16_MAX;
             }
         }
-        else if (strncmp(token, simulated_magic, strlen(simulated_magic)) == 0) {
+        else if (simulated && strncmp(token, simulated_magic, strlen(simulated_magic)) == 0) {
             if (strlen(token) > strlen(simulated_magic) && token[strlen(simulated_magic)] != '0') {
                 *simulated = true;  /* TODO: Find a way to use this information */
             }
@@ -2928,32 +2892,26 @@ blf_parse_xml_port(const char* start, const char* end, char** name, uint16_t* hw
 }
 
 static int
-blf_get_xml_pkt_encap(const char* start, const char* end) {
-    size_t len;
+blf_get_xml_pkt_encap(const xmlChar* str) {
+    if (str == NULL) return 0;
 
-    if (start == NULL || end == NULL || end <= start) {
-        return 0;
-    }
-
-    len = (size_t)(end - start);
-
-    if (strncmp(start, "CAN", len) == 0) {
+    if (xmlStrcmp(str, "CAN") == 0) {
         return WTAP_ENCAP_SOCKETCAN;
     }
-    if (strncmp(start, "FlexRay", len) == 0) {
+    if (xmlStrcmp(str, "FlexRay") == 0) {
         return WTAP_ENCAP_FLEXRAY;
     }
-    if (strncmp(start, "LIN", len) == 0) {
+    if (xmlStrcmp(str, "LIN") == 0) {
         return WTAP_ENCAP_LIN;
     }
-    if (strncmp(start, "Ethernet", len) == 0) {
+    if (xmlStrcmp(str, "Ethernet") == 0) {
         return WTAP_ENCAP_ETHERNET;
     }
-    if (strncmp(start, "WLAN", len) == 0) { /* Not confirmed with a real capture */
+    if (xmlStrcmp(str, "WLAN") == 0) {    /* Not confirmed with a real capture */
         return WTAP_ENCAP_IEEE_802_11;
     }
 
-    return 0xffffffff;
+    return WTAP_ENCAP_UNKNOWN;
 }
 
 
@@ -2990,18 +2948,11 @@ blf_get_xml_pkt_encap(const char* start, const char* end) {
  */
 static bool
 blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
-
     xmlDocPtr doc;
     xmlNodePtr root_element = NULL;
     xmlNodePtr channels = NULL;
-    int pkt_encap = 0;
-    uint16_t channel = UINT16_MAX;
-    char* channel_name = NULL;
-    bool found_pkt, found_channel, found_name;
 
-    if (text == NULL) {
-        return false;
-    }
+    if (text == NULL) return false;
 
     /* Now it can be parsed into a proper structure */
     doc = xmlParseMemory(text, (int)len);
@@ -3037,86 +2988,80 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
     for (xmlNodePtr current_channel_node = channels->children; current_channel_node != NULL; current_channel_node = current_channel_node->next) {
         if ((current_channel_node->type == XML_ELEMENT_NODE) && (xmlStrcmp(current_channel_node->name, (const xmlChar*)"channel") == 0)) {
             /* Reset the found attributes */
-            found_pkt = found_channel = found_name = false;
+            int pkt_encap = WTAP_ENCAP_UNKNOWN;
+            uint16_t channel = UINT16_MAX;
+            char* channel_name = NULL;
 
             for (xmlAttrPtr attr = current_channel_node->properties; attr; attr = attr->next) {
                 if (xmlStrcmp(attr->name, (const xmlChar*)"number") == 0) {
-
                     xmlChar* str_channel = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_channel != NULL) {
-                        if (ws_strtou16(str_channel, NULL, &channel))
-                            found_pkt = true;
-
+                        ws_strtou16(str_channel, NULL, &channel);
                         xmlFree(str_channel);
                     }
                 }
                 else if (xmlStrcmp(attr->name, (const xmlChar*)"type") == 0) {
-
                     xmlChar* str_type = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_type != NULL) {
-                        pkt_encap = blf_get_xml_pkt_encap(str_type, str_type+strlen(str_type));
+                        pkt_encap = blf_get_xml_pkt_encap(str_type);
                         xmlFree(str_type);
-                        found_channel = true;
                     }
                 }
                 else if (xmlStrcmp(attr->name, (const xmlChar*)"network") == 0) {
-
                     xmlChar* str_network = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_network != NULL) {
-                        channel_name = blf_get_xml_channel_name(str_network, str_network+strlen(str_network));
+                        channel_name = ws_strdup((const char*)str_network);
                         xmlFree(str_network);
-                        found_name = true;
                     }
                 }
             }
 
-            if (found_pkt && found_channel && found_name) {
+            if (pkt_encap != WTAP_ENCAP_UNKNOWN && channel != UINT16_MAX && channel_name != NULL) {
                 ws_debug("Found channel in XML: PKT_ENCAP: %d, ID: %u, name: %s", pkt_encap, channel, channel_name);
                 blf_prepare_interface_name(params, pkt_encap, channel, UINT16_MAX, channel_name, true);
-            }
 
-            /* Look for ports under the channel properties */
-            for (xmlNodePtr channel_property = current_channel_node->children; channel_property != NULL; channel_property = channel_property->next) {
-                if ((channel_property->type == XML_ELEMENT_NODE) && (xmlStrcmp(channel_property->name, (const xmlChar*)"channel_properties") == 0)) {
-                    for (xmlNodePtr prop_child = channel_property->children; prop_child != NULL; prop_child = prop_child->next) {
-                        if (prop_child->type == XML_ELEMENT_NODE && xmlStrcmp(prop_child->name, (const xmlChar*)"elist") == 0) {
-                            xmlNodePtr elist_node = prop_child;
-                            xmlChar* str_name = xmlGetProp(elist_node, (const xmlChar*)"name");
-                            if (xmlStrcmp(str_name, (const xmlChar*)"ports") == 0) {
-                                for (xmlNodePtr eli_node = elist_node->children; eli_node != NULL; eli_node = eli_node->next) {
-                                    if (eli_node->type == XML_ELEMENT_NODE && xmlStrcmp(eli_node->name, (const xmlChar*)"eli") == 0) {
-                                        xmlChar* eli_name_attr = xmlGetProp(eli_node, (const xmlChar*)"name");
-                                        if (xmlStrcmp(eli_name_attr, (const xmlChar*)"port") == 0) {
-                                            char* port_name = NULL;
-                                            uint16_t hwchannel = UINT16_MAX;
-                                            bool simulated = false;
-                                            char* iface_name = NULL;
-                                            xmlChar* eli_content = xmlNodeGetContent(eli_node);
+                /* Look for ports under the channel properties */
+                for (xmlNodePtr channel_property = current_channel_node->children; channel_property != NULL; channel_property = channel_property->next) {
+                    if ((channel_property->type == XML_ELEMENT_NODE) && (xmlStrcmp(channel_property->name, (const xmlChar*)"channel_properties") == 0)) {
+                        for (xmlNodePtr prop_child = channel_property->children; prop_child != NULL; prop_child = prop_child->next) {
+                            if (prop_child->type == XML_ELEMENT_NODE && xmlStrcmp(prop_child->name, (const xmlChar*)"elist") == 0) {
+                                xmlNodePtr elist_node = prop_child;
+                                xmlChar* str_name = xmlGetProp(elist_node, (const xmlChar*)"name");
+                                if (xmlStrcmp(str_name, (const xmlChar*)"ports") == 0) {
+                                    for (xmlNodePtr eli_node = elist_node->children; eli_node != NULL; eli_node = eli_node->next) {
+                                        if (eli_node->type == XML_ELEMENT_NODE && xmlStrcmp(eli_node->name, (const xmlChar*)"eli") == 0) {
+                                            xmlChar* eli_name_attr = xmlGetProp(eli_node, (const xmlChar*)"name");
+                                            if (xmlStrcmp(eli_name_attr, (const xmlChar*)"port") == 0) {
+                                                char* port_name = NULL;
+                                                uint16_t hwchannel = UINT16_MAX;
+                                                bool simulated = false;
+                                                char* iface_name = NULL;
+                                                xmlChar* eli_content = xmlNodeGetContent(eli_node);
 
-                                            bool res = blf_parse_xml_port(eli_content, eli_content+strlen(eli_content), &port_name, &hwchannel, &simulated);
-                                            if (!res || port_name == NULL || hwchannel == UINT16_MAX) {
+                                                bool res = blf_parse_xml_port(eli_content, &port_name, &hwchannel, &simulated);
+                                                if (res && port_name != NULL && hwchannel != UINT16_MAX) {
+                                                    iface_name = ws_strdup_printf("%s::%s", channel_name, port_name);
+                                                    ws_debug("Found channel in XML: PKT_ENCAP: %d, ID: %u, HW ID: %u, name: %s", pkt_encap, channel, hwchannel, iface_name);
+                                                    blf_prepare_interface_name(params, pkt_encap, channel, hwchannel, iface_name, true);
+                                                    g_free(iface_name);
+                                                }
+                                                else {
+                                                    ws_debug("port with missing or malformed info found in xml");
+                                                }
                                                 g_free(port_name);
-                                                ws_debug("port with missing or malformed info found in xml");
-                                                continue;
+                                                xmlFree(eli_content);
                                             }
-
-                                            iface_name = ws_strdup_printf("%s::%s", channel_name, port_name);
-                                            ws_debug("Found channel in XML: PKT_ENCAP: %d, ID: %u, HW ID: %u, name: %s", pkt_encap, channel, hwchannel, iface_name);
-                                            blf_prepare_interface_name(params, pkt_encap, channel, hwchannel, iface_name, true);
-                                            g_free(iface_name);
-
-                                            g_free(port_name);
-                                            xmlFree(eli_content);
+                                            xmlFree(eli_name_attr);
                                         }
-                                        xmlFree(eli_name_attr);
                                     }
                                 }
+                                xmlFree(str_name);
                             }
-                            xmlFree(str_name);
                         }
                     }
                 }
             }
+            g_free(channel_name);
         }
     }
 
@@ -3125,7 +3070,7 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
 }
 
 static int
-blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp, size_t metadata_cont) {
+blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp, blf_metadata_info_t* metadata_info) {
     blf_apptext_t            apptextheader;
 
     if (object_length < (data_start - block_start) + (int)sizeof(apptextheader)) {
@@ -3141,12 +3086,12 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
     }
     fix_endianness_blf_apptext_header(&apptextheader);
 
-    if (metadata_cont && apptextheader.source != BLF_APPTEXT_METADATA) {
+    if (metadata_info->valid && apptextheader.source != BLF_APPTEXT_METADATA) {
         /* If we're in the middle of a sequence of metadata objects,
          * but we get an AppText object from another source,
          * skip the previously incomplete object and start fresh.
          */
-        metadata_cont = 0;
+        metadata_info->valid = false;
     }
 
     /* Add an extra byte for a terminating '\0' */
@@ -3203,21 +3148,23 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             break;
 
         default:
-            pkt_encap = 0xffffffff;
+            pkt_encap = WTAP_ENCAP_UNKNOWN;
             break;
         }
 
-        /* we use lookup to create interface, if not existing yet */
-        blf_prepare_interface_name(params, pkt_encap, channel, UINT16_MAX, tokens[1], false);
+        if (pkt_encap != WTAP_ENCAP_UNKNOWN) {
+            /* we use lookup to create interface, if not existing yet */
+            blf_prepare_interface_name(params, pkt_encap, channel, UINT16_MAX, tokens[1], false);
+        }
 
         g_strfreev(tokens);
         g_free(text);
         return BLF_APPTEXT_CHANNEL;
     }
     case BLF_APPTEXT_METADATA:
-        if (metadata_cont) {
+        if (metadata_info->valid) {
             /* Set the buffer pointer to the end of the previous object */
-            params->rec->data.first_free = metadata_cont;
+            params->rec->data.first_free = metadata_info->metadata_cont;
         }
         else {
             /* First object of a sequence of one or more */
@@ -3225,20 +3172,20 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_COL_PROT_TEXT, "BLF App text");
             wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_COL_INFO_TEXT, "Metadata");
             wtap_buffer_append_epdu_end(&params->rec->data);
+            metadata_info->payload_start = params->rec->data.first_free;
         }
 
         ws_buffer_append(&params->rec->data, text, apptextheader.textLength);
+        g_free(text);
 
         if ((apptextheader.reservedAppText1 & 0x00ffffff) > apptextheader.textLength) {
             /* Continues in the next object */
-            g_free(text);
             return BLF_APPTEXT_CONT;
         }
 
         if (((apptextheader.reservedAppText1 >> 24) & 0xff) == BLF_APPTEXT_XML_CHANNELS) {
-            blf_set_xml_channels(params, text, apptextheader.textLength);
+            blf_set_xml_channels(params, params->rec->data.data + metadata_info->payload_start, params->rec->data.first_free - metadata_info->payload_start);
         }
-        g_free(text);
 
         /* Override the timestamp with 0 for metadata objects. Thay can only occur at the beginning of the file, and they usually already have a timestamp of 0. */
         blf_init_rec(params, 0, 0, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(&params->rec->data), (uint32_t)ws_buffer_length(&params->rec->data));
@@ -3431,8 +3378,8 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
     uint32_t                 flags;
     uint64_t                 object_timestamp;
     uint16_t                 object_version;
+    blf_metadata_info_t      metadata_info = { 0, 0, false };
     int64_t                  last_metadata_start = 0;
-    size_t                   metadata_cont = 0;
 
     while (1) {
         /* Find Object */
@@ -3511,13 +3458,12 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             return false;
         }
 
-        if (metadata_cont && header.object_type != BLF_OBJTYPE_APP_TEXT) {
+        if (metadata_info.valid && header.object_type != BLF_OBJTYPE_APP_TEXT) {
             /* If we're in the middle of a sequence of AppText metadata objects,
              * but we get an AppText object from another source,
              * skip the previous incomplete packet and start fresh.
              */
-            metadata_cont = 0;
-            last_metadata_start = 0;
+            metadata_info.valid = false;
         }
 
         switch (header.object_type) {
@@ -3613,23 +3559,23 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_APP_TEXT:
         {
-            int result = blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, metadata_cont);
+            int result = blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, &metadata_info);
             if (result == BLF_APPTEXT_CONT) {
-                if (!metadata_cont) {
+                if (!metadata_info.valid) {
                     /* First object of a sequence, save its start position */
                     last_metadata_start = start_pos;
+                    metadata_info.valid = true;
                 }
                 /* Save a pointer to the end of the buffer */
-                metadata_cont = params->rec->data.first_free;
+                metadata_info.metadata_cont = params->rec->data.first_free;
             }
             else {
-                if (result == BLF_APPTEXT_METADATA && metadata_cont) {
+                if (result == BLF_APPTEXT_METADATA && metadata_info.valid) {
                     /* Last object of a sequence, restore the start position of the first object */
                     params->blf_data->start_of_last_obj = last_metadata_start;
                 }
                 /* Reset everything and start fresh */
-                last_metadata_start = 0;
-                metadata_cont = 0;
+                metadata_info.valid = false;
             }
             switch (result) {
                 case BLF_APPTEXT_FAILED:
