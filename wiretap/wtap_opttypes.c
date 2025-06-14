@@ -1745,6 +1745,50 @@ static void shb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
     memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_section_mandatory_t));
 }
 
+static void idb_create(wtap_block_t block)
+{
+    block->mandatory_data = g_new0(wtapng_if_descr_mandatory_t, 1);
+}
+
+static void idb_free_mand(wtap_block_t block)
+{
+    unsigned j;
+    wtap_block_t if_stats;
+    wtapng_if_descr_mandatory_t* mand = (wtapng_if_descr_mandatory_t*)block->mandatory_data;
+
+    for(j = 0; j < mand->num_stat_entries; j++) {
+        if_stats = g_array_index(mand->interface_statistics, wtap_block_t, j);
+        wtap_block_unref(if_stats);
+    }
+
+    if (mand->interface_statistics)
+        g_array_free(mand->interface_statistics, true);
+}
+
+static void idb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
+{
+    unsigned j;
+    wtap_block_t src_if_stats, dest_if_stats;
+    wtapng_if_descr_mandatory_t *src_mand = (wtapng_if_descr_mandatory_t*)src_block->mandatory_data,
+                                *dest_mand = (wtapng_if_descr_mandatory_t*)dest_block->mandatory_data;
+
+    /* Need special consideration for copying of the interface_statistics member */
+    if (dest_mand->num_stat_entries != 0)
+        g_array_free(dest_mand->interface_statistics, true);
+
+    memcpy(dest_mand, src_mand, sizeof(wtapng_if_descr_mandatory_t));
+    if (src_mand->num_stat_entries != 0)
+    {
+        dest_mand->interface_statistics = g_array_new(false, false, sizeof(wtap_block_t));
+        for (j = 0; j < src_mand->num_stat_entries; j++)
+        {
+            src_if_stats = g_array_index(src_mand->interface_statistics, wtap_block_t, j);
+            dest_if_stats = wtap_block_make_copy(src_if_stats);
+            dest_mand->interface_statistics = g_array_append_val(dest_mand->interface_statistics, dest_if_stats);
+        }
+    }
+}
+
 static void nrb_create(wtap_block_t block)
 {
     block->mandatory_data = g_new0(wtapng_nrb_mandatory_t, 1);
@@ -1797,50 +1841,6 @@ static void isb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
     memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_if_stats_mandatory_t));
 }
 
-static void idb_create(wtap_block_t block)
-{
-    block->mandatory_data = g_new0(wtapng_if_descr_mandatory_t, 1);
-}
-
-static void idb_free_mand(wtap_block_t block)
-{
-    unsigned j;
-    wtap_block_t if_stats;
-    wtapng_if_descr_mandatory_t* mand = (wtapng_if_descr_mandatory_t*)block->mandatory_data;
-
-    for(j = 0; j < mand->num_stat_entries; j++) {
-        if_stats = g_array_index(mand->interface_statistics, wtap_block_t, j);
-        wtap_block_unref(if_stats);
-    }
-
-    if (mand->interface_statistics)
-        g_array_free(mand->interface_statistics, true);
-}
-
-static void idb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
-{
-    unsigned j;
-    wtap_block_t src_if_stats, dest_if_stats;
-    wtapng_if_descr_mandatory_t *src_mand = (wtapng_if_descr_mandatory_t*)src_block->mandatory_data,
-                                *dest_mand = (wtapng_if_descr_mandatory_t*)dest_block->mandatory_data;
-
-    /* Need special consideration for copying of the interface_statistics member */
-    if (dest_mand->num_stat_entries != 0)
-        g_array_free(dest_mand->interface_statistics, true);
-
-    memcpy(dest_mand, src_mand, sizeof(wtapng_if_descr_mandatory_t));
-    if (src_mand->num_stat_entries != 0)
-    {
-        dest_mand->interface_statistics = g_array_new(false, false, sizeof(wtap_block_t));
-        for (j = 0; j < src_mand->num_stat_entries; j++)
-        {
-            src_if_stats = g_array_index(src_mand->interface_statistics, wtap_block_t, j);
-            dest_if_stats = wtap_block_make_copy(src_if_stats);
-            dest_mand->interface_statistics = g_array_append_val(dest_mand->interface_statistics, dest_if_stats);
-        }
-    }
-}
-
 static void dsb_create(wtap_block_t block)
 {
     block->mandatory_data = g_new0(wtapng_dsb_mandatory_t, 1);
@@ -1873,6 +1873,18 @@ static void pkt_create(wtap_block_t block)
     block->mandatory_data = NULL;
 }
 
+static void ft_specific_event_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
+static void ft_specific_report_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
 static void sjeb_create(wtap_block_t block)
 {
     /* Ensure this is null, so when g_free is called on it, it simply returns */
@@ -1880,6 +1892,12 @@ static void sjeb_create(wtap_block_t block)
 }
 
 static void cb_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
+static void ft_specific_information_create(wtap_block_t block)
 {
     /* Ensure this is null, so when g_free is called on it, it simply returns */
     block->mandatory_data = NULL;
@@ -2002,16 +2020,6 @@ void wtap_opttypes_initialize(void)
         0
     };
 
-    static wtap_blocktype_t dsb_block = {
-        WTAP_BLOCK_DECRYPTION_SECRETS,
-        "DSB",
-        "Decryption Secrets Block",
-        dsb_create,
-        dsb_free_mand,
-        dsb_copy_mand,
-        NULL
-    };
-
     static wtap_blocktype_t nrb_block = {
         WTAP_BLOCK_NAME_RESOLUTION, /* block_type */
         "NRB",                      /* name */
@@ -2102,6 +2110,16 @@ void wtap_opttypes_initialize(void)
         0
     };
 
+    static wtap_blocktype_t dsb_block = {
+        WTAP_BLOCK_DECRYPTION_SECRETS,
+        "DSB",
+        "Decryption Secrets Block",
+        dsb_create,
+        dsb_free_mand,
+        dsb_copy_mand,
+        NULL
+    };
+
     static wtap_blocktype_t pkt_block = {
         WTAP_BLOCK_PACKET,            /* block_type */
         "EPB/SPB/PB",                 /* name */
@@ -2154,6 +2172,26 @@ void wtap_opttypes_initialize(void)
         0
     };
 
+    static wtap_blocktype_t ft_specific_event_block = {
+        WTAP_BLOCK_FT_SPECIFIC_EVENT, /* block_type */
+        "FT_SPECIFIC_EVENT",          /* name */
+        "File-type-specific event",   /* description */
+        ft_specific_event_create,     /* create */
+        NULL,                         /* free_mand */
+        NULL,                         /* copy_mand */
+        NULL                          /* options */
+    };
+
+    static wtap_blocktype_t ft_specific_report_block = {
+        WTAP_BLOCK_FT_SPECIFIC_REPORT, /* block_type */
+        "FT_SPECIFIC_REPORT",          /* name */
+        "File-type-specific report",   /* description */
+        ft_specific_report_create,     /* create */
+        NULL,                          /* free_mand */
+        NULL,                          /* copy_mand */
+        NULL                           /* options */
+    };
+
     static wtap_blocktype_t journal_block = {
         WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, /* block_type */
         "SJEB",                         /* name */
@@ -2172,6 +2210,16 @@ void wtap_opttypes_initialize(void)
         NULL,                         /* free_mand */
         NULL,                         /* copy_mand */
         NULL                          /* options */
+    };
+
+    static wtap_blocktype_t ft_specific_information_block = {
+        WTAP_BLOCK_FT_SPECIFIC_INFORMATION, /* block_type */
+        "FT_SPECIFIC_INFORMATION",          /* name */
+        "File-type specific information",   /* description */
+        ft_specific_information_create,     /* create */
+        NULL,                               /* free_mand */
+        NULL,                               /* copy_mand */
+        NULL                                /* options */
     };
 
     /*
@@ -2240,6 +2288,18 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&pkt_block, OPT_PKT_PROCIDTHRDID, &pkt_proc_id_thread_id);
 
     /*
+     * Register the file-type specific event block; the options will be
+     * dependent on the file type.
+     */
+    wtap_opttype_block_register(&ft_specific_event_block);
+
+    /*
+     * Register the file-type specific report block; the options will be
+     * dependent on the file type.
+     */
+    wtap_opttype_block_register(&ft_specific_report_block);
+
+    /*
      * Register the SJEB and the (no) options that can appear in it.
      */
     wtap_opttype_block_register(&journal_block);
@@ -2248,6 +2308,12 @@ void wtap_opttypes_initialize(void)
      * Register the CB and the options that can appear in it.
      */
     wtap_opttype_block_register(&cb_block);
+
+    /*
+     * Register the file-type specific information block; the options will be
+     * dependent on the file type.
+     */
+    wtap_opttype_block_register(&ft_specific_information_block);
 
 #ifdef DEBUG_COUNT_REFS
     memset(blocks_active, 0, sizeof(blocks_active));
