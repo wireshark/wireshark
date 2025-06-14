@@ -222,7 +222,7 @@ static int elasticsearch_partial_dissect_address(tvbuff_t *tvb, packet_info *pin
             offset += 1;
             /* Its either IPv4 or IPv6 depending on the length */
             if (address_length == IPv4_ADDRESS_LENGTH) {
-                proto_tree_add_item(address_tree, hf_elasticsearch_address_ipv4, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(address_tree, hf_elasticsearch_address_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
             else {

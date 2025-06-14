@@ -435,7 +435,7 @@ dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, unsigned offset, unsigned len
 {
     proto_tree_add_item(tree, hf_pp_arp_id,     tvb, offset,   4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_pp_arp_ip,     tvb, offset,   4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_arp_ip,     tvb, offset,   4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_pp_arp_manuf,  tvb, offset++, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pp_arp_class,  tvb, offset++, 1, ENC_BIG_ENDIAN);

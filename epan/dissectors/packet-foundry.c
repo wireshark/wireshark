@@ -171,7 +171,7 @@ dissect_net_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	length -= 2;
 
 	while (length >= 4) {
-		proto_tree_add_item(net_tree, hf_fdp_net_ip, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(net_tree, hf_fdp_net_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		length -= 4;
 	}

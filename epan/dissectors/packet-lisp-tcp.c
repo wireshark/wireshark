@@ -413,7 +413,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
         switch (afi) {
         case AFNUM_INET:
-            proto_tree_add_item(message_tree, hf_lisp_tcp_message_rloc_ipv4, tvb, offset, INET_ADDRLEN, ENC_NA);
+            proto_tree_add_item(message_tree, hf_lisp_tcp_message_rloc_ipv4, tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
             proto_item_append_text(tim, ", RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
             col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip_to_str(pinfo->pool, tvb, offset));
             offset += INET_ADDRLEN;

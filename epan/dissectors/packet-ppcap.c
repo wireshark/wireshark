@@ -293,7 +293,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		if (msg_len%16 != 0)
 		{
 
-			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address1, tvb, offset, msg_len, ENC_NA);
+			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address1, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 			set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset);
 			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
@@ -381,7 +381,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	{
 		if (msg_len%16 != 0)
 		{
-			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address1, tvb, offset, msg_len, ENC_NA);
+			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address1, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 			set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset);
 			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}

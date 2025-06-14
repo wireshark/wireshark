@@ -1438,7 +1438,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_other_address_coding, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 			switch (g8) {
 			case 0x21:
-				proto_tree_add_item(elem_tree, hf_ctlv_other_address_ipv4, tvb, pos+1, 4, ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_other_address_ipv4, tvb, pos+1, 4, ENC_BIG_ENDIAN);
 				break;
 			case 0x57:
 				proto_tree_add_item(elem_tree, hf_ctlv_other_address_ipv6, tvb, pos+1, 16, ENC_NA);
@@ -1456,7 +1456,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_dns_server_address_coding, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 				switch (g8) {
 				case 0x21:
-					proto_tree_add_item(elem_tree, hf_ctlv_dns_server_address_ipv4, tvb, pos+1, 4, ENC_NA);
+					proto_tree_add_item(elem_tree, hf_ctlv_dns_server_address_ipv4, tvb, pos+1, 4, ENC_BIG_ENDIAN);
 					break;
 				case 0x57:
 					proto_tree_add_item(elem_tree, hf_ctlv_dns_server_address_ipv6, tvb, pos+1, 16, ENC_NA);

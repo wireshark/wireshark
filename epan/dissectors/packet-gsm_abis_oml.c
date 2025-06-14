@@ -1800,7 +1800,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		/* proprietary ip.access extensions */
 		case NM_ATT_IPACC_DST_IP:
 			proto_tree_add_item(att_tree, hf_attr_ipa_rsl_ip, tvb,
-					    offset, len, ENC_NA);
+					    offset, len, ENC_BIG_ENDIAN);
 			break;
 		case NM_ATT_IPACC_DST_IP_PORT:
 			proto_tree_add_item(att_tree, hf_attr_ipa_rsl_port, tvb,
@@ -1857,7 +1857,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_dport,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_daddr,
-					   tvb, offset+2, 4, ENC_NA);
+					   tvb, offset+2, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_sport,
 					    tvb, offset+6, 2, ENC_BIG_ENDIAN);
 			break;

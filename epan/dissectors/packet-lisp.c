@@ -2406,7 +2406,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
 
         switch (prefix_afi) {
             case AFNUM_INET:
-                proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_ipv4, tvb, offset, INET_ADDRLEN, ENC_NA);
+                proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_ipv4, tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
                 offset += INET_ADDRLEN;
                 break;
             case AFNUM_INET6:

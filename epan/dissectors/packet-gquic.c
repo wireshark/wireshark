@@ -1634,7 +1634,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, uns
                 tag_offset += 2;
                 switch(addr_type){
                     case 2: /* IPv4 */
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_addr_ipv4, tvb, tag_offset_start + tag_offset, 4, ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_addr_ipv4, tvb, tag_offset_start + tag_offset, 4, ENC_BIG_ENDIAN);
                     tag_offset += 4;
                     break;
                     case 10: /* IPv6 */

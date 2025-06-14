@@ -428,7 +428,7 @@ static int dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree_add_item(tree, hf_is_if_trusted, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_ip, tvb, offset, 4, ENC_NA);
+  proto_tree_add_item(tree, hf_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   return offset;

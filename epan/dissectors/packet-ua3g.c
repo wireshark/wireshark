@@ -1541,7 +1541,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 switch (parameter_id) {
                 case 0x00: /* Remote IP Address - Not for start listening rtp */
                 case 0x03: /* Remote IP Address Out - Not for start listening rtp */
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter_ip, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_listen_rtp_parameter_ip, tvb, offset, 1, ENC_BIG_ENDIAN);
                     break;
                 case 0x01: /* Remote UDP Port In - Not for start listening rtp */
                 case 0x02: /* Remote UDP Port Out - Not for start listening rtp */

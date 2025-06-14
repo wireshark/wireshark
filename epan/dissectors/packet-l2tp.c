@@ -1743,7 +1743,7 @@ static int dissect_l2tp_ericsson_transp_cfg(tvbuff_t *tvb, proto_tree *parent_tr
         for (i = 0; i < num_sapis; i++) {
             proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_sapi, tvb, offset++, 1, ENC_NA);
         }
-        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_ip, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_dscp, tvb, offset++, 1, ENC_NA);
         proto_tree_add_item(tree, hf_l2tp_ericsson_tcg_crc32_enable, tvb, offset++, 1, ENC_NA);

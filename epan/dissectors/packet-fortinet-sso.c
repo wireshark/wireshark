@@ -109,7 +109,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if(tvb_reported_length_remaining(tvb, offset) == 4) {
 
         /* There is some packet with extra IPv4 address... */
-        proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
     } else {
@@ -123,13 +123,13 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 2, ENC_NA);
                 offset += 2;
 
-                proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 6, ENC_NA);
                 offset += 6;
 
-                proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(fsso_tree, hf_fsso_unknown_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 proto_tree_add_item(fsso_tree, hf_fsso_unknown, tvb, offset, 1, ENC_NA);

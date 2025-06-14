@@ -219,11 +219,11 @@ dissect_nbifom_routing_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                                           ett_nbifom_routing_rule_flags, flags2, ENC_BIG_ENDIAN, &flags);
         curr_offset += 4;
         if (flags & 0x01000000) {
-            proto_tree_add_item(subtree, hf_nbifom_routing_rule_src_ipv4_addr, tvb, curr_offset, 4, ENC_NA);
+            proto_tree_add_item(subtree, hf_nbifom_routing_rule_src_ipv4_addr, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset += 4;
         }
         if (flags & 0x02000000) {
-            proto_tree_add_item(subtree, hf_nbifom_routing_rule_dst_ipv4_addr, tvb, curr_offset, 4, ENC_NA);
+            proto_tree_add_item(subtree, hf_nbifom_routing_rule_dst_ipv4_addr, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset += 4;
         }
         if (flags & 0x04000000) {

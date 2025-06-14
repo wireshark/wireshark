@@ -930,7 +930,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, pr
             break;
         case TLV_FEC_STACK_SR_IGP_IPv4:
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_ipv4,
-                                tvb, offset + 4, 4, ENC_NA);
+                                tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_mask,
                                 tvb, offset + 8, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_protocol,
@@ -962,10 +962,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, pr
             switch(adj_type) {
                 case SUB_TLV_FEC_SR_IGP_ADJ_IPv4:
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_local_ipv4,
-                                        tvb, adj_offset, 4, ENC_NA);
+                                        tvb, adj_offset, 4, ENC_BIG_ENDIAN);
                     adj_offset += 4;
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_remote_ipv4,
-                                        tvb, adj_offset, 4, ENC_NA);
+                                        tvb, adj_offset, 4, ENC_BIG_ENDIAN);
                     adj_offset += 4;
                     break;
                 case SUB_TLV_FEC_SR_IGP_ADJ_IPv6:
