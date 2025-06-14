@@ -2188,7 +2188,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             offset += sdnv_length;
             const int eid_len_clamp = get_clamped_length(eid_length, pinfo, sub_item);
 
-            proto_tree_add_item(tree_chdr, hf_tcpclv3_chdr_local_eid, tvb, offset, eid_len_clamp, ENC_NA|ENC_ASCII);
+            proto_tree_add_item(tree_chdr, hf_tcpclv3_chdr_local_eid, tvb, offset, eid_len_clamp, ENC_ASCII);
             offset += eid_len_clamp;
 
             // assumed parameters

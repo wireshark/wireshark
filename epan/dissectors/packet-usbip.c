@@ -196,11 +196,11 @@ dissect_device(proto_tree *tree, tvbuff_t *tvb, int offset)
     uint32_t product_id;
 
     /* Device path on host (usually /sys/devices/usb/... */
-    proto_tree_add_item(tree, hf_usbip_path, tvb, offset, 256, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_usbip_path, tvb, offset, 256, ENC_ASCII);
     offset += 256;
 
     /* Bus id string - Id of the bus the device is connected to */
-    proto_tree_add_item(tree, hf_usbip_busid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_usbip_busid, tvb, offset, 32, ENC_ASCII);
     offset += 32;
 
     /* bus number */
@@ -317,7 +317,7 @@ dissect_import_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                        int offset)
 {
     col_set_str(pinfo->cinfo, COL_INFO, "Import Request");
-    proto_tree_add_item(tree, hf_usbip_busid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_usbip_busid, tvb, offset, 32, ENC_ASCII);
     return offset + 32;
 }
 

@@ -1734,7 +1734,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
             proto_tree_add_item(tree, hf_log_missed, tvb, 0, 0, ENC_NA);
         else
-            proto_tree_add_item(tree, hf_log_msg, tvb, 0, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_log_msg, tvb, 0, -1, ENC_ASCII);
     }
 }
 

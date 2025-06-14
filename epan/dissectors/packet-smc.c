@@ -624,14 +624,14 @@ dissect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 		offset += 16; /* reserved */
 		while (num_of_eids != 0) {
 			proto_tree_add_item(tree, hf_smc_proposal_eid, tvb,
-					offset, EID_LEN, ENC_ASCII | ENC_NA);
+					offset, EID_LEN, ENC_ASCII);
 			offset += EID_LEN;
 			num_of_eids--;
 		}
 		if (smcd_v2_ext_pos >= offset) {
 			offset = smcd_v2_ext_pos;
 			proto_tree_add_item(tree, hf_smc_proposal_system_eid, tvb,
-					offset, EID_LEN, ENC_ASCII | ENC_NA);
+					offset, EID_LEN, ENC_ASCII);
 			offset += EID_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
 			offset += 16; /* reserved */
@@ -701,7 +701,7 @@ dissect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 		proto_tree_add_item(tree, hf_smcd_accept_smc_chid, tvb, offset, LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += LENGTH_BYTE_LEN;
 
-		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII);
 		offset += 32;
 		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
 		offset += 8; /* reserved */
@@ -716,7 +716,7 @@ dissect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 			offset += FLAG_BYTE_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED; /* reserved */
-			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII);
 			offset += 32;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
 			/* offset += 16; */ /* reserved */
@@ -778,7 +778,7 @@ dissect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 			LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += LENGTH_BYTE_LEN;
 
-		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII);
 		offset += 32;
 		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
 		offset += 8; /* reserved */
@@ -793,7 +793,7 @@ dissect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 			offset += FLAG_BYTE_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED; /* reserved */
-			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII);
 		}
 	}
 }
@@ -864,7 +864,7 @@ dissect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	offset += PSN_LEN;
 
 	if (smc_version >= SMC_V2) {
-		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_accept_eid, tvb, offset, 32, ENC_ASCII);
 		offset += 32;
 		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
 		offset += 8; /* reserved */
@@ -881,7 +881,7 @@ dissect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 			offset += FLAG_BYTE_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED; /* reserved */
-			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			proto_tree_add_item(tree, hf_smc_accept_peer_name, tvb, offset, 32, ENC_ASCII);
 			offset += 32;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
 			/* offset += 16; */ /* reserved */
@@ -957,7 +957,7 @@ dissect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 
 	if (smc_version >= SMC_V2) {
 		offset += PSN_LEN;
-		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
+		proto_tree_add_item(tree, hf_smc_confirm_eid, tvb, offset, 32, ENC_ASCII);
 		offset += 32;
 		proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
 		offset += 8; /* reserved */
@@ -974,7 +974,7 @@ dissect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 			offset += FLAG_BYTE_LEN;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED; /* reserved */
-			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
+			proto_tree_add_item(tree, hf_smc_confirm_peer_name, tvb, offset, 32, ENC_ASCII);
 			offset += 32;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
 			offset += 16; /* reserved */

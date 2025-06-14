@@ -1264,7 +1264,7 @@ dissect_sflow_5_extended_user(tvbuff_t *tvb, proto_tree *tree, int offset) {
     offset += 4;
 
     /* extract source user info char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_user_source_user, tvb, offset, src_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_user_source_user, tvb, offset, src_length, ENC_ASCII);
     offset += src_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(src_length);
@@ -1278,7 +1278,7 @@ dissect_sflow_5_extended_user(tvbuff_t *tvb, proto_tree *tree, int offset) {
     offset += 4;
 
     /* extract destination user info char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_user_destination_user, tvb, offset, dest_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_user_destination_user, tvb, offset, dest_length, ENC_ASCII);
     offset += dest_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(dest_length);
@@ -1313,7 +1313,7 @@ dissect_sflow_5_extended_url(tvbuff_t *tvb, proto_tree *tree, int offset) {
     offset += 4;
 
     /* extract URL char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_url_url, tvb, offset, url_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_url_url, tvb, offset, url_length, ENC_ASCII);
     offset += url_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(url_length);
@@ -1323,7 +1323,7 @@ dissect_sflow_5_extended_url(tvbuff_t *tvb, proto_tree *tree, int offset) {
     offset += 4;
 
     /* extract host info char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_url_host, tvb, offset, host_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_url_host, tvb, offset, host_length, ENC_ASCII);
     offset += host_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(host_length);
@@ -1341,7 +1341,7 @@ dissect_sflow_5_extended_mpls_tunnel(tvbuff_t *tvb, proto_tree *tree, int offset
     offset += 4;
 
     /* extract tunnel name char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_tunnel_name, tvb, offset, name_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_tunnel_name, tvb, offset, name_length, ENC_ASCII);
     offset += name_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(name_length);
@@ -1365,7 +1365,7 @@ dissect_sflow_5_extended_mpls_vc(tvbuff_t *tvb, proto_tree *tree, int offset) {
     offset += 4;
 
     /* extract source user info char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_vc_instance_name, tvb, offset, name_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_vc_instance_name, tvb, offset, name_length, ENC_ASCII);
     offset += name_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(name_length);
@@ -1389,7 +1389,7 @@ dissect_sflow_5_extended_mpls_fec(tvbuff_t *tvb, proto_tree *tree, int offset) {
     offset += 4;
 
     /* extract MPLS FTN description char by char */
-    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_ftn_description, tvb, offset, length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_mpls_ftn_description, tvb, offset, length, ENC_ASCII);
     offset += length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(length);
@@ -1470,7 +1470,7 @@ dissect_sflow_5_extended_80211_rx(tvbuff_t *tvb, proto_tree *tree, int offset) {
     /* extract SSID char by char. max char count = 32 */
     ssid_length = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_5_extended_80211_rx_ssid, tvb, offset, ssid_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_80211_rx_ssid, tvb, offset, ssid_length, ENC_ASCII);
     offset += ssid_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(ssid_length);
@@ -1515,7 +1515,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, int offset) {
     if (ssid_length > 32)
         ssid_length = 32;
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_5_extended_80211_tx_ssid, tvb, offset, ssid_length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_sflow_5_extended_80211_tx_ssid, tvb, offset, ssid_length, ENC_ASCII);
     offset += ssid_length;
     /* get the correct offset by adding padding byte count */
     offset += WS_PADDING_TO_4(ssid_length);

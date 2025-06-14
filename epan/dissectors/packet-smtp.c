@@ -824,7 +824,7 @@ dissect_smtp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *smtp_tree, 
               (multiline_state != SMTP_MULTILINE_END))
           {
             ti = proto_tree_add_item(smtp_tree, hf_smtp_response, tvb,
-              offset, next_offset - offset, ENC_ASCII | ENC_NA);
+              offset, next_offset - offset, ENC_ASCII);
             cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
 
             code_item = proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3, code);

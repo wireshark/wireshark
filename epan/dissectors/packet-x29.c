@@ -217,7 +217,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				 */
 				linelen = next_offset - offset;
 
-				proto_tree_add_item(x29_tree, hf_x29_data, tvb, offset, linelen, ENC_NA|ENC_ASCII);
+				proto_tree_add_item(x29_tree, hf_x29_data, tvb, offset, linelen, ENC_ASCII);
 				offset = next_offset;
 			}
 		}

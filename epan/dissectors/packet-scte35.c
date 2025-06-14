@@ -1104,7 +1104,7 @@ dissect_scte35_segmentation_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_
         /* Only show non-empty UPIDs. */
         if (upid_length) {
             proto_tree_add_item(tree, hf_descriptor_segmentation_upid, tvb,
-                                offset, upid_length, ENC_NA | ENC_ASCII);
+                                offset, upid_length, ENC_ASCII);
             offset += upid_length;
         }
 

@@ -10226,7 +10226,7 @@ dissect_smb2_svhdx_open_device_context(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 	/* InitiatorHostName */
 	proto_tree_add_item(sub_tree, hf_smb2_svhdx_open_device_context_initiator_host_name,
-			    tvb, offset, 126, ENC_ASCII | ENC_NA);
+			    tvb, offset, 126, ENC_ASCII);
 	offset += 126;
 
 	if (version == 2) {

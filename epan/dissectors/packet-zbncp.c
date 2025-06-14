@@ -1248,7 +1248,7 @@ dissect_zbncp_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     zbncp_dump_info_tree = proto_tree_add_subtree(tree, tvb, 0, ZBNCP_DUMP_INFO_SIZE, ett_zbncp_dump, NULL, "ZBNCP Dump");
 
-    proto_tree_add_item(zbncp_dump_info_tree, hf_zbncp_dump_preamble, tvb, 0, ZBNCP_DUMP_INFO_SIGN_SIZE, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(zbncp_dump_info_tree, hf_zbncp_dump_preamble, tvb, 0, ZBNCP_DUMP_INFO_SIGN_SIZE, ENC_ASCII);
     offset = ZBNCP_DUMP_INFO_SIGN_SIZE;
 
     proto_tree_add_item(zbncp_dump_info_tree, hf_zbncp_dump_version, tvb, offset, 1, ENC_NA);
@@ -1750,7 +1750,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             dump_len = tvb_reported_length(tvb) - offset;
             if (dump_type == 0)
             {
-                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dump_text, tvb, offset, dump_len, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dump_text, tvb, offset, dump_len, ENC_ASCII);
                 offset += dump_len;
             }
             else if (dump_type == 1)

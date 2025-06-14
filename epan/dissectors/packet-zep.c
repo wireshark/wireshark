@@ -169,7 +169,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_root = proto_tree_add_item(tree, proto_zep, tvb, 0, zep_header_len, ENC_NA);
     zep_tree = proto_item_add_subtree(proto_root, ett_zep);
 
-    proto_tree_add_item(zep_tree, hf_zep_protocol_id, tvb, 0, 2, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(zep_tree, hf_zep_protocol_id, tvb, 0, 2, ENC_ASCII);
     proto_tree_add_uint(zep_tree, hf_zep_version, tvb, 2, 1, version);
 
     switch (version)

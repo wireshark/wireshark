@@ -1567,7 +1567,7 @@ dissect_sip_generic_parameters(tvbuff_t *tvb, proto_tree* tree, packet_info *pin
             /* Access-Info fields  */
             if ((param_name != NULL) && (g_ascii_strcasecmp(param_name, "service-priority") == 0)) {
                 proto_tree_add_item(tree, hf_sip_service_priority, tvb,
-                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8);
             }
             else {
                 proto_tree_add_format_text(tree, tvb, current_offset, length);
@@ -2287,7 +2287,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
         /* Nothing to parse */
         return;
     length = end_quote_offset - current_offset;
-    proto_tree_add_item(tree, hf_sip_reason_text, tvb, current_offset, length, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_sip_reason_text, tvb, current_offset, length, ENC_UTF_8);
 
     if (sip_reason_code_handle) {
         tvbuff_t *next_tvb;
@@ -2965,7 +2965,7 @@ void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo,
         return;
 
     length = semi_colon_offset - current_offset;
-    proto_tree_add_item(tree, hf_sip_p_acc_net_i_acc_type, tvb, start_offset, length, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(tree, hf_sip_p_acc_net_i_acc_type, tvb, start_offset, length, ENC_UTF_8);
 
     current_offset = current_offset + length + 1;
 
@@ -2994,7 +2994,7 @@ void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, packet_info *pinfo,
             /* Access-Info fields  */
             if ((param_name != NULL)&&(g_ascii_strcasecmp(param_name, "utran-cell-id-3gpp") == 0)) {
                 proto_tree_add_item(tree, hf_sip_p_acc_net_i_ucid_3gpp, tvb,
-                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8);
                 /* check if value is quoted */
                 if (tvb_get_uint8(tvb, equals_offset + 1) == '"') {
                     dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, tree, equals_offset + 2);
@@ -3075,7 +3075,7 @@ dissect_sip_p_charging_vector_header(tvbuff_t *tvb, proto_tree *tree, int start_
 
     /* Get the icid-value */
     proto_tree_add_item(tree, hf_sip_icid_value, tvb,
-        equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+        equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8);
 
     current_offset = semi_colon_offset + 1;
 
@@ -3104,7 +3104,7 @@ dissect_sip_p_charging_vector_header(tvbuff_t *tvb, proto_tree *tree, int start_
             /* charge-params */
             if ((param_name != NULL) && (g_ascii_strcasecmp(param_name, "icid-gen-addr") == 0)) {
                 proto_tree_add_item(tree, hf_sip_icid_gen_addr, tvb,
-                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+                    equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8);
             }
             else {
                 proto_tree_add_format_text(tree, tvb, current_offset, length);
@@ -3167,7 +3167,7 @@ dissect_sip_p_feature_caps(tvbuff_t *tvb, proto_tree *tree, int start_offset, in
             length = next_offset - current_offset;
             next_offset += 2;
         }
-        proto_tree_add_item(tree, hf_sip_feature_cap, tvb, current_offset, length, ENC_UTF_8 | ENC_NA);
+        proto_tree_add_item(tree, hf_sip_feature_cap, tvb, current_offset, length, ENC_UTF_8);
     }
 }
 
@@ -4324,7 +4324,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     comma_offset = tvb_ws_mempbrk_pattern_uint8(tvb, value_offset, line_end_offset - value_offset, &pbrk_whitespace, NULL);
                                     proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
                                         tvb, value_offset, comma_offset - value_offset,
-                                        ENC_UTF_8 | ENC_NA);
+                                        ENC_UTF_8);
                                 } else {
                                     /* The first time comma_offset is "start of parameters" */
                                     comma_offset = value_offset;

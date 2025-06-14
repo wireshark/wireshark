@@ -364,7 +364,7 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
     length = tvb_get_ntohs(tvb, offset + 10);
     proto_tree_add_item(tree, hf_srvloc_authenticator_length, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
     offset += 12;
-    proto_tree_add_item(tree, hf_srvloc_authentication_block, tvb, offset, length, ENC_NA|ENC_ASCII);
+    proto_tree_add_item(tree, hf_srvloc_authentication_block, tvb, offset, length, ENC_ASCII);
     offset += length;
     return offset;
 }
@@ -833,7 +833,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         flags = tvb_get_uint8(tvb, offset + 4);
         proto_tree_add_bitmask(srvloc_tree, tvb, offset + 4, hf_srvloc_flags_v1, ett_srvloc_flags, v1_flags, ENC_NA);
         proto_tree_add_item(srvloc_tree, hf_srvloc_dialect, tvb, offset + 5, 1, ENC_NA);
-        proto_tree_add_item(srvloc_tree, hf_srvloc_language, tvb, offset + 6, 2, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(srvloc_tree, hf_srvloc_language, tvb, offset + 6, 2, ENC_ASCII);
         encoding = tvb_get_ntohs(tvb, offset + 8);
         proto_tree_add_item(srvloc_tree, hf_srvloc_encoding, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(srvloc_tree, hf_srvloc_transaction_id, tvb, offset + 10, 2, ENC_BIG_ENDIAN);

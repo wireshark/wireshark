@@ -186,7 +186,7 @@ dissect_vlp16_position(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	proto_tree_add_item(vlp16_tree, hf_vlp16_position_unused, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
-	proto_tree_add_item(vlp16_tree, hf_vlp16_position_sentence, tvb, offset, 72, ENC_NA|ENC_ASCII);
+	proto_tree_add_item(vlp16_tree, hf_vlp16_position_sentence, tvb, offset, 72, ENC_ASCII);
 	offset += 72;
 
 	proto_tree_add_item(vlp16_tree, hf_vlp16_position_unused, tvb, offset, 234, ENC_NA);

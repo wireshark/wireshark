@@ -125,7 +125,7 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 	sapsnc_frame_tree = proto_item_add_subtree(sapsnc_frame, ett_sapsnc);
 
 	/* Eye catcher */
-	proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_eye_catcher, tvb, offset, 8, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_eye_catcher, tvb, offset, 8, ENC_ASCII);
 	offset+=8;
 
 	/* Frame type */

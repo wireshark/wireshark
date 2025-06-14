@@ -1090,7 +1090,7 @@ zebra_route_nexthop(proto_tree *tree, bool request, tvbuff_t *tvb,
 			offset += 1;
 			proto_tree_add_item(tree, hf_zebra_interface, tvb,
 					    offset, interfacenamelength,
-					    ENC_ASCII | ENC_NA);
+					    ENC_ASCII);
 			offset += interfacenamelength;
 		}
 		if (version > 4 &&
@@ -1447,10 +1447,10 @@ static int zebra_vrf(proto_tree *tree, tvbuff_t *tvb, int offset)
 			    ENC_BIG_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(tree, hf_zebra_vrf_netns_name, tvb, offset, 16,
-			    ENC_ASCII | ENC_NA);
+			    ENC_ASCII);
 	offset += 16;
 	proto_tree_add_item(tree, hf_zebra_vrf_name, tvb, offset, 36,
-			    ENC_ASCII | ENC_NA);
+			    ENC_ASCII);
 	offset += 36;
 	return offset;
 }

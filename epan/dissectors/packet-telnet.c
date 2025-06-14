@@ -324,7 +324,7 @@ dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, in
     offset++;
     len--;
     if (len > 0) {
-      proto_tree_add_item(tree, hf_telnet_string_subopt_value, tvb, offset, len, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(tree, hf_telnet_string_subopt_value, tvb, offset, len, ENC_ASCII);
     }
     check_for_tn3270(pinfo, optname, tvb_format_text(pinfo->pool, tvb, offset, len));
     break;
@@ -368,7 +368,7 @@ dissect_tn3270_regime_subopt(packet_info *pinfo, const char *optname _U_, tvbuff
       } else {
         proto_tree_add_uint_format(tree, hf_tn3270_regime_cmd, tvb, offset, 1, cmd, "IS");
       }
-      proto_tree_add_item(tree, hf_tn3270_regime_subopt_value, tvb, offset + 1, len - 1, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(tree, hf_tn3270_regime_subopt_value, tvb, offset + 1, len - 1, ENC_ASCII);
       return;
     default:
       proto_tree_add_uint_format(tree, hf_tn3270_regime_cmd, tvb, offset, 1, cmd, "Bogus value: %u", cmd);
@@ -455,7 +455,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     proto_tree_add_item( tree, hf_tn3270_subopt, tvb, offset, 1, ENC_BIG_ENDIAN );
     switch (cmd) {
       case TN3270_CONNECT:
-            proto_tree_add_item( tree, hf_tn3270_connect, tvb, offset + 1, len, ENC_NA|ENC_ASCII );
+            proto_tree_add_item( tree, hf_tn3270_connect, tvb, offset + 1, len, ENC_ASCII );
             offset += (len - 1);
             len -= (len - 1);
             break;
@@ -467,7 +467,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
                 if (connect_offset != -1) {
                   datalen = connect_offset - (offset + 1);
                   if (datalen > 0) {
-                    proto_tree_add_item( tree, hf_tn3270_is, tvb, offset + 1, datalen, ENC_NA|ENC_ASCII );
+                    proto_tree_add_item( tree, hf_tn3270_is, tvb, offset + 1, datalen, ENC_ASCII );
                     check_tn3270_model(pinfo, tvb_format_text(pinfo->pool, tvb, offset + 1, datalen));
                     offset += datalen;
                     len -= datalen;
@@ -484,7 +484,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             add_tn3270_conversation(pinfo, 1, 0);
             device_type = tvb_get_uint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {
-              proto_tree_add_item( tree, hf_tn3270_request_string, tvb, offset + 1, len-1, ENC_NA|ENC_ASCII );
+              proto_tree_add_item( tree, hf_tn3270_request_string, tvb, offset + 1, len-1, ENC_ASCII );
               offset += (len - 1);
               len -= (len - 1);
             }else if (device_type == TN3270_FUNCTIONS) {
@@ -556,7 +556,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     }
     datalen = gs_offset - offset;
     if (datalen > 0) {
-      proto_tree_add_item(tree, hf_telnet_outmark_subopt_banner, tvb, offset, datalen, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(tree, hf_telnet_outmark_subopt_banner, tvb, offset, datalen, ENC_ASCII);
       offset += datalen;
       len -= datalen;
     }

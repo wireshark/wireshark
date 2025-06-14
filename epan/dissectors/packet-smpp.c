@@ -1414,13 +1414,13 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *offset
             case  0x001D:       /* additional_status_info_text  */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_additional_status_info_text,
-                        tvb, *offset, length, ENC_NA | ENC_ASCII);
+                        tvb, *offset, length, ENC_ASCII);
                 (*offset) += length;
                 break;
             case  0x001E:       /* receipted_message_id */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_receipted_message_id,
-                        tvb, *offset, length, ENC_NA | ENC_ASCII);
+                        tvb, *offset, length, ENC_ASCII);
                 (*offset) += length;
                 break;
             case  0x0030: {       /* ms_msg_wait_facilities       */
@@ -1640,13 +1640,13 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *offset
             case 0x060D:        /* source_network_id */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_source_network_id,
-                        tvb, *offset, length, ENC_NA|ENC_ASCII);
+                        tvb, *offset, length, ENC_ASCII);
                 (*offset) += length;
                 break;
             case 0x060E:        /* dest_network_id */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_dest_network_id,
-                        tvb, *offset, length, ENC_NA | ENC_ASCII);
+                        tvb, *offset, length, ENC_ASCII);
                 (*offset) += length;
                 break;
             case 0x060F:        /* source_node_id */

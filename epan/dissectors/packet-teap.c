@@ -289,12 +289,12 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       break;
 
     case PAC_A_ID:
-      proto_tree_add_item(tree, hf_pac_attr_pac_a_id, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(tree, hf_pac_attr_pac_a_id, tvb, offset, len, ENC_ASCII);
       offset += len;
       break;
 
     case PAC_I_ID:
-      proto_tree_add_item(tree, hf_pac_attr_pac_i_id, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(tree, hf_pac_attr_pac_i_id, tvb, offset, len, ENC_ASCII);
       offset += len;
       break;
 
@@ -304,7 +304,7 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       break;
 
     case PAC_A_ID_INFO:
-      proto_tree_add_item(tree, hf_pac_attr_pac_a_id_info, tvb, offset, len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(tree, hf_pac_attr_pac_a_id_info, tvb, offset, len, ENC_ASCII);
       offset += len;
       break;
 
@@ -486,7 +486,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     case TEAP_BASIC_PWD_AUTH_REQUEST:
       if (len > 0) {
-        proto_tree_add_item(tlv_tree, hf_teap_prompt, tvb, offset, len, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tlv_tree, hf_teap_prompt, tvb, offset, len, ENC_ASCII);
         offset += len;
       }
       break;
@@ -497,13 +497,13 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
       auth_len = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(tlv_tree, hf_teap_user_len, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
-      proto_tree_add_item(tlv_tree, hf_teap_username, tvb, offset, auth_len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(tlv_tree, hf_teap_username, tvb, offset, auth_len, ENC_ASCII);
       offset += auth_len;
 
       auth_len = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(tlv_tree, hf_teap_pass_len, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
-      proto_tree_add_item(tlv_tree, hf_teap_password, tvb, offset, auth_len, ENC_ASCII | ENC_NA);
+      proto_tree_add_item(tlv_tree, hf_teap_password, tvb, offset, auth_len, ENC_ASCII);
       offset += auth_len;
     }
     break;

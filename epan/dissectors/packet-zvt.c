@@ -509,7 +509,7 @@ static inline int dissect_zvt_tlv_text_lines(
         packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info)
 {
     proto_tree_add_item(tree, hf_zvt_text_lines_line,
-            tvb, offset, len, seq_info->txt_enc | ENC_NA);
+            tvb, offset, len, seq_info->txt_enc);
     return len;
 }
 
