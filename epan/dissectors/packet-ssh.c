@@ -807,6 +807,20 @@ ssh_debug_printf(const char* fmt _U_,...)
 
 #endif /* SSH_DECRYPT_DEBUG */
 
+static bool
+ssh_packet_from_server(struct ssh_flow_data* session _U_, const packet_info* pinfo)
+{
+    bool ret;
+    ret = (pinfo->match_uint == pinfo->srcport);
+    ssh_debug_printf("packet_from_server: is from server - %s\n", (ret) ? "TRUE" : "FALSE");
+    return ret;
+}
+
+static bool
+ssh_peer_data_from_server(struct ssh_peer_data* peer_data) {
+    return &peer_data->global_data->peer_data[SERVER_PEER_DATA] == peer_data;
+}
+
 static int
 dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -815,7 +829,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     conversation_t *conversation;
     int         last_offset, offset = 0;
 
-    bool        is_response = (pinfo->destport != pinfo->match_uint),
+    bool        is_response,
                 need_desegmentation;
     unsigned    version;
 
@@ -854,6 +868,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         conversation_add_proto_data(conversation, proto_ssh, global_data);
     }
 
+    is_response = ssh_packet_from_server(global_data, pinfo);
     peer_data = &global_data->peer_data[is_response];
 
     ti = proto_tree_add_item(tree, proto_ssh, tvb, offset, -1, ENC_NA);
@@ -3597,7 +3612,7 @@ static unsigned
 ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset)
 {
-    bool        is_response = (pinfo->destport != pinfo->match_uint);
+    bool is_response = ssh_peer_data_from_server(peer_data);
 
     gcry_error_t err;
     unsigned message_length = 0, seqnr;
@@ -4115,6 +4130,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     msg_code = tvb_get_uint8(packet_tvb, offset);
     /* XXX - Payload compression could have been negotiated */
     payload_tvb = tvb_new_subset_length(packet_tvb, offset, (int)payload_length);
+    bool is_response = ssh_peer_data_from_server(peer_data);
 
     /* Transport layer protocol */
     /* Generic (1-19) */
@@ -4134,8 +4150,6 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
         dissected_len = 1;
 
-        bool        is_response = (pinfo->destport != pinfo->match_uint);
-        struct ssh_peer_data *peer = &peer_data->global_data->peer_data[is_response];
         ws_debug("SSH dissect: pass %u, frame %u, msg_code %u, do_decrypt=%d", pinfo->fd->visited, pinfo->fd->num, msg_code, peer_data->global_data->do_decrypt);
         switch(msg_code)
         {
@@ -4152,39 +4166,29 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
             }
             case SSH_MSG_NEWKEYS:
             {
-                if (peer->rekey_pending) {
+                if (peer_data->rekey_pending) {
                     ws_debug("ssh: REKEY pending... NEWKEYS frame %u", pinfo->num);
+                    ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
+                    if (peer_data->global_data->ext_kex_strict) {
+                        peer_data->sequence_number = 0;
+                        ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", is_response ? "server" : "client");
+                        ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", is_response ? "server" : "client", pinfo->num);
+                    }
                     // finalize the rekey (activate the new keys)
                     if (!is_response) {  // Only process client-sent NEWKEYS
-                        ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
-                        if (peer_data->global_data->ext_kex_strict) {
-                            peer_data->global_data->peer_data[CLIENT_PEER_DATA].sequence_number = 0;
-                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", "client");
-                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", "client", pinfo->num);
-                        }
-
                         // Activate new key material into peer_data->cipher
                         ssh_debug_printf("Activating new keys for CLIENT => SERVER\n");
-                        ssh_decryption_setup_cipher(&peer_data->global_data->peer_data[CLIENT_PEER_DATA], &peer_data->global_data->new_keys[0], &peer_data->global_data->new_keys[2]);
-                        ssh_decryption_setup_mac(&peer_data->global_data->peer_data[CLIENT_PEER_DATA], &peer_data->global_data->new_keys[4]);
-
-                        // Finishing REKEY
-                        peer->rekey_pending = false;
-                        ws_debug("ssh: REKEY done... switched to NEWKEYS at frame %u", pinfo->num);
-                    }
-                    if (is_response) {  // Only process server-sent NEWKEYS
-                        ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
-                        if (peer_data->global_data->ext_kex_strict) {
-                            peer_data->global_data->peer_data[SERVER_PEER_DATA].sequence_number = 0;
-                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", "server");
-                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", "server", pinfo->num);
-                        }
-
+                        ssh_decryption_setup_cipher(peer_data, &peer_data->global_data->new_keys[0], &peer_data->global_data->new_keys[2]);
+                        ssh_decryption_setup_mac(peer_data, &peer_data->global_data->new_keys[4]);
+                    } else {  // Only process server-sent NEWKEYS
                         // Activate new key material into peer_data->cipher
                         ssh_debug_printf("Activating new keys for SERVER => CLIENT\n");
-                        ssh_decryption_setup_cipher(&peer_data->global_data->peer_data[SERVER_PEER_DATA], &peer_data->global_data->new_keys[1], &peer_data->global_data->new_keys[3]);
-                        ssh_decryption_setup_mac(&peer_data->global_data->peer_data[SERVER_PEER_DATA], &peer_data->global_data->new_keys[5]);
+                        ssh_decryption_setup_cipher(peer_data, &peer_data->global_data->new_keys[1], &peer_data->global_data->new_keys[3]);
+                        ssh_decryption_setup_mac(peer_data, &peer_data->global_data->new_keys[5]);
                     }
+                    // Finishing REKEY
+                    peer_data->rekey_pending = false;
+                    ws_debug("ssh: REKEY done... switched to NEWKEYS at frame %u", pinfo->num);
                 }
                 break;
             }
@@ -4196,10 +4200,8 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 //TODO: See if the complete dissector should be refactored to always go through here first                offset = global_data->kex_specific_dissector(msg_code, packet_tvb, pinfo, offset, msg_type_tree);
 
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (key exchange method specific)");
-        bool        is_response = (pinfo->destport != pinfo->match_uint);
-        struct ssh_peer_data *peer = &peer_data->global_data->peer_data[is_response];
         ws_debug("ssh: rekey KEX_xxx_INIT/KEX_xxx_REPLY detected in frame %u", pinfo->num);
-        peer->rekey_pending = true;
+        peer_data->rekey_pending = true;
         dissected_len = peer_data->global_data->kex_specific_dissector(msg_code, payload_tvb, pinfo, offset -5, msg_type_tree, peer_data->global_data);
     }
 
