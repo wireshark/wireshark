@@ -260,7 +260,7 @@ fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void
     if(!(fc->fctl&FC_FCTL_EXCHANGE_RESPONDER)){
 	    return TAP_PACKET_DONT_REDRAW;
     }
-    /* if we havnt seen the request, just ignore it */
+    /* if we haven't seen the request, just ignore it */
     if ( (!fc->fc_ex) || (fc->fc_ex->first_exchange_frame==0) ){
 	    return TAP_PACKET_DONT_REDRAW;
     }

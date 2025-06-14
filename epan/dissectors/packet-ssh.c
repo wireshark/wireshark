@@ -340,7 +340,7 @@ static int hf_ssh_ecdh_q_c_length;
 static int hf_ssh_ecdh_q_s;
 static int hf_ssh_ecdh_q_s_length;
 
-/* Key exchange: Post-Quantum Hybryd KEM */
+/* Key exchange: Post-Quantum Hybrid KEM */
 static int hf_ssh_hybrid_blob_client;      // client's full PQ blob
 static int hf_ssh_hybrid_blob_client_len;
 static int hf_ssh_hybrid_blob_server;      // server's full PQ blob
@@ -2048,7 +2048,7 @@ ssh_dissect_kex_pq_hybrid(uint8_t msg_code, tvbuff_t *tvb,
         proto_tree_add_item(pq_tree, hf_ssh_ecdh_q_c, string_tvb, 0, 32, ENC_NA);
         proto_tree_add_item(pq_tree, hf_ssh_pq_kem_client, string_tvb, 32, pq_len - 32, ENC_NA);
 
-        // retrieve offet from read_f_pq() to shift blob length and consume packet
+        // retrieve offset from read_f_pq() to shift blob length and consume packet
         offset = new_offset_client;
         ws_debug("CLIENT INIT shift PQ blob - offset: %d", offset); // debug trace offset
         break;
@@ -2116,7 +2116,7 @@ ssh_dissect_kex_pq_hybrid(uint8_t msg_code, tvbuff_t *tvb,
         proto_tree_add_item(pq_tree, hf_ssh_ecdh_q_s, string_tvb, 0, 32, ENC_NA);
         proto_tree_add_item(pq_tree, hf_ssh_pq_kem_server, string_tvb, 32, pq_len - 32, ENC_NA);
 
-        // retrieve offet from read_f_pq() to shift blob length
+        // retrieve offset from read_f_pq() to shift blob length
         offset = new_offset_server;
         ws_debug("SERVER REPLY shift PQ blob - offset: %d", offset); // debug trace offset
 

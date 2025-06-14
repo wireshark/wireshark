@@ -2281,7 +2281,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      */
     if (tvb_reported_length_remaining(tvb, o + F5_MEDV4_LENMIN) < rstcauselen) {
         badrstcauselen = 1;
-        /* Set this to zero to prevent processing of things that utilze it */
+        /* Set this to zero to prevent processing of things that utilize it */
         rstcauselen = 0;
     }
     if (rstcauselen)
@@ -2973,7 +2973,7 @@ found_trailer:
     tdata->trailer_len = trailer_length;
     proto_item_set_len(trailer_item, trailer_length);
 
-    /* If the analyis preference is enabled, process it */
+    /* If the analysis preference is enabled, process it */
     if (pref_perform_analysis) {
         struct f5eth_analysis_data_t *ad;
 

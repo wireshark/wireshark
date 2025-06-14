@@ -266,7 +266,7 @@ To see interface configuration options:
 To capture on IOS/IOS-XE:
 
     ciscodump --extcap-interface ciscodump --fifo=/tmp/cisco.pcap --capture --remote-host 192.168.1.10
-        --remote-username user --remote-interface gigabit0/0,gigiabit0/1
+        --remote-username user --remote-interface gigabit0/0,gigabit0/1
         --remote-filter "permit ip host 192.168.1.1 any, permit ip any host 192.168.1.1"
         --remote-count=10
 
