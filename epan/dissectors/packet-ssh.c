@@ -177,6 +177,8 @@ struct ssh_peer_data {
     uint8_t          hmac_iv[DIGEST_MAX_SIZE];
     unsigned         hmac_iv_len;
 
+    unsigned int     rekey_trigger_frame;  // for storing new KEXINIT frame value when REKEY
+    bool             rekey_pending;  // trace REKEY
     uint8_t          plain0[16];
     bool             plain0_valid;
 
@@ -953,6 +955,12 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 
     remain_length = tvb_captured_length_remaining(tvb, offset);
 
+    if (PINFO_FD_VISITED(pinfo)) {
+        ws_debug("SSH: SECOND PASS frame %u", pinfo->num);
+    }else{
+        ws_debug("SSH: FIRST PASS frame %u", pinfo->num);
+    }
+
     while(remain_length>0){
         int last_offset = offset;
         if (tree) {
@@ -1187,6 +1195,8 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     // server host key (K_S / Q)
     char *data = (char *)tvb_memdup(wmem_packet_scope(), tvb, last_offset + 4, key_len);
     if (global_data) {
+        // Reset array while REKEY: sanitize server host key blob
+        global_data->kex_server_host_key_blob = wmem_array_new(wmem_file_scope(), 1);
         ssh_hash_buffer_put_string(global_data->kex_server_host_key_blob, data, key_len);
     }
 
@@ -1302,6 +1312,9 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
+    if (PINFO_FD_VISITED(pinfo)) {
+        ws_debug("SSH: SECOND PASS dissecting keys -for Wireshark UI- frame %u", pinfo->num);
+    }
     /* This is after the identification string (Protocol Version Exchange)
      * but before the first key exchange has completed, so we expect the SSH
      * packets to be unencrypted, and to contain KEX related messages.
@@ -2305,6 +2318,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset,
         if(is_response){
             ssh_hash_buffer_put_string(global_data->kex_server_key_exchange_init, data, payload_length + 1);
         }else{
+            // Reset array while REKEY: sanitize client key
+            global_data->kex_client_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
             ssh_hash_buffer_put_string(global_data->kex_client_key_exchange_init, data, payload_length + 1);
         }
     }
@@ -2375,11 +2390,12 @@ ssh_keylog_read_file(void)
      */
     for (;;) {
         // XXX - What is a reasonable max line length here? Note at a certain
-        // point we have to increase the maximum ssh_kex_make_bignum supports.
-        char buf[2048];
+        // point we have to increase the maximum ssh_kex_make_bignum supports (not needed for post quantum material (pure binary)).
+        char buf[4096];// 4096 is needed for mlkem1024 private_key binary meterial: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.pdf
         buf[0] = 0;
 
         if (!fgets(buf, sizeof(buf), ssh_keylog_file)) {
+            rewind(ssh_keylog_file); // Resets to start of file (to handle parallel multi sessions decryption)
             if (ferror(ssh_keylog_file)) {
                 ws_debug("Error while reading %s, closing it.", pref_keylog_file);
                 ssh_keylog_reset();
@@ -2388,9 +2404,9 @@ ssh_keylog_read_file(void)
             break;
         }
 
-        ws_noisy("ssh: raw keylog line read: %s", buf);
         size_t len = strlen(buf);
         while(len>0 && (buf[len-1]=='\r' || buf[len-1]=='\n')){len-=1;buf[len]=0;}
+        ws_noisy("ssh: raw keylog line read: %s", buf);
 
         ssh_keylog_process_line(buf);
     }
@@ -2733,6 +2749,8 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
 
     // shared secret data needs to be written as an mpint, and we need it later
     if (kex_type == SSH_KEX_SNTRUP761X25519 || kex_type == SSH_KEX_MLKEM768X25519) {
+        // Reset array while REKEY: sanitize shared_secret:
+        global_data->kex_shared_secret = wmem_array_new(wmem_file_scope(), 1);
         // For PQ KEMs: use shared_secret as-is, whether SHARED_SECRET or PRIVATE_KEY
         // Do NOT prepend 0x00 (OpenSSH already encodes correctly for PQ KEM)
         ssh_hash_buffer_put_string(global_data->kex_shared_secret, secret->data, secret->length);
@@ -2747,6 +2765,8 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
             secret->data = tmp;
             secret->length = length;
         }
+        // Reset array while REKEY: sanitize shared_secret:
+        global_data->kex_shared_secret = wmem_array_new(wmem_file_scope(), 1);
         ssh_hash_buffer_put_string(global_data->kex_shared_secret, secret->data, secret->length);
     }
 
@@ -4107,14 +4127,80 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     /* Algorithm negotiation (20-29) */
     /* Normally these messages are all dissected in ssh_dissect_key_exchange */
     else if(msg_code >=20 && msg_code <= 29) {
-        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (algorithm negotiation)");
 //TODO: See if the complete dissector should be refactored to always go through here first        offset = ssh_dissect_transport_algorithm_negotiation(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (algorithm negotiation)");
+        proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+        dissected_len = 1;
+
+        bool        is_response = (pinfo->destport != pinfo->match_uint);
+        struct ssh_peer_data *peer = &peer_data->global_data->peer_data[is_response];
+        ws_debug("SSH dissect: pass %u, frame %u, msg_code %u, do_decrypt=%d", pinfo->fd->visited, pinfo->fd->num, msg_code, peer_data->global_data->do_decrypt);
+        switch(msg_code)
+        {
+            case SSH_MSG_KEXINIT:
+            {
+                ws_debug("ssh: REKEY msg_code 20: storing frame %u number, offset %d" , pinfo->num, offset);
+                peer_data->rekey_trigger_frame = pinfo->num;
+                // Reset array while REKEY: sanitize server_key_exchange_init and force do_decrypt :
+                peer_data->global_data->kex_server_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
+                peer_data->global_data->do_decrypt      = true;
+                peer_data->global_data->ext_ping_openssh_offered = false;
+                dissected_len = ssh_dissect_key_init(payload_tvb, pinfo, offset - 4, msg_type_tree, is_response, peer_data->global_data);
+            break;
+            }
+            case SSH_MSG_NEWKEYS:
+            {
+                if (peer->rekey_pending) {
+                    ws_debug("ssh: REKEY pending... NEWKEYS frame %u", pinfo->num);
+                    // finalize the rekey (activate the new keys)
+                    if (!is_response) {  // Only process client-sent NEWKEYS
+                        ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
+                        if (peer_data->global_data->ext_kex_strict) {
+                            peer_data->global_data->peer_data[CLIENT_PEER_DATA].sequence_number = 0;
+                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", is_response?"server":"client");
+                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", is_response?"server":"client", pinfo->num);
+                        }
+
+                        // Activate new key material into peer_data->cipher
+                        ssh_debug_printf("Activating new keys for CLIENT => SERVER\n");
+                        ssh_decryption_setup_cipher(&peer_data->global_data->peer_data[CLIENT_PEER_DATA], &peer_data->global_data->new_keys[0], &peer_data->global_data->new_keys[2]);
+                        ssh_decryption_setup_mac(&peer_data->global_data->peer_data[CLIENT_PEER_DATA], &peer_data->global_data->new_keys[4]);
+
+                        // Finishing REKEY
+                        peer->rekey_pending = false;
+                        ws_debug("ssh: REKEY done... switched to NEWKEYS at frame %u", pinfo->num);
+                    }
+                    if (is_response) {  // Only process server-sent NEWKEYS
+                        ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
+                        if (peer_data->global_data->ext_kex_strict) {
+                            peer_data->global_data->peer_data[SERVER_PEER_DATA].sequence_number = 0;
+                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", is_response?"server":"client");
+                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", is_response?"server":"client", pinfo->num);
+                        }
+
+                        // Activate new key material into peer_data->cipher
+                        ssh_debug_printf("Activating new keys for SERVER => CLIENT\n");
+                        ssh_decryption_setup_cipher(&peer_data->global_data->peer_data[SERVER_PEER_DATA], &peer_data->global_data->new_keys[1], &peer_data->global_data->new_keys[3]);
+                        ssh_decryption_setup_mac(&peer_data->global_data->peer_data[SERVER_PEER_DATA], &peer_data->global_data->new_keys[5]);
+                    }
+                }
+                break;
+            }
+        }
     }
     /* Key exchange method specific (reusable) (30-49) */
     /* Normally these messages are all dissected in ssh_dissect_key_exchange */
     else if (msg_code >=30 && msg_code <= 49) {
-        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (key exchange method specific)");
 //TODO: See if the complete dissector should be refactored to always go through here first                offset = global_data->kex_specific_dissector(msg_code, packet_tvb, pinfo, offset, msg_type_tree);
+
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (key exchange method specific)");
+        bool        is_response = (pinfo->destport != pinfo->match_uint);
+        struct ssh_peer_data *peer = &peer_data->global_data->peer_data[is_response];
+        ws_debug("ssh: rekey KEX_xxx_INIT/KEX_xxx_REPLY detected in frame %u", pinfo->num);
+        peer->rekey_pending = true;
+        dissected_len = peer_data->global_data->kex_specific_dissector(msg_code, payload_tvb, pinfo, offset -5, msg_type_tree, peer_data->global_data);
     }
 
     /* User authentication protocol */
