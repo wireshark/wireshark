@@ -1543,6 +1543,12 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 secrets_filename = splitted[1];
+                if (secrets_filename == NULL || secrets_filename[0] == '\0') {
+                    cmdarg_err("no secrets file name was specified for --inject-secrets");
+                    g_strfreev(splitted);
+                    ret = WS_EXIT_INVALID_OPTION;
+                    goto clean_exit;
+                }
             } else {
                 cmdarg_err("no secrets type was specified for --inject-secrets");
                 g_strfreev(splitted);
