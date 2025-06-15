@@ -274,12 +274,12 @@ static int hf_mq_id_cf3_CanGenConnTag;
 
 static int* const pf_flds_cf3[] =
 {
+    &hf_mq_id_cf3_CanGenConnTag,
     &hf_mq_id_cf3_ProtAlgorit,
     &hf_mq_id_cf3_MPlxSyGet,
     &hf_mq_id_cf3_PropIntSep,
     &hf_mq_id_cf3_CanMulticast,
     &hf_mq_id_cf3_CanMsgPrp,
-    &hf_mq_id_cf3_CanGenConnTag,
     NULL
 };
 
@@ -297,14 +297,131 @@ static int hf_mq_conn_apptype;
 static int hf_mq_conn_acttoken;
 static int hf_mq_conn_Xoptions;
 static int hf_mq_conn_options;
+
+/* Version 1 */
+static int hf_mq_fapmqcno_structid;
+static int hf_mq_fapmqcno_version;
+static int hf_mq_fapmqcno_capflags;
+static int hf_mq_fapmqcno_conntag;
+/* Version 2 */
+static int hf_mq_fapmqcno_retconntag;
+/* Version 3 */
+static int hf_mq_fapmqcno_type;
+static int hf_mq_fapmqcno_timeout;
+static int hf_mq_fapmqcno_balopts;
+/* Version 4 */
+
+/* Version 1 */
 static int hf_mq_fcno_StructID;
-static int hf_mq_fcno_prodid;
-static int hf_mq_fcno_mqmid;
 static int hf_mq_fcno_version;
-static int hf_mq_fcno_capflag;
+static int hf_mq_fcno_options;
+
+
+/* FCNO connect options */
+
+static int hf_mq_fcno_opt_FASTPATH_BINDING;
+static int hf_mq_fcno_opt_SERIALIZE_CONNTAG_QMGR;
+static int hf_mq_fcno_opt_SERIALIZE_CONNTAG_QSG;
+static int hf_mq_fcno_opt_RESTRICT_CONNTAG_QMGR;
+static int hf_mq_fcno_opt_RESTRICT_CONNTAG_QSG;
+static int hf_mq_fcno_opt_HANDLE_SHARE_NONE;
+static int hf_mq_fcno_opt_HANDLE_SHARE_BLOCK;
+static int hf_mq_fcno_opt_HANDLE_SHARE_NOBLOCK;
+static int hf_mq_fcno_opt_SHARED_BINDING;
+static int hf_mq_fcno_opt_ISOLATE_BINDING;
+static int hf_mq_fcno_opt_LOCAL_BINDING;
+static int hf_mq_fcno_opt_CLIENT_BINDING;
+static int hf_mq_fcno_opt_ACCNT_MQI_ENABLED;
+static int hf_mq_fcno_opt_ACCNT_MQI_DISABLED;
+static int hf_mq_fcno_opt_ACCNT_Q_ENABLED;
+static int hf_mq_fcno_opt_ACCNT_Q_DISABLED;
+static int hf_mq_fcno_opt_NO_CONV_SHARING;
+static int hf_mq_fcno_opt_ALL_CONVS_SHARE;
+static int hf_mq_fcno_opt_CD_FOR_OUTPUT_ONLY;
+static int hf_mq_fcno_opt_USE_CD_SELECTION;
+static int hf_mq_fcno_opt_GENERATE_CONN_TAG;
+static int hf_mq_fcno_opt_RECONNECT;
+static int hf_mq_fcno_opt_RECONNECT_DISABLED;
+static int hf_mq_fcno_opt_RECONNECT_Q_MGR;
+static int hf_mq_fcno_opt_ACTIVITY_TRACE_ENABLED;
+static int hf_mq_fcno_opt_ACTIVITY_TRACE_DISABLED;
+
+static int* const pf_flds_fcno_opt[] =
+{
+    &hf_mq_fcno_opt_ACTIVITY_TRACE_DISABLED,
+    &hf_mq_fcno_opt_ACTIVITY_TRACE_ENABLED,
+    &hf_mq_fcno_opt_RECONNECT_Q_MGR,
+    &hf_mq_fcno_opt_RECONNECT_DISABLED,
+    &hf_mq_fcno_opt_RECONNECT,
+    &hf_mq_fcno_opt_GENERATE_CONN_TAG,
+    &hf_mq_fcno_opt_USE_CD_SELECTION,
+    &hf_mq_fcno_opt_CD_FOR_OUTPUT_ONLY,
+    &hf_mq_fcno_opt_ALL_CONVS_SHARE,
+    &hf_mq_fcno_opt_NO_CONV_SHARING,
+    &hf_mq_fcno_opt_ACCNT_Q_DISABLED,
+    &hf_mq_fcno_opt_ACCNT_Q_ENABLED,
+    &hf_mq_fcno_opt_ACCNT_MQI_DISABLED,
+    &hf_mq_fcno_opt_ACCNT_MQI_ENABLED,
+    &hf_mq_fcno_opt_CLIENT_BINDING,
+    &hf_mq_fcno_opt_LOCAL_BINDING,
+    &hf_mq_fcno_opt_ISOLATE_BINDING,
+    &hf_mq_fcno_opt_SHARED_BINDING,
+    &hf_mq_fcno_opt_HANDLE_SHARE_NOBLOCK,
+    &hf_mq_fcno_opt_HANDLE_SHARE_BLOCK,
+    &hf_mq_fcno_opt_HANDLE_SHARE_NONE,
+    &hf_mq_fcno_opt_RESTRICT_CONNTAG_QSG,
+    &hf_mq_fcno_opt_RESTRICT_CONNTAG_QMGR,
+    &hf_mq_fcno_opt_SERIALIZE_CONNTAG_QSG,
+    &hf_mq_fcno_opt_SERIALIZE_CONNTAG_QMGR,
+    &hf_mq_fcno_opt_FASTPATH_BINDING,
+    NULL
+};
+
+/* ConTag_xxx */
+static int hf_mq_fcno_contagsr;
+
+/* Version 2 */
+static int hf_mq_fcno_mqcdofs;
+static int hf_mq_fcno_mqcdptr;
+static int hf_mq_fcno_mqcdptr64;
+
+/* Version 3 */
 static int hf_mq_fcno_conn_tag;
-static int hf_mq_fcno_retconn_tag;
-static int hf_mq_fcno_unknowb01;
+
+/* Version 4 */
+static int hf_mq_fcno_sslcfgofs;
+static int hf_mq_fcno_sslcfgptr;
+static int hf_mq_fcno_sslcfgptr64;
+
+/* Version 5 */
+static int hf_mq_fcno_connid;
+static int hf_mq_fcno_secprmofs;
+static int hf_mq_fcno_secprmptr;
+static int hf_mq_fcno_secprmptr64;
+
+/* Version 6 */
+static int hf_mq_fcno_ccdturlofs;
+static int hf_mq_fcno_ccdturlptr;
+static int hf_mq_fcno_ccdturlptr64;
+static int hf_mq_fcno_ccdturllen;
+static int hf_mq_fcno_reserved;
+
+/* Version 7 */
+static int hf_mq_fcno_applname;
+static int hf_mq_fcno_reserved2;
+
+/* Version 8 */
+static int hf_mq_fcno_balprmofs;
+static int hf_mq_fcno_balprmptr;
+static int hf_mq_fcno_balprmptr64;
+static int hf_mq_fcno_reserved3;
+
+/* After FCNO structure */
+static int hf_mq_conn_prodid;
+static int hf_mq_conn_retconn_tag;
+static int hf_mq_conn_unknowbyt;
+static int hf_mq_conn_unknowstr;
+static int hf_mq_conn_mqmid;
 
 static int hf_mq_inq_nbsel;
 static int hf_mq_inq_nbint;
@@ -959,6 +1076,7 @@ static int ett_mq_id_ief2;
 static int ett_mq_uid;
 static int ett_mq_conn;
 static int ett_mq_fcno;
+static int ett_mq_fcno_option;
 static int ett_mq_msg;
 static int ett_mq_inq;
 static int ett_mq_spi;
@@ -2454,11 +2572,12 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
         * Instead we rely on the segment length announced in the TSH */
         /* The MQCONN structure is special because it does not start with a structid */
         iSizeCONN = iSegmentLength - iSizeTSH - iSizeAPI;
-        if (iSizeCONN != 120 && /*FAPLvl <= 5 - 6 Version 1 */
-            iSizeCONN != 260 && /*FAPLvl == 7 - 11 Version 1 */
-            iSizeCONN != 332 && /*FAPLvl == 12 -13 Version 2 */
-            iSizeCONN != 460)   /*FAPLvl == 14     Version 3 */
-            iSizeCONN = 0;
+        //if (iSizeCONN != 120 && /*FAPLvl <= 5 - 6 Version 1 */
+        //    iSizeCONN != 260 && /*FAPLvl == 7 - 11 Version 1 */
+        //    iSizeCONN != 332 && /*FAPLvl == 12 -13 Version 2 */
+        //    iSizeCONN != 460 && /*FAPLvl == 14 -16 Version 3 */
+        //    iSizeCONN != 472)   /*FAPLvl == 17     Version 4 */
+        //    iSizeCONN = 0;
 
         if (iSizeCONN != 0 && tvb_reported_length_remaining(tvb, offset) >= iSizeCONN)
         {
@@ -2517,6 +2636,12 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             if (tree)
             {
                 ptvcursor_t* cursor;
+                int tRemain;
+                proto_tree* mq_tree_sub;
+                int iOption;
+                int iVersion;
+                int nofs;
+
                 mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeCONN, ett_mq_conn, NULL, MQ_TEXT_CONN);
 
                 cursor = ptvcursor_new(pinfo->pool, mq_tree, tvb, offset);
@@ -2528,76 +2653,66 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 
                 ptvcursor_add(cursor, hf_mq_conn_options, 4, iCod);
                 ptvcursor_add(cursor, hf_mq_conn_Xoptions, 4, iCod);
-                if (iSizeCONN == 120)
+
+                /* starting here we must have the MQCNO structure */
+
+                nofs = ptvcursor_current_offset(cursor);
+                tRemain = tvb_reported_length_remaining(tvb, nofs);
+
+                iVersion = tvb_get_uint32(tvb, nofs + 4, iCod);
+                iOption = tvb_get_uint32(tvb, nofs + 8, iCod);
+
+                mq_tree_sub = proto_tree_add_subtree(mq_tree, tvb, nofs, tRemain, ett_mq_fcno, NULL, MQ_TEXT_FCNO);
+                ptvcursor_set_tree(cursor, mq_tree_sub);
+                if (iVersion >= 1)
                 {
-                    int tRemain = tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor));
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_structid, 4, iEnc);
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_version, 4, iCod);
+                    nofs = ptvcursor_current_offset(cursor);
+                    if (iOption == 0)
+                    {
+                        proto_tree_add_item(mq_tree, hf_mq_fapmqcno_capflags, ptvcursor_tvbuff(cursor), nofs, 4, p_mq_parm->mq_int_enc);
+                        proto_tree_add_subtree_format(mq_tree_sub, ptvcursor_tvbuff(cursor), nofs, 4, ett_mq_fcno_option, NULL, MQ_TEXT_FCNO_OPT_NONE);
+                        ptvcursor_advance(cursor, 4);
+                    }
+                    else
+                    {
+                        proto_tree_add_bitmask(mq_tree_sub, ptvcursor_tvbuff(cursor), nofs, hf_mq_fapmqcno_capflags, ett_mq_fcno_option, pf_flds_fcno_opt, p_mq_parm->mq_int_enc);
+                        ptvcursor_advance(cursor, 4);
+                    }
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_conntag, 128, ENC_NA);
+                }
+                if (iVersion >= 2 && tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor)) > 128)
+                {
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_retconntag, 128, ENC_NA);
+                }
+                if (iVersion >= 3 && tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor)) > 12)
+                {
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_type, 4, ENC_NA);
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_timeout, 4, ENC_NA);
+                    ptvcursor_add(cursor, hf_mq_fapmqcno_balopts, 4, ENC_NA);
+                }
+                ptvcursor_set_tree(cursor, mq_tree);
+                nofs = ptvcursor_current_offset(cursor);
+                tRemain = tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor));
+                if (tRemain > 0)
+                {
+                    if (tRemain - 48 > 0)
+                    {
+                        ptvcursor_add(cursor, hf_mq_conn_unknowbyt, tRemain - 48, iEnc);
+                        tRemain -= (tRemain - 48);
+                    }
+                    if (tRemain >= 48)
+                    {
+                        ptvcursor_add(cursor, hf_mq_conn_mqmid, 48, iEnc);
+                        tRemain -= 48;
+                    }
                     if (tRemain > 0)
                     {
-                        if (tRemain >= 24 && iApp != MQ_MQAT_JAVA)
-                        {
-                            ptvcursor_add(cursor, hf_mq_fcno_prodid, 24, iEnc);
-                            tRemain -= 24;
-                        }
-                        if (tRemain >= 48 && iApp != MQ_MQAT_JAVA)
-                        {
-                            ptvcursor_add(cursor, hf_mq_fcno_mqmid, 48, iEnc);
-                            tRemain -= 48;
-                        }
-                        if (tRemain > 0)
-                            ptvcursor_add(cursor, hf_mq_fcno_unknowb01, tRemain, ENC_NA);
+                        ptvcursor_add(cursor, hf_mq_conn_unknowbyt, tRemain, iEnc);
                     }
                 }
-                else
-                {
-                    proto_tree* mq_tree_sub;
-                    int iOption;
-                    int iVersion;
-                    int nofs = ptvcursor_current_offset(cursor);
-
-                    iVersion = tvb_get_uint32(tvb, nofs + 4, iCod);
-                    iOption = tvb_get_uint32(tvb, nofs + 8, iCod);
-                    mq_tree_sub = proto_tree_add_subtree(mq_tree, tvb, nofs, iSizeCONN - nofs, ett_mq_fcno, NULL, MQ_TEXT_FCNO);
-
-                    ptvcursor_set_tree(cursor, mq_tree_sub);
-
-                    ptvcursor_add(cursor, hf_mq_fcno_StructID, 4, iEnc);
-                    ptvcursor_add(cursor, hf_mq_fcno_version, 4, iCod);
-                    ptvcursor_add(cursor, hf_mq_fcno_capflag, 4, iCod);
-                    if (iVersion >= 1)
-                    {
-                        ptvcursor_add(cursor, hf_mq_fcno_conn_tag, 128, ENC_NA);
-                    }
-                    if (iVersion >= 3)
-                    {
-                        ptvcursor_add(cursor, hf_mq_fcno_retconn_tag, 128, ENC_NA);
-                    }
-                    int tRemain = tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor));
-                    if (tRemain > 0)
-                    {
-                        if (tRemain >= 24 && iApp != MQ_MQAT_JAVA)
-                        {
-                            ptvcursor_add(cursor, hf_mq_fcno_prodid, 24, iEnc);
-                            tRemain -= 24;
-                        }
-                        if (tRemain >= 48 && iApp != MQ_MQAT_JAVA)
-                        {
-                            ptvcursor_add(cursor, hf_mq_fcno_mqmid, 48, iEnc);
-                            tRemain -= 48;
-                        }
-                        if (tRemain > 0)
-                        {
-                            if (iOption != 0)
-                            {
-                                uint32_t tUsed = dissect_mqpcf_parm(tvb, pinfo, mq_tree_sub, ptvcursor_current_offset(cursor), tRemain, iCod, true);
-                                tRemain -= tUsed;
-                            }
-                            if (tRemain > 0)
-                                ptvcursor_add(cursor, hf_mq_fcno_unknowb01, tRemain, ENC_NA);
-                        }
-                    }
-
-                    iSizeCONN = ptvcursor_current_offset(cursor) - offset;
-                }
+                iSizeCONN = ptvcursor_current_offset(cursor) - offset;
                 ptvcursor_free(cursor);
             }
             offset += iSizeCONN;
@@ -4110,16 +4225,82 @@ void proto_register_mq(void)
         {&hf_mq_conn_options, {"Options.", "mq.conn.options", FT_UINT32, BASE_DEC, VALS(mq_conn_options_vals), 0x0, "CONN options", HFILL}},
         {&hf_mq_conn_Xoptions, {"XOptions", "mq.conn.xoptions", FT_UINT32, BASE_HEX, NULL, 0x0, "CONN Xoptions", HFILL}},
 
-        {&hf_mq_fcno_StructID, {"StructId..", "mq.fcno.structid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mq_fapmqcno_structid, {"structid..", "mq.fapmqcno.structid", FT_STRING, BASE_NONE, NULL, 0x0, "FAPMQCNO struct id", HFILL} },
+        {&hf_mq_fapmqcno_version, {"version...", "mq.fapmqcno.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO version", HFILL} },
+        {&hf_mq_fapmqcno_capflags, {"capflags..", "mq.fapmqcno.options", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO capability flags", HFILL} },
+        {&hf_mq_fapmqcno_conntag, {"conntag..", "mq.fapmqcno.conntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FAPMQCNO connection tag", HFILL} },
+        {&hf_mq_fapmqcno_retconntag, {"retcontag", "mq.fapmqcno.retcontag", FT_BYTES, BASE_NONE, NULL, 0x0, "FAPMQCNO restry connection tag", HFILL} },
+        {&hf_mq_fapmqcno_type, {"type.....", "mq.fapmqcno.type", FT_UINT32, BASE_DEC, NULL, 0x0, "FAPMQCNO Type", HFILL} },
+        {&hf_mq_fapmqcno_timeout, {"timeout..", "mq.fapmqcno.timeout", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO Timeout", HFILL} },
+        {&hf_mq_fapmqcno_balopts, {"balopt...", "mq.fapmqcno.balopts", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO balance oprtions", HFILL} },
+
+        {&hf_mq_fcno_StructID, {"structid..", "mq.fcno.structid", FT_STRING, BASE_NONE, NULL, 0x0, "FCNO structure id", HFILL}},
         {&hf_mq_fcno_version, {"version...", "mq.fcno.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO version", HFILL}},
-        {&hf_mq_fcno_capflag, {"CapFlag...", "mq.fcno.capflag", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO Capability Flag", HFILL}},
+        {&hf_mq_fcno_options, {"options...", "mq.fcno.options", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO options flag", HFILL}},
 
-        {&hf_mq_fcno_prodid, {"prodid....", "mq.fcno.prodid", FT_STRING, BASE_NONE, NULL, 0x0, "FCNO Product Id", HFILL}},
-        {&hf_mq_fcno_mqmid, {"MqmId.....", "mq.fcno.mqmid", FT_STRING, BASE_NONE, NULL, 0x0, "FCNO Mqm ID", HFILL}},
+        {&hf_mq_fcno_opt_FASTPATH_BINDING, {"FASTPATH_BINDING","mq.fcno.options.fastpath_binding", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_FASTPATH_BINDING ,"FCNO options fastpath_binding", HFILL} },
+        {&hf_mq_fcno_opt_SERIALIZE_CONNTAG_QMGR, {"SERIALIZE_CONNTAG_QMGR","mq.fcno.options.serialize_conntag_qmgr", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_SERIALIZE_CONN_TAG_Q_MGR,"FCNO options serialize_conntag_qmgr", HFILL} },
+        {&hf_mq_fcno_opt_SERIALIZE_CONNTAG_QSG, {"SERIALIZE_CONNTAG_QSG","mq.fcno.options.serialize_conntag_qsg", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_SERIALIZE_CONN_TAG_QSG ,"FCNO options serialize_conntag_qsg", HFILL} },
+        {&hf_mq_fcno_opt_RESTRICT_CONNTAG_QMGR, {"RESTRICT_CONNTAG_QMGR","mq.fcno.options.restrict_conntag_qmgr", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_RESTRICT_CONN_TAG_Q_MGR ,"FCNO options restrict_conntag_qmgr", HFILL} },
+        {&hf_mq_fcno_opt_RESTRICT_CONNTAG_QSG, {"RESTRICT_CONNTAG_QSG","mq.fcno.options.restrict_conntag_qsg", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_RESTRICT_CONN_TAG_QSG ,"FCNO options restrict_conntag_qsg", HFILL} },
+        {&hf_mq_fcno_opt_HANDLE_SHARE_NONE, {"HANDLE_SHARE_NONE","mq.fcno.options.handle_share_none", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_HANDLE_SHARE_NONE ,"FCNO options handle_share_none", HFILL} },
+        {&hf_mq_fcno_opt_HANDLE_SHARE_BLOCK, {"HANDLE_SHARE_BLOCK","mq.fcno.options.handle_share_block", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_HANDLE_SHARE_BLOCK ,"FCNO options handle_share_block", HFILL} },
+        {&hf_mq_fcno_opt_HANDLE_SHARE_NOBLOCK, {"HANDLE_SHARE_NOBLOCK","mq.fcno.options.handle_share_noblock", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_HANDLE_SHARE_NO_BLOCK ,"FCNO options handle_share_noblock", HFILL} },
+        {&hf_mq_fcno_opt_SHARED_BINDING, {"SHARED_BINDING","mq.fcno.optIONS.shared_binding", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_SHARED_BINDING ,"FCNO options shared_binding", HFILL} },
+        {&hf_mq_fcno_opt_ISOLATE_BINDING, {"ISOLATE_BINDING","mq.fcno.optIOns.isolate_binding", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ISOLATED_BINDING ,"FCNO options isolate_binding", HFILL} },
+        {&hf_mq_fcno_opt_LOCAL_BINDING, {"LOCAL_BINDING","mq.fcno.optIONS.Local_binding", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_LOCAL_BINDING ,"FCNO options local_binding", HFILL} },
+        {&hf_mq_fcno_opt_CLIENT_BINDING, {"CLIENT_BINDING","mq.fcno.optIONS.client_binding", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_CLIENT_BINDING ,"FCNO options client_binding", HFILL} },
+        {&hf_mq_fcno_opt_ACCNT_MQI_ENABLED, {"ACCNT_MQI_ENABLED","mq.fcno.options.accnt_mqi_enabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ACCOUNTING_MQI_ENABLED ,"FCNO options accnt_mqi_enabled", HFILL} },
+        {&hf_mq_fcno_opt_ACCNT_MQI_DISABLED, {"ACCNT_MQI_DISABLED","mq.fcno.options.accnt_mqi_disabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ACCOUNTING_MQI_DISABLED ,"FCNO options accnt_mqi_disabled", HFILL} },
+        {&hf_mq_fcno_opt_ACCNT_Q_ENABLED, {"ACCNT_Q_ENABLED","mq.fcno.optIOns.accnt_q_enabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ACCOUNTING_Q_ENABLED ,"FCNO options accnt_q_enabled", HFILL} },
+        {&hf_mq_fcno_opt_ACCNT_Q_DISABLED, {"ACCNT_Q_DISABLED","mq.fcno.options.accnt_q_disabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ACCOUNTING_Q_DISABLED ,"FCNO options accnt_q_disabled", HFILL} },
+        {&hf_mq_fcno_opt_NO_CONV_SHARING, {"NO_CONV_SHARING","mq.fcno.optIOns.no_conv_sharing", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_NO_CONV_SHARING ,"FCNO options no_conv_sharing", HFILL} },
+        {&hf_mq_fcno_opt_ALL_CONVS_SHARE, {"ALL_CONVS_SHARE","mq.fcno.optIOns.all_convs_share", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ALL_CONVS_SHARE ,"FCNO options all_convs_share", HFILL} },
+        {&hf_mq_fcno_opt_CD_FOR_OUTPUT_ONLY, {"CD_FOR_OUTPUT_ONLY","mq.fcno.options.cd_for_output_only", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_CD_FOR_OUTPUT_ONLY ,"FCNO options cd_for_output_only", HFILL} },
+        {&hf_mq_fcno_opt_USE_CD_SELECTION, {"USE_CD_SELECTION","mq.fcno.options.use_cd_selection", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_USE_CD_SELECTION ,"FCNO options use_cd_selection", HFILL} },
+        {&hf_mq_fcno_opt_GENERATE_CONN_TAG, {"GENERATE_CONN_TAG","mq.fcno.options.generate_conn_tag", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_GENERATE_CONN_TAG ,"FCNO options generate_conn_tag", HFILL} },
+        {&hf_mq_fcno_opt_RECONNECT, {"RECONNECT","mq.fcno.options.reconnect", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_RECONNECT ,"FCNO options reconnect", HFILL} },
+        {&hf_mq_fcno_opt_RECONNECT_DISABLED, {"RECONNECT_DISABLED","mq.fcno.options.reconnect_disabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_RECONNECT_DISABLED ,"FCNO options reconnect_disabled", HFILL} },
+        {&hf_mq_fcno_opt_RECONNECT_Q_MGR, {"RECONNECT_Q_MGR","mq.fcno.optIOns.reconnect_q_mgr", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_RECONNECT_Q_MGR ,"FCNO options reconnect_q_mgr", HFILL} },
+        {&hf_mq_fcno_opt_ACTIVITY_TRACE_ENABLED, {"ACTIVITY_TRACE_ENABLED","mq.fcno.options.activity_trace_enabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ACTIVITY_TRACE_ENABLED ,"FCNO options activity_trace_enabled", HFILL} },
+        {&hf_mq_fcno_opt_ACTIVITY_TRACE_DISABLED, {"ACTIVITY_TRACE_DISABLED","mq.fcno.options.activity_trace_disabled", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_MQCNO_ACTIVITY_TRACE_DISABLED ,"FCNO options activity_trace_disabled", HFILL} },
 
-        {&hf_mq_fcno_conn_tag, {"conntag...", "mq.fcno.conntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Connection Tag", HFILL}},
-        {&hf_mq_fcno_retconn_tag, {"retconntag", "mq.fcno.retconntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Retry Connection Tag", HFILL}},
-        {&hf_mq_fcno_unknowb01, {"unknowb01.", "mq.fcno.unknowb01", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO unknown bytes 01", HFILL}},
+        {&hf_mq_fcno_contagsr, {"contagqm..", "mq.fcno.conntagqmgr", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Connection Tag Q Manager", HFILL} },
+
+        {&hf_mq_fcno_mqcdofs, {"mqcdofs...", "mq.fcno.mqcdofs", FT_UINT32, BASE_DEC, NULL, 0x0, "FCNO offset of client conn", HFILL} },
+        {&hf_mq_fcno_mqcdptr, {"mqcdptr...", "mq.fcno.mqcdptr", FT_UINT32, BASE_HEX, NULL, 0x0, "FCNO address of client conn", HFILL} },
+        {&hf_mq_fcno_mqcdptr64, {"mqcdptr64.", "mq.fcno.mqcdptr64", FT_UINT64, BASE_HEX, NULL, 0x0, "FCNO address of client conn 64bit", HFILL} },
+
+        {&hf_mq_fcno_conn_tag, {"conntag", "mq.fcno.conntag", FT_BYTES, BASE_NONE, NULL, 0x0, "CONN Connection Tag", HFILL} },
+
+        {&hf_mq_fcno_sslcfgofs, {"sslcfgofs.", "mq.fcno.sslcfgofs", FT_UINT32, BASE_DEC, NULL, 0x0, "FCNO offset of SSL configuration", HFILL} },
+        {&hf_mq_fcno_sslcfgptr, {"sslcfgptr.", "mq.fcno.sslcfgptr", FT_UINT32, BASE_HEX, NULL, 0x0, "FCNO address  of SSL configuration", HFILL} },
+        {&hf_mq_fcno_sslcfgptr64, {"sslcfgptr64", "mq.fcno.sslcfgptr64", FT_UINT64, BASE_HEX, NULL, 0x0, "FCNO address of SSL configuration 64bit", HFILL} },
+
+        {&hf_mq_fcno_connid, {"connid....", "mq.fcno.connid", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Connection Id", HFILL} },
+        {&hf_mq_fcno_secprmofs, {"secprmofs.", "mq.fcno.secprmofs", FT_UINT32, BASE_DEC, NULL, 0x0, "FCNO offset of security parms", HFILL} },
+        {&hf_mq_fcno_secprmptr, {"secprmptr.", "mq.fcno.secprmptr", FT_UINT32, BASE_HEX, NULL, 0x0, "FCNO address of security parms", HFILL} },
+        {&hf_mq_fcno_secprmptr64, {"secprmptr64", "mq.fcno.secprmptr64", FT_UINT64, BASE_HEX, NULL, 0x0, "FCNO address of security parms 64bit", HFILL} },
+
+        {&hf_mq_fcno_ccdturlofs, {"ccdturlofs", "mq.fcno.ccdturlofs", FT_UINT32, BASE_DEC, NULL, 0x0, "FCNO offset of CCDT URL string", HFILL} },
+        {&hf_mq_fcno_ccdturlptr, {"ccdturlptr", "mq.fcno.ccdturlptr", FT_UINT32, BASE_HEX, NULL, 0x0, "FCNO address of CCDT URL string", HFILL} },
+        {&hf_mq_fcno_ccdturlptr64, {"ccdturlptr64", "mq.fcno.ccdturlptr64", FT_UINT64, BASE_HEX, NULL, 0x0, "FCNO address of CCDT URL string 64bit", HFILL} },
+        {&hf_mq_fcno_ccdturllen, {"ccdturllen", "mq.fcno.ccdturllen", FT_UINT32, BASE_DEC, NULL, 0x0, "FCNO length of CCDT URL string", HFILL} },
+        {&hf_mq_fcno_reserved, {"reserved...", "mq.fcno.reserved", FT_UINT8, BASE_HEX, NULL, 0x0, "FCNO reserved", HFILL}},
+
+        {&hf_mq_fcno_applname, {"applname...", "mq.fcno.applname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "FCNO Application name", HFILL} },
+        {&hf_mq_fcno_reserved2, {"reserved2..", "mq.fcno.reserved2", FT_UINT8, BASE_HEX, NULL, 0x0, "FCNO reserved2", HFILL}},
+
+        {&hf_mq_fcno_balprmofs, {"balprmofs.", "mq.fcno.balprmofs", FT_UINT32, BASE_DEC, NULL, 0x0, "FCNO offset of Balance parameter", HFILL} },
+        {&hf_mq_fcno_balprmptr, {"balprmptr.", "mq.fcno.balprmptr", FT_UINT32, BASE_HEX, NULL, 0x0, "FCNO address of Balance parameter", HFILL} },
+        {&hf_mq_fcno_balprmptr64, {"balprmptr64", "mq.fcno.balprmptr64", FT_UINT64, BASE_HEX, NULL, 0x0, "FCNO address of Balance parameter 64bit", HFILL} },
+        {&hf_mq_fcno_reserved3, {"reserved3..", "mq.fcno.reserved3", FT_UINT8, BASE_HEX, NULL, 0x0, "FCNO reserved3", HFILL}},
+
+        {&hf_mq_conn_prodid, {"prodid....", "mq.conn.prodid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN Product Id", HFILL} },
+        {&hf_mq_conn_retconn_tag, {"retconntag", "mq.fcno.retconntag", FT_BYTES, BASE_NONE, NULL, 0x0, "CONN Retry Connection Tag", HFILL}},
+        {&hf_mq_conn_unknowbyt, {"unknowbyt.", "mq.fcno.unknowbyt", FT_BYTES, BASE_NONE, NULL, 0x0, "CONN unknown bytes", HFILL}},
+        {&hf_mq_conn_unknowstr, {"unknowstr.", "mq.fcno.unknowstr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN unknown string", HFILL} },
+        {&hf_mq_conn_mqmid, {"MqmId.....", "mq.fcno.mqmid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "CONN Mqm ID", HFILL}},
 
 
         {&hf_mq_inq_nbsel, {"Selector count..", "mq.inq.nbsel", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Selector count", HFILL}},

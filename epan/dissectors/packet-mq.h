@@ -382,6 +382,7 @@
 #define MQ_TEXT_IMMEDIATE_NONE          "Close Immediate/No option"
 #define MQ_TEXT_MQPMO_NONE              "Resp as Q Def/Resp as Topic Def/None"
 #define MQ_TEXT_MQGMO_NONE              "No Wait/Prop as Q Def/None"
+#define MQ_TEXT_FCNO_OPT_NONE           "STANDARD_BINDING/RECONNECT_AS_DEF/NONE"
 #define MQ_TEXT_MQMO_NONE               "None"
 #define MQ_TEXT_LPOOOPT_NONE            "None"
 
