@@ -2435,9 +2435,22 @@ files_identical(const char *fname1, const char *fname2)
      * Compare VolumeSerialNumber and FileId.
      */
 
+    /*
+     * "You must set [FILE_FLAG_BACKUP_SEMANTICS] to obtain a handle to a
+     * directory." - Otherwise, CreateFile returns an invalid value.
+     *
+     * "The system ensures that the calling process overrides file security
+     * checks when the process has SE_BACKUP_NAME and SE_RESTORE_NAME
+     * privileges." - That shouldn't have any effect, because we open the
+     * file with neither GENERIC_READ nor GENERIC_WRITE access, only get file
+     * information and then close the handle.
+     *
+     * https://learn.microsoft.com/en-us/windows/win32/fileio/obtaining-a-handle-to-a-directory
+     * https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea
+     */
     HANDLE h1 = CreateFile(utf_8to16(fname1), 0,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL, OPEN_EXISTING, 0, NULL);
+        NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
     if (h1 == INVALID_HANDLE_VALUE) {
         return false;
@@ -2451,7 +2464,7 @@ files_identical(const char *fname1, const char *fname2)
 
     HANDLE h2 = CreateFile(utf_8to16(fname2), 0,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        NULL, OPEN_EXISTING, 0, NULL);
+        NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
     if (h2 == INVALID_HANDLE_VALUE) {
         return false;
