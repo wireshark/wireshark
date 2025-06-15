@@ -898,6 +898,14 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Об&apos;єднати Файл Захоплення</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation type="unfinished"></translation>
@@ -1025,6 +1033,14 @@
     <message>
         <source>Last event</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -15104,7 +15120,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>

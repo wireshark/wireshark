@@ -924,6 +924,14 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Объединение файла захвата</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Диалог «Сохранение файла захвата в выбранном формате» вернул неизвестный тип файла.</translation>
@@ -1051,6 +1059,14 @@
     <message>
         <source>Last event</source>
         <translation>Последнее событие</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -15342,8 +15358,9 @@ a:hover {
         <translation>Удалить комментарии к пакету</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Удалить комментарии из %n пакета(ов)</numerusform>
             <numerusform>Удалить комментарии из %n пакета(ов)</numerusform>
             <numerusform>Удалить комментарии из %n пакета(ов)</numerusform>

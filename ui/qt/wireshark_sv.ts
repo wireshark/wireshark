@@ -920,6 +920,13 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Sammanfoga fångstfil</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Okänd filtyp returnerad av spara som-dialogen.</translation>
@@ -1044,6 +1051,13 @@
     <message>
         <source>Last event</source>
         <translation>Sista händelse</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -15305,8 +15319,9 @@ a:hover {
         <translation>Ta bort paketkommentarer</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Ta bort kommentarer från %n paket</numerusform>
             <numerusform>Ta bort kommentarer från %n paket</numerusform>
         </translation>

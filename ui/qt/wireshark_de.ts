@@ -920,6 +920,13 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Mitschnittdatei zusammenführen</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Speichern Dialog meldet einen unbekannten Dateityp</translation>
@@ -1044,6 +1051,13 @@
     <message>
         <source>Last event</source>
         <translation>Letztes Ereignis</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -15305,8 +15319,9 @@ a:hover {
         <translation>Paketkommentare löschen</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Kommentar von %n Paket löschen</numerusform>
             <numerusform>Kommentare von %n Paketen löschen</numerusform>
         </translation>
