@@ -231,7 +231,7 @@ static expert_field ei_sick_cola_command_parameter = EI_INIT;
 static expert_field ei_sick_cola_b_checksum = EI_INIT;
 
 //Preferences
-uint32_t g_number_of_outputs = 1;
+static uint32_t g_number_of_outputs = 1;
 
 #define SICK_COLA_B_HEADER_SIZE			8
 #define SICK_COLA_B_MAGIC_NUMBER		0x02020202
@@ -401,7 +401,7 @@ static const value_string sick_cola_display_event_info_vals[] = {
 
 static const value_string stims_status_vals[] = {
 	{ 0,	"Undefined" },
-	{ 1,	"Initailization" },
+	{ 1,	"Initialization" },
 	{ 2,	"Configuration" },
 	{ 3,	"Lower case" },
 	{ 4,	"Rotating" },
@@ -465,7 +465,7 @@ static const value_string sick_cola_do3_func_vals[] = {
 	{ 4,	"Application/Device Ready" },
 	{ 5,	"Device Ready/Contamination" },
 	{ 6,	"Contamination" },
-	{ 7,	"Master Synchrononisation" },
+	{ 7,	"Master Synchronisation" },
 	{ 0, NULL }
 };
 
@@ -838,7 +838,7 @@ dissect_sick_cola_write(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 			offset += 1;
 			for (uint32_t i = 0; i < count; i++)
 			{
-				proto_tree_add_item(tree, hf_sick_cola_set_active_app_id, tvb, offset, 4, ENC_NA|ENC_ASCII);
+				proto_tree_add_item(tree, hf_sick_cola_set_active_app_id, tvb, offset, 4, ENC_ASCII);
 				offset += 4;
 				proto_tree_add_item(tree, hf_sick_cola_set_active_app_active, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
@@ -1142,7 +1142,7 @@ dissect_sick_cola_method(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bo
 	if (method_end < 0)
 	{
 		//The command must have no parameters
-		proto_tree_add_item(tree, hf_sick_cola_method_name, tvb, offset, -1, ENC_NA | ENC_ASCII);
+		proto_tree_add_item(tree, hf_sick_cola_method_name, tvb, offset, -1, ENC_ASCII);
 		return tvb_reported_length(tvb);
 	}
 
@@ -1183,7 +1183,7 @@ dissect_sick_cola_method(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bo
 			}
 			offset = parameter_end+1;
 
-			proto_tree_add_item(tree, hf_sick_cola_set_access_mode_password, tvb, offset, -1, ENC_NA|ENC_ASCII);
+			proto_tree_add_item(tree, hf_sick_cola_set_access_mode_password, tvb, offset, -1, ENC_ASCII);
 			offset = tvb_reported_length(tvb);
 		}
 	}
@@ -1268,7 +1268,7 @@ dissect_sick_cola_event(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 	if (event_end < 0)
 	{
 		//The command must have no parameters
-		proto_tree_add_item(tree, hf_sick_cola_event_name, tvb, offset, -1, ENC_NA | ENC_ASCII);
+		proto_tree_add_item(tree, hf_sick_cola_event_name, tvb, offset, -1, ENC_ASCII);
 		return tvb_reported_length(tvb);
 	}
 
@@ -1365,7 +1365,7 @@ dissect_binary_scan_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb
 		channel_start = offset;
 		channel_tree = proto_tree_add_subtree_format(output_channel16_tree, tvb, offset, 2, ett_scan_data_16bit_output_channel, &channel_item, "Channel #%d", channel+1);
 
-		proto_tree_add_item(channel_tree, hf_sick_cola_scan_data_output_channel_content, tvb, offset, 5, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(channel_tree, hf_sick_cola_scan_data_output_channel_content, tvb, offset, 5, ENC_ASCII);
 		offset += 5;
 		proto_tree_add_item(channel_tree, hf_sick_cola_scan_data_output_channel_scale_factor, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -1399,7 +1399,7 @@ dissect_binary_scan_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb
 		channel_start = offset;
 		channel_tree = proto_tree_add_subtree_format(output_channel8_tree, tvb, offset, 2, ett_scan_data_8bit_output_channel, &channel_item, "Channel #%d", channel+1);
 
-		proto_tree_add_item(channel_tree, hf_sick_cola_scan_data_output_channel_content, tvb, offset, 5, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(channel_tree, hf_sick_cola_scan_data_output_channel_content, tvb, offset, 5, ENC_ASCII);
 		offset += 5;
 		proto_tree_add_item(channel_tree, hf_sick_cola_scan_data_output_channel_scale_factor, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -1495,7 +1495,7 @@ dissect_binary_scan_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb
 		event_tree = proto_tree_add_subtree(tree, tvb, offset, 13, ett_scan_data_event_info, NULL, "Event Info");
 		proto_tree_add_item(event_tree, hf_sick_cola_scan_data_display_event_info, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(event_tree, hf_sick_cola_scan_data_event_info_type, tvb, offset, 4, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(event_tree, hf_sick_cola_scan_data_event_info_type, tvb, offset, 4, ENC_ASCII);
 		offset += 4;
 		proto_tree_add_item(event_tree, hf_sick_cola_scan_data_event_info_encoder_position, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -1808,7 +1808,7 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 	if (answer_end < 0)
 	{
 		//The command must have no parameters
-		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII);
+		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_ASCII);
 		return tvb_reported_length(tvb);
 	}
 	else
@@ -2014,7 +2014,7 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 	if (answer_end < 0)
 	{
 		//The command must have no parameters
-		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII);
+		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_ASCII);
 		return tvb_reported_length(tvb);
 	}
 
@@ -2175,7 +2175,7 @@ dissect_sick_cola_answer_sea(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 	if (answer_end < 0)
 	{
 		//The command must have no parameters
-		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII);
+		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_ASCII);
 		return tvb_reported_length(tvb);
 	}
 
@@ -2207,7 +2207,7 @@ dissect_sick_cola_answer_ssn(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 	if (answer_end < 0)
 	{
 		//The command must have no parameters
-		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII);
+		proto_tree_add_item(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_ASCII);
 		return tvb_reported_length(tvb);
 	}
 
@@ -2242,7 +2242,7 @@ dissect_sick_cola_answer_sfa(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 
 	if (binary)
 	{
-		proto_tree_add_item(tree, hf_sick_cola_sopas_error_code, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_sick_cola_sopas_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 	else
@@ -2340,7 +2340,7 @@ dissect_sick_cola_b_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		break;
 	case SICK_COLA_COMMAND_SOPAS_BINARY:
 	case SICK_COLA_COMMAND_ANSWER_SOPAS_BINARY:
-		proto_tree_add_item(cola_b_tree, hf_sick_cola_b_sopas_command, tvb, offset-4, 4, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(cola_b_tree, hf_sick_cola_b_sopas_command, tvb, offset-4, 4, ENC_ASCII);
 		proto_tree_add_item(cola_b_tree, hf_sick_cola_b_sopas_command_data, tvb, offset, tvb_reported_length_remaining(tvb, offset)-1, ENC_NA);
 		break;
 
@@ -2453,7 +2453,7 @@ dissect_sick_cola_a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 		dissect_sick_cola_answer_sfa(cola_a_tree, pinfo, command_tvb, false);
 		break;
 	case SICK_COLA_COMMAND_SOPAS_ASCII:
-		proto_tree_add_item(cola_a_tree, hf_sick_cola_a_sopas_command, tvb, offset-4, 4, ENC_NA|ENC_ASCII);
+		proto_tree_add_item(cola_a_tree, hf_sick_cola_a_sopas_command, tvb, offset-4, 4, ENC_ASCII);
 		proto_tree_add_item(cola_a_tree, hf_sick_cola_a_sopas_command_data, tvb, offset, tvb_reported_length_remaining(tvb, offset)-1, ENC_NA);
 		break;
 
@@ -2551,7 +2551,7 @@ proto_register_sick_cola(void)
 		{ &hf_sick_cola_autostartmeas_enable,
 			{ "Autostart", "sick_cola.autostartmeas.enable", FT_UINT8, BASE_DEC, VALS(autostartmeas_enable_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_clapplication_mode,
-			{ "Mode", "sick_cola.clapplication.mode", FT_UINT8, BASE_DEC, VALS(clapplication_mode_vals), 0x0, NULL, HFILL } },
+			{ "Mode", "sick_cola.clapplication.mode", FT_UINT16, BASE_DEC, VALS(clapplication_mode_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_set_active_app_count,
 			{ "Array length", "sick_cola.set_active_app.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_set_active_app_id,
@@ -2571,7 +2571,7 @@ proto_register_sick_cola(void)
 		{ &hf_sick_cola_check_password_status_code,
 			{ "Status code", "sick_cola.check_password.status_code", FT_UINT8, BASE_DEC, VALS(sick_cola_return_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_lcm_cfg_strategy,
-			{ "Stategy", "sick_cola.lcm_cfg.strategy", FT_UINT8, BASE_DEC, VALS(lcm_cfg_strategy_vals), 0x0, NULL, HFILL } },
+			{ "Strategy", "sick_cola.lcm_cfg.strategy", FT_UINT8, BASE_DEC, VALS(lcm_cfg_strategy_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_lcm_cfg_response_time,
 			{ "Response Time", "sick_cola.lcm_cfg.response_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_lcm_cfg_threshold_warning,
@@ -2721,7 +2721,7 @@ proto_register_sick_cola(void)
 		{ &hf_sick_cola_set_date_time_status_code,
 			{ "Status code", "sick_cola.set_date_time.status_code", FT_UINT8, BASE_DEC, VALS(sick_cola_return_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_stims_status_code,
-			{ "Status code", "sick_cola.stims.status_code", FT_UINT8, BASE_DEC, VALS(stims_status_vals), 0x0, NULL, HFILL } },
+			{ "Status code", "sick_cola.stims.status_code", FT_UINT16, BASE_DEC, VALS(stims_status_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_stims_temp_out_of_range,
 			{ "Temperature out of range", "sick_cola.stims.temp_out_of_range", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_stims_time_length,
@@ -2819,11 +2819,11 @@ proto_register_sick_cola(void)
 		{ &hf_sick_cola_output_do1_func,
 			{ "Output 1 function", "sick_cola.output.do1_func", FT_UINT8, BASE_DEC, VALS(sick_cola_do1_func_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_output_do1_logic,
-			{ "Output 1 Logic State", "sick_cola.output.do1_logic", FT_UINT8, BASE_DEC, VALS(sick_cola_logic_state_vals), 0x0, NULL, HFILL } },
+			{ "Output 1 Logic State", "sick_cola.output.do1_logic", FT_UINT32, BASE_DEC, VALS(sick_cola_logic_state_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_output_do2_func,
 			{ "Output 2 function", "sick_cola.output.do2_func", FT_UINT8, BASE_DEC, VALS(sick_cola_do2_func_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_output_do2_logic,
-			{ "Output 2 Logic State", "sick_cola.output.do2_logic", FT_UINT8, BASE_DEC, VALS(sick_cola_logic_state_vals), 0x0, NULL, HFILL } },
+			{ "Output 2 Logic State", "sick_cola.output.do2_logic", FT_UINT32, BASE_DEC, VALS(sick_cola_logic_state_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_output_sync_mode_data,
 			{ "Sync mode data", "sick_cola.output.sync_mode_data", FT_UINT8, BASE_DEC, VALS(sick_cola_sync_mode_data_vals), 0x0, NULL, HFILL } },
 		{ &hf_sick_cola_output_sync_phase_data,
