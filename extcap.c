@@ -274,7 +274,9 @@ extcap_get_extcap_paths(void)
     GSList *paths = NULL;
 
     paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_pers_dir());
-    paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_dir());
+    if (!files_identical(get_extcap_pers_dir(), get_extcap_dir())) {
+        paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_dir());
+    }
 
     return paths;
 }

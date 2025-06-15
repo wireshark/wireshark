@@ -251,7 +251,7 @@ plugins_init(plugin_type_e type)
      * if we need privileges to start capturing, we'd need to
      * reclaim them before each time we start capturing.)
      */
-    if (!started_with_special_privs()) {
+    if (!started_with_special_privs() && !files_identical(get_plugins_dir_with_version(), get_plugins_pers_dir_with_version())) {
         scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, true);
     }
 

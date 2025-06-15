@@ -1608,7 +1608,7 @@ proto_register_falcoplugin(void)
         ws_dir_close(dir);
     }
 
-    if ((dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
+    if (!files_identical(ppdname, spdname) && (dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
         while ((ws_dir_read_name(dir)) != NULL) {
             nbridges++;
         }
@@ -1633,7 +1633,7 @@ proto_register_falcoplugin(void)
         ws_dir_close(dir);
     }
 
-    if ((dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
+    if (!files_identical(ppdname, spdname) && (dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             filename = g_build_filename(ppdname, ws_dir_get_name(file), NULL);
             import_plugin(filename);
