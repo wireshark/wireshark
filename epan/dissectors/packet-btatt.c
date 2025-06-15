@@ -10734,7 +10734,7 @@ is_long_attribute_value(bluetooth_uuid_t uuid)
 static unsigned
 get_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data)
 {
-    wmem_tree_key_t  key[3];
+    wmem_tree_key_t  key[5];
     uint32_t         frame_number;
     mtu_data_t      *mtu_data;
     wmem_tree_t     *sub_wmemtree;
@@ -10764,8 +10764,12 @@ get_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data)
         key[0].key    = &l2cap_data->interface_id;
         key[1].length = 1;
         key[1].key    = &l2cap_data->adapter_id;
-        key[2].length = 0;
-        key[2].key    = NULL;
+        key[2].length = 1;
+        key[2].key    = &l2cap_data->remote_bd_addr_oui;
+        key[3].length = 1;
+        key[3].key    = &l2cap_data->remote_bd_addr_id;
+        key[4].length = 0;
+        key[4].key    = NULL;
 
         sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(mtus, key);
         mtu_data = (sub_wmemtree) ? (mtu_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
@@ -10780,7 +10784,7 @@ get_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data)
 static void
 save_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data, unsigned mtu)
 {
-    wmem_tree_key_t  key[4];
+    wmem_tree_key_t  key[6];
     uint32_t         frame_number;
     mtu_data_t      *mtu_data;
 
@@ -10791,9 +10795,13 @@ save_mtu(packet_info *pinfo, btl2cap_data_t *l2cap_data, unsigned mtu)
     key[1].length = 1;
     key[1].key    = &l2cap_data->adapter_id;
     key[2].length = 1;
-    key[2].key    = &frame_number;
-    key[3].length = 0;
-    key[3].key    = NULL;
+    key[2].key    = &l2cap_data->remote_bd_addr_oui;
+    key[3].length = 1;
+    key[3].key    = &l2cap_data->remote_bd_addr_id;
+    key[4].length = 1;
+    key[4].key    = &frame_number;
+    key[5].length = 0;
+    key[5].key    = NULL;
 
     mtu_data = wmem_new(wmem_file_scope(), mtu_data_t);
     mtu_data->mtu = mtu;
