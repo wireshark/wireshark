@@ -878,6 +878,12 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>キャプチャファイルを結合</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>…として保存画面から返された未知のファイルタイプ</translation>
@@ -999,6 +1005,12 @@
     <message>
         <source>Last event</source>
         <translation>最後のイベント</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1572,6 +1584,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Specify temporary directory</source>
         <translation>一時ファイルのディレクトリを指定</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3063,8 +3079,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>extcap インターフェース %1 のヘルプを見つけることができません。与えられたファイル: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>キャプチャ開始時にパラメタを保存します</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">キャプチャ開始時にパラメタを保存します</translation>
     </message>
 </context>
 <context>
@@ -4003,6 +4020,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>コードを入力</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>評価</translation>
     </message>
@@ -4104,7 +4125,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字カーソル(切替)&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -4118,20 +4139,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>すべてのグラフをクリア</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>選択したグラフを削除します</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">選択したグラフを削除します</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>選択したグラフを複製します</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">選択したグラフを複製します</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>選択したグラフを上に移動します</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">選択したグラフを上に移動します</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>選択したグラフを下に移動します</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">選択したグラフを下に移動します</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6359,6 +6384,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フィルタのRACHフレームを含める</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>MAC統計</translation>
     </message>
@@ -6422,7 +6451,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字カーソル(切替)&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -6719,6 +6748,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>3GPP RLC 統計</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>フィルタにあるSRフレームを含める</translation>
     </message>
@@ -6777,6 +6814,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>DL Missing</source>
         <translation>DL 欠落</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7835,25 +7876,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>Plot</name>
     <message>
         <source>Field cannot be empty!</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールドを空にはできません!</translation>
     </message>
 </context>
 <context>
     <name>PlotAction</name>
     <message>
         <source>Plot %1 with current filter</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のフィルタで %1 を描画</translation>
     </message>
     <message>
         <source>Plot %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 を描画</translation>
     </message>
 </context>
 <context>
     <name>PlotDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -7886,363 +7927,396 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸の拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸の縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸の拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸の縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;時間の基準を切り替え&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字カーソルの表示/非表示&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;td&gt;上部軸の表示/非表示&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new plot.</source>
-        <translation type="unfinished"></translation>
+        <translation>新規グラフを追加します</translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
-        <translation type="unfinished"></translation>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
+        <translation type="unfinished">選択したグラフを削除します</translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
-        <translation type="unfinished"></translation>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
+        <translation type="unfinished">選択したグラフを複製します</translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
-        <translation type="unfinished"></translation>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
+        <translation type="unfinished">選択したグラフを上に移動します</translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
-        <translation type="unfinished"></translation>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
+        <translation type="unfinished">選択したグラフを下に移動します</translation>
     </message>
     <message>
         <source>Clear all plots.</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのグラフをクリアします</translation>
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished">自動アップデート</translation>
+        <translation>自動アップデート</translation>
     </message>
     <message>
         <source>Reset Plot</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセットします</translation>
     </message>
     <message>
         <source>Reset the plot to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished">上に10ピクセル移動</translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">上</translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">左に10ピクセル移動</translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">左</translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">右に10ピクセル移動</translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">右</translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished">下に10ピクセル移動</translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished">下</translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished">上に1ピクセル移動</translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+上</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">左に1ピクセル移動</translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">下に1ピクセル移動</translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished">下に1ピクセル移動</translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+下</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置のパケットに移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のカーソル位置のパケットへ移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻基準</translation>
     </message>
     <message>
         <source>Toggle between time relative to first data point and time relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation> 最初のデータ点基準の時間とキャプチャ開始時刻基準の時間を切り替え</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished">ログのスケール</translation>
+        <translation>ログのスケール</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished">Y軸を対数スケールと線形スケールで切り替える</translation>
+        <translation>Y軸を対数スケールと線形スケールで切り替え</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished">十字カーソル</translation>
+        <translation>十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソルの表示を切り替え</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished">スペース</translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <source>Top axis</source>
-        <translation type="unfinished"></translation>
+        <translation>上部軸</translation>
     </message>
     <message>
         <source>Toggle top axis on and off</source>
-        <translation type="unfinished"></translation>
+        <translation>上部軸のオンとオフを切り替え</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A </translation>
+        <translation>A </translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished">凡例</translation>
+        <translation>凡例</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished">凡例の表示を切り替える</translation>
+        <translation>凡例の表示を切り替え</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished">X軸をズームアウト</translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished">Shift+X</translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished">Y軸をズームアウト</translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished">Shift+Y</translation>
+        <translation>Shift+Y</translation>
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフ</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished">...として保存</translation>
+        <translation>...として保存</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Copy plots from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>別のプロファイルからグラフをコピーします</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark グラフ: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation type="unfinished">フィルタされたパケット</translation>
+        <translation>フィルタされたパケット</translation>
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished">フィルタされたイベント</translation>
+        <translation>フィルタされたイベント</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished">すべてのパケット</translation>
+        <translation>すべてのパケット</translation>
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished">すべてのイベント</translation>
+        <translation>すべてのイベント</translation>
     </message>
     <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス番号</translation>
     </message>
     <message>
         <source>Event latency</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント遅延</translation>
     </message>
     <message>
         <source>Frame num.</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム番号</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">離してズーム, x = %1 から %2, y = %3 から %4</translation>
+        <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished">範囲を選択できません</translation>
+        <translation>範囲を選択できません</translation>
     </message>
     <message>
         <source>Select a plot for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>詳細のためのグラフを選択します</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてパケットを選択</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">パケット</translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished">クリックしてイベントを選んでください</translation>
+        <translation>クリックしてイベントを選択</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished">イベント</translation>
+        <translation>イベント</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished">%1 (%2s%3).</translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished">左上に移動</translation>
+        <translation>左上に移動</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished">中央上に移動</translation>
+        <translation>中央上に移動</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished">右上に移動</translation>
+        <translation>右上に移動</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished">左下に移動</translation>
+        <translation>左下に移動</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished">中央下に移動</translation>
+        <translation>中央下に移動</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished">右下に移動</translation>
+        <translation>右下に移動</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">時間(秒)</translation>
+        <translation>時間(秒)</translation>
     </message>
     <message>
         <source>relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ開始を基準に</translation>
     </message>
     <message>
         <source>relative to first data point</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のデータ時を基準に</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF形式 (*.pdf)</translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG形式 (*.png)</translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG形式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>...としてグラフを保存</translation>
     </message>
 </context>
 <context>
@@ -10180,8 +10254,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フィルタを準備(&amp;F)</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>選択したストリームに合致するフィルタを準備します</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10551,8 +10626,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フィルタを準備(&amp;F)</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>選択したストリームに合致するフィルタを準備します</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10898,8 +10974,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>分析(&amp;A)</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>選択したストリームに対して分析ウインドウを開き追加します</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">選択したストリームに対して分析ウインドウを開き追加します</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10954,8 +11031,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>パケットをマーク</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>選択したストリームのパケットをマークします</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">選択したストリームのパケットをマークします</translation>
     </message>
     <message>
         <source>M</source>
@@ -10998,8 +11076,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>選択したストリームに合致するフィルタを準備します</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>P</source>
@@ -11786,7 +11865,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソルのあるパケットへ移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソルの位置のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;次のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;前のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
@@ -12454,12 +12533,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;新規ストリーム&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;前のストリーム&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;方向を切替 (TCP端末を切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル位置のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグとズームを切替&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;相対と絶対シーケンス番号を切替&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャとセッション時間基準を切替&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字を切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字カーソルを切替&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;往復遅延時間グラフ&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;スループットグラフ&lt;/td&gt;&lt;/th&gt;
@@ -13403,16 +13482,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フロー順序(&amp;S)</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>選択した通話のフロー順序を表示</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">選択した通話のフロー順序を表示</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>フィルタを準備(&amp;F)</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>選択した通話に合致するフィルタを準備します</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">選択した通話に合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15064,6 +15145,10 @@ a:hover {
         <translation>この対話の最後のパケットへ移動</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>キャプチャフィルタ…(&amp;F)</translation>
     </message>
@@ -15205,11 +15290,11 @@ a:hover {
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフ</translation>
     </message>
     <message>
         <source>Plot display filter fields over time</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタのフィールドを時間経過で描画</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
@@ -15976,8 +16061,9 @@ a:hover {
         <translation>パケットコメントを削除</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>%n パケットよりコメントを削除</numerusform>
         </translation>
     </message>

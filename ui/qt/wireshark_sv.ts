@@ -882,6 +882,13 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Sammanfoga fångstfil</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Okänd filtyp returnerad av spara som-dialogen.</translation>
@@ -1006,6 +1013,13 @@
     <message>
         <source>Last event</source>
         <translation>Sista händelse</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1580,6 +1594,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Specify temporary directory</source>
         <translation>Ange temporärkatalog</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3071,8 +3089,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Hjälpen för extcap-gränssnittet %1 kan inte hittas.  Angiven fil: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>Spara parametrarna vid fångststart</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">Spara parametrarna vid fångststart</translation>
     </message>
 </context>
 <context>
@@ -4021,6 +4040,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ange kod</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>Beräkna</translation>
     </message>
@@ -4136,20 +4159,24 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Nollställ alla grafer.</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>Ta bort de valda graferna</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">Ta bort de valda graferna</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>Dubblera de valda graferna.</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">Dubblera de valda graferna.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>Flytta de valda graferna uppåt.</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">Flytta de valda graferna uppåt.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>Flytta de valda graferna nedåt.</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">Flytta de valda graferna nedåt.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6379,6 +6406,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Inkludera RACH-ramar i filter</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>MAC-statistik</translation>
     </message>
@@ -6735,6 +6766,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>3GPP RLC-statistik</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>Inkludera SR-ramar i filter</translation>
     </message>
@@ -6793,6 +6832,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>DL Missing</source>
         <translation>DL saknade</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7914,19 +7957,23 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10209,8 +10256,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Förbered &amp;filter</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Förbered ett filter som matchar de valda strömmarna.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Förbered ett filter som matchar de valda strömmarna.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10580,8 +10628,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Förbered &amp;filter</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Förbered ett filter som matchar de valda strömmarna.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Förbered ett filter som matchar de valda strömmarna.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10927,8 +10976,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>A&amp;nalysera</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>Öppna analysfönstret för de valda strömmarna och lägg till till det</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">Öppna analysfönstret för de valda strömmarna och lägg till till det</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10983,8 +11033,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Markera paket</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>Markera paketen i den valda strömmen.</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">Markera paketen i den valda strömmen.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11027,8 +11078,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Förbered ett filter som matchar den valda strömmen.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Förbered ett filter som matchar den valda strömmen.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13436,16 +13488,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Flödes&amp;sekvens</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>Visa flödessekvens för de valda anropen.</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">Visa flödessekvens för de valda anropen.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>Förbered &amp;filter</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>Förbered ett filter som matchar de valda anropen.</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">Förbered ett filter som matchar de valda anropen.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15098,6 +15152,10 @@ a:hover {
         <translation>Gå till det sista paketet i denna konversation</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Fångstfilter …</translation>
     </message>
@@ -16011,8 +16069,9 @@ a:hover {
         <translation>Ta bort paketkommentarer</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Ta bort kommentarer från %n paket</numerusform>
             <numerusform>Ta bort kommentarer från %n paket</numerusform>
         </translation>

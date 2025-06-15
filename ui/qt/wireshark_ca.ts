@@ -882,6 +882,13 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Combina el fitxer de captura</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Tipus de fitxer desconegut retornat per un diàleg de desada.</translation>
@@ -1006,6 +1013,13 @@
     <message>
         <source>Last event</source>
         <translation>Últim esdeveniment</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1580,6 +1594,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Specify temporary directory</source>
         <translation>Especifica una carpeta temporal</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3071,8 +3089,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>L&apos;ajuda per a la interfície de l&apos;extcap %1 no s&apos;ha pogut trobar. Fitxer donat: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>Desa el paràmetre quan comenci la captura</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">Desa el paràmetre quan comenci la captura</translation>
     </message>
 </context>
 <context>
@@ -4021,6 +4040,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Escriviu el codi</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>Avalua</translation>
     </message>
@@ -4136,20 +4159,24 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Esborra tots els gràfics.</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>Trau els gràfics seleccionats.</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">Trau els gràfics seleccionats.</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>Duplica els gràfics seleccionats.</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">Duplica els gràfics seleccionats.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>Mou els gràfics seleccionats cap amunt.</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">Mou els gràfics seleccionats cap amunt.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>Mou els gràfics seleccionats cap avall.</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">Mou els gràfics seleccionats cap avall.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6379,6 +6406,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Inclou les trames RACH al filtre</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>Estadístiques MAC</translation>
     </message>
@@ -6735,6 +6766,14 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Estadístiques 3GPP RLC</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>Inclou les trames SR al filtre</translation>
     </message>
@@ -6793,6 +6832,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>DL Missing</source>
         <translation>DL perduts</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7914,19 +7957,23 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10209,8 +10256,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10580,8 +10628,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10927,8 +10976,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&amp;Analitza</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>Obre la finestra d&apos;anàlisi per als fluxos seleccionats i afegeix-ho</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">Obre la finestra d&apos;anàlisi per als fluxos seleccionats i afegeix-ho</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10983,8 +11033,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Marca els paquets</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>Marca els paquets dels fluxos seleccionats.</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">Marca els paquets dels fluxos seleccionats.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11027,8 +11078,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13438,16 +13490,18 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&amp;Seqüència de flux</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>Mostra la seqüència de flux per a les crides seleccionades.</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">Mostra la seqüència de flux per a les crides seleccionades.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>Prepara un &amp;filtre</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>Prepara un filtre que coincideixi amb les crides seleccionades.</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">Prepara un filtre que coincideixi amb les crides seleccionades.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15100,6 +15154,10 @@ a:hover {
         <translation>Vés a l&apos;últim paquet d&apos;aquesta conversa</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Filtres de &amp;captura…</translation>
     </message>
@@ -16013,8 +16071,9 @@ a:hover {
         <translation>Esborra els comentaris del paquet</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Esborra els comentaris del paquet</numerusform>
             <numerusform>Esborra els comentaris dels %n paquets</numerusform>
         </translation>

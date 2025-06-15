@@ -882,6 +882,13 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Mesclar Arquivo de Captura</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Erro: Tipo de arquivo desconhecido ao salvar.</translation>
@@ -1006,6 +1013,13 @@
     <message>
         <source>Last event</source>
         <translation>Último evento</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1580,6 +1594,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>Specify temporary directory</source>
         <translation>Especificar diretório temporário</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3071,8 +3089,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Não foi possível encontrar a ajuda para a interface extcap %1. No arquivo: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>Salvar parâmetro(s) ao iniciar a captura</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">Salvar parâmetro(s) ao iniciar a captura</translation>
     </message>
 </context>
 <context>
@@ -4021,6 +4040,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Inserir código</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>Avaliar</translation>
     </message>
@@ -4136,20 +4159,24 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Limpar todos os gráficos.</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>Excluir gráfico(s) selecionado(s).</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">Excluir gráfico(s) selecionado(s).</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>Duplicar gráfico(s) selecionado(s).</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">Duplicar gráfico(s) selecionado(s).</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>Mover o(s) gráfico(s) selecionado(s) para cima.</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">Mover o(s) gráfico(s) selecionado(s) para cima.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>Mover o(s) gráfico(s) selecionado(s) para baixo.</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">Mover o(s) gráfico(s) selecionado(s) para baixo.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6379,6 +6406,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Incluir quadros RACH no filtro</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>Estatísticas MAC</translation>
     </message>
@@ -6739,6 +6770,14 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Estatísticas RLC 3GPP</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>Incluir quadros SR no filtro</translation>
     </message>
@@ -6797,6 +6836,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>DL Missing</source>
         <translation>Perdidos DL</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7918,19 +7961,23 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10213,8 +10260,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Preparar &amp;Filtro</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Preparar um filtro correspondente ao(s) fluxo(s) selecionado(s).</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Preparar um filtro correspondente ao(s) fluxo(s) selecionado(s).</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10584,8 +10632,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Preparar &amp;Filtro</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Preparar um filtro correspondente ao(s) fluxo(s) selecionado(s).</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Preparar um filtro correspondente ao(s) fluxo(s) selecionado(s).</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10931,8 +10980,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>&amp;Analizar</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>Abrir a janela de análise para o(s) fluxo(s) selecionado(s) e adicioná-lo(s)</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">Abrir a janela de análise para o(s) fluxo(s) selecionado(s) e adicioná-lo(s)</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10987,8 +11037,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Marcar Pacotes</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>Marcar os pacotes do(s) fluxo(s) selecionado(s).</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">Marcar os pacotes do(s) fluxo(s) selecionado(s).</translation>
     </message>
     <message>
         <source>M</source>
@@ -11031,8 +11082,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Preparar um filtro correspondente ao(s) fluxo(s) selecionado(s).</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Preparar um filtro correspondente ao(s) fluxo(s) selecionado(s).</translation>
     </message>
     <message>
         <source>P</source>
@@ -13440,16 +13492,18 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Fluxo e &amp;Sequência</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>Exibir sequência de fluxo para a(s) chamada(s) selecionada(s).</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">Exibir sequência de fluxo para a(s) chamada(s) selecionada(s).</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>Preparar &amp;Filtro</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>Preparar um filtro correspondente à(s) chamada(s) selecionada(s).</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">Preparar um filtro correspondente à(s) chamada(s) selecionada(s).</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15102,6 +15156,10 @@ a:hover {
         <translation>Ir para o último pacote nesta conversa</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Filtros de Captura…</translation>
     </message>
@@ -16015,8 +16073,9 @@ a:hover {
         <translation>Excluir comentários de pacotes</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Excluir comentário do %n pacote</numerusform>
             <numerusform>Excluir comentários dos %n pacotes</numerusform>
         </translation>

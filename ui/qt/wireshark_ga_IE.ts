@@ -886,6 +886,14 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Cumaisc Comhad Gabhála</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Cineál anaithnid comhaid curtha ar ais trí shábháil mar dialóg.</translation>
@@ -1013,6 +1021,14 @@
     <message>
         <source>Last event</source>
         <translation>Imeacht deireanach</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1587,6 +1603,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Specify temporary directory</source>
         <translation>Sonraigh comhadlann shealadach</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3079,8 +3099,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Ní féidir cabhair le haghaidh chomhéadan extcap %1 a aimsiú. Comhad tugtha: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>Sábháil paraiméadar(í) nuair a thosaíonn an ghabháil</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">Sábháil paraiméadar(í) nuair a thosaíonn an ghabháil</translation>
     </message>
 </context>
 <context>
@@ -4039,6 +4060,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Iontráil cód</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>Meastóireacht</translation>
     </message>
@@ -4154,20 +4179,24 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Glan gach graf.</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>Bain an graif(eanna roghnaithe.</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">Bain an graif(eanna roghnaithe.</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>Déan an graif(eanna) roghnaithe a dhúbailt</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">Déan an graif(eanna) roghnaithe a dhúbailt</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>Bog an graif(eanna) roghnaithe in airde.</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">Bog an graif(eanna) roghnaithe in airde.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>Bog an graif(eanna) roghnaithe síos.</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">Bog an graif(eanna) roghnaithe síos.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6399,6 +6428,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Cuir frámaí RACH san áireamh sa scagaire</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>Staitisticí MAC</translation>
     </message>
@@ -6755,6 +6788,14 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Staitisticí RLC 3GPP</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>Cuir frámaí SR san áireamh sa scagaire</translation>
     </message>
@@ -6813,6 +6854,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>DL Missing</source>
         <translation>DL ar iarraidh</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7939,19 +7984,23 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10242,8 +10291,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Ullmhaigh &amp;Scag</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Ullmhaigh scagaire a mheaitseálann leis na sruthanna roghnaithe.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Ullmhaigh scagaire a mheaitseálann leis na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10613,8 +10663,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Ullmhaigh &amp;Scagaire</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Ullmhaigh scagaire a mheaitseálann an sruth/na sruthanna roghnaithe.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Ullmhaigh scagaire a mheaitseálann an sruth/na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10960,8 +11011,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>&amp;Anailís</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>Oscail an fhuinneog anailíse don sruth/do na sruthanna roghnaithe agus cuir leis í</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">Oscail an fhuinneog anailíse don sruth/do na sruthanna roghnaithe agus cuir leis í</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11016,8 +11068,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Marcáil Paicéid</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>Marcáil paicéid an tsrutha/na sruthanna roghnaithe.</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">Marcáil paicéid an tsrutha/na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11060,8 +11113,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Ullmhaigh scagaire a mheaitseálann an sruth/na sruthanna roghnaithe.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Ullmhaigh scagaire a mheaitseálann an sruth/na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13473,16 +13527,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Sreabhadh &amp;Seicheamh</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>Taispeáin seicheamh sreafa le haghaidh glao(anna) roghnaithe.</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">Taispeáin seicheamh sreafa le haghaidh glao(anna) roghnaithe.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>Ullmhaigh &amp;Scagaire</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>Ullmhaigh scagaire a mheaitseálann na glaonna/na glaonna roghnaithe.</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">Ullmhaigh scagaire a mheaitseálann na glaonna/na glaonna roghnaithe.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15136,6 +15192,10 @@ a:hover {
         <translation>Téigh go dtí an paicéad deireanach sa chomhrá seo</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>Gabháil &amp; Scagairí…</translation>
     </message>
@@ -16050,8 +16110,9 @@ a:hover {
         <translation>Scrios tuairimí paicéad</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Scrios nótaí tráchta ó %n paicéad(í)</numerusform>
             <numerusform>Scrios nótaí tráchta ó %n paicéad(í)</numerusform>
             <numerusform>Scrios nótaí tráchta ó %n paicéad(í)</numerusform>

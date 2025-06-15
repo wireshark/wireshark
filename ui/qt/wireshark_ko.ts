@@ -878,6 +878,12 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>캡처 파일 병합</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>다른 이름으로 저장 대화 상자에서 알 수 없는 파일 형식이 반환되었습니다.</translation>
@@ -999,6 +1005,12 @@
     <message>
         <source>Last event</source>
         <translation>마지막 이벤트</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1573,6 +1585,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Specify temporary directory</source>
         <translation>임시 디렉터리 지정</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3064,8 +3080,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>%1 extcap 인터페이스에 대한 도움말을 찾을 수 없습니다. 주어진 파일: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>캡처를 시작할 때 인자 저장</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">캡처를 시작할 때 인자 저장</translation>
     </message>
 </context>
 <context>
@@ -4004,6 +4021,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>코드 입력</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>평가</translation>
     </message>
@@ -4119,20 +4140,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>모든 그래프를 지웁니다.</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>선택한 그래프를 삭제합니다.</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">선택한 그래프를 삭제합니다.</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>선택한 그래프를 복제합니다.</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">선택한 그래프를 복제합니다.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>선택한 그래프를 위로 이동합니다.</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">선택한 그래프를 위로 이동합니다.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>선택한 그래프를 아래로 이동합니다.</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">선택한 그래프를 아래로 이동합니다.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6360,6 +6385,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>필터의 RACH 프레임 포함</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>MAC 통계</translation>
     </message>
@@ -6716,6 +6745,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>3GPP RLC 통계</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>필터의 SR 프레임 포함</translation>
     </message>
@@ -6774,6 +6811,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>DL Missing</source>
         <translation>DL 누락</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7890,19 +7931,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10176,8 +10221,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>필터 준비(&amp;F)</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>선택한 스트림과 일치하는 필터를 준비합니다.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">선택한 스트림과 일치하는 필터를 준비합니다.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10547,8 +10593,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>필터 준비(&amp;F)</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>선택한 스트림과 일치하는 필터를 준비합니다.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">선택한 스트림과 일치하는 필터를 준비합니다.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10894,8 +10941,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>분석(&amp;A)</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>선택한 스트림에 대한 분석 창을 열고 추가합니다</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">선택한 스트림에 대한 분석 창을 열고 추가합니다</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10950,8 +10998,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>패킷 마크</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>선택한 스트림의 패킷을 마크합니다.</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">선택한 스트림의 패킷을 마크합니다.</translation>
     </message>
     <message>
         <source>M</source>
@@ -10994,8 +11043,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>선택한 스트림과 일치하는 필터를 준비합니다.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">선택한 스트림과 일치하는 필터를 준비합니다.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13399,16 +13449,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>플로 시퀀스(&amp;S)</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>선택한 호에 대한 플로 시퀀스를 표시합니다.</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">선택한 호에 대한 플로 시퀀스를 표시합니다.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>필터 준비(&amp;F)</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>선택한 호와 일치하는 필터를 준비합니다.</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">선택한 호와 일치하는 필터를 준비합니다.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15060,6 +15112,10 @@ a:hover {
         <translation>이 대화 내의 마지막 패킷으로 이동</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>캡처 필터(&amp;F)…</translation>
     </message>
@@ -15971,8 +16027,9 @@ a:hover {
         <translation>패킷 주석 삭제</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>패킷 %n개에서 주석 삭제</numerusform>
         </translation>
     </message>

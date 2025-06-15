@@ -882,6 +882,13 @@
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Unisci file di cattura</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
         <translation>Tipo di file sconosciuto restituito dalla finestra di dialogo Salva come. </translation>
@@ -1006,6 +1013,13 @@
     <message>
         <source>Last event</source>
         <translation>Ultimo evento</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -1580,6 +1594,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Specify temporary directory</source>
         <translation>Specifica cartella temporanea</translation>
+    </message>
+    <message>
+        <source>Extcap interface settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3071,8 +3089,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>La guida per l&apos;interfaccia %1 non è disponibile. File specificato: %2</translation>
     </message>
     <message>
-        <source>Save parameter(s) on capture start</source>
-        <translation>Salva parametri all&apos;avvio della cattura</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter(s) on capture start</oldsource>
+        <translation type="unfinished">Salva parametri all&apos;avvio della cattura</translation>
     </message>
 </context>
 <context>
@@ -4021,6 +4040,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Digita codice</translation>
     </message>
     <message>
+        <source>Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Evaluate</source>
         <translation>Valuta</translation>
     </message>
@@ -4136,20 +4159,24 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Cancella tutti i grafici.</translation>
     </message>
     <message>
-        <source>Remove the selected graph(s).</source>
-        <translation>Rimuovi i grafici selezionati.</translation>
+        <source>Remove the selected graphs.</source>
+        <oldsource>Remove the selected graph(s).</oldsource>
+        <translation type="unfinished">Rimuovi i grafici selezionati.</translation>
     </message>
     <message>
-        <source>Duplicate the selected graph(s).</source>
-        <translation>Duplica i grafici selezionati.</translation>
+        <source>Duplicate the selected graphs.</source>
+        <oldsource>Duplicate the selected graph(s).</oldsource>
+        <translation type="unfinished">Duplica i grafici selezionati.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) upwards.</source>
-        <translation>Sposta i grafici selezionati in alto.</translation>
+        <source>Move the selected graphs upwards.</source>
+        <oldsource>Move the selected graph(s) upwards.</oldsource>
+        <translation type="unfinished">Sposta i grafici selezionati in alto.</translation>
     </message>
     <message>
-        <source>Move the selected graph(s) downwards.</source>
-        <translation>Sposta questo grafico verso il basso.</translation>
+        <source>Move the selected graphs downwards.</source>
+        <oldsource>Move the selected graph(s) downwards.</oldsource>
+        <translation type="unfinished">Sposta questo grafico verso il basso.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6380,6 +6407,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Includi i frame RACH nel filtro</translation>
     </message>
     <message>
+        <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Statistics</source>
         <translation>Statistiche MAC</translation>
     </message>
@@ -6736,6 +6767,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Statistiche 3GPP RLC</translation>
     </message>
     <message>
+        <source>Launch UL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Launch DL Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Include SR frames in filter</source>
         <translation>Includi i frame SR nel filtro</translation>
     </message>
@@ -6794,6 +6833,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>DL Missing</source>
         <translation>DL Mancanti</translation>
+    </message>
+    <message>
+        <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7857,25 +7900,25 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>Plot</name>
     <message>
         <source>Field cannot be empty!</source>
-        <translation type="unfinished"></translation>
+        <translation>Il campo non può essere vuoto!</translation>
     </message>
 </context>
 <context>
     <name>PlotAction</name>
     <message>
         <source>Plot %1 with current filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Traccia %1 con il filtro attuale</translation>
     </message>
     <message>
         <source>Plot %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Traccia %1</translation>
     </message>
 </context>
 <context>
     <name>PlotDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Finestra</translation>
+        <translation>Finestra</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -7908,363 +7951,396 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Scorciatoie di tastiera preziose e che risparmiano tempo&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Ingrandisci&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Rimpicciolisci&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Ingrandisci asse X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Rimpicciolisci asse X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Ingrandisci asse Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Rimpicciolisci asse Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reimposta il grafico al suo stato iniziale&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Sposta in su di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Sposta in giù di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra di 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra di 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Sposta in su di 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Sposta in giù di 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vai al pacchetto sotto il cursore&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta l&apos;origine del tempo&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spazio&lt;/th&gt;&lt;td&gt;Commuta il reticolo&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;td&gt;Commuta l&apos;asse superiore&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new plot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi un nuovo grafico.</translation>
     </message>
     <message>
-        <source>Remove the selected plot(s).</source>
-        <translation type="unfinished"></translation>
+        <source>Remove the selected plots.</source>
+        <oldsource>Remove the selected plot(s).</oldsource>
+        <translation type="unfinished">Rimuovi i grafici selezionati.</translation>
     </message>
     <message>
-        <source>Duplicate the selected plot(s).</source>
-        <translation type="unfinished"></translation>
+        <source>Duplicate the selected plots.</source>
+        <oldsource>Duplicate the selected plot(s).</oldsource>
+        <translation type="unfinished">Duplica i grafici selezionati.</translation>
     </message>
     <message>
-        <source>Move the selected plot(s) upwards.</source>
-        <translation type="unfinished"></translation>
+        <source>Move the selected plots upwards.</source>
+        <oldsource>Move the selected plot(s) upwards.</oldsource>
+        <translation type="unfinished">Sposta i grafici selezionati in alto.</translation>
     </message>
     <message>
-        <source>Move the selected plot(s) downwards.</source>
-        <translation type="unfinished"></translation>
+        <source>Move the selected plots downwards.</source>
+        <oldsource>Move the selected plot(s) downwards.</oldsource>
+        <translation type="unfinished">Sposta i grafici selezionati in alto.</translation>
     </message>
     <message>
         <source>Clear all plots.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutti i grafici.</translation>
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished">Aggiornamento automatico</translation>
+        <translation>Aggiornamento automatico</translation>
     </message>
     <message>
         <source>Reset Plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina grafico</translation>
     </message>
     <message>
         <source>Reset the plot to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina il grafico al suo stato iniziale.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Ingrandisci</translation>
+        <translation>Ingrandisci</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Rimpicciolisci</translation>
+        <translation>Rimpicciolisci</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished">Sposta in su di 10 pixel</translation>
+        <translation>Sposta in su di 10 pixel</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">Su</translation>
+        <translation>Su</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">Sposta a sinistra di 10 pixel</translation>
+        <translation>Sposta a sinistra di 10 pixel</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Sinistra</translation>
+        <translation>Sinistra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">Sposta a destra di 10 pixel</translation>
+        <translation>Sposta a destra di 10 pixel</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Destra</translation>
+        <translation>Destra</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished">Sposta in giù di 10 pixel</translation>
+        <translation>Sposta in giù di 10 pixel</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished">Giù</translation>
+        <translation>Giù</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished">Sposta in su di 1 pixel</translation>
+        <translation>Sposta in su di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Su</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">Sposta a sinistra di 1 pixel</translation>
+        <translation>Sposta a sinistra di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Sinistra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished">Sposta a destra di 1 pixel</translation>
+        <translation>Sposta a destra di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Destra</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">Sposta in giù di 1 pixel</translation>
+        <translation>Sposta in giù di 1 pixel</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished">Sposta in giù di 1 pixel</translation>
+        <translation>Sposta in giù di 1 pixel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Giù</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished">Vai al pacchetto sotto il cursore</translation>
+        <translation>Vai al pacchetto sotto il cursore</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished">Vai al pacchetto attualmente sotto il cursore</translation>
+        <translation>Vai al pacchetto attualmente sotto il cursore</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Origine del tempo</translation>
     </message>
     <message>
         <source>Toggle between time relative to first data point and time relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta tra il tempo relativo al primo punto dati e il tempo relativo all&apos;inizio della cattura</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished">Scala logaritmica</translation>
+        <translation>Scala logaritmica</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished">Commuta l&apos;asse Y tra scala logaritmica e lineare</translation>
+        <translation>Commuta la scala lineare o logaritmica per l&apos;asse Y</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished">Reticolo</translation>
+        <translation>Reticolo</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished">Inverti reticolo</translation>
+        <translation>Inverti reticolo</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished">Spazio</translation>
+        <translation>Spazio</translation>
     </message>
     <message>
         <source>Top axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Asse superiore</translation>
     </message>
     <message>
         <source>Toggle top axis on and off</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza nascondi l&apos;asse superiore</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A </translation>
+        <translation>A </translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished">Legenda</translation>
+        <translation>Legenda</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished">Commuta la legenda</translation>
+        <translation>Commuta la legenda</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished">Ingrandisci asse X</translation>
+        <translation>Ingrandisci asse X</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished">Rimpicciolisci asse X</translation>
+        <translation>Rimpicciolisci asse X</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished">Maiusc+X</translation>
+        <translation>Maiusc+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished">Ingrandisci asse Y</translation>
+        <translation>Ingrandisci asse Y</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished">Rimpicciolisci asse Y</translation>
+        <translation>Rimpicciolisci asse Y</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished">Maiusc+Y</translation>
+        <translation>Maiusc+Y</translation>
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafici</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished">Salva come...</translation>
+        <translation>Salva come...</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy plots from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia i grafici da un altro profilo.</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafici di Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation type="unfinished">Pacchetti filtrati</translation>
+        <translation>Pacchetti filtrati</translation>
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished">Eventi filtrati</translation>
+        <translation>Eventi filtrati</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished">Tutti i pacchetti</translation>
+        <translation>Tutti i pacchetti</translation>
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished">Tutti gli eventi</translation>
+        <translation>Tutti gli eventi</translation>
     </message>
     <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
+        <translation>Num. seq.</translation>
     </message>
     <message>
         <source>Event latency</source>
-        <translation type="unfinished"></translation>
+        <translation>Latenza dell&apos;evento</translation>
     </message>
     <message>
         <source>Frame num.</source>
-        <translation type="unfinished"></translation>
+        <translation>Num. frame</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">Rilascia per lo zoom, x = %1 a %2, y = %3 a %4</translation>
+        <translation>Rilascia per lo zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile selezionare l&apos;intervallo.</translation>
     </message>
     <message>
         <source>Select a plot for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un grafico per i dettagli.</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished">Fai clic per selezionare il pacchetto</translation>
+        <translation>Fai clic per selezionare il pacchetto</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">Pacchetto</translation>
+        <translation>Pacchetto</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished">Fai clic per selezionare l&apos;evento</translation>
+        <translation>Fai clic per selezionare l&apos;evento</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished">Evento</translation>
+        <translation>Evento</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished">%1 (%2s%3).</translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished">Sposta in alto a sinistra</translation>
+        <translation>Sposta in alto a sinistra</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished">Sposta in alto al centro</translation>
+        <translation>Sposta in alto al centro</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished">Sposta in alto a destra</translation>
+        <translation>Sposta in alto a destra</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished">Sposta in basso a sinistra</translation>
+        <translation>Sposta in basso a sinistra</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished">Sposta in basso al centro</translation>
+        <translation>Sposta in basso al centro</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished">Sposta in basso a destra</translation>
+        <translation>Sposta in basso a destra</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">Tempo (s)</translation>
+        <translation>Tempo (s)</translation>
     </message>
     <message>
         <source>relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>relativo all&apos;avvio della cattura</translation>
     </message>
     <message>
         <source>relative to first data point</source>
-        <translation type="unfinished"></translation>
+        <translation>relativo al primo punto dati</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">Portable Document Format (*.pdf)</translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+        <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva il grafico come...</translation>
     </message>
 </context>
 <context>
@@ -10210,8 +10286,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Prepara &amp;filtro</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10581,8 +10658,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Prepara &amp;filtro</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10928,8 +11006,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&amp;Analizza</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <translation>Apri la finestra di analisi per i flussi selezionati e aggiungili ad essa</translation>
+        <source>Open the analysis window for the selected streams and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
+        <translation type="unfinished">Apri la finestra di analisi per i flussi selezionati e aggiungili ad essa</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10984,8 +11063,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Marca pacchetti</translation>
     </message>
     <message>
-        <source>Mark the packets of the selected stream(s).</source>
-        <translation>Marca i pacchetti dei flussi selezionati.</translation>
+        <source>Mark the packets of the selected streams.</source>
+        <oldsource>Mark the packets of the selected stream(s).</oldsource>
+        <translation type="unfinished">Marca i pacchetti dei flussi selezionati.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11028,8 +11108,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+        <source>Prepare a filter matching the selected streams.</source>
+        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
+        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13432,16 +13513,18 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&amp;Sequenza del flusso</translation>
     </message>
     <message>
-        <source>Show flow sequence for selected call(s).</source>
-        <translation>Mostra la sequenza del flusso per le chiamate selezionate.</translation>
+        <source>Show flow sequence for selected calls.</source>
+        <oldsource>Show flow sequence for selected call(s).</oldsource>
+        <translation type="unfinished">Mostra la sequenza del flusso per le chiamate selezionate.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
         <translation>Prepara &amp;filtro</translation>
     </message>
     <message>
-        <source>Prepare a filter matching the selected calls(s).</source>
-        <translation>Prepara un filtro che corrisponde alle chiamate selezionate.</translation>
+        <source>Prepare a filter matching the selected calls.</source>
+        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
+        <translation type="unfinished">Prepara un filtro che corrisponde alle chiamate selezionate.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15094,6 +15177,10 @@ a:hover {
         <translation>Vai all&apos;ultimo pacchetto in questa conversazione</translation>
     </message>
     <message>
+        <source>Redissect Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture &amp;Filters…</source>
         <translation>&amp;Filtri di cattura...</translation>
     </message>
@@ -15235,11 +15322,11 @@ a:hover {
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafici</translation>
     </message>
     <message>
         <source>Plot display filter fields over time</source>
-        <translation type="unfinished"></translation>
+        <translation>Traccia i campi del filtro di visualizzazione nel tempo</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
@@ -16007,8 +16094,9 @@ a:hover {
         <translation>Elimina i commenti dei pacchetti</translation>
     </message>
     <message numerus="yes">
-        <source>Delete comments from %n packet(s)</source>
-        <translation>
+        <source>Delete comments from %Ln packet(s)</source>
+        <oldsource>Delete comments from %n packet(s)</oldsource>
+        <translation type="unfinished">
             <numerusform>Elimina i commenti da %n pacchetto</numerusform>
             <numerusform>Elimina i commenti da %n pacchetti</numerusform>
         </translation>
