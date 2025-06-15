@@ -4159,8 +4159,8 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
                         ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
                         if (peer_data->global_data->ext_kex_strict) {
                             peer_data->global_data->peer_data[CLIENT_PEER_DATA].sequence_number = 0;
-                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", is_response?"server":"client");
-                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", is_response?"server":"client", pinfo->num);
+                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", "client");
+                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", "client", pinfo->num);
                         }
 
                         // Activate new key material into peer_data->cipher
@@ -4176,8 +4176,8 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
                         ws_debug("ssh: decrypting frame %u with key ID %u, seq=%u", pinfo->num, peer_data->cipher_id, peer_data->sequence_number);
                         if (peer_data->global_data->ext_kex_strict) {
                             peer_data->global_data->peer_data[SERVER_PEER_DATA].sequence_number = 0;
-                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", is_response?"server":"client");
-                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", is_response?"server":"client", pinfo->num);
+                            ssh_debug_printf("%s->sequence_number reset to 0 (Strict KEX)\n", "server");
+                            ws_debug("ssh: REKEY reset %s sequence number to 0 at frame %u (Strict KEX)", "server", pinfo->num);
                         }
 
                         // Activate new key material into peer_data->cipher
