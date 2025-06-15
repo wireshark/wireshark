@@ -309,6 +309,10 @@ extern dissector_table_t  bluetooth_uuid_table;
 
 WS_DLL_PUBLIC wmem_tree_t *bluetooth_uuids;
 
+WS_DLL_PUBLIC void bluetooth_add_custom_uuid(const char *uuid, const char *label, bool long_attr);
+WS_DLL_PUBLIC bool bluetooth_get_custom_uuid_long_attr(const bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const char* bluetooth_get_custom_uuid_description(const bluetooth_uuid_t *uuid);
+
 WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
 WS_DLL_PUBLIC value_string_ext  bluetooth_company_id_vals_ext;
 extern uint32_t          bluetooth_max_disconnect_in_frame;
@@ -323,8 +327,8 @@ extern void bluetooth_unit_0p01_sec(char *buf, uint32_t value);
 extern void bluetooth_unit_0p125_ms(char *buf, uint32_t value);
 
 extern bluetooth_uuid_t  get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size);
-WS_DLL_PUBLIC const char   *print_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid);
-WS_DLL_PUBLIC const char   *print_numeric_bluetooth_uuid(wmem_allocator_t *pool, bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const char   *print_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const char   *print_numeric_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uuid);
 
 WS_DLL_PUBLIC const value_string bluetooth_procedure_count_special[];
 WS_DLL_PUBLIC const value_string bluetooth_not_supported_0x00_special[];

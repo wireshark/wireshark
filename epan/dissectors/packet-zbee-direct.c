@@ -1899,7 +1899,7 @@ void proto_reg_handoff_zb_direct(void)
 
     for (size_t i = 0; services[i].uuid; i++)
     {
-        wmem_tree_insert_string(bluetooth_uuids, services[i].uuid, services[i].description, 0);
+        bluetooth_add_custom_uuid(services[i].uuid, services[i].description, false);
 
         dissector_handle_t handle = create_dissector_handle_with_name_and_description(
             services[i].dissector, proto_zb_direct,
