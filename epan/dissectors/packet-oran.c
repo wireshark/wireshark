@@ -499,6 +499,7 @@ static expert_field ei_oran_st4_wrong_len_cmd;
 static expert_field ei_oran_st4_unknown_cmd;
 static expert_field ei_oran_mcot_out_of_range;
 static expert_field ei_oran_se10_unknown_beamgrouptype;
+static expert_field ei_oran_se10_not_allowed;
 static expert_field ei_oran_start_symbol_id_not_zero;
 static expert_field ei_oran_trx_control_cmd_scope;
 static expert_field ei_oran_unhandled_se;
@@ -2963,6 +2964,21 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* Reserved byte */
                         proto_tree_add_item(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA);
                         offset++;
+
+                        /* Explain how entries are allocated */
+                        if (beam_group_type == 0x0) {
+                            proto_item_append_text(extension_ti, " (all %u ueid/Beam entries are %u)", numPortc, ueId);
+                        }
+                        else {
+                            /* 'numPortc' consecutive BeamIds from section header */
+                            proto_item_append_text(extension_ti, " (ueId/beam entries are %u -> %u)", ueId, ueId+numPortc);
+                        }
+
+                        if (sectionType == 5) {
+                            /* These types are not allowed */
+                            expert_add_info_format(pinfo, bgt_ti, &ei_oran_se10_not_allowed,
+                                                   "SE10: beamGroupType %u is not allowed for section type 5", beam_group_type);
+                        }
                         break;
 
                     case 0x2: /* beam vector listing */
@@ -8483,6 +8499,7 @@ proto_register_oran(void)
         { &ei_oran_st4_unknown_cmd, { "oran_fh_cus.st4_unknown_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with unknown command code", EXPFILL }},
         { &ei_oran_mcot_out_of_range, { "oran_fh_cus.mcot_out_of_range", PI_MALFORMED, PI_ERROR, "MCOT should be 1-10", EXPFILL }},
         { &ei_oran_se10_unknown_beamgrouptype, { "oran_fh_cus.se10_unknown_beamgrouptype", PI_MALFORMED, PI_WARN, "SE10 - unknown BeamGroupType value", EXPFILL }},
+        { &ei_oran_se10_not_allowed, { "oran_fh_cus.se10_not_allowed", PI_MALFORMED, PI_WARN, "SE10 - type not allowed for sectionType", EXPFILL }},
         { &ei_oran_start_symbol_id_not_zero, { "oran_fh_cus.startsymbolid_shall_be_zero", PI_MALFORMED, PI_WARN, "For ST4 commands 3&4, startSymbolId shall be 0", EXPFILL }},
         { &ei_oran_trx_control_cmd_scope, { "oran_fh_cus.trx_command.bad_cmdscope", PI_MALFORMED, PI_WARN, "TRX command must have cmdScope of ARRAY-COMMAND", EXPFILL }},
         { &ei_oran_unhandled_se, { "oran_fh_cus.se_not_handled", PI_UNDECODED, PI_WARN, "SE not recognised/handled by dissector", EXPFILL }},
