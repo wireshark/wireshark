@@ -4581,12 +4581,16 @@ decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree
  * UMTS:        29.060 v4.0, chapter 7.7.2
  */
 static int
-decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
-    /* const char *imsi_str; */
+    const char *imsi_str;
 
     /* Octets 2 - 9 IMSI */
-    /* imsi_str = */ dissect_e212_imsi(tvb, pinfo, tree,  offset+1, 8, false);
+    imsi_str = dissect_e212_imsi(tvb, pinfo, tree,  offset+1, 8, false);
+
+    if (g_gtp_session) {
+        args->imsi = imsi_str;
+    }
 
     return 9;
 }
@@ -9924,10 +9928,11 @@ decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree *
 }
 
 static void
-track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hdr_t * gtp_hdr, wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t last_teid, address last_ip)
+track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hdr_t * gtp_hdr, session_args_t * args)
 {
     uint32_t session, frame_teid_cp;
     proto_item *it;
+    char *imsi = NULL;
 
     /* GTP session */
     if (tree) {
@@ -9935,6 +9940,14 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtp_session, tvb, 0, 0, session);
             proto_item_set_generated(it);
+
+            imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
+            if (args->imsi && !imsi) {
+                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+            } else if (!args->imsi && imsi) {
+                add_assoc_imsi_item(tvb, tree, imsi);
+            }
         }
     }
 
@@ -9955,22 +9968,34 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
             if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
                 && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
                 /* If the lists are not empty*/
-                if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
+                if (wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
                     remove_frame_info(pinfo->num);
                 }
             }
 
             if (gtp_hdr->message == GTP_MSG_CREATE_PDP_REQ) {
                 /* If CPDPCREQ and not already in the list then we create a new session*/
-                add_gtp_session(pinfo->num, gtp_session_count++);
+                add_gtp_session(pinfo->num, gtp_session_count);
+
+                if (args->imsi) {
+                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                    wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count), imsi);
+                }
+                gtp_session_count++;
+
             } else if (gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP) {
                 /* If this is an error indication then we have to check the session id that belongs to the message with the same data teid and ip */
                 if (gtp_hdr->message == GTP_MSG_ERR_IND) {
-                    if (get_frame(last_ip, last_teid, &frame_teid_cp) == 1) {
+                    if (get_frame(args->last_ip, args->last_teid, &frame_teid_cp) == 1) {
                         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
                         if (session) {
                             /* We add the corresponding session to the session list*/
                             add_gtp_session(pinfo->num, session);
+
+                            if (args->imsi) {
+                                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+                            }
                         }
                     }
                 }
@@ -9983,6 +10008,11 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
                         if (session) {
                             /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
                             add_gtp_session(pinfo->num, session);
+
+                            if (args->imsi) {
+                                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+                            }
                         }
                     }
                 }
@@ -10996,7 +11026,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
     }
     if (args) {
-        track_gtp_session(tvb, pinfo, gtp_tree, gtp_hdr, args->teid_list, args->ip_list, args->last_teid, args->last_ip);
+        track_gtp_session(tvb, pinfo, gtp_tree, gtp_hdr, args);
     }
     proto_item_set_end(ti, tvb, offset);
 
