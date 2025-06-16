@@ -2545,7 +2545,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, unsi
     amqp_typename = char_val_to_str(type, amqp_0_9_field_type_vals, "unknown type");
     field_item = proto_tree_get_parent(field_tree);
     proto_item_append_text(field_item, " (%s)", amqp_typename);
-    type_item = proto_tree_add_item(field_tree, hf_amqp_field_type, tvb, offset, 1, ENC_NA);
+    type_item = proto_tree_add_item(field_tree, hf_amqp_field_type, tvb, offset, 1, ENC_ASCII);
     offset += 1;
     length -= 1;
     switch (type) {

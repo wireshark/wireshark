@@ -4554,7 +4554,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
      * bytes only have meaning in case setup_flag == 0.
      */
-    proto_tree_add_item_ret_uint(tree, hf_usb_setup_flag, tvb, 14, 1, ENC_NA, &flag);
+    proto_tree_add_item_ret_uint(tree, hf_usb_setup_flag, tvb, 14, 1, ENC_ASCII, &flag);
     if (flag == 0) {
         urb->is_setup = true;
         if (urb->transfer_type!=URB_CONTROL)
@@ -4563,7 +4563,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         urb->is_setup = false;
     }
 
-    proto_tree_add_item(tree, hf_usb_data_flag, tvb, 15, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_usb_data_flag, tvb, 15, 1, ENC_ASCII);
 
     proto_tree_add_item(tree, hf_usb_urb_ts_sec, tvb, 16, 8, ENC_HOST_ENDIAN);
     proto_tree_add_item(tree, hf_usb_urb_ts_usec, tvb, 24, 4, ENC_HOST_ENDIAN);

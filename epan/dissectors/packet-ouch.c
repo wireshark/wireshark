@@ -569,7 +569,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_buy_sell_indicator,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -727,7 +727,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_buy_sell_indicator,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -765,7 +765,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_buy_sell_indicator,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,
@@ -850,7 +850,7 @@ dissect_ouch(
                 proto_tree_add_item(ouch_tree,
                                     hf_ouch_bbo_weight_indicator,
                                     tvb, offset, 1,
-                                    ENC_BIG_ENDIAN);
+                                    ENC_ASCII);
                 offset += 1;
             }
             break;
@@ -1199,7 +1199,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_buy_sell_indicator,
                                 tvb, offset, 1,
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII);
             offset += 1;
 
             proto_tree_add_item(ouch_tree,

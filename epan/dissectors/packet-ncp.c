@@ -1279,7 +1279,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ncp_tree, hf_ncp_slot,
             tvb, commhdr + 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_signature_character,
-            tvb, commhdr + 9, 1, ENC_LITTLE_ENDIAN);
+            tvb, commhdr + 9, 1, ENC_ASCII);
         /*
          * Display the rest of the packet as data.
          */

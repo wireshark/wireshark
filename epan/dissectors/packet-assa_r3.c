@@ -4990,7 +4990,7 @@ dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, uint32_t start_offset, ui
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  proto_tree_add_item (tree, hf_r3_testkeypad, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item (tree, hf_r3_testkeypad, tvb, 0, 1, ENC_ASCII);
 }
 
 static void

@@ -966,7 +966,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, ENC_NA);
             ptree = proto_item_add_subtree(ti, ett_pgsql);
             proto_tree_add_string(ptree, hf_type, tvb, 0, 0, "SSL response");
-            proto_tree_add_item(ptree, hf_ssl_response, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(ptree, hf_ssl_response, tvb, 0, 1, ENC_ASCII);
             switch (tvb_get_uint8(tvb, 0)) {
             case 'S':   /* Willing to perform SSL */
                 /* Next packet will start using SSL. */
@@ -994,7 +994,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, ENC_NA);
             ptree = proto_item_add_subtree(ti, ett_pgsql);
             proto_tree_add_string(ptree, hf_type, tvb, 0, 0, "GSS encrypt response");
-            proto_tree_add_item(ptree, hf_gssenc_response, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(ptree, hf_gssenc_response, tvb, 0, 1, ENC_ASCII);
             switch (tvb_get_uint8(tvb, 0)) {
             case 'E':   /* ErrorResponse; server does not support GSSAPI. */
                 /* Process normally. */

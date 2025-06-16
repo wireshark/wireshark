@@ -771,7 +771,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* The message type is separated by a delimiter */
 	delim_item = proto_tree_add_item_ret_uint(otrxc_tree, hf_otrxc_delimiter,
-						  tvb, offset, 1, ENC_NA, &delimiter);
+						  tvb, offset, 1, ENC_ASCII, &delimiter);
 	proto_item_set_hidden(delim_item);
 	offset += 1;
 
@@ -797,7 +797,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Another delimiter between the verb and status code / parameters */
 	delim_item = proto_tree_add_item_ret_uint(otrxc_tree, hf_otrxc_delimiter,
-						  tvb, offset, 1, ENC_NA, &delimiter);
+						  tvb, offset, 1, ENC_ASCII, &delimiter);
 	proto_item_set_hidden(delim_item);
 	offset += 1;
 
@@ -810,7 +810,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 
 			/* Another delimiter between the status code and parameters */
 			delim_item = proto_tree_add_item_ret_uint(otrxc_tree, hf_otrxc_delimiter,
-								  tvb, offset, 1, ENC_NA, &delimiter);
+								  tvb, offset, 1, ENC_ASCII, &delimiter);
 			proto_item_set_hidden(delim_item);
 			offset += 1;
 		} else if (offset < msg_len) {

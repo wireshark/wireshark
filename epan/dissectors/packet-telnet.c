@@ -1534,7 +1534,7 @@ dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t 
 
   case VMWARE_DO_PROXY:
     /* Data: direction serviceUri */
-    proto_tree_add_item(tree, hf_telnet_vmware_proxy_direction, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_telnet_vmware_proxy_direction, tvb, offset, 1, ENC_ASCII);
     offset++;
     len--;
     proto_tree_add_item(tree, hf_telnet_vmware_proxy_serviceUri, tvb, offset, len, ENC_UTF_8);
