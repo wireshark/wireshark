@@ -6505,11 +6505,21 @@ mbim_dissect_set_lte_attach_config(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 }
 
 static void
-mbim_dissect_lte_attach_status(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+mbim_dissect_lte_attach_status(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, struct mbim_conv_info* mbim_conv)
 {
     int base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_ms_lte_attach_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        uint32_t nw_error = tvb_get_letohl(tvb, offset);
+        if (nw_error == 0) {
+            proto_tree_add_uint_format_value(tree, hf_mbim_packet_service_info_nw_error, tvb, offset, 4, nw_error, "Success (0)");
+        }
+        else {
+            proto_tree_add_uint(tree, hf_mbim_packet_service_info_nw_error, tvb, offset, 4, nw_error);
+        }
+        offset += 4;
+    }
     mbim_dissect_lte_attach_context(tvb, pinfo, tree, offset, base_offset, false);
 }
 
@@ -9350,7 +9360,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 mbim_dissect_lte_attach_config_info(frag_tvb, pinfo, subtree, offset);
                                 break;
                             case MBIM_CID_MS_LTE_ATTACH_STATUS:
-                                mbim_dissect_lte_attach_status(frag_tvb, pinfo, subtree, offset);
+                                mbim_dissect_lte_attach_status(frag_tvb, pinfo, subtree, offset, mbim_conv);
                                 break;
                             case MBIM_CID_MS_SYS_CAPS:
                                 if (msg_type == MBIM_COMMAND_DONE) {
