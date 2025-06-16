@@ -955,7 +955,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_message_digest, tvb, offset+1,
-			    option_length-1, ENC_ASCII);
+			    option_length-1, ENC_NA);
 			break;
 
 		case DHCP_FO_PD_PROTOCOL_VERSION:

@@ -5242,7 +5242,7 @@ dissect_hid_variable(tvbuff_t* tvb, packet_info _U_* pinfo, proto_tree* tree, hi
 
     /* vendor data (0xff00 - 0xffff) */
     if ((USAGE_PAGE(usage) & 0xff00) == 0xff00) {
-        proto_tree_add_bits_item(tree, hf_usbhid_vendor_data, tvb, bit_offset, field->report_size, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_usbhid_vendor_data, tvb, bit_offset, field->report_size, ENC_NA);
         return;
     }
 
@@ -5297,7 +5297,7 @@ dissect_hid_field(tvbuff_t *tvb, packet_info _U_ *pinfo, proto_tree *tree, hid_f
         proto_tree *array_tree;
 
         array_ti = proto_tree_add_bits_item(tree, hf_usbhid_array, tvb, bit_offset,
-            field->report_size * field->report_count, ENC_LITTLE_ENDIAN);
+            field->report_size * field->report_count, ENC_NA);
         array_tree = proto_item_add_subtree(array_ti, ett_usb_hid_array);
 
         for(unsigned int j = 0; j < field->report_count; j++) {
@@ -5331,7 +5331,7 @@ dissect_hid_field(tvbuff_t *tvb, packet_info _U_ *pinfo, proto_tree *tree, hid_f
         }
         if (field->report_count > count) {
             int remaining_bits = (field->report_count - count) * field->report_size;
-            proto_tree_add_bits_item(tree, hf_usbhid_padding, tvb, bit_offset, remaining_bits, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_usbhid_padding, tvb, bit_offset, remaining_bits, ENC_NA);
             bit_offset += remaining_bits;
         }
     }
@@ -5379,7 +5379,7 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
                 /* if the item has no usages, it is padding - HID spec 6.2.2.9 */
                 if (wmem_array_get_count(field->usages) == 0) {
-                    proto_tree_add_bits_item(hid_tree, hf_usbhid_padding, tvb, hid_bit_offset, data_size, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_bits_item(hid_tree, hf_usbhid_padding, tvb, hid_bit_offset, data_size, ENC_NA);
                     hid_bit_offset += data_size;
                     continue;
                 }
