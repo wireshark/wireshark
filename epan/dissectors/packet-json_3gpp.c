@@ -71,6 +71,12 @@ static int hf_json_3gpp_suppFeat;
 static int hf_json_3gpp_supportedFeatures;
 static int hf_json_3gpp_supi;
 static int hf_json_3gpp_subscriberIdentifier;
+static int hf_json_3gpp_notifyuri;
+static int hf_json_3gpp_notificationuri;
+static int hf_json_3gpp_amfStatusUri;
+static int hf_json_3gpp_n1NotifyCallbackUri;
+static int hf_json_3gpp_n2NotifyCallbackUri;
+static int hf_json_3gpp_n1n2FailureTxfNotifURI;
 
 
 static int hf_json_3gpp_suppfeat;
@@ -1382,6 +1388,50 @@ dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offse
 }
 
 static void
+dissect_3gpp_notifyuri(tvbuff_t* tvb, proto_tree* tree _U_, packet_info* pinfo, int offset, int len, const char* key_str _U_)
+{
+	tvbuff_t   *notifyuri_tvb;
+	GMatchInfo *match_info;
+	static GRegex *regex = NULL;
+	char *matched_referenceid = NULL;
+	const char *imsi = NULL;
+
+	if (len <= 0) {
+		return;
+	}
+
+	notifyuri_tvb = tvb_new_subset_length(tvb, offset, len);
+
+	/* NotifyUri sent from different SBI interface usually has the format:
+	 *   https://<address>:<port>/some_sbi_service/referenceid/<id>
+	 */
+	if (regex == NULL) {
+		regex = g_regex_new (
+			"^.*\\/referenceid\\/(\\d+).*",
+			G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+	}
+
+	char *notifyuri_str = tvb_get_string_enc(pinfo->pool, notifyuri_tvb, 0, tvb_captured_length(notifyuri_tvb), ENC_UTF_8);
+	g_regex_match(regex, notifyuri_str, 0, &match_info);
+
+	if (g_match_info_matches(match_info)) {
+		matched_referenceid = g_match_info_fetch(match_info, 1); //will be empty string if imsi is not in supi
+		if (matched_referenceid && (strcmp(matched_referenceid, "") != 0)) {
+			if (proto_is_frame_protocol(pinfo->layers, "http2")) {
+				imsi = http2_get_stream_imsi(pinfo);
+				if(imsi) {
+					/* Add mapping of referenceid to imsi */
+					http2_add_referenceid_imsi(matched_referenceid, imsi);
+				}
+			}
+		}
+	}
+	g_regex_unref(regex);
+
+	return;
+}
+
+static void
 register_static_headers(void) {
 
 	char* header_name;
@@ -1472,6 +1522,42 @@ register_static_headers(void) {
 			{"subscriberIdentifier", "json.3gpp.subscriberIdentifier",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_notifyuri,
+			{"notifyUri", "json.3gpp.notifyUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_notificationuri,
+			{"notificationUri", "json.3gpp.notificationUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_amfStatusUri,
+			{"amfStatusUri", "json.3gpp.amfStatusUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_n1NotifyCallbackUri,
+			{"n1NotifyCallbackUri", "json.3gpp.n1NotifyCallbackUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_n2NotifyCallbackUri,
+			{"n2NotifyCallbackUri", "json.3gpp.n2NotifyCallbackUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_n1n2FailureTxfNotifURI,
+			{"n1n2FailureTxfNotifURI", "json.3gpp.n1n2FailureTxfNotifURI",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
 		}
 	};
 
@@ -1494,6 +1580,13 @@ register_static_headers(void) {
 
 		dissect_3gpp_supi,			/* supi */
 		dissect_3gpp_supi,			/* subscriberIdentifier */
+
+		dissect_3gpp_notifyuri,		/* NotifyUri */
+		dissect_3gpp_notifyuri,		/* notificationUri */
+		dissect_3gpp_notifyuri,		/* amfStatusUri */
+		dissect_3gpp_notifyuri,		/* n1NotifyCallbackUri */
+		dissect_3gpp_notifyuri,		/* n2NotifyCallbackUri */
+		dissect_3gpp_notifyuri,		/* n1n2FailureTxfNotifURI */
 
 		NULL,   /* NONE */
 	};

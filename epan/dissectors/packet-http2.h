@@ -67,6 +67,20 @@ void
 http2_set_stream_imsi(packet_info *pinfo, char* imsi);
 
 /**
+ * Get IMSI of active HTTP/2 Stream for the current PDU (typically the DATA frame).
+ * Only valid when called from a HTTP/2 subdissector.
+ */
+const char*
+http2_get_stream_imsi(packet_info *pinfo);
+
+/**
+ * Add referenceid map to IMSI on active HTTP/2 Stream for the current PDU (typically the DATA frame).
+ * Only valid when called from a HTTP/2 subdissector.
+ */
+void
+http2_add_referenceid_imsi(char* referenceid, const char* imsi);
+
+/**
  * Retrieves the HTTP/2 Stream ID which is smaller than or equal to the provided
  * ID. If available, sub_stream_id_out will be set and true is returned.
  */

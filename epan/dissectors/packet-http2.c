@@ -87,6 +87,9 @@ static bool http2_decompress_body;
 /* add Association IMSI to all messages in stream */
 static bool http2_session_imsi = false;
 
+/* Relation between referenceid -> imsi */
+static wmem_map_t* http2_referenceid_imsi;
+
 /* Try to dissect reassembled http2.data.data according to content-type later */
 static dissector_table_t media_type_dissector_table;
 
@@ -246,6 +249,7 @@ typedef struct {
     char *authority;
     char *path;
     const char *imsi;
+    const char *referenceid;
 } http2_stream_info_t;
 #endif
 /* struct to hold data per HTTP/2 session */
@@ -1516,6 +1520,40 @@ http2_set_stream_imsi(packet_info *pinfo, char* imsi)
     stream_info->imsi = imsi;
 }
 
+const char*
+http2_get_stream_imsi(packet_info *pinfo)
+{
+    conversation_t *conversation;
+    http2_session_t *h2session;
+    http2_stream_info_t *stream_info;
+
+    conversation = find_conversation_pinfo(pinfo, 0);
+    if (!conversation) {
+        return NULL;
+    }
+
+    h2session = (http2_session_t*)conversation_get_proto_data(conversation, proto_http2);
+    if (!h2session) {
+        return NULL;
+    }
+
+    stream_info = get_stream_info(pinfo, h2session, false);
+    if (!stream_info) {
+        return NULL;
+    }
+
+    return stream_info->imsi;
+}
+
+void http2_add_referenceid_imsi(char* referenceid, const char* imsi)
+{
+    if(http2_session_imsi) {
+        wmem_map_insert(http2_referenceid_imsi,
+                        wmem_strdup(wmem_file_scope(), referenceid),
+                        wmem_strdup(wmem_file_scope(), imsi));
+    }
+}
+
 static const char*
 http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, uint32_t stream_id)
 {
@@ -1544,6 +1582,17 @@ http2_get_stream_id(packet_info *pinfo _U_)
 
 void
 http2_set_stream_imsi(packet_info *pinfo _U_, char* imsi _U_)
+{
+    return;
+}
+
+const char*
+http2_get_stream_imsi(packet_info *pinf _U_)
+{
+    return NULL;
+}
+
+void http2_add_referenceid_imsi(char* referenceid _U_, const char* imsi _U_)
 {
     return;
 }
@@ -1996,9 +2045,13 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
         if(http2_session_imsi) {
             /* 3GPP Supi look up */
-            GMatchInfo *match_info;
-            static GRegex *regex = NULL;
+            /* If no Supi found the try look in referenceId mapping */
+            GMatchInfo *match_info_imsi;
+            GMatchInfo *match_info_referenceid;
+            static GRegex *regex_imsi = NULL;
+            static GRegex *regex_referenceid = NULL;
             char *matched_imsi = NULL;
+            char *matched_referenceid = NULL;
 
             /* 3GPP TS 29.571
             * String identifying a Supi that shall contain either an IMSI, a network specific identifier,
@@ -2007,21 +2060,33 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
             * We are interested in IMSI and will be formatted as follows:
             *   Pattern: '^imsi-[0-9]{5,15}$'
             */
-            if (regex == NULL) {
-                regex = g_regex_new (
+            if (regex_imsi == NULL) {
+                regex_imsi = g_regex_new (
                     ".*imsi-([0-9]{5,15}).*",
                     G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
             }
+            if (regex_referenceid == NULL) {
+                regex_referenceid = g_regex_new (
+                    ".*\\/(referenceid|sm-contexts)\\/(\\d+).*",
+                    G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+            }
 
-            g_regex_match(regex, stream_info->path, 0, &match_info);
+            g_regex_match(regex_imsi, stream_info->path, 0, &match_info_imsi);
+            g_regex_match(regex_referenceid, stream_info->path, 0, &match_info_referenceid);
 
-            if (g_match_info_matches(match_info)) {
-                matched_imsi = g_match_info_fetch(match_info, 1); //will be empty string if imsi is not in supi
+            if (g_match_info_matches(match_info_imsi)) {
+                matched_imsi = g_match_info_fetch(match_info_imsi, 1); //will be empty string if imsi is not in supi
                 if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
                     stream_info->imsi = matched_imsi;
                 }
+            } else if (g_match_info_matches(match_info_referenceid)) {
+                matched_referenceid = g_match_info_fetch(match_info_referenceid, 2); //will be empty string if referenceid is not found
+                if (matched_referenceid && (strcmp(matched_referenceid, "") != 0)) {
+                    stream_info->referenceid = matched_referenceid;
+                }
             }
-            g_regex_unref(regex);
+            g_regex_unref(regex_imsi);
+            g_regex_unref(regex_referenceid);
         }
     }
 
@@ -3622,11 +3687,6 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2sess
 
     http2_stream_info_t *stream_info = get_stream_info(pinfo, h2session, false);
 
-    /* Add Associate IMSI if Supi was found in Path */
-    if (http2_session_imsi && stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
-        add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
-    }
-
     /* Display request/response links */
     if (pinfo->num > stream_info->request_in_frame_num && stream_info->request_in_frame_num > 0) {
         /* Response frame */
@@ -3882,11 +3942,6 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
      */
     http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, h2session, false, promised_stream_id);
 
-    /* Add Associate IMSI if Supi was found in Path */
-    if (http2_session_imsi && stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
-        add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
-    }
-
     if (pinfo->num == stream_info->request_in_frame_num && stream_info->response_in_frame_num > 0) {
         /* Request frame */
         proto_item_set_generated(proto_tree_add_uint(http2_tree, hf_http2_response_in, tvb, 0, 0, stream_info->response_in_frame_num));
@@ -3897,6 +3952,19 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
         proto_item *uri_ti = proto_tree_add_string_format(http2_tree, hf_http2_header_request_full_uri, tvb, 0, 0, uri, "Full promised request URI: %s", uri);
         proto_item_set_url(uri_ti);
         proto_item_set_generated(uri_ti);
+    }
+
+    /* Add Associate IMSI */
+    if (http2_session_imsi) {
+        if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
+            add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
+        } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
+            const char *imsi = NULL;
+            imsi = (const char *)wmem_map_lookup(http2_referenceid_imsi, stream_info->referenceid);
+            if(imsi) {
+                add_assoc_imsi_item(tvb, http2_tree, imsi);
+            }
+        }
     }
 #endif
 
@@ -4270,6 +4338,23 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_item_set_url(uri_ti);
         proto_item_set_generated(uri_ti);
     }
+
+#ifdef HAVE_NGHTTP2
+    http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, http2_session, false, streamid);
+
+    /* Add Associate IMSI */
+    if (http2_session_imsi) {
+        if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
+            add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
+        } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
+            const char *imsi = NULL;
+            imsi = (const char *)wmem_map_lookup(http2_referenceid_imsi, stream_info->referenceid);
+            if(imsi) {
+                add_assoc_imsi_item(tvb, http2_tree, imsi);
+            }
+        }
+    }
+#endif
 
     tap_queue_packet(http2_tap, pinfo, http2_stats);
 
@@ -5072,6 +5157,8 @@ proto_register_http2(void)
         "Will look up Supi in path and if found then field \"Association IMSI\"(e212.assoc.imsi) will be added to all messages"
         " within the same stream",
         &http2_session_imsi);
+
+    http2_referenceid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 
     /* Fill hash table with static headers */
     register_static_headers();
