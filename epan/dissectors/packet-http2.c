@@ -1554,6 +1554,16 @@ void http2_add_referenceid_imsi(char* referenceid, const char* imsi)
     }
 }
 
+char*
+http2_get_imsi_from_referenceid(const char* referenceid)
+{
+    char *imsi = NULL;
+    if(http2_session_imsi) {
+        imsi = (char *)wmem_map_lookup(http2_referenceid_imsi, referenceid);
+    }
+    return imsi;
+}
+
 static const char*
 http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, uint32_t stream_id)
 {
@@ -1596,6 +1606,13 @@ void http2_add_referenceid_imsi(char* referenceid _U_, const char* imsi _U_)
 {
     return;
 }
+
+char*
+http2_get_imsi_from_referenceid(const char* referenceid _U_)
+{
+    return NULL;
+}
+
 
 static const char*
 http2_get_request_full_uri(packet_info *pinfo _U_, http2_session_t *http2_session _U_, uint32_t stream_id _U_)
@@ -3959,8 +3976,8 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
         if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
-            const char *imsi = NULL;
-            imsi = (const char *)wmem_map_lookup(http2_referenceid_imsi, stream_info->referenceid);
+            char *imsi = NULL;
+            imsi = http2_get_imsi_from_referenceid(stream_info->referenceid);
             if(imsi) {
                 add_assoc_imsi_item(tvb, http2_tree, imsi);
             }
@@ -4347,8 +4364,8 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
-            const char *imsi = NULL;
-            imsi = (const char *)wmem_map_lookup(http2_referenceid_imsi, stream_info->referenceid);
+            char *imsi = NULL;
+            imsi = http2_get_imsi_from_referenceid(stream_info->referenceid);
             if(imsi) {
                 add_assoc_imsi_item(tvb, http2_tree, imsi);
             }

@@ -42,6 +42,7 @@
 #include "packet-diameter.h"
 #include "packet-diameter_3gpp.h"
 #include "packet-ip.h"
+#include "packet-http2.h"
 
 void proto_register_gtpv2(void);
 void proto_reg_handoff_gtpv2(void);
@@ -9411,6 +9412,16 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     if (args->imsi) {
                         imsi = wmem_strdup(wmem_file_scope(), args->imsi);
                         wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                    } else {
+                        /* If handover from 5G, look up referenceid from earlier HTTP2 streams */
+                        static char to_str_back_buf[32];
+                        #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
+
+                        char* referenceid = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
+                        imsi = http2_get_imsi_from_referenceid(referenceid);
+                        if(imsi) {
+                            wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                        }
                     }
                 }
             }

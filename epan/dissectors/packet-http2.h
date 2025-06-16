@@ -81,6 +81,12 @@ void
 http2_add_referenceid_imsi(char* referenceid, const char* imsi);
 
 /**
+ * Get IMSI from on referenceid mapping.
+ */
+char*
+http2_get_imsi_from_referenceid(const char* referenceid);
+
+/**
  * Retrieves the HTTP/2 Stream ID which is smaller than or equal to the provided
  * ID. If available, sub_stream_id_out will be set and true is returned.
  */
