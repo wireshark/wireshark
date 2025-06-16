@@ -77,6 +77,8 @@ static int hf_json_3gpp_amfStatusUri;
 static int hf_json_3gpp_n1NotifyCallbackUri;
 static int hf_json_3gpp_n2NotifyCallbackUri;
 static int hf_json_3gpp_n1n2FailureTxfNotifURI;
+static int hf_json_3gpp_ismfPduSessionUri;
+static int hf_json_3gpp_vsmfPduSessionUri;
 
 
 static int hf_json_3gpp_suppfeat;
@@ -1558,6 +1560,18 @@ register_static_headers(void) {
 			{"n1n2FailureTxfNotifURI", "json.3gpp.n1n2FailureTxfNotifURI",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_ismfPduSessionUri,
+			{"ismfPduSessionUri", "json.3gpp.ismfPduSessionUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_vsmfPduSessionUri,
+			{"vsmfPduSessionUri", "json.3gpp.vsmfPduSessionUri",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
 		}
 	};
 
@@ -1587,6 +1601,8 @@ register_static_headers(void) {
 		dissect_3gpp_notifyuri,		/* n1NotifyCallbackUri */
 		dissect_3gpp_notifyuri,		/* n2NotifyCallbackUri */
 		dissect_3gpp_notifyuri,		/* n1n2FailureTxfNotifURI */
+		dissect_3gpp_notifyuri,		/* ismfPduSessionUri */
+		dissect_3gpp_notifyuri,		/* vsmfPduSessionUri */
 
 		NULL,   /* NONE */
 	};

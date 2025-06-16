@@ -2084,7 +2084,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
             }
             if (regex_referenceid == NULL) {
                 regex_referenceid = g_regex_new (
-                    ".*\\/(referenceid|sm-contexts)\\/(\\d+).*",
+                    ".*\\/(referenceid|sm-contexts|pdu-sessions)\\/(\\d+).*",
                     G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
             }
 
