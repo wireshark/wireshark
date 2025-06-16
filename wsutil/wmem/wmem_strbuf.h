@@ -35,9 +35,6 @@ extern "C" {
  *      nulls.
  *  alloc_size is the size of the raw buffer pointed to by str, regardless of
  *      what string is actually being stored (i.e. the buffer contents)
- *  max_size is the maximum permitted alloc_size (NOT the maximum permitted len,
- *      which must be one shorter than alloc_size to permit null-termination).
- *      When max_size is 0 (the default), no maximum is enforced.
  */
 struct _wmem_strbuf_t {
     /* read-only fields */
@@ -78,9 +75,8 @@ WS_DLL_PUBLIC
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const char *str);
 
-/* Appends up to append_len bytes (as allowed by strbuf->max_size) from
- * str. Ensures that strbuf is null terminated afterwards but will copy
- * embedded nulls. */
+/* Appends up to append_len bytes from str. Ensures that strbuf
+ * is null terminated afterwards but will copy embedded nulls. */
 WS_DLL_PUBLIC
 void
 wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const char *str, size_t append_len);

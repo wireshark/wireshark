@@ -88,8 +88,7 @@ wmem_strbuf_dup(wmem_allocator_t *allocator, const wmem_strbuf_t *src)
     return new;
 }
 
-/* grows the allocated size of the wmem_strbuf_t. If max_size is set, then
- * not guaranteed to grow by the full amount to_add */
+/* grows the allocated size of the wmem_strbuf_t */
 static inline void
 wmem_strbuf_grow(wmem_strbuf_t *strbuf, const size_t to_add)
 {
