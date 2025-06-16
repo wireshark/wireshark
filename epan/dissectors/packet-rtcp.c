@@ -1091,10 +1091,14 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        use of non-compound RTCP packets in some circumstances.)
        - allow BYE because this happens anyway
        - allow APP because TBCP ("PoC1") packets aren't compound...
-       - allow PSFB for MS */
+       - allow RTPFB for feedback
+       - allow PSFB for MS
+       - allow XR for status reports
+     */
     if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
           (packet_type == RTCP_BYE) || (packet_type == RTCP_APP) ||
-          (packet_type == RTCP_PSFB)))
+          (packet_type == RTCP_RTPFB) || (packet_type == RTCP_PSFB) ||
+          (packet_type == RTCP_XR)))
     {
         return false;
     }
