@@ -395,15 +395,13 @@ void proto_register_hsfz(void) {
 static bool
 test_hsfz(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data)
 {
-    unsigned caplen = tvb_captured_length(tvb);
-
     // Check minimum length...
-    if (caplen < HSFZ_HDR_LEN)
+    if (tvb_captured_length_remaining(tvb, offset) < HSFZ_HDR_LEN)
         return false;
 
     // Check packet length
     unsigned msg_len = get_hsfz_message_len(pinfo, tvb, offset, data);
-    if (msg_len != caplen || msg_len > 0x000fffff)
+    if (msg_len != (unsigned)tvb_reported_length_remaining(tvb, offset) || msg_len > 0x000fffff)
         return false;
 
     // Check the control word
@@ -453,8 +451,8 @@ void proto_reg_handoff_hsfz(void) {
     dissector_add_uint_range_with_preference("udp.port", "", hsfz_handle_udp);
 
     // Register as heuristic dissector for both TCP and UDP
-    heur_dissector_add("tcp", dissect_hsfz_heur_tcp, "HSFZ over TCP", "hsfz_over_tcp", proto_hsfz, HEURISTIC_ENABLE);
-    heur_dissector_add("udp", dissect_hsfz_heur_udp, "HSFZ over UDP", "hsfz_over_udp", proto_hsfz, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_hsfz_heur_tcp, "HSFZ over TCP", "hsfz_over_tcp", proto_hsfz, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", dissect_hsfz_heur_udp, "HSFZ over UDP", "hsfz_over_udp", proto_hsfz, HEURISTIC_DISABLE);
 
     uds_handle = find_dissector("uds_over_hsfz");
 }
