@@ -1324,9 +1324,16 @@ read_record(capture_file *cf, wtap_rec *rec, dfilter_t *dfcode,
         fdata = frame_data_sequence_add(cf->provider.frames, &fdlocal);
 
         cf->count++;
-        if (rec->block != NULL)
+        if (rec->block != NULL) {
+            uint64_t dropcount = 0;
+
             cf->packet_comment_count += wtap_block_count_option(rec->block, OPT_COMMENT);
-         cf->f_datalen = offset + fdlocal.cap_len;
+            if (wtap_block_get_uint64_option_value(rec->block, OPT_PKT_DROPCOUNT, &dropcount) == WTAP_OPTTYPE_SUCCESS) {
+                cf->drops_known = true;
+                cf->drops += (uint32_t)dropcount;
+            }
+        }
+        cf->f_datalen = offset + fdlocal.cap_len;
 
         // Should we check if the frame data is a duplicate, and thus, ignore
         // this frame?
