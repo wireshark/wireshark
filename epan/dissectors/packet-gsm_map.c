@@ -2773,7 +2773,7 @@ static int ett_gsm_old_RequestParameterList;
 static int ett_gsm_old_SentParameter;
 static int ett_gsm_old_AuthenticationSetListOld;
 static int ett_gsm_old_SentParameterList;
-static int ett_gsm_old_ResetArgV1;
+static int ett_gsm_old_ResetArgV2;
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -19255,7 +19255,7 @@ dissect_gsm_old_SentParameterList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t gsm_old_ResetArgV1_sequence[] = {
+static const ber_sequence_t gsm_old_ResetArgV2_sequence[] = {
   { &hf_gsm_old_networkResource, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_NetworkResource },
   { &hf_gsm_old_hlr_Number  , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_ISDN_AddressString },
   { &hf_gsm_old_hlr_List    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_HLR_List },
@@ -19263,9 +19263,9 @@ static const ber_sequence_t gsm_old_ResetArgV1_sequence[] = {
 };
 
 static int
-dissect_gsm_old_ResetArgV1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_gsm_old_ResetArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   gsm_old_ResetArgV1_sequence, hf_index, ett_gsm_old_ResetArgV1);
+                                   gsm_old_ResetArgV2_sequence, hf_index, ett_gsm_old_ResetArgV2);
 
   return offset;
 }
@@ -23837,8 +23837,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_ms_CancelVcsgLocationArg(false, tvb, offset, actx, tree, -1);
     break;
   case 37: /*reset*/
-      if (application_context_version == 1) {
-          offset = dissect_gsm_old_ResetArgV1(false, tvb, offset, actx, tree, -1);
+      if (application_context_version <= 2) {
+          offset = dissect_gsm_old_ResetArg(false, tvb, offset, actx, tree, -1);
       } else {
           offset = dissect_gsm_map_ms_ResetArg(false, tvb, offset, actx, tree, -1);
       }
@@ -25411,6 +25411,7 @@ void proto_reg_handoff_gsm_map(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.0.7.3", map_handle, proto_gsm_map,"reportingContext-v3" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.8.3", map_handle, proto_gsm_map,"callCompletionContext-v3" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.9.3", map_handle, proto_gsm_map,"serviceTerminationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.3", map_handle, proto_gsm_map,"resetContext-v3" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.10.2", map_handle, proto_gsm_map,"resetContext-v2" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.10.1", map_handle, proto_gsm_map,"resetContext-v1" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.11.3", map_handle, proto_gsm_map,"handoverControlContext-v3" );
@@ -34252,7 +34253,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_old_SentParameter,
     &ett_gsm_old_AuthenticationSetListOld,
     &ett_gsm_old_SentParameterList,
-    &ett_gsm_old_ResetArgV1,
+    &ett_gsm_old_ResetArgV2,
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 

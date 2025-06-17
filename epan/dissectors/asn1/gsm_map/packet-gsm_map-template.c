@@ -1312,8 +1312,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_ms_CancelVcsgLocationArg(false, tvb, offset, actx, tree, -1);
     break;
   case 37: /*reset*/
-      if (application_context_version == 1) {
-          offset = dissect_gsm_old_ResetArgV1(false, tvb, offset, actx, tree, -1);
+      if (application_context_version <= 2) {
+          offset = dissect_gsm_old_ResetArg(false, tvb, offset, actx, tree, -1);
       } else {
           offset = dissect_gsm_map_ms_ResetArg(false, tvb, offset, actx, tree, -1);
       }
@@ -2886,6 +2886,7 @@ void proto_reg_handoff_gsm_map(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.0.7.3", map_handle, proto_gsm_map,"reportingContext-v3" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.8.3", map_handle, proto_gsm_map,"callCompletionContext-v3" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.9.3", map_handle, proto_gsm_map,"serviceTerminationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.3", map_handle, proto_gsm_map,"resetContext-v3" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.10.2", map_handle, proto_gsm_map,"resetContext-v2" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.10.1", map_handle, proto_gsm_map,"resetContext-v1" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.11.3", map_handle, proto_gsm_map,"handoverControlContext-v3" );
