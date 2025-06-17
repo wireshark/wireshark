@@ -342,7 +342,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
             if (iface.drops_known) {
                 interface_drops = QStringLiteral("%1 (%2%)").arg(iface.drops).arg(QString::number(
                     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-                    summary.packet_count ? (100.0 * (int64_t)iface.drops)/summary.packet_count : 0, 'f', 1));
+                    summary.packet_count ? (100.0 * (int64_t)iface.drops)/(summary.packet_count + iface.drops) : 0, 'f', 1));
             }
 
             /* Capture filter */

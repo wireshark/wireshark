@@ -422,7 +422,7 @@ void MainStatusBar::showCaptureStatistics()
                 packets_str.append(tr(" %1 Dropped: %2 (%3%)")
                                    .arg(UTF8_MIDDLE_DOT)
                                    .arg(cap_file_->drops)
-                                   .arg((100.0*cap_file_->drops)/cs_count_, 0, 'f', 1));
+                                   .arg((100.0*cap_file_->drops)/(cs_count_ + cap_file_->drops), 0, 'f', 1));
             }
             if (cap_file_->ignored_count > 0) {
                 packets_str.append(tr(" %1 Ignored: %2 (%3%)")
