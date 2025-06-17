@@ -4150,11 +4150,18 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     ti = proto_tree_add_uint(tree, hf_ssh_packet_length, packet_tvb,
                     offset, 4, plen);
-    if (plen < 12) {
-        /* plen MUST be at least 12 (minimum packet size is 16, and plen does
-         * not include the packet_length field itself.)
+    if (plen < 8) {
+        /* RFC 4253 6: "[T]he length of the concatenation of 'packet_length',
+         * 'padding_length', 'payload', and 'random padding' MUST be a multiple
+         * of the cipher block size or 8, whichever is larger,... even when
+         * using stream ciphers."
+         *
+         * Modes that do not encrypt plen with the same key as the other three
+         * cannot follow this as written and delete 'packet_length' from the
+         * above sentence. As padding_length is one byte and random_padding at
+         * least four, packet_length must be at least 8 in all modes.
          */
-        expert_add_info_format(pinfo, ti, &ei_ssh_packet_length, "Packet length is %d, MUST be at least 12", plen);
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_length, "Packet length is %d, MUST be at least 8", plen);
     } else if (plen >= SSH_MAX_PACKET_LEN) {
         expert_add_info_format(pinfo, ti, &ei_ssh_packet_length, "Overly large number %d", plen);
         plen = remain_length-4;
@@ -6590,7 +6597,7 @@ proto_register_ssh(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_ssh_packet_length,  { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
+        { &ei_ssh_packet_length,  { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Invalid packet length", EXPFILL }},
         { &ei_ssh_padding_length,  { "ssh.padding_length.error", PI_PROTOCOL, PI_WARN, "Invalid padding length", EXPFILL }},
         { &ei_ssh_packet_decode,  { "ssh.packet_decode.error", PI_UNDECODED, PI_WARN, "Packet decoded length not equal to packet length", EXPFILL }},
         { &ei_ssh_channel_number, { "ssh.channel_number.error", PI_PROTOCOL, PI_WARN, "Coud not find channel", EXPFILL }},
