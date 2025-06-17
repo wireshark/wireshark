@@ -603,8 +603,10 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*
  * Function for the PANA dissector.
+ *
+ * Called directly as a non-heuristic dissecotr or called by the heuristic
+ * dissector.
  */
-/* Called either as a "new-style" or a heuristic dissector */
 static int
 dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
