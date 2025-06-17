@@ -487,6 +487,7 @@ static bool ssh_ignore_mac_failed;
 
 static dissector_handle_t ssh_handle;
 static dissector_handle_t sftp_handle;
+static dissector_handle_t data_text_lines_handle;
 
 static const char   *pref_keylog_file;
 static FILE         *ssh_keylog_file;
@@ -5248,9 +5249,12 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         } else if (0 == strcmp(request_name, "exec")) {
             proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_exec_cmd, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &slen);
             offset += slen;
+            set_subdissector_for_channel(peer_data, recipient_channel, "exec");
         } else if (0 == strcmp(request_name, "exit-status")) {
             proto_tree_add_item(msg_type_tree, hf_ssh_exit_status, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
+        } else if (0 == strcmp(request_name, "shell")) {
+            set_subdissector_for_channel(peer_data, recipient_channel, "shell");
         }
     } else if (msg_code == SSH_MSG_CHANNEL_SUCCESS) {
         proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5351,8 +5355,11 @@ static void
 set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const uint8_t* subsystem_name)
 {
     dissector_handle_t handle = NULL;
-    if(0 == strcmp(subsystem_name, "sftp")) {
+    if (0 == strcmp(subsystem_name, "sftp")) {
         handle = sftp_handle;
+    } else if (0 == strcmp(subsystem_name, "shell") ||
+               0 == strcmp(subsystem_name, "exec")) {
+        handle = data_text_lines_handle;
     }
 
     if (handle) {
@@ -6730,7 +6737,8 @@ proto_reg_handoff_ssh(void)
     dissector_add_uint_range_with_preference("tcp.port", TCP_RANGE_SSH, ssh_handle);
     dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
-    sftp_handle = find_dissector("sftp");
+    sftp_handle = find_dissector_add_dependency("sftp", proto_ssh);
+    data_text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_ssh);
 
     heur_dissector_add("tcp", dissect_ssh_heur, "SSH over TCP", "ssh_tcp", proto_ssh, HEURISTIC_ENABLE);
 }
