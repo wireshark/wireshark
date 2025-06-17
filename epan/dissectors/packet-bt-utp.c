@@ -892,7 +892,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         if (extension_length != 4) {
           expert_add_info(pinfo, ti, &ei_extension_len_invalid);
         }
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_close_reason, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_close_reason, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
       }
       default:

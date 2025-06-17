@@ -7532,7 +7532,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x100) {
-            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_measurement_extreme_angles, ett_btatt_value, hfx_btatt_cycling_power_measurement_extreme_angles, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_measurement_extreme_angles, ett_btatt_value, hfx_btatt_cycling_power_measurement_extreme_angles, ENC_LITTLE_ENDIAN);
             offset += 3;
         }
 
@@ -10111,10 +10111,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_fitness_machine_features, ett_btatt_value, hfx_btatt_fitness_machine_features, ENC_NA);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_fitness_machine_features, ett_btatt_value, hfx_btatt_fitness_machine_features, ENC_LITTLE_ENDIAN);
         offset += 4;
 
-        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_target_setting_features, ett_btatt_value, hfx_btatt_target_setting_features, ENC_NA);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_target_setting_features, ett_btatt_value, hfx_btatt_target_setting_features, ENC_LITTLE_ENDIAN);
         offset += 4;
 
         break;

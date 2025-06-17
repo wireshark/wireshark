@@ -3159,7 +3159,7 @@ dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_guid_t* out_p
 
 	plugin = aim_find_plugin(uuid);
 
-	ti = proto_tree_add_item(entry, hf_aim_messaging_plugin, tvb, offset, 16, ENC_NA);
+	ti = proto_tree_add_item(entry, hf_aim_messaging_plugin, tvb, offset, 16, ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, " (%s)", plugin ? plugin->name:"Unknown");
 
 	return offset+16;

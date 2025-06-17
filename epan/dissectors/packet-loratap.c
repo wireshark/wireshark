@@ -156,7 +156,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	current_offset++;
 	proto_tree_add_item(loratap_tree, hf_loratap_header_padding, tvb, current_offset, 1, ENC_NA);
 	current_offset++;
-	proto_tree_add_item_ret_uint(loratap_tree, hf_loratap_header_length_type, tvb, current_offset, 2, ENC_NA, &lt_length);
+	proto_tree_add_item_ret_uint(loratap_tree, hf_loratap_header_length_type, tvb, current_offset, 2, ENC_BIG_ENDIAN, &lt_length);
 	current_offset += 2;
 	if (lt_version == 1) {
 		proto_tree_add_item(loratap_tree, hf_loratap_header_source_gw_type, tvb, header_v1_offset, 8, ENC_NA);
@@ -164,7 +164,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 		proto_item_append_text(ti, ", Src: %s", address_to_display(pinfo->pool, &pinfo->src));
 		header_v1_offset += 8;
-		proto_tree_add_item(loratap_tree, hf_loratap_header_timestamp_type, tvb, header_v1_offset, 4, ENC_NA);
+		proto_tree_add_item(loratap_tree, hf_loratap_header_timestamp_type, tvb, header_v1_offset, 4, ENC_BIG_ENDIAN);
 		header_v1_offset += 4;
 		proto_tree_add_bitmask(loratap_tree, tvb, header_v1_offset, hf_loratap_header_flags_type, ett_loratap_flags, hfx_loratap_header_flags, ENC_NA);
 		try_dissect = (tvb_get_uint8(tvb, header_v1_offset) & 0x28); /* Only try the next dissector for CRC OK and No CRC packets with v1 encapsulation */
@@ -175,7 +175,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 
 	channel_item = proto_tree_add_item(loratap_tree, hf_loratap_header_channel_type, tvb, current_offset, 0, ENC_NA);
 	channel_tree = proto_item_add_subtree(channel_item, ett_loratap_channel);
-	proto_tree_add_item(channel_tree, hf_loratap_header_channel_frequency_type, tvb, current_offset, 4, ENC_NA);
+	proto_tree_add_item(channel_tree, hf_loratap_header_channel_frequency_type, tvb, current_offset, 4, ENC_BIG_ENDIAN);
 	current_offset += 4;
 	proto_tree_add_item(channel_tree, hf_loratap_header_channel_bandwidth_type, tvb, current_offset, 1, ENC_NA);
 	current_offset++;
@@ -184,7 +184,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	if (lt_version == 1) {
 		proto_tree_add_item(channel_tree, hf_loratap_header_cr_type, tvb, header_v1_offset, 1, ENC_NA);
 		header_v1_offset++;
-		proto_tree_add_item(channel_tree, hf_loratap_header_datarate_type, tvb, header_v1_offset, 2, ENC_NA);
+		proto_tree_add_item(channel_tree, hf_loratap_header_datarate_type, tvb, header_v1_offset, 2, ENC_BIG_ENDIAN);
 		header_v1_offset += 2;
 		proto_tree_add_item(channel_tree, hf_loratap_header_if_channel_type, tvb, header_v1_offset, 1, ENC_NA);
 		header_v1_offset++;
@@ -205,7 +205,7 @@ dissect_loratap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	proto_tree_add_item_ret_uint(loratap_tree, hf_loratap_header_syncword_type, tvb, current_offset, 1, ENC_NA, &syncword);
 	current_offset++;
 	if (lt_version == 1) {
-		proto_tree_add_item(loratap_tree, hf_loratap_header_tag_type, tvb, header_v1_offset, 2, ENC_NA);
+		proto_tree_add_item(loratap_tree, hf_loratap_header_tag_type, tvb, header_v1_offset, 2, ENC_BIG_ENDIAN);
 	}
 
 	/* Seek to data - skip lt_length of header, this allows future extensions */

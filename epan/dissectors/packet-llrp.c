@@ -1556,7 +1556,7 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
         suboffset += 2;
         break;
     case LLRP_IMPINJ_PARAM_TAG_DIRECTION_REPORTING:
-        proto_tree_add_item(param_tree, hf_llrp_impinj_en_tag_dir, tvb, suboffset, 2, ENC_NA);
+        proto_tree_add_item(param_tree, hf_llrp_impinj_en_tag_dir, tvb, suboffset, 2, ENC_BIG_ENDIAN);
         suboffset += 2;
         proto_tree_add_item(param_tree, hf_llrp_impinj_antenna_conf, tvb, suboffset, 2, ENC_BIG_ENDIAN);
         suboffset += 2;
@@ -1964,7 +1964,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_FREQ_HOP_TABLE:
-                proto_tree_add_item(param_tree, hf_llrp_hop_table_id, tvb, suboffset, 1, ENC_NA);
+                proto_tree_add_item(param_tree, hf_llrp_hop_table_id, tvb, suboffset, 1, ENC_BIG_ENDIAN);
                 suboffset += 1;
                 proto_tree_add_item(param_tree, hf_llrp_rfu, tvb, suboffset, 1, ENC_NA);
                 suboffset += 1;
@@ -3332,7 +3332,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_gpi_state,
-        { "GPI state", "llrp.param.gpi_state", FT_UINT16, BASE_DEC, NULL, 0,
+        { "GPI state", "llrp.param.gpi_state", FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_hold_events_and_reports,

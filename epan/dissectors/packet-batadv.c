@@ -4386,7 +4386,7 @@ static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 6;
 
 	proto_tree_add_bitmask(tree, tvb, offset, hf_batadv_tvlv_roam_vid,
-			       ett_batadv_tvlv_vid, flags, ENC_NA);
+			       ett_batadv_tvlv_vid, flags, ENC_BIG_ENDIAN);
 }
 
 static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
@@ -4530,7 +4530,7 @@ static int dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb,
 
 	proto_tree_add_bitmask(vlan_tree, tvb, offset,
 			       hf_batadv_tvlv_tt_vlan_vid,
-			       ett_batadv_tvlv_vid, flags, ENC_NA);
+			       ett_batadv_tvlv_vid, flags, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Skip 2 byte of padding. */
@@ -4579,7 +4579,7 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb,
 
 	proto_tree_add_bitmask(change_tree, tvb, offset,
 			       hf_batadv_tvlv_tt_change_vid,
-			       ett_batadv_tvlv_vid, flags_vlan, ENC_NA);
+			       ett_batadv_tvlv_vid, flags_vlan, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;

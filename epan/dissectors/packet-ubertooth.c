@@ -1800,19 +1800,19 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 5: /* Get Rx LED */
-        proto_tree_add_item(main_tree, hf_rx_led, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_rx_led, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 7: /* Get Tx LED */
-        proto_tree_add_item(main_tree, hf_tx_led, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_tx_led, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 9: /* Get 1V8 */
-        proto_tree_add_item(main_tree, hf_1v8_led, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_1v8_led, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
@@ -1856,19 +1856,19 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 16: /* Get PAEN */
-        proto_tree_add_item(main_tree, hf_paen, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_paen, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 18: /* Get HGM */
-        proto_tree_add_item(main_tree, hf_hgm, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_hgm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 22: /* Get Modulation */
-        proto_tree_add_item(main_tree, hf_modulation, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_modulation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &modulation_vals_ext, "Unknown"));
         offset += 1;
 

@@ -498,7 +498,7 @@ dissect_bhttp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     unsigned   orig_offset = offset;
 
-    ti_ft = proto_tree_add_item(tree, hf_bhttp_frame, tvb, offset, 1, ENC_NA);
+    ti_ft = proto_tree_add_item(tree, hf_bhttp_frame, tvb, offset, 1, ENC_BIG_ENDIAN);
     ft_tree = proto_item_add_subtree(ti_ft, ett_bhttp_ft);
 
     proto_tree_add_item_ret_varint(ft_tree, hf_bhttp_framing_indicator, tvb, offset, -1, ENC_VARINT_QUIC, &framing_indicator, &lenvar);

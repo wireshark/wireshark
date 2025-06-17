@@ -596,7 +596,7 @@ static void dissect_srt_hs_ext_field(proto_tree* tree,
     };
 
     proto_tree_add_bitmask_with_flags(tree, tvb, baseoff, hf_srt_handshake_ext_field_v5,
-                                      ett_srt_handshake_ext_field_flags, ext_hs_ext_field_flags, ENC_NA, BMT_NO_APPEND);
+                                      ett_srt_handshake_ext_field_flags, ext_hs_ext_field_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
     return;
 }

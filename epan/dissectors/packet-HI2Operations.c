@@ -1309,7 +1309,7 @@ dissect_HI2Operations_T_imei(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   /* IMEISV is 16 digits, but often transmitted BCD coded in 8 octets.
     Some implementations use IMEI (15 digits) instead of IMEISV */
   if (tvb_len == 8) {
-    proto_tree_add_item(tree, hf_HI2Operations_imei, tvb, offset, tvb_len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN|ENC_NA);
+    proto_tree_add_item(tree, hf_HI2Operations_imei, tvb, offset, tvb_len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
   } else {
     proto_tree_add_item(tree, hf_HI2Operations_imei, tvb, offset, tvb_len, ENC_ASCII);
   }
@@ -2866,7 +2866,7 @@ dissect_HI2Operations_APN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   if (!parameter_tvb)
     return offset;
 
-  proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(tvb), ENC_APN_STR | ENC_NA);
+  proto_tree_add_item(tree, hf_HI2Operations_apn_str, parameter_tvb, 0, tvb_captured_length(tvb), ENC_APN_STR);
 
 
   return offset;

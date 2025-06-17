@@ -1871,7 +1871,7 @@ static int dissect_dect_nwk_s_ie_auth_type(tvbuff_t *tvb, unsigned offset, proto
 	def = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_AUTH_TYPE_DEF_MASK ) >> DECT_NWK_S_IE_AUTH_TYPE_DEF_SHIFT;
 	offset++;
 	if( def ) {
-		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_index, tvb, offset, 2, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_algorithm, tvb, offset, 1, ENC_NA);
 		offset++;
@@ -1948,7 +1948,7 @@ static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, unsigned offset, 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_fixed_identity_arc, tvb, offset, 1, ENC_NA);
 	bit_offset = ( offset * 8 ) + 4;
 	no_of_bits = value_length - 4;
-	proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_fixed_identity_ard, tvb, bit_offset, no_of_bits, ENC_NA);
+	proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_fixed_identity_ard, tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 	bit_offset += no_of_bits;
 	offset += value_length / 8;
 	if (value_length % 8) {
@@ -1977,7 +1977,7 @@ static int dissect_dect_nwk_s_ie_iwu_to_iwu(tvbuff_t *tvb, unsigned offset, uint
 
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_user_specific_contents, tvb, offset, remaining_length, ENC_NA);
 		if ( discriminator_type == DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_EMC ) {
-			proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_emc_discriminator, tvb, offset, 2, ENC_NA);
+			proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_emc_discriminator, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			remaining_length -= 2;
 			proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_proprietary_contents, tvb, offset, remaining_length, ENC_NA);
@@ -2081,10 +2081,10 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 			no_of_bits = value_length - 4;
 			switch(ipui_type) {
 				case DECT_NWK_IPUI_TYPE_N:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 					break;
 				case DECT_NWK_IPUI_TYPE_O:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_o_number, tvb, bit_offset, no_of_bits, ENC_NA);
+					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_o_number, tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 					break;
 				case DECT_NWK_IPUI_TYPE_P:
 					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_poc, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
@@ -2123,13 +2123,13 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 			break;
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_IPEI:
 			no_of_bits = value_length - 4;
-			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
+			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 			offset += 5;
 			break;
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI:
 			no_of_bits = value_length;
 			proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type, tvb, offset, 1, ENC_NA);
-			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_value, tvb, bit_offset, no_of_bits, ENC_NA);
+			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_value, tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 			offset += 3;
 			break;
 	}
@@ -2423,7 +2423,7 @@ static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, unsigned o
 	discriminator_type = tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_MASK;
 	offset++;
 	if (discriminator_type == DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_EMC) {
-		proto_tree_add_item(tree, hf_dect_nwk_s_ie_escape_to_proprietary_discriminator, tvb, offset, 2, ENC_NA);
+		proto_tree_add_item(tree, hf_dect_nwk_s_ie_escape_to_proprietary_discriminator, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 	}
 	/* FIXME: Content Handling */

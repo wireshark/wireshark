@@ -1326,9 +1326,9 @@ static int dissect_juniper_st(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
             return tvb_captured_length(tvb);
         }
         esp_tree = proto_tree_add_subtree(juniper_subtree, tvb, offset, 8, ett_juniper_st_esp, NULL, "Tunnel ESP Header");
-        proto_tree_add_item(esp_tree, hf_juniper_st_esp_spi, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(esp_tree, hf_juniper_st_esp_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(esp_tree, hf_juniper_st_esp_seq, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(esp_tree, hf_juniper_st_esp_seq, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         /*  16 bytes unknown data remains in example trace */
         proto_tree_add_subtree(juniper_subtree, tvb, offset, 16, ett_juniper_st_unknown, NULL, "Tunnel Unknown Data");

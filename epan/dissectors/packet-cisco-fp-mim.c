@@ -201,9 +201,9 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
   eid = ((eid & 0x00C0) >> 6) + ((eid & 0xFC00) >> 8);
   proto_tree_add_uint(tree, hf_eid, tvb, offset, FP_BF_LEN, eid);
 
-  proto_tree_add_item (tree, hf_ul, tvb, offset, FP_BF_LEN, ENC_NA);
-  proto_tree_add_item (tree, hf_ig, tvb, offset, FP_BF_LEN, ENC_NA);
-  proto_tree_add_item (tree, hf_ooodl, tvb, offset, FP_BF_LEN, ENC_NA);
+  proto_tree_add_item (tree, hf_ul, tvb, offset, FP_BF_LEN, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_ig, tvb, offset, FP_BF_LEN, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_ooodl, tvb, offset, FP_BF_LEN, ENC_BIG_ENDIAN);
   proto_tree_add_item (tree, hf_swid, tvb, offset, FP_BF_LEN, ENC_BIG_ENDIAN);
   offset += FP_BF_LEN;
 

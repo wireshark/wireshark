@@ -888,7 +888,7 @@ awdl_tag_election_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
   proto_tree_add_item(tree, hf_awdl_electionparams_flags, tvb, offset, 1, ENC_NA);
   offset += 1;
-  proto_tree_add_item(tree, hf_awdl_electionparams_id, tvb, offset, 2, ENC_NA);
+  proto_tree_add_item(tree, hf_awdl_electionparams_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
   proto_tree_add_item(tree, hf_awdl_electionparams_distance, tvb, offset, 1, ENC_NA);
   offset += 1;

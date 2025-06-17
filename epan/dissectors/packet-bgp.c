@@ -6405,7 +6405,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, int offset, pac
                 local_offset += 4;
             } else {
                 /* FF: most common case is IS-IS, so if it is not OSPF we go that way */
-                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_isis, tvb, local_offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_neighbor_isis, tvb, local_offset, 6, ENC_NA);
                 local_offset += 6;
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_sid, tvb, local_offset, 16, ENC_NA);
