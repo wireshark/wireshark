@@ -414,6 +414,7 @@ static int hf_ssh_env_name;
 static int hf_ssh_env_value;
 static int hf_ssh_channel_window_adjust;
 static int hf_ssh_channel_data_len;
+static int hf_ssh_channel_data_type_code;
 static int hf_ssh_exit_status;
 static int hf_ssh_disconnect_reason;
 static int hf_ssh_disconnect_description_length;
@@ -595,6 +596,8 @@ static const char *ssh_debug_file_name;
 
 #define CIPHER_MAC_SHA2_256             0x00020001
 
+#define SSH_EXTENDED_DATA_STDERR    1
+
 static const value_string ssh_direction_vals[] = {
     { CLIENT_TO_SERVER_PROPOSAL, "client-to-server" },
     { SERVER_TO_CLIENT_PROPOSAL, "server-to-client" },
@@ -674,6 +677,11 @@ static const value_string ssh1_msg_vals[] = {
     {SSH1_CMSG_SESSION_KEY,              "Session Key"},
     {SSH1_CMSG_USER,                     "User"},
     {0, NULL}
+};
+
+static const value_string ssh_channel_data_type_code_vals[] = {
+    { SSH_EXTENDED_DATA_STDERR, "Standard Error" },
+    { 0, NULL }
 };
 
 static int ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
@@ -5171,6 +5179,29 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
             expert_add_info_format(pinfo, ti, &ei_ssh_channel_number, "Could not find configuration for channel %d", recipient_channel);
         }
         offset += slen;
+    } else if (msg_code == SSH_MSG_CHANNEL_EXTENDED_DATA) {
+        proto_item* ti = proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &recipient_channel);
+        offset += 4;
+        // TODO: process according to the type of channel
+        proto_tree_add_item(msg_type_tree, hf_ssh_channel_data_type_code, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        uint32_t slen;
+        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_channel_data_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
+        offset += 4;
+        tvbuff_t* next_tvb = tvb_new_subset_length(packet_tvb, offset, slen);
+
+        ssh_channel_info_t* channel = get_channel_info_for_channel(peer_data, recipient_channel);
+        if (channel) {
+            if (!PINFO_FD_VISITED(pinfo)) {
+                message->byte_seq = channel->byte_seq;
+                channel->byte_seq += slen;
+                message->next_byte_seq = channel->byte_seq;
+            }
+            ssh_dissect_channel_data(next_tvb, pinfo, peer_data, msg_type_tree, message, channel);
+        } else {
+            expert_add_info_format(pinfo, ti, &ei_ssh_channel_number, "Could not find configuration for channel %d", recipient_channel);
+        }
+        offset += slen;
     } else if (msg_code == SSH_MSG_CHANNEL_EOF) {
         proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
@@ -6525,6 +6556,11 @@ proto_register_ssh(void)
           { "Data length", "ssh.channel_data_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_ssh_channel_data_type_code,
+          { "Data Type Code", "ssh.channel_data_type_code",
+            FT_UINT32, BASE_DEC, VALS(ssh_channel_data_type_code_vals), 0x0,
+            NULL, HFILL } },
 
         { &hf_ssh_reassembled_in,
           { "Reassembled PDU in frame", "ssh.reassembled_in",
