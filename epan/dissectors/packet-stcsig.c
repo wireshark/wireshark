@@ -25,8 +25,6 @@
  *   some prbseq related stuff?)
  * - Find out meaning of prbseq
  * - Is there a (fixed) structure in the csp field?
- * - Validate the timestamp decoding: The seconds value is identical to
- *   Spirent's stcsig dissector, the ns value differs significantly
  * - Find out what the TSLR really stands for - currently just a guess
  */
 #include "config.h"
@@ -194,6 +192,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	uint8_t    *real_stcsig;
 
 	uint64_t   timestamp_2_5_ns;
+	uint64_t   timestamp_ns;
 	nstime_t   timestamp;
 
 	length = tvb_captured_length(tvb);
@@ -249,8 +248,10 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	}
 	timestamp_2_5_ns = (uint64_t)(tvb_get_uint8(stcsig_tvb, 15) & 0xfc) << 30;
 	timestamp_2_5_ns |= tvb_get_ntohl(stcsig_tvb, 11);
-	timestamp.secs = (time_t)(timestamp_2_5_ns / 400000000L);
-	timestamp.nsecs = (int)(timestamp_2_5_ns % 400000000L);
+	/* Convert 2.5 ns ticks to nanoseconds */
+	timestamp_ns = timestamp_2_5_ns * 25 / 10;
+	timestamp.secs = (time_t)(timestamp_ns / 1000000000L);
+	timestamp.nsecs = (int)(timestamp_ns % 1000000000L);
 	proto_tree_add_time(stcsig_tree, hf_stcsig_timestamp, stcsig_tvb, 11, 5, &timestamp);
 	proto_tree_add_item(stcsig_tree, hf_stcsig_prbseq, stcsig_tvb, 15, 1, ENC_NA);
 	proto_tree_add_item(stcsig_tree, hf_stcsig_tslr, stcsig_tvb, 15, 1, ENC_NA);
