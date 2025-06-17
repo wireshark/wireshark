@@ -70,9 +70,10 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/proto_data.h>
 #include <epan/decode_as.h>
 #include <epan/capture_dissectors.h>
-
+#include <epan/secrets.h>
+#include <wiretap/secrets-types.h>
 #include <stdio.h>    /* for sscanf() */
-#include <epan/uat.h>
+#include <epan/uat-int.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/pint.h>
@@ -129,6 +130,8 @@ static capture_dissector_handle_t ah_cap_handle;
 static dissector_handle_t data_handle;
 
 static dissector_table_t ip_dissector_table;
+
+static wmem_map_t *esp_used_sa_map;
 
 /* Encryption algorithms defined in RFC 4305 */
 #define IPSEC_ENCRYPT_NULL 0
@@ -1238,6 +1241,9 @@ get_esp_sa(wmem_allocator_t* scope,
 
       *sn_length = record->sn_length;
       *sn_upper = record->sn_upper;
+
+      if (found && !wmem_map_lookup(esp_used_sa_map, record))
+        wmem_map_insert(esp_used_sa_map, record, NULL);
     }
   }
 
@@ -2645,6 +2651,49 @@ static void ipsec_cleanup_protocol(void)
   extra_esp_sa_records.num_records = 0;
 }
 
+static void
+esp_secrets_block_callback(const void *secrets, unsigned size _U_)
+{
+  char *err;
+
+  if (!uat_load_str(esp_uat, (const char *)secrets, &err))
+    g_free(err);
+}
+
+static void
+esp_print_record(void *key, void *value _U_, void *user_data)
+{
+  char *str = uat_record_tostr(esp_uat, key);
+
+  wmem_strbuf_append_printf((wmem_strbuf_t *)user_data, "%s\n", str);
+  g_free(str);
+}
+
+bool
+esp_export_dsb(capture_file *cf)
+{
+  wtap_block_t block;
+  wtapng_dsb_mandatory_t *dsb;
+  wmem_strbuf_t *secrets;
+
+  if (!wmem_map_size(esp_used_sa_map))
+    return false;
+
+  secrets = wmem_strbuf_create(NULL);
+  wmem_map_foreach(esp_used_sa_map, esp_print_record, secrets);
+
+  block = wtap_block_create(WTAP_BLOCK_DECRYPTION_SECRETS);
+  dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
+
+  dsb->secrets_type = SECRETS_TYPE_ESP;
+  dsb->secrets_data = wmem_strbuf_finalize(secrets);
+  dsb->secrets_len = (uint32_t)strlen(dsb->secrets_data);
+
+  wtap_file_add_decryption_secrets(cf->provider.wth, block);
+  cf->unsaved_changes = TRUE;
+  return true;
+}
+
 void
 proto_register_ipsec(void)
 {
@@ -2866,6 +2915,9 @@ proto_register_ipsec(void)
   ah_cap_handle = register_capture_dissector("ah", capture_ah, proto_ah);
 
   register_decode_as(&ah_da);
+
+  secrets_register_type(SECRETS_TYPE_ESP, esp_secrets_block_callback);
+  esp_used_sa_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void

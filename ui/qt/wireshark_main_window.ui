@@ -706,7 +706,8 @@
     <addaction name="menuPacketComment"/>
     <addaction name="actionDeleteAllPacketComments"/>
     <addaction name="separator"/>
-    <addaction name="actionEditInjectSecrets"/>
+    <addaction name="actionEditInjectTLSSecrets"/>
+    <addaction name="actionEditInjectESPSecrets"/>
     <addaction name="actionEditDiscardAllSecrets"/>
     <addaction name="separator"/>
     <addaction name="actionEditConfigurationProfiles"/>
@@ -1662,12 +1663,20 @@
     <string>Remove all packet comments in the capture file</string>
    </property>
   </action>
-  <action name="actionEditInjectSecrets">
+  <action name="actionEditInjectTLSSecrets">
    <property name="text">
     <string>Inject TLS Secrets</string>
    </property>
    <property name="toolTip">
     <string>Embed used TLS secrets in the capture file</string>
+   </property>
+  </action>
+  <action name="actionEditInjectESPSecrets">
+   <property name="text">
+    <string>Inject ESP Secrets</string>
+   </property>
+   <property name="toolTip">
+    <string>Embed used ESP secrets in the capture file</string>
    </property>
   </action>
   <action name="actionEditDiscardAllSecrets">

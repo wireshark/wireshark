@@ -324,6 +324,21 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
     return out;
 }
 
+char *uat_record_tostr(const uat_t *uat, void *rec) {
+    unsigned field;
+    wmem_strbuf_t *str;
+
+    str = wmem_strbuf_create(NULL);
+    for (field = 0; field < uat->ncols; field++) {
+        char *fld = uat_fld_tostr(rec, &(uat->fields[field]));
+        if (field > 0)
+            wmem_strbuf_append_c(str, ',');
+        wmem_strbuf_append_printf(str, "\"%s\"", fld);
+        g_free(fld);
+    }
+    return (wmem_strbuf_finalize(str));
+}
+
 static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     unsigned fld_len;
     char* fld_ptr;

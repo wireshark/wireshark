@@ -26,6 +26,7 @@ const char* secrets_type_description(uint32_t type)
         { SECRETS_TYPE_ZIGBEE_NWK_KEY,  "Zigbee NWK Key" },
         { SECRETS_TYPE_ZIGBEE_APS_KEY,  "Zigbee APS Key" },
         { SECRETS_TYPE_OPCUA,           "OPC UA Key Log" },
+        { SECRETS_TYPE_ESP,             "ESP SA Key" },
         { 0, NULL }
     };
     return val_to_str_const(type, secrets_types_vals, "Unknown");
@@ -43,6 +44,8 @@ const char* secrets_type_description(uint32_t type)
             return "Zigbee APS Key";
         case SECRETS_TYPE_OPCUA:
             return "OPC UA Key Log";
+        case SECRETS_TYPE_ESP:
+            return "ESP SA Key";
         default:
             return "Unknown";
     }

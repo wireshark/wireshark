@@ -58,6 +58,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/uat.h"
 #include "epan/uat-int.h"
 #include <wsutil/value_string.h>
+#include "epan/dissectors/packet-ipsec.h"
 
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
@@ -2170,8 +2171,11 @@ void WiresharkMainWindow::connectEditMenuActions()
     connect(main_ui_->actionDeleteAllPacketComments, &QAction::triggered, this,
             [this]() { deleteAllPacketComments(); }, Qt::QueuedConnection);
 
-    connect(main_ui_->actionEditInjectSecrets, &QAction::triggered, this,
-            [this]() { injectSecrets(); }, Qt::QueuedConnection);
+    connect(main_ui_->actionEditInjectTLSSecrets, &QAction::triggered, this,
+            [this]() { injectTLSSecrets(); }, Qt::QueuedConnection);
+
+    connect(main_ui_->actionEditInjectESPSecrets, &QAction::triggered, this,
+            [this]() { injectESPSecrets(); }, Qt::QueuedConnection);
 
     connect(main_ui_->actionEditDiscardAllSecrets, &QAction::triggered, this,
             [this]() { discardAllSecrets(); }, Qt::QueuedConnection);
@@ -2458,7 +2462,7 @@ void WiresharkMainWindow::deleteAllPacketCommentsFinished(int result)
     }
 }
 
-void WiresharkMainWindow::injectSecrets()
+void WiresharkMainWindow::injectTLSSecrets()
 {
     int keylist_len;
 
@@ -2489,6 +2493,29 @@ void WiresharkMainWindow::injectSecrets()
     capture_file *cf = capture_file_.capFile();
     tls_export_dsb(cf);
     updateForUnsavedChanges();
+}
+
+void WiresharkMainWindow::injectESPSecrets()
+{
+    if (!capture_file_.isValid())
+        return;
+    capture_file *cf = capture_file_.capFile();
+    if (esp_export_dsb(cf)) {
+        updateForUnsavedChanges();
+    } else {
+        QMessageBox::Button ret = QMessageBox::warning(
+            this,
+            tr("No ESP Secrets"),
+            tr("There are no available secrets used to decrypt ESP traffic in the capture file.\
+               Would you like to view information about how to decrypt ESP traffic on the wiki?"),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No);
+
+        if (ret != QMessageBox::Yes) return;
+
+        QUrl wiki_url = QString(WS_WIKI_URL("ESP_Preferences#esp-preferences"));
+        QDesktopServices::openUrl(wiki_url);
+    }
 }
 
 void WiresharkMainWindow::discardAllSecrets()

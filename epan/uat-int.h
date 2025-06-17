@@ -145,6 +145,13 @@ WS_DLL_PUBLIC
 char *uat_fld_tostr(void *rec, uat_field_t *f);
 
 /**
+ * Dump UAT record entries to string in form which can be later loaded with uat_load_str().
+ * Returns a g_malloced string.
+ */
+WS_DLL_PUBLIC
+char *uat_record_tostr(const uat_t *uat, void *rec);
+
+/**
  * Exposes the array of valid records to the UAT consumer (dissectors), updating
  * the contents of 'data_ptr' and 'num_items_ptr' (see 'uat_new').
  */

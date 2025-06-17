@@ -504,7 +504,8 @@ The file format is described by <secrets type> which can be one of:
 __opcua__  OPC UA Key Log, see https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcapng.html#name-decryption-secrets-block +
 __ssh__  SSH Key Log, see {wireshark-wiki-url}SSH#key-log-format +
 __tls__  TLS Key Log, see https://tlswg.org/sslkeylogfile/draft-ietf-tls-keylogfile.html +
-__wg__   WireGuard Key Log, see {wireshark-wiki-url}WireGuard#key-log-format
+__wg__   WireGuard Key Log, see {wireshark-wiki-url}WireGuard#key-log-format +
+__esp__  ESP SA Key, see esp_sa file in your profile folder and https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcapng.html#name-decryption-secrets-block
 
 This option may be specified multiple times. The available options for
 <secrets type> can be listed with *--inject-secrets help*.

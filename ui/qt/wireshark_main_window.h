@@ -410,7 +410,8 @@ private slots:
     void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result, unsigned nComment);
     void deleteAllPacketComments();
     void deleteAllPacketCommentsFinished(int result);
-    void injectSecrets();
+    void injectTLSSecrets();
+    void injectESPSecrets();
     void discardAllSecrets();
     void discardAllSecretsFinished(int result);
     void showPreferencesDialog(QString module_name);
