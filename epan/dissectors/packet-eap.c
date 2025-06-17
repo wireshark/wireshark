@@ -1122,15 +1122,15 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
       offset += (int)(strlen(realm_tokens[i])) + 1;
     }
     /* XXX - This presentation order is the opposite of the "usual" one.
-     * Move the MCC item above after adding? (#16538)
+     * Post MCC first to maintain typical code order
      */
+    /* Add MCC to tree */
+    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc, tvb,
+      offset + (int)strlen(mnc_token) + 1 + (int)strlen("mcc"),
+      (int)strlen(mcc_token) - (int)strlen("mcc"), mcc);
     /* Add MNC to tree */
     proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc, tvb,
       offset + (int)strlen("mnc"), (int)strlen(mnc_token) - (int)strlen("mnc"), mcc_mnc);
-    offset += (int)strlen(mnc_token) + 1;
-    /* Add MCC to tree */
-    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc, tvb,
-      offset + (int)strlen("mcc"), (int)strlen(mcc_token) - (int)strlen("mcc"), mcc);
   }
 
 end:
