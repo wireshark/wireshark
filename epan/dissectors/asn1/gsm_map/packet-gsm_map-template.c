@@ -1313,7 +1313,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 37: /*reset*/
       if (application_context_version <= 2) {
-          offset = dissect_gsm_old_ResetArg(false, tvb, offset, actx, tree, -1);
+          offset = dissect_gsm_old_ResetArgV2(false, tvb, offset, actx, tree, -1);
       } else {
           offset = dissect_gsm_map_ms_ResetArg(false, tvb, offset, actx, tree, -1);
       }

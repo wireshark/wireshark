@@ -19263,7 +19263,7 @@ static const ber_sequence_t gsm_old_ResetArgV2_sequence[] = {
 };
 
 static int
-dissect_gsm_old_ResetArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_gsm_old_ResetArgV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    gsm_old_ResetArgV2_sequence, hf_index, ett_gsm_old_ResetArgV2);
 
@@ -23838,7 +23838,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 37: /*reset*/
       if (application_context_version <= 2) {
-          offset = dissect_gsm_old_ResetArg(false, tvb, offset, actx, tree, -1);
+          offset = dissect_gsm_old_ResetArgV2(false, tvb, offset, actx, tree, -1);
       } else {
           offset = dissect_gsm_map_ms_ResetArg(false, tvb, offset, actx, tree, -1);
       }
