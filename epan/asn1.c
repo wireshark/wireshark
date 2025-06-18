@@ -183,7 +183,6 @@ rose_ctx_t *get_rose_ctx(void *ptr) {
   return rctx;
 }
 
-/** Only tested for BER */
 double asn1_get_real(const uint8_t *real_ptr, int len) {
   uint8_t octet;
   const uint8_t *p;
