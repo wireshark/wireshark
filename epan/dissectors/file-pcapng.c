@@ -47,6 +47,7 @@ static int hf_pcapng_block_type_value;
 static int hf_pcapng_block_length;
 static int hf_pcapng_block_length_trailer;
 static int hf_pcapng_block_data;
+static int hf_pcapng_block_extraneous_data;
 
 static int hf_pcapng_section_header_byte_order_magic;
 static int hf_pcapng_section_header_major_version;
@@ -1346,6 +1347,11 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
         } else
             proto_item_set_len(option_item, option_length + 2 * 2);
     }
+
+    if(tvb_reported_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_item(tree, hf_pcapng_block_extraneous_data, tvb, offset, -1, ENC_NA);
+    }
+
     proto_item_set_end(options_item, tvb, offset);
 
     return offset;
@@ -2163,6 +2169,11 @@ proto_register_pcapng(void)
         { &hf_pcapng_block_data,
             { "Block Data",                                "pcapng.block.data",
             FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_block_extraneous_data,
+            { "Extraneous Data",                           "pcapng.block.extraneous.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_options,
