@@ -45,7 +45,6 @@
  * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining ("ignored, "shall")?
  * - re-order items (decl and hf definitions) to match spec order?
- * - bitmask set for symbolMask used in various places
  */
 
 /* Prototypes */
@@ -218,7 +217,22 @@ static int hf_oran_repetition;
 static int hf_oran_rbgSize;
 static int hf_oran_rbgMask;
 static int hf_oran_noncontig_priority;
-static int hf_oran_symbolMask;
+
+static int hf_oran_symbol_mask;
+static int hf_oran_symbol_mask_s13;
+static int hf_oran_symbol_mask_s12;
+static int hf_oran_symbol_mask_s11;
+static int hf_oran_symbol_mask_s10;
+static int hf_oran_symbol_mask_s9;
+static int hf_oran_symbol_mask_s8;
+static int hf_oran_symbol_mask_s7;
+static int hf_oran_symbol_mask_s6;
+static int hf_oran_symbol_mask_s5;
+static int hf_oran_symbol_mask_s4;
+static int hf_oran_symbol_mask_s3;
+static int hf_oran_symbol_mask_s2;
+static int hf_oran_symbol_mask_s1;
+static int hf_oran_symbol_mask_s0;
 
 static int hf_oran_exponent;
 static int hf_oran_iq_user_data;
@@ -476,6 +490,7 @@ static int ett_oran_remask;
 static int ett_oran_symbol_reordering_layer;
 static int ett_oran_dmrs_entry;
 static int ett_oran_dmrs_symbol_mask;
+static int ett_oran_symbol_mask;
 
 
 /* Don't want all extensions to open and close together. Use extType-1 entry */
@@ -1703,6 +1718,42 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *s
     return offset;
 }
 
+static int dissect_symbolmask(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t *symbol_mask, proto_item **ti)
+{
+    uint64_t temp_val;
+
+    static int * const  symbol_mask_flags[] = {
+        &hf_oran_symbol_mask_s13,
+        &hf_oran_symbol_mask_s12,
+        &hf_oran_symbol_mask_s11,
+        &hf_oran_symbol_mask_s10,
+        &hf_oran_symbol_mask_s9,
+        &hf_oran_symbol_mask_s8,
+        &hf_oran_symbol_mask_s7,
+        &hf_oran_symbol_mask_s6,
+        &hf_oran_symbol_mask_s5,
+        &hf_oran_symbol_mask_s4,
+        &hf_oran_symbol_mask_s3,
+        &hf_oran_symbol_mask_s2,
+        &hf_oran_symbol_mask_s1,
+        &hf_oran_symbol_mask_s0,
+        NULL
+    };
+
+    proto_item *temp_ti = proto_tree_add_bitmask_ret_uint64(tree, tvb, offset,
+                                                            hf_oran_symbol_mask,
+                                                            ett_oran_symbol_mask, symbol_mask_flags,
+                                                            ENC_BIG_ENDIAN, &temp_val);
+    /* Set out parameters */
+    if (symbol_mask) {
+        *symbol_mask = (uint32_t)temp_val;
+    }
+    if (ti) {
+        *ti = temp_ti;
+    }
+    return offset+2;
+}
+
 /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
 static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, int offset,
                               uint32_t *iq_width, uint32_t *comp_meth, proto_item **comp_meth_ti)
@@ -2848,8 +2899,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* symbolMask */
-                proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                offset = dissect_symbolmask(tvb, extension_tree, offset, NULL, NULL);
 
                 /* Look up rbg_size enum -> value */
                 switch (rbgSize) {
@@ -3192,8 +3242,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 /* symbolMask */
-                proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                offset = dissect_symbolmask(tvb, extension_tree, offset, NULL, NULL);
 
                 /* There are now 'R' pairs of (offStartPrb, numPrb) values. Fill extlen bytes with values.  If last one is not set,
                    should be populated with 0s. */
@@ -3395,8 +3444,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* priority */
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* symbolMask */
-                proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                offset = dissect_symbolmask(tvb, extension_tree, offset, NULL, NULL);
 
                 /* bfwCompHdr */
                 uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
@@ -4037,10 +4085,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 
 
-    /* RRM measurement reports have measurement reports after extensions */
+    /* RRM measurement reports have measurement reports *after* extensions */
     if (sectionType == SEC_C_RRM_MEAS_REPORTS)   /* Section Type 10 */
     {
-        /* Hidden filter for bf (DMFS-BF) */
+        /* Hidden filter for bf (DMFS-BF). No BF weights though.. */
         bf_ti = proto_tree_add_item(c_section_tree, hf_oran_bf, tvb, 0, 0, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(bf_ti);
 
@@ -4052,7 +4100,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             proto_tree *mr_tree = proto_item_add_subtree(mr_ti, ett_oran_measurement_report);
             unsigned report_start_offset = offset;
 
-            /* mf (1 bit) */
+            /* more fragments (after this one) (1 bit) */
             proto_tree_add_item_ret_boolean(mr_tree, hf_oran_mf, tvb, offset, 1, ENC_BIG_ENDIAN, &mf);
 
             /* measTypeId (7 bits) */
@@ -4110,6 +4158,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 case 2:
                     /* ueLayerPower entries (how many? for now just use up meas_data_size..) */
+                    /* TODO: add number of distinct dmrsPortNumber entries seen in SE24 and save in state? */
+                    /* Or would it make sense to use the preference 'pref_num_bf_antennas' (currently used for ST 6)? */
                     for (unsigned n=0; n < (meas_data_size-4)/2; n++) {
                         unsigned ue_layer_power;
                         proto_item *ue_layer_power_ti;
@@ -4144,8 +4194,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* reserved (2 bits) */
                     proto_tree_add_item(mr_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
-                    proto_tree_add_item(mr_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
+                    offset = dissect_symbolmask(tvb, mr_tree, offset, NULL, NULL);
 
                     /* 2 bytes for each PRB ipnPower */
                     for (unsigned n=0; n < numPrbc; n++) {
@@ -4230,8 +4279,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* reserved (2 bits) */
                     proto_tree_add_item(mc_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
-                    proto_tree_add_item(mc_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
+                    offset = dissect_symbolmask(tvb, mc_tree, offset, NULL, NULL);
                     /* reserved (16 bits) */
                     proto_tree_add_item(mc_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -5100,7 +5148,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree_add_item(command_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                     /* symbolMask (14 bits) */
                     uint32_t symbol_mask;
-                    proto_item *symbol_mask_ti = proto_tree_add_item_ret_uint(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN, &symbol_mask);
+                    proto_item *symbol_mask_ti;
+                    offset = dissect_symbolmask(tvb, command_tree, offset, &symbol_mask, &symbol_mask_ti);
                     /* Symbol bits before 'startSymbolId' in Section Type 4 common header should be set to 0 by O-DU and shall be ignored by O-RU */
                     /* lsb is symbol 0 */
                     for (unsigned s=0; s < 14; s++) {
@@ -5110,7 +5159,6 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                             break;
                         }
                     }
-                    offset += 2;
 
                     /* disableTDBFNs (1 bit) */
                     proto_tree_add_item_ret_boolean(command_tree, hf_oran_disable_tdbfns, tvb, offset, 1, ENC_BIG_ENDIAN, &disable_tdbfns);
@@ -5256,7 +5304,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     /* symbolMask (14 bits) */
                     uint32_t symbol_mask;
                     proto_item *sm_ti;
-                    sm_ti = proto_tree_add_item_ret_uint(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN, &symbol_mask);
+                    offset = dissect_symbolmask(tvb, command_tree, offset, &symbol_mask, &sm_ti);
                     if (symbol_mask == 0x0) {
                         proto_item_append_text(sm_ti, " (wake)");
                         col_append_str(pinfo->cinfo, COL_INFO, " (wake)");
@@ -5315,7 +5363,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     /* symbolMask (14 bits) */
                     uint32_t symbol_mask;
                     proto_item *sm_ti;
-                    sm_ti = proto_tree_add_item_ret_uint(command_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN, &symbol_mask);
+                    offset = dissect_symbolmask(tvb, command_tree, offset, &symbol_mask, &sm_ti);
                     if (symbol_mask == 0x0) {
                         proto_item_append_text(sm_ti, " (wake)");
                         col_append_str(pinfo->cinfo, COL_INFO, " (wake)");
@@ -6976,13 +7024,99 @@ proto_register_oran(void)
             VALS(priority_vals), 0xc0,
             NULL, HFILL}
         },
+
         /* 7.7.6.4 */
-        { &hf_oran_symbolMask,
+        { &hf_oran_symbol_mask,
           { "symbolMask", "oran_fh_cus.symbolMask",
             FT_UINT16, BASE_HEX,
             NULL, 0x3fff,
             "Each bit indicates whether the rbgMask applies to a given symbol in the slot", HFILL}
         },
+        { &hf_oran_symbol_mask_s13,
+          { "symbol 13", "oran_fh_cus.symbolMask.symbol-13",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x2000,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s12,
+          { "symbol 12", "oran_fh_cus.symbolMask.symbol-12",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x1000,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s11,
+          { "symbol 11", "oran_fh_cus.symbolMask.symbol-11",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0800,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s10,
+          { "symbol 10", "oran_fh_cus.symbolMask.symbol-10",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0400,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s9,
+          { "symbol 9", "oran_fh_cus.symbolMask.symbol-9",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0200,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s8,
+          { "symbol 8", "oran_fh_cus.symbolMask.symbol-8",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0100,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s7,
+          { "symbol 7", "oran_fh_cus.symbolMask.symbol-7",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0080,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s6,
+          { "symbol 6", "oran_fh_cus.symbolMask.symbol-6",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0040,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s5,
+          { "symbol 5", "oran_fh_cus.symbolMask.symbol-5",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0020,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s4,
+          { "symbol 4", "oran_fh_cus.symbolMask.symbol-4",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0010,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s3,
+          { "symbol 3", "oran_fh_cus.symbolMask.symbol-3",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0008,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s2,
+          { "symbol 2", "oran_fh_cus.symbolMask.symbol-2",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0004,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s1,
+          { "symbol 1", "oran_fh_cus.symbolMask.symbol-1",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0002,
+            NULL, HFILL}
+        },
+        { &hf_oran_symbol_mask_s0,
+          { "symbol 0", "oran_fh_cus.symbolMask.symbol-0",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_present_not_present), 0x0001,
+            NULL, HFILL}
+        },
+
 
         /* 7.7.22.2 */
         { &hf_oran_ack_nack_req_id,
@@ -8471,7 +8605,8 @@ proto_register_oran(void)
         &ett_oran_remask,
         &ett_oran_symbol_reordering_layer,
         &ett_oran_dmrs_entry,
-        &ett_oran_dmrs_symbol_mask
+        &ett_oran_dmrs_symbol_mask,
+        &ett_oran_symbol_mask
     };
 
     static int *ext_ett[HIGHEST_EXTTYPE];
