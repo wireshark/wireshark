@@ -1587,6 +1587,34 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1,
 				 ENC_BIG_ENDIAN);
 
+		switch (icmp_type) {
+	case ICMP_UNREACH:
+	case ICMP_REDIRECT:
+	case ICMP_TIMXCEED:
+		expert_add_info(pinfo, ti, &ei_icmp_type_error);
+		break;
+	case ICMP_SOURCEQUENCH:
+	case ICMP_ALTHOST:
+	case ICMP_IREQ:
+	case ICMP_IREQREPLY:
+	case ICMP_MASKREQ:
+	case ICMP_MASKREPLY:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 34:
+	case 35:
+	case 36:
+	case 37:
+	case 38:
+	case 39:
+		expert_add_info(pinfo, ti, &ei_icmp_type_deprecated);
+		break;
+	default:
+		break;
+	}
+
 	ti = proto_tree_add_item(icmp_tree, hf_icmp_code, tvb, 1, 1,
 				 ENC_BIG_ENDIAN);
 	if (code_str) {
