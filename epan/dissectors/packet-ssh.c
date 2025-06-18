@@ -51,6 +51,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/tfs.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/to_str.h>
 #include <wsutil/file_util.h>
@@ -598,12 +599,6 @@ static const char *ssh_debug_file_name;
 
 #define SSH_EXTENDED_DATA_STDERR    1
 
-static const value_string ssh_direction_vals[] = {
-    { CLIENT_TO_SERVER_PROPOSAL, "client-to-server" },
-    { SERVER_TO_CLIENT_PROPOSAL, "server-to-client" },
-    { 0, NULL }
-};
-
 static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_DISCONNECT,                "Disconnect" },
     { SSH_MSG_IGNORE,                    "Ignore" },
@@ -990,8 +985,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response ? "Server" : "Client");
-    ti = proto_tree_add_boolean_format_value(ssh_tree, hf_ssh_direction, tvb, 0, 0, is_response, "%s",
-        try_val_to_str(is_response, ssh_direction_vals));
+    ti = proto_tree_add_boolean(ssh_tree, hf_ssh_direction, tvb, 0, 0, is_response);
     proto_item_set_generated(ti);
 
     ssh_debug_flush();
@@ -5768,7 +5762,7 @@ proto_register_ssh(void)
 
         { &hf_ssh_direction,
           { "Direction", "ssh.direction",
-            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_s2c_c2s), 0x0,
             "Message direction", HFILL }},
 
         { &hf_ssh_msg_code,
@@ -6677,7 +6671,7 @@ proto_register_ssh(void)
         { &ei_ssh_packet_length,  { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Invalid packet length", EXPFILL }},
         { &ei_ssh_padding_length,  { "ssh.padding_length.error", PI_PROTOCOL, PI_WARN, "Invalid padding length", EXPFILL }},
         { &ei_ssh_packet_decode,  { "ssh.packet_decode.error", PI_UNDECODED, PI_WARN, "Packet decoded length not equal to packet length", EXPFILL }},
-        { &ei_ssh_channel_number, { "ssh.channel_number.error", PI_PROTOCOL, PI_WARN, "Coud not find channel", EXPFILL }},
+        { &ei_ssh_channel_number, { "ssh.channel_number.error", PI_PROTOCOL, PI_WARN, "Could not find channel", EXPFILL }},
         { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }},
         { &ei_ssh_mac_bad,        { "ssh.mac_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad MAC", EXPFILL }},
         { &ei_ssh2_kex_hybrid_msg_code, { "ssh.kex_hybrid_msg_code", PI_SECURITY, PI_NOTE, "Hybrid KEX encountered", EXPFILL }},
