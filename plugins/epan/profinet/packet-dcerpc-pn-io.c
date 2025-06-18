@@ -10927,7 +10927,7 @@ dissect_CIMNetConfUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
     offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
 
     /* SupportedBurstSize */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_supported_burst_size, tvb, offset, 8, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_supported_burst_size, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_supported_burst_size);
 
     /* SupportedBurstSize.Frames */
@@ -20024,7 +20024,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_supported_burst_size,
       { "SupportedBurstSize", "pn_io.supported_burst_size",
-        FT_UINT64, BASE_HEX, NULL , 0x0,
+        FT_UINT32, BASE_HEX, NULL , 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_supported_burst_size_frames,
