@@ -518,10 +518,10 @@ fc_get_ftype (uint8_t r_ctl, uint8_t type)
 }
 
 static const value_string abts_ack_vals[] = {
-    {0x000000,  "ABTS - Cont"},
-    {0x000010,  "ABTS - Abort"},
-    {0x000020,  "ABTS - Stop"},
-    {0x000030,  "ABTS - Imm Seq Retx"},
+    {0,  "ABTS - Cont"},
+    {1,  "ABTS - Abort"},
+    {2,  "ABTS - Stop"},
+    {3,  "ABTS - Imm Seq Retx"},
     {0,NULL}
 };
 #if 0
@@ -534,17 +534,17 @@ static const value_string abts_not_ack_vals[] = {
 };
 #endif
 static const value_string last_data_frame_vals[] = {
-    {0x000000,  "Last Data Frame - No Info"},
-    {0x004000,  "Last Data Frame - Seq Imm"},
-    {0x008000,  "Last Data Frame - Seq Soon"},
-    {0x00c000,  "Last Data Frame - Seq Delyd"},
+    {0,  "Last Data Frame - No Info"},
+    {1,  "Last Data Frame - Seq Imm"},
+    {2,  "Last Data Frame - Seq Soon"},
+    {3,  "Last Data Frame - Seq Delyd"},
     {0,NULL}
 };
 static const value_string ack_0_1_vals[] = {
-    {0x003000,  "ACK_0 Required"},
-    {0x002000,  "ACK_0 Required"},
-    {0x001000,  "ACK_1 Required"},
-    {0x000000,  "no ack required"},
+    {3,  "ACK_0 Required"},
+    {2,  "ACK_0 Required"},
+    {1,  "ACK_1 Required"},
+    {0,  "no ack required"},
     {0,NULL}
 };
 static const true_false_string tfs_fc_fctl_exchange_responder = {

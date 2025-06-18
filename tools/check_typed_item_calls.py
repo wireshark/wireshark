@@ -10,6 +10,7 @@ import re
 import argparse
 import signal
 import subprocess
+from pathlib import Path
 
 # This utility scans the dissector code for various issues.
 # TODO:
@@ -1542,7 +1543,9 @@ class Item:
                 self.mask = macros[self.mask]
             elif any(c not in '0123456789abcdefABCDEFxX' for c in self.mask):
                 self.mask_read = False
-                self.mask_value = 0
+                # Didn't manage to parse, set to a full value to avoid warnings.
+                self.mask_value = 0xffffffff
+                self.mask_width = 32
                 #print(self.filename, 'Could not read:', '"' + self.mask + '"')
                 return
 
@@ -1566,7 +1569,10 @@ class Item:
 
         except Exception:
             self.mask_read = False
-            self.mask_value = 0
+            # Didn't manage to parse, set to a full value to avoid warnings.
+            self.mask_value = 0xffffffff
+            self.mask_width = 32
+            print('error, set to full')
 
         #if not self.mask_read:
         #    print('Could not read:', self.mask)
@@ -2069,26 +2075,36 @@ def isGeneratedFile(filename):
     return False
 
 
-# TODO: could also look for macros in related/included header file(s)?
+# Looking for simple #define macros or enumerations.
 def find_macros(filename):
     # Pre-populate with some useful values..
     macros = { 'BASE_NONE' : 0,  'BASE_DEC' : 1 }
 
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
+    # Also look for macros from corresponding header file, if present
+    files_to_check = [filename]
+    header = Path(filename).with_suffix('.h')
+    if os.path.exists(header):
+        files_to_check.append(header)
 
-        matches = re.finditer( r'#define\s*([A-Za-z0-9_]*)\s*([0-9xa-fA-F]*)\s*\n', contents)
-        for m in matches:
-            # Store this mapping.
-            macros[m.group(1)] = m.group(2)
+    # TODO: also/instead look for directly included files of form packet-xxx.h ?
 
-        # Also look for what could be enumeration assignments
-        matches = re.finditer( r'\s*([A-Za-z0-9_]*)\s*=\s*([0-9xa-fA-F]*)\s*,?\n', contents)
-        for m in matches:
-            # Store this mapping.
-            macros[m.group(1)] = m.group(2)
+    for file in files_to_check:
+        with open(file, 'r', encoding="utf8") as f:
+            contents = f.read()
+            # Remove comments so as not to trip up RE.
+            contents = removeComments(contents)
+
+            # Allowing optional parenthesis around value part.
+            matches = re.finditer( r'#define\s*([A-Za-z0-9_]*)\s*\(?([0-9xa-fA-F]*)\)?\s*\n', contents)
+            for m in matches:
+                # Store this mapping.
+                macros[m.group(1)] = m.group(2)
+
+            # Also look for what could be enumeration assignments
+            matches = re.finditer( r'\s*([A-Za-z0-9_]*)\s*=\s*([0-9xa-fA-F]*)\s*,?\n', contents)
+            for m in matches:
+                # Store this mapping.
+                macros[m.group(1)] = m.group(2)
 
     return macros
 
