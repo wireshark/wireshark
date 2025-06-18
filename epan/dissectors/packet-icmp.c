@@ -1587,7 +1587,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1,
 				 ENC_BIG_ENDIAN);
 
-		switch (icmp_type) {
+	switch (icmp_type) {
 	case ICMP_UNREACH:
 	case ICMP_REDIRECT:
 	case ICMP_TIMXCEED:
