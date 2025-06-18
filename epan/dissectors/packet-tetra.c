@@ -548,7 +548,6 @@ static int hf_tetra_circuit_mode;                 /* CIRCUIT */
 static int hf_tetra_encryption;                   /* INTEGER_0_1 */
 static int hf_tetra_communication;                /* INTEGER_0_3 */
 static int hf_tetra_slots_or_speech;              /* INTEGER_0_3 */
-static int hf_tetra_call_identifier_01;           /* INTEGER_0_1023 */
 static int hf_tetra_simplex_duplex_selection;     /* T_simplex_duplex_selection */
 static int hf_tetra_optional_elements_10;         /* T_optional_elements_10 */
 static int hf_tetra_type2_parameters_06;          /* T_type2_parameters_06 */
@@ -627,7 +626,7 @@ static int hf_tetra_reset_call_time_out;          /* INTEGER_0_1 */
 static int hf_tetra_optional_elements_22;         /* T_optional_elements_22 */
 static int hf_tetra_type2_parameters_18;          /* T_type2_parameters_18 */
 static int hf_tetra_new_call_identifier;          /* T_new_call_identifier */
-static int hf_tetra_new_call_identifier_01;       /* INTEGER_0_1023 */
+static int hf_tetra_new_call_identifier_01;       /* INTEGER_0_16383 */
 static int hf_tetra_call_time_out_02;             /* T_call_time_out */
 static int hf_tetra_call_time_out_03;             /* INTEGER_0_7 */
 static int hf_tetra_call_status_02;               /* T_call_status_01 */
@@ -3138,7 +3137,7 @@ dissect_tetra_T_optional_elements_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t U_ALERT_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_simplex_duplex_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection },
   { &hf_tetra_optional_elements_10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_10 },
@@ -3254,7 +3253,7 @@ dissect_tetra_T_optional_elements_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t U_CONNECT_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_hook_method_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_simplex_duplex_selection_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_01 },
   { &hf_tetra_optional_elements_11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_11 },
@@ -3341,7 +3340,7 @@ dissect_tetra_T_optional_elements_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t U_DISCONNECT_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_disconnect_cause, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
   { &hf_tetra_optional_elements_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_14 },
   { NULL, 0, 0, NULL }
@@ -3676,7 +3675,7 @@ dissect_tetra_T_optional_elements_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t U_TX_CEASED_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_optional_elements_12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_12 },
   { NULL, 0, 0, NULL }
 };
@@ -3751,7 +3750,7 @@ dissect_tetra_T_optional_elements_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t U_TX_DEMAND_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_tx_demand_priority, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_encryption_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
@@ -3838,7 +3837,7 @@ dissect_tetra_T_optional_elements_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t U_CALL_RESTORE_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_request_to_transmit_send_data, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_other_party_address, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Other_party_address_type },
   { &hf_tetra_basic_service_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Basic_service_information },
@@ -6578,7 +6577,7 @@ dissect_tetra_T_optional_elements_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t D_ALERT_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_call_time_out_setup_phase, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_7 },
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_simplex_duplex_selection_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_03 },
@@ -6726,7 +6725,7 @@ dissect_tetra_T_optional_elements_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t D_CALL_PROCEEDING_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_call_time_out_setup_phase, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_7 },
   { &hf_tetra_hook_method_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_simplex_duplex_selection_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
@@ -6912,7 +6911,7 @@ dissect_tetra_T_optional_elements_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t D_CONNECT_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
   { &hf_tetra_hook_method_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_simplex_duplex_selection_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_04 },
@@ -7016,7 +7015,7 @@ dissect_tetra_T_optional_elements_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t D_CONNECT_ACK_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_call_time_out , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
@@ -7448,7 +7447,7 @@ dissect_tetra_T_optional_elements_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t D_TX_CEASED_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_optional_elements_23, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_23 },
   { NULL, 0, 0, NULL }
@@ -7484,7 +7483,7 @@ dissect_tetra_D_TX_CONTINUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static const per_sequence_t D_TX_GRANTED_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_encryption_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
@@ -7533,7 +7532,7 @@ static const value_string tetra_T_new_call_identifier_vals[] = {
 
 static const per_choice_t T_new_call_identifier_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_new_call_identifier_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_1023 },
+  {   1, &hf_tetra_new_call_identifier_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16383 },
   { 0, NULL, 0, NULL }
 };
 
@@ -7730,7 +7729,7 @@ dissect_tetra_T_optional_elements_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t D_CALL_RESTORE_sequence[] = {
-  { &hf_tetra_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1023 },
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_reset_call_time_out, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
@@ -11150,10 +11149,6 @@ void proto_register_tetra (void)
       { "slots-or-speech", "tetra.slots_or_speech",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_3", HFILL }},
-    { &hf_tetra_call_identifier_01,
-      { "call-identifier", "tetra.call_identifier",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_1023", HFILL }},
     { &hf_tetra_simplex_duplex_selection,
       { "simplex-duplex-selection", "tetra.simplex_duplex_selection",
         FT_UINT32, BASE_DEC, VALS(tetra_T_simplex_duplex_selection_vals), 0,
@@ -11469,7 +11464,7 @@ void proto_register_tetra (void)
     { &hf_tetra_new_call_identifier_01,
       { "new-call-identifier", "tetra.new_call_identifier",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_1023", HFILL }},
+        "INTEGER_0_16383", HFILL }},
     { &hf_tetra_call_time_out_02,
       { "call-time-out", "tetra.call_time_out",
         FT_UINT32, BASE_DEC, VALS(tetra_T_call_time_out_vals), 0,
