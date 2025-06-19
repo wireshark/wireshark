@@ -803,15 +803,6 @@
         <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="rf5" Type="integer" Value="1" KeyPath="yes"/>
         <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
       </Component>
-      <Component Id="cmpFAscap">
-        <ProgId Id="$(var.WiresharkFileAssociation)" Description="scap">
-          <Extension Id="scap">
-            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
-          </Extension>
-        </ProgId>
-        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="scap" Type="integer" Value="1" KeyPath="yes"/>
-        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
-      </Component>
       <Component Id="cmpFAsnoop">
         <ProgId Id="$(var.WiresharkFileAssociation)" Description="snoop">
           <Extension Id="snoop">

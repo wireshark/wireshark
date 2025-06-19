@@ -59,16 +59,12 @@
       </match>
     </magic>
     <glob pattern="*.pcapng"/>
-    <glob pattern="*.scap"/>
     <glob pattern="*.ntar"/>
     <glob pattern="*.pcapng.gz"/>
-    <glob pattern="*.scap.gz"/>
     <glob pattern="*.ntar.gz"/>
     <glob pattern="*.pcapng.zst"/>
-    <glob pattern="*.scap.zst"/>
     <glob pattern="*.ntar.zst"/>
     <glob pattern="*.pcapng.lz4"/>
-    <glob pattern="*.scap.lz4"/>
     <glob pattern="*.ntar.lz4"/>
   </mime-type>
 

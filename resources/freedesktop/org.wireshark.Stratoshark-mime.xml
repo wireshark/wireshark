@@ -41,5 +41,9 @@
     </magic>
     <glob pattern="*.scap"/>
     <glob pattern="*.scap.gz"/>
+    <!-- libscap only handles gzip compression, so omit these for now.
+    <glob pattern="*.scap.zst"/>
+    <glob pattern="*.scap.lz4"/>
+    -->
   </mime-type>
 </mime-info>

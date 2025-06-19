@@ -17,6 +17,10 @@
 			<array>
 				<string>scap</string>
 				<string>scap.gz</string>
+				<!-- libscap only handles gzip compression, so omit these for now.
+				<string>scap.lz4</string>
+				<string>scap.zst</string>
+				-->
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>

@@ -25,6 +25,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include <wsutil/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
@@ -6461,15 +6462,25 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
     { WTAP_BLOCK_CUSTOM, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED },
 };
 
-static const struct file_type_subtype_info pcapng_info = {
-    "Wireshark/... - pcapng", "pcapng", "pcapng", "scap;ntar",
+static const struct file_type_subtype_info wireshark_pcapng_info = {
+    "Wireshark/... - pcapng", "pcapng", "pcapng", "ntar",
+    false, BLOCKS_SUPPORTED(pcapng_blocks_supported),
+    pcapng_dump_can_write_encap, pcapng_dump_open, NULL
+};
+
+static const struct file_type_subtype_info stratoshark_pcapng_info = {
+    "Stratoshark/... - scap", "scap", "scap", "scap",
     false, BLOCKS_SUPPORTED(pcapng_blocks_supported),
     pcapng_dump_can_write_encap, pcapng_dump_open, NULL
 };
 
 void register_pcapng(void)
 {
-    pcapng_file_type_subtype = wtap_register_file_type_subtype(&pcapng_info);
+    if (application_flavor_is_wireshark()) {
+        pcapng_file_type_subtype = wtap_register_file_type_subtype(&wireshark_pcapng_info);
+    } else {
+        pcapng_file_type_subtype = wtap_register_file_type_subtype(&stratoshark_pcapng_info);
+    }
 
     wtap_register_backwards_compatibility_lua_name("PCAPNG",
                                                    pcapng_file_type_subtype);

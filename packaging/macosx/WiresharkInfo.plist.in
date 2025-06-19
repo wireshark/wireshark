@@ -124,16 +124,12 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>pcapng</string>
-				<string>scap</string>
 				<string>ntar</string>
 				<string>pcapng.gz</string>
-				<string>scap.gz</string>
 				<string>ntar.gz</string>
 				<string>pcapng.lz4</string>
-				<string>scap.lz4</string>
 				<string>ntar.lz4</string>
 				<string>pcapng.zst</string>
-				<string>scap.zst</string>
 				<string>ntar.zst</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>

@@ -27,6 +27,7 @@
 #include "wtap_modules.h"
 #include "file_wrappers.h"
 #include "required_file_handlers.h"
+#include <wsutil/application_flavor.h>
 #include <wsutil/buffer.h>
 #include <wsutil/str_util.h>
 
@@ -142,9 +143,9 @@ add_extensions(GSList *extensions, const char *extension,
  * All added file types, regardless of extension or lack thereof,
  * must also be added open_info_base[] below.
  */
-static const struct file_extension_info file_type_extensions_base[] = {
+static const struct file_extension_info wireshark_file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", true, "pcap;cap;dmp" },
-	{ "Wireshark/... - pcapng", true, "pcapng;scap;ntar" },
+	{ "Wireshark/... - pcapng", true, "pcapng;ntar" },
 	{ "Network Monitor, Surveyor, NetScaler", true, "cap" },
 	{ "Sun snoop", true, "snoop" },
 	{ "InfoVista 5View capture", true, "5vw" },
@@ -186,7 +187,13 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "PEAK CAN TRC log", true, "trc" },
 };
 
-#define	N_FILE_TYPE_EXTENSIONS	array_length(file_type_extensions_base)
+#define	N_WIRESHARK_FILE_TYPE_EXTENSIONS array_length(wireshark_file_type_extensions_base)
+
+static const struct file_extension_info stratoshark_file_type_extensions_base[] = {
+    {"Stratoshark/... - scap", true, "scap"},
+};
+
+#define N_STRATOSHARK_FILE_TYPE_EXTENSIONS array_length(stratoshark_file_type_extensions_base)
 
 static const struct file_extension_info* file_type_extensions;
 
@@ -201,7 +208,11 @@ init_file_type_extensions(void)
 
 	file_type_extensions_arr = g_array_new(false,true,sizeof(struct file_extension_info));
 
-	g_array_append_vals(file_type_extensions_arr,file_type_extensions_base,N_FILE_TYPE_EXTENSIONS);
+	if (application_flavor_is_wireshark()) {
+		g_array_append_vals(file_type_extensions_arr, wireshark_file_type_extensions_base, N_WIRESHARK_FILE_TYPE_EXTENSIONS);
+	} else {
+		g_array_append_vals(file_type_extensions_arr, stratoshark_file_type_extensions_base, N_STRATOSHARK_FILE_TYPE_EXTENSIONS);
+	}
 
 	file_type_extensions = (struct file_extension_info*)(void *)file_type_extensions_arr->data;
 }
