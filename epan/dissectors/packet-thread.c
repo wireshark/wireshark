@@ -2352,7 +2352,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     if (tlv_len != 8) {
                         expert_add_info(pinfo, proto_root, &ei_thread_mc_len_size_mismatch);
                         //proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_unknown, tvb, offset, tlv_len, ENC_NA);
-                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_pending_tstamp, tvb, offset, tlv_len, ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_pending_tstamp, tvb, offset, tlv_len, ENC_TIME_SECS_NSECS);
                     } else {
                         /* Fill in the nstime_t structure */
                         timestamp.secs = (time_t)tvb_get_ntoh48(tvb, offset);

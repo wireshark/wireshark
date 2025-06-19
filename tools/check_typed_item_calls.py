@@ -136,6 +136,7 @@ compatible_encoding_args = {
                           'ENC_3GPP_TS_23_038_7BITS',
                           'ENC_3GPP_TS_23_038_7BITS_UNPACKED',
                           'ENC_ETSI_TS_102_221_ANNEX_A',
+                          'ENC_APN_STR',
                           'ENC_EBCDIC',
                           'ENC_EBCDIC_CP037',
                           'ENC_EBCDIC_CP500',

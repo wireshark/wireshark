@@ -816,7 +816,7 @@ static void dissect_uftp_keyinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 1;
     proto_tree_add_item(keyinfo_tree, hf_uftp_keyinfo_groupmaster_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(keyinfo_tree, hf_uftp_keyinfo_tstamp, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(keyinfo_tree, hf_uftp_keyinfo_tstamp, tvb, offset, 8, ENC_TIME_SECS_NSECS);
     offset += 8;
     if (destcount > 0) {
         destlist = proto_tree_add_item(keyinfo_tree, hf_uftp_destlist, tvb, offset, destcount * DESTKEY_LEN, ENC_NA);
@@ -1339,7 +1339,7 @@ static void dissect_uftp_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     ti = proto_tree_add_item(tree, hf_uftp_encrypted, tvb, offset, -1, ENC_NA);
     encrypted_tree = proto_item_add_subtree(ti, ett_uftp_encrypted);
-    proto_tree_add_item(encrypted_tree, hf_uftp_encrypted_tstamp, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(encrypted_tree, hf_uftp_encrypted_tstamp, tvb, offset, 8, ENC_TIME_SECS_NSECS);
     offset += 8;
     proto_tree_add_item(encrypted_tree, hf_uftp_encrypted_sig_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
