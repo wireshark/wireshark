@@ -52,6 +52,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/unit_strings.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/to_str.h>
 #include <wsutil/file_util.h>
@@ -413,6 +414,72 @@ static int hf_ssh_subsystem_name;
 static int hf_ssh_exec_cmd;
 static int hf_ssh_env_name;
 static int hf_ssh_env_value;
+static int hf_ssh_pty_term;
+static int hf_ssh_pty_term_width_char;
+static int hf_ssh_pty_term_height_row;
+static int hf_ssh_pty_term_width_pixel;
+static int hf_ssh_pty_term_height_pixel;
+static int hf_ssh_pty_term_modes_len;
+static int hf_ssh_pty_term_modes;
+static int hf_ssh_pty_term_mode;
+static int hf_ssh_pty_term_mode_opcode;
+static int hf_ssh_pty_term_mode_vintr;
+static int hf_ssh_pty_term_mode_vquit;
+static int hf_ssh_pty_term_mode_verase;
+static int hf_ssh_pty_term_mode_vkill;
+static int hf_ssh_pty_term_mode_veof;
+static int hf_ssh_pty_term_mode_veol;
+static int hf_ssh_pty_term_mode_veol2;
+static int hf_ssh_pty_term_mode_vstart;
+static int hf_ssh_pty_term_mode_vstop;
+static int hf_ssh_pty_term_mode_vsusp;
+static int hf_ssh_pty_term_mode_vdsusp;
+static int hf_ssh_pty_term_mode_vreprint;
+static int hf_ssh_pty_term_mode_vwerase;
+static int hf_ssh_pty_term_mode_vlnext;
+static int hf_ssh_pty_term_mode_vflush;
+static int hf_ssh_pty_term_mode_vswtch;
+static int hf_ssh_pty_term_mode_vstatus;
+static int hf_ssh_pty_term_mode_vdiscard;
+static int hf_ssh_pty_term_mode_ignpar;
+static int hf_ssh_pty_term_mode_parmrk;
+static int hf_ssh_pty_term_mode_inpck;
+static int hf_ssh_pty_term_mode_istrip;
+static int hf_ssh_pty_term_mode_inlcr;
+static int hf_ssh_pty_term_mode_igncr;
+static int hf_ssh_pty_term_mode_icrnl;
+static int hf_ssh_pty_term_mode_iuclc;
+static int hf_ssh_pty_term_mode_ixon;
+static int hf_ssh_pty_term_mode_ixany;
+static int hf_ssh_pty_term_mode_ixoff;
+static int hf_ssh_pty_term_mode_imaxbel;
+static int hf_ssh_pty_term_mode_iutf8;
+static int hf_ssh_pty_term_mode_isig;
+static int hf_ssh_pty_term_mode_icanon;
+static int hf_ssh_pty_term_mode_xcase;
+static int hf_ssh_pty_term_mode_echo;
+static int hf_ssh_pty_term_mode_echoe;
+static int hf_ssh_pty_term_mode_echok;
+static int hf_ssh_pty_term_mode_echonl;
+static int hf_ssh_pty_term_mode_noflsh;
+static int hf_ssh_pty_term_mode_tostop;
+static int hf_ssh_pty_term_mode_iexten;
+static int hf_ssh_pty_term_mode_echoctl;
+static int hf_ssh_pty_term_mode_echoke;
+static int hf_ssh_pty_term_mode_pendin;
+static int hf_ssh_pty_term_mode_opost;
+static int hf_ssh_pty_term_mode_olcuc;
+static int hf_ssh_pty_term_mode_onlcr;
+static int hf_ssh_pty_term_mode_ocrnl;
+static int hf_ssh_pty_term_mode_onocr;
+static int hf_ssh_pty_term_mode_onlret;
+static int hf_ssh_pty_term_mode_cs7;
+static int hf_ssh_pty_term_mode_cs8;
+static int hf_ssh_pty_term_mode_parenb;
+static int hf_ssh_pty_term_mode_parodd;
+static int hf_ssh_pty_term_mode_ispeed;
+static int hf_ssh_pty_term_mode_ospeed;
+static int hf_ssh_pty_term_mode_value;
 static int hf_ssh_channel_window_adjust;
 static int hf_ssh_channel_data_len;
 static int hf_ssh_channel_data_type_code;
@@ -464,7 +531,9 @@ static int ett_key_exchange_host_key;
 static int ett_key_exchange_host_sig;
 static int ett_extension;
 static int ett_userauth_pk_blob;
-static int ett_userauth_pk_signautre;
+static int ett_userauth_pk_signature;
+static int ett_term_modes;
+static int ett_term_mode;
 static int ett_key_init;
 static int ett_ssh1;
 static int ett_ssh2;
@@ -600,6 +669,64 @@ static const char *ssh_debug_file_name;
 
 #define SSH_EXTENDED_DATA_STDERR    1
 
+#define SSH_TTY_OP_END      0
+#define SSH_TTY_OP_VINTR    1
+#define SSH_TTY_OP_VQUIT    2
+#define SSH_TTY_OP_VERASE   3
+#define SSH_TTY_OP_VKILL    4
+#define SSH_TTY_OP_VEOF     5
+#define SSH_TTY_OP_VEOL     6
+#define SSH_TTY_OP_VEOL2    7
+#define SSH_TTY_OP_VSTART   8
+#define SSH_TTY_OP_VSTOP    9
+#define SSH_TTY_OP_VSUSP    10
+#define SSH_TTY_OP_VDSUSP   11
+#define SSH_TTY_OP_VREPRINT 12
+#define SSH_TTY_OP_VWERASE  13
+#define SSH_TTY_OP_VLNEXT   14
+#define SSH_TTY_OP_VFLUSH   15
+#define SSH_TTY_OP_VSWTCH   16
+#define SSH_TTY_OP_VSTATUS  17
+#define SSH_TTY_OP_VDISCARD 18
+#define SSH_TTY_OP_IGNPAR   30
+#define SSH_TTY_OP_PARMRK   31
+#define SSH_TTY_OP_INPCK    32
+#define SSH_TTY_OP_ISTRIP   33
+#define SSH_TTY_OP_INLCR    34
+#define SSH_TTY_OP_IGNCR    35
+#define SSH_TTY_OP_ICRNL    36
+#define SSH_TTY_OP_IUCLC    37
+#define SSH_TTY_OP_IXON     38
+#define SSH_TTY_OP_IXANY    39
+#define SSH_TTY_OP_IXOFF    40
+#define SSH_TTY_OP_IMAXBEL  41
+#define SSH_TTY_OP_IUTF8    42
+#define SSH_TTY_OP_ISIG     50
+#define SSH_TTY_OP_ICANON   51
+#define SSH_TTY_OP_XCASE    52
+#define SSH_TTY_OP_ECHO     53
+#define SSH_TTY_OP_ECHOE    54
+#define SSH_TTY_OP_ECHOK    55
+#define SSH_TTY_OP_ECHONL   56
+#define SSH_TTY_OP_NOFLSH   57
+#define SSH_TTY_OP_TOSTOP   58
+#define SSH_TTY_OP_IEXTEN   59
+#define SSH_TTY_OP_ECHOCTL  60
+#define SSH_TTY_OP_ECHOKE   61
+#define SSH_TTY_OP_PENDIN   62
+#define SSH_TTY_OP_OPOST    70
+#define SSH_TTY_OP_OLCUC    71
+#define SSH_TTY_OP_ONLCR    72
+#define SSH_TTY_OP_OCRNL    73
+#define SSH_TTY_OP_ONOCR    74
+#define SSH_TTY_OP_ONLRET   75
+#define SSH_TTY_OP_CS7      90
+#define SSH_TTY_OP_CS8      91
+#define SSH_TTY_OP_PARENB   92
+#define SSH_TTY_OP_PARODD   93
+#define SSH_TTY_OP_ISPEED   128
+#define SSH_TTY_OP_OSPEED   129
+
 static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_DISCONNECT,                "Disconnect" },
     { SSH_MSG_IGNORE,                    "Ignore" },
@@ -677,6 +804,67 @@ static const value_string ssh1_msg_vals[] = {
 
 static const value_string ssh_channel_data_type_code_vals[] = {
     { SSH_EXTENDED_DATA_STDERR, "Standard Error" },
+    { 0, NULL }
+};
+
+static const value_string ssh_tty_op_vals[] = {
+    { SSH_TTY_OP_END,       "TTY_OP_END" }, // [RFC4250]
+    { SSH_TTY_OP_VINTR,     "VINTR" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VQUIT,     "VQUIT" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VERASE,    "VERASE" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VKILL,     "VKILL" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VEOF,      "VEOF" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VEOL,      "VEOL" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VEOL2,     "VEOL2" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VSTART,    "VSTART" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VSTOP,     "VSTOP" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VSUSP,     "VSUSP" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VDSUSP,    "VDSUSP" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VREPRINT,  "VREPRINT" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VWERASE,   "VWERASE" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VLNEXT,    "VLNEXT" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VFLUSH,    "VFLUSH" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VSWTCH,    "VSWTCH" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_VSTATUS,   "VSTATUS" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_VDISCARD,  "VDISCARD" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IGNPAR,    "IGNPAR" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_PARMRK,    "PARMRK" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_INPCK,     "INPCK" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ISTRIP,    "ISTRIP" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_INLCR,     "INLCR" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IGNCR,     "IGNCR" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ICRNL,     "ICRNL" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IUCLC,     "IUCLC" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_IXON,      "IXON" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IXANY,     "IXANY" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IXOFF,     "IXOFF" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IMAXBEL,   "IMAXBEL" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IUTF8,     "IUTF8" }, // [RFC8160],
+    { SSH_TTY_OP_ISIG,      "ISIG" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ICANON,    "ICANON" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_XCASE,     "XCASE" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_ECHO,      "ECHO" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ECHOE,     "ECHOE" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ECHOK,     "ECHOK" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ECHONL,    "ECHONL" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_NOFLSH,    "NOFLSH" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_TOSTOP,    "TOSTOP" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_IEXTEN,    "IEXTEN" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ECHOCTL,   "ECHOCTL" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ECHOKE,    "ECHOKE" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_PENDIN,    "PENDIN" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_OPOST,     "OPOST" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_OLCUC,     "OLCUC" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ONLCR,     "ONLCR" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_OCRNL,     "OCRNL" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_ONOCR,     "ONOCR" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_ONLRET,    "ONLRET" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_CS7,       "CS7" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_CS8,       "CS8" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_PARENB,    "PARENB" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_PARODD,    "PARODD" }, // [RFC4254], Section 8
+    { SSH_TTY_OP_ISPEED,    "TTY_OP_ISPEED" }, // [RFC4254],Section 8
+    { SSH_TTY_OP_OSPEED,    "TTY_OP_OSPEED" }, // [RFC4254],Section 8
     { 0, NULL }
 };
 
@@ -4508,7 +4696,7 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                                 proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_signature_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                                 offset += 4;
                                 proto_item *signature_tree = NULL;
-                                signature_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_signautre, NULL, "Public key signature");
+                                signature_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_signature, NULL, "Public key signature");
                                 dissected_len = ssh_dissect_public_key_signature(packet_tvb, pinfo, offset, signature_tree) - offset;
                                 if(dissected_len!=(int)slen){
                                     expert_add_info_format(pinfo, signature_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet length is %d bytes", dissected_len, slen);
@@ -5117,6 +5305,121 @@ ssh_dissect_channel_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
+ssh_dissect_term_modes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *term_mode_tree, *subtree;
+    int offset = 0;
+    uint32_t opcode, value, idx;
+    bool boolval;
+
+    struct tty_opt_info {
+        unsigned id;
+        int *hfindex;
+    };
+    static const struct tty_opt_info tty_opts[] = {
+        { SSH_TTY_OP_END, NULL},
+        { SSH_TTY_OP_VINTR, &hf_ssh_pty_term_mode_vintr },
+        { SSH_TTY_OP_VQUIT, &hf_ssh_pty_term_mode_vquit },
+        { SSH_TTY_OP_VERASE, &hf_ssh_pty_term_mode_verase },
+        { SSH_TTY_OP_VKILL, &hf_ssh_pty_term_mode_vkill },
+        { SSH_TTY_OP_VEOF, &hf_ssh_pty_term_mode_veof },
+        { SSH_TTY_OP_VEOL, &hf_ssh_pty_term_mode_veol },
+        { SSH_TTY_OP_VEOL2, &hf_ssh_pty_term_mode_veol2 },
+        { SSH_TTY_OP_VSTART, &hf_ssh_pty_term_mode_vstart },
+        { SSH_TTY_OP_VSTOP, &hf_ssh_pty_term_mode_vstop },
+        { SSH_TTY_OP_VSUSP, &hf_ssh_pty_term_mode_vsusp },
+        { SSH_TTY_OP_VDSUSP, &hf_ssh_pty_term_mode_vdsusp },
+        { SSH_TTY_OP_VREPRINT, &hf_ssh_pty_term_mode_vreprint },
+        { SSH_TTY_OP_VWERASE, &hf_ssh_pty_term_mode_vwerase },
+        { SSH_TTY_OP_VLNEXT, &hf_ssh_pty_term_mode_vlnext },
+        { SSH_TTY_OP_VFLUSH, &hf_ssh_pty_term_mode_vflush },
+        { SSH_TTY_OP_VSWTCH, &hf_ssh_pty_term_mode_vswtch },
+        { SSH_TTY_OP_VSTATUS, &hf_ssh_pty_term_mode_vstatus },
+        { SSH_TTY_OP_VDISCARD, &hf_ssh_pty_term_mode_vdiscard },
+        { SSH_TTY_OP_IGNPAR, &hf_ssh_pty_term_mode_ignpar },
+        { SSH_TTY_OP_PARMRK, &hf_ssh_pty_term_mode_parmrk },
+        { SSH_TTY_OP_INPCK, &hf_ssh_pty_term_mode_inpck },
+        { SSH_TTY_OP_ISTRIP, &hf_ssh_pty_term_mode_istrip },
+        { SSH_TTY_OP_INLCR, &hf_ssh_pty_term_mode_inlcr },
+        { SSH_TTY_OP_IGNCR, &hf_ssh_pty_term_mode_igncr },
+        { SSH_TTY_OP_ICRNL, &hf_ssh_pty_term_mode_icrnl },
+        { SSH_TTY_OP_IUCLC, &hf_ssh_pty_term_mode_iuclc },
+        { SSH_TTY_OP_IXON, &hf_ssh_pty_term_mode_ixon },
+        { SSH_TTY_OP_IXANY, &hf_ssh_pty_term_mode_ixany },
+        { SSH_TTY_OP_IXOFF, &hf_ssh_pty_term_mode_ixoff },
+        { SSH_TTY_OP_IMAXBEL, &hf_ssh_pty_term_mode_imaxbel },
+        { SSH_TTY_OP_IUTF8, &hf_ssh_pty_term_mode_iutf8 },
+        { SSH_TTY_OP_ISIG, &hf_ssh_pty_term_mode_isig },
+        { SSH_TTY_OP_ICANON, &hf_ssh_pty_term_mode_icanon },
+        { SSH_TTY_OP_XCASE, &hf_ssh_pty_term_mode_xcase },
+        { SSH_TTY_OP_ECHO, &hf_ssh_pty_term_mode_echo },
+        { SSH_TTY_OP_ECHOE, &hf_ssh_pty_term_mode_echoe },
+        { SSH_TTY_OP_ECHOK, &hf_ssh_pty_term_mode_echok },
+        { SSH_TTY_OP_ECHONL, &hf_ssh_pty_term_mode_echonl },
+        { SSH_TTY_OP_NOFLSH, &hf_ssh_pty_term_mode_noflsh },
+        { SSH_TTY_OP_TOSTOP, &hf_ssh_pty_term_mode_tostop },
+        { SSH_TTY_OP_IEXTEN, &hf_ssh_pty_term_mode_iexten },
+        { SSH_TTY_OP_ECHOCTL, &hf_ssh_pty_term_mode_echoctl },
+        { SSH_TTY_OP_ECHOKE, &hf_ssh_pty_term_mode_echoke },
+        { SSH_TTY_OP_PENDIN, &hf_ssh_pty_term_mode_pendin },
+        { SSH_TTY_OP_OPOST, &hf_ssh_pty_term_mode_opost },
+        { SSH_TTY_OP_OLCUC, &hf_ssh_pty_term_mode_olcuc },
+        { SSH_TTY_OP_ONLCR, &hf_ssh_pty_term_mode_onlcr },
+        { SSH_TTY_OP_OCRNL, &hf_ssh_pty_term_mode_ocrnl },
+        { SSH_TTY_OP_ONOCR, &hf_ssh_pty_term_mode_onocr },
+        { SSH_TTY_OP_ONLRET, &hf_ssh_pty_term_mode_onlret },
+        { SSH_TTY_OP_CS7, &hf_ssh_pty_term_mode_cs7 },
+        { SSH_TTY_OP_CS8, &hf_ssh_pty_term_mode_cs8 },
+        { SSH_TTY_OP_PARENB, &hf_ssh_pty_term_mode_parenb },
+        { SSH_TTY_OP_PARODD, &hf_ssh_pty_term_mode_parodd },
+        { SSH_TTY_OP_ISPEED, &hf_ssh_pty_term_mode_ispeed },
+        { SSH_TTY_OP_OSPEED, &hf_ssh_pty_term_mode_ospeed }
+    };
+
+    ti = proto_tree_add_item(tree, hf_ssh_pty_term_modes, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+    term_mode_tree = proto_item_add_subtree(ti, ett_term_modes);
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        ti = proto_tree_add_item(term_mode_tree, hf_ssh_pty_term_mode, tvb, offset, 5, ENC_NA);
+        subtree = proto_item_add_subtree(ti, ett_term_mode);
+        proto_tree_add_item_ret_uint(subtree, hf_ssh_pty_term_mode_opcode, tvb, offset, 1, ENC_NA, &opcode);
+        proto_item_append_text(ti, ": %s", val_to_str_const(opcode, ssh_tty_op_vals, "Unknown"));
+        offset += 1;
+        if (opcode == SSH_TTY_OP_END) {
+            break;
+        }
+        for (idx = 0; idx < array_length(tty_opts); idx++) {
+            if (tty_opts[idx].id == opcode) break;
+        }
+        if (idx >= array_length(tty_opts)) {
+            proto_tree_add_item_ret_uint(subtree, hf_ssh_pty_term_mode_value, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+            proto_item_append_text(ti, "=%d", value);
+        } else {
+            DISSECTOR_ASSERT(tty_opts[idx].hfindex);
+            int hfindex = *tty_opts[idx].hfindex;
+            switch (proto_registrar_get_ftype(hfindex)) {
+            case FT_BOOLEAN:
+                proto_tree_add_item_ret_boolean(subtree, hfindex, tvb, offset + 3, 1, ENC_NA, &boolval);
+                proto_item_append_text(ti, "=%s", boolval ? "True" : "False");
+                break;
+            case FT_CHAR:
+                proto_tree_add_item_ret_uint(subtree, hfindex, tvb, offset + 3, 1, ENC_NA, &value);
+                proto_item_append_text(ti, "='%s'", format_char(pinfo->pool, (char)value));
+                break;
+            case FT_UINT32:
+                proto_tree_add_item_ret_uint(subtree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+                proto_item_append_text(ti, "=%d", value);
+                break;
+            default:
+                DISSECTOR_ASSERT_NOT_REACHED();
+            }
+        }
+        offset += 4;
+    }
+    return offset;
+}
+
+static int
 ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_tree *msg_type_tree,
         unsigned msg_code, ssh_message_info_t *message)
@@ -5254,6 +5557,20 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
             offset += 4;
         } else if (0 == strcmp(request_name, "shell")) {
             set_subdissector_for_channel(peer_data, recipient_channel, "shell");
+        } else if (0 == strcmp(request_name, "pty-req")) {
+            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_pty_term, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &slen);
+            offset += slen;
+            proto_tree_add_item(msg_type_tree, hf_ssh_pty_term_width_char, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(msg_type_tree, hf_ssh_pty_term_height_row, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(msg_type_tree, hf_ssh_pty_term_width_pixel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(msg_type_tree, hf_ssh_pty_term_height_pixel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_pty_term_modes_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
+            offset += 4;
+            offset += ssh_dissect_term_modes(tvb_new_subset_length(packet_tvb, offset, slen), pinfo, msg_type_tree);
         }
     } else if (msg_code == SSH_MSG_CHANNEL_SUCCESS) {
         proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -6542,6 +6859,336 @@ proto_register_ssh(void)
             FT_UINT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL } },
 
+        { &hf_ssh_pty_term,
+          { "TERM environment variable", "ssh.pty_term",
+            FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_width_char,
+          { "Terminal width, characters", "ssh.pty_term_width_char",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_height_row,
+          { "Terminal height, rows", "ssh.pty_term_height_row",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_width_pixel,
+          { "Terminal width, pixels", "ssh.pty_term_width_pixel",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_height_pixel,
+          { "Terminal height, pixels", "ssh.pty_term_height_pixel",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_modes_len,
+          { "Encoded Terminal Modes Length", "ssh.pty_term_modes_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_modes,
+          { "Encoded Terminal Modes", "ssh.pty_term_modes",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode,
+          { "Mode", "ssh.pty_term_mode",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_opcode,
+          { "Opcode", "ssh.pty_term_mode.opcode",
+            FT_UINT8, BASE_DEC, VALS(ssh_tty_op_vals), 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_vintr,
+          { "Interrupt character", "ssh.pty_term_mode.vintr",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_vquit,
+          { "Quit character", "ssh.pty_term_mode.vquit",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "Sends SIGQUIT on POSIX systems", HFILL}},
+
+        { &hf_ssh_pty_term_mode_verase,
+          { "Erase the character to the left of the cursor", "ssh.pty_term_mode.verase",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vkill,
+          { "Kill the current input line", "ssh.pty_term_mode.vkill",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_veof,
+          { "End-of-file character", "ssh.pty_term_mode.veof",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "Sends EOF from the terminal", HFILL}},
+
+        { &hf_ssh_pty_term_mode_veol,
+          { "End-of-line character", "ssh.pty_term_mode.veol",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "In additional to carriage return and/or line feed", HFILL} },
+
+        { &hf_ssh_pty_term_mode_veol2,
+          { "Additional end-of-line character", "ssh.pty_term_mode.veol2",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vstart,
+          { "Continues paused output", "ssh.pty_term_mode.vstart",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "Normally Control-Q", HFILL}},
+
+        { &hf_ssh_pty_term_mode_vstop,
+          { "Pauses output", "ssh.pty_term_mode.vstop",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "Normally Control-S", HFILL} },
+
+        { &hf_ssh_pty_term_mode_vsusp,
+          { "Suspends the current program", "ssh.pty_term_mode.vsusp",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vdsusp,
+          { "Another suspend character", "ssh.pty_term_mode.vdsusp",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vreprint,
+          { "Reprints the current input line", "ssh.pty_term_mode.vreprint",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vwerase,
+          { "Erase a word to the left of the cursor", "ssh.pty_term_mode.vwerase",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vlnext,
+          { "Enter the next character typed literally", "ssh.pty_term_mode.vlnext",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "Even if a special character", HFILL} },
+
+        { &hf_ssh_pty_term_mode_vflush,
+          { "Character to flush output", "ssh.pty_term_mode.vflush",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vswtch,
+          { "Switch to a different shell layer", "ssh.pty_term_mode.vswtch",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_vstatus,
+          { "Print system status line", "ssh.pty_term_mode.vstatus",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            "Load, command, pid, etc.", HFILL}},
+
+        { &hf_ssh_pty_term_mode_vdiscard,
+          { "Toggles the flushing of terminal output", "ssh.pty_term_mode.vdiscard",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
+            NULL, HFILL} },
+
+        { &hf_ssh_pty_term_mode_ignpar,
+          { "Ignore parity flag", "ssh.pty_term_mode.ignpar",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_parmrk,
+          { "Mark parity and framing errors", "ssh.pty_term_mode.parmrk",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_inpck,
+          { "Enable checking of parity errors", "ssh.pty_term_mode.inpck",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_istrip,
+          { "Strip 8th bit off characters", "ssh.pty_term_mode.istrip",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_inlcr,
+          { "Map NL into CR on input", "ssh.pty_term_mode.inlcr",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_igncr,
+          { "Ignore CR on input", "ssh.pty_term_mode.igncr",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_icrnl,
+          { "Map CR to NL on input", "ssh.pty_term_mode.icrnl",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_iuclc,
+          { "Translate uppercase characters to lowercase", "ssh.pty_term_mode.iuclc",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_ixon,
+          { "Enable output flow control", "ssh.pty_term_mode.ixon",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_ixany,
+          { "Any char will restart after stop", "ssh.pty_term_mode.ixany",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_ixoff,
+          { "Enable input flow control", "ssh.pty_term_mode.ixoff",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_imaxbel,
+          { "Ring bell on input queue full", "ssh.pty_term_mode.imaxbel",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_iutf8,
+          { "Terminal input and output is assumed to be encoded in UTF-8", "ssh.pty_term_mode.iutf8",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_isig,
+          { "Enable signals INTR, QUIT, [D]SUSP", "ssh.pty_term_mode.isig",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_icanon,
+          { "Canonicalize input lines", "ssh.pty_term_mode.icanon",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_xcase,
+          { "Enable input and output of uppercase characters by preceding their lowercase equivalents with '\'", "ssh.pty_term_mode.xcase",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_echo,
+          { "Enable echoing", "ssh.pty_term_mode.echo",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_echoe,
+          { "Visually erase chars", "ssh.pty_term_mode.echoe",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_echok,
+          { "Kill character discards current line", "ssh.pty_term_mode.echok",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_echonl,
+          { "Echo NL even if ECHO is off", "ssh.pty_term_mode.echonl",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_noflsh,
+          { "No flush after interrupt", "ssh.pty_term_mode.noflsh",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_tostop,
+          { "Stop background jobs from output", "ssh.pty_term_mode.tostop",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_iexten,
+          { "Enable extensions", "ssh.pty_term_mode.iexten",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_echoctl,
+          { "Echo control characters as ^(Char)", "ssh.pty_term_mode.echoctl",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_echoke,
+          { "Visual erase for line kill", "ssh.pty_term_mode.echoke",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_pendin,
+          { "Retype pending input", "ssh.pty_term_mode.pendin",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_opost,
+          { "Enable output processing", "ssh.pty_term_mode.opost",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_olcuc,
+          { "Convert lowercase to uppercase", "ssh.pty_term_mode.olcuc",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_onlcr,
+          { "Map NL to CR-NL", "ssh.pty_term_mode.onlcr",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_ocrnl,
+          { "Translate carriage return to newline (output)", "ssh.pty_term_mode.ocrnl",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_onocr,
+          { "Translate newline to carriage-return newline (output)", "ssh.pty_term_mode.onocr",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_onlret,
+          { "Newline performs a carriage return (output)", "ssh.pty_term_mode.onlret",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_cs7,
+          { "7 bit mode", "ssh.pty_term_mode.cs7",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_cs8,
+          { "8 bit mode", "ssh.pty_term_mode.cs8",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_parenb,
+          { "Parity enable", "ssh.pty_term_mode.parenb",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_parodd,
+          { "Odd parity", "ssh.pty_term_mode.parodd",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_ispeed,
+          { "Input baud rate", "ssh.pty_term_mode.ispeed",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_ospeed,
+          { "Output baud rate", "ssh.pty_term_mode.ospeed",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_bit_sec), 0x0,
+            NULL, HFILL } },
+
+        { &hf_ssh_pty_term_mode_value,
+          { "Value", "ssh.pty_term_mode.value",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
         { &hf_ssh_exit_status,
           { "Exit status", "ssh.exit_status",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -6663,7 +7310,9 @@ proto_register_ssh(void)
         &ett_key_exchange_host_sig,
         &ett_extension,
         &ett_userauth_pk_blob,
-        &ett_userauth_pk_signautre,
+        &ett_userauth_pk_signature,
+        &ett_term_modes,
+        &ett_term_mode,
         &ett_ssh1,
         &ett_ssh2,
         &ett_key_init,
