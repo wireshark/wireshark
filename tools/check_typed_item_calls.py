@@ -1572,7 +1572,6 @@ class Item:
             # Didn't manage to parse, set to a full value to avoid warnings.
             self.mask_value = 0xffffffff
             self.mask_width = 32
-            print('error, set to full')
 
         #if not self.mask_read:
         #    print('Could not read:', self.mask)
