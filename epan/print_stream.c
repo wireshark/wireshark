@@ -279,7 +279,7 @@ destroy_print_stream(print_stream_t *self)
     return (self && self->ops && self->ops->destroy) ? (self->ops->destroy)(self) : true;
 }
 
-#define MAX_INDENT    160
+#define MAX_INDENT    1024
 
 /* returns true if the print succeeded, false if there was an error */
 static bool
