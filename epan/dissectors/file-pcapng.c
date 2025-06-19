@@ -48,6 +48,7 @@ static int hf_pcapng_block_length;
 static int hf_pcapng_block_length_trailer;
 static int hf_pcapng_block_data;
 static int hf_pcapng_block_extraneous_data;
+static int hf_pcapng_block_extraneous_data_length;
 
 static int hf_pcapng_section_header_byte_order_magic;
 static int hf_pcapng_section_header_major_version;
@@ -175,6 +176,7 @@ static expert_field ei_block_length_below_block_minimum;
 static expert_field ei_block_length_below_block_content_length;
 static expert_field ei_block_length_not_multiple_of_4;
 static expert_field ei_block_lengths_dont_match;
+static expert_field ei_block_extraneous_data;
 static expert_field ei_invalid_option_length;
 static expert_field ei_invalid_record_length;
 static expert_field ei_missing_idb;
@@ -183,6 +185,7 @@ static int ett_pcapng;
 static int ett_pcapng_section_header_block;
 static int ett_pcapng_block_data;
 static int ett_pcapng_block_type;
+static int ett_pcapng_block_extraneous;
 static int ett_pcapng_options;
 static int ett_pcapng_option;
 static int ett_pcapng_records;
@@ -1348,8 +1351,22 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
             proto_item_set_len(option_item, option_length + 2 * 2);
     }
 
-    if(tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_item(tree, hf_pcapng_block_extraneous_data, tvb, offset, -1, ENC_NA);
+    /* Do we have any extraneous data? */
+    int extraneous_data_length = tvb_reported_length_remaining(tvb, offset);
+    if(extraneous_data_length > 0) {
+        proto_tree *ext_tree;
+        proto_item *it;
+
+        ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, extraneous_data_length,
+                                                 ett_pcapng_block_extraneous, &it, "Extraneous Data (%d octets)", extraneous_data_length);
+
+        proto_tree_add_item(ext_tree, hf_pcapng_block_extraneous_data, tvb, offset, extraneous_data_length, ENC_NA);
+
+        it = proto_tree_add_uint(ext_tree, hf_pcapng_block_extraneous_data_length, tvb, 0, 0, extraneous_data_length);
+        proto_item_set_generated(it);
+
+        it = proto_tree_add_expert(ext_tree, pinfo, &ei_block_extraneous_data, tvb, offset, extraneous_data_length);
+        proto_item_set_hidden(it);
     }
 
     proto_item_set_end(options_item, tvb, offset);
@@ -2176,6 +2193,11 @@ proto_register_pcapng(void)
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_pcapng_block_extraneous_data_length,
+            { "Extraneous Data Length",                           "pcapng.block.extraneous.data.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_pcapng_options,
             { "Options",                                   "pcapng.options",
             FT_NONE, BASE_NONE, NULL, 0x00,
@@ -2769,6 +2791,7 @@ proto_register_pcapng(void)
         { &ei_block_length_below_block_content_length, { "pcapng.block_length_below_block_content_length", PI_PROTOCOL, PI_ERROR, "Block length is < the length of the contents of the block", EXPFILL }},
         { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_not_multiple_of4", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_block_lengths_dont_match, { "pcapng.block_lengths_dont_match", PI_PROTOCOL, PI_ERROR, "Block length in trailer differs from block length in header", EXPFILL }},
+        { &ei_block_extraneous_data, { "pcapng.block.extraneous.data", PI_PROTOCOL, PI_NOTE, "Extraneous data in block after END-OF-OPTION option", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
         { &ei_missing_idb, { "pcapng.no_interfaces", PI_PROTOCOL, PI_ERROR, "No Interface Description before block that requires it", EXPFILL }},
