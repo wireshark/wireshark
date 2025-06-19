@@ -3947,11 +3947,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         }
                     }
 
-                    proto_item_append_text(layer_ti, " (layer %u)", ++layer);
+                    proto_item_append_text(layer_ti,     " (layer %u)", ++layer);
+                    proto_item_append_text(extension_ti, " (layer %u)", layer);
                 }
                 /* Set layer subtree label */
                 if (layer == 1) {
-                    proto_item_append_text(layer_ti, " (all)");
+                    proto_item_append_text(layer_ti,     " (all)");
+                    proto_item_append_text(extension_ti, " (all)");
+                }
+                if (layer == 0) {
+                    /* TODO: are no layers valid?  What does it mean? */
+                    proto_item_append_text(extension_ti, " (none)");
                 }
                 break;
             }
