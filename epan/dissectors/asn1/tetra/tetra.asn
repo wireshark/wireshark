@@ -1992,7 +1992,7 @@ CIRCUIT ::= ENUMERATED {
 
 U-ALERT::=
     SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     reserved INTEGER ( 0..1 ),
     simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
     optional-elements CHOICE {
@@ -2007,7 +2007,7 @@ U-ALERT::=
 
 U-CONNECT ::=
      SEQUENCE{
-       call-identifier INTEGER (0..1023),
+       call-identifier INTEGER (0..16383),
        hook-method-selection BOOLEAN,
        simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
        optional-elements CHOICE {
@@ -2022,7 +2022,7 @@ U-CONNECT ::=
 
 U-TX-CEASED::=
     SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     optional-elements CHOICE {
            no-type2 NULL,
            type2-parameters SEQUENCE {
@@ -2034,7 +2034,7 @@ U-TX-CEASED::=
 
 U-TX-DEMAND::=
     SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     tx-demand-priority INTEGER ( 0..3),
     encryption-control INTEGER ( 0..1 ),
     reserved INTEGER ( 0..1 ),
@@ -2048,7 +2048,7 @@ U-TX-DEMAND::=
 
 U-DISCONNECT ::=
     SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     disconnect-cause INTEGER ( 0..31 ),
     optional-elements CHOICE{
         no-type2 NULL,
@@ -2060,7 +2060,7 @@ U-DISCONNECT ::=
 
 U-CALL-RESTORE::=
     SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     request-to-transmit-send-data INTEGER ( 0..1 ),
     other-party-address Other-party-address-type,
     basic-service-information Basic-service-information,
@@ -2074,7 +2074,7 @@ U-CALL-RESTORE::=
 
 
 D-SETUP ::= SEQUENCE{
-       call-identifier INTEGER (0..16383 ),
+       call-identifier INTEGER (0..16383),
        call-time-out INTEGER (0..15 ),
        hook-method-selection INTEGER(0..1),
        simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
@@ -2094,7 +2094,7 @@ D-SETUP ::= SEQUENCE{
 
 D-CALL-PROCEEDING ::=
      SEQUENCE{
-       call-identifier INTEGER (0..1023),
+       call-identifier INTEGER (0..16383),
        call-time-out-setup-phase INTEGER (0..7),
        hook-method-selection BOOLEAN ,
        simplex-duplex-selection INTEGER (0..1),
@@ -2112,7 +2112,7 @@ D-CALL-PROCEEDING ::=
 
 D-ALERT ::=  SEQUENCE{
 
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     call-time-out-setup-phase INTEGER ( 0..7 ),
     reserved INTEGER ( 0..1 ),
     simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
@@ -2131,7 +2131,7 @@ D-ALERT ::=  SEQUENCE{
 
 D-CONNECT::=
      SEQUENCE{
-       call-identifier INTEGER (0..1023),
+       call-identifier INTEGER (0..16383),
        call-time-out INTEGER (0..31),
        hook-method-selection BOOLEAN,
        simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
@@ -2152,7 +2152,7 @@ D-CONNECT::=
 
 D-CONNECT-ACK::=
      SEQUENCE{
-       call-identifier INTEGER (0..1023),
+       call-identifier INTEGER (0..16383),
        call-time-out INTEGER (0..15),
        transmission-grant INTEGER (0..3),
        transmission-request-permission INTEGER (0..1),
@@ -2167,7 +2167,7 @@ D-CONNECT-ACK::=
 
 D-RELEASE::=
     SEQUENCE{
-     call-identifier INTEGER ( 0..16383 ),
+     call-identifier INTEGER ( 0..16383),
      disconnect-cause INTEGER ( 0..31 ),
      optional-elements CHOICE{
         no-type2 NULL,
@@ -2180,14 +2180,14 @@ D-RELEASE::=
 
 D-CALL-RESTORE::=
    SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     transmission-grant INTEGER ( 0..3 ),
     transmission-request-permission INTEGER( 0..1 ),
     reset-call-time-out INTEGER ( 0..1 ),
     optional-elements CHOICE{
            no-type2 NULL,
            type2-parameters SEQUENCE {
-	         new-call-identifier CHOICE{none NULL, new-call-identifier INTEGER (0..1023)},
+	         new-call-identifier CHOICE{none NULL, new-call-identifier INTEGER (0..16383)},
 		     call-time-out CHOICE{none NULL, call-time-out INTEGER ( 0..7 )},
 		   call-status CHOICE { none NULL, call-status INTEGER ( 0..7 )},
 		   modify CHOICE { none NULL, modify Modify-type},
@@ -2199,7 +2199,7 @@ D-CALL-RESTORE::=
 
 D-TX-CEASED::=
     SEQUENCE{
-    call-identifier INTEGER ( 0..1023 ),
+    call-identifier INTEGER ( 0..16383),
     transmission-request-permission INTEGER ( 0..1 ),
     optional-elements CHOICE{
         no-type2 NULL,
@@ -2212,7 +2212,7 @@ D-TX-CEASED::=
 
 D-TX-GRANTED ::=
 	SEQUENCE {
-	call-identifier INTEGER ( 0..1023 ),
+	call-identifier INTEGER ( 0..16383),
 	transmission-grant INTEGER ( 0..3 ),
 	transmission-request-permission INTEGER ( 0..1 ),
 	encryption-control INTEGER ( 0..1 ),
