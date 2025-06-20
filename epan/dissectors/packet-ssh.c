@@ -4221,7 +4221,6 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
                 // Reset array while REKEY: sanitize server_key_exchange_init and force do_decrypt :
                 peer_data->global_data->kex_server_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
                 peer_data->global_data->do_decrypt      = true;
-                peer_data->global_data->ext_ping_openssh_offered = false;
                 dissected_len = ssh_dissect_key_init(payload_tvb, pinfo, offset - 4, msg_type_tree, is_response, peer_data->global_data);
             break;
             }
