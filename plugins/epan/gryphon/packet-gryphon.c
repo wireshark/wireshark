@@ -2817,14 +2817,14 @@ resp_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_modresp(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    uint8_t  dest = tvb_get_uint8(tvb, offset-5),
+    uint8_t  dest = tvb_get_uint8(tvb, offset-9),
              resp_handle = tvb_get_uint8(tvb, offset);
 
     if (resp_handle)
         proto_tree_add_item(pt, hf_gryphon_modresp_handle, tvb, offset, 1, ENC_BIG_ENDIAN);
     else if (dest)
         proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb,
-                    offset, 1, dest, "Response handles: all on channel %c", dest);
+                    offset, 1, dest, "Response handles: all on channel %u", dest);
     else
         proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb, offset, 1,
                 0, "Response handles: all");
