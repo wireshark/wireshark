@@ -84,8 +84,8 @@ static bool http2_decompress_body = true;
 static bool http2_decompress_body;
 #endif
 
-/* add Association IMSI to all messages in stream */
-static bool http2_session_imsi = false;
+/* Track 3GPP session over 5G Service Based Interfaces */
+static bool http2_3gpp_session = false;
 
 /* Relation between referenceid -> imsi */
 static wmem_map_t* http2_referenceid_imsi;
@@ -1551,7 +1551,7 @@ http2_get_stream_imsi(packet_info *pinfo)
 
 void http2_add_referenceid_imsi(char* referenceid, const char* imsi)
 {
-    if(http2_session_imsi) {
+    if(http2_3gpp_session) {
         wmem_map_insert(http2_referenceid_imsi,
                         wmem_strdup(wmem_file_scope(), referenceid),
                         wmem_strdup(wmem_file_scope(), imsi));
@@ -1562,7 +1562,7 @@ char*
 http2_get_imsi_from_referenceid(const char* referenceid)
 {
     char *imsi = NULL;
-    if(http2_session_imsi) {
+    if(http2_3gpp_session) {
         imsi = (char *)wmem_map_lookup(http2_referenceid_imsi, referenceid);
     }
     return imsi;
@@ -1571,7 +1571,7 @@ http2_get_imsi_from_referenceid(const char* referenceid)
 static void
 http2_add_location_imsi(char* location, const char* imsi)
 {
-    if(http2_session_imsi) {
+    if(http2_3gpp_session) {
         wmem_map_insert(http2_location_imsi,
                         wmem_strdup(wmem_file_scope(), location),
                         wmem_strdup(wmem_file_scope(), imsi));
@@ -1582,7 +1582,7 @@ static char*
 http2_get_imsi_from_location(const char* location)
 {
     char *imsi = NULL;
-    if(http2_session_imsi) {
+    if(http2_3gpp_session) {
         imsi = (char *)wmem_map_lookup(http2_location_imsi, location);
     }
     return imsi;
@@ -2094,7 +2094,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_PATH) == 0) {
         stream_info->path = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
 
-        if(http2_session_imsi) {
+        if(http2_3gpp_session) {
             /* 3GPP Supi look up */
             /* If no Supi found the try look in referenceId mapping */
             GMatchInfo *match_info_imsi;
@@ -2144,7 +2144,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_LOCATION) == 0) {
         stream_info->location = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
 
-        if(http2_session_imsi && stream_info->imsi) {
+        if(http2_3gpp_session && stream_info->imsi) {
             /* Try lookup location mapping */
             GMatchInfo *match_info_location;
             static GRegex *regex_location = NULL;
@@ -4034,7 +4034,7 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
     }
 
     /* Add Associate IMSI */
-    if (http2_session_imsi) {
+    if (http2_3gpp_session) {
         if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
@@ -4424,7 +4424,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     http2_stream_info_t *stream_info = get_stream_info_for_id(pinfo, http2_session, false, streamid);
 
     /* Add Associate IMSI */
-    if (http2_session_imsi) {
+    if (http2_3gpp_session) {
         if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
@@ -5235,11 +5235,11 @@ proto_register_http2(void)
         "A table to define HTTP2 fake headers for parsing a HTTP2 stream conversation that first HEADERS frame is missing.",
         fake_headers_uat);
 
-    prefs_register_bool_preference(http2_module, "session_imsi",
-        "Add \"Association IMSI\" to all messages in a stream",
-        "Will look up Supi in path and if found then field \"Association IMSI\"(e212.assoc.imsi) will be added to all messages"
+    prefs_register_bool_preference(http2_module, "3gpp_session",
+        "Track 3GPP session over 5G Service Based Interfaces.",
+        "Will map IMSI from Supi to referenceid in path or location, if match found then field \"Association IMSI\"(e212.assoc.imsi) will be added to all messages"
         " within the same stream",
-        &http2_session_imsi);
+        &http2_3gpp_session);
 
     http2_referenceid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
     http2_location_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
