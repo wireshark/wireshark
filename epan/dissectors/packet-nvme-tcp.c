@@ -1037,7 +1037,7 @@ void proto_register_nvme_tcp(void) {
              NULL, HFILL } },
        { &hf_nvme_tcp_icresp_cpda,
            { "Controller Pdu data alignment", "nvme-tcp.icresp.cpda",
-             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_nvme_tcp_icresp_digest,
            { "Digest types enabled", "nvme-tcp.icresp.digest",
              FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },

@@ -403,7 +403,7 @@ add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
 			    string_len, ENC_ASCII|ENC_NA);	/* XXX - code page? */
 		} else {
-			proto_tree_add_item(tree, hf_smb_pipe_stringz_param, tvb, cptr, string_len, ENC_NA|ENC_ASCII);
+			proto_tree_add_item(tree, hf_smb_pipe_stringz_param, tvb, cptr, string_len, ENC_ASCII);
 		}
 	} else {
 		if (hf_index > 0) {

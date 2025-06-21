@@ -270,7 +270,7 @@ dissect_sapenqueue_server_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 						pattern_length = (uint8_t)tvb_reported_length_remaining(tvb, offset);
 						expert_add_info(pinfo, trace_request_pattern, &ei_sapenqueue_pattern_invalid_length);
 					}
-					proto_tree_add_item(trace_request_pattern_tree, hf_sapenqueue_server_admin_trace_pattern_value, tvb, offset, pattern_length, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(trace_request_pattern_tree, hf_sapenqueue_server_admin_trace_pattern_value, tvb, offset, pattern_length, ENC_ASCII);
 					offset += pattern_length;
 
 					/* Set the right size for the pattern tree */
@@ -333,7 +333,7 @@ dissect_sapenqueue_conn_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					case 0x03:{	/* Set Name parameter */
 						name_length = tvb_strsize(tvb, offset);
 						if (name_length > 0) {
-							proto_tree_add_item(param_tree, hf_sapenqueue_conn_admin_param_name, tvb, offset, name_length, ENC_ASCII|ENC_NA);
+							proto_tree_add_item(param_tree, hf_sapenqueue_conn_admin_param_name, tvb, offset, name_length, ENC_ASCII);
 							offset += name_length;
 							length += name_length;
 						}

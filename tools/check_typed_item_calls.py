@@ -154,6 +154,7 @@ compatible_encoding_args = {
                           'ENC_EUC_KR',
                           'ENC_DECT_STANDARD_8BITS',
                           'ENC_DECT_STANDARD_4BITS_TBCD',
+                          'ENC_STR_HEX'   # Should also have at least one ENC_SEP_* flag!
                           ]),
 
     'FT_CHAR' :      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?
@@ -196,6 +197,9 @@ compatible_encoding_args = {
                                'ENC_TIME_MSECS', 'ENC_TIME_USECS', 'ENC_TIME_NSECS'])
 }
 
+compatible_encoding_args['FT_STRINGZ'] = compatible_encoding_args['FT_STRING']
+
+
 compatible_encoding_multiple_flags_allowed = set(['FT_ABSOLUTE_TIME', 'FT_RELATIVE_TIME', 'FT_STRING'])
 
 class EncodingCheckerBasic:
@@ -224,6 +228,8 @@ class EncodingCheckerBasic:
                   compatible_encoding_args[type], 'allowed')
             warnings_found += 1
         self.encodings_seen += 1
+
+# TODO: separate checker for string types?
 
 # Factory for appropriate checker object
 def create_enc_checker(type):

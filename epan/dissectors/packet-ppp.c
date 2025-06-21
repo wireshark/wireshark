@@ -3926,7 +3926,7 @@ dissect_cbcp_callback_opt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             expert_add_info(pinfo, ti, &ei_cbcp_address);
             break;
         }
-        proto_tree_add_item(addr_tree, hf_cbcp_address, tvb, offset, addr_len, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(addr_tree, hf_cbcp_address, tvb, offset, addr_len, ENC_ASCII);
         offset += addr_len;
         length -= addr_len;
     }

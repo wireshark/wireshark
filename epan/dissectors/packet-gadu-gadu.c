@@ -1498,7 +1498,7 @@ dissect_gadu_gadu_pubdir50_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	while ((pos = tvb_find_uint8(tvb, offset, -1, '\0')) > 0) {
 		/* XXX, display it better, field=value */
-		proto_tree_add_item(tree, hf_gadu_gadu_pubdir_request_str, tvb, offset, (pos - offset) + 1, ENC_NA | ENC_WINDOWS_1250);
+		proto_tree_add_item(tree, hf_gadu_gadu_pubdir_request_str, tvb, offset, (pos - offset) + 1, ENC_WINDOWS_1250);
 		offset = pos + 1;
 	}
 
@@ -1521,7 +1521,7 @@ dissect_gadu_gadu_pubdir50_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	while ((pos = tvb_find_uint8(tvb, offset, -1, '\0')) > 0) {
 		/* XXX, display it better, field=value */
-		proto_tree_add_item(tree, hf_gadu_gadu_pubdir_reply_str, tvb, offset, (pos - offset) + 1, ENC_NA | ENC_WINDOWS_1250);
+		proto_tree_add_item(tree, hf_gadu_gadu_pubdir_reply_str, tvb, offset, (pos - offset) + 1, ENC_WINDOWS_1250);
 		offset = pos + 1;
 	}
 

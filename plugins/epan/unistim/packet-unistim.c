@@ -333,7 +333,7 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
          offset+=1;
          /* Get filename */
          str_len = tvb_reported_length_remaining(tvb, offset);
-         proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,ENC_ASCII);
          offset += str_len;
          break;
 
@@ -1592,10 +1592,10 @@ dissect_network_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,1,ENC_NA);
          offset+=1;msg_len-=1;
          string_len=tvb_strsize(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_net_full_pathname,tvb,offset,string_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_net_full_pathname,tvb,offset,string_len,ENC_ASCII);
          offset+=string_len;msg_len-=string_len;
          string_len=tvb_strsize(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_net_file_identifier,tvb,offset,string_len,ENC_ASCII|ENC_NA);
+         proto_tree_add_item(msg_tree,hf_net_file_identifier,tvb,offset,string_len,ENC_ASCII);
          offset+=string_len;msg_len-=string_len;
          proto_tree_add_item(msg_tree,hf_net_file_server_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;

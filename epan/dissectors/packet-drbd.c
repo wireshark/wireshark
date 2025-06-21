@@ -1256,11 +1256,11 @@ static void decode_payload_sync_param(tvbuff_t *tvb, proto_tree *tree, drbd_conv
 
     proto_tree_add_item(tree, hf_drbd_resync_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_drbd_verify_alg, tvb, offset, DRBD_STRING_MAX, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_drbd_verify_alg, tvb, offset, DRBD_STRING_MAX, ENC_ASCII);
     offset += DRBD_STRING_MAX;
 
     if (length >= offset + DRBD_STRING_MAX) {
-        proto_tree_add_item(tree, hf_drbd_csums_alg, tvb, offset, DRBD_STRING_MAX, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_drbd_csums_alg, tvb, offset, DRBD_STRING_MAX, ENC_ASCII);
         offset += DRBD_STRING_MAX;
     }
 
@@ -1280,7 +1280,7 @@ static void decode_payload_protocol(tvbuff_t *tvb, proto_tree *tree, drbd_conv *
     proto_tree_add_item(tree, hf_drbd_after_sb_2p, tvb, 12, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_conn_flags, tvb, 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_two_primaries, tvb, 20, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_integrity_alg, tvb, 24, -1, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_drbd_integrity_alg, tvb, 24, -1, ENC_ASCII);
 }
 
 static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)

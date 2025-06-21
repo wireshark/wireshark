@@ -1689,7 +1689,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     i = 1;
                     while (next_offset < (int) (segment_offset + segment_size)) {
                         len = tvb_strsize(tvb, next_offset);
-                        entry_item = proto_tree_add_item(segment_tree, hf_elf_string, tvb, next_offset, len, ENC_ASCII | ENC_NA);
+                        entry_item = proto_tree_add_item(segment_tree, hf_elf_string, tvb, next_offset, len, ENC_ASCII);
                         proto_item_append_text(entry_item, " (Number: %u, Index: %u, Length: %u)", (unsigned) i, (unsigned) (next_offset - segment_offset), len - 1);
                         next_offset += len;
                         i += 1;

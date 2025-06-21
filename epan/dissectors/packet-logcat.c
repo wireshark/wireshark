@@ -144,7 +144,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     check_length = 1;
 
     string_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(maintree, hf_logcat_tag, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(maintree, hf_logcat_tag, tvb, offset, string_length, ENC_UTF_8);
 
     set_address_tvb(&pinfo->src, AT_STRINGZ, string_length + 1, tvb, offset);
     set_address(&pinfo->dst, AT_STRINGZ, 7, "Logcat");
@@ -163,7 +163,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             *c = ' ';
     }
 
-    subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+    subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_UTF_8);
     subtree = proto_item_add_subtree(subitem, ett_logcat_log);
 
     next_tvb = tvb_new_subset_length(tvb, offset, string_length - 1);

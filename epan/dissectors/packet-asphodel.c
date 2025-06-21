@@ -455,7 +455,7 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset = 9;
 
     len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(asphodel_tree, hf_asphodel_serial_number, tvb, offset, len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(asphodel_tree, hf_asphodel_serial_number, tvb, offset, len, ENC_UTF_8);
     serial_number = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Asphodel Response (%s)", serial_number);
     offset += len;
@@ -464,23 +464,23 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset += 1;
 
     len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(asphodel_tree, hf_asphodel_board_type, tvb, offset, len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(asphodel_tree, hf_asphodel_board_type, tvb, offset, len, ENC_UTF_8);
     offset += len;
 
     len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(asphodel_tree, hf_asphodel_build_info, tvb, offset, len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(asphodel_tree, hf_asphodel_build_info, tvb, offset, len, ENC_UTF_8);
     offset += len;
 
     len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(asphodel_tree, hf_asphodel_build_date, tvb, offset, len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(asphodel_tree, hf_asphodel_build_date, tvb, offset, len, ENC_UTF_8);
     offset += len;
 
     len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(asphodel_tree, hf_asphodel_user_tag1, tvb, offset, len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(asphodel_tree, hf_asphodel_user_tag1, tvb, offset, len, ENC_UTF_8);
     offset += len;
 
     len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(asphodel_tree, hf_asphodel_user_tag2, tvb, offset, len, ENC_UTF_8 | ENC_NA);
+    proto_tree_add_item(asphodel_tree, hf_asphodel_user_tag2, tvb, offset, len, ENC_UTF_8);
     offset += len;
 
     if (protocol_type & ASPHODEL_PROTOCOL_TYPE_RADIO)

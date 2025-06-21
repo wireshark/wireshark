@@ -966,7 +966,7 @@ dissect_sapms_property(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 			break;
 		}
 		case 0x07:{			/* Release Information */
-			proto_tree_add_item(value_tree, hf_sapms_property_release, tvb, offset, 10, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(value_tree, hf_sapms_property_release, tvb, offset, 10, ENC_ASCII);
 			offset+=10;
 			proto_tree_add_item(value_tree, hf_sapms_property_release_patchno, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
@@ -1258,11 +1258,11 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			offset+=2;
 			length-=2;
 			string_length = tvb_strnlen(tvb, offset, length) + 1;
-			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
 			offset+=string_length;
 			length-=string_length;
 			string_length = tvb_strnlen(tvb, offset, length) + 1;
-			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
 			break;
 		}
 		default:{

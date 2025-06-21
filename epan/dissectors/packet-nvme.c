@@ -1371,7 +1371,7 @@ dissect_nvme_rwc_common_word_10_11_12_14_15(tvbuff_t *cmd_tvb, proto_tree *cmd_t
                         50, 2, ENC_LITTLE_ENDIAN);
 
     ti = proto_tree_add_item(cmd_tree, hf_nvme_cmd_prinfo, cmd_tvb, 50,
-                             1, ENC_NA);
+                             2, ENC_LITTLE_ENDIAN);
     prinfo_tree = proto_item_add_subtree(ti, ett_data);
 
     proto_tree_add_item(prinfo_tree, hf_nvme_cmd_prinfo_prchk_lbrtag, cmd_tvb,
@@ -5046,7 +5046,7 @@ proto_register_nvme(void)
         { &hf_nvme_cmd_prinfo,
             { "Protection info fields",
               "nvme.cmd.prinfo",
-               FT_UINT16, BASE_HEX, NULL, 0x0400, NULL, HFILL}
+               FT_UINT16, BASE_HEX, NULL, 0x3c00, NULL, HFILL}
         },
         { &hf_nvme_cmd_prinfo_prchk_lbrtag,
             { "check Logical block reference tag",

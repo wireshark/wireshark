@@ -258,10 +258,10 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item(shicp_tree, hf_shicp_auth_req, tvb, offset, keyvalue_length, ENC_LITTLE_ENDIAN);
                     break;
                 case SHICP_DISCOVER_MODULE_VERSION_KEY:
-                    proto_tree_add_item(shicp_tree, hf_shicp_module_version, tvb, offset, keyvalue_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(shicp_tree, hf_shicp_module_version, tvb, offset, keyvalue_length, ENC_ASCII);
                     break;
                 case SHICP_DISCOVER_MODULE_DESC_KEY:
-                    proto_tree_add_item(shicp_tree, hf_shicp_module_desc, tvb, offset, keyvalue_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(shicp_tree, hf_shicp_module_desc, tvb, offset, keyvalue_length, ENC_ASCII);
                     break;
                 case SHICP_DISCOVER_SUPPORTED_MSG_KEY:
                     keyvalue_end = offset + keyvalue_length;
@@ -295,7 +295,7 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item(shicp_tree, hf_shicp_dhcp, tvb, offset, keyvalue_length, ENC_LITTLE_ENDIAN);
                     break;
                 case SHICP_DISCOVER_HN_KEY:
-                    proto_tree_add_item(shicp_tree, hf_shicp_hn, tvb, offset, keyvalue_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(shicp_tree, hf_shicp_hn, tvb, offset, keyvalue_length, ENC_ASCII);
                     break;
                 case SHICP_DISCOVER_HN_MAX_LEN_KEY:
                     proto_tree_add_item(shicp_tree, hf_shicp_hn_max_len, tvb, offset, keyvalue_length, ENC_LITTLE_ENDIAN);
@@ -351,10 +351,10 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item(shicp_tree, hf_shicp_dhcp, tvb, offset, keyvalue_length, ENC_LITTLE_ENDIAN);
                     break;
                 case SHICP_CONFIG_HN_KEY:
-                    proto_tree_add_item(shicp_tree, hf_shicp_hn, tvb, offset, keyvalue_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(shicp_tree, hf_shicp_hn, tvb, offset, keyvalue_length, ENC_ASCII);
                     break;
                 case SHICP_CONFIG_PSWD_KEY:
-                    proto_tree_add_item(shicp_tree, hf_shicp_pswd, tvb, offset, keyvalue_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(shicp_tree, hf_shicp_pswd, tvb, offset, keyvalue_length, ENC_ASCII);
                     break;
                 default:
                     break;

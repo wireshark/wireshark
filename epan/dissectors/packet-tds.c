@@ -4256,7 +4256,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tre
             }
             case TDS7_PRELOGIN_OPTION_INSTOPT: {
                 proto_item_append_text(option_item, ": InstOpt");
-                proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII | ENC_NA);
+                proto_tree_add_item(option_tree, hf_tds_prelogin_option_instopt, tvb, tokenoffset, tokenlen, ENC_ASCII);
                 break;
             }
             case TDS7_PRELOGIN_OPTION_THREADID: {

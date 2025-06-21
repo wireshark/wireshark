@@ -1922,7 +1922,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     }
                     break;
                 case 0x42: /* Type */
-                    proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_ASCII));
                     if (!pinfo->fd->visited && obex_last_opcode_data && (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)) {
                         obex_last_opcode_data->data.get_put.type = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);

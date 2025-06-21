@@ -117,7 +117,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     header_item = proto_tree_add_item(main_tree, hf_btsnoop_header, tvb, offset, sizeof(magic) + 4 + 4, ENC_NA);
     header_tree = proto_item_add_subtree(header_item, ett_btsnoop_header);
 
-    proto_tree_add_item(header_tree, hf_btsnoop_magic_bytes, tvb, offset, sizeof(magic), ENC_ASCII | ENC_NA);
+    proto_tree_add_item(header_tree, hf_btsnoop_magic_bytes, tvb, offset, sizeof(magic), ENC_ASCII);
     offset += (int)sizeof(magic);
 
     proto_tree_add_item(header_tree, hf_btsnoop_version, tvb, offset, 4, ENC_BIG_ENDIAN);

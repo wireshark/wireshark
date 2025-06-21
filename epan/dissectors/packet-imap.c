@@ -233,7 +233,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
                 need_more = false;
 
                 // Put the line into the protocol tree.
-                proto_item *ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, *next_offset - offset, ENC_ASCII | ENC_NA);
+                proto_item *ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, *next_offset - offset, ENC_ASCII);
                 *reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
 
                 //no need to overwrite column information since subdissector was called
@@ -257,7 +257,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
           need_more = false;
 
           // Put the line into the protocol tree.
-          proto_item *ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, *next_offset - offset, ENC_ASCII | ENC_NA);
+          proto_item *ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, *next_offset - offset, ENC_ASCII);
           *reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
         }
       }
@@ -441,7 +441,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       }
 
       if (show_line)
-        proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII);
 
     } else {
 
@@ -451,7 +451,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       }
 
       // Put the line into the protocol tree.
-      ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII | ENC_NA);
+      ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII);
       reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
 
       /*
@@ -503,7 +503,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           uid_tokenlen = tvb_get_token_len(tvb, next_token, uidlen, &uid_next_token, false);
           if (uid_tokenlen != 0) {
             proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII);
-            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
+            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII);
             proto_item_set_hidden(hidden_item);
 
             /*
@@ -523,7 +523,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
            */
           proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_command : hf_imap_response_status, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
           if (is_request) {
-            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
+            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII);
             proto_item_set_hidden(hidden_item);
 
             /*
@@ -556,7 +556,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * so parse out the folder name.
              */
             if (folder_tokenlen != 0)
-              proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
+              proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII);
           }
           else if ((linelen > 0) && strncmp(command_token, "copy", commandlen) == 0) {
             /*
@@ -568,7 +568,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             folder_tokenlen = tvb_get_token_len(tvb, folder_offset, folderlen, &folder_next_token, false);
 
             if (folder_tokenlen != 0)
-              proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
+              proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII);
           }
           else if (strncmp(command_token, "starttls", commandlen) == 0) {
             /* If next response is OK, then TLS should be commenced. */
@@ -604,8 +604,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           commandlen = linelen - (next_token-offset);
           commandlen = tvb_get_token_len(tvb, next_token, commandlen, &command_next_token, false);
           if (commandlen > 0) {
-            proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
-            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
+            proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII);
+            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII);
             proto_item_set_hidden(hidden_item);
           }
         }

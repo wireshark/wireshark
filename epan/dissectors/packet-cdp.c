@@ -827,10 +827,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(tlv_tree, hf_cdp_encrypted_data, tvb, offset + 4, 20, ENC_NA);
                 proto_tree_add_item(tlv_tree, hf_cdp_seen_sequence, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_sequence_number, tvb, offset + 28, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_cdp_model_number, tvb, offset + 32, 16, ENC_NA|ENC_ASCII);
+                proto_tree_add_item(tlv_tree, hf_cdp_model_number, tvb, offset + 32, 16, ENC_ASCII);
                 proto_tree_add_item(tlv_tree, hf_cdp_unknown_pad, tvb, offset + 48, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_cdp_hardware_version_id, tvb, offset + 50, 3, ENC_NA|ENC_ASCII);
-                proto_tree_add_item(tlv_tree, hf_cdp_system_serial_number, tvb, offset + 53, 11, ENC_NA|ENC_ASCII);
+                proto_tree_add_item(tlv_tree, hf_cdp_hardware_version_id, tvb, offset + 50, 3, ENC_ASCII);
+                proto_tree_add_item(tlv_tree, hf_cdp_system_serial_number, tvb, offset + 53, 11, ENC_ASCII);
                 proto_tree_add_item(tlv_tree, hf_cdp_nrgyz_unknown_values, tvb, offset + 64, 8, ENC_NA);
                 proto_tree_add_item(tlv_tree, hf_cdp_len_tlv_table, tvb, offset + 72, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_num_tlvs_table, tvb, offset + 74, 2, ENC_BIG_ENDIAN);
@@ -1238,13 +1238,13 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, uint16_t length
             proto_tree_add_item(etree, hf_cdp_nrgyz_tlvlength, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             switch (tlvt) {
             case TYPE_NRGYZ_ROLE:
-                proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_role, tvb, offset + 8, tlvl - 8, ENC_NA|ENC_ASCII);
+                proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_role, tvb, offset + 8, tlvl - 8, ENC_ASCII);
                 break;
             case TYPE_NRGYZ_DOMAIN:
-                proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_domain, tvb, offset + 8, tlvl - 8, ENC_NA|ENC_ASCII);
+                proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_domain, tvb, offset + 8, tlvl - 8, ENC_ASCII);
                 break;
             case TYPE_NRGYZ_NAME:
-                proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_name, tvb, offset + 8, tlvl - 8, ENC_NA|ENC_ASCII);
+                proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_name, tvb, offset + 8, tlvl - 8, ENC_ASCII);
                 break;
             case TYPE_NRGYZ_REPLYTO:
                 proto_tree_add_item(etree, hf_cdp_nrgyz_reply_to_unknown_field, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
