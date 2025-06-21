@@ -199,6 +199,10 @@ for Arm64 and Intel. wsbuglink:17294[]
 * The View menu has an option to Redissect Packets manually, which can be useful
   when address resolution or decryption secrets have changed.
 
+* HTTP2 tracking of 3GPP session over 5G Service Based Interfaces is now optional
+  available. When enabled "Associate IMSI" will be add on HTTP2 streams which
+  has been found belong to a session.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.
