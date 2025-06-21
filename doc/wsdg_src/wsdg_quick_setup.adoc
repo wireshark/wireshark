@@ -869,6 +869,48 @@ the build using MSVC:
 
 * Enhanced Kerberos dissection with decryption is not available.
 
+
+[#ChSetupWSL2]
+
+==== Using WSL2 on a Windows Host (Beginner Friendly)
+
+Using WSL2 on a Windows machine can provide a quick and easy way for beginners 
+to get started. This section will focus on using the official Debian 
+distribution installed from the `wsl` CLI command or Windows App Store.
+
+This will allow for a quick and easy way to build Wireshark. Please note 
+that while this guide is sufficient for an environment to build and test minor changes, 
+some changes and enhancements will still need to be built and tested for Windows 
+as described in the sections above.
+
+To install WSL2 for the first time and Debian via the CLI run (as administrator):
+
+  wsl --install
+  wsl --install -d Debian
+
+https://learn.microsoft.com/en-us/windows/wsl/install[Please see the documentation on WSL for help with installation.]
+
+From here following the build guide for Debian based Un*x systems should finish 
+the setup of the build environment. See <<ChSetupUNIX>> for 
+details on compiling, building, and running Wireshark on Debian. WSL2 supports 
+both X11 and Wayland to enable the use of GUI applications without any additional 
+requirements. Please see the https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-appsp[WSL2 reference of GUIs for more detail.]
+
+[NOTE]
+.For First Time Contributors
+====
+It is highly recommended to review the source control process before attempting
+to build any changes. 
+
+Please see:
+
+  - <<ChSrcGit>>
+  - <<ChSrcGitUpdate>>
+  - <<ChSrcContribute>>
+
+For a description of the process.
+====
+
 [#ChSetupCross]
 
 ==== Cross-compilation using Linux
