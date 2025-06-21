@@ -6385,7 +6385,7 @@ dissect_kafka_delete_topics_response(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item *subti;
     proto_tree *subtree;
 
-    if (api_version >= 3) {
+    if (api_version >= 1) {
         offset = dissect_kafka_throttle_time(tvb, pinfo, tree, offset);
     }
 
