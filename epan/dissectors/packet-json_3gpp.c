@@ -1410,7 +1410,7 @@ dissect_3gpp_notifyuri(tvbuff_t* tvb, proto_tree* tree _U_, packet_info* pinfo, 
 	 */
 	if (regex == NULL) {
 		regex = g_regex_new (
-			"^.*\\/referenceid\\/(\\d+).*",
+			"^.*\\/referenceid\\/([A-Za-z0-9\\-.]+).*",
 			G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
 	}
 

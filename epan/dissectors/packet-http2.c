@@ -2118,7 +2118,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
             }
             if (regex_referenceid == NULL) {
                 regex_referenceid = g_regex_new (
-                    ".*\\/(referenceid|sm-contexts|sm-policies|pdu-sessions)\\/(\\d+).*",
+                    ".*\\/(referenceid|chargingdata|sm-contexts|sm-policies|pdu-sessions)\\/([A-Za-z0-9\\-.]+).*",
                     G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
             }
 
@@ -2152,7 +2152,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
             if (regex_location == NULL) {
                 regex_location = g_regex_new (
-                    ".*\\/(chargingdata|sm-policies|pdu-sessions)\\/(\\d+).*",
+                    ".*\\/(chargingdata|sm-policies|pdu-sessions)\\/([A-Za-z0-9\\-.]+).*",
                     G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
             }
 
