@@ -90,6 +90,9 @@ static bool http2_session_imsi = false;
 /* Relation between referenceid -> imsi */
 static wmem_map_t* http2_referenceid_imsi;
 
+/* Relation between location -> imsi */
+static wmem_map_t* http2_location_imsi;
+
 /* Try to dissect reassembled http2.data.data according to content-type later */
 static dissector_table_t media_type_dissector_table;
 
@@ -250,6 +253,7 @@ typedef struct {
     char *path;
     const char *imsi;
     const char *referenceid;
+    const char *location;
 } http2_stream_info_t;
 #endif
 /* struct to hold data per HTTP/2 session */
@@ -1564,6 +1568,26 @@ http2_get_imsi_from_referenceid(const char* referenceid)
     return imsi;
 }
 
+static void
+http2_add_location_imsi(char* location, const char* imsi)
+{
+    if(http2_session_imsi) {
+        wmem_map_insert(http2_location_imsi,
+                        wmem_strdup(wmem_file_scope(), location),
+                        wmem_strdup(wmem_file_scope(), imsi));
+    }
+}
+
+static char*
+http2_get_imsi_from_location(const char* location)
+{
+    char *imsi = NULL;
+    if(http2_session_imsi) {
+        imsi = (char *)wmem_map_lookup(http2_location_imsi, location);
+    }
+    return imsi;
+}
+
 static const char*
 http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, uint32_t stream_id)
 {
@@ -1613,6 +1637,16 @@ http2_get_imsi_from_referenceid(const char* referenceid _U_)
     return NULL;
 }
 
+void http2_add_location_imsi(char* location _U_, const char* imsi _U_)
+{
+    return;
+}
+
+char*
+http2_get_imsi_from_location(const char* location _U_)
+{
+    return NULL;
+}
 
 static const char*
 http2_get_request_full_uri(packet_info *pinfo _U_, http2_session_t *http2_session _U_, uint32_t stream_id _U_)
@@ -2084,7 +2118,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
             }
             if (regex_referenceid == NULL) {
                 regex_referenceid = g_regex_new (
-                    ".*\\/(referenceid|sm-contexts|pdu-sessions)\\/(\\d+).*",
+                    ".*\\/(referenceid|sm-contexts|sm-policies|pdu-sessions)\\/(\\d+).*",
                     G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
             }
 
@@ -2106,6 +2140,34 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
             g_regex_unref(regex_referenceid);
         }
     }
+
+    if (strcmp(header_name, HTTP2_HEADER_LOCATION) == 0) {
+        stream_info->location = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+
+        if(http2_session_imsi && stream_info->imsi) {
+            /* Try lookup location mapping */
+            GMatchInfo *match_info_location;
+            static GRegex *regex_location = NULL;
+            char *matched_location = NULL;
+
+            if (regex_location == NULL) {
+                regex_location = g_regex_new (
+                    ".*\\/(chargingdata|sm-policies|pdu-sessions)\\/(\\d+).*",
+                    G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+            }
+
+            g_regex_match(regex_location, stream_info->location, 0, &match_info_location);
+
+            if (g_match_info_matches(match_info_location)) {
+                matched_location = g_match_info_fetch(match_info_location, 2); //will be empty string if location is not found
+                if (matched_location && (strcmp(matched_location, "") != 0)) {
+                    http2_add_location_imsi(matched_location, stream_info->imsi);
+                }
+            }
+            g_regex_unref(regex_location);
+        }
+    }
+
 
     if (strcmp(header_name, HTTP2_HEADER_AUTHORITY) == 0) {
         stream_info->authority = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
@@ -3977,8 +4039,10 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
             char *imsi = NULL;
-            imsi = http2_get_imsi_from_referenceid(stream_info->referenceid);
-            if(imsi) {
+            if((imsi = http2_get_imsi_from_referenceid(stream_info->referenceid))) {
+                add_assoc_imsi_item(tvb, http2_tree, imsi);
+            /* Will try to look up match between path referenceid and location ID */
+            } else if((imsi = http2_get_imsi_from_location(stream_info->referenceid))) {
                 add_assoc_imsi_item(tvb, http2_tree, imsi);
             }
         }
@@ -4365,8 +4429,10 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
         } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
             char *imsi = NULL;
-            imsi = http2_get_imsi_from_referenceid(stream_info->referenceid);
-            if(imsi) {
+            if((imsi = http2_get_imsi_from_referenceid(stream_info->referenceid))) {
+                add_assoc_imsi_item(tvb, http2_tree, imsi);
+            /* Will try to look up match between path referenceid and location ID */
+            } else if((imsi = http2_get_imsi_from_location(stream_info->referenceid))) {
                 add_assoc_imsi_item(tvb, http2_tree, imsi);
             }
         }
@@ -5176,6 +5242,7 @@ proto_register_http2(void)
         &http2_session_imsi);
 
     http2_referenceid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
+    http2_location_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 
     /* Fill hash table with static headers */
     register_static_headers();

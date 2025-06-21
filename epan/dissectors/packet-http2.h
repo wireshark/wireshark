@@ -22,6 +22,7 @@ extern "C" {
 #define HTTP2_HEADER_METHOD_CONNECT "CONNECT"
 #define HTTP2_HEADER_TRANSFER_ENCODING "transfer-encoding"
 #define HTTP2_HEADER_PATH ":path"
+#define HTTP2_HEADER_LOCATION "location"
 #define HTTP2_HEADER_AUTHORITY ":authority"
 #define HTTP2_HEADER_SCHEME ":scheme"
 #define HTTP2_HEADER_CONTENT_TYPE "content-type"
