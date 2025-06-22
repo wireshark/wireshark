@@ -799,6 +799,13 @@
         <source>Start / elapsed:</source>
         <translation>Start / vergangen:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Dateityp automatisch erkennen</translation>
@@ -881,13 +888,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Mitschnittdatei zusammenführen</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1014,16 +1014,16 @@
         <source>Last event</source>
         <translation>Letztes Ereignis</translation>
     </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>Zeitspanne</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation>Zeitspanne</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -3090,8 +3090,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter(s) on capture start</oldsource>
-        <translation type="unfinished">Parameter beim Starten des Mitschnitts speichern</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4160,23 +4159,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <oldsource>Remove the selected graph(s).</oldsource>
-        <translation type="unfinished">Ausgewählte(n) Graphen entfernen.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <oldsource>Duplicate the selected graph(s).</oldsource>
-        <translation type="unfinished">Ausgewählte(n) Graphen duplizieren.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <oldsource>Move the selected graph(s) upwards.</oldsource>
-        <translation type="unfinished">Ausgewählte(n) Graphen nach oben verschieben.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <oldsource>Move the selected graph(s) downwards.</oldsource>
-        <translation type="unfinished">Ausgewählte(n) Graphen nach unten verschieben.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -7958,22 +7953,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10152,10 +10143,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>&amp;Analysieren</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation>Analysefenster für die ausgewählten Streams anzeigen</translation>
-    </message>
-    <message>
         <source>&amp;Set List</source>
         <translation>Liste &amp;setzen</translation>
     </message>
@@ -10170,6 +10157,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
         <translation>Vorhandene Liste in RTP Analyse Dialog mit neuer ersetzen</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation>Analysefenster für die ausgewählten Streams anzeigen</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
@@ -10257,8 +10248,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Filter für ausgewählte Streams vorbereiten.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10629,8 +10619,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Filter für ausgewählte Streams vorbereiten.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10977,8 +10966,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
-        <translation type="unfinished">Analysenfenster für die ausgewählten Streams anzeigen und zu diesem hinzufügen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11034,8 +11022,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <oldsource>Mark the packets of the selected stream(s).</oldsource>
-        <translation type="unfinished">Pakete des ausgewählten Streams markieren.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>M</source>
@@ -11079,8 +11066,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Filter für ausgewählte Streams vorbereiten.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>P</source>
@@ -13489,8 +13475,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <oldsource>Show flow sequence for selected call(s).</oldsource>
-        <translation type="unfinished">Flow Sequenz für ausgewählte/n Anruf/e anzeigen.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13498,8 +13483,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
-        <translation type="unfinished">Filter für ausgewählte Anrufe vorbereiten.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -16070,10 +16054,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
-            <numerusform>Kommentar von %n Paket löschen</numerusform>
-            <numerusform>Kommentare von %n Paketen löschen</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

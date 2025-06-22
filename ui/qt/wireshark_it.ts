@@ -799,6 +799,13 @@
         <source>Start / elapsed:</source>
         <translation>Inizio / trascorso:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln giorno</numerusform>
+            <numerusform>%Ln giorni</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Rileva automaticamente il tipo di file</translation>
@@ -881,13 +888,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Unisci file di cattura</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1014,16 +1014,16 @@
         <source>Last event</source>
         <translation>Ultimo evento</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Elapsed</source>
         <translation>Trascorso</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln giorno</numerusform>
+            <numerusform>%Ln giorni</numerusform>
+        </translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -1597,7 +1597,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni interfaccia Extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3090,8 +3090,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter(s) on capture start</oldsource>
-        <translation type="unfinished">Salva parametri all&apos;avvio della cattura</translation>
+        <translation>Salva parametri all&apos;avvio della cattura</translation>
     </message>
 </context>
 <context>
@@ -4041,7 +4040,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Console</source>
-        <translation type="unfinished"></translation>
+        <translation>Console</translation>
     </message>
     <message>
         <source>Evaluate</source>
@@ -4160,23 +4159,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <oldsource>Remove the selected graph(s).</oldsource>
-        <translation type="unfinished">Rimuovi i grafici selezionati.</translation>
+        <translation>Rimuovi i grafici selezionati.</translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <oldsource>Duplicate the selected graph(s).</oldsource>
-        <translation type="unfinished">Duplica i grafici selezionati.</translation>
+        <translation>Duplica i grafici selezionati.</translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <oldsource>Move the selected graph(s) upwards.</oldsource>
-        <translation type="unfinished">Sposta i grafici selezionati in alto.</translation>
+        <translation>Sposta i grafici selezionati in alto.</translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <oldsource>Move the selected graph(s) downwards.</oldsource>
-        <translation type="unfinished">Sposta questo grafico verso il basso.</translation>
+        <translation>Sposta questo grafico verso il basso.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6408,7 +6403,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche Mac 3GPP (%1 UE, %2 frame)</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
@@ -6768,11 +6763,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Launch UL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia grafico UL</translation>
     </message>
     <message>
         <source>Launch DL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia grafico DL</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6836,7 +6831,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche RLC LTE (%1 UE, %2 frame)</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7988,23 +7983,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <oldsource>Remove the selected plot(s).</oldsource>
-        <translation type="unfinished">Rimuovi i grafici selezionati.</translation>
+        <translation>Rimuovi i grafici selezionati.</translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <oldsource>Duplicate the selected plot(s).</oldsource>
-        <translation type="unfinished">Duplica i grafici selezionati.</translation>
+        <translation>Duplica i grafici selezionati.</translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <oldsource>Move the selected plot(s) upwards.</oldsource>
-        <translation type="unfinished">Sposta i grafici selezionati in alto.</translation>
+        <translation>Sposta i grafici selezionati in alto.</translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <oldsource>Move the selected plot(s) downwards.</oldsource>
-        <translation type="unfinished">Sposta i grafici selezionati in alto.</translation>
+        <translation>Sposta i grafici selezionati verso il basso.</translation>
     </message>
     <message>
         <source>Clear all plots.</source>
@@ -8604,7 +8595,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>%Ln Selected Personal Profile(s)...</source>
         <translation>
             <numerusform>%Ln profilo personale selezionato...</numerusform>
-            <numerusform>%Ln profili personali selezionati</numerusform>
+            <numerusform>%Ln profili personali selezionati...</numerusform>
         </translation>
     </message>
     <message>
@@ -10182,10 +10173,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&amp;Analizza</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation>Apri la finestra di analisi per i flussi selezionati</translation>
-    </message>
-    <message>
         <source>&amp;Set List</source>
         <translation>Elenco di in&amp;siemi</translation>
     </message>
@@ -10200,6 +10187,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
         <translation>Sostituisci l&apos;elenco esistente nella finestra di analisi RTP con uno nuovo</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation>Apri la finestra di analisi per i flussi selezionati</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
@@ -10287,8 +10278,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+        <translation>Prepara un filtro che corrisponde ai flussi selezionati.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10659,8 +10649,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+        <translation>Prepara un filtro che corrisponde ai flussi selezionati.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -11007,8 +10996,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
-        <translation type="unfinished">Apri la finestra di analisi per i flussi selezionati e aggiungili ad essa</translation>
+        <translation>Apri la finestra di analisi per i flussi selezionati e aggiungili ad essa</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11064,8 +11052,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <oldsource>Mark the packets of the selected stream(s).</oldsource>
-        <translation type="unfinished">Marca i pacchetti dei flussi selezionati.</translation>
+        <translation>Marca i pacchetti dei flussi selezionati.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11109,8 +11096,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+        <translation>Prepara un filtro che corrisponde ai flussi selezionati.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13514,8 +13500,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <oldsource>Show flow sequence for selected call(s).</oldsource>
-        <translation type="unfinished">Mostra la sequenza del flusso per le chiamate selezionate.</translation>
+        <translation>Mostra la sequenza del flusso per le chiamate selezionate.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13523,8 +13508,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
-        <translation type="unfinished">Prepara un filtro che corrisponde alle chiamate selezionate.</translation>
+        <translation>Prepara un filtro che corrisponde alle chiamate selezionate.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15178,7 +15162,7 @@ a:hover {
     </message>
     <message>
         <source>Redissect Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova decodifica pacchetti</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -16095,8 +16079,7 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Elimina i commenti da %n pacchetto</numerusform>
             <numerusform>Elimina i commenti da %n pacchetti</numerusform>
         </translation>

@@ -800,6 +800,14 @@
         <source>Start / elapsed:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation type="unfinished"></translation>
@@ -859,14 +867,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Об&apos;єднати Файл Захоплення</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -996,6 +996,10 @@
         <source>Last event</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>Витрачено</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
         <translation type="unfinished">
@@ -1003,10 +1007,6 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation>Витрачено</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -3068,7 +3068,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter(s) on capture start</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4119,22 +4118,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <oldsource>Remove the selected graph(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <oldsource>Duplicate the selected graph(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <oldsource>Move the selected graph(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <oldsource>Move the selected graph(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7897,22 +7892,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10080,10 +10071,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">&amp;Аналіз</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Set List</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10097,6 +10084,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10185,7 +10176,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10553,7 +10543,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10901,7 +10890,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10958,7 +10946,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <oldsource>Mark the packets of the selected stream(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11003,7 +10990,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13355,7 +13341,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <oldsource>Show flow sequence for selected call(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13364,7 +13349,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15886,7 +15870,6 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>

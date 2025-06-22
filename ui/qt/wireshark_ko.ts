@@ -798,6 +798,12 @@
         <source>Start / elapsed:</source>
         <translation>시작/경과:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>파일 형식을 자동으로 감지</translation>
@@ -877,12 +883,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>캡처 파일 병합</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1006,15 +1006,15 @@
         <source>Last event</source>
         <translation>마지막 이벤트</translation>
     </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>경과 시간</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation>경과 시간</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -3081,8 +3081,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter(s) on capture start</oldsource>
-        <translation type="unfinished">캡처를 시작할 때 인자 저장</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4141,23 +4140,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <oldsource>Remove the selected graph(s).</oldsource>
-        <translation type="unfinished">선택한 그래프를 삭제합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <oldsource>Duplicate the selected graph(s).</oldsource>
-        <translation type="unfinished">선택한 그래프를 복제합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <oldsource>Move the selected graph(s) upwards.</oldsource>
-        <translation type="unfinished">선택한 그래프를 위로 이동합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <oldsource>Move the selected graph(s) downwards.</oldsource>
-        <translation type="unfinished">선택한 그래프를 아래로 이동합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -7932,22 +7927,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <oldsource>Remove the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <oldsource>Duplicate the selected plot(s).</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <oldsource>Move the selected plot(s) upwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <oldsource>Move the selected plot(s) downwards.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10117,10 +10108,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>분석(&amp;A)</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation>선택한 스트림에 대한 분석 창 열기</translation>
-    </message>
-    <message>
         <source>&amp;Set List</source>
         <translation>목록 설정(&amp;S)</translation>
     </message>
@@ -10135,6 +10122,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
         <translation>RTP 분석 대화 상자의 기존 목록을 새로운 목록으로 교체</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation>선택한 스트림에 대한 분석 창 열기</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
@@ -10222,8 +10213,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">선택한 스트림과 일치하는 필터를 준비합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10594,8 +10584,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">선택한 스트림과 일치하는 필터를 준비합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10942,8 +10931,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
-        <translation type="unfinished">선택한 스트림에 대한 분석 창을 열고 추가합니다</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -10999,8 +10987,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <oldsource>Mark the packets of the selected stream(s).</oldsource>
-        <translation type="unfinished">선택한 스트림의 패킷을 마크합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>M</source>
@@ -11044,8 +11031,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">선택한 스트림과 일치하는 필터를 준비합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>P</source>
@@ -13450,8 +13436,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <oldsource>Show flow sequence for selected call(s).</oldsource>
-        <translation type="unfinished">선택한 호에 대한 플로 시퀀스를 표시합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13459,8 +13444,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
-        <translation type="unfinished">선택한 호와 일치하는 필터를 준비합니다.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -16028,9 +16012,8 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
-            <numerusform>패킷 %n개에서 주석 삭제</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

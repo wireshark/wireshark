@@ -799,6 +799,13 @@
         <source>Start / elapsed:</source>
         <translation>Inici / transcorregut:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln dia</numerusform>
+            <numerusform>%Ln dies</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Detecta automàticament el tipus de fitxer</translation>
@@ -881,13 +888,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Combina el fitxer de captura</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1014,16 +1014,16 @@
         <source>Last event</source>
         <translation>Últim esdeveniment</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Elapsed</source>
         <translation>Transcorregut</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln dia</numerusform>
+            <numerusform>%Ln dies</numerusform>
+        </translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -1597,7 +1597,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració de la interfície Extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3090,8 +3090,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter(s) on capture start</oldsource>
-        <translation type="unfinished">Desa el paràmetre quan comenci la captura</translation>
+        <translation>Desa els paràmetres quan comenci la captura</translation>
     </message>
 </context>
 <context>
@@ -4041,7 +4040,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Console</source>
-        <translation type="unfinished"></translation>
+        <translation>Consola</translation>
     </message>
     <message>
         <source>Evaluate</source>
@@ -4160,23 +4159,19 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <oldsource>Remove the selected graph(s).</oldsource>
-        <translation type="unfinished">Trau els gràfics seleccionats.</translation>
+        <translation>Trau els gràfics seleccionats.</translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <oldsource>Duplicate the selected graph(s).</oldsource>
-        <translation type="unfinished">Duplica els gràfics seleccionats.</translation>
+        <translation>Duplica els gràfics seleccionats.</translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <oldsource>Move the selected graph(s) upwards.</oldsource>
-        <translation type="unfinished">Mou els gràfics seleccionats cap amunt.</translation>
+        <translation>Mou els gràfics seleccionats cap amunt.</translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <oldsource>Move the selected graph(s) downwards.</oldsource>
-        <translation type="unfinished">Mou els gràfics seleccionats cap avall.</translation>
+        <translation>Mou els gràfics seleccionats cap avall.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6407,7 +6402,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques Mac 3GPP (%1 UEs, %2 trames)</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
@@ -6767,11 +6762,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Launch UL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Llança el graf UL</translation>
     </message>
     <message>
         <source>Launch DL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Llança el graf UL</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6835,7 +6830,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>Estadístiques RLC LTE (%1 UEs, %2 trames)</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7899,25 +7894,25 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>Plot</name>
     <message>
         <source>Field cannot be empty!</source>
-        <translation type="unfinished"></translation>
+        <translation>El camp no es pot deixar buit!</translation>
     </message>
 </context>
 <context>
     <name>PlotAction</name>
     <message>
         <source>Plot %1 with current filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Representa %1 amb el filtre actual</translation>
     </message>
     <message>
         <source>Plot %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Representa %1</translation>
     </message>
 </context>
 <context>
     <name>PlotDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diàleg</translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -7950,367 +7945,392 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Dreceres de teclat valuoses i sorprenents per a estalviar temps&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Augmenta el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Redueix el zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Augmenta el zoom en l&apos;eix de les X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Redueix el zoom en l&apos;eix de les X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Augmenta el zoom en l&apos;eix de les Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Redueix el zoom en l&apos;eix de les Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Restableix el gràfic al seu estat inicial&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Mou 10 píxels a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Mou 10 píxels a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Mou 10 píxels amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Mou 10 píxels avall&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Mou 1 píxel a la dreta&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Mou 1 píxel a l&apos;esquerra&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Mou 1 píxel amunt&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Majúscula+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Mou 1 píxel avall&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vés al paquet que hi ha sota el cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta l&apos;origen del temps&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Espai&lt;/th&gt;&lt;td&gt;Commuta els punts de mira&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;td&gt;Commuta l&apos;eix superior&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new plot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un gràfic nou.</translation>
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <oldsource>Remove the selected plot(s).</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Trau els gràfics seleccionats.</translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <oldsource>Duplicate the selected plot(s).</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Duplica els gràfics seleccionats.</translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <oldsource>Move the selected plot(s) upwards.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mou els gràfics seleccionats cap amunt.</translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <oldsource>Move the selected plot(s) downwards.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mou els gràfics seleccionats cap avall.</translation>
     </message>
     <message>
         <source>Clear all plots.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra tots els gràfics.</translation>
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished">Actualització automàtica</translation>
+        <translation>Actualització automàtica</translation>
     </message>
     <message>
         <source>Reset Plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic</translation>
     </message>
     <message>
         <source>Reset the plot to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Restableix el gràfic al seu estat inicial.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Apropa</translation>
+        <translation>Apropa</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Allunya</translation>
+        <translation>Allunya</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">‒</translation>
+        <translation>‒</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished">Mou 10 píxels amunt</translation>
+        <translation>Mou 10 píxels amunt</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">Amunt</translation>
+        <translation>Amunt</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">Mou 10 píxels a l&apos;esquerra</translation>
+        <translation>Mou 10 píxels a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Esquerra</translation>
+        <translation>Esquerra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">Mou 10 píxels a la dreta</translation>
+        <translation>Mou 10 píxels a la dreta</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Dreta</translation>
+        <translation>Dreta</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished">Mou 10 píxels avall</translation>
+        <translation>Mou 10 píxels avall</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished">Avall</translation>
+        <translation>Avall</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished">Mou 1 píxel amunt</translation>
+        <translation>Mou 1 píxel amunt</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished">Majúscula+Amunt</translation>
+        <translation>Majúscula+Amunt</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">Mou 1 píxel a l&apos;esquerra</translation>
+        <translation>Mou 1 píxel a l&apos;esquerra</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished">Majúscula+Esquerra</translation>
+        <translation>Majúscula+Esquerra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished">Mou 1 píxel a la dreta</translation>
+        <translation>Mou 1 píxel a la dreta</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished">Majúscula+Dreta</translation>
+        <translation>Majúscula+Dreta</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">Mou 1 píxel avall</translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished">Mou 1 píxel avall</translation>
+        <translation>Mou 1 píxel avall</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished">Majúscula+Avall</translation>
+        <translation>Majúscula+Avall</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished">Vés al paquet que hi ha sota el cursor</translation>
+        <translation>Vés al paquet que hi ha sota el cursor</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vés al paquet que hi ha a sota del cursor</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Origen de temps</translation>
     </message>
     <message>
         <source>Toggle between time relative to first data point and time relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta entre el temps relatiu respecte al primer punt de dades i el temps relatiu a l&apos;inici de la captura</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished">Escala logarítmica</translation>
+        <translation>Escala logarítmica</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished">Commuta entre escala lineal o logarítmica a l&apos;eix de les Y</translation>
+        <translation>Commuta entre escala lineal o logarítmica a l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished">Punts de mira</translation>
+        <translation>Punts de mira</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished">Commuta els punts de mira</translation>
+        <translation>Commuta els punts de mira</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished">Espai</translation>
+        <translation>Espai</translation>
     </message>
     <message>
         <source>Top axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Eix superior</translation>
     </message>
     <message>
         <source>Toggle top axis on and off</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra/Amaga l&apos;eix superior</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished">Llegenda</translation>
+        <translation>Llegenda</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished">Commuta la llegenda</translation>
+        <translation>Commuta la llegenda</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished">Apropa en l&apos;eix de les X</translation>
+        <translation>Apropa en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished">Allunya en l&apos;eix de les X</translation>
+        <translation>Allunya en l&apos;eix de les X</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished">Majúscula+X</translation>
+        <translation>Majúscula+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished">Apropa en l&apos;eix de les Y</translation>
+        <translation>Apropa en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished">Allunya en l&apos;eix de les Y</translation>
+        <translation>Allunya en l&apos;eix de les Y</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished">Majúscula+Y</translation>
+        <translation>Majúscula+Y</translation>
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished">Desa com a…</translation>
+        <translation>Desa com a…</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Copy plots from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia els gràfics d&apos;un altre perfil.</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics del Wireshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation type="unfinished">Paquets filtrats</translation>
+        <translation>Paquets filtrats</translation>
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished">Esdeveniments filtrats</translation>
+        <translation>Esdeveniments filtrats</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished">Tots els paquets</translation>
+        <translation>Tots els paquets</translation>
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished">Tots els esdeveniments</translation>
+        <translation>Tots els esdeveniments</translation>
     </message>
     <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
+        <translation>Núm. de seq.</translation>
     </message>
     <message>
         <source>Event latency</source>
-        <translation type="unfinished"></translation>
+        <translation>Latència d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Frame num.</source>
-        <translation type="unfinished"></translation>
+        <translation>Núm. de trama</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">Solta per a zoom, x = %1 a %2, y = %3 a %4</translation>
+        <translation>Solta per a zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished">El rang no s&apos;ha pogut seleccionar.</translation>
+        <translation>El rang no s&apos;ha pogut seleccionar.</translation>
     </message>
     <message>
         <source>Select a plot for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolliu un gràfic per a veure&apos;n els detalls.</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished">Feu-hi clic per a seleccionar el paquet</translation>
+        <translation>Feu-hi clic per a seleccionar el paquet</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">Paquet</translation>
+        <translation>Paquet</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished">Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
+        <translation>Feu-hi clic per a seleccionar l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished">Esdeveniment</translation>
+        <translation>Esdeveniment</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished">%1 (%2s%3).</translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished">Mou a la part superior esquerra</translation>
+        <translation>Mou a la part superior esquerra</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished">Mou a la part superior central</translation>
+        <translation>Mou a la part superior central</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished">Mou a la part superior dreta</translation>
+        <translation>Mou a la part superior dreta</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished">Mou a la part inferior esquerra</translation>
+        <translation>Mou a la part inferior esquerra</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished">Mou a la part inferior central</translation>
+        <translation>Mou a la part inferior central</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished">Mou a la part inferior dreta</translation>
+        <translation>Mou a la part inferior dreta</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">Temps (s)</translation>
+        <translation>Temps (s)</translation>
     </message>
     <message>
         <source>relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>relatiu a l&apos;inici de la captura</translation>
     </message>
     <message>
         <source>relative to first data point</source>
-        <translation type="unfinished"></translation>
+        <translation>relatiu al primer punt de dades</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">Format de document portàtil (*.pdf)</translation>
+        <translation>Format de document portàtil (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">Gràfics de xarxa portàtils (*.png)</translation>
+        <translation>Gràfics de xarxa portàtils (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Bitmap de Windows (*.bmp)</translation>
+        <translation>Bitmap de Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
+        <translation>Format d&apos;intercanvi de fitxers JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished">Desa el gràfic com a…</translation>
+        <translation>Desa el gràfic com a…</translation>
     </message>
 </context>
 <context>
@@ -10152,10 +10172,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&amp;Analitza</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation>Obre la finestra d&apos;anàlisi per als fluxos seleccionats.</translation>
-    </message>
-    <message>
         <source>&amp;Set List</source>
         <translation>&amp;Estableix la llista</translation>
     </message>
@@ -10170,6 +10186,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
         <translation>Reemplaça la llista existent al diàleg d&apos;anàlisi RTP amb una altra de nova</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation>Obre la finestra d&apos;anàlisi per als fluxos seleccionats.</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
@@ -10257,8 +10277,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
+        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10629,8 +10648,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
+        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10977,8 +10995,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
-        <translation type="unfinished">Obre la finestra d&apos;anàlisi per als fluxos seleccionats i afegeix-ho</translation>
+        <translation>Obre la finestra d&apos;anàlisi per als fluxos seleccionats i afegeix-ho</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11034,8 +11051,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <oldsource>Mark the packets of the selected stream(s).</oldsource>
-        <translation type="unfinished">Marca els paquets dels fluxos seleccionats.</translation>
+        <translation>Marca els paquets dels fluxos seleccionats.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11079,8 +11095,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
+        <translation>Prepara un filtre que coincideixi amb els fluxos seleccionats.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13491,8 +13506,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <oldsource>Show flow sequence for selected call(s).</oldsource>
-        <translation type="unfinished">Mostra la seqüència de flux per a les crides seleccionades.</translation>
+        <translation>Mostra la seqüència de flux per a les crides seleccionades.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13500,8 +13514,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
-        <translation type="unfinished">Prepara un filtre que coincideixi amb les crides seleccionades.</translation>
+        <translation>Prepara un filtre que coincideixi amb les crides seleccionades.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15155,7 +15168,7 @@ a:hover {
     </message>
     <message>
         <source>Redissect Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Redissecciona els paquets</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -15299,11 +15312,11 @@ a:hover {
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics</translation>
     </message>
     <message>
         <source>Plot display filter fields over time</source>
-        <translation type="unfinished"></translation>
+        <translation>Representa els camps del filtre de visualització en el temps</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
@@ -16072,10 +16085,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Esborra els comentaris del paquet</numerusform>
-            <numerusform>Esborra els comentaris dels %n paquets</numerusform>
+            <numerusform>Esborra els comentaris dels %Ln paquets</numerusform>
         </translation>
     </message>
     <message>

@@ -798,6 +798,12 @@
         <source>Start / elapsed:</source>
         <translation>開始 / 経過:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln 日</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
@@ -877,12 +883,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>キャプチャファイルを結合</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1006,15 +1006,15 @@
         <source>Last event</source>
         <translation>最後のイベント</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Elapsed</source>
         <translation>経過時間</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln 日</numerusform>
+        </translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -1587,7 +1587,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcapインターフェース設定</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3080,8 +3080,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter(s) on capture start</oldsource>
-        <translation type="unfinished">キャプチャ開始時にパラメタを保存します</translation>
+        <translation>キャプチャ開始時にパラメタを保存します</translation>
     </message>
 </context>
 <context>
@@ -4021,7 +4020,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Console</source>
-        <translation type="unfinished"></translation>
+        <translation>コンソール</translation>
     </message>
     <message>
         <source>Evaluate</source>
@@ -4140,23 +4139,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <oldsource>Remove the selected graph(s).</oldsource>
-        <translation type="unfinished">選択したグラフを削除します</translation>
+        <translation>選択したグラフを削除します</translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <oldsource>Duplicate the selected graph(s).</oldsource>
-        <translation type="unfinished">選択したグラフを複製します</translation>
+        <translation>選択したグラフを複製します</translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <oldsource>Move the selected graph(s) upwards.</oldsource>
-        <translation type="unfinished">選択したグラフを上に移動します</translation>
+        <translation>選択したグラフを上に移動します</translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <oldsource>Move the selected graph(s) downwards.</oldsource>
-        <translation type="unfinished">選択したグラフを下に移動します</translation>
+        <translation>選択したグラフを下に移動します</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -6385,7 +6380,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPP MAC統計 (%1 UEs, %2 フレーム)</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
@@ -6749,11 +6744,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Launch UL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>UL Graphを起動</translation>
     </message>
     <message>
         <source>Launch DL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>DL Graphを起動</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6817,7 +6812,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLC 統計 (%1 UEs, %2 フレーム)</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7964,23 +7959,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <oldsource>Remove the selected plot(s).</oldsource>
-        <translation type="unfinished">選択したグラフを削除します</translation>
+        <translation>選択したグラフを削除します</translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <oldsource>Duplicate the selected plot(s).</oldsource>
-        <translation type="unfinished">選択したグラフを複製します</translation>
+        <translation>選択したグラフを複製します</translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <oldsource>Move the selected plot(s) upwards.</oldsource>
-        <translation type="unfinished">選択したグラフを上に移動します</translation>
+        <translation>選択したグラフを上に移動します</translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <oldsource>Move the selected plot(s) downwards.</oldsource>
-        <translation type="unfinished">選択したグラフを下に移動します</translation>
+        <translation>選択したグラフを下に移動します</translation>
     </message>
     <message>
         <source>Clear all plots.</source>
@@ -10150,10 +10141,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>分析(&amp;A)</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation>&#x3000;選択したストリームの分析ウインドウを開きます</translation>
-    </message>
-    <message>
         <source>&amp;Set List</source>
         <translation>リスト設定(&amp;S)</translation>
     </message>
@@ -10168,6 +10155,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
         <translation>RTP分析画面の既存リストを新規に置換</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation>&#x3000;選択したストリームの分析ウインドウを開きます</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
@@ -10255,8 +10246,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
+        <translation>選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10627,8 +10617,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
+        <translation>選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -10975,8 +10964,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s) and add it to it</oldsource>
-        <translation type="unfinished">選択したストリームに対して分析ウインドウを開き追加します</translation>
+        <translation>選択したストリームに対して分析ウインドウを開き追加します</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11032,8 +11020,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <oldsource>Mark the packets of the selected stream(s).</oldsource>
-        <translation type="unfinished">選択したストリームのパケットをマークします</translation>
+        <translation>選択したストリームのパケットをマークします</translation>
     </message>
     <message>
         <source>M</source>
@@ -11077,8 +11064,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <oldsource>Prepare a filter matching the selected stream(s).</oldsource>
-        <translation type="unfinished">選択したストリームに合致するフィルタを準備します</translation>
+        <translation>選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>P</source>
@@ -13483,8 +13469,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <oldsource>Show flow sequence for selected call(s).</oldsource>
-        <translation type="unfinished">選択した通話のフロー順序を表示</translation>
+        <translation>選択した通話のフロー順序を表示</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13492,8 +13477,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <oldsource>Prepare a filter matching the selected calls(s).</oldsource>
-        <translation type="unfinished">選択した通話に合致するフィルタを準備します</translation>
+        <translation>選択した通話に合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15146,7 +15130,7 @@ a:hover {
     </message>
     <message>
         <source>Redissect Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットを再解析</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -16062,9 +16046,8 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%n パケットよりコメントを削除</numerusform>
+        <translation>
+            <numerusform>%n パケットからコメントを削除</numerusform>
         </translation>
     </message>
     <message>

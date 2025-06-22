@@ -6077,6 +6077,7 @@ static const ws_services_entry_t global_udp_services_table[] = {
     { 4789, "vxlan",            "Virtual eXtensible Local Area Network (VXLAN)" },
     { 4790, "vxlan-gpe",        "Generic Protocol Extension for Virtual eXtensible Local Area Network (VXLAN)" },
     { 4791, "roce",             "IP Routable RocE" },
+    { 4793, "uet",              "Ultra Ethernet Transport" },
     { 4803, "notateit-disc",    "Notateit Messaging Discovery" },
     { 4804, "aja-ntv4-disc",    "AJA ntv4 Video System Discovery" },
     { 4840, "opcua-udp",        "OPC UA Multicast Datagram Protocol" },
