@@ -56,21 +56,22 @@ enum {
     OPT_REMOTE_COUNT,
     OPT_REMOTE_PRIV,
     OPT_REMOTE_PRIV_USER,
-    OPT_REMOTE_MODERN_BPF
+    OPT_REMOTE_MODERN_BPF,
+    OPT_REMOTE_IO_SNAPLEN,
 };
 
 static struct ws_option longopts[] = {
     EXTCAP_BASE_OPTIONS,
-    { "help", ws_no_argument, NULL, OPT_HELP},
-    { "version", ws_no_argument, NULL, OPT_VERSION},
+    {"help", ws_no_argument, NULL, OPT_HELP},
+    {"version", ws_no_argument, NULL, OPT_VERSION},
     SSH_BASE_OPTIONS,
-    { "remote-capture-command-select", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND_SELECT},
-    { "remote-capture-command", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
-    { "remote-priv", ws_required_argument, NULL, OPT_REMOTE_PRIV },
-    { "remote-priv-user", ws_required_argument, NULL, OPT_REMOTE_PRIV_USER },
-    { "remote-modern-bpf", ws_no_argument, NULL, OPT_REMOTE_MODERN_BPF },
-    { 0, 0, 0, 0}
-};
+    {"remote-capture-command-select", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND_SELECT},
+    {"remote-capture-command", ws_required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
+    {"remote-priv", ws_required_argument, NULL, OPT_REMOTE_PRIV},
+    {"remote-priv-user", ws_required_argument, NULL, OPT_REMOTE_PRIV_USER},
+    {"remote-modern-bpf", ws_no_argument, NULL, OPT_REMOTE_MODERN_BPF},
+    {"remote-io-snaplen", ws_required_argument, NULL, OPT_REMOTE_IO_SNAPLEN},
+    {0, 0, 0, 0}};
 
 static int ssh_loop_read(ssh_channel channel, FILE* fp)
 {
@@ -119,12 +120,10 @@ end:
 
 static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command_select,
         const char* capture_command, const char* privilege,
-        const char* cfilter, const uint32_t count, bool modern_bpf)
+        const char* cfilter, const uint32_t count, bool modern_bpf, const uint32_t io_snaplen)
 {
     char* cmdline = NULL;
     ssh_channel channel;
-    char* quoted_filter = NULL;
-    char* count_str = NULL;
     unsigned int remote_port = 22;
 
     channel = ssh_channel_new(sshs);
@@ -152,15 +151,28 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 
     /* escape parameters to go save with the shell */
     if (!g_strcmp0(capture_command_select, "sysdig")) {
-        quoted_filter = g_shell_quote(cfilter ? cfilter : "");
-        if (count > 0)
-            count_str = ws_strdup_printf("--numevents=%u", count);
+        char *count_str = NULL;
+        char *io_snaplen_str = NULL;
+        char *quoted_filter = NULL;
 
-        cmdline = ws_strdup_printf("%s sysdig --unbuffered %s --write=- %s %s",
+        quoted_filter = g_shell_quote(cfilter ? cfilter : "");
+        if (count > 0) {
+            count_str = ws_strdup_printf(" --numevents=%u", count);
+        }
+        if (io_snaplen > 0) {
+            io_snaplen_str = ws_strdup_printf(" --snaplen=%u", io_snaplen);
+        }
+
+        cmdline = ws_strdup_printf("%s sysdig --unbuffered %s --write=- %s %s %s",
                 privilege,
                 modern_bpf ? " --modern-bpf" : "",
                 count_str ? count_str : "",
+                io_snaplen_str ? io_snaplen_str : "",
                 quoted_filter);
+
+        g_free(count_str);
+        g_free(io_snaplen_str);
+        g_free(quoted_filter);
     }
 
     ws_debug("Running: %s", cmdline);
@@ -171,16 +183,14 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
         channel = NULL;
     }
 
-    g_free(quoted_filter);
     g_free(cmdline);
-    g_free(count_str);
 
     return channel;
 }
 
 static int ssh_open_remote_connection(const ssh_params_t* params, const char* cfilter,
         const char* capture_command_select, const char* capture_command, const char* privilege,
-        const uint32_t count, const char* fifo, bool modern_bpf)
+        const uint32_t count, const char* fifo, bool modern_bpf, const uint32_t io_snaplen)
 {
     ssh_session sshs = NULL;
     ssh_channel channel = NULL;
@@ -204,7 +214,7 @@ static int ssh_open_remote_connection(const ssh_params_t* params, const char* cf
         goto cleanup;
     }
 
-    channel = run_ssh_command(sshs, capture_command_select, capture_command, privilege, cfilter, count, modern_bpf);
+    channel = run_ssh_command(sshs, capture_command_select, capture_command, privilege, cfilter, count, modern_bpf, io_snaplen);
 
     if (!channel) {
         ws_warning("Can't run ssh command.");
@@ -290,6 +300,9 @@ static int list_config(char *interface)
     printf("arg {number=%u}{call=--remote-count}{display=Events to capture}"
             "{type=unsigned}{default=0}{tooltip=The number of remote events to capture. (Default: inf)}"
             "{group=Capture}\n", inc++);
+    printf("arg {number=%u}{call=--remote-io-snaplen}{display=I/O snapshot length}"
+           "{type=unsigned}{default=80}{tooltip=The number of bytes to capture in each I/O event. (Default: 80)}"
+           "{group=Capture}\n", inc++);
     printf("arg {number=%u}{call=--remote-modern-bpf}{display=Use eBPF}{type=boolflag}{default=true}"
             "{tooltip=Use eBPF for capture. With this no kernel module is required}{group=Capture}\n", inc++);
 
@@ -307,6 +320,7 @@ int main(int argc, char *argv[])
     char* remote_capture_command_select = NULL;
     char* remote_capture_command = NULL;
     uint32_t count = 0;
+    uint32_t io_snaplen = 0;
     int ret = EXIT_FAILURE;
     extcap_parameters* extcap_conf = g_new0(extcap_parameters, 1);
     char* help_url;
@@ -382,6 +396,7 @@ int main(int argc, char *argv[])
     extcap_help_add_option(extcap_conf, "--remote-priv-user <username>", "privileged user name");
     extcap_help_add_option(extcap_conf, "--remote-count <count>", "the number of events to capture");
     extcap_help_add_option(extcap_conf, "--remote-modern-bpf", "use eBPF");
+    extcap_help_add_option(extcap_conf, "--remote-io-snaplen <snaplen>", "the number of bytes to capture in each I/O event");
 
     ws_opterr = 0;
     ws_optind = 0;
@@ -474,8 +489,16 @@ int main(int argc, char *argv[])
                     goto end;
                 }
                 break;
+
             case OPT_REMOTE_MODERN_BPF:
                     modern_bpf = true;
+                break;
+
+            case OPT_REMOTE_IO_SNAPLEN:
+                if (!ws_strtou32(ws_optarg, NULL, &io_snaplen)) {
+                    ws_warning("Invalid value for I/O snapshot length: %s", ws_optarg);
+                    goto end;
+                }
                 break;
 
             case ':':
@@ -532,7 +555,7 @@ int main(int argc, char *argv[])
         ssh_params_set_log_level(ssh_params, extcap_conf->debug);
         ret = ssh_open_remote_connection(ssh_params, extcap_conf->capture_filter,
                 remote_capture_command_select, remote_capture_command,
-                privilege, count, extcap_conf->fifo, modern_bpf);
+                privilege, count, extcap_conf->fifo, modern_bpf, io_snaplen);
         g_free(privilege);
     } else {
         ws_debug("You should not come here... maybe some parameter missing?");
