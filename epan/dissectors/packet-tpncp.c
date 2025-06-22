@@ -851,6 +851,8 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, unsigned 
             if (enum_val == -1) {
                 hf_entr.hfinfo.strings = NULL;
             } else {
+                if (special_type == TPNCP_IP_ADDR)
+                    special_type = TPNCP_NORMAL;
                 hf_entr.hfinfo.strings = VALS(tpncp_enums_id_vals[enum_val]);
                 if (!strcmp(tmp, "AddressFamily")) {
                     is_address_family = true;
