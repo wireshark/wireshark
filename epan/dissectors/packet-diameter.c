@@ -1651,8 +1651,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			wmem_map_insert(diam_session_imsi,
 					wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->session_id),
 					wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->imsi));
-		} else if (diam_sub_dis_inf->session_id && !diam_sub_dis_inf->imsi){
-			const char *imsi = (const char *)wmem_map_lookup(diam_session_imsi, diam_sub_dis_inf->session_id);
+		}
+		if (diam_sub_dis_inf->session_id) {
+			char *imsi = (char *)wmem_map_lookup(diam_session_imsi, diam_sub_dis_inf->session_id);
 			if (imsi) {
 				add_assoc_imsi_item(tvb, diam_tree, imsi);
 			}

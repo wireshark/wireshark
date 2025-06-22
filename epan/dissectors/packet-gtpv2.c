@@ -9350,22 +9350,6 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
     char *imsi = NULL;
 
     /* GTP session */
-    if (tree) {
-        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
-        if (session) {
-            it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, session);
-            proto_item_set_generated(it);
-
-            imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
-            if (args->imsi && !imsi) {
-                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
-            } else if (!args->imsi && imsi) {
-                add_assoc_imsi_item(tvb, tree, imsi);
-            }
-        }
-    }
-
     if (!PINFO_FD_VISITED(pinfo)) {
         /* If the message does not have any session ID */
         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
@@ -9424,6 +9408,19 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                         }
                     }
                 }
+            }
+        }
+    }
+
+    if (tree) {
+        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+        if (session) {
+            it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, session);
+            proto_item_set_generated(it);
+
+            imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
+            if (imsi) {
+                add_assoc_imsi_item(tvb, tree, imsi);
             }
         }
     }
