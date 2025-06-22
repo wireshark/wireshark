@@ -174,6 +174,7 @@ typedef struct {
 	uint8_t		  cmd;
 	void		 *extra_info;
 	smb_extra_info_t  extra_info_type;
+	bool		  is_create_req;
 	/* we save the fid in each transaction so that we can get fid filters
 	   to match both request and response */
 	bool		  fid_seen_in_request;
