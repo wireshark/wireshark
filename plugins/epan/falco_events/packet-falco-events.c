@@ -1092,7 +1092,9 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         if (!parent_trees[parent_category]) {
             int bytes_offset = 0;
             uint32_t bytes_length = 0;
-            if (parent_category == SSC_FD) {
+            if (parent_category == SSC_EVENT) {
+                bytes_length = tvb_captured_length(tvb);
+            } else if (parent_category == SSC_FD) {
                 bytes_offset = event_param_data->data_bytes_offset;
                 bytes_length = event_param_data->data_bytes_length;
             }
