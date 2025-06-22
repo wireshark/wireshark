@@ -837,6 +837,13 @@
         <source>Start / elapsed:</source>
         <translation>Inizio / trascorso:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln giorno</numerusform>
+            <numerusform>%Ln giorni</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Rileva automaticamente il tipo di file</translation>
@@ -919,13 +926,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Unisci file di cattura</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1052,16 +1052,16 @@
         <source>Last event</source>
         <translation>Ultimo evento</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Elapsed</source>
         <translation>Trascorso</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln giorno</numerusform>
+            <numerusform>%Ln giorni</numerusform>
+        </translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -7959,7 +7959,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>%Ln Selected Personal Profile(s)...</source>
         <translation>
             <numerusform>%Ln profilo personale selezionato...</numerusform>
-            <numerusform>%Ln profili personali selezionati</numerusform>
+            <numerusform>%Ln profili personali selezionati...</numerusform>
         </translation>
     </message>
     <message>
@@ -15315,8 +15315,7 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Elimina i commenti da %n pacchetto</numerusform>
             <numerusform>Elimina i commenti da %n pacchetti</numerusform>
         </translation>

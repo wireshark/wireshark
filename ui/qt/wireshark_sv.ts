@@ -837,6 +837,13 @@
         <source>Start / elapsed:</source>
         <translation>Start / passerat:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
@@ -919,13 +926,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Sammanfoga fångstfil</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1052,16 +1052,16 @@
         <source>Last event</source>
         <translation>Sista händelse</translation>
     </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>Förflutet</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation>Förflutet</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -15320,10 +15320,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
-            <numerusform>Ta bort kommentarer från %n paket</numerusform>
-            <numerusform>Ta bort kommentarer från %n paket</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

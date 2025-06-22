@@ -838,6 +838,14 @@
         <source>Start / elapsed:</source>
         <translation>Start / upłynęło:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Automatycznie wykryj typ pliku</translation>
@@ -905,14 +913,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Scal pliki przechwytywania</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1042,6 +1042,10 @@
         <source>Last event</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>Minęło</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
         <translation type="unfinished">
@@ -1049,10 +1053,6 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation>Minęło</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -15285,7 +15285,6 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>

@@ -836,6 +836,12 @@
         <source>Start / elapsed:</source>
         <translation>開始 / 経過:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln 日</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
@@ -915,12 +921,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>キャプチャファイルを結合</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1044,15 +1044,15 @@
         <source>Last event</source>
         <translation>最後のイベント</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Elapsed</source>
         <translation>経過時間</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation>
+            <numerusform>%Ln 日</numerusform>
+        </translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -15284,9 +15284,8 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%n パケットよりコメントを削除</numerusform>
+        <translation>
+            <numerusform>%n パケットからコメントを削除</numerusform>
         </translation>
     </message>
     <message>

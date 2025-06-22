@@ -836,6 +836,12 @@
         <source>Start / elapsed:</source>
         <translation>시작/경과:</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln day(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>파일 형식을 자동으로 감지</translation>
@@ -915,12 +921,6 @@
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>캡처 파일 병합</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
@@ -1044,15 +1044,15 @@
         <source>Last event</source>
         <translation>마지막 이벤트</translation>
     </message>
+    <message>
+        <source>Elapsed</source>
+        <translation>경과 시간</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation>경과 시간</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -15281,9 +15281,8 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <oldsource>Delete comments from %n packet(s)</oldsource>
         <translation type="unfinished">
-            <numerusform>패킷 %n개에서 주석 삭제</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
