@@ -246,6 +246,10 @@ dissect_tpncp_data(unsigned data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tr
             proto_tree_add_item(ltree, field->descr, tvb, *offset, 4, encoding);
             (*offset) += 4;
             break;
+        case 64:
+            proto_tree_add_item(ltree, field->descr, tvb, *offset, 8, encoding);
+            (*offset) += 8;
+            break;
         case 128:
             if (field->special_type == TPNCP_IP_ADDR) {
                 if (address_family == TPNCP_IPV6 || address_family == TPNCP_IPV6_PSOS)
@@ -882,6 +886,9 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, unsigned 
             } else {
                 hf_entr.hfinfo.type = (sign) ? FT_UINT32 : FT_INT32;
             }
+            break;
+        case 64:
+            hf_entr.hfinfo.type = (sign) ? FT_UINT64 : FT_INT64;
             break;
         case 128:
             if (special_type == TPNCP_IP_ADDR) {
