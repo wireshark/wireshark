@@ -24,6 +24,7 @@
 #include <epan/conversation_table.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/unit_strings.h>
 #include <wiretap/wtap.h>
 #include "packet-llc.h"
 #include <epan/oui.h>
@@ -6158,10 +6159,10 @@ dissect_btad_apple_ibeacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_uuid128, tvb, offset, 16, ENC_BIG_ENDIAN);
     offset += 16;
 
-    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_major, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_major, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_minor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_minor, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(main_tree, hf_btad_apple_ibeacon_measured_power, tvb, offset, 1, ENC_NA);
@@ -6201,7 +6202,7 @@ proto_register_btad_apple_ibeacon(void)
         },
         { &hf_btad_apple_ibeacon_measured_power,
           { "Measured Power",                    "bluetooth.apple.ibeacon.measured_power",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
             NULL, HFILL }
         }
     };
