@@ -199,9 +199,9 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
             proto_tree_add_bits_item(opt_tree, hf_geneve_opt_gcp_vnid, tvb, offset * 8,
                                      28, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_direction, tvb, offset,
-                                4, ENC_NA);
+                                4, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_reserved, tvb, offset,
-                                4, ENC_NA);
+                                4, ENC_BIG_ENDIAN);
             break;
         case GENEVE_GCP_ENDPOINT:
             proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_endpoint, tvb, offset,

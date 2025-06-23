@@ -630,7 +630,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
         offset += 1;
 
         uint32_t dest;
-        proto_tree_add_item_ret_uint(tree, hf_vsomeip_dest, tvb, offset, 2, ENC_NA, &dest);
+        proto_tree_add_item_ret_uint(tree, hf_vsomeip_dest, tvb, offset, 2, ENC_BIG_ENDIAN, &dest);
         offset += 2;
 
         /* A SOME/IP messages follows with the layout (all big endian!):

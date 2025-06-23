@@ -904,7 +904,7 @@ dlms_dissect_invoke_id_and_priority(proto_tree* tree, tvbuff_t* tvb, int offset)
     subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_dlms_invoke_id_and_priority, NULL, "Invoke Id And Priority");
     proto_tree_add_item(subtree, hf_dlms_invoke_id, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(subtree, hf_dlms_service_class, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(subtree, hf_dlms_priority, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_dlms_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     return offset;

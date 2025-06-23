@@ -1334,7 +1334,7 @@ glusterfs_rpc_dissect_setattr(proto_tree *tree, tvbuff_t *tvb, int offset)
 	};
 
 	proto_tree_add_bitmask(tree, tvb, offset, hf_glusterfs_setattr_valid,
-			ett_glusterfs_setattr_valid, flag_bits, ENC_NA);
+			ett_glusterfs_setattr_valid, flag_bits, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1789,7 +1789,7 @@ glusterfs_gfs3_3_op_fsync_call(tvbuff_t *tvb,
 
 	proto_tree_add_bitmask(tree, tvb, offset,
 			hf_glusterfs_fsync_flags,
-			ett_glusterfs_fsync_flags, flag_bits, ENC_NA);
+			ett_glusterfs_fsync_flags, flag_bits, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
@@ -2745,7 +2745,7 @@ glusterfs_gfs4_0_op_fsync_call(tvbuff_t *tvb,
 
 	proto_tree_add_bitmask(tree, tvb, offset,
 			hf_glusterfs_fsync_flags,
-			ett_glusterfs_fsync_flags, flag_bits, ENC_NA);
+			ett_glusterfs_fsync_flags, flag_bits, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = gluster_rpc4_0_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);

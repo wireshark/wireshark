@@ -1653,7 +1653,7 @@ static int dissect_sbas_l1_mt17(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_reserved, prn_tvb, 0,  1, ENC_NA);
             proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_prn,      prn_tvb, 0,  2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_bitmask(prn_tree, prn_tvb, 1, hf_sbas_l1_mt17_health_and_status, ett_sbas_l1_mt17_health_and_status, sbas_l1_mt17_health_and_status_fields, ENC_NA);
+            proto_tree_add_bitmask(prn_tree, prn_tvb, 1, hf_sbas_l1_mt17_health_and_status, ett_sbas_l1_mt17_health_and_status, sbas_l1_mt17_health_and_status_fields, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_x_ga,     prn_tvb, 2,  4, ENC_BIG_ENDIAN);
             proto_tree_add_item(prn_tree, hf_sbas_l1_mt17_y_ga,     prn_tvb, 4,  4, ENC_BIG_ENDIAN);
@@ -2011,7 +2011,7 @@ static int dissect_sbas_l1_mt26(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     uint32_t igp_block_id;
     proto_item* pi_igp_block_id = proto_tree_add_item_ret_uint(sbas_l1_mt26_tree, hf_sbas_l1_mt26_igp_block_id,
-            tvb, 1, 1, ENC_NA, &igp_block_id);
+            tvb, 1, 1, ENC_BIG_ENDIAN, &igp_block_id);
     if (igp_block_id > 13) {
         expert_add_info_format(pinfo, pi_igp_block_id, &ei_sbas_l1_mt26_igp_block_id, "Invalid IGP Block Identifier");
     }

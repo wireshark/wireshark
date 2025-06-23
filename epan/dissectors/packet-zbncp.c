@@ -1338,7 +1338,7 @@ dissect_zbncp_dst_addrs(proto_tree *zbncp_hl_body_tree, tvbuff_t *tvb, unsigned 
 
     if (dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_DST_ADDR_ENDP_NOT_PRESENT || dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_64_ENDP_PRESENT || dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_BIND_TBL_ID)
     {
-        proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dst_ieee_addr, tvb, *offset, 8, ENC_NA);
+        proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dst_ieee_addr, tvb, *offset, 8, ENC_BIG_ENDIAN);
         *offset += 8;
     }
     else if (dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_16_GROUP_ENDP_NOT_PRESENT || dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_16_ENDP_PRESENT)
@@ -1733,7 +1733,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_GET_TRUST_CENTER_ADDRESS:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trust_center_addres, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trust_center_addres, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
         }
         break;
@@ -2638,7 +2638,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_src_ieee_addr, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_src_ieee_addr, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_src_endpoint, tvb, offset, 1, ENC_NA);

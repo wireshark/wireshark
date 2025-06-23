@@ -4026,12 +4026,12 @@ de_gcc_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_
     proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_call_ref, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 
     if (value & 0x10){
-        proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_call_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_spare_1, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     }
     else{
-        proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_dtap_gcc_spare_4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     }
 
@@ -4206,12 +4206,12 @@ de_bcc_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_
     proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 
     if (value & 0x10){
-        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_spare_1, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     }
     else{
-        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_spare_4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     }
 

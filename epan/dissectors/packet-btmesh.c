@@ -4799,13 +4799,13 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             offset+=3;
         } else {
             /* Two octet opcode */
-            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_NA, &opcode);
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_BIG_ENDIAN, &opcode);
             col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, btmesh_models_opcode_vals, "Access Message Unknown"));
             offset+=2;
         }
     } else {
         /* One octet opcode */
-        proto_tree_add_item(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, btmesh_models_opcode_vals, "Access Message Unknown"));
         offset++;
     }

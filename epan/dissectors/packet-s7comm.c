@@ -7748,7 +7748,7 @@ proto_register_s7comm (void)
         { "OB Frequency of execution (ms)", "s7comm.ob.exec_freq", FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_ob_io_flag,
-        { "OB IO flags", "s7comm.ob.io_flag", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "OB IO flags", "s7comm.ob.io_flag", FT_UINT8, BASE_DEC, NULL, 0x0,
           "OB IO flags (0x54=input module, 0x55=output module)", HFILL }},
         { &hf_s7comm_ob_mdl_addr,
         { "OB Base address of module initiating interrupt", "s7comm.ob.mdl_addr", FT_UINT16, BASE_HEX, NULL, 0x0,

@@ -924,7 +924,7 @@ static uint32_t vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t
    proto_tree_add_bitmask(tree, tvb, offset, hf_vsip_PingResp_SuppConnTypes, ett_vsipPingResp_SuppConnTypes, supp_conn_types, ENC_NA);
    offset += 1;
 
-   proto_tree_add_item(tree, hf_vsip_PingResp_DeviceGUID, tvb, offset, 16, ENC_NA);
+   proto_tree_add_item(tree, hf_vsip_PingResp_DeviceGUID, tvb, offset, 16, ENC_BIG_ENDIAN);
    offset += 16;
 
    proto_tree_add_item(tree, hf_vsip_PingResp_VendorID, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -956,13 +956,13 @@ static uint32_t vsip_ContentTypeSwitchReq(proto_tree *tree, packet_info *pinfo _
    int soffset = offset;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 33, ett_vsipContentTypeSwitchReq, NULL, "ContentTypeSwitchReq");
-   proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchReq_ApplicationGUID, tvb, offset, 16, ENC_NA);
+   proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchReq_ApplicationGUID, tvb, offset, 16, ENC_BIG_ENDIAN);
    offset += 16;
 
    proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchReq_ContentType, tvb, offset, 1, ENC_NA);
    offset++;
 
-   proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchReq_DeviceGUID, tvb, offset, 16, ENC_NA);
+   proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchReq_DeviceGUID, tvb, offset, 16, ENC_BIG_ENDIAN);
    offset += 16;
 
    return offset - soffset;
@@ -974,7 +974,7 @@ static uint32_t vsip_ContentTypeSwitchResp(proto_tree *tree, packet_info *pinfo 
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 17, ett_vsipContentTypeSwitchResp, NULL, "ContentTypeSwitchResp");
 
-   proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchResp_DeviceGUID, tvb, offset, 16, ENC_NA);
+   proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchResp_DeviceGUID, tvb, offset, 16, ENC_BIG_ENDIAN);
    offset += 16;
    proto_tree_add_item(tree, hf_vsip_ContentTypeSwitchResp_SwitchResult, tvb, offset, 1, ENC_NA);
 
