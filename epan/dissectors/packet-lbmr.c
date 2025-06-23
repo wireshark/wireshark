@@ -3508,43 +3508,38 @@ static int dissect_lbmr_tmb(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
 /*----------------------------------------------------------------------------*/
 static int dissect_lbmr_tqr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, bool wildcard_tqr, lbmr_contents_t * contents)
 {
-    int namelen = 0;
-    unsigned reclen = 0;
-    char * name = NULL;
-    uint8_t pattern_type;
+    unsigned reclen;
+    const char * name = NULL;
+    uint32_t pattern_type;
     proto_item * tqr_item = NULL;
     proto_tree * tqr_tree = NULL;
     int name_offset = offset;
 
     if (wildcard_tqr)
     {
-        pattern_type = tvb_get_uint8(tvb, offset);
         name_offset++;
-        reclen++;
-    }
-    name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, name_offset, &namelen, ENC_ASCII);
-    reclen += namelen;
-
-    if (wildcard_tqr)
-    {
-        tqr_item = proto_tree_add_none_format(tree, hf_lbmr_tqr, tvb, offset, reclen, "Wildcard TQR: %s", name);
+        reclen = tvb_strsize(tvb, name_offset) + 1;
+        tqr_item = proto_tree_add_none_format(tree, hf_lbmr_tqr, tvb, offset, reclen, "Wildcard TQR");
     }
     else
     {
-        tqr_item = proto_tree_add_none_format(tree, hf_lbmr_tqr, tvb, offset, reclen, "TQR: %s", name);
+        reclen = tvb_strsize(tvb, name_offset);
+        tqr_item = proto_tree_add_item(tree, hf_lbmr_tqr, tvb, offset, reclen, ENC_NA);
     }
     tqr_tree = proto_item_add_subtree(tqr_item, ett_lbmr_tqr);
     if (wildcard_tqr)
     {
-        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_pattern_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_pattern, tvb, offset, namelen, ENC_ASCII);
-        add_contents_wctqr(contents, pattern_type, name);
+        proto_tree_add_item_ret_uint(tqr_tree, hf_lbmr_tqr_pattern_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pattern_type);
+        offset++;
+        proto_tree_add_item_ret_string(tqr_tree, hf_lbmr_tqr_pattern, tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t **)&name);
+        add_contents_wctqr(contents, (unsigned char)pattern_type, name);
     }
     else
     {
-        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_name, tvb, offset, namelen, ENC_ASCII);
+        proto_tree_add_item_ret_string(tqr_tree, hf_lbmr_tqr_name, tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t **)&name);
         add_contents_tqr(contents, name);
     }
+    proto_item_append_text(tqr_item, ": %s", name);
     return (reclen);
 }
 
@@ -5529,9 +5524,9 @@ void proto_register_lbmr(void)
         { &hf_lbmr_tqr_pattern_type,
             { "Pattern Type", "lbmr.tqr.pattern_type", FT_UINT8, BASE_DEC, VALS(lbm_wildcard_pattern_type), 0x0, NULL, HFILL } },
         { &hf_lbmr_tqr_pattern,
-            { "Pattern", "lbmr.tqr.pattern", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Pattern", "lbmr.tqr.pattern", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_tqr_name,
-            { "Topic Name", "lbmr.tqr.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Topic Name", "lbmr.tqr.name", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_tirs,
             { "TIRs", "lbmr.tirs", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmr_tir,
