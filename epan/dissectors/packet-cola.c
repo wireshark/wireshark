@@ -574,7 +574,7 @@ static uint8_t get_crc8_xor(tvbuff_t *p, uint8_t len, uint8_t offset) {
 }
 
 static uint8_t*
-cola_get_ascii_parameter_string(tvbuff_t *tvb, int offset, int* new_offset)
+cola_get_ascii_parameter_string(packet_info *pinfo, tvbuff_t *tvb, int offset, int* new_offset)
 {
 	uint8_t* str_parameter;
 	int parameter_end;
@@ -586,7 +586,7 @@ cola_get_ascii_parameter_string(tvbuff_t *tvb, int offset, int* new_offset)
 		return NULL;
 	}
 
-	str_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, parameter_end - offset, ENC_NA | ENC_ASCII);
+	str_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, parameter_end - offset, ENC_NA | ENC_ASCII);
 	*new_offset = parameter_end;
 	return str_parameter;
 }
@@ -598,7 +598,7 @@ cola_ascii_add_parameter_U32(proto_tree *tree, int hf_parameter, packet_info *pi
 	int parameter_end_offset;
 	unsigned paramU32;
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -622,7 +622,7 @@ cola_ascii_add_parameter_REAL(proto_tree *tree, int hf_parameter, packet_info *p
 	unsigned paramU32;
 	float paramFloat;
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -646,7 +646,7 @@ cola_ascii_add_parameter_I32(proto_tree *tree, int hf_parameter, packet_info *pi
 	int parameter_end_offset;
 	unsigned paramU32;
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -669,7 +669,7 @@ cola_ascii_add_parameter_I16(proto_tree *tree, int hf_parameter, packet_info *pi
 	int parameter_end_offset;
 	uint16_t paramU16;
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -691,7 +691,7 @@ cola_ascii_add_parameter_2U8(proto_tree *tree, int hf_parameter, packet_info *pi
 	int parameter_end_offset, start_offset = *offset;
 	uint16_t param1, param2, paramU16;
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -702,7 +702,7 @@ cola_ascii_add_parameter_2U8(proto_tree *tree, int hf_parameter, packet_info *pi
 		return false;
 
 	*offset = parameter_end_offset+1;
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -726,7 +726,7 @@ cola_ascii_add_parameter_string(proto_tree *tree, int hf_parameter, packet_info 
 	uint8_t* str_parameter;
 	int parameter_end_offset;
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, *offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, *offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for %s", field_name);
@@ -774,19 +774,19 @@ diplay_timestamp_field(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_field
 }
 
 static int
-dissect_sick_cola_read(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary _U_)
+dissect_sick_cola_read(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary _U_)
 {
 	int offset = 0;
 	const uint8_t* read_name;
 
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_read_name, tvb, offset, -1, ENC_NA | ENC_ASCII, wmem_packet_scope(), &read_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_read_name, tvb, offset, -1, ENC_NA | ENC_ASCII, pinfo->pool, &read_name);
 	offset = tvb_reported_length(tvb);
 
 	return offset;
 }
 
 static int
-dissect_sick_cola_write(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary)
+dissect_sick_cola_write(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary)
 {
 	int offset = 0;
 	const uint8_t* write_name;
@@ -800,7 +800,7 @@ dissect_sick_cola_write(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 	}
 
 	//don't include the space delimiter in the string
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_write_name, tvb, offset, write_name_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &write_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_write_name, tvb, offset, write_name_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &write_name);
 	offset = write_name_end+1;
 
 
@@ -1147,7 +1147,7 @@ dissect_sick_cola_method(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bo
 	}
 
 	//don't include the space delimiter in the string
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_method_name, tvb, offset, method_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &method_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_method_name, tvb, offset, method_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &method_name);
 	offset = method_end+1;
 
 	if (strcmp(method_name, "SetAccessMode") == 0)
@@ -1172,7 +1172,7 @@ dissect_sick_cola_method(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bo
 			}
 
 			uint32_t user_level;
-			uint8_t* str_user_level = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, parameter_end - offset, ENC_NA | ENC_ASCII);
+			uint8_t* str_user_level = tvb_get_string_enc(pinfo->pool, tvb, offset, parameter_end - offset, ENC_NA | ENC_ASCII);
 			if (ws_strtou32(str_user_level, NULL, &user_level))
 			{
 				proto_tree_add_uint(tree, hf_sick_cola_set_access_mode_user_level, tvb, offset, parameter_end - offset, user_level);
@@ -1258,7 +1258,7 @@ dissect_sick_cola_method(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bo
 }
 
 static int
-dissect_sick_cola_event(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary)
+dissect_sick_cola_event(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary)
 {
 	int offset = 0;
 	const uint8_t* event_name;
@@ -1273,7 +1273,7 @@ dissect_sick_cola_event(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 	}
 
 	//don't include the space delimiter in the string
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_event_name, tvb, offset, event_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &event_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_event_name, tvb, offset, event_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &event_name);
 	offset = event_end+1;
 
 	if (strcmp(event_name, "LMDscandata") == 0)
@@ -1297,7 +1297,7 @@ dissect_sick_cola_event(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 static int
-dissect_binary_scan_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+dissect_binary_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
 	proto_tree *device_tree, *status_info_tree, *frequency_tree, *output_channel16_tree, *output_channel8_tree,
 				*data_tree, *channel_tree, *position_tree, *time_tree, *event_tree;
@@ -1326,7 +1326,7 @@ dissect_binary_scan_data(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb
 	proto_tree_add_item(status_info_tree, hf_sick_cola_scan_data_do_status, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	uint16_t layer_angle;
-	if (ws_hexstrtou16(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII), NULL, &layer_angle))
+	if (ws_hexstrtou16(tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII), NULL, &layer_angle))
 	{
 		proto_tree_add_int(status_info_tree, hf_sick_cola_scan_data_layer_angle, tvb, offset, 2, (int16_t)layer_angle);
 	}
@@ -1575,7 +1575,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 
 	proto_item_set_len(frequency_item, offset - save_offset);
 
-	str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData Amount of Encoder");
@@ -1598,7 +1598,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 	}
 
 	//16-bit channels
-	str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData Amount of 16-bit channels");
@@ -1633,7 +1633,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 		if (!cola_ascii_add_parameter_I32(channel_tree, hf_sick_cola_scan_data_output_channel_start_angle, pinfo, tvb, &offset, "ScanData Start Angle", 10000))
 			return tvb_reported_length(tvb);
 
-		str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+		str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 		if (str_parameter == NULL)
 		{
 			expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData Size of Angular Step");
@@ -1646,7 +1646,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 		proto_tree_add_float(channel_tree, hf_sick_cola_scan_data_output_channel_size_single_angular_step, tvb, offset, parameter_end_offset-offset, angular_step/10000.0f);
 		offset = parameter_end_offset + 1;
 
-		str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+		str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 		if (str_parameter == NULL)
 		{
 			expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData 16-bit Channel Amount of Data");
@@ -1672,7 +1672,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 	proto_item_set_len(output_channel16_item, offset - save_offset);
 
 	//8-bit channels
-	str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+	str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 	if (str_parameter == NULL)
 	{
 		expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData Amount of 8-bit channels");
@@ -1705,7 +1705,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 		if (!cola_ascii_add_parameter_I32(channel_tree, hf_sick_cola_scan_data_output_channel_start_angle, pinfo, tvb, &offset, "ScanData Start Angle", 10000))
 			return tvb_reported_length(tvb);
 
-		str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+		str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 		if (str_parameter == NULL)
 		{
 			expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData Size of Angular Step");
@@ -1718,7 +1718,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 		proto_tree_add_float(channel_tree, hf_sick_cola_scan_data_output_channel_size_single_angular_step, tvb, offset, parameter_end_offset-offset, angular_step/10000.0f);
 		offset = parameter_end_offset + 1;
 
-		str_parameter = cola_get_ascii_parameter_string(tvb, offset, &parameter_end_offset);
+		str_parameter = cola_get_ascii_parameter_string(pinfo, tvb, offset, &parameter_end_offset);
 		if (str_parameter == NULL)
 		{
 			expert_add_info_format(pinfo, tree, &ei_sick_cola_command_parameter, "Parse error for ScanData 16-bit Channel Amount of Data");
@@ -1814,7 +1814,7 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 	else
 	{
 		//don't include the space delimiter in the string
-		proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &answer_name);
+		proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &answer_name);
 		offset = answer_end+1;
 	}
 
@@ -1903,7 +1903,7 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 		minute = tvb_get_ntohs(tvb, offset+3);
 		second = tvb_get_ntohs(tvb, offset+6);
 		proto_tree_add_string(tree, hf_sick_cola_stims_time, tvb, offset, 8,
-			wmem_strdup_printf(wmem_packet_scope(), "%d:%02d:%02d", hour, minute, second));
+			wmem_strdup_printf(pinfo->pool, "%d:%02d:%02d", hour, minute, second));
 		offset += 8;
 
 		proto_tree_add_item(tree, hf_sick_cola_stims_date_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1912,7 +1912,7 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 		month = tvb_get_ntohs(tvb, offset+3);
 		year = tvb_get_ntohl(tvb, offset+6);
 		proto_tree_add_string(tree, hf_sick_cola_stims_date, tvb, offset, 10,
-			wmem_strdup_printf(wmem_packet_scope(), "%02d/%02d/%04d", day, month, year));
+			wmem_strdup_printf(pinfo->pool, "%02d/%02d/%04d", day, month, year));
 		offset += 10;
 
 		proto_tree_add_item(tree, hf_sick_cola_stims_led1, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1991,19 +1991,19 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 }
 
 static int
-dissect_sick_cola_answer_swa(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary _U_)
+dissect_sick_cola_answer_swa(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary _U_)
 {
 	int offset = 0;
 	const uint8_t* answer_name;
 
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII, wmem_packet_scope(), &answer_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, -1, ENC_NA | ENC_ASCII, pinfo->pool, &answer_name);
 	offset = tvb_reported_length(tvb);
 
 	return offset;
 }
 
 static int
-dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary)
+dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary)
 {
 	int offset = 0;
 	const uint8_t* answer_name;
@@ -2019,7 +2019,7 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 	}
 
 	//don't include the space delimiter in the string
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &answer_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &answer_name);
 	offset = answer_end+1;
 
 	if (strcmp(answer_name, "SetAccessMode") == 0)
@@ -2033,7 +2033,7 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 		{
 			parameter_length = tvb_reported_length_remaining(tvb, offset);
 			uint32_t change_level;
-			uint8_t* str_change_level = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+			uint8_t* str_change_level = tvb_get_string_enc(pinfo->pool, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
 			if (ws_strtou32(str_change_level, NULL, &change_level))
 			{
 				proto_tree_add_uint(tree, hf_sick_cola_set_access_mode_change_level, tvb, offset, parameter_length, change_level);
@@ -2093,7 +2093,7 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 		{
 			//status code should be rest of packet
 			parameter_length = tvb_reported_length_remaining(tvb, offset);
-			uint8_t* str_status_code = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+			uint8_t* str_status_code = tvb_get_string_enc(pinfo->pool, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
 			uint32_t status_code;
 			if (ws_strtou32(str_status_code, NULL, &status_code))
 			{
@@ -2165,7 +2165,7 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 }
 
 static int
-dissect_sick_cola_answer_sea(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary)
+dissect_sick_cola_answer_sea(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary)
 {
 	int offset = 0;
 	const uint8_t* answer_name;
@@ -2180,7 +2180,7 @@ dissect_sick_cola_answer_sea(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 	}
 
 	//don't include the space delimiter in the string
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &answer_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &answer_name);
 	offset = answer_end+1;
 
 	if (strcmp(answer_name, "LMDscandata") == 0)
@@ -2212,7 +2212,7 @@ dissect_sick_cola_answer_ssn(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 	}
 
 	//don't include the space delimiter in the string
-	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, wmem_packet_scope(), &answer_name);
+	proto_tree_add_item_ret_string(tree, hf_sick_cola_answer_name, tvb, offset, answer_end - offset, ENC_NA | ENC_ASCII, pinfo->pool, &answer_name);
 	offset = answer_end+1;
 
 	if (strcmp(answer_name, "LMDscandata") == 0)
@@ -2236,7 +2236,7 @@ dissect_sick_cola_answer_ssn(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 }
 
 static int
-dissect_sick_cola_answer_sfa(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, bool binary)
+dissect_sick_cola_answer_sfa(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bool binary)
 {
 	int offset = 0;
 
@@ -2251,7 +2251,7 @@ dissect_sick_cola_answer_sfa(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 		uint32_t error;
 		int length = tvb_reported_length_remaining(tvb, offset);
 
-		str_error = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_NA | ENC_ASCII);
+		str_error = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_NA | ENC_ASCII);
 		if (!ws_hexstrtou32(str_error, NULL, &error))
 			return 0;
 
@@ -2301,7 +2301,7 @@ dissect_sick_cola_b_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	start_crc_offset = offset;
 	command_item = proto_tree_add_item_ret_uint(cola_b_tree, hf_sick_cola_command, tvb, offset, 4, ENC_BIG_ENDIAN, &command);
-	col_set_str(pinfo->cinfo, COL_INFO, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
+	col_set_str(pinfo->cinfo, COL_INFO, tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	offset += 4;
 
 	command_tvb = tvb_new_subset_length(tvb, offset, length);
@@ -2415,7 +2415,7 @@ dissect_sick_cola_a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	offset += 1;
 
 	command_item = proto_tree_add_item_ret_uint(cola_a_tree, hf_sick_cola_command, tvb, offset, 4, ENC_BIG_ENDIAN, &command);
-	col_set_str(pinfo->cinfo, COL_INFO, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII));
+	col_set_str(pinfo->cinfo, COL_INFO, tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	offset += 4;
 
 	command_tvb = tvb_new_subset_length(tvb, offset, etxp-offset);
