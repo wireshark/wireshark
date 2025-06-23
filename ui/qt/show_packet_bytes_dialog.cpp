@@ -90,6 +90,8 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->sbStart->setMinimum(0);
     ui->sbEnd->setMaximum(finfo_->length - 1);
 
+    ui->tePacketBytes->setShowSelectedEnabled(enableShowSelected());
+
     print_button_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(print_button_, SIGNAL(clicked()), this, SLOT(printBytes()));
 
