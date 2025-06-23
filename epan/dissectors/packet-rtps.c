@@ -264,6 +264,173 @@ static const value_string type_object_kind [] = {
   { 0, NULL }
 };
 
+/*
+ * TypeKind and TypeIdentifier values from the OMG 'Extensible and Dynamic Topic
+ * Types for DDS' (DDS-XTypes) specification version 1.3, Annex B.
+ *
+ * EK_*: Equivalence Kind values, defining which equivalence relation is used
+ * TK_*: Type Kind values, categorizing the fundamental nature of types (e.g.,
+ * primitive, structure, collection).
+ * TI_*: Type Identifier Kind values, indicating specific formats or
+ * characteristics of type identifiers, mostly for collections.
+ */
+#define EK_MINIMAL (0xF1)
+#define EK_COMPLETE (0xF2)
+#define EK_BOTH (0xF3)
+#define TK_NONE (0x00)
+#define TK_BOOLEAN (0x01)
+#define TK_BYTE (0x02)
+#define TK_INT16 (0x03)
+#define TK_INT32 (0x04)
+#define TK_INT64 (0x05)
+#define TK_UINT16 (0x06)
+#define TK_UINT32 (0x07)
+#define TK_UINT64 (0x08)
+#define TK_FLOAT32 (0x09)
+#define TK_FLOAT64 (0x0A)
+#define TK_FLOAT128 (0x0B)
+#define TK_INT8 (0x0C)
+#define TK_UINT8 (0x0D)
+#define TK_CHAR8 (0x10)
+#define TK_CHAR16 (0x11)
+#define TK_STRING8 (0x20)
+#define TK_STRING16 (0x21)
+#define TK_ALIAS (0x30)
+#define TK_ENUM (0x40)
+#define TK_BITMASK (0x41)
+#define TK_ANNOTATION (0x50)
+#define TK_STRUCTURE (0x51)
+#define TK_UNION (0x52)
+#define TK_BITSET (0x53)
+#define TK_SEQUENCE (0x60)
+#define TK_ARRAY (0x61)
+#define TK_MAP (0x62)
+#define TI_STRING8_SMALL (0x70)
+#define TI_STRING8_LARGE (0x71)
+#define TI_STRING16_SMALL (0x72)
+#define TI_STRING16_LARGE (0x73)
+#define TI_PLAIN_SEQUENCE_SMALL (0x80)
+#define TI_PLAIN_SEQUENCE_LARGE (0x81)
+#define TI_PLAIN_ARRAY_SMALL (0x90)
+#define TI_PLAIN_ARRAY_LARGE (0x91)
+#define TI_PLAIN_MAP_SMALL (0xA0)
+#define TI_PLAIN_MAP_LARGE (0xA1)
+#define TI_STRONGLY_CONNECTED_COMPONENT (0xB0)
+
+/*
+ * Maps numeric identifiers to their symbolic names for DDS-XTypes type identifiers
+ * These values correspond to the TypeKind and TypeIdentifier definitions in the OMG
+ * "Extensible and Dynamic Topic Types for DDS" specification (DDS-XTypes).
+ * The array includes mappings for primitive types (TK_*), string types,
+ * constructed/named types, enumerated types, structured types, collection types,
+ * extended type identifiers (TI_*), and equivalence kinds (EK_*).
+ */
+static const value_string type_id_discriminator_vals[] = {
+  /* TypeKinds (primitive types) */
+  { TK_NONE, "TK_NONE" },
+  { TK_BOOLEAN, "TK_BOOLEAN" },
+  { TK_BYTE, "TK_BYTE" },
+  { TK_INT16, "TK_INT16" },
+  { TK_INT32, "TK_INT32" },
+  { TK_INT64, "TK_INT64" },
+  { TK_UINT16, "TK_UINT16" },
+  { TK_UINT32, "TK_UINT32" },
+  { TK_UINT64, "TK_UINT64" },
+  { TK_FLOAT32, "TK_FLOAT32" },
+  { TK_FLOAT64, "TK_FLOAT64" },
+  { TK_FLOAT128, "TK_FLOAT128" },
+  { TK_INT8, "TK_INT8" },
+  { TK_UINT8, "TK_UINT8" },
+  { TK_CHAR8, "TK_CHAR8" },
+  { TK_CHAR16, "TK_CHAR16" },
+
+  /* String TKs */
+  { TK_STRING8, "TK_STRING8" },
+  { TK_STRING16, "TK_STRING16" },
+
+  /* Constructed/Named types */
+  { TK_ALIAS, "TK_ALIAS" },
+
+  /* Enumerated TKs */
+  { TK_ENUM, "TK_ENUM" },
+  { TK_BITMASK, "TK_BITMASK" },
+
+  /* Structured TKs */
+  { TK_ANNOTATION, "TK_ANNOTATION" },
+  { TK_STRUCTURE, "TK_STRUCTURE" },
+  { TK_UNION, "TK_UNION" },
+  { TK_BITSET, "TK_BITSET" },
+
+  /* Collection TKs */
+  { TK_SEQUENCE, "TK_SEQUENCE" },
+  { TK_ARRAY, "TK_ARRAY" },
+  { TK_MAP, "TK_MAP" },
+
+  /* Extra TypeIdentifiers */
+  { TI_STRING8_SMALL, "TI_STRING8_SMALL" },
+  { TI_STRING8_LARGE, "TI_STRING8_LARGE" },
+  { TI_STRING16_SMALL, "TI_STRING16_SMALL" },
+  { TI_STRING16_LARGE, "TI_STRING16_LARGE" },
+
+  { TI_PLAIN_SEQUENCE_SMALL, "TI_PLAIN_SEQUENCE_SMALL" },
+  { TI_PLAIN_SEQUENCE_LARGE, "TI_PLAIN_SEQUENCE_LARGE" },
+
+  { TI_PLAIN_ARRAY_SMALL, "TI_PLAIN_ARRAY_SMALL" },
+  { TI_PLAIN_ARRAY_LARGE, "TI_PLAIN_ARRAY_LARGE" },
+
+  { TI_PLAIN_MAP_SMALL, "TI_PLAIN_MAP_SMALL" },
+  { TI_PLAIN_MAP_LARGE, "TI_PLAIN_MAP_LARGE" },
+
+  { TI_STRONGLY_CONNECTED_COMPONENT, "TI_STRONGLY_CONNECTED_COMPONENT" },
+
+  /* Equivalence Kinds */
+  { EK_MINIMAL, "EK_MINIMAL" },
+  { EK_COMPLETE, "EK_COMPLETE" },
+  { EK_BOTH, "EK_BOTH" },
+  {0,     NULL}
+};
+
+/*
+ * Remote exception codes used by the DDS-XTypes type lookup service.
+ * These values indicate the error conditions that can occur during
+ * remote type lookup operations between DDS participants,
+ * as defined in the OMG "Extensible and Dynamic Topic Types for DDS"
+ * specification.
+ */
+static const value_string remote_exception_code_vals[] = {
+  { 0, "REMOTE_EX_OK" },
+  { 1, "REMOTE_EX_UNSUPPORTED" },
+  { 2, "REMOTE_EX_INVALID_ARGUMENT" },
+  { 3, "REMOTE_EX_OUT_OF_RESOURCES" },
+  { 4, "REMOTE_EX_UNKNOWN_OPERATION" },
+  { 5, "REMOTE_EX_UNKNOWN_EXCEPTION" },
+  { 0, NULL}
+};
+
+static const value_string try_construct_vals[] = {
+  { 0, "INVALID" },
+  { 1, "DISCARD" },
+  { 2, "USE_DEFAULT" },
+  { 3, "TRIM" },
+  {0,  NULL}
+};
+
+/*
+ * Type lookup service discriminator values used in the DDS-XTypes specification
+ * These hexadecimal constants are hash values derived from string identifiers
+ * using the @hashid annotation in the IDL definition. They identify different
+ * operations and data fields in the type lookup mechanism of the RTPS protocol,
+ * which enables dynamic discovery of data types between DDS participants. Each
+ * value serves as a discriminator in the type lookup request/reply messages.
+ */
+#define GET_TYPES             (0x018252d3)
+#define GET_TYPE_DEPENDENCIES (0x05aafb31)
+static const value_string type_lookup_discriminator_vals[] = {
+  { GET_TYPES, "GET_TYPES" },
+  { GET_TYPE_DEPENDENCIES, "GET_TYPE_DEPENDENCIES" },
+  { 0, NULL }
+};
+
 static wmem_map_t * dissection_infos;
 static wmem_map_t * builtin_dissection_infos;
 static wmem_map_t * union_member_mappings;
@@ -276,6 +443,7 @@ static unsigned rtps_max_batch_samples_dissected = 16;
 static unsigned rtps_max_data_type_elements = DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE;
 static unsigned rtps_max_array_data_type_elements = DISSECTION_INFO_ARRAY_MAX_ELEMENTS_DEFAULT_VALUE;
 static bool enable_topic_info = true;
+static bool enable_debug_info = false;
 static bool enable_rtps_reassembly = false;
 static bool enable_user_data_dissection = false;
 static bool enable_max_array_data_type_elements = true;
@@ -442,7 +610,7 @@ static dissector_table_t rtps_type_name_table;
 #define PID_TYPE_OBJECT                         (0x0072)
 #define PID_DATA_REPRESENTATION                 (0x0073)
 #define PID_TYPE_CONSISTENCY                    (0x0074)
-#define PID_EQUIVALENT_TYPE_NAME                (0x0075)
+#define PID_TYPE_INFORMATION                    (0x0075) /* XTypes 1.2 and newer */
 #define PID_BASE_TYPE_NAME                      (0x0076)
 #define PID_BUILTIN_ENDPOINT_QOS                (0x0077)
 #define PID_ENABLE_AUTHENTICATION               (0x0078)
@@ -488,7 +656,8 @@ static dissector_table_t rtps_type_name_table;
 #define PID_DATA_TAGS                           (0x1003)
 #define PID_ENDPOINT_SECURITY_INFO              (0x1004)
 #define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
-#define PID_IDENTITY_STATUS_TOKEN                           (0x1006)
+#define PID_IDENTITY_STATUS_TOKEN               (0x1006)
+#define PID_AVAILABLE_BUILTIN_ENDPOINTS_EXT     (0x1007)
 #define PID_PARTICIPANT_SECURITY_DIGITAL_SIGNATURE_ALGO     (0x1010)
 #define PID_PARTICIPANT_SECURITY_KEY_ESTABLISHMENT_ALGO     (0x1011)
 #define PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO      (0x1012)
@@ -545,6 +714,10 @@ static dissector_table_t rtps_type_name_table;
 #define ENTITYID_BUILTIN_PARTICIPANT_READER     (0x000100c7)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER (0x000200c2)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER (0x000200c7)
+#define ENTITYID_TL_SVC_REQ_WRITER              (0x000300c3)
+#define ENTITYID_TL_SVC_REQ_READER              (0x000300c4)
+#define ENTITYID_TL_SVC_REPLY_WRITER            (0x000301c3)
+#define ENTITYID_TL_SVC_REPLY_READER            (0x000301c4)
 #define ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_WRITER (0x00010082)
 #define ENTITYID_RTI_BUILTIN_PARTICIPANT_BOOTSTRAP_READER (0x00010087)
 #define ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_WRITER    (0x00010182)
@@ -1091,6 +1264,7 @@ static int hf_rtps_locator_filter_list_filter_name;
 static int hf_rtps_locator_filter_list_filter_exp;
 static int hf_rtps_extra_flags;
 static int hf_rtps_param_builtin_endpoint_set_flags;
+static int hf_rtps_param_builtin_endpoint_ext_set_flags;
 static int hf_rtps_param_vendor_builtin_endpoint_set_flags;
 static int hf_rtps_param_endpoint_security_attributes;
 static int hf_rtps_param_plugin_promiscuity_kind;
@@ -1200,6 +1374,52 @@ static int hf_rtps_heartbeat_count;
 static int hf_rtps_encapsulation_options;
 static int hf_rtps_serialized_key;
 static int hf_rtps_serialized_data;
+static int hf_rtps_base_type_id_discriminator;
+static int hf_rtps_instance_name;
+static int hf_rtps_remote_exception_code;
+static int hf_rtps_type_bound;
+static int hf_rtps_type_deps_count;
+static int hf_rtps_type_deps_result;
+static int hf_rtps_type_element_flags;
+static int hf_rtps_type_equiv_kind;
+static int hf_rtps_type_extended;
+static int hf_rtps_type_hash;
+static int hf_rtps_type_id_discriminator;
+static int hf_rtps_type_id_w_size;
+static int hf_rtps_type_kind_discriminator;
+static int hf_rtps_type_lookup_deps_seq;
+static int hf_rtps_type_lookup_discriminator;
+static int hf_rtps_type_object_serialized_size;
+static int hf_rtps_type_object_v2;
+static int hf_rtps_type_object_v2_ann_builtin;
+static int hf_rtps_type_object_v2_enum_bit_bound;
+static int hf_rtps_type_object_v2_enum_literal_value;
+static int hf_rtps_type_object_v2_has_ann_builtin;
+static int hf_rtps_type_object_v2_has_ann_custom;
+static int hf_rtps_type_object_v2_member_flag_is_default;
+static int hf_rtps_type_object_v2_member_flag_is_external;
+static int hf_rtps_type_object_v2_member_flag_is_key;
+static int hf_rtps_type_object_v2_member_flag_is_must_understand;
+static int hf_rtps_type_object_v2_member_flag_is_optional;
+static int hf_rtps_type_object_v2_member_flag_try_construct;
+static int hf_rtps_type_object_v2_member_flags;
+static int hf_rtps_type_object_v2_member_id;
+static int hf_rtps_type_object_v2_member_name;
+static int hf_rtps_type_object_v2_member_name_hash;
+static int hf_rtps_type_object_v2_type_flag_is_appendable;
+static int hf_rtps_type_object_v2_type_flag_is_autoid_hash;
+static int hf_rtps_type_object_v2_type_flag_is_final;
+static int hf_rtps_type_object_v2_type_flag_is_mutable;
+static int hf_rtps_type_object_v2_type_flag_is_nested;
+static int hf_rtps_type_object_v2_type_flags;
+static int hf_rtps_type_object_v2_type_name;
+static int hf_rtps_type_object_v2_union_label;
+static int hf_rtps_xcdr2_delimited_header;
+static int hf_rtps_xcdr2_enhanced_mutable_header;
+static int hf_rtps_xcdr2_length_code;
+static int hf_rtps_xcdr2_member_id;
+static int hf_rtps_xcdr2_must_understand;
+static int hf_rtps_xcdr2_nextint;
 static int hf_rtps_type_object_type_id_disc;
 static int hf_rtps_type_object_type_id;
 static int hf_rtps_type_object_primitive_type_id;
@@ -1309,6 +1529,14 @@ static int hf_rtps_flag_participant_state_announcer;
 static int hf_rtps_flag_participant_state_detector;
 static int hf_rtps_flag_participant_message_datawriter;
 static int hf_rtps_flag_participant_message_datareader;
+static int hf_rtps_flag_typelookup_request_datawriter;
+static int hf_rtps_flag_typelookup_request_datareader;
+static int hf_rtps_flag_typelookup_reply_datawriter;
+static int hf_rtps_flag_typelookup_reply_datareader;
+static int hf_rtps_flag_typelookup_request_secure_datawriter;
+static int hf_rtps_flag_typelookup_request_secure_datareader;
+static int hf_rtps_flag_typelookup_reply_secure_datawriter;
+static int hf_rtps_flag_typelookup_reply_secure_datareader;
 static int hf_rtps_flag_secure_publication_writer;
 static int hf_rtps_flag_secure_publication_reader;
 static int hf_rtps_flag_secure_subscription_writer;
@@ -1545,6 +1773,39 @@ static int ett_rtps_property_list;
 static int ett_rtps_property;
 static int ett_rtps_topic_info;
 static int ett_rtps_topic_info_dw_qos;
+static int ett_rtps_type_bound_seq;
+static int ett_rtps_type_dep;
+static int ett_rtps_type_id;
+static int ett_rtps_type_object_v2;
+static int ett_rtps_type_object_v2_complete_type_detail;
+static int ett_rtps_type_object_v2_alias;
+static int ett_rtps_type_object_v2_alias_body;
+static int ett_rtps_type_object_v2_struct;
+static int ett_rtps_type_object_v2_struct_header;
+static int ett_rtps_type_object_v2_member_seq;
+static int ett_rtps_type_object_v2_member;
+static int ett_rtps_type_object_v2_union;
+static int ett_rtps_type_object_v2_union_header;
+static int ett_rtps_type_object_v2_union_discriminator;
+static int ett_rtps_type_object_v2_union_label_seq;
+static int ett_rtps_type_object_v2_enum;
+static int ett_rtps_type_object_v2_enum_header;
+static int ett_rtps_type_object_v2_enum_literal;
+static int ett_rtps_type_deps_seq;
+static int ett_rtps_type_id_w_deps;
+static int ett_rtps_type_id_w_size;
+static int ett_rtps_type_information;
+static int ett_rtps_type_lookup_request;
+static int ett_rtps_type_lookup_reply;
+static int ett_rtps_type_lookup_request_id;
+static int ett_rtps_type_lookup_request_header;
+static int ett_rtps_type_lookup_request_data;
+static int ett_rtps_type_lookup_reply_header;
+static int ett_rtps_type_lookup_reply_data;
+static int ett_rtps_type_lookup_deps_seq;
+static int ett_rtps_instance_name;
+static int ett_rtps_type_information_minimal;
+static int ett_rtps_type_information_complete;
 static int ett_rtps_type_object;
 static int ett_rtps_type_library;
 static int ett_rtps_type_element;
@@ -1642,6 +1903,10 @@ static const value_string entity_id_vals[] = {
   { ENTITYID_BUILTIN_PARTICIPANT_READER,                        "ENTITYID_BUILTIN_PARTICIPANT_READER" },
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER,            "ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER" },
   { ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER,            "ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER" },
+  { ENTITYID_TL_SVC_REQ_WRITER,                                 "ENTITYID_TL_SVC_REQ_WRITER" },
+  { ENTITYID_TL_SVC_REQ_READER,                                 "ENTITYID_TL_SVC_REQ_READER" },
+  { ENTITYID_TL_SVC_REPLY_WRITER,                               "ENTITYID_TL_SVC_REPLY_WRITER" },
+  { ENTITYID_TL_SVC_REPLY_READER,                               "ENTITYID_TL_SVC_REPLY_READER" },
   { ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER,           "ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER" },
   { ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_READER,           "ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_READER" },
   { ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER,          "ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER" },
@@ -1999,12 +2264,14 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO,     "PID_PARTICIPANT_SECURITY_SYMMETRIC_CIPHER_ALGO" },
   { PID_ENDPOINT_SECURITY_SYMMETRIC_CIPHER_ALGO,        "PID_ENDPOINT_SECURITY_SYMMETRIC_CIPHER_ALGO" },
   { PID_IDENTITY_STATUS_TOKEN,          "PID_IDENTITY_STATUS_TOKEN"},
+  { PID_AVAILABLE_BUILTIN_ENDPOINTS_EXT, "PID_AVAILABLE_BUILTIN_ENDPOINTS_EXT"},
   { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
   { PID_DOMAIN_TAG,                     "PID_DOMAIN_TAG" },
   { PID_GROUP_COHERENT_SET,             "PID_GROUP_COHERENT_SET" },
   { PID_END_COHERENT_SET,               "PID_END_COHERENT_SET" },
   { PID_END_GROUP_COHERENT_SET,         "PID_END_GROUP_COHERENT_SET" },
   { MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT,  "MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT" },
+  { PID_TYPE_INFORMATION,               "PID_TYPE_INFORMATION" },
 
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
@@ -2150,7 +2417,7 @@ static const value_string encapsulation_id_vals[] = {
   { ENCAPSULATION_PL_CDR2_BE,           "PL_CDR2_BE" },
   { ENCAPSULATION_PL_CDR2_LE,           "PL_CDR2_LE" },
   { ENCAPSULATION_SHMEM_REF_PLAIN,      "SHMEM_REF_PLAIN" },
-  { ENCAPSULATION_SHMEM_REF_FLAT_DATA,  "SHMEM_REF_PLAIN" },
+  { ENCAPSULATION_SHMEM_REF_FLAT_DATA,  "SHMEM_REF_FLAT_DATA" },
   { 0, NULL }
 };
 
@@ -2555,6 +2822,40 @@ static int* const STATUS_INFO_FLAGS[] = {
   NULL
 };
 
+static int* const TYPE_FLAGS_V2[] = {
+  &hf_rtps_type_object_v2_type_flag_is_autoid_hash, /* Bit 4 */
+  &hf_rtps_type_object_v2_type_flag_is_nested,      /* Bit 3 */
+  &hf_rtps_type_object_v2_type_flag_is_mutable,     /* Bit 2 */
+  &hf_rtps_type_object_v2_type_flag_is_appendable,  /* Bit 1 */
+  &hf_rtps_type_object_v2_type_flag_is_final,       /* Bit 0 */
+  NULL
+};
+
+static int* const MEMBER_FLAGS_V2[] = {
+  &hf_rtps_type_object_v2_member_flag_is_default,         /* Bit 6 */
+  &hf_rtps_type_object_v2_member_flag_is_key,             /* Bit 5 */
+  &hf_rtps_type_object_v2_member_flag_is_must_understand, /* Bit 4 */
+  &hf_rtps_type_object_v2_member_flag_is_optional,        /* Bit 3 */
+  &hf_rtps_type_object_v2_member_flag_is_external,        /* Bit 2 */
+  &hf_rtps_type_object_v2_member_flag_try_construct,      /* Bits 01 */
+  NULL
+};
+
+static int* const EMHEADER[] = {
+  &hf_rtps_xcdr2_must_understand, /* Bit 31 */
+  &hf_rtps_xcdr2_length_code,     /* Bits 28-30 */
+  &hf_rtps_xcdr2_member_id,       /* Bits 0-27 */
+  NULL
+};
+
+static int* const BUILTIN_ENDPOINT_EXT_FLAGS[] = {
+  &hf_rtps_flag_typelookup_reply_secure_datareader,   /* Bit 3 */
+  &hf_rtps_flag_typelookup_reply_secure_datawriter,   /* Bit 2 */
+  &hf_rtps_flag_typelookup_request_secure_datareader, /* Bit 1 */
+  &hf_rtps_flag_typelookup_request_secure_datawriter, /* Bit 0 */
+  NULL
+};
+
 static int* const BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_participant_secure_reader,                      /* Bit 27 */
   &hf_rtps_flag_participant_secure_writer,                      /* Bit 26 */
@@ -2568,7 +2869,10 @@ static int* const BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_secure_subscription_writer,                     /* Bit 18 */
   &hf_rtps_flag_secure_publication_reader,                      /* Bit 17 */
   &hf_rtps_flag_secure_publication_writer,                      /* Bit 16 */
-  &hf_rtps_flag_builtin_endpoint_set_reserved,      /* Bit 12-15 */
+  &hf_rtps_flag_typelookup_reply_datareader,        /* Bit 15 */
+  &hf_rtps_flag_typelookup_reply_datawriter,        /* Bit 14 */
+  &hf_rtps_flag_typelookup_request_datareader,      /* Bit 13 */
+  &hf_rtps_flag_typelookup_request_datawriter,      /* Bit 12 */
   &hf_rtps_flag_participant_message_datareader,     /* Bit 11 */
   &hf_rtps_flag_participant_message_datawriter,     /* Bit 10 */
   &hf_rtps_flag_participant_state_detector,         /* Bit 9 */
@@ -4646,6 +4950,14 @@ static void generate_status_info(packet_info *pinfo,
     case ENTITYID_RTI_BUILTIN_PARTICIPANT_CONFIG_SECURE_READER:
       writerId = "sPc";
       break;
+    case ENTITYID_TL_SVC_REQ_WRITER:
+    case ENTITYID_TL_SVC_REQ_READER:
+      writerId = "trq";
+      break;
+    case ENTITYID_TL_SVC_REPLY_WRITER:
+    case ENTITYID_TL_SVC_REPLY_READER:
+      writerId = "trp";
+      break;
     case ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER:
     case ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_READER: {
       /* This is added to proto_rtps in rtps_util_add_rti_service_request* */
@@ -5334,6 +5646,16 @@ static void rtps_util_add_guid_prefix_v1(proto_tree *tree, tvbuff_t *tvb, int of
 static void rtps_util_add_guid_prefix_v2(proto_tree *tree, tvbuff_t *tvb, int offset,
                                       int hf_prefix, int hf_host_id, int hf_app_id,
                                       int hf_instance_id, int hf_prefix_extra) {
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                      host id                                  |
+   * +---------------+---------------+---------------+---------------+
+   * |                      app id                                   |
+   * +---------------+---------------+---------------+---------------+
+   * |                      instance id                              |
+   * +---------------+---------------+---------------+---------------+
+   */
   if (tree) {
     proto_item *ti;
     proto_tree *guid_tree;
@@ -5511,6 +5833,27 @@ static int rtps_util_add_string(proto_tree *tree, tvbuff_t *tvb, int offset,
    * ...
    */
   return offset + 4 + ((size + 3) & 0xfffffffc);
+}
+
+/*
+ * Insert in the protocol tree the next data interpreted as a String
+ * Returns the new offset (after reading the string, without adding alignment)
+ */
+static int rtps_util_add_string_no_align(proto_tree* tree, tvbuff_t* tvb,
+        int offset, int hf_item, const unsigned encoding)
+{
+  LONG_ALIGN(offset);
+  uint32_t size = tvb_get_uint32(tvb, offset, encoding);
+
+  if (enable_debug_info)
+  {
+    proto_tree_add_item(tree, hf_rtps_string_length, tvb, offset,
+    4, encoding);
+  }
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_item, tvb, offset, size, ENC_ASCII);
+  return offset + size;
 }
 
 static int rtps_util_add_data_tags(proto_tree *rtps_parameter_tree, tvbuff_t *tvb,
@@ -7138,6 +7481,1709 @@ static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
 
 }
 
+/**
+ * @brief Add an XCDR2 delimited header to the protocol tree:
+ * Format used in XCDR2 extensible types where a 32-bit length prefix
+ * indicates the size of the following data structure.
+ *
+ * @param tree Protocol tree where the header will be added
+ * @param tvb The buffer containing the data
+ * @param offset Current offset in the buffer
+ * @return The new offset after the delimited header
+ */
+static int rtps_util_add_xcdr2_delimited_header(proto_tree* tree, tvbuff_t* tvb,
+        int offset)
+{
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                       delimited header                        |
+   * +---------------+---------------+---------------+---------------+
+   */
+
+  LONG_ALIGN(offset);
+
+  if (enable_debug_info)
+  {
+    proto_tree_add_item(tree, hf_rtps_xcdr2_delimited_header, tvb, offset, 4,
+      ENC_LITTLE_ENDIAN);
+  }
+  return offset + 4;
+}
+
+/**
+ * @brief Dissect an XCDR2 enhanced mutable header (EMHEADER)
+ *
+ * This function handles the dissection of an XCDR2 enhanced mutable header
+ * following the OMG XTypes 1.3 specification. It processes the header fields
+ * including the EMHeader value, must understand flag, length code, and member ID.
+ * For length codes greater than 3, it also processes the nextint field which
+ * contains additional information.
+ *
+ * @param tree Protocol tree to add the enhanced mutable header elements to
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the enhanced mutable header
+ */
+static int rtps_util_add_xcdr2_enhanced_mutable_header(proto_tree* tree,
+  tvbuff_t* tvb, int offset)
+{
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                           member ID                     |LC |M|
+   * +---------------+---------------+---------------+---------------+
+   * |                            nextint                            |
+   * +---------------+---------------+---------------+---------------+
+   * M = Must Understand bit
+   * LC = Length Code (3 bits)
+   */
+
+  LONG_ALIGN(offset);
+  const uint32_t header = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+
+  if (enable_debug_info)
+  {
+    proto_tree_add_bitmask(tree, tvb, offset,
+      hf_rtps_xcdr2_enhanced_mutable_header, ett_rtps_flags,
+      EMHEADER, ENC_LITTLE_ENDIAN);
+  }
+
+  offset += 4;
+
+  const uint32_t length_code = (header & 0x70000000) >> 28;
+  if (length_code > 3)
+  {
+    if (enable_debug_info)
+    {
+      /* nextint */
+      proto_tree_add_item(tree, hf_rtps_xcdr2_nextint, tvb, offset, 4,
+        ENC_LITTLE_ENDIAN);
+    }
+    offset += 4;
+  }
+
+  return offset;
+}
+
+/**
+ * @brief Add TypeIdentifier to the protocol tree per XTypes v1.3
+ *
+ * @details The TypeIdentifier is one of the core structures of the XTypes specification,
+ * used to identify and reference types. It can identify primitive types like
+ * int32, or more complex types like structures, arrays, etc.
+ *
+ * This function parses the type identifier discriminator and its associated data,
+ * recursively processing nested type identifiers when present.
+ *
+ * @param tree The protocol tree where this element will be added
+ * @param pinfo Packet info
+ * @param tvb The buffer containing the data
+ * @param offset The current offset in the buffer
+ * @param isBaseType TRUE if this is a base type identifier (for structures)
+ * @return The new offset after the type identifier has been processed
+ */
+// Recursion is required for parsing nested TypeIdentifiers in RTPS.
+// NOLINTNEXTLINE(misc-no-recursion)
+static int rtps_util_add_type_id_v2(proto_tree *tree, packet_info *pinfo,
+        tvbuff_t *tvb, int offset, bool isBaseType)
+{
+  /* Create subtree for TypeIdentifier */
+  proto_item* ti_item;
+  proto_tree* ti_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+    ett_rtps_type_id, &ti_item, isBaseType ? "Base Type Id" : "Type Id");
+  const int initial_offset = offset;
+
+  /* Read the discriminator (first octet) */
+  const uint8_t type_kind_discriminator = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item(ti_tree,
+    isBaseType
+      ? hf_rtps_base_type_id_discriminator
+      : hf_rtps_type_id_discriminator, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  /* Handle the different TypeIdentifier cases based on discriminator */
+  switch (type_kind_discriminator)
+  {
+  /* Primitive types - no additional data */
+  case TK_NONE:
+  case TK_BOOLEAN:
+  case TK_BYTE:
+  case TK_INT8:
+  case TK_INT16:
+  case TK_INT32:
+  case TK_INT64:
+  case TK_UINT8:
+  case TK_UINT16:
+  case TK_UINT32:
+  case TK_UINT64:
+  case TK_FLOAT32:
+  case TK_FLOAT64:
+  case TK_FLOAT128:
+  case TK_CHAR8:
+  case TK_CHAR16:
+    /* These cases have no additional data */
+    break;
+
+  /* String types with small bounds */
+  case TI_STRING8_SMALL:
+  case TI_STRING16_SMALL:
+    /* StringSTypeDefn: SBound (1 byte) */
+    proto_tree_add_item(ti_tree, hf_rtps_type_bound, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+    break;
+
+  /* String types with large bounds */
+  case TI_STRING8_LARGE:
+  case TI_STRING16_LARGE:
+    /* StringLTypeDefn: LBound (4 bytes) */
+    LONG_ALIGN(offset);
+    proto_tree_add_item(ti_tree, hf_rtps_type_bound, tvb, offset, 4,
+      ENC_LITTLE_ENDIAN);
+    offset += 4;
+    break;
+
+  /* Sequence types with small bounds */
+  case TI_PLAIN_SEQUENCE_SMALL:
+    /* PlainSequenceSElemDefn */
+    /* PlainCollectionHeader */
+    proto_tree_add_item(ti_tree, hf_rtps_type_equiv_kind, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* SBound (1 byte) */
+    proto_tree_add_item(ti_tree, hf_rtps_type_bound, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* element_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+    break;
+
+  /* Sequence types with large bounds */
+  case TI_PLAIN_SEQUENCE_LARGE:
+    /* Similar to small sequence but with LBound (4 bytes) */
+    /* PlainCollectionHeader */
+    proto_tree_add_item(ti_tree, hf_rtps_type_equiv_kind, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* LBound (4 bytes) */
+    LONG_ALIGN(offset);
+    proto_tree_add_item(ti_tree, hf_rtps_type_bound, tvb, offset, 4,
+      ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* element_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+    break;
+
+  /* Array types with small bounds */
+  case TI_PLAIN_ARRAY_SMALL:
+    /* PlainArraySElemDefn */
+    /* PlainCollectionHeader */
+    proto_tree_add_item(ti_tree, hf_rtps_type_equiv_kind, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+    /* array_bound_seq (sequence of SBound, 1 byte each) */
+    {
+      LONG_ALIGN(offset);
+      const uint32_t bound_seq_len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+      proto_tree* arr_tree = proto_tree_add_subtree_format(ti_tree, tvb, offset,
+        4 + bound_seq_len, ett_rtps_type_bound_seq, NULL, "Array Bounds [%u]",
+        bound_seq_len);
+      offset += 4;
+
+      for (uint32_t i = 0; i < bound_seq_len; i++)
+      {
+        uint32_t bound;
+        proto_item* bound_it = proto_tree_add_item_ret_uint(arr_tree,
+          hf_rtps_type_bound, tvb, offset, 1, ENC_LITTLE_ENDIAN, &bound);
+        proto_item_set_text(bound_it, "Bound [%u]: %u", i, bound);
+        offset += 1;
+      }
+    }
+
+    /* element_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+    break;
+
+  /* Array types with large bounds */
+  case TI_PLAIN_ARRAY_LARGE:
+    /* Similar to small array but with LBound sequence */
+    /* PlainCollectionHeader */
+    proto_tree_add_item(ti_tree, hf_rtps_type_equiv_kind, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* array_bound_seq (sequence of LBound, 4 bytes each) */
+    {
+      LONG_ALIGN(offset);
+      const uint32_t bound_seq_len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+      proto_tree* arr_tree = proto_tree_add_subtree_format(ti_tree, tvb, offset,
+        4 + (bound_seq_len * 4), ett_rtps_type_bound_seq, NULL, "Array Bounds [%u]",
+        bound_seq_len);
+      offset += 4;
+
+      for (uint32_t i = 0; i < bound_seq_len; i++)
+      {
+        uint32_t bound;
+        proto_item* bound_it = proto_tree_add_item_ret_uint(arr_tree,
+          hf_rtps_type_bound, tvb, offset, 4, ENC_LITTLE_ENDIAN, &bound);
+        proto_item_set_text(bound_it, "Bound [%u]: %u", i, bound);
+        offset += 4;
+      }
+    }
+
+    /* element_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+    break;
+
+  /* Map types */
+  case TI_PLAIN_MAP_SMALL:
+    /* PlainMapSTypeDefn */
+    /* PlainCollectionHeader  header */
+    proto_tree_add_item(ti_tree, hf_rtps_type_equiv_kind, tvb, offset, 1,
+      ENC_NA);
+    offset += 1;
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* SBound (1 byte) */
+    proto_tree_add_item(ti_tree, hf_rtps_type_bound, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* element_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+
+    /* key_flags */
+    SHORT_ALIGN(offset);
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* key_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+    break;
+
+  case TI_PLAIN_MAP_LARGE:
+    /* PlainMapLTypeDefn */
+    /* PlainCollectionHeader */
+    proto_tree_add_item(ti_tree, hf_rtps_type_equiv_kind, tvb, offset, 1,
+      ENC_NA);
+    offset += 1;
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* LBound (4 bytes) */
+    LONG_ALIGN(offset);
+    proto_tree_add_item(ti_tree, hf_rtps_type_bound, tvb, offset, 4,
+      ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /* Read element_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+
+    /* key_flags */
+    proto_tree_add_item(ti_tree, hf_rtps_type_element_flags, tvb, offset, 2,
+      ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* key_identifier (recursive TypeIdentifier) */
+    offset = rtps_util_add_type_id_v2(ti_tree, pinfo, tvb, offset, false);
+    break;
+  /* Strongly connected component (for cyclic dependencies) */
+  case TI_STRONGLY_CONNECTED_COMPONENT:
+    /* not supported */
+    /* Parse TypeObjectHashId, etc. */
+    break;
+
+  /* Hash-based type identification */
+  case EK_COMPLETE:
+  case EK_MINIMAL:
+    /* EquivalenceHash is 14 bytes */
+    proto_tree_add_item(ti_tree, hf_rtps_type_hash, tvb, offset, 14, ENC_NA);
+    offset += 14;
+    break;
+
+  /* Extended type definition (future use) */
+  default:
+    /* ExtendedTypeDefn - currently just a placeholder */
+    proto_tree_add_item(ti_tree, hf_rtps_type_extended, tvb, offset,
+                        0, ENC_NA);
+    break;
+  }
+
+  proto_item_set_len(ti_item, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a CompleteTypeDetail structure
+ *
+ * The CompleteTypeDetail structure contains:
+ * - Annotation built-in flags
+ * - Annotation custom flags
+ * - Type name
+ *
+ * @note Currently assumes that optional annotations are not present.
+ *
+ * @param tree Protocol tree to add the detail info
+ * @param tvb Buffer containing the packet data
+ * @param offset Current offset in the buffer
+ * @return New offset after reading the CompleteTypeDetail
+ */
+static int rtps_util_add_complete_type_detail(proto_tree* tree, tvbuff_t* tvb,
+        int offset)
+{
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |has builtin ann|has custom ann |            padding            |
+   * +---------------+---------------+---------------+---------------+
+   * |                         string length                         |
+   * +---------------+---------------+---------------+---------------+
+   * |               type name (length + 1 bytes) ...                |
+   * +---------------+---------------+---------------+---------------+
+   *
+   * assumes that optional annotations are not present
+   *
+   * IDL
+   *    @extensibility(FINAL) @nested @no_sequence
+   *    struct CompleteTypeDetail {
+   *        @optional AppliedBuiltinTypeAnnotations  ann_builtin;
+   *        @optional AppliedAnnotationSeq           ann_custom;
+   *        QualifiedTypeName                        type_name;
+   *    };
+   */
+
+  /* Create subtree for the alias type */
+  proto_item* complete_type_ti;
+  proto_tree* complete_type_tree = proto_tree_add_subtree(
+    tree, tvb, offset, -1, ett_rtps_type_object_v2_complete_type_detail,
+    &complete_type_ti, "Complete Type Detail");
+  const int initial_offset = offset;
+
+  /* Extract and store annotation built-in flags */
+  proto_tree_add_item(complete_type_tree,
+    hf_rtps_type_object_v2_has_ann_builtin, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  /* Extract and store annotation custom flags */
+  proto_tree_add_item(complete_type_tree, hf_rtps_type_object_v2_has_ann_custom,
+    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  /* Type name */
+  offset = rtps_util_add_string_no_align(complete_type_tree, tvb, offset,
+    hf_rtps_type_object_v2_type_name, ENC_LITTLE_ENDIAN);
+
+  proto_item_set_len(complete_type_ti, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect an CompleteAliasType or MinimalAliasType type within a TypeObjectV2
+ *
+ * @details This function handles the dissection of an ALIAS type from a TypeObjectV2
+ * following the OMG XTypes 1.3 specification. It processes alias_flags,
+ * header information (when applicable in COMPLETE mode), and the alias body
+ * which contains the related type information.
+ *
+ * @param tree Protocol tree to add the alias elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @param typeobject_discriminator The discriminator (EK_COMPLETE or EK_MINIMAL)
+ * of the TypeObjectV2 of which this alias is a member.
+ * @return The new offset after parsing the alias type
+ */
+static int rtps_util_add_type_object_v2_alias(proto_tree *tree,
+        packet_info *pinfo, tvbuff_t *tvb, int offset,
+        uint8_t typeobject_discriminator)
+{
+  /* Create Alias subtree */
+  proto_item* alias_ti;
+  proto_tree* alias_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+    ett_rtps_type_object_v2_alias, &alias_ti, "Alias Type");
+  const int initial_offset = offset;
+
+  /* AliasTypeFlag alias_flags */
+  proto_tree_add_bitmask(alias_tree, tvb, offset,
+    hf_rtps_type_object_v2_type_flags, ett_rtps_flags,
+    TYPE_FLAGS_V2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* Delimited header for CompleteAliasHeader/MinimalAliasHeader */
+  offset = rtps_util_add_xcdr2_delimited_header(alias_tree, tvb, offset);
+
+  /* CompleteAliasHeader header (MinimalAliasHeader is empty) */
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    /* CompleteTypeDetail detail */
+    offset = rtps_util_add_complete_type_detail(alias_tree, tvb, offset);
+  }
+
+  /* CompleteAliasBody body */
+  /* CommonAliasBody common */
+  proto_item* body_ti;
+  proto_tree* body_tree = proto_tree_add_subtree(alias_tree, tvb, offset, -1,
+    ett_rtps_type_object_v2_alias_body, &body_ti, "Alias Body");
+  const int initial_body_offset = offset;
+
+  /* Delimited header for CompleteAliasBody/MinimalAliasBody */
+  offset = rtps_util_add_xcdr2_delimited_header(body_tree, tvb, offset);
+
+  /* AliasMemberFlag related_flags */
+  proto_tree_add_bitmask(body_tree, tvb, offset,
+    hf_rtps_type_object_v2_member_flags, ett_rtps_flags,
+    MEMBER_FLAGS_V2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* TypeIdentifier related_type */
+  offset = rtps_util_add_type_id_v2(body_tree, pinfo, tvb, offset, false);
+
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    /* annotation built-in flags */
+    proto_tree_add_item(body_tree, hf_rtps_type_object_v2_has_ann_builtin, tvb,
+      offset, 1, ENC_NA);
+    offset++;
+
+    /* annotation custom flags */
+    proto_tree_add_item(body_tree, hf_rtps_type_object_v2_has_ann_custom, tvb,
+      offset, 1, ENC_NA);
+    offset++;
+  }
+
+  proto_item_set_len(body_ti, offset - initial_body_offset);
+
+  proto_item_set_len(alias_ti, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Adds a CompleteMemberDetail or MinimalMemberDetail to the protocol tree.
+ *
+ * This function handles the dissection of either a CompleteMemberDetail or
+ * MinimalMemberDetail, depending on the typeobject discriminator.
+ *
+ * @param member_item_tree The proto_tree to add items to.
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the buffer.
+ * @param typeobject_discriminator The discriminator (EK_COMPLETE or EK_MINIMAL).
+ * @return The new offset after adding the member detail.
+ */
+static int rtps_util_add_member_detail(proto_tree* member_item_tree,
+  tvbuff_t* tvb, int offset, int typeobject_discriminator)
+{
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    /*
+     * 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |                         string length                         |
+     * +---------------+---------------+---------------+---------------+
+     * |               member name (length + 1 bytes) ...              |
+     * +---------------+---------------+---------------+---------------+
+     * |end of member name (no padding)|has builtin ann|has custom ann |
+     * +---------------+---------------+---------------+---------------+
+     *
+     * assumes that optional annotations are not present
+     *
+     * IDL
+     *    @extensibility(FINAL) @nested @no_sequence
+     *    struct CompleteMemberDetail {
+     *        MemberName                                 name;
+     *        @optional AppliedBuiltinMemberAnnotations  ann_builtin;
+     *        @optional AppliedAnnotationSeq             ann_custom;
+     *    };
+     */
+
+    /* CompleteMemberDetail */
+    /* name */
+    offset = rtps_util_add_string_no_align(member_item_tree, tvb, offset,
+      hf_rtps_type_object_v2_member_name, ENC_LITTLE_ENDIAN);
+
+    /* annotation built-in flags */
+    proto_tree_add_item(member_item_tree,
+      hf_rtps_type_object_v2_has_ann_builtin, tvb,
+      offset, 1, ENC_NA);
+    offset++;
+
+    /* annotation custom flags */
+    proto_tree_add_item(member_item_tree, hf_rtps_type_object_v2_has_ann_custom,
+      tvb,
+      offset, 1, ENC_NA);
+    offset++;
+  }
+  else
+  {
+    /*
+     * 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |     name hash (4 bytes)       |                               |
+     * +---------------+---------------+---------------+---------------+
+     *
+     * IDL
+     *    @extensibility(FINAL) @nested @no_sequence
+     *    struct MinimalMemberDetail {
+     *        NameHash                                  name_hash;
+     *    };
+     */
+
+    /* MinimalMemberDetail */
+    /* name_hash */
+    proto_tree_add_item(member_item_tree,
+      hf_rtps_type_object_v2_member_name_hash, tvb, offset, 4,
+      ENC_LITTLE_ENDIAN);
+    offset += 4;
+  }
+  return offset;
+}
+
+/**
+ * @brief Dissect a CompleteStructType or MinimalStructType within a TypeObjectV2
+ *
+ * This function handles the dissection of a STRUCT type from a TypeObjectV2
+ * following the OMG XTypes 1.3 specification. It processes struct_flags,
+ * header information, base_type, CompleteTypeDetail (when applicable),
+ * and the member sequence.
+ *
+ * @param tree Protocol tree to add the structure elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @param typeobject_discriminator The discriminator (EK_COMPLETE or EK_MINIMAL)
+ * @return The new offset after parsing the structure
+ */
+static int rtps_util_add_type_object_v2_struct(proto_tree *tree,
+        packet_info *pinfo, tvbuff_t *tvb, int offset,
+        uint8_t typeobject_discriminator)
+{
+  /* Create Structure subtree */
+  proto_item* structure_ti;
+  proto_tree* structure_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+    ett_rtps_type_object_v2_struct, &structure_ti, "Struct Type");
+  const int initial_offset = offset;
+
+  /* StructTypeFlag struct_flags */
+  proto_tree_add_bitmask(structure_tree, tvb, offset,
+    hf_rtps_type_object_v2_type_flags, ett_rtps_flags,
+    TYPE_FLAGS_V2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* Delimited header for CompleteStructHeader/MinimalStructHeader */
+  offset = rtps_util_add_xcdr2_delimited_header(structure_tree, tvb, offset);
+
+  /* CompleteStructHeader/MinimalStructHeader header */
+  proto_item* header_ti;
+  proto_tree* header_tree = proto_tree_add_subtree(structure_tree, tvb, offset, -1,
+    ett_rtps_type_object_v2_struct_header, &header_ti, "Struct Header");
+  const int initial_header_offset = offset;
+
+  /* TypeIdentifier base_type */
+  offset = rtps_util_add_type_id_v2(header_tree, pinfo, tvb, offset, true);
+
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    /* CompleteTypeDetail detail */
+    offset = rtps_util_add_complete_type_detail(header_tree, tvb, offset);
+  }
+  proto_item_set_len(header_ti, offset - initial_header_offset);
+
+  /* Member sequence */
+
+  /* Delimited header for CompleteStructMemberSeq/MinimalStructMemberSeq */
+  offset = rtps_util_add_xcdr2_delimited_header(structure_tree, tvb, offset);
+
+  /* CompleteStructMemberSeq/MinimalStructMemberSeq member_seq */
+  const uint32_t member_seq_len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  if (member_seq_len > 0)
+  {
+    proto_item* member_seq_item;
+    proto_tree* member_seq_tree = proto_tree_add_subtree_format(structure_tree,
+      tvb, offset, -1, ett_rtps_type_object_v2_member_seq, &member_seq_item,
+      "Members [%u]", member_seq_len);
+    const int initial_member_seq_item_offset = offset;
+
+    for (uint32_t i = 0; i < member_seq_len; i++)
+    {
+      /* For each member */
+      proto_item* member_item_ti;
+      proto_tree* member_item_tree = proto_tree_add_subtree_format(
+        member_seq_tree, tvb, offset, -1, ett_rtps_type_object_v2_member,
+        &member_item_ti, "Member [%u]", i);
+      const int initial_member_item_offset = offset;
+
+      /* Delimited header */
+      offset =
+        rtps_util_add_xcdr2_delimited_header(member_item_tree, tvb, offset);
+
+      /* Common part */
+      /* member_id */
+      proto_tree_add_item(member_item_tree, hf_rtps_type_object_v2_member_id, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+
+      /* StructMemberFlag member_flags */
+      proto_tree_add_bitmask(member_item_tree, tvb, offset,
+        hf_rtps_type_object_v2_member_flags, ett_rtps_flags,
+        MEMBER_FLAGS_V2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      /* member_type_id */
+      const uint8_t discriminator = tvb_get_uint8(tvb, offset);
+      offset = rtps_util_add_type_id_v2(member_item_tree, pinfo, tvb, offset,
+        false);
+
+      /*
+       * iterate through type_id_discriminator_vals to find a string
+       * corresponding to the discriminator
+       */
+      const char* lbl_str = "Unknown";
+      for (size_t j = 0; j < array_length(type_id_discriminator_vals); j++)
+      {
+        if (type_id_discriminator_vals[j].value == discriminator)
+        {
+          lbl_str = type_id_discriminator_vals[j].strptr;
+          break;
+        }
+      }
+      proto_item_set_text(member_item_ti, "Member [%u] (%s)", i, lbl_str);
+
+      /* member detail */
+      offset = rtps_util_add_member_detail(member_item_tree, tvb, offset, typeobject_discriminator);
+
+      proto_item_set_len(member_item_ti, offset - initial_member_item_offset);
+    }
+    proto_item_set_len(member_seq_item, offset - initial_member_seq_item_offset);
+  }
+
+  proto_item_set_len(structure_ti, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a CompleteUnionType within a TypeObjectV2
+ *
+ * @details This function handles the dissection of a UNION type from a TypeObjectV2
+ * following the OMG XTypes 1.3 specification. It processes union_flags,
+ * header information (with CompleteTypeDetail when in COMPLETE mode),
+ * the discriminator member, and the union member sequence which includes
+ * case labels for each member.
+ *
+ * @param tree Protocol tree to add the union elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @param typeobject_discriminator The discriminator (EK_COMPLETE or EK_MINIMAL)
+ * @return The new offset after parsing the union
+ */
+static int rtps_util_add_type_object_v2_union(proto_tree* tree,
+        packet_info* pinfo, tvbuff_t* tvb, int offset,
+        uint8_t typeobject_discriminator)
+{
+
+  /* Create Union subtree */
+  proto_item* union_ti;
+  proto_tree* union_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+    ett_rtps_type_object_v2_union, &union_ti, "Union Type");
+  const int initial_offset = offset;
+
+  /* UnionTypeFlag union_flags */
+  proto_tree_add_bitmask(union_tree, tvb, offset,
+    hf_rtps_type_object_v2_type_flags, ett_rtps_flags,
+    TYPE_FLAGS_V2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* Delimited header for CompleteUnionHeader/MinimalUnionHeader */
+  offset = rtps_util_add_xcdr2_delimited_header(union_tree, tvb, offset);
+
+  /* CompleteUnionHeader/MinimalUnionHeader header */
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    proto_item* header_ti;
+    proto_tree* header_tree = proto_tree_add_subtree(union_tree, tvb, offset, -1,
+      ett_rtps_type_object_v2_union_header, &header_ti, "Union Header");
+    const int initial_header_offset = offset;
+
+    /* CompleteTypeDetail detail */
+    offset = rtps_util_add_complete_type_detail(header_tree, tvb, offset);
+    proto_item_set_len(header_ti, offset - initial_header_offset);
+  }
+
+  /* Delimited header for CompleteDiscriminatorMember/MinimalDiscriminatorMember */
+  offset = rtps_util_add_xcdr2_delimited_header(union_tree, tvb, offset);
+
+  /* CompleteDiscriminatorMember/MinimalDiscriminatorMember discriminator */
+  proto_item* discriminator_ti;
+  proto_tree* discriminator_tree = proto_tree_add_subtree(union_tree,
+    tvb, offset, -1, ett_rtps_type_object_v2_union_discriminator,
+    &discriminator_ti, "Union Discriminator");
+  const int initial_discriminator_offset = offset;
+
+  /* CommonDiscriminatorMember common */
+  /* UnionDiscriminatorFlag member_flags */
+  proto_tree_add_bitmask(discriminator_tree, tvb, offset,
+    hf_rtps_type_object_v2_member_flags, ett_rtps_flags,
+    MEMBER_FLAGS_V2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* TypeIdentifier type_id */
+  offset = rtps_util_add_type_id_v2(discriminator_tree, pinfo, tvb, offset,
+    false);
+
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    /* annotation built-in flags */
+    proto_tree_add_item(discriminator_tree,
+      hf_rtps_type_object_v2_has_ann_builtin, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* annotation custom flags */
+    proto_tree_add_item(discriminator_tree,
+      hf_rtps_type_object_v2_has_ann_custom, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+  }
+  proto_item_set_len(discriminator_ti, offset - initial_discriminator_offset);
+
+  /* Delimited header for CompleteUnionMemberSeq/MinimalUnionMemberSeq */
+  offset = rtps_util_add_xcdr2_delimited_header(union_tree, tvb, offset);
+
+  /* CompleteUnionMemberSeq/MinimalUnionMemberSeq member_seq */
+  const uint32_t member_seq_len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  if (member_seq_len > 0)
+  {
+    proto_item* member_seq_ti;
+    proto_tree* member_seq_tree = proto_tree_add_subtree_format(union_tree, tvb,
+      offset, -1, ett_rtps_type_object_v2_member_seq, &member_seq_ti,
+      "Members [%u]", member_seq_len);
+    const int initial_member_seq_offset = offset;
+
+    for (uint32_t i = 0; i < member_seq_len; i++)
+    {
+      /* For each CompleteUnionMember/MinimalUnionMember */
+      proto_item* member_item_ti;
+      proto_tree* member_item_tree = proto_tree_add_subtree_format(
+        member_seq_tree, tvb, offset, -1, ett_rtps_type_object_v2_member,
+        &member_item_ti, "Member [%u]", i);
+      const int initial_member_item_offset = offset;
+
+      /* Delimited header for CompleteUnionMember/MinimalUnionMember */
+      offset =
+        rtps_util_add_xcdr2_delimited_header(member_item_tree, tvb, offset);
+
+      /* CommonUnionMember common */
+
+      /* MemberId member_id */
+      proto_tree_add_item(member_item_tree, hf_rtps_type_object_v2_member_id, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+
+      /* UnionMemberFlag member_flags */
+      proto_tree_add_bitmask(member_item_tree, tvb, offset,
+        hf_rtps_type_object_v2_member_flags, ett_rtps_flags,
+        MEMBER_FLAGS_V2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      /* TypeIdentifier type_id */
+
+      const uint8_t type_kind_discriminator = tvb_get_uint8(tvb, offset);
+      offset = rtps_util_add_type_id_v2(member_item_tree, pinfo, tvb, offset,
+        false);
+
+      /* iterate through type_id_discriminator_vals to find a string corresponding to the discriminator */
+      const char* lbl_str = NULL;
+      for (size_t j = 0; j < array_length(type_id_discriminator_vals); j++)
+      {
+        if (type_id_discriminator_vals[j].value == type_kind_discriminator)
+        {
+          lbl_str = type_id_discriminator_vals[j].strptr;
+          break;
+        }
+      }
+      if (lbl_str == NULL)
+      {
+        lbl_str = "Unknown";
+      }
+      proto_item_set_text(member_item_ti, "Member [%u] (%s)", i, lbl_str);
+
+      /* UnionCaseLabelSeq label_seq sequence<long> */
+      LONG_ALIGN(offset);
+      const uint32_t union_label_seq_len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+      offset += 4;
+
+      if (union_label_seq_len > 0)
+      {
+        proto_item* label_item;
+        proto_tree* label_tree = proto_tree_add_subtree_format(member_item_tree,
+          tvb, offset, -1, ett_rtps_type_object_v2_union_label_seq, &label_item,
+          "Labels [%u]", union_label_seq_len);
+        const int initial_label_item_offset = offset;
+
+        for (uint32_t j = 0; j < union_label_seq_len; j++)
+        {
+          /* For each case label */
+          proto_tree_add_item(label_tree, hf_rtps_type_object_v2_union_label, tvb,
+            offset, 4, ENC_LITTLE_ENDIAN);
+          offset += 4;
+        }
+        proto_item_set_len(label_item, offset - initial_label_item_offset);
+      }
+
+      /* Member detail */
+      offset = rtps_util_add_member_detail(member_item_tree, tvb, offset,
+        typeobject_discriminator);
+
+      proto_item_set_len(member_item_ti, offset - initial_member_item_offset);
+    }
+    proto_item_set_len(member_seq_ti, offset - initial_member_seq_offset);
+  }
+
+  proto_item_set_len(union_ti, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a CompleteEnumeratedType or MinimalEnumeratedType within a TypeObjectV2
+ *
+ * @details This function handles the dissection of an ENUM type from a TypeObjectV2
+ * following the OMG XTypes 1.3 specification. It processes enum_flags,
+ * header information including bit_bound (and type name when in COMPLETE mode),
+ * and enumeration literals with their values, flags, and names/name_hashes.
+ *
+ * @param tree Protocol tree to add the enum elements to
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @param typeobject_discriminator The discriminator (EK_COMPLETE or EK_MINIMAL)
+ * @return The new offset after parsing the enum type
+ */
+static int rtps_util_add_type_object_v2_enum(proto_tree *tree, tvbuff_t *tvb,
+        int offset, uint8_t typeobject_discriminator)
+{
+  /* Create Enumeration subtree */
+  proto_item* enum_ti;
+  proto_tree* enum_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+    ett_rtps_type_object_v2_enum, &enum_ti, "Enum Type");
+  const int initial_offset = offset;
+
+  /* EnumTypeFlag enum_flags */
+  proto_tree_add_bitmask_value(enum_tree, tvb, offset,
+    hf_rtps_type_object_v2_type_flags, ett_rtps_flags,
+    TYPE_FLAGS_V2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* Delimited header for CompleteEnumeratedHeader/MinimalEnumeratedHeader */
+  offset = rtps_util_add_xcdr2_delimited_header(enum_tree, tvb, offset);
+
+  /* CompleteEnumeratedHeader/MinimalEnumeratedHeader header */
+  proto_item* enum_header_ti;
+  proto_tree* enum_header_tree = proto_tree_add_subtree(enum_tree, tvb,
+    offset, -1, ett_rtps_type_object_v2_enum_header, &enum_header_ti,
+    "Enum Header");
+  const int initial_enum_header_offset = offset;
+
+  /* CommonEnumeratedHeader common */
+  /* BitBound bit_bound */
+  proto_tree_add_item(enum_header_tree,
+    hf_rtps_type_object_v2_enum_bit_bound, tvb, offset,
+    2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  if (typeobject_discriminator == EK_COMPLETE)
+  {
+    /* CompleteTypeDetail detail */
+    offset = rtps_util_add_complete_type_detail(enum_header_tree, tvb, offset);
+  }
+  proto_item_set_len(enum_header_ti, offset - initial_enum_header_offset);
+
+  /* Delimited header for CompleteEnumeratedLiteralSeq/MinimalEnumeratedLiteralSeq */
+  offset = rtps_util_add_xcdr2_delimited_header(enum_tree, tvb, offset);
+
+  /* CompleteEnumeratedLiteralSeq/MinimalEnumeratedLiteralSeq literal_seq */
+  const uint32_t literal_seq_len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  offset += 4;
+  if (literal_seq_len > 0)
+  {
+    proto_item* literal_seq_ti;
+    proto_tree* literal_seq_tree = proto_tree_add_subtree_format(enum_tree, tvb,
+      offset, -1, ett_rtps_type_deps_seq, &literal_seq_ti,
+      "Enum Literals [%u]", literal_seq_len);
+    const int initial_literal_seq_offset = offset;
+
+    /* Process each literal in the sequence */
+    for (uint32_t i = 0; i < literal_seq_len; i++)
+    {
+      proto_item* literal_ti;
+      proto_tree* literal_tree = proto_tree_add_subtree_format(literal_seq_tree,
+        tvb, offset, 0, ett_rtps_type_object_v2_enum_literal, &literal_ti,
+        "Enum Literal [%u]", i);
+      const int initial_literal_offset = offset;
+
+      /* CompleteEnumeratedLiteral/MinimalEnumeratedLiteral */
+      /* Delimited header for CompleteEnumeratedLiteral/MinimalEnumeratedLiteral */
+      offset = rtps_util_add_xcdr2_delimited_header(literal_tree, tvb, offset);
+
+      /* Delimited header for CommonEnumeratedLiteral */
+      offset = rtps_util_add_xcdr2_delimited_header(literal_tree, tvb, offset);
+
+      /* CommonEnumeratedLiteral common */
+      /* long value */
+      proto_tree_add_item(literal_tree, hf_rtps_type_object_v2_enum_literal_value,
+        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+
+      /* EnumeratedLiteralFlag flags */
+      proto_tree_add_bitmask(literal_tree, tvb, offset,
+        hf_rtps_type_object_v2_member_flags, ett_rtps_flags,
+        MEMBER_FLAGS_V2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      /* member detail */
+      offset = rtps_util_add_member_detail(literal_tree, tvb, offset, typeobject_discriminator);
+
+      proto_item_set_len(literal_ti, offset - initial_literal_offset);
+    }
+    proto_item_set_len(literal_seq_ti, offset - initial_literal_seq_offset);
+  }
+
+  proto_item_set_len(enum_ti, offset - initial_offset);
+  return offset;
+}
+
+
+
+/**
+ * @brief Dissect a TypeObjectV2 structure
+ *
+ * @details This function handles the dissection of a TypeObjectV2 structure following
+ * the OMG XTypes 1.3 specification. It reads the equivalence kind discriminator
+ * (COMPLETE or MINIMAL) and the type kind discriminator, then dispatches to the
+ * appropriate type-specific handler based on the type kind (alias, structure,
+ * union, sequence, array, enum, etc.).
+ *
+ * @param tree Protocol tree to add the TypeObjectV2 elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @param label Pointer to a text label describing the Type
+ * @return The new offset after parsing the TypeObjectV2
+ */
+static int rtps_util_add_type_object_v2(proto_tree *tree, packet_info *pinfo,
+        tvbuff_t *tvb, int offset, const char** label)
+{
+  const int initial_offset = offset;
+
+  /* Create subtree for TypeObjectV2 */
+  proto_item* ti = proto_tree_add_item(tree, hf_rtps_type_object_v2, tvb,
+    offset, 0, ENC_NA);
+  proto_tree* to_tree = proto_item_add_subtree(ti, ett_rtps_type_object_v2);
+
+  /* Read the discriminator (first octet) */
+  uint8_t typeobject_discriminator = tvb_get_uint8(tvb, offset);
+  proto_tree_add_item(to_tree, hf_rtps_type_id_discriminator, tvb, offset, 1,
+    ENC_NA);
+  offset++;
+
+  const uint8_t typekind_discriminator = tvb_get_uint8(tvb, offset);
+  if (label != NULL)
+  {
+    *label = "Unknown";
+    for (size_t j = 0; j < array_length(type_id_discriminator_vals); j++)
+    {
+      if (type_id_discriminator_vals[j].value == typekind_discriminator)
+      {
+        *label = type_id_discriminator_vals[j].strptr;
+        break;
+      }
+    }
+  }
+
+  proto_tree_add_item(to_tree, hf_rtps_type_kind_discriminator, tvb, offset, 1,
+    ENC_NA);
+  offset++;
+
+  /* Handle the different TypeIdentifier cases based on discriminator */
+  switch (typekind_discriminator)
+  {
+  case TK_ALIAS:
+    offset = rtps_util_add_type_object_v2_alias(to_tree, pinfo, tvb, offset,
+      typeobject_discriminator);
+    break;
+  case TK_STRUCTURE:
+    offset = rtps_util_add_type_object_v2_struct(
+      to_tree, pinfo, tvb, offset, typeobject_discriminator);
+    break;
+  case TK_UNION:
+    offset = rtps_util_add_type_object_v2_union(to_tree, pinfo, tvb, offset,
+      typeobject_discriminator);
+    break;
+  case TK_ENUM:
+    offset = rtps_util_add_type_object_v2_enum(to_tree, tvb, offset,
+      typeobject_discriminator);
+    break;
+  /* Extended type definition (future use) */
+  default:
+    /* ExtendedTypeDefn - currently just a placeholder */
+    proto_tree_add_item(to_tree, hf_rtps_type_extended, tvb, offset,
+                        0, ENC_NA);
+    break;
+  }
+
+  proto_item_set_len(ti, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a TypeIdentifierWithSize structure
+ *
+ * @details This function handles the dissection of a TypeIdentifierWithSize structure
+ * following the OMG XTypes 1.3 specification. It processes the type_id field
+ * by calling rtps_util_add_type_id_v2(), and then reads the
+ * typeobject_serialized_size field which indicates the serialized size of
+ * the associated TypeObject.
+ *
+ * @param tree Protocol tree to add the TypeIdentifierWithSize elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the TypeIdentifierWithSize
+ */
+static int rtps_util_add_type_id_w_size(proto_tree* tree, packet_info* pinfo,
+  tvbuff_t* tvb, int offset)
+{
+  const int initial_offset = offset;
+
+  /* TypeIdentifier type_id */
+  offset = rtps_util_add_type_id_v2(tree, pinfo, tvb, offset, false);
+
+  LONG_ALIGN(offset);
+
+  /* unsigned long typeobject_serialized_size */
+  proto_tree_add_item(tree, hf_rtps_type_object_serialized_size, tvb, offset, 4,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  proto_item_set_len(tree, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a TypeIdentifierWithDependencies structure
+ *
+ * This function handles the dissection of a TypeIdentifierWithDependencies structure
+ * following the OMG XTypes 1.3 specification. It processes the typeid_with_size field
+ * by calling rtps_util_add_type_id_w_size(), followed by a dependent_typeid_count,
+ * and a sequence of TypeIdentifierWithSize objects representing dependent type IDs.
+ *
+ * @param tree Protocol tree to add the TypeIdentifierWithDependencies elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the TypeIdentifierWithDependencies
+ */
+static int rtps_util_add_type_id_w_dependencies(proto_tree* tree,
+  packet_info* pinfo,
+  tvbuff_t* tvb, int offset)
+{
+  proto_item* ti;
+  proto_tree* typeid_deps_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+    ett_rtps_type_id_w_deps, &ti, "Type Id With Dependencies");
+  const int initial_offset = offset;
+
+  /* TypeIdentifierWithSize typeid_with_size */
+  proto_tree* typeid_size_tree = proto_tree_add_subtree(typeid_deps_tree, tvb,
+    offset, -1, ett_rtps_type_id_w_size, NULL, "Type Id With Size");
+
+  offset = rtps_util_add_type_id_w_size(typeid_size_tree, pinfo, tvb, offset);
+
+  /* long dependent_typeid_count */
+  proto_tree_add_item(typeid_deps_tree, hf_rtps_type_deps_count, tvb, offset, 4,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /* long dependent_typeids sequence length */
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(typeid_deps_tree, tvb, offset);
+
+  const uint32_t dependent_typeid_seq_len = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /* sequence<TypeIdentifierWithSize> dependent_typeids */
+  if (dependent_typeid_seq_len > 0)
+  {
+    proto_tree* deps_seq_tree = proto_tree_add_subtree_format(
+      typeid_deps_tree, tvb, offset, -1, ett_rtps_type_deps_seq, NULL,
+      "Dependent Type IDs [%u]", dependent_typeid_seq_len);
+
+    for (uint32_t i = 0; i < dependent_typeid_seq_len; i++)
+    {
+      proto_item* dep_item;
+      proto_tree* dep_tree = proto_tree_add_subtree_format(deps_seq_tree, tvb,
+        offset, -1, ett_rtps_type_dep, &dep_item, "Dependent Type ID [%u]", i);
+      const int initial_dep_offset = offset;
+      offset = rtps_util_add_type_id_w_size(dep_tree, pinfo, tvb, offset);
+      proto_item_set_len(dep_item, offset - initial_dep_offset);
+    }
+  }
+
+  proto_item_set_len(ti, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a TypeIdentifierWithDependencies structure with XCDR2 headers
+ *
+ * This function handles the dissection of a TypeIdentifierWithDependencies structure
+ * with XCDR2 serialization headers following the OMG XTypes 1.3 specification.
+ * It processes the XCDR2 enhanced mutable header, followed by an XCDR2 delimited
+ * header, and then calls rtps_util_add_type_id_w_dependencies() to process the
+ * TypeIdentifierWithDependencies data itself.
+ *
+ * @param tree Protocol tree to add the delimited TypeIdentifierWithDependencies elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the delimited TypeIdentifierWithDependencies
+ */
+static int rtps_util_add_delimited_type_id_w_dependencies(proto_tree* tree,
+  packet_info* pinfo, tvbuff_t* tvb, int offset)
+{
+  const int initial_offset = offset;
+
+  /* Enhanced Mutable Header */
+  offset = rtps_util_add_xcdr2_enhanced_mutable_header(tree, tvb, offset);
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(tree, tvb, offset);
+
+  /* Process the TypeIdentifierWithDependencies */
+  offset = rtps_util_add_type_id_w_dependencies(tree, pinfo, tvb, offset);
+
+  proto_item_set_len(tree, offset - initial_offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a TypeInformation structure
+ *
+ * @details This function handles the dissection of a TypeInformation structure
+ * following the OMG XTypes 1.3 specification. It processes a full TypeInformation
+ * structure with both minimal and complete TypeIdentifierWithDependencies fields.
+ * TypeInformation appears in the builtin DDS topics PublicationBuiltinTopicData
+ * and SubscriptionBuiltinTopicData.
+ *
+ * @param tree Protocol tree to add the TypeInformation elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ */
+static void rtps_util_add_typeinformation(proto_tree* tree, packet_info* pinfo,
+  tvbuff_t* tvb, int offset)
+{
+  /*
+   * IDL
+   *    @extensibility(MUTABLE) @nested
+   *    struct TypeInformation {
+   *        @id(0x1001) TypeIdentifierWithDependencies minimal;
+   *        @id(0x1002) TypeIdentifierWithDependencies complete;
+   *    };
+   */
+
+
+  proto_item* typeinfo_item;
+  proto_tree* typeinfo_tree = proto_tree_add_subtree(tree, tvb, offset,
+    -1, ett_rtps_type_information, &typeinfo_item, "Type Information");
+  const int initial_offset = offset;
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(typeinfo_tree, tvb, offset);
+
+  /* TypeInformation has two fields: minimal and complete */
+
+  /* Minimal TypeIdentifierWithDependencies */
+  proto_tree* minimal_tree = proto_tree_add_subtree(typeinfo_tree, tvb, offset,
+    -1, ett_rtps_type_information_minimal, NULL, "Minimal");
+
+  offset = rtps_util_add_delimited_type_id_w_dependencies(minimal_tree, pinfo,
+    tvb, offset);
+
+  /* Complete TypeIdentifierWithDependencies */
+  proto_tree* complete_tree = proto_tree_add_subtree(typeinfo_tree, tvb, offset,
+    -1, ett_rtps_type_information_complete, NULL, "Complete");
+
+  offset = rtps_util_add_delimited_type_id_w_dependencies(complete_tree, pinfo,
+    tvb, offset);
+
+  proto_item_set_len(typeinfo_item, offset - initial_offset);
+}
+
+/**
+ * @brief Dissect the GET_DEPENDENCIES reply data
+ *
+ * This function handles the dissection of the GET_DEPENDENCIES reply data
+ * following the OMG XTypes 1.3 specification. It processes a structure containing
+ * a return code, followed by a sequence of TypeIdentifierWithSize objects
+ * representing dependent type IDs, and a continuation point for future use.
+ * Each field is preceded by XCDR2 delimited headers for proper alignment and parsing.
+ *
+ * @param tree Protocol tree to add the GET_DEPENDENCIES reply data elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the GET_DEPENDENCIES reply data
+ */
+static int rtps_util_dissect_get_type_dependencies_out(proto_tree* tree,
+  packet_info* pinfo, tvbuff_t* tvb, int offset)
+{
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(tree, tvb, offset);
+
+  /* reply header - discriminator - always 0 - DDS_RETCODE_OK*/
+  uint32_t type_lookup_result_discriminator = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  proto_tree_add_uint(tree, hf_rtps_type_deps_result, tvb, offset, 4,
+    type_lookup_result_discriminator);
+  offset += 4;
+
+  /* (mutable) TypeLookup_getTypeDependencies_Out */
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(tree, tvb, offset);
+
+  /* Enhanced Mutable Header for dependent_typeids */
+  offset = rtps_util_add_xcdr2_enhanced_mutable_header(
+    tree, tvb, offset);
+
+  uint32_t dependent_typeids_seq_len = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /* sequence<TypeIdentifierWithSize> dependent_typeids */
+  if (dependent_typeids_seq_len > 0)
+  {
+    proto_item* dep_seq_item;
+    proto_tree* deps_seq_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+      -1, ett_rtps_type_lookup_deps_seq, &dep_seq_item, "Dependent Type IDs [%u]",
+      dependent_typeids_seq_len);
+    const int initial_sequence_offset = offset;
+
+    for (uint32_t i = 0; i < dependent_typeids_seq_len; i++)
+    {
+      proto_item* dep_item;
+      proto_tree* dep_tree = proto_tree_add_subtree_format(deps_seq_tree, tvb,
+        offset, -1, ett_rtps_type_dep, &dep_item, "Dependent Type ID [%d]", i);
+      const int initial_dep_offset = offset;
+
+      offset = rtps_util_add_xcdr2_delimited_header(dep_tree, tvb, offset);
+
+      offset = rtps_util_add_type_id_w_size(dep_tree, pinfo, tvb, offset);
+      proto_item_set_len(dep_item, offset - initial_dep_offset);
+    }
+    proto_item_set_len(dep_seq_item, offset - initial_sequence_offset);
+  }
+
+  /* Enhanced Mutable Header for continuation_point */
+  offset = rtps_util_add_xcdr2_enhanced_mutable_header(tree, tvb, offset);
+  return offset;
+}
+
+/**
+ * @brief Dissect a TypeLookup Reply structure for GET_TYPES
+ *
+ * @details This function handles the dissection of a TypeLookup Reply structure
+ * specifically for the GET_TYPES operation. It processes the reply data containing
+ * a sequence of TypeIdentifierTypeObjectPair objects that map type identifiers to
+ * their corresponding type objects, as well as mappings from complete to minimal types.
+ * Each section is preceded by XCDR2 delimited or enhanced mutable headers for proper
+ * alignment and parsing.
+ *
+ * @param tree Protocol tree to add the GET_TYPES reply elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the GET_TYPES reply
+ */
+static int rtps_util_dissect_get_types_out(proto_tree* tree, packet_info* pinfo,
+  tvbuff_t* tvb, int offset)
+{
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(tree, tvb, offset);
+
+  /* reply header - discriminator - always 0 */
+  const uint32_t type_lookup_result_discriminator = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  proto_tree_add_uint(tree, hf_rtps_type_deps_result, tvb, offset, 4,
+    type_lookup_result_discriminator);
+  offset += 4;
+
+  /* (mutable) TypeLookup_getTypes_Out result */
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(tree, tvb, offset);
+
+  /* Enhanced Mutable Header for types */
+  offset = rtps_util_add_xcdr2_enhanced_mutable_header(tree, tvb, offset);
+
+  /* sequence<TypeIdentifierTypeObjectPair> types */
+  const uint32_t ti_to_pair_seq_len = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  if (ti_to_pair_seq_len == 0)
+  {
+    /* Enhanced Mutable Header for continuation_point */
+    offset = rtps_util_add_xcdr2_enhanced_mutable_header(tree, tvb, offset);
+    return offset;
+  }
+
+  proto_item* deps_seq_item;
+  proto_tree* deps_seq_tree = proto_tree_add_subtree_format(
+    tree, tvb, offset, -1, ett_rtps_type_deps_seq,
+    &deps_seq_item, "Dependent Type IDs [%u]", ti_to_pair_seq_len);
+  const int initial_deps_seq_offset = offset;
+
+  for (uint32_t i = 0; i < ti_to_pair_seq_len; i++)
+  {
+    proto_item* dep_item;
+    proto_tree* dep_tree = proto_tree_add_subtree_format(deps_seq_tree, tvb,
+      offset, -1, ett_rtps_type_dep, &dep_item, "Dependent Type ID [%u]", i);
+    const int initial_dep_offset = offset;
+
+    /* TypeIdentifier */
+    offset = rtps_util_add_type_id_v2(dep_tree, pinfo, tvb, offset, false);
+
+    /* Delimited header */
+    offset = rtps_util_add_xcdr2_delimited_header(dep_tree, tvb, offset);
+
+    /* (appendable) TypeObject */
+    const char* label = "Unknown";
+    offset = rtps_util_add_type_object_v2(dep_tree, pinfo, tvb, offset, &label);
+    proto_item_set_text(dep_item, "Dependent Type ID [%d] (%s)", i, label);
+
+    proto_item_set_len(dep_item, offset - initial_dep_offset);
+  }
+
+  proto_item_set_len(deps_seq_item, offset - initial_deps_seq_offset);
+
+  /* Enhanced Mutable Header for complete_to_minimal */
+  offset = rtps_util_add_xcdr2_enhanced_mutable_header(tree, tvb, offset);
+
+  const uint32_t complete_minimal_seq_len = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /* sequence<TypeIdentifierPair> complete_to_minimal */
+  if (complete_minimal_seq_len > 0)
+  {
+    proto_tree* complete_to_minimal_seq_tree = proto_tree_add_subtree_format(
+      tree, tvb, offset, -1, ett_rtps_type_deps_seq, NULL,
+      "Complete to Minimal Type IDs [%u]", complete_minimal_seq_len);
+
+    /* TypeIdentifierPair */
+    for (uint32_t i = 0; i < complete_minimal_seq_len; i++)
+    {
+      proto_tree* dep_tree = proto_tree_add_subtree_format(
+        complete_to_minimal_seq_tree, tvb, offset, -1, ett_rtps_type_dep, NULL,
+        "Mapping %d", i);
+      offset = rtps_util_add_type_id_v2(dep_tree, pinfo, tvb, offset, false);
+      LONG_ALIGN(offset);
+      offset += 4;
+      offset = rtps_util_add_type_id_v2(dep_tree, pinfo, tvb, offset, false);
+    }
+  }
+
+  return offset;
+}
+
+/**
+ * @brief Add a type lookup request ID to the protocol tree
+ *
+ * @details This function adds the type lookup request ID to the protocol tree.
+ * The request ID consists of a GUID (16 bytes) followed by a sequence number
+ * (8 bytes).
+ *
+ * @param tree Protocol tree to add the request ID elements to
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ * @return The new offset after parsing the request ID
+ */
+static int rtps_util_add_type_lookup_request_id(proto_tree* tree, tvbuff_t* tvb,
+  int offset)
+{
+  /*
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |                      host id                                  |
+   * +---------------+---------------+---------------+---------------+
+   * |                      app id                                   |
+   * +---------------+---------------+---------------+---------------+
+   * |                      instance id                              |
+   * +---------------+---------------+---------------+---------------+
+   * |                      entity id                                |
+   * +---------------+---------------+---------------+---------------+
+   * |                      sequence number                          |
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   */
+  /* request id - guid */
+  rtps_util_add_guid_prefix_v2(tree, tvb, offset,
+    hf_rtps_sm_guid_prefix, hf_rtps_sm_host_id, hf_rtps_sm_app_id,
+    hf_rtps_sm_instance_id, 0);
+  offset += 12;
+  rtps_util_add_entity_id(tree, tvb, offset,
+    hf_rtps_sm_entity_id, hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind,
+    ett_rtps_entity, "TypeLookup Writer", NULL);
+  offset += 4;
+
+  /* request id - sequence number */
+  rtps_util_add_seq_number(tree, tvb, offset, ENC_LITTLE_ENDIAN,
+    "sequenceNumber");
+  offset += 8;
+
+  return offset;
+}
+
+/**
+ * @brief Dissect a TypeLookup Reply structure
+ *
+ * @details This function handles the dissection of a TypeLookup Reply structure
+ * following the OMG XTypes 1.3 specification. It processes a complete TypeLookup reply
+ * structure that consists of a reply header containing a related request ID and
+ * remote exception code, followed by reply data. Depending on the reply type,
+ * the data contains either a sequence of TypeIdentifierTypeObjectPair objects with
+ * mappings from complete to minimal types (for GET_TYPES), or a sequence of
+ * TypeIdentifierWithSize objects with a continuation point (for GET_DEPENDENCIES).
+ * Each section is preceded by XCDR2 delimited headers for proper alignment and parsing.
+ *
+ * @param tree Protocol tree to add the TypeLookup Reply elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ */
+static void rtps_util_dissect_type_lookup_reply(proto_tree* tree,
+  packet_info* pinfo, tvbuff_t* tvb, int offset)
+{
+  proto_item* type_lookup_reply_item;
+  proto_tree* type_lookup_reply_tree = proto_tree_add_subtree(tree, tvb,
+    offset, -1, ett_rtps_type_lookup_reply,
+    &type_lookup_reply_item, "Type Lookup Reply");
+  const int initial_offset = offset;
+
+  /* reply header */
+  proto_item* type_lookup_reply_header_item;
+  proto_tree* type_lookup_reply_header_tree = proto_tree_add_subtree(
+    type_lookup_reply_tree, tvb, offset, -1, ett_rtps_type_lookup_reply_header,
+    &type_lookup_reply_header_item, "Reply Header");
+
+  /* reply header - request id */
+  proto_item* type_lookup_request_id_item;
+  proto_tree* type_lookup_request_id_tree = proto_tree_add_subtree(
+    type_lookup_reply_header_tree, tvb, offset, -1, ett_rtps_type_lookup_request_id,
+    &type_lookup_request_id_item, "Related Request ID");
+  offset = rtps_util_add_type_lookup_request_id(type_lookup_request_id_tree, tvb, offset);
+  proto_item_set_len(type_lookup_request_id_item, offset - initial_offset);
+
+  /* reply header - remote exception code */
+  proto_tree_add_item(type_lookup_reply_header_tree,
+    hf_rtps_remote_exception_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /* end of reply header */
+  proto_item_set_len(type_lookup_reply_header_item, offset - initial_offset);
+
+  /* reply data */
+  proto_item* type_lookup_reply_data_item;
+  proto_tree* type_lookup_reply_data_tree = proto_tree_add_subtree(
+    type_lookup_reply_tree, tvb, offset, -1, ett_rtps_type_lookup_reply_data,
+    &type_lookup_reply_data_item, "Reply Data");
+  const int initial_reply_data_offset = offset;
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(type_lookup_reply_data_tree, tvb, offset);
+
+  /* reply header - reply type GET_TYPES or GET_TYPE_DEPENDENCIES */
+  const uint32_t reply_discriminator = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(type_lookup_reply_data_tree,
+    hf_rtps_type_lookup_discriminator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  if (reply_discriminator == GET_TYPE_DEPENDENCIES)
+  {
+    /* rtps_util_dissect_get_type_dependencies_out() would go here */
+    proto_item_set_text(type_lookup_reply_data_item,
+      "TypeLookup Reply Data: GET_DEPENDENCIES");
+    offset = rtps_util_dissect_get_type_dependencies_out(
+      type_lookup_reply_data_tree, pinfo, tvb, offset);
+  }
+  else
+  {
+    /* GET_TYPES */
+    proto_item_set_text(type_lookup_reply_data_item,
+      "TypeLookup Reply Data: GET_TYPES");
+    offset = rtps_util_dissect_get_types_out(type_lookup_reply_data_tree, pinfo,
+      tvb, offset);
+  }
+
+  proto_item_set_len(type_lookup_reply_data_item,
+    offset - initial_reply_data_offset);
+  proto_item_set_len(type_lookup_reply_item, offset - initial_offset);
+}
+
+/**
+ * @brief Dissect a TypeLookup Request structure
+ *
+ * @details This function handles the dissection of a TypeLookup Request structure
+ * following the OMG XTypes 1.3  * specification. It processes the request header
+ * that contains a GUID, sequence number, and instance name, followed by request
+ * data that varies based on the requested operation type (GET_TYPES or
+ * GET_DEPENDENCIES). For GET_TYPES, it dissects a sequence of TypeIdentifiers
+ * to look up; for GET_DEPENDENCIES, it additionally processes a continuation
+ * point after the sequence of TypeIdentifiers. Each section is preceded by XCDR2
+ * delimited headers for proper alignment and parsing.
+ *
+ * @param tree Protocol tree to add the TypeLookup Request elements to
+ * @param pinfo Packet info for the current packet
+ * @param tvb The tv buffer containing packet data
+ * @param offset The current offset in the tvb
+ */
+static void rtps_util_dissect_type_lookup_request(proto_tree* tree,
+  packet_info* pinfo, tvbuff_t* tvb, int offset)
+{
+  proto_item* type_lookup_request_item;
+  proto_tree* type_lookup_request_tree = proto_tree_add_subtree(tree,
+    tvb, offset, -1, ett_rtps_type_lookup_request, &type_lookup_request_item,
+    "Type Lookup Request");
+  const int initial_offset = offset;
+
+  /* request header */
+  proto_item* type_lookup_request_header_item;
+  proto_tree* type_lookup_request_header_tree = proto_tree_add_subtree(
+    type_lookup_request_tree, tvb, offset, -1,
+    ett_rtps_type_lookup_request_header,
+    &type_lookup_request_header_item, "Request Header");
+
+  /* request header - request id */
+  proto_item* type_lookup_request_id_item;
+  proto_tree* type_lookup_request_id_tree = proto_tree_add_subtree(
+    type_lookup_request_header_tree, tvb, offset, -1,
+    ett_rtps_type_lookup_request_id, &type_lookup_request_id_item,
+    "Request ID");
+  offset = rtps_util_add_type_lookup_request_id(type_lookup_request_id_tree,
+    tvb, offset);
+  proto_item_set_len(type_lookup_request_id_item, offset - initial_offset);
+
+  /* request header - instance name */
+  offset = rtps_util_add_string_no_align(type_lookup_request_header_tree, tvb,
+    offset, hf_rtps_instance_name, ENC_LITTLE_ENDIAN);
+  proto_item_set_len(type_lookup_request_header_item, offset - initial_offset);
+
+  /* TypeLookup request data */
+  proto_item* type_lookup_request_data_item;
+  proto_tree* type_lookup_request_data_tree = proto_tree_add_subtree(
+    type_lookup_request_tree, tvb, offset, -1,
+    ett_rtps_type_lookup_request_data, &type_lookup_request_data_item,
+    "Request Data");
+  const int initial_data_offset = offset;
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(type_lookup_request_data_tree,
+    tvb, offset);
+
+  /* request_type discriminator - GET_TYPES or GET_TYPE_DEPENDENCIES */
+  const uint32_t request_type_discriminator = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(type_lookup_request_data_tree,
+    hf_rtps_type_lookup_discriminator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /*
+   * (mutable) TypeLookup_getTypes_In or TypeLookup_getDependencies_In
+   * both start with sequence<TypeIdentifier> type_ids */
+
+  /* Delimited header */
+  offset = rtps_util_add_xcdr2_delimited_header(type_lookup_request_data_tree,
+    tvb, offset);
+
+  /* Enhanced Mutable Header for type_ids */
+  offset = rtps_util_add_xcdr2_enhanced_mutable_header(
+    type_lookup_request_data_tree, tvb, offset);
+
+  /* long type_ids sequence length */
+  const uint32_t requested_typeid_seq_len = tvb_get_uint32(tvb, offset,
+    ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  /* sequence<TypeIdentifier> type_ids */
+  if (requested_typeid_seq_len > 0) {
+    proto_item* req_seq_item;
+    proto_tree* req_seq_tree = proto_tree_add_subtree_format(
+      type_lookup_request_data_tree, tvb, offset, -1,
+      ett_rtps_type_lookup_deps_seq, &req_seq_item, "Requested Type IDs [%u]",
+      requested_typeid_seq_len);
+    const int initial_req_seq_offset = offset;
+
+    for (uint32_t i = 0; i < requested_typeid_seq_len; i++)
+    {
+      proto_item* req_item;
+      proto_tree* req_tree = proto_tree_add_subtree_format(req_seq_tree, tvb,
+        offset, -1, ett_rtps_type_dep, &req_item, "Requested Type ID [%u]", i);
+      const int initial_req_offset = offset;
+      offset = rtps_util_add_type_id_v2(req_tree, pinfo, tvb, offset, false);
+      proto_item_set_len(req_item, offset - initial_req_offset);
+    }
+
+    proto_item_set_len(req_seq_item, offset - initial_req_seq_offset);
+  }
+
+  /* Is this a GET_TYPE_DEPENDENCIES request? */
+  if (request_type_discriminator == GET_TYPE_DEPENDENCIES)
+  {
+    proto_item_set_text(type_lookup_request_data_item,
+      "TypeLookup Request Data: GET_DEPENDENCIES");
+    /*
+     * GET_TYPE_DEPENDENCIES has a continuation_point, GET_TYPES does not,
+     * that is the only difference between the two.
+     */
+    /* Enhanced Mutable Header for continuation_point */
+    offset = rtps_util_add_xcdr2_enhanced_mutable_header(
+      type_lookup_request_data_tree, tvb, offset);
+  }
+  else
+  {
+    proto_item_set_text(type_lookup_request_data_item,
+      "TypeLookup Request Data: GET_TYPES");
+  }
+
+  proto_item_set_len(type_lookup_request_data_item,
+    offset - initial_data_offset);
+  proto_item_set_len(type_lookup_request_item, offset - initial_offset);
+}
+
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
 static void rtps_add_zlib_compressed_typeobject(proto_tree *tree, packet_info * pinfo,
   tvbuff_t * tvb, int offset, const unsigned encoding, unsigned compressed_size,
@@ -8094,7 +10140,7 @@ static bool dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, 
     case PID_BUILTIN_ENDPOINT_QOS:
       ENSURE_LENGTH(1);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_builtin_endpoint_qos, tvb,
-              offset, 1, ENC_NA);
+              offset, 1, encoding);
       break;
 
     case PID_ENDPOINT_SECURITY_INFO: {
@@ -10092,6 +12138,28 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
               BUILTIN_ENDPOINT_FLAGS, flags);
       break;
     }
+
+    /* 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * | PID ... BUILTIN_ENDPOINTS_EXT |            length             |
+     * +---------------+---------------+---------------+---------------+
+     * |0|1|2|3|                    unused                             |
+     * +---------------+---------------+---------------+---------------+
+     * 0 = TypeLookup Service Request Secure Writer
+     * 1 = TypeLookup Service Request Secure Reader
+     * 2 = TypeLookup Service Reply Secure Writer
+     * 3 = TypeLookup Service Reply Secure Reader
+     */
+    case PID_AVAILABLE_BUILTIN_ENDPOINTS_EXT:
+      {
+        ENSURE_LENGTH(4);
+        uint32_t flags = tvb_get_uint32(tvb, offset, encoding);
+        proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+          hf_rtps_param_builtin_endpoint_ext_set_flags, ett_rtps_flags,
+          BUILTIN_ENDPOINT_EXT_FLAGS, flags);
+        break;
+      }
+
     /* 0...2...........7...............15.............23...............31
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      * | PID_TYPE_MAX_SIZE_SERIALIZED  |            length             |
@@ -10376,6 +12444,11 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
     case PID_DEFAULT_MULTICAST_LOCATOR: {
       ENSURE_LENGTH(24);
       rtps_util_add_locator_t(rtps_parameter_tree, pinfo, tvb, offset, encoding, "locator");
+      break;
+    }
+
+    case PID_TYPE_INFORMATION: {
+      rtps_util_add_typeinformation(rtps_parameter_tree, pinfo, tvb, offset);
       break;
     }
 
@@ -11145,7 +13218,18 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
                     data_holder_tvb, offset, size, encapsulation_encoding);
             }
             break;
-
+        case ENCAPSULATION_CDR2_LE:
+          if (guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER) {
+            rtps_util_dissect_type_lookup_request(dissected_data_holder_tree,
+              pinfo, tvb, offset);
+          } else if (guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER) {
+            rtps_util_dissect_type_lookup_reply(dissected_data_holder_tree,
+              pinfo, tvb, offset);
+          } else {
+            proto_tree_add_item(dissected_data_holder_tree,
+              hf_rtps_data_serialize_data, tvb, offset, size, ENC_NA);
+          }
+          break;
         default:
             proto_tree_add_item(dissected_data_holder_tree, hf_rtps_data_serialize_data, tvb,
                 offset, size, ENC_NA);
@@ -17373,6 +19457,13 @@ void proto_register_rtps(void) {
         HFILL }
     },
 
+    { &hf_rtps_param_builtin_endpoint_ext_set_flags,
+      { "Flags", "rtps.param.builtin_endpoint_ext_set",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the flags in PID_AVAILABLE_BUILTIN_ENDPOINTS_EXT",
+        HFILL }
+    },
+
     { &hf_rtps_param_endpoint_security_attributes,
       { "Flags", "rtps.param.endpoint_security_attributes",
         FT_UINT32, BASE_HEX, NULL, 0,
@@ -17886,6 +19977,38 @@ void proto_register_rtps(void) {
         "Participant Message DataReader", "rtps.flag.participant_message_datareader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000800, NULL, HFILL }
     },
+    { &hf_rtps_flag_typelookup_request_datawriter, {
+        "TypeLookup Service Request DataWriter", "rtps.flag.typelookup_request_datawriter",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00001000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_request_datareader, {
+        "TypeLookup Service Request DataReader", "rtps.flag.typelookup_request_datareader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00002000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_reply_datawriter, {
+        "TypeLookup Service Reply DataWriter", "rtps.flag.typelookup_reply_datawriter",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00004000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_reply_datareader, {
+        "TypeLookup Service Reply DataReader", "rtps.flag.typelookup_reply_datareader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00008000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_request_secure_datawriter, {
+        "TypeLookup Service Request Secure DataWriter", "rtps.flag.typelookup_request_secure_datawriter",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_request_secure_datareader, {
+        "TypeLookup Service Request Secure DataReader", "rtps.flag.typelookup_request_secure_datareader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_reply_secure_datawriter, {
+        "TypeLookup Service Reply Secure DataWriter", "rtps.flag.typelookup_reply_secure_datawriter",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typelookup_reply_secure_datareader, {
+        "TypeLookup Service Reply Secure DataReader", "rtps.flag.typelookup_reply_secure_datareader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
     { &hf_rtps_flag_secure_publication_writer, {
         "Secure Publication Writer", "rtps.flag.secure_publication_writer",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00010000, NULL, HFILL }
@@ -17933,6 +20056,236 @@ void proto_register_rtps(void) {
     { &hf_rtps_flag_participant_secure_reader,{
         "Participant Secure Reader", "rtps.flag.participant_secure_reader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x08000000, NULL, HFILL }
+    },
+    { &hf_rtps_type_object_v2, {
+        "Type Object V2", "rtps.type_object_v2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_xcdr2_delimited_header, {
+        "DHEADER", "rtps.xcdr2.dheader",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "XCDR2 Delimited Header", HFILL }
+    },
+    { &hf_rtps_xcdr2_enhanced_mutable_header, {
+        "EMHEADER", "rtps.xcdr2.emheader",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "XCDR2 Enhanced Mutable Header", HFILL }
+    },
+    { &hf_rtps_xcdr2_must_understand, {
+        "Must Understand", "rtps.xcdr2.must_understand",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000,
+        "XCDR2 Must Understand", HFILL }
+    },
+    { &hf_rtps_xcdr2_length_code, {
+        "Length Code", "rtps.xcdr2.length_code",
+        FT_UINT32, BASE_DEC, NULL, 0x70000000,
+        "XCDR2 Length Code", HFILL }
+    },
+    { &hf_rtps_xcdr2_member_id, {
+        "Member Id", "rtps.xcdr2.member_id",
+        FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
+        "XCDR2 Member Id", HFILL }
+    },
+    { &hf_rtps_xcdr2_nextint, {
+        "NEXTINT", "rtps.xcdr2.nextint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "XCDR2 NEXTINT", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_flags, {
+        "Type Flags", "rtps.type_object_v2.type_flags",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        "Type Object V2 Type Flags", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_flag_is_final, {
+        "Final", "rtps.type_object_v2.is_final",
+        FT_BOOLEAN, 16, NULL, 0x0001,
+        "Type Object V2 Type Flag Is Final", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_flag_is_appendable, {
+        "Appendable", "rtps.type_object_v2.is_appendable",
+        FT_BOOLEAN, 16, NULL, 0x0002,
+        "Type Object V2 Type Flag Is Appendable", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_flag_is_mutable, {
+        "Mutable", "rtps.type_object_v2.is_mutable",
+        FT_BOOLEAN, 16, NULL, 0x0004,
+        "Type Object V2 Type Flag Is Mutable", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_flag_is_nested, {
+        "Nested", "rtps.type_object_v2.is_nested",
+        FT_BOOLEAN, 16, NULL, 0x0008,
+        "Type Object V2 Type Flag Is Nested", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_flag_is_autoid_hash, {
+        "Autoid Hash", "rtps.type_object_v2.is_autoid_hash",
+        FT_BOOLEAN, 16, NULL, 0x0010,
+        "Type Object V2 Type Flag Is Autoid Hash", HFILL }
+    },
+    { &hf_rtps_type_object_v2_type_name, {
+        "Type Name", "rtps.type_object_v2.type_name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Type Object V2", HFILL }
+    },
+    { &hf_rtps_type_object_v2_has_ann_builtin, {
+        "Has Builtin Annotation", "rtps.type_object_v2.has_ann_builtin",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "Type Object V2", HFILL }
+    },
+    { &hf_rtps_type_object_v2_ann_builtin, {
+        "Builtin Annotation", "rtps.type_object_v2.ann_builtin",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Type Object V2", HFILL }
+    },
+    { &hf_rtps_type_object_v2_has_ann_custom, {
+        "Has Custom Annotation", "rtps.type_object_v2.has_ann_custom",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "Type Object V2", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_id, {
+        "Member ID", "rtps.type_object_v2.member_id",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Type Object V2 Member ID", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flags, {
+        "Member Flags", "rtps.type_object_v2.member_flags",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        "Type Object V2 Member Flags", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flag_try_construct, {
+        "Try Construct", "rtps.type_object_v2.member_flag.try_construct",
+        FT_UINT16, BASE_DEC, VALS(try_construct_vals), 0x0003,
+        "Type Object V2 Member Flag Try Construct", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flag_is_external, {
+        "Is External", "rtps.type_object_v2.member_flag.is_external",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004,
+        "Type Object V2 Member Flag Is External", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flag_is_optional, {
+        "Is Optional", "rtps.type_object_v2.member_flag.is_optional",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008,
+        "Type Object V2 Member Flag Is Optional", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flag_is_must_understand, {
+        "Is Must Understand", "rtps.type_object_v2.member_flag.is_must_understand",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0010,
+        "Type Object V2 Member Flag Is Must Understand", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flag_is_key, {
+        "Is Key", "rtps.type_object_v2.member_flag.is_key",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0020,
+        "Type Object V2 Member Flag Is Key", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_flag_is_default, {
+        "Is Default", "rtps.type_object_v2.member_flag.is_default",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0040,
+        "Type Object V2 Member Flag Is Default", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_name, {
+        "Member Name", "rtps.type_object_v2.member_name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Type Object V2 Member Name", HFILL }
+    },
+    { &hf_rtps_type_object_v2_member_name_hash, {
+        "Member Name Hash", "rtps.type_object_v2.member_name_hash",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "Type Object V2 Member Name Hash", HFILL }
+    },
+    { &hf_rtps_type_object_v2_union_label, {
+        "Union Label", "rtps.type_object_v2.union_label",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Type Object V2 Union Label", HFILL }
+    },
+    { &hf_rtps_type_object_v2_enum_bit_bound, {
+      "Enum Bit Bound", "rtps.type_object_v2.enum_bit_bound",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "Type Object V2 Enum Bit Bound", HFILL }
+    },
+    { &hf_rtps_type_object_v2_enum_literal_value, {
+      "Value", "rtps.type_object_v2.enum_literal_value",
+      FT_INT32, BASE_DEC, NULL, 0,
+      "Type Object V2 Enum Literal Value", HFILL }
+    },
+    { &hf_rtps_type_id_discriminator, {
+        "Type Id Discriminator", "rtps.type_id.discriminator",
+        FT_UINT8, BASE_HEX, VALS(type_id_discriminator_vals), 0,
+        "Type Identifier Discriminator", HFILL }
+    },
+    { &hf_rtps_type_kind_discriminator, {
+        "Type Kind Discriminator", "rtps.type_kind.discriminator",
+        FT_UINT8, BASE_HEX, VALS(type_id_discriminator_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_base_type_id_discriminator, {
+        "Base Type Id Discriminator", "rtps.base_type_id.discriminator",
+        FT_UINT8, BASE_HEX, VALS(type_id_discriminator_vals), 0,
+        "Base Type Identifier Discriminator", HFILL }
+    },
+    { &hf_rtps_remote_exception_code, {
+        "Remote Exception Code", "rtps.remote_exception_code",
+        FT_UINT32, BASE_HEX, VALS(remote_exception_code_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_bound, {
+        "Bound", "rtps.type.bound",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Collection Type Bound", HFILL }
+    },
+    { &hf_rtps_type_element_flags, {
+        "Element Flags", "rtps.type.element_flags",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        "Collection Element Flags", HFILL }
+    },
+    { &hf_rtps_type_equiv_kind, {
+        "Equivalence Kind", "rtps.type.equiv_kind",
+        FT_UINT8, BASE_HEX, VALS(type_id_discriminator_vals), 0,
+        "Type Equivalence Kind", HFILL }
+    },
+    { &hf_rtps_type_hash, {
+        "Equivalence Hash", "rtps.type.hash",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Type Equivalence Hash", HFILL }
+    },
+    { &hf_rtps_type_extended, {
+        "Extended Type Definition", "rtps.type.extended",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Extended Type Data", HFILL }
+    },
+    { &hf_rtps_type_id_w_size, {
+        "Type Id With Size", "rtps.type_id_w_size",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Type Identifier With Size", HFILL }
+    },
+    { &hf_rtps_type_deps_count, {
+        "Dependent Type Count", "rtps.type.deps_count",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Number of Dependent Types", HFILL }
+    },
+    { &hf_rtps_type_deps_result, {
+        "Result Discriminator", "rtps.type.deps_result",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GetTypeDependencies Result Discriminator", HFILL }
+    },
+    { &hf_rtps_type_lookup_discriminator, {
+        "Discriminator", "rtps.type_lookup_discriminator",
+        FT_UINT32, BASE_HEX, VALS(type_lookup_discriminator_vals), 0,
+        "DDS XTypes Type Lookup Discriminator", HFILL }
+    },
+    { &hf_rtps_type_lookup_deps_seq, {
+        "Dependencies Seq", "rtps.type_lookup_deps_seq",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DDS XTypes Type Lookup Dependencies Sequence", HFILL }
+    },
+    { &hf_rtps_instance_name, {
+        "Instance Name", "rtps.instance_name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_serialized_size, {
+        "Serialized Size", "rtps.type.serialized_size",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Type Object Serialized Size", HFILL }
     },
     { &hf_rtps_type_object_type_id_disc,
           { "TypeId (_d)", "rtps.type_object.type_id.discr",
@@ -19073,6 +21426,16 @@ void proto_register_rtps(void) {
     &ett_rtps_topic_info,
     &ett_rtps_topic_info_dw_qos,
     &ett_rtps_type_object,
+    &ett_rtps_type_information,
+    &ett_rtps_type_lookup_request,
+    &ett_rtps_type_lookup_reply,
+    &ett_rtps_type_lookup_request_id,
+    &ett_rtps_type_lookup_request_header,
+    &ett_rtps_type_lookup_reply_header,
+    &ett_rtps_type_lookup_reply_data,
+    &ett_rtps_type_lookup_deps_seq,
+    &ett_rtps_type_lookup_request_data,
+    &ett_rtps_instance_name,
     &ett_rtps_type_library,
     &ett_rtps_type_element,
     &ett_rtps_type_annotation_usage_list,
@@ -19201,9 +21564,16 @@ void proto_register_rtps(void) {
 
   prefs_register_bool_preference(
       rtps_module,
+      "enable_debug_info",
+      "Enable Debug Information",
+      "Shows debug information such XCDR2 headers and string sizes",
+      &enable_debug_info);
+
+  prefs_register_bool_preference(
+      rtps_module,
       "enable_user_data_dissection",
-      "Enable User Data Dissection (based on Type Object)",
-      "Dissects the user data if the Type Object is propagated in Discovery.",
+      "Enable User Data Dissection (based on Type Object V1)",
+      "Dissects the user data if the Type Object V1 is propagated in Discovery.",
       &enable_user_data_dissection);
 
   prefs_register_bool_preference(
