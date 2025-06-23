@@ -14,6 +14,7 @@
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
+#include <epan/print.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <cfile.h>
