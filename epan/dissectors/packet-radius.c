@@ -2028,7 +2028,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 
 	/* Initialise stat info for passing to tap */
-	rad_info = wmem_new(wmem_packet_scope(), radius_info_t);
+	rad_info = wmem_new(pinfo->pool, radius_info_t);
 	rad_info->req_time.secs = 0;
 	rad_info->req_time.nsecs = 0;
 	rad_info->is_duplicate = false;

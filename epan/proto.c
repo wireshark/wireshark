@@ -14120,7 +14120,7 @@ proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const unsigned of
 		ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (int)checksum_len, computed_checksum);
 		proto_item_set_generated(ti);
 	} else {
-		checksum = (uint8_t*)wmem_alloc0_array(wmem_packet_scope(), uint8_t, checksum_len);
+		checksum = (uint8_t*)wmem_alloc0_array(pinfo->pool, uint8_t, checksum_len);
 		tvb_memcpy(tvb, checksum, offset, checksum_len);
 		ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (int)checksum_len, checksum);
 		if (flags & PROTO_CHECKSUM_VERIFY) {
@@ -14155,7 +14155,7 @@ proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const unsigned of
 						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
 				} else {
 					size_t computed_checksum_str_len = (2 * checksum_len * sizeof(char)) + 1;
-					char *computed_checksum_str = (char*)wmem_alloc0_array(wmem_packet_scope(), char, computed_checksum_str_len);
+					char *computed_checksum_str = (char*)wmem_alloc0_array(pinfo->pool, char, computed_checksum_str_len);
 					for (size_t counter = 0; counter < checksum_len; ++counter) {
 						snprintf(
 							/* On ecah iteration inserts two characters */

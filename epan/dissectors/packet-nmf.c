@@ -205,7 +205,7 @@ dissect_nmf_record(tvbuff_t *tvb, packet_info *pinfo,
 
 		proto_tree_add_item_ret_string(record_tree, hf_nmf_via_value,
 					       tvb, offset, size, ENC_UTF_8,
-					       wmem_packet_scope(), &str);
+					       pinfo->pool, &str);
 		offset += size;
 		proto_item_append_text(record_item, ": %s", (const char *)str);
 		break;
@@ -271,7 +271,7 @@ dissect_nmf_record(tvbuff_t *tvb, packet_info *pinfo,
 
 		proto_tree_add_item_ret_string(record_tree, hf_nmf_upgrade_protocol,
 					       tvb, offset, size, ENC_UTF_8,
-					       wmem_packet_scope(), &str);
+					       pinfo->pool, &str);
 		offset += size;
 		proto_item_append_text(record_item, ": %s", (const char *)str);
 		break;

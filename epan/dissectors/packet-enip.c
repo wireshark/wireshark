@@ -2452,7 +2452,7 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
       if (attribute_version == true)
       {
          uint8_t length = tvb_get_uint8(tvb, offset);
-         const char* port_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length, ENC_ASCII);
+         const char* port_name = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, length, ENC_ASCII);
 
          offset += dissect_cip_string_type(pinfo, port_tree, item, tvb, offset, hf_tcpip_port_name, CIP_SHORT_STRING_TYPE);
 

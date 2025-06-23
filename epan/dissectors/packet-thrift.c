@@ -741,7 +741,7 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
                 /* We continue anyway as the varint was indeed decoded. */
             } else {
                 if (raw_dissector != NULL) {
-                    uint8_t *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_I16_LEN);
+                    uint8_t *data = wmem_alloc(pinfo->pool, TBP_THRIFT_I16_LEN);
                     data[0] = (varint >> 8) & 0xFF;
                     data[1] =  varint       & 0xFF;
                     tvbuff_t* sub_tvb = tvb_new_child_real_data(tvb, data, TBP_THRIFT_I16_LEN, TBP_THRIFT_I16_LEN);
@@ -760,7 +760,7 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
                 /* We continue anyway as the varint was indeed decoded. */
             } else {
                 if (raw_dissector != NULL) {
-                    uint8_t *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_I32_LEN);
+                    uint8_t *data = wmem_alloc(pinfo->pool, TBP_THRIFT_I32_LEN);
                     data[0] = (varint >> 24) & 0xFF;
                     data[1] = (varint >> 16) & 0xFF;
                     data[2] = (varint >>  8) & 0xFF;
@@ -777,7 +777,7 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
         case TCP_THRIFT_MAX_I64_LEN:
         default:
             if (raw_dissector != NULL) {
-                uint8_t *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_I64_LEN);
+                uint8_t *data = wmem_alloc(pinfo->pool, TBP_THRIFT_I64_LEN);
                 data[0] = (varint >> 56) & 0xFF;
                 data[1] = (varint >> 48) & 0xFF;
                 data[2] = (varint >> 40) & 0xFF;
@@ -1279,7 +1279,7 @@ dissect_thrift_raw_double(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         tvbuff_t* sub_tvb;
         if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
             /* Create a sub-tvbuff_t in big endian format as documented. */
-            uint8_t *data = wmem_alloc(wmem_packet_scope(), TBP_THRIFT_DOUBLE_LEN);
+            uint8_t *data = wmem_alloc(pinfo->pool, TBP_THRIFT_DOUBLE_LEN);
             data[0] = tvb_get_uint8(tvb, offset + 7);
             data[1] = tvb_get_uint8(tvb, offset + 6);
             data[2] = tvb_get_uint8(tvb, offset + 5);

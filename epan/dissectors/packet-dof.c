@@ -8802,7 +8802,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             if (!packet_data->processed)
             {
                 domain_length = offset - start_offset;
-                domain_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), domain_length);
+                domain_buf = (uint8_t *)wmem_alloc0(pinfo->pool, domain_length);
                 tvb_memcpy(tvb, domain_buf, start_offset, domain_length);
             }
         }
@@ -9820,7 +9820,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             {
                 tvbuff_t *identity = response.identity;
                 uint8_t identity_length = tvb_reported_length(identity);
-                uint8_t *identity_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), identity_length);
+                uint8_t *identity_buf = (uint8_t *)wmem_alloc0(pinfo->pool, identity_length);
                 int i;
 
                 /* Get the buffer. */
@@ -9946,7 +9946,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 if (!packet_data->processed)
                 {
                     mode_length = offset - mode_start;
-                    mode = (uint8_t *)wmem_alloc0(wmem_packet_scope(), mode_length);
+                    mode = (uint8_t *)wmem_alloc0(pinfo->pool, mode_length);
                     tvb_memcpy(tvb, mode, mode_start, mode_length);
                 }
             }
@@ -9975,7 +9975,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                               offset, hf_initiator_validation, ett_initiator_validation, NULL);
 
             block_A_length = offset - start_offset;
-            block_A = (uint8_t *)wmem_alloc0(wmem_packet_scope(), block_A_length);
+            block_A = (uint8_t *)wmem_alloc0(pinfo->pool, block_A_length);
             tvb_memcpy(tvb, block_A, start_offset, block_A_length);
         }
 
@@ -10114,7 +10114,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (!packet_data->processed)
         {
             domain_length = offset - start_offset;
-            domain_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), domain_length);
+            domain_buf = (uint8_t *)wmem_alloc0(pinfo->pool, domain_length);
             tvb_memcpy(tvb, domain_buf, start_offset, domain_length);
         }
 
@@ -10132,7 +10132,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             {
                 tvbuff_t *identity = response.identity;
                 uint8_t identity_length = tvb_reported_length(identity);
-                uint8_t *identity_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), identity_length);
+                uint8_t *identity_buf = (uint8_t *)wmem_alloc0(pinfo->pool, identity_length);
                 int i;
 
                 /* Get the buffer. */
@@ -10203,7 +10203,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (!packet_data->processed)
         {
             domain_length = offset - start_offset;
-            domain_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), domain_length);
+            domain_buf = (uint8_t *)wmem_alloc0(pinfo->pool, domain_length);
             tvb_memcpy(tvb, domain_buf, start_offset, domain_length);
         }
 
@@ -10225,7 +10225,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             {
                 tvbuff_t *identity = response.identity;
                 uint8_t identity_length = tvb_reported_length(identity);
-                uint8_t *identity_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), identity_length);
+                uint8_t *identity_buf = (uint8_t *)wmem_alloc0(pinfo->pool, identity_length);
                 int i;
 
                 /* Get the buffer. */
@@ -10314,7 +10314,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                               offset, hf_initiator_validation, ett_initiator_validation, NULL);
 
             block_A_length = offset - start_offset;
-            block_A = (uint8_t *)wmem_alloc0(wmem_packet_scope(), block_A_length);
+            block_A = (uint8_t *)wmem_alloc0(pinfo->pool, block_A_length);
             tvb_memcpy(tvb, block_A, start_offset, block_A_length);
         }
     }
@@ -10333,7 +10333,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (!packet_data->processed)
         {
             domain_length = offset - start_offset;
-            domain_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), domain_length);
+            domain_buf = (uint8_t *)wmem_alloc0(pinfo->pool, domain_length);
             tvb_memcpy(tvb, domain_buf, start_offset, domain_length);
         }
 
@@ -10369,7 +10369,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (!packet_data->processed)
         {
             domain_length = offset - start_offset;
-            domain_buf = (uint8_t *)wmem_alloc0(wmem_packet_scope(), domain_length);
+            domain_buf = (uint8_t *)wmem_alloc0(pinfo->pool, domain_length);
             tvb_memcpy(tvb, domain_buf, start_offset, domain_length);
         }
 
@@ -10407,7 +10407,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                               offset, hf_authentication_block, ett_authentication_block, NULL);
 
             block_A_length = offset - start_offset;
-            block_A = (uint8_t *)wmem_alloc0(wmem_packet_scope(), block_A_length);
+            block_A = (uint8_t *)wmem_alloc0(pinfo->pool, block_A_length);
             tvb_memcpy(tvb, block_A, start_offset, block_A_length);
         }
     }

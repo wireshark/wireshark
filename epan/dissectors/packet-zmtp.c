@@ -414,13 +414,13 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                                 username, password);
 
                 /* Also tap credentials */
-                tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+                tap_credential_t* auth = wmem_new0(pinfo->pool, tap_credential_t);
                 auth->num = pinfo->num;
                 auth->proto = "ZMTP";
                 auth->password_hf_id = hf_zmtp_password;
                 auth->username = (char*)username;
                 auth->username_num = pinfo->num;
-                auth->info = wmem_strdup_printf(wmem_packet_scope(), "PLAIN: username/password");
+                auth->info = wmem_strdup_printf(pinfo->pool, "PLAIN: username/password");
                 tap_queue_packet(credentials_tap, pinfo, auth);
                 break;
             }

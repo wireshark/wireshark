@@ -857,9 +857,9 @@ tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, c
     if (!tcpcl_convo) {
         return NULL;
     }
-    tcpcl_dissect_ctx_t *ctx = wmem_new0(wmem_packet_scope(), tcpcl_dissect_ctx_t);
+    tcpcl_dissect_ctx_t *ctx = wmem_new0(pinfo->pool, tcpcl_dissect_ctx_t);
     ctx->convo = tcpcl_convo;
-    ctx->cur_loc = tcpcl_frame_loc_new(wmem_packet_scope(), pinfo, tvb, offset);
+    ctx->cur_loc = tcpcl_frame_loc_new(pinfo->pool, pinfo, tvb, offset);
 
     const bool src_is_active = (
         addresses_equal(&(ctx->convo->active->addr), &(pinfo->src))
@@ -1318,7 +1318,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->tx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (!xfer_id) {
-            xfer_id = wmem_new(wmem_packet_scope(), uint64_t);
+            xfer_id = wmem_new(pinfo->pool, uint64_t);
             *xfer_id = wmem_map_size(ctx->tx_peer->transfers);
 
             if (conv_hdr & TCPCLV3_DATA_START_FLAG) {
@@ -1373,7 +1373,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->rx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (!xfer_id) {
-            xfer_id = wmem_new(wmem_packet_scope(), uint64_t);
+            xfer_id = wmem_new(pinfo->pool, uint64_t);
             *xfer_id = wmem_map_size(ctx->rx_peer->transfers);
 
             tcpcl_peer_associate_transfer(ctx->rx_peer, ctx->cur_loc, *xfer_id);
@@ -1429,7 +1429,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->rx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (!xfer_id) {
-            xfer_id = wmem_new(wmem_packet_scope(), uint64_t);
+            xfer_id = wmem_new(pinfo->pool, uint64_t);
             *xfer_id = wmem_map_size(ctx->rx_peer->transfers);
 
             tcpcl_peer_associate_transfer(ctx->rx_peer, ctx->cur_loc, *xfer_id);
@@ -1542,7 +1542,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(tree_msg, hf_tcpclv4_mhdr_type, tvb, offset, 1, msgtype);
     offset += 1;
     msgtype_name = val_to_str(msgtype, v4_message_type_vals, "type 0x%02" PRIx32);
-    wmem_strbuf_t *suffix_text = wmem_strbuf_new(wmem_packet_scope(), NULL);
+    wmem_strbuf_t *suffix_text = wmem_strbuf_new(pinfo->pool, NULL);
 
     switch(msgtype) {
         case TCPCLV4_MSGTYPE_SESS_INIT: {
@@ -1563,9 +1563,8 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 2;
 
             {
-                uint8_t *nodeid_data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, nodeid_len, ENC_UTF_8);
+                uint8_t *nodeid_data = tvb_get_string_enc(pinfo->pool, tvb, offset, nodeid_len, ENC_UTF_8);
                 proto_tree_add_string(tree_msg, hf_tcpclv4_sess_init_nodeid_data, tvb, offset, nodeid_len, (const char *)nodeid_data);
-                wmem_free(wmem_packet_scope(), nodeid_data);
             }
             offset += nodeid_len;
 
@@ -1729,7 +1728,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item *item_extdata = proto_tree_add_item(tree_ext, hf_tcpclv4_xferext_data, extitem_tvb, 0, tvb_captured_length(extitem_tvb), ENC_NA);
                     proto_tree *tree_extdata = proto_item_add_subtree(item_extdata, ett_tcpclv4_xferext_data);
 
-                    tcpcl_frame_loc_t *extitem_loc = tcpcl_frame_loc_new(wmem_packet_scope(), pinfo, extitem_tvb, 0);
+                    tcpcl_frame_loc_t *extitem_loc = tcpcl_frame_loc_new(pinfo->pool, pinfo, extitem_tvb, 0);
                     tcpcl_peer_associate_transfer(ctx->tx_peer, extitem_loc, xfer_id);
 
                     int sublen = 0;

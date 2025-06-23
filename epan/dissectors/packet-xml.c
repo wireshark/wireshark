@@ -318,7 +318,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         g_ptr_array_free(stack, true);
 
     stack = g_ptr_array_new();
-    current_frame                 = wmem_new(wmem_packet_scope(), xml_frame_t);
+    current_frame                 = wmem_new(pinfo->pool, xml_frame_t);
     current_frame->type           = XML_FRAME_ROOT;
     current_frame->name           = NULL;
     current_frame->name_orig_case = NULL;
@@ -360,7 +360,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     current_frame->start_offset = 0;
     current_frame->length = tvb_captured_length(decoded);
 
-    current_frame->decryption_keys = wmem_map_new(wmem_packet_scope(), g_str_hash, g_str_equal);
+    current_frame->decryption_keys = wmem_map_new(pinfo->pool, g_str_hash, g_str_equal);
 
     root_ns = NULL;
 
@@ -372,7 +372,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         colinfo_str = "/XML";
     } else {
         char *colinfo_str_buf;
-        colinfo_str_buf = wmem_strconcat(wmem_packet_scope(), "/", root_ns->name, NULL);
+        colinfo_str_buf = wmem_strconcat(pinfo->pool, "/", root_ns->name, NULL);
         ascii_strup_inplace(colinfo_str_buf);
         colinfo_str = colinfo_str_buf;
     }

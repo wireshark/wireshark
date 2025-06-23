@@ -184,7 +184,7 @@ dissect_rk512_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			}
 
 			//Create data to compute the CRC
-			crc_data = (uint8_t*)wmem_alloc(wmem_packet_scope(), size + 2);
+			crc_data = (uint8_t*)wmem_alloc(pinfo->pool, size + 2);
 			//start with a word with value 0
 			crc_data[0] = 0;
 			crc_data[1] = 0;

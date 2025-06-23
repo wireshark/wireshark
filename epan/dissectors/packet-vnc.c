@@ -1258,7 +1258,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
 				    7, ENC_ASCII);
 		per_conversation_info->server_proto_ver =
-			g_ascii_strtod((char *)tvb_get_string_enc(wmem_packet_scope(), tvb, 4, 7, ENC_ASCII), NULL);
+			g_ascii_strtod((char *)tvb_get_string_enc(pinfo->pool, tvb, 4, 7, ENC_ASCII), NULL);
 		per_conversation_info->server_port = pinfo->srcport;
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1275,7 +1275,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
 				    4, 7, ENC_ASCII);
 		per_conversation_info->client_proto_ver =
-			g_ascii_strtod((char *)tvb_get_string_enc(wmem_packet_scope(), tvb, 4, 7, ENC_ASCII), NULL);
+			g_ascii_strtod((char *)tvb_get_string_enc(pinfo->pool, tvb, 4, 7, ENC_ASCII), NULL);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "Client protocol version: %s",
@@ -1440,10 +1440,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		auth_code = tvb_get_ntohl(tvb, offset);
 		auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		vendor = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+		vendor = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 		process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
 		offset += 4;
-		proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, wmem_packet_scope(), &signature);
+		proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, pinfo->pool, &signature);
 
 		switch(auth_code) {
 			case VNC_SECURITY_TYPE_NONE:

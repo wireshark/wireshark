@@ -995,7 +995,7 @@ dissect_ebhscr_dio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
 	call_data_dissector(next_tvb, pinfo, tree);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 32, ebhscr_current_payload_length, ' '));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 32, ebhscr_current_payload_length, ' '));
 
 	return tvb_captured_length(tvb);
 }
@@ -1295,7 +1295,7 @@ static int dissect_ebhscr_dsi3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
 	call_data_dissector(next_tvb, pinfo, tree);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 32, ebhscr_current_payload_length, ' '));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 32, ebhscr_current_payload_length, ' '));
 
 	return tvb_captured_length(tvb);
 }
@@ -1353,7 +1353,7 @@ static int dissect_ebhscr_mipi_csi2(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if (ebhscr_current_payload_length > 0) {
 		next_tvb = tvb_new_subset_length(tvb, headers_length, ebhscr_current_payload_length);
 		call_data_dissector(next_tvb, pinfo, tree);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, headers_length, ebhscr_current_payload_length, ' '));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, headers_length, ebhscr_current_payload_length, ' '));
 	}
 
 	return tvb_captured_length(tvb);
@@ -1437,7 +1437,7 @@ static int dissect_ebhscr_csi2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	if (ebhscr_current_payload_length > 0) {
 		next_tvb = tvb_new_subset_length(tvb, headers_length, ebhscr_current_payload_length);
 		call_data_dissector(next_tvb, pinfo, tree);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, headers_length, ebhscr_current_payload_length, ' '));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, headers_length, ebhscr_current_payload_length, ' '));
 	}
 
 	return tvb_captured_length(tvb);

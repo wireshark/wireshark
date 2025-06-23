@@ -1351,7 +1351,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset += 1;
 
   /* Setup statistics for tap. */
-  tapinfo = wmem_new(wmem_packet_scope(), hartip_tap_info);
+  tapinfo = wmem_new(pinfo->pool, hartip_tap_info);
   tapinfo->message_type = message_type;
   tapinfo->message_id   = message_id;
   tap_queue_packet(hartip_tap, pinfo, tapinfo);

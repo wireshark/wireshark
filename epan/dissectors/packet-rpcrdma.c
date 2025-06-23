@@ -1614,7 +1614,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
             if (write_size > 0 && !pinfo->fd->visited) {
                 /* Initialize array of write chunk offsets */
-                gp_rdma_write_offsets = wmem_array_new(wmem_packet_scope(), sizeof(int));
+                gp_rdma_write_offsets = wmem_array_new(pinfo->pool, sizeof(int));
                 register_frame_end_routine(pinfo, reset_write_offsets);
                 TRY {
                     /*

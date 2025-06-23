@@ -3540,7 +3540,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
             used_bytes = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
                                     &dname, &dname_len);
-            name_out = format_text(wmem_packet_scope(), (const unsigned char*)dname, dname_len);
+            name_out = format_text(pinfo->pool, (const unsigned char*)dname, dname_len);
             proto_tree_add_string(rropt_tree, hf_dns_opt_agent_domain, tvb, cur_offset, used_bytes, name_out);
 
             cur_offset += used_bytes;

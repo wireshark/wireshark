@@ -7254,7 +7254,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 				if (map != NULL) {
 					s = map_token (map->attrValue, *codepage_attr, peek);
 				} else {
-					s = wmem_strdup_printf(wmem_packet_scope(), "attrValue_0x%02X", peek);
+					s = wmem_strdup_printf(pinfo->pool, "attrValue_0x%02X", peek);
 				}
 				proto_tree_add_string_format(tree, hf_wbxml_known_attrvalue, tvb, off, 1, s,
 						     "  %3d |  Attr | A %3d    |   Known attrValue 0x%02X          |       %s%s",
@@ -7266,7 +7266,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 				if (map != NULL) {
 					s = map_token (map->attrStart, *codepage_attr, peek);
 				} else {
-					s = wmem_strdup_printf(wmem_packet_scope(), "attrStart_0x%02X", peek);
+					s = wmem_strdup_printf(pinfo->pool, "attrStart_0x%02X", peek);
 				}
 				proto_tree_add_string_format(tree, hf_wbxml_known_attrstart, tvb, off, 1, s,
 						     "  %3d |  Attr | A %3d    |   Known attrStart 0x%02X          |   %s%s",
@@ -7534,7 +7534,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 					tag_new_literal = map_token (map->tags, *codepage_stag,
 							     tag_new_known);
 				} else {
-					tag_new_literal = wmem_strdup_printf(wmem_packet_scope(), "Tag_0x%02X",
+					tag_new_literal = wmem_strdup_printf(pinfo->pool, "Tag_0x%02X",
 							tag_new_known);
 				}
 				/* Stored looked up tag name string */

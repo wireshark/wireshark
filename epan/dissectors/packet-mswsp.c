@@ -3257,7 +3257,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	const char *modifier = "";
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CTableColumn, &item, txt);
 
@@ -3511,7 +3511,7 @@ static int parse_CPropertyRestriction(tvbuff_t *tvb, packet_info *pinfo, int off
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CPropertyRestriction, &item, txt);
@@ -3542,7 +3542,7 @@ static int parse_CCoercionRestriction(tvbuff_t *tvb, packet_info *pinfo, int off
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CCoercionRestriction, &item, txt);
@@ -3758,7 +3758,7 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRestriction, &item, txt);
@@ -3840,7 +3840,7 @@ static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRestrictionArray, &item, txt);
 
@@ -3877,7 +3877,7 @@ static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CNodeRestriction, &item, txt);
 
@@ -4382,7 +4382,7 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbProp, &item, txt);
@@ -4423,7 +4423,7 @@ static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbPropSet, &item, txt);
@@ -4435,7 +4435,7 @@ static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	if (pset) {
 		proto_item_append_text(item, " \"%s\" (%s)", pset->desc, pset->def);
 	} else {
-		const char *guid_str = guid_to_str(wmem_packet_scope(), &guid);
+		const char *guid_str = guid_to_str(pinfo->pool, &guid);
 		proto_item_append_text(item, " {%s}", guid_str);
 	}
 
@@ -4466,7 +4466,7 @@ static int parse_PropertySetArray(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbPropSet_Array, &item, txt);
@@ -4530,7 +4530,7 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree =proto_tree_add_subtree (parent_tree, tvb, offset, 0, ett_RANGEBOUNDARY, &item, txt);
 
@@ -4555,7 +4555,7 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 		proto_tree_add_item_ret_uint(tree, hf_mswsp_rangeboundry_cclabel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ccLabel);
 		offset += 4;
 
-		proto_tree_add_item_ret_string(tree, hf_mswsp_rangeboundry_label, tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &label);
+		proto_tree_add_item_ret_string(tree, hf_mswsp_rangeboundry_label, tvb, offset, 2*ccLabel, ENC_LITTLE_ENDIAN | ENC_UCS_2, pinfo->pool, &label);
 		proto_item_append_text(item, " Label: \"%s\"", label);
 		offset += 2*ccLabel;
 	}
@@ -4578,7 +4578,7 @@ int parse_CRangeCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
 	uint32_t cRange;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRangeCategSpec, &item, txt);
 
@@ -4607,7 +4607,7 @@ int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
 	uint32_t type;
 	const char *txt;
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CCategSpec, &item, txt);
 
@@ -4801,7 +4801,7 @@ static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int of
 	const char *txt;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CInGroupSortAggregSet, &item, txt);
 
@@ -4830,7 +4830,7 @@ static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int o
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CInGroupSortAggregSets, &item, txt);
@@ -4858,7 +4858,7 @@ int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CCategorizationSpec, &item, txt);
 
@@ -5269,7 +5269,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	uint16_t vtype_high;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowVariant, &item, txt);
@@ -5314,7 +5314,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 		offset = parse_VariantColVector(tvb, offset, tree, base_address,
 										is_64bit, variant, vt_type);
 	} else {
-		wmem_strbuf_t *strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+		wmem_strbuf_t *strbuf = wmem_strbuf_new(pinfo->pool, "");
 		if (size != -1) {
 			/* single fixed size value type */
 			const char* desc = vt_type->str;
@@ -5370,7 +5370,7 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_GetRowsColumn, &item, txt);
     proto_item_append_text(item, " (%s)", pcol->name);
@@ -5408,7 +5408,7 @@ static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint3
 	va_list ap;
 
 	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
+	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
 	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_GetRowsRow, &item, txt);

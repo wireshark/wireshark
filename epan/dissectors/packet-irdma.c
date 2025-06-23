@@ -519,8 +519,8 @@ dissect_irdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, IRDMA_HDR_SRCIP4);
         copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-        src_str = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, IRDMA_HDR_SRCIP4);
-        dst_str = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, IRDMA_HDR_DSTIP4);
+        src_str = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, IRDMA_HDR_SRCIP4);
+        dst_str = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, IRDMA_HDR_DSTIP4);
 
         proto_tree_add_item(irdma_tree, hf_irdma_ip4src, tvb, IRDMA_HDR_SRCIP4, 4, ENC_BIG_ENDIAN);
         ti = proto_tree_add_item(irdma_tree, hf_irdma_ip4addr, tvb, IRDMA_HDR_SRCIP4, 4, ENC_BIG_ENDIAN);
@@ -538,8 +538,8 @@ dissect_irdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         set_address_tvb(&pinfo->net_src, AT_IPv6, 16, tvb, IRDMA_HDR_SRCIP);
         copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-        src_str = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv6, IRDMA_HDR_SRCIP);
-        dst_str = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv6, IRDMA_HDR_DSTIP);
+        src_str = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv6, IRDMA_HDR_SRCIP);
+        dst_str = tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv6, IRDMA_HDR_DSTIP);
 
         proto_tree_add_item(irdma_tree, hf_irdma_ip6src, tvb, IRDMA_HDR_SRCIP, 16, ENC_NA);
         ti = proto_tree_add_item(irdma_tree, hf_irdma_ip6addr, tvb, IRDMA_HDR_SRCIP, 16, ENC_NA);
@@ -816,7 +816,7 @@ dissect_irdmaep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                            pinfo->srcport, pinfo->destport);
 
     set_address(&group_addr, AT_STRINGZ, 25,
-                tvb_bytes_to_str(wmem_packet_scope(), tvb, IRDMA_EP_GRPID, 12));
+                tvb_bytes_to_str(pinfo->pool, tvb, IRDMA_EP_GRPID, 12));
 
     uint8_t msg_type = tvb_get_uint8(tvb, IRDMA_EP_TYPE);
     uint8_t msg_length = tvb_get_uint8(tvb, IRDMA_EP_LEN);

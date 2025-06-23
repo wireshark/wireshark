@@ -1324,7 +1324,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 		break;
 
 	default:
-		pid_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%.2x)", pid);
+		pid_str = wmem_strdup_printf(oinfo->pinfo->pool, "Unknown (%.2x)", pid);
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;
 	}

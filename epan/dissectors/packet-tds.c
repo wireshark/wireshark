@@ -2202,7 +2202,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                         proto_tree_add_item_ret_string(sub_tree,
                             hf_tds_type_varbyte_data_string,
                             combined_chunks_tvb, 0, combined_length, ENC_ASCII|ENC_NA,
-                            wmem_packet_scope(), &strval);
+                            pinfo->pool, &strval);
                         if (strval) {
                             proto_item_append_text(item, " (%s)", strval);
                         }
@@ -2211,7 +2211,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                         proto_tree_add_item_ret_string(sub_tree,
                             hf_tds_type_varbyte_data_string,
                             combined_chunks_tvb, 0, combined_length, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-                            wmem_packet_scope(), &strval);
+                            pinfo->pool, &strval);
                         if (strval) {
                             proto_item_append_text(item, " (%s)", strval);
                         }
@@ -2756,7 +2756,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                     case TDS_DATA_TYPE_BIGCHAR:   /* Char */
                         proto_tree_add_item_ret_string(sub_tree, hf_tds_type_varbyte_data_string,
                             tvb, *offset, length, ENC_ASCII|ENC_NA,
-                            wmem_packet_scope(), &strval);
+                            pinfo->pool, &strval);
                         if (strval) {
                             proto_item_append_text(item, " (%s)", strval);
                         }
@@ -2765,7 +2765,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                     case TDS_DATA_TYPE_NCHAR:     /* NChar */
                         proto_tree_add_item_ret_string(sub_tree, hf_tds_type_varbyte_data_string,
                             tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN,
-                            wmem_packet_scope(), &strval);
+                            pinfo->pool, &strval);
                         if (strval) {
                             proto_item_append_text(item, " (%s)", strval);
                         }
@@ -2962,7 +2962,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree,
             hf_tds_curclose_cursor_name,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &cursorname, &cursorname_len);
+            pinfo->pool, &cursorname, &cursorname_len);
         cur += cursorname_len;
         tds5_check_cursor_name(pinfo, cursor_name_pi, packet_cursor, cursorname);
     }
@@ -3020,7 +3020,7 @@ dissect_tds5_curdeclare_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset
 
     proto_tree_add_item_ret_string_and_length(tree, hf_tds_curdeclare_cursor_name,
         tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-        wmem_packet_scope(), &cursorname, &cursorname_len);
+        pinfo->pool, &cursorname, &cursorname_len);
     cur += cursorname_len;
 
     /* Options is one byte, as is status. */
@@ -3114,7 +3114,7 @@ dissect_tds5_curfetch_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
 
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree, hf_tds_curfetch_cursor_name,
                  tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-                 wmem_packet_scope(), &cursorname, &cursorname_len);
+                 pinfo->pool, &cursorname, &cursorname_len);
         tds5_check_cursor_name(pinfo, cursor_name_pi, packet_cursor, cursorname);
         cur += cursorname_len;
     }
@@ -3198,7 +3198,7 @@ dissect_tds5_curinfo_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree,
             hf_tds_curinfo_cursor_name, tvb, cur, 1,
             tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &cursorname, &cursorname_len);
+            pinfo->pool, &cursorname, &cursorname_len);
         cur += cursorname_len;
         tds5_check_cursor_name(pinfo, cursor_name_pi, packet_cursor, cursorname);
     }
@@ -3296,7 +3296,7 @@ dissect_tds5_curopen_token(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
 
         pi = proto_tree_add_item_ret_string_and_length(tree, hf_tds_curopen_cursor_name,
                  tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-                 wmem_packet_scope(), &cursorname, &cursorname_len);
+                 pinfo->pool, &cursorname, &cursorname_len);
         cur += cursorname_len;
         tds5_check_cursor_name(pinfo, pi, packet_cursor, cursorname);
     }
@@ -4630,8 +4630,8 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                 unsigned char *val;
                 wmem_strbuf_t *val2;
                 len *= 2;
-                val  = tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
-                val2 = wmem_strbuf_new_sized(wmem_packet_scope(), len/2+1);
+                val  = tvb_memdup(pinfo->pool, tvb, offset2, len);
+                val2 = wmem_strbuf_new_sized(pinfo->pool, len/2+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;
@@ -4918,12 +4918,12 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                        "Column %d", col + 1);
 
         if (!(nl_data->columns[col])) {
-            nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
+            nl_data->columns[col] = wmem_new0(pinfo->pool, struct _tds_col);
         }
 
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt_colname,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &colname, &colnamelen);
+            pinfo->pool, &colname, &colnamelen);
 
         if (colnamelen > 1) {
             proto_item_append_text(col_item, " (%s", colname);
@@ -5062,43 +5062,43 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                        "Column %d", col + 1);
 
         if (!(nl_data->columns[col])) {
-            nl_data->columns[col] = wmem_new0(wmem_packet_scope(), struct _tds_col);
+            nl_data->columns[col] = wmem_new0(pinfo->pool, struct _tds_col);
         }
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_labelname,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &labelname, &labelnamelen);
+            pinfo->pool, &labelname, &labelnamelen);
         cur += labelnamelen;
 
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_catalogname,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &catalogname, &catalognamelen);
+            pinfo->pool, &catalogname, &catalognamelen);
         cur += catalognamelen;
 
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_schemaname,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &schemaname, &schemanamelen);
+            pinfo->pool, &schemaname, &schemanamelen);
         cur += schemanamelen;
 
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_tablename,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &tablename, &tablenamelen);
+            pinfo->pool, &tablename, &tablenamelen);
         cur += tablenamelen;
 
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_rowfmt2_colname,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            wmem_packet_scope(), &colname, &colnamelen);
+            pinfo->pool, &colname, &colnamelen);
         cur += colnamelen;
 
         if (catalognamelen > 1) {
-            name = wmem_strjoin(wmem_packet_scope(), ".",
+            name = wmem_strjoin(pinfo->pool, ".",
                        catalogname, schemaname, tablename, (const char*)colname, NULL);
         }
         else if (schemanamelen > 1) {
-            name = wmem_strjoin(wmem_packet_scope(), ".",
+            name = wmem_strjoin(pinfo->pool, ".",
                        schemaname, tablename, (const char*)colname, NULL);
         }
         else if (tablenamelen > 1) {
-            name = wmem_strjoin(wmem_packet_scope(), ".",
+            name = wmem_strjoin(pinfo->pool, ".",
                        tablename, (const char*)colname, NULL);
         }
         else {
@@ -5107,7 +5107,7 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (labelnamelen > 1) {
             if (strlen(name) > 0) {
-                name = wmem_strjoin(wmem_packet_scope(), " AS ",
+                name = wmem_strjoin(pinfo->pool, " AS ",
                            name, (const char*)labelname, NULL);
             }
             else {

@@ -1157,13 +1157,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 }
             } else if (tvb_strneql(tvb, 0, "PASS", tokenlen) == 0) {
                 if (p_ftp_conv && p_ftp_conv->username) {
-                    tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+                    tap_credential_t* auth = wmem_new0(pinfo->pool, tap_credential_t);
                     auth->num = pinfo->num;
                     auth->proto = "FTP";
                     auth->password_hf_id = hf_ftp_request_arg;
                     auth->username = p_ftp_conv->username;
                     auth->username_num = p_ftp_conv->username_pkt_num;
-                    auth->info = wmem_strdup_printf(wmem_packet_scope(), "Username in packet: %u", p_ftp_conv->username_pkt_num);
+                    auth->info = wmem_strdup_printf(pinfo->pool, "Username in packet: %u", p_ftp_conv->username_pkt_num);
                     tap_queue_packet(credentials_tap, pinfo, auth);
                 }
             }
@@ -1642,11 +1642,11 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             }
             if (have_tap_listener(ftp_eo_tap)) {
                 if (p_ftp_data_conv->command_frame) {
-                    ftp_eo_t *eo_info = wmem_new0(wmem_packet_scope(), ftp_eo_t);
-                    eo_info->command = wmem_strdup(wmem_packet_scope(), p_ftp_data_conv->command);
+                    ftp_eo_t *eo_info = wmem_new0(pinfo->pool, ftp_eo_t);
+                    eo_info->command = wmem_strdup(pinfo->pool, p_ftp_data_conv->command);
                     eo_info->command_frame = p_ftp_data_conv->command_frame;
                     eo_info->payload_len = tvb_reported_length(tvb);
-                    eo_info->payload_data = (char *) tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
+                    eo_info->payload_data = (char *) tvb_memdup(pinfo->pool, tvb, 0, tvb_reported_length(tvb));
                     tap_queue_packet(ftp_eo_tap, pinfo, eo_info);
                 }
             }

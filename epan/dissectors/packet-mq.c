@@ -1730,7 +1730,7 @@ static int dissect_mq_gmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
             uint8_t* sQueue;
-            sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
+            sQueue = tvb_get_string_enc(pinfo->pool, tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
             if (strip_trailing_blanks(sQueue, 48) > 0)
             {
                 if (pinfo)
@@ -1803,8 +1803,8 @@ static int dissect_mq_pmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
             uint8_t* sQueue;
             uint8_t* sQueueA;
 
-            sQueueA = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 32, 48, 0);
-            sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
+            sQueueA = tvb_get_string_enc(pinfo->pool, tvb, offset + 32, 48, 0);
+            sQueue = tvb_get_string_enc(pinfo->pool, tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
             if (strip_trailing_blanks(sQueue, 48) > 0 && strip_trailing_blanks(sQueueA, 48) > 0)
             {
                 if (pinfo)
@@ -1902,7 +1902,7 @@ static int dissect_mq_od(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
                 iNbrRecords = tvb_get_uint32(tvb, offset + 168, p_mq_parm->mq_int_enc);
 
             uTyp = tvb_get_uint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
-            sObj = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
+            sObj = tvb_get_string_enc(pinfo->pool, tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
             if (pinfo)
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str_ext(uTyp, &mq_MQOT_xvals));
             if (strip_trailing_blanks(sObj, 48) > 0)
@@ -2054,7 +2054,7 @@ static int dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_t
     if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
     {
         uint8_t* sChannel;
-        sChannel = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 24, 20, p_mq_parm->mq_str_enc);
+        sChannel = tvb_get_string_enc(pinfo->pool, tvb, offset + 24, 20, p_mq_parm->mq_str_enc);
         dissect_mq_addCR_colinfo(pinfo, p_mq_parm);
         col_append_fstr(pinfo->cinfo, COL_INFO, " FAPLvl=%d", iFAPLvl);
         if (strip_trailing_blanks(sChannel, 20) > 0)
@@ -2064,7 +2064,7 @@ static int dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_t
         if (iSize > 48)
         {
             uint8_t* sQMgr;
-            sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
+            sQMgr = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
             if (strip_trailing_blanks(sQMgr, 48) > 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", QM=%s", sQMgr);
@@ -2620,14 +2620,14 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             }
             iApp = tvb_get_uint32(tvb, offset + 48 + 28, iCod);
 
-            sApplicationName = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 48, 28, iEnc);
-            sApplicationName = format_text_chr(wmem_packet_scope(), sApplicationName, strlen(sApplicationName), '.');
+            sApplicationName = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iEnc);
+            sApplicationName = format_text_chr(pinfo->pool, sApplicationName, strlen(sApplicationName), '.');
             if (strip_trailing_blanks((uint8_t*)sApplicationName, (uint32_t)strlen(sApplicationName)) > 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s", sApplicationName);
             }
-            sQMgr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 48, iEnc);
-            sQMgr = format_text_chr(wmem_packet_scope(), sQMgr, strlen(sQMgr), '.');
+            sQMgr = tvb_get_string_enc(pinfo->pool, tvb, offset, 48, iEnc);
+            sQMgr = format_text_chr(pinfo->pool, sQMgr, strlen(sQMgr), '.');
             if (strip_trailing_blanks((uint8_t*)sQMgr, (uint32_t)strlen(sQMgr)) > 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQMgr);
@@ -2993,7 +2993,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             {
                 strid_enc = ENC_EBCDIC | ENC_NA;
             }
-            sStructId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, strid_enc);
+            sStructId = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, strid_enc);
             mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, 12, ett_mq_spi_base, NULL, (const char*)sStructId);
 
             proto_tree_add_item(mq_tree, hf_mq_spi_base_StructID, tvb, offset, 4, strid_enc);
@@ -3028,7 +3028,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 {
                     strid_enc = ENC_EBCDIC | ENC_NA;
                 }
-                sStructId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, strid_enc);
+                sStructId = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, strid_enc);
                 mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, -1, ett_mq_spi_base, NULL, (const char*)sStructId);
 
                 proto_tree_add_item(mq_tree, hf_mq_spi_base_StructID, tvb, offset, 4, strid_enc);
@@ -3224,7 +3224,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
         if (iSizeUID != 0 && tvb_reported_length_remaining(tvb, offset) >= iSizeUID)
         {
             uint8_t* sUserId;
-            sUserId = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, 12, p_mq_parm->mq_str_enc);
+            sUserId = tvb_get_string_enc(pinfo->pool, tvb, offset + 4, 12, p_mq_parm->mq_str_enc);
             dissect_mq_addCR_colinfo(pinfo, p_mq_parm);
             if (strip_trailing_blanks(sUserId, 12) > 0)
             {
@@ -3597,11 +3597,11 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                                 while (iPos < iEnd)
                                 {
                                     iLenStr = (int)tvb_get_uint32(tvb, iPos, p_mq_parm->mq_int_enc);
-                                    sStr = tvb_get_string_enc(wmem_packet_scope(), tvb, iPos + 4, iLenStr, IS_EBCDIC(iCCSID) ? ENC_EBCDIC : ENC_ASCII);
+                                    sStr = tvb_get_string_enc(pinfo->pool, tvb, iPos + 4, iLenStr, IS_EBCDIC(iCCSID) ? ENC_EBCDIC : ENC_ASCII);
                                     if (*sStr)
                                         strip_trailing_blanks(sStr, iLenStr);
                                     if (*sStr)
-                                        sStr = (uint8_t*)format_text_chr(wmem_packet_scope(), sStr, strlen((const char*)sStr), '.');
+                                        sStr = (uint8_t*)format_text_chr(pinfo->pool, sStr, strlen((const char*)sStr), '.');
 
                                     rfh_tree = proto_tree_add_subtree_format(mq_tree, tvb, iPos, iLenStr + 4, ett_mq_rfh_ValueName, NULL, "NameValue: %s", sStr);
 
@@ -3634,7 +3634,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 p_mq_parm->mq_cur_ccsid.encod = tvb_get_uint32(tvb, p_mq_parm->iOfsEnc, p_mq_parm->mq_int_enc);
                 p_mq_parm->mq_cur_ccsid.ccsid = tvb_get_uint32(tvb, p_mq_parm->iOfsCcs, p_mq_parm->mq_int_enc);
                 memcpy(p_mq_parm->mq_format,
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, p_mq_parm->iOfsFmt, sizeof(p_mq_parm->mq_format), p_mq_parm->mq_str_enc),
+                    tvb_get_string_enc(pinfo->pool, tvb, p_mq_parm->iOfsFmt, sizeof(p_mq_parm->mq_format), p_mq_parm->mq_str_enc),
                     sizeof(p_mq_parm->mq_format));
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset);

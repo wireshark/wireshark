@@ -1908,7 +1908,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         if (!gencp_trans) {
             /* create a "fake" gencp_trans structure */
-            gencp_trans = wmem_new0(wmem_packet_scope(), gencp_transaction_t);
+            gencp_trans = wmem_new0(pinfo->pool, gencp_transaction_t);
             gencp_trans->cmd_frame = 0;
             gencp_trans->ack_frame = 0;
             gencp_trans->cmd_time = pinfo->abs_ts;

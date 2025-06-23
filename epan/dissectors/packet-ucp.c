@@ -908,7 +908,7 @@ ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, i
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
-    strval = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, len, ENC_ASCII);
+    strval = tvb_get_string_enc(pinfo->pool, tvb, *offset, len, ENC_ASCII);
     if (len > 0) {
         intval_valid = ws_strtou32(strval, NULL, &intval);
         pi = proto_tree_add_uint(tree, field, tvb, *offset, len, intval);
@@ -1861,7 +1861,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     OT  = 10 * OT + (tvb_get_uint8(tvb, UCP_OT_OFFSET + 1) - '0');
 
     /* Create Tap record */
-    tap_rec = wmem_new0(wmem_packet_scope(), ucp_tap_rec_t);
+    tap_rec = wmem_new0(pinfo->pool, ucp_tap_rec_t);
     tap_rec->message_type = (O_R == 'O' ? 0 : 1);
     tap_rec->operation = OT;
 

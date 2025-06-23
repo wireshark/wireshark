@@ -83,13 +83,13 @@ static int dissect_param_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_tree *tree_aad_map = proto_item_add_subtree(item_aad_map, ett_aad_scope);
 
         for (guint64 ix = 0; ix < chunk_aad_map->head_value; ++ix) {
-            wscbor_chunk_t *chunk_blknum = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
-            int64_t *blknum = wscbor_require_int64(wmem_packet_scope(), chunk_blknum);
+            wscbor_chunk_t *chunk_blknum = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+            int64_t *blknum = wscbor_require_int64(pinfo->pool, chunk_blknum);
             proto_item *item_blknum = proto_tree_add_cbor_int64(tree_aad_map, hf_aad_blknum, pinfo, tvb, chunk_blknum, blknum);
             proto_tree *tree_blknum = proto_item_add_subtree(item_blknum, ett_aad_blknum);
 
-            wscbor_chunk_t *chunk_flags = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
-            guint64 *flags = wscbor_require_uint64(wmem_packet_scope(), chunk_flags);
+            wscbor_chunk_t *chunk_flags = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+            guint64 *flags = wscbor_require_uint64(pinfo->pool, chunk_flags);
             proto_tree_add_cbor_bitmask(tree_blknum, hf_aad_flags, ett_aad_flags, aad_flags, pinfo, tvb, chunk_flags, flags);
         }
     }
@@ -103,8 +103,8 @@ static int dissect_param_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int dissect_addl_protected(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     int offset = 0;
 
-    wscbor_chunk_t *chunk_hdr_bstr = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
-    tvbuff_t *hdr_bstr = wscbor_require_bstr(wmem_packet_scope(), chunk_hdr_bstr);
+    wscbor_chunk_t *chunk_hdr_bstr = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    tvbuff_t *hdr_bstr = wscbor_require_bstr(pinfo->pool, chunk_hdr_bstr);
     proto_item *item_hdr_bstr = proto_tree_add_cbor_bstr(tree, hf_addl_prot_bstr, pinfo, tvb, chunk_hdr_bstr);
     if (hdr_bstr) {
         proto_tree *tree_hdr_bstr = proto_item_add_subtree(item_hdr_bstr, ett_addl_hdr_bstr);
@@ -124,8 +124,8 @@ static int dissect_addl_protected(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int dissect_addl_unprotected(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     int offset = 0;
 
-    wscbor_chunk_t *chunk_hdr_bstr = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
-    tvbuff_t *hdr_bstr = wscbor_require_bstr(wmem_packet_scope(), chunk_hdr_bstr);
+    wscbor_chunk_t *chunk_hdr_bstr = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    tvbuff_t *hdr_bstr = wscbor_require_bstr(pinfo->pool, chunk_hdr_bstr);
     proto_item *item_hdr_bstr = proto_tree_add_cbor_bstr(tree, hf_addl_unprot_bstr, pinfo, tvb, chunk_hdr_bstr);
     if (hdr_bstr) {
         proto_tree *tree_hdr_bstr = proto_item_add_subtree(item_hdr_bstr, ett_addl_hdr_bstr);
@@ -147,8 +147,8 @@ static int dissect_cose_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     DISSECTOR_ASSERT(secid != NULL);
     int offset = 0;
 
-    wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
-    tvbuff_t *tvb_data = wscbor_require_bstr(wmem_packet_scope(), chunk);
+    wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    tvbuff_t *tvb_data = wscbor_require_bstr(pinfo->pool, chunk);
 
     proto_item *item_msg = proto_tree_add_cbor_bstr(tree, hf_cose_msg, pinfo, tvb, chunk);
     proto_tree *tree_msg = proto_item_add_subtree(item_msg, ett_cose_msg);

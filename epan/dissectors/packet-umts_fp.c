@@ -634,7 +634,7 @@ static bool verify_control_frame_crc(tvbuff_t * tvb, packet_info * pinfo, proto_
     uint8_t crc = 0;
     uint8_t * data = NULL;
     /* Get data. */
-    data = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
+    data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 0, tvb_reported_length(tvb));
     /* Include only FT flag bit in CRC calculation. */
     data[0] = data[0] & 1;
     /* Calculate crc7 sum. */
@@ -654,7 +654,7 @@ static bool verify_header_crc(tvbuff_t * tvb, packet_info * pinfo, proto_item * 
     uint8_t crc = 0;
     uint8_t * data = NULL;
     /* Get data of header with first byte removed. */
-    data = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, 1, header_length-1);
+    data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 1, header_length-1);
     /* Calculate crc7 sum. */
     crc = crc7update(0, data, header_length-1);
     crc = crc7finalize(crc); /* finalize crc */
@@ -674,7 +674,7 @@ static bool verify_header_crc_edch(tvbuff_t * tvb, packet_info * pinfo, proto_it
     /* First create new subset of header with first byte removed. */
     tvbuff_t * headtvb = tvb_new_subset_length(tvb, 1, header_length-1);
     /* Get data of header with first byte removed. */
-    data = (uint8_t *)tvb_memdup(wmem_packet_scope(), headtvb, 0, header_length-1);
+    data = (uint8_t *)tvb_memdup(pinfo->pool, headtvb, 0, header_length-1);
     /* Remove first 4 bits of the remaining data which are Header CRC cont. */
     data[0] = data[0] & 0x0f;
     crc = crc11_307_noreflect_noxor(data, header_length-1);
@@ -1024,7 +1024,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
         if (preferences_payload_checksum) {
             flags = PROTO_CHECKSUM_VERIFY;
             if ((unsigned)offset > header_length) {
-                uint8_t * data = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, header_length, offset-header_length);
+                uint8_t * data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, header_length, offset-header_length);
                 calc_crc = crc16_8005_noreflect_noxor(data, offset-header_length);
             }
         }
@@ -2645,7 +2645,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
-            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+            rlcinf = wmem_new0(pinfo->pool, rlc_info);
         }
 
         header_crc_pi = proto_tree_add_uint_format(tree, hf_fp_edch_header_crc, tvb,
@@ -2799,7 +2799,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
             if (!macinf) {
-                macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+                macinf = wmem_new0(pinfo->pool, umts_mac_info);
             }
             /* Add subframe subtree */
             subframe_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe, tvb, offset, 0,
@@ -3192,11 +3192,11 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
-            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+            rlcinf = wmem_new0(pinfo->pool, rlc_info);
         }
         macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
         if (!macinf) {
-            macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+            macinf = wmem_new0(pinfo->pool, umts_mac_info);
         }
 
         /**************************************/
@@ -3417,11 +3417,11 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
-            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+            rlcinf = wmem_new0(pinfo->pool, rlc_info);
         }
         macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
         if (!macinf) {
-            macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+            macinf = wmem_new0(pinfo->pool, umts_mac_info);
         }
 
         /********************************/
@@ -3677,11 +3677,11 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
-            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+            rlcinf = wmem_new0(pinfo->pool, rlc_info);
         }
         macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
         if (!macinf) {
-            macinf = wmem_new0(wmem_packet_scope(), umts_mac_info);
+            macinf = wmem_new0(pinfo->pool, umts_mac_info);
         }
         /********************************/
         /* HS-DCH type 2 data here      */
