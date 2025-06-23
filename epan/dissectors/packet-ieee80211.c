@@ -53698,7 +53698,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_akms_wfa_type,
-     {"Auth Key Management (AKM) type", "wlan.wfa.ie.wpa.type",
+     {"Auth Key Management (AKM) type", "wlan.wfa.ie.wpa.akms.type",
       FT_UINT8, BASE_DEC, VALS(ieee80211_wfa_ie_wpa_keymgmt_vals), 0,
       NULL, HFILL }},
 
