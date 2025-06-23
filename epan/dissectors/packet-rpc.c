@@ -779,6 +779,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (string_data) {
+		/* FIXME: Some callers pass in a NULL pinfo, so we can't use pinfo->pool */
 		string_buffer = tvb_get_string_enc(wmem_packet_scope(), tvb, data_offset, string_length_copy, ENC_ASCII);
 	} else {
 		bytes_buffer = tvb_memcpy(tvb, wmem_alloc(wmem_packet_scope(), string_length_copy), data_offset, string_length_copy);
@@ -1942,7 +1943,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		procname = dissector_handle_get_description(dissect_function);
 	}
 	else {
-		procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
+		procname=wmem_strdup_printf(pinfo->pool, "proc-%u", rpc_call->proc);
 	}
 
 	if ( tree )
@@ -2016,7 +2017,7 @@ dissect_rpc_unknown(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree 
 }
 
 static rpc_prog_info_value *
-looks_like_rpc_call(tvbuff_t *tvb, int offset)
+looks_like_rpc_call(tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
 	uint32_t rpc_prog_key;
 	rpc_prog_info_value *rpc_prog;
@@ -2081,10 +2082,10 @@ looks_like_rpc_call(tvbuff_t *tvb, int offset)
 		if (version > 10)
 			return NULL;
 
-		rpc_prog = wmem_new0(wmem_packet_scope(), rpc_prog_info_value);
+		rpc_prog = wmem_new0(pinfo->pool, rpc_prog_info_value);
 		rpc_prog->proto_id = proto_rpc_unknown;
 		rpc_prog->ett = ett_rpc_unknown_program;
-		rpc_prog->progname = wmem_strdup_printf(wmem_packet_scope(), "Unknown RPC program %u", rpc_prog_key);
+		rpc_prog->progname = wmem_strdup_printf(pinfo->pool, "Unknown RPC program %u", rpc_prog_key);
 	}
 
 	return rpc_prog;
@@ -2273,7 +2274,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case RPC_CALL:
 		/* Check for RPC call. */
-		rpc_prog = looks_like_rpc_call(tvb, offset);
+		rpc_prog = looks_like_rpc_call(tvb, pinfo, offset);
 		if (rpc_prog == NULL)
 			return false;
 		rpc_call = NULL;
@@ -2382,7 +2383,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * numbers
 			 */
 			dissect_function = data_handle;
-			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", proc);
+			procname=wmem_strdup_printf(pinfo->pool, "proc-%u", proc);
 		}
 
 		/* Check for RPCSEC_GSS and AUTH_GSSAPI */
@@ -2566,7 +2567,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * numbers
 			 */
 			dissect_function = data_handle;
-			procname=wmem_strdup_printf(wmem_packet_scope(), "proc-%u", rpc_call->proc);
+			procname=wmem_strdup_printf(pinfo->pool, "proc-%u", rpc_call->proc);
 		}
 
 		/*
@@ -3297,7 +3298,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 			case RPC_CALL:
 				/* Check for RPC call. */
-				if (looks_like_rpc_call(tvb,
+				if (looks_like_rpc_call(tvb, pinfo,
 				    offset + 4) == NULL) {
 					/* Doesn't look like a call. */
 					return 0;
