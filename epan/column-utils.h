@@ -165,10 +165,14 @@ WS_DLL_PUBLIC void col_clear(column_info *cinfo, const int col);
 
 /** Set (replace) the text of a column element, the text won't be formatted or copied.
  *
- * Use this for simple static strings like protocol names. Don't use for untrusted strings
- * or strings that may contain unprintable characters.
+ * Use this for simple static strings like protocol names. Don't use for untrusted
+ * strings, strings that may contain unprintable characters, or strings which are
+ * freed before the packet_info (and hence column_info) struct.
  *
  * Usually used to set const strings!
+ *
+ * @warning Do *NOT* use with strings allocated with wmem_packet_scope(), as it
+ * is freed slightly too early; use the pinfo->pool scope instead.
  *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
