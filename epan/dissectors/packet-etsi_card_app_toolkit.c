@@ -1093,11 +1093,11 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			if (len < 3)
 				break;
 			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_nr, tvb, pos, 1, ENC_BIG_ENDIAN, &cmd_nr);
-			if (cmd_nr == 0x40) {
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_type, tvb, pos+1, 1, ENC_BIG_ENDIAN, &g8);
+			if (g8 == 0x40) { /* OPEN CHANNEL */
 				ims_event = true;
 				dns_server = true;
 			}
-			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_type, tvb, pos+1, 1, ENC_BIG_ENDIAN, &g8);
 			/* append command type to INFO column */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					val_to_str_ext(g8, &cmd_type_vals_ext, "%02x "));
