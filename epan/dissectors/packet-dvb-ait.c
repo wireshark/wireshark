@@ -330,7 +330,7 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, unsigned offset,
         ret = (int)(offset-offset_start);
     }
     else
-        ret = (int)proto_mpeg_descriptor_dissect(tvb, offset, tree);
+        ret = (int)proto_mpeg_descriptor_dissect(tvb, pinfo, offset, tree);
 
     return ret;
 }

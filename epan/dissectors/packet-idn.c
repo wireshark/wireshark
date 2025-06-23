@@ -493,13 +493,13 @@ static configuration_info *get_configuration_info(packet_info *pinfo, int channe
 	return config;
 }
 
-static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *idn_dmx_subtree, uint16_t data_size, int base) {
+static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *idn_dmx_subtree, uint16_t data_size, int base) {
 	int i, j;
 	short int rest;
 	wmem_strbuf_t* values;
 
 	for(i=0; i+16<=data_size; i+=16) {
-		values = wmem_strbuf_new(wmem_packet_scope(), "");
+		values = wmem_strbuf_new(pinfo->pool, "");
 		for(j=1; j<16; j++){
 			wmem_strbuf_append_printf(values, " %3d", tvb_get_uint8(tvb, offset+j));
 		}
@@ -508,7 +508,7 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 	}
 	rest = data_size - i;
 	if(rest > 0) {
-		values = wmem_strbuf_new(wmem_packet_scope(), "");
+		values = wmem_strbuf_new(pinfo->pool, "");
 		for(j=0; j<rest; j++){
 			wmem_strbuf_append_printf(values, " %3d", tvb_get_uint8(tvb, offset+j));
 		}
@@ -537,7 +537,7 @@ static void set_laser_sample_values_string(tvbuff_t *tvb, int offset, configurat
 	}
 }
 
-static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
+static int dissect_idn_octet_segment(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *idn_tree) {
 	int i, j;
 	short int rest;
 	wmem_strbuf_t* values;
@@ -545,7 +545,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 	proto_tree *idn_samples_tree = proto_tree_add_subtree(idn_tree, tvb, offset, data_size, ett_data, NULL, "Octets");
 
 	for(i=0; i+16<=data_size; i+=16) {
-		values = wmem_strbuf_new(wmem_packet_scope(), "");
+		values = wmem_strbuf_new(pinfo->pool, "");
 		for(j=0; j<16; j++){
 			wmem_strbuf_append_printf(values, " %3d", tvb_get_int8(tvb, offset+j));
 		}
@@ -554,7 +554,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 	}
 	rest = data_size - i;
 	if(rest > 0) {
-		values = wmem_strbuf_new(wmem_packet_scope(), "");
+		values = wmem_strbuf_new(pinfo->pool, "");
 		for(j=0; j<rest; j++){
 			wmem_strbuf_append_printf(values, " %3d", tvb_get_int8(tvb, offset+j));
 		}
@@ -595,12 +595,12 @@ static int dissect_idn_dmx_data(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 			}
 			idn_dmx_subtree = proto_tree_add_subtree_format(idn_samples_tree, tvb, offset, data_size, ett_dmx_subtree, NULL, "Range: %3d - %3d", base[i], base_value+data_size);
 		}
-		offset = dissect_idn_dmx_sample_values(tvb, offset, idn_dmx_subtree, data_size, base_value);
+		offset = dissect_idn_dmx_sample_values(tvb, pinfo, offset, idn_dmx_subtree, data_size, base_value);
 	}
 	return offset;
 }
 
-static int dissect_idn_laser_data(tvbuff_t *tvb, int offset, proto_tree *idn_tree, configuration_info *config) {
+static int dissect_idn_laser_data(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *idn_tree, configuration_info *config) {
 	int i;
 	int laser_data_size = tvb_reported_length_remaining(tvb, offset);
 	wmem_strbuf_t* values;
@@ -620,7 +620,7 @@ static int dissect_idn_laser_data(tvbuff_t *tvb, int offset, proto_tree *idn_tre
 		}else if((i-1)%10 == 0) {
 			idn_samples_subtree = proto_tree_add_subtree_format(idn_samples_tree, tvb, offset, config->sample_size*10, ett_subdata, NULL, "Samples %3d - %3d", i, i+9);
 		}
-		values = wmem_strbuf_new(wmem_packet_scope(), "");
+		values = wmem_strbuf_new(pinfo->pool, "");
 		set_laser_sample_values_string(tvb, offset, config, values);
 		proto_tree_add_bytes_format(idn_samples_subtree, hf_idn_gts_sample, tvb, offset, config->sample_size, NULL,  "Sample %3d: %s", i, wmem_strbuf_get_str(values));
 		offset += config->sample_size;
@@ -1222,19 +1222,19 @@ static int dissect_idn_message(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	}
 
 	if(minfo.chunk_type == IDNCT_OCTET_SEGMENT) {
-		offset = dissect_idn_octet_segment(tvb, offset, idn_tree);
+		offset = dissect_idn_octet_segment(tvb, pinfo, offset, idn_tree);
 	}else if(minfo.is_dmx) {
 		offset = dissect_idn_dmx_data(tvb, pinfo, offset, idn_tree, config);
 	}else if(minfo.is_audio){
 		offset = dissect_idn_audio(tvb, pinfo, offset, idn_tree, config);
 	}else {
-		offset = dissect_idn_laser_data(tvb, offset, idn_tree, config);
+		offset = dissect_idn_laser_data(tvb, pinfo, offset, idn_tree, config);
 	}
 
 	return offset;
 }
 
-static int dissect_idn_servicemap_entry(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
+static int dissect_idn_servicemap_entry(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *idn_tree) {
 	uint8_t service_id = tvb_get_uint8(tvb, offset);
 	proto_tree *idn_servicemap_entry_tree = NULL;
 	proto_item *entry_item;
@@ -1254,7 +1254,7 @@ static int dissect_idn_servicemap_entry(tvbuff_t *tvb, int offset, proto_tree *i
 	offset += 1;
 	proto_tree_add_item(idn_servicemap_entry_tree, hf_idn_relay_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item_ret_string(idn_servicemap_entry_tree, hf_idn_name, tvb, offset, 20, ENC_ASCII, wmem_packet_scope(), &name);
+	proto_tree_add_item_ret_string(idn_servicemap_entry_tree, hf_idn_name, tvb, offset, 20, ENC_ASCII, pinfo->pool, &name);
 	proto_item_append_text(entry_item, " - %s", name);
 	offset += 20;
 	return offset;
@@ -1275,7 +1275,7 @@ static int dissect_idn_servicemap_response_header(tvbuff_t *tvb, int offset, pro
 	return offset;
 }
 
-static int dissect_idn_servicemap_response(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
+static int dissect_idn_servicemap_response(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *idn_tree) {
 	uint8_t relay_count, service_count;
 	uint16_t map_entries_size;
 
@@ -1283,7 +1283,7 @@ static int dissect_idn_servicemap_response(tvbuff_t *tvb, int offset, proto_tree
 	map_entries_size = relay_count + service_count;
 	proto_tree *idn_servicemap_entries_tree = proto_tree_add_subtree(idn_tree, tvb, offset, map_entries_size*24, ett_idn_header_tree, NULL, "Service Map Entries");
 	for(int i=0; i<map_entries_size; i++)
-		offset = dissect_idn_servicemap_entry(tvb, offset, idn_servicemap_entries_tree);
+		offset = dissect_idn_servicemap_entry(tvb, pinfo, offset, idn_servicemap_entries_tree);
 
 	return offset;
 }
@@ -1359,7 +1359,7 @@ static int dissect_idn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			dissect_idn_scan_response(tvb, offset, idn_tree);
 			break;
 		case IDNCMD_SERVICEMAP_RESPONSE:
-			offset = dissect_idn_servicemap_response(tvb, offset, idn_tree);
+			offset = dissect_idn_servicemap_response(tvb, pinfo, offset, idn_tree);
 			break;
 		case IDNCMD_MESSAGE:
 		case IDNCMD_MESSAGE_ACKREQ:

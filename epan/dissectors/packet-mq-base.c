@@ -16,9 +16,9 @@
 
 #include "packet-mq.h"
 
-wmem_strbuf_t* mqpcf_get_encoding(const unsigned uEnc)
+wmem_strbuf_t* mqpcf_get_encoding(wmem_allocator_t* allocator, const unsigned uEnc)
 {
-    wmem_strbuf_t* pEnc = wmem_strbuf_new(wmem_packet_scope(), "");
+    wmem_strbuf_t* pEnc = wmem_strbuf_new(allocator, "");
     switch(uEnc & MQ_MQENC_FLOAT_MASK)
     {
     case MQ_MQENC_FLOAT_UNDEFINED:

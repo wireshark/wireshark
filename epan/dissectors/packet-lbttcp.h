@@ -33,7 +33,7 @@ typedef struct
 
 lbttcp_transport_t * lbttcp_transport_find(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame);
 lbttcp_transport_t * lbttcp_transport_add(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame);
-char * lbttcp_transport_source_string(const address * source_address, uint16_t source_port, uint32_t session_id);
+char * lbttcp_transport_source_string(wmem_allocator_t* allocator, const address * source_address, uint16_t source_port, uint32_t session_id);
 bool lbttcp_transport_sid_find(const address * source_address, uint16_t source_port, uint32_t frame, uint32_t * session_id);
 void lbttcp_transport_sid_add(const address * source_address, uint16_t source_port, uint32_t frame, uint32_t session_id);
 

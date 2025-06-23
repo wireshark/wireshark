@@ -547,21 +547,21 @@ get_bit(uint8_t byte, uint8_t bit)
 /* store new byte of an MTP2 frame in an array
  * after the whole packet is stored the array will be used to construct a new tvb */
 static void
-new_byte(char full_byte, uint8_t **data, uint8_t *data_len)
+new_byte(wmem_allocator_t* allocator, char full_byte, uint8_t **data, uint8_t *data_len)
 {
   uint8_t *new_data = NULL;
   int     i = 0;
 
   if ((*data_len) == 0) {
     /* if data was never stored in this buffer before */
-    *data = wmem_new(wmem_packet_scope(), uint8_t);
+    *data = wmem_new(allocator, uint8_t);
     (**data) = full_byte;
     (*data_len)++;
   } else {
     /* if this buffer is used -> create a completely new one
      * note, that after the dissection of this packet
      * the old data will be freed automatically (because of the wmem_alloc) */
-    new_data = (uint8_t *)wmem_alloc(wmem_packet_scope(), sizeof(uint8_t)*((*data_len)+1));
+    new_data = (uint8_t *)wmem_alloc(allocator, sizeof(uint8_t)*((*data_len)+1));
     /* copy the old one's content */
     for (i = 0;i<(*data_len);i++) {
       *(new_data+i) = *((*data)+i);
@@ -635,7 +635,7 @@ prepare_data_for_found_packet(tvbuff_t *tvb, uint8_t unalignment_offset)
  * sets the mtp2_flag_search, data_buffer, it's offset and the state to the one which was stored
  * at the end of the previous packet's dissection in the same direction */
 static mtp2_dissect_tvb_res_t*
-dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, uint8_t back_data_buff, uint8_t back_data_buff_offset,
+dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back_mtp2_flag_search, uint8_t back_data_buff, uint8_t back_data_buff_offset,
     enum mtp2_bitstream_states back_state, uint8_t back_last_flag_beginning_offset_for_align_check)
 {
   uint8_t       mtp2_flag_search = 0x00,                        /* this helps to detect the flags in the bitstream */
@@ -657,12 +657,12 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, u
   mtp2_dissect_tvb_res_t        *result = NULL;                 /* the result structure */
 
   /* initialize the result structure, this will be returned at the end */
-  result = wmem_new(wmem_packet_scope(), mtp2_dissect_tvb_res_t);
+  result = wmem_new(pinfo->pool, mtp2_dissect_tvb_res_t);
   result->mtp2_remain_data.before_first_flag = NULL;
   result->mtp2_remain_data.before_fh_unalignment_offset = 0;
   result->mtp2_remain_data.before_fh_frame_reset = false;
   result->mtp2_remain_data.after_last_flag = NULL;
-  result->found_packets = wmem_list_new(wmem_packet_scope());
+  result->found_packets = wmem_list_new(pinfo->pool);
   result->flag_found = false;
   result->last_flag_beginning_offset_for_align_check = 0;
 
@@ -721,7 +721,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, u
             if (data_buff != 0x7E) {
               /* store the data and change the state */
               state = DATA;
-              new_byte(data_buff, &found_data_buff_byte, &data_len);
+              new_byte(pinfo->pool, data_buff, &found_data_buff_byte, &data_len);
             }
             /* clear data_buff and it's offset */
             data_buff = 0x00;
@@ -754,7 +754,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, u
             data_buff_offset = 0;
           }
           /* fill the temporary buffer with data */
-          uint8_t *buff = (uint8_t *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, data_len);
+          uint8_t *buff = (uint8_t *) wmem_memdup(pinfo->pool, found_data_buff_byte, data_len);
           /* Allocate new tvb for the proto frame */
           new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
           /* if there were no flags before, we've found the bytes before the first flag */
@@ -825,7 +825,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, u
 
   if (data_len != 0) {
     /* fill the temporary buffer with data */
-    uint8_t * buff = (uint8_t *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, data_len);
+    uint8_t * buff = (uint8_t *) wmem_memdup(pinfo->pool, found_data_buff_byte, data_len);
     /* Allocate new tvb for the MTP2 frame */
     new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
     /* this tvb is the one we found after the last flag */
@@ -836,7 +836,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, u
    * we have to add a 0 length tvb with the flag "no more packets" */
   if (result->mtp2_remain_data.before_first_flag == NULL) {
     /* fill the temporary buffer with data */
-    uint8_t *buff = (uint8_t *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, 0);
+    uint8_t *buff = (uint8_t *) wmem_memdup(pinfo->pool, found_data_buff_byte, 0);
     /* Allocate new tvb for the MTP2 frame */
     new_tvb = tvb_new_child_real_data(tvb, buff, 0, 0);
     /* this tvb is the one we found after the last flag */
@@ -995,7 +995,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   reass_seq_num = mtp2_ppd->reass_seq_num_for_reass_check_before_fh;
 
   /* call the function to dissect this actual tvb */
-  result = dissect_mtp2_tvb(tvb,
+  result = dissect_mtp2_tvb(tvb, pinfo,
       mtp2_ppd->mtp2_flag_search,
       mtp2_ppd->data_buff,
       mtp2_ppd->data_buff_offset,

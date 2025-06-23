@@ -495,7 +495,7 @@ read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
  * read a number and add it to tree
  */
 static void
-read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
+read_number(unsigned int *offset, tvbuff_t *tvb, wmem_allocator_t* allocator, proto_tree *etch_tree,
             int asWhat, uint8_t type_code)
 {
   int byteLength;
@@ -507,7 +507,7 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     const char *symbol = NULL;
     uint32_t     hash   = 0;
 
-    gbl_symbol_buffer = wmem_strbuf_create(wmem_packet_scope());  /* no symbol found yet */
+    gbl_symbol_buffer = wmem_strbuf_create(allocator);  /* no symbol found yet */
     if (byteLength == 4) {
       hash = tvb_get_ntohl(tvb, *offset);
       symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
@@ -557,28 +557,28 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     read_string(offset, tvb, etch_tree);
     break;
   case ETCH_TC_FLOAT:
-    read_number(offset, tvb, etch_tree, hf_etch_float, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_float, type_code);
     break;
   case ETCH_TC_DOUBLE:
-    read_number(offset, tvb, etch_tree, hf_etch_double, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_double, type_code);
     break;
   case ETCH_TC_SHORT:
-    read_number(offset, tvb, etch_tree, hf_etch_short, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_short, type_code);
     break;
   case ETCH_TC_INT:
-    read_number(offset, tvb, etch_tree, hf_etch_int, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_int, type_code);
     break;
   case ETCH_TC_LONG:
-    read_number(offset, tvb, etch_tree, hf_etch_long, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_long, type_code);
     break;
   case ETCH_TC_BYTE:
-    read_number(offset, tvb, etch_tree, hf_etch_byte, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_byte, type_code);
     break;
   case ETCH_TC_BYTES:
     read_bytes(offset, tvb, etch_tree);
     break;
   default:
-    read_number(offset, tvb, etch_tree, asWhat, type_code);
+    read_number(offset, tvb, pinfo->pool, etch_tree, asWhat, type_code);
   }
   decrement_dissection_depth(pinfo);
   return 0;

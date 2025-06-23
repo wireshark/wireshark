@@ -486,7 +486,7 @@ cmd_resp_is_data(const char *cmd)
  * the address and port number.
  */
 static bool
-parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, uint32_t *ftp_ip,
+parse_port_pasv(tvbuff_t *tvb, packet_info* pinfo, int offset, int linelen, uint32_t *ftp_ip,
     uint16_t *ftp_port, uint32_t *pasv_offset, unsigned *ftp_ip_len,
     unsigned *ftp_port_len)
 {
@@ -500,7 +500,7 @@ parse_port_pasv(tvbuff_t *tvb, int offset, int linelen, uint32_t *ftp_ip,
     /*
      * Copy the rest of the line into a null-terminated buffer.
      */
-    args = wmem_alloc(wmem_packet_scope(), linelen + 1);
+    args = wmem_alloc(pinfo->pool, linelen + 1);
     tvb_get_raw_bytes_as_string(tvb, offset, args, linelen + 1);
     p = args;
 
@@ -596,7 +596,7 @@ isvalid_rfc2428_delimiter(const unsigned char c)
  *
  */
 static bool
-parse_eprt_request(tvbuff_t *tvb, int offset, int linelen, uint32_t *eprt_af,
+parse_eprt_request(tvbuff_t *tvb, packet_info* pinfo, int offset, int linelen, uint32_t *eprt_af,
         uint32_t *eprt_ip, uint16_t *eprt_ipv6, uint16_t *ftp_port,
         uint32_t *eprt_ip_len, uint32_t *ftp_port_len)
 {
@@ -615,7 +615,7 @@ parse_eprt_request(tvbuff_t *tvb, int offset, int linelen, uint32_t *eprt_af,
         return false;
 
     /* Copy the rest of the line into a null-terminated buffer. */
-    args = wmem_alloc(wmem_packet_scope(), linelen + 1);
+    args = wmem_alloc(pinfo->pool, linelen + 1);
     tvb_get_raw_bytes_as_string(tvb, offset, args, linelen + 1);
     p = args;
     /*
@@ -669,13 +669,13 @@ parse_eprt_request(tvbuff_t *tvb, int offset, int linelen, uint32_t *eprt_af,
 
         if (delimiters_seen == 2) {     /* end of address family field */
             char *af_str;
-            af_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
+            af_str = wmem_strndup(pinfo->pool, field, fieldlen);
             if (!ws_strtou32(af_str, NULL, eprt_af))
                 return false;
         }
         else if (delimiters_seen == 3) {/* end of IP address field */
             char *ip_str;
-            ip_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
+            ip_str = wmem_strndup(pinfo->pool, field, fieldlen);
 
             if (*eprt_af == EPRT_AF_IPv4) {
                 if (str_to_ip(ip_str, eprt_ip))
@@ -696,7 +696,7 @@ parse_eprt_request(tvbuff_t *tvb, int offset, int linelen, uint32_t *eprt_af,
         }
         else if (delimiters_seen == 4) {/* end of port field */
             char *pt_str;
-            pt_str = wmem_strndup(wmem_packet_scope(), field, fieldlen);
+            pt_str = wmem_strndup(pinfo->pool, field, fieldlen);
 
             if (!ws_strtou16(pt_str, NULL, ftp_port))
                 return false;
@@ -732,7 +732,7 @@ parse_eprt_request(tvbuff_t *tvb, int offset, int linelen, uint32_t *eprt_af,
  *
  */
 static bool
-parse_extended_pasv_response(tvbuff_t *tvb, int offset, int linelen,
+parse_extended_pasv_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int linelen,
         uint16_t *ftp_port, unsigned *pasv_offset, unsigned *ftp_port_len)
 {
     int        n;
@@ -746,7 +746,7 @@ parse_extended_pasv_response(tvbuff_t *tvb, int offset, int linelen,
     /*
      * Copy the rest of the line into a null-terminated buffer.
      */
-    args = wmem_alloc(wmem_packet_scope(), linelen + 1);
+    args = wmem_alloc(pinfo->pool, linelen + 1);
     tvb_get_raw_bytes_as_string(tvb, offset, args, linelen + 1);
     p = args;
 
@@ -866,9 +866,9 @@ static bool begins_with_separator(wmem_strbuf_t *path)
 
 /* Add new_path to the current working directory of the conversation, then normalise. */
 /* N.B. could use e.g. g_build_path() here, but doesn't really buy us anything */
-static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path)
+static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path, packet_info* pinfo)
 {
-    wmem_strbuf_t *appended_path = wmem_strbuf_new(wmem_packet_scope(), NULL);
+    wmem_strbuf_t *appended_path = wmem_strbuf_new(pinfo->pool, NULL);
 
     if (!wmem_strbuf_get_len(conv->current_working_directory)) {
         /* Currently empty so just assign to new */
@@ -890,7 +890,7 @@ static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path
 
     /* Initialise with empty path */
     wmem_strbuf_t *normalised_directory = wmem_strbuf_new(wmem_file_scope(), NULL);
-    wmem_strbuf_t *this_folder = wmem_strbuf_new(wmem_packet_scope(), NULL);
+    wmem_strbuf_t *this_folder = wmem_strbuf_new(pinfo->pool, NULL);
 
     offset = 0;
     /* If absolute, add root to this one too */
@@ -932,7 +932,7 @@ static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path
                 }
 
                 /* Reset folder name for next time */
-                this_folder = wmem_strbuf_new(wmem_packet_scope(), NULL);
+                this_folder = wmem_strbuf_new(pinfo->pool, NULL);
             }
         }
         else {
@@ -950,7 +950,7 @@ static void add_directory_to_conv(ftp_conversation_t *conv, const char *new_path
 }
 
 /* In response to the arg to a CWD command succeeding, update the conversation's current working directory */
-static void process_cwd_success(ftp_conversation_t *conv, const char *new_path)
+static void process_cwd_success(ftp_conversation_t *conv, const char *new_path, packet_info* pinfo)
 {
     if (g_path_is_absolute(new_path)) {
         /* Just adopt new_path */
@@ -958,7 +958,7 @@ static void process_cwd_success(ftp_conversation_t *conv, const char *new_path)
     }
     else {
         /* Add new_path to what we already have */
-        add_directory_to_conv(conv, new_path);
+        add_directory_to_conv(conv, new_path, pinfo);
     }
 }
 
@@ -1264,13 +1264,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     if (p_ftp_conv && p_ftp_conv->last_command) {
                         /* Explicit Change Working Directory command */
                         if (strncmp(p_ftp_conv->last_command, "CWD ", 4) == 0) {
-                            process_cwd_success(p_ftp_conv, p_ftp_conv->last_command+4);
+                            process_cwd_success(p_ftp_conv, p_ftp_conv->last_command+4, pinfo);
                             /* Update path in packet */
                             store_directory_in_packet(pinfo, p_ftp_conv);
                         }
                         /* Change Directory Up command (i.e. "CWD ..") */
                         else if (strncmp(p_ftp_conv->last_command, "CDUP", 4) == 0) {
-                            process_cwd_success(p_ftp_conv, "..");
+                            process_cwd_success(p_ftp_conv, "..", pinfo);
                             /* Update path in packet */
                             store_directory_in_packet(pinfo, p_ftp_conv);
                         }
@@ -1336,7 +1336,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * If this is a PORT request or a PASV response, handle it.
      */
     if (is_port_request) {
-        if (parse_port_pasv(tvb, offset, linelen, &ftp_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
+        if (parse_port_pasv(tvb, pinfo, offset, linelen, &ftp_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
             proto_tree_add_ipv4(reqresp_tree, hf_ftp_active_ip,
                     tvb, pasv_offset + (tokenlen+1) , ftp_ip_len, ftp_ip);
             proto_tree_add_uint(reqresp_tree, hf_ftp_active_port,
@@ -1362,7 +1362,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * This frame contains a PASV response; set up a
              * conversation for the data.
              */
-            if (parse_port_pasv(tvb, offset, linelen, &pasv_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
+            if (parse_port_pasv(tvb, pinfo, offset, linelen, &pasv_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
                 proto_tree_add_ipv4(reqresp_tree, hf_ftp_pasv_ip,
                         tvb, pasv_offset + 4, ftp_ip_len, pasv_ip);
                 proto_tree_add_uint(reqresp_tree, hf_ftp_pasv_port,
@@ -1386,7 +1386,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * This frame contains a EPRT request; let's dissect it and set up a
          * conversation for the data connection.
          */
-        if (parse_eprt_request(tvb, offset, linelen,
+        if (parse_eprt_request(tvb, pinfo, offset, linelen,
                     &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
                     &eprt_ip_len, &ftp_port_len)) {
 
@@ -1433,7 +1433,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * This frame contains an  EPSV response; set up a
              * conversation for the data.
              */
-            if (parse_extended_pasv_response(tvb, offset, linelen,
+            if (parse_extended_pasv_response(tvb, pinfo, offset, linelen,
                         &ftp_port, &pasv_offset, &ftp_port_len)) {
                 /* Add IP address and port number to tree */
 

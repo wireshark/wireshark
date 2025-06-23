@@ -167,17 +167,17 @@ static lbttcp_client_transport_t * lbttcp_client_transport_add(lbttcp_transport_
     return (entry);
 }
 
-char * lbttcp_transport_source_string(const address * source_address, uint16_t source_port, uint32_t session_id)
+char * lbttcp_transport_source_string(wmem_allocator_t* allocator, const address * source_address, uint16_t source_port, uint32_t session_id)
 {
     char * bufptr = NULL;
 
     if (session_id == 0)
     {
-        bufptr = wmem_strdup_printf(wmem_file_scope(), "TCP:%s:%" PRIu16, address_to_str(wmem_packet_scope(), source_address), source_port);
+        bufptr = wmem_strdup_printf(allocator, "TCP:%s:%" PRIu16, address_to_str(allocator, source_address), source_port);
     }
     else
     {
-        bufptr = wmem_strdup_printf(wmem_file_scope(), "TCP:%s:%" PRIu16 ":%08x", address_to_str(wmem_packet_scope(), source_address), source_port, session_id);
+        bufptr = wmem_strdup_printf(allocator, "TCP:%s:%" PRIu16 ":%08x", address_to_str(allocator, source_address), source_port, session_id);
     }
     return (bufptr);
 }

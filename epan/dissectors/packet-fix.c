@@ -91,11 +91,11 @@ fix_field_tag_compar(const void *v_needle, const void *v_entry)
 }
 
 /* Code to actually dissect the packets */
-static int fix_next_header(tvbuff_t *tvb, int offset)
+static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, int offset)
 {
     /* try to resync to the next start */
     unsigned      min_len = tvb_captured_length_remaining(tvb, offset);
-    const uint8_t *data    = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, min_len, ENC_ASCII);
+    const uint8_t *data    = tvb_get_string_enc(pinfo->pool, tvb, offset, min_len, ENC_ASCII);
     const uint8_t *start   = data;
 
     while ((start = strstr(start, "\0018"))) {
@@ -138,7 +138,7 @@ static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
 }
 
 /* ---------------------------------------------- */
-static int fix_header_len(tvbuff_t *tvb, int offset)
+static int fix_header_len(tvbuff_t *tvb, packet_info* pinfo, int offset)
 {
     int            base_offset, ctrla_offset;
     int32_t        value;
@@ -149,7 +149,7 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
 
     /* get at least the fix version: 8=FIX.x.x */
     if (fix_marker(tvb, offset) != 0) {
-        return fix_next_header(tvb, offset);
+        return fix_next_header(tvb, pinfo, offset);
     }
 
     /* begin string */
@@ -159,19 +159,19 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
          * if not maybe it's not really
          * a FIX packet but it's too late to bail out.
         */
-        return fix_next_header(tvb, offset +MARKER_LEN) +MARKER_LEN;
+        return fix_next_header(tvb, pinfo, offset +MARKER_LEN) +MARKER_LEN;
     }
     offset = ctrla_offset + 1;
 
     /* msg length */
     if (!(tag = fix_param(tvb, offset)) || tvb_strneql(tvb, offset, "9=", 2)) {
         /* not a tag or not the BodyLength tag, give up */
-        return fix_next_header(tvb, offset);
+        return fix_next_header(tvb, pinfo, offset);
     }
 
-    if (!ws_strtoi32(tvb_get_string_enc(wmem_packet_scope(), tvb, tag->value_offset,
+    if (!ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset,
             tag->value_len, ENC_ASCII), NULL, &value))
-        return fix_next_header(tvb, base_offset +MARKER_LEN)  +MARKER_LEN;
+        return fix_next_header(tvb, pinfo, base_offset +MARKER_LEN)  +MARKER_LEN;
     /* Fix version, msg type, length and checksum aren't in body length.
      * If the packet is big enough find the checksum
     */
@@ -181,7 +181,7 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
         offset = base_offset +size;
         if (tvb_strneql(tvb, offset, "10=", 3) != 0) {
             /* No? bogus packet, try to find the next header */
-            return fix_next_header(tvb, base_offset +MARKER_LEN)  +MARKER_LEN;
+            return fix_next_header(tvb, pinfo, base_offset +MARKER_LEN)  +MARKER_LEN;
         }
         ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
         if (ctrla_offset == -1) {
@@ -380,11 +380,11 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static unsigned
-get_fix_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+get_fix_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int fix_len;
 
-    fix_len = fix_header_len(tvb, offset);
+    fix_len = fix_header_len(tvb, pinfo, offset);
     return fix_len;
 }
 

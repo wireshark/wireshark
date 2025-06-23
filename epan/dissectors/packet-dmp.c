@@ -1042,7 +1042,7 @@ static const char *get_nat_pol_id_short (int nation)
   return "???";
 }
 
-static const char *msg_type_to_str (void)
+static const char *msg_type_to_str (wmem_allocator_t* allocator)
 {
   const char *msg_type;
   bool         have_msg = false;
@@ -1051,7 +1051,7 @@ static const char *msg_type_to_str (void)
 
   case STANAG:
     /* Include message type and precedence */
-    msg_type = wmem_strdup_printf (wmem_packet_scope(), "%s (%s) [%s]",
+    msg_type = wmem_strdup_printf (allocator, "%s (%s) [%s]",
                 val_to_str_const (dmp.msg_type, type_vals, "Unknown"),
                 val_to_str_const (dmp.st_type, message_type_vals, "Unknown"),
                 (dmp.prec == 0x6 || dmp.prec == 0x7) ?
@@ -1061,14 +1061,14 @@ static const char *msg_type_to_str (void)
 
   case IPM:
     /* Include importance */
-    msg_type = wmem_strdup_printf (wmem_packet_scope(), "%s [%s]",
+    msg_type = wmem_strdup_printf (allocator, "%s [%s]",
                 val_to_str_const (dmp.msg_type, type_vals, "Unknown"),
                 val_to_str_const (dmp.prec, importance, "Unknown"));
     break;
 
   case REPORT:
     /* Include report types included */
-    msg_type = wmem_strdup_printf (wmem_packet_scope(), "Report (%s%s%s)",
+    msg_type = wmem_strdup_printf (allocator, "Report (%s%s%s)",
                 dmp.dr ? "DR" : "", (dmp.dr && dmp.ndr) ? " and " : "",
                 dmp.ndr ? "NDR" : "");
     break;
@@ -1081,7 +1081,7 @@ static const char *msg_type_to_str (void)
     /* If we have msg_time we have a matching packet */
     have_msg = (dmp.id_val &&
                 (dmp.id_val->msg_time.secs>0 || dmp.id_val->msg_time.nsecs>0));
-    msg_type = wmem_strdup_printf (wmem_packet_scope(), "Acknowledgement%s%s",
+    msg_type = wmem_strdup_printf (allocator, "Acknowledgement%s%s",
                 have_msg ? val_to_str (dmp.id_val->msg_type, ack_msg_type,
                                        " (unknown:%d)") : "",
                 dmp.ack_reason ? " [negative]" : "");
@@ -1610,7 +1610,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
   }
 }
 
-static const char *dissect_7bit_string (tvbuff_t *tvb, int offset, int length, unsigned char *byte_rest)
+static const char *dissect_7bit_string (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int length, unsigned char *byte_rest)
 {
   unsigned char *encoded, *decoded;
   unsigned char  rest = 0, bits = 1;
@@ -1623,8 +1623,8 @@ static const char *dissect_7bit_string (tvbuff_t *tvb, int offset, int length, u
     return "";
   }
 
-  encoded = (unsigned char *)tvb_memdup (wmem_packet_scope(), tvb, offset, length);
-  decoded = (unsigned char *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
+  encoded = (unsigned char *)tvb_memdup (allocator, tvb, offset, length);
+  decoded = (unsigned char *)wmem_alloc0 (allocator, (size_t)(length * 1.2) + 1);
   for (i = 0; i < length; i++) {
     decoded[len++] = encoded[i] >> bits | rest;
     rest = (encoded[i] << (7 - bits) & 0x7F);
@@ -1644,12 +1644,12 @@ static const char *dissect_7bit_string (tvbuff_t *tvb, int offset, int length, u
   return decoded;
 }
 
-static const char *dissect_thales_mts_id (tvbuff_t *tvb, int offset, int length, unsigned char *byte_rest)
+static const char *dissect_thales_mts_id (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int length, unsigned char *byte_rest)
 {
   /* Thales XOmail uses this format: "MTA-NAME/000000000000" */
   if (length >= 7 && length <= 22) {
-    return wmem_strdup_printf (wmem_packet_scope(), "%s/%08X%04X",
-                               dissect_7bit_string (tvb, offset, length - 6, byte_rest),
+    return wmem_strdup_printf (allocator, "%s/%08X%04X",
+                               dissect_7bit_string (tvb, allocator, offset, length - 6, byte_rest),
                                tvb_get_ntohl (tvb, offset + length - 6),
                                tvb_get_ntohs (tvb, offset + length - 2));
   }
@@ -1657,7 +1657,7 @@ static const char *dissect_thales_mts_id (tvbuff_t *tvb, int offset, int length,
   return ILLEGAL_FORMAT;
 }
 
-static const char *dissect_thales_ipm_id (tvbuff_t *tvb, int offset, int length, int modifier, unsigned char *byte_rest)
+static const char *dissect_thales_ipm_id (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int length, int modifier, unsigned char *byte_rest)
 {
   /* Thales XOmail uses this format: "<prefix>0000 YYMMDDhhmmssZ" */
   if (length >= 6 && length <= 20 && modifier >= 0 && modifier <= 2) {
@@ -1675,8 +1675,8 @@ static const char *dissect_thales_ipm_id (tvbuff_t *tvb, int offset, int length,
       number += (65536 - 1024);
     }
 
-    return wmem_strdup_printf (wmem_packet_scope(), "%s%0*d %02d%02d%02d%02d%02d%02dZ",
-                               (length == 6) ? "" : dissect_7bit_string (tvb, offset, length - 6, byte_rest),
+    return wmem_strdup_printf (allocator, "%s%0*d %02d%02d%02d%02d%02d%02dZ",
+                               (length == 6) ? "" : dissect_7bit_string (tvb, allocator, offset, length - 6, byte_rest),
                                number_len, number,
                                tmp->tm_year % 100, tmp->tm_mon + 1, tmp->tm_mday,
                                tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
@@ -2660,9 +2660,9 @@ static int dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree
   unsigned char byte_rest = 0;
 
   if (dmp.msg_id_type == X400_MSG_ID || dmp_nat_decode == NAT_DECODE_DMP) {
-    mts_id = dissect_7bit_string (tvb, offset, dmp.mts_id_length, &byte_rest);
+    mts_id = dissect_7bit_string (tvb, pinfo->pool, offset, dmp.mts_id_length, &byte_rest);
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
-    mts_id = dissect_thales_mts_id (tvb, offset, dmp.mts_id_length, &byte_rest);
+    mts_id = dissect_thales_mts_id (tvb, pinfo->pool, offset, dmp.mts_id_length, &byte_rest);
   } else {
     mts_id = tvb_bytes_to_str(pinfo->pool, tvb, offset, dmp.mts_id_length);
   }
@@ -2716,9 +2716,9 @@ static int dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree
   offset += 1;
 
   if (modifier == IPM_MODIFIER_X400 || dmp_nat_decode == NAT_DECODE_DMP) {
-    ipm_id = dissect_7bit_string (tvb, offset, ipm_id_length, &byte_rest);
+    ipm_id = dissect_7bit_string (tvb, pinfo->pool, offset, ipm_id_length, &byte_rest);
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
-    ipm_id = dissect_thales_ipm_id (tvb, offset, ipm_id_length, modifier, &byte_rest);
+    ipm_id = dissect_thales_ipm_id (tvb, pinfo->pool, offset, ipm_id_length, modifier, &byte_rest);
   } else {
     ipm_id = tvb_bytes_to_str(pinfo->pool, tvb, offset, ipm_id_length);
   }
@@ -3965,12 +3965,12 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp_align && !retrans_or_dup_ack) {
     if (dmp.msg_type == ACK) {
       /* ACK does not have "Msg Id" */
-      col_append_fstr (pinfo->cinfo, COL_INFO, "%-45.45s", msg_type_to_str ());
+      col_append_fstr (pinfo->cinfo, COL_INFO, "%-45.45s", msg_type_to_str (pinfo->pool));
     } else {
-      col_append_fstr (pinfo->cinfo, COL_INFO, "%-31.31s", msg_type_to_str ());
+      col_append_fstr (pinfo->cinfo, COL_INFO, "%-31.31s", msg_type_to_str (pinfo->pool));
     }
   } else {
-    col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str ());
+    col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str (pinfo->pool));
   }
   if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
       (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF))
@@ -3998,7 +3998,7 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
 
   proto_item_append_text (ti, ", Version: %d%s, %s", dmp.version,
                           (dmp.prot_id == PROT_NAT ? " (national)" : ""),
-                          msg_type_to_str());
+                          msg_type_to_str(pinfo->pool));
 
   return offset;
 }

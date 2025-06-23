@@ -378,7 +378,7 @@ static const value_string status_vals[] = {
 };
 
 static int parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
-static proto_tree *add_integer_tree(proto_tree *tree, tvbuff_t *tvb,
+static proto_tree *add_integer_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
                                         int offset, int name_length, const char *name, int value_length, uint8_t tag);
 static void add_integer_value(const char *tag_desc, proto_tree *tree,
                                         tvbuff_t *tvb, int offset, int name_length, const char *name, int value_length, uint8_t tag);
@@ -386,7 +386,7 @@ static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_
                                         int offset, int name_length, const char *name, int value_length, uint8_t tag);
 static proto_tree *add_octetstring_value(const char *tag_desc, proto_tree *tree,
                                         tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const char *name, int value_length, uint8_t tag);
-static proto_tree *add_charstring_tree(proto_tree *tree, tvbuff_t *tvb,
+static proto_tree *add_charstring_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
                                         int offset, uint8_t tag, int name_length, const char *name, int value_length);
 static void add_charstring_value(const char *tag_desc, proto_tree *tree,
                                         tvbuff_t *tvb, int offset, int name_length, const char *name, int value_length, uint8_t tag);
@@ -734,7 +734,7 @@ parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
                          * an additional value, so
                          * start a tree for it.
                          */
-                        attr_tree = add_integer_tree(as_tree, tvb, offset, name_length, name, value_length, tag);
+                        attr_tree = add_integer_tree(as_tree, pinfo, tvb, offset, name_length, name, value_length, tag);
                     }
                     add_integer_value(tag_desc, attr_tree, tvb, offset, name_length, name, value_length, tag);
                     break;
@@ -761,7 +761,7 @@ parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
                          * an additional value, so
                          * start a tree for it.
                          */
-                        attr_tree = add_charstring_tree(as_tree, tvb, offset, tag, name_length, name, value_length);
+                        attr_tree = add_charstring_tree(as_tree, pinfo, tvb, offset, tag, name_length, name, value_length);
                     }
                     add_charstring_value(tag_desc, attr_tree, tvb, offset, name_length, name, value_length, tag);
                     break;
@@ -786,7 +786,7 @@ parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
 }
 
 static proto_tree *
-add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
+add_integer_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset,
                  int name_length, const char *name, int value_length, uint8_t tag)
 {
     int count = 0;
@@ -797,10 +797,10 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
     switch (tag) {
         case TAG_BOOLEAN:
             if (value_length == 1) {
-                value = wmem_strdup(wmem_packet_scope(), tvb_get_uint8(tvb, offset + 1 + 2 + name_length + 2) ? "true" : "false");
+                value = wmem_strdup(pinfo->pool, tvb_get_uint8(tvb, offset + 1 + 2 + name_length + 2) ? "true" : "false");
             }
             else {
-                value = wmem_strdup(wmem_packet_scope(), "???");
+                value = wmem_strdup(pinfo->pool, "???");
             }
             valoffset += 1 + 2 + name_length + 2 + value_length;
             break;
@@ -825,19 +825,19 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                     uint32_t lower = tvb_get_ntohl(tvb, valoffset + 0);
                     uint32_t upper = tvb_get_ntohl(tvb, valoffset + 4);
 
-                    temp = wmem_strdup_printf(wmem_packet_scope(), "%d-%d", lower, upper);
+                    temp = wmem_strdup_printf(pinfo->pool, "%d-%d", lower, upper);
                 }
                 else if (value_length == 4) {
-                    temp = wmem_strdup_printf(wmem_packet_scope(), "%d", tvb_get_ntohl(tvb, valoffset + 0));
+                    temp = wmem_strdup_printf(pinfo->pool, "%d", tvb_get_ntohl(tvb, valoffset + 0));
                 }
                 else {
                     temp = "???";
                 }
 
                 if (value)
-                    value = wmem_strconcat(wmem_packet_scope(), value, ",", temp, NULL);
+                    value = wmem_strconcat(pinfo->pool, value, ",", temp, NULL);
                 else
-                    value = wmem_strdup(wmem_packet_scope(), temp);
+                    value = wmem_strdup(pinfo->pool, temp);
 
                 valoffset += value_length;
 
@@ -901,14 +901,14 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                         temp = val_to_str(tvb_get_ntohl(tvb, valoffset), transmission_status_vals, "unknown-%d");
                     }
                     else {
-                        temp = wmem_strdup_printf(wmem_packet_scope(), "%d", tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
+                        temp = wmem_strdup_printf(pinfo->pool, "%d", tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
                     }
                 }
 
                 if (value)
-                    value = wmem_strconcat(wmem_packet_scope(), value, ",", temp, NULL);
+                    value = wmem_strconcat(pinfo->pool, value, ",", temp, NULL);
                 else
-                    value = wmem_strdup(wmem_packet_scope(), temp);
+                    value = wmem_strdup(pinfo->pool, temp);
 
                 valoffset += value_length;
 
@@ -930,7 +930,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
             break;
 
         default:
-            value = wmem_strdup(wmem_packet_scope(), "???");
+            value = wmem_strdup(pinfo->pool, "???");
             break;
     }
 
@@ -1341,7 +1341,9 @@ add_octetstring_value(const char *tag_desc, proto_tree *tree, tvbuff_t *tvb, pac
                 if (tvb_offset_exists(tvb, valoffset + 2 + language_length)) {
                     int string_length = tvb_get_ntohs(tvb, valoffset + 2 + language_length);
                     if (tvb_offset_exists(tvb, valoffset + 2 + language_length + 2 + string_length)) {
-                        proto_tree_add_bytes_format(tree, tag == TAG_NAMEWITHLANGUAGE ? hf_ipp_namewithlanguage_value : hf_ipp_textwithlanguage_value, tvb, valoffset, value_length, NULL, "%s value: '%s'(%s)", tag_desc, tvb_format_text(pinfo->pool, tvb, valoffset + 1 + 2 + name_length + 2 + 2 + language_length + 2, string_length), tvb_format_text(wmem_packet_scope(), tvb, valoffset + 1 + 2 + name_length + 2 + 2, language_length));
+                        proto_tree_add_bytes_format(tree, tag == TAG_NAMEWITHLANGUAGE ? hf_ipp_namewithlanguage_value : hf_ipp_textwithlanguage_value, tvb, valoffset, value_length, NULL, "%s value: '%s'(%s)",
+                                tag_desc, tvb_format_text(pinfo->pool, tvb, valoffset + 1 + 2 + name_length + 2 + 2 + language_length + 2, string_length),
+                                tvb_format_text(pinfo->pool, tvb, valoffset + 1 + 2 + name_length + 2 + 2, language_length));
                         break;
                     }
                 }
@@ -1370,7 +1372,7 @@ add_octetstring_value(const char *tag_desc, proto_tree *tree, tvbuff_t *tvb, pac
 }
 
 static proto_tree *
-add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
+add_charstring_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset,
                     uint8_t tag, int name_length, const char *name, int value_length)
 {
     int count = 0, valoffset = offset;
@@ -1393,18 +1395,20 @@ add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
             if (tvb_offset_exists(tvb, valoffset + 2 + language_length)) {
                 string_length = tvb_get_ntohs(tvb, valoffset + 2 + language_length);
                 if (tvb_offset_exists(tvb, valoffset + 2 + language_length + 2 + string_length)) {
-                    temp = wmem_strdup_printf(wmem_packet_scope(), "'%s'(%s)", tvb_format_text(wmem_packet_scope(), tvb, valoffset + 1 + 2 + name_length + 2 + 2 + language_length + 2, string_length), tvb_format_text(wmem_packet_scope(), tvb, valoffset + 1 + 2 + name_length + 2 + 2, language_length));
+                    temp = wmem_strdup_printf(pinfo->pool, "'%s'(%s)",
+                        tvb_format_text(pinfo->pool, tvb, valoffset + 1 + 2 + name_length + 2 + 2 + language_length + 2, string_length),
+                        tvb_format_text(pinfo->pool, tvb, valoffset + 1 + 2 + name_length + 2 + 2, language_length));
                 }
             }
         }
         else {
-            temp = wmem_strdup_printf(wmem_packet_scope(), "'%s'", tvb_format_text(wmem_packet_scope(), tvb, valoffset + 1 + 2 + name_length + 2, value_length));
+            temp = wmem_strdup_printf(pinfo->pool, "'%s'", tvb_format_text(pinfo->pool, tvb, valoffset + 1 + 2 + name_length + 2, value_length));
         }
 
         if (value)
-            value = wmem_strconcat(wmem_packet_scope(), value, ",", temp, NULL);
+            value = wmem_strconcat(pinfo->pool, value, ",", temp, NULL);
         else
-            value = wmem_strdup(wmem_packet_scope(), temp);
+            value = wmem_strdup(pinfo->pool, temp);
 
        /*
         * Move to the next value...

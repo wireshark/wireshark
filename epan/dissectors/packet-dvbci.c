@@ -1770,7 +1770,7 @@ dvbci_init(void)
    return the number of bytes dissected */
 static int
 dissect_desc_loop(int len_hf,
-        tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+        tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     int offset_start;
     uint16_t desc_loop_len;
@@ -1782,7 +1782,7 @@ dissect_desc_loop(int len_hf,
     proto_tree_add_item(tree, len_hf, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     while (offset-offset_start < 2+desc_loop_len) {
-        desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
+        desc_len = proto_mpeg_descriptor_dissect(tvb, pinfo, offset, tree);
         if (desc_len==0)
             break;
         offset += desc_len;

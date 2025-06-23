@@ -479,7 +479,7 @@ sanitize_buffer(uint8_t *buf, int length, uint32_t str_encoding) {
 }
 
 static uint32_t
-dissector_dlt_verbose_variable_info(tvbuff_t *tvb, uint32_t offset, const unsigned encoding, uint8_t **name_string, uint8_t **unit_string) {
+dissector_dlt_verbose_variable_info(tvbuff_t *tvb, packet_info* pinfo, uint32_t offset, const unsigned encoding, uint8_t **name_string, uint8_t **unit_string) {
     uint16_t vari_name_length = tvb_get_uint16(tvb, offset, encoding);
     offset += 2;
 
@@ -487,12 +487,12 @@ dissector_dlt_verbose_variable_info(tvbuff_t *tvb, uint32_t offset, const unsign
     offset += 2;
 
     if (name_string != NULL) {
-        *name_string = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, vari_name_length, ENC_UTF_8);
+        *name_string = tvb_get_stringzpad(pinfo->pool, tvb, offset, vari_name_length, ENC_UTF_8);
     }
     offset += vari_name_length;
 
     if (unit_string != NULL) {
-        *unit_string = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, vari_unit_length, ENC_UTF_8);
+        *unit_string = tvb_get_stringzpad(pinfo->pool, tvb, offset, vari_unit_length, ENC_UTF_8);
     }
     offset += vari_unit_length;
 
@@ -504,7 +504,7 @@ dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
-        offset = dissector_dlt_verbose_variable_info(tvb, offset, encoding, &vari_name_string, &vari_unit_string);
+        offset = dissector_dlt_verbose_variable_info(tvb, pinfo, offset, encoding, &vari_name_string, &vari_unit_string);
     }
 
     if (length != 1 || tvb_captured_length_remaining(tvb, offset) < length) {
@@ -540,7 +540,7 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
-        offset = dissector_dlt_verbose_variable_info(tvb, offset, encoding, &vari_name_string, &vari_unit_string);
+        offset = dissector_dlt_verbose_variable_info(tvb, pinfo, offset, encoding, &vari_name_string, &vari_unit_string);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) < length) {
@@ -589,7 +589,7 @@ dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
-        offset = dissector_dlt_verbose_variable_info(tvb, offset, encoding, &vari_name_string, &vari_unit_string);
+        offset = dissector_dlt_verbose_variable_info(tvb, pinfo, offset, encoding, &vari_name_string, &vari_unit_string);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) < length) {
@@ -639,7 +639,7 @@ dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
-        offset = dissector_dlt_verbose_variable_info(tvb, offset, encoding, &vari_name_string, &vari_unit_string);
+        offset = dissector_dlt_verbose_variable_info(tvb, pinfo, offset, encoding, &vari_name_string, &vari_unit_string);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) < length) {
@@ -686,7 +686,7 @@ dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
-        offset = dissector_dlt_verbose_variable_info(tvb, offset, encoding, &vari_name_string, &vari_unit_string);
+        offset = dissector_dlt_verbose_variable_info(tvb, pinfo, offset, encoding, &vari_name_string, &vari_unit_string);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) < 2) {
@@ -733,7 +733,7 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
-        offset = dissector_dlt_verbose_variable_info(tvb, offset, encoding, &vari_name_string, &vari_unit_string);
+        offset = dissector_dlt_verbose_variable_info(tvb, pinfo, offset, encoding, &vari_name_string, &vari_unit_string);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) < 2) {

@@ -1443,7 +1443,7 @@ static bool is_mq_struc_TSH(uint32_t ID)
     }
 }
 
-static int dissect_mq_encoding(proto_tree* tree, int hfindex, tvbuff_t* tvb, const int start, int length, const unsigned encoding)
+static int dissect_mq_encoding(proto_tree* tree, packet_info* pinfo, int hfindex, tvbuff_t* tvb, const int start, int length, const unsigned encoding)
 {
     unsigned  uEnc;
 
@@ -1457,7 +1457,7 @@ static int dissect_mq_encoding(proto_tree* tree, int hfindex, tvbuff_t* tvb, con
     }
 
     proto_tree_add_uint_format_value(tree, hfindex, tvb, start, length, uEnc,
-        "%8x-%d (%s)", uEnc, uEnc, mqpcf_get_encoding(uEnc)->str);
+        "%8x-%d (%s)", uEnc, uEnc, mqpcf_get_encoding(pinfo->pool, uEnc)->str);
 
     return length;
 }
@@ -1584,7 +1584,7 @@ static int dissect_mq_MQCO(tvbuff_t* tvb, proto_tree* mq_tree, int offset, mq_pa
     }
     return 4;
 }
-static int dissect_mq_charv(tvbuff_t* tvb, proto_tree* tree, int offset, int iSize, int idx, const char* pStr, mq_parm_t* p_mq_parm)
+static int dissect_mq_charv(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, int iSize, int idx, const char* pStr, mq_parm_t* p_mq_parm)
 {
     proto_tree* mq_tree_sub;
     uint32_t    lStr;
@@ -1597,7 +1597,7 @@ static int dissect_mq_charv(tvbuff_t* tvb, proto_tree* tree, int offset, int iSi
     eStr = tvb_get_uint32(tvb, offset + 16, p_mq_parm->mq_int_enc);
     if (lStr && oStr)
     {
-        sStr = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, oStr, lStr, p_mq_parm->mq_str_enc);
+        sStr = (const char*)tvb_get_string_enc(pinfo->pool, tvb, oStr, lStr, p_mq_parm->mq_str_enc);
     }
     else
         sStr = NULL;
@@ -1950,9 +1950,9 @@ static int dissect_mq_od(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
                 }
                 if (iVersion >= 4)
                 {
-                    dissect_mq_charv(tvb, mq_tree, offset + 336, 20, ett_mq_od_objstr, "Object string", p_mq_parm);
-                    dissect_mq_charv(tvb, mq_tree, offset + 356, 20, ett_mq_od_selstr, "Selection string", p_mq_parm);
-                    dissect_mq_charv(tvb, mq_tree, offset + 376, 20, ett_mq_od_resobjstr, "Resolved object string", p_mq_parm);
+                    dissect_mq_charv(tvb, pinfo, mq_tree, offset + 336, 20, ett_mq_od_objstr, "Object string", p_mq_parm);
+                    dissect_mq_charv(tvb, pinfo, mq_tree, offset + 356, 20, ett_mq_od_selstr, "Selection string", p_mq_parm);
+                    dissect_mq_charv(tvb, pinfo, mq_tree, offset + 376, 20, ett_mq_od_resobjstr, "Resolved object string", p_mq_parm);
                     proto_tree_add_item(mq_tree, hf_mq_od_resolvobjtyp, tvb, offset + 396, 4, p_mq_parm->mq_int_enc);
                 }
             }
@@ -2150,7 +2150,7 @@ static int dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_t
     }
     return iPktSz;
 }
-static int dissect_mq_md(tvbuff_t* tvb, proto_tree* tree, int offset, mq_parm_t* p_mq_parm, bool bDecode)
+static int dissect_mq_md(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, mq_parm_t* p_mq_parm, bool bDecode)
 {
     int iSize = 0;
 
@@ -2184,7 +2184,7 @@ static int dissect_mq_md(tvbuff_t* tvb, proto_tree* tree, int offset, mq_parm_t*
                 proto_tree_add_item(mq_tree, hf_mq_md_msgtype, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_md_expiry, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_md_feedback, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
-                dissect_mq_encoding(mq_tree, hf_mq_md_encoding, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
+                dissect_mq_encoding(mq_tree, pinfo, hf_mq_md_encoding, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_md_ccsid, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_md_format, tvb, offset + 32, 8, p_mq_parm->mq_str_enc);
                 proto_tree_add_item(mq_tree, hf_mq_md_priority, tvb, offset + 40, 4, p_mq_parm->mq_int_enc);
@@ -2392,7 +2392,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
         proto_tree_add_bitmask(mq_tree, tvb, offset + iSizeMPF + 11, hf_mq_tsh_ctlflgs2, ett_mq_tsh_tcf2, pf_flds_tcf2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(mq_tree, hf_mq_tsh_luwid, tvb, offset + iSizeMPF + 12, 8, ENC_NA);
-        dissect_mq_encoding(mq_tree, hf_mq_tsh_encoding, tvb, offset + iSizeMPF + 20, 4, p_mq_parm->mq_int_enc);
+        dissect_mq_encoding(mq_tree, pinfo, hf_mq_tsh_encoding, tvb, offset + iSizeMPF + 20, 4, p_mq_parm->mq_int_enc);
         proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + iSizeMPF + 24, 2, p_mq_parm->mq_int_enc);
         proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + iSizeMPF + 26, 2, p_mq_parm->mq_int_enc);
     }
@@ -2855,7 +2855,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 proto_tree_add_item(mq_tree, hf_mq_msgreq_SelectIdx, tvb, offset + 40, 2, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_msgreq_MQMDVers, tvb, offset + 42, 2, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_msgreq_ccsid, tvb, offset + 44, 4, p_mq_parm->mq_int_enc);
-                dissect_mq_encoding(mq_tree, hf_mq_msgreq_encoding, tvb, offset + 48, 4, p_mq_parm->mq_int_enc);
+                dissect_mq_encoding(mq_tree, pinfo, hf_mq_msgreq_encoding, tvb, offset + 48, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_msgreq_MsgSeqNum, tvb, offset + 52, 4, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_msgreq_offset, tvb, offset + 56, 4, p_mq_parm->mq_int_enc);
                 dissect_mq_MQMO(tvb, mq_tree, offset + 60, ett_mq_gmo_matchoption, p_mq_parm);
@@ -3009,7 +3009,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             offset += 12;
             p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 
-            if ((iSizeSPIMD = dissect_mq_md(tvb, mqroot_tree, offset, p_mq_parm, true)) != 0)
+            if ((iSizeSPIMD = dissect_mq_md(tvb, pinfo, mqroot_tree, offset, p_mq_parm, true)) != 0)
             {
                 offset += iSizeSPIMD;
                 offset += dissect_mq_gmo(tvb, pinfo, mqroot_tree, offset, p_mq_parm);
@@ -3255,7 +3255,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 
     offset += dissect_mq_od(tvb, pinfo, mqroot_tree, offset, p_mq_parm, &iDistributionListSize);
 
-    if ((iSizeMD = dissect_mq_md(tvb, mqroot_tree, offset, p_mq_parm, true)) != 0)
+    if ((iSizeMD = dissect_mq_md(tvb, pinfo, mqroot_tree, offset, p_mq_parm, true)) != 0)
     {
         int iSizeGMO = 0;
         int iSizePMO = 0;
@@ -3318,7 +3318,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                     offset += iSizeXQH;
                     iHeadersLength += iSizeXQH;
 
-                    if ((iSizeMD2 = dissect_mq_md(tvb, mqroot_tree, offset, p_mq_parm, true)) != 0)
+                    if ((iSizeMD2 = dissect_mq_md(tvb, pinfo, mqroot_tree, offset, p_mq_parm, true)) != 0)
                     {
                         offset += iSizeMD2;
                         iHeadersLength += iSizeMD2;
@@ -3346,7 +3346,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                         proto_tree_add_item(mq_tree, hf_mq_dlh_reason, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
                         proto_tree_add_item(mq_tree, hf_mq_dlh_destq, tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
                         proto_tree_add_item(mq_tree, hf_mq_dlh_destqmgr, tvb, offset + 60, 48, p_mq_parm->mq_str_enc);
-                        dissect_mq_encoding(mq_tree, hf_mq_dlh_encoding, tvb, offset + 108, 4, p_mq_parm->mq_int_enc);
+                        dissect_mq_encoding(mq_tree, pinfo, hf_mq_dlh_encoding, tvb, offset + 108, 4, p_mq_parm->mq_int_enc);
                         proto_tree_add_item(mq_tree, hf_mq_dlh_ccsid, tvb, offset + 112, 4, p_mq_parm->mq_int_enc);
                         proto_tree_add_item(mq_tree, hf_mq_dlh_format, tvb, offset + 116, 8, p_mq_parm->mq_str_enc);
                         proto_tree_add_item(mq_tree, hf_mq_dlh_putappltype, tvb, offset + 124, 4, p_mq_parm->mq_int_enc);
@@ -3452,7 +3452,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                             proto_tree_add_item(mq_tree, hf_mq_head_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
                             proto_tree_add_item(mq_tree, hf_mq_head_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_head_length, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
-                            dissect_mq_encoding(mq_tree, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
+                            dissect_mq_encoding(mq_tree, pinfo, hf_mq_head_encoding, tvb, offset + 12, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_head_ccsid, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_head_format, tvb, offset + 20, 8, p_mq_parm->mq_str_enc);
 
@@ -3863,7 +3863,7 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                 mq_parm.mq_MsgActLen -= _iLen;
             }
 
-            _iLen = dissect_mq_md(tvb, NULL, iNxtP, &mq_parm, false);
+            _iLen = dissect_mq_md(tvb, pinfo, NULL, iNxtP, &mq_parm, false);
             iNxtP += _iLen;
             mq_parm.mq_MsgActLen -= _iLen;
 

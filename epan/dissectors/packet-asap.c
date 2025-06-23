@@ -208,17 +208,17 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree 
 /* Dissectors for parameters. This is common for ASAP and ENRP. */
 
 static void
-dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ipv4_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_parameter_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", tvb_ip_to_str(wmem_packet_scope(), parameter_tvb, IPV4_ADDRESS_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", tvb_ip_to_str(pinfo->pool, parameter_tvb, IPV4_ADDRESS_OFFSET));
 }
 
 static void
-dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ipv6_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_parameter_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, ENC_NA);
-  proto_item_append_text(parameter_item, " (%s)", tvb_ip6_to_str(wmem_packet_scope(), parameter_tvb, IPV6_ADDRESS_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", tvb_ip6_to_str(pinfo->pool, parameter_tvb, IPV6_ADDRESS_OFFSET));
 }
 
 static void
@@ -464,10 +464,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *asap_
   increment_dissection_depth(pinfo);
   switch(type) {
   case IPV4_ADDRESS_PARAMETER_TYPE:
-    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_ipv4_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case IPV6_ADDRESS_PARAMETER_TYPE:
-    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_ipv6_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case DCCP_TRANSPORT_PARAMETER_TYPE:
     dissect_dccp_transport_parameter(parameter_tvb, pinfo, parameter_tree);

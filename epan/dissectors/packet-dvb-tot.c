@@ -62,7 +62,7 @@ dissect_dvb_tot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(dvb_tot_tree, hf_dvb_tot_descriptors_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, dvb_tot_tree);
+    offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, descriptor_len, dvb_tot_tree);
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_tot_tree, 0, offset);
     proto_item_set_len(ti, offset);

@@ -479,7 +479,7 @@ dissect_float(proto_tree *tree, int hf, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_packAscii(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
+dissect_packAscii(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offset, int len)
 {
   uint16_t    usIdx;
   uint16_t    usGroupCnt;
@@ -491,11 +491,11 @@ dissect_packAscii(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
   uint8_t    *tmp;
   char       *str = NULL;
 
-  tmp = (uint8_t *)wmem_alloc0(wmem_packet_scope(), len);
+  tmp = (uint8_t *)wmem_alloc0(pinfo->pool, len);
   tvb_memcpy(tvb, tmp, offset, len);
 
   /* Maximum possible unpacked length = (len / 3) * 4 */
-  str = (char *)wmem_alloc(wmem_packet_scope(), ((len / 3) * 4)+1);
+  str = (char *)wmem_alloc(pinfo->pool, ((len / 3) * 4)+1);
 
   iIndex = 0;
   usMaxGroups = (uint16_t)(len / 3);
@@ -736,11 +736,11 @@ dissect_cmd9(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
 }
 
 static int
-dissect_cmd13(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
+dissect_cmd13(proto_tree *body_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int bodylen)
 {
   if (bodylen >= 21) {
-    offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_tag, tvb, offset, 6);
-    offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_packed_descriptor, tvb, offset, 12);
+    offset += dissect_packAscii(body_tree, pinfo, hf_hartip_pt_rsp_tag, tvb, offset, 6);
+    offset += dissect_packAscii(body_tree, pinfo, hf_hartip_pt_rsp_packed_descriptor, tvb, offset, 12);
     offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_day,                                 tvb, offset);
     offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_month,                               tvb, offset);
     /*offset += */dissect_byte(body_tree,      hf_hartip_pt_rsp_year,                                tvb, offset);
@@ -1090,7 +1090,7 @@ dissect_cmd31(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
 }
 
 static int
-dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, uint8_t cmd,
+dissect_parse_hart_cmds(proto_tree *body_tree, packet_info* pinfo, tvbuff_t *tvb, uint8_t cmd,
                         int offset, int bodylen, int flags)
 {
   switch(cmd)
@@ -1115,11 +1115,11 @@ dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, uint8_t cmd,
   case 12:
   case 17:
     if (bodylen >= 24)
-      return dissect_packAscii(body_tree, hf_hartip_pt_rsp_message, tvb, offset, 24);
+      return dissect_packAscii(body_tree, pinfo, hf_hartip_pt_rsp_message, tvb, offset, 24);
     break;
   case 13:
   case 18:
-    return dissect_cmd13(body_tree, tvb, offset, bodylen);
+    return dissect_cmd13(body_tree, pinfo, tvb, offset, bodylen);
   case 14:
     return dissect_cmd14(body_tree, tvb, offset, bodylen);
   case 15:
@@ -1155,7 +1155,7 @@ dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, uint8_t cmd,
 }
 
 static int
-dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, int offset,
+dissect_pass_through(proto_tree *body_tree, packet_info* pinfo, tvbuff_t *tvb, int offset,
                      int bodylen)
 {
   uint8_t     delimiter;
@@ -1269,7 +1269,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, int offset,
     if ( is_rsp ) {
       flags |= HARTIP_PT_IS_RSP;
     }
-    result = dissect_parse_hart_cmds(body_tree, tvb, cmd, offset, (length - 1), flags);
+    result = dissect_parse_hart_cmds(body_tree, pinfo, tvb, cmd, offset, (length - 1), flags);
     if (result == 0 ) {
       proto_tree_add_item(body_tree, hf_hartip_pt_payload, tvb, offset,
                           (length - 1), ENC_NA);
@@ -1403,7 +1403,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += dissect_keep_alive(body_tree, pinfo, tvb, offset, bodylen);
       break;
     case PASS_THROUGH_ID:
-      offset += dissect_pass_through(body_tree, tvb, offset, bodylen);
+      offset += dissect_pass_through(body_tree, pinfo, tvb, offset, bodylen);
       break;
     default:
       proto_tree_add_item(body_tree, hf_hartip_data, tvb, offset, bodylen, ENC_NA);

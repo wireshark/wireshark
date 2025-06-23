@@ -239,16 +239,16 @@ static int ett_deliver_report;
 /* Helper functions */
 
 static const uint8_t*
-cmpp_octet_string(proto_tree *tree, tvbuff_t *tvb, int field, int offset, int length)
+cmpp_octet_string(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, int offset, int length)
 {
 	const uint8_t *display;
 
-	proto_tree_add_item_ret_string(tree, field, tvb, offset, length, ENC_ASCII, wmem_packet_scope(), &display);
+	proto_tree_add_item_ret_string(tree, field, tvb, offset, length, ENC_ASCII, pinfo->pool, &display);
 	return display;
 }
 
 static char*
-cmpp_version(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
+cmpp_version(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, int offset)
 {
 	int8_t version, major, minor;
 	char  *strval;
@@ -256,14 +256,14 @@ cmpp_version(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 	version = tvb_get_uint8(tvb, offset);
 	minor   = version & 0x0F;
 	major   = (version & 0xF0) >> 4;
-	strval  = wmem_strdup_printf(wmem_packet_scope(), "%02u.%02u", major, minor);
+	strval  = wmem_strdup_printf(pinfo->pool, "%02u.%02u", major, minor);
 	/* TODO: the version should be added as a uint_format */
 	proto_tree_add_string(tree, field, tvb, offset, 1, strval);
 	return strval;
 }
 
 static char*
-cmpp_timestamp(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
+cmpp_timestamp(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, int offset)
 {
 	int8_t  month, day, hour, minute, second;
 	int32_t timevalue;
@@ -278,7 +278,7 @@ cmpp_timestamp(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 	timevalue /= 100;
 	day = timevalue % 100;
 	month = timevalue / 100;
-	strval = wmem_strdup_printf(wmem_packet_scope(), "%02u/%02u %02u:%02u:%02u", month, day,
+	strval = wmem_strdup_printf(pinfo->pool, "%02u/%02u %02u:%02u:%02u", month, day,
 		hour, minute, second);
 	proto_tree_add_string(tree, field, tvb, offset, 4, strval);
 	return strval;
@@ -326,7 +326,7 @@ cmpp_boolean(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 }
 
 static void
-cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
+cmpp_msg_id(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, int offset)
 {
 	uint8_t     month,day,hour,minute,second;
 	uint32_t    ismg_code;
@@ -342,7 +342,7 @@ cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 	hour = (tvb_get_uint8(tvb, offset + 1) & 0x7C) >> 2;
 	minute = (tvb_get_ntohs(tvb, offset + 1) & 0x03F0) >> 4;
 	second = (tvb_get_ntohs(tvb, offset + 2) & 0x0FC0) >> 6;
-	strval = wmem_strdup_printf(wmem_packet_scope(), "%02u/%02u %02u:%02u:%02u", month, day,
+	strval = wmem_strdup_printf(pinfo->pool, "%02u/%02u %02u:%02u:%02u", month, day,
 		hour, minute, second);
 
 	ismg_code = (tvb_get_ntohl(tvb, offset + 3) & 0x3FFFFF00) >> 16;
@@ -353,22 +353,22 @@ cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 }
 
 static void
-cmpp_connect(proto_tree *tree, tvbuff_t *tvb)
+cmpp_connect(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {
 	int offset;
 	offset = CMPP_FIX_HEADER_LENGTH;
-	cmpp_octet_string(tree, tvb, hf_cmpp_connect_Source_Addr, offset, 6);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_connect_Source_Addr, offset, 6);
 	offset += 6;
 	proto_tree_add_string(tree, hf_cmpp_connect_AuthenticatorSource, tvb, offset, 16, "MD5 Hash");
 	offset += 16;
-	cmpp_version(tree, tvb, hf_cmpp_Version, offset);
+	cmpp_version(tree, pinfo, tvb, hf_cmpp_Version, offset);
 	offset += 1;
-	cmpp_timestamp(tree, tvb, hf_cmpp_connect_Timestamp, offset);
+	cmpp_timestamp(tree, pinfo, tvb, hf_cmpp_connect_Timestamp, offset);
 }
 
 
 static void
-cmpp_connect_resp(proto_tree *tree, tvbuff_t *tvb)
+cmpp_connect_resp(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {
 	int offset;
 	offset = CMPP_FIX_HEADER_LENGTH;
@@ -376,16 +376,16 @@ cmpp_connect_resp(proto_tree *tree, tvbuff_t *tvb)
 	offset += 4;
 	proto_tree_add_string(tree, hf_cmpp_connect_resp_AuthenticatorISMG, tvb, offset, 16, "MD5 Hash");
 	offset += 16;
-	cmpp_version(tree, tvb, hf_cmpp_Version, offset);
+	cmpp_version(tree, pinfo, tvb, hf_cmpp_Version, offset);
 }
 
 static void
-cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
+cmpp_submit(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {
 	int    offset, i;
 	uint8_t destUsr, msgLen;
 	offset = CMPP_FIX_HEADER_LENGTH;
-	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
+	cmpp_msg_id(tree, pinfo, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
 	cmpp_uint1(tree, tvb, hf_cmpp_submit_pk_total, offset);
 	offset++;
@@ -395,11 +395,11 @@ cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 	offset++;
 	cmpp_uint1(tree, tvb, hf_cmpp_submit_Msg_level, offset);
 	offset++;
-	cmpp_octet_string(tree, tvb, hf_cmpp_Service_Id, offset, 10);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_Service_Id, offset, 10);
 	offset += 10;
 	cmpp_uint1(tree, tvb, hf_cmpp_submit_Fee_UserType, offset);
 	offset++;
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_Fee_terminal_Id, offset, 32);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_Fee_terminal_Id, offset, 32);
 	offset+=32;
 	cmpp_boolean(tree, tvb, hf_cmpp_submit_Fee_terminal_type, offset);
 	offset++;
@@ -409,20 +409,20 @@ cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 	offset++;
 	cmpp_uint1(tree, tvb, hf_cmpp_Msg_Fmt, offset);
 	offset++;
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_Msg_src, offset, 6);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_Msg_src, offset, 6);
 	offset += 6;
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_FeeType, offset, 2);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_FeeType, offset, 2);
 	offset += 2;
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_FeeCode, offset, 6);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_FeeCode, offset, 6);
 	offset += 6;
 
 	/* TODO create function to handle SMPP time format */
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_Valld_Time, offset, 17);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_Valld_Time, offset, 17);
 	offset += 17;
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_At_Time, offset, 17);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_At_Time, offset, 17);
 	offset += 17;
 
-	cmpp_octet_string(tree, tvb, hf_cmpp_submit_Src_Id, offset, 17);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_submit_Src_Id, offset, 17);
 	offset += 21;
 	destUsr = cmpp_uint1(tree, tvb, hf_cmpp_submit_DestUsr_tl, offset);
 	offset++;
@@ -430,7 +430,7 @@ cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 	/* Loop through each destination address */
 	for(i = 0; i < destUsr; i++)
 	{
-		cmpp_octet_string(tree, tvb, hf_cmpp_Dest_terminal_Id, offset, 32);
+		cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_Dest_terminal_Id, offset, 32);
 		offset += 32;
 	}
 
@@ -440,51 +440,51 @@ cmpp_submit(proto_tree *tree, tvbuff_t *tvb)
 	offset++;
 	proto_tree_add_string(tree, hf_cmpp_Msg_Content, tvb, offset, msgLen, "SMS Messages");
 	offset += msgLen;
-	cmpp_octet_string(tree, tvb, hf_cmpp_LinkID, offset, 20);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_LinkID, offset, 20);
 }
 
 static void
-cmpp_submit_resp(proto_tree *tree, tvbuff_t *tvb)
+cmpp_submit_resp(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {
 	int offset;
 	offset = CMPP_FIX_HEADER_LENGTH;
-	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
+	cmpp_msg_id(tree, pinfo, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
 	cmpp_uint4(tree, tvb, hf_cmpp_submit_resp_Result, offset);
 }
 
 static void
-cmpp_deliver_report(proto_tree *tree, tvbuff_t *tvb, int   field, unsigned offset)
+cmpp_deliver_report(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, unsigned offset)
 {
 	proto_item *pi;
 	proto_tree *sub_tree;
 
 	pi = proto_tree_add_item(tree, field, tvb, offset, CMPP_DELIVER_REPORT_LEN, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(pi, ett_deliver_report);
-	cmpp_msg_id(sub_tree, tvb, hf_cmpp_msg_id, offset);
+	cmpp_msg_id(sub_tree, pinfo, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
-	cmpp_octet_string(sub_tree, tvb, hf_cmpp_deliver_Report_Stat, offset, 7);
+	cmpp_octet_string(sub_tree, pinfo, tvb, hf_cmpp_deliver_Report_Stat, offset, 7);
 	offset += 7;
-	cmpp_octet_string(sub_tree, tvb, hf_cmpp_deliver_Report_Submit_time, offset, 10);
+	cmpp_octet_string(sub_tree, pinfo, tvb, hf_cmpp_deliver_Report_Submit_time, offset, 10);
 	offset += 10;
-	cmpp_octet_string(sub_tree, tvb, hf_cmpp_deliver_Report_Done_time, offset, 10);
+	cmpp_octet_string(sub_tree, pinfo, tvb, hf_cmpp_deliver_Report_Done_time, offset, 10);
 	offset += 10;
-	cmpp_octet_string(sub_tree, tvb, hf_cmpp_Dest_terminal_Id, offset, 32);
+	cmpp_octet_string(sub_tree, pinfo, tvb, hf_cmpp_Dest_terminal_Id, offset, 32);
 	offset += 32;
 	cmpp_uint4(sub_tree, tvb, hf_cmpp_deliver_Report_SMSC_sequence, offset);
 }
 
 static void
-cmpp_deliver(proto_tree *tree, tvbuff_t *tvb)
+cmpp_deliver(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {
 	unsigned offset, msgLen;
 	bool report;
 	offset = CMPP_FIX_HEADER_LENGTH;
-	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
+	cmpp_msg_id(tree, pinfo, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
-	cmpp_octet_string(tree, tvb, hf_cmpp_deliver_Dest_Id, offset, 21);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_deliver_Dest_Id, offset, 21);
 	offset += 21;
-	cmpp_octet_string(tree, tvb, hf_cmpp_Service_Id, offset, 10);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_Service_Id, offset, 10);
 	offset += 10;
 	cmpp_uint1(tree, tvb, hf_cmpp_TP_pId, offset);
 	offset++;
@@ -492,7 +492,7 @@ cmpp_deliver(proto_tree *tree, tvbuff_t *tvb)
 	offset++;
 	cmpp_uint1(tree, tvb, hf_cmpp_Msg_Fmt, offset);
 	offset++;
-	cmpp_octet_string(tree, tvb, hf_cmpp_deliver_Src_terminal_Id, offset, 32);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_deliver_Src_terminal_Id, offset, 32);
 	offset += 32;
 	cmpp_boolean(tree, tvb, hf_cmpp_deliver_Src_terminal_type, offset);
 	offset++;
@@ -503,17 +503,17 @@ cmpp_deliver(proto_tree *tree, tvbuff_t *tvb)
 	if (report == false)
 		proto_tree_add_string(tree, hf_cmpp_Msg_Content, tvb, offset, msgLen, "SMS Messages");
 	else
-		cmpp_deliver_report(tree, tvb, hf_cmpp_deliver_Report, offset);
+		cmpp_deliver_report(tree, pinfo, tvb, hf_cmpp_deliver_Report, offset);
 	offset += msgLen;
-	cmpp_octet_string(tree, tvb, hf_cmpp_LinkID, offset, 20);
+	cmpp_octet_string(tree, pinfo, tvb, hf_cmpp_LinkID, offset, 20);
 }
 
 static void
-cmpp_deliver_resp(proto_tree *tree, tvbuff_t *tvb)
+cmpp_deliver_resp(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb)
 {
 	int offset;
 	offset = CMPP_FIX_HEADER_LENGTH;
-	cmpp_msg_id(tree, tvb, hf_cmpp_msg_id, offset);
+	cmpp_msg_id(tree, pinfo, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
 	/* TODO implement the result field here */
 	cmpp_uint4(tree, tvb, hf_cmpp_deliver_resp_Result, offset);
@@ -576,26 +576,26 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		switch(command_id)
 		{
 			case CMPP_CONNECT:
-				cmpp_connect(cmpp_tree, tvb);
+				cmpp_connect(cmpp_tree, pinfo, tvb);
 				break;
 			case CMPP_CONNECT_RESP:
-				cmpp_connect_resp(cmpp_tree, tvb);
+				cmpp_connect_resp(cmpp_tree, pinfo, tvb);
 				break;
 			/* CMPP_TERMINATE and CMPP_TERMINATE_RESP don't have msg body */
 			case CMPP_TERMINATE:
 			case CMPP_TERMINATE_RESP:
 				break;
 			case CMPP_SUBMIT:
-				cmpp_submit(cmpp_tree, tvb);
+				cmpp_submit(cmpp_tree, pinfo, tvb);
 				break;
 			case CMPP_SUBMIT_RESP:
-				cmpp_submit_resp(cmpp_tree, tvb);
+				cmpp_submit_resp(cmpp_tree, pinfo, tvb);
 				break;
 			case CMPP_DELIVER:
-				cmpp_deliver(cmpp_tree, tvb);
+				cmpp_deliver(cmpp_tree, pinfo, tvb);
 				break;
 			case CMPP_DELIVER_RESP:
-				cmpp_deliver_resp(cmpp_tree, tvb);
+				cmpp_deliver_resp(cmpp_tree, pinfo, tvb);
 				break;
 			default:
 				/* Implement the rest of the protocol here */

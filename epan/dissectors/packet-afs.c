@@ -542,10 +542,10 @@ static void OUT_RXString(ptvcursor_t *cursor, int field)
 }
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
-static void OUT_RXStringV(ptvcursor_t *cursor, int field, uint32_t length)
+static void OUT_RXStringV(ptvcursor_t *cursor, packet_info* pinfo, int field, uint32_t length)
 {
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
-	wmem_strbuf_t *strbuf = wmem_strbuf_new_sized(wmem_packet_scope(), length+1);
+	wmem_strbuf_t *strbuf = wmem_strbuf_new_sized(pinfo->pool, length+1);
 	int offset = ptvcursor_current_offset(cursor),
 		start_offset = offset;
 	uint32_t idx;
@@ -1467,10 +1467,10 @@ afs_hash (const void *v)
  *
  * Should this just scan the string itself, rather than using "sscanf()"?
  */
-#define GETSTR (tvb_format_text(wmem_packet_scope(),tvb,ptvcursor_current_offset(cursor),tvb_captured_length_remaining(tvb,ptvcursor_current_offset(cursor))))
+#define GETSTR (tvb_format_text(pinfo->pool,tvb,ptvcursor_current_offset(cursor),tvb_captured_length_remaining(tvb,ptvcursor_current_offset(cursor))))
 
 static void
-dissect_acl(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_)
+dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 {
 	int old_offset = ptvcursor_current_offset(cursor), offset;
 	int32_t bytes;
@@ -1527,7 +1527,7 @@ dissect_acl(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_)
  */
 
 static void
-dissect_fs_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_fs_reply(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -1540,7 +1540,7 @@ dissect_fs_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 				ptvcursor_add(cursor, hf_afs_fs_data, -1, ENC_NA);
 				break;
 			case 131: /* fetch acl */
-				dissect_acl(cursor, rxinfo);
+				dissect_acl(cursor, pinfo, rxinfo);
 				OUT_FS_AFSFetchStatus(cursor, "Status");
 				OUT_FS_AFSVolSync(cursor);
 				break;
@@ -1645,7 +1645,7 @@ dissect_fs_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_fs_request(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_fs_request(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -1672,7 +1672,7 @@ dissect_fs_request(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 			break;
 		case 134: /* Store ACL */
 			OUT_FS_AFSFid(cursor, "Target");
-			dissect_acl(cursor, rxinfo);
+			dissect_acl(cursor, pinfo, rxinfo);
 			break;
 		case 135: /* Store Status */
 			OUT_FS_AFSFid(cursor, "Target");
@@ -1752,7 +1752,7 @@ dissect_fs_request(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 		case 152: /* check token */
 			ptvcursor_add(cursor, hf_afs_fs_viceid, 4, ENC_BIG_ENDIAN);
 			/* Output an AFS Token - might just be bytes though */
-			OUT_RXStringV(cursor, hf_afs_fs_token, 1024);
+			OUT_RXStringV(cursor, pinfo, hf_afs_fs_token, 1024);
 			break;
 		case 153: /* get time */
 			/* no params */
@@ -1827,7 +1827,7 @@ dissect_fs_request(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
  * BOS Helpers
  */
 static void
-dissect_bos_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_bos_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -1957,7 +1957,7 @@ dissect_bos_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_bos_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_bos_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2087,7 +2087,7 @@ dissect_bos_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * VOL Helpers
  */
 static void
-dissect_vol_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_vol_reply(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -2096,7 +2096,7 @@ dissect_vol_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 			case 121:
 				/* should loop here maybe */
 				ptvcursor_add(cursor, hf_afs_vol_count, 4, ENC_BIG_ENDIAN);
-				OUT_RXStringV(cursor, hf_afs_vol_name, 32); /* not sure on  */
+				OUT_RXStringV(cursor, pinfo, hf_afs_vol_name, 32); /* not sure on  */
 				break;
 		}
 	}
@@ -2107,7 +2107,7 @@ dissect_vol_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_vol_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_vol_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2124,7 +2124,7 @@ dissect_vol_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * KAUTH Helpers
  */
 static void
-dissect_kauth_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_kauth_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -2139,7 +2139,7 @@ dissect_kauth_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_kauth_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_kauth_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2178,7 +2178,7 @@ dissect_kauth_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode
  * CB Helpers
  */
 static void
-dissect_cb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_cb_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -2196,7 +2196,7 @@ dissect_cb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_cb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_cb_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2213,7 +2213,7 @@ dissect_cb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * PROT Helpers
  */
 static void
-dissect_prot_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_prot_reply(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
@@ -2241,7 +2241,7 @@ dissect_prot_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 
 					for (i=0; i<size; i++)
 					{
-						OUT_RXStringV(cursor, hf_afs_prot_name, PRNAMEMAX);
+						OUT_RXStringV(cursor, pinfo, hf_afs_prot_name, PRNAMEMAX);
 					}
 				}
 				break;
@@ -2275,7 +2275,7 @@ dissect_prot_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_prot_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_prot_request(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2312,7 +2312,7 @@ dissect_prot_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 				ptvcursor_add(cursor, hf_afs_prot_count, 4, ENC_BIG_ENDIAN);
 				for (i=0; i<size; i++)
 				{
-					OUT_RXStringV(cursor, hf_afs_prot_name,PRNAMEMAX);
+					OUT_RXStringV(cursor, pinfo, hf_afs_prot_name, PRNAMEMAX);
 				}
 			}
 			break;
@@ -2355,7 +2355,7 @@ dissect_prot_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * VLDB Helpers
  */
 static void
-dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
+dissect_vldb_reply(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo, int opcode)
 {
 	static int * const vldb_flags[] = {
 		&hf_afs_vldb_flags_rwexists,
@@ -2378,7 +2378,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 				{
 					int nservers,i;
 					unsigned int j;
-					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+					OUT_RXStringV(cursor, pinfo, hf_afs_vldb_name, VLNAMEMAX);
 					ptvcursor_advance(cursor, 4);
 					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
@@ -2395,7 +2395,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 					}
 					for (i=0; i<8; i++)
 					{
-						char *part = wmem_strdup(wmem_packet_scope(), "/vicepa");
+						char *part = wmem_strdup(pinfo->pool, "/vicepa");
 						j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 						if ( i<nservers && j<=25 )
 						{
@@ -2428,7 +2428,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 				{
 					int nservers,i;
 					unsigned int j;
-					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+					OUT_RXStringV(cursor, pinfo, hf_afs_vldb_name, VLNAMEMAX);
 					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
 					for (i=0; i<13; i++)
@@ -2444,7 +2444,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 					}
 					for (i=0; i<13; i++)
 					{
-						char *part = wmem_strdup(wmem_packet_scope(), "/vicepa");
+						char *part = wmem_strdup(pinfo->pool, "/vicepa");
 						j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 						if ( i<nservers && j<=25 )
 						{
@@ -2465,7 +2465,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 				{
 					int nservers,i;
 					unsigned int j;
-					OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+					OUT_RXStringV(cursor, pinfo, hf_afs_vldb_name, VLNAMEMAX);
 					nservers = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 					ptvcursor_add(cursor, hf_afs_vldb_numservers, 4, ENC_BIG_ENDIAN);
 					for (i=0; i<13; i++)
@@ -2492,7 +2492,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 					}
 					for (i=0; i<13; i++)
 					{
-						char *part = wmem_strdup(wmem_packet_scope(), "/vicepa");
+						char *part = wmem_strdup(pinfo->pool, "/vicepa");
 						j = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 						if ( i<nservers && j<=25 )
 						{
@@ -2538,7 +2538,7 @@ dissect_vldb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 }
 
 static void
-dissect_vldb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_vldb_request(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2546,7 +2546,7 @@ dissect_vldb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 	{
 		case 501: /* create new volume */
 		case 517: /* create entry N */
-			OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+			OUT_RXStringV(cursor, pinfo, hf_afs_vldb_name, VLNAMEMAX);
 			break;
 		case 502: /* delete entry */
 		case 503: /* get entry by id */
@@ -2570,7 +2570,7 @@ dissect_vldb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 		case 520: /* replace entry N */
 			ptvcursor_add(cursor, hf_afs_vldb_id, 4, ENC_BIG_ENDIAN);
 			ptvcursor_add(cursor, hf_afs_vldb_type, 4, ENC_BIG_ENDIAN);
-			OUT_RXStringV(cursor, hf_afs_vldb_name, VLNAMEMAX);
+			OUT_RXStringV(cursor, pinfo, hf_afs_vldb_name, VLNAMEMAX);
 			break;
 		case 510: /* list entry */
 		case 521: /* list entry N */
@@ -2588,7 +2588,7 @@ dissect_vldb_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * UBIK Helpers
  */
 static void
-dissect_ubik_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_ubik_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode)
 {
 	switch ( opcode )
 	{
@@ -2634,7 +2634,7 @@ dissect_ubik_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
 }
 
 static void
-dissect_ubik_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_ubik_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 
@@ -2713,7 +2713,7 @@ dissect_ubik_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
  * BACKUP Helpers
  */
 static void
-dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
+dissect_backup_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo, int opcode _U_)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
 	{
@@ -2722,14 +2722,14 @@ dissect_backup_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 }
 
 static void
-dissect_backup_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
+dissect_backup_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 }
 
 
 static void
-dissect_butc_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
+dissect_butc_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo, int opcode _U_)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_ABORT )
 	{
@@ -2738,7 +2738,7 @@ dissect_butc_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode _U_)
 }
 
 static void
-dissect_butc_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode _U_)
+dissect_butc_request(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxinfo _U_, int opcode _U_)
 {
 	ptvcursor_advance(cursor, 4); /* skip the opcode */
 }
@@ -2764,7 +2764,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	int reassembled = 0;
 	ptvcursor_t *cursor;
 
-	void (*dissector)(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode);
+	void (*dissector)(ptvcursor_t *cursor, packet_info * pinfo, struct rxinfo *rxinfo, int opcode);
 
 	/* Reject the packet if data is NULL */
 	if (data == NULL)
@@ -3024,7 +3024,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			/* Only for first packet in an rx data stream or the full reassembled stream */
 			if ( dissector && ( rxinfo->seq == 1 || reassembled ) ) {
 				cursor = ptvcursor_new(pinfo->pool, afs_op_tree, tvb, offset);
-				(*dissector)(cursor, rxinfo, opcode);
+				(*dissector)(cursor, pinfo, rxinfo, opcode);
 			}
 		}
 	}

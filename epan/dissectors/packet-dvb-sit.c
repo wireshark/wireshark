@@ -102,7 +102,7 @@ dissect_dvb_sit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(dvb_sit_tree, hf_dvb_sit_transmission_info_len,  tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, dvb_sit_tree);
+    offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, descriptor_len, dvb_sit_tree);
 
     if (offset >= length)
         return offset;
@@ -123,7 +123,7 @@ dissect_dvb_sit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         descriptor_len = tvb_get_ntohs(tvb, offset) & DVB_SIT_SERVICE_DESCRIPTORS_LENGTH_MASK;
         offset += 2;
 
-        offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, dvb_sit_service_tree);
+        offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, descriptor_len, dvb_sit_service_tree);
     }
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_sit_tree, 0, offset);

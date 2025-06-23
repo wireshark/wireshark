@@ -286,7 +286,6 @@ static bool global_mgcp_message_count;
 /* Some basic utility functions that are specific to this dissector */
 static bool is_mgcp_verb(tvbuff_t *tvb, int offset, int maxlength, const char **verb_name);
 static bool is_mgcp_rspcode(tvbuff_t *tvb, int offset, int maxlength);
-static int tvb_parse_param(tvbuff_t *tvb, int offset, int maxlength, int** hf, mgcp_info_t* mi);
 
 /*
  * The various functions that either dissect some
@@ -296,17 +295,17 @@ static int tvb_parse_param(tvbuff_t *tvb, int offset, int maxlength, int** hf, m
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 proto_tree *mgcp_tree, proto_tree *ti);
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mgcp_info_t* mi);
-static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi);
-static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb,
+static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, mgcp_info_t* mi);
+static void dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
 					  int offset, int param_type_len,
 					  int param_val_len);
-static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb,
+static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
 						int offset, int param_type_len,
 						int param_val_len);
-static void dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb,
+static void dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
 						int offset, int param_type_len,
 						int param_val_len);
-static void dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb,
+static void dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
 						int offset, int param_type_len,
 						int param_val_len);
 
@@ -620,7 +619,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			if (sectionlen > 0)
 			{
 				dissect_mgcp_params(tvb_new_subset_length_caplen(tvb, tvb_sectionbegin, sectionlen, sectionlen),
-				                                   mgcp_tree, mi);
+				                                   pinfo, mgcp_tree, mi);
 			}
 		}
 
@@ -787,7 +786,7 @@ static bool is_mgcp_rspcode(tvbuff_t *tvb, int offset, int maxlength)
  * Returns: The offset in tvb where the value of the MGCP parameter
  *          begins.
  */
-static int tvb_parse_param(tvbuff_t* tvb, int offset, int len, int** hf, mgcp_info_t* mi)
+static int tvb_parse_param(tvbuff_t* tvb, packet_info* pinfo, int offset, int len, int** hf, mgcp_info_t* mi)
 {
 	int returnvalue = -1, tvb_current_offset, ext_off;
 	uint8_t tempchar, plus_minus;
@@ -902,7 +901,7 @@ static int tvb_parse_param(tvbuff_t* tvb, int offset, int len, int** hf, mgcp_in
 					if (tempchar == ':')
 					{
 						/* Looks like a valid vendor param name */
-						ws_debug("MGCP Extension: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, ext_off, ENC_ASCII));
+						ws_debug("MGCP Extension: %s", tvb_get_string_enc(pinfo->pool, tvb, tvb_current_offset, ext_off, ENC_ASCII));
 						switch (plus_minus)
 						{
 							case '+':
@@ -1094,7 +1093,7 @@ static int tvb_parse_param(tvbuff_t* tvb, int offset, int len, int** hf, mgcp_in
 
 			/* set the observedEvents or signalReq used in Voip Calls analysis */
 			if (buf != NULL) {
-				*buf = tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_current_offset, (len - tvb_current_offset + offset), ENC_ASCII);
+				*buf = tvb_get_string_enc(pinfo->pool, tvb, tvb_current_offset, (len - tvb_current_offset + offset), ENC_ASCII);
 			}
 		}
 	}
@@ -1519,7 +1518,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * tree - The tree from which to hang the structured information parsed
  *        from the parameters of the MGCP message.
  */
-static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi)
+static void dissect_mgcp_params(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, mgcp_info_t* mi)
 {
 	int linelen, tokenlen, *my_param;
 	int tvb_lineend, tvb_linebegin, tvb_len, old_lineend;
@@ -1540,27 +1539,27 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi
 	{
 		old_lineend = tvb_lineend;
 		linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, false);
-		tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, &my_param, mi);
+		tvb_tokenbegin = tvb_parse_param(tvb, pinfo, tvb_linebegin, linelen, &my_param, mi);
 
 		if (my_param)
 		{
 			tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, false);
 			if (*my_param == hf_mgcp_param_connectionparam) {
-				dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin,
+				dissect_mgcp_connectionparams(mgcp_param_tree, pinfo, tvb, tvb_linebegin,
 							      tvb_tokenbegin - tvb_linebegin, tokenlen);
 			} else if (*my_param == hf_mgcp_param_localconnoptions) {
-				dissect_mgcp_localconnectionoptions(mgcp_param_tree, tvb, tvb_linebegin,
+				dissect_mgcp_localconnectionoptions(mgcp_param_tree, pinfo, tvb, tvb_linebegin,
 								    tvb_tokenbegin - tvb_linebegin, tokenlen);
 			} else if (*my_param == hf_mgcp_param_localvoicemetrics) {
-				dissect_mgcp_localvoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
+				dissect_mgcp_localvoicemetrics(mgcp_param_tree, pinfo, tvb, tvb_linebegin,
 							       tvb_tokenbegin - tvb_linebegin, tokenlen);
 			} else if (*my_param == hf_mgcp_param_remotevoicemetrics) {
-				dissect_mgcp_remotevoicemetrics(mgcp_param_tree, tvb, tvb_linebegin,
+				dissect_mgcp_remotevoicemetrics(mgcp_param_tree, pinfo, tvb, tvb_linebegin,
 								tvb_tokenbegin - tvb_linebegin, tokenlen);
 			} else if (*my_param == hf_mgcp_param_x_osmux) {
 					proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
 							      tvb_linebegin, linelen,
-							      tvb_format_text(wmem_packet_scope(),
+							      tvb_format_text(pinfo->pool,
 									      tvb, tvb_tokenbegin, tokenlen));
 					/* Mark that Osmux is used, so that packet-sdp.c doesn't call
 					 * srtp_add_address() and decodes it as RTP. */
@@ -1568,7 +1567,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi
 			} else {
 				proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
 						      tvb_linebegin, linelen,
-						      tvb_format_text(wmem_packet_scope(),
+						      tvb_format_text(pinfo->pool,
 								      tvb, tvb_tokenbegin, tokenlen));
 			}
 		}
@@ -1585,7 +1584,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree, mgcp_info_t* mi
 
 /* Dissect the connection params */
 static void
-dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -1599,10 +1598,10 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
-	tokenline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, param_val_len, ENC_ASCII);
+	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma */
-	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
+	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
 
 	for (i = 0; tokens[i] != NULL; i++)
 	{
@@ -1612,7 +1611,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 		int hf_string = 0;
 
 		tokenlen = (int)strlen(tokens[i]);
-		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
+		typval = wmem_strsplit(pinfo->pool, tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PS"))
@@ -1687,7 +1686,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 
 /* Dissect the local connection option */
 static void
-dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -1701,10 +1700,10 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, int 
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
-	tokenline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, param_val_len, ENC_ASCII);
+	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma */
-	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
+	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		char **typval;
@@ -1716,7 +1715,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, int 
 		hf_string = -1;
 
 		tokenlen = (int)strlen(tokens[i]);
-		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], ":", 2);
+		typval = wmem_strsplit(pinfo->pool, tokens[i], ":", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "p"))
@@ -1844,7 +1843,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, int 
 
 /* Dissect the Local Voice Metrics option */
 static void
-dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
 {
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
@@ -1864,15 +1863,15 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, int offse
 
 	/* The XRM/LVM: line */
 	offset += 9; /* skip the XRM/LVM: */
-	tokenline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, param_val_len - 9, ENC_ASCII);
+	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma and WSP */
-	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
+	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 
 		tokenlen = (int)strlen(tokens[i]);
-		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
+		typval = wmem_strsplit(pinfo->pool, tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NLR"))
@@ -1995,7 +1994,7 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, int offse
 
 /* Dissect the Remote Voice Metrics option */
 static void
-dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
+dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int param_type_len, int param_val_len)
 {
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
@@ -2015,14 +2014,14 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, int offs
 
 	/* The XRM/RVM: line */
 	offset += 9; /* skip the XRM/RVM: */
-	tokenline = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, param_val_len - 9, ENC_ASCII);
+	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma and WSP */
-	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
+	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		tokenlen = (int)strlen(tokens[i]);
-		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
+		typval = wmem_strsplit(pinfo->pool, tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "NLR"))

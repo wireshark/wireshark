@@ -268,7 +268,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 if (bParse)
                 {
                     if (uPrm == MQ_MQIACF_ENCODING)
-                        pVal = mqpcf_get_encoding(uVal)->str;
+                        pVal = mqpcf_get_encoding(pinfo->pool, uVal)->str;
                     else
                         pVal = dissect_mqpcf_parm_getintval(uPrm, uVal);
                 }

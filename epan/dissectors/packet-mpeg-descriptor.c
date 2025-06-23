@@ -2788,7 +2788,7 @@ static int hf_mpeg_descr_multilng_network_name_desc_name;
 static int ett_mpeg_descriptor_multilng_network_name_desc_lng;
 
 static unsigned
-proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
+proto_mpeg_descriptor_dissect_multilng_name_len(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
     unsigned l_offset = offset;
     unsigned cnt = len;
@@ -2798,18 +2798,19 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_
     l_offset += 3;
 
     if (cnt < 1) return l_offset - offset;
-    unsigned network_name_length = tvb_get_uint8(tvb, l_offset);
+    unsigned name_length = tvb_get_uint8(tvb, l_offset);
     cnt      -= 1;
     l_offset += 1;
 
-    network_name_length = MIN(network_name_length, cnt);
-    l_offset += network_name_length;
+    name_length = MIN(name_length, cnt);
+    l_offset += name_length;
 
     return l_offset - offset;
 }
 
 static void
-proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_desc(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len, proto_tree *tree,
+                                            int ett_desc_lng, int hf_lang_code, int hf_name_length, int hf_name_encoding, int hf_name)
 {
     unsigned cnt = len;
 
@@ -2820,19 +2821,18 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, unsigned
         proto_item * lng_item;
 
         if (cnt < 3) return;
-        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvb, offset, cnt);
+        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_name_len(tvb, offset, cnt);
         lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
-                    ett_mpeg_descriptor_multilng_network_name_desc_lng, &lng_item, NULL);
+                    ett_desc_lng, &lng_item, NULL);
 
-        proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_network_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
-                                                wmem_packet_scope(), &lng_str);
+        proto_tree_add_item_ret_display_string(lng_tree, hf_lang_code, tvb, offset, 3, ENC_ASCII, pinfo->pool, &lng_str);
         proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
 
         if (cnt < 1) return;
         unsigned network_name_length = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(lng_tree, hf_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
 
@@ -2840,9 +2840,9 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, unsigned
         if (cnt < network_name_length) return;
         dvb_encoding_e  encoding;
         unsigned enc_len = dvb_analyze_string_charset(tvb, offset, network_name_length, &encoding);
-        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name_encoding, tvb, offset, enc_len, encoding);
+        dvb_add_chartbl(lng_tree, hf_name_encoding, tvb, offset, enc_len, encoding);
 
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name, tvb, offset+enc_len, network_name_length-enc_len, dvb_enc_to_item_enc(encoding));
+        proto_tree_add_item(lng_tree, hf_name, tvb, offset+enc_len, network_name_length-enc_len, dvb_enc_to_item_enc(encoding));
         offset += network_name_length;
         cnt    -= network_name_length;
     }
@@ -2855,67 +2855,6 @@ static int hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding;
 static int hf_mpeg_descr_multilng_bouquet_name_desc_name;
 
 static int ett_mpeg_descriptor_multilng_bouquet_name_desc_lng;
-
-static unsigned
-proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
-{
-    unsigned l_offset = offset;
-    unsigned cnt = len;
-
-    if (cnt < 3) return l_offset - offset;
-    cnt      -= 3;
-    l_offset += 3;
-
-    if (cnt < 1) return l_offset - offset;
-    unsigned bouquet_name_length = tvb_get_uint8(tvb, l_offset);
-    cnt      -= 1;
-    l_offset += 1;
-
-    bouquet_name_length = MIN(bouquet_name_length, cnt);
-    l_offset += bouquet_name_length;
-
-    return l_offset - offset;
-}
-
-static void
-proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
-{
-    unsigned cnt = len;
-
-    while (cnt > 0)
-    {
-        char* lng_str;
-        proto_tree * lng_tree;
-        proto_item * lng_item;
-
-        if (cnt < 3) return;
-        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvb, offset, cnt);
-        lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
-                    ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, &lng_item, NULL);
-
-        proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
-                                                wmem_packet_scope(), &lng_str);
-        proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
-        offset += 3;
-        cnt    -= 3;
-
-        if (cnt < 1) return;
-        unsigned bouquet_name_length = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        cnt    -= 1;
-
-        bouquet_name_length = MIN(bouquet_name_length, cnt);
-        if (cnt < bouquet_name_length) return;
-        dvb_encoding_e  encoding;
-        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, bouquet_name_length, &encoding);
-        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding, tvb, offset, enc_len, encoding);
-
-        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name, tvb, offset+enc_len, bouquet_name_length-enc_len, dvb_enc_to_item_enc(encoding));
-        offset += bouquet_name_length;
-        cnt    -= bouquet_name_length;
-    }
-}
 
 /* 0x5D Multilingual Service Name Descriptor */
 static int hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code;
@@ -2959,7 +2898,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *t
 }
 
 static void
-proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len, proto_tree *tree)
 {
     unsigned cnt = len;
 
@@ -2975,7 +2914,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, unsigned off
                     ett_mpeg_descriptor_multilng_srv_name_desc_lng, &lng_item, NULL);
 
         proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
-                                                wmem_packet_scope(), &lng_str);
+                                                pinfo->pool, &lng_str);
         proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
@@ -3022,29 +2961,9 @@ static int hf_mpeg_descr_multilng_component_desc_text;
 
 static int ett_mpeg_descriptor_multilng_component_desc_lng;
 
-static unsigned
-proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
-{
-    unsigned l_offset = offset;
-    unsigned cnt = len;
-
-    if (cnt < 3) return l_offset - offset;
-    cnt      -= 3;
-    l_offset += 3;
-
-    if (cnt < 1) return l_offset - offset;
-    unsigned text_length = tvb_get_uint8(tvb, l_offset);
-    cnt      -= 1;
-    l_offset += 1;
-
-    text_length = MIN(text_length, cnt);
-    l_offset += text_length;
-
-    return l_offset - offset;
-}
 
 static void
-proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len, proto_tree *tree)
 {
     unsigned cnt = len;
 
@@ -3060,12 +2979,12 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, unsigned of
         proto_item * lng_item;
 
         if (cnt < 3) return;
-        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvb, offset, cnt);
+        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_name_len(tvb, offset, cnt);
         lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
                     ett_mpeg_descriptor_multilng_component_desc_lng, &lng_item, NULL);
 
         proto_tree_add_item_ret_display_string(lng_tree, hf_mpeg_descr_multilng_component_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII,
-                                                wmem_packet_scope(), &lng_str);
+                                                pinfo->pool, &lng_str);
         proto_item_set_text(lng_item, "Language \"%s\"", lng_str);
         offset += 3;
         cnt    -= 3;
@@ -4515,7 +4434,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, unsigned offset, pro
 /* Common dissector */
 
 unsigned
-proto_mpeg_descriptor_dissect(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *tree)
 {
     unsigned    tag, len;
 
@@ -4658,16 +4577,22 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
             proto_mpeg_descriptor_dissect_terrestrial_delivery(tvb, offset, descriptor_tree);
             break;
         case 0x5B: /* Multilingual Network Name Descriptor */
-            proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvb, offset, len, descriptor_tree);
+            proto_mpeg_descriptor_dissect_multilng_desc(tvb, pinfo, offset, len, descriptor_tree,
+                ett_mpeg_descriptor_multilng_network_name_desc_lng, hf_mpeg_descr_multilng_network_name_desc_iso639_language_code,
+                hf_mpeg_descr_multilng_network_name_desc_name_length, hf_mpeg_descr_multilng_network_name_desc_name_encoding,
+                hf_mpeg_descr_multilng_network_name_desc_name);
             break;
         case 0x5C: /* Multilingual Bouquet Name Descriptor */
-            proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvb, offset, len, descriptor_tree);
+            proto_mpeg_descriptor_dissect_multilng_desc(tvb, pinfo, offset, len, descriptor_tree,
+                ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code,
+                hf_mpeg_descr_multilng_bouquet_name_desc_name_length, hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding,
+                hf_mpeg_descr_multilng_bouquet_name_desc_name);
             break;
         case 0x5D: /* Multilingual Service Name Descriptor */
-            proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvb, offset, len, descriptor_tree);
+            proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvb, pinfo, offset, len, descriptor_tree);
             break;
         case 0x5E: /* Multilingual Component Descriptor */
-            proto_mpeg_descriptor_dissect_multilng_component_desc(tvb, offset, len, descriptor_tree);
+            proto_mpeg_descriptor_dissect_multilng_component_desc(tvb, pinfo, offset, len, descriptor_tree);
             break;
         case 0x5F: /* Private Data Specifier Descriptor */
             proto_mpeg_descriptor_dissect_private_data_specifier(tvb, offset, descriptor_tree);
@@ -4744,7 +4669,7 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 /* dissect a descriptor loop consisting of one or more descriptors
    take into account the contexts defined a private data specifier descriptors */
 unsigned
-proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, unsigned offset, unsigned loop_len, proto_tree *tree)
+proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned loop_len, proto_tree *tree)
 {
     /* we use the reserved value to indicate that no private context is active */
     uint32_t private_data_specifier = PRIVATE_DATA_SPECIFIER_RESERVED;
@@ -4767,7 +4692,7 @@ proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, unsigned offset, unsigned loop
             however, if it does not know the current descriptor, we search for a context-specific subfunction
             this subfunction gets to see the entire descriptor, including tag and len */
         if (try_val_to_str(tag, mpeg_descriptor_tag_vals)) {
-            desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
+            desc_len = proto_mpeg_descriptor_dissect(tvb, pinfo, offset, tree);
         }
         else {
             switch (private_data_specifier) {
@@ -4781,7 +4706,7 @@ proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, unsigned offset, unsigned loop
             if (desc_len == 0) {
                 /* either there was no subfunction or it could not handle the descriptor
                    fall back to the default (which will dissect it as unknown) */
-                desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
+                desc_len = proto_mpeg_descriptor_dissect(tvb, pinfo, offset, tree);
             }
         }
 

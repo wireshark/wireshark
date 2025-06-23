@@ -664,13 +664,13 @@ static int lookup_str_index(char* str, int length, const value_string *vs)
     return -1;
 }
 
-static uint8_t edonkey_metatag_name_get_type(tvbuff_t *tvb, int start, int length, uint8_t special_tagtype)
+static uint8_t edonkey_metatag_name_get_type(tvbuff_t *tvb, packet_info* pinfo, int start, int length, uint8_t special_tagtype)
 {
     uint8_t *tag_name;
 
     if (try_val_to_str(special_tagtype, edonkey_special_tags) == NULL) {
         int idx;
-        tag_name = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, ENC_ASCII|ENC_NA);
+        tag_name = tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_ASCII|ENC_NA);
         idx = lookup_str_index(tag_name, length, edonkey_special_tags);
         if (idx < 0)
             return EDONKEY_STAG_UNKNOWN;
@@ -726,7 +726,7 @@ static int dissect_kademlia_search_condition(tvbuff_t *tvb, packet_info *pinfo _
 }
 
 /* Dissects the eDonkey meta tag */
-static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo,
                                    int offset, proto_tree *tree)
 {
     /* <Meta Tag> ::= <Tag Type (uint8_t)> <Tag Name> <Tag> */
@@ -790,7 +790,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
             if (tag_type==real_tag_type)
                 proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
             edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
-            trans_tagtype = edonkey_metatag_name_get_type(tvb, offset+3, tag_name_size, special_tagtype);
+            trans_tagtype = edonkey_metatag_name_get_type(tvb, pinfo, offset+3, tag_name_size, special_tagtype);
             if (trans_tagtype == EDONKEY_STAG_IP) {
                 proto_tree_add_item(metatag_tree, hf_edonkey_ip, tvb, tag_offset, 4, ENC_BIG_ENDIAN);
             }

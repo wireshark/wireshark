@@ -2472,7 +2472,7 @@ padd_time( char *result, uint32_t time_value )
 /* Add a value for a ptvc_record, and process the sub-ptvc_record
  * that it points to. */
 static void
-process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
+process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *rec,
                                  bool really_decode)
 {
     proto_item          *item;
@@ -2496,7 +2496,7 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
         sub_tree = proto_item_add_subtree(item, ett);
 
         /* Make a new ptvcursor */
-        sub_ptvc = ptvcursor_new(wmem_packet_scope(), sub_tree, ptvcursor_tvbuff(ptvc),
+        sub_ptvc = ptvcursor_new(pinfo->pool, sub_tree, ptvcursor_tvbuff(ptvc),
                                  current_offset);
 
         /* Use it */
@@ -2574,7 +2574,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
                                                ncp_rec, request);
             }
             else {
-                process_bitfield_sub_ptvc_record(ptvc, rec,
+                process_bitfield_sub_ptvc_record(ptvc, pinfo, rec,
                                                  really_decode);
             }
         }
@@ -2587,7 +2587,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *r
                                                    ncp_rec, request);
                 }
                 else {
-                    process_bitfield_sub_ptvc_record(ptvc, rec,
+                    process_bitfield_sub_ptvc_record(ptvc, pinfo, rec,
                                                      really_decode);
                 }
             }
@@ -3560,7 +3560,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
 }
 
 static uint32_t
-print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, uint32_t vtype, uint32_t ioffset)
+print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *values, uint32_t vtype, uint32_t ioffset)
 {
     uint32_t        value1;
     uint32_t        value2;
@@ -3649,7 +3649,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, uint32_t vtype
                 ns.nsecs = 0;
                 proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
                                            4, &ns, "Timestamp: %s",
-                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                           abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                 ioffset = ioffset + 4;
                 proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
                                     2, ENC_LITTLE_ENDIAN);
@@ -3730,7 +3730,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, uint32_t vtype
                 ns.nsecs = 0;
                 proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
                                            4, &ns, "Timestamp: %s",
-                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                           abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                 ioffset = ioffset + 4;
                 proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
                                     2, ENC_LITTLE_ENDIAN);
@@ -3866,7 +3866,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, uint32_t vtype
                 ns.nsecs = 0;
                 proto_tree_add_time_format(nestree, hf_es_seconds, tvb, ioffset,
                                            4, &ns, "Timestamp: %s",
-                                           abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                           abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
                 ioffset = ioffset + 4;
                 proto_tree_add_item(nestree, hf_nds_replica_num, tvb, ioffset,
                                     2, ENC_LITTLE_ENDIAN);
@@ -3916,7 +3916,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, uint32_t vtype
             ns.nsecs = 0;
             proto_tree_add_time_format(sub2tree, hf_es_seconds, tvb, ioffset,
                                        4, &ns, "Timestamp: %s",
-                                       abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                                       abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
             ioffset = ioffset + 4;
             proto_tree_add_item(sub2tree, hf_nds_replica_num, tvb, ioffset,
                                 2, ENC_LITTLE_ENDIAN);
@@ -4282,7 +4282,7 @@ process_set_filter(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, nds_v
  * give up on trying to parse the response.
  */
 static void
-process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
+process_entry_info(proto_tree *it_tree, packet_info* pinfo, tvbuff_t *tvb, nds_val *values)
 {
     uint32_t    iter_flags, ioffset = values->voffset;
     nstime_t    ns;
@@ -4317,7 +4317,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ns.nsecs = 0;
         proto_tree_add_time_format(it_tree, hf_es_seconds, tvb, ioffset,
                 4, &ns, "Modification Time: %s",
-                abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
         ioffset = ioffset + 4;
     }
     if (iter_flags & DSI_MODIFICATION_TIMESTAMP) { /* Modification Timestamp */
@@ -4325,7 +4325,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ns.nsecs = 0;
         proto_tree_add_time_format(it_tree, hf_es_seconds, tvb, ioffset,
                 4, &ns, "Modification Timestamp: %s",
-                abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
         ioffset = ioffset + 4;
         proto_tree_add_item(it_tree, hf_nds_replica_num, tvb, ioffset,
                 2, ENC_LITTLE_ENDIAN);
@@ -4339,7 +4339,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ns.nsecs = 0;
         proto_tree_add_time_format(it_tree, hf_es_seconds, tvb, ioffset,
                 4, &ns, "Creation Timestamp: %s",
-                abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, true));
+                abs_time_secs_to_str(pinfo->pool, ns.secs, ABSOLUTE_TIME_LOCAL, true));
         ioffset = ioffset + 4;
         proto_tree_add_item(it_tree, hf_nds_replica_num, tvb, ioffset,
                 2, ENC_LITTLE_ENDIAN);
@@ -4693,7 +4693,7 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, uin
                      * should be used?
                      */
                     values.vflags = request_flags;
-                    process_entry_info(it_subtree1, tvb, &values);
+                    process_entry_info(it_subtree1, pinfo, tvb, &values);
                     ioffset = values.voffset;
                     /* End WGetAndBufferEntryInfo */
 
@@ -5259,14 +5259,14 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                               4, values->vstring, "Output Entry Specifier - %s", values->vstring);
         estree = proto_item_add_subtree(esitem, ett_nds);
         ioffset = ioffset + 4;
-        ioffset = print_es_type(estree, tvb, values, value2, ioffset);
+        ioffset = print_es_type(estree, pinfo, tvb, values, value2, ioffset);
         value3 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
         values->vstring = val_to_str_const(value3, es_type, "No ES Type Found");
         esitem = proto_tree_add_string_format(ntree, hf_es_type, tvb, ioffset,
                                               4, values->vstring, "Input Entry Specifier - %s", values->vstring);
         estree = proto_item_add_subtree(esitem, ett_nds);
         ioffset = ioffset + 4;
-        ioffset = print_es_type(estree, tvb, values, value3, ioffset);
+        ioffset = print_es_type(estree, pinfo, tvb, values, value3, ioffset);
         /* values.vstring is being overwritten. So store the resolve name to a global value */
         (void) g_strlcpy(mv_resolve_name_string, values->vstring, 128);
         value4 = tvb_get_letohl(tvb, ioffset);
@@ -6226,7 +6226,7 @@ dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
  * It should also probably handle 87 3 and 87 20.
  */
 static void
-dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t offset, unsigned func)
+dissect_ncp_8x20req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *volatile ncp_tree, uint32_t offset, unsigned func)
 {
     uint32_t string_len, str_length, buffer_offset;
     int i;
@@ -6259,7 +6259,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t offse
         THROW(ReportedBoundsError);
     }
 
-    string_buf = wmem_strbuf_new(wmem_packet_scope(), NULL);
+    string_buf = wmem_strbuf_new(pinfo->pool, NULL);
     offset++;
     buffer_offset = offset;
 
@@ -6763,14 +6763,14 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *volatile nc
 }
 
 static void
-dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
+dissect_ncp_123_62_reply(tvbuff_t *tvb, packet_info* pinfo, proto_tree *volatile ncp_tree)
 {
     uint8_t cmd_type;
     const char * param_string;
     int ret_len;
 
     cmd_type = tvb_get_uint8(tvb, 8+16);
-    param_string = (const char *)tvb_get_stringz_enc(wmem_packet_scope(), tvb, 8+24, &ret_len, ENC_ASCII);
+    param_string = (const char *)tvb_get_stringz_enc(pinfo->pool, tvb, 8+24, &ret_len, ENC_ASCII);
 
     switch (cmd_type) {
     case 0:   /* { 0x00, "Numeric Value" }, */
@@ -7397,7 +7397,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         if (ncp_rec->func == 0x59 && (ncp_rec->subfunc == 0x14 || ncp_rec->subfunc == 0x03)) {
             if (ncp_rec->subfunc == 0x03)
             {
-                 dissect_ncp_8x20req(tvb, ncp_tree, 26, ncp_rec->func);
+                 dissect_ncp_8x20req(tvb, pinfo, ncp_tree, 26, ncp_rec->func);
             }
 /*if (ncp_rec->func == 0x57)
 {
@@ -7405,7 +7405,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 }*/
             else
             {
-                dissect_ncp_8x20req(tvb, ncp_tree, 28, ncp_rec->func);
+                dissect_ncp_8x20req(tvb, pinfo, ncp_tree, 28, ncp_rec->func);
             }
         }
         /* Free the temporary proto_tree */
@@ -8286,7 +8286,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             }
             /* Process ncp 123/62 server set parameter values manually to format correctly. */
             if (ncp_rec->func == 0x7b && ncp_rec->subfunc == 0x3e) {
-                dissect_ncp_123_62_reply(tvb, ncp_tree);
+                dissect_ncp_123_62_reply(tvb, pinfo, ncp_tree);
             }
             /* Process ncp 23/26 address records manually to format correctly. */
             if (ncp_rec->func == 0x17 && ncp_rec->subfunc == 0x1a) {

@@ -66,7 +66,7 @@ dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     /* Parse all the programs */
     while (offset < length)
-        offset += proto_mpeg_descriptor_dissect(tvb, offset, mpeg_ca_tree);
+        offset += proto_mpeg_descriptor_dissect(tvb, pinfo, offset, mpeg_ca_tree);
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, mpeg_ca_tree, 0, offset);
 

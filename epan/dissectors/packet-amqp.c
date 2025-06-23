@@ -479,6 +479,7 @@ generate_ack_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *prop_tree)
 /*  AMQP 0-10 type decoding information  */
 
 typedef int (*type_formatter)(tvbuff_t *tvb,
+                              packet_info* pinfo,
                               unsigned offset,        /* In tvb where data starts */
                               unsigned length,        /* Length of data, if known */
                               const char **value); /* Receive formatted val */
@@ -545,6 +546,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
 
 static unsigned
 get_amqp_1_0_type_formatter(tvbuff_t *tvb,
+                            packet_info* pinfo,
                             int offset,
                             int *hf_amqp_type,
                             const char **name,
@@ -599,104 +601,104 @@ dissect_amqp_1_0_false(tvbuff_t *tvb, packet_info *pinfo,
                                proto_item *item, int hf_amqp_type);
 
 static int
-format_amqp_1_0_null(tvbuff_t *tvb _U_,
+format_amqp_1_0_null(tvbuff_t *tvb _U_, packet_info* pinfo _U_,
                      unsigned offset _U_, unsigned length _U_,
                      const char **value);
 
 static int
-format_amqp_1_0_boolean_true(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_boolean_true(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                              const char **value);
 
 static int
-format_amqp_1_0_boolean_false(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_boolean_false(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                               const char **value);
 
 static int
-format_amqp_1_0_boolean(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_boolean(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                         const char **value);
 
 static int
-format_amqp_1_0_uint(tvbuff_t *tvb, unsigned offset, unsigned length,
+format_amqp_1_0_uint(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
                      const char **value);
 
 static int
-format_amqp_1_0_int(tvbuff_t *tvb, unsigned offset, unsigned length,
+format_amqp_1_0_int(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
                     const char **value);
 
 static int
-format_amqp_1_0_float(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_float(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                       const char **value);
 
 static int
-format_amqp_1_0_double(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_double(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                        const char **value);
 
 static int
-format_amqp_1_0_decimal(tvbuff_t *tvb _U_, unsigned offset _U_, unsigned length,
+format_amqp_1_0_decimal(tvbuff_t *tvb _U_, packet_info* pinfo, unsigned offset _U_, unsigned length,
                         const char **value);
 
 static int
-format_amqp_1_0_char(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_char(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                      const char **value);
 
 static int
-format_amqp_1_0_timestamp(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_timestamp(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                           const char **value);
 
 static int
-format_amqp_1_0_uuid(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_uuid(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                      const char **value);
 
 static int
-format_amqp_1_0_bin(tvbuff_t *tvb, unsigned offset, unsigned length,
+format_amqp_1_0_bin(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
                     const char **value);
 
 static int
-format_amqp_1_0_str(tvbuff_t *tvb, unsigned offset, unsigned length,
+format_amqp_1_0_str(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
                     const char **value);
 
 static int
-format_amqp_1_0_symbol(tvbuff_t *tvb, unsigned offset, unsigned length,
+format_amqp_1_0_symbol(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
                        const char **value);
 
 static bool
-get_amqp_0_10_type_formatter(uint8_t code,
+get_amqp_0_10_type_formatter(uint8_t code, packet_info* pinfo,
                              const char **name,
                              type_formatter *decoder,
                              unsigned *length_size);
 
 static int
-format_amqp_0_10_bin(tvbuff_t *tvb,
+format_amqp_0_10_bin(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value);
 
 static int
-format_amqp_0_10_int(tvbuff_t *tvb,
+format_amqp_0_10_int(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value);
 
 static int
-format_amqp_0_10_uint(tvbuff_t *tvb,
+format_amqp_0_10_uint(tvbuff_t *tvb, packet_info* pinfo,
                       unsigned offset, unsigned length,
                       const char **value);
 
 static int
-format_amqp_0_10_char(tvbuff_t *tvb,
+format_amqp_0_10_char(tvbuff_t *tvb, packet_info* pinfo,
                       unsigned offset, unsigned length,
                       const char **value);
 
 static int
-format_amqp_0_10_boolean(tvbuff_t *tvb,
+format_amqp_0_10_boolean(tvbuff_t *tvb, packet_info* pinfo,
                          unsigned offset, unsigned length,
                          const char **value);
 
 static int
-format_amqp_0_10_vbin(tvbuff_t *tvb,
+format_amqp_0_10_vbin(tvbuff_t *tvb, packet_info* pinfo,
                       unsigned offset, unsigned length,
                       const char **value);
 
 static int
-format_amqp_0_10_str(tvbuff_t *tvb,
+format_amqp_0_10_str(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value);
 
@@ -2718,7 +2720,7 @@ amqp_0_10_get_32bit_size_new(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb
 /*  Dissection routine for AMQP 0-10 maps  */
 
 static void
-dissect_amqp_0_10_map(tvbuff_t *tvb, proto_item *item)
+dissect_amqp_0_10_map(tvbuff_t *tvb, packet_info* pinfo, proto_item *item)
 {
     proto_item     *map_tree;
     unsigned        namelen, size;
@@ -2739,12 +2741,12 @@ dissect_amqp_0_10_map(tvbuff_t *tvb, proto_item *item)
         unsigned field_start = offset;
         namelen = tvb_get_uint8(tvb, offset);
         offset += 1;
-        name = (char*) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, namelen, ENC_UTF_8|ENC_NA);
+        name = (char*) tvb_get_string_enc(pinfo->pool, tvb, offset, namelen, ENC_UTF_8|ENC_NA);
         offset += namelen;
         type = tvb_get_uint8(tvb, offset);
         offset += 1;
-        if (get_amqp_0_10_type_formatter(type, &amqp_typename, &formatter, &size)) {
-            field_length = formatter(tvb, offset, size, &value); /* includes var 'length' field if var field */
+        if (get_amqp_0_10_type_formatter(type, pinfo, &amqp_typename, &formatter, &size)) {
+            field_length = formatter(tvb, pinfo, offset, size, &value); /* includes var 'length' field if var field */
             field_length = AMQP_0_10_SIZE_MAX(field_length);
             proto_tree_add_none_format(map_tree,
                                        hf_amqp_field,
@@ -2985,7 +2987,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, arg_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             offset += arg_length;
         }
         if (flag1 & 0x02) {
@@ -3040,7 +3042,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, arg_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             offset += arg_length;
         }
         if (flag1 & 0x02) {
@@ -3708,7 +3710,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, struct_size);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += struct_size; */
         }
         break;
@@ -3957,7 +3959,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_size);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += (4 + map_size); */
         }
         break;
@@ -4374,7 +4376,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += map_length; */
         }
         break;
@@ -4444,7 +4446,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += map_length; */
         }
         break;
@@ -4509,7 +4511,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += map_length; */
         }
         break;
@@ -4618,7 +4620,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += map_length; */
         }
         break;
@@ -4797,7 +4799,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += map_length; */
         }
         break;
@@ -5112,7 +5114,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             {
                 next_tvb = tvb_new_subset_length(tvb, offset, map_length);
             }
-            dissect_amqp_0_10_map (next_tvb, ti);
+            dissect_amqp_0_10_map (next_tvb, pinfo, ti);
             /* offset += map_length; */
         }
         break;
@@ -5484,7 +5486,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
         {
             next_tvb = tvb_new_subset_length(tvb, offset, map_length);
         }
-        dissect_amqp_0_10_map (next_tvb, ti);
+        dissect_amqp_0_10_map (next_tvb, pinfo, ti);
         /* offset += map_length; */
     }
 }
@@ -5544,7 +5546,7 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
         {
             next_tvb = tvb_new_subset_length(tvb, offset, map_length);
         }
-        dissect_amqp_0_10_map (next_tvb, ti);
+        dissect_amqp_0_10_map (next_tvb, pinfo, ti);
         /* offset += map_length; */
     }
 }
@@ -5616,7 +5618,7 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
         {
             next_tvb = tvb_new_subset_length(tvb, offset, map_length);
         }
-        dissect_amqp_0_10_map (next_tvb, ti);
+        dissect_amqp_0_10_map (next_tvb, pinfo, ti);
         offset += map_length;
     }
     if (flag1 & 0x40) {     /* message-count (uint32) */
@@ -5689,7 +5691,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         {
             next_tvb = tvb_new_subset_length(tvb, offset, map_length);
         }
-        dissect_amqp_0_10_map (next_tvb, ti);
+        dissect_amqp_0_10_map (next_tvb, pinfo, ti);
         offset += map_length;
     }
     if (flag1 & 0x08) {
@@ -5795,7 +5797,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
         {
             next_tvb = tvb_new_subset_length(tvb, offset, map_length);
         }
-        dissect_amqp_0_10_map (next_tvb, ti);
+        dissect_amqp_0_10_map (next_tvb, pinfo, ti);
         offset += map_length;
     }
     if (flag1 & 0x08) {
@@ -6190,7 +6192,7 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
             element_type = decode_fixed_type(tvb_get_uint8(tvb, offset));
             if (element_type)
             {
-                decoded_element_size=element_type->formatter(tvb, offset+1, element_type->known_size, &value);
+                decoded_element_size=element_type->formatter(tvb, pinfo, offset+1, element_type->known_size, &value);
                 offset += (decoded_element_size+1);
             }
             else
@@ -6283,6 +6285,7 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
     }
 
     element_type = get_amqp_1_0_type_formatter(tvb,
+                                               pinfo,
                                                offset+count_len*2,
                                                &hf_amqp_type,
                                                &type_name_array,
@@ -10094,7 +10097,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
         else
         {
             /* multi-type and custom fields must be converted to a string */
-            *length_size = element_type->formatter(tvb, offset, element_type->known_size, &value);
+            *length_size = element_type->formatter(tvb, pinfo, offset, element_type->known_size, &value);
 
             if (code/16 > 0x9) /* variable width code is 0xa[0-9] or 0xb[0-9] */
                /* shift to right to skip the variable length indicator */
@@ -10166,6 +10169,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
  */
 static unsigned
 get_amqp_1_0_type_formatter(tvbuff_t *tvb,
+                            packet_info* pinfo,
                             int offset,
                             int *hf_amqp_type,
                             const char **name,
@@ -10214,10 +10218,10 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
             /* TODO: somehow set code = next_128_bytes */
             break;
         case 0xa: /* variable-one */
-            format_len = format_amqp_1_0_str(tvb, offset, 1, name);
+            format_len = format_amqp_1_0_str(tvb, pinfo, offset, 1, name);
             break;
         case 0xb: /* variable-four */
-            format_len = format_amqp_1_0_str(tvb, offset, 4, name);
+            format_len = format_amqp_1_0_str(tvb, pinfo, offset, 4, name);
             break;
         /* TODO: could be type compound? or array? */
         }
@@ -10260,6 +10264,7 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
     unsigned   type_length_size;
 
     code = get_amqp_1_0_type_formatter(tvb,
+                                       pinfo,
                                        offset,
                                        &hf_amqp_type,
                                        &type_name,
@@ -10501,7 +10506,7 @@ dissect_amqp_1_0_false(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static int
-format_amqp_1_0_null(tvbuff_t *tvb _U_,
+format_amqp_1_0_null(tvbuff_t *tvb _U_, packet_info* pinfo _U_,
                       unsigned offset _U_, unsigned length _U_,
                       const char **value)
 {
@@ -10510,38 +10515,38 @@ format_amqp_1_0_null(tvbuff_t *tvb _U_,
 }
 
 static int
-format_amqp_1_0_boolean_true(tvbuff_t *tvb _U_,
+format_amqp_1_0_boolean_true(tvbuff_t *tvb _U_, packet_info* pinfo _U_,
                         unsigned offset _U_, unsigned length _U_,
                         const char **value)
 {
-    *value = wmem_strdup(wmem_packet_scope(), "true");
+    *value = "true";
     return 0;
 }
 
 static int
-format_amqp_1_0_boolean_false(tvbuff_t *tvb _U_,
+format_amqp_1_0_boolean_false(tvbuff_t *tvb _U_, packet_info* pinfo _U_,
                         unsigned offset _U_, unsigned length _U_,
                         const char **value)
 {
-    *value = wmem_strdup(wmem_packet_scope(), "false");
+    *value = "false";
     return 0;
 }
 
 static int
-format_amqp_1_0_boolean(tvbuff_t *tvb,
+format_amqp_1_0_boolean(tvbuff_t *tvb, packet_info* pinfo _U_,
                         unsigned offset, unsigned length _U_,
                         const char **value)
 {
     uint8_t val;
 
     val = tvb_get_uint8(tvb, offset);
-    *value = wmem_strdup(wmem_packet_scope(), val ? "true" : "false");
+    *value = val ? "true" : "false";
     return 1;
 }
 
 /* this covers ubyte, ushort, uint and ulong */
 static int
-format_amqp_1_0_uint(tvbuff_t *tvb,
+format_amqp_1_0_uint(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value)
 {
@@ -10558,16 +10563,16 @@ format_amqp_1_0_uint(tvbuff_t *tvb,
     else if (length == 8)
         val = tvb_get_ntoh64(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid uint length %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid uint length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%" PRIu64, val);
+    *value = wmem_strdup_printf(pinfo->pool, "%" PRIu64, val);
     return length;
 }
 
 /* this covers byte, short, int and long */
 static int
-format_amqp_1_0_int(tvbuff_t *tvb,
+format_amqp_1_0_int(tvbuff_t *tvb, packet_info* pinfo,
                     unsigned offset, unsigned length,
                     const char **value)
 {
@@ -10582,76 +10587,76 @@ format_amqp_1_0_int(tvbuff_t *tvb,
     else if (length == 8)
         val = tvb_get_ntohi64(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid int length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi64, val);
+    *value = wmem_strdup_printf(pinfo->pool, "%" PRIi64, val);
     return length;
 }
 
 static int
-format_amqp_1_0_float(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_float(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                       const char **value)
 {
     float floatval;
     floatval = tvb_get_ntohieee_float(tvb, offset);
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%f", floatval);
+    *value = wmem_strdup_printf(pinfo->pool, "%f", floatval);
     return 4;
 }
 
 static int
-format_amqp_1_0_double(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_double(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                        const char **value)
 {
     double doubleval;
     doubleval = tvb_get_ntohieee_double(tvb, offset);
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%f", doubleval);
+    *value = wmem_strdup_printf(pinfo->pool, "%f", doubleval);
     return 8;
 }
 
 static int
-format_amqp_1_0_decimal(tvbuff_t *tvb _U_, unsigned offset _U_, unsigned length,
+format_amqp_1_0_decimal(tvbuff_t *tvb _U_, packet_info* pinfo _U_, unsigned offset _U_, unsigned length,
                         const char **value)
 {
     /* TODO: this requires the _Decimal32 datatype from ISO/IEC TR 24732
      * and corresponding support in printf and glib
      */
-    *value = wmem_strdup_printf(wmem_packet_scope(), "(not supported)");
+    *value = "(not supported)";
     return length;
 }
 
 static int
-format_amqp_1_0_char(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_char(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                      const char **value)
 {
     /* one UTF-32BE encoded Unicode character */
-    *value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_UCS_4|ENC_BIG_ENDIAN);
+    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_UCS_4 | ENC_BIG_ENDIAN);
     return 4;
 }
 
 static int
-format_amqp_1_0_timestamp(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_timestamp(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                           const char **value)
 {
     nstime_t nstime;
     get_amqp_timestamp(&nstime, tvb, offset);
 
-    *value = abs_time_to_str(wmem_packet_scope(), &nstime, ABSOLUTE_TIME_UTC, false);
+    *value = abs_time_to_str(pinfo->pool, &nstime, ABSOLUTE_TIME_UTC, false);
     return 8;
 }
 
 static int
-format_amqp_1_0_uuid(tvbuff_t *tvb, unsigned offset, unsigned length _U_,
+format_amqp_1_0_uuid(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length _U_,
                      const char **value)
 {
     e_guid_t uuid;
     tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
-    *value = guid_to_str(wmem_packet_scope(), &uuid);
+    *value = guid_to_str(pinfo->pool, &uuid);
     return 16;
 }
 
 static int
-format_amqp_1_0_bin(tvbuff_t *tvb,
+format_amqp_1_0_bin(tvbuff_t *tvb, packet_info* pinfo,
                     unsigned offset, unsigned length,
                     const char **value)
 {
@@ -10662,16 +10667,16 @@ format_amqp_1_0_bin(tvbuff_t *tvb,
     else if (length == 4)
         bin_length = tvb_get_ntohl(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid binary length size %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid binary length size %d!", length);
         return length;
     }
     offset += length;
-    *value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, bin_length);
+    *value = tvb_bytes_to_str(pinfo->pool, tvb, offset, bin_length);
     return (length+bin_length);
 }
 
 static int
-format_amqp_1_0_str(tvbuff_t *tvb,
+format_amqp_1_0_str(tvbuff_t *tvb, packet_info* pinfo,
                     unsigned offset, unsigned length,
                     const char **value)
 {
@@ -10682,17 +10687,17 @@ format_amqp_1_0_str(tvbuff_t *tvb,
     else if (length == 4)
         string_length = tvb_get_ntohl(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid string length size %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid string length size %d!", length);
         return length;
     }
     offset += length;
-    *value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_length, ENC_UTF_8|ENC_NA);
+    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8|ENC_NA);
     /* offset += string_length; */
     return (string_length + length);
 }
 
 static int
-format_amqp_1_0_symbol(tvbuff_t *tvb,
+format_amqp_1_0_symbol(tvbuff_t *tvb, packet_info* pinfo,
                        unsigned offset, unsigned length,
                        const char **value)
 {
@@ -10702,11 +10707,11 @@ format_amqp_1_0_symbol(tvbuff_t *tvb,
     else if (length == 4)
         symbol_length = tvb_get_ntohl(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid symbol length size %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid symbol length size %d!", length);
         return length;
     }
     offset += length;
-    *value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, symbol_length, ENC_ASCII|ENC_NA);
+    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, symbol_length, ENC_ASCII|ENC_NA);
     /* offset += symbol_length; */
     return (symbol_length + length);
 }
@@ -10715,7 +10720,7 @@ format_amqp_1_0_symbol(tvbuff_t *tvb,
 /*  AMQP 0-10 Type Decoders  */
 
 static bool
-get_amqp_0_10_type_formatter(uint8_t code,
+get_amqp_0_10_type_formatter(uint8_t code, packet_info* pinfo,
                              const char **name,
                              type_formatter *formatter,
                              unsigned *length_size)
@@ -10729,7 +10734,7 @@ get_amqp_0_10_type_formatter(uint8_t code,
         table = amqp_0_10_fixed_types;
     for (i = 0; table[i].typecode != 0xff; ++i) {
         if (table[i].typecode == code) {
-            *name        = wmem_strdup(wmem_packet_scope(), table[i].amqp_typename);
+            *name        = wmem_strdup(pinfo->pool, table[i].amqp_typename);
             *formatter   = table[i].formatter;
             *length_size = table[i].known_size;
             return true;
@@ -10739,16 +10744,16 @@ get_amqp_0_10_type_formatter(uint8_t code,
 }
 
 static int
-format_amqp_0_10_bin(tvbuff_t *tvb,
+format_amqp_0_10_bin(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value)
 {
-    *value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length);
+    *value = tvb_bytes_to_str(pinfo->pool, tvb, offset, length);
     return length;
 }
 
 static int
-format_amqp_0_10_int(tvbuff_t *tvb,
+format_amqp_0_10_int(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value)
 {
@@ -10761,15 +10766,15 @@ format_amqp_0_10_int(tvbuff_t *tvb,
     else if (length == 4)
         val = tvb_get_ntohil(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid int length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%d", val);
+    *value = wmem_strdup_printf(pinfo->pool, "%d", val);
     return length;
 }
 
 static int
-format_amqp_0_10_uint(tvbuff_t *tvb,
+format_amqp_0_10_uint(tvbuff_t *tvb, packet_info* pinfo,
                       unsigned offset, unsigned length,
                       const char **value)
 {
@@ -10782,36 +10787,36 @@ format_amqp_0_10_uint(tvbuff_t *tvb,
     else if (length == 4)
         val = tvb_get_ntohl(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid uint length %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid uint length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%u", val);
+    *value = wmem_strdup_printf(pinfo->pool, "%u", val);
     return length;
 }
 
 static int
-format_amqp_0_10_char(tvbuff_t *tvb,
+format_amqp_0_10_char(tvbuff_t *tvb, packet_info* pinfo,
                       unsigned offset, unsigned length _U_,
                       const char **value)
 {
-    *value = tvb_format_text(wmem_packet_scope(), tvb, offset, 1);
+    *value = tvb_format_text(pinfo->pool, tvb, offset, 1);
     return 1;
 }
 
 static int
-format_amqp_0_10_boolean(tvbuff_t *tvb,
+format_amqp_0_10_boolean(tvbuff_t *tvb, packet_info* pinfo,
                          unsigned offset, unsigned length _U_,
                          const char **value)
 {
     uint8_t val;
 
     val = tvb_get_uint8(tvb, offset);
-    *value = wmem_strdup(wmem_packet_scope(), val ? "true" : "false");
+    *value = wmem_strdup(pinfo->pool, val ? "true" : "false");
     return 1;
 }
 
 static int
-format_amqp_0_10_vbin(tvbuff_t *tvb,
+format_amqp_0_10_vbin(tvbuff_t *tvb, packet_info* pinfo,
                       unsigned offset, unsigned length,
                       const char **value)
 {
@@ -10824,17 +10829,17 @@ format_amqp_0_10_vbin(tvbuff_t *tvb,
     else if (length == 4)
         bin_length = amqp_0_10_get_32bit_size(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid vbin length size %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid vbin length size %d!", length);
         return length;
     }
     offset += length;
-    *value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, bin_length);
+    *value = tvb_bytes_to_str(pinfo->pool, tvb, offset, bin_length);
     /* offset += bin_length; */
     return (bin_length + length);
 }
 
 static int
-format_amqp_0_10_str(tvbuff_t *tvb,
+format_amqp_0_10_str(tvbuff_t *tvb, packet_info* pinfo,
                      unsigned offset, unsigned length,
                      const char **value)
 {
@@ -10847,11 +10852,11 @@ format_amqp_0_10_str(tvbuff_t *tvb,
     else if (length == 4)
         string_length = amqp_0_10_get_32bit_size(tvb, offset);
     else {
-        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid string length size %d!", length);
+        *value = wmem_strdup_printf(pinfo->pool, "Invalid string length size %d!", length);
         return length;
     }
     offset += length;
-    *value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_length, ENC_UTF_8|ENC_NA);
+    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8|ENC_NA);
     /* offset += string_length; */
     return (string_length + length);
 }

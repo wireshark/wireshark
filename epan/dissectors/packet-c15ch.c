@@ -4117,7 +4117,7 @@ static int hf_c15ch_c15_subs_spare_6;
         ignored and the display will indicate that the data used began at first_offset (equivalent
         to offset_from_digits_to_consume of 0).
 */
-static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
+static void add_digits_string(int hf, tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
                     unsigned first_offset, unsigned num_digits, unsigned max_num_digits, unsigned offset_from_digits_to_consume )
 {
     char * ch_buff = NULL;
@@ -4134,7 +4134,7 @@ static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
     {
         offset_from_digits_to_consume = 0;
     }
-    ch_buff = (char *) wmem_alloc(wmem_packet_scope(), num_digits + 1); /*include space for terminating null*/
+    ch_buff = (char *) wmem_alloc(pinfo->pool, num_digits + 1); /*include space for terminating null*/
     for ( curr_offset = first_offset, buff_index = 0; buff_index < num_digits; curr_offset++, buff_index++ )
     {
         curr_digit = tvb_get_uint8(tvb, curr_offset);
@@ -4233,7 +4233,7 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
     col_append_str(pinfo->cinfo, COL_INFO, ch_buff);
 }
 
-/* static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
+/* static void add_string_field( proto_tree * p_tree, packet_info* pinfo, tvbuff_t * tvb,
                                 unsigned str_start, unsigned max_str_len,
                                 int hf_num )
 
@@ -4251,7 +4251,7 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
 
    hf_num is the field number for p_tree which is used for the string
 */
-static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
+static void add_string_field( proto_tree * p_tree, packet_info* pinfo, tvbuff_t * tvb,
                                 unsigned str_start, unsigned max_str_len,
                                 int hf_num )
 {
@@ -4264,7 +4264,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     }
 
 
-    field_stringz = (char * )tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_start, &len, ENC_ASCII);
+    field_stringz = (char * )tvb_get_stringz_enc(pinfo->pool, tvb, str_start, &len, ENC_ASCII);
     if ( len <= 1 )
     {
         proto_tree_add_string(p_tree, hf_num,
@@ -4295,10 +4295,10 @@ static int dissect_c15ch_hbeat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
         ti = proto_tree_add_item(tree, proto_c15ch_hbeat, tvb, 0, 62, ENC_NA);
         c15ch_hbeat_tree = proto_item_add_subtree(ti, ett_c15ch_hbeat);
-        add_string_field( c15ch_hbeat_tree, tvb, 10, 25, hf_c15ch_hbeat_clli );
+        add_string_field( c15ch_hbeat_tree, pinfo, tvb, 10, 25, hf_c15ch_hbeat_clli );
         proto_tree_add_item(c15ch_hbeat_tree, hf_c15ch_hbeat_primary,  tvb, 35, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_hbeat_tree, hf_c15ch_hbeat_secondary,  tvb, 36, 1, ENC_BIG_ENDIAN);
-        add_string_field( c15ch_hbeat_tree, tvb, 37, 25, hf_c15ch_hbeat_interface );
+        add_string_field( c15ch_hbeat_tree, pinfo, tvb, 37, 25, hf_c15ch_hbeat_interface );
     }
 
     /* Return the amount of data this dissector was able to dissect */
@@ -4387,13 +4387,13 @@ static int dissect_c15ch_ama(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         dialed_num_digits = tvb_get_uint8(tvb, 11);
         proto_tree_add_item(c15ch_ama_tree, hf_c15ch_ama_call_code,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_ama_orig_digits, tvb, c15ch_ama_tree,
+        add_digits_string(hf_c15ch_ama_orig_digits, tvb, pinfo, c15ch_ama_tree,
                         1, 10, 10, 0);
         proto_tree_add_item(c15ch_ama_tree, hf_c15ch_ama_num_dialed_digits,
                             tvb, 11, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_ama_tree, hf_c15ch_ama_br_prefix,
                             tvb, 12, 1, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_ama_dialed_digits, tvb, c15ch_ama_tree,
+        add_digits_string(hf_c15ch_ama_dialed_digits, tvb, pinfo, c15ch_ama_tree,
                         13, dialed_num_digits, 15, 0);
         proto_tree_add_item(c15ch_ama_tree, hf_c15ch_ama_start_hour,
                             tvb, 28, 1, ENC_BIG_ENDIAN);
@@ -4420,7 +4420,7 @@ static int dissect_c15ch_ama(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_reported_length(tvb);
 }
 
-static int dissect_c15ch_c15_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_c15_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_c15_info_tree = NULL;
@@ -4430,8 +4430,8 @@ static int dissect_c15ch_c15_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         ti = proto_tree_add_item( tree, hf_c15ch_c15_info, tvb, 0, 266, ENC_NA );
         c15ch_c15_info_tree = proto_item_add_subtree( ti, ett_c15ch_second_level );
         proto_tree_add_item( c15ch_c15_info_tree, hf_c15ch_c15_info_level, tvb, 0, 1, ENC_BIG_ENDIAN );
-        add_string_field( c15ch_c15_info_tree, tvb, 1, 9, hf_c15ch_c15_info_code );
-        add_string_field( c15ch_c15_info_tree, tvb, 10, 256, hf_c15ch_c15_info_text );
+        add_string_field( c15ch_c15_info_tree, pinfo, tvb, 1, 9, hf_c15ch_c15_info_code );
+        add_string_field( c15ch_c15_info_tree, pinfo, tvb, 10, 256, hf_c15ch_c15_info_text );
     }
 
     return tvb_reported_length(tvb);
@@ -4454,10 +4454,10 @@ static int dissect_c15ch_clli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     {
         ti = proto_tree_add_item(tree, hf_c15ch_clli, tvb, 0, 60, ENC_NA);
         c15ch_clli_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
-        add_string_field( c15ch_clli_tree, tvb, 0, 25, hf_c15ch_clli_clli_string );
+        add_string_field( c15ch_clli_tree, pinfo, tvb, 0, 25, hf_c15ch_clli_clli_string );
         proto_tree_add_item(c15ch_clli_tree, hf_c15ch_clli_active_core,  tvb, 25, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_clli_tree, hf_c15ch_clli_inactive_core,  tvb, 26, 1, ENC_BIG_ENDIAN);
-        add_string_field( c15ch_clli_tree, tvb, 27, 25, hf_c15ch_clli_interface_string );
+        add_string_field( c15ch_clli_tree, pinfo, tvb, 27, 25, hf_c15ch_clli_interface_string );
         proto_tree_add_item(c15ch_clli_tree, hf_c15ch_clli_seconds,  tvb, 52, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_clli_tree, hf_c15ch_clli_microseconds,  tvb, 56, 4, ENC_BIG_ENDIAN);
     }
@@ -4581,7 +4581,7 @@ static int dissect_c15ch_dest_digits(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     {
         ti = proto_tree_add_item(tree, hf_c15ch_dest_digits, tvb, 0, 36, ENC_NA);
         c15ch_dest_digits_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
-        add_digits_string(hf_c15ch_dest_digits_digits, tvb, c15ch_dest_digits_tree, 4, num_digits, 32, 4);
+        add_digits_string(hf_c15ch_dest_digits_digits, tvb, pinfo, c15ch_dest_digits_tree, 4, num_digits, 32, 4);
     }
     return tvb_reported_length(tvb);
 }
@@ -4928,17 +4928,17 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if ( site_str_len > 1 )
         {
             str_start = 12;
-            add_string_field( concat_tree, tvb, str_start, 5, hf_c15ch_nitnxlate_sitestring );
+            add_string_field( concat_tree, pinfo, tvb, str_start, 5, hf_c15ch_nitnxlate_sitestring );
         }
         if ( subsite_str_len > 1 )
         {
             str_start = 17;
-            add_string_field( concat_tree, tvb, str_start, 5, hf_c15ch_nitnxlate_subsitestring );
+            add_string_field( concat_tree, pinfo, tvb, str_start, 5, hf_c15ch_nitnxlate_subsitestring );
         }
         if ( equipname_str_len > 1 )
         {
             str_start = 22;
-            add_string_field( concat_tree, tvb, str_start, 5, hf_c15ch_nitnxlate_equipname );
+            add_string_field( concat_tree, pinfo, tvb, str_start, 5, hf_c15ch_nitnxlate_equipname );
         }
         if ( g_strcmp0( "GWE", equipname_string) == 0 )
         {
@@ -5026,7 +5026,7 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if ( g_strcmp0( "GWE", equipname_string ) == 0 )
         {
             str_start = 51;
-            add_string_field( c15ch_nitnxlate_tree, tvb, str_start, 65, hf_c15ch_nitnxlate_user_tid );
+            add_string_field( c15ch_nitnxlate_tree, pinfo, tvb, str_start, 65, hf_c15ch_nitnxlate_user_tid );
         }
         /* host */
         str_start = 116;
@@ -5034,9 +5034,9 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (( gwtype_val == 3 ) ||
             ( gwtype_val == 5 ) )
         {
-            add_string_field(c15ch_nitnxlate_tree, tvb, str_start, 65, hf_c15ch_nitnxlate_host );
+            add_string_field(c15ch_nitnxlate_tree, pinfo, tvb, str_start, 65, hf_c15ch_nitnxlate_host );
 			/* moving MGCP_Line_ID here into this block as it is only valid for MGCP / NCS lines */
-            add_string_field(c15ch_nitnxlate_tree, tvb, 185, 5, hf_c15ch_nitnxlate_mgcp_line_id);
+            add_string_field(c15ch_nitnxlate_tree, pinfo, tvb, 185, 5, hf_c15ch_nitnxlate_mgcp_line_id);
         }
 
         /* SIP Call-ID-64 */
@@ -5044,9 +5044,9 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             ( gwtype_val == 14 ) ||		/* SIP_LTG */
             ( gwtype_val == 15 ) )		/* SIP_TG */
         {
-            add_string_field(c15ch_nitnxlate_tree, tvb, str_start, 65, hf_c15ch_nitnxlate_sip_call_id_64 );
+            add_string_field(c15ch_nitnxlate_tree, pinfo, tvb, str_start, 65, hf_c15ch_nitnxlate_sip_call_id_64 );
             /* Also placing this parameter as "host" for call correlation with external tools */
-            add_string_field(c15ch_nitnxlate_tree, tvb, str_start, 65, hf_c15ch_nitnxlate_host );
+            add_string_field(c15ch_nitnxlate_tree, pinfo, tvb, str_start, 65, hf_c15ch_nitnxlate_host );
         }
 
         /* target group number */
@@ -5105,7 +5105,7 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* fromsite */
         str_start = 3;
         max_str_len = 5;
-        add_string_field( c15ch_ntwk_conn_tree, tvb, str_start, max_str_len, hf_c15ch_ntwk_conn_fromsite );
+        add_string_field( c15ch_ntwk_conn_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_ntwk_conn_fromsite );
 
         /* old location and pm, pc, slot, loop*/
         from_pm_val = tvb_get_uint8( tvb, 8 );
@@ -5145,7 +5145,7 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* tosite */
         str_start = 26;
         max_str_len = 5;
-        add_string_field( c15ch_ntwk_conn_tree, tvb, str_start, max_str_len, hf_c15ch_ntwk_conn_tosite );
+        add_string_field( c15ch_ntwk_conn_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_ntwk_conn_tosite );
 
         /* new location and pm, pc, slot, loop*/
         to_pm_val = tvb_get_uint8( tvb, 31 );
@@ -5203,7 +5203,7 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(sub_ni_tn_tree, hf_c15ch_orig_tn,
                             tvb, 8, 4, ENC_BIG_ENDIAN);
 
-        add_digits_string(hf_c15ch_orig_dndigits,tvb,c15ch_orig_tree, 13, num_dn_digits, 10, 1);
+        add_digits_string(hf_c15ch_orig_dndigits,tvb,pinfo,c15ch_orig_tree, 13, num_dn_digits, 10, 1);
 
         proto_tree_add_item(c15ch_orig_tree, hf_c15ch_orig_nidscrn,
                             tvb, 23, 1, ENC_BIG_ENDIAN);
@@ -5216,7 +5216,7 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(c15ch_orig_tree, hf_c15ch_orig_upnsaved,
                             tvb, 27, 1, ENC_BIG_ENDIAN);
 
-        add_digits_string(hf_c15ch_orig_upndigits,tvb,c15ch_orig_tree, 29, num_upn_digits, 15, 1);
+        add_digits_string(hf_c15ch_orig_upndigits,tvb,pinfo,c15ch_orig_tree, 29, num_upn_digits, 15, 1);
 
         proto_tree_add_item(c15ch_orig_tree, hf_c15ch_orig_upnscrn,
                             tvb, 44, 1, ENC_BIG_ENDIAN);
@@ -5229,7 +5229,7 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(c15ch_orig_tree, hf_c15ch_orig_rnpsaved,
                             tvb, 48, 1, ENC_BIG_ENDIAN);
 
-        add_digits_string(hf_c15ch_orig_rnpdigits,tvb,c15ch_orig_tree, 50, num_rnp_digits, 15, 1);
+        add_digits_string(hf_c15ch_orig_rnpdigits,tvb,pinfo,c15ch_orig_tree, 50, num_rnp_digits, 15, 1);
 
         proto_tree_add_item(c15ch_orig_tree, hf_c15ch_orig_rnpscrn,
                             tvb, 65, 1, ENC_BIG_ENDIAN);
@@ -5317,7 +5317,7 @@ static int dissect_c15ch_pathfind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         /* fromsite */
         str_start = 10;
         max_str_len = 5;
-        add_string_field( c15ch_pathfind_tree, tvb, str_start, max_str_len, hf_c15ch_pathfind_fromsite );
+        add_string_field( c15ch_pathfind_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_pathfind_fromsite );
 
         proto_tree_add_item(c15ch_pathfind_tree, hf_c15ch_pathfind_frompm,
                             tvb, 15, 1, ENC_BIG_ENDIAN);
@@ -5351,7 +5351,7 @@ static int dissect_c15ch_pathfind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         /* tosite */
         str_start = 46;
         max_str_len = 5;
-        add_string_field( c15ch_pathfind_tree, tvb, str_start, max_str_len, hf_c15ch_pathfind_tosite );
+        add_string_field( c15ch_pathfind_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_pathfind_tosite );
 
         proto_tree_add_item(c15ch_pathfind_tree, hf_c15ch_pathfind_topm,
                             tvb, 51, 1, ENC_BIG_ENDIAN);
@@ -5408,7 +5408,7 @@ static int dissect_c15ch_pathidle(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         /* fromsite */
         str_start = 11;
         max_str_len = 5;
-        add_string_field( c15ch_pathidle_tree, tvb, str_start, max_str_len, hf_c15ch_pathidle_fromsite );
+        add_string_field( c15ch_pathidle_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_pathidle_fromsite );
 
         proto_tree_add_item(c15ch_pathidle_tree, hf_c15ch_pathidle_frompm,
                             tvb, 16, 1, ENC_BIG_ENDIAN);
@@ -5439,7 +5439,7 @@ static int dissect_c15ch_pathidle(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         /* tosite */
         str_start = 46;
         max_str_len = 5;
-        add_string_field( c15ch_pathidle_tree, tvb, str_start, max_str_len, hf_c15ch_pathidle_tosite );
+        add_string_field( c15ch_pathidle_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_pathidle_tosite );
 
         proto_tree_add_item(c15ch_pathidle_tree, hf_c15ch_pathidle_topm,
                             tvb, 51, 1, ENC_BIG_ENDIAN);
@@ -5588,7 +5588,7 @@ static int dissect_c15ch_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             tvb, 72, 4, mos);
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_ep_type,
                             tvb, 76, 1, ENC_BIG_ENDIAN);
-        add_string_field( c15ch_qos_tree, tvb, 77, 13, hf_c15ch_qos_dn_or_tg );
+        add_string_field( c15ch_qos_tree, pinfo, tvb, 77, 13, hf_c15ch_qos_dn_or_tg );
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_pm,
                             tvb, 90, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_pc,
@@ -6028,7 +6028,7 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* Third level dissection code : called after basic inc gwe header info is dissected */
 
-static int dissect_c15ch_inc_gwe_admn_dn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_inc_gwe_admn_dn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_inc_gwe_admn_dn_tree = NULL;
@@ -6042,7 +6042,7 @@ static int dissect_c15ch_inc_gwe_admn_dn(tvbuff_t *tvb, packet_info *pinfo _U_, 
         num_digits = tvb_get_uint8(tvb, 4);
         proto_tree_add_item(c15ch_inc_gwe_admn_dn_tree, hf_c15ch_inc_gwe_admn_dn_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_admn_dn_ip_gwe_digits, tvb, c15ch_inc_gwe_admn_dn_tree,
+        add_digits_string(hf_c15ch_inc_gwe_admn_dn_ip_gwe_digits, tvb, pinfo, c15ch_inc_gwe_admn_dn_tree,
             5, num_digits, 32, 1);
     }
     return tvb_reported_length(tvb);
@@ -6173,7 +6173,7 @@ static int dissect_c15ch_inc_gwe_cl_prog(tvbuff_t *tvb, packet_info *pinfo _U_, 
 }
 
 
-static int dissect_c15ch_inc_gwe_cl_redir(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_inc_gwe_cl_redir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_inc_gwe_cl_redir_tree = NULL;
@@ -6190,13 +6190,13 @@ static int dissect_c15ch_inc_gwe_cl_redir(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_inc_gwe_cl_redir_tree, hf_c15ch_inc_gwe_cl_redir_ip_gwe_conn_num,
                             tvb, 4, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_cl_redir_ip_gwe_redir_digits, tvb,c15ch_inc_gwe_cl_redir_tree,
+        add_digits_string(hf_c15ch_inc_gwe_cl_redir_ip_gwe_redir_digits, tvb, pinfo, c15ch_inc_gwe_cl_redir_tree,
             9, redir_num_digits, 15, 1);
     }
     return tvb_reported_length(tvb);
 }
 
-static int dissect_c15ch_inc_gwe_cl_refer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_inc_gwe_cl_refer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_inc_gwe_cl_refer_tree = NULL;
@@ -6213,7 +6213,7 @@ static int dissect_c15ch_inc_gwe_cl_refer(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_inc_gwe_cl_refer_tree, hf_c15ch_inc_gwe_cl_refer_ip_gwe_conn_num,
                             tvb, 4, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_digits, tvb, c15ch_inc_gwe_cl_refer_tree,
+        add_digits_string(hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_digits, tvb, pinfo, c15ch_inc_gwe_cl_refer_tree,
             9, trgt_num_digits, 32, 1);
         ti = proto_tree_add_item(c15ch_inc_gwe_cl_refer_tree, hf_c15ch_inc_gwe_cl_refer_ip_gwe_trgt_ni_tn,
                             tvb, 41, 8, ENC_BIG_ENDIAN);
@@ -6264,7 +6264,7 @@ static int dissect_c15ch_inc_gwe_cl_setup(tvbuff_t *tvb, packet_info *pinfo _U_,
         c15ch_inc_gwe_cl_setup_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_inc_gwe);
         proto_tree_add_item(c15ch_inc_gwe_cl_setup_tree, hf_c15ch_inc_gwe_cl_setup_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_cl_setup_ip_gwe_cled_digits,tvb,c15ch_inc_gwe_cl_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_cl_setup_ip_gwe_cled_digits,tvb,pinfo,c15ch_inc_gwe_cl_setup_tree,
             5, num_digits, 32, 1);
         proto_tree_add_item(c15ch_inc_gwe_cl_setup_tree, hf_c15ch_inc_gwe_cl_setup_ip_cl_setup_lsdp,
                             tvb, 37, 4, ENC_LITTLE_ENDIAN);
@@ -6349,7 +6349,7 @@ static int dissect_c15ch_inc_gwe_mgcp_dlcx(tvbuff_t *tvb, packet_info *pinfo _U_
     return tvb_reported_length(tvb);
 }
 
-static int dissect_c15ch_inc_gwe_notify(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_inc_gwe_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_inc_gwe_notify_tree = NULL;
@@ -6365,7 +6365,7 @@ static int dissect_c15ch_inc_gwe_notify(tvbuff_t *tvb, packet_info *pinfo _U_, p
         c15ch_inc_gwe_notify_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_inc_gwe);
         proto_tree_add_item(c15ch_inc_gwe_notify_tree, hf_c15ch_inc_gwe_notify_ip_gwe_mwi_stat,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_notify_ip_gwe_digits,tvb,c15ch_inc_gwe_notify_tree,
+        add_digits_string(hf_c15ch_inc_gwe_notify_ip_gwe_digits,tvb,pinfo,c15ch_inc_gwe_notify_tree,
             5, num_digits, 32, 1);
     }
     return tvb_reported_length(tvb);
@@ -6400,7 +6400,7 @@ static int dissect_c15ch_inc_gwe_ntwk_mod(tvbuff_t *tvb, packet_info *pinfo _U_,
     return tvb_reported_length(tvb);
 }
 
-static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_inc_gwe_ptrk_setup_tree = NULL;
@@ -6436,7 +6436,7 @@ static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U
 
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cled_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cled_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             5,cled_num_digits, 32, 1);
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_cl_setup_lsdp,
                             tvb, 37, 4, ENC_LITTLE_ENDIAN);
@@ -6444,7 +6444,7 @@ static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U
                             tvb, 41, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clid_pri,
                             tvb, 45, 1, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             47,clng_num_digits, 32, 1);
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_clng_ton,
                             tvb, 79, 1, ENC_BIG_ENDIAN);
@@ -6454,17 +6454,17 @@ static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_alert_info,
                             tvb, 81, 4, ENC_BIG_ENDIAN);
 
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             86,redir_num_digits, 15, 1);
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_ton,
                             tvb, 101, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_redir_np,
                             tvb, 102, 1, ENC_BIG_ENDIAN);
 
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_ocn_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_ocn_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             104,ocn_num_digits, 15, 1);
 
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             120,chrg_num_digits, 10, 1);
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_chrg_noa,
                             tvb, 130, 1, ENC_BIG_ENDIAN);
@@ -6474,10 +6474,10 @@ static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_npdi,
                             tvb, 132, 1, ENC_BIG_ENDIAN);
 
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_rn_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_rn_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             134,rn_num_digits, 32, 1);
 
-        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cic_digits,tvb,c15ch_inc_gwe_ptrk_setup_tree,
+        add_digits_string(hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_cic_digits,tvb,pinfo,c15ch_inc_gwe_ptrk_setup_tree,
             167,cic_num_digits, 4, 1);
 
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_encap_isup,
@@ -6836,7 +6836,7 @@ static int dissect_c15ch_out_gwe_call_rel(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static int dissect_c15ch_out_gwe_call_setup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_out_gwe_call_setup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_out_gwe_call_setup_tree = NULL;
@@ -6864,15 +6864,15 @@ static int dissect_c15ch_out_gwe_call_setup(tvbuff_t *tvb, packet_info *pinfo _U
                             tvb, 4, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(c15ch_out_gwe_call_setup_tree, hf_c15ch_out_gwe_call_setup_op_cl_ans_rsdp_port,
                             tvb, 8, 4, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_out_gwe_call_setup_op_gwe_redir_digits, tvb, c15ch_out_gwe_call_setup_tree,
+        add_digits_string(hf_c15ch_out_gwe_call_setup_op_gwe_redir_digits, tvb, pinfo, c15ch_out_gwe_call_setup_tree,
             13, redir_num_digits, 15, 1);
         proto_tree_add_item(c15ch_out_gwe_call_setup_tree, hf_c15ch_out_gwe_call_setup_op_gwe_rdir_ton,
                             tvb, 28, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_out_gwe_call_setup_tree, hf_c15ch_out_gwe_call_setup_op_gwe_rdir_np,
                             tvb, 29, 1, ENC_BIG_ENDIAN);
-        add_digits_string(hf_c15ch_out_gwe_call_setup_op_gwe_ocn_digits, tvb, c15ch_out_gwe_call_setup_tree,
+        add_digits_string(hf_c15ch_out_gwe_call_setup_op_gwe_ocn_digits, tvb, pinfo, c15ch_out_gwe_call_setup_tree,
             31, ocn_num_digits, 15, 1);
-        add_digits_string(hf_c15ch_out_gwe_call_setup_op_gwe_chrg_digits, tvb, c15ch_out_gwe_call_setup_tree,
+        add_digits_string(hf_c15ch_out_gwe_call_setup_op_gwe_chrg_digits, tvb, pinfo, c15ch_out_gwe_call_setup_tree,
             47, chrg_num_digits, 10, 1);
         proto_tree_add_item(c15ch_out_gwe_call_setup_tree, hf_c15ch_out_gwe_call_setup_op_gwe_chrg_noa,
                             tvb, 57, 1, ENC_BIG_ENDIAN);
@@ -6933,7 +6933,7 @@ static int dissect_c15ch_out_gwe_digit_scan(tvbuff_t *tvb, packet_info *pinfo _U
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         str_start = 1;
         max_str_len = 250;
-        add_string_field( c15ch_out_gwe_digit_scan_tree, tvb, str_start, max_str_len, hf_c15ch_out_gwe_digit_scan_actv_dgmp  );
+        add_string_field( c15ch_out_gwe_digit_scan_tree, pinfo, tvb, str_start, max_str_len, hf_c15ch_out_gwe_digit_scan_actv_dgmp  );
         proto_tree_add_item(c15ch_out_gwe_digit_scan_tree, hf_c15ch_out_gwe_digit_scan_op_gwe_digit_scan_tone,
                             tvb, 251, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_out_gwe_digit_scan_tree, hf_c15ch_out_gwe_digit_scan_op_gwe_tone_type,
@@ -7053,7 +7053,7 @@ static int dissect_c15ch_out_gwe_pcm_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     return tvb_reported_length(tvb);
 }
 
-static int dissect_c15ch_out_gwe_ring_line(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_out_gwe_ring_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_out_gwe_ring_line_tree = NULL;
@@ -7064,7 +7064,7 @@ static int dissect_c15ch_out_gwe_ring_line(tvbuff_t *tvb, packet_info *pinfo _U_
         c15ch_out_gwe_ring_line_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_out_gwe);
         proto_tree_add_item(c15ch_out_gwe_ring_line_tree, hf_c15ch_out_gwe_ring_line_op_gwe_display,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
-        add_string_field( c15ch_out_gwe_ring_line_tree, tvb, 1, 100, hf_c15ch_out_gwe_ring_line_op_gwe_display_chars );
+        add_string_field( c15ch_out_gwe_ring_line_tree, pinfo, tvb, 1, 100, hf_c15ch_out_gwe_ring_line_op_gwe_display_chars );
     }
 
     return tvb_reported_length(tvb);
@@ -7113,7 +7113,7 @@ static int dissect_c15ch_out_gwe_sac_notify(tvbuff_t *tvb, packet_info *pinfo _U
 }
 
 
-static int dissect_c15ch_out_gwe_sac_list_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_out_gwe_sac_list_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_out_gwe_sac_list_entry_tree = NULL;
@@ -7122,7 +7122,7 @@ static int dissect_c15ch_out_gwe_sac_list_entry(tvbuff_t *tvb, packet_info *pinf
     {
         ti = proto_tree_add_item(tree, hf_c15ch_out_gwe_sac_list_entry, tvb, 0, 72, ENC_NA);
         c15ch_out_gwe_sac_list_entry_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_out_gwe);
-        add_string_field( c15ch_out_gwe_sac_list_entry_tree, tvb, 0,72,
+        add_string_field( c15ch_out_gwe_sac_list_entry_tree, pinfo, tvb, 0,72,
                             hf_c15ch_out_gwe_sac_list_entry_op_gwe_med_uri );
     }
 
@@ -7338,7 +7338,7 @@ static int dissect_c15ch_tone_madn_ring(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 
-static int dissect_c15ch_tone_opls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_c15ch_tone_opls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
     proto_tree * c15ch_tone_opls_tree = NULL;
@@ -7361,7 +7361,7 @@ static int dissect_c15ch_tone_opls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree_add_item(to_ni_tn_tree, hf_c15ch_tone_opls_svce_to_tn,
                             tvb, 8, 4, ENC_BIG_ENDIAN);
         /* digits */
-        add_digits_string(hf_c15ch_tone_opls_digits, tvb, c15ch_tone_opls_tree,
+        add_digits_string(hf_c15ch_tone_opls_digits, tvb, pinfo, c15ch_tone_opls_tree,
                         13, num_digits, 54, 1);
     }
 
@@ -7498,7 +7498,7 @@ static int dissect_c15ch_c15_generic_msg_1(tvbuff_t *tvb, packet_info *pinfo, pr
                             tvb, 68, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_c15_generic_msg_1_tree, hf_c15ch_c15_generic_msg_gen_msg_field_5,
                             tvb, 72, 4, ENC_BIG_ENDIAN);
-        add_string_field(c15ch_c15_generic_msg_1_tree, tvb, 76, 1232,
+        add_string_field(c15ch_c15_generic_msg_1_tree, pinfo, tvb, 76, 1232,
                          hf_c15ch_c15_generic_msg_gen_msg_string);
     }
 
@@ -7616,7 +7616,7 @@ static int dissect_c15ch_c15_generic_msg_3(tvbuff_t *tvb, packet_info *pinfo, pr
                             tvb, 68, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_c15_generic_msg_3_tree, hf_c15ch_c15_generic_msg_gen_msg_field_5,
                             tvb, 72, 4, ENC_BIG_ENDIAN);
-        add_string_field(c15ch_c15_generic_msg_3_tree, tvb, 76, 616,
+        add_string_field(c15ch_c15_generic_msg_3_tree, pinfo, tvb, 76, 616,
                          hf_c15ch_c15_generic_msg_gen_msg_string);
         proto_tree_add_item(c15ch_c15_generic_msg_3_tree, hf_c15ch_c15_generic_msg_gen_data_large,
                             tvb, 692, 616, ENC_NA);
@@ -7677,7 +7677,7 @@ static int dissect_c15ch_c15_generic_msg_4(tvbuff_t *tvb, packet_info *pinfo, pr
                             tvb, 68, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_c15_generic_msg_4_tree, hf_c15ch_c15_generic_msg_gen_msg_field_5,
                             tvb, 72, 4, ENC_BIG_ENDIAN);
-        add_string_field(c15ch_c15_generic_msg_4_tree, tvb, 76, 924,
+        add_string_field(c15ch_c15_generic_msg_4_tree, pinfo, tvb, 76, 924,
                          hf_c15ch_c15_generic_msg_gen_msg_string);
         proto_tree_add_item(c15ch_c15_generic_msg_4_tree, hf_c15ch_c15_generic_msg_gen_data_large,
                             tvb, 1000, 308, ENC_NA);
@@ -7738,7 +7738,7 @@ static int dissect_c15ch_c15_generic_msg_5(tvbuff_t *tvb, packet_info *pinfo, pr
                             tvb, 68, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_c15_generic_msg_5_tree, hf_c15ch_c15_generic_msg_gen_msg_field_5,
                             tvb, 72, 4, ENC_BIG_ENDIAN);
-        add_string_field(c15ch_c15_generic_msg_5_tree, tvb, 76, 308,
+        add_string_field(c15ch_c15_generic_msg_5_tree, pinfo, tvb, 76, 308,
                          hf_c15ch_c15_generic_msg_gen_msg_string);
         proto_tree_add_item(c15ch_c15_generic_msg_5_tree, hf_c15ch_c15_generic_msg_gen_data_large,
                             tvb, 384, 924, ENC_NA);
@@ -7783,9 +7783,9 @@ static int dissect_c15ch_c15_correlate_msg(tvbuff_t *tvb, packet_info *pinfo, pr
                             tvb, 36, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_c15_correlate_msg_tree, hf_c15ch_c15_generic_msg_cr_ptr_val,
                             tvb, 40, 4, ENC_BIG_ENDIAN);
-        add_string_field(c15ch_c15_correlate_msg_tree, tvb, 44, 129,
+        add_string_field(c15ch_c15_correlate_msg_tree, pinfo, tvb, 44, 129,
 			             hf_c15ch_c15_opt_string_parm_8);
-        add_string_field(c15ch_c15_correlate_msg_tree, tvb, 173, 129,
+        add_string_field(c15ch_c15_correlate_msg_tree, pinfo, tvb, 173, 129,
 			             hf_c15ch_c15_opt_string_parm_9);
     }
 
@@ -7814,7 +7814,7 @@ static int dissect_c15ch_c15_sip_reg_subs_report(tvbuff_t *tvb, packet_info *pin
         str_start = 0;
         report_type = tvb_get_stringz_enc(pinfo->pool, tvb, str_start, &report_type_str_len, ENC_ASCII);
 
-        add_string_field(c15ch_c15_sip_reg_subs_report_tree, tvb, 0, 12,
+        add_string_field(c15ch_c15_sip_reg_subs_report_tree, pinfo, tvb, 0, 12,
 			             hf_c15ch_c15_sip_report_type);
         proto_tree_add_item(c15ch_c15_sip_reg_subs_report_tree, hf_c15ch_c15_rate,
                             tvb, 12, 4, ENC_BIG_ENDIAN);
@@ -7885,15 +7885,15 @@ static int dissect_c15ch_c15_sys_alarm(tvbuff_t *tvb, packet_info *pinfo, proto_
         ti = proto_tree_add_item( tree, hf_c15ch_c15_sys_alarm, tvb, 0, length, ENC_NA );
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %d", length);
         c15ch_c15_sys_alarm_tree = proto_item_add_subtree( ti, ett_c15ch_second_level );
-        add_string_field(c15ch_c15_sys_alarm_tree, tvb, 0, 7,
+        add_string_field(c15ch_c15_sys_alarm_tree, pinfo, tvb, 0, 7,
                          hf_c15ch_c15_omm_tag_code);
-        add_string_field(c15ch_c15_sys_alarm_tree, tvb, 7, 5,
+        add_string_field(c15ch_c15_sys_alarm_tree, pinfo, tvb, 7, 5,
                          hf_c15ch_c15_alarm_class);
-        add_string_field(c15ch_c15_sys_alarm_tree, tvb, 12, 4,
+        add_string_field(c15ch_c15_sys_alarm_tree, pinfo, tvb, 12, 4,
                          hf_c15ch_c15_alarm_status);
-        add_string_field(c15ch_c15_sys_alarm_tree, tvb, 16, 5,
+        add_string_field(c15ch_c15_sys_alarm_tree, pinfo, tvb, 16, 5,
                          hf_c15ch_c15_site_name);
-        add_string_field(c15ch_c15_sys_alarm_tree, tvb, 21, 5,
+        add_string_field(c15ch_c15_sys_alarm_tree, pinfo, tvb, 21, 5,
                          hf_c15ch_c15_system);
     }
 
@@ -7922,15 +7922,15 @@ static int dissect_c15ch_c15_tty_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                             tvb, 8, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_c15_tty_msg_tree, hf_c15ch_c15_tty_int_parm_4,
                             tvb, 12, 4, ENC_BIG_ENDIAN);
-        add_string_field(c15ch_c15_tty_msg_tree, tvb, 16, 8,
+        add_string_field(c15ch_c15_tty_msg_tree, pinfo, tvb, 16, 8,
                          hf_c15ch_c15_omm_msg_tag);
-        add_string_field(c15ch_c15_tty_msg_tree, tvb, 24, 40,
+        add_string_field(c15ch_c15_tty_msg_tree, pinfo, tvb, 24, 40,
                          hf_c15ch_c15_text_location);
-        add_string_field(c15ch_c15_tty_msg_tree, tvb, 64, 40,
+        add_string_field(c15ch_c15_tty_msg_tree, pinfo, tvb, 64, 40,
                          hf_c15ch_c15_tty_text_parm_1);
-        add_string_field(c15ch_c15_tty_msg_tree, tvb, 104, 40,
+        add_string_field(c15ch_c15_tty_msg_tree, pinfo, tvb, 104, 40,
                          hf_c15ch_c15_tty_text_parm_2);
-        add_string_field(c15ch_c15_tty_msg_tree, tvb, 144, 40,
+        add_string_field(c15ch_c15_tty_msg_tree, pinfo, tvb, 144, 40,
                          hf_c15ch_c15_tty_text_parm_3);
     }
 

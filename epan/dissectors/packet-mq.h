@@ -5832,7 +5832,7 @@ typedef struct _mq_parm_t
 
 #endif
 
-extern wmem_strbuf_t* mqpcf_get_encoding(const unsigned uEnc);
+extern wmem_strbuf_t* mqpcf_get_encoding(wmem_allocator_t* allocator, const unsigned uEnc);
 extern int32_t strip_trailing_blanks(uint8_t *a_str, uint32_t a_size);
 extern const uint8_t* dissect_mqpcf_parm_getintval(unsigned uPrm, unsigned uVal);
 extern uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,

@@ -115,7 +115,7 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(dvb_bat_tree, hf_dvb_bat_bouquet_descriptors_length,   tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, dvb_bat_tree);
+    offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, descriptor_len, dvb_bat_tree);
 
     ts_loop_len = tvb_get_ntohs(tvb, offset) & DVB_BAT_TRANSPORT_STREAM_LOOP_LENGTH_MASK;
     proto_tree_add_item(dvb_bat_tree, hf_dvb_bat_reserved3,                    tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -140,7 +140,7 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         proto_tree_add_item(transport_stream_tree, hf_dvb_bat_transport_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, transport_stream_tree);
+        offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, descriptor_len, transport_stream_tree);
     }
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_bat_tree, 0, offset);
