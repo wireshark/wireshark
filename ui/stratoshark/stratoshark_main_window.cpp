@@ -686,7 +686,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
 StratosharkMainWindow::~StratosharkMainWindow()
 {
-    disconnect(main_ui_->mainStack, 0, 0, 0);
+    disconnect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &StratosharkMainWindow::mainStackChanged);
     if (previous_focus_ != nullptr) {
         disconnect(previous_focus_, &QWidget::destroyed, this, &StratosharkMainWindow::resetPreviousFocus);
     }

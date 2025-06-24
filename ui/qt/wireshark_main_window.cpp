@@ -720,7 +720,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
 WiresharkMainWindow::~WiresharkMainWindow()
 {
-    disconnect(main_ui_->mainStack, 0, 0, 0);
+    disconnect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &WiresharkMainWindow::mainStackChanged);
     if (previous_focus_ != nullptr) {
         disconnect(previous_focus_, &QWidget::destroyed, this, &WiresharkMainWindow::resetPreviousFocus);
     }
