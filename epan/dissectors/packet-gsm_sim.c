@@ -322,6 +322,10 @@ static int hf_seek_mode;
 static int hf_seek_type;
 static int hf_seek_rec_nr;
 
+static int hf_response_in;
+static int hf_response_to;
+static int hf_response_time;
+
 static int ett_sim;
 static int ett_tprof_b1;
 static int ett_tprof_b2;
@@ -360,6 +364,17 @@ static int ett_tprof_b33;
 static dissector_handle_t sub_handle_cap;
 static dissector_handle_t sim_handle, sim_part_handle;
 
+/* The response contains no channel number to compare to and the spec explicitly
+ * prohibits interleaving of command/response pairs, regardless of logical channels.
+ */
+typedef struct {
+	uint32_t cmd_frame;
+	uint32_t rsp_frame;
+	nstime_t cmd_time;
+	uint8_t  cmd_ins;
+} gsm_sim_transaction_t;
+
+static wmem_tree_t *transactions;
 
 static int * const tprof_b1_fields[] = {
 	&hf_tp_prof_dld,
@@ -1518,11 +1533,20 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 }
 
 static int
-dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree)
+dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree, bool isSIMtrace)
 {
 	uint16_t sw;
 	proto_item *ti = NULL;
 	unsigned tvb_len = tvb_reported_length(tvb);
+	gsm_sim_transaction_t *gsm_sim_trans;
+	uint8_t ins = 0x00;
+	bool response_only = true;
+
+	/* Receive the largest key that is less than or equal to our frame number */
+	gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_le(transactions, pinfo->num);
+	if (!PINFO_FD_VISITED(pinfo) && gsm_sim_trans && gsm_sim_trans->rsp_frame == 0) {
+		gsm_sim_trans->rsp_frame = pinfo->num;
+	}
 
 	if (tree && !sim_tree) {
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
@@ -1530,7 +1554,22 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	}
 
 	if ((tvb_len-offset) > 2) {
-		proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, tvb_len - 2, ENC_NA);
+		tvbuff_t *subtvb;
+
+		if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
+			ins = gsm_sim_trans->cmd_ins;
+		}
+
+		switch (ins) {
+		case 0x12: /* FETCH */
+			subtvb = tvb_new_subset_length(tvb, offset, tvb_len - 2);
+			dissect_bertlv(subtvb, pinfo, sim_tree, NULL);
+			response_only = false;
+			break;
+		default:
+			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, tvb_len - 2, ENC_NA);
+			break;
+		}
 	}
 	offset = tvb_len - 2;
 
@@ -1544,7 +1583,12 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	if (ti) {
 		/* Always show status in info column when response only */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(pinfo->pool, sw));
+		if (response_only && ins) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s, %s",
+				     val_to_str(ins, apdu_ins_vals, "%02x"), get_sw_string(pinfo->pool, sw));
+		} else if (response_only) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(pinfo->pool, sw));
+		}
 	} else {
 		switch (sw >> 8) {
 		case 0x90:
@@ -1559,6 +1603,21 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		}
 	}
 
+	if (isSIMtrace) {
+		return offset;
+	}
+
+	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
+		nstime_t ns;
+
+		ti = proto_tree_add_uint(sim_tree, hf_response_to, NULL, 0, 0, gsm_sim_trans->cmd_frame);
+		proto_item_set_generated(ti);
+
+		nstime_delta(&ns, &pinfo->fd->abs_ts, &gsm_sim_trans->cmd_time);
+		ti = proto_tree_add_time(sim_tree, hf_response_time, NULL, 0, 0, &ns);
+		proto_item_set_generated(ti);
+	}
+
 	return offset;
 }
 
@@ -1570,11 +1629,25 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	proto_tree *sim_tree = NULL;
 	int rc = -1;
 	unsigned tvb_len = tvb_reported_length(tvb);
+	gsm_sim_transaction_t *gsm_sim_trans;
 
 	cla = tvb_get_uint8(tvb, offset);
 	ins = tvb_get_uint8(tvb, offset+1);
 	p1 = tvb_get_uint8(tvb, offset+2);
 	p2 = tvb_get_uint8(tvb, offset+3);
+
+	if (PINFO_FD_VISITED(pinfo)) {
+		gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32(transactions, pinfo->num);
+	} else {
+		/* This is the first time we see this packet, so create a new transaction */
+		gsm_sim_trans = wmem_new(wmem_file_scope(), gsm_sim_transaction_t);
+		gsm_sim_trans->cmd_frame = pinfo->num;
+		gsm_sim_trans->rsp_frame = 0;
+		gsm_sim_trans->cmd_time = pinfo->fd->abs_ts;
+		gsm_sim_trans->cmd_ins = ins;
+
+		wmem_tree_insert32(transactions, pinfo->num, gsm_sim_trans);
+	}
 
 	if (tvb_reported_length_remaining(tvb, offset+3) > 1) {
 		p3 = tvb_get_uint8(tvb, offset+4);
@@ -1642,7 +1715,12 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	}
 
 	if (isSIMtrace) {
-		return dissect_rsp_apdu_tvb(tvb, tvb_len-2, pinfo, tree, sim_tree);
+		return dissect_rsp_apdu_tvb(tvb, tvb_len-2, pinfo, tree, sim_tree, true);
+	}
+
+	if (gsm_sim_trans && gsm_sim_trans->cmd_frame == pinfo->num && gsm_sim_trans->rsp_frame != 0) {
+		ti = proto_tree_add_uint(sim_tree, hf_response_in, NULL, 0, 0, gsm_sim_trans->rsp_frame);
+		proto_item_set_generated(ti);
 	}
 
 	return offset;
@@ -1668,7 +1746,7 @@ static int
 dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
-	dissect_rsp_apdu_tvb(tvb, 0, pinfo, tree, NULL);
+	dissect_rsp_apdu_tvb(tvb, 0, pinfo, tree, NULL, false);
 	return tvb_captured_length(tvb);
 }
 
@@ -3049,6 +3127,22 @@ proto_register_gsm_sim(void)
 			{ "Seek Record Number", "gsm_sim.seek_rec_nr",
 			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL },
 		},
+
+		{ &hf_response_in,
+			{ "Response In", "gsm_sim.response_in",
+			  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+			  "The response to this command is in this frame", HFILL }
+		},
+		{ &hf_response_to,
+			{ "Response To", "gsm_sim.response_to",
+			  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			  "This is the response to the command in this frame", HFILL }
+		},
+		{ &hf_response_time,
+			{ "Response Time", "gsm_sim.response_time",
+			  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			  "The time between the command and the response", HFILL }
+		},
 	};
 	static int *ett[] = {
 		&ett_sim,
@@ -3093,6 +3187,8 @@ proto_register_gsm_sim(void)
 	proto_register_field_array(proto_gsm_sim, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
 	/* This dissector is for SIMtrace, which always combines the command
 	 * & response APDUs into one packet before sending it to GSMTAP. Cf.
