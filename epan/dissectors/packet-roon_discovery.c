@@ -15,7 +15,9 @@
  * as no public documentation exists.
  */
 
+#define WS_LOG_DOMAIN "packet-roon_discovery"
 #include <config.h>
+#include <wireshark.h>
 
 #include <stdlib.h> /* For bsearch() */
 
@@ -227,7 +229,7 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         // If we reach here, unsupported field
-        // fprintf(stderr, "no match for %s\n", key);
+        ws_debug("no match for %s", key);
     }
 
     return tvb_captured_length(tvb);

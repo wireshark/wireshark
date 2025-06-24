@@ -11,9 +11,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "packet-rpc"
 #include "config.h"
+#include <wireshark.h>
 
-#include <stdio.h>	/* fprintf() */
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
@@ -552,7 +553,7 @@ rpc_init_prog(int proto, uint32_t prog, int ett, size_t nvers,
 			key.proc = proc->value;
 
 			if (proc->dissect_call == NULL) {
-				fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
+				ws_warning("OOPS: No call handler for %s version %u procedure %s",
 				    proto_get_protocol_long_name(value->proto),
 				    versions[versidx].vers,
 				    proc->strptr);
@@ -567,7 +568,7 @@ rpc_init_prog(int proto, uint32_t prog, int ett, size_t nvers,
 						create_dissector_handle_with_name_and_description(proc->dissect_call, value->proto_id, NULL, proc->strptr));
 
 			if (proc->dissect_reply == NULL) {
-				fprintf(stderr, "OOPS: No reply handler for %s version %u procedure %s\n",
+				ws_warning("OOPS: No reply handler for %s version %u procedure %s",
 				    proto_get_protocol_long_name(value->proto),
 				    versions[versidx].vers,
 				    proc->strptr);

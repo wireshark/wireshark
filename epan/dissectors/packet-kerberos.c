@@ -45,9 +45,9 @@
  * information.
  */
 
+#define WS_LOG_DOMAIN "packet-kerberos"
 #include <config.h>
-
-#include <stdio.h>
+#include <wireshark.h>
 
 // krb5.h needs to be included before the defines in packet-kerberos.h
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -1963,14 +1963,14 @@ read_keytab_file(const char *filename)
 	/* should use a file in the wireshark users dir */
 	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Badly formatted keytab filename :%s\n",filename);
+		ws_critical("KERBEROS ERROR: Badly formatted keytab filename: %s", filename);
 
 		return;
 	}
 
 	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not open or could not read from keytab file :%s\n",filename);
+		ws_critical("KERBEROS ERROR: Could not open or could not read from keytab file: %s", filename);
 		return;
 	}
 
@@ -2007,7 +2007,7 @@ read_keytab_file(const char *filename)
 			enc_key_list=new_key;
 			ret = krb5_free_keytab_entry_contents(krb5_ctx, &key);
 			if (ret) {
-				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ws_critical("KERBEROS ERROR: Could not release the entry: %d", ret);
 				ret = 0; /* try to continue with the next entry */
 			}
 			kerberos_key_map_insert(kerberos_longterm_keys, new_key);
@@ -2016,11 +2016,11 @@ read_keytab_file(const char *filename)
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+		ws_critical("KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
 	}
 	ret = krb5_kt_close(krb5_ctx, keytab);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
+		ws_critical("KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 }
 
@@ -3389,14 +3389,14 @@ read_keytab_file(const char *filename)
 	/* should use a file in the wireshark users dir */
 	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
+		ws_critical("KERBEROS ERROR: Could not open keytab file: %s", filename);
 
 		return;
 	}
 
 	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
+		ws_critical("KERBEROS ERROR: Could not read from keytab file: %s", filename);
 		return;
 	}
 
@@ -3432,7 +3432,7 @@ read_keytab_file(const char *filename)
 			enc_key_list=new_key;
 			ret = krb5_kt_free_entry(krb5_ctx, &key);
 			if (ret) {
-				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ws_critical("KERBEROS ERROR: Could not release the entry: %d", ret);
 				ret = 0; /* try to continue with the next entry */
 			}
 			kerberos_key_map_insert(kerberos_longterm_keys, new_key);
@@ -3441,11 +3441,11 @@ read_keytab_file(const char *filename)
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+		ws_critical("KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
 	}
 	ret = krb5_kt_close(krb5_ctx, keytab);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
+		ws_critical("KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 
 }
@@ -3689,7 +3689,7 @@ read_keytab_file(const char *service_key_file)
 			snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (void *) sk);
 			if (fseek(skf, newline_skip, SEEK_CUR) < 0) {
-				fprintf(stderr, "unable to seek...\n");
+				ws_critical("unable to seek...");
 				fclose(skf);
 				return;
 			}
