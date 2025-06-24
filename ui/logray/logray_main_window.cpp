@@ -689,7 +689,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
 LograyMainWindow::~LograyMainWindow()
 {
-    disconnect(main_ui_->mainStack, 0, 0, 0);
+    disconnect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &LograyMainWindow::mainStackChanged);
     if (previous_focus_ != nullptr) {
         disconnect(previous_focus_, &QWidget::destroyed, this, &LograyMainWindow::resetPreviousFocus);
     }
