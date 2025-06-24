@@ -79,6 +79,7 @@ static int hf_can_err_ctrl_specific;
 static int hf_canxl_priority;
 static int hf_canxl_vcid;
 static int hf_canxl_secflag;
+static int hf_canxl_rrsflag;
 static int hf_canxl_xlflag;
 static int hf_canxl_sdu_type;
 static int hf_canxl_len;
@@ -562,6 +563,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
     };
     static int * const canxl_flag_fields[] = {
         &hf_canxl_secflag,
+        &hf_canxl_rrsflag,
         &hf_canxl_xlflag,
         NULL,
     };
@@ -941,7 +943,9 @@ proto_register_socketcan(void) {
         { &hf_canxl_vcid, {
             "VCID", "canxl.vcid", FT_UINT32, BASE_DEC, NULL, 0x00FF0000, NULL, HFILL } },
         { &hf_canxl_secflag, {
-            "Simple Extended Context", "canxl.flags.sec", FT_BOOLEAN, 8, NULL, CANXL_SEC, NULL, HFILL } },
+            "Simple Extended Content", "canxl.flags.sec", FT_BOOLEAN, 8, NULL, CANXL_SEC, NULL, HFILL } },
+        { &hf_canxl_rrsflag, {
+            "Remote Request Substitution", "canxl.flags.rrs", FT_BOOLEAN, 8, NULL, CANXL_RRS, NULL, HFILL } },
         { &hf_canxl_xlflag, {
             "XL Frame", "canxl.flags.xl", FT_BOOLEAN, 8, NULL, CANXL_XLF, NULL, HFILL } },
         { &hf_canxl_sdu_type, {

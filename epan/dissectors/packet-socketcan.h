@@ -37,7 +37,8 @@
  * XL and CAN classic/CAN FD frames by testing that bit.
  */
 #define CANXL_XLF 0x80 /* XL flag - if set, this is an XL frame */
-#define CANXL_SEC 0x01 /* Simple Extended Content */
+#define CANXL_SEC 0x01 /* Simple Extended Content (security/segmentation) */
+#define CANXL_RRS 0x02 /* Remote Request Substitution */
 
 /*
  * CAN frame type.
