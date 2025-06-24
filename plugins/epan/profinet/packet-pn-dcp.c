@@ -2111,7 +2111,8 @@ proto_register_pn_dcp (void)
     static int *ett[] = {
         &ett_pn_dcp,
         &ett_pn_dcp_block,
-        &ett_pn_dcp_rsi_properties_value
+        &ett_pn_dcp_rsi_properties_value,
+        &ett_pn_dcp_service_type
     };
 
     static ei_register_info ei[] = {

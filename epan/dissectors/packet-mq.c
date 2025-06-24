@@ -4802,6 +4802,7 @@ void proto_register_mq(void)
         &ett_mq_id_ief2,
         &ett_mq_uid,
         &ett_mq_conn,
+        &ett_mq_fcno_option,
         &ett_mq_msg,
         &ett_mq_notif,
         &ett_mq_inq,

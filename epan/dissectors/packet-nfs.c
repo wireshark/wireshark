@@ -6243,6 +6243,7 @@ static const value_string fattr4_names[] = {
 #define FATTR4_DIR_NOTIF_DELAY     56
 	{	FATTR4_DIR_NOTIF_DELAY,    "Dir_Notif_Delay"	},
 #define FATTR4_DIRENT_NOTIF_DELAY  57
+	{	FATTR4_DIRENT_NOTIF_DELAY, "Dirent_Notif_Delay"	},
 #define FATTR4_DACL                58
 	{	FATTR4_DACL,               "DACL"                },
 #define FATTR4_SACL                59
@@ -14153,7 +14154,7 @@ proto_register_nfs(void)
 		},
 		{ &hf_nfs_access_supp_xattr_list,
 			{ "0x100 XATTR LIST", "nfs.access_supp_xattr_list",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 16,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
 		},
@@ -14207,7 +14208,7 @@ proto_register_nfs(void)
 		},
 		{ &hf_nfs_access_xattr_list,
 			{ "0x100 XATTR LIST", "nfs.access_xattr_list",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 16,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
 		},
@@ -15074,6 +15075,10 @@ proto_register_nfs(void)
 		&ett_nfs4_notify_delay,
 		&ett_nfs4_notify_attrs,
 		&ett_nfs4_cb_notify_changes,
+		&ett_nfs4_cb_notify_list_entries,
+		&ett_nfs4_cb_notify_remove4,
+		&ett_nfs4_cb_notify_add4,
+		&ett_nfs4_cb_notify_rename4
 	};
 
 	static ei_register_info ei[] = {
