@@ -250,9 +250,9 @@ static void fill_label_char(const field_info *fi, char *label_str, size_t *value
 static void fill_label_number(const field_info *fi, char *label_str, size_t *value_pos, bool is_signed);
 static void fill_label_number64(const field_info *fi, char *label_str, size_t *value_pos, bool is_signed);
 
-static size_t fill_display_label_float(const field_info *fi, char *label_str);
+static size_t fill_display_label_float(const field_info *fi, char *label_str, const int label_str_size);
 static void fill_label_float(const field_info *fi, char *label_str, size_t *value_pos);
-static size_t fill_display_label_ieee_11073_float(const field_info *fi, char *label_str);
+static size_t fill_display_label_ieee_11073_float(const field_info *fi, char *label_str, const int label_str_size);
 static void fill_label_ieee_11073_float(const field_info *fi, char *label_str, size_t *value_pos);
 
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[NUMBER_LABEL_LENGTH], uint32_t value);
@@ -7282,12 +7282,12 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 
 		case FT_FLOAT:
 		case FT_DOUBLE:
-			label_len = (int)fill_display_label_float(finfo, display_label_str);
+			label_len = (int)fill_display_label_float(finfo, display_label_str, label_str_size);
 			break;
 
 		case FT_IEEE_11073_SFLOAT:
 		case FT_IEEE_11073_FLOAT:
-			label_len = (int)fill_display_label_ieee_11073_float(finfo, display_label_str);
+			label_len = (int)fill_display_label_ieee_11073_float(finfo, display_label_str, label_str_size);
 			break;
 
 		case FT_STRING:
@@ -10784,11 +10784,16 @@ fill_label_number64(const field_info *fi, char *label_str, size_t *value_pos, bo
 }
 
 static size_t
-fill_display_label_float(const field_info *fi, char *label_str)
+fill_display_label_float(const field_info *fi, char *label_str, const int label_str_size)
 {
 	int display;
 	int n;
 	double value;
+
+	if (label_str_size < 12) {
+		/* Not enough room to write an entire floating point value. */
+		return 0;
+	}
 
 	display = FIELD_DISPLAY(fi->hfinfo->display);
 	value = fvalue_get_floating(fi->value);
@@ -10803,19 +10808,19 @@ fill_display_label_float(const field_info *fi, char *label_str)
 	switch (display) {
 		case BASE_NONE:
 			if (fi->hfinfo->type == FT_FLOAT) {
-				n = snprintf(label_str, ITEM_LABEL_LENGTH, "%.*g", FLT_DIG, value);
+				n = snprintf(label_str, label_str_size, "%.*g", FLT_DIG, value);
 			} else {
 				n = (int)strlen(dtoa_g_fmt(label_str, value));
 			}
 			break;
 		case BASE_DEC:
-			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%f", value);
+			n = snprintf(label_str, label_str_size, "%f", value);
 			break;
 		case BASE_HEX:
-			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%a", value);
+			n = snprintf(label_str, label_str_size, "%a", value);
 			break;
 		case BASE_EXP:
-			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%e", value);
+			n = snprintf(label_str, label_str_size, "%e", value);
 			break;
 		default:
 			ws_assert_not_reached();
@@ -10826,9 +10831,9 @@ fill_display_label_float(const field_info *fi, char *label_str)
 	if ((fi->hfinfo->strings) && (fi->hfinfo->display & BASE_UNIT_STRING)) {
 		const char *hf_str_val;
 		hf_str_val = hf_try_double_val_to_str(value, fi->hfinfo);
-		n += proto_strlcpy(label_str + n, hf_str_val, ITEM_LABEL_LENGTH - n);
+		n += proto_strlcpy(label_str + n, hf_str_val, label_str_size - n);
 	}
-	if (n > ITEM_LABEL_LENGTH) {
+	if (n > label_str_size) {
 		ws_warning("label length too small");
 		return strlen(label_str);
 	}
@@ -10841,17 +10846,22 @@ fill_label_float(const field_info *fi, char *label_str, size_t *value_pos)
 {
 	char tmp[ITEM_LABEL_LENGTH];
 
-	fill_display_label_float(fi, tmp);
+	fill_display_label_float(fi, tmp, ITEM_LABEL_LENGTH);
 	label_fill(label_str, 0, fi->hfinfo, tmp, value_pos);
 }
 
 static size_t
-fill_display_label_ieee_11073_float(const field_info *fi, char *label_str)
+fill_display_label_ieee_11073_float(const field_info *fi, char *label_str, const int label_str_size)
 {
 	int display;
 	size_t pos = 0;
 	double value;
 	char* tmp_str;
+
+	if (label_str_size < 12) {
+		/* Not enough room to write an entire floating point value. */
+		return 0;
+	}
 
 	display = FIELD_DISPLAY(fi->hfinfo->display);
 	tmp_str = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, display);
@@ -10864,7 +10874,7 @@ fill_display_label_ieee_11073_float(const field_info *fi, char *label_str)
 		hf_str_val = unit_name_string_get_double(value, (const struct unit_name_string*)fi->hfinfo->strings);
 		pos = label_concat(label_str, pos, hf_str_val);
 	}
-	if (pos > ITEM_LABEL_LENGTH) {
+	if ((int)pos > label_str_size) {
 		ws_warning("label length too small");
 		return strlen(label_str);
 	}
@@ -10877,7 +10887,7 @@ fill_label_ieee_11073_float(const field_info *fi, char *label_str, size_t *value
 {
 	char tmp[ITEM_LABEL_LENGTH];
 
-	fill_display_label_ieee_11073_float(fi, tmp);
+	fill_display_label_ieee_11073_float(fi, tmp, ITEM_LABEL_LENGTH);
 	label_fill(label_str, 0, fi->hfinfo, tmp, value_pos);
 }
 
