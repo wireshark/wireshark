@@ -28,6 +28,9 @@ InterfaceSortFilterModel::InterfaceSortFilterModel(QObject *parent) :
 
 void InterfaceSortFilterModel::resetAllFilter()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     _filterHidden = true;
     _filterTypes = true;
     _invertTypeFilter = false;
@@ -41,7 +44,11 @@ void InterfaceSortFilterModel::resetAllFilter()
     for (int col = 0; col < IFTREE_COL_MAX; col++)
         _columns.append((InterfaceTreeColumns)col);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange();
+#else
     invalidateFilter();
+#endif
     invalidate();
 }
 
@@ -89,6 +96,9 @@ bool InterfaceSortFilterModel::remoteDisplay()
 
 void InterfaceSortFilterModel::toggleRemoteDisplay()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     _remoteDisplay = ! _remoteDisplay;
 
     if (_storeOnChange)
@@ -98,7 +108,11 @@ void InterfaceSortFilterModel::toggleRemoteDisplay()
         prefs_main_write();
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
     invalidate();
 }
 
@@ -156,6 +170,9 @@ bool InterfaceSortFilterModel::filterHidden() const
 
 void InterfaceSortFilterModel::toggleFilterHidden()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     _filterHidden = ! _filterHidden;
 
     if (_storeOnChange)
@@ -165,7 +182,11 @@ void InterfaceSortFilterModel::toggleFilterHidden()
         prefs_main_write();
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
     invalidate();
 }
 
@@ -209,9 +230,19 @@ QList<int> InterfaceSortFilterModel::typesDisplayed()
 void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
 {
     if (visible && displayHiddenTypes.contains(ifType))
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
         displayHiddenTypes.removeAll(ifType);
+    }
     else if (! visible && ! displayHiddenTypes.contains(ifType))
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
         displayHiddenTypes.append(ifType);
+    }
     else
         /* Nothing should have changed */
         return;
@@ -233,7 +264,11 @@ void InterfaceSortFilterModel::setInterfaceTypeVisible(int ifType, bool visible)
         prefs_main_write();
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
     invalidate();
 }
 

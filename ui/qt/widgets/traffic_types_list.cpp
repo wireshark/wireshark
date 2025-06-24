@@ -238,8 +238,15 @@ bool TrafficListSortModel::lessThan(const QModelIndex &source_left, const QModel
 void TrafficListSortModel::setFilter(QString filter)
 {
     if ( filter.compare(_filter) != 0 ) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
         _filter = filter;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
         invalidateFilter();
+#endif
     }
 }
 

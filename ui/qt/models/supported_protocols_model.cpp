@@ -256,6 +256,13 @@ bool SupportedProtocolsProxyModel::filterAcceptsRow(int sourceRow, const QModelI
 
 void SupportedProtocolsProxyModel::setFilter(const QString& filter)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_ = filter;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }

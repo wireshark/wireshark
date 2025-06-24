@@ -425,8 +425,15 @@ bool DissectorTablesProxyModel::filterAcceptsRow(int sourceRow, const QModelInde
 
 void DissectorTablesProxyModel::setFilter(const QString& filter)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_ = filter;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void DissectorTablesProxyModel::adjustHeader(const QModelIndex &currentIndex)

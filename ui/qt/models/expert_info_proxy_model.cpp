@@ -274,6 +274,9 @@ void ExpertInfoProxyModel::setSeverityMode(enum SeverityMode mode)
 
 void ExpertInfoProxyModel::setSeverityFilter(int severity, bool hide)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     if (hide)
     {
         hidden_severities_ << severity;
@@ -283,11 +286,23 @@ void ExpertInfoProxyModel::setSeverityFilter(int severity, bool hide)
         hidden_severities_.removeOne(severity);
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void ExpertInfoProxyModel::setSummaryFilter(const QString &filter)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     textFilter_ = filter;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }

@@ -276,10 +276,17 @@ void TrafficDataFilterProxy::filterForColumn(int column, int filterOn, QString f
     if (filterOn < 0 || filterOn > TrafficDataFilterProxy::TRAFFIC_DATA_EQUAL)
         column = -1;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     _filterColumn = mapToSourceColumn(column);
     _filterOn = filterOn;
     _filterText = filterText;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 int TrafficDataFilterProxy::mapToSourceColumn(int proxyColumn) const
@@ -592,10 +599,17 @@ bool TrafficDataFilterProxy::filterAcceptsColumn(int source_column, const QModel
 
 void TrafficDataFilterProxy::setColumnVisibility(int column, bool visible)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     hideColumns_.removeAll(column);
     if (!visible)
         hideColumns_.append(column);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Columns);
+#else
     invalidateFilter();
+#endif
 }
 
 bool TrafficDataFilterProxy::columnVisible(int column) const

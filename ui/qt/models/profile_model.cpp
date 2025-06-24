@@ -73,14 +73,28 @@ bool ProfileSortModel::lessThan(const QModelIndex &source_left, const QModelInde
 
 void ProfileSortModel::setFilterType(FilterType ft)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     ft_ = ft;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void ProfileSortModel::setFilterString(QString txt)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     ftext_ = ! txt.isEmpty() ? txt : "";
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 QStringList ProfileSortModel::filterTypes()

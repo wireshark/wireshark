@@ -473,10 +473,17 @@ bool EnabledProtocolsProxyModel::filterAcceptsChild(int sourceRow, const QModelI
 void EnabledProtocolsProxyModel::setFilter(const QString& filter, EnabledProtocolsProxyModel::SearchType type,
     EnabledProtocolItem::EnableProtocolType protocolType)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_ = filter;
     type_ = type;
     protocolType_ = protocolType;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)

@@ -276,14 +276,28 @@ bool ExportObjectProxyModel::lessThan(const QModelIndex &source_left, const QMod
 
 void ExportObjectProxyModel::setContentFilterString(QString filter_)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     contentFilter_ = filter_;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void ExportObjectProxyModel::setTextFilterString(QString filter_)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     textFilter_ = filter_;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 bool ExportObjectProxyModel::filterAcceptsRow(int source_row, const QModelIndex &/*source_parent*/) const

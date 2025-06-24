@@ -108,8 +108,15 @@ bool AStringListListSortFilterProxyModel::lessThan(const QModelIndex &left, cons
 
 void AStringListListSortFilterProxyModel::setFilter(const QString & filter)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_ = filter;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 static bool AContainsB(const QVariant &a, const QVariant &b, Qt::CaseSensitivity cs)
@@ -185,13 +192,27 @@ void AStringListListSortFilterProxyModel::setFilterType(AStringListListFilterTyp
     {
         if (! types_.keys().contains(column))
         {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+            beginFilterChange();
+#endif
             types_.insert(column, type);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+            endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
             invalidateFilter();
+#endif
         }
         else if (types_.keys().contains(column) && type != types_[column])
         {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+            beginFilterChange();
+#endif
             types_[column] = type;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+            endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
             invalidateFilter();
+#endif
         }
     }
 }
@@ -200,8 +221,15 @@ void AStringListListSortFilterProxyModel::setColumnToFilter(int column)
 {
     if (column < columnCount() && ! columnsToFilter_.contains(column))
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
         columnsToFilter_.append(column);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
         invalidateFilter();
+#endif
     }
 }
 
@@ -211,33 +239,62 @@ void AStringListListSortFilterProxyModel::setColumnsToFilter(QList<int> columns)
 
     foreach (int column, columns) {
         if (column < columnCount() && ! columnsToFilter_.contains(column)) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+            if (!hasBeenAdded)
+                beginFilterChange();
+#endif
             columnsToFilter_.append(column);
             hasBeenAdded = true;
         }
     }
 
     if (hasBeenAdded)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
         invalidateFilter();
+#endif
 }
 
 void AStringListListSortFilterProxyModel::clearColumnsToFilter()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     columnsToFilter_.clear();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void AStringListListSortFilterProxyModel::clearHiddenColumns()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     hiddenColumns_.clear();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Columns);
+#else
     invalidateFilter();
+#endif
 }
 
 void AStringListListSortFilterProxyModel::setColumnToHide(int col)
 {
     if (! hiddenColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
         hiddenColumns_ << col;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        endFilterChange(QSortFilterProxyModel::Direction::Columns);
+#else
         invalidateFilter();
+#endif
     }
 }
 
@@ -256,16 +313,30 @@ bool AStringListListSortFilterProxyModel::filterAcceptsColumn(int sourceColumn, 
 
 void AStringListListSortFilterProxyModel::clearNumericColumns()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     numericColumns_.clear();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void AStringListListSortFilterProxyModel::setColumnAsNumeric(int col)
 {
     if (! numericColumns_.contains(col) && col > -1 && sourceModel() && sourceModel()->columnCount() > col)
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
         numericColumns_ << col;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
         invalidateFilter();
+#endif
     }
 }
 

@@ -158,22 +158,43 @@ void ManufSortFilterProxyModel::clearFilter()
 {
     if (filter_type_ == FilterEmpty)
         return;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_type_ = FilterEmpty;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void ManufSortFilterProxyModel::setFilterAddress(const QByteArray &bytes)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_type_ = FilterByAddress;
     filter_bytes_ = bytes;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 void ManufSortFilterProxyModel::setFilterName(QRegularExpression &name)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
     filter_type_ = FilterByName;
     filter_name_ = name;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
     invalidateFilter();
+#endif
 }
 
 static bool match_filter(const QByteArray &bytes, const QByteArray &mac_block)
