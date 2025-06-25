@@ -49,6 +49,14 @@ static int hf_auth_kc;
 static int hf_chan_op;
 static int hf_chan_nr;
 static int hf_le;
+static int hf_lc;
+
+static int hf_suspend_uicc_op;
+static int hf_suspend_uicc_min_time_unit;
+static int hf_suspend_uicc_min_time_length;
+static int hf_suspend_uicc_max_time_unit;
+static int hf_suspend_uicc_max_time_length;
+static int hf_suspend_uicc_resume_token;
 
 /* Chapter 5.2 TS 11.14 and TS 31.111 */
 static int hf_tprof_b1;
@@ -729,6 +737,21 @@ static const value_string chan_op_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string suspend_uicc_vals[] = {
+	{ 0x00, "Suspend the UICC" },
+	{ 0x01, "Resume the UICC" },
+	{ 0, NULL }
+};
+
+static const value_string suspend_time_unit_vals[] = {
+	{ 0x00, "Seconds" },
+	{ 0x01, "Minutes" },
+	{ 0x02, "Hours" },
+	{ 0x03, "Days" },
+	{ 0x04, "10 Days" },
+	{ 0, NULL }
+};
+
 static const value_string apdu_le_vals[] = {
 	{ 0x00,	"Any number in the range 1 to 256" },
 	{ 0, NULL }
@@ -793,6 +816,7 @@ static const value_string apdu_ins_vals[] = {
 	{ 0x70, "MANAGE CHANNEL" },
 	{ 0x73, "MANAGE SECURE CHANNEL" },
 	{ 0x75, "TRANSACT DATA" },
+	{ 0x76, "SUSPEND UICC" },
 	/* TS 102 221 v15.11.0 */
 	{ 0x78, "GET IDENTITY" },
 	/* GSMA SGP.02 v4.2 */
@@ -1522,6 +1546,23 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
 		dissect_bertlv(subtvb, pinfo, tree, NULL);
 		break;
+	case 0x76: /* SUSPEND UICC */
+		proto_tree_add_item(tree, hf_suspend_uicc_op, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
+		if ((p1 & 0x01) == 0x00) {
+			/* Suspend the UICC */
+			col_append_str(pinfo->cinfo, COL_INFO, "(suspend) ");
+			proto_tree_add_item(tree, hf_suspend_uicc_min_time_unit, tvb, offset+DATA_OFFS, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_min_time_length, tvb, offset+DATA_OFFS+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_max_time_unit, tvb, offset+DATA_OFFS+2, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_max_time_length, tvb, offset+DATA_OFFS+3, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_le, tvb, offset+DATA_OFFS+4, 1, ENC_BIG_ENDIAN);
+		} else {
+			/* Resume the UICC */
+			col_append_str(pinfo->cinfo, COL_INFO, "(resume) ");
+			proto_tree_add_item(tree, hf_suspend_uicc_resume_token, tvb, offset+DATA_OFFS, p3, ENC_NA);
+		}
+		break;
 	/* FIXME: Missing SLEEP */
 	case 0x04: /* INVALIDATE */
 	case 0x44: /* REHABILITATE */
@@ -1565,6 +1606,11 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			subtvb = tvb_new_subset_length(tvb, offset, tvb_len - 2);
 			dissect_bertlv(subtvb, pinfo, sim_tree, NULL);
 			response_only = false;
+			break;
+		case 0x76: /* SUSPEND UICC */
+			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sim_tree, hf_suspend_uicc_resume_token, tvb, offset+2, tvb_len - 4, ENC_NA);
 			break;
 		default:
 			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, tvb_len - 2, ENC_NA);
@@ -1876,12 +1922,46 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(apdu_le_vals), 0,
 			  NULL, HFILL }
 		},
+		{ &hf_lc,
+			{ "Length of the subsequent data field", "gsm_sim.lc",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
 		{ &hf_chan_op,
 			{ "Channel Operation", "gsm_sim.chan_op",
 			  FT_UINT8, BASE_HEX, VALS(chan_op_vals), 0,
 			  "ISO 7816-4 Logical Channel Operation", HFILL }
 		},
-
+		{ &hf_suspend_uicc_op,
+			{ "Suspend Operation", "gsm_sim.suspend_uicc.op",
+			  FT_UINT8, BASE_HEX, VALS(suspend_uicc_vals), 0,
+			  "ISO 7816-4 Suspend UICC Operation", HFILL }
+		},
+		{ &hf_suspend_uicc_min_time_unit,
+			{ "Minimum Time Unit", "gsm_sim.suspend_uicc.min_time_unit",
+			  FT_UINT8, BASE_HEX, VALS(suspend_time_unit_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_suspend_uicc_min_time_length,
+			{ "Minimum Length of Time", "gsm_sim.suspend_uicc.min_time_length",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  "Length of time, expressed in units", HFILL }
+		},
+		{ &hf_suspend_uicc_max_time_unit,
+			{ "Maximum Time Unit", "gsm_sim.suspend_uicc.max_time_unit",
+			  FT_UINT8, BASE_HEX, VALS(suspend_time_unit_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_suspend_uicc_max_time_length,
+			{ "Maximum Length of Time", "gsm_sim.suspend_uicc.max_time_length",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  "Length of time, expressed in units", HFILL }
+		},
+		{ &hf_suspend_uicc_resume_token,
+			{ "Resume Token", "gsm_sim.suspend_uicc.resume_token",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
 
 		/* Terminal Profile Byte 1 */
 		{ &hf_tprof_b1,
