@@ -19049,20 +19049,15 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			}
 
 			if (si->request) {
-				sip = wmem_new(wmem_file_scope(), smb_saved_info_t);
+				sip = wmem_new0(wmem_file_scope(), smb_saved_info_t);
 				sip->frame_req = pinfo->num;
-				sip->frame_res = 0;
 				sip->req_time = pinfo->abs_ts;
-				sip->flags = 0;
 				if (g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))
 				    == (void *)TID_IPC) {
 					sip->flags |= SMB_SIF_TID_IS_IPC;
 				}
 				sip->cmd = si->cmd;
-				sip->extra_info = NULL;
 				sip->extra_info_type = SMB_EI_NONE;
-				sip->fid = 0;
-				sip->fid_seen_in_request = 0;
 				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
 				new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
 				new_key->frame = sip->frame_req;
