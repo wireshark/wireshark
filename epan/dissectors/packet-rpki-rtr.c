@@ -317,8 +317,10 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     expert_add_info(pinfo, ti_type, &ei_rpkirtr_wrong_version_aspa);
                 } else {
                     // draft-ietf-sidrops-8210bis-21
-                    // flags 1B
+                    // flags 1B Announce/Widthdrow
                     ti_flags = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    flags_tree = proto_item_add_subtree(ti_flags, ett_flags);
+                    proto_tree_add_item(flags_tree, hf_rpkirtr_flags_aw, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                     // zero 1B
                     proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_reserved, tvb, offset, 1, ENC_NA);
