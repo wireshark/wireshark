@@ -364,7 +364,10 @@ void ShowPacketBytesDialog::saveAs()
     }
 
     QFile file(file_name);
-    file.open(open_mode);
+    if (!file.open(open_mode)) {
+        // XXX - Warn?
+        return;
+    }
 
     switch (recent.gui_show_bytes_show) {
 
@@ -409,6 +412,7 @@ void ShowPacketBytesDialog::saveAs()
         break;
     }
 
+    // XXX - Check for failure and warn?
     file.close();
 }
 

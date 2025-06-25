@@ -2188,7 +2188,9 @@ void IOGraphDialog::copyAsCsvClicked()
 bool IOGraphDialog::saveCsv(const QString &file_name) const
 {
     QFile save_file(file_name);
-    save_file.open(QFile::WriteOnly | QFile::Text);
+    if (!save_file.open(QFile::WriteOnly | QFile::Text)) {
+        return false;
+    }
     QTextStream out(&save_file);
     makeCsv(out);
 

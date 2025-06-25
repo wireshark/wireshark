@@ -69,7 +69,12 @@ AStringListListModel(parent)
     QFile f_authors;
 
     f_authors.setFileName(":/about/authors.csv");
-    f_authors.open(QFile::ReadOnly | QFile::Text);
+    if (!f_authors.open(QFile::ReadOnly | QFile::Text)) {
+        // "Cannot fail" because the file is in the resource system,
+        // unless something went wrong during building.
+        Q_ASSERT(false);
+        return;
+    }
     QTextStream ReadFile_authors(&f_authors);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     ReadFile_authors.setEncoding(QStringConverter::Utf8);
@@ -407,11 +412,16 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* Acknowledgements */
     f_acknowledgements.setFileName(":/about/Acknowledgements.md");
 
-    f_acknowledgements.open(QFile::ReadOnly | QFile::Text);
-    QTextStream ReadFile_acks(&f_acknowledgements);
-
     QTextBrowser *textBrowserAcks = new QTextBrowser();
-    textBrowserAcks->setMarkdown(ReadFile_acks.readAll());
+    if (f_acknowledgements.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ReadFile_acks(&f_acknowledgements);
+        textBrowserAcks->setMarkdown(ReadFile_acks.readAll());
+    } else {
+        // "Cannot fail" because the file is in the resource system,
+        // unless something went wrong during building.
+        Q_ASSERT(false);
+    }
+
     textBrowserAcks->setReadOnly(true);
     textBrowserAcks->setOpenExternalLinks(true);
     textBrowserAcks->moveCursor(QTextCursor::Start);
@@ -420,10 +430,14 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* License */
     f_license.setFileName(":/about/gpl-2.0-standalone.html");
 
-    f_license.open(QFile::ReadOnly | QFile::Text);
-    QTextStream ReadFile_license(&f_license);
-
-    ui->textBrowserLicense->setHtml(ReadFile_license.readAll());
+    if (f_license.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ReadFile_license(&f_license);
+        ui->textBrowserLicense->setHtml(ReadFile_license.readAll());
+    } else {
+        // "Cannot fail" because the file is in the resource system,
+        // unless something went wrong during building.
+        Q_ASSERT(false);
+    }
     ui->textBrowserLicense->moveCursor(QTextCursor::Start);
 }
 

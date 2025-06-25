@@ -254,12 +254,10 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     // UI opens and closes at various points.
     QString tempname = QStringLiteral("%1/wireshark_iax2_f").arg(QDir::tempPath());
     fwd_tempfile_ = new QTemporaryFile(tempname, this);
-    fwd_tempfile_->open();
     tempname = QStringLiteral("%1/wireshark_iax2_r").arg(QDir::tempPath());
     rev_tempfile_ = new QTemporaryFile(tempname, this);
-    rev_tempfile_->open();
 
-    if (fwd_tempfile_->error() != QFile::NoError || rev_tempfile_->error() != QFile::NoError) {
+    if (!fwd_tempfile_->open() || fwd_tempfile_->error() != QFile::NoError || !rev_tempfile_->open() || rev_tempfile_->error() != QFile::NoError) {
         err_str_ = tr("Unable to save RTP data.");
         ui->actionSaveAudio->setEnabled(false);
         ui->actionSaveForwardAudio->setEnabled(false);
@@ -898,11 +896,10 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     bool       stop_flag = false;
     qint64     nchars;
 
-    save_file.open(QIODevice::WriteOnly);
     fwd_tempfile_->seek(0);
     rev_tempfile_->seek(0);
 
-    if (save_file.error() != QFile::NoError) {
+    if (!save_file.open(QIODevice::WriteOnly) || save_file.error() != QFile::NoError) {
         QMessageBox::warning(this, tr("Warning"), tr("Unable to save %1").arg(save_file.fileName()));
         return;
     }
@@ -1151,7 +1148,10 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
     if (file_path.isEmpty()) return;
 
     QFile save_file(file_path);
-    save_file.open(QFile::WriteOnly);
+    if (!save_file.open(QFile::WriteOnly)) {
+        // XXX - Warning dialog?
+        return;
+    }
 
     if (direction == dir_forward_ || direction == dir_both_) {
         save_file.write("Forward\n");
@@ -1198,6 +1198,7 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
             save_file.write("\n");
         }
     }
+    // XXX - Check for failure and warn?
 }
 
 bool Iax2AnalysisDialog::eventFilter(QObject *, QEvent *event)
