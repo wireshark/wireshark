@@ -317,6 +317,21 @@ QMenu* WiresharkMainWindow::findOrAddMenu(QMenu *parent_menu, const QStringList&
     return parent_menu;
 }
 
+QMenu* WiresharkMainWindow::findOrAddMenubar(const QString menu_text) {
+    QMenu *parent_menu = Q_NULLPTR;
+    for (auto const & action : main_ui_->menuBar->actions()) {
+        if (action->text() == menu_text.trimmed()) {
+            parent_menu = action->menu();
+            break;
+        }
+    }
+    if (!parent_menu) {
+        // If we get here the menu entry was not found, add a sub menu
+        parent_menu = main_ui_->menuBar->addMenu(menu_text.trimmed());
+    }
+    return parent_menu;
+}
+
 WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     MainWindow(parent),
     main_ui_(new Ui::WiresharkMainWindow),
@@ -2872,7 +2887,7 @@ void WiresharkMainWindow::addPluginIFStructures()
         }
 
         if (!subMenu)
-            subMenu = main_ui_->menuBar->addMenu(menu->label);
+            subMenu = findOrAddMenubar(menu->label);
 
         /* This will generate the action structure for each menu. It is recursive,
          * therefore a sub-routine, and we have a depth counter to prevent endless loops. */

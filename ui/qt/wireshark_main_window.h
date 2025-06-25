@@ -225,6 +225,7 @@ private:
 
     void setForCaptureInProgress(bool capture_in_progress = false, bool handle_toolbars = false, GArray *ifaces = NULL);
     QMenu* findOrAddMenu(QMenu *parent_menu, const QStringList& menu_parts);
+    QMenu* findOrAddMenubar(const QString menu_text);
 
     void captureFileReadStarted(const QString &action);
 
