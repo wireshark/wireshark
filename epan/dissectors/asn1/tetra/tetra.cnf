@@ -32,6 +32,7 @@ CALLMODE
 #D-CONNECT-ACK
 #D-DISCONNECT
 #D-INFO
+#D-TX-INTERRUPT
 #D-RELEASE
 #D-SETUP
 #D-STATUS
@@ -143,6 +144,11 @@ AddressMacResource/ssi ssi-need
 #.FN_BODY D-INFO
 %(DEFAULT_BODY)s
 	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-INFO");
+#.END
+
+#.FN_BODY D-TX-INTERRUPT
+%(DEFAULT_BODY)s
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-INTERRUPT");
 #.END
 
 #.FN_BODY D-DISCONNECT

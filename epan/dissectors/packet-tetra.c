@@ -481,25 +481,53 @@ static int hf_tetra_d_Tx_Ceased;                  /* D_TX_CEASED */
 static int hf_tetra_d_Tx_Continue;                /* D_TX_CONTINUE */
 static int hf_tetra_d_Tx_Granted;                 /* D_TX_GRANTED */
 static int hf_tetra_d_Tx_Wait;                    /* D_TX_WAIT */
-static int hf_tetra_d_Tx_Interrupt;               /* NULL */
+static int hf_tetra_d_Tx_Interrupt;               /* D_TX_INTERRUPT */
 static int hf_tetra_d_Call_Restore;               /* D_CALL_RESTORE */
 static int hf_tetra_d_SDS_Data;                   /* D_SDS_DATA */
 static int hf_tetra_d_Facility;                   /* NULL */
-static int hf_tetra_calling_party_type_identifier;  /* T_calling_party_type_identifier */
-static int hf_tetra_ssi_extension_01;             /* OCTET_STRING_SIZE_6 */
+static int hf_tetra_calling_party_type_identifier;  /* Calling_party_address_type */
 static int hf_tetra_short_data_type_identifier_01;  /* T_short_data_type_identifier_01 */
 static int hf_tetra_data_3_01;                    /* OCTET_STRING_SIZE_8 */
-static int hf_tetra_calling_party_type_identifier_01;  /* T_calling_party_type_identifier_01 */
-static int hf_tetra_calling_party_address_SSI;    /* INTEGER_0_16777215 */
+static int hf_tetra_optional_elements_06;         /* T_optional_elements_06 */
+static int hf_tetra_type2_element;                /* T_type2_element */
+static int hf_tetra_notification_indicator;       /* T_notification_indicator */
+static int hf_tetra_notification_indicator_element;  /* INTEGER_0_63 */
 static int hf_tetra_reset_call_time_out_timer;    /* INTEGER_0_1 */
 static int hf_tetra_poll_request;                 /* INTEGER_0_1 */
+static int hf_tetra_optional_elements_07;         /* T_optional_elements_07 */
+static int hf_tetra_type2_element_01;             /* T_type2_element_01 */
+static int hf_tetra_new_call_identifier;          /* T_new_call_identifier */
+static int hf_tetra_new_call_identifier_element;  /* INTEGER_0_16383 */
+static int hf_tetra_call_time_out;                /* T_call_time_out */
+static int hf_tetra_call_time_out_01;             /* INTEGER_0_15 */
+static int hf_tetra_call_time_out_set_up_phase;   /* T_call_time_out_set_up_phase */
+static int hf_tetra_call_time_out_set_up_phase_01;  /* INTEGER_0_7 */
+static int hf_tetra_call_ownership;               /* T_call_ownership */
+static int hf_tetra_call_ownership_01;            /* INTEGER_0_1 */
+static int hf_tetra_modify;                       /* T_modify */
+static int hf_tetra_modify_01;                    /* Modify_type */
+static int hf_tetra_call_status;                  /* T_call_status */
+static int hf_tetra_call_status_01;               /* INTEGER_0_7 */
+static int hf_tetra_temporary_address;            /* T_temporary_address */
+static int hf_tetra_temporary_address_01;         /* INTEGER_0_16777215 */
+static int hf_tetra_notification_indicator_01;    /* T_notification_indicator_01 */
+static int hf_tetra_poll_response_percentage;     /* T_poll_response_percentage */
+static int hf_tetra_poll_response_percentage_01;  /* INTEGER_0_63 */
+static int hf_tetra_poll_response_number;         /* T_poll_response_number */
+static int hf_tetra_poll_response_number_01;      /* INTEGER_0_63 */
 static int hf_tetra_transmission_request_permission;  /* INTEGER_0_1 */
+static int hf_tetra_optional_elements_08;         /* T_optional_elements_08 */
+static int hf_tetra_type2_element_02;             /* T_type2_element_02 */
+static int hf_tetra_notification_indicator_02;    /* T_notification_indicator_02 */
 static int hf_tetra_continue;                     /* INTEGER_0_1 */
+static int hf_tetra_optional_elements_09;         /* T_optional_elements_09 */
+static int hf_tetra_type2_element_03;             /* T_type2_element_03 */
+static int hf_tetra_notification_indicator_03;    /* T_notification_indicator_03 */
 static int hf_tetra_request_to_append_LA;         /* BOOLEAN */
 static int hf_tetra_cipher_control_choice;        /* T_cipher_control_choice */
 static int hf_tetra_no_cipher;                    /* NULL */
 static int hf_tetra_ciphering_parameters;         /* INTEGER_0_1023 */
-static int hf_tetra_optional_elements_06;         /* T_optional_elements_06 */
+static int hf_tetra_optional_elements_10;         /* T_optional_elements_10 */
 static int hf_tetra_type2_parameters_04;          /* T_type2_parameters_04 */
 static int hf_tetra_class_of_MS;                  /* T_class_of_MS */
 static int hf_tetra_class_of_MS_01;               /* INTEGER_0_16777215 */
@@ -519,16 +547,16 @@ static int hf_tetra_group_identity_uplink_01;     /* INTEGER_0_15 */
 static int hf_tetra_proprietary_02;               /* T_proprietary_01 */
 static int hf_tetra_group_identity_report;        /* BOOLEAN */
 static int hf_tetra_group_identity_attach_detach_mode;  /* BOOLEAN */
-static int hf_tetra_optional_elements_07;         /* T_optional_elements_07 */
-static int hf_tetra_type2_element;                /* T_type2_element */
+static int hf_tetra_optional_elements_11;         /* T_optional_elements_11 */
+static int hf_tetra_type2_element_04;             /* T_type2_element_04 */
 static int hf_tetra_type3_02;                     /* T_type3_02 */
 static int hf_tetra_type3_elements_02;            /* T_type3_elements_02 */
 static int hf_tetra_length;                       /* INTEGER_0_2047 */
 static int hf_tetra_repeat_num;                   /* INTEGER_0_63 */
 static int hf_tetra_group_identity_uplink_02;     /* GROUP_IDENTITY_UPLINK */
 static int hf_tetra_group_identity_ack_type;      /* BOOLEAN */
-static int hf_tetra_optional_elements_08;         /* T_optional_elements_08 */
-static int hf_tetra_type2_element_01;             /* T_type2_element_01 */
+static int hf_tetra_optional_elements_12;         /* T_optional_elements_12 */
+static int hf_tetra_type2_element_05;             /* T_type2_element_05 */
 static int hf_tetra_type3_03;                     /* T_type3_03 */
 static int hf_tetra_type3_elements_03;            /* T_type3_elements_03 */
 static int hf_tetra_hook_method_selection;        /* BOOLEAN */
@@ -538,7 +566,7 @@ static int hf_tetra_request_transmit_send_data;   /* INTEGER_0_1 */
 static int hf_tetra_call_priority;                /* INTEGER_0_15 */
 static int hf_tetra_clir_control;                 /* INTEGER_0_3 */
 static int hf_tetra_called_party_address;         /* Called_party_address_type */
-static int hf_tetra_optional_elements_09;         /* T_optional_elements_09 */
+static int hf_tetra_optional_elements_13;         /* T_optional_elements_13 */
 static int hf_tetra_type2_parameters_05;          /* T_type2_parameters_05 */
 static int hf_tetra_external_subscriber_number;   /* T_external_subscriber_number */
 static int hf_tetra_external_subscriber_number_01;  /* INTEGER_0_31 */
@@ -549,104 +577,109 @@ static int hf_tetra_encryption;                   /* INTEGER_0_1 */
 static int hf_tetra_communication;                /* INTEGER_0_3 */
 static int hf_tetra_slots_or_speech;              /* INTEGER_0_3 */
 static int hf_tetra_simplex_duplex_selection;     /* T_simplex_duplex_selection */
-static int hf_tetra_optional_elements_10;         /* T_optional_elements_10 */
+static int hf_tetra_optional_elements_14;         /* T_optional_elements_14 */
 static int hf_tetra_type2_parameters_06;          /* T_type2_parameters_06 */
 static int hf_tetra_basic_service_information_01;  /* T_basic_service_information */
 static int hf_tetra_prop_02;                      /* T_prop_01 */
 static int hf_tetra_simplex_duplex_selection_01;  /* T_simplex_duplex_selection_01 */
-static int hf_tetra_optional_elements_11;         /* T_optional_elements_11 */
+static int hf_tetra_optional_elements_15;         /* T_optional_elements_15 */
 static int hf_tetra_type2_parameters_07;          /* T_type2_parameters_07 */
 static int hf_tetra_basic_service_information_02;  /* T_basic_service_information_01 */
 static int hf_tetra_prop_03;                      /* T_prop_02 */
-static int hf_tetra_optional_elements_12;         /* T_optional_elements_12 */
+static int hf_tetra_optional_elements_16;         /* T_optional_elements_16 */
 static int hf_tetra_type2_parameters_08;          /* T_type2_parameters_08 */
 static int hf_tetra_prop_04;                      /* T_prop_03 */
 static int hf_tetra_tx_demand_priority;           /* INTEGER_0_3 */
 static int hf_tetra_encryption_control;           /* INTEGER_0_1 */
-static int hf_tetra_optional_elements_13;         /* T_optional_elements_13 */
+static int hf_tetra_optional_elements_17;         /* T_optional_elements_17 */
 static int hf_tetra_type2_parameters_09;          /* T_type2_parameters_09 */
 static int hf_tetra_prop_05;                      /* T_prop_04 */
-static int hf_tetra_optional_elements_14;         /* T_optional_elements_14 */
+static int hf_tetra_optional_elements_18;         /* T_optional_elements_18 */
 static int hf_tetra_type2_parameters_10;          /* T_type2_parameters_10 */
 static int hf_tetra_prop_06;                      /* T_prop_05 */
 static int hf_tetra_request_to_transmit_send_data;  /* INTEGER_0_1 */
 static int hf_tetra_other_party_address;          /* Other_party_address_type */
-static int hf_tetra_optional_elements_15;         /* T_optional_elements_15 */
+static int hf_tetra_optional_elements_19;         /* T_optional_elements_19 */
 static int hf_tetra_type2_parameters_11;          /* T_type2_parameters_11 */
 static int hf_tetra_prop_07;                      /* T_prop_06 */
-static int hf_tetra_call_time_out;                /* INTEGER_0_15 */
 static int hf_tetra_hook_method_selection_integer;  /* INTEGER_0_1 */
 static int hf_tetra_simplex_duplex_selection_02;  /* T_simplex_duplex_selection_02 */
 static int hf_tetra_transmission_grant;           /* INTEGER_0_3 */
-static int hf_tetra_optional_elements_16;         /* T_optional_elements_16 */
-static int hf_tetra_type2_parameters_12;          /* T_type2_parameters_12 */
-static int hf_tetra_calling_party_address;        /* T_calling_party_address */
-static int hf_tetra_calling_party_address_01;     /* Calling_party_address_type */
+static int hf_tetra_optional_elements_20;         /* T_optional_elements_20 */
+static int hf_tetra_type2_element_06;             /* T_type2_element_06 */
+static int hf_tetra_notification_indicator_04;    /* T_notification_indicator_04 */
+static int hf_tetra_temporary_address_02;         /* T_temporary_address_01 */
+static int hf_tetra_temporary_address_element;    /* INTEGER_0_16777215 */
+static int hf_tetra_calling_party_type_identifier_01;  /* T_calling_party_type_identifier */
+static int hf_tetra_calling_party_type_identifier_element;  /* Calling_party_address_type */
 static int hf_tetra_external_subscriber_number_02;  /* T_external_subscriber_number_01 */
 static int hf_tetra_external_subscriber_number_03;  /* INTEGER_0_15 */
 static int hf_tetra_prop_08;                      /* T_prop_07 */
 static int hf_tetra_call_time_out_setup_phase;    /* INTEGER_0_7 */
 static int hf_tetra_simplex_duplex_selection_03;  /* INTEGER_0_1 */
-static int hf_tetra_optional_elements_17;         /* T_optional_elements_17 */
-static int hf_tetra_type2_parameters_13;          /* T_type2_parameters_13 */
+static int hf_tetra_optional_elements_21;         /* T_optional_elements_21 */
+static int hf_tetra_type2_parameters_12;          /* T_type2_parameters_12 */
 static int hf_tetra_basic_service_information_03;  /* T_basic_service_information_02 */
-static int hf_tetra_call_status;                  /* T_call_status */
-static int hf_tetra_call_status_01;               /* INTEGER_0_7 */
-static int hf_tetra_notification_indicator;       /* T_notification_indicator */
-static int hf_tetra_notification_indicator_01;    /* INTEGER_0_63 */
+static int hf_tetra_call_status_02;               /* T_call_status_01 */
+static int hf_tetra_notification_indicator_05;    /* T_notification_indicator_05 */
+static int hf_tetra_notification_indicator_06;    /* INTEGER_0_63 */
 static int hf_tetra_prop_09;                      /* T_prop_08 */
 static int hf_tetra_simplex_duplex_selection_04;  /* T_simplex_duplex_selection_03 */
 static int hf_tetra_call_queued;                  /* BOOLEAN */
-static int hf_tetra_optional_elements_18;         /* T_optional_elements_18 */
-static int hf_tetra_type2_parameters_14;          /* T_type2_parameters_14 */
+static int hf_tetra_optional_elements_22;         /* T_optional_elements_22 */
+static int hf_tetra_type2_parameters_13;          /* T_type2_parameters_13 */
 static int hf_tetra_basic_service_infomation;     /* T_basic_service_infomation */
 static int hf_tetra_basic_service_infomation_01;  /* Basic_service_information */
-static int hf_tetra_notification_indicator_02;    /* T_notification_indicator_01 */
+static int hf_tetra_notification_indicator_07;    /* T_notification_indicator_06 */
 static int hf_tetra_prop_10;                      /* T_prop_09 */
-static int hf_tetra_call_time_out_01;             /* INTEGER_0_31 */
 static int hf_tetra_simplex_duplex_selection_05;  /* T_simplex_duplex_selection_04 */
-static int hf_tetra_call_ownership;               /* INTEGER_0_1 */
-static int hf_tetra_optional_elements_19;         /* T_optional_elements_19 */
-static int hf_tetra_type2_parameters_15;          /* T_type2_parameters_15 */
+static int hf_tetra_optional_elements_23;         /* T_optional_elements_23 */
+static int hf_tetra_type2_parameters_14;          /* T_type2_parameters_14 */
 static int hf_tetra_call_priority_01;             /* T_call_priority */
 static int hf_tetra_basic_service_information_04;  /* T_basic_service_information_03 */
-static int hf_tetra_temporary_address;            /* T_temporary_address */
-static int hf_tetra_temporary_address_01;         /* Calling_party_address_type */
-static int hf_tetra_notification_indicator_03;    /* T_notification_indicator_02 */
+static int hf_tetra_temporary_address_03;         /* T_temporary_address_02 */
+static int hf_tetra_notification_indicator_08;    /* T_notification_indicator_07 */
 static int hf_tetra_prop_11;                      /* T_prop_10 */
-static int hf_tetra_optional_elements_20;         /* T_optional_elements_20 */
-static int hf_tetra_type2_parameters_16;          /* T_type2_parameters_16 */
-static int hf_tetra_notification_indicator_04;    /* T_notification_indicator_03 */
+static int hf_tetra_optional_elements_24;         /* T_optional_elements_24 */
+static int hf_tetra_type2_parameters_15;          /* T_type2_parameters_15 */
+static int hf_tetra_notification_indicator_09;    /* T_notification_indicator_08 */
 static int hf_tetra_prop_12;                      /* T_prop_11 */
-static int hf_tetra_optional_elements_21;         /* T_optional_elements_21 */
-static int hf_tetra_type2_parameters_17;          /* T_type2_parameters_17 */
-static int hf_tetra_notification_indicator_05;    /* T_notification_indicator_04 */
+static int hf_tetra_optional_elements_25;         /* T_optional_elements_25 */
+static int hf_tetra_type2_parameters_16;          /* T_type2_parameters_16 */
+static int hf_tetra_notification_indicator_10;    /* T_notification_indicator_09 */
 static int hf_tetra_prop_13;                      /* T_prop_12 */
 static int hf_tetra_reset_call_time_out;          /* INTEGER_0_1 */
-static int hf_tetra_optional_elements_22;         /* T_optional_elements_22 */
-static int hf_tetra_type2_parameters_18;          /* T_type2_parameters_18 */
-static int hf_tetra_new_call_identifier;          /* T_new_call_identifier */
-static int hf_tetra_new_call_identifier_01;       /* INTEGER_0_16383 */
-static int hf_tetra_call_time_out_02;             /* T_call_time_out */
-static int hf_tetra_call_time_out_03;             /* INTEGER_0_7 */
-static int hf_tetra_call_status_02;               /* T_call_status_01 */
-static int hf_tetra_modify;                       /* T_modify */
-static int hf_tetra_modify_01;                    /* Modify_type */
-static int hf_tetra_notification_indicator_06;    /* T_notification_indicator_05 */
+static int hf_tetra_optional_elements_26;         /* T_optional_elements_26 */
+static int hf_tetra_type2_parameters_17;          /* T_type2_parameters_17 */
+static int hf_tetra_new_call_identifier_01;       /* T_new_call_identifier_01 */
+static int hf_tetra_new_call_identifier_02;       /* INTEGER_0_16383 */
+static int hf_tetra_call_time_out_02;             /* T_call_time_out_01 */
+static int hf_tetra_call_status_03;               /* T_call_status_02 */
+static int hf_tetra_modify_02;                    /* T_modify_01 */
+static int hf_tetra_notification_indicator_11;    /* T_notification_indicator_10 */
 static int hf_tetra_prop_14;                      /* T_prop_13 */
-static int hf_tetra_optional_elements_23;         /* T_optional_elements_23 */
-static int hf_tetra_type2_parameters_19;          /* T_type2_parameters_19 */
-static int hf_tetra_notification_indicator_07;    /* T_notification_indicator_06 */
+static int hf_tetra_optional_elements_27;         /* T_optional_elements_27 */
+static int hf_tetra_type2_parameters_18;          /* T_type2_parameters_18 */
+static int hf_tetra_notification_indicator_12;    /* T_notification_indicator_11 */
 static int hf_tetra_prop_15;                      /* T_prop_14 */
+static int hf_tetra_optional_elements_28;         /* T_optional_elements_28 */
+static int hf_tetra_type2_element_07;             /* T_type2_element_07 */
+static int hf_tetra_notification_indicator_13;    /* T_notification_indicator_12 */
+static int hf_tetra_transmitting_party_type_identifier;  /* T_transmitting_party_type_identifier */
+static int hf_tetra_tpti_element;                 /* Transmitting_party_address_type */
+static int hf_tetra_optional_elements_29;         /* T_optional_elements_29 */
+static int hf_tetra_type2_element_08;             /* T_type2_element_08 */
+static int hf_tetra_notification_indicator_14;    /* T_notification_indicator_13 */
+static int hf_tetra_transmitting_party_type_identifier_01;  /* T_transmitting_party_type_identifier_01 */
 static int hf_tetra_group_identity_ack_request;   /* BOOLEAN */
-static int hf_tetra_optional_elements_24;         /* T_optional_elements_24 */
-static int hf_tetra_type2_element_02;             /* T_type2_element_02 */
+static int hf_tetra_optional_elements_30;         /* T_optional_elements_30 */
+static int hf_tetra_type2_element_09;             /* T_type2_element_09 */
 static int hf_tetra_type3_04;                     /* T_type3_04 */
 static int hf_tetra_type3_elements_04;            /* T_type3_elements_04 */
 static int hf_tetra_group_identity_downlink_02;   /* GROUP_IDENTITY_DOWNLINK */
 static int hf_tetra_group_identity_attach_detach_accept;  /* BOOLEAN */
-static int hf_tetra_optional_elements_25;         /* T_optional_elements_25 */
-static int hf_tetra_type2_element_03;             /* T_type2_element_03 */
+static int hf_tetra_optional_elements_31;         /* T_optional_elements_31 */
+static int hf_tetra_type2_element_10;             /* T_type2_element_10 */
 static int hf_tetra_type3_05;                     /* T_type3_05 */
 static int hf_tetra_type3_elements_05;            /* T_type3_elements_05 */
 static int hf_tetra_called_party_sna;             /* INTEGER_0_255 */
@@ -804,17 +837,36 @@ static int ett_tetra_T_called_party_type_identifier_01;
 static int ett_tetra_U_INFO;
 static int ett_tetra_D_CMCE_PDU;
 static int ett_tetra_D_SDS_DATA;
-static int ett_tetra_T_calling_party_type_identifier;
 static int ett_tetra_T_short_data_type_identifier_01;
 static int ett_tetra_D_STATUS;
-static int ett_tetra_T_calling_party_type_identifier_01;
 static int ett_tetra_D_DISCONNECT;
+static int ett_tetra_T_optional_elements_06;
+static int ett_tetra_T_type2_element;
+static int ett_tetra_T_notification_indicator;
 static int ett_tetra_D_INFO;
+static int ett_tetra_T_optional_elements_07;
+static int ett_tetra_T_type2_element_01;
+static int ett_tetra_T_new_call_identifier;
+static int ett_tetra_T_call_time_out;
+static int ett_tetra_T_call_time_out_set_up_phase;
+static int ett_tetra_T_call_ownership;
+static int ett_tetra_T_modify;
+static int ett_tetra_T_call_status;
+static int ett_tetra_T_temporary_address;
+static int ett_tetra_T_notification_indicator_01;
+static int ett_tetra_T_poll_response_percentage;
+static int ett_tetra_T_poll_response_number;
 static int ett_tetra_D_TX_WAIT;
+static int ett_tetra_T_optional_elements_08;
+static int ett_tetra_T_type2_element_02;
+static int ett_tetra_T_notification_indicator_02;
 static int ett_tetra_D_TX_CONTINUE;
+static int ett_tetra_T_optional_elements_09;
+static int ett_tetra_T_type2_element_03;
+static int ett_tetra_T_notification_indicator_03;
 static int ett_tetra_U_LOCATION_UPDATE_DEMAND;
 static int ett_tetra_T_cipher_control_choice;
-static int ett_tetra_T_optional_elements_06;
+static int ett_tetra_T_optional_elements_10;
 static int ett_tetra_T_type2_parameters_04;
 static int ett_tetra_T_class_of_MS;
 static int ett_tetra_T_energy_saving_mode_01;
@@ -828,107 +880,118 @@ static int ett_tetra_T_group_report_response_choice;
 static int ett_tetra_T_group_identity_uplink;
 static int ett_tetra_T_proprietary_01;
 static int ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY;
-static int ett_tetra_T_optional_elements_07;
-static int ett_tetra_T_type2_element;
+static int ett_tetra_T_optional_elements_11;
+static int ett_tetra_T_type2_element_04;
 static int ett_tetra_T_type3_02;
 static int ett_tetra_T_type3_elements_02;
 static int ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY_ACK;
-static int ett_tetra_T_optional_elements_08;
-static int ett_tetra_T_type2_element_01;
+static int ett_tetra_T_optional_elements_12;
+static int ett_tetra_T_type2_element_05;
 static int ett_tetra_T_type3_03;
 static int ett_tetra_T_type3_elements_03;
 static int ett_tetra_U_SETUP;
-static int ett_tetra_T_optional_elements_09;
+static int ett_tetra_T_optional_elements_13;
 static int ett_tetra_T_type2_parameters_05;
 static int ett_tetra_T_external_subscriber_number;
 static int ett_tetra_T_prop;
 static int ett_tetra_Basic_service_information;
 static int ett_tetra_U_ALERT;
-static int ett_tetra_T_optional_elements_10;
+static int ett_tetra_T_optional_elements_14;
 static int ett_tetra_T_type2_parameters_06;
 static int ett_tetra_T_basic_service_information;
 static int ett_tetra_T_prop_01;
 static int ett_tetra_U_CONNECT;
-static int ett_tetra_T_optional_elements_11;
+static int ett_tetra_T_optional_elements_15;
 static int ett_tetra_T_type2_parameters_07;
 static int ett_tetra_T_basic_service_information_01;
 static int ett_tetra_T_prop_02;
 static int ett_tetra_U_TX_CEASED;
-static int ett_tetra_T_optional_elements_12;
+static int ett_tetra_T_optional_elements_16;
 static int ett_tetra_T_type2_parameters_08;
 static int ett_tetra_T_prop_03;
 static int ett_tetra_U_TX_DEMAND;
-static int ett_tetra_T_optional_elements_13;
+static int ett_tetra_T_optional_elements_17;
 static int ett_tetra_T_type2_parameters_09;
 static int ett_tetra_T_prop_04;
 static int ett_tetra_U_DISCONNECT;
-static int ett_tetra_T_optional_elements_14;
+static int ett_tetra_T_optional_elements_18;
 static int ett_tetra_T_type2_parameters_10;
 static int ett_tetra_T_prop_05;
 static int ett_tetra_U_CALL_RESTORE;
-static int ett_tetra_T_optional_elements_15;
+static int ett_tetra_T_optional_elements_19;
 static int ett_tetra_T_type2_parameters_11;
 static int ett_tetra_T_prop_06;
 static int ett_tetra_D_SETUP;
-static int ett_tetra_T_optional_elements_16;
-static int ett_tetra_T_type2_parameters_12;
-static int ett_tetra_T_calling_party_address;
+static int ett_tetra_T_optional_elements_20;
+static int ett_tetra_T_type2_element_06;
+static int ett_tetra_T_notification_indicator_04;
+static int ett_tetra_T_temporary_address_01;
+static int ett_tetra_T_calling_party_type_identifier;
 static int ett_tetra_T_external_subscriber_number_01;
 static int ett_tetra_T_prop_07;
 static int ett_tetra_D_CALL_PROCEEDING;
-static int ett_tetra_T_optional_elements_17;
-static int ett_tetra_T_type2_parameters_13;
+static int ett_tetra_T_optional_elements_21;
+static int ett_tetra_T_type2_parameters_12;
 static int ett_tetra_T_basic_service_information_02;
-static int ett_tetra_T_call_status;
-static int ett_tetra_T_notification_indicator;
+static int ett_tetra_T_call_status_01;
+static int ett_tetra_T_notification_indicator_05;
 static int ett_tetra_T_prop_08;
 static int ett_tetra_D_ALERT;
-static int ett_tetra_T_optional_elements_18;
-static int ett_tetra_T_type2_parameters_14;
+static int ett_tetra_T_optional_elements_22;
+static int ett_tetra_T_type2_parameters_13;
 static int ett_tetra_T_basic_service_infomation;
-static int ett_tetra_T_notification_indicator_01;
+static int ett_tetra_T_notification_indicator_06;
 static int ett_tetra_T_prop_09;
 static int ett_tetra_D_CONNECT;
-static int ett_tetra_T_optional_elements_19;
-static int ett_tetra_T_type2_parameters_15;
+static int ett_tetra_T_optional_elements_23;
+static int ett_tetra_T_type2_parameters_14;
 static int ett_tetra_T_call_priority;
 static int ett_tetra_T_basic_service_information_03;
-static int ett_tetra_T_temporary_address;
-static int ett_tetra_T_notification_indicator_02;
+static int ett_tetra_T_temporary_address_02;
+static int ett_tetra_T_notification_indicator_07;
 static int ett_tetra_T_prop_10;
 static int ett_tetra_D_CONNECT_ACK;
-static int ett_tetra_T_optional_elements_20;
-static int ett_tetra_T_type2_parameters_16;
-static int ett_tetra_T_notification_indicator_03;
+static int ett_tetra_T_optional_elements_24;
+static int ett_tetra_T_type2_parameters_15;
+static int ett_tetra_T_notification_indicator_08;
 static int ett_tetra_T_prop_11;
 static int ett_tetra_D_RELEASE;
-static int ett_tetra_T_optional_elements_21;
-static int ett_tetra_T_type2_parameters_17;
-static int ett_tetra_T_notification_indicator_04;
+static int ett_tetra_T_optional_elements_25;
+static int ett_tetra_T_type2_parameters_16;
+static int ett_tetra_T_notification_indicator_09;
 static int ett_tetra_T_prop_12;
 static int ett_tetra_D_CALL_RESTORE;
-static int ett_tetra_T_optional_elements_22;
-static int ett_tetra_T_type2_parameters_18;
-static int ett_tetra_T_new_call_identifier;
-static int ett_tetra_T_call_time_out;
-static int ett_tetra_T_call_status_01;
-static int ett_tetra_T_modify;
-static int ett_tetra_T_notification_indicator_05;
+static int ett_tetra_T_optional_elements_26;
+static int ett_tetra_T_type2_parameters_17;
+static int ett_tetra_T_new_call_identifier_01;
+static int ett_tetra_T_call_time_out_01;
+static int ett_tetra_T_call_status_02;
+static int ett_tetra_T_modify_01;
+static int ett_tetra_T_notification_indicator_10;
 static int ett_tetra_T_prop_13;
 static int ett_tetra_D_TX_CEASED;
-static int ett_tetra_T_optional_elements_23;
-static int ett_tetra_T_type2_parameters_19;
-static int ett_tetra_T_notification_indicator_06;
+static int ett_tetra_T_optional_elements_27;
+static int ett_tetra_T_type2_parameters_18;
+static int ett_tetra_T_notification_indicator_11;
 static int ett_tetra_T_prop_14;
 static int ett_tetra_D_TX_GRANTED;
+static int ett_tetra_T_optional_elements_28;
+static int ett_tetra_T_type2_element_07;
+static int ett_tetra_T_notification_indicator_12;
+static int ett_tetra_T_transmitting_party_type_identifier;
+static int ett_tetra_D_TX_INTERRUPT;
+static int ett_tetra_T_optional_elements_29;
+static int ett_tetra_T_type2_element_08;
+static int ett_tetra_T_notification_indicator_13;
+static int ett_tetra_T_transmitting_party_type_identifier_01;
 static int ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY;
-static int ett_tetra_T_optional_elements_24;
-static int ett_tetra_T_type2_element_02;
+static int ett_tetra_T_optional_elements_30;
+static int ett_tetra_T_type2_element_09;
 static int ett_tetra_T_type3_04;
 static int ett_tetra_T_type3_elements_04;
 static int ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK;
-static int ett_tetra_T_optional_elements_25;
-static int ett_tetra_T_type2_element_03;
+static int ett_tetra_T_optional_elements_31;
+static int ett_tetra_T_type2_element_10;
 static int ett_tetra_T_type3_05;
 static int ett_tetra_T_type3_elements_05;
 static int ett_tetra_Calling_party_address_type;
@@ -2473,22 +2536,22 @@ dissect_tetra_T_type2_parameters_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_06_vals[] = {
+static const value_string tetra_T_optional_elements_10_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_06_choice[] = {
+static const per_choice_t T_optional_elements_10_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_04, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_04 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_06, T_optional_elements_06_choice,
+                                 ett_tetra_T_optional_elements_10, T_optional_elements_10_choice,
                                  NULL);
 
   return offset;
@@ -2499,7 +2562,7 @@ static const per_sequence_t U_LOCATION_UPDATE_DEMAND_sequence[] = {
   { &hf_tetra_location_update_type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_UPDATE_TYPE },
   { &hf_tetra_request_to_append_LA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_cipher_control_choice, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_cipher_control_choice },
-  { &hf_tetra_optional_elements_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_06 },
+  { &hf_tetra_optional_elements_10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_10 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2718,36 +2781,36 @@ dissect_tetra_T_type3_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const per_sequence_t T_type2_element_sequence[] = {
+static const per_sequence_t T_type2_element_04_sequence[] = {
   { &hf_tetra_type3_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_type3_02 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_element(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_element_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_element, T_type2_element_sequence);
+                                   ett_tetra_T_type2_element_04, T_type2_element_04_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_07_vals[] = {
+static const value_string tetra_T_optional_elements_11_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-element" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_07_choice[] = {
+static const per_choice_t T_optional_elements_11_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_element , ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element },
+  {   1, &hf_tetra_type2_element_04, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_04 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_07, T_optional_elements_07_choice,
+                                 ett_tetra_T_optional_elements_11, T_optional_elements_11_choice,
                                  NULL);
 
   return offset;
@@ -2757,7 +2820,7 @@ dissect_tetra_T_optional_elements_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t U_ATTACH_DETACH_GROUP_IDENTITY_sequence[] = {
   { &hf_tetra_group_identity_report, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_group_identity_attach_detach_mode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
-  { &hf_tetra_optional_elements_07, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_07 },
+  { &hf_tetra_optional_elements_11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_11 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2811,36 +2874,36 @@ dissect_tetra_T_type3_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const per_sequence_t T_type2_element_01_sequence[] = {
+static const per_sequence_t T_type2_element_05_sequence[] = {
   { &hf_tetra_type3_03      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_type3_03 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_element_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_element_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_element_01, T_type2_element_01_sequence);
+                                   ett_tetra_T_type2_element_05, T_type2_element_05_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_08_vals[] = {
+static const value_string tetra_T_optional_elements_12_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-element" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_08_choice[] = {
+static const per_choice_t T_optional_elements_12_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_element_01, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_01 },
+  {   1, &hf_tetra_type2_element_05, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_05 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_08, T_optional_elements_08_choice,
+                                 ett_tetra_T_optional_elements_12, T_optional_elements_12_choice,
                                  NULL);
 
   return offset;
@@ -2850,7 +2913,7 @@ dissect_tetra_T_optional_elements_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t U_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence[] = {
   { &hf_tetra_group_identity_ack_type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_group_identity_attach_detach_mode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
-  { &hf_tetra_optional_elements_08, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_08 },
+  { &hf_tetra_optional_elements_12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_12 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3114,22 +3177,22 @@ dissect_tetra_T_type2_parameters_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_10_vals[] = {
+static const value_string tetra_T_optional_elements_14_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_10_choice[] = {
+static const per_choice_t T_optional_elements_14_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_06, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_06 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_10, T_optional_elements_10_choice,
+                                 ett_tetra_T_optional_elements_14, T_optional_elements_14_choice,
                                  NULL);
 
   return offset;
@@ -3140,7 +3203,7 @@ static const per_sequence_t U_ALERT_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_simplex_duplex_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection },
-  { &hf_tetra_optional_elements_10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_10 },
+  { &hf_tetra_optional_elements_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_14 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3230,22 +3293,22 @@ dissect_tetra_T_type2_parameters_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_11_vals[] = {
+static const value_string tetra_T_optional_elements_15_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_11_choice[] = {
+static const per_choice_t T_optional_elements_15_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_07, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_07 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_11, T_optional_elements_11_choice,
+                                 ett_tetra_T_optional_elements_15, T_optional_elements_15_choice,
                                  NULL);
 
   return offset;
@@ -3256,7 +3319,7 @@ static const per_sequence_t U_CONNECT_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_hook_method_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_simplex_duplex_selection_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_01 },
-  { &hf_tetra_optional_elements_11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_11 },
+  { &hf_tetra_optional_elements_15, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_15 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3317,22 +3380,22 @@ dissect_tetra_T_type2_parameters_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_14_vals[] = {
+static const value_string tetra_T_optional_elements_18_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_14_choice[] = {
+static const per_choice_t T_optional_elements_18_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_10, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_10 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_14, T_optional_elements_14_choice,
+                                 ett_tetra_T_optional_elements_18, T_optional_elements_18_choice,
                                  NULL);
 
   return offset;
@@ -3342,7 +3405,7 @@ dissect_tetra_T_optional_elements_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t U_DISCONNECT_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_disconnect_cause, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
-  { &hf_tetra_optional_elements_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_14 },
+  { &hf_tetra_optional_elements_18, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_18 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3428,6 +3491,7 @@ static const value_string tetra_Calling_party_address_type_vals[] = {
   {   0, "called-party-sna" },
   {   1, "called-party-ssi" },
   {   2, "called-party-ssi-extension" },
+  {   3, "reserved" },
   { 0, NULL }
 };
 
@@ -3435,6 +3499,7 @@ static const per_choice_t Calling_party_address_type_choice[] = {
   {   0, &hf_tetra_called_party_sna, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_255 },
   {   1, &hf_tetra_called_party_ssi, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
   {   2, &hf_tetra_called_party_ssi_extension, ASN1_NO_EXTENSIONS     , dissect_tetra_T_called_party_ssi_extension },
+  {   3, &hf_tetra_reserved_03   , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -3516,22 +3581,22 @@ dissect_tetra_T_type2_parameters_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_09_vals[] = {
+static const value_string tetra_T_optional_elements_13_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_09_choice[] = {
+static const per_choice_t T_optional_elements_13_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_05, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_05 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_09, T_optional_elements_09_choice,
+                                 ett_tetra_T_optional_elements_13, T_optional_elements_13_choice,
                                  NULL);
 
   return offset;
@@ -3547,7 +3612,7 @@ static const per_sequence_t U_SETUP_sequence[] = {
   { &hf_tetra_call_priority , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
   { &hf_tetra_clir_control  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_called_party_address, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Called_party_address_type },
-  { &hf_tetra_optional_elements_09, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_09 },
+  { &hf_tetra_optional_elements_13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_13 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3652,22 +3717,22 @@ dissect_tetra_T_type2_parameters_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_12_vals[] = {
+static const value_string tetra_T_optional_elements_16_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_12_choice[] = {
+static const per_choice_t T_optional_elements_16_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_08, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_08 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_12, T_optional_elements_12_choice,
+                                 ett_tetra_T_optional_elements_16, T_optional_elements_16_choice,
                                  NULL);
 
   return offset;
@@ -3676,7 +3741,7 @@ dissect_tetra_T_optional_elements_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static const per_sequence_t U_TX_CEASED_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_optional_elements_12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_12 },
+  { &hf_tetra_optional_elements_16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3727,22 +3792,22 @@ dissect_tetra_T_type2_parameters_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_13_vals[] = {
+static const value_string tetra_T_optional_elements_17_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_13_choice[] = {
+static const per_choice_t T_optional_elements_17_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_09, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_09 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_13, T_optional_elements_13_choice,
+                                 ett_tetra_T_optional_elements_17, T_optional_elements_17_choice,
                                  NULL);
 
   return offset;
@@ -3754,7 +3819,7 @@ static const per_sequence_t U_TX_DEMAND_sequence[] = {
   { &hf_tetra_tx_demand_priority, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_encryption_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_13 },
+  { &hf_tetra_optional_elements_17, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_17 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3814,22 +3879,22 @@ dissect_tetra_T_type2_parameters_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string tetra_T_optional_elements_15_vals[] = {
+static const value_string tetra_T_optional_elements_19_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_15_choice[] = {
+static const per_choice_t T_optional_elements_19_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_type2_parameters_11, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_11 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_15, T_optional_elements_15_choice,
+                                 ett_tetra_T_optional_elements_19, T_optional_elements_19_choice,
                                  NULL);
 
   return offset;
@@ -3841,7 +3906,7 @@ static const per_sequence_t U_CALL_RESTORE_sequence[] = {
   { &hf_tetra_request_to_transmit_send_data, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_other_party_address, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Other_party_address_type },
   { &hf_tetra_basic_service_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Basic_service_information },
-  { &hf_tetra_optional_elements_15, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_15 },
+  { &hf_tetra_optional_elements_19, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_19 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6242,36 +6307,36 @@ dissect_tetra_T_type3_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const per_sequence_t T_type2_element_02_sequence[] = {
+static const per_sequence_t T_type2_element_09_sequence[] = {
   { &hf_tetra_type3_04      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_type3_04 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_element_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_element_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_element_02, T_type2_element_02_sequence);
+                                   ett_tetra_T_type2_element_09, T_type2_element_09_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_24_vals[] = {
+static const value_string tetra_T_optional_elements_30_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-element" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_24_choice[] = {
+static const per_choice_t T_optional_elements_30_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_element_02, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_02 },
+  {   1, &hf_tetra_type2_element_09, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_09 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_24, T_optional_elements_24_choice,
+                                 ett_tetra_T_optional_elements_30, T_optional_elements_30_choice,
                                  NULL);
 
   return offset;
@@ -6282,7 +6347,7 @@ static const per_sequence_t D_ATTACH_DETACH_GROUP_IDENTITY_sequence[] = {
   { &hf_tetra_group_identity_report, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_group_identity_ack_request, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_group_identity_attach_detach_mode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
-  { &hf_tetra_optional_elements_24, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_24 },
+  { &hf_tetra_optional_elements_30, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_30 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6336,36 +6401,36 @@ dissect_tetra_T_type3_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const per_sequence_t T_type2_element_03_sequence[] = {
+static const per_sequence_t T_type2_element_10_sequence[] = {
   { &hf_tetra_type3_05      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_type3_05 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_element_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_element_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_element_03, T_type2_element_03_sequence);
+                                   ett_tetra_T_type2_element_10, T_type2_element_10_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_25_vals[] = {
+static const value_string tetra_T_optional_elements_31_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-element" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_25_choice[] = {
+static const per_choice_t T_optional_elements_31_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_element_03, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_03 },
+  {   1, &hf_tetra_type2_element_10, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_10 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_25, T_optional_elements_25_choice,
+                                 ett_tetra_T_optional_elements_31, T_optional_elements_31_choice,
                                  NULL);
 
   return offset;
@@ -6375,7 +6440,7 @@ dissect_tetra_T_optional_elements_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t D_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence[] = {
   { &hf_tetra_group_identity_attach_detach_accept, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_25, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_25 },
+  { &hf_tetra_optional_elements_31, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_31 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6494,22 +6559,22 @@ dissect_tetra_T_basic_service_infomation(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const value_string tetra_T_notification_indicator_01_vals[] = {
+static const value_string tetra_T_notification_indicator_06_vals[] = {
   {   0, "none" },
   {   1, "notification-indicator" },
   { 0, NULL }
 };
 
-static const per_choice_t T_notification_indicator_01_choice[] = {
+static const per_choice_t T_notification_indicator_06_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_notification_indicator_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_notification_indicator_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator_01, T_notification_indicator_01_choice,
+                                 ett_tetra_T_notification_indicator_06, T_notification_indicator_06_choice,
                                  NULL);
 
   return offset;
@@ -6538,38 +6603,38 @@ dissect_tetra_T_prop_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t T_type2_parameters_14_sequence[] = {
+static const per_sequence_t T_type2_parameters_13_sequence[] = {
   { &hf_tetra_basic_service_infomation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_basic_service_infomation },
-  { &hf_tetra_notification_indicator_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_01 },
+  { &hf_tetra_notification_indicator_07, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_06 },
   { &hf_tetra_prop_10       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_09 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_parameters_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_parameters_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_14, T_type2_parameters_14_sequence);
+                                   ett_tetra_T_type2_parameters_13, T_type2_parameters_13_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_18_vals[] = {
+static const value_string tetra_T_optional_elements_22_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_18_choice[] = {
+static const per_choice_t T_optional_elements_22_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_14, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_14 },
+  {   1, &hf_tetra_type2_parameters_13, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_13 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_18, T_optional_elements_18_choice,
+                                 ett_tetra_T_optional_elements_22, T_optional_elements_22_choice,
                                  NULL);
 
   return offset;
@@ -6582,7 +6647,7 @@ static const per_sequence_t D_ALERT_sequence[] = {
   { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_simplex_duplex_selection_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_03 },
   { &hf_tetra_call_queued   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
-  { &hf_tetra_optional_elements_18, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_18 },
+  { &hf_tetra_optional_elements_22, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_22 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6619,44 +6684,44 @@ dissect_tetra_T_basic_service_information_02(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const value_string tetra_T_call_status_vals[] = {
+static const value_string tetra_T_call_status_01_vals[] = {
   {   0, "none" },
   {   1, "call-status" },
   { 0, NULL }
 };
 
-static const per_choice_t T_call_status_choice[] = {
+static const per_choice_t T_call_status_01_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
   {   1, &hf_tetra_call_status_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_7 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_call_status(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_call_status_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_call_status, T_call_status_choice,
+                                 ett_tetra_T_call_status_01, T_call_status_01_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const value_string tetra_T_notification_indicator_vals[] = {
+static const value_string tetra_T_notification_indicator_05_vals[] = {
   {   0, "none" },
   {   1, "notification-indicator" },
   { 0, NULL }
 };
 
-static const per_choice_t T_notification_indicator_choice[] = {
+static const per_choice_t T_notification_indicator_05_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_notification_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_notification_indicator_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator, T_notification_indicator_choice,
+                                 ett_tetra_T_notification_indicator_05, T_notification_indicator_05_choice,
                                  NULL);
 
   return offset;
@@ -6685,39 +6750,39 @@ dissect_tetra_T_prop_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t T_type2_parameters_13_sequence[] = {
+static const per_sequence_t T_type2_parameters_12_sequence[] = {
   { &hf_tetra_basic_service_information_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_basic_service_information_02 },
-  { &hf_tetra_call_status   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_status },
-  { &hf_tetra_notification_indicator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator },
+  { &hf_tetra_call_status_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_status_01 },
+  { &hf_tetra_notification_indicator_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_05 },
   { &hf_tetra_prop_09       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_08 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_parameters_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_parameters_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_13, T_type2_parameters_13_sequence);
+                                   ett_tetra_T_type2_parameters_12, T_type2_parameters_12_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_17_vals[] = {
+static const value_string tetra_T_optional_elements_21_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_17_choice[] = {
+static const per_choice_t T_optional_elements_21_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_13, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_13 },
+  {   1, &hf_tetra_type2_parameters_12, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_12 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_17, T_optional_elements_17_choice,
+                                 ett_tetra_T_optional_elements_21, T_optional_elements_21_choice,
                                  NULL);
 
   return offset;
@@ -6729,7 +6794,7 @@ static const per_sequence_t D_CALL_PROCEEDING_sequence[] = {
   { &hf_tetra_call_time_out_setup_phase, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_7 },
   { &hf_tetra_hook_method_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_simplex_duplex_selection_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_17, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_17 },
+  { &hf_tetra_optional_elements_21, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_21 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6804,44 +6869,44 @@ dissect_tetra_T_basic_service_information_03(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const value_string tetra_T_temporary_address_vals[] = {
+static const value_string tetra_T_temporary_address_02_vals[] = {
   {   0, "none" },
   {   1, "temporary-address" },
   { 0, NULL }
 };
 
-static const per_choice_t T_temporary_address_choice[] = {
+static const per_choice_t T_temporary_address_02_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_temporary_address_01, ASN1_NO_EXTENSIONS     , dissect_tetra_Calling_party_address_type },
+  {   1, &hf_tetra_temporary_address_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_temporary_address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_temporary_address_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_temporary_address, T_temporary_address_choice,
+                                 ett_tetra_T_temporary_address_02, T_temporary_address_02_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const value_string tetra_T_notification_indicator_02_vals[] = {
+static const value_string tetra_T_notification_indicator_07_vals[] = {
   {   0, "none" },
   {   1, "notification-indicator" },
   { 0, NULL }
 };
 
-static const per_choice_t T_notification_indicator_02_choice[] = {
+static const per_choice_t T_notification_indicator_07_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_notification_indicator_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_notification_indicator_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator_02, T_notification_indicator_02_choice,
+                                 ett_tetra_T_notification_indicator_07, T_notification_indicator_07_choice,
                                  NULL);
 
   return offset;
@@ -6870,40 +6935,40 @@ dissect_tetra_T_prop_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t T_type2_parameters_15_sequence[] = {
+static const per_sequence_t T_type2_parameters_14_sequence[] = {
   { &hf_tetra_call_priority_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_priority },
   { &hf_tetra_basic_service_information_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_basic_service_information_03 },
-  { &hf_tetra_temporary_address, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_temporary_address },
-  { &hf_tetra_notification_indicator_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_02 },
+  { &hf_tetra_temporary_address_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_temporary_address_02 },
+  { &hf_tetra_notification_indicator_08, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_07 },
   { &hf_tetra_prop_11       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_10 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_parameters_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_parameters_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_15, T_type2_parameters_15_sequence);
+                                   ett_tetra_T_type2_parameters_14, T_type2_parameters_14_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_19_vals[] = {
+static const value_string tetra_T_optional_elements_23_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_19_choice[] = {
+static const per_choice_t T_optional_elements_23_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_15, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_15 },
+  {   1, &hf_tetra_type2_parameters_14, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_14 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_19, T_optional_elements_19_choice,
+                                 ett_tetra_T_optional_elements_23, T_optional_elements_23_choice,
                                  NULL);
 
   return offset;
@@ -6912,13 +6977,13 @@ dissect_tetra_T_optional_elements_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static const per_sequence_t D_CONNECT_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
+  { &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
   { &hf_tetra_hook_method_selection, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_simplex_duplex_selection_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_04 },
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_call_ownership, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_19, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_19 },
+  { &hf_tetra_call_ownership_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_23, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_23 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6933,22 +6998,22 @@ dissect_tetra_D_CONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const value_string tetra_T_notification_indicator_03_vals[] = {
+static const value_string tetra_T_notification_indicator_08_vals[] = {
   {   0, "none" },
   {   1, "notification-indicator" },
   { 0, NULL }
 };
 
-static const per_choice_t T_notification_indicator_03_choice[] = {
+static const per_choice_t T_notification_indicator_08_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_notification_indicator_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_notification_indicator_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator_03, T_notification_indicator_03_choice,
+                                 ett_tetra_T_notification_indicator_08, T_notification_indicator_08_choice,
                                  NULL);
 
   return offset;
@@ -6977,37 +7042,37 @@ dissect_tetra_T_prop_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t T_type2_parameters_16_sequence[] = {
-  { &hf_tetra_notification_indicator_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_03 },
+static const per_sequence_t T_type2_parameters_15_sequence[] = {
+  { &hf_tetra_notification_indicator_09, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_08 },
   { &hf_tetra_prop_12       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_11 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_parameters_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_parameters_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_16, T_type2_parameters_16_sequence);
+                                   ett_tetra_T_type2_parameters_15, T_type2_parameters_15_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_20_vals[] = {
+static const value_string tetra_T_optional_elements_24_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_20_choice[] = {
+static const per_choice_t T_optional_elements_24_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_16, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_16 },
+  {   1, &hf_tetra_type2_parameters_15, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_15 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_20, T_optional_elements_20_choice,
+                                 ett_tetra_T_optional_elements_24, T_optional_elements_24_choice,
                                  NULL);
 
   return offset;
@@ -7016,10 +7081,10 @@ dissect_tetra_T_optional_elements_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static const per_sequence_t D_CONNECT_ACK_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_call_time_out , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
+  { &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_20, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_20 },
+  { &hf_tetra_optional_elements_24, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_24 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7034,9 +7099,68 @@ dissect_tetra_D_CONNECT_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const value_string tetra_T_notification_indicator_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator, T_notification_indicator_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_sequence[] = {
+  { &hf_tetra_notification_indicator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element, T_type2_element_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_06_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_06_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element , ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_06, T_optional_elements_06_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t D_DISCONNECT_sequence[] = {
   { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
   { &hf_tetra_disconnect_cause, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
+  { &hf_tetra_optional_elements_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_06 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7051,488 +7175,15 @@ dissect_tetra_D_DISCONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const per_sequence_t D_INFO_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_reset_call_time_out_timer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_poll_request  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_INFO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_INFO, D_INFO_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-INFO");
-
-  return offset;
-}
-
-
-static const value_string tetra_T_notification_indicator_04_vals[] = {
-  {   0, "none" },
-  {   1, "notification-indicator" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_notification_indicator_04_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_notification_indicator_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator_04, T_notification_indicator_04_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_prop_12_vals[] = {
-  {   0, "none" },
-  {   1, "prop" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_prop_12_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_prop_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_Proprietary },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_prop_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_prop_12, T_prop_12_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_type2_parameters_17_sequence[] = {
-  { &hf_tetra_notification_indicator_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_04 },
-  { &hf_tetra_prop_13       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_12 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_T_type2_parameters_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_17, T_type2_parameters_17_sequence);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_optional_elements_21_vals[] = {
-  {   0, "no-type2" },
-  {   1, "type2-parameters" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_optional_elements_21_choice[] = {
-  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_17, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_17 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_optional_elements_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_21, T_optional_elements_21_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t D_RELEASE_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_disconnect_cause, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
-  { &hf_tetra_optional_elements_21, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_21 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_RELEASE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_RELEASE, D_RELEASE_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
-
-  return offset;
-}
-
-
-static const value_string tetra_T_simplex_duplex_selection_02_vals[] = {
-  {   0, "simplex" },
-  {   1, "duplex" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tetra_T_simplex_duplex_selection_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, false, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_calling_party_address_vals[] = {
-  {   0, "none" },
-  {   1, "calling-party-address" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_calling_party_address_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_calling_party_address_01, ASN1_NO_EXTENSIONS     , dissect_tetra_Calling_party_address_type },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_calling_party_address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_calling_party_address, T_calling_party_address_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_external_subscriber_number_01_vals[] = {
-  {   0, "none" },
-  {   1, "external-subscriber-number" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_external_subscriber_number_01_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_external_subscriber_number_03, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_15 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_external_subscriber_number_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_external_subscriber_number_01, T_external_subscriber_number_01_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_prop_07_vals[] = {
-  {   0, "none" },
-  {   1, "prop" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_prop_07_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_prop_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_Proprietary },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_prop_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_prop_07, T_prop_07_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_type2_parameters_12_sequence[] = {
-  { &hf_tetra_calling_party_address, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_calling_party_address },
-  { &hf_tetra_external_subscriber_number_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_external_subscriber_number_01 },
-  { &hf_tetra_prop_08       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_07 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_T_type2_parameters_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_12, T_type2_parameters_12_sequence);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_optional_elements_16_vals[] = {
-  {   0, "no-type2" },
-  {   1, "type2-parameters" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_optional_elements_16_choice[] = {
-  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_12, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_12 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_optional_elements_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_16, T_optional_elements_16_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t D_SETUP_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_call_time_out , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
-  { &hf_tetra_hook_method_selection_integer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_simplex_duplex_selection_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_02 },
-  { &hf_tetra_basic_service_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Basic_service_information },
-  { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_call_priority , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
-  { &hf_tetra_optional_elements_16, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_16 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_SETUP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_SETUP, D_SETUP_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-SETUP");
-
-  return offset;
-}
-
-
-
-static int
-dissect_tetra_OCTET_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       6, 6, false, NULL);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_calling_party_type_identifier_01_vals[] = {
-  {   0, "none1" },
-  {   1, "calling-party-address-SSI" },
-  {   2, "ssi-extension" },
-  {   3, "none2" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_calling_party_type_identifier_01_choice[] = {
-  {   0, &hf_tetra_none1         , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_calling_party_address_SSI, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
-  {   2, &hf_tetra_ssi_extension_01, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_6 },
-  {   3, &hf_tetra_none2         , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_calling_party_type_identifier_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_calling_party_type_identifier_01, T_calling_party_type_identifier_01_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t D_STATUS_sequence[] = {
-  { &hf_tetra_calling_party_type_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_calling_party_type_identifier_01 },
-  { &hf_tetra_pre_coded_status, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_65535 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_STATUS, D_STATUS_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-STATUS");
-
-  return offset;
-}
-
-
-static const value_string tetra_T_notification_indicator_06_vals[] = {
-  {   0, "none" },
-  {   1, "notification-indicator" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_notification_indicator_06_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_notification_indicator_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator_06, T_notification_indicator_06_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_prop_14_vals[] = {
-  {   0, "none" },
-  {   1, "prop" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_prop_14_choice[] = {
-  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_prop_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_Proprietary },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_prop_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_prop_14, T_prop_14_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_type2_parameters_19_sequence[] = {
-  { &hf_tetra_notification_indicator_07, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_06 },
-  { &hf_tetra_prop_15       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_14 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_T_type2_parameters_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_19, T_type2_parameters_19_sequence);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_optional_elements_23_vals[] = {
-  {   0, "no-type2" },
-  {   1, "type2-parameters" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_optional_elements_23_choice[] = {
-  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_19, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_19 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_optional_elements_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_23, T_optional_elements_23_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t D_TX_CEASED_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_23, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_23 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_TX_CEASED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_TX_CEASED, D_TX_CEASED_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CEASED");
-
-  return offset;
-}
-
-
-static const per_sequence_t D_TX_CONTINUE_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_continue      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_TX_CONTINUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_TX_CONTINUE, D_TX_CONTINUE_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CONTINUE");
-
-  return offset;
-}
-
-
-static const per_sequence_t D_TX_GRANTED_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_encryption_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_TX_GRANTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_TX_GRANTED, D_TX_GRANTED_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-GRANTED");
-
-
-  return offset;
-}
-
-
-static const per_sequence_t D_TX_WAIT_sequence[] = {
-  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
-  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_D_TX_WAIT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
-
-  return offset;
-}
-
-
 static const value_string tetra_T_new_call_identifier_vals[] = {
   {   0, "none" },
-  {   1, "new-call-identifier" },
+  {   1, "new-call-identifier-element" },
   { 0, NULL }
 };
 
 static const per_choice_t T_new_call_identifier_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_new_call_identifier_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16383 },
+  {   1, &hf_tetra_new_call_identifier_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16383 },
   { 0, NULL, 0, NULL }
 };
 
@@ -7554,7 +7205,7 @@ static const value_string tetra_T_call_time_out_vals[] = {
 
 static const per_choice_t T_call_time_out_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_call_time_out_03, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_7 },
+  {   1, &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_15 },
   { 0, NULL, 0, NULL }
 };
 
@@ -7568,22 +7219,44 @@ dissect_tetra_T_call_time_out(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const value_string tetra_T_call_status_01_vals[] = {
+static const value_string tetra_T_call_time_out_set_up_phase_vals[] = {
   {   0, "none" },
-  {   1, "call-status" },
+  {   1, "call-time-out-set-up-phase" },
   { 0, NULL }
 };
 
-static const per_choice_t T_call_status_01_choice[] = {
+static const per_choice_t T_call_time_out_set_up_phase_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_call_status_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_7 },
+  {   1, &hf_tetra_call_time_out_set_up_phase_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_7 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_call_status_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_call_time_out_set_up_phase(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_call_status_01, T_call_status_01_choice,
+                                 ett_tetra_T_call_time_out_set_up_phase, T_call_time_out_set_up_phase_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_call_ownership_vals[] = {
+  {   0, "none" },
+  {   1, "call-ownership" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_call_ownership_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_call_ownership_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_1 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_call_ownership(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_call_ownership, T_call_ownership_choice,
                                  NULL);
 
   return offset;
@@ -7643,22 +7316,1060 @@ dissect_tetra_T_modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-static const value_string tetra_T_notification_indicator_05_vals[] = {
+static const value_string tetra_T_call_status_vals[] = {
+  {   0, "none" },
+  {   1, "call-status" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_call_status_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_call_status_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_7 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_call_status(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_call_status, T_call_status_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_temporary_address_vals[] = {
+  {   0, "none" },
+  {   1, "temporary-address" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_temporary_address_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_temporary_address_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_temporary_address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_temporary_address, T_temporary_address_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_01_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_01, T_notification_indicator_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_poll_response_percentage_vals[] = {
+  {   0, "none" },
+  {   1, "poll-response-percentage" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_poll_response_percentage_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_poll_response_percentage_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_poll_response_percentage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_poll_response_percentage, T_poll_response_percentage_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_poll_response_number_vals[] = {
+  {   0, "none" },
+  {   1, "poll-response-number" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_poll_response_number_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_poll_response_number_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_poll_response_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_poll_response_number, T_poll_response_number_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_01_sequence[] = {
+  { &hf_tetra_new_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_new_call_identifier },
+  { &hf_tetra_call_time_out , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_time_out },
+  { &hf_tetra_call_time_out_set_up_phase, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_time_out_set_up_phase },
+  { &hf_tetra_call_ownership, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_ownership },
+  { &hf_tetra_modify        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_modify },
+  { &hf_tetra_call_status   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_status },
+  { &hf_tetra_temporary_address, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_temporary_address },
+  { &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_01 },
+  { &hf_tetra_poll_response_percentage, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_poll_response_percentage },
+  { &hf_tetra_poll_response_number, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_poll_response_number },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element_01, T_type2_element_01_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_07_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_07_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element_01, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_01 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_07, T_optional_elements_07_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_INFO_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_reset_call_time_out_timer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_poll_request  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_07, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_07 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_INFO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_INFO, D_INFO_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-INFO");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_09_vals[] = {
   {   0, "none" },
   {   1, "notification-indicator" },
   { 0, NULL }
 };
 
-static const per_choice_t T_notification_indicator_05_choice[] = {
+static const per_choice_t T_notification_indicator_09_choice[] = {
   {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_notification_indicator_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_notification_indicator_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_notification_indicator_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_notification_indicator_05, T_notification_indicator_05_choice,
+                                 ett_tetra_T_notification_indicator_09, T_notification_indicator_09_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_prop_12_vals[] = {
+  {   0, "none" },
+  {   1, "prop" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_prop_12_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_prop_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_Proprietary },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_prop_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_prop_12, T_prop_12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_parameters_16_sequence[] = {
+  { &hf_tetra_notification_indicator_10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_09 },
+  { &hf_tetra_prop_13       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_12 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_parameters_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_parameters_16, T_type2_parameters_16_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_25_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-parameters" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_25_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_parameters_16, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_16 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_25, T_optional_elements_25_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_RELEASE_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_disconnect_cause, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_31 },
+  { &hf_tetra_optional_elements_25, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_25 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_RELEASE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_RELEASE, D_RELEASE_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_simplex_duplex_selection_02_vals[] = {
+  {   0, "simplex" },
+  {   1, "duplex" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_tetra_T_simplex_duplex_selection_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, false, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_04_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_04_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_04, T_notification_indicator_04_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_temporary_address_01_vals[] = {
+  {   0, "none" },
+  {   1, "temporary-address-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_temporary_address_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_temporary_address_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_temporary_address_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_temporary_address_01, T_temporary_address_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_calling_party_type_identifier_vals[] = {
+  {   0, "none" },
+  {   1, "calling-party-type-identifier-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_calling_party_type_identifier_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_calling_party_type_identifier_element, ASN1_NO_EXTENSIONS     , dissect_tetra_Calling_party_address_type },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_calling_party_type_identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_calling_party_type_identifier, T_calling_party_type_identifier_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_external_subscriber_number_01_vals[] = {
+  {   0, "none" },
+  {   1, "external-subscriber-number" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_external_subscriber_number_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_external_subscriber_number_03, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_15 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_external_subscriber_number_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_external_subscriber_number_01, T_external_subscriber_number_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_prop_07_vals[] = {
+  {   0, "none" },
+  {   1, "prop" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_prop_07_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_prop_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_Proprietary },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_prop_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_prop_07, T_prop_07_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_06_sequence[] = {
+  { &hf_tetra_notification_indicator_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_04 },
+  { &hf_tetra_temporary_address_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_temporary_address_01 },
+  { &hf_tetra_calling_party_type_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_calling_party_type_identifier },
+  { &hf_tetra_external_subscriber_number_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_external_subscriber_number_01 },
+  { &hf_tetra_prop_08       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_07 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element_06, T_type2_element_06_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_20_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_20_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element_06, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_06 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_20, T_optional_elements_20_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_SETUP_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
+  { &hf_tetra_hook_method_selection_integer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_simplex_duplex_selection_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_simplex_duplex_selection_02 },
+  { &hf_tetra_basic_service_information, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Basic_service_information },
+  { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
+  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_call_priority , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
+  { &hf_tetra_optional_elements_20, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_20 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_SETUP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_SETUP, D_SETUP_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-SETUP");
+
+  return offset;
+}
+
+
+static const per_sequence_t D_STATUS_sequence[] = {
+  { &hf_tetra_calling_party_type_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Calling_party_address_type },
+  { &hf_tetra_pre_coded_status, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_65535 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_STATUS, D_STATUS_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-STATUS");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_11_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_11_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_11, T_notification_indicator_11_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_prop_14_vals[] = {
+  {   0, "none" },
+  {   1, "prop" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_prop_14_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_prop_01       , ASN1_NO_EXTENSIONS     , dissect_tetra_Proprietary },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_prop_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_prop_14, T_prop_14_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_parameters_18_sequence[] = {
+  { &hf_tetra_notification_indicator_12, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_11 },
+  { &hf_tetra_prop_15       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_14 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_parameters_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_parameters_18, T_type2_parameters_18_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_27_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-parameters" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_27_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_parameters_18, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_18 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_27, T_optional_elements_27_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_TX_CEASED_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_27, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_27 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_TX_CEASED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_TX_CEASED, D_TX_CEASED_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CEASED");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_03_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_03_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_03, T_notification_indicator_03_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_03_sequence[] = {
+  { &hf_tetra_notification_indicator_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_03 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element_03, T_type2_element_03_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_09_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_09_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element_03, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_03 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_09, T_optional_elements_09_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_TX_CONTINUE_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_continue      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_09, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_09 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_TX_CONTINUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_TX_CONTINUE, D_TX_CONTINUE_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CONTINUE");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_12_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_12_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_12, T_notification_indicator_12_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tetra_Transmitting_party_address_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_tetra_Calling_party_address_type(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_transmitting_party_type_identifier_vals[] = {
+  {   0, "none" },
+  {   1, "tpti-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_transmitting_party_type_identifier_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_tpti_element  , ASN1_NO_EXTENSIONS     , dissect_tetra_Transmitting_party_address_type },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_transmitting_party_type_identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_transmitting_party_type_identifier, T_transmitting_party_type_identifier_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_07_sequence[] = {
+  { &hf_tetra_notification_indicator_13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_12 },
+  { &hf_tetra_transmitting_party_type_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_transmitting_party_type_identifier },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element_07, T_type2_element_07_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_28_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_28_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element_07, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_07 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_28, T_optional_elements_28_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_TX_GRANTED_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
+  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_encryption_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_28, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_28 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_TX_GRANTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_TX_GRANTED, D_TX_GRANTED_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-GRANTED");
+
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_02_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_02_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_02, T_notification_indicator_02_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_02_sequence[] = {
+  { &hf_tetra_notification_indicator_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_02 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element_02, T_type2_element_02_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_08_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_08_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element_02, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_02 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_08, T_optional_elements_08_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_TX_WAIT_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_08, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_08 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_TX_WAIT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_13_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_13_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_element, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_13, T_notification_indicator_13_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_transmitting_party_type_identifier_01_vals[] = {
+  {   0, "none" },
+  {   1, "tpti-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_transmitting_party_type_identifier_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_tpti_element  , ASN1_NO_EXTENSIONS     , dissect_tetra_Transmitting_party_address_type },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_transmitting_party_type_identifier_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_transmitting_party_type_identifier_01, T_transmitting_party_type_identifier_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_type2_element_08_sequence[] = {
+  { &hf_tetra_notification_indicator_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_13 },
+  { &hf_tetra_transmitting_party_type_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_transmitting_party_type_identifier_01 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_T_type2_element_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_T_type2_element_08, T_type2_element_08_sequence);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_optional_elements_29_vals[] = {
+  {   0, "no-type2" },
+  {   1, "type2-element" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_optional_elements_29_choice[] = {
+  {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_type2_element_08, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_element_08 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_optional_elements_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_optional_elements_29, T_optional_elements_29_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t D_TX_INTERRUPT_sequence[] = {
+  { &hf_tetra_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16383 },
+  { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
+  { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_encryption_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
+  { &hf_tetra_optional_elements_29, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_29 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_tetra_D_TX_INTERRUPT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_tetra_D_TX_INTERRUPT, D_TX_INTERRUPT_sequence);
+
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-INTERRUPT");
+
+  return offset;
+}
+
+
+static const value_string tetra_T_new_call_identifier_01_vals[] = {
+  {   0, "none" },
+  {   1, "new-call-identifier" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_new_call_identifier_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_new_call_identifier_02, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16383 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_new_call_identifier_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_new_call_identifier_01, T_new_call_identifier_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_call_time_out_01_vals[] = {
+  {   0, "none" },
+  {   1, "call-time-out" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_call_time_out_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_call_time_out_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_15 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_call_time_out_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_call_time_out_01, T_call_time_out_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_call_status_02_vals[] = {
+  {   0, "none" },
+  {   1, "call-status" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_call_status_02_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_call_status_01, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_7 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_call_status_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_call_status_02, T_call_status_02_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_modify_01_vals[] = {
+  {   0, "none" },
+  {   1, "modify" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_modify_01_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_modify_01     , ASN1_NO_EXTENSIONS     , dissect_tetra_Modify_type },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_modify_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_modify_01, T_modify_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string tetra_T_notification_indicator_10_vals[] = {
+  {   0, "none" },
+  {   1, "notification-indicator" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_notification_indicator_10_choice[] = {
+  {   0, &hf_tetra_none          , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {   1, &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_63 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_tetra_T_notification_indicator_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_tetra_T_notification_indicator_10, T_notification_indicator_10_choice,
                                  NULL);
 
   return offset;
@@ -7687,41 +8398,41 @@ dissect_tetra_T_prop_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t T_type2_parameters_18_sequence[] = {
-  { &hf_tetra_new_call_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_new_call_identifier },
-  { &hf_tetra_call_time_out_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_time_out },
-  { &hf_tetra_call_status_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_status_01 },
-  { &hf_tetra_modify        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_modify },
-  { &hf_tetra_notification_indicator_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_05 },
+static const per_sequence_t T_type2_parameters_17_sequence[] = {
+  { &hf_tetra_new_call_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_new_call_identifier_01 },
+  { &hf_tetra_call_time_out_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_time_out_01 },
+  { &hf_tetra_call_status_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_call_status_02 },
+  { &hf_tetra_modify_02     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_modify_01 },
+  { &hf_tetra_notification_indicator_11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_notification_indicator_10 },
   { &hf_tetra_prop_14       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_prop_13 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_type2_parameters_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_type2_parameters_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_type2_parameters_18, T_type2_parameters_18_sequence);
+                                   ett_tetra_T_type2_parameters_17, T_type2_parameters_17_sequence);
 
   return offset;
 }
 
 
-static const value_string tetra_T_optional_elements_22_vals[] = {
+static const value_string tetra_T_optional_elements_26_vals[] = {
   {   0, "no-type2" },
   {   1, "type2-parameters" },
   { 0, NULL }
 };
 
-static const per_choice_t T_optional_elements_22_choice[] = {
+static const per_choice_t T_optional_elements_26_choice[] = {
   {   0, &hf_tetra_no_type2      , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_type2_parameters_18, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_18 },
+  {   1, &hf_tetra_type2_parameters_17, ASN1_NO_EXTENSIONS     , dissect_tetra_T_type2_parameters_17 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_tetra_T_optional_elements_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_optional_elements_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_optional_elements_22, T_optional_elements_22_choice,
+                                 ett_tetra_T_optional_elements_26, T_optional_elements_26_choice,
                                  NULL);
 
   return offset;
@@ -7733,7 +8444,7 @@ static const per_sequence_t D_CALL_RESTORE_sequence[] = {
   { &hf_tetra_transmission_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_transmission_request_permission, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_reset_call_time_out, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_optional_elements_22, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_22 },
+  { &hf_tetra_optional_elements_26, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_optional_elements_26 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7743,32 +8454,6 @@ dissect_tetra_D_CALL_RESTORE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                    ett_tetra_D_CALL_RESTORE, D_CALL_RESTORE_sequence);
 
 	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CALL-RESTORE");
-
-  return offset;
-}
-
-
-static const value_string tetra_T_calling_party_type_identifier_vals[] = {
-  {   0, "none1" },
-  {   1, "ssi" },
-  {   2, "ssi-extension" },
-  {   3, "none2" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_calling_party_type_identifier_choice[] = {
-  {   0, &hf_tetra_none1         , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  {   1, &hf_tetra_ssi           , ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
-  {   2, &hf_tetra_ssi_extension_01, ASN1_NO_EXTENSIONS     , dissect_tetra_OCTET_STRING_SIZE_6 },
-  {   3, &hf_tetra_none2         , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_calling_party_type_identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_calling_party_type_identifier, T_calling_party_type_identifier_choice,
-                                 NULL);
 
   return offset;
 }
@@ -7811,7 +8496,7 @@ dissect_tetra_T_short_data_type_identifier_01(tvbuff_t *tvb _U_, int offset _U_,
 
 
 static const per_sequence_t D_SDS_DATA_sequence[] = {
-  { &hf_tetra_calling_party_type_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_calling_party_type_identifier },
+  { &hf_tetra_calling_party_type_identifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Calling_party_address_type },
   { &hf_tetra_short_data_type_identifier_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_short_data_type_identifier_01 },
   { NULL, 0, 0, NULL }
 };
@@ -7862,7 +8547,7 @@ static const per_choice_t D_CMCE_PDU_choice[] = {
   {  10, &hf_tetra_d_Tx_Continue , ASN1_NO_EXTENSIONS     , dissect_tetra_D_TX_CONTINUE },
   {  11, &hf_tetra_d_Tx_Granted  , ASN1_NO_EXTENSIONS     , dissect_tetra_D_TX_GRANTED },
   {  12, &hf_tetra_d_Tx_Wait     , ASN1_NO_EXTENSIONS     , dissect_tetra_D_TX_WAIT },
-  {  13, &hf_tetra_d_Tx_Interrupt, ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
+  {  13, &hf_tetra_d_Tx_Interrupt, ASN1_NO_EXTENSIONS     , dissect_tetra_D_TX_INTERRUPT },
   {  14, &hf_tetra_d_Call_Restore, ASN1_NO_EXTENSIONS     , dissect_tetra_D_CALL_RESTORE },
   {  15, &hf_tetra_d_SDS_Data    , ASN1_NO_EXTENSIONS     , dissect_tetra_D_SDS_DATA },
   {  16, &hf_tetra_d_Facility    , ASN1_NO_EXTENSIONS     , dissect_tetra_NULL },
@@ -10899,12 +11584,8 @@ void proto_register_tetra (void)
         NULL, HFILL }},
     { &hf_tetra_calling_party_type_identifier,
       { "calling-party-type-identifier", "tetra.calling_party_type_identifier",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_calling_party_type_identifier_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_ssi_extension_01,
-      { "ssi-extension", "tetra.ssi_extension",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_6", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_Calling_party_address_type_vals), 0,
+        "Calling_party_address_type", HFILL }},
     { &hf_tetra_short_data_type_identifier_01,
       { "short-data-type-identifier", "tetra.short_data_type_identifier",
         FT_UINT32, BASE_DEC, VALS(tetra_T_short_data_type_identifier_01_vals), 0,
@@ -10913,14 +11594,22 @@ void proto_register_tetra (void)
       { "data-3", "tetra.data_3",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_8", HFILL }},
-    { &hf_tetra_calling_party_type_identifier_01,
-      { "calling-party-type-identifier", "tetra.calling_party_type_identifier",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_calling_party_type_identifier_01_vals), 0,
-        "T_calling_party_type_identifier_01", HFILL }},
-    { &hf_tetra_calling_party_address_SSI,
-      { "calling-party-address-SSI", "tetra.calling_party_address_SSI",
+    { &hf_tetra_optional_elements_06,
+      { "optional-elements", "tetra.optional_elements",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_06_vals), 0,
+        "T_optional_elements_06", HFILL }},
+    { &hf_tetra_type2_element,
+      { "type2-element", "tetra.type2_element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_tetra_notification_indicator,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_notification_indicator_element,
+      { "notification-indicator-element", "tetra.notification_indicator_element",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_16777215", HFILL }},
+        "INTEGER_0_63", HFILL }},
     { &hf_tetra_reset_call_time_out_timer,
       { "reset-call-time-out-timer", "tetra.reset_call_time_out_timer",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10929,14 +11618,122 @@ void proto_register_tetra (void)
       { "poll-request", "tetra.poll_request",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
+    { &hf_tetra_optional_elements_07,
+      { "optional-elements", "tetra.optional_elements",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_07_vals), 0,
+        "T_optional_elements_07", HFILL }},
+    { &hf_tetra_type2_element_01,
+      { "type2-element", "tetra.type2_element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_type2_element_01", HFILL }},
+    { &hf_tetra_new_call_identifier,
+      { "new-call-identifier", "tetra.new_call_identifier",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_new_call_identifier_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_new_call_identifier_element,
+      { "new-call-identifier-element", "tetra.new_call_identifier_element",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_16383", HFILL }},
+    { &hf_tetra_call_time_out,
+      { "call-time-out", "tetra.call_time_out",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_time_out_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_call_time_out_01,
+      { "call-time-out", "tetra.call_time_out",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_tetra_call_time_out_set_up_phase,
+      { "call-time-out-set-up-phase", "tetra.call_time_out_set_up_phase",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_time_out_set_up_phase_vals), 0,
+        "T_call_time_out_set_up_phase", HFILL }},
+    { &hf_tetra_call_time_out_set_up_phase_01,
+      { "call-time-out-set-up-phase", "tetra.call_time_out_set_up_phase",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_7", HFILL }},
+    { &hf_tetra_call_ownership,
+      { "call-ownership", "tetra.call_ownership",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_ownership_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_call_ownership_01,
+      { "call-ownership", "tetra.call_ownership",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1", HFILL }},
+    { &hf_tetra_modify,
+      { "modify", "tetra.modify",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_modify_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_modify_01,
+      { "modify", "tetra.modify_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Modify_type", HFILL }},
+    { &hf_tetra_call_status,
+      { "call-status", "tetra.call_status",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_status_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_call_status_01,
+      { "call-status", "tetra.call_status",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_7", HFILL }},
+    { &hf_tetra_temporary_address,
+      { "temporary-address", "tetra.temporary_address",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_temporary_address_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_temporary_address_01,
+      { "temporary-address", "tetra.temporary_address",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_16777215", HFILL }},
+    { &hf_tetra_notification_indicator_01,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_01_vals), 0,
+        "T_notification_indicator_01", HFILL }},
+    { &hf_tetra_poll_response_percentage,
+      { "poll-response-percentage", "tetra.poll_response_percentage",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_poll_response_percentage_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_poll_response_percentage_01,
+      { "poll-response-percentage", "tetra.poll_response_percentage",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_63", HFILL }},
+    { &hf_tetra_poll_response_number,
+      { "poll-response-number", "tetra.poll_response_number",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_poll_response_number_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_poll_response_number_01,
+      { "poll-response-number", "tetra.poll_response_number",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_63", HFILL }},
     { &hf_tetra_transmission_request_permission,
       { "transmission-request-permission", "tetra.transmission_request_permission",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
+    { &hf_tetra_optional_elements_08,
+      { "optional-elements", "tetra.optional_elements",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_08_vals), 0,
+        "T_optional_elements_08", HFILL }},
+    { &hf_tetra_type2_element_02,
+      { "type2-element", "tetra.type2_element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_type2_element_02", HFILL }},
+    { &hf_tetra_notification_indicator_02,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_02_vals), 0,
+        "T_notification_indicator_02", HFILL }},
     { &hf_tetra_continue,
       { "continue", "tetra.continue",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
+    { &hf_tetra_optional_elements_09,
+      { "optional-elements", "tetra.optional_elements",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_09_vals), 0,
+        "T_optional_elements_09", HFILL }},
+    { &hf_tetra_type2_element_03,
+      { "type2-element", "tetra.type2_element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_type2_element_03", HFILL }},
+    { &hf_tetra_notification_indicator_03,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_03_vals), 0,
+        "T_notification_indicator_03", HFILL }},
     { &hf_tetra_request_to_append_LA,
       { "request-to-append-LA", "tetra.request_to_append_LA",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -10953,10 +11750,10 @@ void proto_register_tetra (void)
       { "ciphering-parameters", "tetra.ciphering_parameters",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
-    { &hf_tetra_optional_elements_06,
+    { &hf_tetra_optional_elements_10,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_06_vals), 0,
-        "T_optional_elements_06", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_10_vals), 0,
+        "T_optional_elements_10", HFILL }},
     { &hf_tetra_type2_parameters_04,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11033,14 +11830,14 @@ void proto_register_tetra (void)
       { "group-identity-attach-detach-mode", "tetra.group_identity_attach_detach_mode",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_tetra_optional_elements_07,
+    { &hf_tetra_optional_elements_11,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_07_vals), 0,
-        "T_optional_elements_07", HFILL }},
-    { &hf_tetra_type2_element,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_11_vals), 0,
+        "T_optional_elements_11", HFILL }},
+    { &hf_tetra_type2_element_04,
       { "type2-element", "tetra.type2_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "T_type2_element_04", HFILL }},
     { &hf_tetra_type3_02,
       { "type3", "tetra.type3",
         FT_UINT32, BASE_DEC, VALS(tetra_T_type3_02_vals), 0,
@@ -11065,14 +11862,14 @@ void proto_register_tetra (void)
       { "group-identity-ack-type", "tetra.group_identity_ack_type",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_tetra_optional_elements_08,
+    { &hf_tetra_optional_elements_12,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_08_vals), 0,
-        "T_optional_elements_08", HFILL }},
-    { &hf_tetra_type2_element_01,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_12_vals), 0,
+        "T_optional_elements_12", HFILL }},
+    { &hf_tetra_type2_element_05,
       { "type2-element", "tetra.type2_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_element_01", HFILL }},
+        "T_type2_element_05", HFILL }},
     { &hf_tetra_type3_03,
       { "type3", "tetra.type3",
         FT_UINT32, BASE_DEC, VALS(tetra_T_type3_03_vals), 0,
@@ -11109,10 +11906,10 @@ void proto_register_tetra (void)
       { "called-party-address", "tetra.called_party_address",
         FT_UINT32, BASE_DEC, VALS(tetra_Calling_party_address_type_vals), 0,
         "Called_party_address_type", HFILL }},
-    { &hf_tetra_optional_elements_09,
+    { &hf_tetra_optional_elements_13,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_09_vals), 0,
-        "T_optional_elements_09", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_13_vals), 0,
+        "T_optional_elements_13", HFILL }},
     { &hf_tetra_type2_parameters_05,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11153,10 +11950,10 @@ void proto_register_tetra (void)
       { "simplex-duplex-selection", "tetra.simplex_duplex_selection",
         FT_UINT32, BASE_DEC, VALS(tetra_T_simplex_duplex_selection_vals), 0,
         NULL, HFILL }},
-    { &hf_tetra_optional_elements_10,
+    { &hf_tetra_optional_elements_14,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_10_vals), 0,
-        "T_optional_elements_10", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_14_vals), 0,
+        "T_optional_elements_14", HFILL }},
     { &hf_tetra_type2_parameters_06,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11173,10 +11970,10 @@ void proto_register_tetra (void)
       { "simplex-duplex-selection", "tetra.simplex_duplex_selection",
         FT_UINT32, BASE_DEC, VALS(tetra_T_simplex_duplex_selection_01_vals), 0,
         "T_simplex_duplex_selection_01", HFILL }},
-    { &hf_tetra_optional_elements_11,
+    { &hf_tetra_optional_elements_15,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_11_vals), 0,
-        "T_optional_elements_11", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_15_vals), 0,
+        "T_optional_elements_15", HFILL }},
     { &hf_tetra_type2_parameters_07,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11189,10 +11986,10 @@ void proto_register_tetra (void)
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_02_vals), 0,
         "T_prop_02", HFILL }},
-    { &hf_tetra_optional_elements_12,
+    { &hf_tetra_optional_elements_16,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_12_vals), 0,
-        "T_optional_elements_12", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_16_vals), 0,
+        "T_optional_elements_16", HFILL }},
     { &hf_tetra_type2_parameters_08,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11209,10 +12006,10 @@ void proto_register_tetra (void)
       { "encryption-control", "tetra.encryption_control",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_optional_elements_13,
+    { &hf_tetra_optional_elements_17,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_13_vals), 0,
-        "T_optional_elements_13", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_17_vals), 0,
+        "T_optional_elements_17", HFILL }},
     { &hf_tetra_type2_parameters_09,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11221,10 +12018,10 @@ void proto_register_tetra (void)
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_04_vals), 0,
         "T_prop_04", HFILL }},
-    { &hf_tetra_optional_elements_14,
+    { &hf_tetra_optional_elements_18,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_14_vals), 0,
-        "T_optional_elements_14", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_18_vals), 0,
+        "T_optional_elements_18", HFILL }},
     { &hf_tetra_type2_parameters_10,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11241,10 +12038,10 @@ void proto_register_tetra (void)
       { "other-party-address", "tetra.other_party_address",
         FT_UINT32, BASE_DEC, VALS(tetra_Calling_party_address_type_vals), 0,
         "Other_party_address_type", HFILL }},
-    { &hf_tetra_optional_elements_15,
+    { &hf_tetra_optional_elements_19,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_15_vals), 0,
-        "T_optional_elements_15", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_19_vals), 0,
+        "T_optional_elements_19", HFILL }},
     { &hf_tetra_type2_parameters_11,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11253,10 +12050,6 @@ void proto_register_tetra (void)
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_06_vals), 0,
         "T_prop_06", HFILL }},
-    { &hf_tetra_call_time_out,
-      { "call-time-out", "tetra.call_time_out",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_15", HFILL }},
     { &hf_tetra_hook_method_selection_integer,
       { "hook-method-selection", "tetra.hook_method_selection_integer",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -11269,20 +12062,32 @@ void proto_register_tetra (void)
       { "transmission-grant", "tetra.transmission_grant",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_3", HFILL }},
-    { &hf_tetra_optional_elements_16,
+    { &hf_tetra_optional_elements_20,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_16_vals), 0,
-        "T_optional_elements_16", HFILL }},
-    { &hf_tetra_type2_parameters_12,
-      { "type2-parameters", "tetra.type2_parameters_element",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_20_vals), 0,
+        "T_optional_elements_20", HFILL }},
+    { &hf_tetra_type2_element_06,
+      { "type2-element", "tetra.type2_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_12", HFILL }},
-    { &hf_tetra_calling_party_address,
-      { "calling-party-address", "tetra.calling_party_address",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_calling_party_address_vals), 0,
+        "T_type2_element_06", HFILL }},
+    { &hf_tetra_notification_indicator_04,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_04_vals), 0,
+        "T_notification_indicator_04", HFILL }},
+    { &hf_tetra_temporary_address_02,
+      { "temporary-address", "tetra.temporary_address",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_temporary_address_01_vals), 0,
+        "T_temporary_address_01", HFILL }},
+    { &hf_tetra_temporary_address_element,
+      { "temporary-address-element", "tetra.temporary_address_element",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_16777215", HFILL }},
+    { &hf_tetra_calling_party_type_identifier_01,
+      { "calling-party-type-identifier", "tetra.calling_party_type_identifier",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_calling_party_type_identifier_vals), 0,
         NULL, HFILL }},
-    { &hf_tetra_calling_party_address_01,
-      { "calling-party-address", "tetra.calling_party_address",
+    { &hf_tetra_calling_party_type_identifier_element,
+      { "calling-party-type-identifier-element", "tetra.calling_party_type_identifier_element",
         FT_UINT32, BASE_DEC, VALS(tetra_Calling_party_address_type_vals), 0,
         "Calling_party_address_type", HFILL }},
     { &hf_tetra_external_subscriber_number_02,
@@ -11305,31 +12110,27 @@ void proto_register_tetra (void)
       { "simplex-duplex-selection", "tetra.simplex_duplex_selection",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_optional_elements_17,
+    { &hf_tetra_optional_elements_21,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_17_vals), 0,
-        "T_optional_elements_17", HFILL }},
-    { &hf_tetra_type2_parameters_13,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_21_vals), 0,
+        "T_optional_elements_21", HFILL }},
+    { &hf_tetra_type2_parameters_12,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_13", HFILL }},
+        "T_type2_parameters_12", HFILL }},
     { &hf_tetra_basic_service_information_03,
       { "basic-service-information", "tetra.basic_service_information",
         FT_UINT32, BASE_DEC, VALS(tetra_T_basic_service_information_02_vals), 0,
         "T_basic_service_information_02", HFILL }},
-    { &hf_tetra_call_status,
+    { &hf_tetra_call_status_02,
       { "call-status", "tetra.call_status",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_call_status_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_call_status_01,
-      { "call-status", "tetra.call_status",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_7", HFILL }},
-    { &hf_tetra_notification_indicator,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_status_01_vals), 0,
+        "T_call_status_01", HFILL }},
+    { &hf_tetra_notification_indicator_05,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_notification_indicator_01,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_05_vals), 0,
+        "T_notification_indicator_05", HFILL }},
+    { &hf_tetra_notification_indicator_06,
       { "notification-indicator", "tetra.notification_indicator",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_63", HFILL }},
@@ -11345,14 +12146,14 @@ void proto_register_tetra (void)
       { "call-queued", "tetra.call_queued",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_tetra_optional_elements_18,
+    { &hf_tetra_optional_elements_22,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_18_vals), 0,
-        "T_optional_elements_18", HFILL }},
-    { &hf_tetra_type2_parameters_14,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_22_vals), 0,
+        "T_optional_elements_22", HFILL }},
+    { &hf_tetra_type2_parameters_13,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_14", HFILL }},
+        "T_type2_parameters_13", HFILL }},
     { &hf_tetra_basic_service_infomation,
       { "basic-service-infomation", "tetra.basic_service_infomation",
         FT_UINT32, BASE_DEC, VALS(tetra_T_basic_service_infomation_vals), 0,
@@ -11361,34 +12162,26 @@ void proto_register_tetra (void)
       { "basic-service-infomation", "tetra.basic_service_infomation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Basic_service_information", HFILL }},
-    { &hf_tetra_notification_indicator_02,
+    { &hf_tetra_notification_indicator_07,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_01_vals), 0,
-        "T_notification_indicator_01", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_06_vals), 0,
+        "T_notification_indicator_06", HFILL }},
     { &hf_tetra_prop_10,
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_09_vals), 0,
         "T_prop_09", HFILL }},
-    { &hf_tetra_call_time_out_01,
-      { "call-time-out", "tetra.call_time_out",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_31", HFILL }},
     { &hf_tetra_simplex_duplex_selection_05,
       { "simplex-duplex-selection", "tetra.simplex_duplex_selection",
         FT_UINT32, BASE_DEC, VALS(tetra_T_simplex_duplex_selection_04_vals), 0,
         "T_simplex_duplex_selection_04", HFILL }},
-    { &hf_tetra_call_ownership,
-      { "call-ownership", "tetra.call_ownership",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_1", HFILL }},
-    { &hf_tetra_optional_elements_19,
+    { &hf_tetra_optional_elements_23,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_19_vals), 0,
-        "T_optional_elements_19", HFILL }},
-    { &hf_tetra_type2_parameters_15,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_23_vals), 0,
+        "T_optional_elements_23", HFILL }},
+    { &hf_tetra_type2_parameters_14,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_15", HFILL }},
+        "T_type2_parameters_14", HFILL }},
     { &hf_tetra_call_priority_01,
       { "call-priority", "tetra.call_priority",
         FT_UINT32, BASE_DEC, VALS(tetra_T_call_priority_vals), 0,
@@ -11397,50 +12190,46 @@ void proto_register_tetra (void)
       { "basic-service-information", "tetra.basic_service_information",
         FT_UINT32, BASE_DEC, VALS(tetra_T_basic_service_information_03_vals), 0,
         "T_basic_service_information_03", HFILL }},
-    { &hf_tetra_temporary_address,
+    { &hf_tetra_temporary_address_03,
       { "temporary-address", "tetra.temporary_address",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_temporary_address_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_temporary_address_01,
-      { "temporary-address", "tetra.temporary_address",
-        FT_UINT32, BASE_DEC, VALS(tetra_Calling_party_address_type_vals), 0,
-        "Calling_party_address_type", HFILL }},
-    { &hf_tetra_notification_indicator_03,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_temporary_address_02_vals), 0,
+        "T_temporary_address_02", HFILL }},
+    { &hf_tetra_notification_indicator_08,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_02_vals), 0,
-        "T_notification_indicator_02", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_07_vals), 0,
+        "T_notification_indicator_07", HFILL }},
     { &hf_tetra_prop_11,
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_10_vals), 0,
         "T_prop_10", HFILL }},
-    { &hf_tetra_optional_elements_20,
+    { &hf_tetra_optional_elements_24,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_20_vals), 0,
-        "T_optional_elements_20", HFILL }},
-    { &hf_tetra_type2_parameters_16,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_24_vals), 0,
+        "T_optional_elements_24", HFILL }},
+    { &hf_tetra_type2_parameters_15,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_16", HFILL }},
-    { &hf_tetra_notification_indicator_04,
+        "T_type2_parameters_15", HFILL }},
+    { &hf_tetra_notification_indicator_09,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_03_vals), 0,
-        "T_notification_indicator_03", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_08_vals), 0,
+        "T_notification_indicator_08", HFILL }},
     { &hf_tetra_prop_12,
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_11_vals), 0,
         "T_prop_11", HFILL }},
-    { &hf_tetra_optional_elements_21,
+    { &hf_tetra_optional_elements_25,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_21_vals), 0,
-        "T_optional_elements_21", HFILL }},
-    { &hf_tetra_type2_parameters_17,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_25_vals), 0,
+        "T_optional_elements_25", HFILL }},
+    { &hf_tetra_type2_parameters_16,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_17", HFILL }},
-    { &hf_tetra_notification_indicator_05,
+        "T_type2_parameters_16", HFILL }},
+    { &hf_tetra_notification_indicator_10,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_04_vals), 0,
-        "T_notification_indicator_04", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_09_vals), 0,
+        "T_notification_indicator_09", HFILL }},
     { &hf_tetra_prop_13,
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_12_vals), 0,
@@ -11449,78 +12238,106 @@ void proto_register_tetra (void)
       { "reset-call-time-out", "tetra.reset_call_time_out",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1", HFILL }},
-    { &hf_tetra_optional_elements_22,
+    { &hf_tetra_optional_elements_26,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_22_vals), 0,
-        "T_optional_elements_22", HFILL }},
-    { &hf_tetra_type2_parameters_18,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_26_vals), 0,
+        "T_optional_elements_26", HFILL }},
+    { &hf_tetra_type2_parameters_17,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_18", HFILL }},
-    { &hf_tetra_new_call_identifier,
-      { "new-call-identifier", "tetra.new_call_identifier",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_new_call_identifier_vals), 0,
-        NULL, HFILL }},
+        "T_type2_parameters_17", HFILL }},
     { &hf_tetra_new_call_identifier_01,
+      { "new-call-identifier", "tetra.new_call_identifier",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_new_call_identifier_01_vals), 0,
+        "T_new_call_identifier_01", HFILL }},
+    { &hf_tetra_new_call_identifier_02,
       { "new-call-identifier", "tetra.new_call_identifier",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_16383", HFILL }},
     { &hf_tetra_call_time_out_02,
       { "call-time-out", "tetra.call_time_out",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_call_time_out_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_call_time_out_03,
-      { "call-time-out", "tetra.call_time_out",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_7", HFILL }},
-    { &hf_tetra_call_status_02,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_time_out_01_vals), 0,
+        "T_call_time_out_01", HFILL }},
+    { &hf_tetra_call_status_03,
       { "call-status", "tetra.call_status",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_call_status_01_vals), 0,
-        "T_call_status_01", HFILL }},
-    { &hf_tetra_modify,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_call_status_02_vals), 0,
+        "T_call_status_02", HFILL }},
+    { &hf_tetra_modify_02,
       { "modify", "tetra.modify",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_modify_vals), 0,
-        NULL, HFILL }},
-    { &hf_tetra_modify_01,
-      { "modify", "tetra.modify_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Modify_type", HFILL }},
-    { &hf_tetra_notification_indicator_06,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_modify_01_vals), 0,
+        "T_modify_01", HFILL }},
+    { &hf_tetra_notification_indicator_11,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_05_vals), 0,
-        "T_notification_indicator_05", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_10_vals), 0,
+        "T_notification_indicator_10", HFILL }},
     { &hf_tetra_prop_14,
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_13_vals), 0,
         "T_prop_13", HFILL }},
-    { &hf_tetra_optional_elements_23,
+    { &hf_tetra_optional_elements_27,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_23_vals), 0,
-        "T_optional_elements_23", HFILL }},
-    { &hf_tetra_type2_parameters_19,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_27_vals), 0,
+        "T_optional_elements_27", HFILL }},
+    { &hf_tetra_type2_parameters_18,
       { "type2-parameters", "tetra.type2_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_parameters_19", HFILL }},
-    { &hf_tetra_notification_indicator_07,
+        "T_type2_parameters_18", HFILL }},
+    { &hf_tetra_notification_indicator_12,
       { "notification-indicator", "tetra.notification_indicator",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_06_vals), 0,
-        "T_notification_indicator_06", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_11_vals), 0,
+        "T_notification_indicator_11", HFILL }},
     { &hf_tetra_prop_15,
       { "prop", "tetra.prop",
         FT_UINT32, BASE_DEC, VALS(tetra_T_prop_14_vals), 0,
         "T_prop_14", HFILL }},
+    { &hf_tetra_optional_elements_28,
+      { "optional-elements", "tetra.optional_elements",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_28_vals), 0,
+        "T_optional_elements_28", HFILL }},
+    { &hf_tetra_type2_element_07,
+      { "type2-element", "tetra.type2_element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_type2_element_07", HFILL }},
+    { &hf_tetra_notification_indicator_13,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_12_vals), 0,
+        "T_notification_indicator_12", HFILL }},
+    { &hf_tetra_transmitting_party_type_identifier,
+      { "transmitting-party-type-identifier", "tetra.transmitting_party_type_identifier",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_transmitting_party_type_identifier_vals), 0,
+        NULL, HFILL }},
+    { &hf_tetra_tpti_element,
+      { "tpti-element", "tetra.tpti_element",
+        FT_UINT32, BASE_DEC, VALS(tetra_Calling_party_address_type_vals), 0,
+        "Transmitting_party_address_type", HFILL }},
+    { &hf_tetra_optional_elements_29,
+      { "optional-elements", "tetra.optional_elements",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_29_vals), 0,
+        "T_optional_elements_29", HFILL }},
+    { &hf_tetra_type2_element_08,
+      { "type2-element", "tetra.type2_element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_type2_element_08", HFILL }},
+    { &hf_tetra_notification_indicator_14,
+      { "notification-indicator", "tetra.notification_indicator",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_notification_indicator_13_vals), 0,
+        "T_notification_indicator_13", HFILL }},
+    { &hf_tetra_transmitting_party_type_identifier_01,
+      { "transmitting-party-type-identifier", "tetra.transmitting_party_type_identifier",
+        FT_UINT32, BASE_DEC, VALS(tetra_T_transmitting_party_type_identifier_01_vals), 0,
+        "T_transmitting_party_type_identifier_01", HFILL }},
     { &hf_tetra_group_identity_ack_request,
       { "group-identity-ack-request", "tetra.group_identity_ack_request",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_tetra_optional_elements_24,
+    { &hf_tetra_optional_elements_30,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_24_vals), 0,
-        "T_optional_elements_24", HFILL }},
-    { &hf_tetra_type2_element_02,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_30_vals), 0,
+        "T_optional_elements_30", HFILL }},
+    { &hf_tetra_type2_element_09,
       { "type2-element", "tetra.type2_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_element_02", HFILL }},
+        "T_type2_element_09", HFILL }},
     { &hf_tetra_type3_04,
       { "type3", "tetra.type3",
         FT_UINT32, BASE_DEC, VALS(tetra_T_type3_04_vals), 0,
@@ -11537,14 +12354,14 @@ void proto_register_tetra (void)
       { "group-identity-attach-detach-accept", "tetra.group_identity_attach_detach_accept",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_tetra_optional_elements_25,
+    { &hf_tetra_optional_elements_31,
       { "optional-elements", "tetra.optional_elements",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_25_vals), 0,
-        "T_optional_elements_25", HFILL }},
-    { &hf_tetra_type2_element_03,
+        FT_UINT32, BASE_DEC, VALS(tetra_T_optional_elements_31_vals), 0,
+        "T_optional_elements_31", HFILL }},
+    { &hf_tetra_type2_element_10,
       { "type2-element", "tetra.type2_element_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_type2_element_03", HFILL }},
+        "T_type2_element_10", HFILL }},
     { &hf_tetra_type3_05,
       { "type3", "tetra.type3",
         FT_UINT32, BASE_DEC, VALS(tetra_T_type3_05_vals), 0,
@@ -11738,17 +12555,36 @@ void proto_register_tetra (void)
     &ett_tetra_U_INFO,
     &ett_tetra_D_CMCE_PDU,
     &ett_tetra_D_SDS_DATA,
-    &ett_tetra_T_calling_party_type_identifier,
     &ett_tetra_T_short_data_type_identifier_01,
     &ett_tetra_D_STATUS,
-    &ett_tetra_T_calling_party_type_identifier_01,
     &ett_tetra_D_DISCONNECT,
+    &ett_tetra_T_optional_elements_06,
+    &ett_tetra_T_type2_element,
+    &ett_tetra_T_notification_indicator,
     &ett_tetra_D_INFO,
+    &ett_tetra_T_optional_elements_07,
+    &ett_tetra_T_type2_element_01,
+    &ett_tetra_T_new_call_identifier,
+    &ett_tetra_T_call_time_out,
+    &ett_tetra_T_call_time_out_set_up_phase,
+    &ett_tetra_T_call_ownership,
+    &ett_tetra_T_modify,
+    &ett_tetra_T_call_status,
+    &ett_tetra_T_temporary_address,
+    &ett_tetra_T_notification_indicator_01,
+    &ett_tetra_T_poll_response_percentage,
+    &ett_tetra_T_poll_response_number,
     &ett_tetra_D_TX_WAIT,
+    &ett_tetra_T_optional_elements_08,
+    &ett_tetra_T_type2_element_02,
+    &ett_tetra_T_notification_indicator_02,
     &ett_tetra_D_TX_CONTINUE,
+    &ett_tetra_T_optional_elements_09,
+    &ett_tetra_T_type2_element_03,
+    &ett_tetra_T_notification_indicator_03,
     &ett_tetra_U_LOCATION_UPDATE_DEMAND,
     &ett_tetra_T_cipher_control_choice,
-    &ett_tetra_T_optional_elements_06,
+    &ett_tetra_T_optional_elements_10,
     &ett_tetra_T_type2_parameters_04,
     &ett_tetra_T_class_of_MS,
     &ett_tetra_T_energy_saving_mode_01,
@@ -11762,107 +12598,118 @@ void proto_register_tetra (void)
     &ett_tetra_T_group_identity_uplink,
     &ett_tetra_T_proprietary_01,
     &ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY,
-    &ett_tetra_T_optional_elements_07,
-    &ett_tetra_T_type2_element,
+    &ett_tetra_T_optional_elements_11,
+    &ett_tetra_T_type2_element_04,
     &ett_tetra_T_type3_02,
     &ett_tetra_T_type3_elements_02,
     &ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY_ACK,
-    &ett_tetra_T_optional_elements_08,
-    &ett_tetra_T_type2_element_01,
+    &ett_tetra_T_optional_elements_12,
+    &ett_tetra_T_type2_element_05,
     &ett_tetra_T_type3_03,
     &ett_tetra_T_type3_elements_03,
     &ett_tetra_U_SETUP,
-    &ett_tetra_T_optional_elements_09,
+    &ett_tetra_T_optional_elements_13,
     &ett_tetra_T_type2_parameters_05,
     &ett_tetra_T_external_subscriber_number,
     &ett_tetra_T_prop,
     &ett_tetra_Basic_service_information,
     &ett_tetra_U_ALERT,
-    &ett_tetra_T_optional_elements_10,
+    &ett_tetra_T_optional_elements_14,
     &ett_tetra_T_type2_parameters_06,
     &ett_tetra_T_basic_service_information,
     &ett_tetra_T_prop_01,
     &ett_tetra_U_CONNECT,
-    &ett_tetra_T_optional_elements_11,
+    &ett_tetra_T_optional_elements_15,
     &ett_tetra_T_type2_parameters_07,
     &ett_tetra_T_basic_service_information_01,
     &ett_tetra_T_prop_02,
     &ett_tetra_U_TX_CEASED,
-    &ett_tetra_T_optional_elements_12,
+    &ett_tetra_T_optional_elements_16,
     &ett_tetra_T_type2_parameters_08,
     &ett_tetra_T_prop_03,
     &ett_tetra_U_TX_DEMAND,
-    &ett_tetra_T_optional_elements_13,
+    &ett_tetra_T_optional_elements_17,
     &ett_tetra_T_type2_parameters_09,
     &ett_tetra_T_prop_04,
     &ett_tetra_U_DISCONNECT,
-    &ett_tetra_T_optional_elements_14,
+    &ett_tetra_T_optional_elements_18,
     &ett_tetra_T_type2_parameters_10,
     &ett_tetra_T_prop_05,
     &ett_tetra_U_CALL_RESTORE,
-    &ett_tetra_T_optional_elements_15,
+    &ett_tetra_T_optional_elements_19,
     &ett_tetra_T_type2_parameters_11,
     &ett_tetra_T_prop_06,
     &ett_tetra_D_SETUP,
-    &ett_tetra_T_optional_elements_16,
-    &ett_tetra_T_type2_parameters_12,
-    &ett_tetra_T_calling_party_address,
+    &ett_tetra_T_optional_elements_20,
+    &ett_tetra_T_type2_element_06,
+    &ett_tetra_T_notification_indicator_04,
+    &ett_tetra_T_temporary_address_01,
+    &ett_tetra_T_calling_party_type_identifier,
     &ett_tetra_T_external_subscriber_number_01,
     &ett_tetra_T_prop_07,
     &ett_tetra_D_CALL_PROCEEDING,
-    &ett_tetra_T_optional_elements_17,
-    &ett_tetra_T_type2_parameters_13,
+    &ett_tetra_T_optional_elements_21,
+    &ett_tetra_T_type2_parameters_12,
     &ett_tetra_T_basic_service_information_02,
-    &ett_tetra_T_call_status,
-    &ett_tetra_T_notification_indicator,
+    &ett_tetra_T_call_status_01,
+    &ett_tetra_T_notification_indicator_05,
     &ett_tetra_T_prop_08,
     &ett_tetra_D_ALERT,
-    &ett_tetra_T_optional_elements_18,
-    &ett_tetra_T_type2_parameters_14,
+    &ett_tetra_T_optional_elements_22,
+    &ett_tetra_T_type2_parameters_13,
     &ett_tetra_T_basic_service_infomation,
-    &ett_tetra_T_notification_indicator_01,
+    &ett_tetra_T_notification_indicator_06,
     &ett_tetra_T_prop_09,
     &ett_tetra_D_CONNECT,
-    &ett_tetra_T_optional_elements_19,
-    &ett_tetra_T_type2_parameters_15,
+    &ett_tetra_T_optional_elements_23,
+    &ett_tetra_T_type2_parameters_14,
     &ett_tetra_T_call_priority,
     &ett_tetra_T_basic_service_information_03,
-    &ett_tetra_T_temporary_address,
-    &ett_tetra_T_notification_indicator_02,
+    &ett_tetra_T_temporary_address_02,
+    &ett_tetra_T_notification_indicator_07,
     &ett_tetra_T_prop_10,
     &ett_tetra_D_CONNECT_ACK,
-    &ett_tetra_T_optional_elements_20,
-    &ett_tetra_T_type2_parameters_16,
-    &ett_tetra_T_notification_indicator_03,
+    &ett_tetra_T_optional_elements_24,
+    &ett_tetra_T_type2_parameters_15,
+    &ett_tetra_T_notification_indicator_08,
     &ett_tetra_T_prop_11,
     &ett_tetra_D_RELEASE,
-    &ett_tetra_T_optional_elements_21,
-    &ett_tetra_T_type2_parameters_17,
-    &ett_tetra_T_notification_indicator_04,
+    &ett_tetra_T_optional_elements_25,
+    &ett_tetra_T_type2_parameters_16,
+    &ett_tetra_T_notification_indicator_09,
     &ett_tetra_T_prop_12,
     &ett_tetra_D_CALL_RESTORE,
-    &ett_tetra_T_optional_elements_22,
-    &ett_tetra_T_type2_parameters_18,
-    &ett_tetra_T_new_call_identifier,
-    &ett_tetra_T_call_time_out,
-    &ett_tetra_T_call_status_01,
-    &ett_tetra_T_modify,
-    &ett_tetra_T_notification_indicator_05,
+    &ett_tetra_T_optional_elements_26,
+    &ett_tetra_T_type2_parameters_17,
+    &ett_tetra_T_new_call_identifier_01,
+    &ett_tetra_T_call_time_out_01,
+    &ett_tetra_T_call_status_02,
+    &ett_tetra_T_modify_01,
+    &ett_tetra_T_notification_indicator_10,
     &ett_tetra_T_prop_13,
     &ett_tetra_D_TX_CEASED,
-    &ett_tetra_T_optional_elements_23,
-    &ett_tetra_T_type2_parameters_19,
-    &ett_tetra_T_notification_indicator_06,
+    &ett_tetra_T_optional_elements_27,
+    &ett_tetra_T_type2_parameters_18,
+    &ett_tetra_T_notification_indicator_11,
     &ett_tetra_T_prop_14,
     &ett_tetra_D_TX_GRANTED,
+    &ett_tetra_T_optional_elements_28,
+    &ett_tetra_T_type2_element_07,
+    &ett_tetra_T_notification_indicator_12,
+    &ett_tetra_T_transmitting_party_type_identifier,
+    &ett_tetra_D_TX_INTERRUPT,
+    &ett_tetra_T_optional_elements_29,
+    &ett_tetra_T_type2_element_08,
+    &ett_tetra_T_notification_indicator_13,
+    &ett_tetra_T_transmitting_party_type_identifier_01,
     &ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY,
-    &ett_tetra_T_optional_elements_24,
-    &ett_tetra_T_type2_element_02,
+    &ett_tetra_T_optional_elements_30,
+    &ett_tetra_T_type2_element_09,
     &ett_tetra_T_type3_04,
     &ett_tetra_T_type3_elements_04,
     &ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK,
-    &ett_tetra_T_optional_elements_25,
-    &ett_tetra_T_type2_element_03,
+    &ett_tetra_T_optional_elements_31,
+    &ett_tetra_T_type2_element_10,
     &ett_tetra_T_type3_05,
     &ett_tetra_T_type3_elements_05,
     &ett_tetra_Calling_party_address_type,

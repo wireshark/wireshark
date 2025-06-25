@@ -1816,7 +1816,7 @@ D-CMCE-PDU  ::= CHOICE
   d-Tx-Continue  D-TX-CONTINUE,
   d-Tx-Granted D-TX-GRANTED,
   d-Tx-Wait D-TX-WAIT,
-  d-Tx-Interrupt NULL,
+  d-Tx-Interrupt D-TX-INTERRUPT,
   d-Call-Restore D-CALL-RESTORE,
   d-SDS-Data D-SDS-DATA,
   d-Facility NULL
@@ -1824,12 +1824,7 @@ D-CMCE-PDU  ::= CHOICE
 
 D-SDS-DATA ::= SEQUENCE
 {
-  calling-party-type-identifier CHOICE{
-    none1 NULL,
-    ssi  INTEGER(0..16777215),
-    ssi-extension OCTET STRING(SIZE(6)),
-    none2 NULL
-  },
+  calling-party-type-identifier Calling-party-address-type,
   short-data-type-identifier CHOICE{
    data-1 INTEGER(0..65535),
    data-2 OCTET STRING(SIZE(4)),
@@ -1840,38 +1835,66 @@ D-SDS-DATA ::= SEQUENCE
 
 D-STATUS ::= SEQUENCE
 {
-   calling-party-type-identifier CHOICE{
-      none1 NULL,
-      calling-party-address-SSI INTEGER(0..16777215),
-      ssi-extension OCTET STRING(SIZE(6)),
-      none2 NULL
-      },
+   calling-party-type-identifier Calling-party-address-type,
    pre-coded-status  INTEGER(0..65535)
 }
 
 D-DISCONNECT ::= SEQUENCE
 {
    call-identifier INTEGER(0..16383),
-   disconnect-cause  INTEGER(0..31)
+   disconnect-cause  INTEGER(0..31),
+   optional-elements CHOICE {
+	no-type2 NULL,
+	type2-element SEQUENCE{
+		notification-indicator CHOICE{none NULL, notification-indicator-element INTEGER (0..63)}
+	}
+   }
 }
 
 D-INFO ::= SEQUENCE
 {
    call-identifier INTEGER(0..16383),
    reset-call-time-out-timer INTEGER(0..1),
-   poll-request  INTEGER(0..1)
+   poll-request  INTEGER(0..1),
+   optional-elements CHOICE {
+	no-type2 NULL,
+	type2-element SEQUENCE{
+		new-call-identifier CHOICE{none NULL, new-call-identifier-element INTEGER (0..16383)},
+		call-time-out CHOICE{none NULL, call-time-out INTEGER (0..15)},
+		call-time-out-set-up-phase CHOICE{none NULL, call-time-out-set-up-phase INTEGER(0..7)},
+		call-ownership CHOICE{none NULL, call-ownership INTEGER(0..1)},
+		modify CHOICE { none NULL, modify Modify-type},
+		call-status CHOICE { none NULL, call-status INTEGER ( 0..7 )},
+		temporary-address CHOICE { none NULL, temporary-address INTEGER(0..16777215)},
+		notification-indicator CHOICE{none NULL, notification-indicator-element INTEGER (0..63)},
+		poll-response-percentage CHOICE{none NULL, poll-response-percentage INTEGER(0..63)},
+		poll-response-number CHOICE{none NULL, poll-response-number INTEGER(0..63)}
+	}
+   }
 }
 
 D-TX-WAIT ::= SEQUENCE
 {
   call-identifier INTEGER(0..16383),
-  transmission-request-permission INTEGER(0..1)
+  transmission-request-permission INTEGER(0..1),
+  optional-elements CHOICE {
+	no-type2 NULL,
+	type2-element SEQUENCE{
+		notification-indicator CHOICE{none NULL, notification-indicator-element INTEGER (0..63)}
+	}
+   }
 }
 D-TX-CONTINUE ::= SEQUENCE
 {
   call-identifier  INTEGER(0..16383),
   continue INTEGER(0..1),
-  transmission-request-permission INTEGER(0..1)
+  transmission-request-permission INTEGER(0..1),
+  optional-elements CHOICE {
+	no-type2 NULL,
+	type2-element SEQUENCE{
+		notification-indicator CHOICE{none NULL, notification-indicator-element INTEGER (0..63)}
+	}
+   }
 }
 
 U-LOCATION-UPDATE-DEMAND ::= SEQUENCE
@@ -2074,22 +2097,33 @@ U-CALL-RESTORE::=
 
 
 D-SETUP ::= SEQUENCE{
-       call-identifier INTEGER (0..16383),
-       call-time-out INTEGER (0..15 ),
-       hook-method-selection INTEGER(0..1),
-       simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
-       basic-service-information Basic-service-information,
-       transmission-grant INTEGER (0..3 ),
-       transmission-request-permission INTEGER (0..1 ),
-       call-priority INTEGER (0..15),
-       optional-elements CHOICE {
-       no-type2 NULL ,
-       type2-parameters SEQUENCE {
-       calling-party-address CHOICE { none NULL, calling-party-address Calling-party-address-type},
-       external-subscriber-number [14] CHOICE { none NULL, external-subscriber-number [14] INTEGER (0..15)},
-       prop [15] CHOICE {none NULL, prop [15] Proprietary }
+	call-identifier INTEGER (0..16383),
+	call-time-out INTEGER (0..15 ),
+	hook-method-selection INTEGER(0..1),
+	simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
+	basic-service-information Basic-service-information,
+	transmission-grant INTEGER (0..3 ),
+	transmission-request-permission INTEGER (0..1 ),
+	call-priority INTEGER (0..15),
+	optional-elements CHOICE {
+		no-type2 NULL,
+		type2-element SEQUENCE{
+			notification-indicator CHOICE{
+				none NULL,
+				notification-indicator-element INTEGER (0..63)
+			},
+			temporary-address CHOICE{
+				none NULL,
+				temporary-address-element INTEGER(0..16777215)
+			},
+			calling-party-type-identifier  CHOICE{
+				none NULL,
+				calling-party-type-identifier-element Calling-party-address-type
+			},
+			external-subscriber-number [14] CHOICE { none NULL, external-subscriber-number [14] INTEGER (0..15)},
+       			prop [15] CHOICE {none NULL, prop [15] Proprietary }
+		}
 	}
-  }
 }
 
 D-CALL-PROCEEDING ::=
@@ -2132,7 +2166,7 @@ D-ALERT ::=  SEQUENCE{
 D-CONNECT::=
      SEQUENCE{
        call-identifier INTEGER (0..16383),
-       call-time-out INTEGER (0..31),
+       call-time-out INTEGER (0..15),
        hook-method-selection BOOLEAN,
        simplex-duplex-selection ENUMERATED {simplex(0), duplex(1)},
        transmission-grant INTEGER (0..3),
@@ -2143,7 +2177,7 @@ D-CONNECT::=
            type2-parameters SEQUENCE {
 	         call-priority CHOICE{none NULL, call-priority INTEGER (0..15)},
 		     basic-service-information CHOICE{none NULL, basic-service-information Basic-service-information},
-		   temporary-address CHOICE { none NULL, temporary-address Calling-party-address-type},
+		   temporary-address CHOICE { none NULL, temporary-address INTEGER(0..16777215)},
 		       notification-indicator CHOICE { none NULL, notification-indicator INTEGER (0..63)},
 		       prop [15] CHOICE {none NULL, prop [15] Proprietary }
 	}
@@ -2188,7 +2222,7 @@ D-CALL-RESTORE::=
            no-type2 NULL,
            type2-parameters SEQUENCE {
 	         new-call-identifier CHOICE{none NULL, new-call-identifier INTEGER (0..16383)},
-		     call-time-out CHOICE{none NULL, call-time-out INTEGER ( 0..7 )},
+		     call-time-out CHOICE{none NULL, call-time-out INTEGER (0..15)},
 		   call-status CHOICE { none NULL, call-status INTEGER ( 0..7 )},
 		   modify CHOICE { none NULL, modify Modify-type},
 		       notification-indicator CHOICE { none NULL, notification-indicator INTEGER (0..63)},
@@ -2216,8 +2250,43 @@ D-TX-GRANTED ::=
 	transmission-grant INTEGER ( 0..3 ),
 	transmission-request-permission INTEGER ( 0..1 ),
 	encryption-control INTEGER ( 0..1 ),
-	reserved INTEGER ( 0..1 )
+	reserved INTEGER ( 0..1 ),
+	optional-elements CHOICE{
+    		no-type2 NULL,
+    	 	type2-element SEQUENCE{
+    	 		notification-indicator CHOICE{
+    	 			none NULL,
+    	 			notification-indicator-element INTEGER (0..63)
+    	 			},
+    	 		transmitting-party-type-identifier CHOICE{
+    	 			none NULL,
+    	 			tpti-element Transmitting-party-address-type
+    	 		}
+    	 	}
+    	}		
 }
+
+D-TX-INTERRUPT ::= SEQUENCE{
+	call-identifier INTEGER ( 0..16383),
+	transmission-grant INTEGER (0..3),
+	transmission-request-permission INTEGER ( 0..1 ),
+	encryption-control INTEGER ( 0..1 ),
+	reserved INTEGER ( 0..1 ),
+	optional-elements CHOICE{
+		no-type2 NULL,
+		type2-element SEQUENCE{
+			notification-indicator CHOICE{
+				none NULL,
+				notification-indicator-element INTEGER (0..63)
+			},
+			transmitting-party-type-identifier CHOICE{
+				none NULL,
+				tpti-element Transmitting-party-address-type
+			}
+		}
+	}
+}
+
  D-ATTACH-DETACH-GROUP-IDENTITY ::=SEQUENCE
 {
    group-identity-report BOOLEAN,
@@ -2288,18 +2357,16 @@ CALLMODE ::= ENUMERATED
 }
 
 Calling-party-address-type ::= CHOICE {
-	called-party-sna [0] INTEGER ( 0..255 ),
-	called-party-ssi [1] INTEGER ( 0..16777215 ),
-	-- WS modification: fix misspelling
-	called-party-ssi-extension [2] SEQUENCE {
-	-- End WS modification
+	called-party-sna INTEGER ( 0..255 ),
 	called-party-ssi INTEGER ( 0..16777215 ),
-	-- WS modification: fix misspelling
-	called-party-extention INTEGER ( 0..16777215 )
-	-- End WS modification
-  }
+	called-party-ssi-extension SEQUENCE {
+		called-party-ssi INTEGER ( 0..16777215 ),
+		called-party-extention INTEGER ( 0..16777215 )
+	},
+	reserved NULL
 }
 
+Transmitting-party-address-type ::= Calling-party-address-type
 Called-party-address-type ::= Calling-party-address-type
 Other-party-address-type ::= Calling-party-address-type
 
