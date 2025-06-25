@@ -1729,12 +1729,14 @@ static int dissect_mq_gmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
 
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
-            uint8_t* sQueue;
-            sQueue = tvb_get_string_enc(pinfo->pool, tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
-            if (strip_trailing_blanks(sQueue, 48) > 0)
+            if (pinfo)
             {
-                if (pinfo)
+                uint8_t* sQueue;
+                sQueue = tvb_get_string_enc(pinfo->pool, tvb, offset + 24, 48, p_mq_parm->mq_str_enc);
+                if (strip_trailing_blanks(sQueue, 48) > 0)
+                {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
+                }
             }
 
             if (tree)
@@ -1800,15 +1802,17 @@ static int dissect_mq_pmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
 
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
-            uint8_t* sQueue;
-            uint8_t* sQueueA;
-
-            sQueueA = tvb_get_string_enc(pinfo->pool, tvb, offset + 32, 48, 0);
-            sQueue = tvb_get_string_enc(pinfo->pool, tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
-            if (strip_trailing_blanks(sQueue, 48) > 0 && strip_trailing_blanks(sQueueA, 48) > 0)
+            if (pinfo)
             {
-                if (pinfo)
+                uint8_t* sQueue;
+                uint8_t* sQueueA;
+
+                sQueueA = tvb_get_string_enc(pinfo->pool, tvb, offset + 32, 48, 0);
+                sQueue = tvb_get_string_enc(pinfo->pool, tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
+                if (strip_trailing_blanks(sQueue, 48) > 0 && strip_trailing_blanks(sQueueA, 48) > 0)
+                {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
+                }
             }
 
             if (tree)
@@ -1895,20 +1899,22 @@ static int dissect_mq_od(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
             int      iNbrRecords = 0;
-            uint8_t* sObj;
-            uint32_t uTyp;
 
             if (iVersion >= 2)
                 iNbrRecords = tvb_get_uint32(tvb, offset + 168, p_mq_parm->mq_int_enc);
 
-            uTyp = tvb_get_uint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
-            sObj = tvb_get_string_enc(pinfo->pool, tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
             if (pinfo)
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str_ext(uTyp, &mq_MQOT_xvals));
-            if (strip_trailing_blanks(sObj, 48) > 0)
             {
-                if (pinfo)
+                uint8_t* sObj;
+                uint32_t uTyp;
+
+                uTyp = tvb_get_uint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
+                sObj = tvb_get_string_enc(pinfo->pool, tvb, offset + 12, 48, p_mq_parm->mq_str_enc);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Typ=%s", try_val_to_str_ext(uTyp, &mq_MQOT_xvals));
+                if (strip_trailing_blanks(sObj, 48) > 0)
+                {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sObj);
+                }
             }
 
             if (tree)
