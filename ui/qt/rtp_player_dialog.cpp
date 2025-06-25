@@ -2625,9 +2625,8 @@ void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
     }
 
     QFile file(path);
-    file.open(QIODevice::WriteOnly);
 
-    if (!file.isOpen() || (file.error() != QFile::NoError)) {
+    if (!file.open(QIODevice::WriteOnly) || (file.error() != QFile::NoError)) {
         QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
     } else {
         switch (format) {
@@ -2688,9 +2687,8 @@ void RtpPlayerDialog::savePayload()
     if (format == save_payload_none) return;
 
     QFile file(path);
-    file.open(QIODevice::WriteOnly);
 
-    if (!file.isOpen() || (file.error() != QFile::NoError)) {
+    if (!file.open(QIODevice::WriteOnly) || (file.error() != QFile::NoError)) {
         QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
     } else if (!audio_stream->savePayload(&file)) {
         QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));

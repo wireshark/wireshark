@@ -179,9 +179,10 @@ void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             QFile save_file(file_name);
             QByteArray rule_text = ui->textBrowser->toPlainText().toUtf8();
 
-            save_file.open(QIODevice::WriteOnly);
-            save_file.write(rule_text);
-            save_file.close();
+            if (save_file.open(QIODevice::WriteOnly)) {
+                save_file.write(rule_text);
+                save_file.close();
+            }
 
             if (save_file.error() != QFile::NoError) {
                 QMessageBox::warning(this, tr("Warning"), tr("Unable to save %1").arg(save_file.fileName()));

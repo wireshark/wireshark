@@ -66,7 +66,12 @@ AStringListListModel(parent)
     QFile f_authors;
 
     f_authors.setFileName(":/about/authors.csv");
-    f_authors.open(QFile::ReadOnly | QFile::Text);
+    if (!f_authors.open(QFile::ReadOnly | QFile::Text)) {
+        // "Cannot fail" because the file is in the resource system,
+        // unless something went wrong during building.
+        Q_ASSERT(false);
+        return;
+    }
     QTextStream ReadFile_authors(&f_authors);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     ReadFile_authors.setEncoding(QStringConverter::Utf8);
@@ -390,35 +395,45 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->tblShortcuts, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchShortcuts, &QLineEdit::textChanged, shortcutProxyModel, &AStringListListSortFilterProxyModel::setFilter);
 
+
     /* Acknowledgements */
     f_acknowledgements.setFileName(":/about/Acknowledgements.md");
 
-    f_acknowledgements.open(QFile::ReadOnly | QFile::Text);
-    QTextStream ReadFile_acks(&f_acknowledgements);
-
-    /* QTextBrowser markdown support added in 5.14. */
+    if (f_acknowledgements.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ReadFile_acks(&f_acknowledgements);
+        /* QTextBrowser markdown support added in 5.14. */
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    QTextBrowser *textBrowserAcks = new QTextBrowser();
-    textBrowserAcks->setMarkdown(ReadFile_acks.readAll());
-    textBrowserAcks->setReadOnly(true);
-    textBrowserAcks->setOpenExternalLinks(true);
-    textBrowserAcks->moveCursor(QTextCursor::Start);
-    ui->ackVerticalLayout->addWidget(textBrowserAcks);
+        QTextBrowser *textBrowserAcks = new QTextBrowser();
+
+        textBrowserAcks->setMarkdown(ReadFile_acks.readAll());
+        textBrowserAcks->setReadOnly(true);
+        textBrowserAcks->setOpenExternalLinks(true);
+        textBrowserAcks->moveCursor(QTextCursor::Start);
+        ui->ackVerticalLayout->addWidget(textBrowserAcks);
 #else
-    QPlainTextEdit *pte = new QPlainTextEdit();
-    pte->setPlainText(ReadFile_acks.readAll());
-    pte->setReadOnly(true);
-    pte->moveCursor(QTextCursor::Start);
-    ui->ackVerticalLayout->addWidget(pte);
+        QPlainTextEdit *pte = new QPlainTextEdit();
+        pte->setPlainText(ReadFile_acks.readAll());
+        pte->setReadOnly(true);
+        pte->moveCursor(QTextCursor::Start);
+        ui->ackVerticalLayout->addWidget(pte);
 #endif
+    } else {
+        // "Cannot fail" because the file is in the resource system,
+        // unless something went wrong during building.
+        Q_ASSERT(false);
+    }
 
     /* License */
     f_license.setFileName(":/about/gpl-2.0-standalone.html");
 
-    f_license.open(QFile::ReadOnly | QFile::Text);
-    QTextStream ReadFile_license(&f_license);
-
-    ui->textBrowserLicense->setHtml(ReadFile_license.readAll());
+    if (f_license.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ReadFile_license(&f_license);
+        ui->textBrowserLicense->setHtml(ReadFile_license.readAll());
+    } else {
+        // "Cannot fail" because the file is in the resource system,
+        // unless something went wrong during building.
+        Q_ASSERT(false);
+    }
     ui->textBrowserLicense->moveCursor(QTextCursor::Start);
 }
 
