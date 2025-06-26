@@ -296,9 +296,10 @@ add_protocol_type(proto_tree *fh_tree, tvbuff_t *tvb, int protocol_offset,
 		switch (hatype) {
 
 		case ARPHRD_IPGRE:
+		case ARPHRD_IP6GRE:
 			/*
 			 * XXX - the link-layer header appears to consist
-			 * of an IPv4 header followed by a bunch of stuff
+			 * of an IP header followed by a bunch of stuff
 			 * that includes the GRE flags and version, but
 			 * cooked captures strip the link-layer header,
 			 * so we can't provide the flags and version to
@@ -345,9 +346,10 @@ dissect_payload(proto_tree *tree, packet_info *pinfo, proto_tree *fh_tree,
 		switch (hatype) {
 
 		case ARPHRD_IPGRE:
+		case ARPHRD_IP6GRE:
 			/*
 			 * XXX - the link-layer header appears to consist
-			 * of an IPv4 header followed by a bunch of stuff
+			 * of an IP header followed by a bunch of stuff
 			 * that includes the GRE flags and version, but
 			 * cooked captures strip the link-layer header,
 			 * so we can't provide the flags and version to
