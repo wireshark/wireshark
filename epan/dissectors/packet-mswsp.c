@@ -136,8 +136,8 @@ struct vtype_data {
 	enum vType tag; /* base type, high bits cleared */
 	const char *str;  /* string rep of base type */
 	int size;        /* -1 for variable length */
-	int (*tvb_get)(tvbuff_t*, int, void*);/* read StorageVariant */
-	int (*tvb_get_value_only)(tvbuff_t*, int, int, void*);/*read StorageVariant value*/
+	int (*tvb_get)(tvbuff_t*, packet_info*, int, void*);/* read StorageVariant */
+	int (*tvb_get_value_only)(tvbuff_t*, packet_info*, int, int, void*);/*read StorageVariant value*/
 	void (*strbuf_append)(wmem_strbuf_t*, void*);
 };
 
@@ -313,7 +313,7 @@ struct CTableColumn {
 	uint16_t statusoffset;
 	uint8_t lengthused;
 	uint16_t lengthoffset;
-	char name[PROP_LENGTH];
+	char* name;
 };
 /* Minimum size in bytes on the wire CTableColumn can be */
 #define MIN_CTABLECOL_SIZE 32
@@ -2952,46 +2952,35 @@ static const struct GuidPropertySet *GuidPropertySet_find_guid(const e_guid_t *g
 	return NULL;
 }
 
-static void get_name_from_fullpropspec(struct CFullPropSpec *v, char *out, int bufsize)
+static char* get_name_from_fullpropspec(struct CFullPropSpec *v, wmem_allocator_t* allocator)
 {
 	const struct GuidPropertySet *pset = GuidPropertySet_find_guid(&v->guid);
 	const char *id_str, *guid_str;
-	char *dest = out;
 	id_str = pset ? try_val_to_str(v->u.propid, pset->id_map) : NULL;
 
-	if (id_str) {
-		snprintf(dest, bufsize, "%s", id_str);
+	if (id_str)
+		return wmem_strdup(allocator, id_str);
+
+	guid_str = guids_get_guid_name(&v->guid, allocator);
+	if (guid_str) {
+		guid_str = wmem_strdup_printf(allocator, "\"%s\"", guid_str);
 	} else {
-		guid_str = guids_get_guid_name(&v->guid, wmem_packet_scope());
-		if (guid_str) {
-			snprintf(dest, bufsize, "\"%s\"", guid_str);
-		} else {
-			guid_str = guid_to_str(wmem_packet_scope(), &v->guid);
-			snprintf(dest, bufsize, "{%s}", guid_str);
-		}
-		if (v->kind == PRSPEC_LPWSTR) {
-			snprintf(dest, bufsize, "%s \"%s\"", guid_str, v->u.name);
-		} else if (v->kind == PRSPEC_PROPID) {
-			snprintf(dest, bufsize, "%s 0x%08x", guid_str, v->u.propid);
-		} else {
-			char *str = ws_strdup_printf("%s <INVALID>", dest);
-			g_strlcpy(dest, str, bufsize);
-			g_free(str);
-		}
+		guid_str = wmem_strdup_printf(allocator, "{%s}", guid_to_str(allocator, &v->guid));
 	}
+	if (v->kind == PRSPEC_LPWSTR)
+		return wmem_strdup_printf(allocator, "%s \"%s\"", guid_str, v->u.name);
+	if (v->kind == PRSPEC_PROPID)
+		return wmem_strdup_printf(allocator, "%s 0x%08x", guid_str, v->u.propid);
+
+	return wmem_strdup_printf(allocator, "%s <INVALID>", guid_str);
 }
 
 /******************************************************************************/
-static int parse_uin32_array(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t count, const char *fmt, ...)
+static int parse_uin32_array(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t count, const char *txt)
 {
 	uint32_t v, i;
 	proto_item *item;
-	const char *txt;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	proto_tree_add_subtree(tree, tvb, offset, count * 4, ett_mswsp_uin32_array, &item, txt);
 	proto_item_append_text(item, " count %u [", count);
 	for (i=0; i<count; i++) {
@@ -3007,33 +2996,27 @@ static int parse_uin32_array(tvbuff_t *tvb, int offset, proto_tree *tree, uint32
 	return offset;
 }
 
-static int parse_padding(tvbuff_t *tvb, int offset, int alignment, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_padding(tvbuff_t *tvb, int offset, int alignment, proto_tree *pad_tree, const char * txt)
 {
 	if (offset % alignment) {
 		const int padding = alignment - (offset % alignment);
-		const char *txt;
-		va_list ap;
 		proto_item *ti;
-		va_start(ap, fmt);
-		txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
 		proto_tree_add_subtree(pad_tree, tvb, offset, padding, ett_mswsp_msg_padding, &ti, txt);
-		va_end(ap);
 
 		proto_item_append_text(ti, " (%d)", padding);
 		offset += padding;
 	}
-	DISSECTOR_ASSERT((offset % alignment) == 0);
 	return offset;
 }
 
-static int parse_guid(tvbuff_t *tvb, int offset, proto_tree *tree, e_guid_t *guid, const char *text)
+static int parse_guid(tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, proto_tree *tree, e_guid_t *guid, const char *text)
 {
 	const char *guid_str, *name, *bytes;
 	proto_tree *tr;
 
 	tvb_get_letohguid(tvb, offset, guid);
-	guid_str =  guid_to_str(wmem_packet_scope(), guid);
-	name = guids_get_guid_name(guid, wmem_packet_scope());
+	guid_str =  guid_to_str(allocator, guid);
+	name = guids_get_guid_name(guid, allocator);
 
 	tr = proto_tree_add_subtree_format(tree, tvb, offset, 16, ett_GUID, NULL, "%s: %s {%s}", text, name ? name : "", guid_str);
 
@@ -3048,7 +3031,7 @@ static int parse_guid(tvbuff_t *tvb, int offset, proto_tree *tree, e_guid_t *gui
 	offset += 1;
 	proto_tree_add_item(tr, hf_mswsp_guid_time_clock_low, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	bytes = bytes_to_str_punct(wmem_packet_scope(), &guid->data4[2], 6, ':');
+	bytes = bytes_to_str_punct(allocator, &guid->data4[2], 6, ':');
 	proto_tree_add_string(tr, hf_mswsp_guid_node, tvb, offset, 6, bytes);
 
 	offset += 6;
@@ -3077,100 +3060,22 @@ static int parse_lcid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const 
 }
 
 /*****************************************************************************************/
+// Forward declarations because of circular dependencies
+
 /* 2.2.1.1 CBaseStorageVariant */
 static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CBaseStorageVariant *value, const char *text);
 
 /* 2.2.1.2 CFullPropSpec */
-static int parse_CFullPropSpec(tvbuff_t *tvb, int offset, proto_tree *tree, proto_tree *pad_tree, struct CFullPropSpec *v, const char *fmt, ...);
-
-/* 2.2.1.3 CContentRestriction */
-static int parse_CContentRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CContentRestriction *v, const char *fmt, ...);
-
-/* 2.2.1.5 CNatLanguageRestriction */
-static int parse_CNatLanguageRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CNatLanguageRestriction *v, const char *fmt, ...);
+static int parse_CFullPropSpec(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree, proto_tree *pad_tree, struct CFullPropSpec *v, const char *txt);
 
 /* 2.2.1.6 CNodeRestriction */
-static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, proto_tree *pad_tree, struct CNodeRestriction *v, const char* fmt, ...);
-
-/* 2.2.1.7 CPropertyRestriction */
-static int parse_CPropertyRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CPropertyRestriction *v, const char *fmt, ...);
-
-/* 2.2.1.8 CReuseWhere */
-static int parse_CReuseWhere(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, struct CReuseWhere *v, const char *fmt, ...);
-
-/* 2.2.1.10 CSort */
-static int parse_CSort(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *fmt, ...);
-
-/* 2.2.1.12 CCoercionRestriction */
-static int parse_CCoercionRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CCoercionRestriction *v, const char *fmt, ...);
-/* 2.2.1.16 CRestrictionArray */
-static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
+static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, proto_tree *pad_tree, struct CNodeRestriction *v, const char* txt);
 
 /* 2.2.1.17 CRestriction */
-static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CRestriction *v, const char *fmt, ...);
-
-/* 2.2.1.18 CColumnSet */
-static int parse_CColumnSet(tvbuff_t *tvb, int offset, proto_tree *tree, const char *fmt, ...);
-
-/* 2.2.1.20 CCategorizationSpec */
-static int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.21 CCategSpec */
-static int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.22 CRangeCategSpec */
-static int parse_CRangeCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.23 RANGEBOUNDARY */
-static int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.24 CAggregSet */
-static int parse_CAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.25 CAggregSpec */
-static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.26 CSortAggregSet */
-static int parse_CSortAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.27 CAggregSortKey */
-static int parse_CAggregSortKey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.28 CInGroupSortAggregSets */
-static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.29 CInGroupSortAggregSet */
-static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.30 CDbColId */
-static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *text);
-
-/* 2.2.1.31 CDbProp */
-static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const struct GuidPropertySet *propset, const char *fmt, ...);
-
-/* 2.2.1.32 CDbPropSet */
-static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.33 CPidMapper */
-static int parse_CPidMapper(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.34 CColumnGroupArray */
-static int parse_CColumnGroupArray(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.35 CColumnGroup */
-static int parse_CColumnGroup(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.41 CRowsetProperties */
-static int parse_CRowsetProperties(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.43 CSortSet */
-static int parse_CSortSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...);
-
-/* 2.2.1.44 CTableColumn */
-static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CTableColumn *col, const char *fmt, ...);
-
+static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CRestriction *v, const char *txt);
 
 /*
+TODO:
 2.2.1.4 CInternalPropertyRestriction
 2.2.1.9 CScopeRestriction
 2.2.1.11 CVectorRestriction
@@ -3182,30 +3087,20 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 2.2.1.46 CCompletionCategSp
 */
 
-static int parse_CSort(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *fmt, ...)
+static int parse_CSort(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *txt)
 {
-	uint32_t col, ord, ind;
-
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CSort, &item, txt);
 
-	col = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cscort_column, tvb, offset, 4, col);
+	proto_tree_add_item(tree, hf_mswsp_cscort_column, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	ord = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cscort_order, tvb, offset, 4, ord);
+	proto_tree_add_item(tree, hf_mswsp_cscort_order, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	ind = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cscort_individual, tvb, offset, 4, ind);
+	proto_tree_add_item(tree, hf_mswsp_cscort_individual, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	offset = parse_lcid(tvb, offset, tree, "lcid");
@@ -3214,55 +3109,44 @@ static int parse_CSort(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto
 	return offset;
 }
 
-static int parse_CSortSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CSortSet(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	uint32_t count, i;
 
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CSortSet, &item, txt);
 
-	count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cscortset_count, tvb, offset, 4, count);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_cscortset_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 	offset += 4;
 
 	for (i=0; i<count; i++) {
-		offset = parse_padding(tvb, offset, 4, tree, "padding_sortArray[%u]", i);
-		offset = parse_CSort(tvb, offset, tree, pad_tree, "sortArray[%u]", i);
+		offset = parse_padding(tvb, offset, 4, tree, wmem_strdup_printf(pinfo->pool, "padding_sortArray[%u]", i));
+		offset = parse_CSort(tvb, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "sortArray[%u]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
 }
 
-static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CTableColumn *col, const char *fmt, ...)
+static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CTableColumn *col, const char *txt)
 {
 
 
 	proto_item *item, *ti_type;
 	proto_tree *tree;
-	va_list ap;
 	struct vtype_data *type;
 	enum vType vtype_val = VT_EMPTY;
 	enum vType vtype_valhi = VT_EMPTY;
 	struct CFullPropSpec v;
-	const char *txt;
 	uint8_t used;
 
 	const char *modifier = "";
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CTableColumn, &item, txt);
 
-	offset = parse_CFullPropSpec(tvb, offset, tree, pad_tree, &v, "PropSpec");
-	get_name_from_fullpropspec(&v, col->name, PROP_LENGTH);
+	offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &v, "PropSpec");
+	col->name = get_name_from_fullpropspec(&v, pinfo->pool);
 	col->vtype = tvb_get_letohl(tvb, offset);
 	vtype_val = (enum vType)col->vtype;
 	vtype_valhi = (enum vType)(col->vtype & 0xFF00);
@@ -3343,54 +3227,36 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	return offset;
 }
 
-static int parse_PRSPEC_Kind(tvbuff_t *tvb, int offset, proto_tree *tree, enum PRSPEC_Kind *prspec)
-{
-	static const value_string KIND[] = {
-		{0, "PRSPEC_LPWSTR"},
-		{1, "PRSPEC_PROPID"},
-		{0, NULL}
-	};
+static const value_string KIND_vals[] = {
+	{PRSPEC_LPWSTR, "PRSPEC_LPWSTR"},
+	{PRSPEC_PROPID, "PRSPEC_PROPID"},
+	{0, NULL}
+};
 
-	int32_t kind = tvb_get_letohl(tvb, offset);
-	DISSECTOR_ASSERT(kind < (PRSPEC_PROPID + 1));
-	if (kind) {
-		*prspec = PRSPEC_PROPID;
-	} else {
-		*prspec = PRSPEC_LPWSTR;
-	}
-	proto_tree_add_string(tree, hf_mswsp_cfullpropspec_kind, tvb, offset, 4, val_to_str(*prspec, KIND, "(Unknown: 0x%x)"));
-	offset += 4;
-	return offset;
-}
-
-static int parse_CFullPropSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CFullPropSpec *v, const char *fmt, ...)
+static int parse_CFullPropSpec(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CFullPropSpec *v, const char *txt)
 {
 	const struct GuidPropertySet *pset;
-	const char *id_str, *guid_str, *txt;
+	const char *id_str, *guid_str;
 
 	proto_item *item;
 	proto_tree *tree;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CFullPropSpec, &item, txt);
 
 	offset = parse_padding(tvb, offset, 8, pad_tree, "paddingPropSet");
 
-	offset = parse_guid(tvb, offset, tree, &v->guid, "GUID");
+	offset = parse_guid(tvb, pinfo->pool, offset, tree, &v->guid, "GUID");
 	pset = GuidPropertySet_find_guid(&v->guid);
 
-	offset = parse_PRSPEC_Kind(tvb, offset, tree, &v->kind);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_cfullpropspec_kind, tvb, offset, 4, ENC_LITTLE_ENDIAN, (uint32_t*)&v->kind);
+	offset += 4;
 
-	v->u.propid = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cfullpropspec_propid, tvb, offset, 4, v->u.propid);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_cfullpropspec_propid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &v->u.propid);
 	offset += 4;
 
 	if (v->kind == PRSPEC_LPWSTR) {
 		int len = 2*v->u.propid;
-		proto_tree_add_item_ret_string(tree, hf_mswsp_cfullpropspec_propname, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &v->u.name);
+		proto_tree_add_item_ret_string(tree, hf_mswsp_cfullpropspec_propname, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2, pinfo->pool, &v->u.name);
 		offset += len;
 	}
 
@@ -3399,11 +3265,11 @@ static int parse_CFullPropSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tre
 	if (id_str) {
 		proto_item_append_text(item, ": %s", id_str);
 	} else {
-		guid_str = guids_get_guid_name(&v->guid, wmem_packet_scope());
+		guid_str = guids_get_guid_name(&v->guid, pinfo->pool);
 		if (guid_str) {
 			proto_item_append_text(item, ": \"%s\"", guid_str);
 		} else {
-			guid_str = guid_to_str(wmem_packet_scope(), &v->guid);
+			guid_str = guid_to_str(pinfo->pool, &v->guid);
 			proto_item_append_text(item, ": {%s}", guid_str);
 		}
 
@@ -3437,7 +3303,7 @@ static const value_string PR_VALS[] = {
 	{0, NULL}
 };
 
-static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, uint32_t *relop, const char **str)
+static int parse_relop(tvbuff_t *tvb, packet_info* pinfo, int offset,  proto_tree *tree, uint32_t *relop, const char **str)
 {
 	const char *str1 = NULL, *str2 = NULL;
 	uint32_t tmp = tvb_get_letohl(tvb, offset);
@@ -3492,8 +3358,8 @@ static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, uint32_t *r
 		}
 		str1 = try_val_to_str((modifier), PR_VALS);
 		if (str1) {
-			str1 = wmem_strdup_printf(wmem_packet_scope(), "%s | ", str1);
-			str2 = wmem_strdup_printf(wmem_packet_scope(), "%s%s", str1, str2);
+			str1 = wmem_strdup_printf(pinfo->pool, "%s | ", str1);
+			str2 = wmem_strdup_printf(pinfo->pool, "%s%s", str1, str2);
 		}
 	}
 	proto_tree_add_string_format_value(tree, hf_mswsp_cproprestrict_relop, tvb, offset, 4, str2, "%s (0x%04x)", str2[0]=='\0' ? "" : str2, *relop);
@@ -3503,23 +3369,18 @@ static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, uint32_t *r
 	}
 	return offset + 4;
 }
-static int parse_CPropertyRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CPropertyRestriction *v, const char *fmt, ...)
+static int parse_CPropertyRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CPropertyRestriction *v, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	const char *txt, *str = NULL;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
+	const char *str = NULL;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CPropertyRestriction, &item, txt);
 
-	offset = parse_relop(tvb, offset, tree, &v->relop, &str);
+	offset = parse_relop(tvb, pinfo, offset, tree, &v->relop, &str);
 	proto_item_append_text(item, " Op: %s", str);
 
-	offset = parse_CFullPropSpec(tvb, offset, tree, pad_tree, &v->property, "Property");
+	offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &v->property, "Property");
 
 	offset = parse_CBaseStorageVariant(tvb, pinfo, offset, tree, pad_tree, &v->prval, "prval");
 
@@ -3534,16 +3395,10 @@ static int parse_CPropertyRestriction(tvbuff_t *tvb, packet_info *pinfo, int off
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int parse_CCoercionRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CCoercionRestriction *v, const char *fmt, ...)
+static int parse_CCoercionRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CCoercionRestriction *v, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CCoercionRestriction, &item, txt);
 
@@ -3558,30 +3413,22 @@ static int parse_CCoercionRestriction(tvbuff_t *tvb, packet_info *pinfo, int off
 	return offset;
 }
 
-static int parse_CContentRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CContentRestriction *v, const char *fmt, ...)
+static int parse_CContentRestriction(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CContentRestriction *v, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	va_list ap;
 	uint32_t cc;
-	const char *txt;
-
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CContentRestriction, &item, txt);
 
-	offset = parse_CFullPropSpec(tvb, offset, tree, pad_tree, &v->property, "Property");
+	offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &v->property, "Property");
 
 	offset = parse_padding(tvb, offset, 4, pad_tree, "Padding1");
 
-	cc = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_ccontentrestrict_cc, tvb, offset, 4, cc);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_ccontentrestrict_cc, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cc);
 	offset += 4;
 
-	proto_tree_add_item_ret_string(tree, hf_mswsp_ccontentrestrict_phrase, tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &v->phrase);
+	proto_tree_add_item_ret_string(tree, hf_mswsp_ccontentrestrict_phrase, tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2, pinfo->pool, &v->phrase);
 	offset += 2*cc;
 
 	offset = parse_padding(tvb, offset, 4, pad_tree, "Padding2");
@@ -3597,30 +3444,22 @@ static int parse_CContentRestriction(tvbuff_t *tvb, int offset, proto_tree *pare
 	return offset;
 }
 
-int parse_CNatLanguageRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CNatLanguageRestriction *v, const char *fmt, ...)
+static int parse_CNatLanguageRestriction(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CNatLanguageRestriction *v, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	va_list ap;
 	uint32_t cc;
-	const char *txt;
-
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CNatLanguageRestriction, &item, txt);
 
-	offset = parse_CFullPropSpec(tvb, offset, tree, pad_tree, &v->property, "Property");
+	offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &v->property, "Property");
 
 	offset = parse_padding(tvb, offset, 4, pad_tree, "padding_cc");
 
-	cc = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_natlangrestrict_cc, tvb, offset, 4, cc);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_natlangrestrict_cc, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cc);
 	offset += 4;
 
-	proto_tree_add_item_ret_string(tree, hf_mswsp_natlangrestrict_phrase, tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2, wmem_packet_scope(), &v->phrase);
+	proto_tree_add_item_ret_string(tree, hf_mswsp_natlangrestrict_phrase, tvb, offset, 2*cc, ENC_LITTLE_ENDIAN | ENC_UCS_2, pinfo->pool, &v->phrase);
 	offset += 2*cc;
 
 	offset = parse_padding(tvb, offset, 4, pad_tree, "padding_lcid");
@@ -3633,15 +3472,9 @@ int parse_CNatLanguageRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_
 }
 
 
-static int parse_CReuseWhere(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, struct CReuseWhere *v, const char *fmt, ...)
+static int parse_CReuseWhere(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, struct CReuseWhere *v, const char *txt)
 {
 	proto_item *item;
-	va_list ap;
-	const char *txt;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_mswsp_msg_creusewhere, &item, txt);
 	v->whereId = tvb_get_letohl(tvb, offset);
@@ -3675,8 +3508,6 @@ static const value_string RT_VALS[] =  {
 	{RTPhrase, "RTInternalProp"},
 	{0, NULL}
 };
-
-#define EP_ALLOC(T) wmem_new(wmem_packet_scope(), T)
 
 static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *rtype, const char **str)
 {
@@ -3750,19 +3581,13 @@ static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CRestriction *v, const char *fmt, ...)
+static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CRestriction *v, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	const char *str, *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
+	const char *str;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRestriction, &item, txt);
-
 
 	offset = parse_rType(tvb, offset, tree, &v->ulType, &str);
 	proto_item_append_text(item, " Type: %s", str);
@@ -3779,18 +3604,18 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case RTOr:
 	case RTProximity:
 	case RTPhrase: {
-		v->u.RTAnd = EP_ALLOC(struct CNodeRestriction);
+		v->u.RTAnd = wmem_new(pinfo->pool, struct CNodeRestriction);
 		offset = parse_CNodeRestriction(tvb, pinfo, offset, tree, pad_tree, v->u.RTAnd, "CNodeRestriction");
 		break;
 	}
 	case RTNot: {
-		v->u.RTNot = EP_ALLOC(struct CRestriction);
+		v->u.RTNot = wmem_new(pinfo->pool, struct CRestriction);
 		offset = parse_CRestriction(tvb, pinfo, offset, tree, pad_tree,
 									v->u.RTNot, "CRestriction");
 		break;
 	}
 	case RTProperty: {
-		v->u.RTProperty = EP_ALLOC(struct CPropertyRestriction);
+		v->u.RTProperty = wmem_new(pinfo->pool, struct CPropertyRestriction);
 		offset = parse_CPropertyRestriction(tvb, pinfo, offset, tree, pad_tree,
 											v->u.RTProperty, "CPropertyRestriction");
 		break;
@@ -3798,26 +3623,26 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case RTCoerce_Add:
 	case RTCoerce_Multiply:
 	case RTCoerce_Absolute: {
-		v->u.RTCoerce_Add = EP_ALLOC(struct CCoercionRestriction);
+		v->u.RTCoerce_Add = wmem_new(pinfo->pool, struct CCoercionRestriction);
 		offset = parse_CCoercionRestriction(tvb, pinfo, offset, tree, pad_tree,
 											v->u.RTCoerce_Add, "CCoercionRestriction");
 		break;
 	}
 	case RTContent: {
-		v->u.RTContent = EP_ALLOC(struct CContentRestriction);
-		offset = parse_CContentRestriction(tvb, offset, tree, pad_tree,
+		v->u.RTContent = wmem_new(pinfo->pool, struct CContentRestriction);
+		offset = parse_CContentRestriction(tvb, pinfo, offset, tree, pad_tree,
 										   v->u.RTContent, "CContentRestriction");
 		break;
 	}
 	case RTReuseWhere: {
-		v->u.RTReuseWhere = EP_ALLOC(struct CReuseWhere);
+		v->u.RTReuseWhere = wmem_new(pinfo->pool, struct CReuseWhere);
 		offset = parse_CReuseWhere(tvb, offset, tree, pad_tree,
 								   v->u.RTReuseWhere, "CReuseWhere");
 		break;
 	}
 	case RTNatLanguage: {
-		v->u.RTNatLanguage = EP_ALLOC(struct CNatLanguageRestriction);
-		offset = parse_CNatLanguageRestriction(tvb, offset, tree, pad_tree,
+		v->u.RTNatLanguage = wmem_new(pinfo->pool, struct CNatLanguageRestriction);
+		offset = parse_CNatLanguageRestriction(tvb, pinfo, offset, tree, pad_tree,
 											   v->u.RTNatLanguage, "CNatLanguageRestriction");
 		break;
 	}
@@ -3830,28 +3655,21 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	return offset;
 }
 
-static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
-	uint8_t present, count;
+	uint32_t present, count;
 
 	proto_tree *tree;
 	proto_item *item;
-	const char *txt;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRestrictionArray, &item, txt);
 
 	pad_tree = tree;
 
-	count = tvb_get_uint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_crestrictarray_count, tvb, offset, 1, count);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_crestrictarray_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &count);
 	offset += 1;
 
-	present = tvb_get_uint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_crestrictarray_present, tvb, offset, 1, present);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_crestrictarray_present, tvb, offset, 1, ENC_LITTLE_ENDIAN, &present);
 	offset += 1;
 
 	if (present) {
@@ -3860,7 +3678,7 @@ static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset
 
 		for (i=0; i<count; i++) {
 			struct CRestriction r;
-			offset = parse_CRestriction(tvb, pinfo, offset, tree, pad_tree, &r, "Restriction[%d]", i);
+			offset = parse_CRestriction(tvb, pinfo, offset, tree, pad_tree, &r, wmem_strdup_printf(pinfo->pool, "Restriction[%d]", i));
 		}
 	}
 	proto_item_set_end(item, tvb, offset);
@@ -3868,17 +3686,12 @@ static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CNodeRestriction *v, const char *fmt, ...)
+static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, struct CNodeRestriction *v, const char* txt)
 {
 	proto_tree *tree;
 	proto_item *item;
 	unsigned i;
-	const char *txt;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CNodeRestriction, &item, txt);
 
 	v->cNode = tvb_get_letohl(tvb, offset);
@@ -3888,8 +3701,8 @@ static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	for (i=0; i<v->cNode; i++) {
 		struct CRestriction r;
 		ZERO_STRUCT(r);
-		offset = parse_CRestriction(tvb, pinfo, offset, tree, pad_tree, &r, "paNode[%u]", i);
-		offset = parse_padding(tvb, offset, 4, tree, "padding_paNode[%u]", i); /*at begin or end of loop ????*/
+		offset = parse_CRestriction(tvb, pinfo, offset, tree, pad_tree, &r, wmem_strdup_printf(pinfo->pool, "paNode[%u]", i));
+		offset = parse_padding(tvb, offset, 4, tree, wmem_strdup_printf(pinfo->pool, "padding_paNode[%u]", i)); /*at begin or end of loop ????*/
 
 	}
 
@@ -3900,63 +3713,63 @@ static int parse_CNodeRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 /*****************************************************************************************/
 
-static int vvalue_tvb_get0(tvbuff_t *tvb _U_, int offset _U_, void *val _U_)
+static int vvalue_tvb_get0(tvbuff_t *tvb _U_, packet_info* pinfo _U_, int offset _U_, void *val _U_)
 {
 	return 0;
 }
 
-static int vvalue_tvb_get1(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_get1(tvbuff_t *tvb, packet_info* pinfo _U_, int offset, void *val)
 {
 	uint8_t *ui1 = (uint8_t*)val;
 	*ui1 = tvb_get_uint8(tvb, offset);
 	return 1;
 }
 
-static int vvalue_tvb_get2(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_get2(tvbuff_t *tvb, packet_info* pinfo _U_, int offset, void *val)
 {
 	uint16_t *ui2 = (uint16_t*)val;
 	*ui2 = tvb_get_letohs(tvb, offset);
 	return 2;
 }
 
-static int vvalue_tvb_get4(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_get4(tvbuff_t *tvb, packet_info* pinfo _U_, int offset, void *val)
 {
 	uint32_t *ui4 = (uint32_t*)val;
 	*ui4 = tvb_get_letohl(tvb, offset);
 	return 4;
 }
 
-static int vvalue_tvb_get8(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_get8(tvbuff_t *tvb, packet_info* pinfo _U_, int offset, void *val)
 {
 	uint64_t *ui8 = (uint64_t*)val;
 	*ui8 = tvb_get_letoh64(tvb, offset);
 	return 8;
 }
 
-static int vvalue_tvb_blob(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_blob(tvbuff_t *tvb, packet_info* pinfo, int offset, void *val)
 {
 	struct data_blob *blob = (struct data_blob*)val;
 	uint32_t len = tvb_get_letohl(tvb, offset);
 
 	blob->size = len;
-	blob->data = (uint8_t*)tvb_memdup(wmem_packet_scope(), tvb, offset + 4, len);
+	blob->data = (uint8_t*)tvb_memdup(pinfo->pool, tvb, offset + 4, len);
 
 	return 4 + len;
 }
 
-static int vvalue_tvb_lpstr(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_lpstr(tvbuff_t *tvb, packet_info* pinfo, int offset, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
 	int len;
 
 	str->len = tvb_get_letohl(tvb, offset);
-	str->str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + 4, &len,
+	str->str = tvb_get_stringz_enc(pinfo->pool, tvb, offset + 4, &len,
 								   ENC_ASCII|ENC_LITTLE_ENDIAN);
 	/* XXX test str->len == len */
 	return 4 + len;
 }
 
-static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, int offset, int length, void *val)
+static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
 	const char *ptr;
@@ -3964,10 +3777,10 @@ static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, int offset, int length, void *va
 
 	if (length == 0) {
 		/* we don't know the length */
-		ptr = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len,
+		ptr = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len,
 								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	} else {
-		ptr =  tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length,
+		ptr =  tvb_get_string_enc(pinfo->pool, tvb, offset, length,
 								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		len = length;
 	}
@@ -3975,18 +3788,18 @@ static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, int offset, int length, void *va
 	return len;
 }
 
-static int vvalue_tvb_lpwstr(tvbuff_t *tvb, int offset, void *val)
+static int vvalue_tvb_lpwstr(tvbuff_t *tvb, packet_info* pinfo, int offset, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
 
 	str->len = tvb_get_letohl(tvb, offset);
 
-	return 4 + vvalue_tvb_lpwstr_len(tvb, offset + 4, 0, val);
+	return 4 + vvalue_tvb_lpwstr_len(tvb, pinfo, offset + 4, 0, val);
 }
 
 /* Maximum sane vector size. Arbitrary. */
 #define MAX_VT_VECTOR_SIZE 5000
-static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, unsigned num)
+static int vvalue_tvb_vector_internal(tvbuff_t *tvb, packet_info* pinfo, int offset, struct vt_vector *val, struct vtype_data *type, unsigned num)
 {
 	const int offset_in = offset;
 	const bool varsize = (type->size == -1);
@@ -4014,7 +3827,7 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 	/*
 	 * OK, it exists; allocate a buffer into which to fetch it.
 	 */
-	data = (uint8_t*)wmem_alloc(wmem_packet_scope(), elsize * num);
+	data = (uint8_t*)wmem_alloc(pinfo->pool, elsize * num);
 
 	val->len = num;
 	val->u.vt_ui1 = data;
@@ -4023,7 +3836,7 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 	for (i=0; i<num; i++) {
 		DISSECTOR_ASSERT_HINT(type->tvb_get != 0,
 				      "type that we don't know yet how to handle, please submit a bug with trace");
-		len = type->tvb_get(tvb, offset, data);
+		len = type->tvb_get(tvb, pinfo, offset, data);
 		data += elsize;
 		offset += len;
 		if (varsize) {
@@ -4034,10 +3847,10 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 	return offset - offset_in;
 }
 
-static int vvalue_tvb_vector(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type)
+static int vvalue_tvb_vector(tvbuff_t *tvb, packet_info* pinfo, int offset, struct vt_vector *val, struct vtype_data *type)
 {
 	const unsigned num = tvb_get_letohl(tvb, offset);
-	return 4 + vvalue_tvb_vector_internal(tvb, offset+4, val, type, num);
+	return 4 + vvalue_tvb_vector_internal(tvb, pinfo, offset+4, val, type, num);
 }
 
 static void vvalue_strbuf_append_null(wmem_strbuf_t *strbuf _U_, void *ptr _U_)
@@ -4189,10 +4002,10 @@ static struct vtype_data *vType_get_type(uint16_t t)
 	return NULL;
 }
 
-static const char *str_CBaseStorageVariant(struct CBaseStorageVariant *value, bool print_type)
+static const char *str_CBaseStorageVariant(struct CBaseStorageVariant *value, bool print_type, wmem_allocator_t* allocator)
 {
 
-	wmem_strbuf_t *strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+	wmem_strbuf_t *strbuf = wmem_strbuf_new(allocator, "");
 	if (value == NULL) {
 		return "<NULL>";
 	}
@@ -4270,14 +4083,14 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 	case VT_EMPTY:
 		DISSECTOR_ASSERT_HINT(value->type->tvb_get != 0,
 				      "type that we don't know yet how to handle, please submit a bug with trace");
-		len = value->type->tvb_get(tvb, offset, &value->vValue.vt_single);
+		len = value->type->tvb_get(tvb, pinfo, offset, &value->vValue.vt_single);
 		offset += len;
 		break;
 	case VT_VECTOR:
 		proto_item_append_text(ti_type, "|VT_VECTOR");
 		tr = proto_item_add_subtree(ti_val, ett_CBaseStorageVariant_Vector);
 
-		len = vvalue_tvb_vector(tvb, offset, &value->vValue.vt_vector, value->type);
+		len = vvalue_tvb_vector(tvb, pinfo, offset, &value->vValue.vt_vector, value->type);
 		proto_tree_add_uint(tr, hf_mswsp_cbasestorvariant_num, tvb, offset, 4, value->vValue.vt_vector.len);
 		offset += len;
 		break;
@@ -4308,7 +4121,7 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 			num *= cElements;
 		}
 
-		len = vvalue_tvb_vector_internal(tvb, offset, &value->vValue.vt_array.vData, value->type, num);
+		len = vvalue_tvb_vector_internal(tvb, pinfo, offset, &value->vValue.vt_array.vData, value->type, num);
 		offset += len;
 		break;
 	}
@@ -4318,8 +4131,8 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 	proto_item_set_end(ti, tvb, offset);
 	proto_item_set_end(ti_val, tvb, offset);
 
-	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, false));
-	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, true));
+	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, false, pinfo->pool));
+	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, true, pinfo->pool));
 
 	return offset;
 }
@@ -4329,7 +4142,7 @@ enum {
 	DBKIND_GUID_PROPID = 1
 };
 
-static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *text)
+static int parse_CDbColId(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *text)
 {
 	uint32_t eKind, ulId;
 	e_guid_t guid;
@@ -4346,7 +4159,7 @@ static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, pr
 
 	offset = parse_padding(tvb, offset, 8, pad_tree, "paddingGuidAlign");
 
-	offset = parse_guid(tvb, offset, tree, &guid, "GUID");
+	offset = parse_guid(tvb, pinfo->pool, offset, tree, &guid, "GUID");
 
 	ulId = tvb_get_letohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_mswsp_cdbcolid_ulid, tvb, offset, 4, ulId);
@@ -4355,7 +4168,7 @@ static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, pr
 	if (eKind == DBKIND_GUID_NAME) {
 		char *name;
 		int len = ulId;
-		name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
+		name = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
 		proto_item_append_text(tree_item, " \"%s\"", name);
 		proto_tree_add_string_format_value(tree, hf_mswsp_cdbcolid_vstring, tvb, offset, len, name, "\"%s\"", name);
 		offset += len;
@@ -4370,7 +4183,7 @@ static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, pr
 	return offset;
 }
 
-static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const struct GuidPropertySet *propset, const char *fmt, ...)
+static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const struct GuidPropertySet *propset, const char *txt)
 {
 	static const value_string EMPTY_VS[] = {{0, NULL}};
 	const value_string *vs = (propset && propset->id_map) ? propset->id_map : EMPTY_VS;
@@ -4378,12 +4191,7 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 	struct CBaseStorageVariant value;
 	proto_item *item;
 	proto_tree *tree;
-	const char *str, *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
+	const char *str;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbProp, &item, txt);
 
@@ -4393,42 +4201,34 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 	offset += 4;
 	proto_item_append_text(item, " Id: %s", str);
 
-	opt = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cdbprop_options, tvb, offset, 4, opt);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_cdbprop_options, tvb, offset, 4, ENC_LITTLE_ENDIAN, &opt);
 	offset += 4;
 
-	status = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cdbprop_status, tvb, offset, 4, status);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_cdbprop_status, tvb, offset, 4, ENC_LITTLE_ENDIAN, &status);
 	offset += 4;
 
-	offset = parse_CDbColId(tvb, offset, tree, pad_tree, "colid");
+	offset = parse_CDbColId(tvb, pinfo, offset, tree, pad_tree, "colid");
 
 	offset = parse_CBaseStorageVariant(tvb, pinfo, offset, tree, pad_tree, &value, "vValue");
 
-	str = str_CBaseStorageVariant(&value, true);
+	str = str_CBaseStorageVariant(&value, true, pinfo->pool);
 	proto_item_append_text(item, " %s", str);
 	proto_item_set_end(item, tvb, offset);
 
 	return offset;
 }
 
-static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	int i, num;
 	e_guid_t guid;
 	const struct GuidPropertySet *pset;
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbPropSet, &item, txt);
 
-	offset = parse_guid(tvb, offset, tree, &guid, "guidPropertySet");
+	offset = parse_guid(tvb, pinfo->pool, offset, tree, &guid, "guidPropertySet");
 
 	pset = GuidPropertySet_find_guid(&guid);
 
@@ -4447,41 +4247,33 @@ static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	proto_item_append_text(item, " Num: %d", num);
 
 	for (i = 0; i<num; i++) {
-		offset = parse_padding(tvb, offset, 4, pad_tree, "aProp[%d]", i);
-		offset = parse_CDbProp(tvb, pinfo, offset, tree, pad_tree, pset, "aProp[%d]", i);
+		offset = parse_padding(tvb, offset, 4, pad_tree, wmem_strdup_printf(pinfo->pool, "aProp[%d]", i));
+		offset = parse_CDbProp(tvb, pinfo, offset, tree, pad_tree, pset, wmem_strdup_printf(pinfo->pool, "aProp[%d]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
 }
 
-static int parse_PropertySetArray(tvbuff_t *tvb, packet_info *pinfo, int offset, int size_offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_PropertySetArray(tvbuff_t *tvb, packet_info *pinfo, int offset, int size_offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	const int offset_in = offset;
 	uint32_t size, num;
 	int i;
 	proto_tree *tree;
 	proto_item *item;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbPropSet_Array, &item, txt);
 
-	size = tvb_get_letohl(tvb, size_offset);
-	proto_tree_add_item(tree, hf_mswsp_msg_ConnectIn_Blob1, tvb,
-						size_offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_msg_ConnectIn_Blob1, tvb,
+						size_offset, 4, ENC_LITTLE_ENDIAN, &size);
 
-	num = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_mswsp_msg_ConnectIn_PropSets_num, tvb,
-						offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_msg_ConnectIn_PropSets_num, tvb,
+						offset, 4, ENC_LITTLE_ENDIAN, &num);
 	offset += 4;
 
 	for (i = 0; i < (int)num; i++) {
-		offset = parse_CDbPropSet(tvb, pinfo, offset, tree, pad_tree, "PropertySet[%d]", i);
+		offset = parse_CDbPropSet(tvb, pinfo, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "PropertySet[%d]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
@@ -4489,16 +4281,10 @@ static int parse_PropertySetArray(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	return offset;
 }
 
-int parse_CColumnSet(tvbuff_t *tvb, int offset, proto_tree *tree, const char *fmt, ...)
+static int parse_CColumnSet(tvbuff_t *tvb, int offset, proto_tree *tree, const char *txt)
 {
 	uint32_t count, v, i;
 	proto_item *item;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	count = tvb_get_letohl(tvb, offset);
 	offset += 4;
@@ -4519,23 +4305,17 @@ int parse_CColumnSet(tvbuff_t *tvb, int offset, proto_tree *tree, const char *fm
 }
 
 /* 2.2.1.23 RANGEBOUNDARY */
-int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	uint32_t ulType;
 	uint8_t labelPresent;
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
 	struct CBaseStorageVariant prval;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree =proto_tree_add_subtree (parent_tree, tvb, offset, 0, ett_RANGEBOUNDARY, &item, txt);
 
-	ulType = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_mswsp_rangeboundry_ultype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_rangeboundry_ultype, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ulType);
 	proto_item_append_text(item, ": Type 0x%08x", ulType);
 	offset += 4;
 
@@ -4551,7 +4331,6 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 		const uint8_t* label;
 		offset = parse_padding(tvb, offset, 4, pad_tree, "paddingLabelPresent");
 
-		ccLabel = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item_ret_uint(tree, hf_mswsp_rangeboundry_cclabel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ccLabel);
 		offset += 4;
 
@@ -4560,7 +4339,7 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 		offset += 2*ccLabel;
 	}
 
-	proto_item_append_text(item, " Val: %s", str_CBaseStorageVariant(&prval, true));
+	proto_item_append_text(item, " Val: %s", str_CBaseStorageVariant(&prval, true, pinfo->pool));
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
@@ -4568,28 +4347,22 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 
 
 /* 2.2.1.22 CRangeCategSpec */
-int parse_CRangeCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CRangeCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-	va_list ap;
 	unsigned i;
-	const char *txt;
 	uint32_t cRange;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRangeCategSpec, &item, txt);
 
 	offset = parse_lcid(tvb, offset, tree, "lcid");
 
-	cRange = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_crangecategspec_crange, tvb, offset, 4, cRange);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_crangecategspec_crange, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cRange);
 	offset += 4;
 
 	for (i=0; i<cRange; i++) {
-		offset = parse_RANGEBOUNDARY(tvb, pinfo, offset, tree, pad_tree, "aRangeBegin[%u]", i);
+		offset = parse_RANGEBOUNDARY(tvb, pinfo, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "aRangeBegin[%u]", i));
 
 	}
 
@@ -4598,21 +4371,15 @@ int parse_CRangeCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
 }
 
 /* 2.2.1.21 CCategSpec */
-int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-
-	va_list ap;
 	uint32_t type;
-	const char *txt;
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
+
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CCategSpec, &item, txt);
 
-	type = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_ccategspec_type, tvb, offset, 4, type);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_ccategspec_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &type);
 	proto_item_append_text(item, " Type %u", type);
 	offset += 4;
 
@@ -4632,17 +4399,12 @@ int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
 }
 
 /* 2.2.1.25 CAggregSpec */
-static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-	va_list ap;
 	uint32_t type, ccAlias, idColumn;
-	const char *txt;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CAggregSpec, &item, txt);
 
 	proto_tree_add_item_ret_uint(tree, hf_mswsp_caggregspec_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &type);
@@ -4680,27 +4442,20 @@ static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 }
 
 /* 2.2.1.24 CAggregSet */
-static int parse_CAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CAggregSet(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	uint32_t cCount, i;
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
 
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CAggregSet, &item, txt);
 
-	cCount = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_caggregset_count, tvb, offset, 4, cCount);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_caggregset_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cCount);
 	offset += 4;
 
 	for (i=0; i<cCount; i++) {
 		/* 2.2.1.25 CAggregSpec */
-		offset = parse_CAggregSpec(tvb, offset, tree, pad_tree, "AggregSpecs[%u]", i);
+		offset = parse_CAggregSpec(tvb, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "AggregSpecs[%u]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
@@ -4708,22 +4463,15 @@ static int parse_CAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 }
 
 /* 2.2.1.27 CAggregSortKey */
-static int parse_CAggregSortKey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CAggregSortKey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	uint32_t order;
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
 
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CAggregSortKey, &item, txt);
 
-	order = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_caggregsortkey_order, tvb, offset, 4, order);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_caggregsortkey_order, tvb, offset, 4, ENC_LITTLE_ENDIAN, &order);
 	offset += 4;
 
 	offset = parse_CAggregSpec(tvb, offset, tree, pad_tree, "ColumnSpec");
@@ -4734,26 +4482,20 @@ static int parse_CAggregSortKey(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 
 
 /* 2.2.1.26 CSortAggregSet */
-static int parse_CSortAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CSortAggregSet(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	uint32_t cCount, i;
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
-	va_list ap;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CSortAggregSet, &item, txt);
 
-	cCount = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_csortaggregset_count, tvb, offset, 4, cCount);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_csortaggregset_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cCount);
 	offset += 4;
 
 	for (i=0; i<cCount; i++) {
 		/* 2.2.1.27 CAggregSortKey */
-		offset = parse_CAggregSortKey(tvb, offset, tree, pad_tree, "SortKeys[%u]", i);
+		offset = parse_CAggregSortKey(tvb, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "SortKeys[%u]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
@@ -4792,17 +4534,12 @@ static int parse_CInGroupSortAggregSet_type(tvbuff_t *tvb, int offset, proto_tre
 }
 
 /* 2.2.1.29 CInGroupSortAggregSet */
-static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-	va_list ap;
 	enum CInGroupSortAggregSet_type type;
-	const char *txt;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CInGroupSortAggregSet, &item, txt);
 
 	offset = parse_CInGroupSortAggregSet_type(tvb, offset, tree, &type);
@@ -4813,7 +4550,7 @@ static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int of
 		offset = parse_CBaseStorageVariant(tvb, pinfo, offset, tree, pad_tree, &id, "inGroupId");
 	}
 
-	offset = parse_CSortSet(tvb, offset, tree, pad_tree, "SortSet");
+	offset = parse_CSortSet(tvb, pinfo, offset, tree, pad_tree, "SortSet");
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
@@ -4821,17 +4558,11 @@ static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int of
 
 
 /* 2.2.1.28 CInGroupSortAggregSets */
-static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	uint32_t cCount, i;
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CInGroupSortAggregSets, &item, txt);
 
@@ -4841,7 +4572,7 @@ static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int o
 
 	for (i=0; i<cCount; i++) {
 		/* 2.2.1.29 CInGroupSortAggregSet */
-		offset = parse_CInGroupSortAggregSet(tvb, pinfo, offset, tree, pad_tree, "SortSets[%u]", i);
+		offset = parse_CInGroupSortAggregSet(tvb, pinfo, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "SortSets[%u]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
@@ -4849,17 +4580,11 @@ static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int o
 }
 
 /* 2.2.1.20 CCategorizationSpec */
-int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
 
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CCategorizationSpec, &item, txt);
 
 	/* 2.2.1.18  CColumnSet */
@@ -4869,10 +4594,10 @@ int parse_CCategorizationSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	offset = parse_CCategSpec(tvb, pinfo, offset, tree, pad_tree, "Spec");
 
 	/* 2.2.1.24 CAggregSet */
-	offset = parse_CAggregSet(tvb, offset, tree, pad_tree, "AggregSet");
+	offset = parse_CAggregSet(tvb, pinfo, offset, tree, pad_tree, "AggregSet");
 
 	/* 2.2.1.26 CSortAggregSet */
-	offset = parse_CSortAggregSet(tvb, offset, tree, pad_tree, "SortAggregSet");
+	offset = parse_CSortAggregSet(tvb, pinfo, offset, tree, pad_tree, "SortAggregSet");
 
 	/* 2.2.1.28 CInGroupSortAggregSets */
 	offset = parse_CInGroupSortAggregSets(tvb, pinfo, offset, tree, pad_tree, "InGroupSortAggregSets");
@@ -4897,23 +4622,14 @@ static int * const mswsp_bool_options[] = {
 	NULL
 };
 
-int parse_CRowsetProperties(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *fmt, ...)
+static int parse_CRowsetProperties(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-	const char *txt;
 
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowsetProperties, &item, txt);
 
-	proto_tree_add_bitmask_with_flags(tree, tvb, offset,
-hf_mswsp_bool_options, ett_mswsp_bool_options, mswsp_bool_options, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-
+	proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_mswsp_bool_options, ett_mswsp_bool_options, mswsp_bool_options, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_mswsp_crowsetprops_ulmaxopenrows, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4932,22 +4648,15 @@ hf_mswsp_bool_options, ett_mswsp_bool_options, mswsp_bool_options, ENC_LITTLE_EN
 	return offset;
 }
 
-int parse_CPidMapper(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CPidMapper(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_item *item;
 	proto_tree *tree;
-	va_list ap;
 	uint32_t count, i;
-	const char *txt;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CPidMapper, &item, txt);
 
-	count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_cpidmapper_count, tvb, offset, 4, count);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_cpidmapper_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 	offset += 4;
 
 	offset = parse_padding(tvb, offset, 8, pad_tree, "CPidMapper_PropSpec");
@@ -4957,8 +4666,9 @@ int parse_CPidMapper(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_t
 		ZERO_STRUCT(v);
 		/*at begin or end of loop???*/
 		offset = parse_padding(tvb, offset, 4, pad_tree,
-							   "CPidMapper_PropSpec[%u]", i);
-		offset = parse_CFullPropSpec(tvb, offset, tree, pad_tree, &v, "PropSpec[%u]", i);
+			wmem_strdup_printf(pinfo->pool, "CPidMapper_PropSpec[%u]", i));
+		offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &v,
+			wmem_strdup_printf(pinfo->pool, "PropSpec[%u]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
@@ -4966,26 +4676,18 @@ int parse_CPidMapper(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_t
 }
 
 /* 2.2.1.35 CColumnGroup */
-int parse_CColumnGroup(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *fmt, ...)
+static int parse_CColumnGroup(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item, *ti;
-	va_list ap;
-	const char *txt;
 	uint32_t count, groupPid, i;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CColumnGroup, &item, txt);
 
-	count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_ccolumngroup_count, tvb, offset, 4, count);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_ccolumngroup_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 	offset += 4;
 
-	groupPid = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_uint(tree, hf_mswsp_ccolumngroup_grouppid, tvb, offset, 4, groupPid);
+	ti = proto_tree_add_item_ret_uint(tree, hf_mswsp_ccolumngroup_grouppid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &groupPid);
 	if ((0xFFFF0000 & groupPid) == 0x7FFF0000) {
 		proto_item_append_text(ti, " Idx: %u", groupPid & 0xFFFF);
 	} else {
@@ -5007,45 +4709,31 @@ int parse_CColumnGroup(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto
 }
 
 /* 2.2.1.34 CColumnGroupArray */
-int parse_CColumnGroupArray(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
+static int parse_CColumnGroupArray(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	va_list ap;
-	const char *txt;
-
 	uint32_t count, i;
 
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CColumnGroupArray, &item, txt);
 
-	count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_mswsp_ccolumngrouparray_count, tvb, offset, 4, count);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_ccolumngrouparray_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 	offset += 4;
 
 	for (i=0; i<count; i++) {
-		offset = parse_padding(tvb, offset, 4, pad_tree, "aGroupArray[%u]", i);
-		offset = parse_CColumnGroup(tvb, offset, tree, pad_tree, "aGroupArray[%u]", i);
+		offset = parse_padding(tvb, offset, 4, pad_tree, wmem_strdup_printf(pinfo->pool, "aGroupArray[%u]", i));
+		offset = parse_CColumnGroup(tvb, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "aGroupArray[%u]", i));
 	}
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
 }
 
-static int parse_UInt32Array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t count, const char *item_name, const char *fmt, ...)
+static int parse_UInt32Array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t count, const char *item_name, const char *txt)
 {
 	uint32_t v, i;
 	proto_tree *tree;
 	proto_item *item;
-	const char *txt;
-
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_Array, &item, txt);
 
@@ -5059,16 +4747,10 @@ static int parse_UInt32Array(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 }
 
 /* 2.2.1.40 CRowSeekNext */
-static int parse_CRowSeekNext(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_CRowSeekNext(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowsSeekNext, &item, txt);
 
@@ -5080,22 +4762,15 @@ static int parse_CRowSeekNext(tvbuff_t *tvb, int offset, proto_tree *parent_tree
 
 
 /* 2.2.1.37 CRowSeekAt */
-static int parse_CRowSeekAt(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_CRowSeekAt(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	va_list ap;
-	const char *txt;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowsSeekAt, &item, txt);
 
 	proto_tree_add_item(tree, hf_mswsp_crowseekat_bmkoffset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
-
 
 	proto_tree_add_item(tree, hf_mswsp_crowseekat_skip, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -5108,22 +4783,15 @@ static int parse_CRowSeekAt(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 }
 
 /* 2.2.1.38 CRowSeekAtRatio */
-static int parse_CRowSeekAtRatio(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_CRowSeekAtRatio(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
-	va_list ap;
-	const char *txt;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowsSeekAtRatio, &item, txt);
 
 	proto_tree_add_item(tree, hf_mswsp_crowseekatratio_ulnumerator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
-
 
 	proto_tree_add_item(tree, hf_mswsp_crowseekatratio_uldenominator, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -5136,28 +4804,20 @@ static int parse_CRowSeekAtRatio(tvbuff_t *tvb, int offset, proto_tree *parent_t
 }
 
 /* 2.2.1.39 CRowSeekByBookmark */
-static int parse_CRowSeekByBookmark(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_CRowSeekByBookmark(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
 	uint32_t num;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowsSeekByBookmark, &item, txt);
 
-	num =  tvb_get_letohl(tvb,offset);
-	proto_tree_add_item(tree, hf_mswsp_crowseekbybookmark_cbookmarks, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_crowseekbybookmark_cbookmarks, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
 	offset += 4;
 
 	offset = parse_UInt32Array(tvb, offset, tree, num, "abookmark", "abookmarks");
 
-	num =  tvb_get_letohl(tvb,offset);
-	proto_tree_add_item(tree, hf_mswsp_crowseekbybookmark_maxret, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_mswsp_crowseekbybookmark_maxret, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
 	offset += 4;
 
 	offset = parse_UInt32Array(tvb, offset, tree, num, "ascret", "ascret");
@@ -5198,7 +4858,7 @@ static int parse_CRowVariantArrayInfo(tvbuff_t *tvb, int offset, proto_tree *tre
 	return offset;
 }
 
-static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, uint64_t base_address, bool is_64bit, struct CRowVariant *variant, struct vtype_data *vt_list_type)
+static int parse_VariantColVector(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree, uint64_t base_address, bool is_64bit, struct CRowVariant *variant, struct vtype_data *vt_list_type)
 {
 	uint32_t i = 0;
 	uint64_t count = 0;
@@ -5233,12 +4893,12 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, u
 			item_address = tvb_get_letohl(tvb, buf_offset + (i * size));
 			proto_tree_add_uint_format(sub_tree, hf_mswsp_rowvariant_item_address32, tvb, address_of_address, size, (uint32_t)item_address, "address[%d] 0x%x", i, (uint32_t)item_address);
 		}
-		strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+		strbuf = wmem_strbuf_new(pinfo->pool, "");
 		if (vt_list_type->size == -1) {
 			/* dynamic type */
 			DISSECTOR_ASSERT_HINT(vt_list_type->tvb_get_value_only != 0,
 								  "appears this is a vector of dynamic types that we don't know yet how to handle, please submit a bug with trace");
-			len = vt_list_type->tvb_get_value_only(tvb, (int)(item_address - base_address), 0, &value);
+			len = vt_list_type->tvb_get_value_only(tvb, pinfo, (int)(item_address - base_address), 0, &value);
 			vt_list_type->strbuf_append(strbuf, &value);
 		} else {
 			/*
@@ -5249,7 +4909,7 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, u
 			DISSECTOR_ASSERT_HINT(vt_list_type->tvb_get != 0,
 					      "appears this is a vector of fixed types that we don't know yet how to handle, please submit a bug with trace");
 
-			vt_list_type->tvb_get(tvb, (int)(item_address - base_address), &value);
+			vt_list_type->tvb_get(tvb, pinfo, (int)(item_address - base_address), &value);
 			vt_list_type->strbuf_append(strbuf, &value);
 		}
 		proto_tree_add_string(sub_tree, hf_mswsp_rowvariant_item_value, tvb, (int)(item_address - base_address), len, wmem_strbuf_get_str(strbuf));
@@ -5257,20 +4917,15 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, u
 	return offset;
 }
 
-static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, uint64_t base_address, uint32_t length _U_, bool is_64bit, struct CRowVariant *variant, const char *fmt, ...)
+static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, uint64_t base_address, uint32_t length _U_, bool is_64bit, struct CRowVariant *variant, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item, *ti_type;
 
-	va_list ap;
 	struct vtype_data *vt_type;
-	const char *modifier = "", *txt;
+	const char *modifier = "";
 	int size;
 	uint16_t vtype_high;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRowVariant, &item, txt);
 
@@ -5311,7 +4966,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	size = get_fixed_vtype_dataize((enum vType)(variant->vtype & 0x00FF));
 
 	if (vtype_high == VT_VECTOR || vtype_high == VT_ARRAY) {
-		offset = parse_VariantColVector(tvb, offset, tree, base_address,
+		offset = parse_VariantColVector(tvb, pinfo, offset, tree, base_address,
 										is_64bit, variant, vt_type);
 	} else {
 		wmem_strbuf_t *strbuf = wmem_strbuf_new(pinfo->pool, "");
@@ -5321,7 +4976,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 
 			DISSECTOR_ASSERT_HINT(vt_type->tvb_get != 0,
 					      "appears fixed type that we don't know yet how to handle, please submit a bug with trace");
-			vt_type->tvb_get(tvb, offset, &variant->content);
+			vt_type->tvb_get(tvb, pinfo, offset, &variant->content);
 			vt_type->strbuf_append(strbuf, &variant->content);
 			proto_tree_add_string_format_value(tree, hf_mswsp_rowvariant_item_value, tvb, offset, size, desc, "%s: %s", desc, wmem_strbuf_get_str(strbuf));
 		} else {
@@ -5342,7 +4997,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 				proto_tree_add_uint(tree, hf_mswsp_rowvariant_item_address32, tvb, buf_offset, 4, (uint32_t)value_address);
 			}
 
-			len = vt_type->tvb_get_value_only(tvb, (int)(value_address - base_address), 0, &non_fixed_size_val);
+			len = vt_type->tvb_get_value_only(tvb, pinfo, (int)(value_address - base_address), 0, &non_fixed_size_val);
 			vt_type->strbuf_append(strbuf, &non_fixed_size_val);
 			proto_tree_add_string(tree, hf_mswsp_rowvariant_item_value, tvb, (int)(value_address - base_address), len, wmem_strbuf_get_str(strbuf));
 		}
@@ -5351,7 +5006,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	return offset;
 }
 
-static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t row, uint32_t col, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool b_is_64bit, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t row, uint32_t col, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool b_is_64bit, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -5366,14 +5021,8 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
 		{0, NULL}
 	};
 
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_GetRowsColumn, &item, txt);
-    proto_item_append_text(item, " (%s)", pcol->name);
+	proto_item_append_text(item, " (%s)", pcol->name);
 	if (pcol->statusused) {
 		int tmp_offset = buf_offset + pcol->statusoffset;
 		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_status, tvb, tmp_offset, 1, val_to_str(tvb_get_uint8(tvb, tmp_offset), STATUS, "(Invalid: 0x%x)"));
@@ -5399,17 +5048,11 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
 	return offset;
 }
 
-static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t num_rows, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool is64bit, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t num_rows, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool is64bit, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
 	proto_item *item;
 	uint32_t num;
-	const char *txt;
-	va_list ap;
-
-	va_start(ap, fmt);
-	txt = wmem_strdup_vprintf(pinfo->pool, fmt, ap);
-	va_end(ap);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_GetRowsRow, &item, txt);
 
@@ -5418,7 +5061,7 @@ static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint3
 		proto_tree *row_tree;
 		row_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_GetRowsRow, NULL, "Row[%d]", num);
 		for (col = 0; col < bindingsin->ccolumns; col++) {
-			parse_RowsBufferCol(tvb, pinfo, offset, num, col, bindingsin, rowsin, is64bit, row_tree, "Col[%d]", col);
+			parse_RowsBufferCol(tvb, pinfo, offset, num, col, bindingsin, rowsin, is64bit, row_tree, wmem_strdup_printf(pinfo->pool, "Col[%d]", col));
 		}
 	}
 	return offset;
@@ -5571,7 +5214,7 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			proto_tree_add_uint(tree, hf_mswsp_msg_cpmcreatequery_ccateg_count, tvb, offset, 4, count);
 			offset += 4;
 			for (i=0; i<count; i++) {
-				offset = parse_CCategorizationSpec(tvb, pinfo, offset, tree, pad_tree, "categories[%u]", i);
+				offset = parse_CCategorizationSpec(tvb, pinfo, offset, tree, pad_tree, wmem_strdup_printf(pinfo->pool, "categories[%u]", i));
 			}
 		}
 
@@ -5579,9 +5222,9 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		offset = parse_CRowsetProperties(tvb, offset, tree, pad_tree, "RowSetProperties");
 
-		offset = parse_CPidMapper(tvb, offset, tree, pad_tree, "PidMapper");
+		offset = parse_CPidMapper(tvb, pinfo, offset, tree, pad_tree, "PidMapper");
 
-		parse_CColumnGroupArray(tvb, offset, tree, pad_tree, "GroupArray");
+		parse_CColumnGroupArray(tvb, pinfo, offset, tree, pad_tree, "GroupArray");
 	} else { /* out */
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_trueseq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -5879,8 +5522,8 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		request.acolumns = (struct CTableColumn*)wmem_alloc(wmem_file_scope(),
 						   sizeof(struct CTableColumn) * num);
 		for (n=0; n<num; n++) {
-			offset = parse_padding(tvb, offset, 4, pad_tree, "padding_aColumns[%u]", n);
-			offset = parse_CTableColumn(tvb, pinfo, offset, tree, pad_tree, &request.acolumns[n],"aColumns[%u]", n);
+			offset = parse_padding(tvb, offset, 4, pad_tree, wmem_strdup_printf(pinfo->pool, "padding_aColumns[%u]", n));
+			offset = parse_CTableColumn(tvb, pinfo, offset, tree, pad_tree, &request.acolumns[n], wmem_strdup_printf(pinfo->pool, "aColumns[%u]", n));
 		}
 		data = find_or_create_message_data(ct, pinfo,0xD0,in, private_data);
 		if (data) {
@@ -6001,7 +5644,7 @@ static int dissect_CPMFetchValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		offset += 4;
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmfetchvalue_cbchunk, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
-		offset = parse_CFullPropSpec(tvb, offset, tree, pad_tree, &prop,
+		offset = parse_CFullPropSpec(tvb, pinfo, offset, tree, pad_tree, &prop,
 									 "PropSpec");
 		parse_padding(tvb, offset, 4, pad_tree,"_padding");
 	} else {
@@ -6685,7 +6328,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_cfullpropspec_kind,
 			{
 				"ulKind", "mswsp.cfullpropspec.kind",
-				FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+				FT_UINT32, BASE_DEC, VALS(KIND_vals), 0, NULL, HFILL
 			}
 		},
 		{
