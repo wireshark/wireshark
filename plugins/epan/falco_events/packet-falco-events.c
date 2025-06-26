@@ -98,6 +98,13 @@ typedef struct bridge_info {
     conv_filter_info *conversation_filters;
 } bridge_info;
 
+typedef struct proto_syscall_layer_data {
+    int proto_hfi;
+    int offset;
+    int length;
+    proto_tree *proto_ti;
+} proto_syscall_layer_data;
+
 typedef struct falco_conv_filter_fields {
     const char* container_id;
     int64_t pid;
@@ -125,6 +132,9 @@ typedef struct container_io_tap_info {
 typedef struct fd_stream_info {
     uint32_t stream_index;
 } fd_stream_info;
+
+static dissector_handle_t syscall_evt_dissector_handle;
+static dissector_handle_t syscall_fd_dissector_handle;
 
 static int proto_falco_events;
 static int proto_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
@@ -583,6 +593,7 @@ create_source_hfids(bridge_info* bi)
             fld_cnt++;
         }
 
+        // XXX We should put these under the correct protocol instead of "falcoevents".
         proto_register_field_array(proto_falco_events, bi->hf, fld_cnt);
         if (addr_fld_cnt) {
             proto_register_field_array(proto_falco_events, bi->hf_v4, addr_fld_cnt);
@@ -1024,6 +1035,18 @@ const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx) 
     return res_str;
 }
 
+// Minimal dissector for adding protocol layers.
+static int
+dissect_syscall_layer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *psldp)
+{
+    proto_syscall_layer_data *psld = (proto_syscall_layer_data*) psldp;
+    if (!psld) {
+        return 0;
+    }
+    psld->proto_ti = proto_tree_add_item(tree, psld->proto_hfi, tvb, psld->offset, psld->length, BASE_NONE);
+    return psld->length;
+}
+
 static int
 dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr, sysdig_event_param_data *event_param_data)
 {
@@ -1079,7 +1102,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
         header_field_info* hfinfo = &(bi->hf[hf_idx].hfinfo);
 
-        proto_tree *ti;
+        proto_tree *ti = NULL;
 
 
         // XXX Should we add this back?
@@ -1092,13 +1115,24 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         if (!parent_trees[parent_category]) {
             int bytes_offset = 0;
             uint32_t bytes_length = 0;
+            // Make sure "evt" and "fd" are in pinfo->layers. We should probably do this for each
+            // undotted syscall category once issue 12368 is fixed, and each undotted category
+            // should probably be a full-blown dissector.
             if (parent_category == SSC_EVENT) {
                 bytes_length = tvb_captured_length(tvb);
+                proto_syscall_layer_data psld = {proto_syscalls[SSC_EVENT], 0, (int) bytes_length, NULL };
+                call_dissector_only(syscall_evt_dissector_handle, tvb, pinfo, tree, &psld);
+                ti = psld.proto_ti;
             } else if (parent_category == SSC_FD) {
                 bytes_offset = event_param_data->data_bytes_offset;
                 bytes_length = event_param_data->data_bytes_length;
+                proto_syscall_layer_data psld = {proto_syscalls[SSC_FD], bytes_offset, (int) bytes_length, NULL };
+                call_dissector_only(syscall_fd_dissector_handle, tvb, pinfo, tree, &psld);
+                ti = psld.proto_ti;
             }
-            ti = proto_tree_add_item(tree, proto_syscalls[parent_category], tvb, bytes_offset, bytes_length, BASE_NONE);
+            if (!ti) {
+                ti = proto_tree_add_item(tree, proto_syscalls[parent_category], tvb, bytes_offset, bytes_length, BASE_NONE);
+            }
             parent_trees[parent_category] = proto_item_add_subtree(ti, ett_syscalls[parent_category]);
         }
         proto_tree *parent_tree = parent_trees[parent_category];
@@ -1550,12 +1584,6 @@ proto_register_falcoplugin(void)
     // Register statistics taps
     container_io_tap = register_tap("container_io");
 
-    // Register the "follow" handlers
-    fd_follow_tap = register_tap("fd_follow");
-
-    register_follow_stream(proto_falco_events, "fd_follow", fd_follow_conv_filter, fd_follow_index_filter, fd_follow_address_filter,
-                           fd_port_to_display, fd_tap_listener, get_fd_stream_count, NULL);
-
     // Try to have a 1:1 mapping for as many Sysdig / Falco fields as possible.
     // The exceptions are SSC_EVTARGS and SSC_PROCLINEAGE, which exposes the event arguments in a way that is convenient for the user.
     proto_syscalls[SSC_EVENT] = proto_register_protocol("Event Information", "Falco Event", "evt");
@@ -1570,6 +1598,15 @@ proto_register_falcoplugin(void)
     // syslog.facility collides with the Syslog dissector, so let syslog fall through to "falco".
     proto_syscalls[SSC_FDLIST] = proto_register_protocol("File Descriptor List", "Falco FD List", "fdlist");
     proto_syscalls[SSC_OTHER] = proto_register_protocol("Unknown or Miscellaneous Falco", "Falco Misc", "falco");
+
+    syscall_evt_dissector_handle = register_dissector("evt", dissect_syscall_layer, proto_syscalls[SSC_EVENT]);
+    syscall_fd_dissector_handle = register_dissector("fd", dissect_syscall_layer, proto_syscalls[SSC_FD]);
+
+    // Register the file descriptor "follow" handlers
+    fd_follow_tap = register_tap("fd_follow");
+
+    register_follow_stream(proto_syscalls[SSC_FD], "fd_follow", fd_follow_conv_filter, fd_follow_index_filter, fd_follow_address_filter,
+                           fd_port_to_display, fd_tap_listener, get_fd_stream_count, NULL);
 
     // Preferences
     module_t *falco_events_module = prefs_register_protocol(proto_falco_events, NULL);
