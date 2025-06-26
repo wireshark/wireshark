@@ -2613,10 +2613,10 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			}
 
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
-				fid_name = wmem_strdup_printf(wmem_file_scope(), ", File: %s",
+				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: %s",
 						(char *)si->saved->extra_info);
 			} else {
-				fid_name = wmem_strdup_printf(wmem_file_scope(), ", File: ");
+				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: ");
 			}
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo, fid_name);
 
