@@ -2705,13 +2705,13 @@ proto_register_ansi_tcap(void)
         },
         { &hf_ansi_tcap_parameter_precedence_id3,
           { "NI digit #3",
-            "ansi_tcap.precedence_id2",
+            "ansi_tcap.precedence_id3",
             FT_UINT8, BASE_HEX, NULL, 0xF0,
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_precedence_id4,
           { "NI digit #4",
-            "ansi_tcap.precedence_id3",
+            "ansi_tcap.precedence_id4",
             FT_UINT8, BASE_HEX, NULL, 0x0F,
             NULL, HFILL }
         },

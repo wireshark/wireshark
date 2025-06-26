@@ -704,7 +704,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     if (distributed_sak_len == DISTRIBUTED_SAK_AES256_BODY_LEN) {
       wrappedlen = WRAPPED_KEY_LEN(AES256_KEY_LEN);
 
-      proto_tree_add_item(distributed_sak_tree, hf_mka_macsec_cipher_suite, tvb, offset, CIPHER_SUITE_LEN, ENC_NA);
+      proto_tree_add_item(distributed_sak_tree, hf_mka_macsec_cipher_suite, tvb, offset, CIPHER_SUITE_LEN, ENC_BIG_ENDIAN);
       offset += CIPHER_SUITE_LEN;
     }
 
@@ -885,7 +885,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
     tlv_tree = proto_item_add_subtree(ti, ett_mka_tlv);
 
     proto_tree_add_item(tlv_tree, hf_mka_tlv_type, tvb, offset + offset2, 1, ENC_NA);
-    proto_tree_add_item(tlv_tree, hf_mka_tlv_info_string_length, tvb, offset + offset2, 2, ENC_NA);
+    proto_tree_add_item(tlv_tree, hf_mka_tlv_info_string_length, tvb, offset + offset2, 2, ENC_BIG_ENDIAN);
     offset2 += 2;
 
     if (tlv_length > 0) {
@@ -902,9 +902,9 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
                                           val_to_str(cipher_suite_cap, macsec_capability_type_vals, "Unknown Capability (%d)"));
           cipher_suite_entry = proto_item_add_subtree(ti, ett_mka_cipher_suite_entry);
 
-          proto_tree_add_item(cipher_suite_entry, hf_mka_tlv_cipher_suite_impl_cap, tvb, offset + offset2 + tlv_item_offset, 2, ENC_NA);
+          proto_tree_add_item(cipher_suite_entry, hf_mka_tlv_cipher_suite_impl_cap, tvb, offset + offset2 + tlv_item_offset, 2, ENC_BIG_ENDIAN);
           tlv_item_offset += 2;
-          proto_tree_add_item(cipher_suite_entry, hf_mka_macsec_cipher_suite, tvb, offset + offset2 + tlv_item_offset, 8, ENC_NA);
+          proto_tree_add_item(cipher_suite_entry, hf_mka_macsec_cipher_suite, tvb, offset + offset2 + tlv_item_offset, 8, ENC_BIG_ENDIAN);
           tlv_item_offset += 8;
         }
         break;

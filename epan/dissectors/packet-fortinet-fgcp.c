@@ -165,7 +165,7 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* Hash/crc ? change after each revision*/
-    proto_tree_add_item(fortinet_hb_tree, hf_fortinet_fgcp_hb_unknown_uint16, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(fortinet_hb_tree, hf_fortinet_fgcp_hb_unknown_uint16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* Serial Number */

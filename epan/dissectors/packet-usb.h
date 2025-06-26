@@ -291,18 +291,18 @@ typedef struct _usb_tap_data_t {
 #define USB_SETUP_SET_ISOCH_DELAY       49
 
 /* transfer_flags */
-#define URB_SHORT_NOT_OK	0x0001	/* report short reads as errors */
-#define URB_ISO_ASAP		0x0002	/* iso-only; use the first unexpired
+#define URB_SHORT_NOT_OK	0x00000001	/* report short reads as errors */
+#define URB_ISO_ASAP		0x00000002	/* iso-only; use the first unexpired
 					 * slot in the schedule */
-#define URB_NO_TRANSFER_DMA_MAP	0x0004	/* urb->transfer_dma valid on submit */
-#define URB_NO_FSBR		0x0020	/* UHCI-specific */
-#define URB_ZERO_PACKET		0x0040	/* Finish bulk OUT with short packet */
-#define URB_NO_INTERRUPT	0x0080	/* HINT: no non-error interrupt
+#define URB_NO_TRANSFER_DMA_MAP	0x00000004	/* urb->transfer_dma valid on submit */
+#define URB_NO_FSBR		0x00000020	/* UHCI-specific */
+#define URB_ZERO_PACKET		0x00000040	/* Finish bulk OUT with short packet */
+#define URB_NO_INTERRUPT	0x00000080	/* HINT: no non-error interrupt
 					 * needed */
-#define URB_FREE_BUFFER		0x0100	/* Free transfer buffer with the URB */
+#define URB_FREE_BUFFER		0x00000100	/* Free transfer buffer with the URB */
 
 /* The following flags are used internally by usbcore and HCDs */
-#define URB_DIR_IN		0x0200	/* Transfer from device to host */
+#define URB_DIR_IN		0x00000200	/* Transfer from device to host */
 #define URB_DIR_OUT		0
 #define URB_DIR_MASK		URB_DIR_IN
 

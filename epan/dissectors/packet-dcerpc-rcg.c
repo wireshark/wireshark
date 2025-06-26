@@ -6063,7 +6063,7 @@ void proto_register_dcerpc_rcg(void)
 	{ &hf_KERB_RPC_ENCRYPTION_KEY_reserved1,
 	  { "Reserved1", "rcg.KERB_RPC_ENCRYPTION_KEY.reserved1", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_KERB_RPC_ENCRYPTION_KEY_reserved2,
-	  { "Encoding type", "rcg.KERB_RPC_ENCRYPTION_KEY.reserved2", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	  { "Encoding type", "rcg.KERB_RPC_ENCRYPTION_KEY.EncodingType", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_BuildAsReqAuthenticatorReq_ArmorKey,
 	  { "ArmorKey", "rcg.BuildAsReqAuthenticatorReq.ArmorKey", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_BuildAsReqAuthenticatorReq_EncryptionKey,

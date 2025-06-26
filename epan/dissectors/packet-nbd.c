@@ -488,7 +488,7 @@ dissect_nbd_structured_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		proto_tree_add_item(tree, hf_nbd_from, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 
-		proto_tree_add_item(tree, hf_nbd_hole_size, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(tree, hf_nbd_hole_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset = tvb_reported_length(tvb);
 		break;
 

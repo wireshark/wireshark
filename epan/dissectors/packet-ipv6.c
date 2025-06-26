@@ -2310,7 +2310,7 @@ dissect_opt_ioam_trace(tvbuff_t *tvb, int offset, packet_info *pinfo,
                              offset * 8, 5, ENC_BIG_ENDIAN);
 
     proto_tree_add_bitmask(opt_tree, tvb, offset, hf_ipv6_opt_ioam_trace_flags,
-                           ett_ipv6_opt_ioam_trace_flags, ioam_trace_flags, ENC_NA);
+                           ett_ipv6_opt_ioam_trace_flags, ioam_trace_flags, ENC_BIG_ENDIAN);
 
     remlen = tvb_get_bits8(tvb, offset * 8 + 9, 7);
     ti = proto_tree_add_bits_item(opt_tree, hf_ipv6_opt_ioam_trace_remlen, tvb,
@@ -2473,12 +2473,12 @@ dissect_opt_ioam_dex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     offset += 4;
 
     if (extflags & 0x80) {
-        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_dex_extflag_flowid, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_dex_extflag_flowid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
     }
 
     if (extflags & 0x40) {
-        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_dex_extflag_seqnum, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(opt_tree, hf_ipv6_opt_ioam_dex_extflag_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
     }
 

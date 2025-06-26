@@ -3150,7 +3150,7 @@ proto_register_h265(void)
 		NULL, HFILL }
 		},
 		{ &hf_h265_type,
-		{ "Type", "h265.nal_unit_type",
+        { "Type", "h265.type",
 		FT_UINT16, BASE_DEC, VALS(h265_type_values), 0x7E00,
 		NULL, HFILL }
 		},

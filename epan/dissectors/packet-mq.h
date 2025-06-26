@@ -342,12 +342,12 @@
 
 /* These flags are documented in javax.transaction.xa.XAResource */
 #define MQ_XA_TMNOFLAGS     0
-#define MQ_XA_TMJOIN        0x200000
-#define MQ_XA_TMENDRSCAN    0x800000
-#define MQ_XA_TMSTARTRSCAN  0x1000000
-#define MQ_XA_TMSUSPEND     0x2000000
-#define MQ_XA_TMSUCCESS     0x4000000
-#define MQ_XA_TMRESUME      0x8000000
+#define MQ_XA_TMJOIN        0x00200000
+#define MQ_XA_TMENDRSCAN    0x00800000
+#define MQ_XA_TMSTARTRSCAN  0x01000000
+#define MQ_XA_TMSUSPEND     0x02000000
+#define MQ_XA_TMSUCCESS     0x04000000
+#define MQ_XA_TMRESUME      0x08000000
 #define MQ_XA_TMFAIL        0x20000000
 #define MQ_XA_TMONEPHASE    0x40000000
 

@@ -1389,6 +1389,7 @@ class Item:
         self.label = label
         self.blurb = blurb
         self.mask = mask
+        self.mask_value_invalid = False
         self.strings = strings
         self.mask_exact_width = mask_exact_width
 
@@ -1553,6 +1554,7 @@ class Item:
                 # Didn't manage to parse, set to a full value to avoid warnings.
                 self.mask_value = 0xffffffff
                 self.mask_width = 32
+                self.mask_value_invalid = True
                 #print(self.filename, 'Could not read:', '"' + self.mask + '"')
                 return
 
@@ -1579,6 +1581,7 @@ class Item:
             # Didn't manage to parse, set to a full value to avoid warnings.
             self.mask_value = 0xffffffff
             self.mask_width = 32
+            self.mask_value_invalid = True
 
         #if not self.mask_read:
         #    print('Could not read:', self.mask)
@@ -2197,7 +2200,8 @@ def find_field_arrays(filename, all_fields, all_hf):
             combined_mask = 0x0
             for f in fields[0:-1]:
                 if f in all_hf:
-                    new_mask = all_hf[f].mask_value
+                    # Don't use invalid mask.
+                    new_mask = all_hf[f].mask_value if not all_hf[f].mask_value_invalid else 0
                     if new_mask & combined_mask:
                         print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
                         warnings_found += 1

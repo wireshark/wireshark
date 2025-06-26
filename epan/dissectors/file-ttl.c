@@ -1638,7 +1638,7 @@ proto_register_file_ttl(void) {
         { &hf_ttl_trace_data_entry_status_info_fr_res3,
             { "Reserved", "ttl.trace_data.entry.status_info.fr_res3", FT_UINT16, BASE_HEX, NULL, 0x07f0, NULL, HFILL } },
         { &hf_ttl_trace_data_entry_status_info_fr_pulse_flags,
-            { "FlexRay Flags", "ttl.trace_data.entry.status_info.fr_flags", FT_UINT16, BASE_HEX, NULL, 0xe808, NULL, HFILL } },
+            { "FlexRay Flags", "ttl.trace_data.entry.status_info.fr_pulse_flags", FT_UINT16, BASE_HEX, NULL, 0xe808, NULL, HFILL } },
         { &hf_ttl_trace_data_entry_status_info_fr_low_phase_exceeded,
             { "Low Phase Exceeded", "ttl.trace_data.entry.status_info.fr_flags.low_phase_exceeded", FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL } },
         { &hf_ttl_trace_data_entry_status_info_fr_res4,

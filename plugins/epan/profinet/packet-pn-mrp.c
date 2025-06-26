@@ -823,7 +823,7 @@ proto_register_pn_mrp (void)
 
     { &hf_pn_mrp_link_info,
       { "MRP_LinkInfo", "pn_mrp.linkinfo",
-        FT_UINT16, BASE_HEX, NULL, 0x0000,
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_pn_mrp_link_info_primary_secondary,

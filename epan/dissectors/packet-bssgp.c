@@ -7585,7 +7585,7 @@ proto_register_bssgp(void)
     ett[10] = &ett_bssgp_extended_feature_bitmap;
     ett[11] = &ett_bssgp_prio_class_ind;
 
-        last_offset = NUM_INDIVIDUAL_ELEMS;
+    last_offset = NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_BSSGP_ELEM; i++, last_offset++)
     {
