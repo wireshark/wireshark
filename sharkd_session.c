@@ -451,6 +451,8 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"iograph",    "aot8",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
         {"iograph",    "aot9",           2, JSMN_PRIMITIVE,    SHARKD_JSON_BOOLEAN,  SHARKD_OPTIONAL},
         {"load",       "file",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
+        {"load",       "max_packets",    2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
+        {"load",       "max_bytes",      2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_OPTIONAL},
         {"setcomment", "frame",          2, JSMN_PRIMITIVE,    SHARKD_JSON_UINTEGER, SHARKD_MANDATORY},
         {"setcomment", "comment",        2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_OPTIONAL},
         {"setconf",    "name",           2, JSMN_STRING,       SHARKD_JSON_STRING,   SHARKD_MANDATORY},
@@ -1293,12 +1295,44 @@ static void
 sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
 {
     const char *tok_file = json_find_attr(buf, tokens, count, "file");
+    const char *tok_max_packets = json_find_attr(buf, tokens, count, "max_packets");
+    const char *tok_max_bytes = json_find_attr(buf, tokens, count, "max_bytes");
     int err = 0;
+
+    uint32_t max_packets = 0;  /* 0 means unlimited */
+    uint64_t max_bytes = 0;    /* 0 means unlimited */
 
     if (!tok_file)
         return;
 
-    fprintf(stderr, "load: filename=%s\n", tok_file);
+    /* Parse optional max_packets parameter */
+    if (tok_max_packets)
+    {
+        if (!ws_strtou32(tok_max_packets, NULL, &max_packets))
+        {
+            sharkd_json_error(
+                    rpcid, -32602, NULL,
+                    "Invalid max_packets parameter"
+                    );
+            return;
+        }
+    }
+
+    /* Parse optional max_bytes parameter */
+    if (tok_max_bytes)
+    {
+        if (!ws_strtou64(tok_max_bytes, NULL, &max_bytes))
+        {
+            sharkd_json_error(
+                    rpcid, -32602, NULL,
+                    "Invalid max_bytes parameter"
+                    );
+            return;
+        }
+    }
+
+    fprintf(stderr, "load: filename=%s, max_packets=%u, max_bytes=%" PRIu64 "\n",
+            tok_file, max_packets, max_bytes);
 
     if (sharkd_cf_open(tok_file, WTAP_TYPE_AUTO, false, &err) != CF_OK)
     {
@@ -1311,7 +1345,14 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
 
     TRY
     {
-        err = sharkd_load_cap_file();
+        if (max_packets > 0 || max_bytes > 0)
+        {
+            err = sharkd_load_cap_file_with_limits((int)max_packets, (int64_t)max_bytes);
+        }
+        else
+        {
+            err = sharkd_load_cap_file();
+        }
     }
     CATCH(OutOfMemoryError)
     {

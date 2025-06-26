@@ -71,6 +71,111 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":1,"result":{"status":"Less data was read than was expected","err":-12}},
         ))
 
+    def test_sharkd_req_load_with_no_limits(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng')}
+             },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+        ))
+
+    def test_sharkd_req_load_with_zero_limits_is_error(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_packets":0, "max_bytes":0}
+             },
+        ), (
+           {"jsonrpc":"2.0", "id":1, "error": {"code": -32600, "message": "The value for max_packets must be a positive integer"}},
+        ))
+
+    def test_sharkd_req_load_with_packet_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_packets":10}
+             },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+        ))
+    
+    def test_sharkd_req_load_with_byte_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_bytes":8000}
+             },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+        ))
+
+    def test_sharkd_req_load_with_byte_and_packet_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_packets":10, "max_bytes":8000}
+             },
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+        ))
+
+    def test_sharkd_req_load_and_analyse_with_no_limits(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng')}
+             },
+             {"jsonrpc":"2.0", "id":2, "method":"analyse"},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 562, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
+                                        "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725515.56937}},
+        ))
+
+    def test_sharkd_req_load_and_analyse_with_packet_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_packets":10}
+             },
+             {"jsonrpc":"2.0", "id":2, "method":"analyse"},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 10, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
+                                        "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725491.490081}},
+        ))
+    
+    def test_sharkd_req_load_with_byte_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_bytes":8000}
+             },
+             {"jsonrpc":"2.0", "id":2, "method":"analyse"},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 23, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
+                                        "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725492.747414}},
+        ))
+
+    def test_sharkd_req_load_and_analyse_with_byte_and_packet_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_packets":10, "max_bytes":8000}
+             },
+             {"jsonrpc":"2.0", "id":2, "method":"analyse"},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 10, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
+                                        "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725491.490081}},
+        ))
+    
+    def test_sharkd_req_load_and_analyse_with_single_byte_limit(self, check_sharkd_session, capture_file):
+        check_sharkd_session((
+            {"jsonrpc":"2.0", "id": 1, "method":"load",
+             "params":{"file":capture_file('sip-rtp.pcapng'), "max_bytes":5}
+             },
+            {"jsonrpc":"2.0", "id":2, "method":"analyse"},
+        ), (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"frames": 1, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
+                                        "sip","sdp"], "first":1105725482.965944, "last": 1105725482.965944}},
+        ))
+
     def test_sharkd_req_status_no_pcap(self, check_sharkd_session):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"status"},

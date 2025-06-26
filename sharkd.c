@@ -475,6 +475,12 @@ sharkd_load_cap_file(void)
     return load_cap_file(&cfile, 0, 0);
 }
 
+int
+sharkd_load_cap_file_with_limits(int max_packet_count, int64_t max_byte_count)
+{
+    return load_cap_file(&cfile, max_packet_count, max_byte_count);
+}
+
 frame_data *
 sharkd_get_frame(uint32_t framenum)
 {
