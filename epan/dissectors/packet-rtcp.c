@@ -100,7 +100,6 @@ void proto_reg_handoff_rtcp(void);
 #define RTCP_CCFB_ATO(metric_block) ((metric_block) & 0x1FFF)
 
 #define RTCP_TRANSPORT_CC_HEADER_LENGTH   12
-static int rtcp_padding_set = 0;
 
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t srtcp_handle;
@@ -1045,6 +1044,7 @@ static const enum_val_t rtcp_default_protocol_vals[] = {
 };
 
 static int global_rtcp_default_protocol = RTCP_PROTO_RTCP;
+static bool global_rtcp_non_final_padding;
 
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
@@ -1901,7 +1901,6 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info
     {
         proto_tree_add_item( recv_delta_tree, hf_rtcp_rtpfb_transport_cc_fci_recv_delta_padding, tvb, offset, padding_length, ENC_BIG_ENDIAN );
         offset += padding_length;
-        rtcp_padding_set = 0;  /* consume RTCP padding here */
     }
 
     /* delta_array / pkt_seq_array will be freed out of pinfo->pool */
@@ -3394,13 +3393,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree 
     }
 
     /* Applications specific data */
-    if (rtcp_padding_set) {
-        /* If there's padding present, we have to remove that from the data part
-        * The last octet of the packet contains the length of the padding
-        */
-        packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
-    }
-
     if (is_ascii) {
         /* See if we can handle this application type */
         if (g_ascii_strncasecmp(ascii_name, poc1_app_name_str, 4) == 0)
@@ -3413,12 +3405,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree 
             offset += 4;
             packet_len -= 4;
             /* Applications specific data */
-            if (rtcp_padding_set) {
-                /* If there's padding present, we have to remove that from the data part
-                * The last octet of the packet contains the length of the padding
-                */
-                packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
-            }
             if (packet_len == 4)
             {
                 uint16_t local_port = 0;
@@ -3455,12 +3441,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree 
                 /* found subdissector - return tvb_reported_length */
                 offset += 4;
                 packet_len -= 4;
-                if (rtcp_padding_set) {
-                    /* If there's padding present, we have to remove that from the data part
-                    * The last octet of the packet contains the length of the padding
-                    */
-                    packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
-                }
                 if ((offset + packet_len) >= offset)
                     offset += packet_len;
                 return offset;
@@ -3471,12 +3451,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree 
                 offset += 4;
                 packet_len -= 4;
                 /* Applications specific data */
-                if (rtcp_padding_set) {
-                    /* If there's padding present, we have to remove that from the data part
-                    * The last octet of the packet contains the length of the padding
-                    */
-                    packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
-                }
                 if (tvb_ascii_isprint(tvb, offset, packet_len)) {
                     proto_tree_add_item(tree, hf_rtcp_app_data_str, tvb, offset, packet_len, ENC_ASCII);
                 } else {
@@ -3492,12 +3466,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree 
         offset += 4;
         packet_len -= 4;
         /* Applications specific data */
-        if (rtcp_padding_set) {
-            /* If there's padding present, we have to remove that from the data part
-            * The last octet of the packet contains the length of the padding
-            */
-            packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
-        }
         if (tvb_ascii_isprint(tvb, offset, packet_len)) {
             proto_tree_add_item(tree, hf_rtcp_app_data_str, tvb, offset, packet_len, ENC_ASCII);
         } else {
@@ -3744,13 +3712,6 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
     if (packet_len < 4) {
         proto_tree_add_expert(tree, pinfo, &ei_rtcp_missing_sender_ssrc, tvb, offset, packet_len);
         return offset + packet_len;
-    }
-
-    if (rtcp_padding_set) {
-        /* If there's padding present, we have to remove that from the data part
-        * The last octet of the packet contains the length of the padding
-        */
-        packet_len -= tvb_get_uint8(tvb, offset + packet_len - 1);
     }
 
     /* SSRC */
@@ -4886,6 +4847,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     uint32_t          srtcp_index         = 0;
     uint8_t           temp_byte;
     int proto_to_use = proto_rtcp;
+    int rtcp_padding_set = 0;
 
     temp_byte = tvb_get_uint8(tvb, offset);
     /* RFC 7983 gives current best practice in demultiplexing RT[C]P packets:
@@ -5012,12 +4974,6 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             show_setup_info(tvb, pinfo, rtcp_tree);
         }
 
-        if (rtcp_padding_set)
-        {
-            /* Padding can't yet be set, since there is another packet */
-            expert_add_info(pinfo, padding_item, &ei_rtcp_not_final_padding);
-        }
-
         temp_byte = tvb_get_uint8( tvb, offset );
 
         proto_tree_add_item( rtcp_tree, hf_rtcp_version, tvb,
@@ -5027,6 +4983,31 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         padding_item = proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
                                                offset, 1, temp_byte );
+        if (rtcp_padding_set) {
+            if (tvb_reported_length_remaining(tvb, offset) >= packet_length + 4) {
+                /* Padding can't yet be set, since there is another packet */
+                expert_add_info(pinfo, padding_item, &ei_rtcp_not_final_padding);
+                /* Process the padding anyway or not? RFC 3550 6.4.1 mentions
+                 * early implementations that set the padding bit on earlier
+                 * packets but still only added padding to the last one. */
+                rtcp_padding_set = global_rtcp_non_final_padding;
+            }
+        }
+        if (rtcp_padding_set) {
+            if (tvb_bytes_exist(tvb, padding_offset, 1)) {
+                /* If we know the size of the padding, subtract it from the
+                 * packet length, so that packet types with optional extensions
+                 * of unknown length don't consume the padding.
+                 *
+                 * If the padding offset doesn't exist (possibly because the
+                 * capture was truncated), or is too large then we'll throw an
+                 * exception later either when trying to consume the remaining
+                 * opaque bytes or add the padding.
+                 */
+                packet_length -= tvb_get_uint8(tvb, padding_offset);
+            }
+        }
+
         elem_count = RTCP_COUNT( temp_byte );
 
         switch ( packet_type ) {
@@ -5174,29 +5155,31 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         }
 
         col_set_fence(pinfo->cinfo, COL_INFO);
-    }
-    /* If the padding bit is set, the last octet of the
-     * packet contains the length of the padding
-     * We only have to check for this at the end of the LAST RTCP message
-     */
-    if ( rtcp_padding_set ) {
-        unsigned padding_length;
-        /* The last RTCP message in the packet has padding - find it.
-         *
-         * The padding count is found at an offset of padding_offset; it
-         * contains the number of padding octets, including the padding
-         * count itself.
-         */
-        padding_length = tvb_get_uint8( tvb, padding_offset);
 
-        /* This length includes the padding length byte itself, so 0 is not
-         * a valid value. */
-        if (padding_length != 0) {
-            proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, padding_length - 1, ENC_NA );
-            offset += padding_length - 1;
+        /* If the padding bit is set, the last octet of the
+         * packet contains the length of the padding
+         * Per RFC 3550 this should only be at the end of the LAST RTCP message,
+         * but accommodate certain buggy implementations if told to.
+         */
+        if ( rtcp_padding_set ) {
+            unsigned padding_length;
+            /* The [last] RTCP message in the packet has padding - find it.
+             *
+             * The padding count is found at an offset of padding_offset; it
+             * contains the number of padding octets, including the padding
+             * count itself.
+             */
+            padding_length = tvb_get_uint8( tvb, padding_offset);
+
+            /* This length includes the padding length byte itself, so 0 is not
+             * a valid value. */
+            if (padding_length != 0) {
+                proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, padding_length - 1, ENC_NA );
+                offset += padding_length - 1;
+            }
+            proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, ENC_BIG_ENDIAN );
+            offset++;
         }
-        proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, ENC_BIG_ENDIAN );
-        offset++;
     }
 
     /* If the payload was encrypted, the main payload was not dissected.
@@ -8907,6 +8890,13 @@ proto_register_rtcp(void)
         "Decode Application subtype as",
         "Decode the subtype as this application",
         &preferences_application_specific_encoding, rtcp_application_specific_encoding_vals, false);
+
+    prefs_register_bool_preference(rtcp_module, "non_final_padding",
+        "Dissect padding in packets before the last in a compound packet",
+        "Whether to allow padding in individual packets before the last in "
+        "a compound packet, or to ignore when the padding bit is incorrectly "
+        "set on earlier packets",
+        &global_rtcp_non_final_padding);
 
     /* Register table for sub-dissectors */
     rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTCP Application Name", proto_rtcp, FT_STRING, STRING_CASE_SENSITIVE);
