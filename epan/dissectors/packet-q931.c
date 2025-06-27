@@ -2549,7 +2549,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     val_to_str(info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
     proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element,
                             "%s", val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
-    proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
     first_frag = (tvb_get_uint8(tvb, offset + 2) & 0x80) != 0;
     more_frags = (tvb_get_uint8(tvb, offset + 2) & 0x7F) != 0;

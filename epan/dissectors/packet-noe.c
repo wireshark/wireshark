@@ -1121,7 +1121,7 @@ static void decode_tlv(proto_tree *tree,
         }
         else
         {
-            proto_tree_add_item(property_tree, hf_noe_psize, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(property_tree, hf_noe_psize, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             length -= 1;
         }

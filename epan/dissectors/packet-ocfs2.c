@@ -1389,7 +1389,7 @@ void proto_register_ocfs2(void)
 			}
 		},
 		{ &hf_dlm_fr_flags,
-			{ "Flags", "ocfs2.dlm.fr_flags", FT_UINT32, BASE_HEX,
+			{ "Flags", "ocfs2.dlm.fr_flags", FT_UINT8, BASE_HEX,
 			  VALS(dlm_finalize_reco_flags), 0x0,
 			  "Finalize Recovery Flags", HFILL
 			}

@@ -2210,7 +2210,7 @@ mysql_dissect_exec_string(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offs
 	uint64_t param_len;
 
 	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_string_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_string_length, tvb, *param_offset, lenfle, ENC_BIG_ENDIAN);
 	*param_offset += lenfle;
 
 	if (encoding == ENC_NA) {
@@ -2230,7 +2230,7 @@ mysql_dissect_exec_bit(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset,
 	uint64_t param_len;
 
 	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_bit_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_bit_length, tvb, *param_offset, lenfle, ENC_BIG_ENDIAN);
 	*param_offset += lenfle;
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_field_bit,
@@ -2245,7 +2245,7 @@ mysql_dissect_exec_blob(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_offset
 	uint64_t param_len;
 
 	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_blob_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_blob_length, tvb, *param_offset, lenfle, ENC_BIG_ENDIAN);
 	*param_offset += lenfle;
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_field_blob,
@@ -2260,7 +2260,7 @@ mysql_dissect_exec_geometry(tvbuff_t *tvb, packet_info *pinfo _U_, int *param_of
 	uint64_t param_len;
 
 	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_geometry_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_geometry_length, tvb, *param_offset, lenfle, ENC_BIG_ENDIAN);
 	*param_offset += lenfle;
 
 	proto_tree_add_item(field_tree, hf_mysql_exec_field_geometry,
@@ -2278,7 +2278,7 @@ mysql_dissect_exec_json(tvbuff_t *tvb, packet_info *pinfo, int *param_offset, pr
 
 	json_handle = find_dissector("json");
 	lenfle = tvb_get_fle(tvb, field_tree, *param_offset, &param_len, NULL);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_json_length, tvb, *param_offset, lenfle, ENC_ASCII);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_json_length, tvb, *param_offset, lenfle, ENC_BIG_ENDIAN);
 	*param_offset += lenfle;
 
 	next_tvb = tvb_new_subset_length(tvb, *param_offset, (int)param_len);
@@ -2573,7 +2573,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 			// suggests n_params is length encoded. Use tvb_get_fle?
 			// (More than 250 parameters *does* seem unlikely.)
 			int n_params = tvb_get_uint8(tvb, offset);
-			proto_tree_add_item(req_tree, hf_mysql_num_params, tvb, offset, 1, ENC_ASCII);
+			proto_tree_add_item(req_tree, hf_mysql_num_params, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			if ((n_params > 0) && (n_params <= 250)) {
@@ -2581,7 +2581,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 				proto_tree_add_item(req_tree, hf_mysql_unused, tvb, offset, null_count, ENC_NA);
 				offset += null_count;
 
-				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_ASCII);
+				proto_tree_add_item(req_tree, hf_mysql_new_parameter_bound_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 
 				unsigned encoding = my_frame_data->encoding_client;

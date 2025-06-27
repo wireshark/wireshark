@@ -2051,21 +2051,21 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Antenna B RSSI, or 100 if absent */
     dbm = tvb_get_int8(tvb, offset);
     if (dbm != 100) {
-        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antb, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antb, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset++;
 
     /* Antenna C RSSI, or 100 if absent */
     dbm = tvb_get_int8(tvb, offset);
     if (dbm != 100) {
-        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antc, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset++;
 
     /* Antenna D RSSI, or 100 if absent */
     dbm = tvb_get_int8(tvb, offset);
     if (dbm != 100) {
-        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antd, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset+=2;  /* also skips padding octet */
 
@@ -2444,18 +2444,18 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 tvb, offset, 1, ENC_NA);
     else
         proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_anta,
-                                tvb, offset, 1, ENC_NA);
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     dbm = tvb_get_int8(tvb, offset);
     if (dbm != 100) {
         if (cmd_type != 1)
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antb,
-                                        tvb, offset, 1, ENC_NA);
+                                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
         else
             proto_tree_add_item(vw_l1info_tree,
                                     hf_radiotap_dbm_tx_antb,
-                                    tvb, offset, 1, ENC_NA);
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset++;
 
@@ -2463,10 +2463,10 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (dbm != 100) {
         if (cmd_type != 1)
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antc,
-                                    tvb, offset, 1, ENC_NA);
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
         else
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_antc,
-                                    tvb, offset, 1, ENC_NA);
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset++;
 
@@ -2474,11 +2474,11 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (dbm != 100) {
         if (cmd_type != 1)
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antd,
-                                    tvb, offset, 1, ENC_NA);
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
         else
             proto_tree_add_item(vw_l1info_tree,
                                     hf_radiotap_dbm_tx_antd,
-                                    tvb, offset, 1, ENC_NA);
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset++;
 
@@ -2835,7 +2835,7 @@ wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset++;
 
     proto_tree_add_item_ret_uint(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
-                                 tvb, offset, 1, ENC_NA, &vw_seqnum);
+                                 tvb, offset, 1, ENC_LITTLE_ENDIAN, &vw_seqnum);
     offset++;
     if (flowv == 1)
     {
@@ -3540,7 +3540,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
 
     { &hf_radiotap_dbm_anta,
         { "SSI Signal for Antenna A", "ixveriwave.dbm_anta",
-        FT_INT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
+        FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
     { &hf_radiotap_dbm_antb,
         { "SSI Signal for Antenna B", "ixveriwave.dbm_antb",

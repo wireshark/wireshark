@@ -1383,7 +1383,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	if (!tvb_bytes_exist(tvb, 0, 4)) {
 		if (session && session->spdu_type != SES_MAJOR_SYNC_POINT) {
 			proto_tree_add_item(parent_tree, hf_pres_user_data, tvb, offset,
-					    tvb_reported_length_remaining(tvb,offset), ENC_NA);
+					tvb_reported_length_remaining(tvb,offset), ENC_BIG_ENDIAN);
 			return 0;  /* no, it isn't a presentation PDU */
 		}
 	}
