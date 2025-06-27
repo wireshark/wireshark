@@ -77,6 +77,7 @@ static int hf_mbtcp_len;
 static int hf_mbtcp_unitid;
 static int hf_modbus_request_frame;
 static int hf_modbus_response_time;
+static int hf_modbus_exception;
 static int hf_modbus_functioncode;
 static int hf_modbus_reference;
 static int hf_modbus_padding;
@@ -163,6 +164,8 @@ static int ett_register;
 static expert_field ei_mbrtu_crc16_incorrect;
 static expert_field ei_modbus_data_decode;
 static expert_field ei_mbtcp_cannot_classify;
+static expert_field ei_mbtcp_invalid_protocol_id;
+static expert_field ei_mbtcp_invalid_length;
 
 static dissector_handle_t modbus_handle;
 static dissector_handle_t mbtcp_handle;
@@ -415,31 +418,40 @@ static int
 dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto, range_t *ports)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *mi;
+    proto_item    *mi, *mbtcp_tree_item;
     proto_tree    *mbtcp_tree;
-    int           offset;
     tvbuff_t      *next_tvb;
     const char    *func_string;
     const char    *pkt_type_str = "";
-    const char    *err_str = "";
-    uint16_t      transaction_id, protocol_id, len;
-    uint8_t       unit_id, function_code, exception_code, subfunction_code;
+    const char    *err_str = NULL;
+    uint32_t      transaction_id, protocol_id, len, unit_id;
+    uint8_t       function_exception_code, function_code, exception_code = 0, subfunction_code;
     modbus_data_t modbus_data;
 
-    transaction_id = tvb_get_ntohs(tvb, 0);
-    protocol_id = tvb_get_ntohs(tvb, 2);
     len = tvb_get_ntohs(tvb, 4);
 
-    unit_id = tvb_get_uint8(tvb, 6);
-    function_code = tvb_get_uint8(tvb, 7) & 0x7F;
+    /* Create protocol tree */
+    mi = proto_tree_add_item(tree, proto, tvb, 0, len + 6, ENC_NA);
+    mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
 
-    offset = 0;
+    /* Add items to protocol tree specific to Modbus/TCP */
+    proto_tree_add_item_ret_uint(mbtcp_tree, hf_mbtcp_transid, tvb, 0, 2, ENC_BIG_ENDIAN, &transaction_id);
+    mbtcp_tree_item = proto_tree_add_item_ret_uint(mbtcp_tree, hf_mbtcp_protid, tvb, 2, 2, ENC_BIG_ENDIAN, &protocol_id);
+    if (protocol_id != 0)
+        expert_add_info(pinfo, mbtcp_tree_item, &ei_mbtcp_invalid_protocol_id);
+    mbtcp_tree_item = proto_tree_add_uint(mbtcp_tree, hf_mbtcp_len, tvb, 4, 2, len);
+    if (len < 2 || len > 254)
+        expert_add_info(pinfo, mbtcp_tree_item, &ei_mbtcp_invalid_length);
+    proto_tree_add_item_ret_uint(mbtcp_tree, hf_mbtcp_unitid, tvb, 6, 1, ENC_BIG_ENDIAN, &unit_id);
+
+    function_exception_code = tvb_get_uint8(tvb, 7);
+    function_code = function_exception_code & 0x7F;
 
     /* "Request" or "Response" */
     modbus_data.packet_type = classify_mbtcp_packet(pinfo, ports);
     /* Save the transaction and unit id to find the request to a response */
-    modbus_data.mbtcp_transid = transaction_id;
-    modbus_data.unit_id = unit_id;
+    modbus_data.mbtcp_transid = (uint16_t)transaction_id;
+    modbus_data.unit_id = (uint8_t)unit_id;
 
     switch ( modbus_data.packet_type ) {
         case QUERY_PACKET :
@@ -451,25 +463,25 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         case CANNOT_CLASSIFY :
             err_str="Unable to classify as query or response.";
             pkt_type_str="unknown";
+            expert_add_info(pinfo, mi, &ei_mbtcp_cannot_classify);
             break;
         default :
             break;
     }
 
     /* Find exception - last bit set in function code */
-    if (tvb_get_uint8(tvb, 7) & 0x80) {
-        exception_code = tvb_get_uint8(tvb, offset + 8);
-    }
-    else {
-        exception_code = 0;
+    if (function_exception_code & 0x80) {
+        exception_code = tvb_get_uint8(tvb, 8);
+        if (exception_code != 0)
+            err_str = "Exception returned ";
     }
 
     if ((function_code == ENCAP_INTERFACE_TRANSP) && (exception_code == 0))  {
-        func_string = val_to_str_const(tvb_get_uint8(tvb, offset + 8), encap_interface_code_vals, "Encapsulated Interface Transport");
+        func_string = val_to_str_const(tvb_get_uint8(tvb, 8), encap_interface_code_vals, "Encapsulated Interface Transport");
         subfunction_code = 1;
     }
     else if ((function_code == DIAGNOSTICS) && (exception_code == 0))  {
-        func_string = val_to_str_const(tvb_get_ntohs(tvb, offset + 8), diagnostic_code_vals, "Diagnostics");
+        func_string = val_to_str_const(tvb_get_ntohs(tvb, 8), diagnostic_code_vals, "Diagnostics");
         subfunction_code = 1;
     }
     else {
@@ -477,12 +489,9 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         subfunction_code = 0;
     }
 
-    if ( exception_code != 0 )
-        err_str="Exception returned ";
-
     /* Make entries in Info column on summary display */
     if (subfunction_code == 0) {
-        if (strlen(err_str) > 0) {
+        if (err_str != NULL) {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                     "%8s: Trans: %5u; Unit: %3u, Func: %3u: %s. %s",
                     pkt_type_str, transaction_id, unit_id,
@@ -496,7 +505,7 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         }
     }
     else {
-        if (strlen(err_str) > 0) {
+        if (err_str != NULL) {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                     "%8s: Trans: %5u; Unit: %3u, Func: %3u/%3u: %s. %s",
                     pkt_type_str, transaction_id, unit_id,
@@ -510,24 +519,11 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         }
     }
 
-    /* Create protocol tree */
-    mi = proto_tree_add_item(tree, proto, tvb, offset, len+6, ENC_NA);
-    mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
-
-    if (modbus_data.packet_type == CANNOT_CLASSIFY)
-        expert_add_info(pinfo, mi, &ei_mbtcp_cannot_classify);
-
-    /* Add items to protocol tree specific to Modbus/TCP */
-    proto_tree_add_uint(mbtcp_tree, hf_mbtcp_transid, tvb, offset, 2, transaction_id);
-    proto_tree_add_uint(mbtcp_tree, hf_mbtcp_protid, tvb, offset + 2, 2, protocol_id);
-    proto_tree_add_uint(mbtcp_tree, hf_mbtcp_len, tvb, offset + 4, 2, len);
-    proto_tree_add_uint(mbtcp_tree, hf_mbtcp_unitid, tvb, offset + 6, 1, unit_id);
-
     /* dissect the Modbus PDU */
-    next_tvb = tvb_new_subset_length( tvb, offset+7, len-1);
+    next_tvb = tvb_new_subset_length( tvb, 7, len-1);
 
     /* Continue with dissection of Modbus data payload following Modbus/TCP frame */
-    if( tvb_reported_length_remaining(tvb, offset) > 0 )
+    if( tvb_reported_length(next_tvb) > 0 )
         call_dissector_with_data(modbus_handle, next_tvb, pinfo, tree, &modbus_data);
 
     return tvb_captured_length(tvb);
@@ -773,25 +769,37 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 }
 
+static bool
+is_mbtcp(tvbuff_t* tvb, packet_info* pinfo)
+{
+    bool is_mbtcp = true;
+
+    /* Make sure there's at least enough data to determine it's a Modbus TCP packet */
+    if (!tvb_bytes_exist(tvb, 0, 8))
+        return false;
+
+    /* check that it actually looks like Modbus/TCP */
+    /* protocol id == 0 */
+    if (tvb_get_ntohs(tvb, 2) != 0)
+        is_mbtcp = false;
+
+    /* length is at least 2 (unit_id + function_code) */
+    if (tvb_get_ntohs(tvb, 4) < 2)
+        is_mbtcp = false;
+
+    /* Since Modbus/TCP is IANA registered on PORT_MBTCP (for both tcp and udp), give it the benefit of the doubt */
+    if ((!is_mbtcp) && (pinfo->srcport != PORT_MBTCP) && (pinfo->destport != PORT_MBTCP))
+        return false;
+
+    return true;
+}
 
 /* Code to dissect Modbus/TCP messages */
 static int
 dissect_mbtcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, dissector_t dissect_pdu)
 {
-
-    /* Make sure there's at least enough data to determine it's a Modbus TCP packet */
-    if (!tvb_bytes_exist(tvb, 0, 8))
+    if (!is_mbtcp(tvb, pinfo))
         return 0;
-
-    /* check that it actually looks like Modbus/TCP */
-    /* protocol id == 0 */
-    if(tvb_get_ntohs(tvb, 2) != 0 ){
-        return 0;
-    }
-    /* length is at least 2 (unit_id + function_code) */
-    if(tvb_get_ntohs(tvb, 4) < 2 ){
-        return 0;
-    }
 
     /* build up protocol tree and iterate over multiple packets */
     tcp_dissect_pdus(tvb, pinfo, tree, mbtcp_desegment, 6,
@@ -815,20 +823,8 @@ dissect_mbtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_mbudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
-    /* Make sure there's at least enough data to determine it's a Modbus UDP packet */
-    if (!tvb_bytes_exist(tvb, 0, 8))
+    if (!is_mbtcp(tvb, pinfo))
         return 0;
-
-    /* check that it actually looks like Modbus/TCP */
-    /* protocol id == 0 */
-    if(tvb_get_ntohs(tvb, 2) != 0 ){
-        return 0;
-    }
-    /* length is at least 2 (unit_id + function_code) */
-    if(tvb_get_ntohs(tvb, 4) < 2 ){
-        return 0;
-    }
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/UDP");
@@ -1600,6 +1596,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     modbus_tree = proto_item_add_subtree(mi, ett_modbus_hdr);
 
     function_code = tvb_get_uint8(tvb, offset) & 0x7F;
+    proto_tree_add_item(modbus_tree, hf_modbus_exception, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(modbus_tree, hf_modbus_functioncode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Conversation support */
@@ -1767,6 +1764,14 @@ proto_register_modbus(void)
           { "mbtcp.cannot_classify", PI_PROTOCOL, PI_WARN,
             "Cannot classify packet type. Try setting Modbus/TCP Port preference to this destination or source port", EXPFILL }
         },
+        { &ei_mbtcp_invalid_protocol_id,
+          { "mbtcp.invalid_prot_id", PI_PROTOCOL, PI_WARN,
+            "Invalid protocol ID", EXPFILL }
+        },
+        { &ei_mbtcp_invalid_length,
+          { "mbtcp.invalid_len", PI_PROTOCOL, PI_WARN,
+            "Invalid length", EXPFILL }
+        },
     };
 
     /* Modbus RTU header fields */
@@ -1808,6 +1813,11 @@ proto_register_modbus(void)
             FT_RELATIVE_TIME, BASE_NONE,
             NULL, 0x0,
             "Time between request and reply", HFILL }
+        },
+        { &hf_modbus_exception,
+            { "Exception", "modbus.exception",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+            NULL, HFILL }
         },
         { &hf_modbus_functioncode,
             { "Function Code", "modbus.func_code",
