@@ -2773,13 +2773,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
             break;
 
         case UDS_SERVICES_RDBPI:
-            if (sid & UDS_REPLY_MASK) {
-                proto_tree_add_item(uds_tree, hf_uds_rdbpi_periodic_data_identifier, tvb, offset, 1, ENC_NA);
-                offset += 1;
-
-                proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, data_length - offset, ENC_NA);
-                offset = data_length;
-            } else {
+            if ((sid & UDS_REPLY_MASK) == 0) {
                 unsigned transmission_mode;
                 proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdbpi_transmission_mode, tvb, offset, 1, ENC_NA, &transmission_mode);
                 offset += 1;
