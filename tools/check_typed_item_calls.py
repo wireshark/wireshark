@@ -154,7 +154,8 @@ compatible_encoding_args = {
                           'ENC_EUC_KR',
                           'ENC_DECT_STANDARD_8BITS',
                           'ENC_DECT_STANDARD_4BITS_TBCD',
-                          'ENC_STR_HEX'   # Should also have at least one ENC_SEP_* flag!
+                          'ENC_STR_HEX',       # Should also have at least one ENC_SEP_* flag!
+                          'ENC_LITTLE_ENDIAN'  # Only meaniningful for some encodings (ENC_UTF_16, ENC_UCS_2, ENC_UCS_4)
                           ]),
 
     'FT_CHAR' :      set(['ENC_ASCII', 'ENC_VARIANT_QUIC', 'ENC_ASCII_7BITS']),  # TODO: others?
@@ -197,10 +198,10 @@ compatible_encoding_args = {
                                'ENC_TIME_MSECS', 'ENC_TIME_USECS', 'ENC_TIME_NSECS'])
 }
 
+# TODO: look into FT_STRINGZPAD, FT_STRINGZTRUNC, FT_UINT_STRING
 compatible_encoding_args['FT_STRINGZ'] = compatible_encoding_args['FT_STRING']
 
-
-compatible_encoding_multiple_flags_allowed = set(['FT_ABSOLUTE_TIME', 'FT_RELATIVE_TIME', 'FT_STRING'])
+compatible_encoding_multiple_flags_allowed = set(['FT_ABSOLUTE_TIME', 'FT_RELATIVE_TIME', 'FT_STRING', 'FT_STRINGZ'])
 
 class EncodingCheckerBasic:
     def __init__(self, type, allowed_encodings, allow_multiple):
