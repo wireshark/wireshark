@@ -1889,13 +1889,14 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
                 cPRB -= (1<<iq_width);
             }
 
-            /* Unscale */
+            /* Unscale (8.1.3.1) */
             cPRB *= scaler;
             if (show_unscaled_values) {
                 return (float)cPRB;
             }
-            uint32_t mantissa_scale_factor = (1 << (iq_width-1)) - 1;
-            uint32_t exp_scale_factor = 1 << (iq_width+4);
+
+            uint32_t mantissa_scale_factor = 1 << (iq_width-1); /* 2^(mantissabits-1) */
+            uint32_t exp_scale_factor = 1 << 15;  /* 2^(2^exponentbits - 1 ) The exponent bit width is fixed to 4, so the maximum exponent is 15 */
 
             float ret = cPRB / ((float)(mantissa_scale_factor*exp_scale_factor));
             return ret;
