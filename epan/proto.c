@@ -6834,6 +6834,9 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	fi->hfinfo     = hfinfo;
 	fi->start      = start;
 	fi->start     += (tvb)?tvb_raw_offset(tvb):0;
+	/* add the data source tvbuff */
+	fi->ds_tvb = tvb ? tvb_get_ds_tvb(tvb) : NULL;
+
 	// If our start offset hasn't advanced after adding many items it probably
 	// means we're in a large or infinite loop.
 	if (fi->start > 0) {
@@ -6859,9 +6862,6 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	}
 	fi->value = fvalue_new(fi->hfinfo->type);
 	fi->rep        = NULL;
-
-	/* add the data source tvbuff */
-	fi->ds_tvb = tvb ? tvb_get_ds_tvb(tvb) : NULL;
 
 	fi->appendix_start  = 0;
 	fi->appendix_length = 0;
