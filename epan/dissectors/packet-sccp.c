@@ -1916,7 +1916,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 }
 
 static int
-dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, unsigned offset,
+dissect_sccp_3byte_pc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *call_tree, unsigned offset,
                       bool called)
 {
   int hf_pc;
@@ -1935,7 +1935,7 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, unsigned offset,
   }
 
   /* create and fill the PC tree */
-  dissect_mtp3_3byte_pc(tvb, offset, call_tree,
+  dissect_mtp3_3byte_pc(tvb, pinfo, offset, call_tree,
                         called ? ett_sccp_called_pc : ett_sccp_calling_pc,
                         hf_pc,
                         called ? hf_sccp_called_pc_network : hf_sccp_calling_pc_network,
@@ -2063,7 +2063,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                             length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
           return;
         }
-        offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+        offset = dissect_sccp_3byte_pc(tvb, pinfo, call_tree, offset, called);
 
       }
     }
@@ -2184,7 +2184,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* Dissect PC (if present) */
     if (pci) {
-      offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+      offset = dissect_sccp_3byte_pc(tvb, pinfo, call_tree, offset, called);
     }
 
     /* Dissect GT (if present) */

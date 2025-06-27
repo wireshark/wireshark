@@ -416,7 +416,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
 #define AFFECTED_DPC_OFFSET  1
 
 static void
-dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   uint16_t number_of_destinations, destination_number;
   int destination_offset;
@@ -428,7 +428,7 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
     proto_tree_add_item(parameter_tree, hf_affected_point_code_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, ENC_BIG_ENDIAN);
     item = proto_tree_add_item(parameter_tree, hf_affected_point_code_pc,   parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
-      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
     destination_offset += AFFECTED_DESTINATION_LENGTH;
   }
   proto_item_append_text(parameter_item, " (%u destination%s)", number_of_destinations, plurality(number_of_destinations, "", "s"));
@@ -853,15 +853,15 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 #define CON_DEST_PC_OFFSET          (CON_DEST_RESERVED_OFFSET + CON_DEST_RESERVED_LENGTH)
 
 static void
-dissect_concerned_destination_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_concerned_destination_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *item;
 
   proto_tree_add_item(parameter_tree, hf_concerned_dest_reserved, parameter_tvb, CON_DEST_RESERVED_OFFSET, CON_DEST_RESERVED_LENGTH, ENC_NA);
   item = proto_tree_add_item(parameter_tree, hf_concerned_dest_pc,       parameter_tvb, CON_DEST_PC_OFFSET,       CON_DEST_PC_LENGTH,       ENC_BIG_ENDIAN);
   if (mtp3_pc_structured())
-    proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
-  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
+    proto_item_append_text(item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
 }
 
 static void
@@ -970,15 +970,15 @@ dissect_local_routing_key_identifier_parameter(tvbuff_t *parameter_tvb, proto_tr
 #define DPC_PC_OFFSET      (DPC_MASK_OFFSET + DPC_MASK_LENGTH)
 
 static void
-dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *item;
 
   proto_tree_add_item(parameter_tree, hf_dpc_mask, parameter_tvb, DPC_MASK_OFFSET, DPC_MASK_LENGTH, ENC_BIG_ENDIAN);
   item = proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   ENC_BIG_ENDIAN);
   if (mtp3_pc_structured())
-    proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
-  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
+    proto_item_append_text(item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
 }
 
 #define SI_LENGTH 1
@@ -1027,7 +1027,7 @@ dissect_subsystem_numbers_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 #define OPC_PC_OFFSET               (OPC_MASK_OFFSET + OPC_MASK_LENGTH)
 
 static void
-dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   uint16_t length, number_of_point_codes, point_code_number;
   int point_code_offset;
@@ -1041,7 +1041,7 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
     proto_tree_add_item(parameter_tree, hf_opc_list_mask, parameter_tvb, point_code_offset + OPC_MASK_OFFSET, OPC_MASK_LENGTH, ENC_BIG_ENDIAN);
     item = proto_tree_add_item(parameter_tree, hf_opc_list_pc,   parameter_tvb, point_code_offset + OPC_PC_OFFSET,   OPC_PC_LENGTH,   ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
-      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, point_code_offset + OPC_PC_OFFSET)));
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, point_code_offset + OPC_PC_OFFSET)));
     point_code_offset += OPC_LENGTH;
   };
   proto_item_append_text(parameter_item, " (%u point code%s)", number_of_point_codes, plurality(number_of_point_codes, "", "s"));
@@ -1058,7 +1058,7 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
 #define CIC_RANGE_UPPER_OFFSET            (CIC_RANGE_LOWER_OFFSET + CIC_RANGE_LOWER_LENGTH)
 
 static void
-dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   uint16_t length, number_of_point_codes, point_code_number, cic_low, cic_high;
   uint32_t pc;
@@ -1077,7 +1077,7 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
     proto_tree_add_item(cic_range_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  ENC_BIG_ENDIAN);
 
     pc = tvb_get_ntoh24(parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET);
-    pc_string = mtp3_pc_to_str(pc);
+    pc_string = mtp3_pc_to_str(pinfo->pool, pc);
     pc_item = proto_tree_add_item(cic_range_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
       proto_item_append_text(pc_item, " (%s)", pc_string);
@@ -1212,7 +1212,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   if (parameter_tree) {
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
-      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(opc));
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(pinfo->pool, opc));
     if(mtp3_tap->addr_opc.ni == MTP3_NI_INT0) {
         q708_tree = proto_item_add_subtree(item,ett_q708_opc);
         /*  Q.708 (1984-10)  Numbering of International Signalling Point Codes  */
@@ -1221,7 +1221,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
-      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(dpc));
+      proto_item_append_text(item, " (%s)", mtp3_pc_to_str(pinfo->pool, dpc));
     if(mtp3_tap->addr_dpc.ni == MTP3_NI_INT0) {
         q708_tree = proto_item_add_subtree(item,ett_q708_dpc);
         analyze_q708_ispc(parameter_tvb, q708_tree, DATA_DPC_OFFSET, DATA_DPC_LENGTH, dpc);
@@ -1414,7 +1414,7 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_info_string_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V5_AFFECTED_DESTINATIONS_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_affected_destinations_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V5_ROUTING_CONTEXT_PARAMETER_TAG:
     dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1545,7 +1545,7 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_info_string_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V6_AFFECTED_DESTINATIONS_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_affected_destinations_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V6_ROUTING_CONTEXT_PARAMETER_TAG:
     dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1575,7 +1575,7 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V6_CONCERNED_DESTINATION_PARAMETER_TAG:
-    dissect_concerned_destination_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_concerned_destination_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V6_ROUTING_KEY_PARAMETER_TAG:
     dissect_routing_key_parameter(parameter_tvb, pinfo, tree, parameter_tree);
@@ -1590,7 +1590,7 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V6_DESTINATION_POINT_CODE_PARAMETER_TAG:
-    dissect_destination_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_destination_point_code_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V6_SERVICE_INDICATORS_PARAMETER_TAG:
     dissect_service_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1599,10 +1599,10 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_subsystem_numbers_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V6_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG:
-    dissect_originating_point_code_list_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_originating_point_code_list_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V6_CIRCUIT_RANGE_PARAMETER_TAG:
-    dissect_circuit_range_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_circuit_range_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V6_REGISTRATION_RESULTS_PARAMETER_TAG:
     dissect_registration_results_parameter(parameter_tvb, pinfo, tree, parameter_tree);
@@ -1713,7 +1713,7 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_info_string_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V7_AFFECTED_DESTINATIONS_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_affected_destinations_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V7_ROUTING_CONTEXT_PARAMETER_TAG:
     dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1743,7 +1743,7 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V7_CONCERNED_DESTINATION_PARAMETER_TAG:
-    dissect_concerned_destination_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_concerned_destination_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V7_ROUTING_KEY_PARAMETER_TAG:
     dissect_routing_key_parameter(parameter_tvb, pinfo, tree, parameter_tree);
@@ -1758,7 +1758,7 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V7_DESTINATION_POINT_CODE_PARAMETER_TAG:
-    dissect_destination_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_destination_point_code_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V7_SERVICE_INDICATORS_PARAMETER_TAG:
     dissect_service_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1767,10 +1767,10 @@ dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_subsystem_numbers_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V7_ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG:
-    dissect_originating_point_code_list_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_originating_point_code_list_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V7_CIRCUIT_RANGE_PARAMETER_TAG:
-    dissect_circuit_range_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_circuit_range_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V7_REGISTRATION_RESULTS_PARAMETER_TAG:
     dissect_registration_results_parameter(parameter_tvb, pinfo, tree, parameter_tree);
@@ -1893,7 +1893,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case AFFECTED_POINT_CODE_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_affected_destinations_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case NETWORK_APPEARANCE_PARAMETER_TAG:
     dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1905,7 +1905,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_congestion_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case CONCERNED_DESTINATION_PARAMETER_TAG:
-    dissect_concerned_destination_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_concerned_destination_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case ROUTING_KEY_PARAMETER_TAG:
     dissect_routing_key_parameter(parameter_tvb, pinfo, tree, parameter_tree);
@@ -1920,16 +1920,16 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
     dissect_local_routing_key_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case DESTINATION_POINT_CODE_PARAMETER_TAG:
-    dissect_destination_point_code_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_destination_point_code_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case SERVICE_INDICATORS_PARAMETER_TAG:
     dissect_service_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ORIGINATING_POINT_CODE_LIST_PARAMETER_TAG:
-    dissect_originating_point_code_list_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_originating_point_code_list_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case CIRCUIT_RANGE_PARAMETER_TAG:
-    dissect_circuit_range_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_circuit_range_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_PARAMETER_TAG:
     dissect_protocol_data_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);

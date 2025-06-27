@@ -227,64 +227,55 @@ const value_string mtp3_network_indicator_vals[] = {
  * helper routine to format a point code in structured form
  */
 
-static void
-mtp3_pc_to_str_buf(const uint32_t pc, char *buf, int buf_len)
+char*
+mtp3_pc_to_str(wmem_allocator_t* allocator, const uint32_t pc)
 {
   switch (mtp3_standard)
   {
     case ITU_STANDARD:
       switch (itu_pc_structure) {
         case ITU_PC_STRUCTURE_NONE:
-          snprintf(buf, buf_len, "%u", pc);
-          break;
+          return wmem_strdup_printf(allocator, "%u", pc);
+
         case ITU_PC_STRUCTURE_3_8_3:
           /* this format is used in international ITU networks */
-          snprintf(buf, buf_len, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
-          break;
+          return wmem_strdup_printf(allocator, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
+
         case ITU_PC_STRUCTURE_4_3_4_3:
           /* this format is used in some national ITU networks, the German one for example. */
-          snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
-          break;
+          return wmem_strdup_printf(allocator, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
+
         default:
           DISSECTOR_ASSERT_NOT_REACHED();
+          return wmem_strdup(allocator, "");
       }
       break;
     case ANSI_STANDARD:
     case CHINESE_ITU_STANDARD:
-      snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK) >> 16, (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK));
-      break;
+      return wmem_strdup_printf(allocator, "%u-%u-%u", (pc & ANSI_NETWORK_MASK) >> 16, (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK));
+
     case JAPAN_STANDARD:
       switch (japan_pc_structure) {
         case JAPAN_PC_STRUCTURE_NONE:
-          snprintf(buf, buf_len, "%u", pc);
-          break;
+          return wmem_strdup_printf(allocator, "%u", pc);
+
         case JAPAN_PC_STRUCTURE_7_4_5:
           /* This format is specified by NTT */
-          snprintf(buf, buf_len, "%u-%u-%u", (pc & 0xfe00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
-          break;
+          return wmem_strdup_printf(allocator, "%u-%u-%u", (pc & 0xfe00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
+
         case JAPAN_PC_STRUCTURE_3_4_4_5:
           /* Where does this format come from? */
-          snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0xe000)>>13, (pc & 0x1e00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
-          break;
+          return wmem_strdup_printf(allocator, "%u-%u-%u-%u", (pc & 0xe000)>>13, (pc & 0x1e00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
+
         default:
           DISSECTOR_ASSERT_NOT_REACHED();
+          return wmem_strdup(allocator, "");
       }
       break;
     default:
       DISSECTOR_ASSERT_NOT_REACHED();
+      return wmem_strdup(allocator, "");
   }
-}
-
-#define MAX_STRUCTURED_PC_LENGTH 20
-
-char *
-mtp3_pc_to_str(const uint32_t pc)
-{
-  char *str;
-
-  str=(char *)wmem_alloc(wmem_packet_scope(), MAX_STRUCTURED_PC_LENGTH);
-  mtp3_pc_to_str_buf(pc, str, MAX_STRUCTURED_PC_LENGTH);
-  return str;
 }
 
 bool
@@ -302,9 +293,8 @@ mtp3_pc_structured(void)
  * helper routine to format address to string
  */
 
-static void
-mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
-                     char *buf, int buf_len)
+static char*
+mtp3_addr_to_str_wmem(wmem_allocator_t* allocator, const mtp3_addr_pc_t  *addr_pc_p)
 {
   switch (mtp3_addr_fmt)
   {
@@ -312,15 +302,12 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          snprintf(buf, buf_len, "%u", addr_pc_p->pc & ITU_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u", addr_pc_p->pc & ITU_PC_MASK);
         case JAPAN_STANDARD:
-          snprintf(buf, buf_len, "%u", addr_pc_p->pc & JAPAN_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u", addr_pc_p->pc & JAPAN_PC_MASK);
         default:
           /* assuming 24-bit */
-          snprintf(buf, buf_len, "%u", addr_pc_p->pc & ANSI_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u", addr_pc_p->pc & ANSI_PC_MASK);
       }
       break;
 
@@ -328,15 +315,12 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          snprintf(buf, buf_len, "%x", addr_pc_p->pc & ITU_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%x", addr_pc_p->pc & ITU_PC_MASK);
         case JAPAN_STANDARD:
-          snprintf(buf, buf_len, "%x", addr_pc_p->pc & JAPAN_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%x", addr_pc_p->pc & JAPAN_PC_MASK);
         default:
           /* assuming 24-bit */
-          snprintf(buf, buf_len, "%x", addr_pc_p->pc & ANSI_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%x", addr_pc_p->pc & ANSI_PC_MASK);
       }
       break;
 
@@ -344,15 +328,12 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
         case JAPAN_STANDARD:
-          snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
         default:
           /* assuming 24-bit */
-          snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
       }
       break;
 
@@ -360,15 +341,12 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
         case JAPAN_STANDARD:
-          snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
         default:
           /* assuming 24-bit */
-          snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
-          break;
+          return wmem_strdup_printf(allocator, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
       }
       break;
 
@@ -376,8 +354,7 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       /* FALLTHRU */
 
     case MTP3_ADDR_FMT_DASHED:
-      mtp3_pc_to_str_buf(addr_pc_p->pc, buf, buf_len);
-      break;
+      return mtp3_pc_to_str(allocator, addr_pc_p->pc);
   }
 }
 
@@ -401,7 +378,9 @@ mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
 
 static int mtp3_addr_to_str(const address* addr, char *buf, int buf_len)
 {
-    mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
+    char* tmp = mtp3_addr_to_str_wmem(NULL, (const mtp3_addr_pc_t*)addr->data);
+    memcpy(buf, tmp, MIN(buf_len, (int)(strlen(tmp)+1)));
+    wmem_free(NULL, tmp);
     return (int)(strlen(buf)+1);
 }
 
@@ -418,7 +397,7 @@ static const char* mtp3_addr_col_filter_str(const address* addr _U_, bool is_src
     return "mtp3.dpc";
 }
 
-int mtp3_addr_len(void)
+static int mtp3_addr_len(void)
 {
     return sizeof(mtp3_addr_pc_t);
 }
@@ -431,9 +410,7 @@ static const char* mtp3_addr_name_res_str(const address* addr)
     tmp = get_hostname_ss7pc(mtp3_addr->ni, mtp3_addr->pc);
 
     if (tmp[0] == '\0') {
-        char* str;
-        str = (char *)wmem_alloc(NULL, MAXNAMELEN);
-        mtp3_addr_to_str_buf(mtp3_addr, str, MAXNAMELEN);
+        char* str = mtp3_addr_to_str_wmem(NULL, mtp3_addr);
         fill_unresolved_ss7pc(str, mtp3_addr->ni, mtp3_addr->pc);
         wmem_free(NULL, str);
         return get_hostname_ss7pc(mtp3_addr->ni, mtp3_addr->pc);
@@ -452,29 +429,28 @@ static int mtp3_addr_name_res_len(void)
 
 /*  Common function for dissecting 3-byte (ANSI or China) PCs. */
 void
-dissect_mtp3_3byte_pc(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int ett_pc, int hf_pc_string, int hf_pc_network,
+dissect_mtp3_3byte_pc(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *tree, int ett_pc, int hf_pc_string, int hf_pc_network,
                       int hf_pc_cluster, int hf_pc_member, int hf_dpc, int hf_pc)
 {
   uint32_t pc;
   proto_item *pc_item, *hidden_item;
   proto_tree *pc_tree;
-  char pc_string[MAX_STRUCTURED_PC_LENGTH];
+  char* pc_string;
 
   pc = tvb_get_letoh24(tvb, offset);
-  mtp3_pc_to_str_buf(pc, pc_string, sizeof(pc_string));
-
+  pc_string = mtp3_pc_to_str(pinfo->pool, pc);
   pc_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
 
   /* Add alternate formats of the PC
    * NOTE: each of these formats is shown to the user,
    * so I think that using hidden fields in this case is OK.
    */
-  snprintf(pc_string, sizeof(pc_string), "%u", pc);
+  pc_string = wmem_strdup_printf(pinfo->pool, "%u", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
   proto_item_set_hidden(hidden_item);
 
-  snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
+  pc_string = wmem_strdup_printf(pinfo->pool, "0x%x", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
   proto_item_set_hidden(hidden_item);
@@ -562,7 +538,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
       label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
       if (mtp3_pc_structured())
-        proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
+        proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(pinfo->pool, dpc));
 
       if(mtp3_addr_dpc->ni == MTP3_NI_INT0) {
         pc_subtree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
@@ -572,7 +548,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
       label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
       if (mtp3_pc_structured())
-        proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
+        proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(pinfo->pool, opc));
 
       if(mtp3_addr_opc->ni == MTP3_NI_INT0) {
         pc_subtree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
@@ -597,13 +573,13 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
       label_tree = proto_tree_add_subtree(mtp3_tree, tvb, ROUTING_LABEL_OFFSET, ANSI_ROUTING_LABEL_LENGTH, ett_mtp3_label, NULL, "Routing label");
 
       /* create and fill the DPC tree */
-      dissect_mtp3_3byte_pc(tvb, ANSI_DPC_OFFSET, label_tree, ett_mtp3_label_dpc, hf_dpc_string, hf_mtp3_dpc_network,
+      dissect_mtp3_3byte_pc(tvb, pinfo, ANSI_DPC_OFFSET, label_tree, ett_mtp3_label_dpc, hf_dpc_string, hf_mtp3_dpc_network,
                             hf_mtp3_dpc_cluster, hf_mtp3_dpc_member, hf_mtp3_24bit_dpc, hf_mtp3_24bit_pc);
       /* Store dpc for mtp3_addr below */
       dpc = tvb_get_letoh24(tvb, ANSI_DPC_OFFSET);
 
       /* create and fill the OPC tree */
-      dissect_mtp3_3byte_pc(tvb, ANSI_OPC_OFFSET, label_tree, ett_mtp3_label_opc, hf_opc_string, hf_mtp3_opc_network,
+      dissect_mtp3_3byte_pc(tvb, pinfo, ANSI_OPC_OFFSET, label_tree, ett_mtp3_label_opc, hf_opc_string, hf_mtp3_opc_network,
                             hf_mtp3_opc_cluster, hf_mtp3_opc_member, hf_mtp3_24bit_opc, hf_mtp3_24bit_pc);
       /* Store opc for mtp3_addr below */
       opc = tvb_get_letoh24(tvb, ANSI_OPC_OFFSET);
@@ -625,13 +601,13 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
       label_dpc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_dpc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
       dpc = tvb_get_letohs(tvb, ROUTING_LABEL_OFFSET);
       if (mtp3_pc_structured()) {
-        proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(dpc));
+        proto_item_append_text(label_dpc_item, " (%s)", mtp3_pc_to_str(pinfo->pool, dpc));
       }
 
       label_opc_item = proto_tree_add_item(label_tree, hf_mtp3_japan_opc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
       opc = tvb_get_letohs(tvb, JAPAN_OPC_OFFSET);
       if (mtp3_pc_structured()) {
-        proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
+        proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(pinfo->pool, opc));
       }
 
       hidden_item = proto_tree_add_item(label_tree, hf_mtp3_japan_pc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
@@ -854,7 +830,7 @@ static void mtp3_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *m3tr_ptr, tap_flags_t flags _U_)
+mtp3_stat_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *m3tr_ptr, tap_flags_t flags _U_)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
   const mtp3_tap_rec_t  *m3tr = (const mtp3_tap_rec_t *)m3tr_ptr;
@@ -904,7 +880,6 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     /* XXX The old version added a row per SI. */
     int num_fields = array_length(mtp3_stat_fields);
     stat_tap_table_item_type items[array_length(mtp3_stat_fields)];
-    char str[256];
     const char *sis;
     char *col_str;
 
@@ -920,14 +895,12 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     stat_tap_init_table_row(table, element, num_fields, items);
 
     item_data = stat_tap_get_field_data(table, element, OPC_COLUMN);
-    mtp3_addr_to_str_buf(&m3tr->addr_opc, str, 256);
-    item_data->value.string_value = g_strdup(str);
+    item_data->value.string_value = g_strdup(mtp3_addr_to_str_wmem(pinfo->pool, &m3tr->addr_opc));
     item_data->user_data.ptr_value = g_memdup2(&m3tr->addr_opc, sizeof(mtp3_tap_rec_t));
     stat_tap_set_field_data(table, element, OPC_COLUMN, item_data);
 
     item_data = stat_tap_get_field_data(table, element, DPC_COLUMN);
-    mtp3_addr_to_str_buf(&m3tr->addr_dpc, str, 256);
-    item_data->value.string_value = g_strdup(str);
+    item_data->value.string_value = g_strdup(mtp3_addr_to_str_wmem(pinfo->pool, &m3tr->addr_dpc));
     item_data->user_data.ptr_value = g_memdup2(&m3tr->addr_dpc, sizeof(mtp3_tap_rec_t));
     stat_tap_set_field_data(table, element, DPC_COLUMN, item_data);
 

@@ -122,7 +122,7 @@ dissect_sccpmg_affected_ssn(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 }
 
 static void
-dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
+dissect_sccpmg_affected_pc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *sccpmg_tree)
 {
 	int offset = SCCPMG_AFFECTED_PC_OFFSET;
 
@@ -143,7 +143,7 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 		}
 
 		/* create and fill the PC tree */
-		dissect_mtp3_3byte_pc(tvb, offset, sccpmg_tree,
+		dissect_mtp3_3byte_pc(tvb, pinfo, offset, sccpmg_tree,
 				      ett_sccpmg_affected_pc, *hf_affected_pc,
 				      hf_sccpmg_affected_pc_network,
 				      hf_sccpmg_affected_pc_cluster,
@@ -213,7 +213,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	case SCCPMG_MESSAGE_TYPE_SOR:
 	case SCCPMG_MESSAGE_TYPE_SOG:
 		dissect_sccpmg_affected_ssn(tvb, sccpmg_tree);
-		dissect_sccpmg_affected_pc(tvb, sccpmg_tree);
+		dissect_sccpmg_affected_pc(tvb, pinfo, sccpmg_tree);
 		dissect_sccpmg_smi(tvb, sccpmg_tree);
 
 		break;
@@ -221,7 +221,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 		if (mtp3_standard != ANSI_STANDARD)
 		{
 			dissect_sccpmg_affected_ssn(tvb, sccpmg_tree);
-			dissect_sccpmg_affected_pc(tvb, sccpmg_tree);
+			dissect_sccpmg_affected_pc(tvb, pinfo, sccpmg_tree);
 			dissect_sccpmg_smi(tvb, sccpmg_tree);
 			dissect_sccpmg_congestion_level(tvb, sccpmg_tree);
 		}

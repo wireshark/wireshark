@@ -781,7 +781,7 @@ dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 #define AFFECTED_DPC_OFFSET  1
 
 static void
-dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   uint16_t number_of_destinations, destination_number;
   int destination_offset;
@@ -793,7 +793,7 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
     proto_tree_add_item(parameter_tree, hf_sua_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, ENC_BIG_ENDIAN);
     dpc_item = proto_tree_add_item(parameter_tree, hf_sua_dpc,  parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  ENC_BIG_ENDIAN);
     if (mtp3_pc_structured())
-      proto_item_append_text(dpc_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
+      proto_item_append_text(dpc_item, " (%s)", mtp3_pc_to_str(pinfo->pool, tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
     destination_offset += AFFECTED_DESTINATION_LENGTH;
   }
   proto_item_append_text(parameter_item, " (%u destination%s)", number_of_destinations, plurality(number_of_destinations, "", "s"));
@@ -1448,7 +1448,7 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 #define POINT_CODE_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
+dissect_point_code_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
 {
   uint32_t pc;
 
@@ -1465,7 +1465,7 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
   }
 
   proto_tree_add_item(parameter_tree, source ? hf_sua_source_point_code : hf_sua_dest_point_code, parameter_tvb, POINT_CODE_OFFSET, POINT_CODE_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(pc));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(pinfo->pool, pc));
 }
 
 #define SSN_LENGTH 1
@@ -1684,7 +1684,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V8_AFFECTED_POINT_CODE_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_affected_destinations_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V8_SS7_HOP_COUNTER_PARAMETER_TAG:
     dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1767,7 +1767,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     break;
   case V8_POINT_CODE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_point_code_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_SUBSYSTEM_NUMBER_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
@@ -1983,7 +1983,7 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     dissect_asp_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case AFFECTED_POINT_CODE_PARAMETER_TAG:
-    dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_affected_destinations_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case REGISTRATION_STATUS_PARAMETER_TAG:
     dissect_registration_status_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -2075,7 +2075,7 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     break;
   case POINT_CODE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_point_code_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case SUBSYSTEM_NUMBER_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */

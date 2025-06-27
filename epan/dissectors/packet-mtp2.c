@@ -233,7 +233,8 @@ start_dissect_bitstream_packet: 2120
 /*#define MTP2_BITSTREAM_DEBUG    1*/
 
 #ifdef MTP2_BITSTREAM_DEBUG
-#include <glib/gprintf.h>
+#define WS_LOG_DOMAIN "packet-mtp2"
+#include <wireshark.h>
 #endif
 
 static void
@@ -574,27 +575,6 @@ new_byte(wmem_allocator_t* allocator, char full_byte, uint8_t **data, uint8_t *d
   }
 }
 
-#ifdef MTP2_BITSTREAM_DEBUG
-/* print debug info to stderr if debug is enabled
- * this function prints the packet bytes as bits separated by new lines
- * and adds extra info to bytes (flag found, frame reset, zeros were skipped, etc. */
-static void debug(char *format, ...) G_GNUC_PRINTF(1, 2);
-static void debug(char *format, ...)
-{
-  uint32_t max_buffer_length = 256;
-  char *buffer = NULL;
-  va_list args;
-
-  buffer = (char *) wmem_alloc(wmem_packet_scope(), max_buffer_length);
-  buffer[0] = '\0';
-
-  va_start(args,format);
-  vsnprintf(buffer,max_buffer_length,format,args);
-  g_printf("%s",buffer);
-  va_end (args);
-}
-#endif
-
 /* based on the actual packet's addresses and ports,
  * this function determines the packet's direction */
 static enum packet_direction_state_mtp2
@@ -619,11 +599,11 @@ get_direction_state(packet_info *pinfo, mtp2_convo_data_t *convo_data)
 
 /* prepares the data to be stored as found packet in wmem_list */
 static mtp2_recognized_packet_t*
-prepare_data_for_found_packet(tvbuff_t *tvb, uint8_t unalignment_offset)
+prepare_data_for_found_packet(tvbuff_t *tvb, wmem_allocator_t* allocator, uint8_t unalignment_offset)
 {
   mtp2_recognized_packet_t *packet;
 
-  packet = wmem_new(wmem_packet_scope(), mtp2_recognized_packet_t);
+  packet = wmem_new(allocator, mtp2_recognized_packet_t);
   /* store values */
   packet->data = tvb;
   packet->unalignment_offset = unalignment_offset;
@@ -690,7 +670,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back
 
 #ifdef MTP2_BITSTREAM_DEBUG
       /* in case of debug, print just the pure RTP payload, not the previous packet's end */
-      debug("%u",(bit==false?0:1));
+      ws_debug("%u",(bit==false?0:1));
 #endif
 
       /* update the mtp2_flag_search */
@@ -765,7 +745,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back
             result->mtp2_remain_data.before_fh_unalignment_offset = unaligned_packet_offset;
           } else {
             /* add the packet to the processable packet's list */
-            wmem_list_append(result->found_packets, prepare_data_for_found_packet(new_tvb,unaligned_packet_offset));
+            wmem_list_append(result->found_packets, prepare_data_for_found_packet(new_tvb,pinfo->pool,unaligned_packet_offset));
           }
           /* clear data array (free will be done automatically) */
           data_len = 0;
@@ -798,20 +778,20 @@ dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back
 #ifdef MTP2_BITSTREAM_DEBUG
     /* if there were flag, print debug info */
     if (flag) {
-      debug("\tFLAG FOUND");
+      ws_debug("\tFLAG FOUND");
     }
     /* if there were zeros skipped, print the debug data */
     if (!zero_skip0 == 0) {
-      debug("\tSKIPPED ZEROS: %u.",zero_skip0);
+      ws_debug("\tSKIPPED ZEROS: %u.",zero_skip0);
       if (!zero_skip1 == 0)
-        debug(" %u",zero_skip1);
+        ws_debug(" %u",zero_skip1);
     }
     /* if there was frame reset, print debug info */
     if (frame_reset) {
-      debug("\tFRAME RESET");
+      ws_debug("\tFRAME RESET");
     }
     /* print a \n to print the next byte in a different row */
-    debug("\n");
+    ws_debug("\n");
     /* after every byte read from tvb clear debug stuff */
     zero_skip0 = 0;
     zero_skip1 = 0;
@@ -932,7 +912,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   mtp2_ppd_t                            *mtp2_ppd = NULL;                       /* per-packet data of this packet */
 
 #ifdef MTP2_BITSTREAM_DEBUG
-  debug("start_dissect_bitstream_packet: %u\n",pinfo->fd->num);
+  ws_debug("start_dissect_bitstream_packet: %u\n",pinfo->fd->num);
 #endif
 
   /* find conversation related to this packet */
@@ -1102,7 +1082,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           col_info_str = "[Frame Reset in reassembly]";
         } else {
           /* append the reassembled packet to the head of the packet list */
-          wmem_list_prepend(result->found_packets, prepare_data_for_found_packet(new_tvb,result->mtp2_remain_data.before_fh_unalignment_offset));
+          wmem_list_prepend(result->found_packets, prepare_data_for_found_packet(new_tvb,pinfo->pool,result->mtp2_remain_data.before_fh_unalignment_offset));
           /* set the protocol name */
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
         }
