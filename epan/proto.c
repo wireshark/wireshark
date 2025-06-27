@@ -864,6 +864,7 @@ proto_tree_reset(proto_tree *tree)
 	tree_data->count = 0;
 
 	/* Reset our loop checks */
+	tree_data->idle_count_ds_tvb = NULL;
 	tree_data->max_start = 0;
 	tree_data->start_idle_count = 0;
 
@@ -6836,10 +6837,11 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	// If our start offset hasn't advanced after adding many items it probably
 	// means we're in a large or infinite loop.
 	if (fi->start > 0) {
-		if (fi->start <= PTREE_DATA(tree)->max_start) {
+		if (fi->ds_tvb == PTREE_DATA(tree)->idle_count_ds_tvb && fi->start <= PTREE_DATA(tree)->max_start) {
 			PTREE_DATA(tree)->start_idle_count++;
 			DISSECTOR_ASSERT_HINT(PTREE_DATA(tree)->start_idle_count < PROTO_TREE_MAX_IDLE, fi->hfinfo->abbrev);
 		} else {
+			PTREE_DATA(tree)->idle_count_ds_tvb = fi->ds_tvb;
 			PTREE_DATA(tree)->max_start = fi->start;
 			PTREE_DATA(tree)->start_idle_count = 0;
 		}
@@ -7979,6 +7981,7 @@ proto_tree_create_root(packet_info *pinfo)
 	pnode->tree_data->count = 0;
 
 	/* Initialize our loop checks */
+	pnode->tree_data->idle_count_ds_tvb = NULL;
 	pnode->tree_data->max_start = 0;
 	pnode->tree_data->start_idle_count = 0;
 

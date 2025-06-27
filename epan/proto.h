@@ -898,6 +898,7 @@ typedef struct {
     bool                 fake_protocols;
     unsigned             count;
     struct _packet_info *pinfo;
+    tvbuff_t            *idle_count_ds_tvb;
     int                  max_start;
     unsigned             start_idle_count;
 } tree_data_t;
