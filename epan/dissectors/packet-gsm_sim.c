@@ -92,6 +92,12 @@ static int hf_tprof_b30;
 static int hf_tprof_b31;
 static int hf_tprof_b32;
 static int hf_tprof_b33;
+static int hf_tprof_b34;
+static int hf_tprof_b35;
+static int hf_tprof_b36;
+static int hf_tprof_b37;
+static int hf_tprof_b38;
+static int hf_tprof_b39;
 static int hf_tprof_unknown_byte;
 /* First byte */
 static int hf_tp_prof_dld;
@@ -322,7 +328,48 @@ static int hf_tp_support_refresh_enforcement_policy;
 static int hf_tp_support_dns_addr_req;
 static int hf_tp_support_nw_access_name_reuse;
 static int hf_tp_ev_poll_intv_nego;
+static int hf_tp_prose_usage_info_reporting;
+static int hf_tp_pa_prov_loci_rat;
+static int hf_tp_evt_wlan_access_status;
+static int hf_tp_wlan_bearer;
+static int hf_tp_pa_prov_loci_wlan_id;
+/* 34th byte */
+static int hf_tp_uri_send_short_msg;
+static int hf_tp_ims_uri_setup_call;
+static int hf_tp_media_type_voice_setup_call;
+static int hf_tp_media_type_video_setup_call;
+static int hf_tp_pa_prov_loci_eutran_timing_advance_info;
+static int hf_tp_refresh_euicc_profile_state_change;
+static int hf_tp_ext_rej_cause_code_nw_reject_eutran;
+static int hf_tp_deprecated_b34;
+/* 35th byte */
+static int hf_tp_pa_get_input_var_timeout;
+static int hf_tp_data_conn_status_change_pdp;
+static int hf_tp_data_conn_status_change_pdn;
+static int hf_tp_refresh_app_update;
+static int hf_tp_pa_lsi_proactive_session_request;
+static int hf_tp_pa_lsi_uicc_platform_reset;
 static int hf_tp_rfu11;
+/* 36th byte */
+static int hf_tp_data_conn_status_change_pdu;
+static int hf_tp_evt_nw_reject_ng_ran;
+static int hf_tp_non_ip_data_delivery;
+static int hf_tp_prov_loci_slice_info;
+static int hf_tp_refresh_sor_cmci_param;
+static int hf_tp_evt_nw_reject_satellite_ng_ran;
+static int hf_tp_cag_feature;
+static int hf_tp_evt_slices_status_change;
+/* 37th byte */
+static int hf_tp_prov_loci_rejected_slice_info;
+static int hf_tp_ext_info_pli;
+static int hf_tp_chaining_pli_env_cmds;
+static int hf_tp_5g_prose_usage_info_reporting;
+static int hf_tp_rfu12;
+/* 38th byte */
+static int hf_tp_rfu13;
+/* 39th byte */
+static int hf_tp_pa_prov_loci_ng_ran_satellite_timing_advance_info;
+static int hf_tp_rfu14;
 
 static int hf_cat_ber_tag;
 
@@ -368,6 +415,12 @@ static int ett_tprof_b30;
 static int ett_tprof_b31;
 static int ett_tprof_b32;
 static int ett_tprof_b33;
+static int ett_tprof_b34;
+static int ett_tprof_b35;
+static int ett_tprof_b36;
+static int ett_tprof_b37;
+static int ett_tprof_b38;
+static int ett_tprof_b39;
 
 static dissector_handle_t sub_handle_cap;
 static dissector_handle_t sim_handle, sim_part_handle;
@@ -706,7 +759,66 @@ static int * const tprof_b33_fields[] = {
 	&hf_tp_support_dns_addr_req,
 	&hf_tp_support_nw_access_name_reuse,
 	&hf_tp_ev_poll_intv_nego,
+	&hf_tp_prose_usage_info_reporting,
+	&hf_tp_pa_prov_loci_rat,
+	&hf_tp_evt_wlan_access_status,
+	&hf_tp_wlan_bearer,
+	&hf_tp_pa_prov_loci_wlan_id,
+	NULL
+};
+
+static int * const tprof_b34_fields[] = {
+	&hf_tp_uri_send_short_msg,
+	&hf_tp_ims_uri_setup_call,
+	&hf_tp_media_type_voice_setup_call,
+	&hf_tp_media_type_video_setup_call,
+	&hf_tp_pa_prov_loci_eutran_timing_advance_info,
+	&hf_tp_refresh_euicc_profile_state_change,
+	&hf_tp_ext_rej_cause_code_nw_reject_eutran,
+	&hf_tp_deprecated_b34,
+	NULL
+};
+
+static int * const tprof_b35_fields[] = {
+	&hf_tp_pa_get_input_var_timeout,
+	&hf_tp_data_conn_status_change_pdp,
+	&hf_tp_data_conn_status_change_pdn,
+	&hf_tp_refresh_app_update,
+	&hf_tp_pa_lsi_proactive_session_request,
+	&hf_tp_pa_lsi_uicc_platform_reset,
 	&hf_tp_rfu11,
+	NULL
+};
+
+static int * const tprof_b36_fields[] = {
+	&hf_tp_data_conn_status_change_pdu,
+	&hf_tp_evt_nw_reject_ng_ran,
+	&hf_tp_non_ip_data_delivery,
+	&hf_tp_prov_loci_slice_info,
+	&hf_tp_refresh_sor_cmci_param,
+	&hf_tp_evt_nw_reject_satellite_ng_ran,
+	&hf_tp_cag_feature,
+	&hf_tp_evt_slices_status_change,
+	NULL
+};
+
+static int * const tprof_b37_fields[] = {
+	&hf_tp_prov_loci_rejected_slice_info,
+	&hf_tp_ext_info_pli,
+	&hf_tp_chaining_pli_env_cmds,
+	&hf_tp_5g_prose_usage_info_reporting,
+	&hf_tp_rfu12,
+	NULL
+};
+
+static int * const tprof_b38_fields[] = {
+	&hf_tp_rfu13,
+	NULL
+};
+
+static int * const tprof_b39_fields[] = {
+	&hf_tp_pa_prov_loci_ng_ran_satellite_timing_advance_info,
+	&hf_tp_rfu14,
 	NULL
 };
 
@@ -1503,6 +1615,12 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		ADD_TP_BYTE(31);
 		ADD_TP_BYTE(32);
 		ADD_TP_BYTE(33);
+		ADD_TP_BYTE(34);
+		ADD_TP_BYTE(35);
+		ADD_TP_BYTE(36);
+		ADD_TP_BYTE(37);
+		ADD_TP_BYTE(38);
+		ADD_TP_BYTE(39);
 		while ((offset - start_offset) < p3) {
 			proto_tree_add_item(tree, hf_tprof_unknown_byte, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		}
@@ -3175,9 +3293,226 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
 			  NULL, HFILL }
 		},
+		{ &hf_tp_prose_usage_info_reporting,
+			{ "ProSe usage information reporting", "gsm_sim.tp.evt.prose_usage_info_reporting",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_rat,
+			{ "Proactive UICC: PROVIDE LOCAL INFORMATION (Supported Radio Access Technologies)", "gsm_sim.tp.pa.prov_loci_rat",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_wlan_access_status,
+			{ "Event: WLAN Access status", "gsm_sim.tp.evt.wlan_access_status",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_wlan_bearer,
+			{ "WLAN bearer support", "gsm_sim.tp.wlan_bearer",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_wlan_id,
+			{ "Proactive UICC: PROVIDE LOCAL INFORMATION (WLAN identifier of the current WLAN connection)", "gsm_sim.tp.pa.prov_loci_wlan_id",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 34 */
+		{ &hf_tprof_b34,
+			{ "Terminal Profile Byte 34", "gsm_sim.tp.b34",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_uri_send_short_msg,
+			{ "URI support for SEND SHORT MESSAGE", "gsm_sim.tp.uri_send_short_msg",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ims_uri_setup_call,
+			{ "IMS URI supported for SET UP CALL", "gsm_sim.tp.ims_uri_setup_call",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_media_type_voice_setup_call,
+			{ "Media Type \"Voice\" supported for SET UP CALL and Call Control by USIM", "gsm_sim.tp.media_type_voice_setup_call",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_media_type_video_setup_call,
+			{ "Media Type \"Video\" supported for SET UP CALL and Call Control by USIM", "gsm_sim.tp.media_type_video_setup_call",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_eutran_timing_advance_info,
+			{ "Proactive UICC: PROVIDE LOCAL INFORMATION (E-UTRAN Timing Advance Information)", "gsm_sim.tp.pa.prov_loci_eutran_timing_advance_info",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_refresh_euicc_profile_state_change,
+			{ "REFRESH with \"eUICC Profile State Change\" mode", "gsm_sim.tp.refresh_euicc_profile_state_change",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ext_rej_cause_code_nw_reject_eutran,
+			{ "Extended Rejection Cause Code in Event: Network Rejection for E-UTRAN", "gsm_sim.tp.ext_rej_cause_code_nw_reject_eutran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_deprecated_b34,
+			{ "Deprecated", "gsm_sim.tp.deprecated",
+			  FT_UINT8, BASE_HEX, NULL, 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 35 */
+		{ &hf_tprof_b35,
+			{ "Terminal Profile Byte 35", "gsm_sim.tp.b35",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_pa_get_input_var_timeout,
+			{ "Proactive UICC: GET INPUT (Variable Time out)", "gsm_sim.tp.pa.get_input_var_timeout",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_data_conn_status_change_pdp,
+			{ "Data Connection Status Change Event support - PDP Connection", "gsm_sim.tp.data_conn_status_change_pdp",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_data_conn_status_change_pdn,
+			{ "Data Connection Status Change Event support - PDN Connection", "gsm_sim.tp.data_conn_status_change_pdn",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_refresh_app_update,
+			{ "REFRESH with \"Application Update\" mode", "gsm_sim.tp.refresh_app_update",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_lsi_proactive_session_request,
+			{ "Proactive UICC: LSI COMMAND with \"Proactive Session Request\"", "gsm_sim.tp.pa.lsi_proactive_session_request",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_lsi_uicc_platform_reset,
+			{ "Proactive UICC: LSI COMMAND with \"UICC Platform Reset\"", "gsm_sim.tp.pa.lsi_uicc_platform_reset",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
 		{ &hf_tp_rfu11,
 			{ "RFU", "gsm_sim.tp.rfu",
-			  FT_UINT8, BASE_HEX, NULL, 0xf8,
+			  FT_UINT8, BASE_HEX, NULL, 0xc0,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 36 */
+		{ &hf_tprof_b36,
+			{ "Terminal Profile Byte 36", "gsm_sim.tp.b36",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_data_conn_status_change_pdu,
+			{ "Data Connection Status Change Event support - PDU Connection", "gsm_sim.tp.data_conn_status_change_pdu",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_nw_reject_ng_ran,
+			{ "Event: Network Rejection for NG-RAN", "gsm_sim.tp.evt.nw_reject_ng_ran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_non_ip_data_delivery,
+			{ "Non-IP Data Delivery support", "gsm_sim.tp.non_ip_data_delivery",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_prov_loci_slice_info,
+			{ "Support of PROVIDE LOCAL INFORMATION, Slice(s) information", "gsm_sim.tp.prov_loci_slice_info",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_refresh_sor_cmci_param,
+			{ "REFRESH \"Steering of Roaming\" SOR-CMCI parameter support", "gsm_sim.tp.refresh_sor_cmci_param",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_nw_reject_satellite_ng_ran,
+			{ "Event: Network Rejection for Satellite NG-RAN", "gsm_sim.tp.evt.nw_reject_satellite_ng_ran",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_cag_feature,
+			{ "Support of CAG feature", "gsm_sim.tp.cag_feature",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_evt_slices_status_change,
+			{ "Event: Slices Status Change", "gsm_sim.tp.evt.slices_status_change",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+			  NULL, HFILL }
+		},
+
+		/* Terminal Profile Byte 37 */
+		{ &hf_tprof_b37,
+			{ "Terminal Profile Byte 37", "gsm_sim.tp.b37",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_prov_loci_rejected_slice_info,
+			{ "Support of PROVIDE LOCAL INFORMATION, Rejected Slice(s) Information", "gsm_sim.tp.prov_loci_rejected_slice_info",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_ext_info_pli,
+			{ "Support of Extended information for PLI (Location Information), Event: Location Status, Event: Network Rejection", "gsm_sim.tp.ext_info_pli",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_chaining_pli_env_cmds,
+			{ "Support of chaining of PLI/Envelope commands", "gsm_sim.tp.chaining_pli_env_cmds",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_5g_prose_usage_info_reporting,
+			{ "5G ProSe usage information reporting", "gsm_sim.tp.5g_prose_usage_info_reporting",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu12,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xf0,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 38 */
+		{ &hf_tprof_b38,
+			{ "Terminal Profile Byte 38", "gsm_sim.tp.b38",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_rfu13,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xff,
+			  NULL, HFILL },
+		},
+
+		/* Terminal Profile Byte 39 */
+		{ &hf_tprof_b39,
+			{ "Terminal Profile Byte 39", "gsm_sim.tp.b39",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_pa_prov_loci_ng_ran_satellite_timing_advance_info,
+			{ "Proactive UICC: PROVIDE LOCAL INFORMATION (NG-RAN/Satellite NG-RAN Timing Advance Information)", "gsm_sim.tp.pa.prov_loci_ng_ran_satellite_timing_advance_info",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu14,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xfe,
 			  NULL, HFILL },
 		},
 
