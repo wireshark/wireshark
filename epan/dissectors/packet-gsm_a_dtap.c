@@ -2403,7 +2403,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
 /* 3GPP TS 24.008
  * [3] 10.5.4.9 Calling party BCD number
  */
-static uint16_t
+uint16_t
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len)
 {
     char *extr_addr;

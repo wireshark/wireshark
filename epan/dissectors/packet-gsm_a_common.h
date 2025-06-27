@@ -88,6 +88,7 @@ extern const value_string protocol_discriminator_vals[];
 extern const value_string gsm_a_pd_short_str_vals[];
 
 extern uint16_t de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
+extern uint16_t de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
 
 /* Needed to share the packet-gsm_a_common.c functions */
 extern value_string_ext gsm_bssmap_elem_strings_ext;

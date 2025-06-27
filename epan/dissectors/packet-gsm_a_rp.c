@@ -123,7 +123,7 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
 static uint16_t
 de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len)
 {
-	return de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len);
+	return de_clg_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len);
 }
 
 /*
