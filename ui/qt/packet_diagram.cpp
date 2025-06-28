@@ -251,7 +251,7 @@ public:
         }
         paintLabel(painter, label, scaled_tr_);
 
-        if (layout_->showFields()) {
+        if (layout_->showFields() && finfo_->headerInfo().type != FT_NONE) {
             if (representation_.isEmpty()) {
                 label = finfo_->toString();
             } else {
