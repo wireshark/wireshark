@@ -1209,10 +1209,20 @@ void PacketList::columnsChanged()
 // Fields have changed, update custom columns
 void PacketList::fieldsChanged(capture_file *cf)
 {
-    prefs.num_cols = g_list_length(prefs.col_list);
-    col_cleanup(&cf->cinfo);
-    build_column_format_array(&cf->cinfo, prefs.num_cols, false);
-    resetColumns();
+    // hfids used by custom columns or by the _ws.col fields may have changed,
+    // so recreate the columns. We shouldn't need to if prefs.col_list is NULL,
+    // since that doesn't register and deregister _ws.col fields.
+    // If the column pref changes to or from NULL, that triggers columnsChanged
+    // above, so we don't need to do it twice.
+    //
+    // XXX - If we knew exactly which fields changed, we could rebuild the
+    // columns only if a field used by the columns changed.
+    if (prefs.col_list) {
+        prefs.num_cols = g_list_length(prefs.col_list);
+        col_cleanup(&cf->cinfo);
+        build_column_format_array(&cf->cinfo, prefs.num_cols, false);
+        resetColumns();
+    }
 }
 
 // Column widths should
