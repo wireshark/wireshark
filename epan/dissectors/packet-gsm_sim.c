@@ -831,15 +831,17 @@ static const value_string ber_tlv_cat_tag_vals[] = {
 	{ 0xd2, "GSM/3GPP/3GPP2 - Cell Broadcast Download" },
 	{ 0xd3, "Menu selection" },
 	{ 0xd4, "Call Control" },
-	{ 0xd5, "GSM/3G - MO Short Message control" },
+	{ 0xd5, "GSM/3GPP - MO Short Message control" },
 	{ 0xd6, "Event Download" },
 	{ 0xd7, "Timer Expiration" },
 	{ 0xd8, "Reserved for intra-UICC communication" },
-	{ 0xd9, "3G - USSD Download" },
+	{ 0xd9, "3GPP - USSD Download" },
 	{ 0xda, "MMS Transfer status" },
 	{ 0xdb, "MMS notification download" },
 	{ 0xdc, "Terminal application" },
-	{ 0xdd, "3G - Geographical Location Reporting" },
+	{ 0xdd, "3GPP - Geographical Location Reporting" },
+	{ 0xde, "Envelope Container" },
+	{ 0xdf, "3GPP - ProSe Report tag" },
 	{ 0, NULL }
 };
 
@@ -931,6 +933,8 @@ static const value_string apdu_ins_vals[] = {
 	{ 0x76, "SUSPEND UICC" },
 	/* TS 102 221 v15.11.0 */
 	{ 0x78, "GET IDENTITY" },
+	{ 0x7A, "EXCHANGE CAPABILITIES" },
+	{ 0x7C, "MANAGE LSI" },
 	/* GSMA SGP.02 v4.2 */
 	{ 0xCA, "GET DATA" },
 	/* TS TS 102 222 */
@@ -3593,7 +3597,13 @@ proto_register_gsm_sim(void)
 		&ett_tprof_b30,
 		&ett_tprof_b31,
 		&ett_tprof_b32,
-		&ett_tprof_b33
+		&ett_tprof_b33,
+		&ett_tprof_b34,
+		&ett_tprof_b35,
+		&ett_tprof_b36,
+		&ett_tprof_b37,
+		&ett_tprof_b38,
+		&ett_tprof_b39
 	};
 
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
