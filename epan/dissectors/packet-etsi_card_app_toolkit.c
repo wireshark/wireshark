@@ -1,6 +1,6 @@
 /* packet-card_app_toolkit
  * Routines for packet dissection of
- *	ETSI TS 102 223 v12.2.0  (Release 12 / 2015-03)
+ *	ETSI TS 102 223 v18.2.0  (Release 18 / 2025-04)
  *	3GPP TS 11.14 v8.17.0 (Release 1999 / 2004-09)
  *	3GPP TS 31.111 v9.7.0 (Release 9 / 2012-03)
  * Copyright 2010-2011 by Harald Welte <laforge@gnumonks.org>
@@ -285,6 +285,8 @@ static const value_string cmd_qual_refresh_vals[] = {
 	{ 0x06, "NAA Session Reset, only applicable for a 3G platform" },
 	{ 0x07, "Steering of Roaming" },
 	{ 0x08, "Steering of Roaming for I-WLAN" },
+	{ 0x09, "eUICC Profile State Change" },
+	{ 0x0a, "Application Update" },
 	{ 0, NULL }
 };
 
@@ -418,6 +420,7 @@ static const value_string cmd_type_vals[] = {
 	{ 0x71, "CONTACTLESS STATE CHANGED" },
 	{ 0x72, "COMMAND CONTAINER" },
 	{ 0x73, "ENCAPSULATED SESSION CONTROL" },
+	{ 0x79, "LSI COMMAND" },
 	{ 0x81, "End of the proactive session" },
 	{ 0, NULL }
 };
@@ -476,6 +479,7 @@ static const value_string result_vals[] = {
 	{ 0x25, "Interaction with call control by NAA temporary problem" },
 	{ 0x26, "Launch browser generic error code" },
 	{ 0x27, "MMS temporary problem" },
+	{ 0x28, "Bearer Independent Protocol temporary error" },
 	{ 0x30, "Command beyond terminal's capabilities" },
 	{ 0x31, "Command type not understood by terminal" },
 	{ 0x32, "Command data not understood by terminal" },
@@ -555,6 +559,10 @@ static const value_string result_bip_vals[] = {
 	{ 0x10, "Port not available" },
 	{ 0x11, "Launch parameters missing or incorrect" },
 	{ 0x12, "Application launch failed" },
+	{ 0x13, "Channel cannot be established permanently" },
+	{ 0x14, "IPv4 only allowed" },
+	{ 0x15, "IPv6 only allowed" },
+	{ 0x16, "IPv6 not allowed due to IP layer failures" },
 	{ 0, NULL }
 };
 static value_string_ext result_bip_vals_ext = VALUE_STRING_EXT_INIT(result_bip_vals);
@@ -648,6 +656,9 @@ static const value_string event_list_vals[] = {
 	{ 0x1a, "Void" },
 	{ 0x1b, "Secured Profile Container" },
 	{ 0x1c, "Poll Interval Negotiation" },
+	{ 0x1d, "Data Connection Status Change" },
+	{ 0x1e, "CAG cell selection" },
+	{ 0x1f, "Slices Status Change" },
 	{ 0, NULL }
 };
 static value_string_ext event_list_vals_ext = VALUE_STRING_EXT_INIT(event_list_vals);
@@ -827,6 +838,9 @@ static const value_string access_tech_vals[] = {
 	{ 0x07, "cdma2000 HRPD (TIA/EIA/IS-856)" },
 	{ 0x08, "E-UTRAN" },
 	{ 0x09, "eHRPD" },
+	{ 0x0a, "3GPP NG-RAN" },
+	{ 0x0b, "3GPP Satellite NG-RAN" },
+	{ 0x0c, "3GPP Satellite E-UTRAN" },
 	{ 0, NULL }
 };
 
