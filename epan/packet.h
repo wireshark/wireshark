@@ -979,9 +979,20 @@ WS_DLL_PUBLIC void dissector_dump_heur_decodes(void);
 WS_DLL_PUBLIC void register_postdissector(dissector_handle_t handle);
 
 /*
- * Specify a set of hfids that the postdissector will need.
- * The GArray is an array of hfids (type int) and should be NULL to clear the
- * list. This function will take ownership of the memory.
+ * Specify a set of hfids that the postdissector will need on the first pass.
+ * This ensures that the fields will not be faked, and can be retrieved with
+ * proto_get_finfo_ptr_array.
+ *
+ * @note There is no way to guarantee that fields added by other postdissectors
+ * will be available. (Issue #19804) This is for postdissectors that examine
+ * fields added by other dissectors on the first linear pass, and then store
+ * their own results in persistent memory for retrieval and adding in later
+ * passes. Postdissectors that need field values on later passes should call
+ * something else, like epan_set_always_visible() (which slows dissection.)
+ *
+ * @param handle The dissector handle used to register the postdissector.
+ * @param wanted_hfids An array of hfids (type int), which should be NULL to
+ * clear the list. This function will take ownership of the array.
  */
 WS_DLL_PUBLIC void set_postdissector_wanted_hfids(dissector_handle_t handle,
     GArray *wanted_hfids);
@@ -1013,9 +1024,12 @@ extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 WS_DLL_PUBLIC bool postdissectors_want_hfids(void);
 
 /*
- * Prime an epan_dissect_t with all the hfids wanted by postdissectors.
+ * Prime an epan_dissect_t with all the hfids wanted by postdissectors
+ * on the first pass. Not for use in (post)dissectors or applications;
+ * only to be used by libwireshark itself, which will call this automatically
+ * when dissecting a frame that has not been visited yet.
  */
-WS_DLL_PUBLIC void
+extern void
 prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt);
 
 /** Increment the dissection depth.

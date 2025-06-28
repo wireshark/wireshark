@@ -497,7 +497,7 @@ get_data_source_by_tvb(const packet_info *pinfo, const tvbuff_t *tvb)
 	}
 	return NULL;
 }
-	
+
 
 data_source_media_type_e get_data_source_media_type(const struct data_source *src)
 {
@@ -566,6 +566,14 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
     frame_data *fd, column_info *cinfo)
 {
 	frame_data_t frame_dissector_data;
+
+	if (!fd->visited) {
+		/* This is the first pass, so prime the epan_dissect_t with the
+		  hfids postdissectors want on the first pass. */
+		/* XXX - This can fail with an unhandled exception, e.g., if a
+		 * field was deregistered.  */
+		prime_epan_dissect_with_postdissector_wanted_hfids(edt);
+	}
 
 	if (cinfo != NULL)
 		col_init(cinfo, edt->session);
@@ -715,6 +723,12 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
     frame_data *fd, column_info *cinfo)
 {
 	file_data_t file_dissector_data;
+
+	if (!fd->visited) {
+	       /* This is the first pass, so prime the epan_dissect_t with the
+		  hfids postdissectors want on the first pass. */
+	       prime_epan_dissect_with_postdissector_wanted_hfids(edt);
+	}
 
 	if (cinfo != NULL)
 		col_init(cinfo, edt->session);

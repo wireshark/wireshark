@@ -1212,12 +1212,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     }
 #endif
 
-    if (!fdata->visited) {
-        /* This is the first pass, so prime the epan_dissect_t with the
-           hfids postdissectors want on the first pass. */
-        prime_epan_dissect_with_postdissector_wanted_hfids(edt);
-    }
-
     /* Initialize passed_dfilter here so that dissectors can hide packets. */
     /* XXX We might want to add a separate "visible" bit to frame_data instead. */
     fdata->passed_dfilter = 1;
