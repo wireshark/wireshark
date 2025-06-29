@@ -723,7 +723,7 @@ rtmpt_get_amf_length(tvbuff_t *tvb, int offset, proto_item* pi)
 }
 
 static char *
-rtmpt_get_amf_param(tvbuff_t *tvb, int offset, proto_item* pi, int param, const char *prop)
+rtmpt_get_amf_param(wmem_allocator_t* allocator, tvbuff_t *tvb, int offset, proto_item* pi, int param, const char *prop)
 {
         uint32_t remain = tvb_reported_length_remaining(tvb, offset);
         uint32_t itemlen;
@@ -744,7 +744,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, int offset, proto_item* pi, int param, const 
                 if (!prop && iObjType == AMF0_STRING && remain >= 3) {
                         iStringLength = tvb_get_ntohs(tvb, offset+1);
                         if (remain >= iStringLength+3) {
-                                return tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3, iStringLength, ENC_ASCII);
+                                return tvb_get_string_enc(allocator, tvb, offset+3, iStringLength, ENC_ASCII);
                         }
                 }
 
@@ -765,7 +765,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, int offset, proto_item* pi, int param, const 
                                         if (remain < 2+iPropLength+3+iStringLength)
                                                 break;
 
-                                        return tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2+iPropLength+3, iStringLength, ENC_ASCII);
+                                        return tvb_get_string_enc(allocator, tvb, offset+2+iPropLength+3, iStringLength, ENC_ASCII);
                                 }
 
                                 itemlen = rtmpt_get_amf_length(tvb, offset+2+iPropLength, pi);
@@ -806,14 +806,14 @@ rtmpt_get_amf_txid(tvbuff_t *tvb, int offset, proto_item* pi)
 /* Generate a useful description for various packet types */
 
 static char *
-rtmpt_get_packet_desc(tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t remain, rtmpt_conv_t *rconv, int cdir,
+rtmpt_get_packet_desc(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t remain, rtmpt_conv_t *rconv, int cdir,
         rtmpt_packet_t *tp, bool *deschasopcode)
 {
         if (tp->cmd == RTMPT_TYPE_CHUNK_SIZE || tp->cmd == RTMPT_TYPE_ABORT_MESSAGE ||
             tp->cmd == RTMPT_TYPE_ACKNOWLEDGEMENT || tp->cmd == RTMPT_TYPE_WINDOW) {
                 if (tp->len >= 4 && remain >= 4) {
                         *deschasopcode = true;
-                        return wmem_strdup_printf(wmem_packet_scope(), "%s %d",
+                        return wmem_strdup_printf(allocator, "%s %d",
                                                 val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
                                                 tvb_get_ntohl(tvb, offset));
                 }
@@ -821,7 +821,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t r
         } else if (tp->cmd == RTMPT_TYPE_PEER_BANDWIDTH) {
                 if (tp->len >= 5 && remain >= 5) {
                         *deschasopcode = true;
-                        return wmem_strdup_printf(wmem_packet_scope(), "%s %d,%s",
+                        return wmem_strdup_printf(allocator, "%s %d,%s",
                                                 val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
                                                 tvb_get_ntohl(tvb, offset),
                                                 val_to_str(tvb_get_uint8(tvb, offset+4), rtmpt_limit_vals, "Unknown (%d)"));
@@ -839,23 +839,23 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t r
                 sFunc = try_val_to_str(iUCM, rtmpt_ucm_vals);
                 if (sFunc == NULL) {
                         *deschasopcode = true;
-                        sFunc = wmem_strdup_printf(wmem_packet_scope(), "User Control Message 0x%01x", iUCM);
+                        sFunc = wmem_strdup_printf(allocator, "User Control Message 0x%01x", iUCM);
                 }
 
                 if (iUCM == RTMPT_UCM_STREAM_BEGIN || iUCM == RTMPT_UCM_STREAM_EOF ||
                     iUCM == RTMPT_UCM_STREAM_DRY || iUCM == RTMPT_UCM_STREAM_ISRECORDED) {
                         if (tp->len >= 6 && remain >= 6) {
-                                sParam = wmem_strdup_printf(wmem_packet_scope(), " %d", tvb_get_ntohl(tvb, offset+2));
+                                sParam = wmem_strdup_printf(allocator, " %d", tvb_get_ntohl(tvb, offset+2));
                         }
                 } else if (iUCM == RTMPT_UCM_SET_BUFFER) {
                         if (tp->len >= 10 && remain >= 10) {
-                                sParam = wmem_strdup_printf(wmem_packet_scope(), " %d,%dms",
+                                sParam = wmem_strdup_printf(allocator, " %d,%dms",
                                                           tvb_get_ntohl(tvb, offset+2),
                                                           tvb_get_ntohl(tvb, offset+6));
                         }
                 }
 
-                return wmem_strdup_printf(wmem_packet_scope(), "%s%s", sFunc, sParam);
+                return wmem_strdup_printf(allocator, "%s%s", sFunc, sParam);
 
         } else if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3 ||
                    tp->cmd == RTMPT_TYPE_DATA_AMF0 || tp->cmd == RTMPT_TYPE_DATA_AMF3) {
@@ -871,34 +871,34 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t r
                         slen = tvb_get_ntohs(tvb, offset+1+soff);
                 }
                 if (slen > 0) {
-                        sFunc = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+3+soff, slen, ENC_ASCII);
+                        sFunc = tvb_get_string_enc(allocator, tvb, offset+3+soff, slen, ENC_ASCII);
                         ws_debug("got function call '%s'", sFunc);
 
                         if (strcmp(sFunc, "connect") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 2, "app");
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 2, "app");
                         } else if (strcmp(sFunc, "play") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "play2") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "streamName");
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, "streamName");
                         } else if (strcmp(sFunc, "releaseStream") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "FCPublish") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "publish") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "onStatus") == 0) {
                                 if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3) {
-                                        sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "code");
+                                        sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, "code");
                                 } else {
-                                        sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 1, "code");
+                                        sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 1, "code");
                                 }
                         } else if (strcmp(sFunc, "onPlayStatus") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 1, "code");
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 1, "code");
                         } else if (strcmp(sFunc, "_result") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "code");
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, "code");
                                 tp->isresponse = true;
                         } else if (strcmp(sFunc, "_error") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "code");
+                                sParam = rtmpt_get_amf_param(allocator, tvb, offset+soff, pi, 3, "code");
                                 tp->isresponse = true;
                         }
 
@@ -912,9 +912,9 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, uint32_t offset, proto_item* pi, uint32_t r
 
                 if (sFunc) {
                         if (sParam) {
-                                return wmem_strdup_printf(wmem_packet_scope(), "%s('%s')", sFunc, sParam);
+                                return wmem_strdup_printf(allocator, "%s('%s')", sFunc, sParam);
                         } else {
-                                return wmem_strdup_printf(wmem_packet_scope(), "%s()", sFunc);
+                                return wmem_strdup_printf(allocator, "%s()", sFunc);
                         }
                 }
         }
@@ -1976,7 +1976,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         if (tp->id <= RTMPT_ID_MAX)
         {
-                sDesc = rtmpt_get_packet_desc(tvb, iBodyOffset, tree, iBodyRemain, rconv, cdir, tp, &deschasopcode);
+                sDesc = rtmpt_get_packet_desc(pinfo->pool, tvb, iBodyOffset, tree, iBodyRemain, rconv, cdir, tp, &deschasopcode);
         }
 
         if (tp->id>RTMPT_ID_MAX) {

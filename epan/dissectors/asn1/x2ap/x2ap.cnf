@@ -662,7 +662,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_FTR E-RABUsageReport-Item/startTimeStamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.FN_BODY E-RABUsageReport-Item/endTimeStamp VAL_PTR = &timestamp_tvb
@@ -671,7 +671,7 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_FTR E-RABUsageReport-Item/endTimeStamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.TYPE_ATTR

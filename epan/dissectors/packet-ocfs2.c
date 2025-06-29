@@ -643,7 +643,7 @@ dlm_fmt_revision( char *result, uint32_t revision )
 #define DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP	32
 
 #define DLM_QUERY_JOIN_REQUEST_OLD_LEN		100
-static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int offset)
+static void dissect_dlm_query_join_request(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset)
 {
 	uint8_t cc, *node_bits_array;
 	uint8_t *node_map;
@@ -651,7 +651,7 @@ static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int 
 	unsigned int i, j;
 	bool oldver = false;
 
-	node_bits_array = (uint8_t *)wmem_alloc0(wmem_packet_scope(), (DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP*8)+1);
+	node_bits_array = (uint8_t *)wmem_alloc0(pinfo->pool, (DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP * 8) + 1);
 
 	len = tvb_reported_length_remaining(tvb, offset);
 	if (len == DLM_QUERY_JOIN_REQUEST_OLD_LEN)
@@ -684,7 +684,7 @@ static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int 
 	offset += 64;
 
 	/* node_map */
-	node_map = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, offset, DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP);
+	node_map = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP);
 
 	for (i = 0; i < DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP; i++) {
 		cc = node_map[i];
@@ -700,7 +700,7 @@ static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int 
 
 #define O2HB_MAX_REGION_NAME_LEN 32
 
-static void dissect_dlm_query_region(proto_tree *tree, tvbuff_t *tvb,
+static void dissect_dlm_query_region(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 				     unsigned offset)
 {
 	uint32_t i, num_regions;
@@ -727,7 +727,7 @@ static void dissect_dlm_query_region(proto_tree *tree, tvbuff_t *tvb,
 
 	/* qr_regions */
 	for (i = 0; i < num_regions; i++, offset += O2HB_MAX_REGION_NAME_LEN) {
-		region = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, O2HB_MAX_REGION_NAME_LEN, ENC_ASCII);
+		region = tvb_get_string_enc(pinfo->pool, tvb, offset, O2HB_MAX_REGION_NAME_LEN, ENC_ASCII);
 		proto_tree_add_string_format(tree, hf_dlm_qr_region, tvb, offset, 1,
 					   region, "Region%d: %s", i + 1, region);
 	}
@@ -1122,7 +1122,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			dissect_dlm_migrate_lockres(subtree, tvb, offset);
 			break;
 		case DLM_QUERY_JOIN_MSG:
-			dissect_dlm_query_join_request(subtree, tvb, offset);
+			dissect_dlm_query_join_request(subtree, pinfo, tvb, offset);
 			break;
 		case DLM_ASSERT_JOINED_MSG:
 		case DLM_CANCEL_JOIN_MSG:
@@ -1145,7 +1145,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			dissect_finalize_reco_msg(subtree, tvb, offset);
 			break;
 		case DLM_QUERY_REGION_MSG:
-			dissect_dlm_query_region(subtree, tvb, offset);
+			dissect_dlm_query_region(subtree, pinfo, tvb, offset);
 			break;
 		case DLM_QUERY_NODEINFO_MSG:
 			dissect_dlm_query_nodeinfo(subtree, tvb, offset);

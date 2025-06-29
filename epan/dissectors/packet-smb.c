@@ -12368,7 +12368,7 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-dissect_dfs_referral_strings(tvbuff_t *tvb, proto_tree *tree, int hfindex,
+dissect_dfs_referral_strings(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int hfindex,
 			     int nstring, int stroffset, int oldoffset, int offset,
 			     uint16_t bc, bool unicode, int *end)
 {
@@ -12382,7 +12382,7 @@ dissect_dfs_referral_strings(tvbuff_t *tvb, proto_tree *tree, int hfindex,
 	bc -= (stroffset - offset);
 	for (istring = 0; istring < nstring; istring++) {
 		if ((int16_t)bc > 0) {
-			str = smb_get_unicode_or_ascii_string(wmem_packet_scope(), tvb, &stroffset, unicode, &str_len, false, false, &bc);
+			str = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &stroffset, unicode, &str_len, false, false, &bc);
 			CHECK_STRING_TRANS_SUBR(str);
 			proto_tree_add_string(tree, hfindex, tvb, stroffset, str_len, str);
 			stroffset += str_len;
@@ -12397,17 +12397,17 @@ dissect_dfs_referral_strings(tvbuff_t *tvb, proto_tree *tree, int hfindex,
 
 
 static int
-dissect_dfs_referral_string(tvbuff_t *tvb, proto_tree *tree, int hfindex,
+dissect_dfs_referral_string(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int hfindex,
 			    int stroffset, int oldoffset, int offset,
 			    uint16_t bc, bool unicode, int *end)
 {
-	return dissect_dfs_referral_strings(tvb, tree, hfindex,
+	return dissect_dfs_referral_strings(tvb, pinfo, tree, hfindex,
 					   1, stroffset, oldoffset, offset,
 					   bc, unicode, end);
 }
 
 static int
-dissect_dfs_referral_entry_v2(tvbuff_t *tvb, proto_tree *tree, int oldoffset, int offset,
+dissect_dfs_referral_entry_v2(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int oldoffset, int offset,
 			      uint16_t refflags _U_, uint16_t *bcp, bool unicode, int *ucstring_end)
 {
 
@@ -12445,21 +12445,21 @@ dissect_dfs_referral_entry_v2(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 	/* path */
 	if (pathoffset) {
-		dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_path,
+		dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_path,
 					    pathoffset+oldoffset, oldoffset, offset,
 					    *bcp, unicode, ucstring_end);
 	}
 
 	/* alt path */
 	if (altpathoffset) {
-		dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_alt_path,
+		dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_alt_path,
 					    altpathoffset+oldoffset, oldoffset, offset,
 					    *bcp, unicode, ucstring_end);
 	}
 
 	/* node */
 	if (nodeoffset) {
-		dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_node,
+		dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_node,
 					    nodeoffset+oldoffset, oldoffset, offset,
 					    *bcp, unicode, ucstring_end);
 	}
@@ -12470,7 +12470,7 @@ dissect_dfs_referral_entry_v2(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 
 static int
-dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, int offset,
+dissect_dfs_referral_entry_v3(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int oldoffset, int offset,
 			      uint16_t refflags, uint16_t *bcp, bool unicode, int *ucstring_end)
 {
 	uint16_t domoffset;
@@ -12510,7 +12510,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 		/* domain name */
 		if (domoffset) {
-			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_domain_name,
+			dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_domain_name,
 						    domoffset+oldoffset, oldoffset, offset,
 						    *bcp, unicode, ucstring_end);
 		}
@@ -12520,7 +12520,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 			exptree = proto_tree_add_subtree(tree, tvb, offset, *bcp, ett_smb_dfs_referral_expnames, NULL, "Expanded Names");
 
-			dissect_dfs_referral_strings(tvb, exptree, hf_smb_dfs_referral_expname,
+			dissect_dfs_referral_strings(tvb, pinfo, exptree, hf_smb_dfs_referral_expname,
 						     nexpnames, expoffset+oldoffset, oldoffset, offset,
 						     *bcp, unicode, ucstring_end);
 		}
@@ -12550,21 +12550,21 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 		/* path */
 		if (pathoffset) {
-			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_path,
+			dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_path,
 						    pathoffset+oldoffset, oldoffset, offset,
 						    *bcp, unicode, ucstring_end);
 		}
 
 		/* alt path */
 		if (altpathoffset) {
-			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_alt_path,
+			dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_alt_path,
 						    altpathoffset+oldoffset, oldoffset, offset,
 						    *bcp, unicode, ucstring_end);
 		}
 
 		/* node */
 		if (nodeoffset) {
-			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_node,
+			dissect_dfs_referral_string(tvb, pinfo, tree, hf_smb_dfs_referral_node,
 						    nodeoffset+oldoffset, oldoffset, offset,
 						    *bcp, unicode, ucstring_end);
 		}
@@ -12667,17 +12667,17 @@ dissect_smb_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 				break;
 
 			case 2:
-				offset = dissect_dfs_referral_entry_v2(tvb, rt, old_offset_2, offset,
+				offset = dissect_dfs_referral_entry_v2(tvb, pinfo, rt, old_offset_2, offset,
 								       refflags, bcp, unicode, &ucstring_end);
 				break;
 			case 3:
-				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset_2, offset,
+				offset = dissect_dfs_referral_entry_v3(tvb, pinfo, rt, old_offset_2, offset,
 								       refflags, bcp, unicode, &ucstring_end);
 				break;
 			case 4:
 				/* V4 is extactly same as V3, except the version number and
 				 * one more ReferralEntryFlags */
-				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset_2, offset,
+				offset = dissect_dfs_referral_entry_v3(tvb, pinfo, rt, old_offset_2, offset,
 								       refflags, bcp, unicode, &ucstring_end);
 				break;
 			}

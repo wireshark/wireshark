@@ -313,13 +313,13 @@ dh_x25519(wg_qqword *shared_secret, const wg_qqword *priv, const wg_qqword *pub)
 
 /*
  * Returns the string representation (base64) of a public key.
- * The returned value is allocated with wmem_packet_scope.
+ * The returned value is allocated with wmem_allocator scope.
  */
 static const char *
-pubkey_to_string(const wg_qqword *pubkey)
+pubkey_to_string(wmem_allocator_t* allocator, const wg_qqword *pubkey)
 {
     char *str = g_base64_encode(pubkey->data, WG_KEY_LEN);
-    char *ret = wmem_strdup(wmem_packet_scope(), str);
+    char *ret = wmem_strdup(allocator, str);
     g_free(str);
     return ret;
 }
@@ -1141,7 +1141,7 @@ wg_sessions_lookup(packet_info *pinfo, uint32_t receiver_id, bool *receiver_is_i
  * TODO on PINFO_FD_VISITED, reuse previously discovered keys from session?
  */
 static const wg_skey_t *
-wg_mac1_key_probe(tvbuff_t *tvb, bool is_initiation)
+wg_mac1_key_probe(wmem_allocator_t* allocator, tvbuff_t *tvb, bool is_initiation)
 {
     const int mac1_offset = is_initiation ? 116 : 60;
 
@@ -1150,7 +1150,7 @@ wg_mac1_key_probe(tvbuff_t *tvb, bool is_initiation)
         return NULL;
     }
 
-    uint8_t *mac1_msgdata = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, 0, mac1_offset);
+    uint8_t *mac1_msgdata = (uint8_t *)tvb_memdup(allocator, tvb, 0, mac1_offset);
     const uint8_t *mac1_output = tvb_get_ptr(tvb, mac1_offset, 16);
 
     // MAC1 is computed over a message with three reserved bytes set to zero.
@@ -1256,11 +1256,11 @@ wg_dissect_key_extra(proto_tree *tree, tvbuff_t *tvb, const wg_qqword *pubkey, b
 
 
 static void
-wg_dissect_pubkey(proto_tree *tree, tvbuff_t *tvb, int offset, bool is_ephemeral)
+wg_dissect_pubkey(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset, bool is_ephemeral)
 {
     const uint8_t *pubkey = tvb_get_ptr(tvb, offset, 32);
     char *str = g_base64_encode(pubkey, 32);
-    char *key_str = wmem_strdup(wmem_packet_scope(), str);
+    char *key_str = wmem_strdup(pinfo->pool, str);
     g_free(str);
 
     int hf_id = is_ephemeral ? hf_wg_ephemeral : hf_wg_static;
@@ -1284,7 +1284,7 @@ wg_dissect_decrypted_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tr
 
     new_tvb = tvb_new_child_real_data(tvb, hs->initiator_skey->pub_key.data, WG_KEY_LEN, WG_KEY_LEN);
     add_new_data_source(pinfo, new_tvb, "Decrypted Static");
-    wg_dissect_pubkey(wg_tree, new_tvb, 0, false);
+    wg_dissect_pubkey(wg_tree, pinfo, new_tvb, 0, false);
 }
 
 static void
@@ -1347,7 +1347,7 @@ wg_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tr
 }
 
 static void
-wg_dissect_mac1_pubkey(proto_tree *tree, tvbuff_t *tvb, const wg_skey_t *skey)
+wg_dissect_mac1_pubkey(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, const wg_skey_t *skey)
 {
     proto_item *ti;
 
@@ -1355,7 +1355,7 @@ wg_dissect_mac1_pubkey(proto_tree *tree, tvbuff_t *tvb, const wg_skey_t *skey)
         return;
     }
 
-    ti = proto_tree_add_string(tree, hf_wg_receiver_pubkey, tvb, 0, 0, pubkey_to_string(&skey->pub_key));
+    ti = proto_tree_add_string(tree, hf_wg_receiver_pubkey, tvb, 0, 0, pubkey_to_string(pinfo->pool, &skey->pub_key));
     proto_item_set_generated(ti);
     proto_tree *key_tree = proto_item_add_subtree(ti, ett_key_info);
     ti = proto_tree_add_boolean(key_tree, hf_wg_receiver_pubkey_known_privkey, tvb, 0, 0, !!has_private_key(&skey->priv_key));
@@ -1369,7 +1369,7 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
     proto_item *ti;
 
     wg_keylog_read();
-    const wg_skey_t *skey_r = wg_mac1_key_probe(tvb, true);
+    const wg_skey_t *skey_r = wg_mac1_key_probe(pinfo->pool, tvb, true);
     wg_handshake_state_t *hs = NULL;
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -1385,13 +1385,13 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
 
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_sender, tvb, 4, 4, ENC_LITTLE_ENDIAN, &sender_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", sender=0x%08X", sender_id);
-    wg_dissect_pubkey(wg_tree, tvb, 8, true);
+    wg_dissect_pubkey(wg_tree, pinfo, tvb, 8, true);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_static, tvb, 40, 32 + AUTH_TAG_LENGTH, ENC_NA);
     wg_dissect_decrypted_static(tvb, pinfo, wg_tree, hs);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_timestamp, tvb, 88, 12 + AUTH_TAG_LENGTH, ENC_NA);
     wg_dissect_decrypted_timestamp(tvb, pinfo, wg_tree, hs);
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 116, 16, ENC_NA);
-    wg_dissect_mac1_pubkey(wg_tree, tvb, skey_r);
+    wg_dissect_mac1_pubkey(wg_tree, pinfo, tvb, skey_r);
     proto_tree_add_item(wg_tree, hf_wg_mac2, tvb, 132, 16, ENC_NA);
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -1425,7 +1425,7 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
     wg_session_t *session;
 
     wg_keylog_read();
-    const wg_skey_t *skey_i = wg_mac1_key_probe(tvb, false);
+    const wg_skey_t *skey_i = wg_mac1_key_probe(pinfo->pool, tvb, false);
 
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_sender, tvb, 4, 4, ENC_LITTLE_ENDIAN, &sender_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", sender=0x%08X", sender_id);
@@ -1442,14 +1442,14 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
         session = wg_pinfo ? wg_pinfo->session : NULL;
     }
 
-    wg_dissect_pubkey(wg_tree, tvb, 12, true);
+    wg_dissect_pubkey(wg_tree, pinfo, tvb, 12, true);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_empty, tvb, 44, 16, ENC_NA);
     if (session && session->hs) {
         ti = proto_tree_add_boolean(wg_tree, hf_wg_handshake_ok, tvb, 0, 0, !!session->hs->empty_ok);
         proto_item_set_generated(ti);
     }
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 60, 16, ENC_NA);
-    wg_dissect_mac1_pubkey(wg_tree, tvb, skey_i);
+    wg_dissect_mac1_pubkey(wg_tree, pinfo, tvb, skey_i);
     proto_tree_add_item(wg_tree, hf_wg_mac2, tvb, 76, 16, ENC_NA);
 
     if (!PINFO_FD_VISITED(pinfo)) {

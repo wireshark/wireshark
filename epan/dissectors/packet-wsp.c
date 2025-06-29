@@ -1254,7 +1254,7 @@ static heur_dissector_list_t heur_subdissector_list;
 
 static void add_uri (proto_tree *, packet_info *, tvbuff_t *, unsigned, unsigned, proto_item *);
 
-static void add_post_variable (proto_tree *, tvbuff_t *, unsigned, unsigned, unsigned, unsigned);
+static void add_post_variable (proto_tree *, packet_info*, tvbuff_t *, unsigned, unsigned, unsigned, unsigned);
 static void add_multipart_data (proto_tree *, tvbuff_t *, packet_info *pinfo);
 
 static void add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, uint8_t pdu_type);
@@ -1317,7 +1317,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
  * get_text_string() macro now returns wmem_alloc'd memory. */
 #define get_text_string(str,tvb,start,len,ok) \
     if (is_text_string(tvb_get_uint8(tvb,start))) { \
-        str = (char *)tvb_get_stringz_enc(wmem_packet_scope(), tvb,start,(int *)&len,ENC_ASCII); \
+        str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb,start,(int *)&len,ENC_ASCII); \
         ok = true; \
     } else { len = 0; str = NULL; ok = false; }
 #define get_token_text(str,tvb,start,len,ok) \
@@ -3352,7 +3352,7 @@ wkh_openwave_x_up_proxy_push_accept(proto_tree *tree, tvbuff_t *tvb, uint32_t hd
 }
 
 
-static bool parameter_text(proto_tree *tree, tvbuff_t *tvb, int *offset, proto_item *ti, int hf)
+static bool parameter_text(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int *offset, proto_item *ti, int hf)
 {
     char *val_str;
     bool ok;
@@ -3553,7 +3553,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x05:  /* WSP 1.1 encoding - Name: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_name))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_name))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Name (WSP 1.1 encoding) parameter value: invalid Text-string");
@@ -3570,7 +3570,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x06:  /* WSP 1.1 encoding - Filename: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_filename))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_filename))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Filename (WSP 1.1 encoding) parameter value: invalid Text-string");
@@ -3615,7 +3615,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x0A:  /* WSP 1.2 encoding - Start: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_start))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_start))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Start (WSP 1.2 encoding) parameter value: invalid Text-string");
@@ -3632,7 +3632,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x0B:  /* WSP 1.2 encoding - Start-info: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_start_info))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_start_info))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Start-info (WSP 1.2 encoding) parameter value: invalid Text-string");
@@ -3649,7 +3649,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x0C:  /* WSP 1.3 encoding - Comment: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_comment))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_comment))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Comment (WSP 1.3 encoding) parameter value: invalid Text-string");
@@ -3666,7 +3666,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x0D:  /* WSP 1.3 encoding - Domain: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_domain))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_domain))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Domain (WSP 1.3 encoding) parameter value: invalid Text-string");
@@ -3683,7 +3683,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             break;
 
         case 0x0F:  /* WSP 1.3 encoding - Path: Text-string */
-            if (!parameter_text(tree, tvb, &offset, ti, hf_wsp_parameter_path))
+            if (!parameter_text(tree, pinfo, tvb, &offset, ti, hf_wsp_parameter_path))
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_wsp_invalid_parameter_value, tvb, start, len,
                                 "Invalid Path (WSP 1.3 encoding) parameter value: invalid Text-string");
@@ -5404,7 +5404,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, unsigned contentType,
             {
                 if (variableEnd > 0)
                 {
-                    add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+                    add_post_variable (sub_tree, pinfo, tvb, variableStart, variableEnd, valueStart, offset);
                 }
                 variableStart = offset+1;
                 variableEnd = 0;
@@ -5415,7 +5415,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, unsigned contentType,
         /* See if there's outstanding data */
         if (variableEnd > 0)
         {
-            add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+            add_post_variable (sub_tree, pinfo, tvb, variableStart, variableEnd, valueStart, offset);
         }
     }
     else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x24) ||
@@ -5427,25 +5427,25 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, unsigned contentType,
 }
 
 static void
-add_post_variable (proto_tree *tree, tvbuff_t *tvb, unsigned variableStart, unsigned variableEnd, unsigned valueStart, unsigned valueEnd)
+add_post_variable (proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned variableStart, unsigned variableEnd, unsigned valueStart, unsigned valueEnd)
 {
     int   variableLength = variableEnd-variableStart;
     int   valueLength    = 0;
     char *variableBuffer;
     char *valueBuffer;
 
-    variableBuffer = tvb_get_string_enc(wmem_packet_scope(), tvb, variableStart, variableLength, ENC_ASCII);
+    variableBuffer = tvb_get_string_enc(pinfo->pool, tvb, variableStart, variableLength, ENC_ASCII);
 
     if (valueEnd < valueStart)
     {
-        valueBuffer = (char *)wmem_alloc(wmem_packet_scope(), 1);
+        valueBuffer = (char *)wmem_alloc(pinfo->pool, 1);
         valueBuffer[0] = 0;
         valueEnd = valueStart;
     }
     else
     {
         valueLength = valueEnd-valueStart;
-        valueBuffer = tvb_get_string_enc(wmem_packet_scope(), tvb, valueStart, valueLength, ENC_ASCII);
+        valueBuffer = tvb_get_string_enc(pinfo->pool, tvb, valueStart, valueLength, ENC_ASCII);
     }
 
     /* Check for variables with no value */

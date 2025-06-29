@@ -292,9 +292,9 @@ static void init_jf_to_hf_map(void) {
 }
 
 static void
-dissect_sjle_time_usecs(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
+dissect_sjle_time_usecs(proto_tree *tree, packet_info* pinfo, int hf_idx, tvbuff_t *tvb, int offset, int len) {
     uint64_t rt_ts = 0;
-    char *time_str = tvb_format_text(wmem_packet_scope(), tvb, offset, len);
+    char *time_str = tvb_format_text(pinfo->pool, tvb, offset, len);
     bool ok = ws_strtou64(time_str, NULL, &rt_ts);
     if (ok) {
         nstime_t ts;
@@ -307,21 +307,20 @@ dissect_sjle_time_usecs(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_sjle_uint(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    uint32_t uint_val = (uint32_t) strtoul(tvb_format_text(wmem_packet_scope(), tvb, offset, len), NULL, 10);
+dissect_sjle_uint(proto_tree *tree, packet_info* pinfo, int hf_idx, tvbuff_t *tvb, int offset, int len) {
+    uint32_t uint_val = (uint32_t) strtoul(tvb_format_text(pinfo->pool, tvb, offset, len), NULL, 10);
     proto_tree_add_uint(tree, hf_idx, tvb, offset, len, uint_val);
 }
 
 static void
-dissect_sjle_int(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    int32_t int_val = (int32_t) strtol(tvb_format_text(wmem_packet_scope(), tvb, offset, len), NULL, 10);
+dissect_sjle_int(proto_tree *tree, packet_info* pinfo, int hf_idx, tvbuff_t *tvb, int offset, int len) {
+    int32_t int_val = (int32_t) strtol(tvb_format_text(pinfo->pool, tvb, offset, len), NULL, 10);
     proto_tree_add_int(tree, hf_idx, tvb, offset, len, int_val);
 }
 
 /* Dissect a line-based journal export entry */
 static int
-dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        void *data _U_)
+dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *sje_tree;
@@ -352,17 +351,17 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 switch (proto_registrar_get_ftype(hf_idx)) {
                 case FT_ABSOLUTE_TIME:
                 case FT_RELATIVE_TIME:
-                    dissect_sjle_time_usecs(sje_tree, hf_idx, tvb, eq_off, val_len);
+                    dissect_sjle_time_usecs(sje_tree, pinfo, hf_idx, tvb, eq_off, val_len);
                     break;
                 case FT_UINT32:
                 case FT_UINT16:
                 case FT_UINT8:
-                    dissect_sjle_uint(sje_tree, hf_idx, tvb, eq_off, val_len);
+                    dissect_sjle_uint(sje_tree, pinfo, hf_idx, tvb, eq_off, val_len);
                     break;
                 case FT_INT32:
                 case FT_INT16:
                 case FT_INT8:
-                    dissect_sjle_int(sje_tree, hf_idx, tvb, eq_off, val_len);
+                    dissect_sjle_int(sje_tree, pinfo, hf_idx, tvb, eq_off, val_len);
                     break;
                 case FT_STRING:
                     proto_tree_add_item(sje_tree, jf_to_hf[i].hfid, tvb, eq_off, val_len, ENC_UTF_8|ENC_NA);

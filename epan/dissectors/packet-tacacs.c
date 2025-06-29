@@ -41,7 +41,7 @@ void proto_reg_handoff_tacplus(void);
 void proto_register_tacplus(void);
 static dissector_handle_t tacplus_handle;
 
-static void md5_xor( uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint8_t version, uint8_t seq_no );
+static void md5_xor(wmem_allocator_t* allocator, uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint8_t version, uint8_t seq_no );
 static int  dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static int proto_tacacs;
@@ -373,7 +373,7 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 	buff = (uint8_t *)tvb_memdup(pinfo->pool, tvb, TAC_PLUS_HDR_SIZE, len);
 
 
-	md5_xor( buff, key, len, session_id,version, tvb_get_uint8(tvb,2) );
+	md5_xor(pinfo->pool, buff, key, len, session_id,version, tvb_get_uint8(tvb,2) );
 
 	/* Allocate a new tvbuff, referring to the decrypted data. */
 	*dst_tvb = tvb_new_child_real_data(tvb,  buff, len, len );
@@ -384,7 +384,7 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 	return 0;
 }
 static void
-dissect_tacplus_args_list( tvbuff_t *tvb, proto_tree *tree, int data_off, int len_off, int arg_cnt )
+dissect_tacplus_args_list( tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int data_off, int len_off, int arg_cnt )
 {
 	int i;
 	int len;
@@ -393,7 +393,7 @@ dissect_tacplus_args_list( tvbuff_t *tvb, proto_tree *tree, int data_off, int le
 		len=tvb_get_uint8(tvb,len_off+i);
 		proto_tree_add_uint_format(tree, hf_tacplus_arg_length, tvb, len_off+i, 1, len,
 									"Arg[%d] length: %d", i, len);
-		value=tvb_get_string_enc(wmem_packet_scope(), tvb, data_off, len, ENC_ASCII|ENC_NA);
+		value=tvb_get_string_enc(pinfo->pool, tvb, data_off, len, ENC_ASCII|ENC_NA);
 		proto_tree_add_string_format(tree, hf_tacplus_arg_value, tvb, data_off, len, value,
 									"Arg[%d] value: %s", i, value);
 		data_off+=len;
@@ -593,7 +593,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 }
 
 static void
-dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
+dissect_tacplus_body_author_req( tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree )
 {
 	int val;
 	int var_off;
@@ -609,11 +609,11 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 
 /* var_off points after rem_addr */
 
-	dissect_tacplus_args_list( tvb, tree, var_off, AUTHOR_Q_VARDATA_OFF, val );
+	dissect_tacplus_args_list( tvb, pinfo, tree, var_off, AUTHOR_Q_VARDATA_OFF, val );
 }
 
 static void
-dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
+dissect_tacplus_body_author_rep( tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree )
 {
 	int offset=AUTHOR_R_VARDATA_OFF;
 	int val;
@@ -632,11 +632,11 @@ dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 	offset+=val;
 	proto_tree_add_item(tree, hf_tacplus_body_author_rep_arg_count, tvb, AUTHOR_R_ARGC_OFF, 1, ENC_BIG_ENDIAN);
 
-	dissect_tacplus_args_list( tvb, tree, offset, AUTHOR_R_VARDATA_OFF, val );
+	dissect_tacplus_args_list( tvb, pinfo, tree, offset, AUTHOR_R_VARDATA_OFF, val );
 }
 
 static void
-dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
+dissect_tacplus_body_acct_req( tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree )
 {
 	int val, var_off;
 
@@ -662,7 +662,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 
 	proto_tree_add_item(tree, hf_tacplus_acct_arg_count, tvb, ACCT_Q_ARG_CNT_OFF, 1, ENC_BIG_ENDIAN);
 
-	dissect_tacplus_args_list( tvb, tree, var_off, ACCT_Q_VARDATA_OFF, val );
+	dissect_tacplus_args_list( tvb, pinfo, tree, var_off, ACCT_Q_VARDATA_OFF, val );
 
 
 }
@@ -712,13 +712,13 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, packet_info *pinfo, tvbuff_t * tvb, pro
 		break;
 	  case TAC_PLUS_AUTHOR:
 		if ( seq_no & 0x01)
-			dissect_tacplus_body_author_req( tvb, tree );
+			dissect_tacplus_body_author_req( tvb, pinfo, tree );
 		else
-			dissect_tacplus_body_author_rep( tvb, tree );
+			dissect_tacplus_body_author_rep( tvb, pinfo, tree );
 		break;
 	  case TAC_PLUS_ACCT:
 		if ( seq_no & 0x01)
-			dissect_tacplus_body_acct_req( tvb, tree );
+			dissect_tacplus_body_acct_req( tvb, pinfo, tree );
 		else
 			dissect_tacplus_body_acct_rep( tvb, tree );
 		break;
@@ -1278,7 +1278,7 @@ proto_reg_handoff_tacplus(void)
 }
 
 static void
-md5_xor( uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint8_t version, uint8_t seq_no )
+md5_xor(wmem_allocator_t* allocator, uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint8_t version, uint8_t seq_no )
 {
 	int i,j;
 	size_t md5_len;
@@ -1289,7 +1289,7 @@ md5_xor( uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint
 	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
 
-	md5_buff = (uint8_t*)wmem_alloc(wmem_packet_scope(), md5_len + HASH_MD5_LENGTH);
+	md5_buff = (uint8_t*)wmem_alloc(allocator, md5_len + HASH_MD5_LENGTH);
 
 
 	mdp = md5_buff;

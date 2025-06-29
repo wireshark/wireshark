@@ -224,7 +224,7 @@ val_to_valstr(uint32_t val, const value_valuestring *vvs)
  *
  * char * ext_t_function(tvbuff_t *tvb, uint32_t value, uint32_t strtbl);
  */
-typedef char * (* ext_t_func_ptr)(tvbuff_t *, uint32_t, uint32_t);
+typedef char * (* ext_t_func_ptr)(wmem_allocator_t*, tvbuff_t *, uint32_t, uint32_t);
 
 /* Note on parsing of OPAQUE data
  * ------------------------------
@@ -1215,26 +1215,26 @@ static value_string_ext vals_wbxml1x_global_tokens_ext = VALUE_STRING_EXT_INIT(v
  * Wireless Markup Language
  ***************************************/
 static char *
-ext_t_0_wml_10(tvbuff_t *tvb, uint32_t value, uint32_t str_tbl)
+ext_t_0_wml_10(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t value, uint32_t str_tbl)
 {
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "Variable substitution - escaped: '%s'",
-				    tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_tbl + value, NULL, ENC_ASCII));
+	char *str = wmem_strdup_printf(allocator, "Variable substitution - escaped: '%s'",
+				    tvb_get_stringz_enc(allocator, tvb, str_tbl + value, NULL, ENC_ASCII));
 	return str;
 }
 
 static char *
-ext_t_1_wml_10(tvbuff_t *tvb, uint32_t value, uint32_t str_tbl)
+ext_t_1_wml_10(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t value, uint32_t str_tbl)
 {
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "Variable substitution - unescaped: '%s'",
-				    tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_tbl + value, NULL, ENC_ASCII));
+	char *str = wmem_strdup_printf(allocator, "Variable substitution - unescaped: '%s'",
+				    tvb_get_stringz_enc(allocator, tvb, str_tbl + value, NULL, ENC_ASCII));
 	return str;
 }
 
 static char *
-ext_t_2_wml_10(tvbuff_t *tvb, uint32_t value, uint32_t str_tbl)
+ext_t_2_wml_10(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t value, uint32_t str_tbl)
 {
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "Variable substitution - no transformation: '%s'",
-				    tvb_get_stringz_enc(wmem_packet_scope(), tvb, str_tbl + value, NULL, ENC_ASCII));
+	char *str = wmem_strdup_printf(allocator, "Variable substitution - no transformation: '%s'",
+				    tvb_get_stringz_enc(allocator, tvb, str_tbl + value, NULL, ENC_ASCII));
 	return str;
 }
 /*****   Global extension tokens   *****/
@@ -5224,9 +5224,9 @@ static value_string_ext vals_wv_csp_11_element_value_tokens_ext = VALUE_STRING_E
 /***** Token code page aggregation *****/
 
 static char *
-ext_t_0_wv_cspc_11(tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
+ext_t_0_wv_cspc_11(wmem_allocator_t* allocator, tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
 {
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "Common Value: '%s'",
+	char *str = wmem_strdup_printf(allocator, "Common Value: '%s'",
 				    val_to_str_ext(value, &vals_wv_csp_11_element_value_tokens_ext,
 					       "<Unknown WV-CSP 1.1 Common Value token 0x%X>"));
 	return str;
@@ -5835,9 +5835,9 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 /***** Token code page aggregation *****/
 
 static char *
-ext_t_0_wv_cspc_12(tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
+ext_t_0_wv_cspc_12(wmem_allocator_t* allocator, tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
 {
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "Common Value: '%s'",
+	char *str = wmem_strdup_printf(allocator, "Common Value: '%s'",
 				    val_to_str(value, vals_wv_csp_12_element_value_tokens,
 					       "<Unknown WV-CSP 1.2 Common Value token 0x%X>"));
 	return str;
@@ -6675,9 +6675,9 @@ static const value_string vals_wv_csp_13_element_value_tokens[] = {
 
 /***** Token code page aggregation *****/
 static char *
-ext_t_0_wv_cspc_13(tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
+ext_t_0_wv_cspc_13(wmem_allocator_t* allocator, tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
 {
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "Common Value: '%s'",
+	char *str = wmem_strdup_printf(allocator, "Common Value: '%s'",
 				    val_to_str(value, vals_wv_csp_13_element_value_tokens,
 					       "<Unknown WV-CSP 1.3 Common Value token 0x%X>"));
 	return str;
@@ -6939,7 +6939,7 @@ map_token (const value_valuestring *token_map, uint8_t codepage, uint8_t token) 
 
 /* Parse and display the WBXML string table. */
 static void
-show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, uint32_t str_tbl,
+show_wbxml_string_table (proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, uint32_t str_tbl,
 			 uint32_t str_tbl_len, unsigned charset)
 {
 	unsigned encoding = mibenum_charset_to_encoding(charset);
@@ -6964,8 +6964,8 @@ show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, uint32_t str_tbl,
 		    tvb, 0, 0, off - str_tbl);
 		proto_tree_add_item_ret_string_and_length (item_tree,
 		    hf_wbxml_string_table_item_string,
-		    tvb, off, -1, encoding, wmem_packet_scope(), &str, &len);
-		proto_item_append_text(ti, " '%s'", format_text(wmem_packet_scope(), str, strlen(str)));
+		    tvb, off, -1, encoding, pinfo->pool, &str, &len);
+		proto_item_append_text(ti, " '%s'", format_text(pinfo->pool, str, strlen(str)));
 		proto_item_set_len(ti, len);
 		off += len;
 	}
@@ -7143,7 +7143,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 				if (map != NULL) {
 
 					if (map->ext_t[peek & 0x03])
-						s = (map->ext_t[peek & 0x03])(tvb, idx, str_tbl);
+						s = (map->ext_t[peek & 0x03])(pinfo->pool, tvb, idx, str_tbl);
 					else
 						s = wmem_strdup_printf(pinfo->pool, "EXT_T_%1x (%s)", peek & 0x03,
 								    map_token (map->global, 0, peek));
@@ -7423,7 +7423,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 				if (map)
 				{
 					if (map->ext_t[peek & 0x03])
-						s = (map->ext_t[peek & 0x03])(tvb, idx, str_tbl);
+						s = (map->ext_t[peek & 0x03])(pinfo->pool, tvb, idx, str_tbl);
 					else
 						s = wmem_strdup_printf(pinfo->pool, "EXT_T_%1x (%s)", peek & 0x03,
 							        map_token (map->global, 0, peek));
@@ -7839,7 +7839,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					str_tbl_len);
 
 	if (str_tbl_len) { /* Display string table as subtree */
-		show_wbxml_string_table (wbxml_str_tbl_tree, tvb,
+		show_wbxml_string_table (wbxml_str_tbl_tree, pinfo, tvb,
 						str_tbl, str_tbl_len,
 						charset);
 	}

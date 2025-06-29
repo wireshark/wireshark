@@ -432,9 +432,10 @@ nts_find_cookie_by_uid(tvbuff_t *tvb_uid)
         return NULL;
 
     /* Hash UID */
-    tvb_uid_bytes = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb_uid, 0, uid_len);
+    tvb_uid_bytes = (uint8_t *)tvb_memdup(NULL, tvb_uid, 0, uid_len);
     lookup.uid_hash = wmem_strong_hash(tvb_uid_bytes, uid_len);
     lookup.cookie = NULL;
+    wmem_free(NULL, tvb_uid_bytes);
 
     /* Find cookie by UID hash */
     wmem_map_foreach(nts_cookies, nts_uid_lookup_callback, &lookup);

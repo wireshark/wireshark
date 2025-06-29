@@ -591,11 +591,11 @@ tipc_addr_value_to_buf(unsigned tipc_address, char *buf, int buf_len)
 }
 
 static char *
-tipc_addr_to_str(unsigned tipc_address)
+tipc_addr_to_str(wmem_allocator_t* allocator, unsigned tipc_address)
 {
 	char *buf;
 
-	buf = (char *)wmem_alloc(wmem_packet_scope(), MAX_TIPC_ADDRESS_STR_LEN);
+	buf = (char *)wmem_alloc(allocator, MAX_TIPC_ADDRESS_STR_LEN);
 	return tipc_addr_value_to_buf(tipc_address, buf, MAX_TIPC_ADDRESS_STR_LEN);
 }
 
@@ -667,7 +667,7 @@ dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(tree, hf_tipc_name_dist_key, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset+4;
 			dword = tvb_get_ntohl(tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tree, hf_tipcv2_name_dist_port_id_node, tvb, offset, 4, addr_str_ptr);
 			offset = offset+4;
 			proto_tree_add_item(tree, hf_tipcv2_dist_dist, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -889,7 +889,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			if (handle_v2_as & (V2_AS_1_6)) {
@@ -917,12 +917,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				offset = offset + 4;
 				/* W6 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W7 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W8 Unused */
@@ -954,7 +954,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			}
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			if (handle_v2_as & (V2_AS_1_6)) {
@@ -982,12 +982,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				offset = offset + 4;
 				/* W6 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W7 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W8 Unused */
@@ -1042,7 +1042,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
@@ -1081,12 +1081,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			} else {
 				/* W6 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W7 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W8 */
@@ -1147,7 +1147,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 
@@ -1161,13 +1161,13 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 			/* W6 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 
 			/* W7 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 
@@ -1213,7 +1213,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
@@ -1246,12 +1246,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				offset = offset + 4;
 				/* W6 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W7 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W8 Unused */
@@ -1273,7 +1273,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					case TIPCv2_SEC_ROUTING_TABLE:		/* 2  */
 						/* Cluster Address */
 						dword = tvb_get_ntohl(tipc_tvb, offset);
-						addr_str_ptr = tipc_addr_to_str(dword);
+						addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 						proto_tree_add_string(tipc_tree, hf_tipcv2_cluster_address, tipc_tvb, offset, 4, addr_str_ptr);
 						offset = offset + 4;
 						/* bitmap */
@@ -1283,7 +1283,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					case TIPCv2_ROUTE_REMOVAL:			/* 4  */
 						/* Node Address */
 						dword = tvb_get_ntohl(tipc_tvb, offset);
-						addr_str_ptr = tipc_addr_to_str(dword);
+						addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 						proto_tree_add_string(tipc_tree, hf_tipcv2_node_address, tipc_tvb, offset, 4, addr_str_ptr);
 						offset = offset + 4;
 					default:
@@ -1292,15 +1292,15 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			} else {
 				/* what if item_size is set to a value fitting to TIPC v1.6 ? */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_network_region, tipc_tvb, offset, 4, addr_str_ptr);
 				offset += 4;
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_local_router, tipc_tvb, offset, 4, addr_str_ptr);
 				offset += 4;
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_remote_router, tipc_tvb, offset, 4, addr_str_ptr);
 				offset += 4;
 				proto_tree_add_item(tipc_tree, hf_tipcv2_dist_dist, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1320,7 +1320,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 Unused */
@@ -1350,12 +1350,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			} else {
 				/* W6 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W7 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W8 Unused */
@@ -1391,7 +1391,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 Unused */
@@ -1403,13 +1403,13 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			/* W6 */
 			/* Originating Node: 32 bits. */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W7 */
 			/* Destination Node: 32 bits.  */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			if (handle_v2_as & (V2_AS_1_6 + V2_AS_ALL)) {
@@ -1449,7 +1449,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
@@ -1483,12 +1483,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				offset = offset + 4;
 				/* W6 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W7 */
 				dword = tvb_get_ntohl(tipc_tvb, offset);
-				addr_str_ptr = tipc_addr_to_str(dword);
+				addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 				proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 				offset = offset + 4;
 				/* W8 Unused */
@@ -1592,12 +1592,12 @@ w9:|                                                               |
 			/* W2 */
 			/* Destination Domain */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_destination_domain, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W3 */
 			dword = tvb_get_ntohl(tipc_tvb, offset);
-			addr_str_ptr = tipc_addr_to_str(dword);
+			addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
@@ -1810,7 +1810,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 	offset = offset + 4;
 	/* W3 previous node */
 	dword = tvb_get_ntohl(tipc_tvb, offset);
-	addr_str_ptr = tipc_addr_to_str(dword);
+	addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 	proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 	offset = offset + 4;
 
@@ -1825,12 +1825,12 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 
 		/* W6 Originating Node: 32 bits */
 		dword = tvb_get_ntohl(tipc_tvb, offset);
-		addr_str_ptr = tipc_addr_to_str(dword);
+		addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 		proto_tree_add_string(tipc_tree, hf_tipcv2_orig_node, tipc_tvb, offset, 4, addr_str_ptr);
 		offset = offset + 4;
 		/* W7 Destination Node: 32 bits */
 		dword = tvb_get_ntohl(tipc_tvb, offset);
-		addr_str_ptr = tipc_addr_to_str(dword);
+		addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 		proto_tree_add_string(tipc_tree, hf_tipcv2_dest_node, tipc_tvb, offset, 4, addr_str_ptr);
 		offset = offset + 4;
 		if (hdr_size > 8) {
@@ -2297,7 +2297,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	/* Word 2 */
 	dword = tvb_get_ntohl(tipc_tvb, offset);
-	addr_str_ptr = tipc_addr_to_str(dword);
+	addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 	proto_tree_add_string(tipc_tree, hf_tipc_prev_proc, tipc_tvb, offset, 4, addr_str_ptr);
 
 	offset = offset + 4;
@@ -2357,13 +2357,13 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		offset = offset + 4;
 
 		dword = tvb_get_ntohl(tipc_tvb, offset);
-		addr_str_ptr = tipc_addr_to_str(dword);
+		addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 
 		proto_tree_add_string(tipc_tree, hf_tipc_org_proc, tipc_tvb, offset, 4, addr_str_ptr);
 		offset = offset + 4;
 
 		dword = tvb_get_ntohl(tipc_tvb, offset);
-		addr_str_ptr = tipc_addr_to_str(dword);
+		addr_str_ptr = tipc_addr_to_str(pinfo->pool, dword);
 
 		proto_tree_add_string(tipc_tree, hf_tipc_dst_proc, tipc_tvb, offset, 4, addr_str_ptr);
 		offset = offset + 4;

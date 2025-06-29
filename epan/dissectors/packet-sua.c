@@ -1390,7 +1390,7 @@ static const value_string nature_of_address_values[] = {
   { 0,                                             NULL } };
 
 static void
-dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, bool source)
+dissect_global_title_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, bool source)
 {
   uint16_t global_title_length;
   uint16_t offset;
@@ -1399,7 +1399,7 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   uint8_t number_of_digits;
   char *gt_digits;
 
-  gt_digits = (char *)wmem_alloc0(wmem_packet_scope(), GT_MAX_SIGNALS+1);
+  gt_digits = (char *)wmem_alloc0(pinfo->pool, GT_MAX_SIGNALS+1);
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
@@ -1488,33 +1488,33 @@ dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto
 #define IPV4_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
+dissect_ipv4_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
 {
   proto_tree_add_item(parameter_tree, source ? hf_sua_source_ipv4 : hf_sua_dest_ipv4, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", tvb_ip_to_str(wmem_packet_scope(), parameter_tvb, IPV4_ADDRESS_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", tvb_ip_to_str(pinfo->pool, parameter_tvb, IPV4_ADDRESS_OFFSET));
 }
 
 #define HOSTNAME_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
+dissect_hostname_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
 {
   uint16_t hostname_length;
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, source ? hf_sua_source_hostname : hf_sua_dest_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII);
   proto_item_append_text(parameter_item, " (%s)",
-                         tvb_format_text(wmem_packet_scope(), parameter_tvb, HOSTNAME_OFFSET, hostname_length));
+                         tvb_format_text(pinfo->pool, parameter_tvb, HOSTNAME_OFFSET, hostname_length));
 }
 
 #define IPV6_ADDRESS_LENGTH 16
 #define IPV6_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
+dissect_ipv6_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item, bool source)
 {
   proto_tree_add_item(parameter_tree, source ? hf_sua_source_ipv6 : hf_sua_dest_ipv6, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, ENC_NA);
-  proto_item_append_text(parameter_item, " (%s)", tvb_ip6_to_str(wmem_packet_scope(), parameter_tvb, IPV6_ADDRESS_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", tvb_ip6_to_str(pinfo->pool, parameter_tvb, IPV6_ADDRESS_OFFSET));
 }
 
 static void
@@ -1763,7 +1763,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     break;
   case V8_GLOBAL_TITLE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_global_title_parameter(parameter_tvb, parameter_tree, (source_ssn != NULL));
+    dissect_global_title_parameter(parameter_tvb, pinfo, parameter_tree, (source_ssn != NULL));
     break;
   case V8_POINT_CODE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
@@ -1783,15 +1783,15 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     break;
   case V8_IPV4_ADDRESS_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_ipv4_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_HOSTNAME_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_hostname_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_IPV6_ADDRESS_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_ipv6_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -2071,7 +2071,7 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     break;
   case GLOBAL_TITLE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_global_title_parameter(parameter_tvb, parameter_tree, (source_ssn != NULL));
+    dissect_global_title_parameter(parameter_tvb, pinfo, parameter_tree, (source_ssn != NULL));
     break;
   case POINT_CODE_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
@@ -2091,15 +2091,15 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     break;
   case IPV4_ADDRESS_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_ipv4_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case HOSTNAME_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_hostname_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case IPV6_ADDRESS_PARAMETER_TAG:
     /* Reuse whether we have source_ssn or not to determine which address we're looking at */
-    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
+    dissect_ipv6_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);

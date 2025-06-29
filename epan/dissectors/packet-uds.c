@@ -1543,7 +1543,7 @@ uds_proto_tree_add_address_item(proto_tree *tree, int hf, tvbuff_t *tvb, const i
 }
 
 static proto_item *
-uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const int offset, const int size, unsigned addr) {
+uds_proto_tree_add_address_name(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, const int offset, const int size, unsigned addr) {
     proto_item *ti;
 
     char *address_name = NULL;
@@ -1554,7 +1554,7 @@ uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const i
     if (address_name != NULL) {
         ti = proto_tree_add_string(tree, hf, tvb, offset, size, address_name);
     } else {
-        address_name = wmem_strdup_printf(wmem_packet_scope(), "%d", addr);
+        address_name = wmem_strdup_printf(pinfo->pool, "%d", addr);
         ti = proto_tree_add_string(tree, hf, tvb, offset, size, address_name);
     }
 
@@ -2353,7 +2353,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
         uds_proto_item_append_address_name(ti, source_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, true, false);
-        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
+        uds_proto_tree_add_address_name(uds_tree, pinfo, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
         break;
     case 2:
         uds_proto_item_append_address_text(ti, address_size, "Source", source_address);
@@ -2362,16 +2362,16 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
         uds_proto_item_append_address_name(ti, target_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_source_addr, tvb, 0, 0, source_address, true, false);
-        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_source_addr_name, tvb, 0, 0, source_address);
+        uds_proto_tree_add_address_name(uds_tree, pinfo, hf_uds_diag_source_addr_name, tvb, 0, 0, source_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, true, true);
-        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
+        uds_proto_tree_add_address_name(uds_tree, pinfo, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_target_addr, tvb, 0, 0, target_address, true, false);
-        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_target_addr_name, tvb, 0, 0, target_address);
+        uds_proto_tree_add_address_name(uds_tree, pinfo, hf_uds_diag_target_addr_name, tvb, 0, 0, target_address);
 
         uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, target_address, true, true);
-        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, target_address);
+        uds_proto_tree_add_address_name(uds_tree, pinfo, hf_uds_diag_addr_name, tvb, 0, 0, target_address);
         break;
     }
 

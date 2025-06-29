@@ -758,7 +758,7 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_FTR DRB-Usage-Report-Item/startTimeStamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.FN_BODY DRB-Usage-Report-Item/endTimeStamp VAL_PTR = &timestamp_tvb
@@ -767,7 +767,7 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_bit_sec)
 
 #.FN_FTR DRB-Usage-Report-Item/endTimeStamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.TYPE_ATTR
@@ -820,7 +820,7 @@ Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_FTR MRDC-Data-Usage-Report-Item/startTimeStamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.FN_BODY MRDC-Data-Usage-Report-Item/endTimeStamp VAL_PTR = &timestamp_tvb
@@ -829,7 +829,7 @@ Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_FTR MRDC-Data-Usage-Report-Item/endTimeStamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.TYPE_ATTR

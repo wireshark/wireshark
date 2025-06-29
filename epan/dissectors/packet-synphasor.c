@@ -1358,7 +1358,7 @@ static int dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt)
 }
 
 /* used by 'dissect_config_frame()' to dissect the "channel name"-fields */
-static int dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt, const char *prefix)
+static int dissect_CHNAM(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int cnt, const char *prefix)
 {
 	proto_tree *temp_tree;
 	int i;
@@ -1372,7 +1372,7 @@ static int dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt, c
 	/* dissect the 'cnt' channel names */
 	for (i = 0; i < cnt; i++) {
 		char *str;
-		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
+		str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, CHNAM_LEN, ENC_ASCII);
 		proto_tree_add_string_format(temp_tree, hf_synphasor_channel_name, tvb, offset, CHNAM_LEN,
 				    str, "%s #%i: \"%s\"", prefix, i+1, str);
 		offset += CHNAM_LEN;
@@ -1382,7 +1382,7 @@ static int dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt, c
 }
 
 /* used by 'dissect_config_3_frame()' to dissect the "channel name"-fields */
-static int dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt, const char *prefix)
+static int dissect_config_3_CHNAM(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int cnt, const char *prefix)
 {
 	proto_tree *temp_tree, *chnam_tree;
 	int i;
@@ -1411,7 +1411,7 @@ static int dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, i
 		char *str;
 
 		name_length = get_name_length(tvb, offset);
-		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, name_length, ENC_ASCII);
+		str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, name_length, ENC_ASCII);
 		chnam_tree = proto_tree_add_subtree_format(temp_tree, tvb, offset, name_length + 1, ett_conf,
 							   NULL, "%s #%i: \"%s\"", prefix, i + 1, str);
 
@@ -1426,7 +1426,7 @@ static int dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, i
 }
 
 /* dissects a configuration frame (type 1 and 2) and adds fields to 'config_item' */
-static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
+static int dissect_config_frame(tvbuff_t *tvb, packet_info* pinfo, proto_item *config_item)
 {
 	proto_tree *config_tree;
 	int	    offset = 0;
@@ -1454,7 +1454,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		int old_offset = offset; /* to calculate the length of the whole PMU block later */
 
 		/* STN with new tree to add the rest of the PMU block */
-		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
+		str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, CHNAM_LEN, ENC_ASCII);
 		station_tree = proto_tree_add_subtree_format(config_tree, tvb, offset, CHNAM_LEN,
 							     ett_conf_station, &station_item,
 							     "Station #%i: \"%s\"", j + 1, str);
@@ -1482,9 +1482,9 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += 6;
 
 		/* CHNAM, the channel names */
-		offset = dissect_CHNAM(tvb, station_tree, offset, num_ph     , "Phasor name"	     );
-		offset = dissect_CHNAM(tvb, station_tree, offset, num_an     , "Analog value"	     );
-		offset = dissect_CHNAM(tvb, station_tree, offset, num_dg * 16, "Digital status label");
+		offset = dissect_CHNAM(tvb, pinfo, station_tree, offset, num_ph     , "Phasor name"	     );
+		offset = dissect_CHNAM(tvb, pinfo, station_tree, offset, num_an     , "Analog value"	     );
+		offset = dissect_CHNAM(tvb, pinfo, station_tree, offset, num_dg * 16, "Digital status label");
 
 		/* PHUNIT, ANUINT and DIGUNIT */
 		offset = dissect_PHUNIT (tvb, station_tree, offset, num_ph);
@@ -1515,7 +1515,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 } /* dissect_config_frame() */
 
 /* dissects a configuration frame type 3 and adds fields to 'config_item' */
-static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
+static int dissect_config_3_frame(tvbuff_t *tvb, packet_info* pinfo, proto_item *config_item)
 {
 	proto_tree *config_tree, *wgs84_tree;
 	int	    offset = 0;
@@ -1559,7 +1559,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 
 		/* STN with new tree to add the rest of the PMU block */
 		name_length = get_name_length(tvb, offset);
-		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, name_length, ENC_ASCII);
+		str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, name_length, ENC_ASCII);
 		station_tree = proto_tree_add_subtree_format(config_tree, tvb, offset, name_length + 1,
 							     ett_conf_station, &station_item,
 							     "Station #%i: \"%s\"", j + 1, str);
@@ -1609,9 +1609,9 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += 6;
 
 		/* CHNAM, the channel names */
-		offset = dissect_config_3_CHNAM(tvb, station_tree, offset, num_ph, "Phasor name");
-		offset = dissect_config_3_CHNAM(tvb, station_tree, offset, num_an, "Analog value");
-		offset = dissect_config_3_CHNAM(tvb, station_tree, offset, num_dg * 16, "Digital label");
+		offset = dissect_config_3_CHNAM(tvb, pinfo, station_tree, offset, num_ph, "Phasor name");
+		offset = dissect_config_3_CHNAM(tvb, pinfo, station_tree, offset, num_an, "Analog value");
+		offset = dissect_config_3_CHNAM(tvb, pinfo, station_tree, offset, num_dg * 16, "Digital label");
 
 		/* PHUNIT, ANUINT and DIGUNIT */
 		offset = dissect_PHSCALE(tvb, station_tree, offset, num_ph);
@@ -1660,7 +1660,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += 4;
 
 		/* SVC_CLASS */
-		service_class = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 1, ENC_ASCII);
+		service_class = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 1, ENC_ASCII);
 		if ((strcmp(service_class, "P") == 0) || (strcmp(service_class, "p") == 0)) {
 			proto_tree_add_string(station_tree, hf_conf_svc_class, tvb, offset, 1, "Protection");
 		}
@@ -1950,7 +1950,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 					break;
 				case CFG1:
 				case CFG2:
-					dissect_config_frame(sub_tvb, sub_item);
+					dissect_config_frame(sub_tvb, pinfo, sub_item);
 					break;
 				case CMD:
 					dissect_command_frame(sub_tvb, sub_item, pinfo);
@@ -1963,7 +1963,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 						proto_item_append_text(sub_item, ", CFG-3 Fragmented Frame (Not Supported)");
 					}
 					else {
-						dissect_config_3_frame(sub_tvb, sub_item);
+						dissect_config_3_frame(sub_tvb, pinfo, sub_item);
 					}
 					break;
 				default:

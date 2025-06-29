@@ -20818,7 +20818,7 @@ dissect_xnap_T_startTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
   return offset;
@@ -20835,7 +20835,7 @@ dissect_xnap_T_endTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
   return offset;

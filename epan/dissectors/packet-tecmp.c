@@ -1325,7 +1325,7 @@ post_update_tecmp_control_messages_cb(void) {
 }
 
 static const char*
-resolve_control_message_id(uint16_t control_message_id) {
+resolve_control_message_id(wmem_allocator_t* allocator, uint16_t control_message_id) {
     const char *tmp = NULL;
 
     if (data_tecmp_ctrlmsgids != NULL) {
@@ -1339,11 +1339,11 @@ resolve_control_message_id(uint16_t control_message_id) {
 
     /* no configured or standardized name known */
     if (tmp != NULL) {
-        return wmem_strdup_printf(wmem_packet_scope(), "%s (0x%04x)", tmp, control_message_id);
+        return wmem_strdup_printf(allocator, "%s (0x%04x)", tmp, control_message_id);
     }
 
     /* just give back unknown */
-    return wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%04x)", control_message_id);
+    return wmem_strdup_printf(allocator, "Unknown (0x%04x)", control_message_id);
 }
 
 
@@ -2035,11 +2035,11 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
         ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_ctrl_msg_device_id, tvb, offset, 2, ENC_BIG_ENDIAN, &device_id);
         add_device_id_text(ti, (uint16_t)device_id);
         ctrl_msg_id = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
-        proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_id, tvb, offset + 2, 2, ctrl_msg_id, "Type: %s", resolve_control_message_id(ctrl_msg_id));
+        proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_id, tvb, offset + 2, 2, ctrl_msg_id, "Type: %s", resolve_control_message_id(pinfo->pool, ctrl_msg_id));
         offset += 4;
 
-        proto_item_append_text(root_ti, ", %s", resolve_control_message_id(ctrl_msg_id));
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", resolve_control_message_id(ctrl_msg_id));
+        proto_item_append_text(root_ti, ", %s", resolve_control_message_id(pinfo->pool, ctrl_msg_id));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", resolve_control_message_id(pinfo->pool, ctrl_msg_id));
 
         /* offset includes 16 byte header, while length is only for payload */
         int bytes_left = length + (unsigned)16 - (offset - offset_orig);

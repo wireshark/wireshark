@@ -24,24 +24,22 @@ void proto_reg_handoff_sasp(void);
 
 static dissector_handle_t sasp_handle;
 
-static void dissect_reg_req(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
+static void dissect_reg_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
 static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset);
 static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
 static void dissect_dereg_rep(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static void dissect_sendwt(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static void dissect_setmemstate_req(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
+static void dissect_sendwt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
+static void dissect_setmemstate_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
 static void dissect_setmemstate_rep(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
 static void dissect_setlbstate_req(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
 static void dissect_setlbstate_rep(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
 static void dissect_wt_req(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static void dissect_wt_rep(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static uint32_t dissect_memdatacomp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, proto_tree **mdct_p);
+static void dissect_wt_rep(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
 static uint32_t dissect_grpdatacomp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static uint32_t dissect_grp_memdatacomp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static uint32_t dissect_grp_memstatedatacomp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static uint32_t dissect_memstatedatacomp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
-static uint32_t dissect_weight_entry_data_comp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset);
-static uint32_t dissect_grp_wt_entry_datacomp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset);
+static uint32_t dissect_grp_memdatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
+static uint32_t dissect_grp_memstatedatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
+static uint32_t dissect_memstatedatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
+static uint32_t dissect_grp_wt_entry_datacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset);
 
 /* Initialize the protocol and registered fields */
 static int proto_sasp;
@@ -381,7 +379,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case 0x1010:
             /* Registration  Request */
             col_set_str(pinfo->cinfo, COL_INFO, "Registration Request");
-            dissect_reg_req(tvb, pay_load, offset);
+            dissect_reg_req(tvb, pinfo, pay_load, offset);
             break;
 
         case 0x1015:
@@ -411,13 +409,13 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case 0x1035:
             /* Get Weights Response */
             col_set_str(pinfo->cinfo, COL_INFO, "Get Weights Response");
-            dissect_wt_rep(tvb, pay_load, offset);
+            dissect_wt_rep(tvb, pinfo, pay_load, offset);
             break;
 
         case 0x1040:
             /* Send Weights Request */
             col_set_str(pinfo->cinfo, COL_INFO, "Send Weights Request");
-            dissect_sendwt(tvb, pay_load, offset);
+            dissect_sendwt(tvb, pinfo, pay_load, offset);
             break;
 
         case 0x1050:
@@ -435,7 +433,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case 0x1060:
             /* Set Member State Request*/
             col_set_str(pinfo->cinfo, COL_INFO, "Set Member State Request");
-            dissect_setmemstate_req(tvb, pay_load, offset);
+            dissect_setmemstate_req(tvb, pinfo, pay_load, offset);
             break;
 
         case 0x1065:
@@ -465,7 +463,7 @@ dissect_sasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 
-static void dissect_reg_req(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static void dissect_reg_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *reg_req_data;
     uint16_t    gmd_cnt, i;
@@ -487,7 +485,7 @@ static void dissect_reg_req(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset
     offset += 2;
 
     for (i=0; i<gmd_cnt; i++)
-        offset = dissect_grp_memdatacomp(tvb, reg_req_data, offset);
+        offset = dissect_grp_memdatacomp(tvb, pinfo, reg_req_data, offset);
 }
 
 
@@ -554,7 +552,7 @@ static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pay
 
     /*Group Mem Data */
     for (i=0; i<gmd_cnt; i++)
-        offset = dissect_grp_memdatacomp(tvb, dereg_req_data, offset);
+        offset = dissect_grp_memdatacomp(tvb, pinfo, dereg_req_data, offset);
 }
 
 
@@ -573,7 +571,7 @@ static void dissect_dereg_rep(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offs
 }
 
 
-static void dissect_sendwt(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static void dissect_sendwt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *sendwt_tree;
     uint16_t    gwed_cnt, i;
@@ -591,14 +589,14 @@ static void dissect_sendwt(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
     offset += 2;
 
     for (i=0; i<gwed_cnt; i++)
-        offset = dissect_grp_wt_entry_datacomp(tvb, sendwt_tree, offset);
+        offset = dissect_grp_wt_entry_datacomp(tvb, pinfo, sendwt_tree, offset);
 }
 
 
-static void dissect_setmemstate_req(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static void dissect_setmemstate_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *setmemstate_req_data;
-    uint16_t    gmsd_cnt, i;
+    uint32_t    gmsd_cnt, i;
 
     setmemstate_req_data = proto_tree_add_subtree(pay_load, tvb, offset, -1, ett_sasp_setmemstate_req, NULL, "Set Mem State Request");
 
@@ -611,12 +609,11 @@ static void dissect_setmemstate_req(tvbuff_t *tvb, proto_tree *pay_load, uint32_
     offset += 1;
 
     /*Group Data Count*/
-    gmsd_cnt = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(setmemstate_req_data, hf_sasp_setmemstate_req_gmsd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(setmemstate_req_data, hf_sasp_setmemstate_req_gmsd_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &gmsd_cnt);
     offset += 2;
 
     for (i=0; i<gmsd_cnt; i++)
-        offset = dissect_grp_memstatedatacomp(tvb, setmemstate_req_data, offset);
+        offset = dissect_grp_memstatedatacomp(tvb, pinfo, setmemstate_req_data, offset);
 }
 
 static void dissect_setmemstate_rep(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
@@ -634,7 +631,7 @@ static void dissect_setmemstate_rep(tvbuff_t *tvb, proto_tree *pay_load, uint32_
 }
 
 
-static uint32_t dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset, proto_tree **mdct_p)
+static uint32_t dissect_memdatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset, proto_tree **mdct_p)
 {
     proto_item  *memdatacomp;
     proto_tree  *memdatacomp_tree;
@@ -643,7 +640,7 @@ static uint32_t dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_
     ws_in6_addr ipv6_address;
 
     tvb_get_ipv6(tvb, offset+7, &ipv6_address);
-    ip_str = tvb_ip6_to_str(wmem_packet_scope(), tvb, offset+7);
+    ip_str = tvb_ip6_to_str(pinfo->pool, tvb, offset+7);
 
     lab_len = tvb_get_uint8(tvb, offset+23);
 
@@ -731,7 +728,7 @@ static uint32_t dissect_grpdatacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_
 }
 
 
-static uint32_t dissect_grp_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static uint32_t dissect_grp_memdatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *grp_memdatacomp_tree;
     uint16_t    mem_cnt;
@@ -757,7 +754,7 @@ static uint32_t dissect_grp_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load, uin
 
     /* array of memdata */
     for (i=0; i<mem_cnt; i++)
-        offset = dissect_memdatacomp(tvb, grp_memdatacomp_tree, offset, NULL);
+        offset = dissect_memdatacomp(tvb, pinfo, grp_memdatacomp_tree, offset, NULL);
 
     return offset;
 }
@@ -785,10 +782,10 @@ static void dissect_wt_req(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
 }
 
 
-static void dissect_wt_rep(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static void dissect_wt_rep(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *wt_rep_tree;
-    uint16_t    gwed_cnt, i;
+    uint32_t    gwed_cnt, i;
 
     wt_rep_tree = proto_tree_add_subtree(pay_load, tvb, offset, -1, ett_sasp_wt_rep, NULL, "Get Weights Reply");
 
@@ -804,14 +801,12 @@ static void dissect_wt_rep(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
     proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    gwed_cnt = tvb_get_ntohs(tvb, offset);
-
     /* Count of Group of Wt Entry Data */
-    proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_gwed_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(wt_rep_tree, hf_sasp_wt_rep_gwed_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &gwed_cnt);
     offset += 2;
 
     for (i=0; i<gwed_cnt; i++)
-        offset = dissect_grp_wt_entry_datacomp(tvb, wt_rep_tree, offset);
+        offset = dissect_grp_wt_entry_datacomp(tvb, pinfo, wt_rep_tree, offset);
 }
 
 
@@ -874,7 +869,7 @@ static void dissect_setlbstate_rep(tvbuff_t *tvb, proto_tree *pay_load, uint32_t
 }
 
 
-static uint32_t dissect_grp_memstatedatacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static uint32_t dissect_grp_memstatedatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *grp_memstatedatacomp_tree;
     uint16_t    mem_cnt;
@@ -905,18 +900,18 @@ static uint32_t dissect_grp_memstatedatacomp(tvbuff_t *tvb, proto_tree *pay_load
 
     /* Array of Mem State Data */
     for (i=0; i<mem_cnt; i++)
-        offset = dissect_memstatedatacomp(tvb, grp_memstatedatacomp_tree, offset);
+        offset = dissect_memstatedatacomp(tvb, pinfo, grp_memstatedatacomp_tree, offset);
 
     return offset;
 }
 
 
-static uint32_t dissect_memstatedatacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static uint32_t dissect_memstatedatacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *memstatedatacomp_tree;
     proto_tree *memdatacomp_tree;
 
-    offset = dissect_memdatacomp(tvb, pay_load, offset, &memdatacomp_tree);
+    offset = dissect_memdatacomp(tvb, pinfo, pay_load, offset, &memdatacomp_tree);
 
     memstatedatacomp_tree = proto_tree_add_subtree(memdatacomp_tree, tvb, offset, -1, ett_sasp_memstatedatacomp, NULL, "Member State Data");
 
@@ -944,7 +939,7 @@ static uint32_t dissect_memstatedatacomp(tvbuff_t *tvb, proto_tree *pay_load, ui
 }
 
 
-static uint32_t dissect_weight_entry_data_comp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static uint32_t dissect_weight_entry_data_comp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *weight_entry_data_comp_tree;
 
@@ -956,7 +951,7 @@ static uint32_t dissect_weight_entry_data_comp(tvbuff_t *tvb, proto_tree *pay_lo
         NULL
     };
 
-    offset = dissect_memdatacomp(tvb, pay_load, offset, NULL);
+    offset = dissect_memdatacomp(tvb, pinfo, pay_load, offset, NULL);
 
     weight_entry_data_comp_tree = proto_tree_add_subtree(pay_load, tvb, offset, -1,
                             ett_sasp_weight_entry_data_comp, NULL, "Weight Entry Data");
@@ -988,7 +983,7 @@ static uint32_t dissect_weight_entry_data_comp(tvbuff_t *tvb, proto_tree *pay_lo
 }
 
 
-static uint32_t dissect_grp_wt_entry_datacomp(tvbuff_t *tvb, proto_tree *pay_load, uint32_t offset)
+static uint32_t dissect_grp_wt_entry_datacomp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *pay_load, uint32_t offset)
 {
     proto_tree *grp_wt_entry_datacomp_tree;
     uint16_t    wt_entry_cnt;
@@ -1018,7 +1013,7 @@ static uint32_t dissect_grp_wt_entry_datacomp(tvbuff_t *tvb, proto_tree *pay_loa
 
     /* Member Data */
     for (i=0; i<wt_entry_cnt; i++)
-        offset = dissect_weight_entry_data_comp(tvb, grp_wt_entry_datacomp_tree, offset);
+        offset = dissect_weight_entry_data_comp(tvb, pinfo, grp_wt_entry_datacomp_tree, offset);
 
     return offset;
 }

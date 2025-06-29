@@ -845,7 +845,7 @@ static unsigned get_reply_chunk_count(tvbuff_t *tvb, unsigned offset)
  * In order to create a list of chunks, all segments having the same XDR
  * position will be part of an RDMA read chunk.
  */
-static void add_rdma_read_segment(wmem_array_t *p_read_list,
+static void add_rdma_read_segment(wmem_allocator_t* allocator, wmem_array_t *p_read_list,
         rdma_segment_t *p_rdma_segment)
 {
     unsigned i;
@@ -866,9 +866,9 @@ static void add_rdma_read_segment(wmem_array_t *p_read_list,
 
     if (p_rdma_chunk == NULL) {
         /* No read chunk was found so initialize a new chunk */
-        p_rdma_chunk = wmem_new(wmem_packet_scope(), rdma_chunk_t);
+        p_rdma_chunk = wmem_new(allocator, rdma_chunk_t);
         p_rdma_chunk->type = RDMA_READ_CHUNK;
-        p_rdma_chunk->segments = wmem_array_new(wmem_packet_scope(), sizeof(rdma_segment_t));
+        p_rdma_chunk->segments = wmem_array_new(allocator, sizeof(rdma_segment_t));
         /* Add read chunk to the RDMA read list */
         wmem_array_append(p_read_list, p_rdma_chunk, 1);
     }
@@ -878,14 +878,14 @@ static void add_rdma_read_segment(wmem_array_t *p_read_list,
 }
 
 static unsigned dissect_rpcrdma_read_chunk(proto_tree *read_list,
-        tvbuff_t *tvb, unsigned offset, wmem_array_t *p_read_list)
+        packet_info* pinfo, tvbuff_t *tvb, unsigned offset, wmem_array_t *p_read_list)
 {
     proto_tree *read_chunk;
     uint32_t position;
     rdma_segment_t *p_rdma_segment;
 
     /* Initialize read segment */
-    p_rdma_segment = wmem_new(wmem_packet_scope(), rdma_segment_t);
+    p_rdma_segment = wmem_new(pinfo->pool, rdma_segment_t);
 
     position = tvb_get_ntohl(tvb, offset);
     p_rdma_segment->xdrpos = position;
@@ -905,11 +905,11 @@ static unsigned dissect_rpcrdma_read_chunk(proto_tree *read_list,
     proto_tree_add_item_ret_uint64(read_chunk, hf_rpcordma_rdma_offset, tvb,
                 offset, 8, ENC_BIG_ENDIAN, &p_rdma_segment->offset);
 
-    add_rdma_read_segment(p_read_list, p_rdma_segment);
+    add_rdma_read_segment(pinfo->pool, p_read_list, p_rdma_segment);
     return offset + 8;
 }
 
-static unsigned dissect_rpcrdma_read_list(tvbuff_t *tvb, unsigned offset,
+static unsigned dissect_rpcrdma_read_list(tvbuff_t *tvb, packet_info* pinfo, unsigned offset,
         proto_tree *tree, rdma_lists_t *rdma_lists)
 {
     unsigned chunk_count, start = offset;
@@ -932,23 +932,23 @@ static unsigned dissect_rpcrdma_read_list(tvbuff_t *tvb, unsigned offset,
 
         if (rdma_lists->p_read_list == NULL) {
             /* Initialize RDMA read list */
-            rdma_lists->p_read_list = wmem_array_new(wmem_packet_scope(), sizeof(rdma_chunk_t));
+            rdma_lists->p_read_list = wmem_array_new(pinfo->pool, sizeof(rdma_chunk_t));
         }
-        offset = dissect_rpcrdma_read_chunk(read_list, tvb, offset, rdma_lists->p_read_list);
+        offset = dissect_rpcrdma_read_chunk(read_list, pinfo, tvb, offset, rdma_lists->p_read_list);
     }
 
     proto_item_set_len(item, offset - start);
     return offset;
 }
 
-static unsigned dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
+static unsigned dissect_rpcrdma_segment(proto_tree *write_chunk, packet_info* pinfo, tvbuff_t *tvb,
         unsigned offset, uint32_t i, wmem_array_t *p_segments)
 {
     proto_tree *segment;
     rdma_segment_t *p_rdma_segment;
 
     /* Initialize write segment */
-    p_rdma_segment = wmem_new(wmem_packet_scope(), rdma_segment_t);
+    p_rdma_segment = wmem_new(pinfo->pool, rdma_segment_t);
     p_rdma_segment->xdrpos = 0; /* Not used in write segments */
 
     segment = proto_tree_add_subtree_format(write_chunk, tvb,
@@ -969,7 +969,7 @@ static unsigned dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
     return offset + 8;
 }
 
-static unsigned dissect_rpcrdma_write_chunk(proto_tree *write_list, tvbuff_t *tvb,
+static unsigned dissect_rpcrdma_write_chunk(proto_tree *write_list, packet_info* pinfo, tvbuff_t *tvb,
         unsigned offset, chunk_type_t chunk_type, wmem_array_t *p_rdma_list)
 {
     uint32_t i, segment_count;
@@ -989,20 +989,20 @@ static unsigned dissect_rpcrdma_write_chunk(proto_tree *write_list, tvbuff_t *tv
     offset += 4;
 
     /* Initialize write chunk */
-    p_rdma_chunk = wmem_new(wmem_packet_scope(), rdma_chunk_t);
+    p_rdma_chunk = wmem_new(pinfo->pool, rdma_chunk_t);
     p_rdma_chunk->type = chunk_type;
-    p_rdma_chunk->segments = wmem_array_new(wmem_packet_scope(), sizeof(rdma_segment_t));
+    p_rdma_chunk->segments = wmem_array_new(pinfo->pool, sizeof(rdma_segment_t));
 
     /* Add chunk to the write/reply list */
     wmem_array_append(p_rdma_list, p_rdma_chunk, 1);
 
     for (i = 0; i < segment_count; ++i)
-        offset = dissect_rpcrdma_segment(write_chunk, tvb, offset, i, p_rdma_chunk->segments);
+        offset = dissect_rpcrdma_segment(write_chunk, pinfo, tvb, offset, i, p_rdma_chunk->segments);
 
     return offset;
 }
 
-static unsigned dissect_rpcrdma_write_list(tvbuff_t *tvb, unsigned offset,
+static unsigned dissect_rpcrdma_write_list(tvbuff_t *tvb, packet_info* pinfo, unsigned offset,
         proto_tree *tree, rdma_lists_t *rdma_lists)
 {
     unsigned chunk_count, start = offset;
@@ -1025,16 +1025,16 @@ static unsigned dissect_rpcrdma_write_list(tvbuff_t *tvb, unsigned offset,
 
         if (rdma_lists->p_write_list == NULL) {
             /* Initialize RDMA write list */
-            rdma_lists->p_write_list = wmem_array_new(wmem_packet_scope(), sizeof(rdma_chunk_t));
+            rdma_lists->p_write_list = wmem_array_new(pinfo->pool, sizeof(rdma_chunk_t));
         }
-        offset = dissect_rpcrdma_write_chunk(write_list, tvb, offset, RDMA_WRITE_CHUNK, rdma_lists->p_write_list);
+        offset = dissect_rpcrdma_write_chunk(write_list, pinfo, tvb, offset, RDMA_WRITE_CHUNK, rdma_lists->p_write_list);
     }
 
     proto_item_set_len(item, offset - start);
     return offset;
 }
 
-static unsigned dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, unsigned offset,
+static unsigned dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, packet_info* pinfo, unsigned offset,
         proto_tree *tree, rdma_lists_t *rdma_lists)
 {
     uint32_t chunk_count, start = offset;
@@ -1055,19 +1055,19 @@ static unsigned dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, unsigned offset,
         return offset;
 
     /* Initialize RDMA reply list */
-    rdma_lists->p_reply_list = wmem_array_new(wmem_packet_scope(), sizeof(rdma_chunk_t));
+    rdma_lists->p_reply_list = wmem_array_new(pinfo->pool, sizeof(rdma_chunk_t));
 
-    offset = dissect_rpcrdma_write_chunk(reply_chunk, tvb, offset, RDMA_REPLY_CHUNK, rdma_lists->p_reply_list);
+    offset = dissect_rpcrdma_write_chunk(reply_chunk, pinfo, tvb, offset, RDMA_REPLY_CHUNK, rdma_lists->p_reply_list);
     proto_item_set_len(item, offset - start);
     return offset;
 }
 
-static unsigned parse_rdma_header(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
+static unsigned parse_rdma_header(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *tree,
         rdma_lists_t *rdma_lists)
 {
-    offset = dissect_rpcrdma_read_list(tvb, offset, tree, rdma_lists);
-    offset = dissect_rpcrdma_write_list(tvb, offset, tree, rdma_lists);
-    return dissect_rpcrdma_reply_chunk(tvb, offset, tree, rdma_lists);
+    offset = dissect_rpcrdma_read_list(tvb, pinfo, offset, tree, rdma_lists);
+    offset = dissect_rpcrdma_write_list(tvb, pinfo, offset, tree, rdma_lists);
+    return dissect_rpcrdma_reply_chunk(tvb, pinfo, offset, tree, rdma_lists);
 }
 
 static unsigned get_chunk_lists_size(tvbuff_t *tvb, unsigned max_offset, unsigned offset)
@@ -1590,7 +1590,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     switch (msg_type) {
     case RDMA_MSG:
         /* Parse rpc_rdma_header */
-        offset = parse_rdma_header(tvb, offset, rpcordma_tree, &rdma_lists);
+        offset = parse_rdma_header(tvb, pinfo, offset, rpcordma_tree, &rdma_lists);
 
         proto_item_set_len(ti, offset);
 
@@ -1679,7 +1679,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     case RDMA_NOMSG:
         /* Parse rpc_rdma_header_nomsg */
-        offset = parse_rdma_header(tvb, offset, rpcordma_tree, &rdma_lists);
+        offset = parse_rdma_header(tvb, pinfo, offset, rpcordma_tree, &rdma_lists);
         if (pinfo->fd->visited) {
             /* Reassembly was done on the first pass, so just get the reassembled data */
             next_tvb = get_reassembled_data(tvb, offset, pinfo, tree);
@@ -1705,7 +1705,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                     offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        offset = parse_rdma_header(tvb, offset, rpcordma_tree, &rdma_lists);
+        offset = parse_rdma_header(tvb, pinfo, offset, rpcordma_tree, &rdma_lists);
 
         proto_item_set_len(ti, offset);
         next_tvb = tvb_new_subset_remaining(tvb, offset);

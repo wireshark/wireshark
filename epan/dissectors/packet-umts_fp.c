@@ -3884,7 +3884,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 /* Validates the header CRC in a Control FP frame */
 /* Should only be used in heuristic dissectors! */
 static bool
-check_control_frame_crc_for_heur(tvbuff_t * tvb)
+check_control_frame_crc_for_heur(wmem_allocator_t* allocator, tvbuff_t * tvb)
 {
     uint8_t crc = 0;
     uint8_t calc_crc = 0;
@@ -3896,7 +3896,7 @@ check_control_frame_crc_for_heur(tvbuff_t * tvb)
 
     crc = tvb_get_uint8(tvb, 0) >> 1;
     /* Get data. */
-    data = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
+    data = (uint8_t *)tvb_memdup(allocator, tvb, 0, tvb_reported_length(tvb));
     /* Include only FT flag bit in CRC calculation. */
     data[0] = data[0] & 1;
     calc_crc = crc7update(0, data, tvb_reported_length(tvb));
@@ -3956,7 +3956,7 @@ check_payload_crc_for_heur(tvbuff_t *tvb, uint16_t header_length)
 /* Validates the header CRC in a E-DCH Data FP frame */
 /* Should only be used in heuristic dissectors! */
 static bool
-check_edch_header_crc_for_heur(tvbuff_t *tvb, uint16_t header_length)
+check_edch_header_crc_for_heur(wmem_allocator_t* allocator, tvbuff_t *tvb, uint16_t header_length)
 {
     uint16_t crc = 0;
     uint16_t calc_crc = 0;
@@ -3967,7 +3967,7 @@ check_edch_header_crc_for_heur(tvbuff_t *tvb, uint16_t header_length)
 
     crc = (tvb_get_bits8(tvb, 0, 7) << 4) + tvb_get_bits8(tvb, 8, 4);
     /* Get data of header excluding the first byte */
-    data = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, 1, header_length-1);
+    data = (uint8_t *)tvb_memdup(allocator, tvb, 1, header_length-1);
     /*Zero the part in the second byte which contains part of the CRC*/
     data[0] = data[0] & 0x0f;
 
@@ -5179,7 +5179,7 @@ heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return false;
     }
 
-    if (!check_edch_header_crc_for_heur(tvb, total_header_length)) {
+    if (!check_edch_header_crc_for_heur(pinfo->pool, tvb, total_header_length)) {
         return false;
     }
     if (!check_payload_crc_for_heur(tvb, total_header_length)) {
@@ -5296,7 +5296,7 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     /* Checking Header CRC*/
-    if (!check_control_frame_crc_for_heur(tvb)) {
+    if (!check_control_frame_crc_for_heur(pinfo->pool, tvb)) {
         /* The CRC is incorrect */
         return false;
     }

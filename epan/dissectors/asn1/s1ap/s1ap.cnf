@@ -1294,7 +1294,7 @@ ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_FTR E-RABUsageReportItem/startTimestamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.FN_BODY E-RABUsageReportItem/endTimestamp VAL_PTR = &timestamp_tvb
@@ -1303,7 +1303,7 @@ ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
 
 #.FN_FTR E-RABUsageReportItem/endTimestamp
   if (timestamp_tvb) {
-    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(actx->pinfo->pool, timestamp_tvb, 0));
   }
 
 #.TYPE_ATTR

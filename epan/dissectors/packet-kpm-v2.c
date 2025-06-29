@@ -2196,7 +2196,7 @@ dissect_kpm_v2_T_colletStartTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     offset = dissect_kpm_v2_TimeStamp(tvb, offset, actx, tree, hf_index);
 
   /* Add as a generated field the timestamp decoded */
-  const char *time_str = tvb_ntp_fmt_ts_sec(tvb, (ts_offset+7)/8);
+  const char *time_str = tvb_ntp_fmt_ts_sec(actx->pinfo->pool, tvb, (ts_offset+7)/8);
   proto_item *ti = proto_tree_add_string(tree, hf_kpm_v2_timestamp_string, tvb, (ts_offset+7)/8, 4, time_str);
   proto_item_set_generated(ti);
 

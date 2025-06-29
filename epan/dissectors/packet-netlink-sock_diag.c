@@ -365,12 +365,12 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 
 			/* XXX make it nicer */
 			if (len > 0 && tvb_get_uint8(tvb, offset) == '\0') {
-				name = wmem_strconcat(wmem_packet_scope(),
+				name = wmem_strconcat(info->pinfo->pool,
 					"@",
-					tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len-1, ENC_ASCII | ENC_NA),
+					tvb_get_string_enc(info->pinfo->pool, tvb, offset+1, len-1, ENC_ASCII | ENC_NA),
 					NULL);
 			} else
-				name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA);
+				name = tvb_get_string_enc(info->pinfo->pool, tvb, offset, len, ENC_ASCII | ENC_NA);
 
 			proto_item_append_text(tree, ": %s", name);
 			proto_tree_add_string(tree, hf_netlink_sock_diag_unix_name, tvb, offset, len, name);

@@ -2775,16 +2775,16 @@ sanitize_usb_max_packet_size(uint8_t ep_type, usb_speed_t speed,
     return USB_MPS(sanitized_ep_size, sanitized_adtnl);
 }
 
-static char *usb_max_packet_size_str(unsigned int max_packet_size)
+static char *usb_max_packet_size_str(wmem_allocator_t* allocator, unsigned int max_packet_size)
 {
     unsigned int ep_size = USB_MPS_EP_SIZE(max_packet_size);
     unsigned int addnl = USB_MPS_ADDNL(max_packet_size);
 
     if (addnl == 1 || addnl == 2) {
-        return wmem_strdup_printf(wmem_packet_scope(), "%u * %u = %u",
+        return wmem_strdup_printf(allocator, "%u * %u = %u",
                                   addnl + 1, ep_size, (addnl + 1) * ep_size);
     } else {
-        return wmem_strdup_printf(wmem_packet_scope(), "%u", ep_size);
+        return wmem_strdup_printf(allocator, "%u", ep_size);
     }
 }
 
@@ -2877,7 +2877,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     /* wMaxPacketSize */
     max_packet_size = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-    max_packet_size_str = usb_max_packet_size_str(max_packet_size);
+    max_packet_size_str = usb_max_packet_size_str(pinfo->pool, max_packet_size);
     ep_pktsize_item = proto_tree_add_uint_format_value(tree, hf_usb_wMaxPacketSize,
         tvb, offset, 2, max_packet_size, "%s", max_packet_size_str);
     ep_pktsize_tree = proto_item_add_subtree(ep_pktsize_item, ett_endpoint_wMaxPacketSize);
@@ -2890,7 +2890,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         expert_add_info_format(pinfo, ep_pktsize_item, &ei_usb_invalid_max_packet_size,
             "%s %s endpoint max packet size cannot be %s, using %s instead.",
             try_val_to_str(speed, usb_speed_vals), try_val_to_str(ep_type, usb_bmAttributes_transfer_vals),
-            max_packet_size_str, usb_max_packet_size_str(sanitized_max_packet_size));
+            max_packet_size_str, usb_max_packet_size_str(pinfo->pool, sanitized_max_packet_size));
         max_packet_size = sanitized_max_packet_size;
     }
     offset+=2;

@@ -741,7 +741,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 	proto_tree* subtree;
 	switch (type) {
 		case WS_IFLA_IFNAME:
-			proto_tree_add_item_ret_string(tree, hf_netlink_route_ifla_ifname, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_tree_add_item_ret_string(tree, hf_netlink_route_ifla_ifname, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 		case WS_IFLA_MTU:
@@ -788,11 +788,11 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 			proto_item_append_text(tree, ": %u", value);
 			return 1;
 		case WS_IFLA_ADDRESS:
-			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':'));
+			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(info->pinfo->pool, tvb, offset, len, ':'));
 			proto_tree_add_item(tree, hf_netlink_route_ifla_hwaddr, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_BROADCAST:
-			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, len, ':'));
+			proto_item_append_text(tree, ": %s", tvb_bytes_to_str_punct(info->pinfo->pool, tvb, offset, len, ':'));
 			proto_tree_add_item(tree, hf_netlink_route_ifla_broadcast, tvb, offset, len, nl_data->encoding);
 			return 1;
 		case WS_IFLA_STATS:
@@ -802,7 +802,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 			subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_netlink_route_attr_linkstats, NULL, "Statistics");
 			return dissect_netlink_route_ifla_linkstats(tvb, info, nl_data, subtree, offset, 8);
 		case WS_IFLA_QDISC:
-			proto_tree_add_item_ret_string(tree, hf_netlink_route_ifla_qdisc, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_tree_add_item_ret_string(tree, hf_netlink_route_ifla_qdisc, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 		case WS_IFLA_MAP:
@@ -915,12 +915,13 @@ static const value_string netlink_route_ifa_attr_vals[] = {
 static int
 dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
+	struct netlink_route_info* info = (struct netlink_route_info*)data;
 	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) rta_type;
 	const uint8_t* str;
 
 	switch (type) {
 		case WS_IFA_LABEL:
-			proto_tree_add_item_ret_string(tree, hf_netlink_route_ifa_label, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+			proto_tree_add_item_ret_string(tree, hf_netlink_route_ifa_label, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 			proto_item_append_text(tree, ": %s", str);
 			return 1;
 
@@ -931,10 +932,10 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data _U_, struct packet_net
 		case WS_IFA_LOCAL:
 		case WS_IFA_BROADCAST:
 			if (len == 4) {
-				proto_item_append_text(tree, ": %s", tvb_ip_to_str(wmem_packet_scope(), tvb, offset));
+				proto_item_append_text(tree, ": %s", tvb_ip_to_str(info->pinfo->pool, tvb, offset));
 				proto_tree_add_item(tree, hf_netlink_route_ifa_addr4, tvb, offset, len, ENC_BIG_ENDIAN);
 			} else {
-				proto_item_append_text(tree, ": %s", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset));
+				proto_item_append_text(tree, ": %s", tvb_ip6_to_str(info->pinfo->pool, tvb, offset));
 				proto_tree_add_item(tree, hf_netlink_route_ifa_addr6, tvb, offset, len, ENC_NA);
 			}
 			return 1;

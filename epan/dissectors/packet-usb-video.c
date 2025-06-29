@@ -1137,7 +1137,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
  * @return   offset within tvb at which dissection should continue
  */
 static int
-dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
+dissect_usb_video_format(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset,
                          uint8_t subtype)
 {
     static int * const interlace_bits[] = {
@@ -1163,7 +1163,7 @@ dissect_usb_video_format(proto_tree *tree, tvbuff_t *tvb, int offset,
     if ((subtype == VS_FORMAT_UNCOMPRESSED) || (subtype == VS_FORMAT_FRAME_BASED))
     {
         /* Augment the descriptor root item with the format's four-character-code */
-        proto_item_append_text(desc_item, ": %s", tvb_format_text(wmem_packet_scope(), tvb, offset, 4));
+        proto_item_append_text(desc_item, ": %s", tvb_format_text(pinfo->pool, tvb, offset, 4));
 
         proto_tree_add_item(tree, hf_usb_vid_format_guid, tvb, offset,   16, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_usb_vid_format_bits_per_pixel,        tvb, offset+16, 1, ENC_LITTLE_ENDIAN);
@@ -1334,7 +1334,7 @@ dissect_usb_video_colorformat(proto_tree *tree, tvbuff_t *tvb, int offset)
  * @return   offset within tvb at which dissection should continue
  */
 static int
-dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
+dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
                                                  uint8_t descriptor_len)
 {
     proto_tree  *tree;
@@ -1362,7 +1362,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, tvbuff
         case VS_FORMAT_UNCOMPRESSED:
         case VS_FORMAT_MJPEG:
         case VS_FORMAT_FRAME_BASED:
-            offset = dissect_usb_video_format(tree, tvb, offset, subtype);
+            offset = dissect_usb_video_format(tree, pinfo, tvb, offset, subtype);
             break;
 
         /* @todo MPEG2, H.264, VP8, Still Image Frame */
@@ -1483,7 +1483,7 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
         else if (urb && urb->conv && urb->conv->interfaceSubclass == SC_VIDEOSTREAMING)
         {
-            offset = dissect_usb_video_streaming_interface_descriptor(tree, desc_tvb,
+            offset = dissect_usb_video_streaming_interface_descriptor(tree, pinfo, desc_tvb,
                                                                       descriptor_len);
         }
     }

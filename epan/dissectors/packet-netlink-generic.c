@@ -31,6 +31,7 @@ void proto_register_netlink_generic(void);
 void proto_reg_handoff_netlink_generic(void);
 
 typedef struct {
+	packet_info *pinfo;
 	/* Values parsed from the attributes (only valid in this packet). */
 	uint16_t        family_id;
 	const uint8_t  *family_name;
@@ -211,9 +212,10 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 }
 
 static int
-dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_genl_ctrl_group_attr type = (enum ws_genl_ctrl_group_attr) nla_type;
+	genl_ctrl_info_t* info = (genl_ctrl_info_t*)data;
 	proto_tree *ptree = proto_tree_get_parent_tree(tree);
 	uint32_t value;
 	const uint8_t *strval;
@@ -222,7 +224,7 @@ dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netl
 	case WS_CTRL_ATTR_MCAST_GRP_UNSPEC:
 		break;
 	case WS_CTRL_ATTR_MCAST_GRP_NAME:
-		proto_tree_add_item_ret_string(tree, hf_genl_ctrl_group_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &strval);
+		proto_tree_add_item_ret_string(tree, hf_genl_ctrl_group_name, tvb, offset, len, ENC_ASCII, info->pinfo->pool, &strval);
 		proto_item_append_text(tree, ": %s", strval);
 		proto_item_append_text(ptree, ", name=%s", strval);
 		offset += len;
@@ -259,7 +261,7 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 		}
 		break;
 	case WS_CTRL_ATTR_FAMILY_NAME:
-		proto_tree_add_item_ret_string(tree, hf_genl_ctrl_family_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &info->family_name);
+		proto_tree_add_item_ret_string(tree, hf_genl_ctrl_family_name, tvb, offset, len, ENC_ASCII, info->pinfo->pool, &info->family_name);
 		proto_item_append_text(tree, ": %s", info->family_name);
 		offset += len;
 		break;
@@ -300,7 +302,7 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 }
 
 static int
-dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
+dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data)
 {
 	genl_info_t *genl_info = (genl_info_t *) data;
 	genl_ctrl_info_t info;
@@ -310,6 +312,7 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 		return 0;
 	}
 
+	info.pinfo = pinfo;
 	info.family_id = 0;
 	info.family_name = NULL;
 

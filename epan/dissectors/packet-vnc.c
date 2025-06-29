@@ -1115,13 +1115,13 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 /* Returns the new offset after processing the 4-byte vendor string */
 static int
-process_vendor(proto_tree *tree, int hfindex, tvbuff_t *tvb, int offset)
+process_vendor(proto_tree *tree, packet_info* pinfo, int hfindex, tvbuff_t *tvb, int offset)
 {
 	const uint8_t *vendor;
 	proto_item *ti;
 
 	if (tree) {
-		ti = proto_tree_add_item_ret_string(tree, hfindex, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &vendor);
+		ti = proto_tree_add_item_ret_string(tree, hfindex, tvb, offset, 4, ENC_ASCII|ENC_NA, pinfo->pool, &vendor);
 
 		if(g_ascii_strcasecmp(vendor, "STDV") == 0)
 			proto_item_append_text(ti, " (Standard VNC vendor)");
@@ -1137,7 +1137,7 @@ process_vendor(proto_tree *tree, int hfindex, tvbuff_t *tvb, int offset)
 
 /* Returns the new offset after processing the specified number of capabilities */
 static int
-process_tight_capabilities(proto_tree *tree,
+process_tight_capabilities(proto_tree *tree, packet_info* pinfo,
 			   int type_index, int vendor_index, int name_index,
 			   tvbuff_t *tvb, int offset, const int num_capabilities)
 {
@@ -1149,7 +1149,7 @@ process_tight_capabilities(proto_tree *tree,
 		proto_tree_add_item(tree, type_index, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		offset = process_vendor(tree, vendor_index, tvb, offset);
+		offset = process_vendor(tree, pinfo, vendor_index, tvb, offset);
 
 		proto_tree_add_item(tree, name_index, tvb, offset, 8, ENC_ASCII|ENC_NA);
 		offset += 8;
@@ -1441,7 +1441,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		vendor = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
-		process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
+		process_vendor(tree, pinfo, hf_vnc_tight_server_vendor, tvb, offset);
 		offset += 4;
 		proto_tree_add_item_ret_string(tree, hf_vnc_tight_signature, tvb, offset, 8, ENC_ASCII|ENC_NA, pinfo->pool, &signature);
 
@@ -1823,17 +1823,17 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree_add_item(tree, hf_vnc_padding, tvb, offset, 2, ENC_NA);
 		offset += 2;
 
-		offset = process_tight_capabilities(tree,
+		offset = process_tight_capabilities(tree, pinfo,
 						    hf_vnc_tight_server_message_type,
 						    hf_vnc_tight_server_vendor,
 						    hf_vnc_tight_server_name,
 						    tvb, offset, per_conversation_info->num_server_message_types);
-		offset = process_tight_capabilities(tree,
+		offset = process_tight_capabilities(tree, pinfo,
 						    hf_vnc_tight_client_message_type,
 						    hf_vnc_tight_client_vendor,
 						    hf_vnc_tight_client_name,
 						    tvb, offset, per_conversation_info->num_client_message_types);
-		process_tight_capabilities(tree,
+		process_tight_capabilities(tree, pinfo,
 						    hf_vnc_tight_encoding_type,
 						    hf_vnc_tight_encoding_vendor,
 						    hf_vnc_tight_encoding_name,

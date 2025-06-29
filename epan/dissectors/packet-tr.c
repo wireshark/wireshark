@@ -238,7 +238,7 @@ int check_for_old_linux(const unsigned char * pd)
 
 
 static void
-add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
+add_ring_bridge_pairs(int rcf_len, tvbuff_t*, packet_info* pinfo, proto_tree *tree);
 
 static bool
 capture_tr(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
@@ -584,7 +584,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
 			if (trn_rif_bytes > 2) {
-				add_ring_bridge_pairs(trn_rif_bytes, tr_tvb, tr_tree);
+				add_ring_bridge_pairs(trn_rif_bytes, tr_tvb, pinfo, tr_tree);
 			}
 		}
 
@@ -629,7 +629,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 /* this routine is taken from the Linux net/802/tr.c code, which shows
 ring-bridge pairs in the /proc/net/tr_rif virtual file. */
 static void
-add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
+add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree)
 {
 	proto_item *hidden_item;
 	int	    j;
@@ -641,7 +641,7 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 	wmem_strbuf_t	*buf;
 #define MAX_BUF_LEN 3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1
 
-	buf = wmem_strbuf_new_sized(wmem_packet_scope(), MAX_BUF_LEN);
+	buf = wmem_strbuf_new_sized(pinfo->pool, MAX_BUF_LEN);
 	/* Only process so many  bytes of RIF, as per TR spec, and not overflow
 	 * static buffer above */
 	unprocessed_rif = rcf_len - RIF_BYTES_TO_PROCESS;

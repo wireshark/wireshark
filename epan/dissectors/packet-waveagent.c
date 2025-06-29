@@ -263,7 +263,7 @@ static void dissect_wlan_if_stats(uint32_t starting_offset, proto_item *parent_t
         hf_waveagent_ifwlancipher, tvb, starting_offset + 60, 4, ENC_BIG_ENDIAN);
 }
 
-static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree, tvbuff_t *tvb, uint32_t control_word, uint8_t version)
+static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree, packet_info* pinfo, tvbuff_t *tvb, uint32_t control_word, uint8_t version)
 {
     switch (control_word)
     {
@@ -492,7 +492,7 @@ static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree
             offset = starting_offset + 16;
             delta  = 148;
 
-            sb = wmem_strbuf_new_sized(wmem_packet_scope(), 8);
+            sb = wmem_strbuf_new_sized(pinfo->pool, 8);
 
             for (iLoop = 0; iLoop < num_bss_entries; iLoop++)
             {
@@ -1055,7 +1055,7 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             payload_tree = relay_message_tree;
         }
 
-        dissect_wa_payload(wa_payload_offset, payload_tree, tvb, control_word, version);
+        dissect_wa_payload(wa_payload_offset, payload_tree, pinfo, tvb, control_word, version);
     }
 
     /* Return the amount of data this dissector was able to dissect */

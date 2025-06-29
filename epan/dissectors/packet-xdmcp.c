@@ -105,14 +105,14 @@ static int ett_xdmcp_connection;
 
 static expert_field ei_xdmcp_conn_address_mismatch;
 
-static int xdmcp_add_string(proto_tree *tree, int hf,
+static int xdmcp_add_string(proto_tree *tree, packet_info* pinfo, int hf,
                              tvbuff_t *tvb, int offset)
 {
   char *str;
   unsigned len;
 
   len = tvb_get_ntohs(tvb, offset);
-  str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, len, ENC_ASCII);
+  str = tvb_get_string_enc(pinfo->pool, tvb, offset+2, len, ENC_ASCII);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
 
   return len+2;
@@ -129,7 +129,7 @@ static int xdmcp_add_bytes(proto_tree *tree, int hf_byte, int hf_length,
   return len+2;
 }
 
-static int xdmcp_add_authentication_names(proto_tree *tree,
+static int xdmcp_add_authentication_names(proto_tree *tree, packet_info* pinfo,
                                     tvbuff_t *tvb, int offset)
 {
   proto_tree *anames_tree;
@@ -146,7 +146,7 @@ static int xdmcp_add_authentication_names(proto_tree *tree,
   anames_len = tvb_get_uint8(tvb, offset);
   offset++;
   while (anames_len > 0) {
-    offset += xdmcp_add_string(anames_tree, hf_xdmcp_authentication_name,
+    offset += xdmcp_add_string(anames_tree, pinfo, hf_xdmcp_authentication_name,
                                tvb, offset);
     anames_len--;
   }
@@ -154,7 +154,7 @@ static int xdmcp_add_authentication_names(proto_tree *tree,
   return offset - anames_start_offset;
 }
 
-static int xdmcp_add_authorization_names(proto_tree *tree,
+static int xdmcp_add_authorization_names(proto_tree *tree, packet_info* pinfo,
                                     tvbuff_t *tvb, int offset)
 {
   proto_tree *anames_tree;
@@ -171,7 +171,7 @@ static int xdmcp_add_authorization_names(proto_tree *tree,
   anames_len = tvb_get_uint8(tvb, offset);
   offset++;
   while (anames_len > 0) {
-    offset += xdmcp_add_string(anames_tree, hf_xdmcp_authorization_name,
+    offset += xdmcp_add_string(anames_tree, pinfo, hf_xdmcp_authorization_name,
                                tvb, offset);
     anames_len--;
   }
@@ -257,22 +257,22 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     case XDMCP_BROADCAST_QUERY:
     case XDMCP_QUERY:
     case XDMCP_INDIRECT_QUERY:
-      offset += xdmcp_add_authentication_names(xdmcp_tree, tvb, offset);
+      offset += xdmcp_add_authentication_names(xdmcp_tree, pinfo, tvb, offset);
       break;
 
     case XDMCP_WILLING:
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_authentication_name,
                                  tvb, offset);
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_hostname,
                                  tvb, offset);
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_status,
                                  tvb, offset);
       break;
 
     case XDMCP_UNWILLING:
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_hostname,
                                  tvb, offset);
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_status,
                                  tvb, offset);
       break;
 
@@ -337,12 +337,12 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       offset = caddrs_offset;
       proto_item_set_len(clist_ti, offset - ctypes_start_offset);
 
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_authentication_name,
                                  tvb, offset);
       offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len,
                                  tvb, offset);
 
-      offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
+      offset += xdmcp_add_authorization_names(xdmcp_tree, pinfo, tvb, offset);
 
       offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_manufacturer_display_id, hf_xdmcp_manufacturer_display_id_len,
                                tvb, offset);
@@ -353,20 +353,20 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
                           offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_authentication_name,
                                  tvb, offset);
       offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len,
                                  tvb, offset);
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authorization_name,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_authorization_name,
                                  tvb, offset);
       offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authorization_data, hf_xdmcp_authorization_data_len,
                                  tvb, offset);
       break;
 
     case XDMCP_DECLINE:
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_status,
                                  tvb, offset);
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_authentication_name,
                                  tvb, offset);
       offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len,
                                  tvb, offset);
@@ -396,7 +396,7 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                           offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
-      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+      offset += xdmcp_add_string(xdmcp_tree, pinfo, hf_xdmcp_status,
                                  tvb, offset);
       break;
 

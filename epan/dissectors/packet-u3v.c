@@ -1046,7 +1046,7 @@ static int * const speed_support_fields[] = {
  \brief Returns a register name based on its address
  */
 static const char*
-get_register_name_from_address(uint64_t addr, bool* is_custom_register, u3v_conv_info_t * u3v_conv_info)
+get_register_name_from_address(uint64_t addr, wmem_allocator_t* scope, bool* is_custom_register, u3v_conv_info_t * u3v_conv_info)
 {
     const char* address_string = NULL;
     uint32_t offset_address;
@@ -1074,7 +1074,7 @@ get_register_name_from_address(uint64_t addr, bool* is_custom_register, u3v_conv
     }
 
     if (!address_string) {
-        address_string = wmem_strdup_printf(wmem_packet_scope(), "[Addr:0x%016" PRIX64 "]", addr);
+        address_string = wmem_strdup_printf(scope, "[Addr:0x%016" PRIX64 "]", addr);
         if (is_custom_register != NULL) {
             *is_custom_register = true;
         }
@@ -1363,7 +1363,7 @@ dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
     addr = tvb_get_letoh64(tvb, offset);
     gencp_trans->address = addr;
 
-    address_string = get_register_name_from_address(addr, &is_custom_register, u3v_conv_info);
+    address_string = get_register_name_from_address(addr, pinfo->pool, &is_custom_register, u3v_conv_info);
     count = tvb_get_letohs(tvb, offset + 10);   /* Number of bytes to read from memory */
 
     gencp_trans->count = count;
@@ -1409,7 +1409,7 @@ dissect_u3v_write_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
 
     addr = tvb_get_letoh64(tvb, startoffset);
     byte_count = length - 8;
-    address_string = get_register_name_from_address(addr, &is_custom_register, u3v_conv_info);
+    address_string = get_register_name_from_address(addr, pinfo->pool, &is_custom_register, u3v_conv_info);
 
     gencp_trans->address = addr;
     gencp_trans->count = byte_count;
@@ -1495,7 +1495,7 @@ dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
     addr = gencp_trans->address;
     dissect_u3v_register_bases(addr, tvb, startoffset, u3v_conv_info);
     if (have_address) {
-        address_string = get_register_name_from_address(addr, &is_custom_register, u3v_conv_info);
+        address_string = get_register_name_from_address(addr, pinfo->pool, &is_custom_register, u3v_conv_info);
         /* Fill in Wireshark GUI Info column */
         col_append_str(pinfo->cinfo, COL_INFO, address_string);
     }
@@ -1533,7 +1533,7 @@ dissect_u3v_write_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
 
     addr = gencp_trans->address;
     if (have_address) {
-        address_string = get_register_name_from_address(addr, &is_custom_register, u3v_conv_info);
+        address_string = get_register_name_from_address(addr, pinfo->pool, &is_custom_register, u3v_conv_info);
 
         /* Fill in Wireshark GUI Info column */
         col_append_str(pinfo->cinfo, COL_INFO, address_string);

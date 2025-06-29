@@ -1140,7 +1140,7 @@ get_sealing_rc4key(const uint8_t exportedsessionkey[NTLMSSP_KEY_LEN] , const int
   If there's no string, just use the offset of the end of the tvb as start/end.
 */
 static int
-dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
+dissect_ntlmssp_string (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset,
                         proto_tree *ntlmssp_tree,
                         bool unicode_strings,
                         int string_hf, int *start, int *end,
@@ -1171,7 +1171,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   tf = proto_tree_add_item_ret_string(ntlmssp_tree, string_hf, tvb,
                            string_offset, string_length,
                            unicode_strings ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA,
-                           wmem_packet_scope(), stringp);
+                           allocator, stringp);
   tree = proto_item_add_subtree(tf, ett_ntlmssp_string);
   proto_tree_add_uint(tree, hf_ntlmssp_string_len,
                       tvb, offset, 2, string_length);
@@ -1593,7 +1593,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 /* tapping into ntlmssph not yet implemented */
 static int
-dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
+dissect_ntlmssp_negotiate (tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
   uint32_t negotiate_flags;
   int     data_start;
@@ -1611,11 +1611,11 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
    * sent at all, presumably meaning the length of the message
    * isn't enough to contain them.
    */
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, false,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, false,
                                   hf_ntlmssp_negotiate_domain,
                                   &data_start, &data_end, NULL);
 
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, false,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, false,
                                   hf_ntlmssp_negotiate_workstation,
                                   &item_start, &item_end, NULL);
   data_start = MIN(data_start, item_start);
@@ -1709,7 +1709,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * presumably because non-domain targets are supported.
    * XXX - Original name "domain" changed to "target_name" to match MS-NLMP
    */
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, unicode_strings,
                                   hf_ntlmssp_challenge_target_name,
                                   &item_start, &item_end, NULL);
   data_start = item_start;
@@ -2062,7 +2062,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* domain name */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree,
                                   unicode_strings,
                                   hf_ntlmssp_auth_domain,
                                   &item_start, &item_end, &(ntlmssph->domain_name));
@@ -2072,7 +2072,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* user name */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree,
                                   unicode_strings,
                                   hf_ntlmssp_auth_username,
                                   &item_start, &item_end, &(ntlmssph->acct_name));
@@ -2085,7 +2085,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* hostname */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree,
                                   unicode_strings,
                                   hf_ntlmssp_auth_hostname,
                                   &item_start, &item_end, &(ntlmssph->host_name));
@@ -2514,7 +2514,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     switch (ntlmssph->type) {
 
     case NTLMSSP_NEGOTIATE:
-      dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree, ntlmssph);
+      dissect_ntlmssp_negotiate (tvb, pinfo, offset, ntlmssp_tree, ntlmssph);
       break;
 
     case NTLMSSP_CHALLENGE:

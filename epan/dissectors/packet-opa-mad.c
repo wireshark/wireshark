@@ -2522,14 +2522,13 @@ static const fragment_items opa_rmpp_frag_items = {
  *
  * @param[in] tvb pointer to packet buffer
  * @param[in] offset offset into packet buffer where port select mask begins
- * @param[out] port_list optional: pointer to an arrray of ports, allocated by
- *                                 wmem_alloc(wmem_packet_scope(), 256)
+ * @param[out] port_list optional: pointer to an arrray of ports, allocated via allocator
  * @param[out] num_ports optional: pointer to a number of ports in set in port
  *                                 select mask and portlist if provided.
  * @return char* pointer to range string allocated using
- *                wmem_strbuf_new_sized(wmem_packet_scope(),...)
+ *                wmem_strbuf_new_sized(allocator,...)
  */
-static char *opa_format_port_select_mask(tvbuff_t *tvb, int offset, uint8_t **port_list, uint8_t *num_ports)
+static char *opa_format_port_select_mask(wmem_allocator_t* allocator, tvbuff_t *tvb, int offset, uint8_t **port_list, uint8_t *num_ports)
 {
     int i, j, port, last = -1, first = 0, ports = 0;
     uint64_t mask, psm[4];
@@ -2544,11 +2543,11 @@ static char *opa_format_port_select_mask(tvbuff_t *tvb, int offset, uint8_t **po
     psm[2] = tvb_get_ntoh64(tvb, offset + 16);
     psm[3] = tvb_get_ntoh64(tvb, offset + 24);
 
-    buf = wmem_strbuf_create(wmem_packet_scope());
+    buf = wmem_strbuf_create(allocator);
 
     if (port_list) {
         /* Allocate list of ports; max = 256 = 64 * 4 */
-        portlist = (uint8_t *)wmem_alloc(wmem_packet_scope(), 256);
+        portlist = (uint8_t *)wmem_alloc(allocator, 256);
         memset(portlist, 0xFF, 256);
     }
     for (i = 0; i < 4; i++) {
@@ -6230,7 +6229,7 @@ static int parse_PortStatus(proto_tree *parentTree, tvbuff_t *tvb, int *offset, 
 }
 
 /* Parse ClearPortStatus MAD from the Performance management class.*/
-static int parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
+static int parse_ClearPortStatus(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ClearPortStatus_header_item;
     proto_tree *ClearPortStatus_header_tree;
@@ -6249,7 +6248,7 @@ static int parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, int *off
 
     ClearPortStatus_PortSelectMask_item = proto_tree_add_item(ClearPortStatus_header_tree, hf_opa_ClearPortStatus_PortSelectMask, tvb, local_offset, 32, ENC_NA);
     proto_item_append_text(ClearPortStatus_PortSelectMask_item, ": %s",
-        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
+        opa_format_port_select_mask(pinfo->pool, tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_bitmask(ClearPortStatus_header_tree, tvb, local_offset,
@@ -6261,7 +6260,7 @@ static int parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, int *off
 }
 
 /* Parse DataPortCounters MAD from the Performance management class.*/
-static int parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
+static int parse_DataPortCounters(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *DataPortCounters_header_item;
     proto_item *DataPortCounters_PortSelectMask_item;
@@ -6293,7 +6292,7 @@ static int parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *of
 
     DataPortCounters_PortSelectMask_item = proto_tree_add_item(DataPortCounters_header_tree, hf_opa_DataPortCounters_PortSelectMask, tvb, local_offset, 32, ENC_NA);
     proto_item_append_text(DataPortCounters_PortSelectMask_item, ": %s",
-        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
+        opa_format_port_select_mask(pinfo->pool, tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_item(DataPortCounters_header_tree, hf_opa_DataPortCounters_VLSelectMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -6395,7 +6394,7 @@ static int parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *of
 }
 
 /* Parse ErrorPortCounters MAD from the Performance management class.*/
-static int parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
+static int parse_ErrorPortCounters(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ErrorPortCounters_header_item;
     proto_item *ErrorPortCounters_PortSelectMask_item;
@@ -6427,7 +6426,7 @@ static int parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *o
 
     ErrorPortCounters_PortSelectMask_item = proto_tree_add_item(ErrorPortCounters_header_tree, hf_opa_ErrorPortCounters_PortSelectMask, tvb, local_offset, 32, ENC_NA);
     proto_item_append_text(ErrorPortCounters_PortSelectMask_item, ": %s",
-        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
+        opa_format_port_select_mask(pinfo->pool, tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_item(ErrorPortCounters_header_tree, hf_opa_ErrorPortCounters_VLSelectMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -6494,7 +6493,7 @@ static int parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *o
 }
 
 /* Parse ErrorPortInfo MAD from the Performance management class.*/
-static int parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
+static int parse_ErrorPortInfo(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ErrorPortInfo_header_item;
     proto_item *ErrorPortInfo_PortSelectMask_item;
@@ -6527,7 +6526,7 @@ static int parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offse
 
     ErrorPortInfo_PortSelectMask_item = proto_tree_add_item(ErrorPortInfo_header_tree, hf_opa_ErrorPortInfo_PortSelectMask, tvb, local_offset, 32, ENC_NA);
     proto_item_append_text(ErrorPortInfo_PortSelectMask_item, ": %s",
-        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
+        opa_format_port_select_mask(pinfo->pool, tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     if (MAD->Method == METHOD_GET)
@@ -6719,7 +6718,7 @@ static int parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offse
     }
     return local_offset;
 }
-static bool parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
+static bool parse_PM_Attribute(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     int local_offset = *offset;
 
@@ -6732,16 +6731,16 @@ static bool parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offse
         local_offset = parse_PortStatus(parentTree, tvb, &local_offset, MAD);
         break;
     case PM_ATTR_ID_CLEAR_PORT_STATUS:
-        local_offset = parse_ClearPortStatus(parentTree, tvb, &local_offset, MAD);
+        local_offset = parse_ClearPortStatus(parentTree, pinfo, tvb, &local_offset, MAD);
         break;
     case PM_ATTR_ID_DATA_PORT_COUNTERS:
-        local_offset = parse_DataPortCounters(parentTree, tvb, &local_offset, MAD);
+        local_offset = parse_DataPortCounters(parentTree, pinfo, tvb, &local_offset, MAD);
         break;
     case PM_ATTR_ID_ERROR_PORT_COUNTERS:
-        local_offset = parse_ErrorPortCounters(parentTree, tvb, &local_offset, MAD);
+        local_offset = parse_ErrorPortCounters(parentTree, pinfo, tvb, &local_offset, MAD);
         break;
     case PM_ATTR_ID_ERROR_INFO:
-        local_offset = parse_ErrorPortInfo(parentTree, tvb, &local_offset, MAD);
+        local_offset = parse_ErrorPortInfo(parentTree, pinfo, tvb, &local_offset, MAD);
         break;
     default:
         return false;
@@ -6787,7 +6786,7 @@ static void parse_PERF(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb
         *offset += tvb_captured_length_remaining(tvb, *offset);
         return;
     }
-    if (!parse_PM_Attribute(PM_header_tree, tvb, offset, &MAD)) {
+    if (!parse_PM_Attribute(PM_header_tree, pinfo, tvb, offset, &MAD)) {
         expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
             "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
         *offset += tvb_captured_length_remaining(tvb, *offset);

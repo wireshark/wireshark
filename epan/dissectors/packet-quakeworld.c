@@ -76,10 +76,10 @@ static expert_field ei_quakeworld_connectionless_command_invalid;
 #define MAX_TEXT_SIZE	2048
 
 static const char *
-COM_Parse (const char *data, int data_len, int* token_start, int* token_len)
+COM_Parse (wmem_allocator_t* allocator, const char *data, int data_len, int* token_start, int* token_len)
 {
 	int c;
-	char* com_token = (char*)wmem_alloc(wmem_packet_scope(), data_len+1);
+	char* com_token = (char*)wmem_alloc(allocator, data_len+1);
 
 	com_token[0] = '\0';
 	*token_start = 0;
@@ -186,7 +186,7 @@ Cmd_Argv_length(int arg)
 
 
 static void
-Cmd_TokenizeString(const char* text, int text_len)
+Cmd_TokenizeString(wmem_allocator_t* allocator, const char* text, int text_len)
 {
 	int start;
 	int com_token_start;
@@ -211,7 +211,7 @@ Cmd_TokenizeString(const char* text, int text_len)
 		if ((!*text) || (start == text_len))
 			return;
 
-		text = COM_Parse (text, text_len-start, &com_token_start, &com_token_length);
+		text = COM_Parse (allocator, text, text_len-start, &com_token_start, &com_token_length);
 		if (!text)
 			return;
 
@@ -371,7 +371,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		/* client to server commands */
 		const char *c;
 
-		Cmd_TokenizeString(text, len);
+		Cmd_TokenizeString(pinfo->pool, text, len);
 		c = Cmd_Argv(0);
 
 		/* client to sever commands */

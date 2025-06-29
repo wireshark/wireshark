@@ -7832,7 +7832,7 @@ dissect_nfs4_openflag(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_clientaddr(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
 	const char *universal_ip_address = NULL;
 	const char *protocol		 = NULL;
@@ -7856,7 +7856,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			ipv4 = g_htonl((b1<<24) | (b2<<16) | (b3<<8) | b4);
 			set_address(&addr, AT_IPv4, 4, &ipv4);
 			ti = proto_tree_add_ipv4_format(tree, hf_nfs4_universal_address_ipv4, tvb, addr_offset, offset-addr_offset, ipv4, "IPv4 address %s, protocol=%s, port=%u",
-				address_to_str(wmem_packet_scope(), &addr), protocol, port);
+				address_to_str(pinfo->pool, &addr), protocol, port);
 			proto_item_set_generated(ti);
 		} else if (universal_ip_address && sscanf(universal_ip_address, "%u.%u",
 						   &b1, &b2) == 2) {
@@ -7873,7 +7873,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			ipv6.bytes[4] = b5; ipv6.bytes[5] = b6; ipv6.bytes[6] = b7; ipv6.bytes[7] = b8;
 			set_address(&addr, AT_IPv6, 16, &ipv6);
 			ti = proto_tree_add_ipv6_format(tree, hf_nfs4_universal_address_ipv6, tvb, addr_offset, offset-addr_offset, &ipv6, "IPv6 address %s, protocol=%s, port=%u",
-				address_to_str(wmem_packet_scope(), &addr), protocol, port);
+				address_to_str(pinfo->pool, &addr), protocol, port);
 			proto_item_set_generated(ti);
 		} else {
 			ti = proto_tree_add_ipv4_format(tree, hf_nfs4_universal_address_ipv4, tvb, addr_offset, offset-addr_offset, 0, "Invalid address");
@@ -7885,7 +7885,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static int
-dissect_nfs4_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_cb_client4(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
 	proto_tree *cb_location;
 	proto_item *fitem;
@@ -7895,7 +7895,7 @@ dissect_nfs4_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	old_offset = offset;
 	cb_location = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "cb_location");
 
-	offset = dissect_nfs4_clientaddr(tvb, offset, cb_location);
+	offset = dissect_nfs4_clientaddr(tvb, pinfo, offset, cb_location);
 	proto_item_set_len(fitem, offset - old_offset);
 
 	return offset;
@@ -8905,7 +8905,7 @@ dissect_nfs4_layoutstats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		old_offset = offset;
 		netaddr = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "DS address");
 
-		offset = dissect_nfs4_clientaddr(tvb, offset, netaddr);
+		offset = dissect_nfs4_clientaddr(tvb, pinfo, offset, netaddr);
 		proto_item_set_len(fitem, offset - old_offset);
 
 		/* The file handle */
@@ -9345,7 +9345,7 @@ dissect_nfs4_test_stateid_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_nfs4_netloc(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_netloc(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
 	unsigned netloc_type;
 	proto_tree *netaddr;
@@ -9367,7 +9367,7 @@ dissect_nfs4_netloc(tvbuff_t *tvb, int offset, proto_tree *tree)
 		old_offset = offset;
 		netaddr = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "netaddr");
 
-		offset = dissect_nfs4_clientaddr(tvb, offset, netaddr);
+		offset = dissect_nfs4_clientaddr(tvb, pinfo, offset, netaddr);
 		proto_item_set_len(fitem, offset - old_offset);
 		break;
 	default:
@@ -9424,7 +9424,7 @@ dissect_nfs4_write_response(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_nfs4_source_servers(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_source_servers(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
 	proto_item *sub_fitem;
 	proto_tree *ss_tree;
@@ -9447,7 +9447,7 @@ dissect_nfs4_source_servers(tvbuff_t *tvb, int offset, proto_tree *tree)
 		ss_tree = proto_item_add_subtree(ss_fitem,
 				ett_nfs4_source_servers_sub);
 
-		offset = dissect_nfs4_netloc(tvb, offset, ss_tree);
+		offset = dissect_nfs4_netloc(tvb, pinfo, offset, ss_tree);
 	}
 
 	return offset;
@@ -10339,7 +10339,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 				callback_tree = proto_tree_add_subtree(newftree, tvb, offset, 0, ett_nfs4_cb_client, NULL, "callback");
 
-				offset = dissect_nfs4_cb_client4(tvb, offset, callback_tree);
+				offset = dissect_nfs4_cb_client4(tvb, pinfo, offset, callback_tree);
 
 				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_callback_ident,
 					offset);
@@ -10522,7 +10522,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					" Offset: %" PRIu64,
 					dst_sid_hash, dst_file_offset);
 
-			offset = dissect_nfs4_source_servers(tvb, offset, newftree);
+			offset = dissect_nfs4_source_servers(tvb, pinfo, offset, newftree);
 			break;
 
 		case NFS4_OP_COPY_NOTIFY:
@@ -10532,7 +10532,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					" StateID: 0x%04x",
 					sid_hash);
 
-			offset = dissect_nfs4_netloc(tvb, offset, newftree);
+			offset = dissect_nfs4_netloc(tvb, pinfo, offset, newftree);
 
 			break;
 
@@ -11031,7 +11031,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 				 * XXX: below function actually assumes
 				 * this is for a callback.  Fix:
 				 */
-				offset = dissect_nfs4_clientaddr(tvb, offset, newftree);
+				offset = dissect_nfs4_clientaddr(tvb, pinfo, offset, newftree);
 			break;
 
 		case NFS4_OP_WRITE:
@@ -11171,7 +11171,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 			offset = dissect_nfs4_nfstime(tvb, offset, newftree);
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, NULL);
-			offset = dissect_nfs4_source_servers(tvb, offset, newftree);
+			offset = dissect_nfs4_source_servers(tvb, pinfo, offset, newftree);
 
 			break;
 

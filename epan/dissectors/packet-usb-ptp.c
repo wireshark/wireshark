@@ -227,7 +227,7 @@ proto_tree_add_item_mask(packet_info *pinfo,proto_tree *tree, usb_conv_info_t* u
 
 /* Add a PTP-style unicode string*/
 static int
-usb_ptp_add_uint_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, char* save_to _U_)
+usb_ptp_add_uint_string(packet_info* pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, int offset, char** save_to)
 {
     uint8_t length;
     char    *str;
@@ -235,12 +235,12 @@ usb_ptp_add_uint_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, cha
     /* First byte is the number of characters in UCS-2, including the terminating NULL */
     length = tvb_get_uint8(tvb, offset) * 2;
     offset += 1;
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_LITTLE_ENDIAN | ENC_UCS_2);
+    str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_LITTLE_ENDIAN | ENC_UCS_2);
     proto_tree_add_string(tree, hf, tvb, offset, length, str);
     offset += length;
 
     /* Save to data structure (optional) */
-    save_to = g_strdup(str);
+    (*save_to) = str;
 
     return offset;
 }
@@ -341,7 +341,7 @@ dissect_usb_ptp_get_device_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     usb_ptp_device_info->VendorExtensionVersion = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree,hf_devinfo_vendorextensionversion       ,tvb,offset,2,  ENC_LITTLE_ENDIAN);
     offset+=2;
-    offset = usb_ptp_add_uint_string(tree, hf_devinfo_vendorextensiondesc,tvb,offset,usb_ptp_device_info->VendorExtensionDesc);
+    offset = usb_ptp_add_uint_string(pinfo, tree, hf_devinfo_vendorextensiondesc,tvb,offset,&usb_ptp_device_info->VendorExtensionDesc);
     proto_tree_add_item(tree,hf_devinfo_functionalmode               ,tvb,offset,2,  ENC_LITTLE_ENDIAN);
     offset+=2;
     /* TODO: Store array values in dev_info struct */
@@ -350,10 +350,10 @@ dissect_usb_ptp_get_device_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     offset = usb_ptp_add_array_is(pinfo,tree,conv_info,hf_devinfo_devicepropertysupported,tvb,offset,"DEVICE PROPERTIES SUPPORTED",usb_ptp_dpc_mvals);
     offset = usb_ptp_add_array_is(pinfo,tree,conv_info,hf_devinfo_captureformat          ,tvb,offset,"CAPTURE FORMATS SUPPORTED",usb_ptp_ofc_mvals);
     offset = usb_ptp_add_array_is(pinfo,tree,conv_info,hf_devinfo_imageformat            ,tvb,offset,"IMAGE FORMATS SUPPORTED",usb_ptp_ofc_mvals);
-    offset = usb_ptp_add_uint_string(tree,hf_devinfo_manufacturer      ,tvb,offset,usb_ptp_device_info->Manufacturer);
-    offset = usb_ptp_add_uint_string(tree,hf_devinfo_model             ,tvb,offset,usb_ptp_device_info->Model);
-    offset = usb_ptp_add_uint_string(tree,hf_devinfo_deviceversion     ,tvb,offset,usb_ptp_device_info->DeviceVersion);
-    /*offset = */usb_ptp_add_uint_string(tree,hf_devinfo_serialnumber      ,tvb,offset,usb_ptp_device_info->SerialNumber);
+    offset = usb_ptp_add_uint_string(pinfo,tree,hf_devinfo_manufacturer      ,tvb,offset,&usb_ptp_device_info->Manufacturer);
+    offset = usb_ptp_add_uint_string(pinfo,tree,hf_devinfo_model             ,tvb,offset,&usb_ptp_device_info->Model);
+    offset = usb_ptp_add_uint_string(pinfo,tree,hf_devinfo_deviceversion     ,tvb,offset,&usb_ptp_device_info->DeviceVersion);
+    /*offset = */usb_ptp_add_uint_string(pinfo,tree,hf_devinfo_serialnumber  ,tvb,offset,&usb_ptp_device_info->SerialNumber);
 
     /* Post Proc of this table */
 

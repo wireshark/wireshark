@@ -1223,14 +1223,14 @@ dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
 }
 
 static const char *
-assignment_bucket_name(uint8_t bucket)
+assignment_bucket_name(wmem_allocator_t* allocator, uint8_t bucket)
 {
   const char *cur;
 
   if (bucket == 0xff) {
-    cur= "Unassigned";
+    cur= wmem_strdup(allocator, "Unassigned");
   } else {
-    cur=wmem_strdup_printf(wmem_packet_scope(), "%u%s", bucket & 0x7F,
+    cur=wmem_strdup_printf(allocator, "%u%s", bucket & 0x7F,
                          (bucket & 0x80) ? " (Alt)" : "");
   }
   return cur;
@@ -1335,7 +1335,7 @@ static int dissect_wccp2_hash_buckets_assignment_element(tvbuff_t *tvb, int offs
     bucket = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint_format(element_tree, hf_bucket, tvb, offset, 1,
                         bucket, "Bucket %3d: %10s",
-                        i, assignment_bucket_name(bucket));
+                        i, assignment_bucket_name(pinfo->pool, bucket));
   }
   return length;
 }
@@ -1590,7 +1590,7 @@ dissect_wccp2_hash_assignment_info(tvbuff_t *tvb, int offset, int length,
     bucket = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint_format(info_tree, hf_bucket, tvb, offset, 1,
                         bucket, "Bucket %3d: %10s",
-                        i, assignment_bucket_name(bucket));
+                        i, assignment_bucket_name(pinfo->pool, bucket));
   }
   return length;
 }

@@ -99,7 +99,7 @@ add_hid_to_strbuf(tvbuff_t *tvb, wmem_strbuf_t *hid_buf, int offset)
 }
 
 static void
-dissect_nwp_ann(tvbuff_t *tvb, proto_tree *nwp_tree, uint8_t hid_count,
+dissect_nwp_ann(tvbuff_t *tvb, packet_info* pinfo, proto_tree *nwp_tree, uint8_t hid_count,
 	uint8_t ha_len)
 {
 	proto_tree *hid_tree = NULL;
@@ -118,7 +118,7 @@ dissect_nwp_ann(tvbuff_t *tvb, proto_tree *nwp_tree, uint8_t hid_count,
 		NWPH_HWAD + ha_len, hid_count * NWP_XID_LEN, ENC_NA);
 	hid_tree = proto_item_add_subtree(ti, ett_nwp_ann_hid_tree);
 
-	buf = wmem_strbuf_new_sized(wmem_packet_scope(), NWP_HID_STR_LEN);
+	buf = wmem_strbuf_new_sized(pinfo->pool, NWP_HID_STR_LEN);
 
 	/* Add HIDs. */
 	offset = NWPH_HWAD + ha_len;
@@ -146,7 +146,7 @@ dissect_nwp_ann(tvbuff_t *tvb, proto_tree *nwp_tree, uint8_t hid_count,
  *      count == hid_count.
  */
 static void
-dissect_nwp_nl(tvbuff_t *tvb, proto_tree *nwp_tree, uint8_t hid_count,
+dissect_nwp_nl(tvbuff_t *tvb, packet_info* pinfo, proto_tree *nwp_tree, uint8_t hid_count,
 	uint8_t ha_len)
 {
 	proto_tree *neigh_list_tree = NULL;
@@ -156,7 +156,7 @@ dissect_nwp_nl(tvbuff_t *tvb, proto_tree *nwp_tree, uint8_t hid_count,
 	unsigned i;
 	int   offset = NWPH_NLST;
 
-	wmem_strbuf_t *hid_buf = wmem_strbuf_new_sized(wmem_packet_scope(),
+	wmem_strbuf_t *hid_buf = wmem_strbuf_new_sized(pinfo->pool,
 		NWP_HID_STR_LEN);
 
 	/* Set up tree for neighbor list. */
@@ -248,10 +248,10 @@ dissect_nwp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	switch (type) {
 	case NWP_TYPE_ANNOUNCEMENT:
-		dissect_nwp_ann(tvb, nwp_tree, hid_count, ha_len);
+		dissect_nwp_ann(tvb, pinfo, nwp_tree, hid_count, ha_len);
 		break;
 	case NWP_TYPE_NEIGH_LIST:
-		dissect_nwp_nl(tvb, nwp_tree, hid_count, ha_len);
+		dissect_nwp_nl(tvb, pinfo, nwp_tree, hid_count, ha_len);
 		break;
 	default:
 		break;

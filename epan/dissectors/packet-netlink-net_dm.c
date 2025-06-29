@@ -203,8 +203,9 @@ static const value_string ws_net_dm_origin_vals[] = {
 };
 
 static int
-dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
+	struct netlink_net_dm_info* info = (struct netlink_net_dm_info*)data;
 	enum ws_net_dm_attrs_port type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
 	const uint8_t *str;
 	uint32_t value;
@@ -215,7 +216,7 @@ dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data _U_, struct packet_netlink_d
 		proto_item_append_text(tree, ": %u", value);
 		return 1;
 	case WS_NET_DM_ATTR_PORT_NETDEV_NAME:
-		proto_tree_add_item_ret_string(tree, hf_net_dm_port_netdev_name, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_tree_add_item_ret_string(tree, hf_net_dm_port_netdev_name, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	default:
@@ -260,7 +261,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		proto_item_append_text(tree, ": 0x%" PRIx64, pc);
 		return 1;
 	case WS_NET_DM_ATTR_SYMBOL:
-		proto_tree_add_item_ret_string(tree, hf_net_dm_symbol, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_tree_add_item_ret_string(tree, hf_net_dm_symbol, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	case WS_NET_DM_ATTR_IN_PORT:
@@ -329,11 +330,11 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		proto_tree_add_item(tree, hf_net_dm_origin, tvb, offset, len, nl_data->encoding);
 		return 1;
 	case WS_NET_DM_ATTR_HW_TRAP_GROUP_NAME:
-		proto_tree_add_item_ret_string(tree, hf_net_dm_hw_trap_group_name, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_tree_add_item_ret_string(tree, hf_net_dm_hw_trap_group_name, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	case WS_NET_DM_ATTR_HW_TRAP_NAME:
-		proto_tree_add_item_ret_string(tree, hf_net_dm_hw_trap_name, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_tree_add_item_ret_string(tree, hf_net_dm_hw_trap_name, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	case WS_NET_DM_ATTR_HW_ENTRIES:
@@ -356,7 +357,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		proto_tree_add_item(tree, hf_net_dm_flow_action_cookie, tvb, offset, len, ENC_NA);
 		return 1;
 	case WS_NET_DM_ATTR_REASON:
-		proto_tree_add_item_ret_string(tree, hf_net_dm_reason, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);
+		proto_tree_add_item_ret_string(tree, hf_net_dm_reason, tvb, offset, len, ENC_ASCII | ENC_NA, info->pinfo->pool, &str);
 		proto_item_append_text(tree, ": %s", str);
 		return 1;
 	default:
