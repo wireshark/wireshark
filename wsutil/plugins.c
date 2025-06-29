@@ -222,6 +222,11 @@ DIAG_ON_PEDANTIC
         g_hash_table_replace(plugins_module, new_plug->name, new_plug);
         ws_info("Registered plugin: %s (%s)", new_plug->name, plugin_file);
         g_free(plugin_file);
+#if defined (ENABLE_ASAN) || defined (ENABLE_LSAN)
+        // XXX - Look for valgrind.h so we can also check RUNNING_ON_VALGRIND?
+        // https://valgrind.org/docs/manual/manual-core-adv.html
+        g_module_make_resident(handle);
+#endif
     }
     ws_dir_close(dir);
     g_free(plugin_folder);
