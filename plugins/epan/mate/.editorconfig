@@ -1,3 +1,15 @@
 [mate_grammar.lemon]
 indent_style = tab
 indent_size = tab
+
+[packet-mate.c]
+indent_style = tab
+indent_size = tab
+
+[mate_*.[ch]]
+indent_style = tab
+indent_size = tab
+
+[mate.h]
+indent_style = tab
+indent_size = tab
