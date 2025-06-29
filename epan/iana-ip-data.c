@@ -24,6 +24,7 @@ _U_ static const struct ws_iana_ip_special_block __ipv4_special_block[] = {
     { 4, { .ipv4 = { 0xc0000200, 0xffffff00 } }, "Documentation (TEST-NET-1)", 0, 0, 0, 0, 0 },
     { 4, { .ipv4 = { 0xc01fc400, 0xffffff00 } }, "AS112-v4", 1, 1, 1, 1, 0 },
     { 4, { .ipv4 = { 0xc034c100, 0xffffff00 } }, "AMT", 1, 1, 1, 1, 0 },
+    { 4, { .ipv4 = { 0xc0586302, 0xffffffff } }, "6a44-relay anycast address", 1, 1, 1, 0, 0 },
     { 4, { .ipv4 = { 0xc0a80000, 0xffff0000 } }, "Private-Use", 1, 1, 1, 0, 0 },
     { 4, { .ipv4 = { 0xc0af3000, 0xffffff00 } }, "Direct Delegation AS112 Service", 1, 1, 1, 1, 0 },
     { 4, { .ipv4 = { 0xc6120000, 0xfffe0000 } }, "Benchmarking", 1, 1, 1, 0, 0 },
