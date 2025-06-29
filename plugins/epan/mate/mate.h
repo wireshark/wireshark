@@ -111,7 +111,7 @@ typedef struct _mate_cfg_gop {
 	GHashTable* items; /* all the items of this type */
 
 	GPtrArray* transforms; /* transformations to be applied */
-	char* on_pdu;
+	const char* on_pdu;
 
 	AVPL* key; /* key candidate avpl */
 	AVPL* start; /* start candidate avpl */

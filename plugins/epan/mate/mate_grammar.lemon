@@ -429,7 +429,7 @@ pdu_decl ::=
 
 	mate_cfg_pdu* cfg  = new_pducfg(mc, Name);
 	extraction_t *extraction, *next_extraction;
-	GPtrArray* transport_stack = g_ptr_array_new();
+	GPtrArray* transport_stack = g_ptr_array_new_with_free_func(g_free);
 	int i;
 
 	if (! cfg ) configuration_error(mc,"could not create Pdu %s.",Name);
@@ -459,6 +459,7 @@ pdu_decl ::=
 		cfg->criterium = Criteria->criterium_avpl;
 		cfg->criterium_match_mode = Criteria->criterium_match_mode;
 		cfg->criterium_accept_mode = Criteria->criterium_accept_mode;
+		g_free(Criteria);
 	}
 
 	cfg->transforms = Transform;
@@ -470,6 +471,7 @@ pdu_decl ::=
 			configuration_error(mc,"MATE: failed to create extraction rule '%s'",extraction->as);
 		}
 
+		g_free(extraction->as);
 		g_free(extraction);
 	}
 }
@@ -530,6 +532,7 @@ field(A) ::= NAME(B). {
 	if (A == NULL) {
 		configuration_error(mc,"\nUnknown Proto/Transport/field: %s\n",B);
 	};
+	g_free(B);
 }
 
 /******************************************* GOP
@@ -610,6 +613,7 @@ pdu_name(A) ::= NAME(B). {
 	} else {
 		configuration_error(mc,"No such Pdu: '%s'",B);
 	}
+	g_free(B);
 }
 
 
@@ -721,16 +725,18 @@ avps(A) ::= avps(B) COMMA avp(C). { A = B; if ( ! insert_avp(B,C) ) delete_avp(C
 avps(A) ::= avp(B). { A = new_avpl(""); if ( ! insert_avp(A,B) ) delete_avp(B); }
 
 avp(A) ::= NAME(B) AVP_OPERATOR(C) value(D). { A = new_avp(B,D,*C); }
-avp(A) ::= NAME(B). { A = new_avp(B,"",'?'); }
-avp(A) ::= NAME(B) OPEN_BRACE avp_oneoff(C) CLOSE_BRACE. { A = new_avp(B,C,'|'); }
+avp(A) ::= NAME(B). { A = new_avp(B,"",'?'); g_free(B); }
+avp(A) ::= NAME(B) OPEN_BRACE avp_oneoff(C) CLOSE_BRACE. {
+	A = new_avp(B,C,'|'); g_free(B); g_free(C); }
 
-avp_oneoff(A) ::= avp_oneoff(B) PIPE value(C). { A = ws_strdup_printf("%s|%s",B,C); }
-avp_oneoff(A) ::= value(B). { A = g_strdup(B); }
+avp_oneoff(A) ::= avp_oneoff(B) PIPE value(C). {
+	A = ws_strdup_printf("%s|%s",B,C); g_free(B); g_free(C); }
+avp_oneoff(A) ::= value(B). { A = B; }
 
-value(A) ::= QUOTED(B). { A = g_strdup(B); }
-value(A) ::= NAME(B). { A = g_strdup(B); }
-value(A) ::= FLOATING(B). { A = g_strdup(B); }
-value(A) ::= INTEGER(B). { A = g_strdup(B); }
-value(A) ::= DOTED_IP(B). { A = g_strdup(B); }
+value(A) ::= QUOTED(B). { A = B; }
+value(A) ::= NAME(B). { A = B; }
+value(A) ::= FLOATING(B). { A = B; }
+value(A) ::= INTEGER(B). { A = B; }
+value(A) ::= DOTED_IP(B). { A = B; }
 value(A) ::= COLONIZED(B). { A = recolonize(mc,B); }
 
