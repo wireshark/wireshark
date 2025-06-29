@@ -27,10 +27,7 @@ extern void dbg_print(const int* which, int how, FILE* where,
 /******* single copy strings *********/
 typedef struct _scs_collection SCS_collection;
 
-#define SCS_SMALL_SIZE 16
-#define SCS_MEDIUM_SIZE 256
-#define SCS_LARGE_SIZE 4096
-#define SCS_HUGE_SIZE 65536
+#define SCS_HUGE_SIZE 65535
 
 extern char* scs_subscribe(SCS_collection* collection, const char* s);
 extern void scs_unsubscribe(SCS_collection* collection, char* s);

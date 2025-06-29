@@ -57,7 +57,9 @@ void dbg_print(const int* which, int how, FILE* where, const char* fmt, ... ) {
  ***************************************************************************
  * Strings repeat more often than don't. In order to save memory
  * we'll keep only one copy of each as key to a hash with a count of
- * subscribers as value.
+ * subscribers as value. Each string is truncated to be no more than
+ * SCS_HUGE_SIZE.
+ * XXX - GLib 2.58 adds reference counted strings, use that?
  ***************************************************************************/
 
 /**
@@ -70,21 +72,45 @@ struct _scs_collection {
 	GHashTable* hash;	/* key: a string value: unsigned number of subscribers */
 };
 
-/* ToDo? free any string,ctr entries pointed to by the hash table ??
- *       XXX: AFAIKT destroy_scs_collection() might be called only when reading a
- *         mate config file. Since reading a new config file can apparently currently
- *         only be done once after starting Wireshark, in theory this fcn
- *         currently should never be called since there will never be an existing
- *         scs_collection to be destroyed.
+/*
+ * XXX: AFAIKT destroy_scs_collection() might be called only when reading a
+ *      mate config file. Since reading a new config file can apparently currently
+ *      only be done once after starting Wireshark, in theory this fcn
+ *      currently should never be called since there will never be an existing
+ *      scs_collection to be destroyed.
  */
 static void destroy_scs_collection(SCS_collection* c) {
 	if (c->hash) g_hash_table_destroy(c->hash);
 }
 
+/* The same djb2 hash used in g_str_hash, except that it stops after
+ * SCS_HUGE_SIZE bytes. */
+static unsigned scs_hash(const void *v)
+{
+	const signed char *p;
+	uint32_t h = 5381;
+	size_t i = 0;
+
+	for (p = v; *p != '\0' && i++ < SCS_HUGE_SIZE; p++) {
+		h = (h << 5) + h + *p;
+	}
+
+	return h;
+}
+
+/* Compare the first SCS_HUGE_SIZE bytes for equality. */
+static gboolean scs_equal(const void *a, const void *b)
+{
+	const char *str1 = a;
+	const char *str2 = b;
+
+	return strncmp(str1, str2, SCS_HUGE_SIZE) == 0;
+}
+
 static SCS_collection* scs_init(void) {
 	SCS_collection* c = g_new(SCS_collection, 1);
 
-	c->hash =  g_hash_table_new(g_str_hash,g_str_equal);
+	c->hash = g_hash_table_new_full(scs_hash, scs_equal, g_free, g_free);
 
 	return c;
 }
@@ -96,8 +122,8 @@ static SCS_collection* scs_init(void) {
  * @param s a string
  *
  * Checks if the given string exists already and if so it increases the count of
- * subsscribers and returns a pointer to the stored string. If not It will copy
- * the given string store it in the hash and return the pointer to the copy.
+ * subsscribers and returns a pointer to the stored string. If not it will copy
+ * the given string, store it in the hash, and return the pointer to the copy.
  * Remember, containment is handled internally, take care of your own strings.
  *
  * Return value: a pointer to the subscribed string.
@@ -112,28 +138,18 @@ char* scs_subscribe(SCS_collection* c, const char* s) {
 	if (ip) {
 		(*ip)++;
 	} else {
-		ip = g_slice_new(unsigned);
-		*ip = 0;
+		ip = g_new0(unsigned, 1);
 
-		len = strlen(s) + 1;
+		len = strlen(s);
 
-		if (len <= SCS_SMALL_SIZE) {
-			len = SCS_SMALL_SIZE;
-		} else if (len <= SCS_MEDIUM_SIZE) {
-			len = SCS_MEDIUM_SIZE;
-		} else if (len <= SCS_LARGE_SIZE) {
-			len = SCS_LARGE_SIZE;
-		} else if (len < SCS_HUGE_SIZE) {
-			len = SCS_HUGE_SIZE;
+		if(G_LIKELY(len <= SCS_HUGE_SIZE)) {
+			orig = g_strdup(s);
 		} else {
-			len = SCS_HUGE_SIZE;
 			ws_warning("mate SCS: string truncated due to huge size");
+			orig = g_strndup(s, SCS_HUGE_SIZE);
 		}
 
-		orig = (char *)g_slice_alloc(len);
-		(void) g_strlcpy(orig,s,len);
-
-		g_hash_table_insert(c->hash,orig,ip);
+		g_hash_table_insert(c->hash, orig, ip);
 	}
 
 	return orig;
@@ -150,34 +166,16 @@ char* scs_subscribe(SCS_collection* c, const char* s) {
 void scs_unsubscribe(SCS_collection* c, char* s) {
 	char* orig = NULL;
 	unsigned* ip = NULL;
-	size_t len = 0xffff;
 
-	g_hash_table_lookup_extended(c->hash,(const void *)s,(void * *)&orig,(void * *)&ip);
-
-	if (ip) {
+	if (g_hash_table_lookup_extended(c->hash,(const void *)s,(void **)&orig,(void **)&ip)) {
 		if (*ip == 0) {
 			g_hash_table_remove(c->hash,orig);
-
-			len = strlen(orig);
-
-			if (len < SCS_SMALL_SIZE) {
-				len = SCS_SMALL_SIZE;
-			} else if (len < SCS_MEDIUM_SIZE) {
-				len = SCS_MEDIUM_SIZE;
-			} else if (len < SCS_LARGE_SIZE) {
-				len = SCS_LARGE_SIZE;
-			} else {
-				len = SCS_HUGE_SIZE;
-			}
-
-			g_slice_free1(len, orig);
-			g_slice_free(unsigned,ip);
 		}
 		else {
 			(*ip)--;
 		}
 	} else {
-		ws_warning("unsubscribe: not subscribed");
+		ws_warning("mate SCS: not subscribed");
 	}
 }
 
@@ -192,13 +190,16 @@ void scs_unsubscribe(SCS_collection* c, char* s) {
  **/
 char* scs_subscribe_printf(SCS_collection* c, char* fmt, ...) {
 	va_list list;
-	static char buf[SCS_HUGE_SIZE];
+	char *buf, *ret;
 
 	va_start( list, fmt );
-	vsnprintf(buf, SCS_HUGE_SIZE, fmt, list);
+	buf = g_strdup_vprintf(fmt, list);
 	va_end( list );
 
-	return scs_subscribe(c,buf);
+	ret = scs_subscribe(c, buf);
+	g_free(buf);
+
+	return ret;
 }
 
 /***************************************************************************
