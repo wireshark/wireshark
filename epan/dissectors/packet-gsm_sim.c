@@ -43,9 +43,31 @@ static int hf_aid;
 static int hf_bin_offset;
 static int hf_sfi;
 static int hf_record_nr;
+static int hf_auth_rand_len;
 static int hf_auth_rand;
-static int hf_auth_sres;
+static int hf_auth_autn_len;
+static int hf_auth_autn;
+static int hf_auth_reference;
+static int hf_auth_rfu;
+static int hf_auth_context;
+static int hf_auth_challenge;
+static int hf_auth_response;
+static int hf_auth_status;
+static int hf_auth_res_len;
+static int hf_auth_res;
+static int hf_auth_ck_len;
+static int hf_auth_ck;
+static int hf_auth_ik_len;
+static int hf_auth_ik;
+static int hf_auth_kc_len;
 static int hf_auth_kc;
+static int hf_auth_auts_len;
+static int hf_auth_auts;
+static int hf_auth_gsm_rand;
+static int hf_auth_gsm_sres_len;
+static int hf_auth_gsm_sres;
+static int hf_auth_gsm_kc_len;
+static int hf_auth_gsm_kc;
 static int hf_chan_op;
 static int hf_chan_nr;
 static int hf_le;
@@ -421,6 +443,8 @@ static int ett_tprof_b36;
 static int ett_tprof_b37;
 static int ett_tprof_b38;
 static int ett_tprof_b39;
+static int ett_auth_challenge;
+static int ett_auth_response;
 
 static dissector_handle_t sub_handle_cap;
 static dissector_handle_t sim_handle, sim_part_handle;
@@ -433,6 +457,7 @@ typedef struct {
 	uint32_t rsp_frame;
 	nstime_t cmd_time;
 	uint8_t  cmd_ins;
+	uint8_t  cmd_p2;
 } gsm_sim_transaction_t;
 
 static wmem_tree_t *transactions;
@@ -895,6 +920,25 @@ static const value_string apdu_cla_secure_messaging_ind_vals[] = {
 static const true_false_string apdu_cla_secure_messaging_ind_ext_val = {
 	"Command header not authenticated",
 	"No SM used between terminal and card"
+};
+
+static const true_false_string apdu_auth_reference_val = {
+	"Specific reference data (e.g. DF specific/application dependent KEY)",
+	"Global reference data (e.g. MF specific KEY)"
+};
+
+static const value_string apdu_auth_context_vals[] = {
+	{ 0x00, "GSM context" },
+	{ 0x01, "3G/EPS/5G context" },
+	{ 0x02, "VGCS/VBS context" },
+	{ 0x04, "GBA context" },
+	{ 0, NULL }
+};
+
+static const value_string apdu_auth_status_vals[] = {
+	{ 0xDB, "Successful 3G authentication" },
+	{ 0xDC, "Synchronisation failure" },
+	{ 0, NULL }
 };
 
 /* Table 9 of GSM TS 11.11 */
@@ -1451,6 +1495,98 @@ static const value_string sfi_vals[] = {
 };
 
 static int
+dissect_auth_challenge(uint8_t context, tvbuff_t *tvb, proto_tree *tree, int offset, int length)
+{
+	proto_item *ti;
+	proto_tree *sub_tree;
+	uint32_t len;
+
+	ti = proto_tree_add_item(tree, hf_auth_challenge, tvb, offset, length, ENC_NA);
+	sub_tree = proto_item_add_subtree(ti, ett_auth_challenge);
+
+	switch (context) {
+	case 0x00: /* GSM context */
+	case 0x01: /* 3G/EPS/5G context */
+		proto_tree_add_item_ret_uint(sub_tree, hf_auth_rand_len, tvb, offset, 1, ENC_NA, &len);
+		offset += 1;
+		proto_tree_add_item(sub_tree, hf_auth_rand, tvb, offset, len, ENC_NA);
+		offset += len;
+		proto_tree_add_item_ret_uint(sub_tree, hf_auth_autn_len, tvb, offset, 1, ENC_NA, &len);
+		offset += 1;
+		proto_tree_add_item(sub_tree, hf_auth_autn, tvb, offset, len, ENC_NA);
+		offset += len;
+		break;
+	default:
+		/* XXX - Dissect according to authentication context */
+		offset += length;
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_auth_response(uint8_t context, tvbuff_t *tvb, proto_tree *tree, int offset, int length)
+{
+	proto_item *ti;
+	proto_tree *sub_tree;
+	uint32_t status = 0;
+	uint32_t len;
+
+	if (context == 0x01) {
+		/* 3G/EPS/5G context - put status outside the response tree */
+		proto_tree_add_item_ret_uint(tree, hf_auth_status, tvb, offset, 1, ENC_NA, &status);
+	}
+
+	ti = proto_tree_add_item(tree, hf_auth_response, tvb, offset, length, ENC_NA);
+	sub_tree = proto_item_add_subtree(ti, ett_auth_response);
+
+	switch (context) {
+	case 0x00: /* GSM context */
+		proto_tree_add_item_ret_uint(sub_tree, hf_auth_gsm_sres_len, tvb, offset, 1, ENC_NA, &len);
+		offset += 1;
+		proto_tree_add_item(sub_tree, hf_auth_gsm_sres, tvb, offset, len, ENC_NA);
+		offset += len;
+		proto_tree_add_item_ret_uint(sub_tree, hf_auth_gsm_kc_len, tvb, offset, 1, ENC_NA, &len);
+		offset += 1;
+		proto_tree_add_item(sub_tree, hf_auth_gsm_kc, tvb, offset, len, ENC_NA);
+		offset += len;
+		break;
+	case 0x01: /* 3G/EPS/5G context */
+		offset += 1; /* Skip status byte already added above */
+		if (status == 0xDB) {
+			proto_tree_add_item_ret_uint(sub_tree, hf_auth_res_len, tvb, offset, 1, ENC_NA, &len);
+			offset += 1;
+			proto_tree_add_item(sub_tree, hf_auth_res, tvb, offset, len, ENC_NA);
+			offset += len;
+			proto_tree_add_item_ret_uint(sub_tree, hf_auth_ck_len, tvb, offset, 1, ENC_NA, &len);
+			offset += 1;
+			proto_tree_add_item(sub_tree, hf_auth_ck, tvb, offset, len, ENC_NA);
+			offset += len;
+			proto_tree_add_item_ret_uint(sub_tree, hf_auth_ik_len, tvb, offset, 1, ENC_NA, &len);
+			offset += 1;
+			proto_tree_add_item(sub_tree, hf_auth_ik, tvb, offset, len, ENC_NA);
+			offset += len;
+			proto_tree_add_item_ret_uint(sub_tree, hf_auth_kc_len, tvb, offset, 1, ENC_NA, &len);
+			offset += 1;
+			proto_tree_add_item(sub_tree, hf_auth_kc, tvb, offset, len, ENC_NA);
+			offset += len;
+		} else if (status == 0xDC) {
+			proto_tree_add_item_ret_uint(sub_tree, hf_auth_auts_len, tvb, offset, 1, ENC_NA, &len);
+			offset += 1;
+			proto_tree_add_item(sub_tree, hf_auth_auts, tvb, offset, len, ENC_NA);
+			offset += len;
+		}
+		break;
+	default:
+		/* XXX - Dissect according to authentication context */
+		offset += length;
+	}
+
+	return offset;
+}
+
+static int
 dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		 int offset, packet_info *pinfo, proto_tree *tree, bool isSIMtrace)
 {
@@ -1568,19 +1704,35 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		offset += DATA_OFFS;
 		/* FIXME: actual PIN/PUK code */
 		break;
-	case 0x88: /* RUN GSM ALGO */
-		/* XXX - See ETSI TS 131 102 7.1 AUTHENTICATE and
-		 * ETSI TS 102 221 11.1.16 AUTHENTICATE, this needs to
-		 * be updated for non GSM (#17299)
-		 */
+	case 0x88: /* RUN GSM ALGORITHM / AUTHENTICATE */
+		if (p2 != 0) {
+			proto_tree_add_item(tree, hf_auth_reference, tvb, offset+P2_OFFS, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_auth_rfu, tvb, offset+P2_OFFS, 1, ENC_NA);
+			proto_tree_add_item(tree, hf_auth_context, tvb, offset+P2_OFFS, 1, ENC_NA);
+		}
+		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		offset += DATA_OFFS;
-		proto_tree_add_item(tree, hf_auth_rand, tvb, offset, 16, ENC_NA);
-		offset += 16;
+
+		if (p2 == 0) {
+			/* GSM ALGORITHM */
+			proto_tree_add_item(tree, hf_auth_gsm_rand, tvb, offset, 16, ENC_NA);
+			offset += 16;
+		} else {
+			dissect_auth_challenge(p2 & 0x07, tvb, tree, offset, p3);
+			offset += p3;
+		}
+
 		if (isSIMtrace && tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_item(tree, hf_auth_sres, tvb, offset, 4, ENC_NA);
-			offset += 4;
-			proto_tree_add_item(tree, hf_auth_kc, tvb, offset, 8, ENC_NA);
-			offset += 8;
+			if (p2 == 0) {
+				/* GSM ALGORITHM */
+				proto_tree_add_item(tree, hf_auth_gsm_sres, tvb, offset, 4, ENC_NA);
+				offset += 4;
+				proto_tree_add_item(tree, hf_auth_gsm_kc, tvb, offset, 8, ENC_NA);
+				offset += 8;
+			} else {
+				dissect_auth_response(p2 & 0x07, tvb, tree, offset, tvb_reported_length_remaining(tvb, offset));
+				offset += tvb_reported_length_remaining(tvb, offset);
+			}
 		}
 		break;
 	case 0x10: /* TERMINAL PROFILE */
@@ -1703,6 +1855,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	unsigned tvb_len = tvb_reported_length(tvb);
 	gsm_sim_transaction_t *gsm_sim_trans;
 	uint8_t ins = 0x00;
+	uint8_t p2 = 0x00;
 	bool response_only = true;
 
 	/* Receive the largest key that is less than or equal to our frame number */
@@ -1718,24 +1871,36 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	if ((tvb_len-offset) > 2) {
 		tvbuff_t *subtvb;
+		unsigned apdu_len;
 
 		if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
 			ins = gsm_sim_trans->cmd_ins;
+			p2 = gsm_sim_trans->cmd_p2;
 		}
+		apdu_len = tvb_len - offset - 2;
 
 		switch (ins) {
 		case 0x12: /* FETCH */
-			subtvb = tvb_new_subset_length(tvb, offset, tvb_len - 2);
+			subtvb = tvb_new_subset_length(tvb, offset, apdu_len);
 			dissect_bertlv(subtvb, pinfo, sim_tree, NULL);
 			response_only = false;
 			break;
 		case 0x76: /* SUSPEND UICC */
 			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_suspend_uicc_resume_token, tvb, offset+2, tvb_len - 4, ENC_NA);
+			proto_tree_add_item(sim_tree, hf_suspend_uicc_resume_token, tvb, offset+2, apdu_len - 2, ENC_NA);
+			break;
+		case 0x88: /* RUN GSM ALGORITHM / AUTHENTICATE */
+			if (p2 == 0) {
+				/* GSM ALGORITHM */
+				proto_tree_add_item(sim_tree, hf_auth_gsm_sres, tvb, offset, 4, ENC_NA);
+				proto_tree_add_item(sim_tree, hf_auth_gsm_kc, tvb, offset+4, 8, ENC_NA);
+			} else {
+				dissect_auth_response(p2 & 0x07, tvb, sim_tree, offset, apdu_len);
+			}
 			break;
 		default:
-			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, tvb_len - 2, ENC_NA);
+			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, apdu_len, ENC_NA);
 			break;
 		}
 	}
@@ -1813,6 +1978,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		gsm_sim_trans->rsp_frame = 0;
 		gsm_sim_trans->cmd_time = pinfo->fd->abs_ts;
 		gsm_sim_trans->cmd_ins = ins;
+		gsm_sim_trans->cmd_p2 = p2;
 
 		wmem_tree_insert32(transactions, pinfo->num, gsm_sim_trans);
 	}
@@ -2018,17 +2184,127 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "Offset into binary file", HFILL }
 		},
+		{ &hf_auth_reference,
+			{ "Reference", "gsm_sim.auth_reference",
+			  FT_BOOLEAN, 8, TFS(&apdu_auth_reference_val), 0x80,
+			  "Authentication Reference", HFILL }
+		},
+		{ &hf_auth_rfu,
+			{ "RFU", "gsm_sim.auth_rfu",
+			  FT_UINT8, BASE_DEC, NULL, 0x78,
+			  "Reserved for Future Use", HFILL }
+		},
+		{ &hf_auth_context,
+			{ "Context", "gsm_sim.auth_context",
+			  FT_UINT8, BASE_DEC, VALS(apdu_auth_context_vals), 0x07,
+			  "Authentication Context", HFILL }
+		},
+		{ &hf_auth_challenge,
+			{ "Challenge", "gsm_sim.auth_challenge",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  "Authentication Challenge", HFILL }
+		},
+		{ &hf_auth_response,
+			{ "Response", "gsm_sim.auth_response",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  "Authentication Response", HFILL }
+		},
+		{ &hf_auth_rand_len,
+			{ "Length of RAND", "gsm_sim.auth_rand_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  "Length of Random Challenge", HFILL }
+		},
 		{ &hf_auth_rand,
+			{ "RAND", "gsm_sim.auth_rand",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  "Random Challenge", HFILL }
+		},
+		{ &hf_auth_autn_len,
+			{ "Length of AUTN", "gsm_sim.auth_autn_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  "Authentication Token Length", HFILL }
+		},
+		{ &hf_auth_autn,
+			{ "AUTN", "gsm_sim.auth_autn",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  "Authentication Token", HFILL }
+		},
+		{ &hf_auth_status,
+			{ "Status", "gsm_sim.auth_status",
+			  FT_UINT8, BASE_HEX, VALS(apdu_auth_status_vals), 0,
+			  "Authentication Status", HFILL }
+		},
+		{ &hf_auth_res_len,
+			{ "Length of RES", "gsm_sim.auth_res_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  "Length of Response", HFILL }
+		},
+		{ &hf_auth_res,
+			{ "RES", "gsm_sim.auth_res",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  "Response", HFILL }
+		},
+		{ &hf_auth_ck_len,
+			{ "Length of CK", "gsm_sim.auth_ck_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_ck,
+			{ "CK", "gsm_sim.auth_ck",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_ik_len,
+			{ "Length of IK", "gsm_sim.auth_ik_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_ik,
+			{ "IK", "gsm_sim.auth_ik",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_kc_len,
+			{ "Length of Kc", "gsm_sim.auth_kc_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_kc,
+			{ "Kc", "gsm_sim.auth_kc",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_auts_len,
+			{ "Length of AUTS", "gsm_sim.auth_auts_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_auts,
+			{ "AUTS", "gsm_sim.auth_auts",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_gsm_rand,
 			{ "Random Challenge", "gsm_sim.auth_rand",
 			  FT_BYTES, BASE_NONE, NULL, 0,
 			  "GSM Authentication Random Challenge", HFILL }
 		},
-		{ &hf_auth_sres,
+		{ &hf_auth_gsm_sres_len,
+			{ "Length of SRES", "gsm_sim.auth_sres_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_gsm_sres,
 			{ "SRES", "gsm_sim.auth_sres",
 			  FT_BYTES, BASE_NONE, NULL, 0,
 			  "GSM Authentication SRES Response", HFILL }
 		},
-		{ &hf_auth_kc,
+		{ &hf_auth_gsm_kc_len,
+			{ "Length of Kc", "gsm_sim.auth_kc_len",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_auth_gsm_kc,
 			{ "Kc", "gsm_sim.auth_kc",
 			  FT_BYTES, BASE_NONE, NULL, 0,
 			  "GSM Authentication Kc result", HFILL }
@@ -3603,7 +3879,9 @@ proto_register_gsm_sim(void)
 		&ett_tprof_b36,
 		&ett_tprof_b37,
 		&ett_tprof_b38,
-		&ett_tprof_b39
+		&ett_tprof_b39,
+		&ett_auth_challenge,
+		&ett_auth_response,
 	};
 
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
