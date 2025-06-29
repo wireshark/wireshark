@@ -554,7 +554,6 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
 
 	cfg = new_gopcfg(mc, Name);
 	g_hash_table_insert(mc->gops_by_pduname,PduName,cfg);
-	g_hash_table_insert(mc->gopcfgs,cfg->name,cfg);
 
 	cfg->on_pdu = PduName;
 	cfg->key = Key;

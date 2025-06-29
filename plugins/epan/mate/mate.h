@@ -176,8 +176,6 @@ typedef struct _mate_cfg_gog {
 } mate_cfg_gog;
 
 typedef struct _mate_config {
-	char* mate_config_file; /* name of the config file */
-
 	int hfid_mate;
 
 	GArray *wanted_hfids;    /* hfids of protocols and fields MATE needs */
