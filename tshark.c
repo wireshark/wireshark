@@ -618,7 +618,7 @@ glossary_option_help(void)
     fprintf(output, "%s\n", get_appname_and_version());
 
     fprintf(output, "\n");
-    fprintf(output, "Usage: tshark -G [report]\n");
+    fprintf(output, "Usage: tshark -G <report>\n");
     fprintf(output, "\n");
     fprintf(output, "Glossary table reports:\n");
     fprintf(output, "  -G column-formats        dump column format codes and exit\n");
@@ -1949,6 +1949,9 @@ main(int argc, char *argv[])
                 switch(ws_optopt) {
                     case 'F':
                         list_capture_types();
+                        break;
+                    case 'G':
+                        glossary_option_help();
                         break;
                     case LONGOPT_COMPRESS:
                     case LONGOPT_COMPRESS_TYPE:
