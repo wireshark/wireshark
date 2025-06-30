@@ -83,8 +83,6 @@ static tpncp_data_field_info **tpncp_commands_info_db;
 unsigned tpncp_commands_info_len;
 
 /* Global variables for bitfields representation. */
-static int bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
-
 /* TPNCP packet header fields. */
 static int proto_tpncp;
 static int hf_tpncp_version;
@@ -131,9 +129,7 @@ static void
 dissect_tpncp_data(unsigned data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
                    int *offset, tpncp_data_field_info **data_fields_info, int ver, unsigned encoding)
 {
-    int8_t g_char;
-    uint8_t g_uchar;
-    int g_str_len, counter, bitshift, bitmask;
+    int g_str_len;
     tpncp_data_field_info *field = NULL;
     int bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;
@@ -210,31 +206,31 @@ dissect_tpncp_data(unsigned data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tr
                 proto_tree_add_item(ltree, field->descr, tvb, *offset, g_str_len, ENC_NA | ENC_ASCII);
                 (*offset) += g_str_len;
             } else { /* add single char */
-                g_uchar = tvb_get_uint8(tvb, *offset);
-
-                /* bitfields */
-
-                if (field->size != 8) {
-                    for (counter = 0, bitmask = 0x0, bitshift = bitindex;
-                         counter < field->size;
-                         counter++) {
-                        bitmask |= bits[bitindex]; /* Bitmask of interesting bits. */
-                        bitindex += encoding == ENC_LITTLE_ENDIAN ? -1 : 1;
-                    }
-                    g_uchar &= bitmask;
-                    g_uchar >>= bitshift;
-                }
-                if (field->sign || field->size != 8) {
-                    proto_tree_add_uint(ltree, field->descr, tvb, *offset, 1, g_uchar);
-                } else {
-                    /* signed*/
-                    g_char = (int8_t) g_uchar;
-                    proto_tree_add_int(ltree, field->descr, tvb, *offset, 1, g_char);
-                }
-                if (((bitindex == 0 || bitindex == 8) && encoding == ENC_BIG_ENDIAN) ||
-                    ((bitindex == -1 || bitindex == 7) && encoding == ENC_LITTLE_ENDIAN)) {
+                /* Output only the numeric value for 8-bit fields, considering sign, with no extra formatting. */
+                if (field->size == 8) {
+                    uint8_t g_uchar = tvb_get_uint8(tvb, *offset);
+                    if (field->sign)
+                        proto_tree_add_uint(ltree, field->descr, tvb, *offset, 1, g_uchar);
+                    else
+                        proto_tree_add_int(ltree, field->descr, tvb, *offset, 1, (int8_t)g_uchar);
                     (*offset)++;
-                    bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
+                } else { /* unsigned bitfield <8 */
+                    unsigned bit_offset;
+
+                    /*
+                     * tpncp.dat always lists bitfields in little-endian (LSB-first) order, regardless of encoding.
+                     * Wireshark's proto_tree_add_bits_item with ENC_LITTLE_ENDIAN matches this order.
+                     *
+                     * Therefore, we always use ENC_LITTLE_ENDIAN for bitfield extraction, regardless of the packet encoding.
+                     *
+                     * bit_offset is simply (*offset) * 8 + bitindex, and bitindex increments by field->size.
+                     */
+                    bit_offset = (*offset) * 8 + bitindex;
+                    proto_tree_add_bits_item(ltree, field->descr, tvb, bit_offset, field->size, ENC_LITTLE_ENDIAN);
+
+                    bitindex += field->size;
+                    (*offset) += bitindex / 8;
+                    bitindex %= 8;
                 }
             }
             break;
@@ -869,7 +865,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, unsigned 
         hf_entr.hfinfo.name = field->name;
         hf_entr.hfinfo.abbrev = field->name;
         switch (size) {
-        case 1: case 2: case 3: case 4:
+        case 1:
+            hf_entr.hfinfo.type = FT_BOOLEAN;
+            break;
+        case 2: case 3: case 4:
         case 5: case 6: case 7: case 8:
             if (array_dim) {
                 hf_entr.hfinfo.type = FT_STRING;
