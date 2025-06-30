@@ -829,8 +829,8 @@ static const value_string beam_type_vals[] = {
 static const value_string entry_type_vals[] = {
     { 0,  "inherit config from preceding entry (2 or 3) ueIdReset=0" },
     { 1,  "inherit config from preceding entry (2 or 3) ueIdReset=1" },
-    { 2,  "related parameters if have transform precoding disabled" },
-    { 3,  "related parameters if have transform precoding enabled" },
+    { 2,  "related parameters if have transform precoding disabled " },
+    { 3,  "related parameters if have transform precoding enabled  " },
     { 0, NULL}
 };
 
@@ -3790,6 +3790,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 1;
 
                 bool seen_value_to_inherit = false;
+                bool inherited_config_has_transform_precoding = false;
+                int dmrs_configs_seen = 0;
 
                 /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
                 /* TODO: how to know when have seen last entry?  Zero byte (within last 3 bytes of space) are valid... */
@@ -3800,6 +3802,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                                         tvb, offset, 0, "",
                                                                         "Entry");
                     proto_tree *entry_tree = proto_item_add_subtree(entry_ti, ett_oran_dmrs_entry);
+
+                    dmrs_configs_seen++;
 
                     /* entryType (3 bits) */
                     uint32_t entry_type;
@@ -3819,8 +3823,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     /* What follows depends upon entryType */
                     switch (entry_type) {
-                        case 0:
-                        case 1:
+                        case 0:    /* dmrsPortNumber config same as previous,  ueId ueIdReset=0 */
+                        case 1:    /* dmrsPortNumber config same as previous,  ueId ueIdReset=1 */
                             /* No further fields for these */
                             /* Error here if no previous values to inherit!! */
                             if (!seen_value_to_inherit) {
@@ -3828,10 +3832,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                        "SE24: have seen entry type %u, but no previous config (type 2 or 3) to inherit config from", entry_type);
 
                             }
+                            /* TODO: would be useful to repeat inherited config here? */
                             break;
 
-                        case 2:
-                        case 3:
+                        case 2:    /* transform precoding disabled */
+                        case 3:    /* transform precoding enabled */
                         {
                             /* Type 2/3 are very similar.. */
 
@@ -3898,6 +3903,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                             /* Could now see entry types 0 or 1 - they have these values to inherit */
                             seen_value_to_inherit = true;
+                            inherited_config_has_transform_precoding = (entry_type == 3);
                             break;
                         }
 
@@ -3906,11 +3912,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             break;
                     }
 
-                    proto_item_append_text(entry_ti, " (type %u - %s) (dmrsPortNumber = %u)",
+                    proto_item_append_text(entry_ti, " (type %u - %s) (dmrsPortNumber = %2u)",
                                            entry_type, val_to_str_const(entry_type, entry_type_vals, "Unknown"),
                                            dmrs_port_number);
                     proto_item_set_end(entry_ti, tvb, offset);
+
+                    if (entry_type <= 1) {
+                        proto_item_append_text(entry_ti, " [transform-precoding %s]",
+                                               inherited_config_has_transform_precoding ? "enabled" : "disabled");
+                    }
                 }
+
+                proto_item_append_text(extension_ti, " (%d DMRS configs seen)", dmrs_configs_seen);
                 break;
             }
 
