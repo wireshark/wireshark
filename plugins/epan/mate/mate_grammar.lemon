@@ -358,7 +358,7 @@ transform_decl(A) ::= TRANSFORM_KW NAME(B) transform_body(C) SEMICOLON. {
 	if (C) {
 		g_hash_table_insert(mc->transfs,C->name,C);
 	}
-
+	g_free(B);
 	A = NULL;
 }
 
@@ -376,6 +376,8 @@ transform_statements(A) ::= transform_statement(B). { A = B; }
 
 transform_statement(A) ::= transform_match(Match) transform_action(Action) SEMICOLON. {
 	A = new_transform_elem(Match->avpl,Action->avpl,Match->match_mode,Action->replace_mode);
+	g_free(Match);
+	g_free(Action);
 }
 
 transform_match(A) ::= MATCH_KW  match_mode(Mode) avpl(Avpl). {
@@ -619,10 +621,12 @@ pdu_name(A) ::= NAME(B). {
 
 time_value(A) ::= FLOATING(B). {
 	A = g_ascii_strtod(B,NULL);
+	g_free(B);
 }
 
 time_value(A) ::= INTEGER(B). {
 	A = g_ascii_strtod(B,NULL);
+	g_free(B);
 }
 
 /************* GOG
@@ -687,6 +691,7 @@ gop_name(A) ::= NAME(B). {
 	} else {
 		configuration_error(mc,"No Gop called '%s' has been already declared",B);
 	}
+	g_free(B);
 }
 /******************************************** GENERAL
 */
@@ -716,6 +721,7 @@ transform(A) ::= NAME(B). {
 	} else {
 		configuration_error(mc,"There's no such Transformation: %s",B);
 	}
+	g_free(B);
 }
 
 avpl(A) ::= OPEN_PARENS avps(B) CLOSE_PARENS. { A = B; }
@@ -724,7 +730,8 @@ avpl(A) ::= OPEN_PARENS CLOSE_PARENS. { A = new_avpl(""); }
 avps(A) ::= avps(B) COMMA avp(C). { A = B; if ( ! insert_avp(B,C) ) delete_avp(C); }
 avps(A) ::= avp(B). { A = new_avpl(""); if ( ! insert_avp(A,B) ) delete_avp(B); }
 
-avp(A) ::= NAME(B) AVP_OPERATOR(C) value(D). { A = new_avp(B,D,*C); }
+avp(A) ::= NAME(B) AVP_OPERATOR(C) value(D). {
+	A = new_avp(B,D,*C); g_free(B); g_free(C); g_free(D); }
 avp(A) ::= NAME(B). { A = new_avp(B,"",'?'); g_free(B); }
 avp(A) ::= NAME(B) OPEN_BRACE avp_oneoff(C) CLOSE_BRACE. {
 	A = new_avp(B,C,'|'); g_free(B); g_free(C); }
