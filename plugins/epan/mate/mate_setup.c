@@ -36,7 +36,6 @@ extern mate_cfg_pdu* new_pducfg(mate_config* mc, char* name) {
 	mate_cfg_pdu* cfg = g_new(mate_cfg_pdu, 1);
 
 	cfg->name = name;
-	cfg->last_id = 0;
 
 	cfg->transforms = NULL;
 

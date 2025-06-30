@@ -74,7 +74,6 @@ typedef enum _accept_mode_t {
 
 typedef struct _mate_cfg_pdu {
 	char* name;
-	unsigned last_id; /* keeps the last id given to an item of this kind */
 
 	GPtrArray* transforms; /* transformations to be applied */
 
@@ -249,6 +248,7 @@ typedef struct _mate_runtime_data {
 
 	GHashTable* frames; /* k=frame.num v=pdus */
 
+	GHashTable* pdu_last_ids; /* k=pducfg, v=last id given to a pdu of this cfg */
 } mate_runtime_data;
 
 typedef struct _mate_pdu mate_pdu;
@@ -263,7 +263,6 @@ struct _mate_pdu {
 	AVPL* avpl;
 
 	uint32_t frame; /* which frame I belong to? */
-	mate_pdu* next_in_frame; /* points to the next pdu in this frame */
 	double rel_time; /* time since start of capture  */
 
 	mate_gop* gop; /* the gop the pdu belongs to (if any) */
@@ -342,7 +341,7 @@ typedef union _mate_max_size {
 
 /* from mate_runtime.c */
 extern void initialize_mate_runtime(mate_config* mc);
-extern mate_pdu* mate_get_pdus(uint32_t framenum);
+extern GPtrArray* mate_get_pdus(uint32_t framenum);
 extern void mate_analyze_frame(mate_config *mc, packet_info *pinfo, proto_tree* tree);
 
 /* from mate_setup.c */
