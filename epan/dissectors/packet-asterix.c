@@ -52728,7 +52728,7 @@ static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixFi
 {
     unsigned size;
     uint64_t count;
-    uint8_t i;
+    unsigned i;
 
     size = 0;
     switch(field->type) {
