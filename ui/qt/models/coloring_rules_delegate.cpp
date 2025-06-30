@@ -8,12 +8,58 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QApplication>
+
 #include <ui/qt/models/coloring_rules_delegate.h>
 #include <ui/qt/models/coloring_rules_model.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 
 ColoringRulesDelegate::ColoringRulesDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
+}
+
+void ColoringRulesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyledItemDelegate::paint(painter, option, index);
+    switch (index.column())
+    {
+    case ColoringRulesModel::colName:
+    {
+        // Qt Item Views use the text color/Foreground color to draw the check
+        // mark in a checkbox, but always use the same theme/palette color for
+        // the square behind the checkbox. (The background color is used behind
+        // the checkbox.) That doesn't look good for certain foreground colors.
+        // Let's draw the item check area a second time.
+        QStyleOptionViewItem opt = option;
+        const QWidget *widget = option.widget;
+        initStyleOption(&opt, index);
+        QStyle *style = widget->style();
+        opt.rect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &opt, widget);
+        switch (opt.checkState) {
+        case Qt::Unchecked:
+            opt.state |= QStyle::State_Off;
+            break;
+        case Qt::PartiallyChecked:
+            opt.state |= QStyle::State_NoChange;
+            break;
+        case Qt::Checked:
+            opt.state |= QStyle::State_On;
+            break;
+        }
+        opt.state = opt.state & ~QStyle::State_HasFocus;
+        // Override the palette to our application default.
+        opt.palette = QApplication::palette();
+
+        style->drawPrimitive(QStyle::PE_IndicatorItemViewItemCheck, &opt, painter, widget);
+        break;
+    }
+
+    case ColoringRulesModel::colFilter:
+       break;
+
+    default:
+        Q_ASSERT(false);
+    }
 }
 
 QWidget* ColoringRulesDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&,
