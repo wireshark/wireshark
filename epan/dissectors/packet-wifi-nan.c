@@ -1022,7 +1022,7 @@ dissect_attr_cluster(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uint16_t 
     proto_tree_add_item(anchor_master_tree, hf_nan_attr_cluster_hop_count, tvb,
         offset + 11, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(anchor_master_tree, hf_nan_attr_cluster_beacon_transmission_time, tvb,
-        offset + 12, 4, ENC_BIG_ENDIAN);
+        offset + 12, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2825,23 +2825,17 @@ dissect_nan_beacon(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     // we can just fetch the Info column string and, if it's present, extract
     // that value.
     //
-    // An interval of 100, meaning .1024 seconds, means it's a Discovery
-    // beacon, and an interval of 512, meaning .524288 seconds, means
-    // it's a Sync beacon.
+    // An interval of 512, meaning .524288 seconds, means
+    // it's a Sync beacon. Otherwise, it's a Discovery Beacon.
     //
     const char* info_text = col_get_text(pinfo->cinfo, COL_INFO);
-    if (info_text != NULL && g_str_has_suffix(info_text, "100"))
-    {
-        col_prepend_fstr(pinfo->cinfo, COL_INFO, "Discovery ");
-    }
-    else if (info_text != NULL && g_str_has_suffix(info_text, "512"))
+    if (info_text != NULL && g_str_has_suffix(info_text, "512"))
     {
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "Sync ");
     }
     else
     {
-        expert_add_info(pinfo, tree, &ei_nan_unknown_beacon_type);
-        col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Unknown] ");
+        col_prepend_fstr(pinfo->cinfo, COL_INFO, "Discovery ");
     }
 
     proto_item* ti = proto_tree_add_item(tree, proto_nan, tvb, 0, -1, ENC_NA);
