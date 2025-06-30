@@ -523,6 +523,7 @@ static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 					gop = new_gop(cfg,pdu,gop_key);
 				} else {
 					g_free(gop_key);
+					delete_avpl(gopkey_match, true);
 					return;
 				}
 

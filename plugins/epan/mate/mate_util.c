@@ -1221,6 +1221,9 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 
 							cs->prev->next = cs->next;
 							cs->next->prev = cs->prev;
+
+							if (cs->avp)
+								delete_avp(cs->avp);
 							g_slice_free(any_avp_type,(any_avp_type*)cs);
 
 							cs = n;
@@ -1590,6 +1593,7 @@ extern LoAL* loal_from_file(char* filename) {
 							continue;
 						case '\n':
 							loal_append(loal,curr);
+							curr = NULL;
 							state = START;
 							continue;
 						default:
@@ -1656,6 +1660,13 @@ extern LoAL* loal_from_file(char* filename) {
 			}
 		}
 		fclose (fp);
+
+		if (curr) {
+			// Premature EOF? It could just be a file that doesn't
+			// end in a newline, but hard to say without checking
+			// state. Error, discard, add to existing loal?
+			delete_avpl(curr,true);
+		}
 
 		g_free(linenum_buf);
 		g_free(name);
