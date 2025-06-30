@@ -90,10 +90,6 @@ static gboolean destroy_mate_gogs(void *k _U_, void *v, void *p _U_) {
 	return TRUE;
 }
 
-static gboolean return_true(void *k _U_, void *v _U_, void *p _U_) {
-	return TRUE;
-}
-
 static void destroy_pdus_in_cfg(void *k _U_, void *v, void *p _U_) {
 	mate_cfg_pdu* c = (mate_cfg_pdu *)v;
 	g_hash_table_foreach_remove(c->items,destroy_mate_pdus,NULL);
@@ -104,13 +100,8 @@ static void destroy_pdus_in_cfg(void *k _U_, void *v, void *p _U_) {
 static void destroy_gops_in_cfg(void *k _U_, void *v, void *p _U_) {
 	mate_cfg_gop* c = (mate_cfg_gop *)v;
 
-	g_hash_table_foreach_remove(c->gop_index,return_true,NULL);
-	g_hash_table_destroy(c->gop_index);
-	c->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
-
-	g_hash_table_foreach_remove(c->gog_index,return_true,NULL);
-	g_hash_table_destroy(c->gog_index);
-	c->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
+	g_hash_table_remove_all(c->gop_index);
+	g_hash_table_remove_all(c->gog_index);
 
 	g_hash_table_foreach_remove(c->items,destroy_mate_gops,NULL);
 	c->last_id = 0;
