@@ -3549,9 +3549,8 @@ static unsigned addr_port_key_hash_fn(const void *key)
     {
         unsigned hash = 5381;
         const uint8_t *str = (const uint8_t *)addr_key->addr.data;
-        uint8_t i;
 
-        for (i = 0; i < addr_key->addr.len; i++)
+        for (int i = 0; i < addr_key->addr.len; i++)
             hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + c */
 
         result += hash;
