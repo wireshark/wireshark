@@ -76,7 +76,6 @@ typedef struct _mate_cfg_pdu {
 	char* name;
 	unsigned last_id; /* keeps the last id given to an item of this kind */
 
-	GHashTable* items; /* all the items of this type */
 	GPtrArray* transforms; /* transformations to be applied */
 
 	int hfid;
@@ -108,7 +107,6 @@ typedef struct _mate_cfg_pdu {
 typedef struct _mate_cfg_gop {
 	char* name;
 	unsigned last_id; /* keeps the last id given to an item of this kind */
-	GHashTable* items; /* all the items of this type */
 
 	GPtrArray* transforms; /* transformations to be applied */
 	const char* on_pdu;
@@ -147,7 +145,6 @@ typedef struct _mate_cfg_gop {
 typedef struct _mate_cfg_gog {
 	char* name;
 
-	GHashTable* items; /* all the items of this type */
 	unsigned last_id; /* keeps the last id given to an item of this kind */
 
 	GPtrArray* transforms; /* transformations to be applied */

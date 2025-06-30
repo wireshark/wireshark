@@ -47,52 +47,10 @@ static int* dbg_gop = &zero;
 static int* dbg_gog = &zero;
 static FILE* dbg_facility;
 
-static gboolean destroy_mate_pdus(void *k _U_, void *v, void *p _U_) {
-	mate_pdu* pdu = (mate_pdu*) v;
-	if (pdu->avpl) delete_avpl(pdu->avpl,true);
-	g_slice_free(mate_max_size, (mate_max_size *)pdu);
-	return TRUE;
-}
-
-static gboolean destroy_mate_gops(void *k _U_, void *v, void *p _U_) {
-	mate_gop* gop = (mate_gop*) v;
-
-	if (gop->avpl) delete_avpl(gop->avpl,true);
-
-	if (gop->gop_key) {
-		if (g_hash_table_lookup(gop->cfg->gop_index,gop->gop_key) == gop) {
-			g_hash_table_remove(gop->cfg->gop_index,gop->gop_key);
-		}
-
-		g_free(gop->gop_key);
-	}
-
-	g_slice_free(mate_max_size,(mate_max_size*)gop);
-
-	return TRUE;
-}
-
-
 static void gog_remove_keys (mate_gog* gog);
-
-static gboolean destroy_mate_gogs(void *k _U_, void *v, void *p _U_) {
-	mate_gog* gog = (mate_gog*) v;
-
-	if (gog->avpl) delete_avpl(gog->avpl,true);
-
-	if (gog->gog_keys) {
-		gog_remove_keys(gog);
-		g_ptr_array_free(gog->gog_keys, true);
-	}
-
-	g_slice_free(mate_max_size,(mate_max_size*)gog);
-
-	return TRUE;
-}
 
 static void destroy_pdus_in_cfg(void *k _U_, void *v, void *p _U_) {
 	mate_cfg_pdu* c = (mate_cfg_pdu *)v;
-	g_hash_table_foreach_remove(c->items,destroy_mate_pdus,NULL);
 	c->last_id = 0;
 }
 
@@ -103,13 +61,11 @@ static void destroy_gops_in_cfg(void *k _U_, void *v, void *p _U_) {
 	g_hash_table_remove_all(c->gop_index);
 	g_hash_table_remove_all(c->gog_index);
 
-	g_hash_table_foreach_remove(c->items,destroy_mate_gops,NULL);
 	c->last_id = 0;
 }
 
 static void destroy_gogs_in_cfg(void *k _U_, void *v, void *p _U_) {
 	mate_cfg_gog* c = (mate_cfg_gog *)v;
-	g_hash_table_foreach_remove(c->items,destroy_mate_gogs,NULL);
 	c->last_id = 0;
 }
 

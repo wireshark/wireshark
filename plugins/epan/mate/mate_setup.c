@@ -38,7 +38,6 @@ extern mate_cfg_pdu* new_pducfg(mate_config* mc, char* name) {
 	cfg->name = name;
 	cfg->last_id = 0;
 
-	cfg->items = g_hash_table_new(g_direct_hash,g_direct_equal);
 	cfg->transforms = NULL;
 
 	cfg->hfid = -1;
@@ -69,7 +68,6 @@ extern mate_cfg_gop* new_gopcfg(mate_config* mc, char* name) {
 	cfg->name = name;
 	cfg->last_id = 0;
 
-	cfg->items = g_hash_table_new(g_direct_hash,g_direct_equal);
 	cfg->transforms = NULL;
 
 	cfg->extra = new_avpl("extra");
@@ -104,7 +102,6 @@ extern mate_cfg_gog* new_gogcfg(mate_config* mc, char* name) {
 	cfg->name = name;
 	cfg->last_id = 0;
 
-	cfg->items = g_hash_table_new(g_direct_hash,g_direct_equal);
 	cfg->transforms = NULL;
 
 	cfg->extra = new_avpl("extra");
