@@ -3549,9 +3549,8 @@ static guint addr_port_key_hash_fn(gconstpointer key)
     {
         guint hash = 5381;
         const guint8 *str = (const guint8 *)addr_key->addr.data;
-        guint8 i;
 
-        for (i = 0; i < addr_key->addr.len; i++)
+        for (int i = 0; i < addr_key->addr.len; i++)
             hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + c */
 
         result += hash;
