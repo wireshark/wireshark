@@ -712,7 +712,7 @@ static int asterix_field_length (tvbuff_t *tvb, unsigned offset, const AsterixFi
     unsigned bit_size;
     unsigned size;
     uint64_t count;
-    uint8_t i;
+    unsigned i;
     bool should_break;
 
     size = 0;
