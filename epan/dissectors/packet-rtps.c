@@ -13219,10 +13219,10 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
             }
             break;
         case ENCAPSULATION_CDR2_LE:
-          if (guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER) {
+          if (guid != NULL && guid->entity_id == ENTITYID_TL_SVC_REQ_WRITER) {
             rtps_util_dissect_type_lookup_request(dissected_data_holder_tree,
               pinfo, tvb, offset);
-          } else if (guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER) {
+          } else if (guid != NULL && guid->entity_id == ENTITYID_TL_SVC_REPLY_WRITER) {
             rtps_util_dissect_type_lookup_reply(dissected_data_holder_tree,
               pinfo, tvb, offset);
           } else {
