@@ -4065,6 +4065,43 @@ static int hf_ieee80211_eht_trigger_ru_number_spatial_streams;
 static int hf_ieee80211_eht_trigger_ul_target_recv_power;
 static int hf_ieee80211_eht_trigger_ps160;
 static int hf_ieee80211_eht_trigger_user_info_reserved;
+static int hf_ieee80211_uhr_trigger_common_info;
+static int hf_ieee80211_uhr_trigger_type;
+static int hf_ieee80211_uhr_trigger_ul_length;
+static int hf_ieee80211_uhr_trigger_more_tf;
+static int hf_ieee80211_uhr_trigger_cs_required;
+static int hf_ieee80211_uhr_trigger_ul_bw;
+static int hf_ieee80211_uhr_trigger_gi_and_he_uhr_ltf_type;
+static int hf_ieee80211_uhr_trigger_num_he_uhr_ltf_syms_etc;
+static int hf_ieee80211_uhr_trigger_reserved2;
+static int hf_ieee80211_uhr_trigger_ldpc_extra_sym_seg;
+static int hf_ieee80211_uhr_trigger_ap_tx_power;
+static int hf_ieee80211_uhr_trigger_pre_fec_padding_factor;
+static int hf_ieee80211_uhr_trigger_pe_disambiguity;
+static int hf_ieee80211_uhr_trigger_ul_spatial_reuse;
+static int hf_ieee80211_uhr_trigger_reserved3;
+static int hf_ieee80211_uhr_trigger_he_uhr_p160;
+static int hf_ieee80211_uhr_trigger_special_user_info_flag;
+static int hf_ieee80211_uhr_trigger_dru_rru;
+static int hf_ieee80211_uhr_trigger_ifcs;
+static int hf_ieee80211_uhr_trigger_uhr_reserved;
+static int hf_ieee80211_uhr_trigger_reserved4;
+static int hf_ieee80211_uhr_trigger_reserved;
+static int hf_ieee80211_uhr_trigger_user_info;
+static int hf_ieee80211_uhr_trigger_aid12;
+static int hf_ieee80211_uhr_trigger_ru_allocation_region;
+static int hf_ieee80211_uhr_trigger_ru_allocation;
+static int hf_ieee80211_uhr_trigger_ul_fec_coding_type;
+static int hf_ieee80211_uhr_trigger_ul_uhr_mcs;
+static int hf_ieee80211_uhr_trigger_2xldpc;
+static int hf_ieee80211_uhr_trigger_ru_starting_spatial_stream;
+static int hf_ieee80211_uhr_trigger_ru_number_spatial_streams;
+static int hf_ieee80211_uhr_trigger_dru_distribution_bw;
+static int hf_ieee80211_uhr_trigger_dru_reserved;
+static int hf_ieee80211_uhr_trigger_ul_target_recv_power;
+static int hf_ieee80211_uhr_trigger_ps160;
+
+
 static int hf_ieee80211_ranging_trigger_subtype1;
 static int hf_ieee80211_ranging_trigger_reserved1;
 static int hf_ieee80211_ranging_trigger_token;
@@ -38052,6 +38089,31 @@ static int * const eht_common_info_headers[] = {
   NULL
 };
 
+static int* const uhr_common_info_headers[] = {
+  &hf_ieee80211_uhr_trigger_type,
+  &hf_ieee80211_uhr_trigger_ul_length,
+  &hf_ieee80211_uhr_trigger_more_tf,
+  &hf_ieee80211_uhr_trigger_cs_required,
+  &hf_ieee80211_uhr_trigger_ul_bw,
+  &hf_ieee80211_uhr_trigger_gi_and_he_uhr_ltf_type,
+  &hf_ieee80211_uhr_trigger_reserved2,
+  &hf_ieee80211_uhr_trigger_num_he_uhr_ltf_syms_etc,
+  &hf_ieee80211_uhr_trigger_reserved3,
+  &hf_ieee80211_uhr_trigger_ldpc_extra_sym_seg,
+  &hf_ieee80211_uhr_trigger_ap_tx_power,
+  &hf_ieee80211_uhr_trigger_pre_fec_padding_factor,
+  &hf_ieee80211_uhr_trigger_pe_disambiguity,
+  &hf_ieee80211_uhr_trigger_ul_spatial_reuse,
+  &hf_ieee80211_uhr_trigger_reserved4,
+  &hf_ieee80211_uhr_trigger_he_uhr_p160,
+  &hf_ieee80211_uhr_trigger_special_user_info_flag,
+  &hf_ieee80211_uhr_trigger_dru_rru,
+  &hf_ieee80211_uhr_trigger_ifcs,
+  &hf_ieee80211_uhr_trigger_uhr_reserved,
+  &hf_ieee80211_uhr_trigger_reserved,
+  NULL
+};
+
 static const val64_string pre_fec_padding_factor_vals[] = {
   { 0, "pre-FEC Padding Factor of 4" },
   { 1, "pre-FEC Padding Factor of 1" },
@@ -38075,7 +38137,9 @@ add_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   int            length = 0;
   int            start_offset = offset;
   uint64_t       bw_etc = tvb_get_letoh64(tvb, offset);
-  bool           is_eht = ((bw_etc >> 54) & 0x03) != 0x03;
+  uint64_t       special_user = tvb_get_letoh64(tvb, offset+8);
+  bool           is_uhr = (((bw_etc >> 54) & 0x03) != 0x03) && (((special_user >> 12) & 0x01) == 0x01);
+  bool           is_eht = (((bw_etc >> 54) & 0x03) != 0x03) && (((special_user >> 12) & 0x01) == 0x00);
 
   global_he_trigger_bw = (bw_etc >> 18) & 0x03;
 
@@ -38088,6 +38152,12 @@ add_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                         hf_ieee80211_eht_trigger_common_info,
                         ett_he_trigger_base_common_info,
                         eht_common_info_headers,
+                        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  } else if (is_uhr) {
+    proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
+                        hf_ieee80211_uhr_trigger_common_info,
+                        ett_he_trigger_base_common_info,
+                        uhr_common_info_headers,
                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   } else {
     proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
@@ -38388,6 +38458,35 @@ static int * const special_user_info_headers_eht[] = {
   NULL
 };
 
+static int* const user_info_headers_uhr_rru[] = {
+  &hf_ieee80211_uhr_trigger_aid12,
+  &hf_ieee80211_uhr_trigger_ru_allocation_region,
+  &hf_ieee80211_uhr_trigger_ru_allocation,
+  &hf_ieee80211_uhr_trigger_ul_fec_coding_type,
+  &hf_ieee80211_uhr_trigger_ul_uhr_mcs,
+  &hf_ieee80211_uhr_trigger_2xldpc,
+  &hf_ieee80211_uhr_trigger_ru_starting_spatial_stream,
+  &hf_ieee80211_uhr_trigger_ru_number_spatial_streams,
+  &hf_ieee80211_uhr_trigger_ul_target_recv_power,
+  &hf_ieee80211_uhr_trigger_ps160,
+  NULL
+};
+
+static int* const user_info_headers_uhr_dru[] = {
+  &hf_ieee80211_uhr_trigger_aid12,
+  &hf_ieee80211_uhr_trigger_ru_allocation_region,
+  &hf_ieee80211_uhr_trigger_ru_allocation,
+  &hf_ieee80211_uhr_trigger_ul_fec_coding_type,
+  &hf_ieee80211_uhr_trigger_ul_uhr_mcs,
+  &hf_ieee80211_uhr_trigger_2xldpc,
+  &hf_ieee80211_uhr_trigger_dru_distribution_bw,
+  &hf_ieee80211_uhr_trigger_dru_reserved,
+  &hf_ieee80211_uhr_trigger_ru_number_spatial_streams,
+  &hf_ieee80211_uhr_trigger_ul_target_recv_power,
+  &hf_ieee80211_uhr_trigger_ps160,
+  NULL
+};
+
 #define HE_USER_INFO      0
 #define EHT_USER_INFO     1
 #define SPECIAL_USER_INFO 2
@@ -38402,10 +38501,12 @@ add_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   int            length = 0, range_len = 0;
   int            start_offset = offset;
   uint16_t        aid12_subfield = 0;
+  uint16_t        phy_version_subfield = 0;
   unsigned       len_remaining = 0;
   bool           special_user_info;
   uint8_t        user_info_b39;
   bool           eht_variant = false;
+  uint8_t        ddru_indication;
 
   /*
    * If the AID12 subfield has the value 4095 it indicates the start of
@@ -38419,6 +38520,9 @@ add_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   user_info = proto_tree_add_subtree(tree, tvb, offset, -1,
                         ett_he_trigger_user_info, &pi, "User Info");
   aid12_subfield = tvb_get_letohs(tvb, offset) & 0x0FFF;
+  phy_version_subfield = (tvb_get_letohs(tvb, offset) >> 12) & 0x01;
+  /*9.3.1.22.2 of 802.11bn and Figure 9-90e1—DRU/RRU Indication subfield format*/
+  ddru_indication = (tvb_get_letohs(tvb, offset - 1)) & 0x0F;
 
   while (aid12_subfield != 4095) {
     /* Compute the special user info and EHT Variant for each one. */
@@ -38439,18 +38543,19 @@ add_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
       case TRIGGER_TYPE_GCR_MU_BAR:
       case TRIGGER_TYPE_BQRP:
         if (!eht_variant) {
-          if (aid12_subfield != 0 && aid12_subfield != 2045)
+          if (aid12_subfield != 0 && aid12_subfield != 2045) {
             proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
                                 hf_ieee80211_he_trigger_user_info,
                                 ett_he_trigger_base_user_info,
                                 user_info_headers_no_2045,
                                 ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-          else
+          } else {
             proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
                                 hf_ieee80211_he_trigger_user_info,
                                 ett_he_trigger_base_user_info,
                                 user_info_headers_2045,
                                 ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+          }
         } else {
           /* Is it a special user info? */
           if (special_user_info) {
@@ -38460,11 +38565,28 @@ add_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                                 special_user_info_headers_eht,
                                 ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
           } else {
-            proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
-                                hf_ieee80211_eht_trigger_user_info,
-                                ett_he_trigger_base_user_info,
-                                user_info_headers_eht,
-                                ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+            if (!phy_version_subfield) {
+              proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
+                                  hf_ieee80211_eht_trigger_user_info,
+                                  ett_he_trigger_base_user_info,
+                                  user_info_headers_eht,
+                                  ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+            } else {
+              /* 9.3.1.22.6 of 802.11bn and Figure 9-90j2 and Figure 9-90j3 */
+              if(ddru_indication != 0) {
+                proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
+                                    hf_ieee80211_uhr_trigger_user_info,
+                                    ett_he_trigger_base_user_info,
+                                    user_info_headers_uhr_rru,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+              } else {
+                proto_tree_add_bitmask_with_flags(user_info, tvb, offset,
+                                    hf_ieee80211_uhr_trigger_user_info,
+                                    ett_he_trigger_base_user_info,
+                                    user_info_headers_uhr_dru,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+              }
+            }
           }
         }
         offset += 5;
@@ -38575,6 +38697,7 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo,
 {
   proto_tree        *common_tree = NULL;
   uint8_t           trigger_type;
+  uint8_t           phy_version;
   uint8_t           subtype = 0;
   int               length = 0;
   uint8_t           common_info_b54_55;
@@ -38594,11 +38717,12 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo,
 
   trigger_type = tvb_get_uint8(tvb, offset) & 0x0F;
   common_info_b54_55 = tvb_get_uint8(tvb, offset + 6);
+  phy_version = (tvb_get_letohs(tvb, offset + 8) >> 12) & 0x01;
   if ((common_info_b54_55 >> 6) == 0x03)
     eht_trigger = false;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s",
-                eht_trigger ? "EHT" : "HE",
+                eht_trigger ? (phy_version ? "UHR": "EHT") : "HE",
                 val64_to_str(trigger_type, trigger_type_vals, "Reserved"));
 
   if (trigger_type >= TRIGGER_TYPE_MIN_RESERVED) {
@@ -55917,11 +56041,11 @@ proto_register_ieee80211(void)
       FT_UINT40, BASE_HEX, NULL, 0x0000018000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_trigger_eht_spatial_reuse_1,
-     {"EHT Spatial Reuse 1", "wlan.trigger.eht.user_info.eht_spatial_reuse_1",
+     {"EHT/UHR Spatial Reuse 1", "wlan.trigger.eht.user_info.eht_spatial_reuse_1",
       FT_UINT40, BASE_HEX, NULL, 0x00001E0000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_trigger_eht_spatial_reuse_2,
-     {"EHT Spatial Reuse 2", "wlan.trigger.eht.user_info.eht_spatial_reuse_2",
+     {"EHT/UHR Spatial Reuse 2", "wlan.trigger.eht.user_info.eht_spatial_reuse_2",
       FT_UINT40, BASE_HEX, NULL, 0x0001E00000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_trigger_disregard_u_sig_1,
@@ -55947,6 +56071,166 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_eht_trigger_special_reserved,
      {"Reserved", "wlan.trigger.eht.user_info.special_reserved",
       FT_UINT40, BASE_HEX, NULL, 0xE000000000, NULL, HFILL }},
+
+    { &hf_ieee80211_uhr_trigger_common_info,
+     {"UHR Trigger Common Info", "wlan.trigger.uhr.common_info",
+      FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_type,
+     {"Trigger Type", "wlan.trigger.uhr.trigger_type",
+      FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(trigger_type_vals),
+        0x000000000000000F, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ul_length,
+     {"UL Length", "wlan.trigger.uhr.ul_length",
+      FT_UINT64, BASE_DEC, NULL, 0x000000000000FFF0, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_more_tf,
+     {"More TF", "wlan.trigger.uhr.more_tf",
+      FT_BOOLEAN, 64, NULL, 0x0000000000010000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_cs_required,
+     {"CS Required", "wlan.trigger.uhr.cs_required",
+      FT_BOOLEAN, 64, NULL, 0x0000000000020000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ul_bw,
+     {"UL BW", "wlan.trigger.uhr.ul_bw",
+      FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(bw_subfield_vals),
+      0x00000000000C0000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_gi_and_he_uhr_ltf_type,
+     {"GI And HE/UHR-LTF Type/Triggered TXOP Sharing Mode",
+      "wlan.trigger.uhr.gi_and_he_uhr_ltf_type_triggered_txop_sharing_mode",
+      FT_UINT64, BASE_HEX, NULL, 0x0000000000300000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_reserved2,
+     {"Reserved", "wlan.trigger.uhr.reserved2",
+      FT_UINT64, BASE_HEX, NULL, 0x0000000000400000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_num_he_uhr_ltf_syms_etc,
+     {"Number of HE/UHR-LTF Symbols",
+      "wlan.trigger.uhr.num_he_uhr_ltf_symbols",
+      FT_UINT64, BASE_HEX, NULL, 0x0000000003800000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_reserved3,
+     {"Reserved", "wlan.trigger.uhr.reserved3",
+      FT_UINT64, BASE_HEX, NULL, 0x0000000004000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ldpc_extra_sym_seg,
+     {"LDPC Extra Symbol Segment", "wlan.trigger.uhr.ldpc_extra_symbol_segment",
+      FT_BOOLEAN, 64, NULL, 0x0000000008000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ap_tx_power,
+     {"AP Tx Power", "wlan.trigger.uhr.ap_tx_power",
+      FT_UINT64, BASE_CUSTOM, CF_FUNC(ap_tx_power_custom),
+      0x00000003F0000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_pre_fec_padding_factor,
+     {"Pre-FEC Padding Factor",
+      "wlan.trigger.uhr.ul_packet_extension.pre_fec_padding_factor",
+      FT_UINT64, BASE_DEC | BASE_VAL64_STRING,
+      VALS64(pre_fec_padding_factor_vals),
+      0x0000000c00000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_pe_disambiguity,
+     {"PE Disambiguity",
+      "wlan.trigger.uhr.ul_packet_extension.pe_disambiguity",
+      FT_BOOLEAN, 64, TFS(&pe_disambiguity_tfs),
+      0x0000001000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ul_spatial_reuse,
+     {"Spatial Reuse", "wlan.trigger.uhr.spatial_reuse",
+      FT_UINT64, BASE_HEX, NULL, 0x001FFFE000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_reserved4,
+     {"Reserved", "wlan.trigger.uhr.reserved4",
+      FT_UINT64, BASE_HEX, NULL, 0x0020000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_he_uhr_p160,
+     {"HE/UHR P160", "wlan.trigger.uhr.he_uhr_p160",
+      FT_UINT64, BASE_HEX, NULL, 0x0040000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_special_user_info_flag,
+     {"Special User Info Field Flag",
+      "wlan.trigger.uhr.special_user_info_flag",
+      FT_UINT64, BASE_HEX, NULL, 0x0080000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_dru_rru,
+     {"DRU/RRU Indication", "wlan.trigger.uhr.dru_rru",
+      FT_UINT64, BASE_HEX, NULL, 0x0f00000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ifcs,
+     {"IFCS Present Flag", "wlan.trigger.uhr.ifcs",
+      FT_UINT64, BASE_HEX, NULL, 0x1000000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_uhr_reserved,
+     {"UHR Reserved", "wlan.trigger.uhr.uhr_reserved",
+      FT_UINT64, BASE_HEX, NULL, 0x2000000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_reserved,
+     {"Reserved", "wlan.trigger.uhr.reserved",
+      FT_UINT64, BASE_HEX, NULL, 0x4000000000000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_user_info,
+     {"UHR User Info", "wlan.trigger.uhr.user_info",
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_aid12,
+     {"AID12", "wlan.trigger.uhr.user_info.aid12",
+      FT_UINT40, BASE_DEC, NULL, 0x0000000FFF, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ru_allocation_region,
+     {"RU Allocation Region", "wlan.trigger.uhr.user_info.ru_allocation_region",
+      FT_UINT40, BASE_DEC, NULL, 0x0000001000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ru_allocation,
+     {"RU Allocation", "wlan.trigger.uhr.user_info.ru_allocation",
+      FT_UINT40, BASE_DEC, NULL, 0x00000FE000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ul_fec_coding_type,
+     {"UL FEC Coding Type", "wlan.trigger.uhr.user_info.ul_fec_coding_type",
+      FT_UINT40, BASE_HEX, NULL, 0x0000100000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ul_uhr_mcs,
+     {"UL UHR MCS", "wlan.trigger.uhr.user_info.ul_uhr_mcs",
+      FT_UINT40, BASE_HEX, NULL, 0x0001E00000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_2xldpc,
+     {"2xLDPC", "wlan.trigger.uhr.user_info.2xldpc",
+      FT_UINT40, BASE_HEX, NULL, 0x0002000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ru_starting_spatial_stream,
+     {"Starting Spatial Stream",
+      "wlan.trigger.uhr.user_info.ru_starting_spatial_stream",
+      FT_UINT40, BASE_DEC, NULL,
+      0x003C000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_dru_distribution_bw,
+     {"DRU Distribution BW",
+      "wlan.trigger.uhr.user_info.dru_distribution_bw",
+      FT_UINT40, BASE_DEC, NULL,
+      0x000C000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_dru_reserved,
+     {"DRU reserved",
+      "wlan.trigger.uhr.user_info.dru_reserved",
+      FT_UINT40, BASE_DEC, NULL,
+      0x0030000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ru_number_spatial_streams,
+     {"Number Of Spatial Streams",
+      "wlan.trigger.uhr.user_info.ru_number_spatial_streams",
+      FT_UINT40, BASE_DEC, NULL,
+      0x00C0000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ul_target_recv_power,
+     {"UL Target Receive Power",
+      "wlan.trigger.uhr.user_info.ul_target_receive_power",
+      FT_UINT40, BASE_HEX, NULL, 0x7F00000000, NULL, HFILL } },
+
+    { &hf_ieee80211_uhr_trigger_ps160,
+     {"PS160", "wlan.trigger.uhr.user_info.ps160",
+      FT_UINT40, BASE_HEX, NULL, 0x8000000000, NULL, HFILL } },
 
     {&hf_ieee80211_ranging_trigger_subtype1,
      {"Ranging Trigger Subtype",
