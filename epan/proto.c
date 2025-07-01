@@ -9931,8 +9931,8 @@ proto_register_subtree_array(int * const *indices, const int num_indices)
 static void
 mark_truncated(char *label_str, size_t name_pos, const size_t size, size_t *value_pos)
 {
-	static const char  trunc_str[] = " [" UTF8_HORIZONTAL_ELLIPSIS "]";
-	const size_t       trunc_len = sizeof(trunc_str)-1;
+	static const char  trunc_str[] = " [" UTF8_HORIZONTAL_ELLIPSIS "] ";
+	const size_t       trunc_len = sizeof(trunc_str)-2; /* Default do not include the trailing space. */
 	char              *last_char;
 
 	/* ..... field_name: dataaaaaaaaaaaaa
@@ -9946,8 +9946,12 @@ mark_truncated(char *label_str, size_t name_pos, const size_t size, size_t *valu
 
 	if (name_pos < size - trunc_len) {
 		memmove(label_str + name_pos + trunc_len, label_str + name_pos, size - name_pos - trunc_len);
-		memcpy(label_str + name_pos, trunc_str, trunc_len);
-
+		if (name_pos == 0) {
+			/* Copy the trunc_str after the first byte, so that we don't have a leading space in the label. */
+			memcpy(label_str, trunc_str + 1, trunc_len);
+		} else {
+			memcpy(label_str + name_pos, trunc_str, trunc_len);
+		}
 		/* in general, label_str is UTF-8
 		   we can truncate it only at the beginning of a new character
 		   we go backwards from the byte right after our buffer and
