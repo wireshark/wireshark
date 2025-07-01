@@ -891,7 +891,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, security_tree, drep,
         hf_pn_rsi_security_length_reserved, &u16LengthReserved);
     u16LengthReserved >>= 11;
-    
+
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
         hf_pn_rsi_dst_srv_access_point, &u16DestinationServiceAccessPoint);
@@ -941,7 +941,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
         case(4):    /* ERR-RTA */
             col_append_str(pinfo->cinfo, COL_INFO, "ERR-RTA");
             offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
-            if (tvb_captured_length(tvb) - offset > 0)
+            if (tvb_captured_length_remaining(tvb, offset) > 0)
             {
                 /* VendorDeviceErrorInfo */
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
@@ -961,7 +961,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length(tvb));
             break;
         }
-    
+
         /* SecurityChecksum */
         proto_tree_add_item(rta_tree, hf_pn_rsi_security_checksum, tvb, offset, u8LengthSecurityChecksum, ENC_NA);
         offset += u8LengthSecurityChecksum;
@@ -977,7 +977,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
         snprintf(szFieldSummary, sizeof(szFieldSummary),
             "RSI encrypted, DestinationServiceAccessPoint: %u, SourceServiceAccessPoint: %u, Len: %4u",
             u16DestinationServiceAccessPoint, u16SourceServiceAccessPoint, u16LengthSecurityData);
-        col_append_str(pinfo->cinfo, COL_INFO, szFieldSummary);       
+        col_append_str(pinfo->cinfo, COL_INFO, szFieldSummary);
     }
     proto_item_set_len(rta_item, offset - start_offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-RSIsec");

@@ -5262,6 +5262,10 @@ static bool gen_conversations(packet_info *pinfo, uint32_t current_fake_aruuid) 
         if (fp != NULL) {
             fseek(fp, 0, SEEK_END);
             long fsize = ftell(fp);
+            if (fsize == -1L) {
+                fclose(fp);
+                return false;
+            }
             fseek(fp, 0, SEEK_SET);
 
             buf = (char*)wmem_alloc(pinfo->pool, fsize + 1);
@@ -5422,6 +5426,10 @@ static void extract_pnio_objects_withoutAR(packet_info* pinfo)
                         if (fp != NULL) {
                             fseek(fp, 0, SEEK_END);
                             long fsize = ftell(fp);
+                            if (fsize == -1L) {
+                                fclose(fp);
+                                return;
+                            }
                             fseek(fp, 0, SEEK_SET);
 
                             buf = (char*)wmem_alloc(pinfo->pool, fsize + 1);
