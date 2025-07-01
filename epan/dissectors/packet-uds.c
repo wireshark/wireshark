@@ -297,6 +297,27 @@ void proto_reg_handoff_uds(void);
 #define UDS_RID_CPD_            0xFF01
 #define UDS_RID_FF02            0xFF02
 
+#define UDS_ROE_SUBFUNC_MASK            0b00111111
+#define UDS_ROE_STORE_MASK              0b01000000
+#define UDS_ROE_SUBF_STPROE             0x00
+#define UDS_ROE_SUBF_ONDTCS             0x01
+#define UDS_ROE_SUBF_OCODID             0x03
+#define UDS_ROE_SUBF_RAE                0x04
+#define UDS_ROE_SUBF_OCOV               0x07
+#define UDS_ROE_SUBF_RMRDOSC            0x08
+#define UDS_ROE_SUBF_RDRIODSC           0x09
+#define UDS_ROE_OCOV_LOCAL_SIGN_MASK    0b1000000000000000
+#define UDS_ROE_OCOV_LOCAL_LEN_MASK     0b0111110000000000
+#define UDS_ROE_OCOV_LOCAL_OFFSET_MASK  0b0000001111111111
+#define UDS_ROE_DTC_STATUS_MASK_TF      0b00000001
+#define UDS_ROE_DTC_STATUS_MASK_TFTOC   0b00000010
+#define UDS_ROE_DTC_STATUS_MASK_PDTC    0b00000100
+#define UDS_ROE_DTC_STATUS_MASK_CDTC    0b00001000
+#define UDS_ROE_DTC_STATUS_MASK_TNCSLC  0b00010000
+#define UDS_ROE_DTC_STATUS_MASK_TFSLC   0b00100000
+#define UDS_ROE_DTC_STATUS_MASK_TNCTOC  0b01000000
+#define UDS_ROE_DTC_STATUS_MASK_WIR     0b10000000
+
 /*
  * Enums
  */
@@ -836,6 +857,44 @@ static const value_string uds_standard_dtc_types[] = {
     {0, NULL}
 };
 
+/* ROE */
+static const value_string uds_roe_types[] = {
+    {0, "stop"},
+    {1, "onDTCStatusChange"},
+    {3, "onChangeOfDataIdentifier"},
+    {4, "reportActivatedEvents"},
+    {5, "start"},
+    {6, "clear"},
+    {7, "onComparisonOfValues"},
+    {8, "reportMostRecentDtcOnStatusChange"},
+    {9, "reportDTCRecordInformationOnDtcStatusChange"},
+    {0, NULL}
+};
+
+static const value_string uds_roe_windowtime_types[] = {
+    {2, "infinite"},
+    {3, "short"},
+    {4, "medium"},
+    {5, "long"},
+    {6, "power"},
+    {7, "ignition"},
+    {8, "manufacturerTrigger"},
+    {0, NULL}
+};
+
+static const value_string uds_roe_ocov_logic_types[] = {
+    {1, "<"},
+    {2, ">"},
+    {3, "="},
+    {4, "<>"},
+    {0, NULL}
+};
+
+static const value_string uds_roe_localisation_sign_types[] = {
+    {0, "without sign"},
+    {1, "with sign"},
+    {0, NULL}
+};
 
 /*
  * Fields
@@ -1054,6 +1113,30 @@ static int hf_uds_did_reply_f190_vin;
 static int hf_uds_did_reply_ff00_version;
 static int hf_uds_did_reply_ff01_dlc_support;
 
+static int hf_uds_roe_subfunction;
+static int hf_uds_roe_store_flag;
+static int hf_uds_roe_window_time;
+static int hf_uds_roe_NOIE;
+static int hf_uds_roe_EVOAE;
+static int hf_uds_roe_dtc_status_mask;
+static int hf_uds_roe_dtc_status_mask_TF;
+static int hf_uds_roe_dtc_status_mask_TFTOC;
+static int hf_uds_roe_dtc_status_mask_PDTC;
+static int hf_uds_roe_dtc_status_mask_CDTC;
+static int hf_uds_roe_dtc_status_mask_TNCSLC;
+static int hf_uds_roe_dtc_status_mask_TFSLC;
+static int hf_uds_roe_dtc_status_mask_TNCTOC;
+static int hf_uds_roe_dtc_status_mask_WIR;
+static int hf_uds_roe_identifier;
+static int hf_uds_roe_did;
+static int hf_uds_roe_comparision;
+static int hf_uds_roe_comparision_value;
+static int hf_uds_roe_hysteresis_value;
+static int hf_uds_roe_localization;
+static int hf_uds_roe_localization_sign;
+static int hf_uds_roe_localization_length;
+static int hf_uds_roe_localization_offset;
+
 static int hf_uds_unparsed_bytes;
 
 /*
@@ -1074,6 +1157,8 @@ static int ett_uds_ars_algo_indicator;
 static int ett_uds_dddi_entry;
 static int ett_uds_sdt_admin_param;
 static int ett_uds_sdt_encap_message;
+static int ett_uds_roe_dtc_status_mask;
+static int ett_uds_roe_localization;
 
 static int proto_uds;
 
@@ -3151,9 +3236,106 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
             break;
 
         case UDS_SERVICES_ROE:
-            /* TODO UDS_SERVICES_ROE 0x86*/
-            break;
+        {
+            uint32_t eventTypeSubFunc;
+            proto_tree_add_item_ret_uint( uds_tree, hf_uds_roe_subfunction, tvb, offset, 1, ENC_BIG_ENDIAN, &eventTypeSubFunc);
+            proto_tree_add_item( uds_tree, hf_uds_roe_store_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            col_add_fstr( pinfo->cinfo, COL_INFO, "%s %s : %s"
+                        , sid & UDS_REPLY_MASK ? "Replay " : "Request"
+                        , val_to_str_const( UDS_SERVICES_ROE, _uds_services, "")
+                        , val_to_str_const( eventTypeSubFunc & UDS_ROE_SUBFUNC_MASK, uds_roe_types, "Unknown subfunction"));
+            if( sid & UDS_REPLY_MASK)
+            {
+                uint32_t numOfEvents;
+                proto_tree_add_item_ret_uint( uds_tree, hf_uds_roe_NOIE, tvb, offset, 1, ENC_NA, &numOfEvents);
+                offset += 1;
+                if( eventTypeSubFunc != UDS_ROE_SUBF_RAE)
+                {
+                    proto_tree_add_item( uds_tree, hf_uds_roe_window_time, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+                else
+                {
+                    if( numOfEvents)
+                    {
+                        /* here only the first head can be easy parsed, because information of the request is requiered */
+                        proto_tree_add_item( uds_tree, hf_uds_roe_EVOAE, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        proto_tree_add_item( uds_tree, hf_uds_roe_window_time, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                    }
+                }
+            }
+            else /* request */
+            {
+                static int * const uds_roe_tdc_status_mask_fields[] = {
+                    &hf_uds_roe_dtc_status_mask_TF    ,
+                    &hf_uds_roe_dtc_status_mask_TFTOC ,
+                    &hf_uds_roe_dtc_status_mask_PDTC  ,
+                    &hf_uds_roe_dtc_status_mask_CDTC  ,
+                    &hf_uds_roe_dtc_status_mask_TNCSLC,
+                    &hf_uds_roe_dtc_status_mask_TFSLC ,
+                    &hf_uds_roe_dtc_status_mask_TNCTOC,
+                    &hf_uds_roe_dtc_status_mask_WIR   ,
+                    NULL
+                };
 
+                proto_tree_add_item( uds_tree, hf_uds_roe_window_time, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                switch( eventTypeSubFunc)
+                {
+                    case UDS_ROE_SUBF_ONDTCS:
+                    {
+                        proto_tree_add_bitmask( uds_tree, tvb, offset, hf_uds_roe_dtc_status_mask, ett_uds_roe_dtc_status_mask, uds_roe_tdc_status_mask_fields, ENC_NA);
+                        offset += 1;
+                        break;
+                    }
+                    case UDS_ROE_SUBF_OCODID:
+                    {
+                        proto_tree_add_item( uds_tree, hf_uds_roe_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        break;
+                    }
+                    case UDS_ROE_SUBF_OCOV:
+                    {
+                        proto_tree_add_item( uds_tree, hf_uds_roe_did, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item( uds_tree, hf_uds_roe_comparision, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        proto_tree_add_item( uds_tree, hf_uds_roe_comparision_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        proto_tree_add_item( uds_tree, hf_uds_roe_hysteresis_value, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        static int * const uds_roe_localization_fields[] = {
+                            &hf_uds_roe_localization_sign,
+                            &hf_uds_roe_localization_length,
+                            &hf_uds_roe_localization_offset,
+                        };
+                        proto_tree_add_bitmask( uds_tree, tvb, offset, hf_uds_roe_localization, ett_uds_roe_localization, uds_roe_localization_fields, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        break;
+                    }
+                    case UDS_ROE_SUBF_RMRDOSC:
+                    {
+                        proto_tree_add_item( uds_tree, hf_uds_rdtci_subfunction, tvb, offset, 1, ENC_NA);
+                        offset += 1;
+                        break;
+                    }
+                    case UDS_ROE_SUBF_RDRIODSC:
+                    {
+                        proto_tree_add_bitmask( uds_tree, tvb, offset, hf_uds_roe_dtc_status_mask, ett_uds_roe_dtc_status_mask, uds_roe_tdc_status_mask_fields, ENC_NA);
+                        offset += 1;
+                        uint32_t rdtci_subfunction;
+                        proto_tree_add_item_ret_uint( uds_tree, hf_uds_rdtci_subfunction, tvb, offset, 1, ENC_NA, &rdtci_subfunction);
+                        offset += 1;
+                        /* here a more detailed dissector can be implemented which covers the ReadDTCinformation similar to Service above*/
+                        break;
+                    }
+                }
+            }
+            break;
+        }
         case UDS_SERVICES_LC:
             ti = proto_tree_add_item(uds_tree, hf_uds_lc_subfunction, tvb, offset, 1, ENC_NA);
             /* do not increase offset, since reply uses the same byte with different mask! */
@@ -3637,6 +3819,52 @@ proto_register_uds(void) {
         { &hf_uds_did_reply_ff01_dlc_support, {
             "DLC Supports", "uds.did_ff01.dlc_supports", FT_UINT8, BASE_HEX, VALS(uds_did_resrvdcpadlc_types), 0x0, NULL, HFILL } },
 
+        { &hf_uds_roe_subfunction, {
+            "SubFunction", "uds.roe.subfunction", FT_UINT8, BASE_HEX, VALS( uds_roe_types), UDS_ROE_SUBFUNC_MASK, NULL, HFILL }},
+        { &hf_uds_roe_store_flag, {
+            "Store Flag", "uds.roe.storeflag", FT_UINT8, BASE_HEX, 0, UDS_ROE_STORE_MASK, NULL, HFILL }},
+        { &hf_uds_roe_window_time, {
+            "EventWindowsTime", "uds.roe.window_time", FT_UINT8, BASE_HEX, VALS( uds_roe_windowtime_types), 0x0, NULL, HFILL}},
+        { &hf_uds_roe_NOIE, {
+            "Number of identified Events", "uds.roe.noie", FT_UINT8, BASE_DEC, 0, 0, NULL, HFILL}},
+        { &hf_uds_roe_EVOAE, {
+            "Event Type of active Event", "uds.roe.evoae", FT_UINT8, BASE_DEC, VALS( uds_roe_types), 0, NULL, HFILL}},
+        { &hf_uds_roe_identifier, {
+            "Identifier", "uds.roe.identifier", FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL}},
+        { &hf_uds_roe_did, {
+            "DID", "uds.roe.did", FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL}},
+        { &hf_uds_roe_comparision, {
+            "Comparison logic", "uds.roe.ocov.logic", FT_UINT8, BASE_DEC, VALS( uds_roe_ocov_logic_types), 0, NULL, HFILL }},
+        { &hf_uds_roe_comparision_value, {
+            "Comparision Value", "uds.roe.ocov.value", FT_UINT32, BASE_DEC_HEX, 0, 0, NULL, HFILL }},
+        { &hf_uds_roe_hysteresis_value, {
+            "hysteresis value[%]", "uds.roe.ocov.hysteresis", FT_UINT8, BASE_DEC, 0, 0, NULL, HFILL}},
+        { &hf_uds_roe_localization, {
+            "Localization", "uds.roe.ocov.localisation", FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL}},
+        { &hf_uds_roe_localization_sign, {
+            "Localization sign", "uds.roe.ocov.localisation_sign", FT_UINT16, BASE_HEX, VALS( uds_roe_localisation_sign_types), UDS_ROE_OCOV_LOCAL_SIGN_MASK, NULL, HFILL}},
+        { &hf_uds_roe_localization_length, {
+            "Localization length", "uds.roe.ocov.localisation_len", FT_UINT16, BASE_HEX, 0, UDS_ROE_OCOV_LOCAL_LEN_MASK, NULL, HFILL}},
+        { &hf_uds_roe_localization_offset, {
+            "Localization offset", "uds.roe.ocov.localisation_offset", FT_UINT16, BASE_HEX, 0, UDS_ROE_OCOV_LOCAL_OFFSET_MASK, NULL, HFILL}},
+        { &hf_uds_roe_dtc_status_mask, {
+            "DTCStatusMask", "uds.roe.dtcstatusmask", FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL}},
+        { &hf_uds_roe_dtc_status_mask_TF, {
+            "testFailed", "uds.roe.dtcstatusmask.tf", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_TF, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_TFTOC, {
+            "testFailedThisOperationCycle", "uds.roe.dtcstatusmask.fttoc", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_TFTOC, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_PDTC, {
+            "pendingDTC", "uds.roe.dtcstatusmask.dptc", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_PDTC, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_CDTC, {
+            "confirmedDTC", "uds.roe.dtcstatusmask.cdtc", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_CDTC, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_TNCSLC, {
+            "testNotCompletedSinceLastClear", "uds.roe.dtcstatusmask.tncslc", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_TNCSLC, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_TFSLC, {
+            "testFailedSinceLastClear", "uds.roe.dtcstatusmask.tfslc", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_TFSLC, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_TNCTOC, {
+            "testNotCompletedThisOperationCycle", "uds.roe.dtcstatusmask.tnctoc", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_TNCTOC, NULL, HFILL }},
+        { &hf_uds_roe_dtc_status_mask_WIR, {
+            "warningIndicatorRequested", "uds.roe.dtcstatusmask.wir", FT_UINT8, BASE_HEX, NULL, UDS_ROE_DTC_STATUS_MASK_WIR, NULL, HFILL }},
         { &hf_uds_unparsed_bytes, {
             "Unparsed Bytes", "uds.unparsed_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
@@ -3663,6 +3891,8 @@ proto_register_uds(void) {
         &ett_uds_dddi_entry,
         &ett_uds_sdt_admin_param,
         &ett_uds_sdt_encap_message,
+        &ett_uds_roe_dtc_status_mask,
+        &ett_uds_roe_localization,
     };
 
     proto_uds = proto_register_protocol (
