@@ -240,7 +240,6 @@ static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
 
 static void mark_truncated(char *label_str, size_t name_pos, const size_t size, size_t *value_pos);
 static void label_mark_truncated(char *label_str, size_t name_pos, size_t *value_pos);
-#define LABEL_MARK_TRUNCATED_START(label_str, value_pos) label_mark_truncated(label_str, 0, value_pos)
 
 static void fill_label_boolean(const field_info *fi, char *label_str, size_t *value_pos);
 static void fill_label_bitfield_char(const field_info *fi, char *label_str, size_t *value_pos);
@@ -6894,6 +6893,18 @@ static size_t proto_find_value_pos(const header_field_info *hfinfo, const char *
 	return ptr - representation;
 }
 
+static size_t label_find_name_pos(const item_label_t *rep)
+{
+	size_t name_pos = 0;
+
+	/* Check if the format looks like "label: value", then set name_pos before ':'. */
+	if (rep->value_pos > 2 && rep->representation[rep->value_pos-2] == ':') {
+		name_pos = rep->value_pos - 2;
+	}
+
+	return name_pos;
+}
+
 /* If the protocol tree is to be visible, set the representation of a
    proto_tree entry with the name of the field for the item and with
    the value formatted with the supplied printf-style format and
@@ -6970,10 +6981,9 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 		fi->rep->value_pos = proto_find_value_pos(fi->hfinfo, str);
 		ret = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, 0, str, 0);
 		if (ret >= ITEM_LABEL_LENGTH) {
-			/* Uh oh, we don't have enough room.  Tell the user
-			 * that the field is truncated.
-			 */
-			LABEL_MARK_TRUNCATED_START(fi->rep->representation, &fi->rep->value_pos);
+			/* Uh oh, we don't have enough room.  Tell the user that the field is truncated. */
+			size_t name_pos = label_find_name_pos(fi->rep);
+			label_mark_truncated(fi->rep->representation, name_pos, &fi->rep->value_pos);
 		}
 		fi->rep->value_len = strlen(fi->rep->representation) - fi->rep->value_pos;
 	}
@@ -7783,10 +7793,9 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 				/* Keep fi->rep->value_pos */
 				curlen = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, curlen, str, 0);
 				if (curlen >= ITEM_LABEL_LENGTH) {
-					/* Uh oh, we don't have enough room.  Tell the user
-					 * that the field is truncated.
-					 */
-					LABEL_MARK_TRUNCATED_START(fi->rep->representation, &fi->rep->value_pos);
+					/* Uh oh, we don't have enough room.  Tell the user that the field is truncated. */
+					size_t name_pos = label_find_name_pos(fi->rep);
+					label_mark_truncated(fi->rep->representation, name_pos, &fi->rep->value_pos);
 				}
 				fi->rep->value_len = strlen(fi->rep->representation) - fi->rep->value_pos;
 			}
@@ -7832,10 +7841,9 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 		/* XXX: As above, if the old representation is close to the label
 		 * length, it might already be marked as truncated. */
 		if (pos >= ITEM_LABEL_LENGTH && (strlen(representation) + 4) <= ITEM_LABEL_LENGTH) {
-			/* Uh oh, we don't have enough room.  Tell the user
-			 * that the field is truncated.
-			 */
-			LABEL_MARK_TRUNCATED_START(fi->rep->representation, &fi->rep->value_pos);
+			/* Uh oh, we don't have enough room.  Tell the user that the field is truncated. */
+			size_t name_pos = label_find_name_pos(fi->rep);
+			label_mark_truncated(fi->rep->representation, name_pos, &fi->rep->value_pos);
 		}
 		fi->rep->value_len = strlen(fi->rep->representation) - fi->rep->value_pos;
 	}
