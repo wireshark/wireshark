@@ -714,6 +714,11 @@ static const value_string chan_op_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string apdu_le_vals[] = {
+	{ 0x00,	"Any number in the range 1 to 256" },
+	{ 0, NULL }
+};
+
 static const value_string apdu_cla_coding_vals[] = {
 	{ 0x00,	"ISO/IEC 7816-4" },
 	{ 0x08,	"ETSI TS 102.221" },
@@ -1591,14 +1596,23 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	if (rc == -1 && sim_tree) {
 		/* default dissector */
-		proto_tree_add_item(sim_tree, hf_apdu_p1, tvb, offset+0, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sim_tree, hf_apdu_p2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-		if (p3 && (p3 <= tvb_reported_length_remaining(tvb, offset+3))) {
-			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset+3, p3, ENC_NA);
+		proto_tree_add_item(sim_tree, hf_apdu_p1, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(sim_tree, hf_apdu_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		if (p3 && (p3 <= tvb_reported_length_remaining(tvb, offset))) {
+			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
+			offset += p3;
+			if (!isSIMtrace && tvb_reported_length_remaining(tvb, offset)) {
+				proto_tree_add_item(sim_tree, hf_le, tvb, offset, 1, ENC_NA);
+				offset += 1;
+			}
 		}
+	} else {
+		offset += 3+p3;
 	}
-	offset += 3+p3;
 
 	if (isSIMtrace) {
 		return dissect_rsp_apdu_tvb(tvb, tvb_len-2, pinfo, tree, sim_tree);
@@ -1752,8 +1766,9 @@ proto_register_gsm_sim(void)
 			  "ISO 7816-4 Logical Channel Number", HFILL }
 		},
 		{ &hf_le,
+			// XXX - Should the abbrev be gsm_sim.apdu.le ?
 			{ "Length of Expected Response Data", "gsm_sim.le",
-			  FT_UINT8, BASE_DEC, NULL, 0,
+			  FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(apdu_le_vals), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_chan_op,
@@ -3052,6 +3067,10 @@ proto_register_gsm_sim(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* This dissector is for SIMtrace, which always combines the command
+	 * & response APDUs into one packet before sending it to GSMTAP. Cf.
+	 * https://github.com/yarrick/scsniff/issues/1#issuecomment-2295835330
+	 */
 	sim_handle = register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
 	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
 	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
