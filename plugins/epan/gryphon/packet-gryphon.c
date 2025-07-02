@@ -2898,11 +2898,10 @@ cmd_upload(tvbuff_t *tvb, int offset, proto_tree *pt)
     int             msglen;
     unsigned int    length;
 
-    msglen = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_item(pt, hf_gryphon_upload_block_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(pt, hf_gryphon_upload_handle, tvb, offset+2, 1, ENC_BIG_ENDIAN);
     offset += 3;
-    msglen -= 3;
+    msglen = tvb_reported_length_remaining(tvb, offset);
 
     length = msglen;
     proto_tree_add_item(pt, hf_gryphon_upload_data, tvb, offset, length, ENC_NA);
