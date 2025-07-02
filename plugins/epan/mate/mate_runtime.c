@@ -53,7 +53,22 @@ static void free_mate_pdu(mate_pdu *pdu)
 	g_slice_free(mate_max_size, (mate_max_size *)pdu);
 }
 
-static void gog_remove_keys (mate_gog* gog);
+static void free_mate_gop(mate_gop *gop)
+{
+	g_free(gop->gop_key);
+	if (gop->avpl) delete_avpl(gop->avpl,true);
+	g_slice_free(mate_max_size, (mate_max_size *)gop);
+}
+
+static void gog_remove_keys(mate_gog* gog);
+
+static void free_mate_gog(mate_gog *gog)
+{
+	gog_remove_keys(gog);
+	g_ptr_array_unref(gog->gog_keys);
+	if (gog->avpl) delete_avpl(gog->avpl,true);
+	g_slice_free(mate_max_size, (mate_max_size *)gog);
+}
 
 static void destroy_gops_in_cfg(void *k _U_, void *v, void *p _U_) {
 	mate_cfg_gop* c = (mate_cfg_gop *)v;
@@ -61,11 +76,6 @@ static void destroy_gops_in_cfg(void *k _U_, void *v, void *p _U_) {
 	g_hash_table_remove_all(c->gop_index);
 	g_hash_table_remove_all(c->gog_index);
 
-	c->last_id = 0;
-}
-
-static void destroy_gogs_in_cfg(void *k _U_, void *v, void *p _U_) {
-	mate_cfg_gog* c = (mate_cfg_gog *)v;
 	c->last_id = 0;
 }
 
@@ -77,13 +87,18 @@ void initialize_mate_runtime(mate_config* mc) {
 		if (rd == NULL ) {
 			rd = g_new(mate_runtime_data, 1);
 			rd->frames = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)g_ptr_array_unref);
+			rd->gops = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)free_mate_gop);
+			rd->gogs = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)free_mate_gog);
 			rd->pdu_last_ids = g_hash_table_new(g_direct_hash, g_direct_equal);
+			rd->gog_last_ids = g_hash_table_new(g_direct_hash, g_direct_equal);
 		} else {
 			g_hash_table_foreach(mc->gopcfgs,destroy_gops_in_cfg,NULL);
-			g_hash_table_foreach(mc->gogcfgs,destroy_gogs_in_cfg,NULL);
 
 			g_hash_table_remove_all(rd->frames);
+			g_hash_table_remove_all(rd->gops);
+			g_hash_table_remove_all(rd->gogs);
 			g_hash_table_remove_all(rd->pdu_last_ids);
+			g_hash_table_remove_all(rd->gog_last_ids);
 		}
 
 		rd->current_items = 0;
@@ -143,6 +158,7 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, char* key) {
 	pdu->is_start = true;
 	pdu->time_in_gop = 0.0f;
 
+	g_hash_table_add(rd->gops, gop);
 	g_hash_table_insert(cfg->gop_index,gop->gop_key,gop);
 	return gop;
 }
@@ -171,9 +187,10 @@ static void adopt_gop(mate_gog* gog, mate_gop* gop) {
 
 }
 
-static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
+static mate_gog* new_gog(const mate_cfg_gog* cfg, mate_gop* gop) {
 	mate_gog* gog = (mate_gog*)g_slice_new(mate_max_size);
-	gog->id = ++(cfg->last_id);
+	gog->id = GPOINTER_TO_UINT(g_hash_table_lookup(rd->gog_last_ids, cfg)) + 1;
+	g_hash_table_replace(rd->gog_last_ids, (void *)cfg, GUINT_TO_POINTER(gog->id));
 	gog->cfg = cfg;
 
 	dbg_print (dbg_gog,1,dbg_facility,"new_gog: %s:%u for %s:%u",gog->cfg->name,gog->id,gop->cfg->name,gop->id);
@@ -199,6 +216,7 @@ static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
 
 	adopt_gop(gog,gop);
 
+	g_hash_table_add(rd->gogs, gog);
 	return gog;
 }
 
@@ -223,7 +241,7 @@ static void apply_extras(AVPL* from, AVPL* to,  AVPL* extras) {
 	}
 }
 
-static void gog_remove_keys (mate_gog* gog) {
+static void gog_remove_keys(mate_gog* gog) {
 	gogkey* gog_key;
 
 	while (gog->gog_keys->len) {
@@ -711,7 +729,7 @@ static void get_pdu_fields(void *k, void *v, void *p) {
 	}
 }
 
-static mate_pdu* new_pdu(mate_cfg_pdu* cfg, uint32_t framenum, field_info* proto, proto_tree* tree) {
+static mate_pdu* new_pdu(const mate_cfg_pdu* cfg, uint32_t framenum, field_info* proto, proto_tree* tree) {
 	mate_pdu* pdu = (mate_pdu*)g_slice_new(mate_max_size);
 	field_info* cfi;
 	GPtrArray* ptrs;
@@ -729,7 +747,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, uint32_t framenum, field_info* proto
 	dbg_print (dbg_pdu,1,dbg_facility,"new_pdu: type=%s framenum=%i",cfg->name,framenum);
 
 	pdu->id = GPOINTER_TO_UINT(g_hash_table_lookup(rd->pdu_last_ids, cfg)) + 1;
-	g_hash_table_replace(rd->pdu_last_ids, cfg, GUINT_TO_POINTER(pdu->id));
+	g_hash_table_replace(rd->pdu_last_ids, (void *)cfg, GUINT_TO_POINTER(pdu->id));
 	pdu->cfg = cfg;
 
 	pdu->avpl = new_avpl(cfg->name);

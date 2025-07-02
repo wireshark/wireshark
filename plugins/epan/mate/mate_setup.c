@@ -99,7 +99,6 @@ extern mate_cfg_gog* new_gogcfg(mate_config* mc, char* name) {
 	mate_cfg_gog* cfg = g_new(mate_cfg_gog, 1);
 
 	cfg->name = name;
-	cfg->last_id = 0;
 
 	cfg->transforms = NULL;
 

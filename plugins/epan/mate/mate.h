@@ -144,8 +144,6 @@ typedef struct _mate_cfg_gop {
 typedef struct _mate_cfg_gog {
 	char* name;
 
-	unsigned last_id; /* keeps the last id given to an item of this kind */
-
 	GPtrArray* transforms; /* transformations to be applied */
 
 	LoAL* keys;
@@ -247,8 +245,11 @@ typedef struct _mate_runtime_data {
 	unsigned highest_analyzed_frame;
 
 	GHashTable* frames; /* k=frame.num v=pdus */
+	GHashTable* gops; /* set of gops, for memory management */
+	GHashTable* gogs; /* set of gogs, for memory management */
 
 	GHashTable* pdu_last_ids; /* k=pducfg, v=last id given to a pdu of this cfg */
+	GHashTable* gog_last_ids; /* k=pducfg, v=last id given to a gog of this cfg */
 } mate_runtime_data;
 
 typedef struct _mate_pdu mate_pdu;
@@ -258,7 +259,7 @@ typedef struct _mate_gog mate_gog;
 /* these are used to contain information regarding pdus, gops and gogs */
 struct _mate_pdu {
 	uint32_t id; /* 1:1 -> saving a g_malloc */
-	mate_cfg_pdu* cfg; /* the type of this item */
+	const mate_cfg_pdu* cfg; /* the type of this item */
 
 	AVPL* avpl;
 
@@ -309,7 +310,7 @@ struct _mate_gop {
 
 struct _mate_gog {
 	uint32_t id;
-	mate_cfg_gog* cfg;
+	const mate_cfg_gog* cfg;
 
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
 	unsigned last_n; /* the number of attributes the avpl had the last time we checked */
