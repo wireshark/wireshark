@@ -1226,6 +1226,9 @@ static int hf_pfcp_nokia_measurement_info_b0_det;
 static int hf_pfcp_nokia_pfcpsmreq_flags;
 static int hf_pfcp_nokia_pfcpsmreq_flags_b0_abs;
 static int hf_pfcp_nokia_pfcpsmreq_flags_b1_audit;
+static int hf_pfcp_nokia_cp_function_features_assoc_audit;
+static int hf_pfcp_nokia_cp_function_features_imm_l2_access_id_report;
+static int hf_pfcp_nokia_cp_function_features_cmag_c;
 static int hf_pfcp_nokia_up_function_features_bulk_audit;
 static int hf_pfcp_nokia_up_function_features_sssg;
 static int hf_pfcp_nokia_filter_override_type;
@@ -1328,6 +1331,21 @@ static int hf_pfcp_nokia_serving_node_id_uuid;
 static int hf_pfcp_nokia_pcc_rule_name;
 static int hf_pfcp_nokia_calltrace_profile;
 static int hf_pfcp_nokia_custom_charging_group;
+static int hf_pfcp_nokia_content_filtering_policy_id;
+static int hf_pfcp_nokia_dropped_volume_measurement;
+static int hf_pfcp_nokia_dropped_volume_measurement_b0_tovol;
+static int hf_pfcp_nokia_dropped_volume_measurement_b1_ulvol;
+static int hf_pfcp_nokia_dropped_volume_measurement_b2_dlvol;
+static int hf_pfcp_nokia_dropped_volume_measurement_b3_tonop;
+static int hf_pfcp_nokia_dropped_volume_measurement_b4_ulnop;
+static int hf_pfcp_nokia_dropped_volume_measurement_b5_dlnop;
+static int hf_pfcp_nokia_drop_vol_meas_tovol;
+static int hf_pfcp_nokia_drop_vol_meas_ulvol;
+static int hf_pfcp_nokia_drop_vol_meas_dlvol;
+static int hf_pfcp_nokia_drop_vol_meas_tonop;
+static int hf_pfcp_nokia_drop_vol_meas_ulnop;
+static int hf_pfcp_nokia_drop_vol_meas_dlnop;
+static int hf_pfcp_nokia_health_report_interval;
 
 
 static int ett_pfcp;
@@ -1369,6 +1387,7 @@ static int ett_pfcp_nokia_pfcphb_flags;
 static int ett_pfcp_nokia_l2tp_tunnel_params_flags;
 static int ett_pfcp_nokia_access_line_params_flags;
 static int ett_pfcp_nokia_serving_node_id_flags;
+static int ett_pfcp_nokia_dropped_volume_measurement;
 
 static expert_field ei_pfcp_ie_reserved;
 static expert_field ei_pfcp_ie_data_not_decoded;
@@ -12662,6 +12681,20 @@ static int dissect_pfcp_nokia_pfpsmreq_flags(tvbuff_t *tvb, packet_info *pinfo _
     return 1;
 }
 
+static int dissect_pfcp_nokia_cp_function_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const pfcp_nokia_cp_function_features_flags[] = {
+        &hf_pfcp_nokia_cp_function_features_assoc_audit,
+        &hf_pfcp_nokia_cp_function_features_imm_l2_access_id_report,
+        &hf_pfcp_nokia_cp_function_features_cmag_c,
+        NULL,
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, 0, 4, pfcp_nokia_cp_function_features_flags, ENC_BIG_ENDIAN);
+
+    return 4;
+}
+
 static int dissect_pfcp_nokia_up_function_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     static int * const pfcp_nokia_up_function_features_flags[] = {
@@ -13105,6 +13138,82 @@ static int dissect_pfcp_nokia_custom_charging_group(tvbuff_t *tvb, packet_info *
     return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_custom_charging_group);
 }
 
+static int dissect_pfcp_nokia_content_filtering_policy_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    uint32_t id;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_content_filtering_policy_id, tvb, 0, 4, ENC_BIG_ENDIAN, &id);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %u", id);
+
+    return 4;
+}
+
+static int
+dissect_pfcp_nokia_dropped_volume_measurement(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    uint64_t flags;
+
+    static int * const ie_flags[] = {
+        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_nokia_dropped_volume_measurement_b5_dlnop,
+        &hf_pfcp_nokia_dropped_volume_measurement_b4_ulnop,
+        &hf_pfcp_nokia_dropped_volume_measurement_b3_tonop,
+        &hf_pfcp_nokia_dropped_volume_measurement_b2_dlvol,
+        &hf_pfcp_nokia_dropped_volume_measurement_b1_ulvol,
+        &hf_pfcp_nokia_dropped_volume_measurement_b0_tovol,
+        NULL
+    };
+    /* Octet 5  Spare   DLNOP   ULNOP   TONOP   DLVOL   ULVOL   TOVOL*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_nokia_dropped_volume_measurement,
+        ett_pfcp_nokia_dropped_volume_measurement, ie_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+    offset += 1;
+
+    if ((flags & 0x1)) {
+        /* m to (m+7)   Total Volume */
+        proto_tree_add_item(tree, hf_pfcp_nokia_drop_vol_meas_tovol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x2)) {
+        /* p to (p+7)   Uplink Volume */
+        proto_tree_add_item(tree, hf_pfcp_nokia_drop_vol_meas_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x4)) {
+        /*q to (q+7)    Downlink Volume */
+        proto_tree_add_item(tree, hf_pfcp_nokia_drop_vol_meas_dlvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x8)) {
+        /* r to (r+7)   Total Number of Packets */
+        proto_tree_add_item(tree, hf_pfcp_nokia_drop_vol_meas_tonop, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x10)) {
+        /* s to (s+7)   Uplink Number of Packets */
+        proto_tree_add_item(tree, hf_pfcp_nokia_drop_vol_meas_ulnop, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags & 0x20)) {
+        /*t to (t+7)    Downlink Number of Packets */
+        proto_tree_add_item(tree, hf_pfcp_nokia_drop_vol_meas_dlnop, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    return offset;
+}
+
+static int
+dissect_pfcp_nokia_health_report_interval(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    uint32_t interval;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_nokia_health_report_interval, tvb, 0, 4, ENC_BIG_ENDIAN, &interval);
+    proto_item_append_text(proto_tree_get_parent(tree), " : %us", interval);
+
+    return 4;
+}
+
 static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32774, "UP Aggregate Route",                dissect_pfcp_grouped_ie_wrapper, -1},
     {VENDOR_NOKIA, 32775, "SAP Template",                      dissect_pfcp_nokia_sap_template, -1},
@@ -13115,6 +13224,7 @@ static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32780, "Qos Override",                      dissect_pfcp_nokia_qos_override, -1},
     {VENDOR_NOKIA, 32781, "Measurement Information",           dissect_pfcp_nokia_measurement_information, -1},
     {VENDOR_NOKIA, 32783, "PFCPSMReq-Flags",                   dissect_pfcp_nokia_pfpsmreq_flags, -1},
+    {VENDOR_NOKIA, 32786, "CP Function Features",              dissect_pfcp_nokia_cp_function_features, -1},
     {VENDOR_NOKIA, 32787, "UP Function Features",              dissect_pfcp_nokia_up_function_features, -1},
     {VENDOR_NOKIA, 32788, "Create Filter Override",            dissect_pfcp_nokia_filter_override, -1},
     {VENDOR_NOKIA, 32789, "Delete Filter Override",            dissect_pfcp_nokia_filter_override, -1},
@@ -13152,6 +13262,9 @@ static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32836, "PCC Rule Name",                     dissect_pfcp_nokia_pcc_rule_name, -1},
     {VENDOR_NOKIA, 32837, "Calltrace Profile",                 dissect_pfcp_nokia_calltrace_profile, -1},
     {VENDOR_NOKIA, 32838, "Custom Charging Group",             dissect_pfcp_nokia_custom_charging_group, -1},
+    {VENDOR_NOKIA, 32840, "Content Filtering Policy Id",       dissect_pfcp_nokia_content_filtering_policy_id, -1},
+    {VENDOR_NOKIA, 32841, "Dropped Volume Measurement",        dissect_pfcp_nokia_dropped_volume_measurement, -1},
+    {VENDOR_NOKIA, 32842, "Health Report Interval",            dissect_pfcp_nokia_health_report_interval, -1},
 };
 
 static void
@@ -18167,6 +18280,21 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
+        { &hf_pfcp_nokia_cp_function_features_assoc_audit,
+        { "ASSOC-BULK-AUDIT", "pfcp.nokia.cp_function_features.assoc_audit",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_cp_function_features_imm_l2_access_id_report,
+        { "IMM-L2-ACCESS-ID", "pfcp.nokia.cp_function_features.imm_l2_access_id_report",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_cp_function_features_cmag_c,
+        { "CMAG-C", "pfcp.nokia.cp_function_features.cmag_c",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000004,
+            NULL, HFILL }
+        },
         { &hf_pfcp_nokia_up_function_features_bulk_audit,
         { "BLK_AUD (Bulk Audit)", "pfcp.nokia.up_function_features.blk_aud",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
@@ -18677,6 +18805,81 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_pfcp_nokia_content_filtering_policy_id,
+          { "Content Filtering Policy Id", "pfcp.nokia.content_filtering_policy_id",
+            FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement,
+        { "Flags", "pfcp.nokia.dropped_volume_measurement",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement_b0_tovol,
+        { "TOVOL", "pfcp.nokia.dropped_volume_measurement_flags.tovol",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement_b1_ulvol,
+        { "ULVOL", "pfcp.nokia.dropped_volume_measurement_flags.ulvol",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement_b2_dlvol,
+        { "DLVOL", "pfcp.nokia.dropped_volume_measurement_flags.dlvol",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement_b3_tonop,
+        { "TONOP", "pfcp.nokia.dropped_volume_measurement_flags.tonop",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement_b4_ulnop,
+        { "ULNOP", "pfcp.nokia.dropped_volume_measurement_flags.ulnop",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_dropped_volume_measurement_b5_dlnop,
+        { "DLNOP", "pfcp.nokia.dropped_volume_measurement_flags.dlnops",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_drop_vol_meas_tovol,
+        { "Total Volume", "pfcp.nokia.dropped_volume_measurement.tovol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_drop_vol_meas_ulvol,
+        { "Uplink Volume", "pfcp.nokia.dropped_volume_measurement.ulvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_drop_vol_meas_dlvol,
+        { "Downlink Volume", "pfcp.nokia.dropped_volume_measurement.dlvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_drop_vol_meas_tonop,
+        { "Total Number of Packets", "pfcp.nokia.dropped_volume_measurement.tonop",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_drop_vol_meas_ulnop,
+        { "Uplink Number of Packets", "pfcp.nokia.dropped_volume_measurement.ulnop",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_drop_vol_meas_dlnop,
+        { "Downlink Number of Packets", "pfcp.nokia.dropped_volume_measurement.dlnop",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_health_report_interval,
+        { "Health Report Interval", "pfcp.nokia.healt_report_interval",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -18720,6 +18923,7 @@ proto_register_pfcp(void)
         &ett_pfcp_nokia_l2tp_tunnel_params_flags,
         &ett_pfcp_nokia_access_line_params_flags,
         &ett_pfcp_nokia_serving_node_id_flags,
+        &ett_pfcp_nokia_dropped_volume_measurement,
     };
 
     // Each IE gets its own subtree
