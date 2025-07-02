@@ -847,7 +847,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.sampling_method = capture_opts->default_options.sampling_method;
     interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
 #endif
-    interface_opts.timestamp_type  = capture_opts->default_options.timestamp_type;
+    interface_opts.timestamp_type  = g_strdup(capture_opts->default_options.timestamp_type);
 
     g_array_append_val(capture_opts->ifaces, interface_opts);
 
