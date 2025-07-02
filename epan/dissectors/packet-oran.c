@@ -2158,6 +2158,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     ext11_settings_t ext11_settings;
     memset(&ext11_settings, 0, sizeof(ext11_settings));
 
+#define MAX_UEIDS 16
+    uint32_t ueids[MAX_UEIDS];
+    uint32_t number_of_ueids = 0;
+
     bool extension_flag = false;
 
     /* These sections (ST0, ST1, ST2, ST3, ST5, ST9, ST10, ST11) are similar, so handle as common with per-type differences */
@@ -2324,6 +2328,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 2;
                 if (ueId == 0x7fff) {
                     proto_item_append_text(ueId_ti, " (PRBs not scheduled for eAxC ID in transport header)");
+                }
+                else {
+                    ueids[number_of_ueids++] = ueId;
                 }
 
                 proto_item_append_text(sectionHeading, ", UEId: %d", ueId);
@@ -3050,6 +3057,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
                             offset += 2;
 
+                            if (id != 0x7fff) {
+                                if (number_of_ueids < MAX_UEIDS) {
+                                    ueids[number_of_ueids++] = id;
+                                }
+                            }
+
                             proto_item_append_text(extension_ti, "%u ", id);
                         }
 
@@ -3077,6 +3090,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                                                              tvb, offset, 2, ENC_BIG_ENDIAN, &id);
                                 proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
                                 offset += 2;
+
+                                if (id != 0x7fff) {
+                                    if (number_of_ueids < MAX_UEIDS) {
+                                        ueids[number_of_ueids++] = id;
+                                    }
+                                }
 
                                 /* subsequent portListIndex */
                                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
@@ -3793,9 +3812,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 bool inherited_config_has_transform_precoding = false;
                 int dmrs_configs_seen = 0;
 
-                /* Dissect each entry (until run out of extlen bytes..). Not sure how this works with padding bytes though... */
-                /* TODO: how to know when have seen last entry?  Zero byte (within last 3 bytes of space) are valid... */
-                while (offset < (extension_start_offset + extlen*4)) {
+                /* Dissect each entry (until run out of extlen bytes..) or reach number of configured ueIds */
+                uint32_t ueid_index = 0;
+                while (offset < (extension_start_offset + extlen*4) && ueid_index < number_of_ueids) {
 
                     /* Subtree */
                     proto_item *entry_ti = proto_tree_add_string_format(extension_tree, hf_oran_dmrs_entry,
@@ -3865,6 +3884,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             };
                             proto_tree_add_bitmask(entry_tree, tvb, offset,
                                                    hf_oran_dmrs_symbol_mask, ett_oran_dmrs_symbol_mask, dmrs_symbol_mask_flags, ENC_BIG_ENDIAN);
+                            offset += 2;
 
                             /* scrambling */
                             proto_tree_add_item(entry_tree, hf_oran_scrambling, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3912,9 +3932,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             break;
                     }
 
-                    proto_item_append_text(entry_ti, " (type %u - %s) (dmrsPortNumber = %2u)",
-                                           entry_type, val_to_str_const(entry_type, entry_type_vals, "Unknown"),
-                                           dmrs_port_number);
+                    proto_item_append_text(entry_ti, " [UEId=%u] (dmrsPortNumber=%2u) (type %u - %s) ",
+                                           ueids[ueid_index++], dmrs_port_number, entry_type, val_to_str_const(entry_type, entry_type_vals, "Unknown"));
                     proto_item_set_end(entry_ti, tvb, offset);
 
                     if (entry_type <= 1) {
