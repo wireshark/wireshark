@@ -1600,8 +1600,10 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		offset += 1;
 		proto_tree_add_item(sim_tree, hf_apdu_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		if (tvb_reported_length_remaining(tvb, offset)) {
+			proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+		}
 		if (p3 && (p3 <= tvb_reported_length_remaining(tvb, offset))) {
 			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
 			offset += p3;
