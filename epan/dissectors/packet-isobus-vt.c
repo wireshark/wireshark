@@ -4240,7 +4240,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            col_append_str(pinfo->cinfo, COL_INFO, "Extended version successfully deleted");
+            col_append_str(pinfo->cinfo, COL_INFO, "Get versions");
         }
         /*no else as this message can only be used from ecu to vt*/
     }
