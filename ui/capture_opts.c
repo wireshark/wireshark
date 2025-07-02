@@ -672,7 +672,7 @@ fill_in_interface_opts_defaults(interface_options *interface_opts, const capture
     interface_opts->sampling_method = capture_opts->default_options.sampling_method;
     interface_opts->sampling_param  = capture_opts->default_options.sampling_param;
 #endif
-    interface_opts->timestamp_type  = capture_opts->default_options.timestamp_type;
+    interface_opts->timestamp_type  = g_strdup(capture_opts->default_options.timestamp_type);
 }
 
 static void
