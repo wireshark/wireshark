@@ -224,11 +224,14 @@ bytes_to_str_punct_maxlen(wmem_allocator_t *scope,
 	char *buf_ptr;
 	int truncated = 0;
 
-	ws_return_str_if(!src, scope);
-
+	/* src is an array of bytes, not necessarily null-terminated,
+	 * so check for a zero length first and allow it even with a
+	 * NULL src. */
 	if (!src_size) {
 		return wmem_strdup(scope, "");
 	}
+
+	ws_return_str_if(!src, scope);
 
 	if (!punct)
 		return bytes_to_str_maxlen(scope, src, src_size, max_bytes_len);
@@ -266,11 +269,14 @@ bytes_to_str_maxlen(wmem_allocator_t *scope,
 	char *buf_ptr;
 	int truncated = 0;
 
-	ws_return_str_if(!src, scope);
-
+	/* src is an array of bytes, not necessarily null-terminated,
+	 * so check for a zero length first and allow it even with a
+	 * NULL src. */
 	if (!src_size) {
 		return wmem_strdup(scope, "");
 	}
+
+	ws_return_str_if(!src, scope);
 
 	if (max_bytes_len == 0 || max_bytes_len > src_size) {
 		max_bytes_len = src_size;

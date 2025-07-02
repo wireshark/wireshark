@@ -4599,7 +4599,7 @@ int tvb_get_token_len(tvbuff_t *tvb, const int offset, int len, int *next_offset
 char *
 tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int len, const char punct)
 {
-	DISSECTOR_ASSERT(len > 0);
+	DISSECTOR_ASSERT(len >= 0);
 	return bytes_to_str_punct(scope, ensure_contiguous(tvb, offset, len), len, punct);
 }
 
@@ -4726,7 +4726,7 @@ tvb_bcd_dig_to_str_be(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
 char *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
     const int offset, const int len)
 {
-	DISSECTOR_ASSERT(len > 0);
+	DISSECTOR_ASSERT(len >= 0);
 	return bytes_to_str(allocator, ensure_contiguous(tvb, offset, len), len);
 }
 
