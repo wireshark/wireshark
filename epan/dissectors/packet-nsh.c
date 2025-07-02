@@ -69,6 +69,26 @@ static int hf_nsh_metadata_class;
 static int hf_nsh_metadata_type;
 static int hf_nsh_metadata_length;
 static int hf_nsh_metadata;
+
+// RFC9263 TLVs
+static int hf_nsh_tlv_forwarding_context_type;
+static int hf_nsh_tlv_forwarding_context_vlan;
+static int hf_nsh_tlv_forwarding_context_svlan;
+static int hf_nsh_tlv_forwarding_context_cvlan;
+static int hf_nsh_tlv_forwarding_context_mpls_vpn_label;
+static int hf_nsh_tlv_forwarding_context_vni;
+static int hf_nsh_tlv_forwarding_context_session_id;
+static int hf_nsh_tlv_tenant_id;
+static int hf_nsh_tlv_ingress_network_node_info;
+static int hf_nsh_tlv_ingress_network_source_iface;
+static int hf_nsh_tlv_flow_id_type;
+static int hf_nsh_tlv_ipv6_flow_id;
+static int hf_nsh_tlv_mpls_entropy_label;
+static int hf_nsh_tlv_source_group;
+static int hf_nsh_tlv_dest_group;
+static int hf_nsh_tlv_policy_id;
+
+// TR-459i2 TLVs
 static int hf_nsh_bbf_logical_port_id;
 static int hf_nsh_bbf_logical_port_id_str;
 static int hf_nsh_bbf_mac;
@@ -254,6 +274,112 @@ static int dissect_tlv_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tlv->dissector(tvb, pinfo, tree, data);
 }
 
+static const value_string forwarding_context_type_vals[] = {
+    { 0, "VLAN Forwarding Context" },
+    { 1, "QinQ Forwarding Context" },
+    { 2, "MPLS VPN Forwarding Context" },
+    { 3, "VNI Forwarding Context" },
+    { 4, "Session ID Forwarding Context" },
+    { 0, NULL },
+};
+
+static const value_string flow_id_type_vals[] = {
+    { 0, "IPv6 Flow ID" },
+    { 1, "MPLS entropy label" },
+    { 0, NULL },
+};
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-forwarding-context
+static int dissect_tlv_forwarding_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	uint32_t context_type;
+
+	proto_tree_add_item_ret_uint(tree, hf_nsh_tlv_forwarding_context_type, tvb, 0, 1, ENC_BIG_ENDIAN, &context_type);
+
+	switch (context_type)
+	{
+	case 0x00:
+		proto_tree_add_item(tree, hf_nsh_tlv_forwarding_context_vlan, tvb, 1, 2, ENC_BIG_ENDIAN);
+		return 4;
+	case 0x01:
+		proto_tree_add_item(tree, hf_nsh_tlv_forwarding_context_svlan, tvb, 1, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_nsh_tlv_forwarding_context_cvlan, tvb, 1, 3, ENC_BIG_ENDIAN);
+		return 4;
+	case 0x02:
+		proto_tree_add_item(tree, hf_nsh_tlv_forwarding_context_mpls_vpn_label, tvb, 1, 3, ENC_BIG_ENDIAN);
+		return 4;
+	case 0x03:
+		proto_tree_add_item(tree, hf_nsh_tlv_forwarding_context_vni, tvb, 1, 3, ENC_BIG_ENDIAN);
+		return 4;
+	case 0x04:
+		proto_tree_add_item(tree, hf_nsh_tlv_forwarding_context_session_id, tvb, 4, 4, ENC_BIG_ENDIAN);
+		return 8;
+	}
+
+	return tvb_reported_length(tvb);
+}
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-tenant-id
+static int dissect_tlv_tenant_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_tlv_tenant_id, tvb, 0, -1, ENC_NA);
+
+	return tvb_reported_length(tvb);
+}
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-ingress-network-node-inform
+static int dissect_tlv_ingress_network_node_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_tlv_ingress_network_node_info, tvb, 0, -1, ENC_NA);
+
+	return tvb_reported_length(tvb);
+}
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-ingress-node-source-interfa
+static int dissect_tlv_ingress_network_source_iface(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_tlv_ingress_network_source_iface, tvb, 0, -1, ENC_NA);
+
+	return tvb_reported_length(tvb);
+}
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-flow-id-2
+static int dissect_tlv_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	uint32_t context_type;
+	proto_tree_add_item_ret_uint(tree, hf_nsh_tlv_flow_id_type, tvb, 0, 1, ENC_BIG_ENDIAN, &context_type);
+
+	switch (context_type)
+	{
+	case 0x00:
+		proto_tree_add_item(tree, hf_nsh_tlv_ipv6_flow_id, tvb, 1, 3, ENC_BIG_ENDIAN);
+		break;
+	case 0x01:
+		proto_tree_add_item(tree, hf_nsh_tlv_mpls_entropy_label, tvb, 1, 3, ENC_BIG_ENDIAN);
+		break;
+	}
+
+	return 4;
+}
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-source-and-or-destination-gr
+static int dissect_tlv_source_dest_groups(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_tlv_source_group, tvb, 0, 4, ENC_NA);
+	proto_tree_add_item(tree, hf_nsh_tlv_dest_group, tvb, 4, 4, ENC_NA);
+
+	return 8;
+}
+
+
+// https://datatracker.ietf.org/doc/html/rfc9263#name-policy-id
+static int dissect_tlv_policy_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+	proto_tree_add_item(tree, hf_nsh_tlv_policy_id, tvb, 0, -1, ENC_NA);
+
+	return tvb_reported_length(tvb);
+}
+
 static int dissect_tlv_logical_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	if (tvb_ascii_isprint(tvb, 0, -1))
@@ -300,6 +426,14 @@ static void register_tlv_dissectors(void)
 	   Relevant RFC section: https://datatracker.ietf.org/doc/html/rfc8300#section-9.1.4
 	   */
 	static const nsh_tlv tlvs[] = {
+		// TLVs defined by IETF in RFC9263
+		{0x0000, 0x04, "Forwarding Context",               dissect_tlv_forwarding_context},
+		{0x0000, 0x05, "Tenant ID",                        dissect_tlv_tenant_id},
+		{0x0000, 0x06, "Ingress Network Node Info",        dissect_tlv_ingress_network_node_info},
+		{0x0000, 0x07, "Ingress Network Source Interface", dissect_tlv_ingress_network_source_iface},
+		{0x0000, 0x08, "Flow ID",                          dissect_tlv_flow_id},
+		{0x0000, 0x09, "Source/Dest Groups",               dissect_tlv_source_dest_groups},
+		{0x0000, 0x0A, "Policy ID",                        dissect_tlv_policy_id},
 		// TLVs defined by BBF in TR-459i2:
 		{0x0200, 0x00, "Logical Port",         dissect_tlv_logical_port},
 		{0x0200, 0x01, "MAC",                  dissect_tlv_mac},
@@ -445,6 +579,89 @@ proto_register_nsh(void)
 		"Variable length metadata", HFILL }
 		},
 
+		// RFC9263
+		{ &hf_nsh_tlv_forwarding_context_type,
+		{ "CT", "nsh.tlv.forwarding_context.type",
+			FT_UINT8, BASE_DEC, VALS(forwarding_context_type_vals), 0xf0,
+			"Context Type", HFILL }
+		},
+		{ &hf_nsh_tlv_forwarding_context_vlan,
+		{ "VLAN ID", "nsh.tlv.forwarding_context.vlan",
+			FT_UINT16, BASE_DEC, NULL, 0x0fff,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_forwarding_context_svlan,
+		{ "Service VLAN ID", "nsh.tlv.forwarding_context.svlan",
+			FT_UINT24, BASE_DEC, NULL, 0xfff000,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_forwarding_context_cvlan,
+		{ "Customer VLAN ID", "nsh.tlv.forwarding_context.cvlan",
+			FT_UINT24, BASE_DEC, NULL, 0x000fff,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_forwarding_context_mpls_vpn_label,
+		{ "MPLS VPN Label", "nsh.tlv.forwarding_context.mpls_vpn_label",
+			FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_forwarding_context_vni,
+		{ "VNI", "nsh.tlv.forwarding_context.vni",
+			FT_UINT24, BASE_DEC, NULL, 0x0,
+			"Virtual Network Identifier", HFILL }
+		},
+		{ &hf_nsh_tlv_forwarding_context_session_id,
+		{ "Session ID", "nsh.tlv.forwarding_context.session_id",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_tenant_id,
+		{ "Tenant ID", "nsh.tlv.tenant_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_ingress_network_node_info,
+		{ "Ingress Network Node Info", "nsh.tlv.ingress_network_node_info",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_ingress_network_source_iface,
+		{ "Ingress Network Node Info", "nsh.tlv.ingress_network_source_iface",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_flow_id_type,
+		{ "CT", "nsh.tlv.flow_id.type",
+			FT_UINT8, BASE_DEC, VALS(flow_id_type_vals), 0xf0,
+			"Context Type", HFILL }
+		},
+		{ &hf_nsh_tlv_ipv6_flow_id,
+		{ "IPv6 Flow ID", "nsh.tlv.ipv6_flow_id",
+			FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_mpls_entropy_label,
+		{ "MPLS Entropy Label", "nsh.tlv.mpls_entropy_label",
+			FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_source_group,
+		{ "Source Group", "nsh.tlv.source_group",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_dest_group,
+		{ "Destination Group", "nsh.tlv.dest_group",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_nsh_tlv_policy_id,
+		{ "Policy ID", "nsh.tlv.policy_id",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+
+		// TR-459i2
 		{ &hf_nsh_bbf_logical_port_id,
 		{ "Logical Port", "nsh.tlv.bbf.logical_port_id",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
