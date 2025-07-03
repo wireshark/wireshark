@@ -343,6 +343,13 @@ candump_open(wtap* wth, int* err, char** err_info)
     wtap_can_msg_t temp_msg = {0};
     candump_t *candump;
 
+    /*
+     * We don't pass wth to candump_parse(), because we haven't yet
+     * decided whether this is a candump file, and haven't set up
+     * the hash table for interface names, and thus don't want it
+     * trying to look up those names and adding new interfaces if
+     * it doesn't find them; we do that in the read code.
+     */
     if (!candump_parse(NULL, wth->fh, &temp_msg, NULL, NULL, err, err_info))
     {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
