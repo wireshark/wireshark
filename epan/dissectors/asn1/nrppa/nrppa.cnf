@@ -242,7 +242,7 @@ id-UL-RSCPMeas                                      ProtocolIE-ID
 id-SymbolIndex                                      ProtocolIE-ID
 id-PosValidityAreaCellList                          ProtocolIE-ID
 id-SRSReservationType                               ProtocolIE-ID
-id-PRSBWAggregationRequestIndication                ProtocolIE-ID
+id-PRSBWAggregationRequestInfoList                  ProtocolIE-ID
 id-AggregatedPosSRSResourceID-List                  ProtocolIE-ID
 id-AggregatedPRSResourceSetList                     ProtocolIE-ID
 id-TRPPhaseQuality                                  ProtocolIE-ID
@@ -270,6 +270,15 @@ id-PointA                                           ProtocolIE-ID
 id-NR-PCI                                           ProtocolIE-ID
 id-SCS-SpecificCarrier                              ProtocolIE-ID
 id-MeasBasedOnAggregatedResources                   ProtocolIE-ID
+id-UEReportingInterval-milliseconds                 ProtocolIE-ID
+id-Remote-UE-Indication-Request                     ProtocolIE-ID
+id-Remote-UE-Indication                             ProtocolIE-ID
+id-Remote-UE-Status                                 ProtocolIE-ID
+id-LocalOrigin                                      ProtocolIE-ID
+id-PreconfiguredSRSInformation                      ProtocolIE-ID
+id-DL-reference-signal-UERxTx-TD                    ProtocolIE-ID
+id-SRSPosPeriodicConfigHyperSFNIndex                ProtocolIE-ID
+id-ValidityAreaSpecificSRSInformationExtended       ProtocolIE-ID
 
 #.REGISTER
 #NRPPA-PROTOCOL-IES
@@ -383,6 +392,11 @@ ReportingGranularitykminus3AdditionalPath        N nrppa.ies id-ReportingGranula
 ReportingGranularitykminus4AdditionalPath        N nrppa.ies id-ReportingGranularitykminus4AdditionalPath
 ReportingGranularitykminus5AdditionalPath        N nrppa.ies id-ReportingGranularitykminus5AdditionalPath
 ReportingGranularitykminus6AdditionalPath        N nrppa.ies id-ReportingGranularitykminus6AdditionalPath
+Remote-UE-Indication-Request                     N nrppa.ies id-Remote-UE-Indication-Request
+Remote-UE-Indication                             N nrppa.ies id-Remote-UE-Indication
+Remote-UE-Status                                 N nrppa.ies id-Remote-UE-Status
+LocalOrigin                                      N nrppa.ies id-LocalOrigin
+RequestedSRSPreconfigurationCharacteristics-List N nrppa.ies id-PreconfiguredSRSInformation
 
 
 #NRPPA-PROTOCOL-EXTENSION
@@ -419,7 +433,7 @@ PosSRSResourceSet-Aggregation-List         N nrppa.extension id-PosSRSResourceSe
 TimingReportingGranularityFactorExtended   N nrppa.extension id-TimingReportingGranularityFactorExtended
 SymbolIndex                                N nrppa.extension id-SymbolIndex
 PosValidityAreaCellList                    N nrppa.extension id-PosValidityAreaCellList
-PRSBWAggregationRequestIndication          N nrppa.extension id-PRSBWAggregationRequestIndication
+PRSBWAggregationRequestInfoList            N nrppa.extension id-PRSBWAggregationRequestInfoList
 AggregatedPosSRSResourceID-List            N nrppa.extension id-AggregatedPosSRSResourceID-List
 AggregatedPRSResourceSetList               N nrppa.extension id-AggregatedPRSResourceSetList
 ValidityAreaSpecificSRSInformation         N nrppa.extension id-ValidityAreaSpecificSRSInformation
@@ -430,6 +444,10 @@ PointA                                     N nrppa.extension id-PointA
 NR-PCI                                     N nrppa.extension id-NR-PCI
 SCS-SpecificCarrier                        N nrppa.extension id-SCS-SpecificCarrier
 MeasBasedOnAggregatedResources             N nrppa.extension id-MeasBasedOnAggregatedResources
+UEReportingInterval-milliseconds           N nrppa.extension id-UEReportingInterval-milliseconds
+DL-reference-signal-UERxTx-TD              N nrppa.extension id-DL-reference-signal-UERxTx-TD
+SRSPosPeriodicConfigHyperSFNIndex          N nrppa.extension id-SRSPosPeriodicConfigHyperSFNIndex
+ValidityAreaSpecificSRSInformationExtended N nrppa.extension id-ValidityAreaSpecificSRSInformationExtended
 
 
 #LPPA-ELEMENTARY-PROCEDURE

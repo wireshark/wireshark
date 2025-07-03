@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V18.2.0 (2024-06)
+-- 3GPP TS 38.455 V18.6.0 (2025-06)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -110,13 +110,14 @@ maxnoElevationAngles						INTEGER ::= 1801
 maxnoPRSTRPs								INTEGER ::= 256
 maxnoVACell									INTEGER ::= 32
 maxnoaggregatedPosSRS-Resources				INTEGER ::= 3
-maxnoaggregatedPosSRS-ResourceSets			INTEGER ::= 48
+maxnoaggregatedPosSRS-ResourceSets			INTEGER ::= 3
 maxnoAggPosPRSResourceSets					INTEGER ::= 3
 maxnoofTimeWindowSRS						INTEGER ::= 16
 maxnoofTimeWindowMeas						INTEGER ::= 16
 maxnoPreconfiguredSRS						INTEGER ::= 16
 maxnoofHopsMinusOne							INTEGER ::= 5
 maxnoAggCombinations						INTEGER ::= 2
+maxnoAggregatedPosSRSCombinations			INTEGER ::= 32
 
 
 
@@ -255,7 +256,7 @@ id-UL-RSCPMeas													ProtocolIE-ID ::= 126
 id-SymbolIndex													ProtocolIE-ID ::= 127
 id-PosValidityAreaCellList 										ProtocolIE-ID ::= 128
 id-SRSReservationType											ProtocolIE-ID ::= 129
-id-PRSBWAggregationRequestIndication							ProtocolIE-ID ::= 130
+id-PRSBWAggregationRequestInfoList								ProtocolIE-ID ::= 130
 id-AggregatedPosSRSResourceID-List								ProtocolIE-ID ::= 131
 id-AggregatedPRSResourceSetList									ProtocolIE-ID ::= 132
 id-TRPPhaseQuality												ProtocolIE-ID ::= 133
@@ -283,9 +284,15 @@ id-PointA														ProtocolIE-ID ::= 154
 id-NR-PCI														ProtocolIE-ID ::= 155
 id-SCS-SpecificCarrier											ProtocolIE-ID ::= 156
 id-MeasBasedOnAggregatedResources								ProtocolIE-ID ::= 157
-
-
-
+id-UEReportingInterval-milliseconds								ProtocolIE-ID ::= 158
+id-Remote-UE-Indication-Request									ProtocolIE-ID ::= 159
+id-Remote-UE-Indication											ProtocolIE-ID ::= 160
+id-Remote-UE-Status												ProtocolIE-ID ::= 161
+id-LocalOrigin													ProtocolIE-ID ::= 162
+id-PreconfiguredSRSInformation									ProtocolIE-ID ::= 163
+id-DL-reference-signal-UERxTx-TD								ProtocolIE-ID ::= 164
+id-SRSPosPeriodicConfigHyperSFNIndex							ProtocolIE-ID ::= 165
+id-ValidityAreaSpecificSRSInformationExtended					ProtocolIE-ID ::= 166
 
 
 
