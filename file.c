@@ -604,6 +604,10 @@ cf_read(capture_file *cf, bool reloading)
         cksum = g_checksum_new(G_CHECKSUM_SHA256);
     }
 
+    /* Find how many DSBs we had at the start of the file, before the
+     * first packet. */
+    unsigned num_dsbs = wtap_file_get_num_dsbs(cf->provider.wth);
+
     g_timer_start(prog_timer);
 
     wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
@@ -693,6 +697,17 @@ cf_read(capture_file *cf, bool reloading)
 #endif
     }
     ENDTRY;
+
+    /* Did we encounter any DSBs in the middle of the file? */
+    if (wtap_file_get_num_dsbs(cf->provider.wth) != num_dsbs) {
+        /* Yes, so we have unsaved changes (saving the file will move
+         * the DSBs to the start.) */
+        cf->unsaved_changes = true;
+        /* As a DSB in the middle of the file could be after the
+         * relevant packets, so queue a redissection. */
+        /* XXX - Add a pref, either advanced or under Protocols? */
+        cf->redissection_queued = RESCAN_REDISSECT;
+    }
 
     // If we're ignoring duplicate frames, clear the data structures.
     // We really could look at prefs.ignore_dup_frames here, but it's even
@@ -864,6 +879,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
 
     epan_dissect_init(&edt, cf->epan, create_proto_tree, false);
 
+    /* Find how many DSBs we have before reading new packets. */
+    unsigned num_dsbs = wtap_file_get_num_dsbs(cf->provider.wth);
+
     TRY {
         int64_t data_offset = 0;
         column_info *cinfo;
@@ -906,6 +924,15 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
 #endif
     }
     ENDTRY;
+
+    /* Did we encounter any DSBs in the middle of the packets? */
+    if (wtap_file_get_num_dsbs(cf->provider.wth) != num_dsbs) {
+        /* Yes, so we have unsaved changes (saving the file will move
+         * the DSBs to the start.) */
+        cf->unsaved_changes = true;
+
+        /* XXX - Should we queue a redissection here? */
+    }
 
     /* Update the file encapsulation; it might have changed based on the
        packets we've read. */
@@ -994,6 +1021,9 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, int *err,
 
     epan_dissect_init(&edt, cf->epan, create_proto_tree, false);
 
+    /* Find how many DSBs we have before reading new packets. */
+    unsigned num_dsbs = wtap_file_get_num_dsbs(cf->provider.wth);
+
     wtap_cleareof(cf->provider.wth);
     while ((wtap_read(cf->provider.wth, rec, err, &err_info, &data_offset))) {
         if (cf->state == FILE_READ_ABORTED) {
@@ -1033,6 +1063,15 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, int *err,
     /* Allow the protocol dissectors to free up memory that they
      * don't need after the sequential run-through of the packets. */
     postseq_cleanup_all_protocols();
+
+    /* Did we encounter any DSBs in the middle of the packets? */
+    if (wtap_file_get_num_dsbs(cf->provider.wth) != num_dsbs) {
+        /* Yes, so we have unsaved changes (saving the file will move
+         * the DSBs to the start.) */
+        cf->unsaved_changes = true;
+
+        /* XXX - Should we queue a redissection here? */
+    }
 
     /* Update the file encapsulation; it might have changed based on the
        packets we've read. */
