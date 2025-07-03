@@ -70,6 +70,9 @@ static int hf_wlan_radio_11ac_nss;
 static int hf_wlan_radio_11ac_fec;
 static int hf_wlan_radio_11ac_gid;
 static int hf_wlan_radio_11ac_p_aid;
+static int hf_wlan_radio_11ax_mcs;
+static int hf_wlan_radio_11ax_bandwidth;
+static int hf_wlan_radio_11ax_short_gi;
 static int hf_wlan_radio_data_rate;
 static int hf_wlan_radio_channel;
 static int hf_wlan_radio_frequency;
@@ -1158,6 +1161,19 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             have_data_rate = true;
           }
         }
+        if (info_ax->has_gi) {
+          proto_tree_add_boolean(radio_tree, hf_wlan_radio_11ax_short_gi, tvb, 0, 0, info_ax->gi);
+        }
+
+        if (info_ax->has_bwru) {
+          proto_tree_add_uint(radio_tree, hf_wlan_radio_11ax_bandwidth, tvb, 0, 0, info_ax->bwru);
+          if (info_ax->bwru < G_N_ELEMENTS(ieee80211_vht_bw2rate_index))
+            bandwidth = ieee80211_vht_bw2rate_index[info_ax->bwru];
+        }
+
+        if (info_ax->has_mcs_index) {
+          proto_tree_add_uint(radio_tree, hf_wlan_radio_11ax_mcs, tvb, 0, 0, info_ax->mcs);
+        }
       }
       break;
       case PHDR_802_11_PHY_11BE:
@@ -1805,6 +1821,18 @@ void proto_register_ieee80211_radio(void)
     {&hf_wlan_radio_11ac_p_aid,
      {"Partial AID", "wlan_radio.11ac.paid", FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
+
+    { &hf_wlan_radio_11ax_mcs,
+     {"MCS index", "wlan_radio.11ax.mcs", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Modulation and Coding Scheme index", HFILL } },
+
+    { &hf_wlan_radio_11ax_bandwidth,
+     {"Bandwidth", "wlan_radio.11ax.bandwidth", FT_UINT32, BASE_DEC, VALS(bandwidth_vals), 0,
+      NULL, HFILL } },
+
+    { &hf_wlan_radio_11ax_short_gi,
+     {"Short GI", "wlan_radio.11ax.short_gi", FT_BOOLEAN, BASE_NONE, NULL, 0,
+      NULL, HFILL } },
 
     {&hf_wlan_radio_11be_user,
      {"User", "wlan_radio.11be.user", FT_NONE, BASE_NONE, NULL, 0x0,
