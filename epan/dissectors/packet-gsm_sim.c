@@ -34,7 +34,10 @@ static int hf_apdu_cla_log_chan_ext;
 static int hf_apdu_ins;
 static int hf_apdu_p1;
 static int hf_apdu_p2;
-static int hf_apdu_p3;
+static int hf_apdu_lc;
+static int hf_apdu_lc_ext;
+static int hf_apdu_le;
+static int hf_apdu_le_ext;
 static int hf_apdu_data;
 static int hf_apdu_sw;
 
@@ -70,8 +73,6 @@ static int hf_auth_gsm_kc_len;
 static int hf_auth_gsm_kc;
 static int hf_chan_op;
 static int hf_chan_nr;
-static int hf_le;
-static int hf_lc;
 
 static int hf_suspend_uicc_op;
 static int hf_suspend_uicc_min_time_unit;
@@ -892,28 +893,33 @@ static const value_string suspend_time_unit_vals[] = {
 };
 
 static const value_string apdu_le_vals[] = {
-	{ 0x00,	"Any number in the range 1 to 256" },
+	{ 0x00, "Any number in the range 1 to 256" },
+	{ 0, NULL }
+};
+
+static const value_string apdu_le_vals_ext[] = {
+	{ 0x00, "Any number in the range 1 to 65535" },
 	{ 0, NULL }
 };
 
 static const value_string apdu_cla_coding_vals[] = {
-	{ 0x00,	"ISO/IEC 7816-4" },
-	{ 0x08,	"ETSI TS 102.221" },
-	{ 0x0a,	"ISO/IEC 7816-4 unless stated otherwise" },
+	{ 0x00, "ISO/IEC 7816-4" },
+	{ 0x08, "ETSI TS 102.221" },
+	{ 0x0a, "ISO/IEC 7816-4 unless stated otherwise" },
 	{ 0, NULL }
 };
 
 static const value_string apdu_cla_coding_ext_vals[] = {
-	{ 0x01,	"ISO/IEC 7816-4" },
-	{ 0x03,	"ETSI TS 102.221" },
+	{ 0x01, "ISO/IEC 7816-4" },
+	{ 0x03, "ETSI TS 102.221" },
 	{ 0, NULL }
 };
 
 static const value_string apdu_cla_secure_messaging_ind_vals[] = {
-	{ 0x00,	"No SM used between terminal and card" },
-	{ 0x01,	"Proprietary SM format" },
-	{ 0x02,	"Command header not authenticated" },
-	{ 0x03,	"Command header authenticated" },
+	{ 0x00, "No SM used between terminal and card" },
+	{ 0x01, "Proprietary SM format" },
+	{ 0x02, "Command header not authenticated" },
+	{ 0x03, "Command header authenticated" },
 	{ 0, NULL }
 };
 
@@ -1317,7 +1323,7 @@ static const value_string sw_vals[] = {
 	{ 0x9808, "In contradiction with CHV status" },
 	{ 0x9810, "In contradiction with invalidation status" },
 	{ 0x9840, "Unsuccessful CHV verification, no attempt left / CHV blocked" },
-	{ 0x9850, "Increase cannot be performed, max value reached" },
+	{ 0x9850, "Application errors: Increase cannot be performed, max value reached" },
 	{ 0x6b00, "Incorrect parameter P1 or P2" },
 	/* Section 10.2.1.3 of TS 102 221 */
 	{ 0x6200, "Warning: No information given, state of volatile memory unchanged" },
@@ -1362,8 +1368,9 @@ static const value_string sw_vals[] = {
 	{ 0x6a87, "Wrong parameters: Lc inconsistent with P1 to P2" },
 	{ 0x6a88, "Wrong parameters: Referenced data not found" },
 	/* Section 10.2.1.6 of TS 102 221 */
-	{ 0x9862, "Authentication error, application specific" },
-	{ 0x9863, "Security session or association expired" },
+	{ 0x9862, "Application errors: Authentication error, application specific" },
+	{ 0x9863, "Application errors: Security session or association expired" },
+	{ 0x9864, "Application errors: Minimum UICC suspension time is too long" },
 	{ 0, NULL }
 };
 
@@ -1586,13 +1593,34 @@ dissect_auth_response(uint8_t context, tvbuff_t *tvb, proto_tree *tree, int offs
 	return offset;
 }
 
+static void
+dissect_apdu_lc(proto_tree *tree, tvbuff_t *tvb, int offset, bool extended_len)
+{
+	if (extended_len) {
+		proto_tree_add_item(tree, hf_apdu_lc_ext, tvb, offset, 3, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_apdu_lc, tvb, offset, 1, ENC_BIG_ENDIAN);
+	}
+}
+
+static void
+dissect_apdu_le(proto_tree *tree, tvbuff_t *tvb, int offset, bool extended_len, bool first)
+{
+	if (extended_len) {
+		proto_tree_add_item(tree, hf_apdu_le_ext, tvb, offset, first ? 3 : 2, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_apdu_le, tvb, offset, 1, ENC_BIG_ENDIAN);
+	}
+}
+
 static int
-dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
-		 int offset, packet_info *pinfo, proto_tree *tree)
+dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended_len,
+		 tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	uint16_t g16;
 	tvbuff_t *subtvb;
 	int i, start_offset;
+	const int data_offs = DATA_OFFS + (extended_len ? 2 : 0);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(ins, apdu_ins_vals, "%02x"));
@@ -1601,15 +1629,15 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 	case 0xA4: /* SELECT */
 		if (p3 < 2)
 			break;
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
 		switch (p1) {
 		case 0x03:	/* parent DF */
 			col_append_str(pinfo->cinfo, COL_INFO, "Parent DF ");
 			break;
 		case 0x04:	/* select by AID */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Application %s ",
-					tvb_bytes_to_str(pinfo->pool, tvb, offset+DATA_OFFS, p3));
-			proto_tree_add_item(tree, hf_aid, tvb, offset+DATA_OFFS, p3, ENC_NA);
+					tvb_bytes_to_str(pinfo->pool, tvb, offset+data_offs, p3));
+			proto_tree_add_item(tree, hf_aid, tvb, offset+data_offs, p3, ENC_NA);
 			break;
 
 		case 0x09:	/* select by relative path */
@@ -1617,26 +1645,26 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 			/* fallthrough */
 		case 0x08:	/* select by absolute path */
 			for (i = 0; i < p3; i += 2) {
-				g16 = tvb_get_ntohs(tvb, offset+DATA_OFFS+i);
+				g16 = tvb_get_ntohs(tvb, offset+data_offs+i);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "/%s",
 						val_to_str(g16, mf_dfs, "%04x"));
-				proto_tree_add_item(tree, hf_file_id, tvb, offset+DATA_OFFS+i, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_file_id, tvb, offset+data_offs+i, 2, ENC_BIG_ENDIAN);
 			}
 			col_append_str(pinfo->cinfo, COL_INFO, " ");
 			break;
 		default:
-			g16 = tvb_get_ntohs(tvb, offset+DATA_OFFS);
+			g16 = tvb_get_ntohs(tvb, offset+data_offs);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "File %s ",
 					val_to_str(g16, mf_dfs, "%04x"));
-			proto_tree_add_item(tree, hf_file_id, tvb, offset+DATA_OFFS, p3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_file_id, tvb, offset+data_offs, p3, ENC_BIG_ENDIAN);
 			break;
 		}
-		offset += DATA_OFFS + p3;
+		offset += data_offs + p3;
 		/* FIXME: parse response */
 		break;
 	case 0xF2: /* STATUS */
 		/* FIXME: parse response */
-		offset += DATA_OFFS;
+		offset += data_offs;
 		break;
 	case 0xB0: /* READ BINARY */
 		if (p1 & 0x80) {
@@ -1647,8 +1675,8 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p1 << 8 | p2);
 			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
 		}
-		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
+		dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
+		offset += data_offs;
 		break;
 	case 0xD6: /* UPDATE BINARY */
 		if (p1 & 0x80) {
@@ -1659,35 +1687,34 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Offset=%u ", p1 << 8 | p2);
 			proto_tree_add_item(tree, hf_bin_offset, tvb, offset+P1_OFFS, 2, ENC_BIG_ENDIAN);
 		}
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
-		offset += DATA_OFFS + p3;
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
+		offset += data_offs + p3;
 		break;
 	case 0xB2: /* READ RECORD */
 		col_append_fstr(pinfo->cinfo, COL_INFO, "RecordNr=%u ", p1);
 		proto_tree_add_item(tree, hf_record_nr, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
+		dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
+		offset += data_offs;
 		break;
 	case 0xDC: /* UPDATE RECORD */
 		col_append_fstr(pinfo->cinfo, COL_INFO, "RecordNr=%u ", p1);
 		proto_tree_add_item(tree, hf_record_nr, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+DATA_OFFS, p3, ENC_NA);
-		offset += DATA_OFFS + p3;
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
+		offset += data_offs + p3;
 		break;
 	case 0xA2: /* SEARCH RECORD */
 		proto_tree_add_item(tree, hf_seek_mode, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_seek_type, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
-		offset += p3;
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
+		offset += data_offs + p3;
 		if ((p2 & 0xF0) == 0x20)
 			proto_tree_add_item(tree, hf_seek_rec_nr, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		break;
 	case 0x32: /* INCREASE */
-		offset += DATA_OFFS;
+		offset += data_offs;
 		break;
 	case 0x20: /* VERIFY CHV */
 	case 0x24: /* CHANGE CHV */
@@ -1695,7 +1722,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 	case 0x28: /* ENABLE CHV */
 	case 0x2C: /* UNBLOCK CHV */
 		col_append_fstr(pinfo->cinfo, COL_INFO, "CHV=%u ", p2);
-		offset += DATA_OFFS;
+		offset += data_offs;
 		/* FIXME: actual PIN/PUK code */
 		break;
 	case 0x88: /* RUN GSM ALGORITHM / AUTHENTICATE */
@@ -1704,8 +1731,8 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 			proto_tree_add_item(tree, hf_auth_rfu, tvb, offset+P2_OFFS, 1, ENC_NA);
 			proto_tree_add_item(tree, hf_auth_context, tvb, offset+P2_OFFS, 1, ENC_NA);
 		}
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		offset += data_offs;
 
 		if (p2 == 0) {
 			/* GSM ALGORITHM */
@@ -1717,8 +1744,8 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		}
 		break;
 	case 0x10: /* TERMINAL PROFILE */
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		offset += data_offs;
 		start_offset = offset;
 		ADD_TP_BYTE(1);
 		ADD_TP_BYTE(2);
@@ -1764,14 +1791,14 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		}
 		break;
 	case 0x12: /* FETCH */
-		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
+		dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
+		offset += data_offs;
 		break;
 	case 0x14: /* TERMINAL RESPONSE */
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
 		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(0x14));
-		offset += DATA_OFFS + p3;
+		offset += data_offs + p3;
 		break;
 	case 0x70: /* MANAGE CHANNEL */
 		proto_tree_add_item(tree, hf_chan_op, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
@@ -1779,7 +1806,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 				val_to_str(p1, chan_op_vals, "%02x"));
 		proto_tree_add_item(tree, hf_chan_nr, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		if (p1 == 0) { /* OPEN */
-			proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
+			dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
 		}
 		if (p1 == 0 && p2 == 0) {
 			/* Logical channels are assigned by the card when P2 is 0. */
@@ -1787,37 +1814,37 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
 		} else {
 			col_append_fstr(pinfo->cinfo, COL_INFO, "(channel: %d) ", p2);
 		}
-		offset += DATA_OFFS;
+		offset += data_offs;
 		break;
 	case 0x78: /* GET IDENTITY */
 	case 0xC0: /* GET RESPONSE */
 	case 0xCA: /* GET DATA */
-		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		offset += DATA_OFFS;
+		dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
+		offset += data_offs;
 		break;
 	case 0xC2: /* ENVELOPE */
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
-		subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
 		dissect_bertlv(subtvb, pinfo, tree, NULL);
-		offset += DATA_OFFS + p3;
+		offset += data_offs + p3;
 		break;
 	case 0x76: /* SUSPEND UICC */
 		proto_tree_add_item(tree, hf_suspend_uicc_op, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_lc, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
 		if ((p1 & 0x01) == 0x00) {
 			/* Suspend the UICC */
 			col_append_str(pinfo->cinfo, COL_INFO, "(suspend) ");
-			proto_tree_add_item(tree, hf_suspend_uicc_min_time_unit, tvb, offset+DATA_OFFS, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_suspend_uicc_min_time_length, tvb, offset+DATA_OFFS+1, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_suspend_uicc_max_time_unit, tvb, offset+DATA_OFFS+2, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_suspend_uicc_max_time_length, tvb, offset+DATA_OFFS+3, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_le, tvb, offset+DATA_OFFS+4, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_min_time_unit, tvb, offset+data_offs, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_min_time_length, tvb, offset+data_offs+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_max_time_unit, tvb, offset+data_offs+2, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_suspend_uicc_max_time_length, tvb, offset+data_offs+3, 1, ENC_BIG_ENDIAN);
+			dissect_apdu_le(tree, tvb, offset+data_offs+4, extended_len, false);
 		} else {
 			/* Resume the UICC */
 			col_append_str(pinfo->cinfo, COL_INFO, "(resume) ");
-			proto_tree_add_item(tree, hf_suspend_uicc_resume_token, tvb, offset+DATA_OFFS, p3, ENC_NA);
+			proto_tree_add_item(tree, hf_suspend_uicc_resume_token, tvb, offset+data_offs, p3, ENC_NA);
 		}
-		offset += DATA_OFFS;
+		offset += data_offs;
 		break;
 	/* FIXME: Missing SLEEP */
 	case 0x04: /* INVALIDATE */
@@ -1835,20 +1862,22 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	uint16_t sw;
 	proto_item *ti = NULL;
 	unsigned tvb_len = tvb_reported_length(tvb);
-	gsm_sim_transaction_t *gsm_sim_trans;
+	gsm_sim_transaction_t *gsm_sim_trans = NULL;
 	uint8_t ins = 0x00;
 	uint8_t p2 = 0x00;
 	bool response_only = true;
 
-	/* Receive the largest key that is less than or equal to our frame number */
-	gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_le(transactions, pinfo->num);
-	if (!PINFO_FD_VISITED(pinfo) && gsm_sim_trans && gsm_sim_trans->rsp_frame == 0) {
-		gsm_sim_trans->rsp_frame = pinfo->num;
-	}
+	/* Structure of response APDU: [Data] SW1 SW2 */
 
-	if (tree && !sim_tree) {
+	if (!sim_tree) {
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
 		sim_tree = proto_item_add_subtree(ti, ett_sim);
+
+		/* Receive the largest key that is less than or equal to our frame number */
+		gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_le(transactions, pinfo->num);
+		if (!PINFO_FD_VISITED(pinfo) && gsm_sim_trans && gsm_sim_trans->rsp_frame == 0) {
+			gsm_sim_trans->rsp_frame = pinfo->num;
+		}
 	}
 
 	if ((tvb_len-offset) > 2) {
@@ -1918,7 +1947,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		}
 	}
 
-	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num && gsm_sim_trans->cmd_frame != gsm_sim_trans->rsp_frame) {
+	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
 		nstime_t ns;
 
 		ti = proto_tree_add_uint(sim_tree, hf_response_to, NULL, 0, 0, gsm_sim_trans->cmd_frame);
@@ -1935,16 +1964,42 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 static int
 dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool isSIMtrace)
 {
-	uint8_t cla, ins, p1, p2, p3;
+	uint8_t cla, ins, p1, p2;
+	uint16_t p3;
+	bool p3_present;
+	bool extended_len = false;
 	proto_item *ti;
-	proto_tree *sim_tree = NULL;
+	proto_tree *sim_tree;
 	int rc = -1;
 	gsm_sim_transaction_t *gsm_sim_trans;
+
+	/* Structure of command APDU: CLA INS P1 P2 [Lc] [Data] [Le]
+	 *
+	 * Case 1: CLA INS P1 P2
+	 * Case 2: CLA INS P1 P2 Le
+	 * Case 3: CLA INS P1 P2 Lc Data
+	 * Case 4: CLA INS P1 P2 Lc Data Le
+	 */
 
 	cla = tvb_get_uint8(tvb, offset);
 	ins = tvb_get_uint8(tvb, offset+1);
 	p1 = tvb_get_uint8(tvb, offset+2);
 	p2 = tvb_get_uint8(tvb, offset+3);
+
+	if (tvb_reported_length_remaining(tvb, offset+4) >= 1) {
+		p3 = tvb_get_uint8(tvb, offset+4);
+		p3_present = true;
+
+		if (p3 == 0 && tvb_reported_length_remaining(tvb, offset+5) >= 2) {
+			/* Extended length */
+			p3 = tvb_get_uint16(tvb, offset+5, ENC_BIG_ENDIAN);
+			extended_len = true;
+		}
+	} else {
+		/* Parameter 3 not present. */
+		p3 = 0;
+		p3_present = false;
+	}
 
 	if (PINFO_FD_VISITED(pinfo)) {
 		gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32(transactions, pinfo->num);
@@ -1960,28 +2015,19 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		wmem_tree_insert32(transactions, pinfo->num, gsm_sim_trans);
 	}
 
-	if (tvb_reported_length_remaining(tvb, offset+3) > 1) {
-		p3 = tvb_get_uint8(tvb, offset+4);
+	ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
+	sim_tree = proto_item_add_subtree(ti, ett_sim);
+
+	if ((cla & 0x50) == 0x40) {
+		proto_tree_add_item(sim_tree, hf_apdu_cla_coding_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
 	} else {
-		/* Parameter 3 not present. */
-		p3 = 0;
+		proto_tree_add_item(sim_tree, hf_apdu_cla_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
-
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
-		sim_tree = proto_item_add_subtree(ti, ett_sim);
-
-		if ((cla & 0x50) == 0x40) {
-			proto_tree_add_item(sim_tree, hf_apdu_cla_coding_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-		} else {
-			proto_tree_add_item(sim_tree, hf_apdu_cla_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan, tvb, offset, 1, ENC_BIG_ENDIAN);
-		}
-		proto_tree_add_item(sim_tree, hf_apdu_ins, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_item(sim_tree, hf_apdu_ins, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	if ((cla & 0x50) == 0x40) {
@@ -1992,24 +2038,30 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				val_to_str(cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
-	rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree);
+	rc = dissect_gsm_apdu(ins, p1, p2, p3, extended_len, tvb, offset, pinfo, sim_tree);
 
-	if (rc == -1 && sim_tree) {
+	if (rc == -1) {
 		/* default dissector */
 		proto_tree_add_item(sim_tree, hf_apdu_p1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(sim_tree, hf_apdu_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		if (tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;
-		}
-		if (p3 && (p3 <= tvb_reported_length_remaining(tvb, offset))) {
-			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
-			offset += p3;
-			if (!isSIMtrace && tvb_reported_length_remaining(tvb, offset)) {
-				proto_tree_add_item(sim_tree, hf_le, tvb, offset, 1, ENC_NA);
-				offset += 1;
+		if (p3_present) {
+			if (tvb_reported_length_remaining(tvb, offset) <= (extended_len ? 3 : 1)) {
+				/* Case 2 / 2E */
+				dissect_apdu_le(sim_tree, tvb, offset, extended_len, true);
+				offset += (extended_len ? 3 : 1);
+			} else {
+				/* Case 3 / 3E */
+				dissect_apdu_lc(sim_tree, tvb, offset, extended_len);
+				offset += (extended_len ? 3 : 1);
+				proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
+				offset += p3;
+				if (!isSIMtrace && tvb_reported_length_remaining(tvb, offset)) {
+					/* Case 4 / 4E */
+					dissect_apdu_le(sim_tree, tvb, offset, extended_len, false);
+					offset += (extended_len ? 2 : 1);
+				}
 			}
 		}
 	} else {
@@ -2021,11 +2073,10 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		 * the response. The response consists of response data followed by the
 		 * 2 octet status word.
 		 */
-		offset = dissect_rsp_apdu_tvb(tvb, offset, pinfo, tree, sim_tree);
+		return dissect_rsp_apdu_tvb(tvb, offset, pinfo, tree, sim_tree);
 	}
 
-	if (gsm_sim_trans && gsm_sim_trans->cmd_frame == pinfo->num && gsm_sim_trans->rsp_frame != 0 &&
-		gsm_sim_trans->cmd_frame != gsm_sim_trans->rsp_frame) {
+	if (gsm_sim_trans && gsm_sim_trans->cmd_frame == pinfo->num && gsm_sim_trans->rsp_frame != 0) {
 		ti = proto_tree_add_uint(sim_tree, hf_response_in, NULL, 0, 0, gsm_sim_trans->rsp_frame);
 		proto_item_set_generated(ti);
 	}
@@ -2116,11 +2167,6 @@ proto_register_gsm_sim(void)
 			{ "Parameter 2", "gsm_sim.apdu.p2",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  "ISO 7816-4 APDU P2 (Parameter 2) Byte", HFILL }
-		},
-		{ &hf_apdu_p3,
-			{ "Length (Parameter 3)", "gsm_sim.apdu.p3",
-			  FT_UINT8, BASE_HEX, NULL, 0,
-			  "ISO 7816-4 APDU P3 (Parameter 3) Byte", HFILL }
 		},
 		{ &hf_apdu_data,
 			{ "APDU Payload", "gsm_sim.apdu.data",
@@ -2287,16 +2333,25 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "ISO 7816-4 Logical Channel Number", HFILL }
 		},
-		{ &hf_le,
-			// XXX - Should the abbrev be gsm_sim.apdu.le ?
-			{ "Length of Expected Response Data", "gsm_sim.le",
+		{ &hf_apdu_le,
+			{ "Maximum Length of Expected Response", "gsm_sim.apdu.le",
 			  FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(apdu_le_vals), 0,
-			  NULL, HFILL }
+			  "ISO 7816-4 APDU Le Byte", HFILL }
 		},
-		{ &hf_lc,
-			{ "Length of the subsequent data field", "gsm_sim.lc",
+		{ &hf_apdu_le_ext,
+			{ "Maximum Length of Expected Response", "gsm_sim.apdu.le",
+			  FT_UINT24, BASE_DEC|BASE_SPECIAL_VALS, VALS(apdu_le_vals_ext), 0,
+			  "ISO 7816-4 APDU Le Bytes - Extended", HFILL }
+		},
+		{ &hf_apdu_lc,
+			{ "Length of Command", "gsm_sim.apdu.lc",
 			  FT_UINT8, BASE_DEC, NULL, 0,
-			  NULL, HFILL }
+			  "ISO 7816-4 APDU Lc Byte", HFILL }
+		},
+		{ &hf_apdu_lc_ext,
+			{ "Length of Command", "gsm_sim.apdu.lc",
+			  FT_UINT24, BASE_DEC, NULL, 0,
+			  "ISO 7816-4 APDU Lc Bytes - Extended", HFILL }
 		},
 		{ &hf_chan_op,
 			{ "Channel Operation", "gsm_sim.chan_op",
