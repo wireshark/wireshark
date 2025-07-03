@@ -25,6 +25,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <jtckdint.h>
+
 #include <wsutil/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <wsutil/strtoi.h>
@@ -41,6 +43,8 @@
 #include "pcap-encap.h"
 #include "pcapng_module.h"
 #include "secrets-types.h"
+
+#define NS_PER_S 1000000000U
 
 static bool
 pcapng_read(wtap *wth, wtap_rec *rec, int *err,
@@ -202,6 +206,7 @@ typedef struct interface_info_s {
     int tsprecision;
     int64_t tsoffset;
     int fcslen;
+    uint8_t tsresol_binary;
 } interface_info_t;
 
 typedef struct {
@@ -1584,7 +1589,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, uint32_t block_type _U_,
              * than their hands, and it applies to more files than
              * pcapng files, e.g. ERF files.)
              */
-            if (time_units_per_second >= 1000000000)
+            if (time_units_per_second >= NS_PER_S)
                 tsprecision = WTAP_TSPREC_NSEC;
             else if (time_units_per_second >= 100000000)
                 tsprecision = WTAP_TSPREC_10_NSEC;
@@ -2169,7 +2174,42 @@ pcapng_read_packet_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
 
     /* Convert it to seconds and nanoseconds. */
     wblock->rec->ts.secs = (time_t)(ts / iface_info.time_units_per_second);
-    wblock->rec->ts.nsecs = (int)(((ts % iface_info.time_units_per_second) * 1000000000) / iface_info.time_units_per_second);
+    /* This can overflow if iface_info.time_units_per_seconds > (2^64 - 1) / 10^9;
+     * log10((2^64 - 1) / 10^9) ~ 10.266 and log2((2^64 - 1) / 10^9) ~ 32.103,
+     * so that's if the power of 10 exponent is greater than 10 or the power of 2
+     * exponent is greater than 32.
+     *
+     * We could test for and use 128 bit integers and platforms and compilers
+     * that have it (C23, and gcc, clang, and ICC on most 64-bit platforms).
+     * For C23, if we include <limits.h> and BITINT_MAXWIDTH is defined to be
+     * at least 128 (or even just 96) we could use unsigned _BitInt(128).
+     * If __SIZEOF_INT128__ is defined we can use unsigned __int128. Some
+     * testing (including with godbolt.org) suggests it's faster to check
+     * overflow and handle our two special cases.
+     */
+    uint64_t ts_frac = ts % iface_info.time_units_per_second;
+    uint64_t ts_ns;
+    if (ckd_mul(&ts_ns, ts_frac, NS_PER_S)) {
+        /* We have 10^N where N > 10 or 2^N where N > 32. */
+        if (!iface_info.tsresol_binary) {
+            /* 10^N where N > 10, so this divides evenly. */
+            ws_assert(iface_info.time_units_per_second > NS_PER_S);
+            wblock->rec->ts.nsecs = (int)(ts_frac / (iface_info.time_units_per_second / NS_PER_S));
+        } else {
+            /* Multiplying a 64 bit integer by a 32 bit integer, then dividing
+             * by 2^N, where N > 32. */
+            uint64_t ts_frac_low = (ts_frac & 0xFFFFFFFF) * NS_PER_S;
+            uint64_t ts_frac_high = (ts_frac >> 32) * NS_PER_S;
+            // Add the carry.
+            ts_frac_high += ts_frac_low >> 32;
+            //ts_frac_low &= 0xFFFFFFFF;
+            ws_assert(iface_info.tsresol_binary > 32);
+            uint8_t high_shift = iface_info.tsresol_binary - 32;
+            wblock->rec->ts.nsecs = (int)(ts_frac_high >> high_shift);
+        }
+    } else {
+        wblock->rec->ts.nsecs = (int)(ts_ns / iface_info.time_units_per_second);
+    }
 
     /* Add the time stamp offset. */
     wblock->rec->ts.secs = (time_t)(wblock->rec->ts.secs + iface_info.tsoffset);
@@ -3312,6 +3352,19 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
         iface_info.tsoffset = 0;
     }
 
+    /*
+     * Did we get a time stamp precision option?
+     */
+    iface_info.tsresol_binary = 0;
+    uint8_t if_tsresol;
+    if (wtap_block_get_uint8_option_value(wblock->block, OPT_IDB_TSRESOL,
+                                          &if_tsresol) == WTAP_OPTTYPE_SUCCESS) {
+        /* Is the timestamp resolution a power of two? */
+        if (if_tsresol & 0x80) {
+            /* Note that 0x80 and 0x80 mean the same thing, as 2^-0 == 10^-0 */
+            iface_info.tsresol_binary = if_tsresol & 0x7F;
+        }
+    }
     g_array_append_val(section_info->interfaces, iface_info);
 
     wtap_block_unref(wblock->block);
@@ -5065,7 +5118,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     /* write block fixed content */
     /* Calculate the time stamp as a 64-bit integer. */
     ts = ((uint64_t)rec->ts.secs) * int_data_mand->time_units_per_second +
-        (((uint64_t)rec->ts.nsecs) * int_data_mand->time_units_per_second) / 1000000000;
+        (((uint64_t)rec->ts.nsecs) * int_data_mand->time_units_per_second) / NS_PER_S;
     /*
      * Split the 64-bit timestamp into two 32-bit pieces, using
      * the time stamp resolution for the interface.
