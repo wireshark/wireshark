@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V18.4.0 (2024-12)
+-- 3GPP TS 36.331 V18.6.0 (2025-06)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -13213,9 +13213,14 @@ UE-EUTRA-Capability-v14x0-IEs ::= SEQUENCE {
 }
 
 UE-EUTRA-Capability-v15x0-IEs ::= SEQUENCE {
-	-- Following field is only to be used for late REL-15 extensions
-	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING UE-EUTRA-Capability-v15o0-IEs)							OPTIONAL,
 	nonCriticalExtension				UE-EUTRA-Capability-v16c0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v15o0-IEs ::= SEQUENCE {
+	measParameters-v15o0				MeasParameters-v15o0,
+	-- Following field is only to be used for late REL-15 extensions
+	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
 UE-EUTRA-Capability-v16c0-IEs ::= SEQUENCE {
@@ -15050,8 +15055,12 @@ MeasParameters-v1530 ::=			SEQUENCE {
 	multipleCellsMeasExtension-r15			ENUMERATED {supported}			OPTIONAL
 }
 
+MeasParameters-v15o0 ::=			SEQUENCE {
+	a4-a5-ReportOnLeaveSupport-r15			ENUMERATED {supported}			OPTIONAL
+}
+
 MeasParameters-v1610 ::=		SEQUENCE {
-	bandInfoNR-v1610					SEQUENCE (SIZE (1..maxBands)) OF MeasGapInfoNR-r16	OPTIONAL,
+	bandInfoNR-r16						SEQUENCE (SIZE (1..maxBands)) OF MeasGapInfoNR-r16	OPTIONAL,
 	altFreqPriority-r16					ENUMERATED {supported}							OPTIONAL,
 	ce-DL-ChannelQualityReporting-r16	ENUMERATED {supported}							OPTIONAL,
 	ce-MeasRSS-Dedicated-r16			ENUMERATED {supported}							OPTIONAL,
