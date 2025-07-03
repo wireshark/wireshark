@@ -95,7 +95,7 @@ static unsigned extended_type, arq_fb_payload, seq_number;
 
 static unsigned cid_adjust[MAX_CID];  /* Must not start with 0 */
 static unsigned cid_vernier[MAX_CID];
-static unsigned cid_adj_array_size;
+static size_t cid_adj_array_size;
 static unsigned *cid_adj_array;
 static uint8_t *frag_num_array;
 
@@ -1022,14 +1022,18 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 					break;
 				}
 			}
+			if (i == MAX_CID)
+			{
+				REPORT_DISSECTOR_BUG("WiMAX dissector only supports up to %u CIDs", MAX_CID);
+			}
 			cid_index = i;
-			while (pinfo->num > cid_adj_array_size)
+			while (pinfo->num >= cid_adj_array_size)
 			{
 				cid_adj_array_size += 1024;
-				cid_adj_array = (unsigned *)g_realloc(cid_adj_array, (int)sizeof(unsigned) * cid_adj_array_size);
-				frag_num_array = (uint8_t *)g_realloc(frag_num_array, (int)sizeof(uint8_t) * cid_adj_array_size);
+				cid_adj_array = (unsigned *)g_realloc(cid_adj_array, sizeof(unsigned) * cid_adj_array_size);
+				frag_num_array = (uint8_t *)g_realloc(frag_num_array, sizeof(uint8_t) * cid_adj_array_size);
 				/* Clear the added memory */
-				memset(&cid_adj_array[cid_adj_array_size - 1024], 0, (int)sizeof(unsigned) * 1024);
+				memset(&cid_adj_array[cid_adj_array_size - 1024], 0, sizeof(unsigned) * 1024U);
 			}
 			if (first_gmh)
 			{
