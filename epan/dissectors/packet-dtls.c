@@ -348,7 +348,8 @@ static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, uint32_t offset,
                                    uint32_t record_length, bool maybe_encrypted,
                                    SslSession *session, int is_from_server,
-                                   SslDecryptSession *conv_data, uint8_t content_type);
+                                   SslDecryptSession *conv_data, uint8_t content_type,
+                                   uint16_t epoch);
 
 /* heartbeat message dissector */
 static void dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
@@ -1083,11 +1084,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                                tvb_reported_length(decrypted), false, session, is_from_server,
-                               ssl, content_type);
+                               ssl, content_type, epoch);
       } else {
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
                                record_length, true, session, is_from_server, ssl,
-                               content_type);
+                               content_type, epoch);
       }
       break;
     }
@@ -1664,7 +1665,7 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
     case SSL_ID_HANDSHAKE:
       dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                              tvb_reported_length(decrypted), false, session, is_from_server,
-                             ssl, record->type);
+                             ssl, record->type, 0);
       break;
     case SSL_ID_ALERT:
       dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
@@ -1792,7 +1793,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, uint32_t offset,
                        uint32_t record_length, bool maybe_encrypted,
                        SslSession *session, int is_from_server,
-                       SslDecryptSession* ssl, uint8_t content_type)
+                       SslDecryptSession* ssl, uint8_t content_type,
+                       uint16_t epoch)
 {
   /*     struct {
    *         HandshakeType msg_type;
@@ -1822,7 +1824,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   uint8_t      msg_type;
   uint32_t     length;
   uint16_t     version;
-  uint16_t     message_seq;
+  uint32_t     message_seq;
   uint32_t     fragment_offset;
   uint32_t     fragment_length;
   bool         first_iteration;
@@ -1902,19 +1904,16 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                             tvb, offset, 1, msg_type);
       offset++;
 
-      length = tvb_get_ntoh24(tvb, offset);
-      length_item = proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
-                                          tvb, offset, 3, length);
+      length_item = proto_tree_add_item_ret_uint(ssl_hand_tree, hf_dtls_handshake_length,
+                                                 tvb, offset, 3, ENC_BIG_ENDIAN, &length);
       offset += 3;
 
-      message_seq = tvb_get_ntohs(tvb,offset);
-      proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
-                            tvb, offset, 2, message_seq);
+      proto_tree_add_item_ret_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
+                                   tvb, offset, 2, ENC_BIG_ENDIAN, &message_seq);
       offset += 2;
 
-      fragment_offset = tvb_get_ntoh24(tvb, offset);
-      proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
-                            tvb, offset, 3, fragment_offset);
+      proto_tree_add_item_ret_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
+                                   tvb, offset, 3, ENC_BIG_ENDIAN, &fragment_offset);
       offset += 3;
 
       fragment_length_item = proto_tree_add_uint(ssl_hand_tree,
@@ -1958,19 +1957,31 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
               /* Don't pass the reassembly code data that doesn't exist */
               tvb_ensure_bytes_exist(tvb, offset, fragment_length);
 
+              /* In DTLS 1.2, the message_seq is reset and the epoch incremented
+               * at each rehandshake (i.e., renegotiation), so concatenate them
+               * for a fragment sequence number. However, in DTLS 1.3 the
+               * message_seq is not reset in a post-handshake message exchange
+               * (so having passed in 0 as the epoch here instead of the real
+               * 64-bit DTLS 1.3 epoch should work unless message_seq has
+               * wrapped around, which is unlikely as it is only incremented
+               * in handshake messages).
+               * https://www.rfc-editor.org/rfc/rfc9147.html#section-5.2-6
+               * https://datatracker.ietf.org/doc/html/rfc6347#section-4.1
+               */
+              uint32_t frag_seq = (epoch << 16) | message_seq;
               frag_msg = fragment_add(&dtls_reassembly_table,
-                                      tvb, offset, pinfo, message_seq, NULL,
+                                      tvb, offset, pinfo, frag_seq, NULL,
                                       fragment_offset, fragment_length, true);
               /*
                * Do we already have a length for this reassembly?
                */
               reassembled_length = fragment_get_tot_len(&dtls_reassembly_table,
-                                                        pinfo, message_seq, NULL);
+                                                        pinfo, frag_seq, NULL);
               if (reassembled_length == 0)
                 {
                   /* No - set it to the length specified by this packet. */
                   fragment_set_tot_len(&dtls_reassembly_table,
-                                       pinfo, message_seq, NULL, length);
+                                       pinfo, frag_seq, NULL, length);
                 }
               else
                 {
