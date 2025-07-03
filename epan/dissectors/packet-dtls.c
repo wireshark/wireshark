@@ -672,37 +672,6 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   return false;
 }
 
-static bool
-dtls_is_null_cipher(unsigned cipher )
-{
-  switch(cipher) {
-  case 0x0000:
-  case 0x0001:
-  case 0x0002:
-  case 0x002c:
-  case 0x002d:
-  case 0x002e:
-  case 0x003b:
-  case 0x00b0:
-  case 0x00b1:
-  case 0x00b4:
-  case 0x00b5:
-  case 0x00b8:
-  case 0x00b9:
-  case 0xc001:
-  case 0xc006:
-  case 0xc00b:
-  case 0xc010:
-  case 0xc015:
-  case 0xc039:
-  case 0xc03a:
-  case 0xc03b:
-    return true;
-  default:
-    return false;
-  }
-}
-
 static void
 dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_type, uint8_t curr_layer_num_ssl, bool inner_content_type)
 {
@@ -745,8 +714,8 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, SslDecry
 
   /* if we can decrypt and decryption have success
    * add decrypted data to this packet info */
-  if (!ssl || ((ssl->session.version != DTLSV1DOT3_VERSION) && !(ssl->state & SSL_HAVE_SESSION_KEY))) {
-    ssl_debug_printf("decrypt_dtls_record: no session key\n");
+  if (!ssl) {
+    ssl_debug_printf("decrypt_dtls_record: no session\n");
     return false;
   }
   ssl_debug_printf("decrypt_dtls_record: app_data len %d, ssl state %X\n",
@@ -762,7 +731,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, SslDecry
     decoder = ssl->client;
   }
 
-  if (!decoder && !dtls_is_null_cipher(ssl->session.cipher)) {
+  if (!decoder) {
     ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
     return false;
   }
@@ -781,23 +750,13 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, SslDecry
   /* run decryption and add decrypted payload to protocol data, if decryption
    * is successful*/
   dtls_decrypted_data_avail = dtls_decrypted_data.data_len;
-  if (ssl->state & SSL_HAVE_SESSION_KEY || ssl->session.version == DTLSV1DOT3_VERSION) {
-    if (!decoder) {
-      ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
-      return false;
-    }
-    success = ssl_decrypt_record(ssl, decoder, content_type, record_version, false,
-                           tvb_get_ptr(tvb, offset, record_length), record_length, cid, cid_length,
-                           &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
+  if (!decoder) {
+    ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
+    return false;
   }
-  else if (dtls_is_null_cipher(ssl->session.cipher)) {
-    /* Non-encrypting cipher NULL-XXX */
-    tvb_memcpy(tvb, dtls_decrypted_data.data, offset, record_length);
-    dtls_decrypted_data_avail = dtls_decrypted_data.data_len = record_length;
-    success = true;
-  } else {
-    success = false;
-  }
+  success = ssl_decrypt_record(ssl, decoder, content_type, record_version, false,
+                         tvb_get_ptr(tvb, offset, record_length), record_length, cid, cid_length,
+                         &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0;
 
   if (success) {
     dtls_save_decrypted_record(pinfo, tvb_raw_offset(tvb)+offset, content_type, curr_layer_num_ssl, ssl->session.version == DTLSV1DOT3_VERSION);
