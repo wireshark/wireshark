@@ -65,7 +65,6 @@ extern mate_cfg_gop* new_gopcfg(mate_config* mc, char* name) {
 	mate_cfg_gop* cfg = g_new(mate_cfg_gop, 1);
 
 	cfg->name = name;
-	cfg->last_id = 0;
 
 	cfg->transforms = NULL;
 
@@ -86,9 +85,6 @@ extern mate_cfg_gop* new_gopcfg(mate_config* mc, char* name) {
 	cfg->hfid_gop_num_pdus = -1;
 
 	cfg->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
-
-	cfg->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
-	cfg->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
 
 	g_hash_table_insert(mc->gopcfgs,(void *) cfg->name, (void *) cfg);
 

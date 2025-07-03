@@ -105,7 +105,6 @@ typedef struct _mate_cfg_pdu {
 
 typedef struct _mate_cfg_gop {
 	char* name;
-	unsigned last_id; /* keeps the last id given to an item of this kind */
 
 	GPtrArray* transforms; /* transformations to be applied */
 	const char* on_pdu;
@@ -135,9 +134,6 @@ typedef struct _mate_cfg_gop {
 	int ett_attr;
 	int ett_times;
 	int ett_children;
-
-	GHashTable* gop_index;
-	GHashTable* gog_index;
 } mate_cfg_gop;
 
 
@@ -238,6 +234,11 @@ typedef struct _mate_config_frame {
 	unsigned  linenum;
 } mate_config_frame;
 
+typedef struct _gopcfg_runtime_data {
+	unsigned last_id; /* keeps the last id given to an item of this kind */
+	GHashTable* gop_index;
+	GHashTable* gog_index;
+} gopcfg_runtime_data;
 
 typedef struct _mate_runtime_data {
 	unsigned current_items; /* a count of items */
@@ -249,7 +250,8 @@ typedef struct _mate_runtime_data {
 	GHashTable* gogs; /* set of gogs, for memory management */
 
 	GHashTable* pdu_last_ids; /* k=pducfg, v=last id given to a pdu of this cfg */
-	GHashTable* gog_last_ids; /* k=pducfg, v=last id given to a gog of this cfg */
+	GHashTable* gopcfg_rd;    /* k=gopcfg, v=gopcfg_runtime_data */
+	GHashTable* gog_last_ids; /* k=gogcfg, v=last id given to a gog of this cfg */
 } mate_runtime_data;
 
 typedef struct _mate_pdu mate_pdu;
@@ -280,7 +282,7 @@ struct _mate_pdu {
 
 struct _mate_gop {
 	uint32_t id;
-	mate_cfg_gop* cfg;
+	const mate_cfg_gop* cfg;
 
 	char* gop_key;
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
