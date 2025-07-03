@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.5.1 (2025-03)
+-- 3GPP TS 38.331 V18.6.0 (2025-06)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -932,10 +932,11 @@ RRCReconfiguration-IEs ::=              SEQUENCE {
     radioBearerConfig                       RadioBearerConfig                                                      OPTIONAL, -- Need M
     secondaryCellGroup                      OCTET STRING (CONTAINING CellGroupConfig)                              OPTIONAL, -- Cond SCG
     measConfig                              MeasConfig                                                             OPTIONAL, -- Need M
-    lateNonCriticalExtension                OCTET STRING                                                           OPTIONAL,
+    lateNonCriticalExtension                OCTET STRING (CONTAINING RRCReconfiguration-v15t0-IEs)                 OPTIONAL,
     nonCriticalExtension                    RRCReconfiguration-v1530-IEs                                           OPTIONAL
 }
 
+-- Regular non-critical extensions:
 RRCReconfiguration-v1530-IEs ::=            SEQUENCE {
     masterCellGroup                         OCTET STRING (CONTAINING CellGroupConfig)                              OPTIONAL, -- Need M
     fullConfig                              ENUMERATED {true}                                                      OPTIONAL, -- Cond FullConfig
@@ -1004,6 +1005,18 @@ RRCReconfiguration-v1800-IEs ::=        SEQUENCE {
 RRCReconfiguration-v1830-IEs ::=        SEQUENCE {
     otherConfig-v1830                       OtherConfig-v1830                                                  OPTIONAL, -- Need M
     nonCriticalExtension                    SEQUENCE {}                                                        OPTIONAL
+}
+
+-- Late non-critical Rel-15 extensions:
+RRCReconfiguration-v15t0-IEs ::=        SEQUENCE {
+    -- Following field is only to be used for late REL-15 extensions
+    lateNonCriticalExtension                OCTET STRING                                                       OPTIONAL,
+    nonCriticalExtension                    RRCReconfiguration-v16k0-IEs                                       OPTIONAL
+}
+
+RRCReconfiguration-v16k0-IEs ::=        SEQUENCE {
+    sl-ConfigDedicatedNR-v16k0              CHOICE {release NULL, setup SL-ConfigDedicatedNR-v16k0}                          OPTIONAL, -- Need M
+    nonCriticalExtension                    SEQUENCE{}                                                         OPTIONAL
 }
 
 MRDC-SecondaryCellGroupConfig ::=       SEQUENCE {
@@ -2624,7 +2637,8 @@ IDC-TDM-Assistance-r18 ::=            SEQUENCE {
 AffectedCarrierFreqRangeList-r18 ::=  SEQUENCE (SIZE (1..maxFreqIDC-r16)) OF AffectedCarrierFreqRange-r18
 
 AffectedCarrierFreqRange-r18 ::=      SEQUENCE {
-    affectedFreqRange-r18                 AffectedFreqRange-r18,interferenceDirection-r18      ENUMERATED {nr, other, both, spare},
+    affectedFreqRange-r18                 AffectedFreqRange-r18,
+    interferenceDirection-r18             ENUMERATED {nr, other, both, spare},
     victimSystemType-r18                  VictimSystemType-r16                           OPTIONAL
 }
 
@@ -3900,7 +3914,7 @@ SIB12-r16 ::=                 SEQUENCE {
 
 SIB12-IEs-r16 ::=             SEQUENCE {
     sl-ConfigCommonNR-r16         SL-ConfigCommonNR-r16,
-    lateNonCriticalExtension      OCTET STRING                   OPTIONAL,
+    lateNonCriticalExtension      OCTET STRING (CONTAINING SIB12-IEs-v16k0)                                     OPTIONAL,
     ...,
     [[
     sl-DRX-ConfigCommonGC-BC-r17         SL-DRX-ConfigGC-BC-r17                                                 OPTIONAL,    -- Need R
@@ -3926,6 +3940,12 @@ SIB12-IEs-r16 ::=             SEQUENCE {
     ]]
 }
 
+-- Late non-critical Rel-16 extensions:
+SIB12-IEs-v16k0 ::=            SEQUENCE {
+    sl-ConfigCommonNR-v16k0             SL-ConfigCommonNR-v16k0                                                 OPTIONAL, -- Need R
+    nonCriticalExtension                SEQUENCE{}                                                              OPTIONAL
+}
+
 SL-ConfigCommonNR-r16 ::=        SEQUENCE {
     sl-FreqInfoList-r16                  SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommon-r16      OPTIONAL,    -- Need R
     sl-UE-SelectedConfig-r16             SL-UE-SelectedConfig-r16                                               OPTIONAL,    -- Need R
@@ -3939,6 +3959,10 @@ SL-ConfigCommonNR-r16 ::=        SEQUENCE {
     t400-r16                             ENUMERATED {ms100, ms200, ms300, ms400, ms600, ms1000, ms1500, ms2000} OPTIONAL,    -- Need R
     sl-MaxNumConsecutiveDTX-r16          ENUMERATED {n1, n2, n3, n4, n6, n8, n16, n32}                          OPTIONAL,    -- Need R
     sl-SSB-PriorityNR-r16                INTEGER (1..8)                                                         OPTIONAL     -- Need R
+}
+
+SL-ConfigCommonNR-v16k0 ::=          SEQUENCE {
+    sl-FreqInfoListExt-v16k0             SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommonExt-v16k0 OPTIONAL    -- Need R
 }
 
 SL-NR-AnchorCarrierFreqList-r16 ::=  SEQUENCE (SIZE (1..maxFreqSL-NR-r16)) OF ARFCN-ValueNR
@@ -7894,7 +7918,7 @@ MeasObjectId ::=                    INTEGER (1..maxNrofObjectId)
 -- TAG-MEASOBJECTNR-START
 
 MeasObjectNR ::=                    SEQUENCE {
-    ssbFrequency                        ARFCN-ValueNR                                                   OPTIONAL,   -- Cond SSBorAssociatedSSB
+    ssbFrequency                        ARFCN-ValueNR                                                   OPTIONAL,   -- Cond SSBorAssociatedSSB2
     ssbSubcarrierSpacing                SubcarrierSpacing                                               OPTIONAL,   -- Cond SSBorAssociatedSSB
     smtc1                               SSB-MTC                                                         OPTIONAL,   -- Cond SSBorAssociatedSSB
     smtc2                               SSB-MTC2                                                        OPTIONAL,   -- Cond IntraFreqConnected
@@ -8547,7 +8571,7 @@ MsgA-ConfigCommon-r16 ::=           SEQUENCE {
 MsgA-PUSCH-Config-r16 ::=                      SEQUENCE {
     msgA-PUSCH-ResourceGroupA-r16                  MsgA-PUSCH-Resource-r16                                       OPTIONAL, -- Cond InitialBWPConfig
     msgA-PUSCH-ResourceGroupB-r16                  MsgA-PUSCH-Resource-r16                                       OPTIONAL, -- Cond GroupBConfigured
-    msgA-TransformPrecoder-r16                    ENUMERATED {enabled, disabled}                                 OPTIONAL, -- Need R
+    msgA-TransformPrecoder-r16                    ENUMERATED {enabled, disabled}                                 OPTIONAL, -- Need S
     msgA-DataScramblingIndex-r16                   INTEGER (0..1023)                                             OPTIONAL, -- Need S
     msgA-DeltaPreamble-r16                         INTEGER (-1..6)                                               OPTIONAL  -- Need R
 }
@@ -9741,6 +9765,9 @@ PDSCH-Config ::=                        SEQUENCE {
     [[
     advancedReceiver-MU-MIMO-r18                 CHOICE {release NULL, setup AdvancedReceiver-MU-MIMO-r18 }                  OPTIONAL,   -- Need M
     pdsch-ConfigDCI-1-3-r18                      CHOICE {release NULL, setup PDSCH-ConfigDCI-1-3-r18 }                       OPTIONAL    -- Need M
+    ]],
+    [[
+    pdsch-ConfigDCI-1-3-v1860                    CHOICE {release NULL, setup PDSCH-ConfigDCI-1-3-v1860 }                     OPTIONAL    -- Need M
     ]]
 }
 
@@ -9762,6 +9789,10 @@ PDSCH-ConfigDCI-1-3-r18 ::=                    SEQUENCE {
     resourceAllocationType1GranularityDCI-1-3-r18  ENUMERATED {n2,n4,n8,n16}                                    OPTIONAL,   -- Need S
     numberOfBitsForRV-DCI-1-3-r18                  INTEGER (0..2)                                               OPTIONAL,   -- Need R
     harq-ProcessNumberSizeDCI-1-3-r18              INTEGER (0..5)                                               OPTIONAL    -- Need R
+}
+
+PDSCH-ConfigDCI-1-3-v1860 ::=                  SEQUENCE {
+    enabledDefaultBeamForMultiCellScheduling-r18   ENUMERATED {enabled}
 }
 
 -- TAG-PDSCH-CONFIG-STOP
@@ -11163,7 +11194,10 @@ RACH-ConfigTwoTA-r18 ::=     SEQUENCE {
         l1151                        INTEGER (0..1149)
     },
     msg1-SubcarrierSpacing-r18   SubcarrierSpacing                                                            OPTIONAL,   -- Cond L139
-    ...
+    ...,
+    [[
+    twoTA-restrictedSetConfig-r18    ENUMERATED {unrestrictedSet, restrictedSetTypeA, restrictedSetTypeB}     OPTIONAL  -- Need R
+    ]]
 }
 
 -- TAG-RACH-CONFIGTWOTA-STOP
@@ -14485,6 +14519,8 @@ BandCombinationList-v1830 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandComb
 
 BandCombinationList-v1840 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1840
 
+BandCombinationList-v1860 ::=       SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-v1860
+
 BandCombinationList-UplinkTxSwitch-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-r16
 
 BandCombinationList-UplinkTxSwitch-v1630 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1630
@@ -14526,6 +14562,8 @@ BandCombinationList-UplinkTxSwitch-v1800 ::= SEQUENCE (SIZE (1..maxBandComb)) OF
 BandCombinationList-UplinkTxSwitch-v1830 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1830
 
 BandCombinationList-UplinkTxSwitch-v1840 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1840
+
+BandCombinationList-UplinkTxSwitch-v1860 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombination-UplinkTxSwitch-v1860
 
 BandCombination ::=                 SEQUENCE {
     bandList                            SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParameters,
@@ -14689,6 +14727,10 @@ BandCombination-v1840 ::=          SEQUENCE {
     mrdc-Parameters-v1840               MRDC-Parameters-v1840                                                  OPTIONAL
 }
 
+BandCombination-v1860 ::=          SEQUENCE {
+    ca-ParametersNR-v1860              CA-ParametersNR-v1860                                                   OPTIONAL
+}
+
 BandCombination-UplinkTxSwitch-r16 ::= SEQUENCE {
     bandCombination-r16                 BandCombination,
     bandCombination-v1540               BandCombination-v1540                      OPTIONAL,
@@ -14799,6 +14841,10 @@ BandCombination-UplinkTxSwitch-v1830 ::=     SEQUENCE {
 BandCombination-UplinkTxSwitch-v1840 ::= SEQUENCE {
     bandCombination-v1840                    BandCombination-v1840                                                          OPTIONAL,
     supportedBandPairListNR-v1840            SEQUENCE (SIZE (1..maxULTxSwitchingBandPairs)) OF ULTxSwitchingBandPair-v1840  OPTIONAL
+}
+
+BandCombination-UplinkTxSwitch-v1860 ::= SEQUENCE {
+    bandCombination-v1860                    BandCombination-v1860                                                          OPTIONAL
 }
 
 ULTxSwitchingBandPair-r16 ::=       SEQUENCE {
@@ -15703,8 +15749,7 @@ CA-ParametersNR-v1830 ::= SEQUENCE {
     supportedMaxCellsWithoutGapsL1-Meas-r18               INTEGER (1..24)                              OPTIONAL,
     -- R4 39-3-4: Number of SSB resources for L1-RSRP measurement within a slot
     supportedMaxSSB-WithinSlotL1-Meas-r18                 ENUMERATED {n1,n2,n3,n4,n5,n6,n7,n8,n16,n32,n48,n64}        OPTIONAL,
-    -- R4 39-3-5: Number of SSB resources for L1-RSRP measurement per frequency layer
-    maxSSB-PerFreqLayerL1-Meas-r18                        SEQUENCE {
+    dummy                                                 SEQUENCE {
        supportedMaxSSB-PerFreqLayerWithoutGaps-r18            INTEGER (1..8)                            OPTIONAL,
        supportedMaxSSB-PerFreqLayerWithGaps-r18               INTEGER (1..8)                            OPTIONAL
     }                                                                                                   OPTIONAL,
@@ -15714,6 +15759,14 @@ CA-ParametersNR-v1830 ::= SEQUENCE {
     qcl-MultiCellDCI-1-3-r18                              ENUMERATED {diff, both}                       OPTIONAL,
     -- R1 49-14: Support of BWP switch indication by DCI format 0_3/1_3
     bwp-SwitchingDCI-0-3-And-1-3-r18                      ENUMERATED {supported}                        OPTIONAL
+}
+
+CA-ParametersNR-v1860 ::= SEQUENCE {
+    -- R4 39-3-5: Number of SSB resources for L1-RSRP measurement per frequency layer
+    maxSSB-PerFreqLayerL1-Meas-r18                  SEQUENCE {
+        supportedMaxSSB-PerFreqLayerWithoutGaps-r18     ENUMERATED {n1,n2,n3,n4,n5,n6,n7,n8,n12,n16,n20,n24}  OPTIONAL,
+        supportedMaxSSB-PerFreqLayerWithGaps-r18        INTEGER (1..8)                                  OPTIONAL
+    }                                                                                                   OPTIONAL
 }
 
 CrossCarrierSchedulingSCell-SpCell-r17 ::= SEQUENCE {
@@ -16633,6 +16686,10 @@ FeatureSetDownlink-v15a0 ::= SEQUENCE {
     supportedSRS-Resources              SRS-Resources                                    OPTIONAL
 }
 
+FeatureSetDownlink-v15t0 ::= SEQUENCE {
+    zeroSlotOffsetAperiodicSRS          ENUMERATED {supported}                           OPTIONAL
+}
+
 FeatureSetDownlink-v1610 ::=   SEQUENCE {
     -- R1 22-4e/4f/4g/4h: CBG based reception for DL with unicast PDSCH(s) per slot per CC with UE processing time Capability 1
     cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16   SEQUENCE {
@@ -16683,6 +16740,27 @@ FeatureSetDownlink-v1610 ::=   SEQUENCE {
 
     -- R1 16-2b-1: Support of single-DCI based SDM scheme
     singleDCI-SDM-scheme-r16           ENUMERATED {supported}                OPTIONAL
+}
+
+FeatureSetDownlink-v16k0 ::= SEQUENCE {
+    -- R1 22-8: For SRS for CB PUSCH and antenna switching on FR1 with symbol level offset for aperiodic SRS transmission
+    offsetSRS-CB-PUSCH-Ant-Switch-fr1-r16                       ENUMERATED {supported}                   OPTIONAL,
+    -- R1 22-8a: PDCCH monitoring on any span of up to 3 consecutive OFDM symbols of a slot and constrained timeline for SRS for CB
+    -- PUSCH and antenna switching on FR1
+    offsetSRS-CB-PUSCH-PDCCH-MonitorSingleOcc-fr1-r16           ENUMERATED {supported}                   OPTIONAL,
+    -- R1 22-8b: For type 1 CSS with dedicated RRC configuration, type 3 CSS, and UE-SS, monitoring occasion can be any OFDM symbol(s)
+    -- of a slot for Case 2 and constrained timeline for SRS for CB PUSCH and antenna switching on FR1
+    offsetSRS-CB-PUSCH-PDCCH-MonitorAnyOccWithoutGap-fr1-r16    ENUMERATED {supported}                   OPTIONAL,
+    -- R1 22-8c: For type 1 CSS with dedicated RRC configuration, type 3 CSS, and UE-SS, monitoring occasion can be any OFDM symbol(s)
+    -- of a slot for Case 2 with a DCI gap and constrained timeline for SRS for CB PUSCH and antenna switching on FR1
+    offsetSRS-CB-PUSCH-PDCCH-MonitorAnyOccWithGap-fr1-r16       ENUMERATED {supported}                   OPTIONAL,
+    -- R1 22-8d: All PDCCH monitoring occasion can be any OFDM symbol(s) of a slot for Case 2 with a span gap and constrained timeline
+    -- for SRS for CB PUSCH and antenna switching on FR1
+    offsetSRS-CB-PUSCH-PDCCH-MonitorAnyOccWithSpanGap-fr1-r16 SEQUENCE {
+        scs-15kHz-r16                                 ENUMERATED {set1, set2, set3}                      OPTIONAL,
+        scs-30kHz-r16                                 ENUMERATED {set1, set2, set3}                      OPTIONAL,
+        scs-60kHz-r16                                 ENUMERATED {set1, set2, set3}                      OPTIONAL
+}                                                                                                        OPTIONAL
 }
 
 FeatureSetDownlink-v1700 ::= SEQUENCE {
@@ -16752,6 +16830,15 @@ FeatureSetDownlink-v1730 ::=                SEQUENCE {
     prs-AsSpatialRelationRS-For-SRS-r17         ENUMERATED {supported}                                                   OPTIONAL
 }
 
+FeatureSetDownlink-v17d0 ::=                SEQUENCE {
+    -- R1 23-8-4	Maximum 2 SP and 1 periodic SRS sets for antenna switching
+    srs-AntennaSwitching2SP-1Periodic-r17       ENUMERATED {supported}                             OPTIONAL,
+    -- R1 23-8-9	Extension of aperiodic SRS configuration for 1T4R, 1T2R and 2T4R
+    srs-ExtensionAperiodicSRS-r17               ENUMERATED {supported}                             OPTIONAL,
+    -- R1 23-8-10	1 aperiodic SRS resource set for 1T4R
+    srs-OneAP-SRS-r17                           ENUMERATED {supported}                             OPTIONAL
+}
+
 FeatureSetDownlink-v1800 ::=                    SEQUENCE {
     -- R1 40-1-14a: Dynamic switching - scheme A
     dynamicSwitchingA-r18                           ENUMERATED {supported}                                                   OPTIONAL,
@@ -16787,7 +16874,7 @@ FeatureSetDownlink-v1800 ::=                    SEQUENCE {
     pdsch-1PortDL-PTRS-r18                          ENUMERATED {supported}                                                   OPTIONAL,
     -- R1 40-4-1i: 2 port DL PTRS for Rel.18 enhanced DMRS ports for PDSCH with rank 1-8
     pdsch-2PortDL-PTRS-r18                          ENUMERATED {supported}                                                   OPTIONAL,
-    -- R1 40-4-1j: Support 1 symbol FL DMRS and 2 additional DMRS symbols for at least one port for scheduling of mapping type A
+    -- R1 40-4-1j: Support 1 symbol FL DMRS and 2 additional DMRS symbols for one port for scheduling of mapping type A
     mappingTypeA-1SymbolFL-DMRS-Addition2Symbol-r18 ENUMERATED {supported}                                                   OPTIONAL,
     -- R1 40-4-2: Capability on the maximum number of configured DMRS types for PDSCH across all DL DCI formats per cell
     maxNumberDMRS-AcrossAllDL-DCI-r18               INTEGER (2..4)                                                           OPTIONAL,
@@ -16843,12 +16930,20 @@ FeatureSetDownlink-v1800 ::=                    SEQUENCE {
 
 FeatureSetDownlink-v1830 ::=        SEQUENCE {
     -- R4 39-4: Interruption on DL slot(s) due to PDCCH- ordered RACH transmission
-    pdcch-RACH-AffectedBandsList-r18    SEQUENCE (SIZE (1..maxBandsMRDC)) OF ENUMERATED {noInterruption, interruption}        OPTIONAL,
+    pdcch-RACH-AffectedBands-TargetBandList-r18    SEQUENCE (SIZE (1..maxBandsMRDC)) OF ENUMERATED {noInterruption, interruption}
+                                                                                                         OPTIONAL,
     -- R4 39-4a: Interruption due to RF retuning for PDCCH- ordered RACH
-    pdcch-RACH-SwitchingTimeList-r18    SEQUENCE (SIZE (1..maxBandsMRDC)) OF ENUMERATED {ms0, ms0dot25, ms0dot5, ms1, ms2, notSupported} OPTIONAL,
+    pdcch-RACH-SwitchingTime-TargetBandList-r18    SEQUENCE (SIZE (1..maxBandsMRDC)) OF ENUMERATED {ms0, ms0dot25, ms0dot5, ms1, ms2, notSupported}
+                                                                                                            OPTIONAL,
     -- R4 39-5: the RF/BB preparation time for PDCCH ordered RACH of which the resources are not fully contained
     -- in any of UE's configured UL BWP(s) of active serving cells
-    pdcch-RACH-PrepTimeList-r18         SEQUENCE (SIZE (1..maxBandsMRDC)) OF ENUMERATED {ms1, ms3, ms5, ms10, notSupported}   OPTIONAL
+    pdcch-RACH-PrepTime-TargetBandList-r18         SEQUENCE (SIZE (1..maxBandsMRDC)) OF ENUMERATED {ms1, ms3, ms5, ms10, notSupported}
+                                                                                                           OPTIONAL
+}
+
+FeatureSetDownlink-v1860 ::=      SEQUENCE {
+    -- R1 40-5-5: Maximum 2 SP and 1 periodic SRS sets for 8T8R antenna switching
+    srs-AntennaSwitching8T8R2SP-1Periodic-r18                   ENUMERATED {supported}                              OPTIONAL
 }
 
 PDCCH-MonitoringOccasions-r16 ::= SEQUENCE {
@@ -17103,11 +17198,26 @@ FeatureSets ::=    SEQUENCE {
     [[
     featureSetsUplink-v1850             SEQUENCE (SIZE (1..maxUplinkFeatureSets)) OF FeatureSetUplink-v1850             OPTIONAL,
     featureSetsUplinkPerCC-v1850        SEQUENCE (SIZE (1..maxPerCC-FeatureSets)) OF FeatureSetUplinkPerCC-v1850        OPTIONAL
+    ]],
+    [[
+    featureSetsDownlink-v1860           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v1860         OPTIONAL
     ]]
+}
+
+FeatureSets-v15t0 ::=    SEQUENCE {
+    featureSetsDownlink-v15t0           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v15t0         OPTIONAL
 }
 
 FeatureSets-v16d0 ::=    SEQUENCE {
     featureSetsUplink-v16d0             SEQUENCE (SIZE (1..maxUplinkFeatureSets)) OF FeatureSetUplink-v16d0             OPTIONAL
+}
+
+FeatureSets-v16k0 ::=    SEQUENCE {
+    featureSetsDownlink-v16k0           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v16k0         OPTIONAL
+}
+
+FeatureSets-v17d0 ::=    SEQUENCE {
+    featureSetsDownlink-v17d0           SEQUENCE (SIZE (1..maxDownlinkFeatureSets)) OF FeatureSetDownlink-v17d0         OPTIONAL
 }
 
 -- TAG-FEATURESETS-STOP
@@ -18069,6 +18179,10 @@ MeasAndMobParameters ::=                    SEQUENCE {
     measAndMobParametersFRX-Diff                MeasAndMobParametersFRX-Diff        OPTIONAL
 }
 
+MeasAndMobParameters-v15t0 ::=          SEQUENCE {
+    measAndMobParametersCommon-v15t0        MeasAndMobParametersCommon-v15t0        OPTIONAL
+}
+
 MeasAndMobParameters-v1700 ::=          SEQUENCE {
     measAndMobParametersFR2-2-r17           MeasAndMobParametersFR2-2-r17           OPTIONAL
 }
@@ -18230,6 +18344,10 @@ MeasAndMobParametersCommon ::=          SEQUENCE {
     [[
     ltm-interFreqL1-OnlyInBC-r18                ENUMERATED {supported}               OPTIONAL
     ]]
+}
+
+MeasAndMobParametersCommon-v15t0 ::=    SEQUENCE {
+    intraF-NeighMeasForSCellWithoutSSB      ENUMERATED{supported}                   OPTIONAL
 }
 
 MeasAndMobParametersXDD-Diff ::=        SEQUENCE {
@@ -19956,19 +20074,19 @@ PosSRS-TxFrequencyHoppingRRC-Connected-r18 ::= SEQUENCE {
 -- TAG-POSSRS-TXFREQUENCYHOPPINGRRCINACTIVE-START
 
 PosSRS-TxFrequencyHoppingRRC-Inactive-r18 ::=   SEQUENCE {
-    maximumSRS-BandwidthAcrossAllHops-FR1-r18       ENUMERATED {mhz40, mhz50, mhz80, mhz100}           OPTIONAL,
-    maximumSRS-BandwidthAcrossAllHops-FR2-r18       ENUMERATED {mhz100, mhz200, mhz400}                OPTIONAL,
+    maximumSRS-BandwidthAcrossAllHopsFR1-r18        ENUMERATED {mhz40, mhz50, mhz80, mhz100}           OPTIONAL,
+    maximumSRS-BandwidthAcrossAllHopsFR2-r18        ENUMERATED {mhz100, mhz200, mhz400}                OPTIONAL,
     maximumTxFH-Hops-r18                            ENUMERATED {n2, n3, n4, n5, n6}                    OPTIONAL,
     rf-TxRetuneTimeFR1-r18                          ENUMERATED {n70, n140, n210}                       OPTIONAL,
     rf-TxRetuneTimeFR2-r18                          ENUMERATED {n35, n70, n140}                        OPTIONAL,
-    switchTimeBetweenActiveBWP-FrequencyHop         ENUMERATED {n100, n140, n200, n300, n500}          OPTIONAL,
+    switchTimeBetweenActiveBWP-FrequencyHop-r18     ENUMERATED {n100, n140, n200, n300, n500}          OPTIONAL,
     numOfOverlappingPRB-r18                         ENUMERATED {n0, n1, n2, n4}                        OPTIONAL,
     maximumSRS-Resource-Periodic-r18                ENUMERATED {n1, n2, n4, n8, n16, n32, n64}         OPTIONAL,
     maximumSRS-Resource-Semipersistent-r18          ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64}     OPTIONAL,
     ...
 }
 
--- TAG-POSSRS-TXFREQUENCYHOPPINGRRCCINACTIVE-STOP
+-- TAG-POSSRS-TXFREQUENCYHOPPINGRRCINACTIVE-STOP
 -- TAG-POWSAV-PARAMETERS-START
 
 PowSav-Parameters-r16 ::=         SEQUENCE {
@@ -20168,6 +20286,10 @@ RF-Parameters ::=                                   SEQUENCE {
     [[
     supportedBandCombinationList-v1840                  BandCombinationList-v1840                   OPTIONAL,
     supportedBandCombinationList-UplinkTxSwitch-v1840   BandCombinationList-UplinkTxSwitch-v1840    OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1860                  BandCombinationList-v1860                   OPTIONAL,
+    supportedBandCombinationList-UplinkTxSwitch-v1860   BandCombinationList-UplinkTxSwitch-v1860    OPTIONAL
     ]]
 }
 
@@ -20799,8 +20921,6 @@ BandNR ::=                          SEQUENCE {
         overlapInRE-r18                                                 ENUMERATED {oneSymbolNoOverlap, someOrAllSymOverlap},
         overlapInSymbol-r18                                             ENUMERATED {symbol2,symbol1And2}
     }                                                                                                                          OPTIONAL,
-    -- Editor's Note: someOrAllSymOverlap considers to be supported in overlapInRE-r18 only if RAN4 performance requirements for
-    -- someOrAllSymOverlap are not defined
     -- R1 52-1a: Reception of NR PDCCH candidates overlapping with LTE CRS REs with multiple non-overlapping CRS rate matching patterns
     nr-PDCCH-OverlapLTE-CRS-RE-MultiPatterns-r18                    ENUMERATED {supported}                                     OPTIONAL,
     -- R1 52-1b: NR PDCCH reception that overlaps with LTE CRS within a single span of 3 consecutive OFDM symbols that is within the
@@ -21072,8 +21192,11 @@ RF-ParametersMRDC ::=                   SEQUENCE {
     [[
     supportedBandCombinationList-v1840                  BandCombinationList-v1840                   OPTIONAL,
     supportedBandCombinationList-UplinkTxSwitch-v1840   BandCombinationList-UplinkTxSwitch-v1840    OPTIONAL
+    ]],
+    [[
+    supportedBandCombinationList-v1860                  BandCombinationList-v1860                   OPTIONAL,
+    supportedBandCombinationList-UplinkTxSwitch-v1860   BandCombinationList-UplinkTxSwitch-v1860    OPTIONAL
     ]]
-
 }
 
 RF-ParametersMRDC-v15g0 ::=                    SEQUENCE {
@@ -21961,8 +22084,14 @@ UE-NR-Capability-v15g0 ::=               SEQUENCE {
 
 UE-NR-Capability-v15j0 ::=               SEQUENCE {
     -- Following field is only for REL-15 late non-critical extensions
-    lateNonCriticalExtension                 OCTET STRING                                                 OPTIONAL,
+    lateNonCriticalExtension                 OCTET STRING (CONTAINING UE-NR-Capability-v15t0)             OPTIONAL,
     nonCriticalExtension                     UE-NR-Capability-v16a0                                       OPTIONAL
+}
+
+UE-NR-Capability-v15t0 ::=               SEQUENCE {
+    featureSets-v15t0                        FeatureSets-v15t0                                            OPTIONAL,
+    measAndMobParameters-v15t0               MeasAndMobParameters-v15t0                                   OPTIONAL,
+    nonCriticalExtension                     SEQUENCE {}                                                  OPTIONAL
 }
 
 -- Regular non-critical Rel-16 extensions:
@@ -22027,8 +22156,13 @@ UE-NR-Capability-v16d0 ::=               SEQUENCE {
 UE-NR-Capability-v16j0 ::=               SEQUENCE {
     rf-Parameters-v16j0                      RF-Parameters-v16j0                                          OPTIONAL,
     -- Following field is only for REL-16 late non-critical extensions
-    lateNonCriticalExtension                 OCTET STRING                                                 OPTIONAL,
+    lateNonCriticalExtension                 OCTET STRING (CONTAINING UE-NR-Capability-v16k0)             OPTIONAL,
     nonCriticalExtension                     UE-NR-Capability-v17b0                                       OPTIONAL
+}
+
+UE-NR-Capability-v16k0 ::=               SEQUENCE {
+    featureSets-v16k0                        FeatureSets-v16k0                                            OPTIONAL,
+    nonCriticalExtension                     SEQUENCE {}                                                  OPTIONAL
 }
 
 -- Regular non-critical Rel-17 extensions:
@@ -22080,6 +22214,11 @@ UE-NR-Capability-v17b0 ::=           SEQUENCE {
 
 UE-NR-Capability-v17c0 ::=               SEQUENCE {
     mac-Parameters-v17c0                     MAC-Parameters-v17c0                                         OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v17d0                                       OPTIONAL
+}
+
+UE-NR-Capability-v17d0 ::=               SEQUENCE {
+    featureSets-v17d0                        FeatureSets-v17d0                                            OPTIONAL,
     nonCriticalExtension                     SEQUENCE {}                                                  OPTIONAL
 }
 
@@ -22112,6 +22251,11 @@ UE-NR-Capability-v1800 ::=               SEQUENCE {
 
 UE-NR-Capability-v1830 ::=               SEQUENCE {
     sib19-Support-r18                        ENUMERATED {supported}                                       OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v1860                                       OPTIONAL
+}
+
+UE-NR-Capability-v1860 ::=               SEQUENCE {
+    ntn-CHO-OnlyLocationTimeTrigger-r18      ENUMERATED {supported}                                       OPTIONAL,
     nonCriticalExtension                     SEQUENCE{}                                                   OPTIONAL
 }
 
@@ -23030,6 +23174,10 @@ SL-ConfigDedicatedNR-r16 ::=         SEQUENCE {
     ]]
 }
 
+SL-ConfigDedicatedNR-v16k0 ::=       SEQUENCE {
+    sl-PHY-MAC-RLC-Config-v16k0          SL-PHY-MAC-RLC-Config-v16k0                                          OPTIONAL    -- Need M
+}
+
 SL-DestinationIndex-r16  ::=             INTEGER (0..maxNrofSL-Dest-1-r16)
 
 SL-PHY-MAC-RLC-Config-r16::=         SEQUENCE {
@@ -23044,6 +23192,10 @@ SL-PHY-MAC-RLC-Config-r16::=         SEQUENCE {
     sl-CSI-SchedulingRequestId-r16       CHOICE {release NULL, setup SchedulingRequestId}                                     OPTIONAL,    -- Need M
     sl-SSB-PriorityNR-r16                INTEGER (1..8)                                                         OPTIONAL,    -- Need R
     networkControlledSyncTx-r16          ENUMERATED {on, off}                                                   OPTIONAL     -- Need M
+}
+
+SL-PHY-MAC-RLC-Config-v16k0 ::=      SEQUENCE {
+    sl-FreqInfoToAddModListExt-v16k0     SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigExt-v16k0       OPTIONAL     -- Need N
 }
 
 -- WS modification: define a dedicated type
@@ -23315,6 +23467,10 @@ SL-FreqConfig-r16 ::=              SEQUENCE {
 
 SL-Freq-Id-r16 ::=                     INTEGER (1.. maxNrofFreqSL-r16)
 
+SL-FreqConfigExt-v16k0 ::=         SEQUENCE {
+    additionalSpectrumEmission-r16     AdditionalSpectrumEmission                                      OPTIONAL    -- Need M
+}
+
 SL-FreqConfigExt-v1800 ::=         SEQUENCE {
     absenceOfAnyOtherTechnology-r18    ENUMERATED {true}                                               OPTIONAL,  -- Need R
     sl-FreqSelectionConfigList-r18     SEQUENCE (SIZE (1..8)) OF SL-FreqSelectionConfig-r18            OPTIONAL,  -- Need R
@@ -23325,7 +23481,10 @@ SL-FreqConfigExt-v1800 ::=         SEQUENCE {
     }                                                                                                  OPTIONAL,  -- Need R
     ue-ToUE-COT-SharingED-Threshold-r18    INTEGER (-85..-52)                                          OPTIONAL,  -- Need R
     harq-ACK-FeedbackRatioforCW-AdjustmentGC-Option2-r18 INTEGER (10..100)                             OPTIONAL,  -- Need R
-    ...
+    ...,
+    [[
+    additionalSpectrumEmission-v1860   AdditionalSpectrumEmission-v1760                                OPTIONAL  -- Need M
+    ]]
 }
 
 -- TAG-SL-FREQCONFIG-STOP
@@ -23355,8 +23514,16 @@ SL-FreqConfigCommon-r16 ::=       SEQUENCE {
         harq-ACK-FeedbackRatioforCW-AdjustmentGC-Option2-r18 INTEGER (10..100)                            OPTIONAL  -- Need R
     }                                                                                                        OPTIONAL, -- Cond SIB12
     sl-PosBWP-List-r18                SEQUENCE ( SIZE (1..maxNrofSL-BWPs-r16)) OF SL-PosBWP-ConfigCommon-r18 OPTIONAL  -- Cond SIB23
+    ]],
+    [[
+    additionalSpectrumEmission-v1860      AdditionalSpectrumEmission-v1760                                OPTIONAL  -- Need R
     ]]
 }
+
+SL-FreqConfigCommonExt-v16k0 ::=      SEQUENCE {
+    additionalSpectrumEmission-r16        AdditionalSpectrumEmission                                      OPTIONAL  -- Need R
+}
+
 -- TAG-SL-FREQCONFIGCOMMON-STOP
 -- TAG-SL-FREQSELECTIONCONFIG-START
 

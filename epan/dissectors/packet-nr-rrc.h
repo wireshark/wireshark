@@ -4,7 +4,7 @@
 /* asn2wrs.py -L -q -L -p nr-rrc -c ./nr-rrc.cnf -s ./packet-nr-rrc-template -D . -O ../.. NR-InterNodeDefinitions.asn NR-RRC-Definitions.asn PC5-RRC-Definitions.asn */
 
 /* packet-nr-rrc-template.h
- * Copyright 2018-2024, Pascal Quantin
+ * Copyright 2018-2025, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

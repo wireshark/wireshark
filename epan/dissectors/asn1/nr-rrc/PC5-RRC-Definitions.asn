@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.5.1 (2025-03)
+-- 3GPP TS 38.331 V18.6.0 (2025-06)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -275,7 +275,7 @@ RRCReconfigurationSidelink-v1800-IEs ::= SEQUENCE {
     sl-CarrierToReleaseList-r18             SEQUENCE (SIZE (1..maxNrofFreqSL-1-r18)) OF SL-CarrierId-r18          OPTIONAL, -- Need N
     sl-RLC-BearerToAddModList-r18           SEQUENCE (SIZE(1..maxNrofSLRB-r16)) OF SL-RLC-BearerConfig-r18        OPTIONAL, -- Need N
     sl-RLC-BearerToReleaseList-r18          SEQUENCE (SIZE(1..maxNrofSLRB-r16)) OF SL-RLC-BearerConfigIndex-r18   OPTIONAL, -- Need N
-    sl-LocalID-PairToAddModList-r18         SEQUENCE (SIZE (1..maxNrofSL-Dest-r16)) OF SL-SRAP-ConfigPC5-r18      OPTIONAL, -- Need N
+    sl-LocalID-PairList-r18                 SEQUENCE (SIZE (1..maxNrofSL-Dest-r16)) OF SL-SRAP-ConfigPC5-r18      OPTIONAL, -- Need N
     nonCriticalExtension                    SEQUENCE {}                                                           OPTIONAL
 }
 

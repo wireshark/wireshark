@@ -1,6 +1,6 @@
 # nr-rrc.cnf
 # nr-rrc conformation file
-# Copyright 2018-2024 Pascal Quantin
+# Copyright 2018-2025 Pascal Quantin
 
 #.OPT
 PER
@@ -249,20 +249,24 @@ SIB9                               @sib9
 SIB10-r16                          @sib10
 SIB11-r16                          @sib11
 SIB12-r16                          @sib12
+SIB12-IEs-r16                      @sib12.ies
 SIB13-r16                          @sib13
 SIB14-r16                          @sib14
 SIB15-r17                          @sib15
 SIB16-r17                          @sib16
 SIB17-r17                          @sib17
+SIB17-IEs-r17                      @sib17.ies
 SIB18-r17                          @sib18
 SIB19-r17                          @sib19
 SIB20-r17                          @sib20
 SIB21-r17                          @sib21
 SIB22-r18                          @sib22
 SIB23-r18                          @sib23
+SIB23-IEs-r18                      @sib23.ies
 SIB24-r18                          @sib24
 SIB25-r18                          @sib25
 SIB17bis-r18                       @sib17bis
+SIB17bis-IEs-r18                   @sib17bis.ies
 SL-ConfigDedicatedEUTRA-Info-r16
 SL-ConfigDedicatedNR-r16
 SL-MeasResultListRelay-r17
@@ -301,28 +305,7 @@ CG-CandidateInfo-r17
 CG-CandidateInfoId-r17
 CG-CandidateList
 CG-CandidateList-r17-IEs
-SIB12-IEs-r16
-SIB17-IEs-r17
-SIB17bis-IEs-r18
-SIB23-IEs-r18
-SL-BWP-ConfigCommon-r16
-SL-BWP-DiscPoolConfigCommon-r17
-SL-BWP-PoolConfigCommon-r16
-SL-BWP-PRS-PoolConfigCommon-r18
-SL-ConfigCommonNR-r16
-SL-DiscConfigCommon-r17
-SL-DiscConfigCommon-v1800
-SL-DiscConfigCommon-v1840
-SL-EUTRA-AnchorCarrierFreqList-r16
-SL-FreqConfigCommon-r16
-SL-MeasConfigCommon-r16
-SL-NR-AnchorCarrierFreqList-r16
-SL-PosBWP-ConfigCommon-r18
-SL-PosConfigCommonNR-r18
 SL-ServingCellInfo-r17
-TRS-ResourceSet-r17
-TRS-ResourceSet-r18
-UE-TimersAndConstantsRemoteUE-r17
 
 #.FIELD_RENAME
 RRM-Config/eag_1/candidateCellInfoListSN-EUTRA                                 rRM-Config_eag_1_candidateCellInfoListSN-EUTRA
@@ -525,7 +508,7 @@ EventTriggerConfig/eventId/eventA5H1-r18/simulMultiTriggerSingleMeasReport-r18 s
 EventTriggerConfig/eventId/eventA5H2-r18/simulMultiTriggerSingleMeasReport-r18 simulMultiTriggerSingleMeasReport-r18-boolean
 
 CA-ParametersNR-v1700/non-AlignedFrameBoundaries-r17/scs15kHz-15kHz-r17 cs15kHz-15kHz-r17-bit-string
-CA-ParametersNR-v1700/non-AlignedFrameBoundaries-r17/scs15kHz-30kHz-r17 scs15kHz-30kHz-r17-bit-string 
+CA-ParametersNR-v1700/non-AlignedFrameBoundaries-r17/scs15kHz-30kHz-r17 scs15kHz-30kHz-r17-bit-string
 CA-ParametersNR-v1700/non-AlignedFrameBoundaries-r17/scs15kHz-60kHz-r17 scs15kHz-60kHz-r17-bit-string
 
 BandParametersSidelinkEUTRA-NR-v1710/nr/sl-TransmissionMode2-PartialSensing-r17/scs-CP-PatternTxSidelinkModeTwo-r17/fr1-r17/scs-15kHz-r17 scs-15kHz-r17-bit-string

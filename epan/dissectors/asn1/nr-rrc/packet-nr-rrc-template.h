@@ -1,5 +1,5 @@
 /* packet-nr-rrc-template.h
- * Copyright 2018-2024, Pascal Quantin
+ * Copyright 2018-2025, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

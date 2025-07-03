@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.5.1 (2025-03)
+-- 3GPP TS 38.331 V18.6.0 (2025-06)
 
 NR-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -23,7 +23,8 @@ IMPORTS
     TDD-UL-DL-ConfigCommon,
     maxNrofFreqSL-r16,
     maxNrofSLRB-r16,
-    maxSL-LCID-r16
+    maxSL-LCID-r16,
+    SL-FreqConfigCommonExt-v16k0
 FROM NR-RRC-Definitions;
 
 -- TAG-NR-SIDELINK-PRECONF-DEFINITIONS-STOP
@@ -31,7 +32,10 @@ FROM NR-RRC-Definitions;
 
 SL-PreconfigurationNR-r16 ::=             SEQUENCE {
     sidelinkPreconfigNR-r16                   SidelinkPreconfigNR-r16,
-    ...
+    ...,
+    [[
+    sidelinkPreconfigNR-v16k0                   SidelinkPreconfigNR-v16k0
+    ]]
 }
 
 SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
@@ -70,6 +74,10 @@ SidelinkPreconfigNR-r16 ::=                 SEQUENCE {
     [[
     sl-PreconfigDiscConfig-v1840                SL-PreconfigDiscConfig-v1840                                          OPTIONAL
     ]]
+}
+
+SidelinkPreconfigNR-v16k0 ::=           SEQUENCE {
+    sl-PreconfigFreqInfoListExt-v16k0       SEQUENCE (SIZE (1..maxNrofFreqSL-r16)) OF SL-FreqConfigCommonExt-v16k0    OPTIONAL
 }
 
 SL-TxProfileList-r17 ::=                    SEQUENCE (SIZE (1..256)) OF SL-TxProfile-r17
