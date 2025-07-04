@@ -211,6 +211,7 @@ id-MulticastCommonConfiguration             ProcedureCode
 id-BroadcastTransportResourceRequest        ProcedureCode
 id-DUCUAccessAndMobilityIndication          ProcedureCode
 id-SRSInformationReservationNotification    ProcedureCode
+id-CUDUMobilityInitiationRequest            ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -1055,6 +1056,10 @@ id-LocalOrigin                                       ProtocolIE-ID
 id-LTMResetInformation                               ProtocolIE-ID
 id-SRSPosPeriodicConfigHyperSFNIndex                 ProtocolIE-ID
 id-PreconfiguredSRSInformation                       ProtocolIE-ID
+id-candidatePSCellsToCancel                          ProtocolIE-ID
+id-MobilityInitiation                                ProtocolIE-ID
+id-ValidityAreaSpecificSRSInformationExtended        ProtocolIE-ID
+id-PLMNIndexNRAssistanceInfoForNetShar               ProtocolIE-ID
 
 #.END
 
@@ -1664,6 +1669,8 @@ F1U-PathFailure                                   N f1ap.ies id-F1U-PathFailure
 LocalOrigin                                       N f1ap.ies id-LocalOrigin
 LTMResetInformation                               N f1ap.ies id-LTMResetInformation
 RequestedSRSPreconfigurationCharacteristics-List  N f1ap.ies id-PreconfiguredSRSInformation
+MobilityInitiation                                N f1ap.ies id-MobilityInitiation
+PLMNIndexNR                                       N f1ap.ies id-PLMNIndexNRAssistanceInfoForNetShar
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1901,6 +1908,8 @@ ReportingIntervalIMs                              N f1ap.extension id-ReportingI
 Transmission-Bandwidth-asymmetric                 N f1ap.extension id-Transmission-Bandwidth-asymmetric
 TagIDPointer                                      N f1ap.extension id-TagIDPointer
 SRSPosPeriodicConfigHyperSFNIndex                 N f1ap.extension id-SRSPosPeriodicConfigHyperSFNIndex
+PSCellList                                        N f1ap.extension id-candidatePSCellsToCancel
+ValidityAreaSpecificSRSInformationExtended        N f1ap.extension id-ValidityAreaSpecificSRSInformationExtended
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -2152,6 +2161,8 @@ BroadcastTransportResourceRequest        N f1ap.proc.imsg id-BroadcastTransportR
 DUCUAccessAndMobilityIndication          N f1ap.proc.imsg id-DUCUAccessAndMobilityIndication
 
 SRSInformationReservationNotification    N f1ap.proc.imsg id-SRSInformationReservationNotification
+
+CUDUMobilityInitiationRequest            N f1ap.proc.imsg id-CUDUMobilityInitiationRequest
 
 #.FN_BODY AdditionalSIBMessageList-Item/additionalSIB VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -4052,6 +4063,9 @@ N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_
 #.FN_HDR SRSInformationReservationNotification
   set_message_label(actx, MTYPE_SRS_INFORMATION_RESERVATION_NOTIFICATION);
   set_stats_message_type(actx->pinfo, MTYPE_SRS_INFORMATION_RESERVATION_NOTIFICATION);
+#.FN_HDR CUDUMobilityInitiationRequest
+  set_message_label(actx, MTYPE_CU_DU_MOBILITY_INITIATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_CU_DU_MOBILITY_INITIATION_REQUEST);
 #.END
 
 #

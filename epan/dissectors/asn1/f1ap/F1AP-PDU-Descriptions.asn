@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.5.0 (2025-03)
+-- 3GPP TS 38.473 V18.6.0 (2025-06)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -181,7 +181,9 @@ FROM F1AP-CommonDataTypes
 	MulticastCommonConfigurationRefuse,
 	BroadcastTransportResourceRequest,
 	DUCUAccessAndMobilityIndication,
-	SRSInformationReservationNotification
+	SRSInformationReservationNotification,
+	CUDUMobilityInitiationRequest
+
 
 
 
@@ -279,7 +281,8 @@ FROM F1AP-PDU-Contents
 	id-MulticastContextNotification,
 	id-MulticastCommonConfiguration,
 	id-BroadcastTransportResourceRequest,
-	id-SRSInformationReservationNotification
+	id-SRSInformationReservationNotification,
+	id-CUDUMobilityInitiationRequest
 
 
 
@@ -459,7 +462,8 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {
 	mIABF1SetupOutcomeNotification				|
 	broadcastTransportResourceRequest			|
 	dUCUAccessAndMobilityIndication			|
-	sRSInformationReservationNotification,
+	sRSInformationReservationNotification		|
+	cUDUMobilityInitiation,
 	...
 }
 -- **************************************************************
@@ -1057,13 +1061,13 @@ timingSynchronisationStatusReport F1AP-ELEMENTARY-PROCEDURE ::= {
 mIABF1SetupTriggering F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		MIABF1SetupTriggering
 	PROCEDURE CODE			id-MIABF1SetupTriggering
-	CRITICALITY				ignore
+	CRITICALITY				reject
 }
 
 mIABF1SetupOutcomeNotification F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		MIABF1SetupOutcomeNotification
 	PROCEDURE CODE			id-MIABF1SetupOutcomeNotification
-	CRITICALITY				ignore
+	CRITICALITY				reject
 }
 
 multicastContextNotification F1AP-ELEMENTARY-PROCEDURE ::= {
@@ -1101,5 +1105,10 @@ sRSInformationReservationNotification F1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+cUDUMobilityInitiation		F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CUDUMobilityInitiationRequest
+	PROCEDURE CODE			id-CUDUMobilityInitiationRequest
+	CRITICALITY				ignore
+}
 
 END

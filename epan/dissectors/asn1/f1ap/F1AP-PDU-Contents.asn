@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.5.0 (2025-03)
+-- 3GPP TS 38.473 V18.6.0 (2025-06)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -440,8 +440,9 @@ IMPORTS
 	NonIntegerDRXCycle,
 	AggregatedPosSRSResourceSetList,
 	F1U-PathFailure,
-	LTMResetInformation
-
+	LTMResetInformation,
+	MobilityInitiation,
+	PLMNIndexNR
 
 
 FROM F1AP-IEs
@@ -1033,6 +1034,8 @@ FROM F1AP-Containers
 	id-F1U-PathFailure,
 	id-LTMResetInformation,
 	id-PreconfiguredSRSInformation,
+	id-MobilityInitiation,
+	id-PLMNIndexNRAssistanceInfoForNetShar,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -2737,7 +2740,8 @@ DLRRCMessageTransferIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-PLMNAssistanceInfoForNetShar				CRITICALITY ignore	TYPE PLMN-Identity									PRESENCE optional }|
 	{ ID id-new-gNB-CU-UE-F1AP-ID						CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID							PRESENCE optional }|
 	{ ID id-AdditionalRRMPriorityIndex					CRITICALITY ignore	TYPE AdditionalRRMPriorityIndex				PRESENCE optional }|
-	{ ID id-SRBMappingInfo								CRITICALITY ignore	TYPE UuRLCChannelID					 				PRESENCE optional },
+	{ ID id-SRBMappingInfo								CRITICALITY ignore	TYPE UuRLCChannelID					 				PRESENCE optional }|
+	{ ID id-PLMNIndexNRAssistanceInfoForNetShar					CRITICALITY ignore	TYPE PLMNIndexNR											PRESENCE optional },
 	...
 }
 -- **************************************************************
@@ -6021,6 +6025,31 @@ DUCUAccessAndMobilityIndication ::= SEQUENCE {
 DUCUAccessAndMobilityIndicationIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID							CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory }|
 	{ ID id-DLLBTFailureInformationList				CRITICALITY ignore	TYPE DLLBTFailureInformationList	PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- CU-DU MOBILITY INITIATION ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- CU-DU Mobility Initiation Request
+--
+-- **************************************************************
+
+CUDUMobilityInitiationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       {{ CUDUMobilityInitiationRequestIEs }},
+	...
+}
+
+CUDUMobilityInitiationRequestIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-MobilityInitiation		CRITICALITY reject	TYPE MobilityInitiation				PRESENCE mandatory	},
 	...
 }
 

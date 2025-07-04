@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.5.0 (2025-03)
+-- 3GPP TS 38.473 V18.6.0 (2025-06)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -279,6 +279,8 @@ IMPORTS
 	id-TagIDPointer,
 	id-LocalOrigin,
 	id-SRSPosPeriodicConfigHyperSFNIndex,
+	id-candidatePSCellsToCancel,
+	id-ValidityAreaSpecificSRSInformationExtended,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -408,7 +410,9 @@ IMPORTS
 	maxnoPreconfiguredSRS,
 	maxnoHopsMinusOne,
 	maxnoAggCombinations,
-	maxnoAggregatedPosSRSCombinations
+	maxnoAggregatedPosSRSCombinations,
+	maxnoofCandidateCells,
+	maxnoofSSBIndices
 
 
 
@@ -1326,6 +1330,41 @@ Candidate-SpCell-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+CandidateCellwithBeamInfo	::= SEQUENCE {
+	nRCGI				NRCGI,
+	sSBIndex			SSBIndex,
+	iE-Extensions		ProtocolExtensionContainer { { CandidateCellwithBeamInfo-ExtIEs } }	OPTIONAL
+}
+
+CandidateCellwithBeamInfo-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CandidateCellwithBeamInfoList ::= SEQUENCE (SIZE(1..maxnoofCandidateCells)) OF CandidateCellwithBeamInfo-Item
+
+CandidateCellwithBeamInfo-Item ::= SEQUENCE {
+	nRCGI				NRCGI,
+	sSBIndexList		SSBIndexList,
+	iE-Extensions		ProtocolExtensionContainer { { CandidateCellwithBeamInfo-Item-ExtIEs } }	OPTIONAL
+}
+
+CandidateCellwithBeamInfo-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CandidateCellwithMeasurementsList ::= SEQUENCE (SIZE(1..maxnoofCandidateCells)) OF CandidateCellwithMeasurements-Item
+
+CandidateCellwithMeasurements-Item	::= SEQUENCE {
+	nRCGI				NRCGI,
+	sSBIndexwithMeasurementsList		SSBIndexwithMeasurementsList,
+	iE-Extensions		ProtocolExtensionContainer { { CandidateCellwithMeasurements-Item-ExtIEs } }	OPTIONAL
+}
+
+CandidateCellwithMeasurements-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 CapacityValue::= SEQUENCE {
 	capacityValue				INTEGER (0..100),
 	sSBAreaCapacityValueList	SSBAreaCapacityValueList		OPTIONAL,
@@ -1851,13 +1890,16 @@ CPACMCGInformation ::= SEQUENCE {
 }
 
 CPACMCGInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-candidatePSCellsToCancel		CRITICALITY ignore	EXTENSION PSCellList		PRESENCE optional },
+	-- The above IE shall be present if the cpac-trigger IE is present and set to "cpac-cancel"
 	...
 }
 
 CPAC-trigger ::= ENUMERATED {
 	cpac-preparation,
 	cpac-executed,
-	...
+	... ,
+	cpac-cancel
 }
 
 CPTrafficType ::= INTEGER (1..3,...)
@@ -5064,6 +5106,74 @@ MobileIAB-Barred	::=	ENUMERATED {barred, not-barred, ...}
 
 MeasBasedOnAggregatedResources ::= ENUMERATED { true, ... }
 
+MobilityInitiation	::= CHOICE {
+	mobilityTrigger						MobilityTrigger,
+	mobilityInitiation-AssistanceInfo	MobilityInitiation-AssistanceInfo,
+	choice-extension					ProtocolIE-SingleContainer { { MobilityInitiation-ExtIEs} }
+}
+
+MobilityInitiation-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+
+MobilityTrigger	::= SEQUENCE {
+	mobilityTriggeringIndication		MobilityTriggeringIndication,
+	mobilityInitiation-CellSwitchInfo	MobilityInitiation-CellSwitchInfo	OPTIONAL,
+	mobilityInitiation-EarlyULSyncInfo	MobilityInitiation-EarlyULSyncInfo 	OPTIONAL,
+	mobilityInitiation-EarlyDLSyncInfo	MobilityInitiation-EarlyDLSyncInfo 	OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { MobilityTrigger-ExtIEs} }
+}
+
+MobilityTrigger-ExtIEs F1AP-PROTOCOL-EXTENSION::= {
+	...
+}
+
+MobilityTriggeringIndication ::=  BIT STRING (SIZE(8))
+
+MobilityInitiation-CellSwitchInfo ::= SEQUENCE {
+	candidateCellwithBeamInfo		CandidateCellwithBeamInfo,
+	iE-Extensions					ProtocolExtensionContainer { { MobilityInitiation-CellSwitchInfo-ExtIEs } }	OPTIONAL,
+	...
+}
+
+MobilityInitiation-CellSwitchInfo-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MobilityInitiation-EarlyULSyncInfo ::= SEQUENCE {
+	candidateCellwithBeamInfoList		CandidateCellwithBeamInfoList,
+	iE-Extensions						ProtocolExtensionContainer { { MobilityInitiation-EarlyULSyncInfo-ExtIEs } }	OPTIONAL,
+	...
+}
+
+MobilityInitiation-EarlyULSyncInfo-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MobilityInitiation-EarlyDLSyncInfo	::= SEQUENCE {
+	candidateCellwithBeamInfoList		CandidateCellwithBeamInfoList,
+	iE-Extensions						ProtocolExtensionContainer { { MobilityInitiation-EarlyDLSyncInfo-ExtIEs } }	OPTIONAL,
+	...
+}
+
+MobilityInitiation-EarlyDLSyncInfo-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MobilityInitiation-AssistanceInfo	::= SEQUENCE {
+	servingCellMeasurements				ServingCellMeasurements,
+	candidateCellwithMeasurementsList	CandidateCellwithMeasurementsList,
+	iE-Extensions						ProtocolExtensionContainer { { MobilityInitiation-AssistanceInfo-ExtIEs } }	OPTIONAL,
+	...
+}
+
+MobilityInitiation-AssistanceInfo-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
 -- N
 
 NRA2XServicesAuthorized ::= SEQUENCE {
@@ -6091,6 +6201,8 @@ Ph-InfoSCG  ::= OCTET STRING
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
 
+PLMNIndexNR ::= INTEGER (1..maxnoofBPLMNsNR)
+
 PlayoutDelayForMediaStartup ::= OCTET STRING
 
 PortNumber ::= BIT STRING (SIZE (16))
@@ -6732,6 +6844,20 @@ PSIbasedSDUdiscardUL ::= ENUMERATED {start, stop, ...}
 
 PointA  ::= INTEGER (0..3279165)
 
+
+PSCellList ::= SEQUENCE (SIZE(1..maxnoofCHOcells)) OF PSCellList-Item
+
+PSCellList-Item ::= SEQUENCE {
+	pscell								NRCGI,
+	iE-Extensions							ProtocolExtensionContainer { { PSCellList-Item-ExtIEs} } OPTIONAL
+}
+
+PSCellList-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
 -- Q
 
 QCI ::= INTEGER (0..255)
@@ -7179,7 +7305,8 @@ RequestedSRSTransmissionCharacteristics-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SrsFrequency		CRITICALITY ignore EXTENSION SrsFrequency		PRESENCE optional }|
 	{ ID id-BW-Aggregation-Request-Indication		CRITICALITY ignore EXTENSION BW-Aggregation-Request-Indication	PRESENCE optional }|
 	{ ID id-PosValidityAreaCellList					CRITICALITY ignore EXTENSION PosValidityAreaCellList			PRESENCE optional }|
-	{ ID id-ValidityAreaSpecificSRSInformation		CRITICALITY ignore EXTENSION ValidityAreaSpecificSRSInformation	PRESENCE optional },
+	{ ID id-ValidityAreaSpecificSRSInformation		CRITICALITY ignore EXTENSION ValidityAreaSpecificSRSInformation	PRESENCE optional }|
+	{ ID id-ValidityAreaSpecificSRSInformationExtended	CRITICALITY ignore EXTENSION ValidityAreaSpecificSRSInformationExtended	PRESENCE optional },
 	...
 }
 
@@ -7815,6 +7942,54 @@ Service-Status ::= SEQUENCE {
 Service-Status-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+SelectedMeasurementQuantities ::= SEQUENCE {
+	rSRP			INTEGER (0..127),
+	rSRQ			INTEGER (0..127),
+	sINR			INTEGER (0..127) 	OPTIONAL,
+	iE-Extensions	ProtocolExtensionContainer { { SelectedMeasurementQuantities-ExtIEs } }	OPTIONAL,
+	...
+}
+
+SelectedMeasurementQuantities-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ServingCellMeasurements ::= SEQUENCE {
+	nRCGI								NRCGI,
+	sSBIndexwithMeasurements			SSBIndexwithMeasurements-Item,
+	iE-Extensions						ProtocolExtensionContainer { { ServingCellMeasurements-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ServingCellMeasurements-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+SSBIndex  ::= INTEGER(0..63)
+
+SSBIndexList	::=  SEQUENCE (SIZE(1..maxnoofSSBIndices)) OF SSBIndexList-Item
+
+SSBIndexList-Item	::= SEQUENCE {
+	sSBIndex			SSBIndex,
+	iE-Extensions		ProtocolExtensionContainer { { SSBIndex-Item-ExtIEs } }	OPTIONAL}
+
+SSBIndex-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SSBIndexwithMeasurementsList	::=  SEQUENCE (SIZE(1..maxnoofSSBIndices)) OF SSBIndexwithMeasurements-Item
+
+SSBIndexwithMeasurements-Item	::= SEQUENCE {
+	sSBIndex			SSBIndex,
+	selectedMeasurementQuantities	SelectedMeasurementQuantities,
+	iE-Extensions		ProtocolExtensionContainer { { SSBIndexwithMeasurements-Item-ExtIEs } }	OPTIONAL}
+
+SSBIndexwithMeasurements-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 
 RelativeTime1900 ::= 	BIT STRING (SIZE (64))
@@ -10298,6 +10473,18 @@ ValidityAreaSpecificSRSInformation ::= SEQUENCE {
 ValidityAreaSpecificSRSInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+ValidityAreaSpecificSRSInformationExtended ::= SEQUENCE {
+	posSRSResource-List			PosSRSResource-List		OPTIONAL,
+	posSRSResourceSet-List		PosSRSResourceSet-List	OPTIONAL,
+	iE-extensions		ProtocolExtensionContainer { { ValidityAreaSpecificSRSInformationExtended-ExtIEs } }	OPTIONAL,
+	...
+}
+
+ValidityAreaSpecificSRSInformationExtended-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 -- W
 

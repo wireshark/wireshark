@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.5.0 (2025-03)
+-- 3GPP TS 38.473 V18.6.0 (2025-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -130,6 +130,8 @@ id-MulticastCommonConfiguration				ProcedureCode ::= 93
 id-BroadcastTransportResourceRequest		ProcedureCode ::= 94
 id-DUCUAccessAndMobilityIndication			ProcedureCode ::= 95
 id-SRSInformationReservationNotification	ProcedureCode ::= 96
+id-CUDUMobilityInitiationRequest			ProcedureCode ::= 97
+
 
 
 
@@ -297,7 +299,8 @@ maxnoPreconfiguredSRS					INTEGER ::= 16
 maxnoHopsMinusOne						INTEGER ::= 5
 maxnoAggCombinations					INTEGER ::= 2
 maxnoAggregatedPosSRSCombinations		INTEGER ::= 32
-
+maxnoofCandidateCells					INTEGER ::= 8
+maxnoofSSBIndices						INTEGER ::= 64
 
 
 
@@ -1178,6 +1181,11 @@ id-LocalOrigin										ProtocolIE-ID ::= 854
 id-LTMResetInformation								ProtocolIE-ID ::= 855
 id-SRSPosPeriodicConfigHyperSFNIndex				ProtocolIE-ID ::= 856
 id-PreconfiguredSRSInformation						ProtocolIE-ID ::= 857
+id-candidatePSCellsToCancel							ProtocolIE-ID ::= 858
+id-MobilityInitiation								ProtocolIE-ID ::= 859
+id-ValidityAreaSpecificSRSInformationExtended		ProtocolIE-ID ::= 860
+id-PLMNIndexNRAssistanceInfoForNetShar						ProtocolIE-ID ::= 861
+
 
 
 
