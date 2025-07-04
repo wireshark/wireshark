@@ -6,7 +6,7 @@
 /* packet-ngap.c
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2018-2024, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2025, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v18.4.0 (2024-09)
+ * References: 3GPP TS 38.413 v18.6.0 (2025-06)
  */
 
 #include "config.h"
@@ -140,6 +140,7 @@ static int proto_json;
 #define maxnoofTACsinNTN               12
 #define maxnoofTAforMDT                8
 #define maxnoofTAIforInactive          16
+#define maxnoofSupportedTAIforMBS      256
 #define maxnoofTAIforMBS               1024
 #define maxnoofTAIforPaging            16
 #define maxnoofTAIforRestart           2048
@@ -697,7 +698,10 @@ typedef enum _ProtocolIE_ID_enum {
   id_SourceSN_to_TargetSN_QMCInfo = 437,
   id_QoERVQoEReportingPaths = 438,
   id_UserLocationInformationN3IWF_without_PortNumber = 439,
-  id_AUN3DeviceAccessInfo = 440
+  id_AUN3DeviceAccessInfo = 440,
+  id_TAIMBSSupportList = 441,
+  id_ExtendedBackupAMFName = 442,
+  id_ExtendedOldAMF = 443
 } ProtocolIE_ID_enum;
 
 typedef enum _GlobalRANNodeID_enum {
@@ -1147,6 +1151,7 @@ static int hf_ngap_TAI_PDU;                       /* TAI */
 static int hf_ngap_TAIListForPaging_PDU;          /* TAIListForPaging */
 static int hf_ngap_TAIListForRestart_PDU;         /* TAIListForRestart */
 static int hf_ngap_TAINSAGSupportList_PDU;        /* TAINSAGSupportList */
+static int hf_ngap_TAIMBSSupportList_PDU;         /* TAIMBSSupportList */
 static int hf_ngap_TargetHomeENB_ID_PDU;          /* TargetHomeENB_ID */
 static int hf_ngap_TargetID_PDU;                  /* TargetID */
 static int hf_ngap_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU;  /* TargetNGRANNode_ToSourceNGRANNode_TransparentContainer */
@@ -2283,6 +2288,7 @@ static int hf_ngap_TAIListForWarning_item;        /* TAI */
 static int hf_ngap_TAINSAGSupportList_item;       /* TAINSAGSupportItem */
 static int hf_ngap_nSAG_ID;                       /* NSAG_ID */
 static int hf_ngap_nSAGSliceSupportList;          /* ExtendedSliceSupportList */
+static int hf_ngap_TAIMBSSupportList_item;        /* TAIMBSSupportItem */
 static int hf_ngap_globalENB_ID;                  /* GlobalNgENB_ID */
 static int hf_ngap_selected_EPS_TAI;              /* EPS_TAI */
 static int hf_ngap_targetRANNodeID;               /* TargetRANNodeID */
@@ -3114,6 +3120,8 @@ static int ett_ngap_TAIListForRestart;
 static int ett_ngap_TAIListForWarning;
 static int ett_ngap_TAINSAGSupportList;
 static int ett_ngap_TAINSAGSupportItem;
+static int ett_ngap_TAIMBSSupportItem;
+static int ett_ngap_TAIMBSSupportList;
 static int ett_ngap_TargeteNB_ID;
 static int ett_ngap_TargetHomeENB_ID;
 static int ett_ngap_TargetID;
@@ -4588,6 +4596,9 @@ static const value_string ngap_ProtocolIE_ID_vals[] = {
   { id_QoERVQoEReportingPaths, "id-QoERVQoEReportingPaths" },
   { id_UserLocationInformationN3IWF_without_PortNumber, "id-UserLocationInformationN3IWF-without-PortNumber" },
   { id_AUN3DeviceAccessInfo, "id-AUN3DeviceAccessInfo" },
+  { id_TAIMBSSupportList, "id-TAIMBSSupportList" },
+  { id_ExtendedBackupAMFName, "id-ExtendedBackupAMFName" },
+  { id_ExtendedOldAMF, "id-ExtendedOldAMF" },
   { 0, NULL }
 };
 
@@ -22431,6 +22442,35 @@ dissect_ngap_TAINSAGSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const per_sequence_t TAIMBSSupportItem_sequence[] = {
+  { &hf_ngap_tAI            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_TAI },
+  { &hf_ngap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ngap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ngap_TAIMBSSupportItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ngap_TAIMBSSupportItem, TAIMBSSupportItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAIMBSSupportList_sequence_of[1] = {
+  { &hf_ngap_TAIMBSSupportList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ngap_TAIMBSSupportItem },
+};
+
+static int
+dissect_ngap_TAIMBSSupportList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ngap_TAIMBSSupportList, TAIMBSSupportList_sequence_of,
+                                                  1, maxnoofSupportedTAIforMBS, false);
+
+  return offset;
+}
+
+
 static const per_sequence_t TargeteNB_ID_sequence[] = {
   { &hf_ngap_globalENB_ID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_GlobalNgENB_ID },
   { &hf_ngap_selected_EPS_TAI, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ngap_EPS_TAI },
@@ -29301,6 +29341,14 @@ static int dissect_TAINSAGSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_TAIMBSSupportList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
+  offset = dissect_ngap_TAIMBSSupportList(tvb, offset, &asn1_ctx, tree, hf_ngap_TAIMBSSupportList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_TargetHomeENB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -31663,6 +31711,7 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.ies", id_UserPlaneFailureIndication, create_dissector_handle(dissect_UserPlaneFailureIndication_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_UserLocationInformationN3IWF_without_PortNumber, create_dissector_handle(dissect_UserLocationInformationN3IWF_without_PortNumber_PDU, proto_ngap));
   dissector_add_uint("ngap.ies", id_AUN3DeviceAccessInfo, create_dissector_handle(dissect_AUN3DeviceAccessInfo_PDU, proto_ngap));
+  dissector_add_uint("ngap.ies", id_ExtendedOldAMF, create_dissector_handle(dissect_Extended_AMFName_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_SecondaryRATUsageInformation, create_dissector_handle(dissect_SecondaryRATUsageInformation_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_PDUSessionResourceReleaseResponseTransfer, create_dissector_handle(dissect_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_S_NSSAI, create_dissector_handle(dissect_S_NSSAI_PDU, proto_ngap));
@@ -31797,6 +31846,8 @@ proto_reg_handoff_ngap(void)
   dissector_add_uint("ngap.extension", id_UserPlaneFailureIndicationReport, create_dissector_handle(dissect_UserPlaneFailureIndicationReport_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_SourceSN_to_TargetSN_QMCInfo, create_dissector_handle(dissect_QMCConfigInfo_PDU, proto_ngap));
   dissector_add_uint("ngap.extension", id_QoERVQoEReportingPaths, create_dissector_handle(dissect_QoERVQoEReportingPaths_PDU, proto_ngap));
+  dissector_add_uint("ngap.extension", id_TAIMBSSupportList, create_dissector_handle(dissect_TAIMBSSupportList_PDU, proto_ngap));
+  dissector_add_uint("ngap.extension", id_ExtendedBackupAMFName, create_dissector_handle(dissect_Extended_AMFName_PDU, proto_ngap));
   dissector_add_uint("ngap.proc.imsg", id_AMFConfigurationUpdate, create_dissector_handle(dissect_AMFConfigurationUpdate_PDU, proto_ngap));
   dissector_add_uint("ngap.proc.sout", id_AMFConfigurationUpdate, create_dissector_handle(dissect_AMFConfigurationUpdateAcknowledge_PDU, proto_ngap));
   dissector_add_uint("ngap.proc.uout", id_AMFConfigurationUpdate, create_dissector_handle(dissect_AMFConfigurationUpdateFailure_PDU, proto_ngap));
@@ -33681,6 +33732,10 @@ void proto_register_ngap(void) {
         NULL, HFILL }},
     { &hf_ngap_TAINSAGSupportList_PDU,
       { "TAINSAGSupportList", "ngap.TAINSAGSupportList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_TAIMBSSupportList_PDU,
+      { "TAIMBSSupportList", "ngap.TAIMBSSupportList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_TargetHomeENB_ID_PDU,
@@ -38227,6 +38282,10 @@ void proto_register_ngap(void) {
       { "nSAGSliceSupportList", "ngap.nSAGSliceSupportList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ExtendedSliceSupportList", HFILL }},
+    { &hf_ngap_TAIMBSSupportList_item,
+      { "TAIMBSSupportItem", "ngap.TAIMBSSupportItem_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_globalENB_ID,
       { "globalENB-ID", "ngap.globalENB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -39456,6 +39515,8 @@ void proto_register_ngap(void) {
     &ett_ngap_TAIListForWarning,
     &ett_ngap_TAINSAGSupportList,
     &ett_ngap_TAINSAGSupportItem,
+    &ett_ngap_TAIMBSSupportItem,
+    &ett_ngap_TAIMBSSupportList,
     &ett_ngap_TargeteNB_ID,
     &ett_ngap_TargetHomeENB_ID,
     &ett_ngap_TargetID,

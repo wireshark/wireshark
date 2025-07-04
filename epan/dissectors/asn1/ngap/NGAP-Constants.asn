@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.4.0 (2024-12)
+-- 3GPP TS 38.413 V18.6.0 (2025-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -196,6 +196,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofTACsinNTN							INTEGER ::= 12
 	maxnoofTAforMDT								INTEGER ::= 8
 	maxnoofTAIforInactive						INTEGER ::= 16
+	maxnoofSupportedTAIforMBS					INTEGER ::= 256
 	maxnoofTAIforMBS							INTEGER ::= 1024
 	maxnoofTAIforPaging							INTEGER ::= 16
 	maxnoofTAIforRestart						INTEGER ::= 2048
@@ -681,6 +682,11 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-QoERVQoEReportingPaths								ProtocolIE-ID ::= 438
 	id-UserLocationInformationN3IWF-without-PortNumber		ProtocolIE-ID ::= 439
 	id-AUN3DeviceAccessInfo									ProtocolIE-ID ::= 440
+	id-TAIMBSSupportList									ProtocolIE-ID ::= 441
+	id-ExtendedBackupAMFName    							ProtocolIE-ID ::= 442
+	id-ExtendedOldAMF			    						ProtocolIE-ID ::= 443
+
+
 
 
 

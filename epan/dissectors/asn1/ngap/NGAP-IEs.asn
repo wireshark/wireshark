@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V18.4.0 (2024-12)
+-- 3GPP TS 38.413 V18.6.0 (2025-06)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -161,6 +161,7 @@ IMPORTS
 	id-SurvivalTime,
 	id-Selected-Target-SNPN-Identity,
 	id-TNLAssociationTransportLayerAddressNGRAN,
+	id-TAIMBSSupportList,
 	id-TAINSAGSupportList,
 	id-TargetHomeENB-ID,
 	id-TargetRNC-ID,
@@ -213,6 +214,7 @@ IMPORTS
 	id-UserPlaneFailureIndicationReport,
 	id-QoERVQoEReportingPaths,
 	id-UserLocationInformationN3IWF-without-PortNumber,
+	id-ExtendedBackupAMFName,
 	maxnoofAllowedAreas,
 	maxnoofAllowedCAGsperPLMN,
 	maxnoofAllowedS-NSSAIs,
@@ -285,6 +287,7 @@ IMPORTS
 	maxnoofTAforMDT,
 	maxnoofTAforQMC,
 	maxnoofTAIforInactive,
+	maxnoofSupportedTAIforMBS,
 	maxnoofTAIforMBS,
 	maxnoofTAIforPaging,
 	maxnoofTAIforRestart,
@@ -3797,6 +3800,7 @@ MBS-DistributionSetupRequestTransfer ::= SEQUENCE {
 }
 
 MBS-DistributionSetupRequestTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+{ ID id-TAIMBSSupportList		CRITICALITY ignore	EXTENSION TAIMBSSupportList		PRESENCE optional	},
 	...
 }
 
@@ -6609,7 +6613,8 @@ ServedGUAMIItem ::= SEQUENCE {
 }
 
 ServedGUAMIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ID id-GUAMIType		CRITICALITY ignore	EXTENSION GUAMIType		PRESENCE optional	},
+	{ID id-GUAMIType		CRITICALITY ignore	EXTENSION GUAMIType		PRESENCE optional	}|
+	{ID id-ExtendedBackupAMFName    CRITICALITY ignore	EXTENSION Extended-AMFName	PRESENCE optional},
 	...
 }
 
@@ -7106,6 +7111,19 @@ TAINSAGSupportItem ::= SEQUENCE {
 TAINSAGSupportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+TAIMBSSupportItem ::= SEQUENCE {
+	tAI						TAI,
+	iE-Extensions		ProtocolExtensionContainer { {TAIMBSSupportItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAIMBSSupportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+TAIMBSSupportList ::= SEQUENCE (SIZE(1..maxnoofSupportedTAIforMBS)) OF TAIMBSSupportItem
 
 TargeteNB-ID ::= SEQUENCE {
 	globalENB-ID		GlobalNgENB-ID,
@@ -7774,6 +7792,7 @@ UnavailableGUAMIItem ::= SEQUENCE {
 }
 
 UnavailableGUAMIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ID id-ExtendedBackupAMFName    CRITICALITY ignore	EXTENSION Extended-AMFName	PRESENCE optional},
 	...
 }
 

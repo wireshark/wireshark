@@ -1,7 +1,7 @@
 /* packet-ngap.c
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2018-2024, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2025, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v18.4.0 (2024-09)
+ * References: 3GPP TS 38.413 v18.6.0 (2025-06)
  */
 
 #include "config.h"

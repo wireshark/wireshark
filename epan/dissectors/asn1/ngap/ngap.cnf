@@ -1858,6 +1858,10 @@ id-SourceSN-to-TargetSN-QMCInfo                        ProtocolIE-ID
 id-QoERVQoEReportingPaths                              ProtocolIE-ID
 id-UserLocationInformationN3IWF-without-PortNumber     ProtocolIE-ID
 id-AUN3DeviceAccessInfo                                ProtocolIE-ID
+id-TAIMBSSupportList                                   ProtocolIE-ID
+id-ExtendedBackupAMFName                               ProtocolIE-ID
+id-ExtendedOldAMF                                      ProtocolIE-ID
+
 
 #.END
 
@@ -2175,6 +2179,7 @@ MBS-NGUFailureIndication                                 N ngap.ies id-MBS-NGUFa
 UserPlaneFailureIndication                               N ngap.ies id-UserPlaneFailureIndication
 UserLocationInformationN3IWF-without-PortNumber          N ngap.ies id-UserLocationInformationN3IWF-without-PortNumber
 AUN3DeviceAccessInfo                                     N ngap.ies id-AUN3DeviceAccessInfo
+Extended-AMFName                                         N ngap.ies id-ExtendedOldAMF
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -2313,6 +2318,8 @@ MN-only-MDT-collection                                 N ngap.extension id-MN-on
 UserPlaneFailureIndicationReport                       N ngap.extension id-UserPlaneFailureIndicationReport
 QMCConfigInfo                                          N ngap.extension id-SourceSN-to-TargetSN-QMCInfo
 QoERVQoEReportingPaths                                 N ngap.extension id-QoERVQoEReportingPaths
+TAIMBSSupportList                                      N ngap.extension id-TAIMBSSupportList
+Extended-AMFName                                       N ngap.extension id-ExtendedBackupAMFName
 
 #NGAP-ELEMENTARY-PROCEDURE
 
