@@ -1423,7 +1423,7 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
             /*
              * A 64-bit integer value that specifies an offset (in
              * seconds) that must be added to the timestamp of each packet
-             * to obtain the absolute timestamp of a packet. If this optio
+             * to obtain the absolute timestamp of a packet. If this option
              * is not present, an offset of 0 is assumed (i.e., timestamps
              * in blocks are absolute timestamps.)
              */
@@ -3303,7 +3303,6 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
 
     wtap_block_copy(int_data, wblock->block);
 
-    /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
     /* Interface statistics */
     if_descr_mand->num_stat_entries = 0;
     if_descr_mand->interface_statistics = NULL;
@@ -3335,18 +3334,9 @@ pcapng_process_idb(wtap *wth, section_info_t *section_info,
      * Did we get a time stamp offset option?
      */
     if (wtap_block_get_int64_option_value(wblock->block, OPT_IDB_TSOFFSET,
-                                          &iface_info.tsoffset) == WTAP_OPTTYPE_SUCCESS) {
+                                          &iface_info.tsoffset) != WTAP_OPTTYPE_SUCCESS) {
         /*
-         * Yes.
-         *
-         * Remove the option, as the time stamps we provide will be
-         * absolute time stamps, with the offset added in, so it will
-         * appear as if there were no such option.
-         */
-        wtap_block_remove_option(wblock->block, OPT_IDB_TSOFFSET);
-    } else {
-        /*
-         * No.  Default to 0, meahing that time stamps in the file are
+         * No.  Default to 0, meaning that time stamps in the file are
          * absolute time stamps.
          */
         iface_info.tsoffset = 0;
@@ -5117,6 +5107,10 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     /* write block fixed content */
     /* Calculate the time stamp as a 64-bit integer. */
+    /* TODO - This can't overflow currently because we don't allow greater
+     * than nanosecond resolution, but if and when we do, we need to check for
+     * overflow. Normally it shouldn't, but what if there was a time shift?
+     */
     ts = ((uint64_t)rec->ts.secs) * int_data_mand->time_units_per_second +
         (((uint64_t)rec->ts.nsecs) * int_data_mand->time_units_per_second) / NS_PER_S;
     /*
@@ -5869,17 +5863,7 @@ static uint32_t compute_idb_option_size(wtap_block_t block _U_, unsigned option_
         size = 1;
         break;
     case OPT_IDB_TSOFFSET:
-        /*
-         * The time stamps handed to us when writing a file are
-         * absolute time staps, so the time stamp offset is
-         * zero.
-         *
-         * We do not adjust them when writing, so we should not
-         * write if_tsoffset options; that is interpreted as
-         * the offset is zero, i.e. the time stamps in the file
-         * are absolute.
-         */
-        size = 0;
+        size = 8;
         break;
     default:
         /* Unknown options - size by datatype? */
@@ -5922,9 +5906,9 @@ static bool write_wtap_idb_option(wtap_dumper *wdh, wtap_block_t block _U_,
             return false;
         break;
     case OPT_IDB_TSOFFSET:
-        /*
-         * As noted above, we discard these.
-         */
+        if (!pcapng_write_uint64_option(wdh, option_id, optval, err))
+            return false;
+        break;
         break;
     default:
         /* Unknown options - size by datatype? */
@@ -5988,19 +5972,10 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data,
 static bool pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
                                int *err, char **err_info)
 {
-    wtap_block_t idb_copy;
-
     /*
-     * Add a copy of this IDB to our array of IDBs.
+     * Write it to the output file.
      */
-    idb_copy = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
-    wtap_block_copy(idb_copy, idb);
-    g_array_append_val(wdh->interface_data, idb_copy);
-
-    /*
-     * And write it to the output file.
-     */
-    return pcapng_write_if_descr_block(wdh, idb_copy, err, err_info);
+    return pcapng_write_if_descr_block(wdh, idb, err, err_info);
 }
 
 static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)

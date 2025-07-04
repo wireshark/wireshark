@@ -2174,6 +2174,7 @@ static bool wtap_dump_open_finish(wtap_dumper *wdh, int *err,
 static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
+static bool wtap_dump_fix_idb(wtap_dumper *wdh, wtap_block_t idb, int *err);
 
 static wtap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_type,
@@ -2265,6 +2266,9 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 				if ((params->encap != WTAP_ENCAP_PER_PACKET) && (params->encap != file_int_data_mand->wtap_encap)) {
 					descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 					descr_mand->wtap_encap = params->encap;
+				}
+				if (!wtap_dump_fix_idb(wdh, descr, err)) {
+					return NULL;
 				}
 				g_array_append_val(wdh->interface_data, descr);
 			}
@@ -2515,16 +2519,81 @@ wtap_dump_open_finish(wtap_dumper *wdh, int *err, char **err_info)
 	return true;	/* success! */
 }
 
+/* XXX - Temporary hack to deal with nstime_t, and thus wtap_rec and libwiretap
+ * in general, not storing precision greater than nanoseconds yet. Despite
+ * whatever precision an IDB claims, we can't write finer than nanosecond.
+ * Eventually this should be removed.
+ * Fix a given IDB to indicate no greater than nanosecond precision. */
+static bool
+wtap_dump_fix_idb(wtap_dumper *wdb _U_, wtap_block_t idb, int *err)
+{
+	wtapng_if_descr_mandatory_t *idb_mand;
+	int64_t tsoffset;
+	idb_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb);
+
+	/*
+	 * nstime_t only stores nanoseconds, so instead of claiming false
+	 * precision, fix things up.
+	 */
+	if (idb_mand->time_units_per_second > 1000000000) {
+		ws_warning("original time precision reduced to nanoseconds");
+		idb_mand->time_units_per_second = 1000000000;
+		switch (wtap_block_set_uint8_option_value(idb, OPT_IDB_TSRESOL, 9)) {
+		case WTAP_OPTTYPE_SUCCESS:
+			break;
+		case WTAP_OPTTYPE_NOT_FOUND:
+			// This "should not" happen, because no if_tsresol means 6,
+			// and time_units_per_second should be 1000000;
+			if (wtap_block_add_uint8_option(idb, OPT_IDB_TSRESOL, 9) == WTAP_OPTTYPE_SUCCESS) {
+				break;
+			}
+			/* FALLTHROUGH */
+		default:
+			// These "should not" happen either.
+			*err = WTAP_ERR_INTERNAL;
+			return false;
+		}
+	}
+
+	/*
+	 * Since we're not writing more than nanosecond resolution, if_tsoffset
+	 * isn't necessary, as anything we can store in absolute timestamps in
+	 * Wireshark records we can write to a file without an offset (unless
+	 * we have 32-bit time_t, but that's rare these days.) So we remove it
+	 * here, though in the long term we should keep it.
+	 */
+	if (wtap_block_get_int64_option_value(idb, OPT_IDB_TSOFFSET, &tsoffset) == WTAP_OPTTYPE_SUCCESS) {
+		wtap_block_remove_option(idb, OPT_IDB_TSOFFSET);
+	}
+
+	return true;
+}
+
 bool
 wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
                   char **err_info)
 {
+	wtap_block_t idb_copy;
+
 	if (wdh->subtype_add_idb == NULL) {
 		/* Not supported. */
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		*err_info = g_strdup("Adding IDBs isn't supported by this file type");
 		return false;
 	}
+
+	/*
+	 * Add a copy of this IDB to our array of IDBs.
+	 */
+	idb_copy = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+	wtap_block_copy(idb_copy, idb);
+	g_array_append_val(wdh->interface_data, idb_copy);
+
+	if (!wtap_dump_fix_idb(wdh, idb_copy, err)) {
+		*err_info = ws_strdup_printf("pcapng: failed to lower time resolution to nanoseconds");
+		return false;
+	}
+
 	*err = 0;
 	*err_info = NULL;
 	return (wdh->subtype_add_idb)(wdh, idb, err, err_info);
