@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/expert.h>
 
 #include "packet-gsmtap.h"
 
@@ -34,12 +35,14 @@ static int hf_apdu_cla_log_chan_ext;
 static int hf_apdu_ins;
 static int hf_apdu_p1;
 static int hf_apdu_p2;
+static int hf_apdu_p3;
 static int hf_apdu_lc;
 static int hf_apdu_lc_ext;
 static int hf_apdu_le;
 static int hf_apdu_le_ext;
 static int hf_apdu_data;
 static int hf_apdu_sw;
+static int hf_apdu_unknown;
 
 static int hf_file_id;
 static int hf_aid;
@@ -446,6 +449,8 @@ static int ett_tprof_b38;
 static int ett_tprof_b39;
 static int ett_auth_challenge;
 static int ett_auth_response;
+
+static expert_field ei_unknown_bytes;
 
 static dissector_handle_t sub_handle_cap;
 static dissector_handle_t sim_handle, sim_part_handle;
@@ -1660,10 +1665,15 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 			break;
 		}
 		offset += data_offs + p3;
-		/* FIXME: parse response */
+		if (tvb_reported_length_remaining(tvb, offset)) {
+			dissect_apdu_le(tree, tvb, offset, extended_len, false);
+			offset += (extended_len ? 2 : 1);
+		}
 		break;
 	case 0xF2: /* STATUS */
-		/* FIXME: parse response */
+		if (tvb_reported_length_remaining(tvb, offset+P3_OFFS)) {
+			dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
+		}
 		offset += data_offs;
 		break;
 	case 0xB0: /* READ BINARY */
@@ -1805,7 +1815,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Operation=%s ",
 				val_to_str(p1, chan_op_vals, "%02x"));
 		proto_tree_add_item(tree, hf_chan_nr, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
-		if (p1 == 0) { /* OPEN */
+		if (tvb_reported_length_remaining(tvb, offset+P3_OFFS)) {
 			dissect_apdu_le(tree, tvb, offset+P3_OFFS, extended_len, true);
 		}
 		if (p1 == 0 && p2 == 0) {
@@ -1827,6 +1837,10 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
 		dissect_bertlv(subtvb, pinfo, tree, NULL);
 		offset += data_offs + p3;
+		if (tvb_reported_length_remaining(tvb, offset)) {
+			dissect_apdu_le(tree, tvb, offset, extended_len, false);
+			offset += (extended_len ? 2 : 1);
+		}
 		break;
 	case 0x76: /* SUSPEND UICC */
 		proto_tree_add_item(tree, hf_suspend_uicc_op, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
@@ -1839,16 +1853,18 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 			proto_tree_add_item(tree, hf_suspend_uicc_max_time_unit, tvb, offset+data_offs+2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_suspend_uicc_max_time_length, tvb, offset+data_offs+3, 1, ENC_BIG_ENDIAN);
 			dissect_apdu_le(tree, tvb, offset+data_offs+4, extended_len, false);
+			offset += (extended_len ? 2 : 1);
 		} else {
 			/* Resume the UICC */
 			col_append_str(pinfo->cinfo, COL_INFO, "(resume) ");
 			proto_tree_add_item(tree, hf_suspend_uicc_resume_token, tvb, offset+data_offs, p3, ENC_NA);
 		}
-		offset += data_offs;
+		offset += data_offs + p3;
 		break;
-	/* FIXME: Missing SLEEP */
 	case 0x04: /* INVALIDATE */
 	case 0x44: /* REHABILITATE */
+	case 0xFA: /* SLEEP */
+		/* FIXME: parse command */
 	default:
 		return -1;
 	}
@@ -1872,12 +1888,12 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	if (!sim_tree) {
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
 		sim_tree = proto_item_add_subtree(ti, ett_sim);
+	}
 
-		/* Receive the largest key that is less than or equal to our frame number */
-		gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_le(transactions, pinfo->num);
-		if (!PINFO_FD_VISITED(pinfo) && gsm_sim_trans && gsm_sim_trans->rsp_frame == 0) {
-			gsm_sim_trans->rsp_frame = pinfo->num;
-		}
+	/* Receive the largest key that is less than or equal to our frame number */
+	gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_le(transactions, pinfo->num);
+	if (!PINFO_FD_VISITED(pinfo) && gsm_sim_trans && gsm_sim_trans->rsp_frame == 0) {
+		gsm_sim_trans->rsp_frame = pinfo->num;
 	}
 
 	if ((tvb_len-offset) > 2) {
@@ -1910,6 +1926,9 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				dissect_auth_response(p2 & 0x07, tvb, sim_tree, offset, apdu_len);
 			}
 			break;
+		case 0xF2: /* STATUS */
+		case 0xA4: /* SELECT */
+			/* FIXME: parse response */
 		default:
 			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, apdu_len, ENC_NA);
 			break;
@@ -1947,7 +1966,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		}
 	}
 
-	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
+	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num && gsm_sim_trans->cmd_frame != gsm_sim_trans->rsp_frame) {
 		nstime_t ns;
 
 		ti = proto_tree_add_uint(sim_tree, hf_response_to, NULL, 0, 0, gsm_sim_trans->cmd_frame);
@@ -1986,13 +2005,23 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	p1 = tvb_get_uint8(tvb, offset+2);
 	p2 = tvb_get_uint8(tvb, offset+3);
 
-	if (tvb_reported_length_remaining(tvb, offset+4) >= 1) {
-		p3 = tvb_get_uint8(tvb, offset+4);
+	/* If isSIMtrace is true, then the tvb contains the command followed by
+	 * the response. The response consists of response data followed by the
+	 * 2 octet status word. Slice off the status word first.
+	 */
+	tvbuff_t *next_tvb = tvb;
+	if (isSIMtrace) {
+		/* We already retrieved ins, p1, p2, so tvb_len > 2 */
+		next_tvb = tvb_new_subset_length(tvb, 0, tvb_reported_length(tvb) - 2);
+	}
+
+	if (tvb_reported_length_remaining(next_tvb, offset+4) >= 1) {
+		p3 = tvb_get_uint8(next_tvb, offset+4);
 		p3_present = true;
 
-		if (p3 == 0 && tvb_reported_length_remaining(tvb, offset+5) >= 2) {
+		if (p3 == 0 && tvb_reported_length_remaining(next_tvb, offset+5) >= 2) {
 			/* Extended length */
-			p3 = tvb_get_uint16(tvb, offset+5, ENC_BIG_ENDIAN);
+			p3 = tvb_get_uint16(next_tvb, offset+5, ENC_BIG_ENDIAN);
 			extended_len = true;
 		}
 	} else {
@@ -2015,19 +2044,19 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		wmem_tree_insert32(transactions, pinfo->num, gsm_sim_trans);
 	}
 
-	ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_gsm_sim, next_tvb, 0, -1, ENC_NA);
 	sim_tree = proto_item_add_subtree(ti, ett_sim);
 
 	if ((cla & 0x50) == 0x40) {
-		proto_tree_add_item(sim_tree, hf_apdu_cla_coding_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_coding_ext, next_tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind_ext, next_tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan_ext, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 	} else {
-		proto_tree_add_item(sim_tree, hf_apdu_cla_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_coding, next_tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind, next_tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
-	proto_tree_add_item(sim_tree, hf_apdu_ins, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sim_tree, hf_apdu_ins, next_tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	if ((cla & 0x50) == 0x40) {
@@ -2038,7 +2067,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				val_to_str(cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
-	rc = dissect_gsm_apdu(ins, p1, p2, p3, extended_len, tvb, offset, pinfo, sim_tree);
+	rc = dissect_gsm_apdu(ins, p1, p2, p3, extended_len, next_tvb, offset, pinfo, sim_tree);
 
 	if (rc == -1) {
 		/* default dissector */
@@ -2047,7 +2076,14 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		proto_tree_add_item(sim_tree, hf_apdu_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		if (p3_present) {
-			if (tvb_reported_length_remaining(tvb, offset) <= (extended_len ? 3 : 1)) {
+			if (isSIMtrace) {
+				/* For SIMtrace it's not possible to know if the APDU contains
+				 * command "Lc Data" or command "Le" with response "Data".
+				 */
+				proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset,
+						    extended_len ? 3 : 1, ENC_BIG_ENDIAN);
+				offset += (extended_len ? 3 : 1);
+			} else if (tvb_reported_length_remaining(tvb, offset) <= (extended_len ? 3 : 1)) {
 				/* Case 2 / 2E */
 				dissect_apdu_le(sim_tree, tvb, offset, extended_len, true);
 				offset += (extended_len ? 3 : 1);
@@ -2057,7 +2093,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				offset += (extended_len ? 3 : 1);
 				proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
 				offset += p3;
-				if (!isSIMtrace && tvb_reported_length_remaining(tvb, offset)) {
+				if (tvb_reported_length_remaining(tvb, offset)) {
 					/* Case 4 / 4E */
 					dissect_apdu_le(sim_tree, tvb, offset, extended_len, false);
 					offset += (extended_len ? 2 : 1);
@@ -2069,11 +2105,13 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	}
 
 	if (isSIMtrace) {
-		/* If isSIMtrace is true, then the tvb contains the command followed by
-		 * the response. The response consists of response data followed by the
-		 * 2 octet status word.
-		 */
 		return dissect_rsp_apdu_tvb(tvb, offset, pinfo, tree, sim_tree);
+	}
+
+	if (tvb_reported_length_remaining(tvb, offset)) {
+		ti = proto_tree_add_item(sim_tree, hf_apdu_unknown, tvb, offset,
+					 tvb_reported_length_remaining(tvb, offset), ENC_NA);
+		expert_add_info(pinfo, ti, &ei_unknown_bytes);
 	}
 
 	if (gsm_sim_trans && gsm_sim_trans->cmd_frame == pinfo->num && gsm_sim_trans->rsp_frame != 0) {
@@ -2168,6 +2206,11 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  "ISO 7816-4 APDU P2 (Parameter 2) Byte", HFILL }
 		},
+		{ &hf_apdu_p3,
+			{ "Length (Parameter 3)", "gsm_sim.apdu.p3",
+			 FT_UINT24, BASE_DEC, NULL, 0,
+			 "ISO 7816-4 APDU P3 (Parameter 3) Byte", HFILL }
+		},
 		{ &hf_apdu_data,
 			{ "APDU Payload", "gsm_sim.apdu.data",
 			  FT_BYTES, BASE_NONE, NULL, 0,
@@ -2177,6 +2220,11 @@ proto_register_gsm_sim(void)
 			{ "Status Word (SW1:SW2)", "gsm_sim.apdu.sw",
 			  FT_UINT16, BASE_HEX, VALS(sw_vals), 0,
 			  "ISO 7816-4 APDU Status Word", HFILL }
+		},
+		{ &hf_apdu_unknown,
+			{ "Unknown APDU Bytes", "gsm_sim.apdu.unknown",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
 		},
 		{ &hf_file_id,
 			{ "File ID", "gsm_sim.file_id",
@@ -3912,12 +3960,18 @@ proto_register_gsm_sim(void)
 		&ett_auth_response,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_unknown_bytes, { "gsm_sim.unknown_bytes", PI_PROTOCOL, PI_WARN, "Unknown bytes", EXPFILL }},
+	};
+	expert_module_t *expert_gsm_sim;
+
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
 						 "gsm_sim");
 
 	proto_register_field_array(proto_gsm_sim, hf, array_length(hf));
-
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_gsm_sim = expert_register_protocol(proto_gsm_sim);
+	expert_register_field_array(expert_gsm_sim, ei, array_length(ei));
 
 	transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
