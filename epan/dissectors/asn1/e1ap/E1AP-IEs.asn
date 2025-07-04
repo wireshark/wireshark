@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V18.2.0 (2024-06)
+-- 3GPP TS 37.483 V18.5.0 (2025-06)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -3154,7 +3154,8 @@ PDU-Session-Resource-To-Modify-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-DataForwardingtoE-UTRANInformationList		CRITICALITY ignore	EXTENSION 	DataForwardingtoE-UTRANInformationList	PRESENCE optional	}|
 	{ID id-SecurityIndicationModify						CRITICALITY ignore	EXTENSION 	SecurityIndication								PRESENCE optional	}|
 	{ID id-Secondary-PDU-Session-Data-Forwarding-Information	CRITICALITY ignore	EXTENSION 	Data-Forwarding-Information		PRESENCE optional	}|
-	{ID id-UserPlaneFailureIndication					CRITICALITY ignore	EXTENSION 	UserPlaneFailureIndication						PRESENCE optional	},
+	{ID id-UserPlaneFailureIndication					CRITICALITY ignore	EXTENSION 	UserPlaneFailureIndication						PRESENCE optional	}|
+	{ID id-SpecialTriggeringPurpose						CRITICALITY ignore	EXTENSION 	SpecialTriggeringPurpose						PRESENCE optional},
 	...
 }
 
@@ -3702,7 +3703,7 @@ TSCAssistanceInformation-ExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-Periodicity					::= INTEGER	(1..640000,	...)
+Periodicity					::= INTEGER	(0..640000,	...)
 
 BurstArrivalTime			::= OCTET STRING
 
