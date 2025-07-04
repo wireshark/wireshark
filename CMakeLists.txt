@@ -611,6 +611,13 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(LOCAL_CFLAGS
 		/MP
 		/W3
+
+		# Some of our code requires object files with
+		# a 32-bit index to the section table instead of 16-bit.
+		# This makes the .obj files slightly larger (~2%) and makes
+		# it so that Microsoft linkers prior to MSVC 2005 can't read
+		# the files, but those are too old anyway.
+		/bigobj
 	)
 
 	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
@@ -1079,12 +1086,6 @@ if(ENABLE_ASAN)
 		add_compile_options(${ASAN_FLAG})
 	endif()
 	if(MSVC)
-		# Using ASAN makes some of our code require object files with
-		# a 32-bit index to the section table instead of 16-bit.
-		# This makes the .obj files slightly larger (~2%) and makes
-		# it so that Microsoft linkers prior to MSVC 2005 can't read
-		# the files, but those are too old anyway.
-		add_compile_options(/bigobj)
 		# The Microsoft LINK linker doesn't recognize or need the
 		# ASAN flag, and will give a LNK4044 warning.
 	else()
