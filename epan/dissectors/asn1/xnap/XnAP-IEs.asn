@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.3.0 (2024-09)
+-- 3GPP TS 38.423 V18.6.0 (2025-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2833,7 +2833,7 @@ GlobalgNB-ID-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 GNB-DU-Cell-Resource-Configuration	::= SEQUENCE {
-	subcarrierSpacing				SSB-subcarrierSpacing,
+	subcarrierSpacing				SubcarrierSpacing,
 	dUFTransmissionPeriodicity		DUFTransmissionPeriodicity		OPTIONAL,
 	dUF-Slot-Config-List			DUF-Slot-Config-List			OPTIONAL,
 	hSNATransmissionPeriodicity		HSNATransmissionPeriodicity,
@@ -6688,7 +6688,7 @@ RANPagingFailure		::= 	ENUMERATED {
 }
 
 RBsetConfiguration ::= SEQUENCE {
-	subcarrierSpacing 		SSB-subcarrierSpacing,
+	subcarrierSpacing 		SubcarrierSpacing,
 	rBsetSize				ENUMERATED {rb2, rb4, rb8, rb16, rb32, rb64},
 	numberofRBSets			INTEGER(1.. maxnoofRBsetsPerCell),
 	iE-Extensions				ProtocolExtensionContainer { { RBsetConfiguration-ExtIEs} } OPTIONAL,
@@ -8173,6 +8173,7 @@ SNPNforMDT-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 
+SubcarrierSpacing ::= ENUMERATED {kHz15, kHz30, kHz120, kHz240, spare3, spare2, spare1, ..., kHz60}
 
 
 -- T

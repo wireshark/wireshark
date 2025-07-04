@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.3.0 (2024-09)
+-- 3GPP TS 38.423 V18.6.0 (2025-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -653,7 +653,7 @@ iABResourceCoordination XNAP-ELEMENTARY-PROCEDURE ::={
 retrieveUEContextConfirm	XNAP-ELEMENTARY-PROCEDURE ::={
 	INITIATING MESSAGE		RetrieveUEContextConfirm
 	PROCEDURE CODE			id-retrieveUEContextConfirm
-	CRITICALITY				ignore
+	CRITICALITY				reject
 }
 
 cPCCancel XNAP-ELEMENTARY-PROCEDURE ::={

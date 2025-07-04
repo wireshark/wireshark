@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V18.3.0 (2024-09)
+-- 3GPP TS 38.423 V18.6.0 (2025-06)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -2942,7 +2942,7 @@ MobilityChangeRequest ::= SEQUENCE {
 MobilityChangeRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NG-RANnode1CellID							CRITICALITY reject	TYPE GlobalNG-RANCell-ID							PRESENCE mandatory}|
 	{ ID id-NG-RANnode2CellID							CRITICALITY reject	TYPE GlobalNG-RANCell-ID							PRESENCE mandatory}|
-	{ ID id-NG-RANnode1MobilityParameters				CRITICALITY reject	TYPE MobilityParametersInformation			PRESENCE optional}|
+	{ ID id-NG-RANnode1MobilityParameters				CRITICALITY ignore	TYPE MobilityParametersInformation			PRESENCE optional}|
 	{ ID id-NG-RANnode2ProposedMobilityParameters		CRITICALITY reject	TYPE MobilityParametersInformation			PRESENCE mandatory}|
 	{ ID id-Cause										CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
 	{ ID id-SSBOffsets-List								CRITICALITY ignore	TYPE SSBOffsets-List								PRESENCE optional},
@@ -2984,7 +2984,7 @@ MobilityChangeFailure-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NG-RANnode1CellID						CRITICALITY reject	TYPE GlobalNG-RANCell-ID									PRESENCE mandatory}|
 	{ ID id-NG-RANnode2CellID						CRITICALITY reject	TYPE GlobalNG-RANCell-ID									PRESENCE mandatory}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause													PRESENCE mandatory}|
-	{ ID id-MobilityParametersModificationRange		CRITICALITY reject	TYPE MobilityParametersModificationRange				PRESENCE optional}|
+	{ ID id-MobilityParametersModificationRange		CRITICALITY ignore	TYPE MobilityParametersModificationRange				PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional}|
 	{ ID id-NG-RANnode2SSBOffsetsModificationRange	CRITICALITY ignore	TYPE NG-RANnode2SSBOffsetsModificationRange			PRESENCE optional},
 	...
