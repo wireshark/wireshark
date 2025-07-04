@@ -545,6 +545,7 @@ static expert_field ei_oran_st10_not_ul;
 static expert_field ei_oran_se24_nothing_to_inherit;
 static expert_field ei_oran_num_sinr_per_prb_unknown;
 static expert_field ei_oran_start_symbol_id_bits_ignored;
+static expert_field ei_oran_user_group_id_reserved_value;
 
 
 /* These are the message types handled by this dissector */
@@ -3800,11 +3801,15 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(ugs_ti, " (reserved)");
                 }
                 offset += 1;
-                /* userGroupId (8 bits) */
+                /* userGroupId (8 bits)*/
                 uint32_t user_group_id;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_id, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_id);
+                proto_item *ugi_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_user_group_id, tvb, offset, 1, ENC_BIG_ENDIAN, &user_group_id);
                 if (user_group_id == 0) {
                     /* TODO: Value 0 can happen in several cases, described in 7.7.24.7.. */
+                }
+                if (user_group_id == 255) {
+                    /* Value 255 is reserved */
+                    expert_add_info(pinfo, ugi_ti, &ei_oran_user_group_id_reserved_value);
                 }
                 offset += 1;
 
@@ -3812,17 +3817,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 bool inherited_config_has_transform_precoding = false;
                 int dmrs_configs_seen = 0;
 
-                /* Dissect each entry (until run out of extlen bytes..) or reach number of configured ueIds */
+                /* Dissect each entry until reach number of configured ueIds (or run out of extlen bytes..) */
                 uint32_t ueid_index = 0;
-                while (offset < (extension_start_offset + extlen*4) && ueid_index < number_of_ueids) {
+                while ((offset < (extension_start_offset + extlen*4)) && (ueid_index < number_of_ueids)) {
+                    dmrs_configs_seen++;
 
                     /* Subtree */
                     proto_item *entry_ti = proto_tree_add_string_format(extension_tree, hf_oran_dmrs_entry,
                                                                         tvb, offset, 0, "",
                                                                         "Entry");
                     proto_tree *entry_tree = proto_item_add_subtree(entry_ti, ett_oran_dmrs_entry);
-
-                    dmrs_configs_seen++;
 
                     /* entryType (3 bits) */
                     uint32_t entry_type;
@@ -8246,7 +8250,7 @@ proto_register_oran(void)
           { "userGroupId", "oran_fh_cus.userGroupId",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
-            "number of UE data layers in the user group identified by userGroupId", HFILL}
+            "indicates user group described by the section", HFILL}
         },
         /* 7.7.24.8 */
         { &hf_oran_entry_type,
@@ -8703,7 +8707,8 @@ proto_register_oran(void)
         { &ei_oran_st10_not_ul, { "oran_fh_cus.st10_not_ul", PI_MALFORMED, PI_WARN, "Section Type 10 should only be sent in uplink direction", EXPFILL }},
         { &ei_oran_se24_nothing_to_inherit, { "oran_fh_cus.se24_nothing_to_inherit", PI_MALFORMED, PI_WARN, "SE10 doesn't have type 2 or 3 before trying to inherit", EXPFILL }},
         { &ei_oran_num_sinr_per_prb_unknown, { "oran_fh_cus.unexpected_num_sinr_per_prb", PI_MALFORMED, PI_WARN, "invalid numSinrPerPrb value", EXPFILL }},
-        { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }}
+        { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }},
+        { &ei_oran_user_group_id_reserved_value, { "oran_fh_cus.user_group_id.reserved_value", PI_MALFORMED, PI_WARN, "userGroupId value 255 is reserved", EXPFILL }}
     };
 
     /* Register the protocol name and description */
