@@ -53,7 +53,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_hpext, tvb, 0, 7, ENC_NA);
 		hpext_tree = proto_item_add_subtree(ti, ett_hpext);
-		proto_tree_add_item(hpext_tree, hf_hpext_reserved, tvb, 0, 3, ENC_NA);
+		proto_tree_add_item(hpext_tree, hf_hpext_reserved, tvb, 0, 3, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(hpext_tree, hf_hpext_dxsap, tvb, 3,
 			2, dxsap);
 		proto_tree_add_uint(hpext_tree, hf_hpext_sxsap, tvb, 5,

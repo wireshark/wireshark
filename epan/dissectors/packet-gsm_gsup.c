@@ -837,7 +837,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			proto_tree_add_item(att_tree, hf_gsup_freeze_ptmsi, tvb, offset, len, ENC_NA);
 			break;
 		case OSMO_GSUP_SESSION_ID_IE:
-			proto_tree_add_item(att_tree, hf_gsup_session_id, tvb, offset, len, ENC_NA);
+			proto_tree_add_item(att_tree, hf_gsup_session_id, tvb, offset, len, ENC_BIG_ENDIAN);
 			break;
 		case OSMO_GSUP_SESSION_STATE_IE:
 			proto_tree_add_item(att_tree, hf_gsup_session_state, tvb, offset, len, ENC_NA);

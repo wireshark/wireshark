@@ -1297,7 +1297,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 }
                 if (l == obj_length - 4) break;
 
-                proto_tree_add_item(lmp_subobj_tree, hf_lmp_link, tvb, offset2+l, 4, ENC_NA);
+                proto_tree_add_item(lmp_subobj_tree, hf_lmp_link, tvb, offset2+l, 4, ENC_BIG_ENDIAN);
                 if (j < 4)
                     proto_item_append_text(ti, "-%s,%s], ",
                                            tvb_get_uint8(tvb, offset2+l) & 0x80 ? "Act" : "NA",

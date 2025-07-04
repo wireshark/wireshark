@@ -6100,7 +6100,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_compressed_packet_number,
 		{ "Compressed Packet Number", "mysql.compressed_packet_number",
-		FT_UINT24, BASE_DEC, NULL,  0x0,
+		FT_UINT8, BASE_DEC, NULL,  0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_compressed_packet_length_uncompressed,

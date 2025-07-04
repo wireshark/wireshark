@@ -835,7 +835,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo,
             if (tag_type==real_tag_type)
                 proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
             edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
-            proto_tree_add_item(metatag_tree, hf_edonkey_meta_tag_value_uint, tvb, tag_offset, 1, ENC_NA);
+            proto_tree_add_item(metatag_tree, hf_edonkey_meta_tag_value_uint, tvb, tag_offset, 1, ENC_LITTLE_ENDIAN);
             break;
 
         case EDONKEY_MTAG_BOOL:
@@ -847,7 +847,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo,
             if (tag_type==real_tag_type)
                 proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
             edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
-            proto_tree_add_item(metatag_tree, hf_edonkey_meta_tag_value_uint, tvb, tag_offset, 1, ENC_NA);
+            proto_tree_add_item(metatag_tree, hf_edonkey_meta_tag_value_uint, tvb, tag_offset, 1, ENC_LITTLE_ENDIAN);
             break;
 
         case EDONKEY_MTAG_BOOL_ARRAY:

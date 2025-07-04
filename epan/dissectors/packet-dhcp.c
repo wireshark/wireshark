@@ -4787,7 +4787,7 @@ dissect_vendor_bsdp_boot_image(proto_tree *v_tree, tvbuff_t *tvb, int optoff)
 		NULL
 	};
 
-	proto_tree_add_bitmask(v_tree, tvb, optoff, hf_dhcp_option43_bsdp_boot_image_attribute, ett_dhcp_o43_bsdp_attributes_flags, dhcp_o43_bsdp_attributes_flags, ENC_NA);
+	proto_tree_add_bitmask(v_tree, tvb, optoff, hf_dhcp_option43_bsdp_boot_image_attribute, ett_dhcp_o43_bsdp_attributes_flags, dhcp_o43_bsdp_attributes_flags, ENC_BIG_ENDIAN);
 }
 
 static int

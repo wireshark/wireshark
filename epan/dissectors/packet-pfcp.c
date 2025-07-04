@@ -8685,7 +8685,7 @@ dissect_pfcp_l2tp_user_authentication(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     };
 
     /* Octet 5-6 Proxy Authen Type Value */
-    proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_type_value, tvb, offset, 2, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_l2tp_user_authentication_proxy_authen_type_value, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Octet 7  Spare   PAI   PAR   PAC  PAN */
@@ -9340,9 +9340,7 @@ static void
 dissect_pfcp_area_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length _U_, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
 {;
     uint32_t value;
-    /* Octet 5 to (n+4) Tunnel Password value */
-    /* TODO: should this be a 2-byte string? Current enc is invalid for FT_UINT16 */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_area_session_id_value, tvb, 0, 2, ENC_UTF_8 | ENC_NA, &value);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_area_session_id_value, tvb, 0, 2, ENC_BIG_ENDIAN, &value);
     proto_item_append_text(item, "%u", value);
 }
 

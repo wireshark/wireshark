@@ -481,7 +481,7 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	case PGSL_MSG_STATUS_IND:
 		proto_tree_add_item(pgsl_tree, hf_pgsl_tn_resource, tvb, offset++, 1, ENC_NA);
 		proto_tree_add_item(pgsl_tree, hf_pgsl_tn_seqno, tvb, offset++, 1, ENC_NA);
-		proto_tree_add_item(pgsl_tree, hf_pgsl_afnu, tvb, offset, 3, ENC_NA);
+		proto_tree_add_item(pgsl_tree, hf_pgsl_afnu, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 		offset += 3;
 		proto_tree_add_item(pgsl_tree, hf_pgsl_cause, tvb, offset++, 1, ENC_NA);
 		proto_tree_add_item(pgsl_tree, hf_pgsl_addl_info, tvb, offset++, 1, ENC_NA);

@@ -154,7 +154,11 @@ compatible_encoding_args = {
                           'ENC_EUC_KR',
                           'ENC_DECT_STANDARD_8BITS',
                           'ENC_DECT_STANDARD_4BITS_TBCD',
-                          'ENC_STR_HEX',       # Should also have at least one ENC_SEP_* flag!
+                          # Are these right..?
+                          #'ENC_STR_HEX',       # Should also have at least one ENC_SEP_* flag!
+                          #'ENC_STR_NUM',       # Should also have at least one ENC_SEP_* flag!
+                          #'ENC_STRING',        # OR of previous 2 values
+
                           'ENC_LITTLE_ENDIAN'  # Only meaniningful for some encodings (ENC_UTF_16, ENC_UCS_2, ENC_UCS_4)
                           ]),
 
