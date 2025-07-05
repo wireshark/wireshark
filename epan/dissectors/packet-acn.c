@@ -33,7 +33,6 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 
-#include "packet-rdm.h"
 #include "packet-tcp.h"
 
 /* Forward declarations */

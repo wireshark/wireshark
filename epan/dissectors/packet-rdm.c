@@ -242,7 +242,7 @@ static const value_string rdm_nr_vals[] = {
 #define RDM_PARAM_ID_PRESET_MERGEMODE                             0x1043
 #define RDM_PARAM_ID_POWER_ON_SELF_TEST                           0x1044
 
-const value_string rdm_param_id_vals[] = {
+static const value_string rdm_param_id_vals[] = {
   { RDM_PARAM_ID_DISC_UNIQUE_BRANCH,                  "Discovery Unique Branch" },
   { RDM_PARAM_ID_DISC_MUTE,                           "Discovery Mute" },
   { RDM_PARAM_ID_DISC_UN_MUTE,                        "Discovery Un-Mute" },

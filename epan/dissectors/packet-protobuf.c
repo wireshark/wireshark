@@ -44,8 +44,18 @@
 #include <wsutil/report_message.h>
 
 #include "protobuf-helper.h"
-#include "packet-protobuf.h"
 #include "epan/dissectors/packet-http.h"
+
+#define protobuf_wire_type_VALUE_STRING_LIST(XXX)    \
+    XXX(PROTOBUF_WIRETYPE_VARINT, 0, "varint")  \
+    XXX(PROTOBUF_WIRETYPE_FIXED64, 1, "64-bit")   \
+    XXX(PROTOBUF_WIRETYPE_LENGTH_DELIMITED, 2, "Length-delimited") \
+    XXX(PROTOBUF_WIRETYPE_START_GROUP, 3, "Start group (deprecated)") \
+    XXX(PROTOBUF_WIRETYPE_END_GROUP, 4, "End group (deprecated)") \
+    XXX(PROTOBUF_WIRETYPE_FIXED32, 5, "32-bit")
+
+VALUE_STRING_ENUM(protobuf_wire_type);
+
 
 /* converting */
 static inline double
@@ -64,7 +74,7 @@ protobuf_uint32_to_float(uint32_t value) {
     return float_uint32_union.f;
 }
 
-VALUE_STRING_ARRAY_GLOBAL_DEF(protobuf_wire_type);
+static VALUE_STRING_ARRAY_GLOBAL_DEF(protobuf_wire_type);
 
 /* which field type of each wire type could be */
 static int protobuf_wire_to_field_type[6][9] = {

@@ -253,7 +253,7 @@ const ext_value_string_t ansi_a_ios401_dtap_strings[] =
     { 0, NULL, 0 }
 };
 
-const ext_value_string_t ansi_a_ios401_elem_1_strings[] =
+static const ext_value_string_t ansi_a_ios401_elem_1_strings[] =
 {
     { 0x20,     "Access Network Identifiers",                                   0 },
     { 0x3D,     "ADDS User Part",                                               1 },
@@ -458,7 +458,7 @@ const ext_value_string_t ansi_a_ios501_dtap_strings[] =
  * ansi_a_ios401_elem_1_strings when the same element
  * is being described.
  */
-const ext_value_string_t ansi_a_ios501_elem_1_strings[] =
+static const ext_value_string_t ansi_a_ios501_elem_1_strings[] =
 {
     { 0x20,     "Access Network Identifiers",                                   0 },
     { 0x3D,     "ADDS User Part",                                               1 },

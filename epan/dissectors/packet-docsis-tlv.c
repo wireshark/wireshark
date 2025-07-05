@@ -686,7 +686,7 @@ static const value_string rng_tech_vals[] = {
 };
 
 
-const value_string docsis_conf_code[] = {
+static const value_string docsis_conf_code[] = {
   {  0, "okay/success"},
   {  1, "Reject: Other/Auth failure (1.0)"},
   {  2, "Reject: Unrecognized configuration setting/COS failure (1.0)"},

@@ -126,11 +126,25 @@ class DefinedSymbols:
     def addDefinedSymbol(self, symbol, line):
         self.global_symbols[symbol] = line
 
+    def isSymbolInContents(self, contents, symbol):
+        if not contents:
+            return False
+        # Check that string appears
+        idx = contents.find(symbol)
+        if idx == -1:
+            return False
+        else:
+            # Look for in context.  In particular don't want to match if there is
+            # longer symbol with symbol as a prefix..
+            p = re.compile(r'[\s\*\()]' + symbol + r'[\(\s\[;]+', re.MULTILINE)
+            m = p.search(contents, re.MULTILINE)
+            return m is not None
+
     # Check if a given symbol is mentioned in headers
     def mentionedInHeaders(self, symbol):
-        if self.header_file_contents:
-             if self.header_file_contents.find(symbol) != -1:
-                return True
+        if self.isSymbolInContents(self.header_file_contents, symbol):
+            return True
+
         # Also check some of the 'common' header files that don't match the dissector file name.
         # TODO: could cache the contents of these files?
         common_mismatched_headers = [ os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
@@ -146,7 +160,7 @@ class DefinedSymbols:
             try:
                 f = open(hf)
                 contents = f.read()
-                if contents.find(symbol) != -1:
+                if self.isSymbolInContents(contents, symbol):
                     return True
             except EnvironmentError:
                 pass

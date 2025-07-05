@@ -233,7 +233,7 @@ static uint8_t sms_encoding;
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
-const char* gsm_map_opr_code(uint32_t val, proto_item *item);
+static const char* gsm_map_opr_code(uint32_t val, proto_item *item);
 
 typedef struct {
   struct tcap_private_t * tcap_private;

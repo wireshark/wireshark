@@ -1881,15 +1881,6 @@ lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_inf
 		&lsarpc_secret_access_mask_info, NULL);
 	return offset;
 }
-/* TODO: not called, so couldn't make static. Delete? */
-int
-lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
-{
-	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_domain_access_mask,
-		&lsarpc_domain_access_mask_info, NULL);
-	return offset;
-}
 static int
 cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
