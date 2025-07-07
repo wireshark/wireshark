@@ -498,7 +498,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_header_checksum, tvb,
-            offset, 2, ENC_NA);
+            offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     if ((tvb_reported_length(tvb) - 27) > 0) // ( -3 footer - 24 header)
         proto_tree_add_item(pcombinary_tree, hf_pcombinary_data, tvb,

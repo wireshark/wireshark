@@ -1111,6 +1111,7 @@ static const value_string ssi_0f_2_progress_vals[] = {
 	{ 0x12, "Calling operating system wake-up vector" },
 	{ 0x13, "Starting operating system boot process" },
 	{ 0x14, "Baseboard or motherboard initialization" },
+	{ 0x15, "Reserved" },
 	{ 0x16, "Floppy initialization" },
 	{ 0x17, "Keyboard test" },
 	{ 0x18, "Pointing device test" },

@@ -14,7 +14,7 @@ from pathlib import Path
 
 # This utility scans the dissector code for various issues.
 # TODO:
-# - Create maps from type -> display types for hf items (see display (FIELDDISPLAY)) in docs/README.dissector
+# - Create maps from type -> display types for hf items (see display (FIELDDISPLAY (1.2))) in docs/README.dissector
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -507,8 +507,8 @@ class ProtoTreeAddItemCheck(APICheck):
                                             'BASE_SHOW_UTF_8_PRINTABLE',
                                             'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA',
                                             'xl_encoding',
-                                            'my_frame_data->encoding_client', 'my_frame_data->encoding_results'
-
+                                            'my_frame_data->encoding_client', 'my_frame_data->encoding_results',
+                                            'seq_info->txt_enc'
                                           }:
                                 global warnings_found
 
@@ -1898,8 +1898,8 @@ class Item:
     def check_string_display(self):
         global warnings_found
         if self.item_type in { 'FT_STRING', 'FT_STRINGZ', 'FT_UINT_STRING'}:
-            if self.display.find('BASE_NONE')==-1:
-                print('Warning:', self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE, is instead', self.display)
+            if self.display.find('BASE_NONE')==-1 and self.display.find('BASE_STR_WSP')==-1:
+                print('Warning:', self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE or BASE_STR_WSP, is instead', self.display)
                 warnings_found += 1
 
 

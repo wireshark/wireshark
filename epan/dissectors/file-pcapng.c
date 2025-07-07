@@ -2802,6 +2802,7 @@ proto_register_pcapng(void)
         &ett_pcapng_section_header_block,
         &ett_pcapng_block_data,
         &ett_pcapng_block_type,
+        &ett_pcapng_block_extraneous,
         &ett_pcapng_options,
         &ett_pcapng_option,
         &ett_pcapng_records,

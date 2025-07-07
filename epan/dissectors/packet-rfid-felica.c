@@ -285,7 +285,7 @@ static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             /* Iterate through the block list, and update the tree */
             for (rwe_pos = 0; rwe_pos < tvb_get_uint8(tvb, 12); rwe_pos++) {
                 proto_tree_add_item(felica_tree, hf_felica_block_nbr, tvb,
-                    13 + 2 * rwe_pos, 2, ENC_NA);
+                    13 + 2 * rwe_pos, 2, ENC_BIG_ENDIAN);
             }
         }
         break;

@@ -1908,7 +1908,7 @@ proto_register_pw_atm_ata(void)
 		{ &ei_cw_bits03, { "pw.cw.bits03.not_zero", PI_MALFORMED, PI_ERROR, "Bits 0..3 of Control Word must be 0", EXPFILL }},
 		{ &ei_pref_cw_flags, { "pw.cw.flags.not_zero", PI_MALFORMED, PI_ERROR, "Flags must be 0 for PW ATM N:1 encapsulation", EXPFILL }},
 		{ &ei_pref_cw_len, { "pw.cw.length.invalid", PI_MALFORMED, PI_ERROR, "Bad Length: must be 0 for this encapsulation", EXPFILL }},
-		{ &ei_cell_h_pti_undecoded, { "atm.pti.invalid", PI_UNDECODED, PI_WARN, "Unknown value of PTI field in the ATM cell header", EXPFILL }},
+		{ &ei_cell_h_pti_undecoded, { "atm.pti.undecoded", PI_UNDECODED, PI_WARN, "Unknown value of PTI field in the ATM cell header", EXPFILL }},
 		{ &ei_cell_h_pti_malformed, { "atm.pti.invalid", PI_MALFORMED, PI_ERROR, "ATM admin cell is transerred. PTI field should be 4, 5 or 6.", EXPFILL }},
 		{ &ei_cell_h_m, { "atm.pw_control_byte.m.not_zero", PI_MALFORMED, PI_ERROR, "1:1 mode: M bit must be 0 to distinguish from AAL5 PDU mode", EXPFILL }},
 		{ &ei_cell_h_v_not_zero, { "atm.pw_control_byte.v.not_one", PI_MALFORMED, PI_ERROR, "1:1 VPC mode: V bit must be 1 to indicate that VCI is present", EXPFILL }},

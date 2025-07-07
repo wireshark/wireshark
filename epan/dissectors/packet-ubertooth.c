@@ -1794,7 +1794,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
         break;
     case 3: /* Get User LED */
-        proto_tree_add_item(main_tree, hf_user_led, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_user_led, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
@@ -1919,7 +1919,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 37: /* Get Squelch */
-        proto_tree_add_item(main_tree, hf_squelch, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_squelch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %i", tvb_get_int8(tvb, offset));
         offset += 1;
 
@@ -1942,7 +1942,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         break;
     case 47: /* Get CRC Verify */
-        proto_tree_add_item(main_tree, hf_crc_verify, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(main_tree, hf_crc_verify, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &state_vals_ext, "Unknown"));
         offset += 1;
 
@@ -2009,122 +2009,122 @@ proto_register_ubertooth(void)
     static hf_register_info hf[] = {
         { &hf_command,
             { "Command",                         "ubertooth.command",
-            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &command_vals_ext, 0x00,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &command_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_response,
             { "Response",                        "ubertooth.response",
-            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &command_vals_ext, 0x00,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &command_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_argument_0,
             { "Unused Argument 0",               "ubertooth.argument.0",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_argument_1,
             { "Unused Argument 1",               "ubertooth.argument.1",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_estimated_length,
             { "Estimated Length",                "ubertooth.estimated_length",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_board_id,
             { "Board ID",                        "ubertooth.board_id",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &board_id_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &board_id_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_reserved,
             { "Reserved",                        "ubertooth.reserved",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_length,
             { "Length",                          "ubertooth.length",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_firmware_revision,
             { "Firmware Revision",               "ubertooth.firmware.reversion",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_firmware_compile_info,
             { "Firmware Compile Info",           "ubertooth.firmware.compile_info",
-            FT_STRING, BASE_NONE, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_user_led,
             { "User LED State",                  "ubertooth.user_led",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_rx_led,
             { "Rx LED State",                    "ubertooth.rx_led",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_tx_led,
             { "Tx LED State",                    "ubertooth.tx_led",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_1v8_led,
             { "1V8 LED State",                   "ubertooth.1v8_led",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &led_state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_channel,
             { "Channel",                         "ubertooth.channel",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_usb_rx_packet_channel,
             { "Channel",                         "ubertooth.usb_rx_packet.channel",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_serial_number,
             { "Serial Number",                   "ubertooth.serial_number",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_status,
             { "Status",                          "ubertooth.status",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_part_number,
             { "Part Number",                     "ubertooth.part_number",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_packet_type,
             { "Packet Type",                     "ubertooth.packet_type",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &packet_type_vals_ext, 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &packet_type_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_state,
             { "State",                           "ubertooth.state",
-            FT_UINT8, BASE_HEX, VALS(usb_rx_packet_state_vals), 0x00,
+            FT_UINT8, BASE_HEX, VALS(usb_rx_packet_state_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_crc_init,
             { "CRC Init",                        "ubertooth.crc_init",
-            FT_UINT24, BASE_HEX, NULL, 0x00,
+            FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_hop_interval,
             { "Hop Interval",                    "ubertooth.hop_interval",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "Hop Interval in unit 1.25ms", HFILL }
         },
         { &hf_hop_increment,
             { "Hop Increment",                    "ubertooth.hop_increment",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_chip_status_reserved,
@@ -2159,52 +2159,52 @@ proto_register_ubertooth(void)
         },
         { &hf_clock_ns,
             { "Clock 1ns",                      "ubertooth.clock_ns",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_clock_100ns,
             { "Clock 100ns",                    "ubertooth.clock_100ns",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rssi_min,
             { "RSSI Min",                        "ubertooth.rssi_min",
-            FT_INT8, BASE_DEC, NULL, 0x00,
+            FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rssi_max,
             { "RSSI Max",                        "ubertooth.rssi_max",
-            FT_INT8, BASE_DEC, NULL, 0x00,
+            FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rssi_avg,
             { "RSSI Avg",                        "ubertooth.rssi_avg",
-            FT_INT8, BASE_DEC, NULL, 0x00,
+            FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rssi_count,
             { "RSSI Count",                      "ubertooth.rssi_count",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_paen,
             { "PAEN",                            "ubertooth.paen",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_hgm,
             { "HGM",                             "ubertooth.hgm",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_crc_verify,
             { "CRC Verify",                      "ubertooth.crc_verify",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &state_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &state_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_modulation,
             { "Modulation",                      "ubertooth.modulation",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &modulation_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &modulation_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_power_amplifier_reserved,
@@ -2219,87 +2219,87 @@ proto_register_ubertooth(void)
         },
         { &hf_range_test_valid,
             { "Valid",                           "ubertooth.range_test.valid",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_range_test_request_power_amplifier,
             { "Request Power Amplifier",         "ubertooth.range_test.request_power_amplifier",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_range_test_request_number,
             { "Request Power Amplifier",         "ubertooth.range_test.request_number",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_range_test_reply_power_amplifier,
             { "Request Power Amplifier",         "ubertooth.range_test.reply_power_amplifier",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_range_test_reply_number,
             { "Reply Power Amplifier",           "ubertooth.range_test.reply_number",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_squelch,
             { "Squelch",                         "ubertooth.squelch",
-            FT_INT16, BASE_DEC, NULL, 0x00,
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_access_address,
             { "Access Address",                  "ubertooth.access_address",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_jam_mode,
             { "Jam Mode",                        "ubertooth.jam_mode",
-            FT_UINT16, BASE_HEX, VALS(jam_mode_vals), 0x00,
+            FT_UINT16, BASE_HEX, VALS(jam_mode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_ego_mode,
             { "Ego Mode",                        "ubertooth.ego_mode",
-            FT_UINT16, BASE_HEX, VALS(ego_mode_vals), 0x00,
+            FT_UINT16, BASE_HEX, VALS(ego_mode_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_register,
             { "Register",                        "ubertooth.register",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &register_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &register_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_register_value,
             { "Register Value",                  "ubertooth.register.value",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_low_frequency,
             { "Low Frequency",                   "ubertooth.low_frequency",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_high_frequency,
             { "High Frequency",                  "ubertooth.high_frequency",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rx_packets,
             { "Rx Packets",                      "ubertooth.rx_packets",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rssi_threshold,
             { "RSSI Threshold",                  "ubertooth.rssi_threshold",
-            FT_INT16, BASE_DEC, NULL, 0x00,
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_clock_offset,
             { "Clock Offset",                    "ubertooth.clock_offset",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_afh_map,
             { "AFH Map",                         "ubertooth.afh_map",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bdaddr,
@@ -2309,27 +2309,27 @@ proto_register_ubertooth(void)
         },
         { &hf_usb_rx_packet,
             { "USB Rx Packet",                   "ubertooth.usb_rx_packet",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_spectrum_entry,
             { "Spectrum Entry",                  "ubertooth.spectrum_entry",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_frequency,
             { "Frequency",                       "ubertooth.spectrum_entry.frequency",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rssi,
             { "RSSI",                            "ubertooth.spectrum_entry.rssi",
-            FT_INT8, BASE_DEC, NULL, 0x00,
+            FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_data,
             { "Data",                            "ubertooth.data",
-            FT_NONE, BASE_NONE, NULL, 0x00,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_cc2400_value,
@@ -2339,12 +2339,12 @@ proto_register_ubertooth(void)
         },
         { &hf_cc2400_syncl,
             { "Synchronisation Word, lower 16 bit",        "ubertooth.register.value.syncl",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_cc2400_synch,
             { "Synchronisation Word, upper 16 bit",        "ubertooth.register.value.synch",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_cc2400_reserved_0x2B_res_15_14,
