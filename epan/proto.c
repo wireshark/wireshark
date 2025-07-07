@@ -6897,8 +6897,13 @@ static size_t label_find_name_pos(const item_label_t *rep)
 {
 	size_t name_pos = 0;
 
+	/* If the value_pos is too small or too large, we can't find the expected format */
+	if (rep->value_pos <= 2 || rep->value_pos >= sizeof(rep->representation)) {
+		return 0;
+	}
+
 	/* Check if the format looks like "label: value", then set name_pos before ':'. */
-	if (rep->value_pos > 2 && rep->representation[rep->value_pos-2] == ':') {
+	if (rep->representation[rep->value_pos-2] == ':') {
 		name_pos = rep->value_pos - 2;
 	}
 
@@ -9952,39 +9957,46 @@ mark_truncated(char *label_str, size_t name_pos, const size_t size, size_t *valu
 	 * name_pos==0 means that we have only data or only a field_name
 	 */
 
-	if (name_pos < size - trunc_len) {
-		memmove(label_str + name_pos + trunc_len, label_str + name_pos, size - name_pos - trunc_len);
-		if (name_pos == 0) {
-			/* Copy the trunc_str after the first byte, so that we don't have a leading space in the label. */
-			memcpy(label_str, trunc_str + 1, trunc_len);
-		} else {
-			memcpy(label_str + name_pos, trunc_str, trunc_len);
-		}
-		/* in general, label_str is UTF-8
-		   we can truncate it only at the beginning of a new character
-		   we go backwards from the byte right after our buffer and
-		    find the next starting byte of a UTF-8 character, this is
-		    where we cut
-		   there's no need to use g_utf8_find_prev_char(), the search
-		    will always succeed since we copied trunc_str into the
-		    buffer */
-		/* g_utf8_prev_char does not deference the memory address
-		 * passed in (until after decrementing it, so it is perfectly
-		 * legal to pass in a pointer one past the last element.
-		 */
-		last_char = g_utf8_prev_char(label_str + size);
-		*last_char = '\0';
+	if (name_pos >= size - trunc_len) {
+		/* No room for trunc_str after the field_name, put it first. */
+		name_pos = 0;
+	}
 
-		if (value_pos && *value_pos > 0) {
-			if (name_pos == 0) {
-				*value_pos += trunc_len;
-			} else {
-				/* Move one back to include trunc_str in the value. */
-				*value_pos -= 1;
-			}
+	memmove(label_str + name_pos + trunc_len, label_str + name_pos, size - name_pos - trunc_len);
+	if (name_pos == 0) {
+		/* Copy the trunc_str after the first byte, so that we don't have a leading space in the label. */
+		memcpy(label_str, trunc_str + 1, trunc_len);
+	} else {
+		memcpy(label_str + name_pos, trunc_str, trunc_len);
+	}
+	/* in general, label_str is UTF-8
+	   we can truncate it only at the beginning of a new character
+	   we go backwards from the byte right after our buffer and
+	    find the next starting byte of a UTF-8 character, this is
+	    where we cut
+	   there's no need to use g_utf8_find_prev_char(), the search
+	    will always succeed since we copied trunc_str into the
+	    buffer */
+	/* g_utf8_prev_char does not deference the memory address
+	 * passed in (until after decrementing it, so it is perfectly
+	 * legal to pass in a pointer one past the last element.
+	 */
+	last_char = g_utf8_prev_char(label_str + size);
+	*last_char = '\0';
+
+	if (value_pos && *value_pos > 0) {
+		if (name_pos == 0) {
+			*value_pos += trunc_len;
+		} else {
+			/* Move one back to include trunc_str in the value. */
+			*value_pos -= 1;
 		}
-	} else if (name_pos < size)
-		(void) g_strlcpy(label_str + name_pos, trunc_str, size - name_pos);
+	}
+
+	/* Check if value_pos is past label_str. */
+	if (value_pos && *value_pos >= size) {
+		*value_pos = size - 1;
+	}
 }
 
 static void
