@@ -84,6 +84,10 @@ WS_DLL_PUBLIC
 unsigned
 wmem_array_get_count(wmem_array_t *array);
 
+WS_DLL_PUBLIC
+wmem_allocator_t*
+wmem_array_get_allocator(wmem_array_t* array);
+
 /* Truncates the underlying array to the elements contained within
  * (including null terminator if set), frees the wmem_array_t
  * structure, and returns a pointer to the raw array. The wmem_array_t

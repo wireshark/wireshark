@@ -161,6 +161,15 @@ wmem_array_get_count(wmem_array_t *array)
     return array->elem_count;
 }
 
+wmem_allocator_t*
+wmem_array_get_allocator(wmem_array_t* array)
+{
+    if (array == NULL)
+        return NULL;
+
+    return array->allocator;
+}
+
 void *
 wmem_array_finalize(wmem_array_t *array)
 {
