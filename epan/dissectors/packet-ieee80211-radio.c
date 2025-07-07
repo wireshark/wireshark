@@ -1151,7 +1151,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
       case PHDR_802_11_PHY_11AX:
       {
         struct ieee_802_11ax *info_ax = &phy_info->info_11ax;
-        if (info_ax->has_gi && info_ax->has_bwru && info_ax->has_mcs_index) {
+        if (info_ax->has_gi && info_ax->has_bwru && info_ax->has_mcs_index && !have_data_rate) {
           if (info_ax->bwru < HE_SU_MAX_BW) {
             data_rate = ieee80211_he_ofdm_rate(info_ax->nsts,info_ax->mcs,info_ax->bwru,info_ax->gi);
           } else {
@@ -1167,8 +1167,6 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
         if (info_ax->has_bwru) {
           proto_tree_add_uint(radio_tree, hf_wlan_radio_11ax_bandwidth, tvb, 0, 0, info_ax->bwru);
-          if (info_ax->bwru < G_N_ELEMENTS(ieee80211_vht_bw2rate_index))
-            bandwidth = ieee80211_vht_bw2rate_index[info_ax->bwru];
         }
 
         if (info_ax->has_mcs_index) {
