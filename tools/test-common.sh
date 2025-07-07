@@ -17,7 +17,11 @@ if [ -z "$TEST_TYPE" ] ; then
 fi
 
 DATE=/bin/date
-BASE_NAME=$TEST_TYPE-$($DATE +%Y-%m-%d)-$$
+FUZZ_ID=$$
+if [ -n "$CI_JOB_ID" ] ; then
+    FUZZ_ID=$CI_JOB_ID
+fi
+BASE_NAME=$TEST_TYPE-$($DATE +%Y-%m-%d)-$FUZZ_ID
 
 # Directory containing binaries.  Default: cmake run directory.
 if [ -z "$WIRESHARK_BIN_DIR" ]; then
