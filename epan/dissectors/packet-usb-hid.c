@@ -3056,7 +3056,7 @@ static const value_string usb_hid_power_device_usage_page_vals[] = {
     {0x73, "CommunicationLost"},
     {0xFD, "iManufacturer"},
     {0xFE, "iProduct"},
-    {0xFF, "iserialNumber"},
+    {0xFF, "iSerialNumber"},
     {0, NULL}
 };
 static const value_string usb_hid_battery_system_usage_page_vals[] = {
@@ -3107,7 +3107,7 @@ static const value_string usb_hid_battery_system_usage_page_vals[] = {
     {0x60, "AtRateTimeToFull"},
     {0x61, "AtRateTimeToEmpty"},
     {0x62, "AverageCurrent"},
-    {0x63, "Maxerror"},
+    {0x63, "MaxError"},
     {0x64, "RelativeStateOfCharge"},
     {0x65, "AbsoluteStateOfCharge"},
     {0x66, "RemainingCapacity"},
@@ -3124,8 +3124,8 @@ static const value_string usb_hid_battery_system_usage_page_vals[] = {
     {0x85, "ManufacturerDate"},
     {0x86, "SerialNumber"},
     {0x87, "iManufacturerName"},
-    {0x88, "iDevicename"},
-    {0x89, "iDeviceChemistery"},
+    {0x88, "iDeviceName"},
+    {0x89, "iDeviceChemistry"},
     {0x8A, "ManufacturerData"},
     {0x8B, "Rechargeable"},
     {0x8C, "WarningCapacityLimit"},
