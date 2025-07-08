@@ -295,6 +295,16 @@ sharkd_init(int argc, char **argv)
            where we repeatedly spawn a new session process.
            */
 
+        /*
+         * To reset the options parser, set ws_optreset to 1 and set ws_optind to 1.
+         *
+         * Also reset ws_opterr to 1, so that error messages are printed by
+         * getopt_long().
+         */
+        ws_optreset = 1;
+        ws_optind = 1;
+        ws_opterr = 1;
+
         do {
             if (ws_optind > (argc - 1))
                 break;
