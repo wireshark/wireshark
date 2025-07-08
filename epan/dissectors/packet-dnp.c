@@ -2062,32 +2062,6 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, uint8_t al_ptflags, proto_tree *p
   proto_item_append_text(point_item, ")");
 }
 
-/**********************************************************************/
-/* Function to convert DNP3 timestamp to nstime_t value               */
-/**********************************************************************/
-/* 48-bit Time Format                                                 */
-/* MSB      FF       EE       DD       CC       BB       AA      LSB  */
-/*       ffffffff eeeeeeee dddddddd cccccccc bbbbbbbb aaaaaaaa        */
-/*       47    40 39    32 31    24 23    16 15     8 7      0        */
-/*                                                                    */
-/* Value is ms since 00:00 on 1/1/1970                                */
-/**********************************************************************/
-static void
-dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int data_pos)
-{
-
-  uint32_t hi, lo;
-  uint64_t time_ms;
-
-  lo = tvb_get_letohs(tvb, data_pos);
-  hi = tvb_get_letohl(tvb, data_pos + 2);
-
-  time_ms = (uint64_t)hi * 0x10000 + lo;
-
-  timestamp->secs  = (time_t)(time_ms / 1000);
-  timestamp->nsecs = (int)(time_ms % 1000) * 1000000;
-}
-
 static bool
 dnp3_al_empty_obj(uint16_t al_obj)
 {
@@ -2636,8 +2610,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 1;
 
               /* Get timestamp */
-              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-              proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
               data_pos += 6;
 
               al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
@@ -2656,8 +2629,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 1;
 
               /* Get timestamp */
-              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-              proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
               data_pos += 6;
 
               al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
@@ -2829,9 +2801,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AOC_16EVTT:   /* 16-bit Analog Command Event with time (Obj:43, Var:04) */
                 case AL_OBJ_AOC_FLTEVTT:   /* 32-bit Floating Point Analog Command Event with time (Obj:43, Var:07) */
                 case AL_OBJ_AOC_DBLEVTT:   /* 64-bit Floating Point Analog Command Event with time (Obj:43, Var:08) */
-                  dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                  proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
                   proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
-                  proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                 break;
               }
@@ -3012,9 +2983,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_FCTRC_16T:
                 case AL_OBJ_FDCTRC_32T:
                 case AL_OBJ_FDCTRC_16T:
-                  dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                  proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
                   proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
-                  proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
               }
@@ -3152,18 +3122,16 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AIFC_FLTT:
                 case AL_OBJ_AIFC_DBLT:
 
-                  dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                  proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
                   proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
-                  proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
 
                 case AL_OBJ_AIF_32TOF:
                 case AL_OBJ_AIF_16TOF:
 
-                  dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                  proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
                   proto_item_append_text(point_item, ", Time of Freeze: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
-                  proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
               }
@@ -3241,9 +3209,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_AOC_16T:
                 case AL_OBJ_AOC_FLTT:
                 case AL_OBJ_AOC_DBLT:
-                  dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                  proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
                   proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
-                  proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                   data_pos += 6;
                   break;
               }
@@ -3257,8 +3224,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_TDCTO:  /* Time and Date CTO (Obj:51, Var:01) */
             case AL_OBJ_UTDCTO: /* Unsynchronized Time and Date CTO (Obj:51, Var:02) */
 
-              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-              proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              proto_tree_add_time_item(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
               data_pos += 6;
               proto_item_set_len(point_item, data_pos - offset);
 
@@ -3292,8 +3258,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               /* Creation Time */
               if (al_file_ctrl_mode == AL_OBJ_FILE_MODE_WRITE) {
-                dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-                proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+                proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
               }
               data_pos += 6;
 
@@ -3607,8 +3572,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 1;
 
               /* Error Timestamp */
-              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
-              proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              proto_tree_add_time_item(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
               data_pos += 6;
 
               /* Error Text */
@@ -3725,9 +3689,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 4;
 
               if (al_obj == AL_OBJ_SA_SECSTATEVTT) {
-                dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                proto_tree_add_time_item(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, &al_abstime, NULL, NULL);
                 proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, false));
-                proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
                 data_pos += 6;
               }
 
