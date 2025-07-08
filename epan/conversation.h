@@ -114,7 +114,8 @@ typedef enum {
     CONVERSATION_OPENVPN,
     CONVERSATION_PROXY,
     CONVERSATION_GNSS,
-    CONVERSATION_DNP3
+    CONVERSATION_DNP3,
+    CONVERSATION_ILNP,          /* ILNP */
 } conversation_type;
 
 /*
@@ -165,6 +166,7 @@ typedef enum {
 #define ENDPOINT_IP		CONVERSATION_IP
 #define ENDPOINT_IPv6		CONVERSATION_IPv6
 #define ENDPOINT_ETH		CONVERSATION_ETH
+#define ENDPOINT_ILNP		CONVERSATION_ILNP
 
 typedef conversation_type endpoint_type;
 

@@ -566,6 +566,7 @@ static expert_field ei_ipv6_opt_ioam_invalid_trace_type;
 static expert_field ei_ipv6_embed_ipv4_u_value;
 
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t ilnp_handle;
 
 /* Reassemble fragmented datagrams */
 static bool ipv6_reassemble = true;
@@ -1724,6 +1725,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 struct opt_proto_item {
     proto_item *type, *len;
+    proto_tree *root_tree;
 };
 
 /*
@@ -2745,11 +2747,15 @@ dissect_opt_home_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 */
 static int
 dissect_opt_ilnp_nonce(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *opt_tree,
-                            struct opt_proto_item *opt_ti _U_, uint8_t opt_len)
+                            struct opt_proto_item *opt_ti, uint8_t opt_len)
 {
     proto_tree_add_item(opt_tree, hf_ipv6_opt_ilnp_nonce, tvb, offset, opt_len, ENC_NA);
-    offset += opt_len;
 
+    // Make a new tvb for the ILNP protocol
+    tvbuff_t* tvb_ilnp = tvb_new_subset_length(tvb, offset, opt_len);
+    call_dissector_with_data(ilnp_handle, tvb_ilnp, pinfo, proto_tree_get_parent(opt_ti->root_tree), NULL);
+
+    offset += opt_len;
     return offset;
 }
 
@@ -2949,6 +2955,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
         opt_tree = proto_item_add_subtree(pi, ett_ipv6_opt);
 
         opt_ti.type = proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        //Allow options to have access to the IP tree
+        opt_ti.root_tree = tree;
 
         if (opt_type == IP6OPT_PAD1) {
             /* The Pad1 option is a special case, and contains no data. */
@@ -5757,6 +5765,8 @@ proto_reg_handoff_ipv6(void)
     h = create_dissector_handle(dissect_routing6_crh, proto_ipv6_routing_crh);
     dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_COMPACT_16, h);
     dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_COMPACT_32, h);
+
+    ilnp_handle = find_dissector_add_dependency("ilnp", proto_ipv6_dstopts);
 
     exported_pdu_tap = find_tap_id("IP");
 }

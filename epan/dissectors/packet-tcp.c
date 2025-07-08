@@ -9176,6 +9176,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 phdr[0] = g_htonl(reported_len);
                 break;
 
+            case AT_ILNP_NID:
+                /* TCP now also runs atop ILNP :) */
+                phdr[0] = g_htonl(reported_len);
+                phdr[1] = g_htonl(IP_PROTO_TCP);
+                SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t*)phdr, 8);
+                // We don't care about the return, only want the
+                // intermediate partial value.
+                in_cksum_ret_partial(cksum_vec, 4, &partial_cksum_no_len);
+                phdr[0] = g_htonl(reported_len);
+                break;
+
             default:
                 /* TCP runs only atop IPv4 and IPv6.... */
                 DISSECTOR_ASSERT_NOT_REACHED();

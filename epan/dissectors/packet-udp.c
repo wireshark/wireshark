@@ -1123,6 +1123,15 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
                 SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
                 break;
 
+            case AT_ILNP_NID:
+                if (ip_proto == IP_PROTO_UDP)
+                    phdr[0] = g_htonl(udph->uh_ulen);
+                else
+                    phdr[0] = g_htonl(reported_len);
+                phdr[1] = g_htonl(ip_proto);
+                SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
+                break;
+
             default:
                 /* UDP runs only atop IPv4 and IPv6.... */
                 DISSECTOR_ASSERT_NOT_REACHED();
