@@ -6586,6 +6586,23 @@ void QCPAxisTickerDateTime::setDateTimeFormat(const QString &format)
 void QCPAxisTickerDateTime::setDateTimeSpec(Qt::TimeSpec spec)
 {
   mDateTimeSpec = spec;
+# if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+  switch (spec) {
+  case Qt::LocalTime:
+    mTimeZone = QTimeZone(QTimeZone::LocalTime);
+    break;
+  case Qt::OffsetFromUTC:
+    // There's no offset to be used
+    qWarning() << "QCPAxisTickerDateTime treating QT::OffsetFromUTC as QT::UTC";
+    // FALLTHROUGH
+  case Qt::UTC:
+    mTimeZone = QTimeZone(QTimeZone::UTC);
+    break;
+  default:
+    // If it's Qt::TimeZone, ignore and hope setTimeZone is/was called
+    break;
+  }
+# endif
 }
 
 # if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
@@ -6715,7 +6732,9 @@ QString QCPAxisTickerDateTime::getTickLabel(double tick, const QLocale &locale, 
 {
   Q_UNUSED(precision)
   Q_UNUSED(formatChar)
-# if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+# if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+  return locale.toString(keyToDateTime(tick).toTimeZone(mTimeZone), mDateTimeFormat);
+# elif QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
   if (mDateTimeSpec == Qt::TimeZone)
     return locale.toString(keyToDateTime(tick).toTimeZone(mTimeZone), mDateTimeFormat);
   else
@@ -6823,8 +6842,23 @@ double QCPAxisTickerDateTime::dateTimeToKey(const QDate &date, Qt::TimeSpec time
   return QDateTime(date, QTime(0, 0), timeSpec).toTime_t();
 # elif QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
   return QDateTime(date, QTime(0, 0), timeSpec).toMSecsSinceEpoch()/1000.0;
-# else
+# elif QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
   return date.startOfDay(timeSpec).toMSecsSinceEpoch()/1000.0;
+# else
+  switch (timeSpec) {
+  case Qt::TimeZone:
+    // No QTimeZone was passed in, so this is treated as Qt::LocalTime in
+    // the deprecated function:
+    // https://doc.qt.io/qt-6/qdatetime-obsolete.html
+  case Qt::LocalTime:
+    return date.startOfDay().toMSecsSinceEpoch()/1000.0;
+  case Qt::OffsetFromUTC:
+    // No offset was passed in, treating as zero per deprecated function.
+  case Qt::UTC:
+    return date.startOfDay(QTimeZone(QTimeZone::UTC)).toMSecsSinceEpoch()/1000.0;
+  default:
+    Q_UNREACHABLE();
+  }
 # endif
 }
 /* end of 'src/axis/axistickerdatetime.cpp' */
