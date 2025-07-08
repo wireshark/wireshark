@@ -16,9 +16,6 @@
 #include <wiretap/wtap.h>
 #include <wiretap/socketcan.h>
 
-//#define BUSMASTER_DEBUG
-//#define BUSMASTER_PARSER_TRACE
-
 typedef enum {
     LOG_ENTRY_ERROR = -1,
     LOG_ENTRY_NONE = 0,
@@ -109,12 +106,5 @@ typedef struct {
 bool
 run_busmaster_parser(busmaster_state_t *state,
                      int               *err, char **err_info);
-
-#ifdef BUSMASTER_DEBUG
-#include <stdio.h>
-#define busmaster_debug_printf(...) printf(__VA_ARGS__)
-#else
-#define busmaster_debug_printf(...) (void)0
-#endif
 
 #endif  /* BUSMASTER_PRIV_H__ */

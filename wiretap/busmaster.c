@@ -11,7 +11,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "busmaster"
 #include "config.h"
+#include <wireshark.h>
 #include "busmaster.h"
 
 #include <socketcan.h>
@@ -128,7 +130,7 @@ busmaster_parse(FILE_T fh, busmaster_state_t *state, int *err, char **err_info)
     bool ok;
     int64_t  seek_off;
 
-    busmaster_debug_printf("%s: Running busmaster file decoder\n", G_STRFUNC);
+    ws_debug("%s: Running busmaster file decoder\n", G_STRFUNC);
 
     state->fh = fh;
 
@@ -138,13 +140,13 @@ busmaster_parse(FILE_T fh, busmaster_state_t *state, int *err, char **err_info)
             return LOG_ENTRY_EOF;
 
         seek_off               = file_tell(fh);
-        busmaster_debug_printf("%s: Starting parser at offset %" PRIi64 "\n",
+        ws_debug("%s: Starting parser at offset %" PRIi64 "\n",
                                G_STRFUNC, seek_off);
         state->file_bytes_read = 0;
         ok                     = run_busmaster_parser(state, err, err_info);
 
         /* Rewind the file to the offset we have finished parsing */
-        busmaster_debug_printf("%s: Rewinding to offset %" PRIi64 "\n",
+        ws_debug("%s: Rewinding to offset %" PRIi64 "\n",
                                G_STRFUNC, seek_off + state->file_bytes_read);
         if (file_seek(fh, seek_off + state->file_bytes_read, SEEK_SET, err) == -1)
         {
@@ -159,7 +161,7 @@ busmaster_parse(FILE_T fh, busmaster_state_t *state, int *err, char **err_info)
     if (!ok)
         return LOG_ENTRY_ERROR;
 
-    busmaster_debug_printf("%s: Success\n", G_STRFUNC);
+    ws_debug("%s: Success\n", G_STRFUNC);
 
     return state->entry_type;
 }
@@ -170,7 +172,7 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     busmaster_state_t state = {0};
     log_entry_type_t  entry;
 
-    busmaster_debug_printf("%s: Trying to open with busmaster log reader\n",
+    ws_debug("%s: Trying to open with busmaster log reader\n",
                            G_STRFUNC);
 
     /* Rewind to the beginning */
@@ -190,7 +192,7 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    busmaster_debug_printf("%s: That's a busmaster log\n", G_STRFUNC);
+    ws_debug("%s: That's a busmaster log\n", G_STRFUNC);
 
     wth->subtype_read      = busmaster_read;
     wth->subtype_seek_read = busmaster_seek_read;
@@ -204,7 +206,7 @@ busmaster_close(void* tap_data)
 {
     busmaster_data_t* data = (busmaster_data_t*)tap_data;
 
-    busmaster_debug_printf("%s\n", G_STRFUNC);
+    ws_debug("%s\n", G_STRFUNC);
 
     g_slist_free_full(data->list, g_free);
     g_free(data);
@@ -244,12 +246,12 @@ busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
 
     while (!is_msg && is_ok)
     {
-        busmaster_debug_printf("%s: offset = %" PRIi64 "\n",
+        ws_debug("%s: offset = %" PRIi64 "\n",
                                G_STRFUNC, file_tell(wth->fh));
 
         if (file_eof(wth->fh))
         {
-            busmaster_debug_printf("%s: End of file detected, nothing to do here\n",
+            ws_debug("%s: End of file detected, nothing to do here\n",
                                    G_STRFUNC);
             *err      = 0;
             *err_info = NULL;
@@ -264,7 +266,7 @@ busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
             state.header = *priv_entry;
         entry = busmaster_parse(wth->fh, &state, err, err_info);
 
-        busmaster_debug_printf("%s: analyzing output\n", G_STRFUNC);
+        ws_debug("%s: analyzing output\n", G_STRFUNC);
         switch (entry)
         {
         case LOG_ENTRY_EMPTY:
@@ -327,7 +329,7 @@ busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
         }
     }
 
-    busmaster_debug_printf("%s: stopped at offset %" PRIi64 " with entry %d\n",
+    ws_debug("%s: stopped at offset %" PRIi64 " with entry %d\n",
                            G_STRFUNC, file_tell(wth->fh), entry);
 
     return is_ok;
@@ -342,12 +344,12 @@ busmaster_seek_read(wtap   *wth, int64_t seek_off, wtap_rec *rec,
     log_entry_type_t   entry;
     busmaster_data_t* priv_data = (busmaster_data_t*)wtap_socketcan_get_private_data(wth);
 
-    busmaster_debug_printf("%s: offset = %" PRIi64 "\n", G_STRFUNC, seek_off);
+    ws_debug("%s: offset = %" PRIi64 "\n", G_STRFUNC, seek_off);
 
     priv_entry = busmaster_find_priv_entry(priv_data->list, seek_off);
     if (!priv_entry)
     {
-        busmaster_debug_printf("%s: analyzing output\n", G_STRFUNC);
+        ws_debug("%s: analyzing output\n", G_STRFUNC);
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup("Malformed header");
         return false;
@@ -359,7 +361,7 @@ busmaster_seek_read(wtap   *wth, int64_t seek_off, wtap_rec *rec,
     state.header = *priv_entry;
     entry = busmaster_parse(wth->random_fh, &state, err, err_info);
 
-    busmaster_debug_printf("%s: analyzing output\n", G_STRFUNC);
+    ws_debug("%s: analyzing output\n", G_STRFUNC);
 
     if (entry == LOG_ENTRY_ERROR || entry == LOG_ENTRY_NONE)
         return false;

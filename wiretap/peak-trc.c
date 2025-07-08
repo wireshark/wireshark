@@ -12,7 +12,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "peak-trc"
 #include <config.h>
+#include <wireshark.h>
 #include <file_wrappers.h>
 #include <epan/dissectors/packet-socketcan.h>
 #include <wctype.h>
@@ -22,14 +24,6 @@
 #include <time.h>
 #include "peak-trc.h"
 #include "socketcan.h"
-
-//#define PEAK_TRC_DEBUG
-#ifdef PEAK_TRC_DEBUG
-#include <stdio.h>
-#define peak_trc_debug_printf(...) printf(__VA_ARGS__)
-#else
-#define peak_trc_debug_printf(...) (void)0
-#endif
 
 #define PEAK_TRC_MAX_LINE_SIZE 4096 // J1939 logs could contain long lines
 
@@ -114,9 +108,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
     int major = 1;
     int minor = 0;
 
-#ifdef PEAK_TRC_DEBUG
-    peak_trc_debug_printf("%s: Trying peak_trc file decoder\n", G_STRFUNC);
-#endif
+    ws_debug("%s: Trying peak_trc file decoder\n", G_STRFUNC);
 
     /* Initial start time until we find it in the header */
     state->trace_start = time(NULL);
@@ -133,9 +125,9 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
     while (!file_eof(wth->fh))
     {
         seek_off = file_tell(wth->fh);
-#ifdef PEAK_TRC_DEBUG
-        peak_trc_debug_printf("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
-#endif
+
+        ws_debug("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
+
         if (file_gets(line_buffer, PEAK_TRC_MAX_LINE_SIZE, wth->fh) == NULL)
         {
             /* Error reading file, bail out */
@@ -515,10 +507,11 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
         g_free(column_text);
     }
 
-#ifdef PEAK_TRC_DEBUG
+#ifdef WS_DEBUG
     for (int i = 0; i < column_count; i++)
-        peak_trc_debug_printf("%d: %s\n", i, g_match_info_fetch(match_info, i));
+        ws_debug("%d: %s\n", i, g_match_info_fetch(match_info, i));
 #endif
+
     g_match_info_free(match_info);
     return true;
 }
@@ -545,9 +538,9 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
             {
                 // column closed -> process data
                 gchar* column_text = g_utf8_substring(line_buffer, column_start, i);
-#ifdef PEAK_TRC_DEBUG
-                peak_trc_debug_printf("Column %d: %s\n", current_column, column_text);
-#endif
+
+                ws_debug("Column %d: %s\n", current_column, column_text);
+
                 switch (current_column) {
                 case Col_BusNumber:
                 {
@@ -750,18 +743,15 @@ peak_trc_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
 {
     peak_trc_state_t* state = (peak_trc_state_t*)wtap_socketcan_get_private_data(wth);
 
-#ifdef PEAK_TRC_DEBUG
-    peak_trc_debug_printf("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
-#endif
+    ws_debug("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 
     return peak_trc_read_packet(wth, wth->fh, state, rec, err, err_info, data_offset);
 }
 
 static bool peak_trc_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err_info)
 {
-#ifdef PEAK_TRC_DEBUG
-    peak_trc_debug_printf("%s: Read at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
-#endif
+    ws_debug("%s: Read at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
+
     peak_trc_state_t* state = (peak_trc_state_t*)wtap_socketcan_get_private_data(wth);
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -812,9 +802,7 @@ peak_trc_open(wtap* wth, int* err, char** err_info)
         return open_val;
     }
 
-#ifdef PEAK_TRC_DEBUG
-    peak_trc_debug_printf("%s: This is our file\n", G_STRFUNC);
-#endif
+    ws_debug("%s: This is our file\n", G_STRFUNC);
 
     /* Go to the start of the real packet data since header is now done */
     if (file_seek(wth->fh, data_offset, SEEK_SET, err) == -1)
