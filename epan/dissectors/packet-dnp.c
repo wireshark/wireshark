@@ -2084,7 +2084,7 @@ dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int data_pos)
 
   time_ms = (uint64_t)hi * 0x10000 + lo;
 
-  timestamp->secs  = (long)(time_ms / 1000);
+  timestamp->secs  = (time_t)(time_ms / 1000);
   timestamp->nsecs = (int)(time_ms % 1000) * 1000000;
 }
 
