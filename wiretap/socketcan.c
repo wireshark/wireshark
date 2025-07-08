@@ -31,12 +31,78 @@ typedef struct canfd_frame {
     uint8_t data[CANFD_MAX_DLEN];
 } canfd_frame_t;
 
-void
-wtap_set_as_socketcan(wtap* wth, int file_type_subtype, int tsprec)
+typedef struct can_priv_data {
+    GHashTable* interface_ids;	/* map name/description/link-layer type to interface ID */
+    unsigned num_interface_ids;	/* Number of interface IDs assigned */
+
+    void (*tap_close)(void*);
+    void* tap_priv;
+
+} can_priv_data_t;
+
+/*
+ * Hash table to map interface name to interface ID.
+ */
+
+static gboolean
+destroy_if_name(void* key, void* value _U_, void* user_data _U_)
 {
+    char* name = (char*)key;
+
+    g_free(name);
+
+    return true;
+}
+
+static void
+add_new_if_name(can_priv_data_t* can_data, const char* name, void** result)
+{
+    char* new_name;
+
+    new_name = g_strdup(name);
+    *result = GUINT_TO_POINTER(can_data->num_interface_ids);
+    g_hash_table_insert(can_data->interface_ids, (void*)new_name, *result);
+    can_data->num_interface_ids++;
+}
+
+static void
+wtap_socketcan_close(wtap* wth)
+{
+    //Clean up wiretap data
+    can_priv_data_t* data = (can_priv_data_t*)wth->priv;
+    if (data->tap_close != NULL)
+        data->tap_close(data->tap_priv);
+
+    //Cleanup our interface data
+    g_hash_table_foreach_remove(data->interface_ids, destroy_if_name, NULL);
+    g_hash_table_destroy(data->interface_ids);
+    g_free(data);
+
+    wth->priv = NULL;
+}
+
+void*
+wtap_socketcan_get_private_data(wtap* wth)
+{
+    can_priv_data_t* socket_can_data = (can_priv_data_t*)wth->priv;
+    return socket_can_data->tap_priv;
+}
+
+void
+wtap_set_as_socketcan(wtap* wth, int file_type_subtype, int tsprec, void* tap_priv, void (*tap_close)(void*))
+{
+    //Create the private data that wraps over the wiretap's private data
+    can_priv_data_t* socketcan_priv_data = g_new0(can_priv_data_t, 1);
+    socketcan_priv_data->interface_ids = g_hash_table_new(g_str_hash, g_str_equal);
+
+    socketcan_priv_data->tap_priv = tap_priv;
+    socketcan_priv_data->tap_close = tap_close;
+
     wth->file_type_subtype = file_type_subtype;
     wth->file_encap = WTAP_ENCAP_SOCKETCAN;
     wth->file_tsprec = tsprec;
+    wth->subtype_close = wtap_socketcan_close;
+    wth->priv = socketcan_priv_data;
 }
 
 bool
@@ -136,6 +202,48 @@ wtap_socketcan_gen_packet(wtap* wth, wtap_rec* rec, const wtap_can_msg_t* msg, c
     rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
     rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(&rec->data);
 
-    return true;
+    if (msg->interface_id != 0xFFFFFFFF) {
+        rec->presence_flags |= WTAP_HAS_INTERFACE_ID;
+        rec->rec_header.packet_header.interface_id = msg->interface_id;
+    }
 
+    return true;
+}
+
+uint32_t
+wtap_socketcan_find_or_create_new_interface(wtap* wth, const char* name)
+{
+    void* result = NULL;
+    can_priv_data_t* can_data = (can_priv_data_t*)wth->priv;
+
+    if (!g_hash_table_lookup_extended(can_data->interface_ids, name, NULL, &result))
+    {
+        wtap_block_t int_data;
+        wtapng_if_descr_mandatory_t* int_data_mand;
+
+        /*
+         * Not found; make a new entry.
+         */
+        add_new_if_name(can_data, name, &result);
+
+        /*
+         * Now make a new IDB and add it.
+         */
+        int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+
+        int_data_mand->wtap_encap = WTAP_ENCAP_SOCKETCAN;
+        int_data_mand->tsprecision = WTAP_TSPREC_USEC;
+        int_data_mand->time_units_per_second = 1000000; /* Microsecond resolution */
+        int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;	/* XXX - not known */
+
+        wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0x06); /* microsecond resolution */
+        /* Interface statistics */
+        int_data_mand->num_stat_entries = 0;
+        int_data_mand->interface_statistics = NULL;
+
+        wtap_block_set_string_option_value(int_data, OPT_IDB_NAME, name, strlen(name));
+        wtap_add_idb(wth, int_data);
+    }
+    return GPOINTER_TO_UINT(result);
 }

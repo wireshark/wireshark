@@ -20,42 +20,9 @@
 #include <wiretap/socketcan.h>
 #include <epan/dissectors/packet-socketcan.h>
 
-/*
- * Private per-wtap_t data needed to read a file.
- */
-typedef struct {
-	GHashTable *interface_ids;	/* map name/description/link-layer type to interface ID */
-	unsigned num_interface_ids;	/* Number of interface IDs assigned */
-} candump_t;
-
 #define CANDUMP_MAX_LINE_SIZE 4096 // J1939 logs could contain long lines
 
 static int candump_file_type_subtype = -1;
-
-/*
- * Hash table to map interface name to interface ID.
- */
-
-static gboolean
-destroy_if_name(void *key, void *value _U_, void *user_data _U_)
-{
-    char *name = (char *)key;
-
-    g_free(name);
-
-    return true;
-}
-
-static void
-add_new_if_name(candump_t *candump, const char *name, void * *result)
-{
-    char *new_name;
-
-    new_name = g_strdup(name);
-    *result = GUINT_TO_POINTER(candump->num_interface_ids);
-    g_hash_table_insert(candump->interface_ids, (void *)new_name, *result);
-    candump->num_interface_ids++;
-}
 
 /*
  * Following 3 functions taken from gsmdecode-0.7bis, with permission:
@@ -107,7 +74,7 @@ hex2bin(uint8_t* out, uint8_t* out_end, char* in)
 
 static bool
 candump_parse(wtap *wth, FILE_T fh, wtap_can_msg_t *msg, int64_t *offset,
-              unsigned int *interface_id, int *err, char **err_info)
+              int *err, char **err_info)
 {
     gint64 seek_off = 0;
     char line_buffer[CANDUMP_MAX_LINE_SIZE];
@@ -116,7 +83,9 @@ candump_parse(wtap *wth, FILE_T fh, wtap_can_msg_t *msg, int64_t *offset,
     bool ext_msg;
     int secs = 0,
         nsecs = 0;
-    void *result;
+
+    //Start with unknown interface ID
+    msg->interface_id = WTAP_SOCKETCAN_INVALID_INTERFACE_ID;
 
     while(!file_eof(fh))
     {
@@ -227,40 +196,7 @@ candump_parse(wtap *wth, FILE_T fh, wtap_can_msg_t *msg, int64_t *offset,
          * with that name.
          */
         if (wth != NULL) {
-            candump_t *candump = (candump_t *)wth->priv;
-
-            if (!g_hash_table_lookup_extended(candump->interface_ids,
-                                             (const void *)tokens[1],
-                                             NULL, &result)) {
-                wtap_block_t int_data;
-                wtapng_if_descr_mandatory_t *int_data_mand;
-
-                /*
-                 * Not found; make a new entry.
-                 */
-                add_new_if_name(candump, tokens[1], &result);
-
-                /*
-                 * Now make a new IDB and add it.
-                 */
-                int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
-                int_data_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(int_data);
-
-                int_data_mand->wtap_encap = WTAP_ENCAP_SOCKETCAN;
-                int_data_mand->tsprecision = WTAP_TSPREC_USEC;
-                int_data_mand->time_units_per_second = 1000000; /* Microsecond resolution */
-                int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;	/* XXX - not known */
-
-                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0x06); /* microsecond resolution */
-                /* Interface statistics */
-                int_data_mand->num_stat_entries = 0;
-                int_data_mand->interface_statistics = NULL;
-
-                wtap_block_set_string_option_value(int_data,
-                    OPT_IDB_NAME, tokens[1], strlen(tokens[1]));
-                wtap_add_idb(wth, int_data);
-             }
-             *interface_id = GPOINTER_TO_UINT(result);
+            msg->interface_id = wtap_socketcan_find_or_create_new_interface(wth, tokens[1]);
         }
 
         g_strfreev(tokens);
@@ -276,32 +212,19 @@ candump_parse(wtap *wth, FILE_T fh, wtap_can_msg_t *msg, int64_t *offset,
 }
 
 static bool
-candump_fill_in_rec(wtap *wth, wtap_rec *rec, wtap_can_msg_t *msg,
-                    unsigned int interface_id, int *err, char **err_info)
-{
-    if (!wtap_socketcan_gen_packet(wth, rec, msg, "candump", err, err_info))
-        return false;
-    rec->presence_flags |= WTAP_HAS_INTERFACE_ID;
-    rec->rec_header.packet_header.interface_id = interface_id;
-    return true;
-}
-
-static bool
 candump_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
              int64_t *data_offset)
 {
     wtap_can_msg_t msg = {0};
-    unsigned int interface_id;
 
     ws_debug("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 
-    if (!candump_parse(wth, wth->fh, &msg, data_offset, &interface_id,
-                       err, err_info))
+    if (!candump_parse(wth, wth->fh, &msg, data_offset, err, err_info))
         return false;
 
     ws_debug("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 
-    return candump_fill_in_rec(wth, rec, &msg, interface_id, err, err_info);
+    return wtap_socketcan_gen_packet(wth, rec, &msg, "candump", err, err_info);
 }
 
 static bool
@@ -309,7 +232,6 @@ candump_seek_read(wtap *wth , int64_t seek_off, wtap_rec *rec,
                   int *err, char **err_info)
 {
     wtap_can_msg_t msg = {0};
-    unsigned int interface_id;
 
     ws_debug("%s: Read at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
 
@@ -321,27 +243,16 @@ candump_seek_read(wtap *wth , int64_t seek_off, wtap_rec *rec,
         return false;
     }
 
-    if (!candump_parse(wth, wth->random_fh, &msg, NULL, &interface_id,
-                       err, err_info))
+    if (!candump_parse(wth, wth->random_fh, &msg, NULL, err, err_info))
         return false;
 
-    return candump_fill_in_rec(wth, rec, &msg, interface_id, err, err_info);
-}
-
-static void
-candump_close(wtap *wth)
-{
-    candump_t *candump = (candump_t *)wth->priv;
-
-    g_hash_table_foreach_remove(candump->interface_ids, destroy_if_name, NULL);
-    g_hash_table_destroy(candump->interface_ids);
+    return wtap_socketcan_gen_packet(wth, rec, &msg, "candump", err, err_info);
 }
 
 wtap_open_return_val
 candump_open(wtap* wth, int* err, char** err_info)
 {
     wtap_can_msg_t temp_msg = {0};
-    candump_t *candump;
 
     /*
      * We don't pass wth to candump_parse(), because we haven't yet
@@ -350,7 +261,7 @@ candump_open(wtap* wth, int* err, char** err_info)
      * trying to look up those names and adding new interfaces if
      * it doesn't find them; we do that in the read code.
      */
-    if (!candump_parse(NULL, wth->fh, &temp_msg, NULL, NULL, err, err_info))
+    if (!candump_parse(NULL, wth->fh, &temp_msg, NULL, err, err_info))
     {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return WTAP_OPEN_ERROR;
@@ -370,15 +281,10 @@ candump_open(wtap* wth, int* err, char** err_info)
         return WTAP_OPEN_ERROR;
     }
 
-    /* This is a candump file */
-    wtap_set_as_socketcan(wth, candump_file_type_subtype, WTAP_TSPREC_USEC);
+    /* This is a candump file (no private data needed) */
+    wtap_set_as_socketcan(wth, candump_file_type_subtype, WTAP_TSPREC_USEC, NULL, NULL);
     wth->subtype_read = candump_read;
     wth->subtype_seek_read = candump_seek_read;
-    wth->subtype_close = candump_close;
-    candump = g_new(candump_t, 1);
-    candump->interface_ids = g_hash_table_new(g_str_hash, g_str_equal);
-    candump->num_interface_ids = 0;
-    wth->priv = (void *)candump;
 
     return WTAP_OPEN_MINE;
 }

@@ -66,14 +66,6 @@ typedef struct {
 } peak_trc_column_map_t;
 
 typedef struct {
-    guint32    flags;
-    wtap_can_msg_t msg;
-    uint8_t    bus_id;
-} peak_trc_msg_t;
-
-#define PEAK_TRC_MSG_FLAG_BUS_ID    1
-
-typedef struct {
     time_t trace_start;
     time_t trace_start_nsec;
 
@@ -109,24 +101,8 @@ static peak_trc_column_map_t colmap[] = {
 
 void register_peak_trc(void);
 
-static bool
-peak_trc_write_packet(wtap* wth, wtap_rec *rec, const peak_trc_msg_t *peak_msg,
-                      int *err, gchar **err_info)
-{
-    if (!wtap_socketcan_gen_packet(wth, rec, &peak_msg->msg, "peak", err, err_info))
-        return false;
-
-    if (peak_msg->flags & PEAK_TRC_MSG_FLAG_BUS_ID)
-    {
-        rec->presence_flags |= WTAP_HAS_INTERFACE_ID;
-        rec->rec_header.packet_header.interface_id = peak_msg->bus_id;
-    }
-
-    return true;
-}
-
 static wtap_open_return_val
-peak_trc_parse(wtap* wth, gint64* offset, int* err, char** err_info)
+peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, char** err_info)
 {
     gint64 seek_off = 0;
     bool found_timestamp = false;
@@ -137,8 +113,6 @@ peak_trc_parse(wtap* wth, gint64* offset, int* err, char** err_info)
      */
     int major = 1;
     int minor = 0;
-
-    peak_trc_state_t* state = (peak_trc_state_t*)wth->priv;
 
 #ifdef PEAK_TRC_DEBUG
     peak_trc_debug_printf("%s: Trying peak_trc file decoder\n", G_STRFUNC);
@@ -391,7 +365,7 @@ peak_trc_parse(wtap* wth, gint64* offset, int* err, char** err_info)
     return WTAP_OPEN_NOT_MINE;
 }
 
-static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* peak_msg, char* line_buffer)
+static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can_msg_t* peak_msg, char* line_buffer)
 {
     // pre 2.0 packets use regexp with fixed column order with a regexp
     GMatchInfo* match_info = NULL;
@@ -428,16 +402,16 @@ static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* pea
             }
             if (strcmp(column_text, "Error") == 0)
             {
-                peak_msg->msg.type = MSG_TYPE_ERR;
+                peak_msg->type = MSG_TYPE_ERR;
             }
             break;
         case Col_CanId:
-            peak_msg->msg.id = (guint32)g_ascii_strtoull(column_text, NULL, 16);
+            peak_msg->id = (guint32)g_ascii_strtoull(column_text, NULL, 16);
             break;
         case Col_ErrorOrRtr_v1p0:
             if (state->file_version_minor == 1 && strcmp(column_text, "RTR") == 0)
             {
-                peak_msg->msg.type = MSG_TYPE_STD_RTR;
+                peak_msg->type = MSG_TYPE_STD_RTR;
             }
             break;
         case Col_TimeOffset:
@@ -445,17 +419,20 @@ static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* pea
         {
             double tsd = g_ascii_strtod(column_text, NULL) / 1000.0; // parse to seconds
             tsd += state->trace_start;
-            peak_msg->msg.ts.secs = (guint64)tsd;
-            peak_msg->msg.ts.nsecs = (int)((tsd - (guint64)tsd) * 1000000000);
+            peak_msg->ts.secs = (guint64)tsd;
+            peak_msg->ts.nsecs = (int)((tsd - (guint64)tsd) * 1000000000);
         }
         break;
         case Col_DLC:
-            peak_msg->msg.data.length = (uint8_t)g_ascii_strtoull(column_text, NULL, 10);
+            peak_msg->data.length = (uint8_t)g_ascii_strtoull(column_text, NULL, 10);
             break;
         case Col_BusNumber_v1:
-            peak_msg->flags |= PEAK_TRC_MSG_FLAG_BUS_ID;
-            peak_msg->bus_id = (uint8_t)g_ascii_strtoull(column_text, NULL, 10);
+        {
+            char* interface_name = wmem_strdup_printf(NULL, "interface%s", column_text);
+            peak_msg->interface_id = wtap_socketcan_find_or_create_new_interface(wth, interface_name);
+            wmem_free(NULL, interface_name);
             break;
+        }
 
         case Col_Data:
         case Col_Data_v1_0:
@@ -464,33 +441,33 @@ static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* pea
             gchar** bytes = g_strsplit(g_strstrip(column_text), " ", CAN_MAX_DLEN);
             // 1.0 format has an ERROR prefix in the data bytes, 1.1 has a separate columns for message type
             if ((g_str_has_prefix(err_or_rtr, "ERROR")) ||
-                (state->file_version_minor == 1 && peak_msg->msg.type == MSG_TYPE_ERR))
+                (state->file_version_minor == 1 && peak_msg->type == MSG_TYPE_ERR))
             {
-                peak_msg->msg.type = MSG_TYPE_ERR;
+                peak_msg->type = MSG_TYPE_ERR;
 
                 /* For LINUX_CAN_ERR the length has to be CAN_MAX_DLEN */
-                peak_msg->msg.data.length = CAN_MAX_DLEN;
+                peak_msg->data.length = CAN_MAX_DLEN;
                 /* Clear the data of the message to populate it with SocketCAN meta data */
-                memset(peak_msg->msg.data.data, 0, CAN_MAX_DLEN);
+                memset(peak_msg->data.data, 0, CAN_MAX_DLEN);
 
-                guint32 old_id = peak_msg->msg.id;
-                peak_msg->msg.id = 0;
+                guint32 old_id = peak_msg->id;
+                peak_msg->id = 0;
                 // ID: Type of Error Frame
                 switch (old_id)
                 {
                 case 1: // 1 = Bit Error
-                    peak_msg->msg.id |= CAN_ERR_PROT_BIT;
+                    peak_msg->id |= CAN_ERR_PROT_BIT;
                     break;
                 case 2: // 2 = Form Error
-                    peak_msg->msg.id |= CAN_ERR_PROT_FORM;
+                    peak_msg->id |= CAN_ERR_PROT_FORM;
                     break;
                 case 4: // 4 = Stuff Error
-                    peak_msg->msg.id |= CAN_ERR_PROT_STUFF;
+                    peak_msg->id |= CAN_ERR_PROT_STUFF;
                     break;
                 }
 
                 //Translate PEAK error data into SocketCAN meta data for supported error types
-                if ((peak_msg->msg.id | (CAN_ERR_PROT_FORM& CAN_ERR_PROT_STUFF)) != 0)
+                if ((peak_msg->id | (CAN_ERR_PROT_FORM& CAN_ERR_PROT_STUFF)) != 0)
                 {
                     // Data Byte 0: Direction
                     uint8_t byte0 = (uint8_t)g_ascii_strtoull(bytes[0], NULL, 16);
@@ -498,36 +475,36 @@ static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* pea
                     {
                         //0 = Error occurred while sending
                         //1 = Error occurred while receiving.
-                        peak_msg->msg.data.data[2] |= CAN_ERR_PROT_TX;
+                        peak_msg->data.data[2] |= CAN_ERR_PROT_TX;
                     }
 
                     // Data Byte 1: Current Position in Bit Stream
                     uint8_t bit_pos = (uint8_t)g_ascii_strtoull(bytes[1], NULL, 16);
                     if (bit_pos == 28)
                     {
-                        peak_msg->msg.data.data[2] |= CAN_ERR_PROT_OVERLOAD;
+                        peak_msg->data.data[2] |= CAN_ERR_PROT_OVERLOAD;
                     }
                     else
                     {
                         // magically SocketCAN and PEAK error bit positions are identical with some exceptions
-                        peak_msg->msg.data.data[3] = bit_pos;
-                        if (peak_msg->msg.data.data[3] == 23)
-                            peak_msg->msg.data.data[3] = 0; // Error position not present in SocketCAN
+                        peak_msg->data.data[3] = bit_pos;
+                        if (peak_msg->data.data[3] == 23)
+                            peak_msg->data.data[3] = 0; // Error position not present in SocketCAN
                     }
                 }
             }
-            else if (g_str_has_prefix(err_or_rtr, "RTR") || (state->file_version_minor == 1 && peak_msg->msg.type == MSG_TYPE_STD_RTR))
+            else if (g_str_has_prefix(err_or_rtr, "RTR") || (state->file_version_minor == 1 && peak_msg->type == MSG_TYPE_STD_RTR))
             {
-                peak_msg->msg.type = MSG_TYPE_STD_RTR;
-                peak_msg->msg.data.length = 0;
+                peak_msg->type = MSG_TYPE_STD_RTR;
+                peak_msg->data.length = 0;
             }
             else
             {
-                peak_msg->msg.type = MSG_TYPE_STD;
+                peak_msg->type = MSG_TYPE_STD;
                 if (bytes)
                 {
                     for (int byte_i = 0; ((byte_i < CAN_MAX_DLEN) && (bytes[byte_i] != 0)); byte_i++)
-                        peak_msg->msg.data.data[byte_i] = (uint8_t)g_ascii_strtoull(bytes[byte_i], NULL, 16);
+                        peak_msg->data.data[byte_i] = (uint8_t)g_ascii_strtoull(bytes[byte_i], NULL, 16);
                 }
             }
             g_strfreev(bytes);
@@ -546,7 +523,7 @@ static bool peak_trc_read_packet_v1(peak_trc_state_t* state, peak_trc_msg_t* pea
     return true;
 }
 
-static bool peak_trc_read_packet_v2(peak_trc_state_t* state, peak_trc_msg_t* peak_msg, char* line_buffer)
+static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can_msg_t* peak_msg, char* line_buffer)
 {
     int i = 0;
     int column_i = 0;
@@ -573,13 +550,16 @@ static bool peak_trc_read_packet_v2(peak_trc_state_t* state, peak_trc_msg_t* pea
 #endif
                 switch (current_column) {
                 case Col_BusNumber:
-                    peak_msg->flags |= PEAK_TRC_MSG_FLAG_BUS_ID;
-                    peak_msg->bus_id = (uint8_t)g_ascii_strtoull(column_text, NULL, 10);
+                {
+                    char* interface_name = wmem_strdup_printf(NULL, "interface%s", column_text);
+                    peak_msg->interface_id = wtap_socketcan_find_or_create_new_interface(wth, interface_name);
+                    wmem_free(NULL, interface_name);
                     break;
+                }
                 case Col_Direction:
                     break;
                 case Col_Data: {
-                    if (peak_msg->msg.type == MSG_TYPE_ERR)
+                    if (peak_msg->type == MSG_TYPE_ERR)
                     {
                         // FIXME fill data and msg id
                     }
@@ -590,53 +570,53 @@ static bool peak_trc_read_packet_v2(peak_trc_state_t* state, peak_trc_msg_t* pea
                         while (byte_i < CANFD_MAX_DLEN) {
                             if (bytes[byte_i] == 0)
                                 break;
-                            peak_msg->msg.data.data[byte_i] = (uint8_t)g_ascii_strtoull(bytes[byte_i], NULL, 16);
+                            peak_msg->data.data[byte_i] = (uint8_t)g_ascii_strtoull(bytes[byte_i], NULL, 16);
                             byte_i++;
                         }
                     }
                     break;
                 }
                 case Col_CanId:
-                    peak_msg->msg.id = (guint)g_ascii_strtoull(column_text, NULL, 16);
+                    peak_msg->id = (guint)g_ascii_strtoull(column_text, NULL, 16);
                     break;
                 case Col_DLC:
-                    peak_msg->msg.data.length = (guint)g_ascii_strtoull(column_text, NULL, 10);
+                    peak_msg->data.length = (guint)g_ascii_strtoull(column_text, NULL, 10);
                     break;
                 case Col_TimeOffset:
                 {
                     double tsd = g_ascii_strtod(column_text, NULL) / 1000.0; // parse to seconds
                     tsd += state->trace_start;
-                    peak_msg->msg.ts.secs = (guint64)tsd;
-                    peak_msg->msg.ts.nsecs = (int)((tsd - (guint64)tsd) * 1000000000);
+                    peak_msg->ts.secs = (guint64)tsd;
+                    peak_msg->ts.nsecs = (int)((tsd - (guint64)tsd) * 1000000000);
                     break;
                 }
                 case Col_MessageType:
                     if (strcmp(column_text, "DT") == 0)
                     {
-                        peak_msg->msg.type = MSG_TYPE_STD;
+                        peak_msg->type = MSG_TYPE_STD;
                     }
                     else if (strcmp(column_text, "FD") == 0)
                     {
-                        peak_msg->msg.type = MSG_TYPE_STD_FD;
+                        peak_msg->type = MSG_TYPE_STD_FD;
                     }
                     else if (strcmp(column_text, "FB") == 0)
                     {
                         // CAN FD data frame with BRS bit set (Bit Rate Switch).
-                        peak_msg->msg.type = MSG_TYPE_STD_FD; // TODO
+                        peak_msg->type = MSG_TYPE_STD_FD; // TODO
                     }
                     else if (strcmp(column_text, "FE") == 0)
                     {
                         // CAN FD data frame with ESI bit set (Error State Indicator).
-                        peak_msg->msg.type = MSG_TYPE_ERR;
+                        peak_msg->type = MSG_TYPE_ERR;
                     }
                     else if (strcmp(column_text, "BI") == 0)
                     {
                         // CAN FD data frame with both BRS and ESI bits set.
-                        peak_msg->msg.type = MSG_TYPE_ERR;
+                        peak_msg->type = MSG_TYPE_ERR;
                     }
                     else if (strcmp(column_text, "RR") == 0)
                     {
-                        peak_msg->msg.type = MSG_TYPE_STD_RTR;
+                        peak_msg->type = MSG_TYPE_STD_RTR;
                     }
                     else if (strcmp(column_text, "ST") == 0)
                     {
@@ -646,7 +626,7 @@ static bool peak_trc_read_packet_v2(peak_trc_state_t* state, peak_trc_msg_t* pea
                     }
                     else if (strcmp(column_text, "ER") == 0)
                     {
-                        peak_msg->msg.type = MSG_TYPE_ERR;
+                        peak_msg->type = MSG_TYPE_ERR;
                     }
                     else if (strcmp(column_text, "EC") == 0)
                     {
@@ -704,7 +684,7 @@ peak_trc_read_packet(wtap *wth, FILE_T fh, peak_trc_state_t* state,
                      wtap_rec *rec, int *err, gchar **err_info,
                      gint64 *data_offset)
 {
-    peak_trc_msg_t peak_msg = {0};
+    wtap_can_msg_t peak_msg = {0};
     char line_buffer[PEAK_TRC_MAX_LINE_SIZE];
 
     while (!file_eof(fh))
@@ -724,30 +704,33 @@ peak_trc_read_packet(wtap *wth, FILE_T fh, peak_trc_state_t* state,
             (line_buffer[0] == ';'))
             continue;
 
+        //Start with unknown interface ID
+        peak_msg.interface_id = WTAP_SOCKETCAN_INVALID_INTERFACE_ID;
+
         if (state->file_version_major >= 2)
         {
-            if (!peak_trc_read_packet_v2(state, &peak_msg, line_buffer))
+            if (!peak_trc_read_packet_v2(wth, state, &peak_msg, line_buffer))
                 continue;
         }
         else
         {
-            if (!peak_trc_read_packet_v1(state, &peak_msg, line_buffer))
+            if (!peak_trc_read_packet_v1(wth, state, &peak_msg, line_buffer))
                 continue;
         }
 
-        if (peak_msg.msg.id > 0x7FF)
+        if (peak_msg.id > 0x7FF)
         {
             //Translate from 11-bit to 32-bit IDs
-            switch (peak_msg.msg.type)
+            switch (peak_msg.type)
             {
             case MSG_TYPE_STD_FD:
-                peak_msg.msg.type = MSG_TYPE_EXT_FD;
+                peak_msg.type = MSG_TYPE_EXT_FD;
                 break;
             case MSG_TYPE_STD:
-                peak_msg.msg.type = MSG_TYPE_EXT;
+                peak_msg.type = MSG_TYPE_EXT;
                 break;
             case MSG_TYPE_STD_RTR:
-                peak_msg.msg.type = MSG_TYPE_EXT_RTR;
+                peak_msg.type = MSG_TYPE_EXT_RTR;
                 break;
             default:
                 //Ignore other types
@@ -755,7 +738,7 @@ peak_trc_read_packet(wtap *wth, FILE_T fh, peak_trc_state_t* state,
             }
         }
 
-        return peak_trc_write_packet(wth, rec, &peak_msg, err, err_info);
+        return wtap_socketcan_gen_packet(wth, rec, &peak_msg, "peak", err, err_info);
     }
 
     return false;
@@ -765,7 +748,7 @@ static bool
 peak_trc_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
               int64_t *data_offset)
 {
-    peak_trc_state_t* state = (peak_trc_state_t*)wth->priv;
+    peak_trc_state_t* state = (peak_trc_state_t*)wtap_socketcan_get_private_data(wth);
 
 #ifdef PEAK_TRC_DEBUG
     peak_trc_debug_printf("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
@@ -779,7 +762,7 @@ static bool peak_trc_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *
 #ifdef PEAK_TRC_DEBUG
     peak_trc_debug_printf("%s: Read at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
 #endif
-    peak_trc_state_t* state = (peak_trc_state_t*)wth->priv;
+    peak_trc_state_t* state = (peak_trc_state_t*)wtap_socketcan_get_private_data(wth);
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     {
@@ -792,30 +775,39 @@ static bool peak_trc_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *
     return peak_trc_read_packet(wth, wth->random_fh, state, rec, err, err_info, NULL);
 }
 
-static void peak_trc_close(wtap* wth)
+static void
+clean_trc_state(peak_trc_state_t* state)
 {
-    peak_trc_state_t* state = (peak_trc_state_t*)wth->priv;
     if (state != NULL)
     {
         if (state->data_matcher != NULL)
             g_regex_unref(state->data_matcher);
+
+        g_free(state);
     }
+}
+
+static void
+peak_trc_close(void* tap_data)
+{
+    clean_trc_state((peak_trc_state_t*)tap_data);
 }
 
 wtap_open_return_val
 peak_trc_open(wtap* wth, int* err, char** err_info)
 {
     gint64 data_offset = 0;
+    peak_trc_state_t* trc_state = g_new0(peak_trc_state_t, 1);
 
     /* wth->priv stores a pointer to the general file properties.
      * It it updated when the header data is parsed */
-    wth->priv = g_new0(peak_trc_state_t, 1);
+    wth->priv = trc_state;
 
-    wtap_open_return_val open_val = peak_trc_parse(wth, &data_offset, err, err_info);
+    wtap_open_return_val open_val = peak_trc_parse(wth, trc_state, &data_offset, err, err_info);
     if (open_val != WTAP_OPEN_MINE)
     {
-        peak_trc_close(wth);
-        g_free(wth->priv);
+        clean_trc_state(trc_state);
+        g_free(trc_state);
         wth->priv = NULL;
         return open_val;
     }
@@ -832,10 +824,9 @@ peak_trc_open(wtap* wth, int* err, char** err_info)
         return WTAP_OPEN_ERROR;
     }
 
-    wtap_set_as_socketcan(wth, peak_trc_file_type_subtype, WTAP_TSPREC_USEC);
+    wtap_set_as_socketcan(wth, peak_trc_file_type_subtype, WTAP_TSPREC_USEC, trc_state, peak_trc_close);
     wth->subtype_read = peak_trc_read;
     wth->subtype_seek_read = peak_trc_seek_read;
-    wth->subtype_close = peak_trc_close;
 
     return WTAP_OPEN_MINE;
 }

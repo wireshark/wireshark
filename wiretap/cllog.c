@@ -744,7 +744,7 @@ static bool parseLogFileHeaderLine_cyclicMode(cCLLog_logFileInfo_t *pInfo, char 
 static bool
 cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 {
-    cCLLog_logFileInfo_t *clLog = (cCLLog_logFileInfo_t *) wth->priv;
+    cCLLog_logFileInfo_t* clLog = (cCLLog_logFileInfo_t*)wtap_socketcan_get_private_data(wth);
     char line[MAX_LOG_LINE_LENGTH];
     cCLLog_message_t logEntry;
 
@@ -765,6 +765,7 @@ cllog_read_common(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info
         return false;
     }
 
+    logEntry.msg.interface_id = wtap_socketcan_find_or_create_new_interface(wth, clLog->id);
     if (!wtap_socketcan_gen_packet(wth, rec, &logEntry.msg, "cllog", err, err_info))
         return false;
 
@@ -796,6 +797,13 @@ cllog_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, char **err
         return false;
 
     return cllog_read_common(wth, wth->random_fh, rec, err, err_info);
+}
+
+static void
+cllog_close(void* tap_data)
+{
+    /* Clean up the file information */
+    g_free((cCLLog_logFileInfo_t*)tap_data);
 }
 
 wtap_open_return_val
@@ -933,9 +941,7 @@ cllog_open(wtap *wth, int *err, char **err_info)
         }
     }
 
-    wth->priv = clLog;
-
-    wtap_set_as_socketcan(wth, cllog_file_type_subtype, WTAP_TSPREC_MSEC);
+    wtap_set_as_socketcan(wth, cllog_file_type_subtype, WTAP_TSPREC_MSEC, clLog, cllog_close);
     wth->snapshot_length = 0;
 
     wth->subtype_read = cllog_read;
