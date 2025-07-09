@@ -22089,9 +22089,6 @@ proto_register_pn_io (void)
         "Folder containing GSD files",     /* Title */
         "Place GSD files in this folder.", /* Description */
         &pnio_ps_networkpath);             /* Variable in which to save the GSD file folder path */
-    prefs_register_static_text_preference(pnio_module, "pnio_no_libxml2",
-        "This version of Wireshark was built without support for reading GSDML files.",
-        "This version of Wireshark was built without libxml2 and does not support reading GSDML files.");
     prefs_register_filename_preference(pnio_module, "pnio_configpath",
         "Config file for manual extraction",
         "Choose a config XML file",
