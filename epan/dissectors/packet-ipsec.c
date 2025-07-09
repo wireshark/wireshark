@@ -1268,6 +1268,27 @@ export_ipsec_pdu(dissector_handle_t dissector_handle, packet_info *pinfo, tvbuff
   }
 }
 
+static bool
+esp_padding_override(tvbuff_t *tvb, int offset, int esp_pad_len) {
+
+  switch (g_esp_padding_type) {
+  case PADDING_RFC:
+    return false;
+  case PADDING_ZERO:
+    for (int j=0; j < esp_pad_len; j++) {
+      if (tvb_get_uint8(tvb, offset - (j + 1)) != 0) {
+        return false;
+      }
+    }
+  /* FALLTHROUGH */
+  case PADDING_ANY:
+    return true;
+  default:
+    return false;
+  }
+  return false;
+}
+
 /**
  * Implements much of RFC 5879, "Heuristics for Detecting ESP-NULL Packets"
  *
@@ -1321,22 +1342,8 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
           break;
         }
       }
-      if (!heur_ok) {
-        switch (g_esp_padding_type) {
-        case PADDING_RFC:
-          continue;
-        case PADDING_ZERO:
-          for (int j=0; j < esp_pad_len; j++) {
-            if (tvb_get_uint8(tvb, offset - (j + 1)) != 0) {
-              continue;
-            }
-          }
-        /* FALLTHROUGH */
-        case PADDING_ANY:
-          break;
-        default:
-          continue;
-        }
+      if (!heur_ok && !esp_padding_override(tvb, offset, esp_pad_len)) {
+        continue;
       }
 
       saved_match_uint  = pinfo->match_uint;
