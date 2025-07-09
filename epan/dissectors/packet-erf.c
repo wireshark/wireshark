@@ -2214,6 +2214,10 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *flags_tree, *rectype_tree;
   bool has_flags = false;
 
+  if (hf_erf_ts <= 0) {
+    proto_registrar_get_byname("erf.ts");
+  }
+
   proto_tree_add_uint64(tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
 
   rectype_item = proto_tree_add_uint_format_value(tree, hf_erf_rectype, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type,
@@ -3346,10 +3350,8 @@ static void erf_init_dissection(void)
   /* Old map is freed automatically */
 }
 
-void
-proto_register_erf(void)
+static void register_erf_fields(const char* unused _U_)
 {
-
   static hf_register_info hf[] = {
     /* ERF Header */
     { &hf_erf_ts,
@@ -3849,22 +3851,6 @@ proto_register_erf(void)
     &ett_erf_entropy_value
   };
 
-  static const enum_val_t erf_hdlc_options[] = {
-    { "chdlc",  "Cisco HDLC",       ERF_HDLC_CHDLC },
-    { "ppp",    "PPP serial",       ERF_HDLC_PPP },
-    { "frelay", "Frame Relay",      ERF_HDLC_FRELAY },
-    { "mtp2",   "SS7 MTP2",         ERF_HDLC_MTP2 },
-    { "guess",  "Attempt to guess", ERF_HDLC_GUESS },
-    { NULL, NULL, 0 }
-  };
-
-  static const enum_val_t erf_aal5_options[] = {
-    { "guess", "Attempt to guess", ERF_AAL5_GUESS },
-    { "llc",   "LLC multiplexed",  ERF_AAL5_LLC },
-    { "unspec", "Unspecified", ERF_AAL5_UNSPEC },
-    { NULL, NULL, 0 }
-  };
-
   static ei_register_info ei[] = {
       { &ei_erf_mc_hdlc_checksum_error, { "erf.mchdlc.checksum.error", PI_CHECKSUM, PI_ERROR, "ERF MC HDLC FCS Error", EXPFILL }},
       { &ei_erf_mc_hdlc_short_error, { "erf.mchdlc.short.error", PI_RECEIVE, PI_ERROR, "ERF MC HDLC Short Record Error, <5 bytes", EXPFILL }},
@@ -3884,11 +3870,7 @@ proto_register_erf(void)
       { &ei_erf_meta_reset, { "erf.meta.metadata_reset", PI_PROTOCOL, PI_WARN, "Provenance metadata reset", EXPFILL }}
   };
 
-  module_t *erf_module;
   expert_module_t* expert_erf;
-
-  proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
-  erf_handle = register_dissector("erf", dissect_erf, proto_erf);
 
   init_meta_tags();
 
@@ -3900,6 +3882,34 @@ proto_register_erf(void)
   /* Register per-section Provenance fields */
   proto_register_field_array(proto_erf, (hf_register_info*) wmem_array_get_raw(erf_meta_index.hfri), (int) wmem_array_get_count(erf_meta_index.hfri));
   proto_register_subtree_array((int**) wmem_array_get_raw(erf_meta_index.ett), (int) wmem_array_get_count(erf_meta_index.ett));
+}
+
+void
+proto_register_erf(void)
+{
+  static const enum_val_t erf_hdlc_options[] = {
+    { "chdlc",  "Cisco HDLC",       ERF_HDLC_CHDLC },
+    { "ppp",    "PPP serial",       ERF_HDLC_PPP },
+    { "frelay", "Frame Relay",      ERF_HDLC_FRELAY },
+    { "mtp2",   "SS7 MTP2",         ERF_HDLC_MTP2 },
+    { "guess",  "Attempt to guess", ERF_HDLC_GUESS },
+    { NULL, NULL, 0 }
+  };
+
+  static const enum_val_t erf_aal5_options[] = {
+    { "guess", "Attempt to guess", ERF_AAL5_GUESS },
+    { "llc",   "LLC multiplexed",  ERF_AAL5_LLC },
+    { "unspec", "Unspecified", ERF_AAL5_UNSPEC },
+    { NULL, NULL, 0 }
+  };
+
+  module_t *erf_module;
+  proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
+
+  erf_handle = register_dissector("erf", dissect_erf, proto_erf);
+
+  /* Delay registration of ERF fields */
+  proto_register_prefix("erf", register_erf_fields);
 
   erf_module = prefs_register_protocol(proto_erf, NULL);
 
