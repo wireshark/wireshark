@@ -26,12 +26,12 @@
 #include <epan/expert.h>
 #include <epan/iana_charsets.h>
 #include <epan/asn1.h>
+#include <epan/read_keytab_file.h>
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>
 #include "packet-kerberos.h"
-#include "read_keytab_file.h"
 
 #include <libxml/parser.h>
 
@@ -811,7 +811,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         xml_frame_t *nonce_frame = xml_get_tag(current_frame, "Nonce");
         xml_frame_t *nonce_cdata = NULL;
         tvbuff_t *nonce_tvb = NULL;
-        enc_key_t *ek = NULL;
+        const enc_key_t *ek = NULL;
         uint8_t seed[64];
         size_t seed_length = 16; // TODO
         const size_t key_length = 16; //TODO
@@ -833,7 +833,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
                 read_keytab_file_from_preferences();
             }
 
-            for (ek=enc_key_list;ek;ek=ek->next) {
+            for (ek=keytab_get_enc_key_list();ek;ek=ek->next) {
                 if (ek->fd_num == (int)current_frame->pinfo->num) {
                     break;
                 }

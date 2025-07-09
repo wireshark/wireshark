@@ -30,6 +30,7 @@
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/read_keytab_file.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>
 #include "packet-gssapi.h"
@@ -1171,7 +1172,7 @@ static void
 decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb, int keytype, gssapi_encrypt_info_t* gssapi_encrypt)
 {
   int ret;
-  enc_key_t *ek;
+  const enc_key_t *ek;
   int length;
   const uint8_t *original_data;
 
@@ -1193,7 +1194,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff
   cryptocopy=(uint8_t *)wmem_alloc(pinfo->pool, length);
   output_message_buffer=(uint8_t *)wmem_alloc(pinfo->pool, length);
 
-  for(ek=enc_key_list;ek;ek=ek->next){
+  for(ek=keytab_get_enc_key_list();ek;ek=ek->next){
     /* shortcircuit and bail out if enctypes are not matching */
     if(ek->keytype!=keytype){
       continue;
@@ -1209,7 +1210,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff
     ret=decrypt_arcfour(gssapi_encrypt,
                         cryptocopy,
                         output_message_buffer,
-                        ek->keyvalue,
+                        (uint8_t*)ek->keyvalue,
                         ek->keylength,
                         ek->keytype);
     if (ret >= 0) {

@@ -63,6 +63,7 @@
 #include "secrets.h"
 #include "funnel.h"
 #include "wscbor.h"
+#include "read_keytab_file.h"
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -336,6 +337,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		packet_init();
 		secrets_init();
 		conversation_init();
+		keytab_file_data_init();
 		capture_dissector_init();
 		reassembly_tables_init();
 		conversation_filters_init();

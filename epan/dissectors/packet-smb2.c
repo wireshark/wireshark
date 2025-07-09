@@ -34,6 +34,7 @@
 #include <epan/reassemble.h>
 #include <epan/uat.h>
 #include <epan/tfs.h>
+#include <epan/read_keytab_file.h>
 #include <wsutil/array.h>
 
 #include "packet-smb2.h"
@@ -41,8 +42,6 @@
 #include "packet-kerberos.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-nt.h"
-
-#include "read_keytab_file.h"
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_roundup.h>
@@ -4407,13 +4406,13 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	    ((si->session->session_key_frame == UINT32_MAX) ||
 	     (si->session->session_key_frame < pinfo->num)))
 	{
-		enc_key_t *ek;
+		const enc_key_t *ek;
 
 		if (krb_decrypt) {
 			read_keytab_file_from_preferences();
 		}
 
-		for (ek=enc_key_list;ek;ek=ek->next) {
+		for (ek=keytab_get_enc_key_list();ek;ek=ek->next) {
 			if (!ek->is_ap_rep_key) {
 				continue;
 			}

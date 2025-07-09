@@ -119,6 +119,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	ps.h
 	ptvcursor.h
 	range.h
+	read_keytab_file.h
 	reassemble.h
 	reedsolomon.h
 	register.h
@@ -219,6 +220,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	proto.c
 	proto_data.c
 	range.c
+	read_keytab_file.c
 	reassemble.c
 	reedsolomon.c
 	register.c
@@ -357,6 +359,7 @@ target_include_directories(epan
 		${BROTLI_INCLUDE_DIRS}
 		${CARES_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
+		${KERBEROS_INCLUDE_DIRS}
 		${GLIB2_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
 		${LIBXML2_INCLUDE_DIRS}

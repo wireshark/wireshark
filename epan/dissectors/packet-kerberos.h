@@ -80,53 +80,8 @@ int
 dissect_kerberos_KERB_TICKET_LOGON(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
 
 #ifdef HAVE_KERBEROS
-#define KRB_MAX_KEY_LENGTH	32
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-typedef struct _enc_key_t {
-	struct _enc_key_t	*next;
-	int keytype;
-	int keylength;
-	uint8_t keyvalue[KRB_MAX_KEY_LENGTH];
-	char* key_origin;
-	int fd_num; /* remember where we learned a key */
-	unsigned id; /* a unique id of the key, relative to fd_num */
-	char* id_str;
-	/* EncTicketPart_key */
-	bool is_ticket_key;
-	/* EncAPRepPart_subkey */
-	bool is_ap_rep_key;
-	/*
-	 * for now taken from dissect_krb5_PAC_UPN_DNS_INFO,
-	 * we could also use dissect_krb5_PAC_LOGON_INFO if needed
-	 *
-	 * we get device_sid from dissect_krb5_PAC_DEVICE_INFO if available.
-	 *
-	 * We remember these from the PAC and
-	 * attach it to EncTicketPart_key so it
-	 * might be valid if is_ticket_key is true.
-	 *
-	 * When learning a EncAPRepPart_subkey
-	 * we copy the details from the EncTicketPart_key,
-	 * so when is_ap_rep_key is true we may also have it.
-	 *
-	 * So application protocols like SMB2 could use the
-	 * is_ap_rep_key=true key details in order to identify
-	 * the authenticated user.
-	 */
-	struct {
-		const char *account_name;
-		const char *account_domain;
-		const char *account_sid;
-		const char *device_sid;
-	} pac_names;
-	struct _enc_key_t	*same_list;
-	unsigned num_same;
-	struct _enc_key_t	*src1;
-	struct _enc_key_t	*src2;
-} enc_key_t;
-extern enc_key_t *enc_key_list;
-extern wmem_map_t *kerberos_longterm_keys;
 
 uint8_t *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
@@ -148,6 +103,9 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 extern bool krb_decrypt;
+
+WS_DLL_PUBLIC
+void read_keytab_file_from_preferences(void);
 
 #endif /* HAVE_KERBEROS */
 

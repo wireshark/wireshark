@@ -26,6 +26,7 @@
 #include <epan/show_exception.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/read_keytab_file.h>
 
 #include <wsutil/array.h>
 #include <wsutil/wsgcrypt.h>
@@ -37,7 +38,6 @@
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
-#include "read_keytab_file.h"
 
 #include "packet-ntlmssp.h"
 
@@ -466,7 +466,7 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
 {
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   uint32_t       nb_pass = 0;
-  enc_key_t     *ek;
+  const enc_key_t *ek;
   const char*    password = ntlmssp_option_nt_password;
   unsigned char  nt_hash[NTLMSSP_KEY_LEN];
   char           password_unicode[256];
@@ -476,7 +476,7 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
   *p_pass_list = NULL;
   read_keytab_file_from_preferences();
 
-  for (ek=enc_key_list; ek; ek=ek->next) {
+  for (ek=keytab_get_enc_key_list(); ek; ek=ek->next) {
     if (NTLMSSP_EK_IS_NT4HASH(ek)) {
       nb_pass++;
     }
@@ -505,7 +505,7 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list)
                "<Global NT Password>");
     i = 1;
   }
-  for (ek=enc_key_list; ek; ek=ek->next) {
+  for (ek=keytab_get_enc_key_list(); ek; ek=ek->next) {
     if (NTLMSSP_EK_IS_NT4HASH(ek)) {
       memcpy(pass_list[i].md4, ek->keyvalue, NTLMSSP_KEY_LEN);
       memcpy(pass_list[i].key_origin, ek->key_origin,

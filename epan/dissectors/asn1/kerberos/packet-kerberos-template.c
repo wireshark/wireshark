@@ -63,6 +63,7 @@
 #include <epan/prefs.h>
 #include <epan/srt_table.h>
 #include <epan/tfs.h>
+#include <epan/read_keytab_file.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
@@ -75,8 +76,6 @@
 #include "packet-pkinit.h"
 #include "packet-cms.h"
 #include "packet-windows-common.h"
-
-#include "read_keytab_file.h"
 
 #include "packet-dcerpc-netlogon.h"
 #include "packet-dcerpc.h"
@@ -756,179 +755,11 @@ read_keytab_file_from_preferences(void)
 	g_free(last_keytab);
 	last_keytab = g_strdup(keytab_filename);
 
-	read_keytab_file(last_keytab);
+	keytab_file_read(last_keytab);
 }
 #endif /* HAVE_KERBEROS */
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-enc_key_t *enc_key_list=NULL;
-static unsigned kerberos_longterm_ids;
-wmem_map_t *kerberos_longterm_keys;
-static wmem_map_t *kerberos_all_keys;
-static wmem_map_t *kerberos_app_session_keys;
-
-static bool
-enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
-{
-	enc_key_list = NULL;
-	kerberos_longterm_ids = 0;
-	/* keep the callback registered */
-	return true;
-}
-
-static int enc_key_cmp_id(const void *k1, const void *k2)
-{
-	const enc_key_t *key1 = (const enc_key_t *)k1;
-	const enc_key_t *key2 = (const enc_key_t *)k2;
-
-	if (key1->fd_num < key2->fd_num) {
-		return -1;
-	}
-	if (key1->fd_num > key2->fd_num) {
-		return 1;
-	}
-
-	if (key1->id < key2->id) {
-		return -1;
-	}
-	if (key1->id > key2->id) {
-		return 1;
-	}
-
-	return 0;
-}
-
-static gboolean
-enc_key_content_equal(const void *k1, const void *k2)
-{
-	const enc_key_t *key1 = (const enc_key_t *)k1;
-	const enc_key_t *key2 = (const enc_key_t *)k2;
-	int cmp;
-
-	if (key1->keytype != key2->keytype) {
-		return false;
-	}
-
-	if (key1->keylength != key2->keylength) {
-		return false;
-	}
-
-	cmp = memcmp(key1->keyvalue, key2->keyvalue, key1->keylength);
-	if (cmp != 0) {
-		return false;
-	}
-
-	return true;
-}
-
-static unsigned
-enc_key_content_hash(const void *k)
-{
-	const enc_key_t *key = (const enc_key_t *)k;
-	unsigned ret = 0;
-
-	ret += wmem_strong_hash((const uint8_t *)&key->keytype,
-				sizeof(key->keytype));
-	ret += wmem_strong_hash((const uint8_t *)&key->keylength,
-				sizeof(key->keylength));
-	ret += wmem_strong_hash((const uint8_t *)key->keyvalue,
-				key->keylength);
-
-	return ret;
-}
-
-static void
-kerberos_key_map_insert(wmem_map_t *key_map, enc_key_t *new_key)
-{
-	enc_key_t *existing = NULL;
-	enc_key_t *cur = NULL;
-	int cmp;
-
-	existing = (enc_key_t *)wmem_map_lookup(key_map, new_key);
-	if (existing == NULL) {
-		wmem_map_insert(key_map, new_key, new_key);
-		return;
-	}
-
-	if (key_map != kerberos_all_keys) {
-		/*
-		 * It should already be linked to the existing key...
-		 */
-		return;
-	}
-
-	if (existing->fd_num == -1 && new_key->fd_num != -1) {
-		/*
-		 * We can't reference a learnt key
-		 * from a longterm key. As they have
-		 * a shorter lifetime.
-		 *
-		 * So just let the learnt key remember the
-		 * match.
-		 */
-		new_key->same_list = existing;
-		new_key->num_same = existing->num_same + 1;
-		return;
-	}
-
-	/*
-	 * If a key with the same content (keytype,keylength,keyvalue)
-	 * already exists, we want the earliest key to be
-	 * in the list.
-	 */
-	cmp = enc_key_cmp_id(new_key, existing);
-	if (cmp == 0) {
-		/*
-		 * It's the same, nothing to do...
-		 */
-		return;
-	}
-	if (cmp < 0) {
-		/* The new key has should be added to the list. */
-		new_key->same_list = existing;
-		new_key->num_same = existing->num_same + 1;
-		wmem_map_insert(key_map, new_key, new_key);
-		return;
-	}
-
-	/*
-	 * We want to link the new_key to the existing one.
-	 *
-	 * But we want keep the list sorted, so we need to forward
-	 * to the correct spot.
-	 */
-	for (cur = existing; cur->same_list != NULL; cur = cur->same_list) {
-		cmp = enc_key_cmp_id(new_key, cur->same_list);
-		if (cmp == 0) {
-			/*
-			 * It's the same, nothing to do...
-			 */
-			return;
-		}
-
-		if (cmp < 0) {
-			/*
-			 * We found the correct spot,
-			 * the new_key should added
-			 * between existing and existing->same_list
-			 */
-			new_key->same_list = cur->same_list;
-			new_key->num_same = cur->num_same;
-			break;
-		}
-	}
-
-	/*
-	 * finally link new_key to existing
-	 * and fix up the numbers
-	 */
-	cur->same_list = new_key;
-	for (cur = existing; cur != new_key; cur = cur->same_list) {
-		cur->num_same += 1;
-	}
-
-	return;
-}
 
 struct insert_longterm_keys_into_key_map_state {
 	wmem_map_t *key_map;
@@ -942,26 +773,26 @@ static void insert_longterm_keys_into_key_map_cb(void *__key _U_,
 		(struct insert_longterm_keys_into_key_map_state *)user_data;
 	enc_key_t *key = (enc_key_t *)value;
 
-	kerberos_key_map_insert(state->key_map, key);
+	keytab_file_key_map_insert(state->key_map, key);
 }
 
 static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
 {
 	/*
-	 * Because the kerberos_longterm_keys are allocated on
-	 * wmem_epan_scope() and kerberos_all_keys are allocated
+	 * Because the keytab_file_longterm_keys are allocated on
+	 * wmem_epan_scope() and keytab_file_all_keys are allocated
 	 * on wmem_file_scope(), we need to plug the longterm keys
-	 * back to kerberos_all_keys if a new file was loaded
+	 * back to keytab_file_all_keys if a new file was loaded
 	 * and wmem_file_scope() got cleared.
 	 */
-	if (wmem_map_size(key_map) < wmem_map_size(kerberos_longterm_keys)) {
+	if (wmem_map_size(key_map) < wmem_map_size(keytab_get_file_longterm_keys())) {
 		struct insert_longterm_keys_into_key_map_state state = {
 			.key_map = key_map,
 		};
 		/*
-		 * Reference all longterm keys into kerberos_all_keys
+		 * Reference all longterm keys into keytab_file_all_keys
 		 */
-		wmem_map_foreach(kerberos_longterm_keys,
+		wmem_map_foreach(keytab_get_file_longterm_keys(),
 				 insert_longterm_keys_into_key_map_cb,
 				 &state);
 	}
@@ -1034,10 +865,10 @@ add_encryption_key(packet_info *pinfo,
 		/*
 		 * Only keep it if we don't processed it before.
 		 */
-		new_key->next=enc_key_list;
-		enc_key_list=new_key;
-		insert_longterm_keys_into_key_map(kerberos_all_keys);
-		kerberos_key_map_insert(kerberos_all_keys, new_key);
+		new_key->next=(enc_key_t*)keytab_get_enc_key_list();
+                keytab_set_enc_key_list(new_key);
+		insert_longterm_keys_into_key_map(keytab_get_file_all_keys());
+		keytab_file_key_map_insert(keytab_get_file_all_keys(), new_key);
 	}
 
 	item = proto_tree_add_expert_format(key_tree, pinfo, &ei_kerberos_learnt_keytype,
@@ -1157,7 +988,7 @@ save_EncAPRepPart_subkey(tvbuff_t *tvb, int offset, int length,
 		ak->pac_names = tk->pac_names;
 	}
 
-	kerberos_key_map_insert(kerberos_app_session_keys, private_data->last_added_key);
+	keytab_file_key_map_insert(keytab_get_file_session_keys(), private_data->last_added_key);
 }
 
 static void
@@ -1404,7 +1235,8 @@ static void missing_signing_key(proto_tree *tree, packet_info *pinfo,
 
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
-static krb5_context krb5_ctx;
+/* Retreived from read_keytab_file.h */
+extern krb5_context keytab_krb5_ctx;
 
 #ifdef HAVE_KRB5_C_FX_CF2_SIMPLE
 static void
@@ -1441,7 +1273,7 @@ krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
 	k2.length = ek2->keylength;
 	k2.contents = (uint8_t *)ek2->keyvalue;
 
-	ret = krb5_c_fx_cf2_simple(krb5_ctx, &k1, p1, &k2, p2, &k);
+	ret = krb5_c_fx_cf2_simple(keytab_krb5_ctx, &k1, p1, &k2, p2, &k);
 	if (ret != 0) {
 		return;
 	}
@@ -1454,7 +1286,7 @@ krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
 			   origin,
 			   ek1, ek2);
 
-	krb5_free_keyblock(krb5_ctx, k);
+	krb5_free_keyblock(keytab_krb5_ctx, k);
 }
 #else /* HAVE_KRB5_C_FX_CF2_SIMPLE */
 static void
@@ -1467,85 +1299,6 @@ krb5_fast_key(asn1_ctx_t *actx _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
 #endif /* HAVE_KRB5_C_FX_CF2_SIMPLE */
 
 USES_APPLE_DEPRECATED_API
-void
-read_keytab_file(const char *filename)
-{
-	krb5_keytab keytab;
-	krb5_error_code ret;
-	krb5_keytab_entry key;
-	krb5_kt_cursor cursor;
-	static bool first_time=true;
-
-	if (filename == NULL || filename[0] == 0) {
-		return;
-	}
-
-	if(first_time){
-		first_time=false;
-		ret = krb5_init_context(&krb5_ctx);
-		if(ret && ret != KRB5_CONFIG_CANTOPEN){
-			return;
-		}
-	}
-
-	/* should use a file in the wireshark users dir */
-	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Badly formatted keytab filename: %s", filename);
-
-		return;
-	}
-
-	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not open or could not read from keytab file: %s", filename);
-		return;
-	}
-
-	do{
-		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
-		if(ret==0){
-			enc_key_t *new_key;
-			int i;
-			wmem_strbuf_t* str_principal = wmem_strbuf_new(wmem_epan_scope(), "keytab principal ");
-
-			new_key = wmem_new0(wmem_epan_scope(), enc_key_t);
-			new_key->fd_num = -1;
-			new_key->id = ++kerberos_longterm_ids;
-			new_key->id_str = wmem_strdup_printf(wmem_epan_scope(), "keytab.%u", new_key->id);
-			new_key->next = enc_key_list;
-
-			/* generate origin string, describing where this key came from */
-			for(i=0;i<key.principal->length;i++){
-				wmem_strbuf_append_printf(str_principal, "%s%s",(i?"/":""),(key.principal->data[i]).data);
-			}
-			wmem_strbuf_append_printf(str_principal, "@%s",key.principal->realm.data);
-			new_key->key_origin = (char*)wmem_strbuf_get_str(str_principal);
-			new_key->keytype=key.key.enctype;
-			new_key->keylength=key.key.length;
-			memcpy(new_key->keyvalue,
-			       key.key.contents,
-			       MIN(key.key.length, KRB_MAX_KEY_LENGTH));
-
-			enc_key_list=new_key;
-			ret = krb5_free_keytab_entry_contents(krb5_ctx, &key);
-			if (ret) {
-				ws_critical("KERBEROS ERROR: Could not release the entry: %d", ret);
-				ret = 0; /* try to continue with the next entry */
-			}
-			kerberos_key_map_insert(kerberos_longterm_keys, new_key);
-		}
-	}while(ret==0);
-
-	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
-	}
-	ret = krb5_kt_close(krb5_ctx, keytab);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not close the key table handle: %d", ret);
-	}
-}
 
 struct decrypt_krb5_with_cb_state {
 	proto_tree *tree;
@@ -1658,7 +1411,7 @@ decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 			return;
 		}
 
-		ret = krb5_c_fx_cf2_simple(krb5_ctx,
+		ret = krb5_c_fx_cf2_simple(keytab_krb5_ctx,
 					   &k1, p1,
 					   &k2, "challengelongterm",
 					   &k);
@@ -1683,14 +1436,14 @@ decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 					   (const char *)k->contents,
 					   p1,
 					   ak, ek);
-			krb5_free_keyblock(krb5_ctx, k);
+			krb5_free_keyblock(keytab_krb5_ctx, k);
 			/*
 			 * remember the key and stop traversing
 			 */
 			state->ek = state->private_data->last_added_key;
 			return;
 		}
-		krb5_free_keyblock(krb5_ctx, k);
+		krb5_free_keyblock(keytab_krb5_ctx, k);
 		/*
 		 * don't stop traversing...
 		 * try the next one...
@@ -1713,7 +1466,7 @@ decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 		k2.length = ek->keylength;
 		k2.contents = (uint8_t *)ek->keyvalue;
 
-		ret = krb5_c_fx_cf2_simple(krb5_ctx,
+		ret = krb5_c_fx_cf2_simple(keytab_krb5_ctx,
 					   &k1, "strengthenkey",
 					   &k2, "replykey",
 					   &k);
@@ -1738,14 +1491,14 @@ decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 					   (const char *)k->contents,
 					    "strengthen-reply-key",
 					   sk, ek);
-			krb5_free_keyblock(krb5_ctx, k);
+			krb5_free_keyblock(keytab_krb5_ctx, k);
 			/*
 			 * remember the key and stop traversing
 			 */
 			state->ek = state->private_data->last_added_key;
 			return;
 		}
-		krb5_free_keyblock(krb5_ctx, k);
+		krb5_free_keyblock(keytab_krb5_ctx, k);
 		/*
 		 * don't stop traversing...
 		 * try the next one...
@@ -1816,11 +1569,11 @@ decrypt_krb5_with_cb(proto_tree *tree,
 	case KRB5_KU_USAGE_INITIATOR_SEAL:
 	case KRB5_KU_USAGE_ACCEPTOR_SEAL:
 		key_map_name = "app_session_keys";
-		key_map = kerberos_app_session_keys;
+		key_map = keytab_get_file_session_keys();
 		break;
 	default:
 		key_map_name = "all_keys";
-		key_map = kerberos_all_keys;
+		key_map = keytab_get_file_all_keys();
 		insert_longterm_keys_into_key_map(key_map);
 		break;
 	}
@@ -1861,7 +1614,7 @@ decrypt_krb5_data_cb(const krb5_keyblock *key,
 	input.enctype = key->enctype;
 	input.ciphertext = state->input;
 
-	return krb5_c_decrypt(krb5_ctx,
+	return krb5_c_decrypt(keytab_krb5_ctx,
 			      key,
 			      usage,
 			      0,
@@ -1964,7 +1717,7 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 
 	memset(iov, 0, sizeof(iov));
 
-	ret = krb5_c_crypto_length(krb5_ctx,
+	ret = krb5_c_crypto_length(keytab_krb5_ctx,
 				   key->enctype,
 				   KRB5_CRYPTO_TYPE_HEADER,
 				   &k5_headerlen);
@@ -1976,7 +1729,7 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 	}
 	checksum_remain -= k5_headerlen;
 	k5_headerofs = checksum_remain;
-	ret = krb5_c_crypto_length(krb5_ctx,
+	ret = krb5_c_crypto_length(keytab_krb5_ctx,
 				   key->enctype,
 				   KRB5_CRYPTO_TYPE_TRAILER,
 				   &k5_trailerlen);
@@ -1990,7 +1743,7 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 	k5_trailerofs = checksum_remain;
 	checksum_crypt_len = checksum_remain;
 
-	ret = krb5_c_block_size(krb5_ctx,
+	ret = krb5_c_block_size(keytab_krb5_ctx,
 				key->enctype,
 				&_k5_blocksize);
 	if (ret != 0) {
@@ -2053,7 +1806,7 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 	iov[5].data.data = state->checksum + k5_trailerofs;
 	iov[5].data.length = k5_trailerlen;
 
-	return krb5_c_decrypt_iov(krb5_ctx,
+	return krb5_c_decrypt_iov(keytab_krb5_ctx,
 				  key,
 				  usage,
 				  0,
@@ -2186,7 +1939,7 @@ keytype_for_cksumtype(krb5_cksumtype checksum)
 		krb5_cksumtype checksumtype = 0;
 		krb5_error_code ret;
 
-		ret = krb5int_c_mandatory_cksumtype(krb5_ctx,
+		ret = krb5int_c_mandatory_cksumtype(keytab_krb5_ctx,
 						    keytypes[i],
 						    &checksumtype);
 		if (ret != 0) {
@@ -2242,7 +1995,7 @@ verify_krb5_pac_try_server_key(void *__key _U_, void *value, void *userdata)
 		return;
 	}
 
-	ret = krb5int_c_mandatory_cksumtype(krb5_ctx, ek->keytype,
+	ret = krb5int_c_mandatory_cksumtype(keytab_krb5_ctx, ek->keytype,
 					    &checksumtype);
 	if (ret != 0) {
 		/*
@@ -2259,7 +2012,7 @@ verify_krb5_pac_try_server_key(void *__key _U_, void *value, void *userdata)
 
 	if (checksumtype == state->server_checksum) {
 		state->server_count += 1;
-		ret = krb5_pac_verify(krb5_ctx, state->pac, 0, NULL,
+		ret = krb5_pac_verify(keytab_krb5_ctx, state->pac, 0, NULL,
 				      &keyblock, NULL);
 		if (ret == 0) {
 			state->server_ek = ek;
@@ -2291,7 +2044,7 @@ verify_krb5_pac_try_kdc_key(void *__key _U_, void *value, void *userdata)
 		return;
 	}
 
-	ret = krb5int_c_mandatory_cksumtype(krb5_ctx, ek->keytype,
+	ret = krb5int_c_mandatory_cksumtype(keytab_krb5_ctx, ek->keytype,
 					    &checksumtype);
 	if (ret != 0) {
 		/*
@@ -2308,7 +2061,7 @@ verify_krb5_pac_try_kdc_key(void *__key _U_, void *value, void *userdata)
 
 	if (checksumtype == state->kdc_checksum) {
 		state->kdc_count += 1;
-		ret = krb5_pac_verify(krb5_ctx, state->pac, 0, NULL,
+		ret = krb5_pac_verify(keytab_krb5_ctx, state->pac, 0, NULL,
 				      NULL, &keyblock);
 		if (ret == 0) {
 			state->kdc_ek = ek;
@@ -2382,7 +2135,7 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 		checksum.contents += 4;
 	}
 
-	ret = krb5_c_checksum_length(krb5_ctx,
+	ret = krb5_c_checksum_length(keytab_krb5_ctx,
 				     checksum.checksum_type,
 				     &checksum_length);
 	if (ret != 0) {
@@ -2422,7 +2175,7 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 			continue;
 		}
 
-		ret = krb5_decode_authdata_container(krb5_ctx,
+		ret = krb5_decode_authdata_container(keytab_krb5_ctx,
 						     KRB5_AUTHDATA_IF_RELEVANT,
 						     adl0,
 						     &decoded_container);
@@ -2434,7 +2187,7 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 					    "kdc_checksum_key",
 					    1,
 					    0);
-			krb5_free_enc_tkt_part(krb5_ctx, tep);
+			krb5_free_enc_tkt_part(keytab_krb5_ctx, tep);
 			return;
 		}
 
@@ -2450,18 +2203,18 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 		}
 
 		if (ad_pac == NULL) {
-			krb5_free_authdata(krb5_ctx, decoded_container);
+			krb5_free_authdata(keytab_krb5_ctx, decoded_container);
 			continue;
 		}
 
 		ad_pac->length = 1;
 		ad_pac->contents[0] = '\0';
 
-		ret = krb5_encode_authdata_container(krb5_ctx,
+		ret = krb5_encode_authdata_container(keytab_krb5_ctx,
 						     KRB5_AUTHDATA_IF_RELEVANT,
 						     decoded_container,
 						     &recoded_container);
-		krb5_free_authdata(krb5_ctx, decoded_container);
+		krb5_free_authdata(keytab_krb5_ctx, decoded_container);
 		decoded_container = NULL;
 		if (ret != 0) {
 			missing_signing_key(tree, actx->pinfo, private_data,
@@ -2471,7 +2224,7 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 					    "kdc_checksum_key",
 					    1,
 					    0);
-			krb5_free_enc_tkt_part(krb5_ctx, tep);
+			krb5_free_enc_tkt_part(keytab_krb5_ctx, tep);
 			return;
 		}
 
@@ -2485,10 +2238,10 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 	if (ad_orig_ptr != NULL) {
 		tep->authorization_data[ad_orig_idx] = ad_orig_ptr;
 	}
-	krb5_free_enc_tkt_part(krb5_ctx, tep);
+	krb5_free_enc_tkt_part(keytab_krb5_ctx, tep);
 	tep = NULL;
 	if (recoded_container != NULL) {
-		krb5_free_authdata(krb5_ctx, recoded_container);
+		krb5_free_authdata(keytab_krb5_ctx, recoded_container);
 		recoded_container = NULL;
 	}
 	if (ret != 0) {
@@ -2502,10 +2255,10 @@ verify_krb5_pac_ticket_checksum(proto_tree *tree _U_,
 		return;
 	}
 
-	ret = krb5_c_verify_checksum(krb5_ctx, &kdc_key,
+	ret = krb5_c_verify_checksum(keytab_krb5_ctx, &kdc_key,
 				     KRB5_KEYUSAGE_APP_DATA_CKSUM,
 				     tmpdata, &checksum, &valid);
-	krb5_free_data(krb5_ctx, tmpdata);
+	krb5_free_data(keytab_krb5_ctx, tmpdata);
 	tmpdata = NULL;
 	if (ret != 0) {
 		missing_signing_key(tree, actx->pinfo, private_data,
@@ -2576,7 +2329,7 @@ verify_krb5_pac_full_checksum(proto_tree *tree,
 	kdc_key.length = state->kdc_ek->keylength;
 	kdc_key.contents = (uint8_t *)state->kdc_ek->keyvalue;
 
-	ret = krb5_c_checksum_length(krb5_ctx,
+	ret = krb5_c_checksum_length(keytab_krb5_ctx,
 				     state->full_checksum_type,
 				     &checksum_length);
 	if (ret != 0) {
@@ -2715,7 +2468,7 @@ verify_krb5_pac_full_checksum(proto_tree *tree,
 	checksum.contents = (uint8_t *)state->full_checksum_data->data + 4;
 	checksum.length = (unsigned)checksum_length;
 
-	ret = krb5_c_verify_checksum(krb5_ctx, &kdc_key,
+	ret = krb5_c_verify_checksum(keytab_krb5_ctx, &kdc_key,
 				     KRB5_KEYUSAGE_APP_DATA_CKSUM,
 				     &pac_data, &checksum, &valid);
 	if (ret != 0) {
@@ -2777,7 +2530,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	state.pacbuffer_length = length;
 	state.pacbuffer = pacbuffer;
 
-	ret = krb5_pac_parse(krb5_ctx, pacbuffer, length, &state.pac);
+	ret = krb5_pac_parse(keytab_krb5_ctx, pacbuffer, length, &state.pac);
 	if (ret != 0) {
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_kerberos_decrypted_keytype,
 					     pactvb, 0, 0,
@@ -2786,26 +2539,26 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 		return;
 	}
 
-	ret = krb5_pac_get_buffer(krb5_ctx, state.pac, KRB5_PAC_SERVER_CHECKSUM,
+	ret = krb5_pac_get_buffer(keytab_krb5_ctx, state.pac, KRB5_PAC_SERVER_CHECKSUM,
 				  &checksum_data);
 	if (ret == 0) {
 		state.server_checksum = pletohu32(checksum_data.data);
-		krb5_free_data_contents(krb5_ctx, &checksum_data);
+		krb5_free_data_contents(keytab_krb5_ctx, &checksum_data);
 	};
-	ret = krb5_pac_get_buffer(krb5_ctx, state.pac, KRB5_PAC_PRIVSVR_CHECKSUM,
+	ret = krb5_pac_get_buffer(keytab_krb5_ctx, state.pac, KRB5_PAC_PRIVSVR_CHECKSUM,
 				  &checksum_data);
 	if (ret == 0) {
 		state.kdc_checksum = pletohu32(checksum_data.data);
-		krb5_free_data_contents(krb5_ctx, &checksum_data);
+		krb5_free_data_contents(keytab_krb5_ctx, &checksum_data);
 	};
-	ret = krb5_pac_get_buffer(krb5_ctx, state.pac,
+	ret = krb5_pac_get_buffer(keytab_krb5_ctx, state.pac,
 				  __KRB5_PAC_TICKET_CHECKSUM,
 				  &ticket_checksum_data);
 	if (ret == 0) {
 		state.ticket_checksum_data = &ticket_checksum_data;
 		state.ticket_checksum_type = pletohu32(ticket_checksum_data.data);
 	};
-	ret = krb5_pac_get_buffer(krb5_ctx, state.pac,
+	ret = krb5_pac_get_buffer(keytab_krb5_ctx, state.pac,
 				  __KRB5_PAC_FULL_CHECKSUM,
 				  &full_checksum_data);
 	if (ret == 0) {
@@ -2815,7 +2568,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 
 	read_keytab_file_from_preferences();
 
-	wmem_map_foreach(kerberos_all_keys,
+	wmem_map_foreach(keytab_get_file_all_keys(),
 			 verify_krb5_pac_try_server_key,
 			 &state);
 	if (state.server_ek != NULL) {
@@ -2823,7 +2576,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 				 state.server_ek, pactvb,
 				 state.server_checksum, "Verified Server",
 				 "all_keys",
-				 wmem_map_size(kerberos_all_keys),
+				 wmem_map_size(keytab_get_file_all_keys()),
 				 state.server_count);
 	} else {
 		int keytype = keytype_for_cksumtype(state.server_checksum);
@@ -2831,10 +2584,10 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 				    pactvb, state.server_checksum, keytype,
 				    "Missing Server",
 				    "all_keys",
-				    wmem_map_size(kerberos_all_keys),
+				    wmem_map_size(keytab_get_file_all_keys()),
 				    state.server_count);
 	}
-	wmem_map_foreach(kerberos_longterm_keys,
+	wmem_map_foreach(keytab_get_file_longterm_keys(),
 			 verify_krb5_pac_try_kdc_key,
 			 &state);
 	if (state.kdc_ek != NULL) {
@@ -2842,7 +2595,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 				 state.kdc_ek, pactvb,
 				 state.kdc_checksum, "Verified KDC",
 				 "longterm_keys",
-				 wmem_map_size(kerberos_longterm_keys),
+				 wmem_map_size(keytab_get_file_longterm_keys()),
 				 state.kdc_count);
 	} else {
 		int keytype = keytype_for_cksumtype(state.kdc_checksum);
@@ -2850,7 +2603,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 				    pactvb, state.kdc_checksum, keytype,
 				    "Missing KDC",
 				    "longterm_keys",
-				    wmem_map_size(kerberos_longterm_keys),
+				    wmem_map_size(keytab_get_file_longterm_keys()),
 				    state.kdc_count);
 	}
 
@@ -2859,7 +2612,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	}
 
 	if (state.ticket_checksum_data != NULL) {
-		krb5_free_data_contents(krb5_ctx, &ticket_checksum_data);
+		krb5_free_data_contents(keytab_krb5_ctx, &ticket_checksum_data);
 	}
 
 	if (state.full_checksum_type != 0) {
@@ -2867,16 +2620,14 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	}
 
 	if (state.full_checksum_data != NULL) {
-		krb5_free_data_contents(krb5_ctx, &full_checksum_data);
+		krb5_free_data_contents(keytab_krb5_ctx, &full_checksum_data);
 	}
 
-	krb5_pac_free(krb5_ctx, state.pac);
+	krb5_pac_free(keytab_krb5_ctx, state.pac);
 }
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
-static krb5_context krb5_ctx;
-
 USES_APPLE_DEPRECATED_API
 
 static void
@@ -2887,88 +2638,7 @@ krb5_fast_key(asn1_ctx_t *actx _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_,
 {
 /* TODO: use krb5_crypto_fx_cf2() from Heimdal */
 }
-void
-read_keytab_file(const char *filename)
-{
-	krb5_keytab keytab;
-	krb5_error_code ret;
-	krb5_keytab_entry key;
-	krb5_kt_cursor cursor;
-	enc_key_t *new_key;
-	static bool first_time=true;
-
-	if (filename == NULL || filename[0] == 0) {
-		return;
-	}
-
-	if(first_time){
-		first_time=false;
-		ret = krb5_init_context(&krb5_ctx);
-		if(ret){
-			return;
-		}
-	}
-
-	/* should use a file in the wireshark users dir */
-	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not open keytab file: %s", filename);
-
-		return;
-	}
-
-	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not read from keytab file: %s", filename);
-		return;
-	}
-
-	do{
-		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
-		if(ret==0){
-			unsigned int i;
-			wmem_strbuf_t* str_principal = wmem_strbuf_new(wmem_epan_scope(), "keytab principal ");
-
-			new_key = wmem_new0(wmem_epan_scope(), enc_key_t);
-			new_key->fd_num = -1;
-			new_key->id = ++kerberos_longterm_ids;
-			new_key->id_str = wmem_strdup_printf(wmem_epan_scope(), "keytab.%u", new_key->id);
-			new_key->next = enc_key_list;
-
-			/* generate origin string, describing where this key came from */
-			for(i=0;i<key.principal->name.name_string.len;i++){
-				wmem_strbuf_append_printf(str_principal, "%s%s",(i?"/":""),key.principal->name.name_string.val[i]));
-			}
-			wmem_strbuf_append_printf(str_principal, "@%s",key.principal->realm);
-			new_key->key_origin = (char*)wmem_strbuf_get_str(str_principal);
-			new_key->keytype=key.keyblock.keytype;
-			new_key->keylength=(int)key.keyblock.keyvalue.length;
-			memcpy(new_key->keyvalue,
-			       key.keyblock.keyvalue.data,
-			       MIN((unsigned)key.keyblock.keyvalue.length, KRB_MAX_KEY_LENGTH));
-
-			enc_key_list=new_key;
-			ret = krb5_kt_free_entry(krb5_ctx, &key);
-			if (ret) {
-				ws_critical("KERBEROS ERROR: Could not release the entry: %d", ret);
-				ret = 0; /* try to continue with the next entry */
-			}
-			kerberos_key_map_insert(kerberos_longterm_keys, new_key);
-		}
-	}while(ret==0);
-
-	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
-	}
-	ret = krb5_kt_close(krb5_ctx, keytab);
-	if(ret){
-		ws_critical("KERBEROS ERROR: Could not close the key table handle: %d", ret);
-	}
-
-}
 USES_APPLE_RST
-
 
 uint8_t *
 decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
@@ -2996,7 +2666,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 	read_keytab_file_from_preferences();
 
-	for(ek=enc_key_list;ek;ek=ek->next){
+	for(ek=keytab_get_enc_key_list();ek;ek=ek->next){
 		krb5_keytab_entry key;
 		krb5_crypto crypto;
 		uint8_t *cryptocopy; /* workaround for pre-0.6.1 heimdal bug */
@@ -3009,7 +2679,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		key.keyblock.keytype=ek->keytype;
 		key.keyblock.keyvalue.length=ek->keylength;
 		key.keyblock.keyvalue.data=ek->keyvalue;
-		ret = krb5_crypto_init(krb5_ctx, &(key.keyblock), (krb5_enctype)ENCTYPE_NULL, &crypto);
+		ret = krb5_crypto_init(keytab_krb5_ctx, &(key.keyblock), (krb5_enctype)ENCTYPE_NULL, &crypto);
 		if(ret){
 			return NULL;
 		}
@@ -3021,7 +2691,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		   This has been seen for RC4-HMAC blobs.
 		*/
 		cryptocopy = (uint8_t *)wmem_memdup(pinfo->pool, cryptotext, length);
-		ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
+		ret = krb5_decrypt_ivec(keytab_krb5_ctx, crypto, usage,
 								cryptocopy, length,
 								&data,
 								NULL);
@@ -3032,7 +2702,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					    ek, usage, cryptotvb,
 					    "enc_key_list", 0, 0);
 
-			krb5_crypto_destroy(krb5_ctx, crypto);
+			krb5_crypto_destroy(keytab_krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
 			user_data = (char *)wmem_memdup(pinfo->pool, data.data, (unsigned)data.length);
 			if (datalen) {
@@ -3040,7 +2710,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 			}
 			return user_data;
 		}
-		krb5_crypto_destroy(krb5_ctx, crypto);
+		krb5_crypto_destroy(keytab_krb5_ctx, crypto);
 	}
 	return NULL;
 }
@@ -3165,55 +2835,6 @@ clear_keytab(void) {
 	}
 	g_slist_free(service_key_list);
 	service_key_list = NULL;
-}
-
-static void
-read_keytab_file(const char *service_key_file)
-{
-	FILE *skf;
-	ws_statb64 st;
-	service_key_t *sk;
-	unsigned char buf[SERVICE_KEY_SIZE];
-	int newline_skip = 0, count = 0;
-
-	if (service_key_file != NULL && ws_stat64 (service_key_file, &st) == 0) {
-
-		/* The service key file contains raw 192-bit (24 byte) 3DES keys.
-		 * There can be zero, one (\n), or two (\r\n) characters between
-		 * keys.  Trailing characters are ignored.
-		 */
-
-		/* XXX We should support the standard keytab format instead */
-		if (st.st_size > SERVICE_KEY_SIZE) {
-			if ( (st.st_size % (SERVICE_KEY_SIZE + 1) == 0) ||
-				 (st.st_size % (SERVICE_KEY_SIZE + 1) == SERVICE_KEY_SIZE) ) {
-				newline_skip = 1;
-			} else if ( (st.st_size % (SERVICE_KEY_SIZE + 2) == 0) ||
-				 (st.st_size % (SERVICE_KEY_SIZE + 2) == SERVICE_KEY_SIZE) ) {
-				newline_skip = 2;
-			}
-		}
-
-		skf = ws_fopen(service_key_file, "rb");
-		if (! skf) return;
-
-		while (fread(buf, SERVICE_KEY_SIZE, 1, skf) == 1) {
-			sk = g_malloc(sizeof(service_key_t));
-			sk->kvno = buf[0] << 8 | buf[1];
-			sk->keytype = KEYTYPE_DES3_CBC_MD5;
-			sk->length = DES3_KEY_SIZE;
-			sk->contents = g_memdup2(buf + 2, DES3_KEY_SIZE);
-			sk->origin = g_strdup_printf("3DES service key file, key #%d, offset %ld", count, ftell(skf));
-			service_key_list = g_slist_append(service_key_list, (void *) sk);
-			if (fseek(skf, newline_skip, SEEK_CUR) < 0) {
-				ws_critical("unable to seek...");
-				fclose(skf);
-				return;
-			}
-			count++;
-		}
-		fclose(skf);
-	}
 }
 
 #define CONFOUNDER_PLUS_CHECKSUM 24
@@ -5623,7 +5244,7 @@ static void
 kerberos_prefs_apply_cb(void) {
 #ifdef HAVE_LIBNETTLE
 	clear_keytab();
-	read_keytab_file(keytab_filename);
+        keytab_file_read(keytab_filename);
 #endif
 }
 
@@ -6157,18 +5778,6 @@ void proto_register_kerberos(void) {
 				   &keytab_filename, false);
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-	wmem_register_callback(wmem_epan_scope(), enc_key_list_cb, NULL);
-	kerberos_longterm_keys = wmem_map_new(wmem_epan_scope(),
-					      enc_key_content_hash,
-					      enc_key_content_equal);
-	kerberos_all_keys = wmem_map_new_autoreset(wmem_epan_scope(),
-						   wmem_file_scope(),
-						   enc_key_content_hash,
-						   enc_key_content_equal);
-	kerberos_app_session_keys = wmem_map_new_autoreset(wmem_epan_scope(),
-							   wmem_file_scope(),
-							   enc_key_content_hash,
-							   enc_key_content_equal);
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 #endif /* HAVE_KERBEROS */
 
