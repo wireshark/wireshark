@@ -113,12 +113,27 @@ static GHashTable *registered_dissectors;
 
 /*
  * A dissector dependency list.
+ * XXX - These are protocol short names, not dissectors (which is likely
+ * what we want, as protocols are enabled and disabled, not dissectors
+ * other than heuristic dissectors.)
  */
 struct depend_dissector_list {
-	GSList		*dissectors;
+	GHashTable	*dissectors;
 };
 
-/* Maps char *dissector_name to depend_dissector_list_t */
+/* Maps char * protocol short name to depend_dissector_list_t
+ * XXX - This doesn't get freed when proto_deregister_dissector
+ * is called. Might it make sense to store this information in
+ * the proto_t?
+ * XXX - Which direction should these be stored? Issue #1402 discusses,
+ * e.g., if HTTP is enabled then making sure that lower level protocols
+ * like TLS, TCP, IP, etc. are enabled. But here as registered the key
+ * is the protocol of the dissector that calls the other handle (whether
+ * via table or registered with _add_dependency.) That is, "TCP" and
+ * "TLS" are keys that have "HTTP" in their depend_dissector_list, rather
+ * than the other way around. Either use could be interesting (a bit moot
+ * since this isn't actually used yet.)
+ */
 static GHashTable *depend_dissector_lists;
 
 /* Allow protocols to register a "cleanup" routine to be
@@ -149,11 +164,11 @@ static GArray *postdissectors;
 static void
 destroy_depend_dissector_list(void *data)
 {
-	depend_dissector_list_t dissector_list = (depend_dissector_list_t)data;
-	GSList **list = &(dissector_list->dissectors);
+       depend_dissector_list_t dissector_list = (depend_dissector_list_t)data;
+       GHashTable *table = dissector_list->dissectors;
 
-	g_slist_free_full(*list, g_free);
-	g_slice_free(struct depend_dissector_list, dissector_list);
+       g_hash_table_destroy(table);
+       g_slice_free(struct depend_dissector_list, dissector_list);
 }
 
 /*
@@ -3583,18 +3598,7 @@ register_dissector_with_data(const char *name, dissector_cb_t dissector, const i
 static bool
 remove_depend_dissector_from_list(depend_dissector_list_t sub_dissectors, const char *dependent)
 {
-	GSList *found_entry;
-
-	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
-		dependent, (GCompareFunc)strcmp);
-
-	if (found_entry) {
-		g_free(found_entry->data);
-		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors, found_entry);
-		return true;
-	}
-
-	return false;
+	return g_hash_table_remove(sub_dissectors->dissectors, dependent);
 }
 
 static void
@@ -3744,18 +3748,8 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 }
 
-static int
-find_matching_proto_name(const void *arg1, const void *arg2)
-{
-	const char    *protocol_name = (const char*)arg1;
-	const char    *name   = (const char *)arg2;
-
-	return strcmp(protocol_name, name);
-}
-
 bool register_depend_dissector(const char* parent, const char* dependent)
 {
-	GSList                *list_entry;
 	depend_dissector_list_t sub_dissectors;
 
 	if ((parent == NULL) || (dependent == NULL))
@@ -3768,16 +3762,12 @@ bool register_depend_dissector(const char* parent, const char* dependent)
 	if (sub_dissectors == NULL) {
 		/* parent protocol doesn't exist, create it */
 		sub_dissectors = g_slice_new(struct depend_dissector_list);
-		sub_dissectors->dissectors = NULL;	/* initially empty */
+		sub_dissectors->dissectors = g_hash_table_new(g_str_hash, g_str_equal);	/* initially empty */
 		g_hash_table_insert(depend_dissector_lists, (void *)g_strdup(parent), (void *) sub_dissectors);
 	}
 
 	/* Verify that sub-dissector is not already in the list */
-	list_entry = g_slist_find_custom(sub_dissectors->dissectors, (void *)dependent, find_matching_proto_name);
-	if (list_entry != NULL)
-		return true; /* Dependency already exists */
-
-	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors, (void *)g_strdup(dependent));
+	g_hash_table_add(sub_dissectors->dissectors, (void *)dependent);
 	return true;
 }
 
