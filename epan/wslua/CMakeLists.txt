@@ -122,6 +122,7 @@ endif()
 target_include_directories(wslua
 	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
 		${LUA_INCLUDE_DIRS}
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}
