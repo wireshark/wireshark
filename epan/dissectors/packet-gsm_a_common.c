@@ -938,13 +938,13 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }else if (type_of_shape == ELLIPSOID_POINT_WITH_ALT) {
             /* Ellipsoid Point with Altitude */
             /*D: Direction of Altitude */
-            proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 2, ENC_BIG_ENDIAN);
             /* Altitude */
             proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, ENC_BIG_ENDIAN);
         }else if (type_of_shape == ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID) {
             /* Ellipsoid Point with altitude and uncertainty ellipsoid */
             /*D: Direction of Altitude octet 8,9 */
-            proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 2, ENC_BIG_ENDIAN);
             /* Altitude Octet 8,9*/
             proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
