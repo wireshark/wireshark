@@ -420,6 +420,10 @@ static int dissect_asterix (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "ASTERIX");
     col_clear (pinfo->cinfo, COL_INFO);
 
+    if (hf_asterix_category <= 0) {
+        proto_registrar_get_byname("asterix.category");
+    }
+
     if (tree) { /* we are being asked for details */
         dissect_asterix_packet (tvb, pinfo, tree);
     }
@@ -437,6 +441,7 @@ get_asterix_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 
 static int dissect_asterix_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    /* We do delayed field registration if needed in dissect_asterix. */
     tcp_dissect_pdus(tvb, pinfo, tree, true, 3, get_asterix_pdu_len, dissect_asterix, data);
     return tvb_reported_length (tvb);
 }
@@ -831,7 +836,7 @@ static int asterix_message_length (tvbuff_t *tvb, packet_info *pinfo, unsigned o
     return 0;
 }
 
-void proto_register_asterix (void)
+static void register_asterix_fields(const char* unused _U_)
 {
     static hf_register_info hf[] = {
         { &hf_asterix_category, { "Category", "asterix.category", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -856,12 +861,18 @@ void proto_register_asterix (void)
         &ett_asterix_subtree
     };
 
+    proto_register_field_array (proto_asterix, hf, array_length (hf));
+    proto_register_subtree_array (ett, array_length (ett));
+}
+
+void proto_register_asterix (void)
+{
     module_t *asterix_prefs_module;
 
     proto_asterix = proto_register_protocol ("ASTERIX packet", "ASTERIX", "asterix");
 
-    proto_register_field_array (proto_asterix, hf, array_length (hf));
-    proto_register_subtree_array (ett, array_length (ett));
+    /* Delay registration of ASTERIX fields */
+    proto_register_prefix("asterix", register_asterix_fields);
 
     asterix_handle = register_dissector ("asterix", dissect_asterix, proto_asterix);
     asterix_tcp_handle = register_dissector ("asterix-tcp", dissect_asterix_tcp, proto_asterix);
