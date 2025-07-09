@@ -7,12 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-if (HAVE_HFI_SECTION_INIT)
-	add_definitions(
-		-DHAVE_HFI_SECTION_INIT
-	)
-endif()
-
 add_definitions(
 		${LIBXML2_DEFINITIONS}
 		${KERBEROS_DEFINITIONS}
