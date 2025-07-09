@@ -6221,6 +6221,10 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
 
+      if (hf_x11_errorcode <= 0) {
+            proto_registrar_get_byname("x11.errorcode");
+      }
+
       if (pinfo->match_uint == pinfo->srcport)
             dissect_x11_replies(tvb, pinfo, tree);
       else
@@ -6229,8 +6233,7 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return tvb_captured_length(tvb);
 }
 
-/* Register the protocol with Wireshark */
-void proto_register_x11(void)
+static void register_x11_fields(const char* unused _U_)
 {
 
 /* Setup list of header fields */
@@ -6288,18 +6291,26 @@ void proto_register_x11(void)
             { &ei_x11_keycode_value_out_of_range, { "x11.keycode_value_out_of_range", PI_PROTOCOL, PI_WARN, "keycode value is out of range", EXPFILL }},
       };
 
-      module_t *x11_module;
       expert_module_t* expert_x11;
-
-/* Register the protocol name and description */
-      proto_x11 = proto_register_protocol("X11", "X11", "x11");
-      x11_handle = register_dissector("x11", dissect_x11, proto_x11);
 
 /* Required function calls to register the header fields and subtrees used */
       proto_register_field_array(proto_x11, hf, array_length(hf));
       proto_register_subtree_array(ett, array_length(ett));
       expert_x11 = expert_register_protocol(proto_x11);
       expert_register_field_array(expert_x11, ei, array_length(ei));
+}
+
+/* Register the protocol with Wireshark */
+void proto_register_x11(void)
+{
+      module_t *x11_module;
+
+/* Register the protocol name and description */
+      proto_x11 = proto_register_protocol("X11", "X11", "x11");
+      x11_handle = register_dissector("x11", dissect_x11, proto_x11);
+
+      /* Delay registration of X11 fields */
+      proto_register_prefix("x11", register_x11_fields);
 
       extension_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
       error_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
