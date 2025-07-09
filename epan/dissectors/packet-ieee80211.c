@@ -9028,8 +9028,6 @@ static const val64_string number_of_taps_values[] = {
   {0, NULL}
 };
 
-DOT11DECRYPT_CONTEXT dot11decrypt_ctx;
-
 #define PSMP_STA_INFO_BROADCAST 0
 #define PSMP_STA_INFO_MULTICAST 1
 #define PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED 2
