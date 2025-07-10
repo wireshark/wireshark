@@ -1092,6 +1092,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 22869, "MTEL Schweiz GmbH" },
     { 22870, "Tismi BV" },
     { 22871, "Spusu AG" },
+    { 22873, "iWay AG" },
     { 23001, "T-Mobile Czech Republic a.s." },
     { 23002, "O2 Czech Republic a.s." },
     { 23003, "Vodafone Czech Republic a.s." },
