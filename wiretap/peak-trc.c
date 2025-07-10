@@ -797,7 +797,6 @@ peak_trc_open(wtap* wth, int* err, char** err_info)
     if (open_val != WTAP_OPEN_MINE)
     {
         clean_trc_state(trc_state);
-        g_free(trc_state);
         wth->priv = NULL;
         return open_val;
     }
