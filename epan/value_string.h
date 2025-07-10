@@ -303,8 +303,8 @@ typedef struct _range_string {
 
 WS_DLL_PUBLIC
 const char *
-rval_to_str(const uint32_t val, const range_string *rs, const char *fmt)
-G_GNUC_PRINTF(3, 0);
+rval_to_str_wmem(wmem_allocator_t* scope, const uint32_t val, const range_string *rs, const char *fmt)
+G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
 const char *

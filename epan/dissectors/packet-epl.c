@@ -3203,7 +3203,7 @@ dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 	svid = tvb_get_uint8(tvb, offset);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)  ", rval_to_str(svid, asnd_svid_id_vals, "UNKNOWN(%d)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)  ", rval_to_str_wmem(pinfo->pool, svid, asnd_svid_id_vals, "UNKNOWN(%d)"));
 
 	item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid );
 	offset += 1;

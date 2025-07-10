@@ -856,7 +856,7 @@ try_str_to_str(const char *val, const string_string *vs)
 
 /* Like val_to_str except for range_string */
 const char *
-rval_to_str(const uint32_t val, const range_string *rs, const char *fmt)
+rval_to_str_wmem(wmem_allocator_t* scope, const uint32_t val, const range_string *rs, const char *fmt)
 {
     const char *ret = NULL;
 
@@ -866,7 +866,7 @@ rval_to_str(const uint32_t val, const range_string *rs, const char *fmt)
     if(ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return wmem_strdup_printf(scope, fmt, val);
 }
 
 /* Like val_to_str_const except for range_string */

@@ -1610,7 +1610,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - %s", short_name,
-                    vc, rval_to_str(tvb_get_uint8(tvb, 3), clear_code_rvals, "Unknown (0x%02x)"),
+                    vc, rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 3), clear_code_rvals, "Unknown (0x%02x)"),
                     val_to_str_ext(tvb_get_uint8(tvb, 4), &x25_clear_diag_vals_ext, "Unknown (0x%02x)"));
         x25_hash_add_proto_end(vc, pinfo->num);
         if (x25_tree) {
@@ -1689,7 +1689,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - Diag.:%d",
-                    short_name, vc, rval_to_str(tvb_get_uint8(tvb, 3), reset_code_rvals, "Unknown (0x%02x)"),
+                    short_name, vc, rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 3), reset_code_rvals, "Unknown (0x%02x)"),
                     (int)tvb_get_uint8(tvb, 4));
         x25_hash_add_proto_end(vc, pinfo->num);
         if (x25_tree) {
@@ -1730,7 +1730,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s - Diag.:%d",
                     short_name,
-                    rval_to_str(tvb_get_uint8(tvb, 3), restart_code_rvals, "Unknown (0x%02x)"),
+                    rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 3), restart_code_rvals, "Unknown (0x%02x)"),
                     (int)tvb_get_uint8(tvb, 4));
         if (x25_tree) {
             proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,

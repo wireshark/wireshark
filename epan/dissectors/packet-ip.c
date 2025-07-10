@@ -1492,7 +1492,7 @@ dissect_ipopt_ra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
   field_tree = ip_fixed_option_header(tree, pinfo, tvb, proto_ip_option_routeralert, ett_ip_option_ra, &tf, IPOLEN_RA, tvb_reported_length(tvb));
 
   proto_tree_add_item_ret_uint(field_tree, hf_ip_opt_ra, tvb, 2, 2, ENC_BIG_ENDIAN, &value);
-  proto_item_append_text(tf, ": %s (%u)", rval_to_str(value, ra_rvals, "Unknown (%u)"), value);
+  proto_item_append_text(tf, ": %s (%u)", rval_to_str_wmem(pinfo->pool, value, ra_rvals, "Unknown (%u)"), value);
   return tvb_captured_length(tvb);
 }
 

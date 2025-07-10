@@ -1084,7 +1084,7 @@ smpp_stats_tree_init(stats_tree* st)
 
 static tap_packet_status
 smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
-                           packet_info *pinfo _U_,
+                           packet_info *pinfo,
                            epan_dissect_t *edt _U_,
                            const void *p,
                            tap_flags_t flags _U_) /* Used for getting SMPP command_id values */
@@ -1099,7 +1099,7 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
         tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_res, false);
 
         tick_stat_node(st, "SMPP Response Status", 0, true);
-        tick_stat_node(st, rval_to_str(tap_rec->command_status, rvals_command_status, "Unknown 0x%08x"), st_smpp_res_status, false);
+        tick_stat_node(st, rval_to_str_wmem(pinfo->pool, tap_rec->command_status, rvals_command_status, "Unknown 0x%08x"), st_smpp_res_status, false);
 
     }
     else  /* Request */
@@ -2456,7 +2456,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     command_status = tvb_get_ntohl(tvb, offset);
     if (command_id & SMPP_COMMAND_ID_RESPONSE_MASK) {
         /* PDU is a response. */
-        command_status_str = rval_to_str(command_status, rvals_command_status, "Unknown (0x%08x)");
+        command_status_str = rval_to_str_wmem(pinfo->pool, command_status, rvals_command_status, "Unknown (0x%08x)");
     }
     offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);

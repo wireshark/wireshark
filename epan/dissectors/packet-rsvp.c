@@ -4508,7 +4508,7 @@ dissect_rsvp_policy(proto_item *ti _U_, proto_tree *rsvp_object_tree,
  *------------------------------------------------------------------------------*/
 static void
 dissect_rsvp_label_request(proto_item *ti, proto_tree *rsvp_object_tree,
-                           tvbuff_t *tvb,
+                           tvbuff_t *tvb, packet_info* pinfo,
                            int offset, int obj_length,
                            int rsvp_class _U_, int type)
 {
@@ -4596,8 +4596,8 @@ dissect_rsvp_label_request(proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_g_pid, tvb, offset2+2, 2, ENC_BIG_ENDIAN);
         proto_item_set_text(ti, "LABEL REQUEST: Generalized: LSP Encoding=%s, "
                             "Switching Type=%s, G-PID=%s ",
-                            rval_to_str(lsp_enc, gmpls_lsp_enc_rvals, "Unknown (%d)"),
-                            rval_to_str(tvb_get_uint8(tvb,offset2+1),
+                            rval_to_str_wmem(pinfo->pool, lsp_enc, gmpls_lsp_enc_rvals, "Unknown (%d)"),
+                            rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,offset2+1),
                                        gmpls_switching_type_rvals, "Unknown (%d)"),
                             rval_to_str_const(l3pid, gmpls_gpid_rvals,
                                               val_to_str(l3pid, etype_vals,
@@ -5954,9 +5954,9 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree, packet_info* pin
             proto_tree_add_item(rsvp_lsp_tunnel_if_id_subtree, hf_rsvp_lsp_tunnel_if_id_sc_pc_id, tvb, offset+tlv_off+16, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_lsp_tunnel_if_id_subtree, hf_rsvp_lsp_tunnel_if_id_sc_pc_scn_address, tvb, offset+tlv_off+20, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, "LSP Encoding=%s, Switching Type=%s, Signal Type=%s",
-                                   rval_to_str(tvb_get_uint8(tvb,offset+tlv_off+4),
+                                   rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,offset+tlv_off+4),
                                               gmpls_lsp_enc_rvals, "Unknown (%d)"),
-                                   rval_to_str(tvb_get_uint8(tvb,offset+tlv_off+5),
+                                   rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,offset+tlv_off+5),
                                               gmpls_switching_type_rvals, "Unknown (%d)"),
                                    val_to_str_ext(tvb_get_uint8(tvb,offset+tlv_off+6),
                                                   &gmpls_sonet_signal_type_str_ext, "Unknown (%d)"));
@@ -7835,7 +7835,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSVP_CLASS_LABEL_REQUEST:
-            dissect_rsvp_label_request(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            dissect_rsvp_label_request(ti, rsvp_object_tree, tvb, pinfo, offset, obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_RECOVERY_LABEL:

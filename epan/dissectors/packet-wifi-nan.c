@@ -2861,7 +2861,7 @@ dissect_nan_action(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     proto_tree* nan_tree = proto_item_add_subtree(ti, ett_nan);
 
     uint8_t subtype = tvb_get_uint8(tvb, offset);
-    const char* subtype_text = rval_to_str(subtype, action_frame_type_values, "Unknown type (%u)");
+    const char* subtype_text = rval_to_str_wmem(pinfo->pool, subtype, action_frame_type_values, "Unknown type (%u)");
     proto_item_set_text(ti, "%s", subtype_text);
     proto_tree_add_item(nan_tree, hf_nan_action_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 

@@ -240,12 +240,12 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
          * "not all of these UPI types are applicable" in that case. */
         type_ti = proto_tree_add_bitmask_with_flags(gfp_tree, tvb, *offset, hf_gfp_type,
             ett_gfp_type, gfp_type_data_fields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
-        col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", rval_to_str(upi, gfp_upi_data_rvals, "Unknown 0x%02x"));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", rval_to_str_wmem(pinfo->pool, upi, gfp_upi_data_rvals, "Unknown 0x%02x"));
     } else if (pti == GFP_CLIENT_MANAGEMENT) {
         /* G.7041 Table 6-4 */
         type_ti = proto_tree_add_bitmask_with_flags(gfp_tree, tvb, *offset, hf_gfp_type,
             ett_gfp_type, gfp_type_management_fields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
-        col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", rval_to_str(upi, gfp_upi_management_rvals, "Unknown 0x%02x"));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", rval_to_str_wmem(pinfo->pool, upi, gfp_upi_management_rvals, "Unknown 0x%02x"));
     }
 
     /* G.7041 6.1.2.1.2 Type HEC (tHEC) - mandatory 2 bytes */

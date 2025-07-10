@@ -1781,7 +1781,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
                 break;
             case MS_IMPLEMENTATION_VER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_version_ice, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(att_tree, ": %s", rval_to_str(tvb_get_ntohl(tvb, offset), ms_version_ice_rvals, "Unknown (0x%u)"));
+                proto_item_append_text(att_tree, ": %s", rval_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, offset), ms_version_ice_rvals, "Unknown (0x%u)"));
                 break;
             case MS_SEQUENCE_NUMBER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_connection_id, tvb, offset, 20, ENC_NA);

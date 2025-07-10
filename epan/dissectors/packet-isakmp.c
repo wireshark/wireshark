@@ -2446,7 +2446,7 @@ static void dissect_key_download(tvbuff_t *, packet_info *, int, int, proto_tree
 static void dissect_sequence(tvbuff_t *, packet_info *, int, int, proto_tree *);
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
-static void dissect_ts_payload(tvbuff_t *, int, int, proto_tree *);
+static void dissect_ts_payload(tvbuff_t *, packet_info*, int, int, proto_tree *);
 static tvbuff_t * dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, uint8_t, bool, void*, bool);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *, packet_info *);
 static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
@@ -3268,7 +3268,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
             break;
           case PLOAD_IKE2_TSI:
           case PLOAD_IKE2_TSR:
-            dissect_ts_payload(tvb, offset + 4, payload_length - 4, ntree);
+            dissect_ts_payload(tvb, pinfo, offset + 4, payload_length - 4, ntree);
             break;
           case PLOAD_IKE2_SK:
             if(isakmp_version == 2)
@@ -3750,7 +3750,7 @@ dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
  * @param [out] subtree         The subtree created for this attribute.
  */
 static void
-dissect_attribute_header(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_attribute_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
                          attribute_common_fields hf_attr, const range_string *attr_typenames,
                          unsigned *headerlen, unsigned *value_len, unsigned *attr_type,
                          proto_item **attr_item, proto_tree **subtree)
@@ -3774,7 +3774,7 @@ dissect_attribute_header(tvbuff_t *tvb, proto_tree *tree, int offset,
   }
 
   *attr_item = proto_tree_add_item(tree, hf_attr.all, tvb, offset, *headerlen + *value_len, ENC_NA);
-  attr_typename = rval_to_str(*attr_type, attr_typenames, "Unknown Attribute Type (%02d)");
+  attr_typename = rval_to_str_wmem(pinfo->pool, *attr_type, attr_typenames, "Unknown Attribute Type (%02d)");
   proto_item_append_text(*attr_item, " (t=%d,l=%d): %s", *attr_type, *value_len, attr_typename);
 
   *subtree = proto_item_add_subtree(*attr_item, ett_isakmp_attr);
@@ -3796,7 +3796,7 @@ dissect_rohc_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_notify_data_rohc_attr, rohc_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -3924,7 +3924,7 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_ipsec_attr, ipsec_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -4011,7 +4011,7 @@ dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_t
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_resp_lifetime_ipsec_attr, ipsec_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -4048,7 +4048,7 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_ike_attr, ike_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -4155,7 +4155,7 @@ dissect_resp_lifetime_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_resp_lifetime_ike_attr, ike_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -4192,7 +4192,7 @@ dissect_ike2_transform_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_ike2_attr, transform_ike2_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -5281,7 +5281,7 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     return 4;
   }
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_cfg_attr, vs_cfgattr,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -5466,7 +5466,7 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       break;
     case XAUTH_TYPE: /* 16520 */
       proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", rval_to_str(tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", rval_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
       break;
     case XAUTH_USER_NAME: /* 16521 */
       proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_xauth_user_name, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
@@ -5696,7 +5696,7 @@ dissect_tek_key_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   proto_item *attr_item;
   proto_tree *attr_tree;
 
-  dissect_attribute_header(tvb, tree, offset,
+  dissect_attribute_header(tvb, pinfo, tree, offset,
                            hf_isakmp_tek_key_attr, tek_key_attr_type,
                            &headerlen, &value_len, &attr_type,
                            &attr_item, &attr_tree);
@@ -5804,7 +5804,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length _U_, proto_tr
 }
 
 static int
-dissect_ts(tvbuff_t *tvb, int offset, proto_tree *payload_tree)
+dissect_ts(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *payload_tree)
 {
   uint8_t       tstype, protocol_id;
   uint16_t      len;
@@ -5821,7 +5821,7 @@ dissect_ts(tvbuff_t *tvb, int offset, proto_tree *payload_tree)
 
   tstype = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_isakmp_ts_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  ts_typename = rval_to_str(tstype, traffic_selector_type, "Unknown Type (%d)");
+  ts_typename = rval_to_str_wmem(pinfo->pool, tstype, traffic_selector_type, "Unknown Type (%d)");
   proto_item_append_text(ts_item, ": %s", ts_typename);
 
   offset += 1;
@@ -5911,7 +5911,7 @@ dissect_ts(tvbuff_t *tvb, int offset, proto_tree *payload_tree)
 }
 
 static void
-dissect_ts_payload(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_ts_payload(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, proto_tree *tree)
 {
   uint8_t       num;
   int           offset_end = offset + length;
@@ -5925,7 +5925,7 @@ dissect_ts_payload(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   offset += 3;
 
   while (offset < offset_end) {
-    offset += dissect_ts(tvb, offset, tree);
+    offset += dissect_ts(tvb, pinfo, offset, tree);
   }
 }
 

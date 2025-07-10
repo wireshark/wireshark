@@ -1201,9 +1201,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     proto_item_set_text(ti2, "Interface Switching Capability: "
                                         "Switching Cap: %s, Encoding Type: %s, "
                                         "Min BW: %.3f Mbps, Max BW: %.3f Mbps",
-                                        rval_to_str(tvb_get_uint8(tvb, offset2+l+2),
+                                        rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+l+2),
                                                     gmpls_switching_type_rvals, "Unknown (%d)"),
-                                        rval_to_str(tvb_get_uint8(tvb, offset2+l+3),
+                                        rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+l+3),
                                                     gmpls_lsp_enc_rvals, "Unknown (%d)"),
                                         tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000,
                                         tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000);
@@ -1795,9 +1795,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     case 252:
                         proto_item_set_text(ti2, "SONET/SDH Layer Capability: "
                                             "Switching Cap: %s, Encoding Type: %s",
-                                            rval_to_str(tvb_get_uint8(tvb, offset2+l+4),
+                                            rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+l+4),
                                                         gmpls_switching_type_rvals, "Unknown (%d)"),
-                                            rval_to_str(tvb_get_uint8(tvb, offset2+l+5),
+                                            rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+l+5),
                                                         gmpls_lsp_enc_rvals, "Unknown (%d)"));
                         proto_tree_add_item(lmp_subobj_tree,
                                             hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],

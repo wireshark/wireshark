@@ -6159,7 +6159,7 @@ dissect_ChannelProperties(tvbuff_t *tvb, int offset,
 /* dissect the RS_BlockHeader */
 static int
 dissect_RS_BlockHeader(tvbuff_t *tvb, int offset,
-    packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint8_t *drep,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
     uint16_t *u16RSBodyLength, uint16_t *u16RSBlockType)
 {
     uint16_t u16RSBlockLength;
@@ -6179,7 +6179,7 @@ dissect_RS_BlockHeader(tvbuff_t *tvb, int offset,
         hf_pn_io_block_version_low, &u8BlockVersionLow);
 
     proto_item_append_text(item, ": Type=%s, Length=%u(+4), Version=%u.%u",
-        rval_to_str(*u16RSBlockType, pn_io_rs_block_type, "Unknown (0x%04x)"),
+        rval_to_str_wmem(pinfo->pool, *u16RSBlockType, pn_io_rs_block_type, "Unknown (0x%04x)"),
         u16RSBlockLength, u8BlockVersionHigh, u8BlockVersionLow);
 
     /* Block length is without type and length fields, but with version field */

@@ -2902,7 +2902,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             // Transport Error codes higher than 0x3fff are for Private Use.
             if (frame_type == FT_CONNECTION_CLOSE_TPT && error_code <= 0x3fff) {
-                proto_item_append_text(ti_ft, " Error code: %s", rval_to_str((uint32_t)error_code, quic_transport_error_code_vals, "Unknown (%d)"));
+                proto_item_append_text(ti_ft, " Error code: %s", rval_to_str_wmem(pinfo->pool, (uint32_t)error_code, quic_transport_error_code_vals, "Unknown (%d)"));
             } else {
                 proto_item_append_text(ti_ft, " Error code: %#" PRIx64, error_code);
             }
