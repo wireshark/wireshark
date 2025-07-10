@@ -8741,16 +8741,18 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.ru_port_id_bits", "RU Port ID bits [d]",
         "The bit width of RU Port ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_ru_port_id_bits);
 
+    /* Uplink userplane */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
-        "The bit width of a sample in the Uplink (if no udcompHdr)", 10, &pref_sample_bit_width_uplink);
+        "The bit width of a sample in the Uplink (if no udcompHdr and no C-Plane)", 10, &pref_sample_bit_width_uplink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_up", "Uplink User Data Compression",
-        "Uplink User Data Compression", &pref_iqCompressionUplink, ul_compression_options, false);
+        "Uplink User Data Compression (if no udcompHdr and no C-Plane)", &pref_iqCompressionUplink, ul_compression_options, false);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_hdr_up", "udCompHdr field is present for uplink",
         "The udCompHdr field in U-Plane messages may or may not be present, depending on the "
         "configuration of the O-RU. This preference instructs the dissector to expect "
         "this field to be present in uplink messages",
         &pref_includeUdCompHeaderUplink, udcomphdr_present_options, false);
 
+    /* Downlink userplane */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
         "The bit width of a sample in the Downlink (if no udcompHdr)", 10, &pref_sample_bit_width_downlink);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_down", "Downlink User Data Compression",
@@ -8761,6 +8763,7 @@ proto_register_oran(void)
         "this field to be present in downlink messages",
         &pref_includeUdCompHeaderDownlink, udcomphdr_present_options, false);
 
+    /* SINR */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_sinr", "IQ Bitwidth SINR",
         "The bit width of a sample in SINR", 10, &pref_sample_bit_width_sinr);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_sinr", "SINR Compression",
