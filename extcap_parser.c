@@ -191,6 +191,10 @@ static extcap_token_sentence *extcap_tokenize_sentence(const char *s) {
                 param_type = EXTCAP_PARAM_PARENT;
             } else if (g_ascii_strcasecmp(arg, "reload") == 0) {
                 param_type = EXTCAP_PARAM_RELOAD;
+            } else if (g_ascii_strcasecmp(arg, "configurable") == 0) {
+                param_type = EXTCAP_PARAM_CONFIGURABLE;
+            } else if (g_ascii_strcasecmp(arg, "prefix") == 0) {
+                param_type = EXTCAP_PARAM_PREFIX;
             } else if (g_ascii_strcasecmp(arg, "required") == 0) {
                 param_type = EXTCAP_PARAM_REQUIRED;
             } else if (g_ascii_strcasecmp(arg, "save") == 0) {
@@ -372,6 +376,7 @@ static extcap_value *extcap_parse_value_sentence(extcap_token_sentence *s) {
 
         value = g_new0(extcap_value, 1);
         value->arg_num = tint;
+        value->enabled = true;
 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_VALUE)))
                 == NULL) {
@@ -433,7 +438,7 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
         target_arg = g_new0(extcap_arg, 1);
         target_arg->arg_type = EXTCAP_ARG_UNKNOWN;
         target_arg->save = true;
-
+        target_arg->configurable = false;
 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_ARGNUM))) == NULL) {
             extcap_free_arg(target_arg);
@@ -493,6 +498,11 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
             target_arg->group = g_strdup(param_value);
         }
 
+        if ((param_value = (char*)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_PREFIX)))
+            != NULL) {
+            target_arg->prefix = g_strdup(param_value);
+        }
+
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_REQUIRED)))
                 != NULL) {
             target_arg->is_required = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
@@ -532,6 +542,8 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
             target_arg->arg_type = EXTCAP_ARG_FILESELECT;
         } else if (g_ascii_strcasecmp(param_value, "multicheck") == 0) {
             target_arg->arg_type = EXTCAP_ARG_MULTICHECK;
+        } else if (g_ascii_strcasecmp(param_value, "table") == 0) {
+            target_arg->arg_type = EXTCAP_ARG_TABLE;
         } else if (g_ascii_strcasecmp(param_value, "timestamp") == 0) {
             target_arg->arg_type = EXTCAP_ARG_TIMESTAMP;
         } else {
@@ -548,6 +560,11 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_RELOAD)))
                 != NULL) {
             target_arg->reload = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
+        }
+
+        if ((param_value = (char*)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_CONFIGURABLE)))
+            != NULL) {
+            target_arg->configurable = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_RANGE)))
@@ -580,7 +597,8 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_DEFAULT)))
                 != NULL) {
-            if (target_arg->arg_type != EXTCAP_ARG_MULTICHECK && target_arg->arg_type != EXTCAP_ARG_SELECTOR)
+            if (target_arg->arg_type != EXTCAP_ARG_MULTICHECK && target_arg->arg_type != EXTCAP_ARG_TABLE &&
+                target_arg->arg_type != EXTCAP_ARG_SELECTOR)
             {
                 if ((target_arg->default_complex = extcap_parse_complex(
                                                        target_arg->arg_type, param_value)) == NULL) {

@@ -35,7 +35,8 @@ class ExtcapOptionsDialog : public QDialog
 
 public:
     ~ExtcapOptionsDialog();
-    static ExtcapOptionsDialog * createForDevice(QString &device_name, bool startCaptureOnClose, QWidget *parent = 0);
+    static ExtcapOptionsDialog * createForDevice(QString &device_name, bool startCaptureOnClose, QWidget *parent = 0,
+        QString *option_name = NULL, QString *option_value = NULL);
 
     ExtcapValueList loadValuesFor(int argNum, QString call, QString parent = "");
 
@@ -50,6 +51,8 @@ private:
 
     Ui::ExtcapOptionsDialog *ui;
     QString device_name;
+    QString option_name;  // If using the UI to edit the config of a sub-argument
+    QString option_value;  // If using the UI to edit the config of a sub-argument
     unsigned device_idx;
     QIcon defaultValueIcon_;
 

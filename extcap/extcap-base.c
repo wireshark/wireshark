@@ -205,6 +205,14 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
         case EXTCAP_OPT_CONFIG:
             extcap->show_config = 1;
             break;
+        case EXTCAP_OPT_CONFIG_OPTION_NAME:
+            extcap->show_config_option = 1;
+            extcap->config_option_name = g_strdup(optargument);
+            break;
+        case EXTCAP_OPT_CONFIG_OPTION_VALUE:
+            extcap->show_config_option = 1;
+            extcap->config_option_value = g_strdup(optargument);
+            break;
         case EXTCAP_OPT_CAPTURE:
             extcap->capture = 1;
             break;

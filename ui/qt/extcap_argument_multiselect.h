@@ -16,9 +16,18 @@
 #include <QTreeView>
 #include <QAbstractItemModel>
 #include <QItemSelection>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QAction>
+#include <QTableView>
+#include <QToolBar>
+#include <QDialog>
+#include <QMap>
 
 #include <extcap_parser.h>
 #include <extcap_argument.h>
+
+#include "extcap_options_dialog.h"
 
 class ExtArgMultiSelect : public ExtcapArgument
 {
@@ -39,12 +48,56 @@ protected:
     virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults);
     void checkItemsWalker(QStandardItem * item, QStringList defaults);
     virtual QWidget * createEditor(QWidget * parent);
+    virtual QStringList checkedValues();
+    QStandardItemModel* viewModel;
+    /* This stores the displays associated with a value */
+    QMap<QString, QString> displayNames;
 
 private:
-
     QTreeView * treeView;
-    QStandardItemModel * viewModel;
 
+};
+
+
+class ExtArgTable : public ExtArgMultiSelect
+{
+    Q_OBJECT
+
+public:
+    ExtArgTable(extcap_arg* argument, QObject* parent = Q_NULLPTR);
+    virtual ~ExtArgTable();
+
+    virtual QString value();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
+
+protected:
+    virtual QWidget* createEditor(QWidget* parent);
+    void addKnown();
+    void addCustom();
+    void removeSelected();
+    void addChecked(QStringList checked, QStringList options);
+    virtual void showExtcapOptionsDialogForOptionValue(QStandardItem* item, QString& option_value);
+    virtual void extcap_options_finished(QStandardItem* item);
+
+private:
+    ExtcapOptionsDialog* extcap_options_dialog;
+    QDialog* addDialog;
+
+    QStandardItemModel* tableViewModel;
+    QTableView* tableView;
+
+    QVBoxLayout* paneLayout;
+    QToolBar* toolbar;
+};
+
+class ExtArgTableAddDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    ExtArgTableAddDialog(QWidget* parent, QWidget* selector);
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_MULTISELECT_H_ */

@@ -37,6 +37,8 @@ extern "C" {
     EXTCAP_OPT_LIST_DLTS, \
     EXTCAP_OPT_INTERFACE, \
     EXTCAP_OPT_CONFIG, \
+    EXTCAP_OPT_CONFIG_OPTION_NAME, \
+    EXTCAP_OPT_CONFIG_OPTION_VALUE, \
     EXTCAP_OPT_CAPTURE, \
     EXTCAP_OPT_CAPTURE_FILTER, \
     EXTCAP_OPT_FIFO, \
@@ -50,6 +52,8 @@ extern "C" {
     { "extcap-dlts", ws_no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
     { "extcap-interface", ws_required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
     { "extcap-config", ws_no_argument, NULL, EXTCAP_OPT_CONFIG}, \
+    { "extcap-config-option-name", ws_required_argument, NULL, EXTCAP_OPT_CONFIG_OPTION_NAME}, \
+    { "extcap-config-option-value", ws_required_argument, NULL, EXTCAP_OPT_CONFIG_OPTION_VALUE }, \
     { "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
     { "extcap-capture-filter", ws_required_argument,    NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
     { "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
@@ -69,6 +73,9 @@ typedef struct _extcap_parameters
     char * helppage;
     uint8_t capture;
     uint8_t show_config;
+    uint8_t show_config_option;
+    char * config_option_name;
+    char * config_option_value;
 
     char * ws_version;
 

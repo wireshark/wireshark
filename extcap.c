@@ -86,6 +86,8 @@ typedef struct _extcap_callback_info_t
 {
     const char * extcap;
     const char * ifname;
+    const char * option_name;
+    const char * option_value;
     char * output;
     void * data;
     char ** err_str;
@@ -407,7 +409,8 @@ extcap_free_extcaps_info_array(extcap_run_extcaps_info_t *infos, unsigned count)
 }
 
 static void
-extcap_run_one(const extcap_interface *interface, GList *arguments, extcap_cb_t cb, void *user_data, char **err_str)
+extcap_run_one(const extcap_interface *interface, GList *arguments, extcap_cb_t cb, void *user_data, char **err_str,
+    const char* option_name, const char* option_value)
 {
     const char *dirname = get_extcap_dir();
     char **args = extcap_convert_arguments_to_array(arguments);
@@ -416,6 +419,8 @@ extcap_run_one(const extcap_interface *interface, GList *arguments, extcap_cb_t 
     if (ws_pipe_spawn_sync(dirname, interface->extcap_path, cnt, args, &command_output)) {
         extcap_callback_info_t cb_info = {
             .ifname = interface->call,
+            .option_name = option_name,
+            .option_value = option_value,
             .extcap = interface->extcap_path,
             .output = command_output,
             .data = user_data,
@@ -627,7 +632,7 @@ extcap_get_if_dlts(const char *ifname, char **err_str)
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
 
-        extcap_run_one(interface, arguments, cb_dlt, &caps, err_str);
+        extcap_run_one(interface, arguments, cb_dlt, &caps, err_str, NULL, NULL);
 
         g_list_free_full(arguments, g_free);
     }
@@ -887,7 +892,8 @@ static bool cb_preference(extcap_callback_info_t cb_info)
 
         GRegex *regex_name = g_regex_new("[-]+", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
         GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
-        if (regex_name && regex_ifname)
+        GRegex *regex_option = g_regex_new("-", G_REGEX_RAW, (GRegexMatchFlags)0, NULL);
+        if (regex_name && regex_ifname && regex_option)
         {
             while (walker != NULL)
             {
@@ -899,14 +905,27 @@ static bool cb_preference(extcap_callback_info_t cb_info)
                     char *pref_name = g_regex_replace(regex_name, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL);
                     char *ifname_underscore = g_regex_replace(regex_ifname, cb_info.ifname, strlen(cb_info.ifname), 0, "_", (GRegexMatchFlags) 0, NULL);
                     char *ifname_lowercase = g_ascii_strdown(ifname_underscore, -1);
-                    char *pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
+                    char* pref_id;
+                    /* If option_name/option_value is specified, this is a sub-option modal */
+                    if (cb_info.option_name != NULL && cb_info.option_value != NULL)
+                    {
+                        char* option_value_underscore = g_regex_replace(regex_name, cb_info.option_value, strlen(cb_info.option_value), 0, "", (GRegexMatchFlags) 0, NULL);
+                        char* option_value_lowercase = g_ascii_strdown(option_value_underscore, -1);
+                        pref_id = g_strconcat(ifname_lowercase, "_", cb_info.option_name, "_", option_value_lowercase, ".", pref_name, NULL);
+                        g_free(option_value_lowercase);
+                        g_free(option_value_underscore);
+                    }
+                    else
+                    {
+                        pref_id = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
+                    }
 
-                    if (prefs_find_preference(dev_module, pref_ifname) == NULL)
+                    if (prefs_find_preference(dev_module, pref_id) == NULL)
                     {
                         char *pref_name_for_prefs;
                         char *pref_title = wmem_strdup(wmem_epan_scope(), arg->display);
                         new_pref = true;
-                        arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_ifname, &pref_name_for_prefs);
+                        arg->pref_valptr = extcap_prefs_dynamic_valptr(pref_id, &pref_name_for_prefs);
                         /* Set an initial value if any (the string will be copied at registration) */
                         if (arg->default_complex)
                         {
@@ -927,14 +946,14 @@ static bool cb_preference(extcap_callback_info_t cb_info)
                         /* Been here before, restore stored value */
                         if (arg->pref_valptr == NULL)
                         {
-                            arg->pref_valptr = (char**)g_hash_table_lookup(_extcap_prefs_dynamic_vals, pref_ifname);
+                            arg->pref_valptr = (char**)g_hash_table_lookup(_extcap_prefs_dynamic_vals, pref_id);
                         }
                     }
 
                     g_free(pref_name);
                     g_free(ifname_underscore);
                     g_free(ifname_lowercase);
-                    g_free(pref_ifname);
+                    g_free(pref_id);
                 }
 
                 walker = g_list_next(walker);
@@ -947,6 +966,10 @@ static bool cb_preference(extcap_callback_info_t cb_info)
         if (regex_ifname)
         {
             g_regex_unref(regex_ifname);
+        }
+        if (regex_option)
+        {
+            g_regex_unref(regex_option);
         }
     }
 
@@ -976,7 +999,35 @@ extcap_get_if_configuration(const char *ifname)
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
 
-        extcap_run_one(interface, arguments, cb_preference, &ret, NULL);
+        extcap_run_one(interface, arguments, cb_preference, &ret, NULL, NULL, NULL);
+
+        g_list_free_full(arguments, g_free);
+    }
+
+    return ret;
+}
+
+GList*
+extcap_get_if_configuration_option(const char* ifname, const char* argname, const char* argvalue)
+{
+    GList* arguments = NULL;
+    GList* ret = NULL;
+
+    extcap_ensure_all_interfaces_loaded();
+
+    extcap_interface* interface = extcap_find_interface_for_ifname(ifname);
+    if (interface)
+    {
+        ws_info("(get_if_configuration) Extcap path %s", interface->extcap_path);
+
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
+        arguments = g_list_append(arguments, g_strdup(ifname));
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG_OPTION_NAME));
+        arguments = g_list_append(arguments, g_strdup(argname));
+        arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_CONFIG_OPTION_VALUE));
+        arguments = g_list_append(arguments, g_strdup(argvalue));
+
+        extcap_run_one(interface, arguments, cb_preference, &ret, NULL, argname, argvalue);
 
         g_list_free_full(arguments, g_free);
     }
@@ -1036,7 +1087,7 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
             g_list_free(keys);
         }
 
-        extcap_run_one(interface, args, cb_reload_preference, &ret, NULL);
+        extcap_run_one(interface, args, cb_reload_preference, &ret, NULL, NULL, NULL);
 
         g_list_free_full(args, g_free);
     }
@@ -1164,7 +1215,7 @@ extcap_verify_capture_filter(const char *ifname, const char *filter, char **err_
         arguments = g_list_append(arguments, g_strdup(EXTCAP_ARGUMENT_INTERFACE));
         arguments = g_list_append(arguments, g_strdup(ifname));
 
-        extcap_run_one(interface, arguments, cb_verify_filter, &status, err_str);
+        extcap_run_one(interface, arguments, cb_verify_filter, &status, err_str, NULL, NULL);
         g_list_free_full(arguments, g_free);
     }
 
@@ -2230,6 +2281,8 @@ extcap_load_interface_list(void)
 
                 extcap_callback_info_t cb_info = {
                     .ifname = iface_info->ifname,
+                    .option_name = NULL,
+                    .option_value = NULL,
                     .output = iface_info->output,
                     .data = NULL,
                 };

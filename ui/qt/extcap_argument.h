@@ -90,7 +90,8 @@ public:
     bool isRequired();
     bool reload();
 
-    QString prefKey(const QString & device_name);
+    QString prefKey(const QString & device_name,
+        const QString & option_name, const QString & option_value);
     virtual QString prefValue();
 
     void resetValue();

@@ -35,6 +35,8 @@
 #define EXTCAP_CONTROL_OUT_PREFIX "wireshark_control_ws_to_ext"
 
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
+#define EXTCAP_ARGUMENT_CONFIG_OPTION_NAME      "--extcap-config-option-name"
+#define EXTCAP_ARGUMENT_CONFIG_OPTION_VALUE     "--extcap-config-option-value"
 #define EXTCAP_ARGUMENT_RELOAD_OPTION           "--extcap-reload-option"
 #define EXTCAP_ARGUMENT_LIST_INTERFACES         "--extcap-interfaces"
 #define EXTCAP_ARGUMENT_INTERFACE               "--extcap-interface"
@@ -155,6 +157,15 @@ extcap_dump_all(void);
  */
 GList *
 extcap_get_if_configuration(const char * ifname);
+
+/**
+ * Returns the sub-configuration for a given argument name, or an
+ * empty list, if no configuration has been found.
+ * Initializes the extcap interface list if that hasn't already been done.
+ * @param ifname The interface name.
+ */
+GList*
+extcap_get_if_configuration_option(const char* ifname, const char* argname, const char* argvalue);
 
 /**
  * Returns the configuration values for the given argument, or an

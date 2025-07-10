@@ -42,6 +42,7 @@ typedef enum {
     EXTCAP_ARG_EDIT_SELECTOR,
     EXTCAP_ARG_RADIO,
     EXTCAP_ARG_MULTICHECK,
+    EXTCAP_ARG_TABLE,
     EXTCAP_ARG_FILESELECT,
     EXTCAP_ARG_TIMESTAMP
 } extcap_arg_type;
@@ -67,6 +68,8 @@ typedef enum {
     EXTCAP_PARAM_PARENT,
     EXTCAP_PARAM_REQUIRED,
     EXTCAP_PARAM_RELOAD,
+    EXTCAP_PARAM_CONFIGURABLE,
+    EXTCAP_PARAM_PREFIX,
     EXTCAP_PARAM_SAVE,
     EXTCAP_PARAM_VALIDATION,
     EXTCAP_PARAM_VERSION,
@@ -112,6 +115,9 @@ typedef struct _extcap_arg {
     bool save;
 
     bool reload;
+
+    bool configurable;
+    char * prefix;
 
     char * regexp;
 
