@@ -968,7 +968,7 @@ try_time_val_to_str(const nstime_t *val, const time_value_string *vs)
 
 /* Like val_to_str except for bytes_string */
 const char *
-bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string *bs, const char *fmt)
+bytesval_to_str_wmem(wmem_allocator_t* scope, const uint8_t *val, const size_t val_len, const bytes_string *bs, const char *fmt)
 {
     const char *ret;
 
@@ -983,7 +983,7 @@ bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string *bs
      * Though for bytes I guess most of the time you want to show "Unknown"
      * anyway rather than "Unknown (\x13\x37...)"
      */
-    return wmem_strdup(wmem_packet_scope(), fmt);
+    return wmem_strdup(scope, fmt);
 }
 
 /* Like try_val_to_str except for bytes_string */
@@ -1007,7 +1007,7 @@ try_bytesval_to_str(const uint8_t *val, const size_t val_len, const bytes_string
 /* Like val_to_str, but tries to find a prefix (instead of an exact) match
    of any prefix from the bytes_string array bs against the haystack. */
 const char *
-bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
+bytesprefix_to_str(wmem_allocator_t* scope, const uint8_t *haystack, const size_t haystack_len, const bytes_string *bs, const char *fmt)
 {
     const char *ret;
 
@@ -1018,7 +1018,7 @@ bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const byt
         return ret;
 
     /* XXX See note at bytesval_to_str. */
-    return wmem_strdup(wmem_packet_scope(), fmt);
+    return wmem_strdup(scope, fmt);
 }
 
 /* Like try_val_to_str, but tries to find a prefix (instead of an exact) match

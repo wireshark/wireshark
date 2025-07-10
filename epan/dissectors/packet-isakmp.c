@@ -2438,7 +2438,7 @@ static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
 static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
 static void dissect_notif(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
-static int dissect_vid(tvbuff_t *, int, int, proto_tree *);
+static int dissect_vid(tvbuff_t *, packet_info*, int, int, proto_tree *);
 static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, int, bool);
 static void dissect_sa_kek(tvbuff_t *, packet_info *, int, int, proto_tree *);
 static void dissect_sa_tek(tvbuff_t *, packet_info *, int, int, proto_tree *);
@@ -3245,7 +3245,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
             break;
           case PLOAD_IKE_VID:
           case PLOAD_IKE2_V:
-            dissect_vid(tvb, offset + 4, payload_length - 4, ntree);
+            dissect_vid(tvb, pinfo, offset + 4, payload_length - 4, ntree);
             break;
           case PLOAD_IKE_A:
           case PLOAD_IKE2_CP:
@@ -5191,14 +5191,14 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 
 
 static int
-dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_vid(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, proto_tree *tree)
 {
   const uint8_t * pVID;
   const char * vendorstring;
 
   pVID = tvb_get_ptr(tvb, offset, length);
 
-  vendorstring = bytesprefix_to_str(pVID, (size_t)length, vendor_id, "Unknown Vendor ID");
+  vendorstring = bytesprefix_to_str(pinfo->pool, pVID, (size_t)length, vendor_id, "Unknown Vendor ID");
   proto_tree_add_item(tree, hf_isakmp_vid_bytes, tvb, offset, length, ENC_NA);
   proto_tree_add_string(tree, hf_isakmp_vid_string, tvb, offset, length, vendorstring);
   proto_item_append_text(tree," : %s", vendorstring);

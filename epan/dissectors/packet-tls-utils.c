@@ -9484,7 +9484,7 @@ tls_dissect_sct(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, pro
         return offset;
     }
     proto_tree_add_item(tree, hf->hf.sct_sct_logid, tvb, offset, 32, ENC_BIG_ENDIAN);
-    log_name = bytesval_to_str(tvb_get_ptr(tvb, offset, 32), 32, ct_logids, "Unknown Log");
+    log_name = bytesval_to_str_wmem(pinfo->pool, tvb_get_ptr(tvb, offset, 32), 32, ct_logids, "Unknown Log");
     proto_item_append_text(tree, " (%s)", log_name);
     offset += 32;
     sct_timestamp_ms = tvb_get_ntoh64(tvb, offset);
