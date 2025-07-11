@@ -18,6 +18,9 @@
 #include "wmem_map_int.h"
 #include "wmem_user_cb.h"
 
+#include "wsutil/ws_assert.h"
+#include "wsutil/bits_ctz.h"
+
 static uint32_t x; /* Used for universal integer hashing (see the HASH macro) */
 
 /* Used for the wmem_strong_hash() function */
@@ -42,13 +45,18 @@ typedef struct _wmem_map_item_t {
 } wmem_map_item_t;
 
 struct _wmem_map_t {
-    unsigned count; /* number of items stored */
+    /* Number of items stored. This can be larger than capacity, because
+     * the table is chained (i.e., each hash value stores a linked list
+     * of all items with that hash), though performance degrades. */
+    size_t count;
 
     /* The base-2 logarithm of the actual size of the table. We store this
      * value for efficiency in hashing, since finding the actual capacity
      * becomes just a left-shift (see the CAPACITY macro) whereas taking
-     * logarithms is expensive. */
-    size_t capacity;
+     * logarithms is expensive. Limited to 32 (GHashFunc returns an unsigned,
+     * which might be 32 bits; also see how the HASH is shifted.) */
+    unsigned capacity;
+    unsigned min_capacity;
 
     wmem_map_item_t **table;
 
@@ -80,7 +88,7 @@ static void
 wmem_map_init_table(wmem_map_t *map)
 {
     map->count     = 0;
-    map->capacity  = WMEM_MAP_DEFAULT_CAPACITY;
+    map->capacity  = map->min_capacity;
     map->table     = wmem_alloc0_array(map->data_allocator, wmem_map_item_t*, CAPACITY(map));
 }
 
@@ -97,6 +105,7 @@ wmem_map_new(wmem_allocator_t *allocator,
     map->metadata_allocator    = allocator;
     map->data_allocator = allocator;
     map->count = 0;
+    map->min_capacity = WMEM_MAP_DEFAULT_CAPACITY;
     map->table = NULL;
 
     return map;
@@ -143,6 +152,7 @@ wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_
     map->metadata_allocator = metadata_scope;
     map->data_allocator = data_scope;
     map->count = 0;
+    map->min_capacity = WMEM_MAP_DEFAULT_CAPACITY;
     map->table = NULL;
 
     map->metadata_scope_cb_id = wmem_register_callback(metadata_scope, wmem_map_destroy_cb, map);
@@ -152,11 +162,21 @@ wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_
 }
 
 static inline void
-wmem_map_grow(wmem_map_t *map)
+wmem_map_grow(wmem_map_t *map, unsigned new_capacity)
 {
     wmem_map_item_t **old_table, *cur, *nxt;
     size_t            old_cap, i;
     unsigned          slot;
+
+    if (new_capacity > 32) {
+        ws_warning("wmem_map does not support more than 2^32 buckets");
+        return;
+    }
+
+    if (new_capacity < map->capacity) {
+        ws_info("wmem_map does not support shrinking");
+        return;
+    }
 
     /* store the old table and capacity */
     old_table = map->table;
@@ -164,7 +184,7 @@ wmem_map_grow(wmem_map_t *map)
 
     /* double the size (capacity is base-2 logarithm, so this just means
      * increment it) and allocate new table */
-    map->capacity++;
+    map->capacity = new_capacity;
     map->table = wmem_alloc0_array(map->data_allocator, wmem_map_item_t*, CAPACITY(map));
 
     /* copy all the elements over from the old table */
@@ -219,7 +239,7 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
 
     /* increase size if we are over-full */
     if (map->count >= CAPACITY(map)) {
-        wmem_map_grow(map);
+        wmem_map_grow(map, map->capacity + 1);
     }
 
     /* no previous entry, return NULL */
@@ -463,7 +483,28 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
 unsigned
 wmem_map_size(wmem_map_t *map)
 {
-    return map->count;
+    // XXX - The map actually can (very rarely) have more elements
+    // than buckets and thus more than can fit in an unsigned. This
+    // should be changed at some point. (It would be an ABI break.)
+    return (unsigned)map->count;
+}
+
+size_t
+wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
+{
+    ws_return_val_if(!capacity, CAPACITY(map));
+
+    map->min_capacity = ws_ilog2(capacity) + 1;
+
+    map->min_capacity = MAX(map->min_capacity, WMEM_MAP_DEFAULT_CAPACITY);
+
+    if (map->table) {
+        wmem_map_grow(map, map->min_capacity);
+    }
+
+    map->min_capacity = MIN(map->min_capacity, 32);
+
+    return CAPACITY(map);
 }
 
 /* Borrowed from Perl 5.18. This is based on Bob Jenkin's one-at-a-time

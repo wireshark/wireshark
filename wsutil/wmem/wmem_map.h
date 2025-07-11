@@ -199,10 +199,29 @@ wmem_map_find(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
  *
  * @param map The map to use
  * @return the number of elements
+ *
+ * @warning The map can hold more than 2^32 elements (though this is
+ * very unlikely). This function ought to return a size_t.
 */
 WS_DLL_PUBLIC
 unsigned
 wmem_map_size(wmem_map_t *map);
+
+/** Ensure that a certain number of elements can be stored in the wmem_map
+ * without having to grow the internal table. This can be useful if a very
+ * large number of elements need to be inserted. It preallocates a certain
+ * number of buckets and avoids automatic reallocation and copies as the
+ * map grows.
+ *
+ * @param map The map to use
+ * @return the number of buckets actually reserved
+ *
+ * @note This value persists on reset for autoreset maps. Passing 0 for the
+ * capacity results in undefined behavior. It is rare to need this function.
+*/
+WS_DLL_PUBLIC
+size_t
+wmem_map_reserve(wmem_map_t *map, uint64_t capacity);
 
 /** Compute a strong hash value for an arbitrary sequence of bytes. Use of this
  * hash value should be secure against algorithmic complexity attacks, even for
