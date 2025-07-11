@@ -4200,8 +4200,8 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		GSL_iterator = si->ct->GSL_fid_info;
 		while (GSL_iterator) {
 			suspect_fid_info = (smb_fid_info_t *)GSL_iterator->data;
-			if (suspect_fid_info->opened_in > pinfo->num
-			|| si->sip ? !si->sip->is_create_req : true) break;
+			if (suspect_fid_info->opened_in > pinfo->num || !si->sip || !si->sip->is_create_req)
+				break;
 			if ((suspect_fid_info->tid == si->tid) && (suspect_fid_info->fid == fid))
 				fid_info = (smb_fid_info_t *)suspect_fid_info;
 			GSL_iterator = g_slist_next(GSL_iterator);
