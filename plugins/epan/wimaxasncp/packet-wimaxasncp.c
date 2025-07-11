@@ -2862,6 +2862,7 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                                 gchar* parenthesized_value_str = g_match_info_fetch(match_info, 3);
 
                                 ws_strtou32(bit_value_str, NULL, &bit_value);
+                                g_free(bit_value_str);
                                 switch(bit_value)
                                 {
                                 case 8:
@@ -2877,6 +2878,7 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                                         tlv_enum->code = 1 << (31 - bit_shift);
                                     break;
                                 }
+                                g_free(parenthesized_value_str);
 
                             }
                             g_match_info_free(match_info);
@@ -2938,22 +2940,20 @@ wimaxasncp_dict_process(void* data, void* user_data)
 }
 
 static void
-wimaxasncp_dict_tlv_enum_clean(void* data, void* user_data _U_)
+wimaxasncp_dict_tlv_enum_clean(wimaxasncp_dict_tlv_enum_t* dict_enum)
 {
-    wimaxasncp_dict_tlv_enum_t* dict_enum = (wimaxasncp_dict_tlv_enum_t*)data;
     xmlFree(dict_enum->name);
+    g_free(dict_enum);
 }
 
 static void
-wimaxasncp_dict_clean(void* data, void* user_data)
+wimaxasncp_dict_clean(wimaxasncp_dict_tlv_t* dict_tlv)
 {
-    wimaxasncp_dict_tlv_t* dict_tlv = (wimaxasncp_dict_tlv_t*)data;
-
     xmlFree(dict_tlv->name);
     xmlFree(dict_tlv->description);
 
-    g_slist_foreach(dict_tlv->enums, wimaxasncp_dict_tlv_enum_clean, user_data);
-    g_slist_free(dict_tlv->enums);
+    g_slist_free_full(dict_tlv->enums, (GDestroyNotify)wimaxasncp_dict_tlv_enum_clean);
+    g_free(dict_tlv);
 }
 
 /* ========================================================================= */
@@ -3296,7 +3296,8 @@ register_wimaxasncp_fields(const char* unused _U_)
     add_tlv_reg_info(&wimaxasncp_tlv_not_found);
 
     /* Clean up dictionary data */
-    g_slist_foreach(all_tlvs, wimaxasncp_dict_clean, NULL);
+    g_slist_free_full(all_tlvs, (GDestroyNotify)wimaxasncp_dict_clean);
+    all_tlvs = NULL;
 
     /* Optionally print the hfs created from the dictionary */
     if (success && dump_dict)
