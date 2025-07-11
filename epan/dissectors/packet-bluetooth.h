@@ -315,6 +315,16 @@ WS_DLL_PUBLIC const char* bluetooth_get_custom_uuid_description(const bluetooth_
 
 WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
 WS_DLL_PUBLIC value_string_ext  bluetooth_company_id_vals_ext;
+
+typedef struct _btatt_handle_strings_t {
+    uint32_t    value;
+    const char *name;
+    const char *short_name;
+    const char *abbrev;
+} btatt_handle_strings_t;
+
+WS_DLL_PUBLIC const btatt_handle_strings_t btatt_handle_strings[];
+
 extern uint32_t          bluetooth_max_disconnect_in_frame;
 
 extern int dissect_bd_addr(int hf_bd_addr, packet_info *pinfo, proto_tree *tree,

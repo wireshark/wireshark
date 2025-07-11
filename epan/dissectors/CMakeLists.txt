@@ -821,6 +821,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-blip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluecom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluetooth.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bluetooth-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bmc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bofl.c
