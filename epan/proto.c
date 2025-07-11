@@ -451,6 +451,8 @@ static GHashTable* prefixes;
 	DISSECTOR_ASSERT_HINT(gpa_hfinfo.hfi[hfindex] != NULL, "Unregistered hf!");	\
 	hfinfo = gpa_hfinfo.hfi[hfindex];
 
+#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (300000+PRE_ALLOC_EXPERT_FIELDS_MEM)
+
 /* List which stores protocols and fields that have been registered */
 typedef struct _gpa_hfinfo_t {
 	uint32_t            len;
@@ -461,7 +463,7 @@ typedef struct _gpa_hfinfo_t {
 static gpa_hfinfo_t gpa_hfinfo;
 
 /* Hash table of abbreviations and IDs */
-static GHashTable *gpa_name_map;
+static wmem_map_t *gpa_name_map;
 static header_field_info *same_name_hfinfo;
 
 /* Hash table protocol aliases. const char * -> const char * */
@@ -473,11 +475,6 @@ static GHashTable *gpa_protocol_aliases;
  */
 static char *last_field_name;
 static header_field_info *last_hfinfo;
-
-static void save_same_name_hfinfo(void *data)
-{
-	same_name_hfinfo = (header_field_info*)data;
-}
 
 /* Points to the first element of an array of bits, indexed by
    a subtree item type; that array element is true if subtrees of
@@ -592,7 +589,8 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	gpa_hfinfo.len           = 0;
 	gpa_hfinfo.allocated_len = 0;
 	gpa_hfinfo.hfi           = NULL;
-	gpa_name_map             = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, save_same_name_hfinfo);
+	gpa_name_map             = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
+	wmem_map_reserve(gpa_name_map, PROTO_PRE_ALLOC_HF_FIELDS_MEM);
 	gpa_protocol_aliases     = g_hash_table_new(g_str_hash, g_str_equal);
 	deregistered_fields      = g_ptr_array_new();
 	deregistered_data        = g_ptr_array_new();
@@ -670,7 +668,10 @@ proto_cleanup_base(void)
 
 	/* Free the abbrev/ID hash table */
 	if (gpa_name_map) {
-		g_hash_table_destroy(gpa_name_map);
+		// XXX - We don't have a wmem_map_destroy, but
+		// it does get cleaned up when epan scope is
+		// destroyed
+		//g_hash_table_destroy(gpa_name_map);
 		gpa_name_map = NULL;
 	}
 	if (gpa_protocol_aliases) {
@@ -1045,7 +1046,7 @@ proto_registrar_get_byname(const char *field_name)
 		return last_hfinfo;
 	}
 
-	hfinfo = (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
+	hfinfo = (header_field_info *)wmem_map_lookup(gpa_name_map, field_name);
 
 	if (hfinfo) {
 		g_free(last_field_name);
@@ -1064,7 +1065,7 @@ proto_registrar_get_byname(const char *field_name)
 		return NULL;
 	}
 
-	hfinfo = (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
+	hfinfo = (header_field_info *)wmem_map_lookup(gpa_name_map, field_name);
 
 	if (hfinfo) {
 		g_free(last_field_name);
@@ -7028,7 +7029,7 @@ hfinfo_remove_from_gpa_name_map(const header_field_info *hfinfo)
 
 	if (!hfinfo->same_name_next && hfinfo->same_name_prev_id == -1) {
 		/* No hfinfo with the same name */
-		g_hash_table_steal(gpa_name_map, hfinfo->abbrev);
+		wmem_map_remove(gpa_name_map, hfinfo->abbrev);
 		return;
 	}
 
@@ -7041,7 +7042,7 @@ hfinfo_remove_from_gpa_name_map(const header_field_info *hfinfo)
 		same_name_prev->same_name_next = hfinfo->same_name_next;
 		if (!hfinfo->same_name_next) {
 			/* It's always the latest added hfinfo which is stored in gpa_name_map */
-			g_hash_table_insert(gpa_name_map, (void *) (same_name_prev->abbrev), same_name_prev);
+			wmem_map_insert(gpa_name_map, (void *) (same_name_prev->abbrev), same_name_prev);
 		}
 	}
 }
@@ -8411,7 +8412,7 @@ proto_deregister_protocol(const char *short_name)
 	protocols = g_list_remove(protocols, protocol);
 
 	g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[proto_id]);
-	g_hash_table_steal(gpa_name_map, protocol->filter_name);
+	wmem_map_remove(gpa_name_map, protocol->filter_name);
 
 	g_free(last_field_name);
 	last_field_name = NULL;
@@ -8913,7 +8914,7 @@ proto_deregister_field (const int parent, int hf_id)
 		hfi = (header_field_info *)g_ptr_array_index(proto->fields, i);
 		if (hfi->id == hf_id) {
 			/* Found the hf_id in this protocol */
-			g_hash_table_steal(gpa_name_map, hfi->abbrev);
+			wmem_map_remove(gpa_name_map, hfi->abbrev);
 			g_ptr_array_remove_index_fast(proto->fields, i);
 			g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hf_id]);
 			return;
@@ -9798,7 +9799,6 @@ register_string_errors(void)
 	proto_set_cant_toggle(proto_string_errors);
 }
 
-#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (300000+PRE_ALLOC_EXPERT_FIELDS_MEM)
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
@@ -9855,12 +9855,9 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		 * with one name regardless of whether the packets
 		 * are modulo-8 or modulo-128 packets. */
 
-		same_name_hfinfo = NULL;
-
-		g_hash_table_insert(gpa_name_map, (void *) (hfinfo->abbrev), hfinfo);
-		/* GLIB 2.x - if it is already present
-		 * the previous hfinfo with the same name is saved
-		 * to same_name_hfinfo by value destroy callback */
+		/* wmem_map_insert - if key is already present the previous
+		 * hfinfo with the same key/name is returned, otherwise NULL */
+		same_name_hfinfo = wmem_map_insert(gpa_name_map, (void *) (hfinfo->abbrev), hfinfo);
 		if (same_name_hfinfo) {
 			/* There's already a field with this name.
 			 * Put the current field *before* that field
