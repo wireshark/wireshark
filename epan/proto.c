@@ -8261,31 +8261,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol_t *protocol;
 	header_field_info *hfinfo;
 
-	/*
-	 * Make sure there's not already a protocol with any of those
-	 * names.  Crash if there is, as that's an error in the code
-	 * or an inappropriate plugin.
-	 * This situation has to be fixed to not register more than one
-	 * protocol with the same name.
-	 */
-
-	if (g_hash_table_lookup(proto_names, name)) {
-		/* ws_error will terminate the program */
-		REPORT_DISSECTOR_BUG("Duplicate protocol name \"%s\"!"
-			" This might be caused by an inappropriate plugin or a development error.", name);
-	}
-
-	if (g_hash_table_lookup(proto_short_names, short_name)) {
-		REPORT_DISSECTOR_BUG("Duplicate protocol short_name \"%s\"!"
-			" This might be caused by an inappropriate plugin or a development error.", short_name);
-	}
-
 	check_protocol_filter_name_or_fail(filter_name);
-
-	if (g_hash_table_lookup(proto_filter_names, filter_name)) {
-		REPORT_DISSECTOR_BUG("Duplicate protocol filter_name \"%s\"!"
-			" This might be caused by an inappropriate plugin or a development error.", filter_name);
-	}
 
 	/*
 	 * Add this protocol to the list of known protocols;
@@ -8304,9 +8280,26 @@ proto_register_protocol(const char *name, const char *short_name,
 
 	/* List will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
-	g_hash_table_insert(proto_names, (void *)name, protocol);
-	g_hash_table_insert(proto_filter_names, (void *)filter_name, protocol);
-	g_hash_table_insert(proto_short_names, (void *)short_name, protocol);
+	/*
+	 * Make sure there's not already a protocol with any of those
+	 * names.  Crash if there is, as that's an error in the code
+	 * or an inappropriate plugin.
+	 * This situation has to be fixed to not register more than one
+	 * protocol with the same name.
+	 */
+	if (!g_hash_table_insert(proto_names, (void *)name, protocol)) {
+		/* ws_error will terminate the program */
+		REPORT_DISSECTOR_BUG("Duplicate protocol name \"%s\"!"
+			" This might be caused by an inappropriate plugin or a development error.", name);
+	}
+	if (!g_hash_table_insert(proto_filter_names, (void *)filter_name, protocol)) {
+		REPORT_DISSECTOR_BUG("Duplicate protocol filter_name \"%s\"!"
+			" This might be caused by an inappropriate plugin or a development error.", filter_name);
+	}
+	if (!g_hash_table_insert(proto_short_names, (void *)short_name, protocol)) {
+		REPORT_DISSECTOR_BUG("Duplicate protocol short_name \"%s\"!"
+			" This might be caused by an inappropriate plugin or a development error.", short_name);
+	}
 
 	/* Here we allocate a new header_field_info struct */
 	hfinfo = g_slice_new(header_field_info);
