@@ -125,10 +125,6 @@ WS_DLL_PUBLIC
 const char *
 try_val_to_str_idx(const uint32_t val, const value_string *vs, int *idx);
 
-WS_DLL_PUBLIC
-const char *
-char_val_to_str(char val, const value_string *vs, const char *msg);
-
 /* 64-BIT VALUE TO STRING MATCHING */
 
 typedef struct _val64_string {

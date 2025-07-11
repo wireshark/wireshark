@@ -257,6 +257,7 @@ static void fill_label_ieee_11073_float(const field_info *fi, char *label_str, s
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[NUMBER_LABEL_LENGTH], uint32_t value);
 static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[NUMBER_LABEL_LENGTH], uint64_t value);
 static const char *hfinfo_char_vals_format(const header_field_info *hfinfo, char buf[32], uint32_t value);
+static const char* hfinfo_char_value_format_display(int display, char buf[7], uint32_t value);
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[NUMBER_LABEL_LENGTH], uint32_t value);
 static const char *hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[NUMBER_LABEL_LENGTH], uint64_t value);
 static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[NUMBER_LABEL_LENGTH], uint32_t value);

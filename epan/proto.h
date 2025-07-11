@@ -3576,11 +3576,6 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 char *
 proto_custom_get_filter(struct epan_dissect *edt, GSList *field_id, int occurrence);
 
-/** @} */
-
-const char *
-hfinfo_char_value_format_display(int display, char buf[7], uint32_t value);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

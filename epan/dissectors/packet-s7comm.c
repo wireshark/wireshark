@@ -3339,7 +3339,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                     col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 }
                 itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, paramoffset, 1, ENC_ASCII);
-                proto_item_append_text(itemadd, " (%s)", char_val_to_str(tvb_get_uint8(tvb, paramoffset), blocktype_attribute2_names, "Unknown filesys"));
+                proto_item_append_text(itemadd, " (%s)", val_to_str_const(tvb_get_uint8(tvb, paramoffset), blocktype_attribute2_names, "Unknown filesys"));
                 paramoffset += 1;
             }
             col_append_str(pinfo->cinfo, COL_INFO, ")");
@@ -3698,7 +3698,7 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
                 col_append_str(pinfo->cinfo, COL_INFO, "NaN]");
             }
             itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, offset, 1, ENC_ASCII);
-            proto_item_append_text(itemadd, " (%s)", char_val_to_str(tvb_get_uint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys"));
+            proto_item_append_text(itemadd, " (%s)", val_to_str_const(tvb_get_uint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys"));
             offset += 1;
         }
     }
@@ -6275,7 +6275,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     }
                     offset += 5;
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_filesys, tvb, offset, 1, ENC_ASCII);
-                    proto_item_append_text(itemadd, " (%s)", char_val_to_str(tvb_get_uint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys"));
+                    proto_item_append_text(itemadd, " (%s)", val_to_str_const(tvb_get_uint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys"));
                     offset += 1;
                 }
                 know_data = true;
