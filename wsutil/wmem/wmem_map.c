@@ -46,6 +46,14 @@ typedef struct _wmem_map_item_t {
     const void *key;
     void *value;
     struct _wmem_map_item_t *next;
+
+    /* Store the full hash to speed up collisions and resizing, avoiding
+     * recalculating it or in some cases doing the equality function.
+     * In the g_direct_hash case (especially if the equality function
+     * is g_direct_equal), we don't need to store it, but it's probably
+     * not worth implementing a parallel API for the direct map case.
+     */
+    uint32_t hash;
 } wmem_map_item_t;
 
 struct _wmem_map_t {
@@ -86,7 +94,9 @@ struct _wmem_map_t {
  * https://en.wikipedia.org/wiki/Universal_hashing#Avoiding_modular_arithmetic
  */
 #define HASH(MAP, KEY) \
-    ((uint32_t)(((MAP)->hash_func(KEY) * x) >> (32 - (MAP)->capacity)))
+    ((uint32_t)((MAP)->hash_func(KEY) * x))
+
+#define MASK_HASH(MAP, HASH) ((uint32_t)((HASH) >> (32 - (MAP)->capacity)))
 
 static void
 wmem_map_init_table(wmem_map_t *map)
@@ -196,7 +206,7 @@ wmem_map_grow(wmem_map_t *map, unsigned new_capacity)
         cur = old_table[i];
         while (cur) {
             nxt              = cur->next;
-            slot             = HASH(map, cur->key);
+            slot             = MASK_HASH(map, cur->hash);
             cur->next        = map->table[slot];
             map->table[slot] = cur;
             cur              = nxt;
@@ -219,11 +229,12 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     }
 
     /* get a pointer to the slot */
-    item = &(map->table[HASH(map, key)]);
+    uint32_t hash = HASH(map, key);
+    item = &(map->table[MASK_HASH(map, hash)]);
 
     /* check existing items in that slot */
     while (*item) {
-        if (map->eql_func(key, (*item)->key)) {
+        if ((hash == (*item)->hash) && map->eql_func(key, (*item)->key)) {
             /* replace and return old value for this key */
             old_val = (*item)->value;
             (*item)->value = value;
@@ -238,6 +249,7 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     (*item)->key   = key;
     (*item)->value = value;
     (*item)->next  = NULL;
+    (*item)->hash  = hash;
 
     map->count++;
 
@@ -261,11 +273,12 @@ wmem_map_contains(wmem_map_t *map, const void *key)
     }
 
     /* find correct slot */
-    item = map->table[HASH(map, key)];
+    uint32_t hash = HASH(map, key);
+    item = map->table[MASK_HASH(map, hash)];
 
     /* scan list of items in this slot for the correct value */
     while (item) {
-        if (map->eql_func(key, item->key)) {
+        if ((hash == item->hash) && map->eql_func(key, item->key)) {
             return true;
         }
         item = item->next;
@@ -285,11 +298,12 @@ wmem_map_lookup(wmem_map_t *map, const void *key)
     }
 
     /* find correct slot */
-    item = map->table[HASH(map, key)];
+    uint32_t hash = HASH(map, key);
+    item = map->table[MASK_HASH(map, hash)];
 
     /* scan list of items in this slot for the correct value */
     while (item) {
-        if (map->eql_func(key, item->key)) {
+        if ((hash == item->hash) && map->eql_func(key, item->key)) {
             return item->value;
         }
         item = item->next;
@@ -309,11 +323,12 @@ wmem_map_lookup_extended(wmem_map_t *map, const void *key, const void **orig_key
     }
 
     /* find correct slot */
-    item = map->table[HASH(map, key)];
+    uint32_t hash = HASH(map, key);
+    item = map->table[MASK_HASH(map, hash)];
 
     /* scan list of items in this slot for the correct value */
     while (item) {
-        if (map->eql_func(key, item->key)) {
+        if ((hash == item->hash) && map->eql_func(key, item->key)) {
             if (orig_key) {
                 *orig_key = item->key;
             }
@@ -340,11 +355,12 @@ wmem_map_remove(wmem_map_t *map, const void *key)
     }
 
     /* get a pointer to the slot */
-    item = &(map->table[HASH(map, key)]);
+    uint32_t hash = HASH(map, key);
+    item = &(map->table[MASK_HASH(map, hash)]);
 
     /* check the items in that slot */
     while (*item) {
-        if (map->eql_func(key, (*item)->key)) {
+        if ((hash == (*item)->hash) && map->eql_func(key, (*item)->key)) {
             /* found it */
             tmp     = (*item);
             value   = tmp->value;
@@ -371,11 +387,12 @@ wmem_map_steal(wmem_map_t *map, const void *key)
     }
 
     /* get a pointer to the slot */
-    item = &(map->table[HASH(map, key)]);
+    uint32_t hash = HASH(map, key);
+    item = &(map->table[MASK_HASH(map, hash)]);
 
     /* check the items in that slot */
     while (*item) {
-        if (map->eql_func(key, (*item)->key)) {
+        if ((hash == (*item)->hash) && map->eql_func(key, (*item)->key)) {
             /* found it */
             tmp     = (*item);
             (*item) = tmp->next;
