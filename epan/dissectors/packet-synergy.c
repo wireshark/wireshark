@@ -186,7 +186,7 @@ dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         /* No, so the first 4 bytes of the payload should be a packet type */
         packet_type = tvb_get_string_enc(pinfo->pool, tvb, offset+4, 4, ENC_ASCII);
-        proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4, packet_type, "%s (%s)", str_to_str(packet_type, packet_type_vals, "Unknown"), packet_type);
+        proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4, packet_type, "%s (%s)", str_to_str_wmem(pinfo->pool, packet_type, packet_type_vals, "Unknown"), packet_type);
 
         if(strncmp(packet_type,"CNOP",4)==0) {
         } else if(strncmp(packet_type,"CALV",4)==0) {

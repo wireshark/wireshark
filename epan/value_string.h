@@ -252,11 +252,6 @@ void
 val64_string_ext_free(val64_string_ext *vse);
 
 WS_DLL_PUBLIC
-const char *
-val64_to_str_ext(const uint64_t val, val64_string_ext *vse, const char *fmt)
-G_GNUC_PRINTF(3, 0);
-
-WS_DLL_PUBLIC
 char *
 val64_to_str_ext_wmem(wmem_allocator_t *scope, const uint64_t val, val64_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(4, 0);
@@ -282,8 +277,8 @@ typedef struct _string_string {
 
 WS_DLL_PUBLIC
 const char *
-str_to_str(const char *val, const string_string *vs, const char *fmt)
-G_GNUC_PRINTF(3, 0);
+str_to_str_wmem(wmem_allocator_t* scope, const char *val, const string_string *vs, const char *fmt)
+G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
 const char *

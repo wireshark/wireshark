@@ -4145,22 +4145,22 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 		proto_tree_add_string(tree, hf_dhcp_option242_avaya_httpdir, tvb, optoff, len, field + 8);
 	}
 	else if((strncmp(field, "STATIC=", 7) == 0) && ( len > 7)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_static, tvb, optoff, len, field + 7, "%s (%s)", field + 7, str_to_str(field + 7, option242_avaya_static_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_static, tvb, optoff, len, field + 7, "%s (%s)", field + 7, str_to_str_wmem(pinfo->pool, field + 7, option242_avaya_static_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "MCIPADD=", 8) == 0) && ( len > 8)) {
 		proto_tree_add_string(tree, hf_dhcp_option242_avaya_mcipadd, tvb, optoff, len, field + 8);
 	}
 	else if((strncmp(field, "DOT1X=", 6) == 0) && ( len > 6)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_dot1x, tvb, optoff, len, field + 6, "%s (%s)", field + 6, str_to_str(field + 6, option242_avaya_dot1x_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_dot1x, tvb, optoff, len, field + 6, "%s (%s)", field + 6, str_to_str_wmem(pinfo->pool, field + 6, option242_avaya_dot1x_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "ICMPDU=", 7) == 0) && ( len > 7)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_icmpdu, tvb, optoff, len, field + 7, "%s (%s)", field + 7, str_to_str(field + 7, option242_avaya_icmpdu_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_icmpdu, tvb, optoff, len, field + 7, "%s (%s)", field + 7, str_to_str_wmem(pinfo->pool, field + 7, option242_avaya_icmpdu_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "ICMPRED=", 8) == 0) && ( len > 8)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_icmpred, tvb, optoff, len, field + 8, "%s (%s)", field + 8, str_to_str(field + 8, option242_avaya_icmpred_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_icmpred, tvb, optoff, len, field + 8, "%s (%s)", field + 8, str_to_str_wmem(pinfo->pool, field + 8, option242_avaya_icmpred_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "L2Q=", 4) == 0) && ( len > 4)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_l2q, tvb, optoff, len, field + 4, "%s (%s)", field + 4, str_to_str(field + 4, option242_avaya_l2q_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_l2q, tvb, optoff, len, field + 4, "%s (%s)", field + 4, str_to_str_wmem(pinfo->pool, field + 4, option242_avaya_l2q_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "L2QVLAN=", 8) == 0) && ( len > 8)) {
 		int32_t val = -1;
@@ -4173,19 +4173,19 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 			expert_add_info(pinfo, pi, &ei_dhcp_option242_avaya_l2qvlan_invalid);
 	}
 	else if((strncmp(field, "LOGLOCAL=", 9) == 0) && ( len > 9)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_loglocal, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_loglocal_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_loglocal, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str_wmem(pinfo->pool, field + 9, option242_avaya_loglocal_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "PHY1STAT=", 9) == 0) && ( len > 9)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_phy1stat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_phy1stat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str_wmem(pinfo->pool, field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "PHY2STAT=", 9) == 0) && ( len > 9)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_phy2stat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_phy2stat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str_wmem(pinfo->pool, field + 9, option242_avaya_phystat_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "PROCPSWD=", 9) == 0) && ( len > 9)) {
 		proto_tree_add_string(tree, hf_dhcp_option242_avaya_procpswd, tvb, optoff, len, field + 9);
 	}
 	else if((strncmp(field, "PROCSTAT=", 9) == 0) && ( len > 9)) {
-		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_procstat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str(field + 9, option242_avaya_procstat_vals, "Unknown (%s)"));
+		proto_tree_add_string_format_value(tree, hf_dhcp_option242_avaya_procstat, tvb, optoff, len, field + 9, "%s (%s)", field + 9, str_to_str_wmem(pinfo->pool, field + 9, option242_avaya_procstat_vals, "Unknown (%s)"));
 	}
 	else if((strncmp(field, "SNMPADD=", 8) == 0) && ( len > 8)) {
 		proto_tree_add_string(tree, hf_dhcp_option242_avaya_snmpadd, tvb, optoff, len, field + 8);

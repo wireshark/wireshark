@@ -300,10 +300,10 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     switch (field->type) {
                     case 1: /* strings */
                         proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len, value,
-                            "%s (%s)", value, str_to_str(value, (const string_string *)field->table, "unknown %s"));
+                            "%s (%s)", value, str_to_str_wmem(pinfo->pool, value, (const string_string *)field->table, "unknown %s"));
                         if (tag_value == 35) {
                             /* Make message type part of the Info column */
-                            msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
+                            msg_type = str_to_str_wmem(pinfo->pool, value, messages_val, "FIX Message (%s)");
                             col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", msg_type);
                             col_set_fence(pinfo->cinfo, COL_INFO);
                         }

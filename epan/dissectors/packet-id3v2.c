@@ -338,7 +338,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 
 	proto_tree_add_item(frame_tree, hf_id3v2_frame_id, tvb, offset, 4, ENC_ISO_8859_1);
 	offset += 4;
-	proto_item_set_text(frame_item, "%s", str_to_str(frame_id, id3v2_tag_names, "Unknown: %s"));
+	proto_item_set_text(frame_item, "%s", str_to_str_wmem(pinfo->pool, frame_id, id3v2_tag_names, "Unknown: %s"));
 
 	if (id3_version == 0x04)
 		size = decode_synchsafe_int(tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN));

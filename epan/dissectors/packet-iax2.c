@@ -2537,7 +2537,7 @@ static void dissect_payload(tvbuff_t *tvb, uint32_t offset,
 #endif
   } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                      val64_to_str_ext(CODEC_MASK(codec), &codec_types_ext, "unknown (0x%04x)"));
+                      val64_to_str_ext_wmem(pinfo->pool, CODEC_MASK(codec), &codec_types_ext, "unknown (0x%04x)"));
   }
 
   nbytes = tvb_reported_length(sub_tvb);

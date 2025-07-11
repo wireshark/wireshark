@@ -364,7 +364,7 @@ static int dissect_nano_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *na
 
     nano_magic_number = tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII);
     proto_tree_add_string_format_value(header_tree, hf_nano_magic_number, tvb, 0,
-            2, nano_magic_number, "%s (%s)", str_to_str(nano_magic_number, nano_magic_numbers, "Unknown"), nano_magic_number);
+            2, nano_magic_number, "%s (%s)", str_to_str_wmem(pinfo->pool, nano_magic_number, nano_magic_numbers, "Unknown"), nano_magic_number);
     offset += 2;
 
     proto_tree_add_item(header_tree, hf_nano_version_max, tvb, offset, 1, ENC_NA);

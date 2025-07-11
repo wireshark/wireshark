@@ -661,7 +661,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 /* Skip whitespace between "VF" and "YYYYMMDD" tokens */
                 new_offset = tvb_skip_wsp(tvb, offset + ((unsigned)strlen("VF") + 1), -1);
                 ti = proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_version_request, tvb, new_offset, (int)strlen("YYYYMMDD"), ENC_ASCII | ENC_NA, pinfo->pool, &tmpstr);
-                proto_item_append_text(ti, " (%s)", str_to_str(tmpstr, versiontypenames, "Unknown"));
+                proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, tmpstr, versiontypenames, "Unknown"));
                 break;
             }
 
@@ -828,7 +828,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, false);
                 tmpstr = tvb_get_string_enc(pinfo->pool, tvb, offset, tmp, ENC_ASCII);
                 ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_error, tvb, offset, (int)strlen(tmpstr), ENC_ASCII);
-                proto_item_append_text(ti, " (%s)", str_to_str(tmpstr, errortypenames, "Unknown"));
+                proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, tmpstr, errortypenames, "Unknown"));
                 break;
             }
 

@@ -4369,7 +4369,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         else if (strncmp(object, "PLAT: ", 6) == 0) {
             proto_tree_add_string(tree, hf_fi_platform, tvb, offset + 6, objlen - 6, &object[6]);
             platform = &object[6];
-            platform_name = str_to_str(platform, f5info_platform_strings, "Unknown, please report");
+            platform_name = str_to_str_wmem(pinfo->pool, platform, f5info_platform_strings, "Unknown, please report");
             proto_tree_add_string_format(tree, hf_fi_platformname, tvb, offset + 6, objlen - 6, platform_name,
                 "%s: %s", platform, platform_name);
         } else if (strncmp(object, "PROD: ", 6) == 0)

@@ -618,21 +618,6 @@ try_val64_to_str_idx_ext(const uint64_t val, val64_string_ext *vse, int *idx)
     return NULL;
 }
 
-/* Like val_to_str for extended value strings */
-const char *
-val64_to_str_ext(const uint64_t val, val64_string_ext *vse, const char *fmt)
-{
-    const char *ret;
-
-    DISSECTOR_ASSERT(fmt != NULL);
-
-    ret = try_val64_to_str_ext(val, vse);
-    if (ret != NULL)
-        return ret;
-
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
-}
-
 char *
 val64_to_str_ext_wmem(wmem_allocator_t *scope, const uint64_t val, val64_string_ext *vse, const char *fmt)
 {
@@ -808,7 +793,7 @@ _try_val64_to_str_ext_init(const uint64_t val, val64_string_ext *vse)
 
 /* Like val_to_str except for string_string */
 const char *
-str_to_str(const char *val, const string_string *vs, const char *fmt)
+str_to_str_wmem(wmem_allocator_t* scope, const char *val, const string_string *vs, const char *fmt)
 {
     const char *ret;
 
@@ -818,7 +803,7 @@ str_to_str(const char *val, const string_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return wmem_strdup_printf(scope, fmt, val);
 }
 
 /* Like try_val_to_str_idx except for string_string */

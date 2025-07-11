@@ -825,7 +825,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
                                      tvb, offset, segment_len_crlf,
                                      ENC_ASCII);
             proto_item_set_text(ti, "%s (%s)", segment_type_id,
-                                str_to_str(segment_type_id, hl7_seg_type_vals,
+                                str_to_str_wmem(pinfo->pool, segment_type_id, hl7_seg_type_vals,
                                            "Unknown Segment"));
             segment_tree = proto_item_add_subtree(ti, ett_hl7_segment);
             if (global_hl7_raw) {
@@ -885,13 +885,13 @@ dissect_hl7_message(tvbuff_t *tvb, unsigned tvb_offset, int len,
     ti = proto_tree_add_item(tree, proto_hl7, tvb, offset, len, ENC_NA);
     if (event_present(&msh)) {
         proto_item_append_text(ti, ", Type: %s, Event: %s",
-                               str_to_str(msh.message_type,
+                               str_to_str_wmem(pinfo->pool, msh.message_type,
                                           hl7_msg_type_vals, "Unknown"),
-                               str_to_str(msh.trigger_event,
+                               str_to_str_wmem(pinfo->pool, msh.trigger_event,
                                           hl7_event_type_vals, "Unknown"));
     } else {
         proto_item_append_text(ti, ", Type: %s",
-                               str_to_str(msh.message_type,
+                               str_to_str_wmem(pinfo->pool, msh.message_type,
                                           hl7_msg_type_vals, "Unknown"));
     }
     hl7_tree = proto_item_add_subtree(ti, ett_hl7);

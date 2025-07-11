@@ -552,7 +552,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         str_len = (int)strlen(field4);
         status_code_item = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
             str_len, ENC_UTF_8);
-        proto_item_append_text(status_code_item, " %s", str_to_str(field4, status_code_vals, "Unknown Status Code"));
+        proto_item_append_text(status_code_item, " %s", str_to_str_wmem(pinfo->pool, field4, status_code_vals, "Unknown Status Code"));
         offset += str_len + 1; /* add SP */
         /* request state */
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", field4, field5);

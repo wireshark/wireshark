@@ -1451,7 +1451,7 @@ dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
     else
     {
-        proto_item_append_text(ti, " (%s)", str_to_str(quality, known_gps_quality_indicators, "Unknown quality"));
+        proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, quality, known_gps_quality_indicators, "Unknown quality"));
     }
     return end_of_field_offset - offset + 1;
 }
@@ -1508,7 +1508,7 @@ dissect_nmea0183_field_faa_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     else
     {
-        proto_item_append_text(ti, " (%s)", str_to_str(mode, known_faa_mode_indicators, "Unknown FAA mode"));
+        proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, mode, known_faa_mode_indicators, "Unknown FAA mode"));
     }
     return end_of_field_offset - offset + 1;
 }
@@ -1535,7 +1535,7 @@ dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
     else
     {
-        proto_item_append_text(ti, " (%s)", str_to_str(mode, known_status_indicators, "Unknown status"));
+        proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, mode, known_status_indicators, "Unknown status"));
     }
     return end_of_field_offset - offset + 1;
 }
@@ -1901,7 +1901,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                                         tvb, offset, 2, ENC_ASCII,
                                         pinfo->pool, &talker_id);
 
-    proto_item_append_text(ti, " (%s)", str_to_str(talker_id, known_talker_ids, "Unknown talker ID"));
+    proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, talker_id, known_talker_ids, "Unknown talker ID"));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Talker %s", talker_id);
 
@@ -1912,7 +1912,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                                         tvb, offset, 3, ENC_ASCII,
                                         pinfo->pool, &sentence_id);
 
-    proto_item_append_text(ti, " (%s)", str_to_str(sentence_id, known_sentence_ids, "Unknown sentence ID"));
+    proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, sentence_id, known_sentence_ids, "Unknown sentence ID"));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Sentence %s", sentence_id);
 

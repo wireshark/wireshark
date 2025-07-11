@@ -198,13 +198,13 @@ dissect_UDPExtStatus(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 	proto_tree_add_item(adwin_tree, hf_adwin_config_processor_type_raw, tvb, 64, 2, ENC_ASCII);
 	/* add the processor type as a pretty printed string */
 	processor_type = tvb_get_string_enc(pinfo->pool, tvb, 64, 2, ENC_ASCII|ENC_NA);
-	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown (%s)");
+	processor_type = str_to_str_wmem(pinfo->pool, processor_type, processor_type_mapping, "Unknown (%s)");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_processor_type, tvb, 64, 2, processor_type);
 
 	/* add system type as raw value and pretty printed string */
 	proto_tree_add_item(adwin_tree, hf_adwin_config_system_type_raw, tvb, 66, 2, ENC_ASCII);
 	system_type = tvb_get_string_enc(pinfo->pool, tvb, 66, 2, ENC_ASCII|ENC_NA);
-	system_type = str_to_str(system_type, system_type_mapping, "Unknown (%s)");
+	system_type = str_to_str_wmem(pinfo->pool, system_type, system_type_mapping, "Unknown (%s)");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_system_type, tvb, 66, 2, system_type);
 
 	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, 68, 364, ENC_NA);
@@ -241,13 +241,13 @@ dissect_UDPMessage(packet_info *pinfo, tvbuff_t *tvb, proto_tree *adwin_tree)
 	proto_tree_add_item(adwin_tree, hf_adwin_config_processor_type_raw, tvb, 96,  2, ENC_ASCII);
 	/* add the processor type as a pretty printed string */
 	processor_type = tvb_get_string_enc(pinfo->pool, tvb, 96, 2, ENC_ASCII|ENC_NA);
-	processor_type = str_to_str(processor_type, processor_type_mapping, "Unknown");
+	processor_type = str_to_str_wmem(pinfo->pool, processor_type, processor_type_mapping, "Unknown");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_processor_type, tvb, 96, 2, processor_type);
 
 	/* add system type as raw value and pretty printed string */
 	proto_tree_add_item(adwin_tree, hf_adwin_config_system_type_raw, tvb, 98,  2, ENC_ASCII);
 	system_type = tvb_get_string_enc(pinfo->pool, tvb, 98, 2, ENC_ASCII|ENC_NA);
-	system_type = str_to_str(system_type, system_type_mapping, "Unknown");
+	system_type = str_to_str_wmem(pinfo->pool, system_type, system_type_mapping, "Unknown");
 	proto_tree_add_string(adwin_tree, hf_adwin_config_system_type, tvb, 98, 2, system_type);
 }
 
