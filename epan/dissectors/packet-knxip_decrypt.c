@@ -712,8 +712,10 @@ void read_knx_keyring_xml_file(const char* key_file, const char* password, const
     }
   }
 
-  if (key_ring == NULL)
+  if (key_ring == NULL) {
+    xmlFreeDoc(doc);
     return;
+  }
 
   // Optionally write extracted data to key info file
   FILE* f2 = (!key_info_file || !*key_info_file) ? NULL :
@@ -777,6 +779,7 @@ void read_knx_keyring_xml_file(const char* key_file, const char* password, const
 
   if (f2 && f2 != stdout)
     fclose(f2);
+  xmlFreeDoc(doc);
 }
 
 /*
