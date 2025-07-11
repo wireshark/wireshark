@@ -14,7 +14,7 @@
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
    * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification
-   * Note that other message types are handled in packet-ecpri.c
+   * Note that other eCPRI message types are handled in packet-ecpri.c
    */
 
 #include <config.h>
@@ -450,6 +450,7 @@ static int hf_oran_uplane;
 static int hf_oran_bf;      /* to match frames that configure beamforming in any way */
 static int hf_oran_zero_prb;
 
+static int hf_oran_ul_cplane_ud_comp_hdr_frame;
 
 /* Initialize the subtree pointers */
 static int ett_oran;
@@ -1488,6 +1489,7 @@ typedef struct {
     /* Store udCompHdr seen in C-Plane for UL - can be looked up and used by U-PLane.
        Note that this appears in the common section header parts of ST1, ST3, ST5,
        so can still be over-written per sectionId in the U-Plane */
+    unsigned ul_ud_comp_hdr_frame;
     bool     ul_ud_comp_hdr_set;
     unsigned ul_ud_comp_hdr_bit_width;
     int      ul_ud_comp_hdr_compression;
@@ -1623,13 +1625,13 @@ write_channel_section_info(proto_item *section_heading, packet_info *pinfo,
         case 1:
             /* Single PRB */
             write_pdu_label_and_info(section_heading, NULL, pinfo,
-                                     ", Id: %4d (UEId=%3u  PRB %7u, %2u antennas)",
+                                     ", Id: %4d (UEId=%5u  PRB %7u, %2u antennas)",
                                      section_id, ueId, start_prbx, num_trx);
             break;
         default:
             /* Range */
             write_pdu_label_and_info(section_heading, NULL, pinfo,
-                                     ", Id: %4d (UEId=%3u  PRBs %3u-%3u, %2u antennas)",
+                                     ", Id: %4d (UEId=%5u  PRBs %3u-%3u, %2u antennas)",
                                      section_id, ueId, start_prbx, start_prbx+num_prbx-1, num_trx);
     }
 }
@@ -5058,6 +5060,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                 state->ul_ud_comp_hdr_set = true;
                 state->ul_ud_comp_hdr_bit_width = bit_width;
                 state->ul_ud_comp_hdr_compression = comp_meth;
+                state->ul_ud_comp_hdr_frame = pinfo->num;
                 break;
             default:
                 break;
@@ -5999,6 +6002,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ud_comp_meth_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, compression);
             proto_item_append_text(ud_comp_meth_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
             proto_item_set_generated(ud_comp_meth_item);
+
+            /* Point back to C-Plane, if used */
+            /* TODO: doesn't work with multiple port mappings using SE10.. */
+            if (ud_cmp_hdr_cplane) {
+                proto_item *cplane_ti = proto_tree_add_uint(section_tree, hf_oran_ul_cplane_ud_comp_hdr_frame, tvb, offset, 0, cplane_state->ul_ud_comp_hdr_frame);
+                proto_item_set_generated(cplane_ti);
+            }
         }
 
         /* Not supported! TODO: other places where comp method is looked up (e.g., bfw?) */
@@ -8606,7 +8616,15 @@ proto_register_oran(void)
             FT_STRING, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL}
-        }
+        },
+
+        /* Link back to UL C-plane where udCompHdr was recorded */
+        { &hf_oran_ul_cplane_ud_comp_hdr_frame,
+          { "C-Plane UL udCompHdr frame", "oran_fh_cus.ul-cplane.udCompHdr",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            NULL, HFILL}
+        },
     };
 
     /* Setup protocol subtree array */
