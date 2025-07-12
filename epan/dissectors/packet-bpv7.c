@@ -1202,7 +1202,7 @@ static int dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     field_ix++;
     block->crc_type = (crc_type ? *crc_type : BP_CRC_NONE);
     if (crc_type) {
-        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" PRIu64));
+        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str_wmem(pinfo->pool, *crc_type, crc_vals, "%" PRIu64));
     }
 
     proto_tree_add_cbor_eid(tree_block, hf_primary_dst_eid, hf_primary_dst_uri, pinfo, tvb, &offset, block->dst_eid);
@@ -1382,7 +1382,7 @@ static int dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     field_ix++;
     block->crc_type = (crc_type ? *crc_type : BP_CRC_NONE);
     if (crc_type) {
-        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" PRIu64));
+        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str_wmem(pinfo->pool, *crc_type, crc_vals, "%" PRIu64));
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
@@ -2075,7 +2075,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                             status_buf);
     }
     if (reason_code) {
-        proto_item_append_text(item_admin, ", Reason: %s", val64_to_str(*reason_code, status_report_reason_vals, "%" PRIu64));
+        proto_item_append_text(item_admin, ", Reason: %s", val64_to_str_wmem(pinfo->pool, *reason_code, status_report_reason_vals, "%" PRIu64));
     }
 
     proto_item_set_len(item_status, offset - chunk_status->start);

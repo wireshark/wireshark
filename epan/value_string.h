@@ -134,8 +134,8 @@ typedef struct _val64_string {
 
 WS_DLL_PUBLIC
 const char *
-val64_to_str(const uint64_t val, const val64_string *vs, const char *fmt)
-G_GNUC_PRINTF(3, 0);
+val64_to_str_wmem(wmem_allocator_t* scope, const uint64_t val, const val64_string *vs, const char *fmt)
+G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
 const char *

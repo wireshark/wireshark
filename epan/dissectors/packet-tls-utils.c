@@ -8721,7 +8721,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         if (IS_GREASE_QUIC(parameter_type)) {
             proto_item_append_text(parameter_tree, ": GREASE");
         } else {
-            proto_item_append_text(parameter_tree, ": %s", val64_to_str(parameter_type, quic_transport_parameter_id, "Unknown 0x%04x"));
+            proto_item_append_text(parameter_tree, ": %s", val64_to_str_wmem(pinfo->pool, parameter_type, quic_transport_parameter_id, "Unknown 0x%04x"));
         }
 
         proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);

@@ -38721,7 +38721,7 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo,
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s",
                 eht_trigger ? (phy_version ? "UHR": "EHT") : "HE",
-                val64_to_str(trigger_type, trigger_type_vals, "Reserved"));
+                val64_to_str_wmem(pinfo->pool, trigger_type, trigger_type_vals, "Reserved"));
 
   if (trigger_type >= TRIGGER_TYPE_MIN_RESERVED) {
     /* Add an Expert Info and forget it */

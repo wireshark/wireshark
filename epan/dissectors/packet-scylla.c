@@ -399,11 +399,11 @@ dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scyll
         proto_item_set_generated(req);
 
         proto_item_append_text(response_ti, " (msg_id=%" PRIu64 ", %s)",
-                               msg_id, val64_to_str(req_resp->verb_type, packettypenames, "Unknown (0x%02x)"));
+                               msg_id, val64_to_str_wmem(pinfo->pool, req_resp->verb_type, packettypenames, "Unknown (0x%02x)"));
 
         col_clear(pinfo->cinfo, COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Response for %s",
-            val64_to_str(req_resp->verb_type, packettypenames, "Unknown (0x%02x)"));
+            val64_to_str_wmem(pinfo->pool, req_resp->verb_type, packettypenames, "Unknown (0x%02x)"));
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "Response for unknown packet");
     }
@@ -419,12 +419,12 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     proto_item *request_ti = proto_tree_add_string_format(scylla_tree, hf_scylla_request,
                                                           tvb, offset, SCYLLA_HEADER_SIZE,
                                                           "", "Header for %s",
-                                                          val64_to_str(verb_type, packettypenames, "Unknown (0x%02x)"));
+                                                          val64_to_str_wmem(pinfo->pool, verb_type, packettypenames, "Unknown (0x%02x)"));
     proto_tree *scylla_header_tree = proto_item_add_subtree(request_ti, ett_scylla_response);
 
     proto_tree_add_item(scylla_header_tree, hf_scylla_timeout, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
-    proto_item_append_text(ti, ", Type %s", val64_to_str(verb_type, packettypenames, "Unknown (0x%02x)"));
+    proto_item_append_text(ti, ", Type %s", val64_to_str_wmem(pinfo->pool, verb_type, packettypenames, "Unknown (0x%02x)"));
     proto_tree_add_item(scylla_header_tree, hf_scylla_verb, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
     uint64_t msg_id;
@@ -502,7 +502,7 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Scylla");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Request %s",
-             val64_to_str(verb_type, packettypenames, "Unknown (0x%02x)"));
+             val64_to_str_wmem(pinfo->pool, verb_type, packettypenames, "Unknown (0x%02x)"));
     return tvb_reported_length(tvb);
 }
 

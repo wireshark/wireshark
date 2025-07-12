@@ -1381,7 +1381,7 @@ dissect_http3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, un
 
 /* Settings */
 static int
-dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http3_tree, unsigned offset)
+dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, unsigned offset)
 {
     uint64_t    settingsid, value;
     int         lenvar;
@@ -1399,7 +1399,7 @@ dissect_http3_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http3_
             proto_item_append_text(ti_settings, " - Reserved (GREASE)");
         } else {
             proto_item_append_text(ti_settings, " - %s",
-                                   val64_to_str(settingsid, http3_settings_vals, "Unknown (%#" PRIx64 ")"));
+                                   val64_to_str_wmem(pinfo->pool, settingsid, http3_settings_vals, "Unknown (%#" PRIx64 ")"));
         }
 
         offset += lenvar;
@@ -1494,7 +1494,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         proto_item_set_text(ti_ft_type, "Type: Reserved (%#" PRIx64 ")", frame_type);
         ft_display_name = "Reserved (GREASE)";
     } else {
-        ft_display_name = val64_to_str(frame_type, http3_frame_types, "Unknown (%#" PRIx64 ")");
+        ft_display_name = val64_to_str_wmem(pinfo->pool, frame_type, http3_frame_types, "Unknown (%#" PRIx64 ")");
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", ft_display_name);
     }
     proto_tree_add_item_ret_varint(ft_tree, hf_http3_frame_length, tvb, offset, -1, ENC_VARINT_QUIC, &frame_length,
@@ -2202,7 +2202,7 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             stream_display_name = "Reserved (GREASE)";
         }
         else {
-            stream_display_name = val64_to_str(stream_type, http3_stream_types, "Unknown (%#" PRIx64 ")");
+            stream_display_name = val64_to_str_wmem(pinfo->pool, stream_type, http3_stream_types, "Unknown (%#" PRIx64 ")");
         }
         proto_item_set_text(ti_stream, "UNI STREAM: %s off=%" PRIu64, stream_display_name, stream_info->stream_offset);
     } else {

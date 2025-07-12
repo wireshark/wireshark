@@ -125,7 +125,7 @@ try_val_to_str(const uint32_t val, const value_string *vs)
 /* 64-BIT VALUE STRING */
 
 const char *
-val64_to_str(const uint64_t val, const val64_string *vs, const char *fmt)
+val64_to_str_wmem(wmem_allocator_t* scope, const uint64_t val, const val64_string *vs, const char *fmt)
 {
     const char *ret;
 
@@ -135,7 +135,7 @@ val64_to_str(const uint64_t val, const val64_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return wmem_strdup_printf(scope, fmt, val);
 }
 
 const char *
