@@ -449,7 +449,7 @@ enum gf_upcall_event {
 };
 
 extern int
-gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex,
+gluster_rpc_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int hfindex,
 								int offset);
 
 extern int
