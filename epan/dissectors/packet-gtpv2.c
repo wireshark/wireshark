@@ -2768,7 +2768,7 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  * Editor's note: MSISDN coding will be defined in TS 24.301.
  */
 static void
-dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
+dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     const char *digit_str;
 
@@ -2785,7 +2785,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    digit_str = dissect_e164_msisdn(tvb, tree, 0, length, E164_ENC_BCD);
+    digit_str = dissect_e164_msisdn(tvb, pinfo, tree, 0, length, E164_ENC_BCD);
     proto_item_append_text(item, "%s", digit_str);
 }
 

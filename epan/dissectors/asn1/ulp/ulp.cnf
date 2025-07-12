@@ -310,7 +310,7 @@ ExtendedEphemeris/validity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_ExtendedEphem
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
-    dissect_e164_msisdn(msisdn_tvb, subtree, 0, 8, E164_ENC_BCD);
+    dissect_e164_msisdn(msisdn_tvb, actx->pinfo, subtree, 0, 8, E164_ENC_BCD);
   }
 
 #.FN_BODY SETId/mdn VAL_PTR=&mdn_tvb
@@ -706,7 +706,7 @@ SET-GANSSReferenceTime/ganss-TODUncertainty ulp_UTRAN_gpsReferenceTimeUncertaint
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_thirdPartyId);
-    dissect_e164_msisdn(msisdn_tvb, subtree, 0, 8, E164_ENC_BCD);
+    dissect_e164_msisdn(msisdn_tvb, actx->pinfo, subtree, 0, 8, E164_ENC_BCD);
   }
 
 #.FN_BODY ThirdPartyID/sip-uri

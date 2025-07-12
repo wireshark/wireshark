@@ -783,7 +783,7 @@ static void dissect_h248_annexc_NSAP(proto_tree* tree,
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 	dissect_ber_octet_string(implicit_p ? *((bool*)implicit_p) : false, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb) {
-		dissect_nsap(new_tvb, 0,tvb_reported_length(new_tvb), tree);
+		dissect_nsap(new_tvb, pinfo, 0,tvb_reported_length(new_tvb), tree);
 		if ( h248_info->term && ! h248_info->term->nsap) {
 			h248_info->term->nsap = tvb_bytes_to_str(wmem_file_scope(), new_tvb,0,tvb_reported_length(new_tvb));
 		}

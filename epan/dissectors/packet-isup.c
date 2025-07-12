@@ -4360,7 +4360,7 @@ static const value_string iana_icp_values[] = {
  * "print_nsap_net()" in epan/osi_utils.c.
  */
 void
-dissect_nsap(tvbuff_t *parameter_tvb, int offset, int len, proto_tree *parameter_tree)
+dissect_nsap(tvbuff_t *parameter_tvb, packet_info* pinfo, int offset, int len, proto_tree *parameter_tree)
 {
   uint8_t afi;
   unsigned  icp;
@@ -4397,7 +4397,7 @@ dissect_nsap(tvbuff_t *parameter_tvb, int offset, int len, proto_tree *parameter
       proto_tree_add_item(parameter_tree, hf_isup_idi, parameter_tvb, offset + 1, 8, ENC_NA);
       offset = offset +1;
       /* Dissect country code */
-      dissect_e164_cc(parameter_tvb, parameter_tree, offset, E164_ENC_BCD);
+      dissect_e164_cc(parameter_tvb, pinfo, parameter_tree, offset, E164_ENC_BCD);
 
       proto_tree_add_uint_format_value(parameter_tree, hf_bicc_nsap_dsp_length, parameter_tvb, offset, 0,
           (len-9), "%u (len %u -9)", (len-9), len);
@@ -4987,7 +4987,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         bat_ase_iwfa_item = proto_tree_add_item(bat_ase_element_tree, hf_bat_ase_biwfa, parameter_tvb, offset, content_len,
                                                 ENC_NA);
         bat_ase_iwfa_tree = proto_item_add_subtree(bat_ase_iwfa_item , ett_bat_ase_iwfa);
-        dissect_nsap(parameter_tvb, offset, content_len, bat_ase_iwfa_tree);
+        dissect_nsap(parameter_tvb, pinfo, offset, content_len, bat_ase_iwfa_tree);
 
         offset = offset + content_len;
         break;
@@ -6743,7 +6743,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   indicators1 = indicators1 & 0x7f;
   indicators2 = (indicators2 & 0x70)>>4;
   if ((indicators1 == ISUP_CALLED_PARTY_NATURE_INTERNATNL_NR) && (indicators2 == ISDN_NUMBERING_PLAN))
-    dissect_e164_cc(parameter_tvb, parameter_tree, 3, E164_ENC_BCD);
+    dissect_e164_cc(parameter_tvb, pinfo, parameter_tree, 3, E164_ENC_BCD);
 }
 
 /* ------------------------------------------------------------------

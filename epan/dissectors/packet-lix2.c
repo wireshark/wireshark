@@ -2689,8 +2689,7 @@ dissect_lix2_MSISDN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
   tvb_len = tvb_reported_length(tvb);
 
-  //dissect_e212_utf8_imsi(tvb, actx->pinfo, tree, offset, tvb_len);
-  dissect_e164_msisdn(tvb, tree, offset, tvb_len, E164_ENC_UTF8);
+  dissect_e164_msisdn(tvb, actx->pinfo, tree, offset, tvb_len, E164_ENC_UTF8);
 
   offset = tvb_len;
 

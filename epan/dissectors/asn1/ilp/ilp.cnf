@@ -86,7 +86,7 @@ uint32_t IlpMessage;
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
-    dissect_e164_msisdn(msisdn_tvb, subtree, 0, 8, E164_ENC_BCD);
+    dissect_e164_msisdn(msisdn_tvb, actx->pinfo, subtree, 0, 8, E164_ENC_BCD);
   }
 
 #.FN_BODY SETId/mdn VAL_PTR=&mdn_tvb

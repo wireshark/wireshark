@@ -9161,7 +9161,7 @@ decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  */
 
 static int
-decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     uint16_t    length;
     proto_tree *ext_tree;
@@ -9175,7 +9175,7 @@ decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    dissect_e164_msisdn(tvb, ext_tree, offset, length, E164_ENC_BCD);
+    dissect_e164_msisdn(tvb, pinfo, ext_tree, offset, length, E164_ENC_BCD);
 
     return 3 + length;
 }

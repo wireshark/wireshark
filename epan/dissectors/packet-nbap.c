@@ -8863,7 +8863,7 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
       /* IPv4 */
       nbap_private_data->transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 3);
     }
-    dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
+    dissect_nsap(nsap_tvb, actx->pinfo, 0, 20, nsap_tree);
   }
 
 

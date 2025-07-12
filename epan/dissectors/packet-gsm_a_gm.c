@@ -4883,7 +4883,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				break;
 			case 0x000E:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					dissect_e164_msisdn(tvb, pco_tree, curr_offset, e_len, E164_ENC_BCD);
+					dissect_e164_msisdn(tvb, pinfo, pco_tree, curr_offset, e_len, E164_ENC_BCD);
 				}
 				break;
 			case 0x0010:

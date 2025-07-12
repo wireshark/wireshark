@@ -1904,7 +1904,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
   case GT_NP_ISDN:
   case GT_NP_ISDN_MOBILE:
     if (nai == GT_NAI_INTERNATIONAL_NUM) {
-      dissect_e164_cc(signals_tvb, digits_tree, 0, E164_ENC_BCD);
+      dissect_e164_cc(signals_tvb, pinfo, digits_tree, 0, E164_ENC_BCD);
     }
     break;
   case GT_NP_LAND_MOBILE:

@@ -784,7 +784,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			proto_item_append_text(gsup_ti, ", IMSI: %s", str);
 			break;
 		case OSMO_GSUP_MSISDN_IE:
-			str = dissect_e164_msisdn(tvb, att_tree, offset+1, len-1, E164_ENC_BCD);
+			str = dissect_e164_msisdn(tvb, pinfo, att_tree, offset+1, len-1, E164_ENC_BCD);
 			proto_item_append_text(ti, ", %s", str);
 			proto_item_append_text(gsup_ti, ", MSISDN: %s", str);
 			break;

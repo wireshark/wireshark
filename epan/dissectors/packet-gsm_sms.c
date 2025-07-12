@@ -674,7 +674,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *of
                 offset, numdigocts, addrstr);
         if (((nt_mp >> 4) == 1) && ((nt_mp & 0x0f) == 1)) {
             /* if Type of number international and number plan is E.164*/
-            dissect_e164_msisdn(tvb, subtree, offset, numdigocts, E164_ENC_BCD);
+            dissect_e164_msisdn(tvb, pinfo, subtree, offset, numdigocts, E164_ENC_BCD);
         }
         p_add_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0,
                          wmem_strdup(pinfo->pool, addrstr));
@@ -683,7 +683,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *of
                 offset, numdigocts, addrstr);
         if (((nt_mp >> 4) == 1) && ((nt_mp & 0x0f) == 1)) {
             /* if Type of number international and number plan is E.164*/
-            dissect_e164_msisdn(tvb, subtree, offset, numdigocts, E164_ENC_BCD);
+            dissect_e164_msisdn(tvb, pinfo, subtree, offset, numdigocts, E164_ENC_BCD);
         }
         p_add_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0,
                          wmem_strdup(pinfo->pool, addrstr));

@@ -392,7 +392,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
       /* IPv4 */
       private_data_set_transportLayerAddress_ipv4(actx, tvb_get_ipv4(parameter_tvb, 3));
     }
-    dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
+    dissect_nsap(nsap_tvb, actx->pinfo, 0, 20, nsap_tree);
   }
 
 #.FN_BODY GTP-TEI VAL_PTR = &parameter_tvb

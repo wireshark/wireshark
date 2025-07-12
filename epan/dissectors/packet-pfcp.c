@@ -6390,7 +6390,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_msisdn, tvb, offset, 1, ENC_BIG_ENDIAN, &length_msisdn);
         offset += 1;
         /* (d+1) to e    MSISDN */
-        dissect_e164_msisdn(tvb, tree, offset, length_msisdn, E164_ENC_BCD);
+        dissect_e164_msisdn(tvb, pinfo, tree, offset, length_msisdn, E164_ENC_BCD);
         offset += length_msisdn;
     }
 

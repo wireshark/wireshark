@@ -1310,12 +1310,12 @@ dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 /* AVP Code: 701 MSISDN */
 static int
-dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
     int length = tvb_reported_length(tvb);
 
-    dissect_e164_msisdn(tvb, tree, offset, length, E164_ENC_BCD);
+    dissect_e164_msisdn(tvb, pinfo, tree, offset, length, E164_ENC_BCD);
 
     return length;
 }
@@ -2157,12 +2157,12 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1474 GMLC-NUMBER */
 static int
-dissect_diameter_3gpp_isdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
     int length = tvb_reported_length(tvb);
 
-    dissect_e164_isdn(tvb, tree, offset, length, E164_ENC_BCD);
+    dissect_e164_isdn(tvb, pinfo, tree, offset, length, E164_ENC_BCD);
 
     return length;
 }
@@ -2433,12 +2433,12 @@ dissect_diameter_3gpp_uva_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 * AVP Code: 1645 MME-Number-for-MT-SMS
 */
 static int
-dissect_diameter_3gpp_mme_number_for_mt_sms(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_mme_number_for_mt_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
     int length = tvb_reported_length(tvb);
 
-    dissect_e164_isdn(tvb, tree, offset, length, E164_ENC_BCD);
+    dissect_e164_isdn(tvb, pinfo, tree, offset, length, E164_ENC_BCD);
 
     return length;
 }

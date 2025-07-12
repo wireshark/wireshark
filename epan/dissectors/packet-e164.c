@@ -521,7 +521,7 @@ convert_bcd_to_dec(uint16_t bcd, uint16_t * dec)
 }
 
 void
-dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t encoding)
+dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, e164_encoding_t encoding)
 {
 	int	cc_offset;
 	uint8_t	address_digit_pair;
@@ -698,7 +698,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 	else
 	    item = proto_tree_add_uint(tree, hf_E164_country_code, tvb, cc_offset, length, cc);
 	if (!bcd_ok) {
-		expert_add_info(NULL, item, &ei_E164_country_code_non_decimal);
+		expert_add_info(pinfo, item, &ei_E164_country_code_non_decimal);
 	}
 
 	/* Handle special Country Codes */
@@ -720,7 +720,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 		item = proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 1,
 						id_code, "%d %s", id_code, val_to_str_const(id_code, E164_GMSS_vals, "Unknown"));
 		if (!bcd_ok) {
-			expert_add_info(NULL, item, &ei_E164_identification_code_non_decimal);
+			expert_add_info(pinfo, item, &ei_E164_identification_code_non_decimal);
 		}
 		break;
 	case 882:
@@ -743,7 +743,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 		item = proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 2,
 						id_code, "%d %s", id_code, val_to_str_ext_const(id_code, &E164_International_Networks_882_vals_ext, "Unknown"));
 		if (!bcd_ok) {
-			expert_add_info(NULL, item, &ei_E164_identification_code_non_decimal);
+			expert_add_info(pinfo, item, &ei_E164_identification_code_non_decimal);
 		}
 		break;
 	case 883:
@@ -781,14 +781,14 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 			item = proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 3,
 					id_code, "%d %s", id_code, val_to_str_const(id_code, E164_International_Networks_883_vals, "Unknown"));
 			if (!bcd_ok) {
-				expert_add_info(NULL, item, &ei_E164_identification_code_non_decimal);
+				expert_add_info(pinfo, item, &ei_E164_identification_code_non_decimal);
 			}
 		} else {
 			bcd_ok = convert_bcd_to_dec(id_code, &id_code);
 			item = proto_tree_add_uint_format_value(tree, hf_E164_identification_code, tvb, (cc_offset + 1), 2,
 					id_code, "%d %s", id_code, val_to_str_const(id_code, E164_International_Networks_883_vals, "Unknown"));
 			if (!bcd_ok) {
-				expert_add_info(NULL, item, &ei_E164_identification_code_non_decimal);
+				expert_add_info(pinfo, item, &ei_E164_identification_code_non_decimal);
 			}
 		}
 		break;
@@ -799,7 +799,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 }
 
 static const char *
-dissect_e164(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding, int name_type)
+dissect_e164(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int length, e164_encoding_t encoding, int name_type)
 {
 	proto_item *pi;
 	proto_tree *subtree;
@@ -818,25 +818,25 @@ dissect_e164(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encod
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
-	pi = proto_tree_add_item_ret_display_string(tree, name_type, tvb, offset, length, str_encoding, wmem_packet_scope(), &number_str);
+	pi = proto_tree_add_item_ret_display_string(tree, name_type, tvb, offset, length, str_encoding, pinfo->pool, &number_str);
 
 	subtree = proto_item_add_subtree(pi, ett_e164_msisdn);
 
-	dissect_e164_cc(tvb, subtree, offset, encoding);
+	dissect_e164_cc(tvb, pinfo, subtree, offset, encoding);
 
 	return number_str;
 }
 
 const char *
-dissect_e164_msisdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
+dissect_e164_msisdn(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
 {
-	return dissect_e164(tvb, tree, offset, length, encoding, hf_E164_msisdn);
+	return dissect_e164(tvb, pinfo, tree, offset, length, encoding, hf_E164_msisdn);
 }
 
 const char *
-dissect_e164_isdn(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
+dissect_e164_isdn(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int length, e164_encoding_t encoding)
 {
-	return dissect_e164(tvb, tree, offset, length, encoding, hf_E164_isdn);
+	return dissect_e164(tvb, pinfo, tree, offset, length, encoding, hf_E164_isdn);
 }
 
 /*

@@ -7850,7 +7850,7 @@ dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     }
     item = proto_tree_add_item(subtree, hf_rnsap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
     nsap_tree = proto_item_add_subtree(item, ett_rnsap_transportLayerAddress_nsap);
-    dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
+    dissect_nsap(nsap_tvb, actx->pinfo, 0, 20, nsap_tree);
   }
 
 

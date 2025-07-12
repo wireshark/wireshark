@@ -211,7 +211,7 @@ BLER TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = NULL
     }
     item = proto_tree_add_item(subtree, hf_rnsap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
     nsap_tree = proto_item_add_subtree(item, ett_rnsap_transportLayerAddress_nsap);
-    dissect_nsap(nsap_tvb, 0, 20, nsap_tree);
+    dissect_nsap(nsap_tvb, actx->pinfo, 0, 20, nsap_tree);
   }
 
 #.TYPE_ATTR
