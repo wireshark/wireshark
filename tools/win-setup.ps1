@@ -97,6 +97,7 @@ $X64Archives = @{
     "speexdsp/speexdsp-1.21.1-1-win64ws.zip" = "d36db62e64ffaee38d9f607bef07d3778d8957ad29757f3eba169eb135f1a4e5";
     "vcpkg-export/vcpkg-export-2025.04.09-x64-windows-ws.zip" = "6381760a70967010b76f943f6b39d1219dc7fddef508a8bb5dc5ed6dbeba1d0b";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
+    "xxhash/xxhash-0.8.3-1-x64-windows-ws.zip" = "35e5adca66137150de17458c41f6b65fa8abb5a46cfb91deaaaa24df08121082";
     "zlib-ng/zlib-ng-2.2.3-1-x64-windows-ws.zip" = "8b4e5ba1b61688eccb7e315c2f4ce1ef0c4301172f265bd41455e1df6a5a9522";
     "zstd/zstd-1.5.7-x64-windows-ws.zip" = "cdce6d578ece3a14873572b1bffd54b42443ddb97386df9e4552ab7c17b2097d";
 }
@@ -129,6 +130,7 @@ $Arm64Archives = @{
     "speexdsp/speexdsp-1.2.1-1-win64armws.zip" = "1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb";
     "vcpkg-export/vcpkg-export-2025.04.09-arm64-windows-ws.zip" = "dce8775a0fbfab7c32be39787e4d1b4f27295b8a66a409467910a0c5b5b55c15";
     "WinSparkle/WinSparkle-0.8.0-4-gb320893.zip" = "3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881";
+    "xxhash/xxhash-0.8.3-1-arm64-windows-ws.zip" = "d0fc3804b0c4d43ac09f80d9b0bab8d8b5550df282e56b44be3dd997ccc9eba2";
     "zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip" = "bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8";
     "zstd/zstd-1.5.7-arm64-windows-ws.zip" = "5a066e38a0c7bbbae3955919107e099565aee0c6c6523c43c0c9a0e6982a6a0a";
 }

@@ -1506,6 +1506,9 @@ ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.5.8")
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
 
+# xxhash
+ws_find_package(XXHASH ENABLE_XXHASH HAVE_XXHASH)
+
 # Zlib-ng compression
 ws_find_package(ZLIBNG ENABLE_ZLIBNG HAVE_ZLIBNG)
 
@@ -2139,6 +2142,11 @@ set_package_properties(Sinsp PROPERTIES
 	URL "https://github.com/falcosecurity/libs/"
 	PURPOSE "Support for Falco plugins"
 )
+set_package_properties(XXHASH PROPERTIES
+	URL "https://github.com/Cyan4973/xxHash/"
+	DESCRIPTION "Extremely fast hash algorithm"
+	PURPOSE "Fast hashing"
+)
 set_package_properties(Lua PROPERTIES
 	DESCRIPTION "Lua is a powerful, efficient, lightweight, embeddable scripting language"
 	URL "https://www.lua.org/"
@@ -2464,6 +2472,10 @@ if(USE_REPOSITORY)
 	if (WINSPARKLE_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${WINSPARKLE_DLL_DIR}/${WINSPARKLE_DLL}")
 	endif(WINSPARKLE_FOUND)
+	if (XXHASH_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${XXHASH_DLL_DIR}/${XXHASH_DLL}")
+		list (APPEND THIRD_PARTY_PDBS "${XXHASH_DLL_DIR}/${XXHASH_PDB}")
+	endif(XXHASH_FOUND)
 	if (ZLIB_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${ZLIB_DLL_DIR}/${ZLIB_DLL}")
 		list (APPEND THIRD_PARTY_PDBS "${ZLIB_DLL_DIR}/${ZLIB_PDB}")

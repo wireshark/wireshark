@@ -198,6 +198,7 @@ ADDITIONAL_LIST="
 	libzstd-dev
 	ninja-build
 	perl
+	xxhash
 	xsltproc
 	"
 

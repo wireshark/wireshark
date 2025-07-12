@@ -822,6 +822,7 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
 void
 epan_gather_compile_info(feature_list l)
 {
+	gather_xxhash_compile_info(l);
 	gather_zlib_compile_info(l);
 	gather_zlib_ng_compile_info(l);
 	gather_pcre2_compile_info(l);
@@ -930,6 +931,7 @@ epan_gather_compile_info(feature_list l)
 void
 epan_gather_runtime_info(feature_list l)
 {
+	gather_xxhash_runtime_info(l);
 	gather_zlib_runtime_info(l);
 	gather_pcre2_runtime_info(l);
 

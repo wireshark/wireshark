@@ -87,6 +87,7 @@ option(ENABLE_PLUGIN_IFDEMO     "Build with plugin interface demo" OFF)
 
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_ZLIBNG     "Build with zlib-ng compression support" ON)
+option(ENABLE_XXHASH     "Build with xxhash support" ON)
 option(ENABLE_MINIZIP    "Build with zip file compression support" ON)
 option(ENABLE_MINIZIPNG  "Build with zip file compression support" ON)
 option(ENABLE_LZ4        "Build with LZ4 compression support" ON)

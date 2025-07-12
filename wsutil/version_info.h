@@ -58,6 +58,10 @@ gather_pcre2_compile_info(feature_list l);
 
 WS_DLL_PUBLIC
 void
+gather_xxhash_compile_info(feature_list l);
+
+WS_DLL_PUBLIC
+void
 gather_zlib_compile_info(feature_list l);
 
 WS_DLL_PUBLIC
@@ -77,6 +81,10 @@ GString *get_compiled_version_info(gather_feature_func gather_compile);
 WS_DLL_PUBLIC
 void
 gather_pcre2_runtime_info(feature_list l);
+
+WS_DLL_PUBLIC
+void
+gather_xxhash_runtime_info(feature_list l);
 
 WS_DLL_PUBLIC
 void

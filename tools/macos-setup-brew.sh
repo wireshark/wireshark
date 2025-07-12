@@ -128,6 +128,7 @@ OPTIONAL_LIST=(
     opus
     snappy
     spandsp
+    xxhash
     zlib-ng
     zstd
 )

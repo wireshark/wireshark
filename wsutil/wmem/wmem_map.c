@@ -12,6 +12,10 @@
 
 #include <glib.h>
 
+#ifdef HAVE_XXHASH
+#include <xxhash.h>
+#endif /* HAVE_XXHASH */
+
 #include "wmem_core.h"
 #include "wmem_list.h"
 #include "wmem_map.h"
@@ -515,6 +519,9 @@ wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
 uint32_t
 wmem_strong_hash(const uint8_t *buf, const size_t len)
 {
+#ifdef HAVE_XXHASH
+    return (uint32_t)XXH32(buf, len, postseed);
+#else
     const uint8_t * const end = (const uint8_t *)buf + len;
     uint32_t hash = preseed + (uint32_t)len;
 
@@ -546,6 +553,7 @@ wmem_strong_hash(const uint8_t *buf, const size_t len)
     hash += (hash << 3);
     hash ^= (hash >> 11);
     return (hash + (hash << 15));
+#endif /* HAVE_XXHASH */
 }
 
 unsigned

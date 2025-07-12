@@ -98,6 +98,7 @@ ADDITIONAL_LIST="
 	snappy-devel
 	spandsp-devel
 	systemd-devel
+	xxhash-devel
 	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:

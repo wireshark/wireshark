@@ -151,6 +151,10 @@
 /* Define to 1 if libsmi exports a version string (and that symbol is visible). */
 #cmakedefine HAVE_SMI_VERSION_STRING 1
 
+/* Define to use xxhash library */
+#cmakedefine HAVE_XXHASH 1
+#define XXHASH_VERSION_STRING "${XXHASH_VERSION_STRING}"
+
 /* Define to use zlib library */
 #cmakedefine HAVE_ZLIB 1
 
