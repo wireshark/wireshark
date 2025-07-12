@@ -792,7 +792,7 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
             will be "3FFE000000000000000000000000****" and the function will return 0
 */
 static int
-get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
+get_full_ipv6_addr(wmem_allocator_t* scope, char* ipv6_addr_expanded, char *ipv6_addr)
 {
   char suffix[IPSEC_STRLEN_IPV6 + 1];
   char prefix[IPSEC_STRLEN_IPV6 + 1];
@@ -836,7 +836,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 
   if(suffix_len <  IPSEC_STRLEN_IPV6)
     {
-      prefix_addr = wmem_strndup(wmem_packet_scope(), ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
+      prefix_addr = wmem_strndup(scope, ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
       prefix_remaining = get_ipv6_suffix(prefix,prefix_addr);
       prefix_len = (int) strlen(prefix);
       memcpy(ipv6_addr_expanded,prefix,prefix_len);
@@ -1036,7 +1036,7 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
       - int typ : the Address type : either IPv6 or IPv4 (IPSEC_SA_IPV6, IPSEC_SA_IPV4)
 */
 static bool
-filter_address_match(char *addr, char *filter, int typ)
+filter_address_match(wmem_allocator_t* scope, char *addr, char *filter, int typ)
 {
   unsigned i;
   char addr_hex[IPSEC_STRLEN_IPV6 + 1];
@@ -1054,9 +1054,9 @@ filter_address_match(char *addr, char *filter, int typ)
             return false;
         break;
       case IPSEC_SA_IPV6:
-        if (get_full_ipv6_addr(addr_hex, addr))
+        if (get_full_ipv6_addr(scope, addr_hex, addr))
             return false;
-        if (get_full_ipv6_addr(filter_hex, filter))
+        if (get_full_ipv6_addr(scope, filter_hex, filter))
             return false;
         break;
       case IPSEC_SA_UNKNOWN:
@@ -1165,7 +1165,8 @@ filter_spi_match(unsigned spi, char *filter)
 
 */
 static bool
-get_esp_sa(int protocol_typ, char *src,  char *dst,  unsigned spi,
+get_esp_sa(wmem_allocator_t* scope,
+           int protocol_typ, char *src,  char *dst,  unsigned spi,
            int *encryption_algo,
            int *authentication_algo,
            char **encryption_key,
@@ -1199,8 +1200,8 @@ get_esp_sa(int protocol_typ, char *src,  char *dst,  unsigned spi,
     }
 
     if((protocol_typ == record->protocol || record->protocol == IPSEC_SA_ANY)
-       && (filter_address_match(src, record->srcIP, protocol_typ) || record->protocol == IPSEC_SA_ANY)
-       && (filter_address_match(dst, record->dstIP, protocol_typ) || record->protocol == IPSEC_SA_ANY)
+       && (filter_address_match(scope, src, record->srcIP, protocol_typ) || record->protocol == IPSEC_SA_ANY)
+       && (filter_address_match(scope, dst, record->dstIP, protocol_typ) || record->protocol == IPSEC_SA_ANY)
        && filter_spi_match(spi, record->spi))
     {
       found = true;
@@ -1612,7 +1613,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       be called every times an ESP Payload is found.
     */
 
-    if((sad_is_present = get_esp_sa(protocol_typ, ip_src, ip_dst, spi,
+    if((sad_is_present = get_esp_sa(pinfo->pool, protocol_typ, ip_src, ip_dst, spi,
                                     &esp_encr_algo, &esp_auth_algo,
                                     &esp_encr_key, &esp_encr_key_len, &esp_auth_key, &esp_auth_key_len,
                                     &cipher_hd, &cipher_hd_created, &sn_length, &sn_upper)))

@@ -9658,13 +9658,14 @@ ieee1905_fragment_hash(const void *k)
     const uint8_t src_len = key->src.len;
     const uint8_t dst_len = key->dst.len;
     const uint8_t hash_buf_len = src_len + dst_len + sizeof(uint8_t) + sizeof(uint32_t);
-    uint8_t* hash_buf = (uint8_t*)wmem_alloc(wmem_packet_scope(), hash_buf_len);
+    uint8_t* hash_buf = (uint8_t*)wmem_alloc(NULL, hash_buf_len);
 
     memcpy(hash_buf, key->src.data, src_len);
     memcpy(&hash_buf[src_len], key->dst.data, dst_len);
     hash_buf[src_len + dst_len] = key->frag_id;
     memcpy(&hash_buf[src_len + dst_len + sizeof(uint8_t)], &key->vlan_id, sizeof(uint32_t));
     hash_val = wmem_strong_hash((const uint8_t *)hash_buf, hash_buf_len);
+    wmem_free(NULL, hash_buf);
     return hash_val;
 }
 

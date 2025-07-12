@@ -1246,15 +1246,15 @@ static void init_session(l2tpv3_session_t *session)
     session->pw_type = L2TPv3_PW_DEFAULT;
 }
 
-static l2tpv3_session_t *alloc_session(void)
+static l2tpv3_session_t *alloc_session(wmem_allocator_t* scope)
 {
-    l2tpv3_session_t *session = wmem_new0(wmem_packet_scope(), l2tpv3_session_t);
+    l2tpv3_session_t *session = wmem_new0(scope, l2tpv3_session_t);
     init_session(session);
 
     return session;
 }
 
-static l2tpv3_session_t *store_lsession_id(l2tpv3_session_t *_session,
+static l2tpv3_session_t *store_lsession_id(wmem_allocator_t* scope, l2tpv3_session_t *_session,
                                          tvbuff_t *tvb,
                                          int offset,
                                          int msg_type)
@@ -1272,7 +1272,7 @@ static l2tpv3_session_t *store_lsession_id(l2tpv3_session_t *_session,
     }
 
     if (session == NULL)
-        session = alloc_session();
+        session = alloc_session(scope);
 
     switch (msg_type) {
         case MESSAGE_TYPE_ICRQ:
@@ -1288,7 +1288,7 @@ static l2tpv3_session_t *store_lsession_id(l2tpv3_session_t *_session,
     return session;
 }
 
-static l2tpv3_session_t *store_rsession_id(l2tpv3_session_t *_session,
+static l2tpv3_session_t *store_rsession_id(wmem_allocator_t* scope, l2tpv3_session_t *_session,
                                          tvbuff_t *tvb,
                                          int offset,
                                          int msg_type)
@@ -1304,14 +1304,14 @@ static l2tpv3_session_t *store_rsession_id(l2tpv3_session_t *_session,
     }
 
     if (session == NULL)
-        session = alloc_session();
+        session = alloc_session(scope);
 
     session->lcce1.id = tvb_get_ntohl(tvb, offset);
 
     return session;
 }
 
-static l2tpv3_session_t *store_cookie_len(l2tpv3_session_t *_session,
+static l2tpv3_session_t *store_cookie_len(wmem_allocator_t* scope, l2tpv3_session_t *_session,
                                         int len,
                                         int msg_type)
 {
@@ -1328,7 +1328,7 @@ static l2tpv3_session_t *store_cookie_len(l2tpv3_session_t *_session,
     }
 
     if (session == NULL)
-        session = alloc_session();
+        session = alloc_session(scope);
 
     switch (msg_type) {
         case MESSAGE_TYPE_ICRQ:
@@ -1344,7 +1344,7 @@ static l2tpv3_session_t *store_cookie_len(l2tpv3_session_t *_session,
     return session;
 }
 
-static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
+static l2tpv3_session_t *store_pw_type(wmem_allocator_t* scope, l2tpv3_session_t *_session,
                                      tvbuff_t *tvb,
                                      int offset,
                                      int msg_type)
@@ -1360,14 +1360,14 @@ static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
     }
 
     if (session == NULL)
-        session = alloc_session();
+        session = alloc_session(scope);
 
     session->pw_type = tvb_get_ntohs(tvb, offset);
 
     return session;
 }
 
-static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
+static l2tpv3_session_t *store_l2_sublayer(wmem_allocator_t* scope, l2tpv3_session_t *_session,
                                            tvbuff_t *tvb,
                                            int offset,
                                            int msg_type)
@@ -1389,7 +1389,7 @@ static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
     }
 
     if (session == NULL)
-        session = alloc_session();
+        session = alloc_session(scope);
 
     l2_sublayer = tvb_get_ntohs(tvb, offset);
     switch (l2_sublayer) {
@@ -1480,7 +1480,7 @@ static void *l2tp_value(packet_info *pinfo _U_)
 /*
  * Dissect CISCO AVP:s
  */
-static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, l2tp_cntrl_data_t *l2tp_cntrl_data, l2tpv3_session_t **session) {
+static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, l2tp_cntrl_data_t *l2tp_cntrl_data, l2tpv3_session_t **session) {
 
     int offset = 0;
     int         avp_type;
@@ -1541,22 +1541,22 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     case CISCO_LOCAL_SESSION_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_local_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-        *session = store_lsession_id(*session, tvb, offset, l2tp_cntrl_data->msg_type);
+        *session = store_lsession_id(pinfo->pool, *session, tvb, offset, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_REMOTE_SESSION_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_remote_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-        *session = store_rsession_id(*session, tvb, offset, l2tp_cntrl_data->msg_type);
+        *session = store_rsession_id(pinfo->pool, *session, tvb, offset, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_ASSIGNED_COOKIE:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_assigned_cookie, tvb, offset, avp_len, ENC_NA);
-        *session = store_cookie_len(*session, avp_len, l2tp_cntrl_data->msg_type);
+        *session = store_cookie_len(pinfo->pool, *session, avp_len, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_REMOTE_END_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_remote_end_id, tvb, offset, avp_len, ENC_ASCII);
         break;
     case CISCO_PW_TYPE:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_pseudowire_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        *session = store_pw_type(*session, tvb, offset, l2tp_cntrl_data->msg_type);
+        *session = store_pw_type(pinfo->pool, *session, tvb, offset, l2tp_cntrl_data->msg_type);
         break;
     case CISCO_CIRCUIT_STATUS:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_circuit_status, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2410,29 +2410,29 @@ static void process_control_avps(tvbuff_t *tvb,
                                 tvb, idx, 4, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo,COL_INFO, ", LSID: %2u",
                           tvb_get_ntohl(tvb, idx));
-            session = store_lsession_id(session, tvb, idx, msg_type);
+            session = store_lsession_id(pinfo->pool, session, tvb, idx, msg_type);
             break;
         case REMOTE_SESSION_ID:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_remote_session_id,
                                 tvb, idx, 4, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo,COL_INFO, ", RSID: %2u",
                             tvb_get_ntohl(tvb, idx));
-            session = store_rsession_id(session, tvb, idx, msg_type);
+            session = store_rsession_id(pinfo->pool, session, tvb, idx, msg_type);
             break;
         case ASSIGNED_COOKIE:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_assigned_cookie, tvb, idx, avp_len, ENC_NA);
-            session = store_cookie_len(session, avp_len, msg_type);
+            session = store_cookie_len(pinfo->pool, session, avp_len, msg_type);
             break;
         case REMOTE_END_ID:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_remote_end_id, tvb, idx, avp_len, ENC_ASCII);
             break;
         case PW_TYPE:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_pseudowire_type, tvb, idx, 2, ENC_BIG_ENDIAN);
-            session = store_pw_type(session, tvb, idx, msg_type);
+            session = store_pw_type(pinfo->pool, session, tvb, idx, msg_type);
             break;
         case L2_SPECIFIC_SUBLAYER:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_layer2_specific_sublayer, tvb, idx, 2, ENC_BIG_ENDIAN);
-            session = store_l2_sublayer(session, tvb, idx, msg_type);
+            session = store_l2_sublayer(pinfo->pool, session, tvb, idx, msg_type);
             break;
         case DATA_SEQUENCING:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_data_sequencing, tvb, idx, 2, ENC_BIG_ENDIAN);

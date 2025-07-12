@@ -1809,7 +1809,10 @@ static char *policy_hnd_to_file_id(wmem_allocator_t *pool, const e_ctx_hnd *hnd)
 	return guid_to_str(pool, &hnd->uuid);
 }
 static unsigned smb2_eo_files_hash(const void *k) {
-	return g_str_hash(policy_hnd_to_file_id(wmem_packet_scope(), (const e_ctx_hnd *)k));
+	char* file_id = policy_hnd_to_file_id(NULL, (const e_ctx_hnd*)k);
+	unsigned hash = g_str_hash(file_id);
+	wmem_free(NULL, file_id);
+	return hash;
 }
 static int smb2_eo_files_equal(const void *k1, const void *k2) {
 int	are_equal;

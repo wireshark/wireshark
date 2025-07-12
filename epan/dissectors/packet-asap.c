@@ -347,7 +347,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
 }
 
 static void
-dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree)
 {
   uint16_t handle_length;
   proto_item*    pi;
@@ -356,7 +356,7 @@ dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   pi = proto_tree_add_item(parameter_tree, hf_pool_handle, parameter_tvb, POOL_HANDLE_OFFSET, handle_length, ENC_NA);
 
   proto_item_append_text(pi, " (%s)",
-                         tvb_format_text(wmem_packet_scope(), parameter_tvb, POOL_HANDLE_OFFSET, handle_length));
+                         tvb_format_text(pinfo->pool, parameter_tvb, POOL_HANDLE_OFFSET, handle_length));
 }
 
 static void
@@ -488,7 +488,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *asap_
     dissect_pool_member_selection_policy_parameter(parameter_tvb, parameter_tree);
     break;
   case POOL_HANDLE_PARAMETER_TYPE:
-    dissect_pool_handle_parameter(parameter_tvb, parameter_tree);
+    dissect_pool_handle_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case POOL_ELEMENT_PARAMETER_TYPE:
     dissect_pool_element_parameter(parameter_tvb, pinfo, parameter_tree);
