@@ -10705,7 +10705,7 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static bool
-is_long_attribute_value(bluetooth_uuid_t uuid)
+is_long_attribute_value(packet_info* pinfo, bluetooth_uuid_t uuid)
 {
     switch (uuid.bt_uuid) {
     case 0x2901: /* Characteristic User Description */
@@ -10728,7 +10728,7 @@ is_long_attribute_value(bluetooth_uuid_t uuid)
         return true;
     }
 
-    return bluetooth_get_custom_uuid_long_attr(&uuid);
+    return bluetooth_get_custom_uuid_long_attr(pinfo->pool, &uuid);
 }
 
 static unsigned
@@ -11348,7 +11348,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             col_append_info_by_handle(pinfo, request_data->parameters.read_write.handle, opcode, l2cap_data);
         }
 
-        if (is_long_attribute_value(uuid) && tvb_captured_length(tvb) >= mtu) {
+        if (is_long_attribute_value(pinfo, uuid) && tvb_captured_length(tvb) >= mtu) {
             sub_item = proto_tree_add_item(main_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
             if (!pinfo->fd->visited && request_data && l2cap_data)
                 save_value_fragment(pinfo, tvb, offset, request_data->parameters.read_write.handle, 0, l2cap_data);
@@ -11394,7 +11394,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             col_append_info_by_handle(pinfo, request_data->parameters.read_write.handle, opcode, l2cap_data);
 
-            if (request_data->parameters.read_write.offset == 0 && !is_long_attribute_value(uuid)) {
+            if (request_data->parameters.read_write.offset == 0 && !is_long_attribute_value(pinfo, uuid)) {
                 offset = dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), request_data->parameters.read_write.handle, uuid, &att_data);
             } else {
                 if (!pinfo->fd->visited && l2cap_data)

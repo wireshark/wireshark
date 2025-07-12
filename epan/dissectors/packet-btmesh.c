@@ -3084,10 +3084,9 @@ upper_transport_fragment_hash(const void *k)
 {
     const upper_transport_fragment_key* key = (const upper_transport_fragment_key*) k;
     unsigned hash_val;
+    uint8_t hash_buf[sizeof(uint16_t) + 2 * sizeof(unsigned) + sizeof(uint32_t)];
 
-    const uint8_t hash_buf_len = sizeof(uint16_t) + 2 * sizeof(unsigned) + sizeof(uint32_t);
     unsigned idx=0;
-    uint8_t* hash_buf = (uint8_t*)wmem_alloc(wmem_packet_scope(), hash_buf_len);
     memcpy(hash_buf, &key->src, sizeof(uint16_t));
     idx += sizeof(uint16_t);
     memcpy(&hash_buf[idx], &key->seq0, sizeof(unsigned));
@@ -3095,7 +3094,7 @@ upper_transport_fragment_hash(const void *k)
     memcpy(&hash_buf[idx], &key->ivindex, sizeof(key->ivindex));
     idx += sizeof(unsigned);
     memcpy(&hash_buf[idx], &key->net_key_iv_index_hash, sizeof(key->net_key_iv_index_hash));
-    hash_val = wmem_strong_hash(hash_buf, hash_buf_len);
+    hash_val = wmem_strong_hash(hash_buf, sizeof(hash_buf));
 
     return hash_val;
 }
@@ -7526,7 +7525,7 @@ dissect_btmesh_transport_control_message(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 static bool
-try_access_decrypt(tvbuff_t *tvb, int offset, uint8_t *decrypted_data, int enc_data_len, uint8_t *key, network_decryption_ctx_t *dec_ctx)
+try_access_decrypt(tvbuff_t *tvb, packet_info* pinfo, int offset, uint8_t *decrypted_data, int enc_data_len, uint8_t *key, network_decryption_ctx_t *dec_ctx)
 {
     uint8_t accessnonce[13];
     gcry_cipher_hd_t cipher_hd;
@@ -7586,7 +7585,7 @@ try_access_decrypt(tvbuff_t *tvb, int offset, uint8_t *decrypted_data, int enc_d
         return false;
     }
 
-    tag = (uint8_t *)wmem_alloc(wmem_packet_scope(), dec_ctx->transmic_size);
+    tag = (uint8_t *)wmem_alloc(pinfo->pool, dec_ctx->transmic_size);
     gcrypt_err = gcry_cipher_gettag(cipher_hd, tag, dec_ctx->transmic_size);
     gcry_cipher_close(cipher_hd);
 
@@ -7646,13 +7645,13 @@ btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset
                             label_record = &uat_btmesh_label_uuid_records[j];
                             if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst) {
                                 dec_ctx->label_uuid_idx = j;
-                                if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
+                                if (try_access_decrypt(tvb, pinfo, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
                                     return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
                                 }
                             }
                         }
                     } else {
-                        if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
+                        if (try_access_decrypt(tvb, pinfo, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
                             return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
                         }
                     }
@@ -7673,13 +7672,13 @@ btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset
                             label_record = &uat_btmesh_label_uuid_records[j];
                             if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst) {
                                 dec_ctx->label_uuid_idx = j;
-                                if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
+                                if (try_access_decrypt(tvb, pinfo, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
                                     return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
                                 }
                             }
                         }
                     } else {
-                        if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
+                        if (try_access_decrypt(tvb, pinfo, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
                             return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
                         }
                     }
@@ -7687,7 +7686,7 @@ btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset
                 /* Try Device Key from DST when DST is a unicast address */
                 if (dst_address_type == BTMESH_ADDRESS_UNICAST) {
                     if ( !memcmp(dev_record->src, dec_ctx->dst_buf, 2) ) {
-                        if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
+                        if (try_access_decrypt(tvb, pinfo, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
                             return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
                         }
                     }

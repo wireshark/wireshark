@@ -310,8 +310,8 @@ extern dissector_table_t  bluetooth_uuid_table;
 WS_DLL_PUBLIC wmem_tree_t *bluetooth_uuids;
 
 WS_DLL_PUBLIC void bluetooth_add_custom_uuid(const char *uuid, const char *label, bool long_attr);
-WS_DLL_PUBLIC bool bluetooth_get_custom_uuid_long_attr(const bluetooth_uuid_t *uuid);
-WS_DLL_PUBLIC const char* bluetooth_get_custom_uuid_description(const bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC bool bluetooth_get_custom_uuid_long_attr(wmem_allocator_t* scope, const bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const char* bluetooth_get_custom_uuid_description(wmem_allocator_t* scope, const bluetooth_uuid_t *uuid);
 
 WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
 WS_DLL_PUBLIC value_string_ext  bluetooth_company_id_vals_ext;

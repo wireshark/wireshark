@@ -222,20 +222,20 @@ void bluetooth_add_custom_uuid(const char *uuid, const char *label, bool long_at
     wmem_tree_insert_string(bluetooth_uuids, uuid, custom_uuid, 0);
 }
 
-bool bluetooth_get_custom_uuid_long_attr(const bluetooth_uuid_t *uuid)
+bool bluetooth_get_custom_uuid_long_attr(wmem_allocator_t* scope, const bluetooth_uuid_t *uuid)
 {
     bt_uuid_t* custom_uuid;
-    custom_uuid = wmem_tree_lookup_string(bluetooth_uuids, print_numeric_bluetooth_uuid(wmem_packet_scope(), uuid), 0);
+    custom_uuid = wmem_tree_lookup_string(bluetooth_uuids, print_numeric_bluetooth_uuid(scope, uuid), 0);
     if (custom_uuid) {
         return custom_uuid->long_attr;
     }
     return false;
 }
 
-const char* bluetooth_get_custom_uuid_description(const bluetooth_uuid_t *uuid)
+const char* bluetooth_get_custom_uuid_description(wmem_allocator_t* scope, const bluetooth_uuid_t *uuid)
 {
     bt_uuid_t* custom_uuid;
-    custom_uuid = wmem_tree_lookup_string(bluetooth_uuids, print_numeric_bluetooth_uuid(wmem_packet_scope(), uuid), 0);
+    custom_uuid = wmem_tree_lookup_string(bluetooth_uuids, print_numeric_bluetooth_uuid(scope, uuid), 0);
     if (custom_uuid) {
         return custom_uuid->label;
     }
@@ -642,7 +642,7 @@ print_numeric_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uui
 }
 
 const char *
-print_bluetooth_uuid(wmem_allocator_t *pool _U_, const bluetooth_uuid_t *uuid)
+print_bluetooth_uuid(wmem_allocator_t *pool, const bluetooth_uuid_t *uuid)
 {
     const char *description;
 
@@ -666,7 +666,7 @@ print_bluetooth_uuid(wmem_allocator_t *pool _U_, const bluetooth_uuid_t *uuid)
          */
     }
 
-    description = bluetooth_get_custom_uuid_description(uuid);
+    description = bluetooth_get_custom_uuid_description(pool, uuid);
     if (description)
         return description;
 

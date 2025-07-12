@@ -133,12 +133,12 @@ static const unit_name_string units_slash15 = { "/15", NULL };
 void proto_register_bthsp(void);
 void proto_reg_handoff_bthsp(void);
 
-static uint32_t get_uint_parameter(uint8_t *parameter_stream, int parameter_length)
+static uint32_t get_uint_parameter(wmem_allocator_t* scope, uint8_t *parameter_stream, int parameter_length)
 {
     uint32_t     value;
     char *val;
 
-    val = (uint8_t *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
+    val = (uint8_t *) wmem_alloc(scope, parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
     value = (uint32_t) g_ascii_strtoull(val, NULL, 10);
@@ -184,7 +184,7 @@ dissect_vgs_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (parameter_number > 0) return false;
 
-    value = get_uint_parameter(parameter_stream, parameter_length);
+    value = get_uint_parameter(pinfo->pool, parameter_stream, parameter_length);
 
     pitem = proto_tree_add_uint(tree, hf_vgs, tvb, offset, parameter_length, value);
 
@@ -207,7 +207,7 @@ dissect_vgm_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (parameter_number > 0) return false;
 
-    value = get_uint_parameter(parameter_stream, parameter_length);
+    value = get_uint_parameter(pinfo->pool, parameter_stream, parameter_length);
 
     pitem = proto_tree_add_uint(tree, hf_vgm, tvb, offset, parameter_length, value);
 
@@ -231,7 +231,7 @@ dissect_ckpd_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (parameter_number > 0) return false;
 
-    value = get_uint_parameter(parameter_stream, parameter_length);
+    value = get_uint_parameter(pinfo->pool, parameter_stream, parameter_length);
 
     pitem = proto_tree_add_uint(tree, hf_ckpd, tvb, offset, parameter_length, value);
 
