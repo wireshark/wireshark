@@ -364,9 +364,8 @@ WS_DLL_PUBLIC void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *off
  * boundary for string values. (begins with an unsigned long LI)
  *
  * String sequence is copied to a buffer "seq".
- * Memory is allocated in packet pool and will be
- * automatically freed once the packet dissection is finished.
- * offset is then incremented  , to indicate the  octets which
+ * Memory is allocated in scope pool and will be automatically freed.
+ * offset is then incremented, to indicate the octets which
  * have been processed.
  *
  * returns number of octets in the sequence
@@ -376,7 +375,7 @@ WS_DLL_PUBLIC void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *off
  *
  */
 
-WS_DLL_PUBLIC uint32_t get_CDR_string(tvbuff_t *tvb, const char **seq, int *offset,
+WS_DLL_PUBLIC uint32_t get_CDR_string(wmem_allocator_t* scope, tvbuff_t *tvb, const char **seq, int *offset,
     bool stream_is_big_endian, int boundary);
 
 
