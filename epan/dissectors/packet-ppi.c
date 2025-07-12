@@ -324,6 +324,9 @@ static dissector_handle_t pcap_pktdata_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 static dissector_handle_t ppi_fnet_handle;
 
+/* Cached protocol identifier */
+static int proto_aggregate;
+
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
 static const true_false_string tfs_tsft_ms = { "milliseconds", "microseconds" };
 static const true_false_string tfs_ht20_40 = { "HT40", "HT20" };
@@ -1164,8 +1167,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         if (fd_head && !DOT11N_MORE_AGGREGATES(n_ext_flags)) {
             if (tree) {
-                ti = proto_tree_add_protocol_format(tree,
-                    proto_get_id_by_filter_name("wlan_aggregate"),
+                ti = proto_tree_add_protocol_format(tree, proto_aggregate,
                     tvb, 0, tot_len, "IEEE 802.11 Aggregate MPDU");
                 agg_tree = proto_item_add_subtree(ti, ett_ampdu);
             }
@@ -1584,6 +1586,8 @@ proto_reg_handoff_ppi(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
     ppi_cap_handle = create_capture_dissector_handle(capture_ppi, proto_ppi);
     capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_cap_handle);
+
+    proto_aggregate = proto_get_id_by_filter_name("wlan_aggregate");
 }
 
 /*

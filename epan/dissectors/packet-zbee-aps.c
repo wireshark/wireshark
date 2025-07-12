@@ -55,6 +55,7 @@ static unsigned   zbee_apf_transaction_len    (tvbuff_t *tvb, unsigned offset, u
 
 void dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset);
 void proto_register_zbee_aps(void);
+void proto_reg_handoff_zbee_aps(void);
 
 /********************
  * Global Variables *
@@ -158,6 +159,9 @@ static dissector_handle_t   zbee_apf_handle;
 
 /* Dissector List. */
 static dissector_table_t    zbee_aps_dissector_table;
+
+/* Cached protocol identifier */
+static int proto_zbee_nwk;
 
 /* Reassembly table. */
 static reassembly_table     zbee_aps_reassembly_table;
@@ -803,8 +807,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /* Init. */
     memset(&packet, 0, sizeof(zbee_aps_packet));
 
-    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-        proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
+    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
 
     /*  Create the protocol tree */
     proto_root = proto_tree_add_protocol_format(tree, proto_zbee_aps, tvb, offset, tvb_captured_length(tvb), "ZigBee Application Support Layer");
@@ -2256,6 +2259,11 @@ void proto_register_zbee_aps(void)
     /* Register the App dissector. */
     zbee_apf_handle = register_dissector("zbee_apf", dissect_zbee_apf, proto_zbee_apf);
 } /* proto_register_zbee_aps */
+
+void proto_reg_handoff_zbee_aps(void)
+{
+    proto_zbee_nwk = proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK);
+}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

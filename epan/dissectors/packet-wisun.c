@@ -373,6 +373,9 @@ static int ett_wisun_netricity_sc_bitmask;
 static int ett_wisun_netricity_scr_segment;
 static int ett_wisun_netricity_scr_segments;
 
+/* Cached protocol identifier */
+static int proto_ieee802154;
+
 static const fragment_items netricity_scr_frag_items = {
         /* Fragment subtrees */
         &ett_wisun_netricity_scr_segment,
@@ -771,8 +774,7 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
     proto_tree_add_item_ret_uint(tree, hf_wisun_fcie_rx, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &rx);
 
     // EDFE processing
-    ieee802154_hints_t* hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                                                                       proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    ieee802154_hints_t* hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
     if (packet && hints && packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         // first packet has source address
         if (!hints->map_rec && packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
@@ -2830,6 +2832,8 @@ void proto_reg_handoff_wisun(void)
 
     // For Netricity reassembly
     ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
+
+    proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
 }
 
 /*

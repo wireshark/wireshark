@@ -89,6 +89,7 @@ static unsigned dissect_zbd_msg_formation_local_tlv(tvbuff_t *tvb, packet_info *
 static unsigned dissect_zbd_msg_secur_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset);
 
 void proto_register_zbee_tlv(void);
+void proto_reg_handoff_zbee_tlv(void);
 
 /* Initialize Protocol and Registered fields */
 static int proto_zbee_tlv;
@@ -236,6 +237,9 @@ static int ett_zbee_tlv_link_key_flags;
 static int ett_zbee_tlv_network_status_map;
 
 static expert_field ei_zbee_tlv_max_recursion_depth_reached;
+
+/* Cached protocol identifier */
+static int proto_zbee_nwk;
 
 static const value_string zbee_tlv_local_types_key_method_str[] =
 {
@@ -507,8 +511,7 @@ dissect_aps_relay_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   offset += 1;
 
   proto_tree_add_item(tree, hf_zbee_tlv_relay_msg_joiner_ieee, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-  nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                                                   proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
+  nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
   nwk_hints->joiner_addr64 = tvb_get_letoh64(tvb, offset);
   offset += 8;
 
@@ -532,8 +535,7 @@ dissect_aps_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
         case ZBEE_APS_CMD_RELAY_MSG_UPSTREAM:
         case ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM:
         {
-            zbee_nwk_hints_t *nwk_hints  = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                      proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
+            zbee_nwk_hints_t *nwk_hints  = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
             nwk_hints->relay_type = (cmd_id == ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM ? ZBEE_APS_RELAY_DOWNSTREAM : ZBEE_APS_RELAY_UPSTREAM);
         }
             offset = dissect_aps_relay_local_tlv(tvb, pinfo, tree, offset, data);
@@ -3309,3 +3311,8 @@ void proto_register_zbee_tlv(void)
     register_dissector("zbee_tlv", dissect_zbee_tlv_default, proto_zbee_tlv);
     zbee_nwk_handle = find_dissector("zbee_nwk");
 } /* proto_register_zbee_tlv */
+
+void proto_reg_handoff_zbee_tlv(void)
+{
+    proto_zbee_nwk = proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK);
+}

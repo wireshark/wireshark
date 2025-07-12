@@ -34,6 +34,8 @@
 #include "packet-zbee-aps.h"    /* for ZBEE_APS_CMD_KEY_LENGTH */
 #include "packet-zbee-security.h"
 
+void proto_reg_handoff_zbee_security(void);
+
 /* Helper Functions */
 static void        zbee_sec_key_hash(uint8_t *, uint8_t, uint8_t *);
 static void        zbee_sec_make_nonce (zbee_security_packet *, uint8_t *);
@@ -62,6 +64,10 @@ static int ett_zbee_sec_control;
 static expert_field ei_zbee_sec_encrypted_payload;
 static expert_field ei_zbee_sec_encrypted_payload_sliced;
 static expert_field ei_zbee_sec_extended_source_unknown;
+
+/* Cached protocol identifiers */
+static int proto_zbee_nwk;
+static int proto_ieee802154;
 
 static const value_string zbee_sec_key_names[] = {
     { ZBEE_SEC_KEY_LINK,        "Link Key" },
@@ -335,6 +341,13 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
 
 } /* zbee_security_register */
 
+void proto_reg_handoff_zbee_security(void)
+{
+    proto_zbee_nwk = proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK);
+    proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
+}
+
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      zbee_security_parse_key
@@ -469,10 +482,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
     memset(&packet, 0, sizeof(zbee_security_packet));
 
     /* Get pointers to any useful frame data from lower layers */
-    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-        proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
-    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-        proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
+    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
     /* Create a subtree for the security information. */
     sec_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_zbee_sec, NULL, "ZigBee Security Header");
@@ -1270,7 +1281,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const uint8_t *key)
 
     /* Update the key ring for this pan */
     if ( !pinfo->fd->visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                    proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0))) {
+                    proto_zbee_nwk, 0))) {
         nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);
         if ( !nwk_keyring ) {
             nwk_keyring = (GSList **)g_malloc0(sizeof(GSList*));

@@ -683,6 +683,9 @@ static dissector_handle_t icmpv6_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t icmp_extension_handle;
 
+/* Cached protocol identifier */
+static int proto_ieee802154;
+
 #define ICMP6_DST_UNREACH                 1
 #define ICMP6_PACKET_TOO_BIG              2
 #define ICMP6_TIME_EXCEEDED               3
@@ -2711,8 +2714,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                         break;
                 }
                 /* Update the 6LoWPAN dissectors with new context information. */
-                hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                        proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+                hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
                 if ((opt_len <= 24) && hints) {
                     lowpan_context_insert(context_id, hints->src_pan, context_len, &context_prefix, pinfo->num);
                 }
@@ -6678,6 +6680,8 @@ proto_reg_handoff_icmpv6(void)
      */
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_icmpv6);
     icmp_extension_handle = find_dissector("icmp_extension");
+
+    proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
 }
 
 /*

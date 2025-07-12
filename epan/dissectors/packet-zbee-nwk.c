@@ -220,6 +220,9 @@ static int zbee_nwk_address_type = -1;
 
 static int zbee_nwk_tap;
 
+/* Cached protocol identifier */
+static int proto_ieee802154;
+
 /********************/
 /* Field Names      */
 /********************/
@@ -531,8 +534,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
     }
 
-    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-            proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
     /* Add ourself to the protocol column, clear the info column, and create the protocol tree. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
@@ -2486,6 +2488,9 @@ void proto_reg_handoff_zbee_nwk(void)
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbee_beacon_heur, "ZigBee Beacon", "zbee_wpan_beacon", proto_zbee_beacon, HEURISTIC_ENABLE);
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN_BEACON, dissect_zbip_beacon_heur, "ZigBee IP Beacon", "zbip_wpan_beacon", proto_zbip_beacon, HEURISTIC_ENABLE);
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur, "ZigBee Network Layer over IEEE 802.15.4", "zbee_nwk_wpan", proto_zbee_nwk, HEURISTIC_ENABLE);
+
+    proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
+
 } /* proto_reg_handoff_zbee */
 
 static void free_keyring_key(void *key)

@@ -382,6 +382,9 @@ static expert_field ei_6lowpan_bad_ext_header_length;
 static dissector_handle_t       handle_6lowpan;
 static dissector_handle_t       ipv6_handle;
 
+/* Cached protocol identifier */
+static int proto_ieee802154;
+
 /* Value Strings */
 static const value_string lowpan_patterns [] = {
     { LOWPAN_PATTERN_NALP,          "Not a LoWPAN frame" },
@@ -925,8 +928,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, uint8_t *ifcid)
     }
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
-    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
     if (hints) {
 
         /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference */
@@ -975,8 +977,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, uint8_t *ifcid)
     }
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
-    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
     if (hints) {
 
         /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference */
@@ -1117,8 +1118,7 @@ lowpan_reassembly_id(packet_info *pinfo, uint16_t dgram_tag)
         frag_id = add_address_to_hash(frag_id, &pinfo->dl_dst);
     } else {
         /* 16-bit short address */
-        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                    proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
         if (hints) {
             frag_id |= hints->dst16 << 16;
         }
@@ -1894,8 +1894,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int dg
     struct lowpan_nhdr  *nhdr_list;
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
-    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
     hint_panid = (hints) ? (hints->src_pan) : (IEEE802154_BCAST_PAN);
 
     /* Create a tree for the IPHC header. */
@@ -2741,8 +2740,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_
         ifcid = (uint8_t *)wmem_alloc(pinfo->pool, 8);
 
         /* Lookup the IEEE 802.15.4 addressing hints wanting RFC 2464 compatibility. */
-        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
         /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference and the presence of hints from lower layers */
         if (hints && rfc4944_short_address_format) {
@@ -2782,8 +2780,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_
         ifcid = (uint8_t *)wmem_alloc(pinfo->pool, 8);
 
         /* Lookup the IEEE 802.15.4 addressing hints wanting RFC 2464 compatibility. */
-        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+        hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
         /* Convert the 16-bit short address to an IID using the PAN ID (RFC 4944) or not depending on the preference and the presence of hints from lower layers */
         if (hints && rfc4944_short_address_format) {
@@ -3721,6 +3718,7 @@ void
 proto_reg_handoff_6lowpan(void)
 {
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_6lowpan);
+    proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, handle_6lowpan);

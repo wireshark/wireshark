@@ -386,6 +386,8 @@ static bool communityid_calc(communityid_cfg_t *cfg, uint8_t proto,
 /* ---- End of generic Community ID codebase ----------------------------------- */
 
 void proto_register_communityid(void);
+void proto_reg_handoff_communityid(void);
+
 
 static int proto_communityid;
 static int proto_ip;
@@ -452,14 +454,6 @@ static int communityid_dissector(tvbuff_t *tvb, packet_info *pinfo,
     /* Map Wireshark-level config to Community ID configs. */
     cid_cfg.cfg_do_base64 = pref_cid_do_base64;
     cid_cfg.cfg_seed = (uint16_t) pref_cid_seed;
-
-    /* If not yet done, establish global handles for required protocols. */
-    if (proto_ip <= 0) {
-        proto_ip = proto_get_id_by_filter_name("ip");
-        proto_ipv6 = proto_get_id_by_filter_name("ipv6");
-        proto_icmp = proto_get_id_by_filter_name("icmp");
-        proto_icmpv6 = proto_get_id_by_filter_name("icmpv6");
-    }
 
     if (pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4)
         proto_ip_found = proto_ip;
@@ -602,6 +596,15 @@ void proto_register_communityid(void)
         "Hash seed value",
         "A 16-bit seed value to add to the hashed data",
         10, &pref_cid_seed);
+}
+
+void
+proto_reg_handoff_communityid(void)
+{
+    proto_ip = proto_get_id_by_filter_name("ip");
+    proto_ipv6 = proto_get_id_by_filter_name("ipv6");
+    proto_icmp = proto_get_id_by_filter_name("icmp");
+    proto_icmpv6 = proto_get_id_by_filter_name("icmpv6");
 }
 
 /*
