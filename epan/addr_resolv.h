@@ -79,13 +79,10 @@ typedef struct hashwka hashwka_t;
 struct hashmanuf;
 typedef struct hashmanuf hashmanuf_t;
 
-typedef struct serv_port {
-  const char       *udp_name;
-  const char       *tcp_name;
-  const char       *sctp_name;
-  const char       *dccp_name;
-  const char       *numeric;
-} serv_port_t;
+typedef struct _serv_port_key {
+    uint16_t          port;
+    port_type         type;
+} serv_port_key_t;
 
 /* Used for manually edited DNS resolved names */
 typedef struct _resolved_name {

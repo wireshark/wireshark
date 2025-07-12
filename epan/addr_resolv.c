@@ -208,12 +208,6 @@ typedef struct _vlan
     char              name[MAXVLANNAMELEN];
 } vlan_t;
 
-/* internal services custom type */
-typedef struct _serv_port_custom_key {
-    uint16_t          port;
-    port_type         type;
-} serv_port_custom_key_t;
-
 static wmem_allocator_t *addr_resolv_scope;
 
 // Maps unsigned -> hashipxnet_t*
@@ -783,14 +777,14 @@ static void subnet_entry_set(uint32_t subnet_addr, const uint8_t mask_length, co
 
 static unsigned serv_port_custom_hash(const void *k)
 {
-    const serv_port_custom_key_t *key = (const serv_port_custom_key_t*)k;
+    const serv_port_key_t *key = (const serv_port_key_t*)k;
     return key->port + (key->type << 16);
 }
 
 static gboolean serv_port_custom_equal(const void *k1, const void *k2)
 {
-    const serv_port_custom_key_t *key1 = (const serv_port_custom_key_t*)k1;
-    const serv_port_custom_key_t *key2 = (const serv_port_custom_key_t*)k2;
+    const serv_port_key_t *key1 = (const serv_port_key_t*)k1;
+    const serv_port_key_t *key2 = (const serv_port_key_t*)k2;
 
     return (key1->port == key2->port) && (key1->type == key2->type);
 }
@@ -799,9 +793,9 @@ static void
 add_custom_service_name(port_type proto, const unsigned port, const char *service_name)
 {
     char *name;
-    serv_port_custom_key_t *key, *orig_key;
+    serv_port_key_t *key, *orig_key;
 
-    key = wmem_new(addr_resolv_scope, serv_port_custom_key_t);
+    key = wmem_new(addr_resolv_scope, serv_port_key_t);
     key->port = (uint16_t)port;
     key->type = proto;
 
@@ -817,41 +811,16 @@ add_custom_service_name(port_type proto, const unsigned port, const char *servic
     // new_resolved_objects = true;
 }
 
-static serv_port_t*
+static void
 add_service_name(port_type proto, const unsigned port, const char *service_name)
 {
-    serv_port_t *serv_port_names;
+    serv_port_key_t *key = wmem_new(addr_resolv_scope, serv_port_key_t);
+    key->port = (uint16_t)port;
+    key->type = proto;
 
-    serv_port_names = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
-    if (serv_port_names == NULL) {
-        serv_port_names = wmem_new0(addr_resolv_scope, serv_port_t);
-        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_names);
-    }
-
-    /* We don't need to strdup because service_name is owned by either
-     * the global arrays or the custom table, which manage the memory
-     * and have lifespans at least as long as the addr_resolv_scope.
-     */
-    switch(proto) {
-        case PT_TCP:
-            serv_port_names->tcp_name = service_name;
-            break;
-        case PT_UDP:
-            serv_port_names->udp_name = service_name;
-            break;
-        case PT_SCTP:
-            serv_port_names->sctp_name = service_name;
-            break;
-        case PT_DCCP:
-            serv_port_names->dccp_name = service_name;
-            break;
-        default:
-            return serv_port_names;
-            /* Should not happen */
-    }
+    wmem_map_insert(serv_port_hashtable, key, (void*)service_name);
 
     new_resolved_objects = true;
-    return serv_port_names;
 }
 
 static void
@@ -955,101 +924,77 @@ wmem_utoa(wmem_allocator_t *allocator, unsigned port)
 }
 
 static const char *
-_serv_name_lookup(port_type proto, unsigned port, serv_port_t **value_ret)
+_serv_name_lookup(port_type proto, unsigned port)
 {
-    serv_port_t *serv_port_names;
     const char* name = NULL;
     ws_services_proto_t p;
     ws_services_entry_t const *serv;
 
-    /* Look in the cache */
-    serv_port_names = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
-
-    if (serv_port_names == NULL) {
+    const serv_port_key_t custom_key = { (uint16_t)port, proto };
+    /* Look in the cache. Use an extended lookup so we can distinguish a port
+     * we already tried but had no name from one we haven't tried. */
+    if (!wmem_map_lookup_extended(serv_port_hashtable, &custom_key, NULL, (void **)&name)) {
         /* Try the user custom table */
-        serv_port_custom_key_t custom_key = { (uint16_t)port, proto };
         name = wmem_map_lookup(serv_port_custom_hashtable, &custom_key);
-    }
 
-    if (name == NULL && serv_port_names == NULL) {
-        /* now look in the global tables */
-        bool valid_proto = true;
-        switch(proto) {
-            case PT_TCP: p = ws_tcp; break;
-            case PT_UDP: p = ws_udp; break;
-            case PT_SCTP: p = ws_sctp; break;
-            case PT_DCCP: p = ws_dccp; break;
-            default: valid_proto = false;
-        }
-        if (valid_proto) {
-            serv = global_services_lookup(port, p);
-            if (serv) {
-                name = serv->name;
+        if (name == NULL) {
+            /* now look in the global tables */
+            bool valid_proto = true;
+            switch(proto) {
+                case PT_TCP: p = ws_tcp; break;
+                case PT_UDP: p = ws_udp; break;
+                case PT_SCTP: p = ws_sctp; break;
+                case PT_DCCP: p = ws_dccp; break;
+                default: valid_proto = false;
+            }
+            if (valid_proto) {
+                serv = global_services_lookup(port, p);
+                if (serv) {
+                    name = serv->name;
+                }
             }
         }
+
+        /* Cache result (even if NULL, so we can know we have no result.) */
+        add_service_name(proto, port, name);
     }
 
-    if (name) {
-        /* Cache result */
-        serv_port_names = add_service_name(proto, port, name);
-    }
-
-    if (value_ret != NULL)
-        *value_ret = serv_port_names;
-
-    if (serv_port_names == NULL)
-        return NULL;
-
-    switch (proto) {
-        case PT_UDP:
-            return serv_port_names->udp_name;
-        case PT_TCP:
-            return serv_port_names->tcp_name;
-        case PT_SCTP:
-            return serv_port_names->sctp_name;
-        case PT_DCCP:
-            return serv_port_names->dccp_name;
-        default:
-            break;
-    }
-    return NULL;
+    return name;
 }
 
 const char *
 try_serv_name_lookup(port_type proto, unsigned port)
 {
-    return (proto == PT_NONE) ? NULL : _serv_name_lookup(proto, port, NULL);
+    return (proto == PT_NONE) ? NULL : _serv_name_lookup(proto, port);
 }
 
 const char *
 serv_name_lookup(port_type proto, unsigned port)
 {
-    serv_port_t *serv_port_names = NULL;
     const char *name;
 
     /* first look for the name */
-    name = _serv_name_lookup(proto, port, &serv_port_names);
+    name = _serv_name_lookup(proto, port);
     if (name != NULL)
         return name;
 
-    if (serv_port_names == NULL) {
-        serv_port_names = wmem_new0(addr_resolv_scope, serv_port_t);
-        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_names);
-    }
-
+    /* No resolved name. Do we have a cached numeric string? */
+    const serv_port_key_t key = { (uint16_t)port, PT_NONE };
+    name = (const char*)wmem_map_lookup(serv_port_hashtable, &key);
     /* No name; create the numeric string. */
-    if (serv_port_names->numeric == NULL) {
-        serv_port_names->numeric = wmem_strdup_printf(addr_resolv_scope, "%u", port);
+    if (name == NULL) {
+        name = wmem_strdup_printf(addr_resolv_scope, "%u", port);
+        add_service_name(PT_NONE, port, name);
     }
 
-    return serv_port_names->numeric;
+    return name;
 }
 
 static void
 initialize_services(void)
 {
     ws_assert(serv_port_hashtable == NULL);
-    serv_port_hashtable = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
+    serv_port_hashtable = wmem_map_new(addr_resolv_scope, serv_port_custom_hash, serv_port_custom_equal);
     ws_assert(serv_port_custom_hashtable == NULL);
     serv_port_custom_hashtable = wmem_map_new(addr_resolv_scope, serv_port_custom_hash, serv_port_custom_equal);
 
