@@ -66,12 +66,9 @@ int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	int      len;
 
 	/* display a unicode string from the tree and return new offset */
-
-	str = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
+	proto_tree_add_item_ret_display_string_and_length(tree, hf_index, tvb, offset, -1, ENC_UTF_16 | ENC_LITTLE_ENDIAN, pinfo->pool, &str, &len);
 
 	/* Return a copy of the string if requested */
-
 	if (data)
 		*data = str;
 
