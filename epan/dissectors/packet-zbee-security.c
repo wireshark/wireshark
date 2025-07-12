@@ -13,7 +13,9 @@
 /*  Include Files */
 #include "config.h"
 
+#define WS_LOG_DOMAIN "zcl"
 
+#include <wireshark.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
@@ -1136,7 +1138,7 @@ zbee_sec_ccm_decrypt(const char     *key,   /* Input */
  *          M[i] = i'th block of text, with some padding and flags concatenated.
  *  PARAMETERS
  *      uint8_t *    input       - Hash Input (any length).
- *      uint8_t     input_len   - Hash Input Length.
+ *      uint8_t      input_len   - Hash Input Length.
  *      uint8_t *    output      - Hash Output (exactly one block in length).
  *  RETURNS
  *      void
@@ -1302,6 +1304,65 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const uint8_t *key)
         }
     }
 } /* nwk_add_key_to_keyring */
+
+/**
+ *Add NWK or APS key into NWK keyring
+ *
+ *@param pinfo pointer to packet information fields
+ *@param key APS or NWK key
+ */
+void zbee_sec_add_key_to_keyring_panid(packet_info *pinfo, const uint8_t *key, int panid)
+{
+    GSList            **nwk_keyring;
+    key_record_t        key_record;
+
+    /* Update the key ring for this pan */
+    if ( !pinfo->fd->visited ) {
+        nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &panid);
+        if ( !nwk_keyring ) {
+            nwk_keyring = (GSList **)g_malloc0(sizeof(GSList*));
+            g_hash_table_insert(zbee_table_nwk_keyring,
+                g_memdup2(&panid, sizeof(panid)), nwk_keyring);
+        }
+
+        if ( nwk_keyring ) {
+            if ( !*nwk_keyring ||
+                    memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, key,
+                        ZBEE_APS_CMD_KEY_LENGTH) ) {
+                /* Store a new or different key in the key ring */
+                key_record.frame_num = pinfo->num;
+                key_record.label = NULL;
+                memcpy(&key_record.key, key, ZBEE_APS_CMD_KEY_LENGTH);
+                *nwk_keyring = g_slist_prepend(*nwk_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+            }
+        }
+    }
+} /* zbee_sec_add_key_to_keyring_panid */
+
+/**
+ *Get key from keyring
+ *
+ *@param label key label
+ *@param key NWK key
+ */
+bool zbee_sec_get_key_from_keyring(const char *label, uint8_t *key)
+{
+    GSList *GSList_i;
+    /* Loop through user's password table for preconfigured keys, our last resort */
+    GSList_i = zbee_pc_keyring;
+    while ( GSList_i ) {
+        key_record_t * rec = (key_record_t *)GSList_i->data;
+        ws_debug("'%s': %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", rec->label, (uint8_t)rec->key[0x0], (uint8_t)rec->key[0x1], (uint8_t)rec->key[0x2], (uint8_t)rec->key[0x3], (uint8_t)rec->key[0x4], (uint8_t)rec->key[0x5], (uint8_t)rec->key[0x6], (uint8_t)rec->key[0x7], (uint8_t)rec->key[0x8], (uint8_t)rec->key[0x9], (uint8_t)rec->key[0xA], (uint8_t)rec->key[0xB], (uint8_t)rec->key[0xC], (uint8_t)rec->key[0xD], (uint8_t)rec->key[0xE], (uint8_t)rec->key[0xF]);
+
+        if(!strcmp(label, rec->label)){
+            memcpy(key, rec->key, ZBEE_SEC_CONST_KEYSIZE);
+            return 1;
+        }
+
+        GSList_i = g_slist_next(GSList_i);
+    }
+    return 0;
+} /* zbee_sec_get_key_from_keyring */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

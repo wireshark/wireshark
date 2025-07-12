@@ -14,17 +14,22 @@
 /*  Include Files */
 #include "config.h"
 
+#define WS_LOG_DOMAIN "zcl"
+
+#include <wireshark.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <wsutil/bits_ctz.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
-
+#include "packet-zbee-security.h"
 
 /* ########################################################################## */
 /* #### (0x0000) BASIC CLUSTER ############################################## */
@@ -15900,6 +15905,7 @@ static int hf_zbee_zcl_touchlink_key_bit_master;
 static int hf_zbee_zcl_touchlink_key_bit_cert;
 static int hf_zbee_zcl_touchlink_key_index;
 static int hf_zbee_zcl_touchlink_key;
+static int hf_zbee_zcl_touchlink_network_key;
 static int hf_zbee_zcl_touchlink_init_addr;
 static int hf_zbee_zcl_touchlink_init_eui64;
 static int hf_zbee_zcl_touchlink_status;
@@ -15910,6 +15916,15 @@ static int ett_zbee_zcl_touchlink_zbee;
 static int ett_zbee_zcl_touchlink_info;
 static int ett_zbee_zcl_touchlink_keybits;
 static int ett_zbee_zcl_touchlink_groups;
+
+static expert_field ei_zbee_zcl_touchlink_no_key = EI_INIT;
+
+static GHashTable * zcl_touchlink_commissioning_map = NULL;
+
+struct zcl_touchlink_commissioning_data {
+    unsigned transaction_id;
+    unsigned response_id;
+};
 
 /* Command names */
 static const value_string zbee_zcl_touchlink_rx_cmd_names[] = {
@@ -15970,6 +15985,44 @@ static const value_string zbee_zcl_touchlink_keyid_names[] = {
 /*************************/
 /* Function Bodies       */
 /*************************/
+
+/* Functions for Touchlink Comissionning hashtables. {{{ */
+static int
+zcl_touchlink_comissioning_equal (gconstpointer v, gconstpointer v2)
+{
+    if (v == NULL || v2 == NULL) {
+        return 0;
+    }
+
+    const unsigned *val1;
+    const unsigned *val2;
+    val1 = (const unsigned *)v;
+    val2 = (const unsigned *)v2;
+
+    if (*val1 == *val2) {
+        return 1;
+    }
+    return 0;
+}
+
+static unsigned
+zcl_touchlink_comissioning_hash  (gconstpointer v)
+{
+    unsigned hash;
+    const unsigned * id;
+
+    if (v == NULL) {
+        return 0;
+    }
+
+    hash = 0;
+    id = (const unsigned*) v;
+    hash = *id;
+
+    return hash;
+}
+/* Functions for Touchlink Comissionning hashtables. }}} */
+
 /**
  *This function decodes the Scan Request payload.
  *
@@ -16061,20 +16114,165 @@ dissect_zcl_touchlink_network_start_request(tvbuff_t *tvb, proto_tree *tree, uns
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
+dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, struct zcl_touchlink_commissioning_data * commissioning_data)
 {
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset += 8;
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    uint32_t key_index;
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_touchlink_key_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &key_index);
     *offset += 1;
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key, tvb, *offset, 16, ENC_NA);
+    proto_item* it_key = proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key, tvb, *offset, 16, ENC_NA);
+    const char *encrypted_network_key = (const char *)tvb_get_ptr(tvb, *offset, 16);
     *offset += 16;
+
+    static const uint8_t Touchlink_Certification_Key[16] = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf};
+    uint8_t Touchlink_Master_Key[16];
+    char   network_key[16] = {0};
+    const uint8_t * key = NULL;
+    uint8_t * decrypted_network_key = NULL;
+    if(key_index == ZBEE_ZCL_TOUCHLINK_KEYID_MASTER || key_index == ZBEE_ZCL_TOUCHLINK_KEYID_CERTIFICATION){
+        if(key_index == ZBEE_ZCL_TOUCHLINK_KEYID_MASTER){
+            if(!zbee_sec_get_key_from_keyring("Touchlink Master Key", Touchlink_Master_Key)){
+                expert_add_info_format(pinfo, it_key, &ei_zbee_zcl_touchlink_no_key, "No key named 'Touchlink Master Key' found, cannot decrypt transport key");
+            }else{
+                key = Touchlink_Master_Key;
+            }
+        }else if(key_index == ZBEE_ZCL_TOUCHLINK_KEYID_CERTIFICATION){
+            key = Touchlink_Certification_Key;
+        }
+        if(key){
+            uint8_t expanded_input[16];
+            expanded_input[0x0] = (commissioning_data->transaction_id >> 24) & 0xFF;
+            expanded_input[0x1] = (commissioning_data->transaction_id >> 16) & 0xFF;
+            expanded_input[0x2] = (commissioning_data->transaction_id >>  8) & 0xFF;
+            expanded_input[0x3] = (commissioning_data->transaction_id >>  0) & 0xFF;
+            expanded_input[0x4] = (commissioning_data->transaction_id >> 24) & 0xFF;
+            expanded_input[0x5] = (commissioning_data->transaction_id >> 16) & 0xFF;
+            expanded_input[0x6] = (commissioning_data->transaction_id >>  8) & 0xFF;
+            expanded_input[0x7] = (commissioning_data->transaction_id >>  0) & 0xFF;
+            expanded_input[0x8] = (commissioning_data->response_id >> 24) & 0xFF;
+            expanded_input[0x9] = (commissioning_data->response_id >> 16) & 0xFF;
+            expanded_input[0xA] = (commissioning_data->response_id >>  8) & 0xFF;
+            expanded_input[0xB] = (commissioning_data->response_id >>  0) & 0xFF;
+            expanded_input[0xC] = (commissioning_data->response_id >> 24) & 0xFF;
+            expanded_input[0xD] = (commissioning_data->response_id >> 16) & 0xFF;
+            expanded_input[0xE] = (commissioning_data->response_id >>  8) & 0xFF;
+            expanded_input[0xF] = (commissioning_data->response_id >>  0) & 0xFF;
+            ws_debug("expanded_input: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", expanded_input[0x0], expanded_input[0x1], expanded_input[0x2], expanded_input[0x3], expanded_input[0x4], expanded_input[0x5], expanded_input[0x6], expanded_input[0x7], expanded_input[0x8], expanded_input[0x9], expanded_input[0xA], expanded_input[0xB], expanded_input[0xC], expanded_input[0xD], expanded_input[0xE], expanded_input[0xF]);
+            ws_debug("key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", key[0x0], key[0x1], key[0x2], key[0x3], key[0x4], key[0x5], key[0x6], key[0x7], key[0x8], key[0x9], key[0xA], key[0xB], key[0xC], key[0xD], key[0xE], key[0xF]);
+
+            gcry_cipher_hd_t hd1;
+            gcry_error_t err;
+            if (gcry_cipher_open(&hd1, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+                gcry_cipher_close(hd1);
+                ws_debug("touchlink: can't open aes128 cipher handle");
+                return;
+            }
+            if ((err = gcry_cipher_setkey(hd1, key, 16))) {
+                gcry_cipher_close(hd1);
+                ws_debug("touchlink: can't set aes128 cipher key");
+                ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+                return;
+            }
+
+            char   transport_key[16] = {0};
+            if (gcry_cipher_encrypt(hd1, transport_key, 16, expanded_input, 16)) {
+                ws_debug("can\'t decrypt aes128");
+                return;
+            }
+
+            ws_debug("transport_key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (uint8_t)transport_key[0x0], (uint8_t)transport_key[0x1], (uint8_t)transport_key[0x2], (uint8_t)transport_key[0x3], (uint8_t)transport_key[0x4], (uint8_t)transport_key[0x5], (uint8_t)transport_key[0x6], (uint8_t)transport_key[0x7], (uint8_t)transport_key[0x8], (uint8_t)transport_key[0x9], (uint8_t)transport_key[0xA], (uint8_t)transport_key[0xB], (uint8_t)transport_key[0xC], (uint8_t)transport_key[0xD], (uint8_t)transport_key[0xE], (uint8_t)transport_key[0xF]);
+
+            gcry_cipher_close(hd1);
+
+            gcry_cipher_hd_t hd2;
+            if (gcry_cipher_open(&hd2, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+                gcry_cipher_close(hd2);
+                ws_debug("touchlink: can't open aes128 cipher handle");
+                return;
+            }
+            if ((err = gcry_cipher_setkey(hd2, transport_key, 16))) {
+                gcry_cipher_close(hd2);
+                ws_debug("touchlink: can't set aes128 cipher key");
+                ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+                return;
+            }
+
+            ws_debug("encrypted_network_key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (uint8_t)encrypted_network_key[0x0], (uint8_t)encrypted_network_key[0x1], (uint8_t)encrypted_network_key[0x2], (uint8_t)encrypted_network_key[0x3], (uint8_t)encrypted_network_key[0x4], (uint8_t)encrypted_network_key[0x5], (uint8_t)encrypted_network_key[0x6], (uint8_t)encrypted_network_key[0x7], (uint8_t)encrypted_network_key[0x8], (uint8_t)encrypted_network_key[0x9], (uint8_t)encrypted_network_key[0xA], (uint8_t)encrypted_network_key[0xB], (uint8_t)encrypted_network_key[0xC], (uint8_t)encrypted_network_key[0xD], (uint8_t)encrypted_network_key[0xE], (uint8_t)encrypted_network_key[0xF]);
+
+            if (gcry_cipher_decrypt(hd2, network_key, 16, encrypted_network_key, 16)) {
+                ws_debug("can\'t decrypt aes128");
+                return;
+            }
+
+            ws_debug("network_key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (uint8_t)network_key[0x0], (uint8_t)network_key[0x1], (uint8_t)network_key[0x2], (uint8_t)network_key[0x3], (uint8_t)network_key[0x4], (uint8_t)network_key[0x5], (uint8_t)network_key[0x6], (uint8_t)network_key[0x7], (uint8_t)network_key[0x8], (uint8_t)network_key[0x9], (uint8_t)network_key[0xA], (uint8_t)network_key[0xB], (uint8_t)network_key[0xC], (uint8_t)network_key[0xD], (uint8_t)network_key[0xE], (uint8_t)network_key[0xF]);
+
+            gcry_cipher_close(hd2);
+
+            proto_tree_add_bytes(tree, hf_zbee_zcl_touchlink_network_key, tvb, *offset-16, 16, network_key);
+            decrypted_network_key = network_key;
+        }
+    }else if(key_index == ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT){
+        uint8_t expanded_input[16];
+        expanded_input[0x0] = 'P';
+        expanded_input[0x1] = 'h';
+        expanded_input[0x2] = 'L';
+        expanded_input[0x3] = 'i';
+        expanded_input[0x4] = (commissioning_data->transaction_id >> 24) & 0xFF;
+        expanded_input[0x5] = (commissioning_data->transaction_id >> 16) & 0xFF;
+        expanded_input[0x6] = (commissioning_data->transaction_id >>  8) & 0xFF;
+        expanded_input[0x7] = (commissioning_data->transaction_id >>  0) & 0xFF;
+        expanded_input[0x8] = 'C';
+        expanded_input[0x9] = 'L';
+        expanded_input[0xA] = 'S';
+        expanded_input[0xB] = 'N';
+        expanded_input[0xC] = (commissioning_data->response_id >> 24) & 0xFF;
+        expanded_input[0xD] = (commissioning_data->response_id >> 16) & 0xFF;
+        expanded_input[0xE] = (commissioning_data->response_id >>  8) & 0xFF;
+        expanded_input[0xF] = (commissioning_data->response_id >>  0) & 0xFF;
+        ws_debug("expanded_input: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", expanded_input[0x0], expanded_input[0x1], expanded_input[0x2], expanded_input[0x3], expanded_input[0x4], expanded_input[0x5], expanded_input[0x6], expanded_input[0x7], expanded_input[0x8], expanded_input[0x9], expanded_input[0xA], expanded_input[0xB], expanded_input[0xC], expanded_input[0xD], expanded_input[0xE], expanded_input[0xF]);
+
+        gcry_cipher_hd_t hd;
+        gcry_error_t err;
+        if (gcry_cipher_open(&hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+            gcry_cipher_close(hd);
+            ws_debug("touchlink: can't open aes128 cipher handle");
+            return;
+        }
+        if ((err = gcry_cipher_setkey(hd, expanded_input, 16))) {
+            gcry_cipher_close(hd);
+            ws_debug("touchlink: can't set aes128 cipher key");
+            ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+            return;
+        }
+
+        ws_debug("encrypted_network_key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (uint8_t)encrypted_network_key[0x0], (uint8_t)encrypted_network_key[0x1], (uint8_t)encrypted_network_key[0x2], (uint8_t)encrypted_network_key[0x3], (uint8_t)encrypted_network_key[0x4], (uint8_t)encrypted_network_key[0x5], (uint8_t)encrypted_network_key[0x6], (uint8_t)encrypted_network_key[0x7], (uint8_t)encrypted_network_key[0x8], (uint8_t)encrypted_network_key[0x9], (uint8_t)encrypted_network_key[0xA], (uint8_t)encrypted_network_key[0xB], (uint8_t)encrypted_network_key[0xC], (uint8_t)encrypted_network_key[0xD], (uint8_t)encrypted_network_key[0xE], (uint8_t)encrypted_network_key[0xF]);
+
+        if (gcry_cipher_decrypt(hd, network_key, 16, encrypted_network_key, 16)) {
+            ws_debug("can\'t decrypt aes128");
+            return;
+        }
+
+        ws_debug("network_key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", (uint8_t)network_key[0x0], (uint8_t)network_key[0x1], (uint8_t)network_key[0x2], (uint8_t)network_key[0x3], (uint8_t)network_key[0x4], (uint8_t)network_key[0x5], (uint8_t)network_key[0x6], (uint8_t)network_key[0x7], (uint8_t)network_key[0x8], (uint8_t)network_key[0x9], (uint8_t)network_key[0xA], (uint8_t)network_key[0xB], (uint8_t)network_key[0xC], (uint8_t)network_key[0xD], (uint8_t)network_key[0xE], (uint8_t)network_key[0xF]);
+
+        gcry_cipher_close(hd);
+
+        proto_tree_add_bytes(tree, hf_zbee_zcl_touchlink_network_key, tvb, *offset-16, 16, network_key);
+        decrypted_network_key = network_key;
+    }else{
+        expert_add_info_format(pinfo, it_key, &ei_zbee_zcl_touchlink_no_key, "Unsupported key %d, cannot decrypt transport key", key_index);
+    }
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_update_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    uint32_t panid;
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN, &panid);
     *offset += 2;
+    if(decrypted_network_key){
+        zbee_sec_add_key_to_keyring_panid(pinfo, decrypted_network_key, panid);
+    }
+
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -16121,7 +16319,7 @@ dissect_zcl_touchlink_network_update_request(tvbuff_t *tvb, proto_tree *tree, un
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
+dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, struct zcl_touchlink_commissioning_data * commissioning_data)
 {
     static int * const zbee_info_flags[] = {
         &hf_zbee_zcl_touchlink_zbee_type,
@@ -16153,7 +16351,7 @@ dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, unsigned *o
     *offset += 1;
     proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_key_bitmask, ett_zbee_zcl_touchlink_keybits, zll_keybit_flags, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_response_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_touchlink_response_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &commissioning_data->response_id);
     *offset += 4;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset += 8;
@@ -16276,6 +16474,7 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     uint8_t           cmd_id;
     int               hf_cmd_id;
     const value_string *vals_cmd_id;
+    struct zcl_touchlink_commissioning_data *commissioning_data = NULL;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -16304,9 +16503,19 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* All commands in the touchlink commissioning command set (0x00-0x3f)
      * are cluster inter-PAN command frames and begin with a transaction
      * identifier. */
+    unsigned transaction_id = 0;
     if (cmd_id < 0x40) {
-        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &transaction_id);
         offset += 4;
+    }
+
+    ws_noisy("transaction_id=%08X\n", transaction_id);
+    commissioning_data = (struct zcl_touchlink_commissioning_data *)g_hash_table_lookup(zcl_touchlink_commissioning_map, &transaction_id);
+    if(!commissioning_data){
+        ws_debug("creating commissioning_data for transaction_id=%08X\n", transaction_id);
+        commissioning_data = wmem_new0(wmem_file_scope(), struct zcl_touchlink_commissioning_data);
+        commissioning_data->transaction_id = transaction_id;
+        g_hash_table_insert(zcl_touchlink_commissioning_map, &commissioning_data->transaction_id, commissioning_data);
     }
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
@@ -16331,7 +16540,7 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
             case ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_REQUEST:
             case ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_REQUEST:
-                dissect_zcl_touchlink_network_join_request(tvb, tree, &offset);
+                dissect_zcl_touchlink_network_join_request(tvb, pinfo, tree, &offset, commissioning_data);
                 break;
 
             case ZBEE_ZCL_CMD_ID_NETWORK_UPDATE_REQUEST:
@@ -16353,7 +16562,7 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Call the appropriate command dissector */
         switch (cmd_id) {
             case ZBEE_ZCL_CMD_ID_SCAN_RESPONSE:
-                dissect_zcl_touchlink_scan_response(tvb, tree, &offset);
+                dissect_zcl_touchlink_scan_response(tvb, tree, &offset, commissioning_data);
                 break;
 
             case ZBEE_ZCL_CMD_ID_NETWORK_START_RESPONSE:
@@ -16576,6 +16785,10 @@ proto_register_zbee_zcl_touchlink(void)
             { "Encrypted Network Key", "zbee_zcl_general.touchlink.key", FT_BYTES, BASE_NONE, NULL,
             0x0, NULL, HFILL } },
 
+        { &hf_zbee_zcl_touchlink_network_key,
+            { "Decrypted Network Key", "zbee_zcl_general.touchlink.network_key", FT_BYTES, BASE_NONE, NULL,
+            0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_touchlink_init_eui64,
             { "Initiator Extended Address", "zbee_zcl_general.touchlink.init_eui", FT_EUI64, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
@@ -16598,10 +16811,20 @@ proto_register_zbee_zcl_touchlink(void)
         &ett_zbee_zcl_touchlink_groups,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_zbee_zcl_touchlink_no_key,        { "zbee_zcl_general.touchlink.no_key.expert", PI_DECRYPTION, PI_WARN, "Cannot decrypt transport key", EXPFILL }},
+    };
+
+    expert_module_t *expert_zbee_zcl;
+
     /* Register the ZigBee ZCL Touchlink cluster protocol name and description */
     proto_zbee_zcl_touchlink = proto_register_protocol("ZigBee ZCL Touchlink", "ZCL Touchlink", ZBEE_PROTOABBREV_ZCL_TOUCHLINK);
     proto_register_field_array(proto_zbee_zcl_touchlink, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_zbee_zcl = expert_register_protocol(proto_zbee_zcl_touchlink);
+    expert_register_field_array(expert_zbee_zcl, ei, array_length(ei));
+
+    zcl_touchlink_commissioning_map = g_hash_table_new(zcl_touchlink_comissioning_hash, zcl_touchlink_comissioning_equal);
 
     /* Register the ZigBee ZCL Touchlink Commissioning dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_TOUCHLINK, dissect_zbee_zcl_touchlink, proto_zbee_zcl_touchlink);

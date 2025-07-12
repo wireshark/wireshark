@@ -70,6 +70,8 @@ extern bool zbee_sec_ccm_decrypt(const char *, const char *, const char *, const
 
 /* nwk key ring update */
 extern void zbee_sec_add_key_to_keyring(packet_info *, const uint8_t *);
+extern void zbee_sec_add_key_to_keyring_panid(packet_info *, const uint8_t *, int);
+extern bool zbee_sec_get_key_from_keyring(const char *, uint8_t *);
 
 #endif /* PACKET_ZBEE_SECURITY_H */
 
