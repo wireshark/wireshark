@@ -1163,6 +1163,8 @@ Example: 114 is 0x0072
         sfloat_ieee_11073_hash,               /* hash */
         sfloat_ieee_11073_is_zero,            /* is_zero */
         sfloat_ieee_11073_is_negative,        /* is_negative */
+        /* TODO: implement is_nan for IEEE 11073 floats */
+        NULL,                                 /* is_nan */
         NULL,                                 /* len */
         NULL,                                 /* slice */
         NULL,                                 /* bitwise_and */
@@ -1236,6 +1238,8 @@ Example: 36.4 is 0xFF00016C
         float_ieee_11073_hash,               /* hash */
         float_ieee_11073_is_zero,            /* is_zero */
         float_ieee_11073_is_negative,        /* is_negative */
+        /* TODO: implement is_nan for IEEE 11073 floats */
+        NULL,                                /* is_nan */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */

@@ -1043,7 +1043,6 @@ enum match_how {
 };
 
 typedef ft_bool_t (*DFVMCompareFunc)(const fvalue_t*, const fvalue_t*);
-typedef ft_bool_t (*DFVMTestFunc)(const fvalue_t*);
 
 static bool
 cmp_test_internal(enum match_how how, DFVMCompareFunc match_func,
@@ -1069,33 +1068,18 @@ cmp_test_internal(enum match_how how, DFVMCompareFunc match_func,
 }
 
 static bool
-cmp_test_unary(enum match_how how, DFVMTestFunc test_func,
-			const fvalue_t **fv_ptr, size_t fv_count)
-{
-	bool want_all = (how == MATCH_ALL);
-	bool want_any = (how == MATCH_ANY);
-	ft_bool_t have_match;
-
-	for (size_t idx = 0; idx < fv_count; idx++) {
-		have_match = test_func(fv_ptr[idx]);
-		if (want_all && have_match == FT_FALSE) {
-			return false;
-		}
-		else if (want_any && have_match == FT_TRUE) {
-			return true;
-		}
-	}
-	/* want_all || !want_any */
-	return want_all;
-}
-
-static bool
-all_test_unary(dfilter_t *df, DFVMTestFunc func, dfvm_value_t *arg1)
+all_zero(dfilter_t *df, dfvm_value_t *arg1)
 {
 	ws_assert(arg1->type == REGISTER);
 	df_cell_t *rp = &df->registers[arg1->value.numeric];
-	return cmp_test_unary(MATCH_ALL, func,
-			(const fvalue_t **)df_cell_array(rp), df_cell_size(rp));
+
+	for (size_t idx = 0; idx < df_cell_size(rp); idx++) {
+		if(!fvalue_is_zero(df_cell_array(rp)[idx])) {
+			return false;
+		}
+	}
+	return true;
+
 }
 
 static bool
@@ -1747,7 +1731,7 @@ dfvm_apply_full(dfilter_t *df, proto_tree *tree, GPtrArray **fvals)
 				break;
 
 			case DFVM_NOT_ALL_ZERO:
-				accum = !all_test_unary(df, fvalue_is_zero, arg1);
+				accum = !all_zero(df, arg1);
 				break;
 
 			case DFVM_ALL_CONTAINS:

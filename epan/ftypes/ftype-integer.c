@@ -971,6 +971,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1009,6 +1010,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1047,6 +1049,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1085,6 +1088,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1123,6 +1127,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1161,6 +1166,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1199,6 +1205,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1237,6 +1244,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1275,6 +1283,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1313,6 +1322,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1351,6 +1361,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1389,6 +1400,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1427,6 +1439,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1465,6 +1478,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1503,6 +1517,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1541,6 +1556,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1579,6 +1595,7 @@ ftype_register_integers(void)
 		sint64_hash,			/* hash */
 		sint64_is_zero,			/* is_zero */
 		sint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
@@ -1617,6 +1634,7 @@ ftype_register_integers(void)
 		boolean_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* bitwise_and */
@@ -1656,6 +1674,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
@@ -1695,6 +1714,7 @@ ftype_register_integers(void)
 		uint64_hash,			/* hash */
 		uint64_is_zero,			/* is_zero */
 		uint64_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */

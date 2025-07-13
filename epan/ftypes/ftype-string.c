@@ -286,6 +286,7 @@ ftype_register_string(void)
 		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
@@ -324,6 +325,7 @@ ftype_register_string(void)
 		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
@@ -362,6 +364,7 @@ ftype_register_string(void)
 		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
@@ -400,6 +403,7 @@ ftype_register_string(void)
 		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
@@ -438,6 +442,7 @@ ftype_register_string(void)
 		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
@@ -476,6 +481,7 @@ ftype_register_string(void)
 		string_hash,			/* hash */
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */

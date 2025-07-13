@@ -636,6 +636,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -675,6 +676,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -714,6 +716,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -753,6 +756,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -792,6 +796,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -831,6 +836,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -870,6 +876,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -909,6 +916,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
@@ -948,6 +956,7 @@ ftype_register_bytes(void)
 		bytes_hash,			/* hash */
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
+		NULL,				/* is_nan */
 		len,
 		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */

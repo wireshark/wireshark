@@ -183,6 +183,17 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 	return false;
 }
 
+static void
+fail_if_nan_cmp(dfwork_t *dfw, stnode_t *st)
+{
+	if (stnode_type_id(st) == STTYPE_FVALUE) {
+		fvalue_t *fv = stnode_data(st);
+		if (ftype_can_is_nan(fvalue_type_ftenum(fv)) && fvalue_is_nan(fv)) {
+			FAIL(dfw, st, "NaN cannot be used in ordered comparisons");
+		}
+	}
+}
+
 void
 resolve_unparsed(dfwork_t *dfw, stnode_t *st, bool strict)
 {
@@ -1799,6 +1810,8 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case STNODE_OP_LT:
 		case STNODE_OP_LE:
 			check_relation(dfw, st_op, ftype_can_cmp, false, st_node, st_arg1, st_arg2);
+			fail_if_nan_cmp(dfw, st_arg1);
+			fail_if_nan_cmp(dfw, st_arg2);
 			break;
 		case STNODE_OP_CONTAINS:
 			check_relation_contains(dfw, st_node, st_arg1, st_arg2);

@@ -10,6 +10,7 @@
 
 #include <ftypes-int.h>
 #include <float.h>
+#include <math.h>
 #include <wsutil/array.h>
 #include <wsutil/dtoa.h>
 
@@ -123,14 +124,31 @@ val_divide(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr 
 }
 
 static enum ft_result
-cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
+cmp_unordered(double a, double b, int *cmp)
 {
-	/* In C, NaNs compare unordered with everything, including the same NaN.
-	 * The below makes all NaNs compare equal with everything. We could make
-	 * NaNs ordered by having negative NaNs below -inf and positive NaNs above
+	/* In C, NaNs compare unequal with everything, including the same NaN.
+	 * We consider NaNs a single equivalence class and allow equality comparisons. */
+	if (isnan(a) && isnan(b)) {
+		*cmp = 0;
+		return FT_OK;
+	}
+
+	/* NaNs are not orderable so throw an error. This makes NaN compare false with everything
+	 * because the runtime silently ignores errors and instead treats them like a false condition.
+	 * We could instead give NaN a total order by having negative NaNs below -inf and positive NaNs above
 	 * inf. C23 adds the totalorder function (which distinguishes NaNs from
 	 * each other by payload and also distinguishes -0 from 0.)
 	 */
+	return FT_BADARG;
+}
+
+static enum ft_result
+cmp_order(const fvalue_t *a, const fvalue_t *b, int *cmp)
+{
+	if (G_UNLIKELY(isunordered(a->value.floating, b->value.floating))) {
+		return cmp_unordered(a->value.floating, b->value.floating, cmp);
+	}
+
 	if (a->value.floating < b->value.floating)
 		*cmp = -1;
 	else if (a->value.floating > b->value.floating)
@@ -150,6 +168,12 @@ static bool
 val_is_negative(const fvalue_t *fv_a)
 {
 	return fv_a->value.floating < 0;
+}
+
+static bool
+val_is_nan(const fvalue_t *fv_a)
+{
+	return isnan(fv_a->value.floating);
 }
 
 static unsigned
@@ -190,6 +214,7 @@ ftype_register_double(void)
 		val_hash,			/* hash */
 		val_is_zero,			/* is_zero */
 		val_is_negative,		/* is_negative */
+		val_is_nan,			/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* bitwise_and */
@@ -229,6 +254,7 @@ ftype_register_double(void)
 		val_hash,			/* hash */
 		val_is_zero,			/* is_zero */
 		val_is_negative,		/* is_negative */
+		val_is_nan,			/* is_nan */
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* bitwise_and */

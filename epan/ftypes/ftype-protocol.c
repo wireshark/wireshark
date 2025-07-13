@@ -396,6 +396,7 @@ ftype_register_tvbuff(void)
 		val_hash,
 		is_zero,
 		NULL,
+		NULL,
 		len,
 		(FvalueSlice)slice,
 		NULL,

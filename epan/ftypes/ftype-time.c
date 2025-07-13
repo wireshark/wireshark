@@ -718,6 +718,7 @@ ftype_register_time(void)
 		time_hash,			/* hash */
 		time_is_zero,			/* is_zero */
 		time_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
@@ -756,6 +757,7 @@ ftype_register_time(void)
 		time_hash,			/* hash */
 		time_is_zero,			/* is_zero */
 		time_is_negative,		/* is_negative */
+		NULL,				/* is_nan */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */

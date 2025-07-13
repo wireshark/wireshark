@@ -432,6 +432,15 @@ ftype_can_is_negative(enum ftenum ftype)
 }
 
 bool
+ftype_can_is_nan(enum ftenum ftype)
+{
+	const ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->is_nan ? true : false;
+}
+
+bool
 ftype_can_val_to_sinteger(enum ftenum ftype)
 {
 	const ftype_t	*ft;
@@ -1379,16 +1388,22 @@ fvalue_matches(const fvalue_t *a, const ws_regex_t *re)
 	return yes ? FT_TRUE : FT_FALSE;
 }
 
-ft_bool_t
+bool
 fvalue_is_zero(const fvalue_t *a)
 {
-	return a->ftype->is_zero(a) ? FT_TRUE : FT_FALSE;
+	return a->ftype->is_zero(a);
 }
 
-ft_bool_t
+bool
 fvalue_is_negative(const fvalue_t *a)
 {
-	return a->ftype->is_negative(a) ? FT_TRUE : FT_FALSE;
+	return a->ftype->is_negative(a);
+}
+
+bool
+fvalue_is_nan(const fvalue_t *a)
+{
+	return a->ftype->is_nan(a);
 }
 
 static fvalue_t *

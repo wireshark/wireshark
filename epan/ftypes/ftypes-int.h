@@ -152,6 +152,7 @@ struct _ftype_t {
 	FvalueHashFunc		hash;
 	FvalueIs		is_zero;
 	FvalueIs		is_negative;
+	FvalueIs		is_nan;
 	FvalueLen		len;
 	FvalueSlice		slice;
 	FvalueBinaryOp		bitwise_and;
