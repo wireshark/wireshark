@@ -156,7 +156,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	wmem_scopes.h
 	wscbor.h
 	wscbor_enc.h
-	x264_prt_id.h
 	xdlc.h
 )
 
