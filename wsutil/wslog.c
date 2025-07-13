@@ -442,6 +442,51 @@ int ws_log_parse_args(int* argc, char* argv[],
         case LONGOPT_WSLOG_LOG_NOISY:
             ws_log_set_noisy_filter(ws_optarg);
             break;
+        case 'o':
+            if (g_str_has_prefix(ws_optarg, "console.log.level:")) {
+                uint32_t mask;
+                enum ws_log_level level;
+                const char* mask_str = ws_optarg + strlen("console.log.level:");
+                if (*mask_str == '\0') {
+                    print_err(vcmdarg_err, exit_failure,
+                        "Missing value to 'console.log.level' option.");
+                    break;
+                }
+
+                if (!ws_basestrtou32(mask_str, NULL, &mask, 10)) {
+                    print_err(vcmdarg_err, exit_failure,
+                        "%s is not a valid decimal number.", mask_str);
+                    break;
+                }
+
+                /*
+                 * The lowest priority bit in the mask defines the level.
+                 */
+                if (mask & G_LOG_LEVEL_DEBUG)
+                    level = LOG_LEVEL_DEBUG;
+                else if (mask & G_LOG_LEVEL_INFO)
+                    level = LOG_LEVEL_INFO;
+                else if (mask & G_LOG_LEVEL_MESSAGE)
+                    level = LOG_LEVEL_MESSAGE;
+                else if (mask & G_LOG_LEVEL_WARNING)
+                    level = LOG_LEVEL_WARNING;
+                else if (mask & G_LOG_LEVEL_CRITICAL)
+                    level = LOG_LEVEL_CRITICAL;
+                else if (mask & G_LOG_LEVEL_ERROR)
+                    level = LOG_LEVEL_ERROR;
+                else
+                    level = LOG_LEVEL_NONE;
+
+                if (level != LOG_LEVEL_NONE) {
+                    ws_log_set_level(level);
+                } else {
+                    /* Some values (like zero) might not contain any meaningful bits.
+                     * Throwing an error in that case seems appropriate. */
+                    print_err(vcmdarg_err, exit_failure,
+                        "Value %s is not a valid log mask.", mask_str);
+                }
+            }
+            break;
         default:
             /* Ignore options not found because they are probably supported by the application */
             break;

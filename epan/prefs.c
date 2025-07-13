@@ -5954,41 +5954,7 @@ set_pref(char *pref_name, const char *value, void *private_data,
     } else if (deprecated_port_pref(pref_name, value)) {
          /* Handled within deprecated_port_pref() if found */
     } else if (strcmp(pref_name, "console.log.level") == 0) {
-
-        uint32_t mask;
-        enum ws_log_level level;
-
-        if (!ws_basestrtou32(value, NULL, &mask, 10)) {
-            ws_warning("%s is not a valid decimal number for %s.", value, pref_name);
-            return PREFS_SET_SYNTAX_ERR;
-        }
-
-        /*
-         * The lowest priority bit in the mask defines the level.
-         */
-        if (mask & G_LOG_LEVEL_DEBUG)
-            level = LOG_LEVEL_DEBUG;
-        else if (mask & G_LOG_LEVEL_INFO)
-            level = LOG_LEVEL_INFO;
-        else if (mask & G_LOG_LEVEL_MESSAGE)
-            level = LOG_LEVEL_MESSAGE;
-        else if (mask & G_LOG_LEVEL_WARNING)
-            level = LOG_LEVEL_WARNING;
-        else if (mask & G_LOG_LEVEL_CRITICAL)
-            level = LOG_LEVEL_CRITICAL;
-        else if (mask & G_LOG_LEVEL_ERROR)
-            level = LOG_LEVEL_ERROR;
-        else
-            level = LOG_LEVEL_NONE;
-
-        if (level == LOG_LEVEL_NONE) {
-            /* Some values (like zero) might not contain any meaningful bits.
-             * Throwing an error in that case seems appropriate. */
-            ws_warning("Value %s is not a valid log mask for %s.", value, pref_name);
-            return PREFS_SET_SYNTAX_ERR;
-        }
-
-        ws_log_set_level(level);
+        /* Handled on the command line within ws_log_parse_args() */
         return PREFS_SET_OK;
     } else {
         /* Handle deprecated "global" options that don't have a module
