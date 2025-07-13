@@ -88,6 +88,7 @@ public:
     bool isDefault();
     virtual bool isValid();
     bool isRequired();
+    bool isSufficient();
     bool reload();
 
     QString prefKey(const QString & device_name,

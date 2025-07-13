@@ -144,17 +144,15 @@ void ExtcapArgumentFileSelection::clearFilename()
 
 bool ExtcapArgumentFileSelection::isValid()
 {
-    bool valid = false;
+    bool valid = true;
 
     if (textBox->text().length() > 0)
     {
         if (_argument->fileexists)
             valid = QFileInfo(textBox->text()).exists();
-        else
-            valid = true;
     }
-    else if (! isRequired())
-        valid = true;
+    else if (isRequired())
+        valid = false;
 
     QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_filter_invalid_bg).name();
     QString txtStyle("QLineEdit { background-color: %1; } ");

@@ -505,7 +505,15 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_REQUIRED)))
                 != NULL) {
-            target_arg->is_required = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
+            if (g_strcmp0(param_value, EXTCAP_PARAM_REQUIRED_SUFFICIENT) == 0)
+            {
+                target_arg->is_required = false;
+                target_arg->is_sufficient = true;
+            }
+            else
+            {
+                target_arg->is_required = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
+            }
         }
 
         if ((param_value = (char *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TYPE)))

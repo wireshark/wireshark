@@ -99,6 +99,9 @@ typedef struct _extcap_complex {
     char * _val;
 } extcap_complex;
 
+/* required=sufficient has a special meaning */
+#define EXTCAP_PARAM_REQUIRED_SUFFICIENT "sufficient"
+
 /* An argument sentence and accompanying options */
 typedef struct _extcap_arg {
     int arg_num;
@@ -112,6 +115,7 @@ typedef struct _extcap_arg {
     bool fileexists;
 
     bool is_required;
+    bool is_sufficient;
     bool save;
 
     bool reload;

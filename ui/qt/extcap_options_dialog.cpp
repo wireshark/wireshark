@@ -251,6 +251,7 @@ void ExtcapOptionsDialog::updateWidgets()
     QWidget * lblWidget = NULL, *editWidget = NULL;
     ExtcapArgument * argument = NULL;
     bool allowStart = true;
+    extcap_argument_sufficient sufficient = EXTCAP_ARGUMENT_SUFFICIENT_NOTSET;
 
     unsigned int counter = 0;
 
@@ -360,12 +361,22 @@ void ExtcapOptionsDialog::updateWidgets()
             if (argument->isRequired() && ! argument->isValid())
                 allowStart = false;
 
+            if (argument->isSufficient() && sufficient != EXTCAP_ARGUMENT_SUFFICIENT_OK)
+            {
+                sufficient = EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED;
+                if (argument->isValid())
+                    sufficient = EXTCAP_ARGUMENT_SUFFICIENT_OK;
+            }
+
             connect(argument, &ExtcapArgument::valueChanged, this, &ExtcapOptionsDialog::anyValueChanged);
 
             counter++;
         }
         ++iter;
     }
+
+    if (sufficient == EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED)
+        allowStart = false;
 
     if (counter > 0)
     {

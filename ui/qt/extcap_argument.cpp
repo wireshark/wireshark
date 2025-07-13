@@ -976,6 +976,14 @@ bool ExtcapArgument::isRequired()
     return false;
 }
 
+bool ExtcapArgument::isSufficient()
+{
+    if (_argument != NULL)
+        return _argument->is_sufficient;
+
+    return false;
+}
+
 bool ExtcapArgument::reload()
 {
     if (_argument != NULL)

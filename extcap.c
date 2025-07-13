@@ -1100,7 +1100,8 @@ _extcap_requires_configuration_int(const char *ifname, bool check_required)
 {
     GList *arguments = 0;
     GList *walker = 0, * item = 0;
-    bool found = false;
+    bool found = false, isset = false;
+    extcap_argument_sufficient sufficient = EXTCAP_ARGUMENT_SUFFICIENT_NOTSET;
 
     extcap_ensure_all_interfaces_loaded();
 
@@ -1121,7 +1122,7 @@ _extcap_requires_configuration_int(const char *ifname, bool check_required)
                     found = true;
                 }
                 /* Following branch is executed when check of required items is requested */
-                else if (arg->is_required)
+                else if (arg->is_required || arg->is_sufficient)
                 {
                     const char *stored = NULL;
                     const char *defval = NULL;
@@ -1136,19 +1137,31 @@ _extcap_requires_configuration_int(const char *ifname, bool check_required)
                         defval = arg->default_complex->_val;
                     }
 
+                    if (arg->arg_type == EXTCAP_ARG_FILESELECT)
+                    {
+                        isset = (arg->fileexists ? (file_exists(defval) || file_exists(stored)) : (defval || (stored && *stored)));
+                    }
+                    else
+                    {
+                        isset = (defval || (stored && *stored));
+                    }
+
                     if (arg->is_required)
                     {
-                        if (!defval && (!stored || !*stored))
+                        if (!isset)
                         {
                             found = true;
                         }
                     }
 
-                    if (arg->arg_type == EXTCAP_ARG_FILESELECT)
+                    if (arg->is_sufficient && sufficient != EXTCAP_ARGUMENT_SUFFICIENT_OK)
                     {
-                        if (arg->fileexists && !(file_exists(defval) || file_exists(stored)))
+                        sufficient = EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED;
+
+                        /* If required=sufficient is used, we just need to have one of the required="sufficient" attributes set. */
+                        if (isset)
                         {
-                            found = true;
+                            sufficient = EXTCAP_ARGUMENT_SUFFICIENT_OK;
                         }
                     }
                 }
@@ -1159,6 +1172,11 @@ _extcap_requires_configuration_int(const char *ifname, bool check_required)
         walker = walker->next;
     }
     extcap_free_if_configuration(arguments, true);
+
+    if (sufficient == EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED)
+    {
+        found = true;
+    }
 
     return found;
 }

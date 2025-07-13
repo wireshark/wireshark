@@ -64,6 +64,12 @@ typedef enum {
     EXTCAP_FILTER_INVALID
 } extcap_filter_status;
 
+typedef enum {
+    EXTCAP_ARGUMENT_SUFFICIENT_NOTSET,
+    EXTCAP_ARGUMENT_SUFFICIENT_REQUIRED,
+    EXTCAP_ARGUMENT_SUFFICIENT_OK
+} extcap_argument_sufficient;
+
 typedef void (*extcap_plugin_description_callback)(const char *, const char *,
                                                   const char *, const char *,
                                                   void *);
