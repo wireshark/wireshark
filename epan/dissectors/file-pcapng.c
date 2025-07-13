@@ -2791,7 +2791,7 @@ proto_register_pcapng(void)
         { &ei_block_length_below_block_content_length, { "pcapng.block_length_below_block_content_length", PI_PROTOCOL, PI_ERROR, "Block length is < the length of the contents of the block", EXPFILL }},
         { &ei_block_length_not_multiple_of_4, { "pcapng.block_length_not_multiple_of4", PI_PROTOCOL, PI_ERROR, "Block length is not a multiple of 4", EXPFILL }},
         { &ei_block_lengths_dont_match, { "pcapng.block_lengths_dont_match", PI_PROTOCOL, PI_ERROR, "Block length in trailer differs from block length in header", EXPFILL }},
-        { &ei_block_extraneous_data, { "pcapng.block.extraneous.data", PI_PROTOCOL, PI_NOTE, "Extraneous data in block after END-OF-OPTION option", EXPFILL }},
+        { &ei_block_extraneous_data, { "pcapng.block.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous data in block after END-OF-OPTION option", EXPFILL }},
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
         { &ei_missing_idb, { "pcapng.no_interfaces", PI_PROTOCOL, PI_ERROR, "No Interface Description before block that requires it", EXPFILL }},
