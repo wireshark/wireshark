@@ -10,7 +10,6 @@
 
 #include "packet-bluetooth.h"
 
-
 const value_string bluetooth_uuid_vals[] = {
     /* Protocol Identifiers - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/protocol_identifiers.yaml */
     { 0x0001,   "SDP" },
