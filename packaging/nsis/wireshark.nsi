@@ -298,7 +298,7 @@ Function .onInit
 
   !if ${WIRESHARK_TARGET_PLATFORM} == "x64"
     ${If} ${IsNativeARM64}
-      MessageBox MB_OK "You're installing the x64 version of Wireshark on an Arm64 system.$\nThe native Arm64 installer might work better." /SD IDOK
+      MessageBox MB_OK "You're installing the x64 version of Wireshark on an Arm64 system.$\nWe recommend using the native Arm64 installer instead." /SD IDOK
     ${EndIf}
   !endif
 
