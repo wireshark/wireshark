@@ -599,7 +599,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         n += siz;
         s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(shrub, hf_custom_type_name, tvb, n, siz, s);
-        n += siz;
         break;
 
     /* Insert */
@@ -680,7 +679,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         proto_tree_add_item(shrub, hf_logical_lsn_transaction, tvb, n, 8, ENC_BIG_ENDIAN);
         n += 8;
         dissect_pg_epoch(tvb, n, shrub, hf_logical_prepare_commit_ts);
-        n += 8;
         break;
 
     /* Stream Abort */
