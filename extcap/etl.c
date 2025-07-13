@@ -155,8 +155,9 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
 
     SUPER_EVENT_TRACE_PROPERTIES super_trace_properties = { 0 };
     super_trace_properties.prop.Wnode.BufferSize = sizeof(SUPER_EVENT_TRACE_PROPERTIES);
-    super_trace_properties.prop.Wnode.ClientContext = 2;
+    super_trace_properties.prop.Wnode.ClientContext = 2; // "System" Clock Type
     super_trace_properties.prop.Wnode.Flags = WNODE_FLAG_TRACED_GUID;
+    super_trace_properties.prop.BufferSize = 200;  // 200KB (like traceview)
     super_trace_properties.prop.LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
     super_trace_properties.prop.LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
     TRACEHANDLE traceControllerHandle = (TRACEHANDLE)INVALID_HANDLE_VALUE;
@@ -206,6 +207,11 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                         if (value->Type == EvtVarTypeGuid && value->GuidVal)
                         {
                             g_provider_filters[provider_idx].ProviderId = *(value->GuidVal);
+                            /*
+                             * Set default logging values (same as traceview.exe)
+                             */
+                            g_provider_filters[provider_idx].Keyword = 0xffffffffffffffffL;  // ANY
+                            g_provider_filters[provider_idx].Level = 5;  // ALL
                         }
                         else
                         {
