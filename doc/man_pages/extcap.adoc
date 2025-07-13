@@ -78,6 +78,7 @@ Argument type for UI filtering for raw, or UI type for selector:
     radio (display group of radio buttons with provided values, all values as strings)
     fileselect (display a dialog to select a file from the filesystem, value as string)
     multicheck (display a textbox for selecting multiple options, values as strings)
+    table (display a table that is populated by the user, selections can be configured, values as commandlines arguments)
     password (display a textbox with masked text)
     timestamp (display a calendar)
 --
@@ -119,10 +120,43 @@ Example 4:
     arg {number=0}{call=--username}{display=Username}{type=string}
     arg {number=1}{call=--password}{display=Password}{type=password}
 
-Example 5:
+Example 5: timestamp
 
     arg {number=0}{call=--start}{display=Start Time}{type=timestamp}
     arg {number=1}{call=--end}{display=End Time}{type=timestamp}
+
+Example 6: multicheck
+
+    arg {number=0}{call=--device}{display=Device}{type=multicheck}
+    value {arg=0}{value=USBDEV}{display=USB devices}{enabled=false}
+    value {arg=0}{value=/dev/sysfs/usb/foo/123}{display=Ubertooth One sn 1234}{parent=USBDEV}
+    value {arg=0}{value=/dev/sysfs/usb/foo/456}{display=Ubertooth One sn 8901}{parent=USBDEV}
+    value {arg=0}{value=PCIDEV}{display=PCI devices}{enabled=false}
+    value {arg=0}{value=/sys/devices/pci123}{display=Device 1}{parent=PCIDEV}
+    value {arg=0}{value=/sys/devices/pci456}{display=Device 2}{parent=PCIDEV}
+
+== Table field
+
+The "table" field is a bit different, in that its values can have additional configuration options.
+The values can either be entered manually by the user, or a list of available values can be provided using the same
+API as "multicheck".
+Unlike most APIs, the value is provided using a commandline-like API, separated by spaces instead of comas. For instance,
+a configured "myparam" attribute where the user selected three values (1, 2 and 3) would receive:
+
+    --myparam "1 2 3"
+
+If a "prefix" is configured to be "--p", it would receive the following:
+
+    --myparam "--p 1 --p 2 --p 3"
+
+The values selected in a table field may have specific configuration options, if "configurable=true" for the "multicheck" field.
+In this case, the extcap will be called again when the user presses the configuration wheel that matches a value in the table,
+with the additional "--extcap-config-option-name <option_name> --extcap-config-option-value <option_value>" with no prefix.
+An extcap program should respond with an additional set of arguments, which will be opened in a popup. Once those are configured,
+the extcap might get the following, assuming for instance that an additional "param1" is requested when value is 1, and "param2"
+when value is 2.
+
+    --myparam "--p 1 --param1 1 --p 2 --param2 true --p 3"
 
 == Security Considerations
 
