@@ -142,7 +142,7 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.8.4
+GNUTLS_VERSION=3.8.10
 GNUTLS_SHA256=2bea4e154794f3f00180fa2a5c51fe8b005ac7a31cd58bd44cdfa7f36ebc3a9b
 if [ "$GNUTLS_VERSION" ]; then
     #
@@ -152,7 +152,7 @@ if [ "$GNUTLS_VERSION" ]; then
     #
     GNUTLS_MAJOR_VERSION="$( expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*' )"
     GNUTLS_MINOR_VERSION="$( expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-    NETTLE_VERSION=3.9.1
+    NETTLE_VERSION=3.10.2
 
     #
     # And, in turn, Nettle requires GMP.
@@ -161,10 +161,10 @@ if [ "$GNUTLS_VERSION" ]; then
 
     #
     # And p11-kit
-    P11KIT_VERSION=0.25.3
+    P11KIT_VERSION=0.25.5
 
     # Which requires libtasn1
-    LIBTASN1_VERSION=4.19.0
+    LIBTASN1_VERSION=4.20.0
 fi
 # lua_bitop.c has been ported to 5.3 and 5.4 so use the latest release.
 # We may still need to check for compatibility issues (we'd want Lua
