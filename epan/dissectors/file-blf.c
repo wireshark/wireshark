@@ -1,7 +1,7 @@
 /* file-blf.c
  * BLF File Format.
- * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2020-2021 Dr. Lars Voelker
+ * By Dr. Lars Völker <lars.voelker@technica-engineering.de>
+ * Copyright 2020-2025 Dr. Lars Völker
   *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -55,8 +55,19 @@ static int hf_blf_lobj_hdr_len;
 static int hf_blf_lobj_hdr_type;
 static int hf_blf_lobj_obj_len;
 static int hf_blf_lobj_obj_type;
+static int hf_blf_lobj_obj_flags;
+static int hf_blf_lobj_obj_flags_time_ten_ms;
+static int hf_blf_lobj_obj_flags_time_one_ns;
+static int hf_blf_lobj_client_index;
+static int hf_blf_lobj_time_stamp_status;
+static int hf_blf_lobj_reserved;
+static int hf_blf_lobj_obj_version;
+static int hf_blf_lobj_obj_timestamp;
+static int hf_blf_lobj_org_timestamp;
 static int hf_blf_lobj_hdr_remains;
 static int hf_blf_lobj_payload;
+static int hf_blf_lobj_payload_channel_8bit;
+static int hf_blf_lobj_payload_channel_16bit;
 
 static int hf_blf_cont_comp_method;
 static int hf_blf_cont_res1;
@@ -142,6 +153,7 @@ static int ett_blf;
 static int ett_blf_header;
 static int ett_blf_obj;
 static int ett_blf_obj_header;
+static int ett_blf_obj_header_flags;
 static int ett_blf_logcontainer_payload;
 static int ett_blf_app_text_payload;
 
@@ -270,6 +282,12 @@ static const value_string blf_object_names[] = {
     { BLF_OBJTYPE_ATTRIBUTE_EVENT,                  "Attribute Event" },
     { BLF_OBJTYPE_DISTRIBUTED_OBJECT_CHANGE,        "Distributed Object Change" },
     { BLF_OBJTYPE_ETHERNET_PHY_STATE,               "Ethernet PHY State" },
+    { BLF_OBJTYPE_MACSEC_STATUS,                    "MACsec Status" },
+    { BLF_OBJTYPE_10BASET1S_STATUS,                 "10BASE-T1S Status" },
+    { BLF_OBJTYPE_10BASET1S_STATISTIC,              "10BASE-T1S Statistic" },
+    { BLF_OBJTYPE_TUNNEL_PROTO_DECODER_EVENT,       "Tunnel Protocol Decoder Event" },
+    { BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME,             "CAN XL Channel Frame" },
+    { BLF_OBJTYPE_CAN_XL_CHANNEL_ERRORFRAME,        "CAN XL Channel Error" },
     { 0, NULL }
 };
 
@@ -515,6 +533,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     tvbuff_t      *sub_tvb;
 
     uint32_t       hdr_length;
+    uint32_t       hdr_type;
     uint32_t       obj_length;
     unsigned       obj_type;
     uint32_t       comp_method;
@@ -532,20 +551,59 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
     proto_tree_add_item(subtree, hf_blf_lobj_magic, tvb, offset, 4, ENC_NA);
     offset += 4;
+
     ti = proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_hdr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &hdr_length);
     if (hdr_length < sizeof (struct blf_blockheader)) {
         expert_add_info(pinfo, ti, &ei_blf_object_header_length_too_short);
     }
     offset += 2;
-    proto_tree_add_item(subtree, hf_blf_lobj_hdr_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_hdr_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &hdr_type);
     offset += 2;
+
     ti = proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_obj_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &obj_length);
     if (obj_length < hdr_length) {
         expert_add_info(pinfo, ti, &ei_blf_object_length_less_than_header_length);
     }
     offset += 4;
+
     proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_obj_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &obj_type);
     offset += 4;
+
+    if ((int)hdr_length > 16 && (hdr_type == 1 || hdr_type == 2)) {
+        static int* const obj_header_flags[] = {
+            &hf_blf_lobj_obj_flags_time_ten_ms,
+            &hf_blf_lobj_obj_flags_time_one_ns,
+            NULL
+        };
+
+        proto_tree_add_bitmask(subtree, tvb, offset, hf_blf_lobj_obj_flags, ett_blf_obj_header_flags, obj_header_flags, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        if (hdr_type == 1) {
+            proto_tree_add_item(subtree, hf_blf_lobj_client_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        } else if (hdr_type == 2) {
+            proto_tree_add_item(subtree, hf_blf_lobj_time_stamp_status, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(subtree, hf_blf_lobj_reserved, tvb, offset + 1, 1, ENC_NA);
+        }
+        offset += 2;
+
+        proto_tree_add_item(subtree, hf_blf_lobj_obj_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(subtree, hf_blf_lobj_obj_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        offset += 8;
+
+        if (hdr_type == 2) {
+            proto_tree_add_item(subtree, hf_blf_lobj_org_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+        }
+    }
+
+    if ((offset - offset_orig) - hdr_length > 0) {
+        proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+        offset = offset_orig + hdr_length;
+    }
     proto_item_set_end(ti_lobj_hdr, tvb, offset);
 
     /* check if the whole object is present or if it was truncated */
@@ -596,10 +654,6 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
         {
             unsigned source;
             unsigned textlength;
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
-            }
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
@@ -677,11 +731,6 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             uint32_t namelength;
             uint32_t datalength;
 
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
-            }
-
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
 
@@ -724,10 +773,6 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
                 &hf_blf_eth_status_flags1_b0,
                 NULL
             };
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
-            }
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
@@ -772,11 +817,6 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             break;
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
         {
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
-            }
-
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
 
@@ -817,11 +857,6 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             uint32_t triggerblocknamelength;
             uint32_t triggerconditionlength;
 
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
-            }
-
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
 
@@ -850,10 +885,6 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
                 &hf_blf_eth_phy_state_flags1_b0,
                 NULL
             };
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
-            }
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
@@ -879,12 +910,54 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
         }
         break;
         default:
-            if (offset - offset_orig < (int)hdr_length) {
-                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
-                offset = offset_orig + hdr_length;
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            /* lets add at least the channels for the formats not being parsed */
+            if ((BLF_OBJTYPE_CAN_MESSAGE <= obj_type && obj_type <= BLF_OBJTYPE_CAN_STATISTIC) ||
+                (BLF_OBJTYPE_LIN_MESSAGE <= obj_type && obj_type <= BLF_OBJTYPE_MOST_STATISTIC) ||
+                (BLF_OBJTYPE_FLEXRAY_DATA <= obj_type && obj_type <= BLF_OBJTYPE_FLEXRAY_STATUS) ||
+                (BLF_OBJTYPE_FLEXRAY_ERROR <= obj_type && obj_type <= BLF_OBJTYPE_FLEXRAY_RCVMESSAGE) ||
+                (BLF_OBJTYPE_LIN_STATISTIC <= obj_type && obj_type <= BLF_OBJTYPE_J1708_MESSAGE) ||
+                (BLF_OBJTYPE_FLEXRAY_RCVMESSAGE_EX <= obj_type && obj_type <= BLF_OBJTYPE_MOST_STRESS) ||
+                (BLF_OBJTYPE_CAN_ERROR_EXT <= obj_type && obj_type <= BLF_OBJTYPE_CAN_DRIVER_ERROR_EXT) ||
+                (BLF_OBJTYPE_MOST_150_MESSAGE <= obj_type && obj_type <= BLF_OBJTYPE_CAN_MESSAGE2) ||
+                (obj_type == BLF_OBJTYPE_LIN_DISTURBANCE_EVENT) ||
+                (BLF_OBJTYPE_WLAN_FRAME <= obj_type && obj_type <= BLF_OBJTYPE_MOST_ECL) ||
+                (obj_type == BLF_OBJTYPE_AFDX_STATISTIC) ||
+                (obj_type == BLF_OBJTYPE_CAN_FD_MESSAGE) ||
+                (obj_type == BLF_OBJTYPE_ETHERNET_STATUS) ||
+                (BLF_OBJTYPE_AFDX_STATUS <= obj_type && obj_type <= BLF_OBJTYPE_A429_BUS_STATISTIC) ||
+                (obj_type == BLF_OBJTYPE_ETHERNET_STATISTIC) ||
+                (BLF_OBJTYPE_ETHERNET_PHY_STATE <= obj_type && obj_type <= BLF_OBJTYPE_MACSEC_STATUS)) {
+                /* 16bit channel */
+                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            } else if ((obj_type == BLF_OBJTYPE_CAN_FD_MESSAGE_64) ||
+                       (obj_type == BLF_OBJTYPE_CAN_FD_ERROR_64) ||
+                       (obj_type == BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME) ||
+                       (obj_type == BLF_OBJTYPE_CAN_XL_CHANNEL_ERRORFRAME)) {
+                /* 8 bit channel */
+                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_8bit, tvb, offset, 1, ENC_NA);
+            } else if (obj_type == BLF_OBJTYPE_ETHERNET_RX_ERROR) {
+                /* 16 bit channel after 2 byte offset */
+                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+            } else if ((obj_type == BLF_OBJTYPE_GPS_EVENT) ||
+                       (obj_type == BLF_OBJTYPE_A429_MESSAGE) ||
+                       (BLF_OBJTYPE_ETHERNET_FRAME_EX <= obj_type && obj_type <= BLF_OBJTYPE_ETHERNET_ERROR_FORWARDED)) {
+                /* 16 bit channel after 4 byte offset */
+                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+            } else if ((obj_type == BLF_OBJTYPE_ETHERNET_FRAME) ||
+                       (obj_type == BLF_OBJTYPE_AFDX_FRAME)) {
+                /* 16 bit channel after 6 byte offset */
+                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 6, 2, ENC_LITTLE_ENDIAN);
+            } else if ((BLF_OBJTYPE_LIN_MESSAGE2 <= obj_type && obj_type <= BLF_OBJTYPE_LIN_LONG_DOM_SIG) ||
+                       (obj_type == BLF_OBJTYPE_LIN_LONG_DOM_SIG) ||
+                       (obj_type == BLF_OBJTYPE_LIN_LONG_DOM_SIG2) ||
+                       (obj_type == BLF_OBJTYPE_LIN_UNEXPECTED_WAKEUP)) {
+                /* 16 bit channel after 12 byte offset */
+                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 12, 2, ENC_LITTLE_ENDIAN);
             }
 
-            proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             offset = offset_orig + obj_length;
             break;
     }
@@ -1224,10 +1297,33 @@ proto_register_file_blf(void) {
             { "Object Length", "blf.object.header.object_length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_lobj_obj_type,
             { "Object Type", "blf.object.header.object_type", FT_UINT32, BASE_DEC, VALS(blf_object_names), 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_obj_flags,
+            { "Object Flags", "blf.object.header.object_flags", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_obj_flags_time_ten_ms,
+            { "Time Resolution 10ms", "blf.object.header.object_flags.timeres_ten_ms", FT_BOOLEAN, 32, NULL, 0x00000001,  NULL, HFILL } },
+        { &hf_blf_lobj_obj_flags_time_one_ns,
+            { "Time Resolution 1ns", "blf.object.header.object_flags.timeres_ten_ms", FT_BOOLEAN, 32, NULL, 0x00000002,  NULL, HFILL } },
+        { &hf_blf_lobj_client_index,
+            { "Client Index", "blf.object.header.client_index", FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_time_stamp_status,
+            { "Time Stamp Status", "blf.object.header.time_stamp_status", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_reserved,
+            { "Reserved", "blf.object.header.reserved", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_obj_version,
+            { "Object Version", "blf.object.header.object_version", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_obj_timestamp,
+            { "Object Timestamp", "blf.object.header.object_timestamp", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_org_timestamp,
+            { "Original Timestamp", "blf.object.header.original_timestamp", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+
         { &hf_blf_lobj_hdr_remains,
             { "Header unparsed", "blf.object.header.unparsed", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_lobj_payload,
             { "Payload", "blf.object.payload", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_lobj_payload_channel_8bit,
+            { "Channel", "blf.object.payload.channel_8bit", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_lobj_payload_channel_16bit,
+            { "Channel", "blf.object.payload.channel_16bit", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
 
         { &hf_blf_cont_comp_method,
             { "Compression Method", "blf.object.logcontainer.compression_method", FT_UINT16, BASE_HEX, VALS(blf_compression_names), 0x00, NULL, HFILL }},
@@ -1395,6 +1491,7 @@ proto_register_file_blf(void) {
         &ett_blf_header,
         &ett_blf_obj,
         &ett_blf_obj_header,
+        &ett_blf_obj_header_flags,
         &ett_blf_logcontainer_payload,
         &ett_blf_app_text_payload,
     };

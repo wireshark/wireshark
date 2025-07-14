@@ -764,6 +764,7 @@ typedef struct blf_ethernet_phystate {
 #define BLF_OBJTYPE_MOST_CTRL                    23
 #define BLF_OBJTYPE_MOST_LIGHTLOCK               24
 #define BLF_OBJTYPE_MOST_STATISTIC               25
+
 #define BLF_OBJTYPE_FLEXRAY_DATA                 29
 #define BLF_OBJTYPE_FLEXRAY_SYNC                 30
 #define BLF_OBJTYPE_CAN_DRIVER_ERROR             31
@@ -787,6 +788,7 @@ typedef struct blf_ethernet_phystate {
 #define BLF_OBJTYPE_FLEXRAY_STARTCYCLE           49
 #define BLF_OBJTYPE_FLEXRAY_RCVMESSAGE           50
 #define BLF_OBJTYPE_REALTIMECLOCK                51
+
 #define BLF_OBJTYPE_LIN_STATISTIC                54
 #define BLF_OBJTYPE_J1708_MESSAGE                55
 #define BLF_OBJTYPE_J1708_VIRTUAL_MSG            56
@@ -838,8 +840,10 @@ typedef struct blf_ethernet_phystate {
 #define BLF_OBJTYPE_ETHERNET_RX_ERROR           102
 #define BLF_OBJTYPE_ETHERNET_STATUS             103
 #define BLF_OBJTYPE_CAN_FD_ERROR_64             104
+
 #define BLF_OBJTYPE_AFDX_STATUS                 106
 #define BLF_OBJTYPE_AFDX_BUS_STATISTIC          107
+
 #define BLF_OBJTYPE_AFDX_ERROR_EVENT            109
 #define BLF_OBJTYPE_A429_ERROR                  110
 #define BLF_OBJTYPE_A429_STATUS                 111
@@ -865,6 +869,14 @@ typedef struct blf_ethernet_phystate {
 #define BLF_OBJTYPE_ATTRIBUTE_EVENT             131
 #define BLF_OBJTYPE_DISTRIBUTED_OBJECT_CHANGE   132
 #define BLF_OBJTYPE_ETHERNET_PHY_STATE          133
+#define BLF_OBJTYPE_MACSEC_STATUS               134
+
+#define BLF_OBJTYPE_10BASET1S_STATUS            136
+#define BLF_OBJTYPE_10BASET1S_STATISTIC         137
+#define BLF_OBJTYPE_TUNNEL_PROTO_DECODER_EVENT  138
+#define BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME        139
+#define BLF_OBJTYPE_CAN_XL_CHANNEL_ERRORFRAME   140
+
 
 #endif
 
