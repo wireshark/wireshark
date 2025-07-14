@@ -498,6 +498,8 @@ static int hf_nfs4_minorversion;
 static int hf_nfs4_open_owner;
 static int hf_nfs4_lock_owner;
 static int hf_nfs4_new_lock_owner;
+static int hf_nfs4_ond_server_will_push_deleg;
+static int hf_nfs4_ond_server_will_signal_avail;
 static int hf_nfs4_sec_oid;
 static int hf_nfs4_qop;
 static int hf_nfs4_secinfo_rpcsec_gss_info_service;
@@ -833,6 +835,7 @@ static int ett_nfs4_dir_entry;
 static int ett_nfs4_pathname;
 static int ett_nfs4_change_info;
 static int ett_nfs4_open_delegation;
+static int ett_nfs4_open_why_no_deleg;
 static int ett_nfs4_open_claim;
 static int ett_nfs4_opentype;
 static int ett_nfs4_lock_owner;
@@ -8539,8 +8542,9 @@ dissect_nfs4_open_delegation(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
 	unsigned delegation_type;
-	proto_tree *newftree;
-	proto_item *fitem;
+	proto_tree *newftree, *wndftree;
+	proto_item *fitem, *wnditem;
+	uint32_t ond_why;
 
 	fitem = proto_tree_add_item_ret_uint(tree, hf_nfs4_open_delegation_type, tvb,
 		offset+0, 4, ENC_BIG_ENDIAN, &delegation_type);
@@ -8562,8 +8566,20 @@ dissect_nfs4_open_delegation(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs4_open_write_delegation(tvb, offset, pinfo, newftree);
 			break;
 		case OPEN_DELEGATE_NONE_EXT:
-			proto_tree_add_item(tree, hf_nfs4_why_no_delegation, tvb, offset, 4, ENC_BIG_ENDIAN);
+			wnditem = proto_tree_add_item_ret_uint(newftree, hf_nfs4_why_no_delegation, tvb, offset, 4, ENC_BIG_ENDIAN, &ond_why);
 			offset += 4;
+			switch (ond_why) {
+			case WND4_CONTENTION:
+				wndftree = proto_item_add_subtree(wnditem, ett_nfs4_open_why_no_deleg);
+				offset = dissect_rpc_bool(tvb, wndftree, hf_nfs4_ond_server_will_push_deleg, offset);
+				break;
+			case WND4_RESOURCE:
+				wndftree = proto_item_add_subtree(wnditem, ett_nfs4_open_why_no_deleg);
+				offset = dissect_rpc_bool(tvb, wndftree, hf_nfs4_ond_server_will_signal_avail, offset);
+				break;
+			default:
+				break;
+			}
 			break;
 		default:
 			break;
@@ -13600,6 +13616,14 @@ proto_register_nfs(void)
 			"new lock owner?", "nfs.lock.locker.new_lock_owner", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
+		{ &hf_nfs4_ond_server_will_push_deleg, {
+			"server will push deleg?", "nfs.ond.server_will_push_deleg", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
+		{ &hf_nfs4_ond_server_will_signal_avail, {
+			"server will signal avail?", "nfs.ond.server_will_signal-avail", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
 		{ &hf_nfs4_lock_reclaim, {
 			"reclaim?", "nfs.lock.reclaim", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -14964,6 +14988,7 @@ proto_register_nfs(void)
 		&ett_nfs4_pathname,
 		&ett_nfs4_change_info,
 		&ett_nfs4_open_delegation,
+		&ett_nfs4_open_why_no_deleg,
 		&ett_nfs4_open_claim,
 		&ett_nfs4_opentype,
 		&ett_nfs4_lock_owner,
