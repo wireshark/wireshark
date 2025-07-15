@@ -3379,10 +3379,15 @@ typedef enum {
 typedef struct {
   rtps_guid_prefix_t guid_prefix;
   bool try_psk_decryption;
+  bool is_aad_enabled;
   uint32_t session_id;
   uint32_t transformation_key;
   rtps_encryption_algorithm_t algorithm;
   uint8_t init_vector[RTPS_SECURITY_INIT_VECTOR_LEN];
+  uint8_t *additional_authenticated_data;
+  /* True if using Header Extension. */
+  bool additional_authenticated_data_allocated;
+  size_t aad_length;
   uint32_t psk_index;
 } rtps_current_packet_decryption_info_t;
 
@@ -3610,10 +3615,18 @@ static void rtps_current_packet_decryption_info_reset(
 
   info->guid_prefix = guid_prefix_zero;
   info->try_psk_decryption = false;
+  info->is_aad_enabled = false;
   info->session_id = 0;
   info->transformation_key = 0;
   info->algorithm = CRYPTO_ALGORITHM_NONE;
   memset(info->init_vector, 0, RTPS_SECURITY_INIT_VECTOR_LEN);
+  if (info->additional_authenticated_data_allocated
+      && info->additional_authenticated_data != NULL) {
+    g_free(info->additional_authenticated_data);
+  }
+  info->additional_authenticated_data = NULL;
+  info->additional_authenticated_data_allocated = false;
+  info->aad_length = 0;
   info->psk_index = 0;
   return;
 }
@@ -3682,11 +3695,11 @@ static gcry_error_t rtps_util_generate_hmac_sha256(
  * wire.
  */
 static bool rtps_psk_generate_session_key(
+    uint8_t *buffer, /* output. */
     packet_info *pinfo,
     const char *preshared_secret_key,
     uint32_t sender_key_id,
-    uint32_t session_id,
-    uint8_t *buffer)
+    uint32_t session_id)
 {
   const char *sessionKeyString = "SessionKey";
   rtps_tvb_field* rtps_root = NULL;
@@ -3952,21 +3965,23 @@ static gcry_error_t rtps_util_decrypt_data(
     uint8_t *key,
     uint8_t *init_vector,
     uint8_t *tag,
+    const uint8_t *aad,
+    size_t aad_length,
     rtps_encryption_algorithm_t algorithm)
 {
   gcry_error_t err = GPG_ERR_NO_ERROR;
   gcry_cipher_hd_t cipher_hd;
-  int encription_algo;
-  int encription_mode = 0;
+  int encryption_algo;
+  int encryption_mode = 0;
 
-  encription_algo = rtps_encryption_algorithm_to_gcry_enum(
+  encryption_algo = rtps_encryption_algorithm_to_gcry_enum(
       algorithm,
-      &encription_mode);
+      &encryption_mode);
 
   err = gcry_cipher_open(
       &cipher_hd,
-      encription_algo,
-      encription_mode,
+      encryption_algo,
+      encryption_mode,
       0);
   if (err != GPG_ERR_NO_ERROR) {
       ws_warning(
@@ -4001,6 +4016,18 @@ static gcry_error_t rtps_util_decrypt_data(
     }
   }
 
+  if (aad != NULL) {
+    err = gcry_cipher_authenticate(cipher_hd, aad, aad_length);
+    if (err != GPG_ERR_NO_ERROR) {
+        ws_warning(
+            "GCRY: authenticate %s/%s\n",
+            gcry_strsource(err),
+            gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return err;
+    }
+  }
+
   err = gcry_cipher_decrypt(
       cipher_hd,
       encrypted_data,
@@ -4009,7 +4036,7 @@ static gcry_error_t rtps_util_decrypt_data(
       0);
   if (err != GPG_ERR_NO_ERROR) {
       ws_warning(
-          "GCRY: encrypt %s/%s\n",
+          "GCRY: decrypt %s/%s\n",
           gcry_strsource(err),
           gcry_strerror(err));
       gcry_cipher_close(cipher_hd);
@@ -4036,28 +4063,28 @@ static gcry_error_t rtps_util_decrypt_data(
  * passed as parameter.
  */
 static uint8_t *rtps_decrypt_secure_payload(
+    uint8_t *session_key, /* output. */
     tvbuff_t *tvb,
     packet_info *pinfo,
     int offset,
     size_t secure_payload_len,
     uint8_t *preshared_secret_key,
-    uint8_t *init_vector,
-    rtps_encryption_algorithm_t algorithm,
-    uint32_t transformation_key,
-    uint32_t session_id,
+    rtps_current_packet_decryption_info_t *decryption_info,
     uint8_t *tag,
-    uint8_t *session_key_output,
     gcry_error_t* error,
     wmem_allocator_t *allocator)
 {
   uint8_t *secure_body_ptr;
+  uint8_t *aad = decryption_info->is_aad_enabled ?
+      decryption_info->additional_authenticated_data :
+      NULL;
 
   if (!rtps_psk_generate_session_key(
+      session_key, /* output. */
       pinfo,
       preshared_secret_key,
-      transformation_key,
-      session_id,
-      session_key_output)) {
+      decryption_info->transformation_key,
+      decryption_info->session_id)) {
     return NULL;
   }
 
@@ -4071,10 +4098,12 @@ static uint8_t *rtps_decrypt_secure_payload(
   *error = rtps_util_decrypt_data(
       secure_body_ptr,
       secure_payload_len,
-      session_key_output,
-      init_vector,
+      session_key,
+      decryption_info->init_vector,
       tag,
-      algorithm);
+      aad,
+      decryption_info->aad_length,
+      decryption_info->algorithm);
 
   /*
    * Free the allocated memory if the decryption goes wrong or if the content is
@@ -13825,6 +13854,9 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
     uint32_t crc32c;
     uint64_t crc64;
   } calculated_checksum = {0}, he_checksum = {0};
+  int16_t header_extension_length = 0;
+  int offsetToHeaderExtensionData = 24;
+  rtps_current_packet_decryption_info_t *decryption_info = NULL;
 
   ++offset;
   proto_tree_add_bitmask_value(
@@ -13836,27 +13868,90 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
       HEADER_EXTENSION_MASK_FLAGS,
       flags);
   ++offset;
+  header_extension_length = tvb_get_int16(tvb, offset, encoding);
   proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset, 2, encoding);
   offset += 2;
+
+  if (enable_rtps_psk_decryption) {
+    /*
+     * Let's update the additional authenticated data, so that it includes the
+     * Header Extension.
+     */
+    const uint8_t *additional_authenticated_data;
+    rtps_tvb_field *rtps_root = (rtps_tvb_field*)
+        p_get_proto_data(
+            pinfo->pool,
+            pinfo, proto_rtps,
+            RTPS_ROOT_MESSAGE_KEY);
+
+    decryption_info = (rtps_current_packet_decryption_info_t *)
+        p_get_proto_data(
+            pinfo->pool, pinfo, proto_rtps, RTPS_DECRYPTION_INFO_KEY);
+
+    decryption_info->aad_length =
+        20 /* rtps header size. */
+        + 4 /* header extension submessage id, flags, octetsToNextHeader */
+        + header_extension_length;
+
+    additional_authenticated_data = tvb_get_ptr(
+        rtps_root->tvb,
+        rtps_root->tvb_offset,
+        (int) decryption_info->aad_length);
+
+    /* Do a copy of the bytes, so that we can later zero the necessary parts. */
+    decryption_info->additional_authenticated_data_allocated = true;
+    decryption_info->additional_authenticated_data = g_memdup2(
+        additional_authenticated_data,
+        decryption_info->aad_length);
+  }
+
   if ((flags & RTPS_HE_MESSAGE_LENGTH_FLAG) == RTPS_HE_MESSAGE_LENGTH_FLAG) {
     proto_tree_add_item(tree, hf_rtps_message_length, tvb, offset, 4, encoding);
     offset += 4;
+
+    if (enable_rtps_psk_decryption) {
+      memset(
+          decryption_info->additional_authenticated_data
+              + offsetToHeaderExtensionData,
+          0,
+          RTPS_HE_MESSAGE_LENGTH_FLAG);
+      offsetToHeaderExtensionData += 4;
+    }
   }
+
   if ((flags & RTPS_HE_TIMESTAMP_FLAG) == RTPS_HE_TIMESTAMP_FLAG) {
     rtps_util_add_timestamp(tree,
       tvb, offset,
       encoding,
       hf_rtps_timestamp);
     offset += 8;
+
+    if (enable_rtps_psk_decryption) {
+      /* No need to zero for AAD. */
+      offsetToHeaderExtensionData += 8;
+    }
   }
+
   if ((flags & RTPS_HE_UEXTENSION_FLAG) == RTPS_HE_UEXTENSION_FLAG) {
     proto_tree_add_item(tree, hf_rtps_uextension, tvb, offset, 4, encoding);
     offset += 4;
+
+    if (enable_rtps_psk_decryption) {
+      /* No need to zero for AAD. */
+      offsetToHeaderExtensionData += 4;
+    }
   }
+
   if ((flags & RTPS_HE_WEXTENSION_FLAG) == RTPS_HE_WEXTENSION_FLAG) {
     proto_tree_add_item(tree, hf_rtps_wextension, tvb, offset, 8, encoding);
     offset += 8;
+
+    if (enable_rtps_psk_decryption) {
+      /* No need to zero for AAD. */
+      offsetToHeaderExtensionData += 8;
+    }
   }
+
   checksum_type = (flags & (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG));
   if (checksum_type != 0) {
     int checksum_len = 0;
@@ -13880,6 +13975,14 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
         break;
       default:
         break;
+    }
+
+    if (enable_rtps_psk_decryption && decryption_info != NULL) {
+      memset(
+          decryption_info->additional_authenticated_data
+              + offsetToHeaderExtensionData,
+          0,
+          checksum_len);
     }
 
     /* If the check CRC feature is enabled */
@@ -16641,17 +16744,14 @@ static void dissect_SECURE(
 
     /* Decrypt the payload */
     decrypted_data = rtps_decrypt_secure_payload(
+        session_key, /* output*/
         tvb,
         pinfo,
         offset,
         (size_t) secure_body_len,
         entry->passphrase_secret,
-        decryption_info->init_vector,
-        decryption_info->algorithm,
-        decryption_info->transformation_key,
-        decryption_info->session_id,
+        decryption_info,
         tag,
-        session_key,
         &error,
         pinfo->pool);
     error = gpg_err_code(error);
@@ -16696,8 +16796,11 @@ static void dissect_SECURE(
       proto_item_set_generated(decrypted_subtree);
 
       /*
-       * Reset the content of the decryption info except the guid. This way we
-       * avoid interefering in possible decription inside the secure payload.
+       * Reset the content of the decryption info except the guid.
+       * We are already decrypting the secure body submessage encrypted with a
+       * pre-shared key. The contents may contain more submessages, but none of
+       * them can be encrypted. Pre-shared key protection works at the RTPS
+       * protection level.
        */
       rtps_current_packet_decryption_info_reset(decryption_info);
       decryption_info->guid_prefix = guid_backup;
@@ -16789,6 +16892,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, int off
   proto_item *passphrase_id_item = NULL;
   unsigned flags_byte = 0;
   bool is_psk_protected = false;
+  bool is_aad_enabled = false;
   proto_item *transformation_kind_item = NULL;
 
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags,
@@ -16796,6 +16900,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, int off
 
   flags_byte = tvb_get_uint8(tvb, flags_offset);
   is_psk_protected = (flags_byte & 0x04) != 0;
+  is_aad_enabled = (flags_byte & 0x02) != 0;
   proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset + 2,
           2, encoding);
   offset += 4;
@@ -16878,6 +16983,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, int off
     }
 
     decryption_info->try_psk_decryption = true;
+    decryption_info->is_aad_enabled = is_aad_enabled;
     decryption_info->algorithm = tvb_get_uint8(tvb, algorithm_offset);
 
     /* Copy the bytes as they are. Without considering the endianness */
@@ -16970,6 +17076,12 @@ static void dissect_SECURE_POSTFIX(
       SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH,
       encoding);
   offset += SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH;
+
+  if (octets_to_next_header <= SECURE_TAG_COMMON_AND_SPECIFIC_MAC_LENGTH) {
+    /* There are no receiver-specific MACs. */
+    return;
+  }
+
   /*
    * The receiver-specific mac length is encoded in big endian (regardless of
    * the submessage flags), as per the Security specification.
@@ -17304,6 +17416,7 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   const char* not_accuracy_str = "";
   int length_remaining = 0;
   rtps_tvb_field rtps_root;
+  rtps_current_packet_decryption_info_t *decryption_info = NULL;
 
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
@@ -17365,17 +17478,26 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
      * dissect_SECURE and dissect_SECURE_PREFIX functions.
      */
     if (enable_rtps_psk_decryption) {
-      rtps_current_packet_decryption_info_t *decryption_info = wmem_alloc(
+      decryption_info = wmem_alloc(
           pinfo->pool,
           sizeof(rtps_current_packet_decryption_info_t));
       if (decryption_info == NULL) {
         return false;
       }
+      decryption_info->additional_authenticated_data_allocated = false;
 
       rtps_current_packet_decryption_info_reset(decryption_info);
       decryption_info->guid_prefix.host_id = guid.host_id;
       decryption_info->guid_prefix.app_id = guid.app_id;
       decryption_info->guid_prefix.instance_id = guid.instance_id;
+
+      decryption_info->aad_length = 20; /* rtps header size. */
+
+      /* Let's cast to avoid an unnecessary copy when HE is disabled. */
+      decryption_info->additional_authenticated_data = (uint8_t *) tvb_get_ptr(
+          rtps_root.tvb,
+          rtps_root.tvb_offset,
+          (int) decryption_info->aad_length);
 
       p_set_proto_data(
           pinfo->pool,
@@ -17523,6 +17645,10 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       vendor_id,
       &guid,
       false /* dissecting_encrypted_submessage. */);
+
+  if (decryption_info != NULL) {
+    rtps_current_packet_decryption_info_reset(decryption_info);
+  }
 
   /* If TCP there's an extra OOB byte at the end of the message */
   /* TODO: What to do with it? */
