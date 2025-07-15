@@ -2626,7 +2626,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             }
             iApp = tvb_get_uint32(tvb, offset + 48 + 28, iCod);
 
-            sApplicationName = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iEnc);
+            sApplicationName = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iApp);
             sApplicationName = format_text_chr(pinfo->pool, sApplicationName, strlen(sApplicationName), '.');
             if (strip_trailing_blanks((uint8_t*)sApplicationName, (uint32_t)strlen(sApplicationName)) > 0)
             {
@@ -2700,7 +2700,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 }
                 ptvcursor_set_tree(cursor, mq_tree);
                 nofs = ptvcursor_current_offset(cursor);
-                tRemain = tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor));
+                tRemain = tvb_reported_length_remaining(tvb, nofs);
                 if (tRemain > 0)
                 {
                     if (tRemain - 48 > 0)
