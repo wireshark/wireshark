@@ -622,7 +622,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         proto_tree_add_item(shrub, hf_logical_column_oid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
         n = dissect_old_tuple_data(tvb, n, shrub);
-        n = dissect_new_tuple_data(tvb, n, shrub);
+        dissect_new_tuple_data(tvb, n, shrub);
         break;
 
     /* Delete */
