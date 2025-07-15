@@ -2221,7 +2221,7 @@ dissect_wimaxasncp(
      * --------------------------------------------------------------------
      */
 
-    item = proto_tree_add_item(wimaxasncp_tree, hf_wimaxasncp_op_id, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(wimaxasncp_tree, hf_wimaxasncp_op_id, tvb, offset, 1, ENC_NA);
 
     /* use the function type to find the message vals */
     for (i = 0; i < array_length(wimaxasncp_func_to_msg_vals_map); ++i)
