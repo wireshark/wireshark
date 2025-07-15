@@ -1207,6 +1207,10 @@ static int hf_pfcp_travelping_trace_parent_str;
 static int hf_pfcp_travelping_trace_state;
 static int hf_pfcp_travelping_trace_state_str;
 
+/* Juniper Networks */
+
+static int hf_pfcp_jnpr_cp_id_opaque_string = -1;
+
 /* Nokia */
 
 static int hf_pfcp_nokia_sap_template;
@@ -1369,6 +1373,8 @@ static int ett_pfcp_enterprise_travelping_packet_measurement;
 static int ett_pfcp_enterprise_travelping_error_report;
 static int ett_pfcp_enterprise_travelping_created_nat_binding;
 static int ett_pfcp_enterprise_travelping_trace_info;
+
+static int ett_pfcp_jnpr = -1;
 
 static int ett_pfcp_bbf_ppp_protocol_flags;
 static int ett_pfcp_bbf_l2tp_endp_flags;
@@ -12469,6 +12475,22 @@ static pfcp_generic_ie_t pfcp_travelping_ies[] = {
     { VENDOR_TRAVELPING, 32782 , "Trace State"                       , dissect_pfcp_enterprise_travelping_trace_state        , -1} ,
 };
 
+/****************************** Juniper Networks ******************************/
+
+static int
+dissect_pfcp_jnpr_cp_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint len = tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_pfcp_jnpr_cp_id_opaque_string, tvb, 0, len, ENC_ASCII);
+
+    return len;
+}
+
+static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
+    { VENDOR_JUNIPER, 32943 , "CP ID"                              , dissect_pfcp_jnpr_cp_id, -1 } ,
+};
+
 /************************************ Nokia ***********************************/
 
 static int dissect_pfcp_nokia_sap_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -18194,6 +18216,14 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
+        /* Juniper Networks */
+
+        { &hf_pfcp_jnpr_cp_id_opaque_string,
+        { "Opaque String", "pfcp.jnpr.cp_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         /* Nokia */
 
         { &hf_pfcp_nokia_sap_template,
@@ -18915,6 +18945,8 @@ proto_register_pfcp(void)
         &ett_pfcp_bbf_nat_port_forward_list,
         &ett_pfcp_bbf_sgrp_flags,
         &ett_pfcp_bbf_vendor_specific_node_report_type,
+        /* Juniper Networks */
+        &ett_pfcp_jnpr,
        /* Nokia */
         &ett_pfcp_nokia_detailed_stats_key,
         &ett_pfcp_nokia_detailed_stats_bitmap,
@@ -18961,6 +18993,7 @@ proto_register_pfcp(void)
     pfcp_register_generic_ie_dissector(VENDOR_TRAVELPING, "pfcp_travelping_ies", "pfcp.ie.travelping", "Travelping IE Type", pfcp_travelping_ies, G_N_ELEMENTS(pfcp_travelping_ies));
     pfcp_register_generic_ie_dissector(VENDOR_BROADBAND_FORUM, "pfcp_bbf_ies", "pfcp.ie.bbf", "Broadband Forum IE Type", pfcp_bbf_ies, G_N_ELEMENTS(pfcp_bbf_ies));
     pfcp_register_generic_ie_dissector(VENDOR_NOKIA, "pfcp_nokia_ies", "pfcp.ie.nokia", "Nokia IE Type", pfcp_nokia_ies, G_N_ELEMENTS(pfcp_nokia_ies));
+    pfcp_register_generic_ie_dissector(VENDOR_JUNIPER, "pfcp_jnpr_ies", "pfcp.ie.jnpr", "Juniper Networks IE Type", pfcp_jnpr_ies, G_N_ELEMENTS(pfcp_jnpr_ies));
 
     prefs_register_bool_preference(module_pfcp, "track_pfcp_session", "Track PFCP session", "Track PFCP session", &g_pfcp_session);
 
