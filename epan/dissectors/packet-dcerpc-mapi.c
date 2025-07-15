@@ -8257,7 +8257,7 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, int offset _U_, packe
 	}
 	if (ClientIPOffset > 0 && ClientIPSize > 0){
 		if(ClientIPSize == 4){
-			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4, tvb, ClientIPOffset, 4, ENC_NA);
+			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV4, tvb, ClientIPOffset, 4, ENC_BIG_ENDIAN);
 		} else if(ClientIPSize == 16){
 			proto_tree_add_item(tree, hf_mapi_AUX_PERF_CLIENTINFO_ClientIPV6, tvb, ClientIPOffset, 16, ENC_NA);
 		}

@@ -21,16 +21,16 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* TCP flags */
-#define TH_FIN  0x0001
-#define TH_SYN  0x0002
-#define TH_RST  0x0004
-#define TH_PUSH 0x0008
-#define TH_ACK  0x0010
-#define TH_URG  0x0020
-#define TH_ECE  0x0040
-#define TH_CWR  0x0080
-#define TH_AE   0x0100
-#define TH_RES  0x0E00 /* 3 reserved bits */
+#define TH_FIN   0x001
+#define TH_SYN   0x002
+#define TH_RST   0x004
+#define TH_PUSH  0x008
+#define TH_ACK   0x010
+#define TH_URG   0x020
+#define TH_ECE   0x040
+#define TH_CWR   0x080
+#define TH_AE    0x100
+#define TH_RES   0xE00 /* 3 reserved bits */
 #define TH_MASK 0x0FFF
 
 #define IS_TH_FIN(x) (x & TH_FIN)

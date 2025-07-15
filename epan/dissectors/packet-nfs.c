@@ -2136,9 +2136,9 @@ dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree
 		return 4;
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_nfs_fh_exportid, tvb, offset, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs_fh_exportid, tvb, offset, 16, ENC_BIG_ENDIAN);
 	offset += 16;
-	proto_tree_add_item(tree, hf_nfs_fh_gfid, tvb, offset, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_nfs_fh_gfid, tvb, offset, 16, ENC_BIG_ENDIAN);
 	offset += 16;
 	return offset;
 }

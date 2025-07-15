@@ -146,7 +146,7 @@ compatible_encoding_args = {
                           'ENC_CP866',
                           'ENC_ASCII_7BITS',
                           'ENC_T61',
-                          'ENC_BCD_DIGITS_0_9', 'ENC_BCD_SKIP_FIRST',
+                          'ENC_BCD_DIGITS_0_9', 'ENC_BCD_SKIP_FIRST', 'ENC_BCD_ODD_NUM_DIG',
                           'ENC_LITTLE_ENDIAN', 'ENC_BIG_ENDIAN',   # These are allowed if ENC_BCD_DIGITS_0_9 is set..
                           'ENC_KEYPAD_ABC_TBCD',
                           'ENC_KEYPAD_BC_TBCD',

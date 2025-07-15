@@ -1302,7 +1302,7 @@ proto_register_file_blf(void) {
         { &hf_blf_lobj_obj_flags_time_ten_ms,
             { "Time Resolution 10ms", "blf.object.header.object_flags.timeres_ten_ms", FT_BOOLEAN, 32, NULL, 0x00000001,  NULL, HFILL } },
         { &hf_blf_lobj_obj_flags_time_one_ns,
-            { "Time Resolution 1ns", "blf.object.header.object_flags.timeres_ten_ms", FT_BOOLEAN, 32, NULL, 0x00000002,  NULL, HFILL } },
+            { "Time Resolution 1ns", "blf.object.header.object_flags.timeres_one_ms", FT_BOOLEAN, 32, NULL, 0x00000002,  NULL, HFILL } },
         { &hf_blf_lobj_client_index,
             { "Client Index", "blf.object.header.client_index", FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_lobj_time_stamp_status,

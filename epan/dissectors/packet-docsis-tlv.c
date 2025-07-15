@@ -5340,7 +5340,7 @@ dissect_em_id_list_for_cm(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t 
 
   while (pos < (start + len))
     {
-      proto_tree_add_item (em_id_list_tree, hf_docsis_tlv_em_id_list_for_cm_em_id, tvb, pos, 2, ENC_NA);
+      proto_tree_add_item (em_id_list_tree, hf_docsis_tlv_em_id_list_for_cm_em_id, tvb, pos, 2, ENC_BIG_ENDIAN);
       pos+=2;
     }
 }
@@ -5493,7 +5493,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
               if (length == 3)
                 {
                   proto_tree_add_item (tlv_tree, hf_docsis_tlv_vendor_id, tvb,
-                                       pos, length, ENC_NA);
+                                       pos, length, ENC_BIG_ENDIAN);
                 }
               else
                 {
