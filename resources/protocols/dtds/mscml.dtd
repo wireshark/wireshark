@@ -1,15 +1,15 @@
-<? wireshark:protocol 
-   proto_name="mscml" 
-   media="application/mediaservercontrol+xml" 
+<?wireshark-protocol
+   proto_name="mscml"
+   media="application/mediaservercontrol+xml"
    description="Media Server Control Markup Language - draft 07"
    hierarchy="yes" ?>
 
 <!--
     DTD for MSCML - draft 07
 		https://tools.ietf.org/html/draft-vandyke-mscml-07
-		See this for current limitations: 
+		See this for current limitations:
 		https://wireshark.org/lists/ethereal-dev/200605/msg02351.html
-		
+
 		(c)Copyright 2006 Hewlett-Packard Development Company, LP.
 		   Contact: olivier.jacques@hp.com
 -->
@@ -218,7 +218,7 @@
 >
 -->
 <!ELEMENT events (activetalkers*, keypress*, signal*)>
-<!-- FIXME: two different activetalkers defined 
+<!-- FIXME: two different activetalkers defined
 <!ELEMENT activetalkers EMPTY>
 <!ATTLIST activetalkers
         report (yes | no | true | false) #REQUIRED

@@ -1,4 +1,4 @@
-<? wireshark:protocol
+<?wireshark-protocol
    proto_name="xcap-error"
    description="XCAP Error XML doc (RFC 4825)"
    hierarchy="yes" ?>

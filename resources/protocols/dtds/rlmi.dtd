@@ -1,4 +1,4 @@
-<? wireshark:protocol
+<?wireshark-protocol
    proto_name="list"
    description="Event Notification for Resource Lists (RFC 4662)"
    hierarchy="yes" ?>

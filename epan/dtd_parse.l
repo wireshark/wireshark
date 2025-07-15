@@ -148,8 +148,8 @@ comment_stop "-->"
 
 start_xmlpi "<?"
 
-location_xmlpi "wireshark:location"
-protocol_xmlpi "wireshark:protocol"
+location_xmlpi "wireshark-location"
+protocol_xmlpi "wireshark-protocol"
 
 get_attr_quote =[:blank:]*["]
 avoid_editor_bug ["]

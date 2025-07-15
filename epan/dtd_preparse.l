@@ -224,7 +224,7 @@ const char* dtd_location(Dtd_PreParse_scanner_state_t* state) {
 
 	if (!state) return NULL;
 
-	loc = ws_strdup_printf("<? wireshark:location %s:%u ?>", state->filename, state->linenum);
+	loc = ws_strdup_printf("<?wireshark-location %s:%u ?>", state->filename, state->linenum);
 
 	return loc;
 }

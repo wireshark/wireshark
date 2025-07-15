@@ -1,4 +1,4 @@
-<? wireshark:protocol
+<?wireshark-protocol
    proto_name="xcap-caps"
    description="XML Configuration Access Protocol Server Capabilities"
    hierarchy="yes" ?>
