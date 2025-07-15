@@ -276,7 +276,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 		rta_len = MIN(WS_ROUNDUP_4(rta_len), data_length);
 		/* Possible padding following attr */
 		if (rta_len > signalled_len) {
-			proto_tree_add_item(tree, hf_netlink_padding, tvb, offset+1, rta_len-signalled_len, ENC_NA);
+			proto_tree_add_item(attr_tree, hf_netlink_padding, tvb, offset + signalled_len - 4, rta_len - signalled_len, ENC_NA);
 		}
 
 		offset += rta_len - 4;  /* Header was already skipped */
