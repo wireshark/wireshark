@@ -185,9 +185,9 @@ static int dissect_opa_snc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     offset += 1;
     proto_tree_add_item(SnC_tree, hf_opa_snc_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
-    proto_tree_add_item(SnC_tree, hf_opa_snc_Reserved16, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(SnC_tree, hf_opa_snc_Reserved16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(SnC_tree, hf_opa_snc_Reserved32, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(SnC_tree, hf_opa_snc_Reserved32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     RHF_PBC = tvb_get_letoh64(tvb, offset);
@@ -205,7 +205,7 @@ static int dissect_opa_snc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         isBypass = (((RHF_PBC >> 12) & 7) == 4);
         break;
     case 2:     /* For use with internal debugging tools */
-        proto_tree_add_item(SnC_tree, hf_opa_snc_Reserved64, tvb, offset, 8, ENC_NA);
+        proto_tree_add_item(SnC_tree, hf_opa_snc_Reserved64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         isBypass = false;
         break;
     default:

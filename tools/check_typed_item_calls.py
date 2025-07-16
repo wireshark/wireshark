@@ -1512,7 +1512,7 @@ class Item:
                 print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'has unbalanced parens/braces/brackets')
                 warnings_found += 1
         if self.item_type != 'FT_NONE' and label.endswith(':'):
-            print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'ends with an unnecessary colon')
+            print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'with type', self.item_type, 'ends with an unnecessary colon')
             warnings_found += 1
 
     def check_blurb_vs_label(self):

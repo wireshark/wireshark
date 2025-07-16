@@ -4095,9 +4095,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				it_root = proto_tree_add_item(item_tree, hf_radiotap_vht,
 						tvb, offset, 12, ENC_NA);
 				vht_tree = proto_item_add_subtree(it_root, ett_radiotap_vht);
-				/* TODO: which endian order is this field?  Currently treated as big endian.. */
 				it = proto_tree_add_item(vht_tree, hf_radiotap_vht_known,
-						tvb, offset, 2, ENC_NA);
+						tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				vht_known_tree = proto_item_add_subtree(it, ett_radiotap_vht_known);
 
 				proto_tree_add_item(vht_known_tree, hf_radiotap_vht_have_stbc,

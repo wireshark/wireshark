@@ -2121,7 +2121,7 @@ proto_register_json_3gpp(void)
 			NULL, HFILL }
 		},
 		{ &hf_json_3gpp_suppfeat_npcf_sm_34_dnnselectionmode,
-			{ "DNNSelectionMode", "json.3gpp.suppfeat.dnnselectionmodedirection",
+			{ "DNNSelectionMode", "json.3gpp.suppfeat.dnnselectionmode",
 			FT_BOOLEAN, 4, NULL, 0x2,
 			NULL, HFILL }
 		},

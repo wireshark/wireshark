@@ -476,7 +476,7 @@ dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree
 }
 
 /* Code to Dissect the extended header length / MAC Param field and Length field */
-/* The length field may condain a SID, but this logic is not handled here */
+/* The length field may contain a SID, but this logic is not handled here */
 static void
 dissect_exthdr_length_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree,
                              uint8_t exthdr, uint16_t mac_parm, uint16_t len_sid, uint16_t *payload_length, bool *is_encrypted)

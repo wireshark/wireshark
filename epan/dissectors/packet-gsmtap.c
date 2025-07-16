@@ -433,7 +433,7 @@ static const value_string gsmtap_gmr1_channels[] = {
 	{ 0,				NULL },
 };
 
-/* Logical channal names for LTE RRC messages according to 3GPP TS 38.331 */
+/* Logical channel names for LTE RRC messages according to 3GPP TS 38.331 */
 static const value_string gsmtap_lte_rrc_channels[] = {
     { GSMTAP_LTE_RRC_SUB_DL_CCCH_Message,           "CCCH" },
     { GSMTAP_LTE_RRC_SUB_DL_DCCH_Message,           "DCCH" },

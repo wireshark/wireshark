@@ -2966,7 +2966,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_S46_CONT_MAPT:
     case OPTION_S46_CONT_LW:
     case OPTION_CLIENT_DATA:
-        /* Intented fall-through for options which can only carry further options */
+        /* Intended fall-through for options which can only carry further options */
         temp_optlen = 0;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
