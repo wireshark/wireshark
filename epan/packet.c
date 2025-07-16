@@ -70,7 +70,17 @@ struct data_source {
  * used in that table; not all of them are necessarily in the table,
  * as they may be for protocols that don't have a fixed uint value,
  * e.g. for TCP or UDP port number tables and protocols with no fixed
- * port number.
+ * port number. It's only non-NULL for tables that allow "Decode As".
+ * After initial handoff registration, it's sorted by the filter name
+ * of the protocol associated with the handle (using an empty string
+ * if there is no protocol.) That's mostly for tshark -d error messages;
+ * the GUI re-sorts by the dissector handle description. (XXX - They
+ * could be sorted on first use, especially if that's the only user.)
+ *
+ * "da_descriptions" is a hash table, keyed by dissector handle description,
+ * of all the dissector handles that could be used for Decode As. The
+ * descriptions are what are presented in the GUI and what are written
+ * to the decode_as_entries UAT.
  *
  * "ui_name" is the name the dissector table has in the user interface.
  *
@@ -87,6 +97,7 @@ struct data_source {
 struct dissector_table {
 	GHashTable	*hash_table;
 	GSList		*dissector_handles;
+	GHashTable	*da_descriptions;
 	const char	*ui_name;
 	ftenum_t	type;
 	int		param;
@@ -211,6 +222,8 @@ destroy_dissector_table(void *data)
 
 	g_hash_table_destroy(table->hash_table);
 	g_slist_free(table->dissector_handles);
+	if (table->da_descriptions)
+		g_hash_table_destroy(table->da_descriptions);
 	g_slice_free(struct dissector_table, data);
 }
 
@@ -1544,8 +1557,12 @@ dissector_delete_from_table(gpointer key _U_, gpointer value, gpointer user_data
 	dissector_table_t sub_dissectors = (dissector_table_t) value;
 	ws_assert (sub_dissectors);
 
+	dissector_handle_t handle = (dissector_handle_t) user_data;
+
 	g_hash_table_foreach_remove(sub_dissectors->hash_table, dissector_delete_all_check, user_data);
 	sub_dissectors->dissector_handles = g_slist_remove(sub_dissectors->dissector_handles, user_data);
+	if (sub_dissectors->da_descriptions)
+		g_hash_table_remove(sub_dissectors->da_descriptions, handle->description);
 }
 
 /* Delete handle from all tables and dissector_handles lists */
@@ -2275,19 +2292,56 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	if (!dissector_get_table_checked(name, handle, &sub_dissectors))
 		return;
 
+	const char *dissector_name;
+	dissector_name = dissector_handle_get_dissector_name(handle);
+	if (dissector_name == NULL)
+		dissector_name = "(anonymous)";
+
 	/*
 	 * Make sure it supports Decode As.
 	 */
 	if (!sub_dissectors->supports_decode_as) {
-		const char *dissector_name;
-
-		dissector_name = dissector_handle_get_dissector_name(handle);
-		if (dissector_name == NULL)
-			dissector_name = "(anonymous)";
 		ws_dissector_bug("Registering dissector %s for protocol %s in dissector table %s, which doesn't support Decode As\n",
 				    dissector_name,
 				    proto_get_protocol_short_name(handle->protocol),
 				    name);
+		return;
+	}
+
+	/* For Decode As selection to work, there has to be a description.
+	 * One is generated if there's a protocol (PINOs are used in some
+	 * cases to guarantee unique descriptions), but some dissectors are
+	 * registered without a protocol. That is allowed for fixed tables
+	 * that don't support Decode As.
+	 */
+	if (handle->description == NULL) {
+		ws_dissector_bug("Cannot register dissector %s in dissector table %s for Decode As without a protocol or description\n",
+		    dissector_name, name);
+		return;
+	}
+
+	/* Ensure that the description is unique in the table, so that Decode As
+	 * selection and UAT preference writing works.
+	 *
+	 * XXX - We could do the insert first and then check the return value,
+	 * saving on a hash comparison. (The failure mode would be slightly
+	 * different, as it would become last insertion wins.)
+	 */
+	dup_handle = g_hash_table_lookup(sub_dissectors->da_descriptions, handle->description);
+	if (dup_handle != NULL) {
+		/* Is this a different handle with the same description, or
+		 * just trying to insert the same handle a second time? */
+		if (dup_handle != handle) {
+			const char *dup_dissector_name;
+
+			dup_dissector_name = dissector_handle_get_dissector_name(dup_handle);
+			if (dup_dissector_name == NULL)
+				dup_dissector_name = "(anonymous)";
+			ws_dissector_bug("Dissectors %s and %s in dissector table %s have the same description %s\n",
+			    dissector_name,
+			    dup_dissector_name,
+			    name, handle->description);
+		}
 		return;
 	}
 
@@ -2297,55 +2351,13 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	if (sub_dissectors->protocol != NULL)
 		register_depend_dissector(proto_get_protocol_short_name(sub_dissectors->protocol), proto_get_protocol_short_name(handle->protocol));
 
-	/* Is it already in this list? */
-	entry = g_slist_find(sub_dissectors->dissector_handles, (void *)handle);
-	if (entry != NULL) {
-		/*
-		 * Yes - don't insert it again.
-		 */
-		return;
-	}
-
-	/* Ensure the dissector's description is unique.  This prevents
-	   confusion when using Decode As; duplicate descriptions would
-	   make it impossible to distinguish between the dissectors
-	   with the same descriptions.
-
-	   FT_STRING can at least show the string value in the dialog,
-	   so we don't do the check for them. XXX - It can show the
-	   string value the dissector is being set to if there's a custom
-	   populate function (like BER uses) but the GUI model still uses
-	   the description.
-
-	 */
-	const char *dissector_name;
-	dissector_name = dissector_handle_get_dissector_name(handle);
-
-	if (sub_dissectors->type != FT_STRING)
-	{
-		for (entry = sub_dissectors->dissector_handles; entry != NULL; entry = g_slist_next(entry))
-		{
-			dup_handle = (dissector_handle_t)entry->data;
-			if (dup_handle->description != NULL &&
-			    strcmp(dup_handle->description, handle->description) == 0)
-			{
-				const char *dup_dissector_name;
-
-				dup_dissector_name = dissector_handle_get_dissector_name(dup_handle);
-				if (dup_dissector_name == NULL)
-					dup_dissector_name = "(anonymous)";
-				ws_dissector_bug("Dissectors %s and %s in dissector table %s have the same description %s\n",
-				    dissector_name ? dissector_name : "(anonymous)",
-				    dup_dissector_name,
-				    name, handle->description);
-			}
-		}
-	}
-
 	/* We support adding automatic Decode As preferences on 32-bit
 	 * integer tables. Make sure that the preference we would generate has
 	 * a unique name. That means that for a given table's entries, each
 	 * dissector handle for the same protocol must have a unique pref suffix.
+	 *
+	 * XXX - Check if we can speed this up too. (At least the protocol ID
+	 * comparison is an integer, not a string.)
 	 */
 	if (FT_IS_UINT32(sub_dissectors->type)) {
 		const char* pref_suffix = dissector_handle_get_pref_suffix(handle);
@@ -2364,7 +2376,7 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 					fprintf(stderr, "Dissector for %s is anonymous", proto_get_protocol_short_name(dup_handle->protocol));
 				}
 				ws_dissector_bug("Dissectors %s and %s in dissector table %s would have the same Decode As preference\n",
-				    dissector_name ? dissector_name : "(anonymous)",
+				    dissector_name,
 				    dup_dissector_name,
 				    name);
 			}
@@ -2372,6 +2384,7 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	}
 
 	/* Add it to the list. */
+	g_hash_table_insert(sub_dissectors->da_descriptions, (void *)handle->description, handle);
 	if (all_tables_handles_sorted) {
 		sub_dissectors->dissector_handles =
 			g_slist_insert_sorted(sub_dissectors->dissector_handles, (void *)handle, (GCompareFunc)dissector_compare_filter_name);
@@ -2432,6 +2445,11 @@ find_dissector_in_table(void *item, void *user_data)
 
 dissector_handle_t dissector_table_get_dissector_handle(dissector_table_t dissector_table, const char* description)
 {
+	/* Can this even be called for tables that don't support Decode As? */
+	if (dissector_table->da_descriptions) {
+		return g_hash_table_lookup(dissector_table->da_descriptions, description);
+	}
+
 	lookup_entry_t lookup;
 
 	lookup.dissector_description = description;
@@ -2451,6 +2469,9 @@ void
 dissector_table_allow_decode_as(dissector_table_t dissector_table)
 {
 	dissector_table->supports_decode_as = true;
+	if (dissector_table->da_descriptions == NULL) {
+		dissector_table->da_descriptions = g_hash_table_new(wmem_str_hash, g_str_equal);
+	}
 }
 
 bool
@@ -2775,6 +2796,7 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 		ws_assert_not_reached();
 	}
 	sub_dissectors->dissector_handles = NULL;
+	sub_dissectors->da_descriptions = NULL;
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = type;
 	sub_dissectors->param   = param;
@@ -2803,6 +2825,7 @@ dissector_table_t register_custom_dissector_table(const char *name,
 							       &g_free);
 
 	sub_dissectors->dissector_handles = NULL;
+	sub_dissectors->da_descriptions = NULL;
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = FT_BYTES; /* Consider key a "blob" of data, no need to really create new type */
 	sub_dissectors->param   = BASE_NONE;

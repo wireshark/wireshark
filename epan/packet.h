@@ -462,6 +462,9 @@ WS_DLL_PUBLIC dissector_handle_t dissector_table_get_dissector_handle(dissector_
 WS_DLL_PUBLIC ftenum_t dissector_table_get_type(dissector_table_t dissector_table);
 
 /** Mark a dissector table as allowing "Decode As"
+ *
+ * XXX - Why is this WS_DLL_PUBLIC? This is called by register_decode_as, and
+ * anything that marks a table as allowing "Decode As" should call that instead.
  */
 WS_DLL_PUBLIC void dissector_table_allow_decode_as(dissector_table_t dissector_table);
 
