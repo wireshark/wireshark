@@ -143,7 +143,7 @@ fi
 #
 LIBSMI_VERSION=0.4.8
 GNUTLS_VERSION=3.8.10
-GNUTLS_SHA256=2bea4e154794f3f00180fa2a5c51fe8b005ac7a31cd58bd44cdfa7f36ebc3a9b
+GNUTLS_SHA256=db7fab7cce791e7727ebbef2334301c821d79a550ec55c9ef096b610b03eb6b7
 if [ "$GNUTLS_VERSION" ]; then
     #
     # We'll be building GnuTLS, so we may need some additional libraries.
