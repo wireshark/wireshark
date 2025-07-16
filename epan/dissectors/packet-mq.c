@@ -2591,21 +2591,36 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             char* sQMgr;
             uint32_t iEnc;
             uint32_t iCod;
-            uint32_t iApp;
             char    cChr;
 
             /*
             We have to handle the ccsid/coding of the MQCONN REPLY
             on z/OS it is always EBCDIC
             integer are always BIG_ENDIAN
+
+            XXX - why can't the values from p_mq_parm always
+            be used?
             */
             if (p_mq_parm->mq_opcode == MQ_TST_MQCONN_REPLY)
             {
+                /*
+                Try to guess the byte order.
+                Fetch the application type in little-endian
+                byte order; if it's > 65536, it's probably
+                big-endian, and we fetched it in the wrong
+                byte order.
+                */
+                uint32_t iApp;
+
                 iApp = tvb_get_letohl(tvb, offset + 48 + 28);
                 if (iApp <= 65536)
                     iCod = ENC_LITTLE_ENDIAN;
                 else
                     iCod = ENC_BIG_ENDIAN;
+
+                /*
+                Try to guess whether this is EBCDIC or not.
+                */
                 cChr = tvb_get_uint8(tvb, offset + 48);
                 if ((cChr >= 'A' && cChr <= 'Z') ||
                     (cChr >= 'a' && cChr <= 'z') ||
@@ -2624,9 +2639,8 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 iCod = p_mq_parm->mq_int_enc;
                 iEnc = p_mq_parm->mq_str_enc;
             }
-            iApp = tvb_get_uint32(tvb, offset + 48 + 28, iCod);
 
-            sApplicationName = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iApp);
+            sApplicationName = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iEnc);
             sApplicationName = format_text_chr(pinfo->pool, sApplicationName, strlen(sApplicationName), '.');
             if (strip_trailing_blanks((uint8_t*)sApplicationName, (uint32_t)strlen(sApplicationName)) > 0)
             {
