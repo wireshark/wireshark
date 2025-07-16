@@ -107,8 +107,8 @@ void proto_register_pkixtsp(void) {
   proto_register_field_array(proto_pkixtsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  timestamp_reply_handle = register_dissector(PFNAME "_reply", dissect_timestamp_reply, proto_pkixtsp);
-  timestamp_query_handle = register_dissector(PFNAME "_query", dissect_timestamp_query, proto_pkixtsp);
+  timestamp_reply_handle = register_dissector_with_description(PFNAME "_reply", PSNAME " Response", dissect_timestamp_reply, proto_pkixtsp);
+  timestamp_query_handle = register_dissector_with_description(PFNAME "_query", PSNAME " Request", dissect_timestamp_query, proto_pkixtsp);
 
   register_ber_syntax_dissector("TimeStampReq", proto_pkixtsp, dissect_TimeStampReq_PDU);
   register_ber_syntax_dissector("TimeStampResp", proto_pkixtsp, dissect_TimeStampResp_PDU);

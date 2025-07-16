@@ -114,8 +114,8 @@ void proto_register_ocsp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissectors */
-  ocsp_request_handle = register_dissector(PFNAME "_req", dissect_ocsp_request, proto_ocsp);
-  ocsp_response_handle = register_dissector(PFNAME "_res", dissect_ocsp_response, proto_ocsp);
+  ocsp_request_handle = register_dissector_with_description(PFNAME "_req", PSNAME " Request", dissect_ocsp_request, proto_ocsp);
+  ocsp_response_handle = register_dissector_with_description(PFNAME "_res", PSNAME " Response", dissect_ocsp_response, proto_ocsp);
 }
 
 /*--- proto_reg_handoff_ocsp -------------------------------------------*/

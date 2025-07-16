@@ -345,9 +345,14 @@ void proto_register_cmp(void) {
 			&cmp_alternate_tcp_style_http_port);
 
 	/* Register dissectors */
-	cmp_http_handle = register_dissector("cmp.http", dissect_cmp_http, proto_cmp);
-	cmp_tcp_style_http_handle = register_dissector("cmp.tcp_pdu", dissect_cmp_tcp_pdu, proto_cmp);
-	cmp_tcp_handle = register_dissector("cmp", dissect_cmp_tcp, proto_cmp);
+        /* XXX - Since RFC 6712 the plain HTTP transfer method is exclusively
+         * preferred now, so possibly it should have the plain "cmp" short
+         * name, but leave it.
+         * https://datatracker.ietf.org/doc/html/rfc6712#section-1
+         */
+	cmp_http_handle = register_dissector_with_description("cmp.http", PSNAME, dissect_cmp_http, proto_cmp);
+	cmp_tcp_style_http_handle = register_dissector_with_description("cmp.tcp_pdu", PSNAME " TCP-Messaging PDU", dissect_cmp_tcp_pdu, proto_cmp);
+	cmp_tcp_handle = register_dissector_with_description("cmp", PSNAME " TCP-Messaging", dissect_cmp_tcp, proto_cmp);
 	register_ber_syntax_dissector("PKIMessage", proto_cmp, dissect_cmp_pdu);
 }
 
