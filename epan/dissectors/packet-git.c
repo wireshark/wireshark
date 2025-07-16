@@ -345,14 +345,17 @@ proto_reg_handoff_git(void)
   dissector_handle_t git_upload_pack_req_handle;
   dissector_handle_t git_upload_pack_res_handle;
 
-  git_upload_pack_adv_handle = create_dissector_handle(dissect_git_upload_pack_adv,
-                        proto_git);
+  git_upload_pack_adv_handle = create_dissector_handle_with_name_and_description(
+                        dissect_git_upload_pack_adv, proto_git, PFNAME ".http_adv",
+                        PSNAME" Advertisement");
 
-  git_upload_pack_req_handle = create_dissector_handle(dissect_git_upload_pack_req,
-                        proto_git);
+  git_upload_pack_req_handle = create_dissector_handle_with_name_and_description(
+                        dissect_git_upload_pack_req, proto_git, PFNAME ".http_req",
+                        PSNAME" Request");
 
-  git_upload_pack_res_handle = create_dissector_handle(dissect_git_upload_pack_res,
-                        proto_git);
+  git_upload_pack_res_handle = create_dissector_handle_with_name_and_description(
+                        dissect_git_upload_pack_res, proto_git, PFNAME ".http_res",
+                        PSNAME" Result");
 
   dissector_add_string("media_type",
                         "application/x-git-upload-pack-advertisement",

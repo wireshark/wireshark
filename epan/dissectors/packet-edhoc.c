@@ -123,7 +123,7 @@ static dissector_handle_t handle_cbor;
 // Dissect ID_CRED_x values
 static dissector_handle_t handle_cose_hdrs;
 // Dissector handles
-static dissector_handle_t handle_edhoc_msg;
+/* static dissector_handle_t handle_edhoc_msg; */
 static dissector_handle_t handle_edhoc_media;
 static dissector_handle_t handle_edhoc_media_cid;
 
@@ -1643,12 +1643,17 @@ void proto_reg_handoff_edhoc(void) {
     handle_cbor = find_dissector("cbor");
     handle_cose_hdrs = find_dissector("cose.msg.headers");
 
-    handle_edhoc_msg = register_dissector("edhoc", dissect_edhoc_msg, proto_edhoc);
+    /* XXX - This requires a data parameter passed in. Where is it used? */
+    /* handle_edhoc_msg = */ register_dissector("edhoc", dissect_edhoc_msg, proto_edhoc);
 
-    handle_edhoc_media = create_dissector_handle(dissect_edhoc_media, proto_edhoc);
+    handle_edhoc_media = create_dissector_handle_with_name_and_description(
+            dissect_edhoc_media, proto_edhoc, "edhoc.media",
+            "EDHOC Message");
     dissector_add_string("media_type", "application/edhoc+cbor-seq", handle_edhoc_media);
 
-    handle_edhoc_media_cid = create_dissector_handle(dissect_edhoc_media_cid, proto_edhoc);
+    handle_edhoc_media_cid = create_dissector_handle_with_name_and_description(
+            dissect_edhoc_media_cid, proto_edhoc, "edhoc.media_cid",
+            "EDHOC Message with CID");
     dissector_add_string("media_type", "application/cid-edhoc+cbor-seq", handle_edhoc_media_cid);
 
     // Known EAD labels
