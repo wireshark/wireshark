@@ -1448,7 +1448,6 @@ void proto_register_dlt(void) {
     proto_dlt = proto_register_protocol(PSNAME, PNAME, PFNAME);
     dlt_handle_tcp = register_dissector("dlt_tcp", dissect_dlt_tcp, proto_dlt);
     dlt_handle_udp = register_dissector("dlt_udp", dissect_dlt_udp, proto_dlt);
-    dlt_handle_storage = register_dissector("dlt_storage", dissect_dlt_storage_header, proto_dlt_storage_header);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_dlt, hf_dlt, array_length(hf_dlt));
 
@@ -1489,6 +1488,7 @@ void proto_register_dlt_storage_header(void) {
     proto_dlt_storage_header = proto_register_protocol(DLT_STORAGE_HEADER_NAME_LONG, DLT_STORAGE_HEADER_NAME, DLT_STORAGE_HEADER_NAME_FILTER);
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_dlt, hfs, array_length(hfs));
+    dlt_handle_storage = register_dissector("dlt_storage", dissect_dlt_storage_header, proto_dlt_storage_header);
 }
 
 void proto_reg_handoff_dlt_storage_header(void) {
