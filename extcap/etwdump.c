@@ -60,13 +60,14 @@ static const struct ws_option longopts[] = {
 
 int g_include_undecidable_event;
 
-static void SignalHandler(_U_ int signal)
+static void graceful_shutdown_cb(void)
 {
     SUPER_EVENT_TRACE_PROPERTIES super_trace_properties = { 0 };
     // "you only need to set the Wnode.BufferSize, Wnode.Guid, LoggerNameOffset, and LogFileNameOffset"
     super_trace_properties.prop.Wnode.BufferSize = sizeof(SUPER_EVENT_TRACE_PROPERTIES);
     super_trace_properties.prop.LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
     super_trace_properties.prop.LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
+
     /* Close trace when press CONTROL+C when running this console alone */
     ControlTrace((TRACEHANDLE)NULL, LOGGER_NAME, &super_trace_properties.prop, EVENT_TRACE_CONTROL_STOP);
 }
@@ -323,6 +324,20 @@ int main(int argc, char* argv[])
     g_free(help_url);
     extcap_base_register_interface(extcap_conf, ETW_EXTCAP_INTERFACE, "Event Tracing for Windows (ETW) reader", 290, "DLT_ETW");
 
+    if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb))
+    {
+        ret = EXIT_FAILURE;
+        goto end;
+    }
+
+    /* etwdump will be killed and the capture won't be properly closed. We need to add a postkill
+     * cleanup hook. */
+    if (!extcap_base_register_cleanup_postkill_cb(extcap_conf, graceful_shutdown_cb))
+    {
+        ret = EXIT_FAILURE;
+        goto end;
+    }
+
     help_header = ws_strdup_printf(
         " %s --extcap-interfaces\n"
         " %s --extcap-interface=%s --extcap-dlts\n"
@@ -415,8 +430,6 @@ int main(int argc, char* argv[])
         }
 
         wtap_init(false);
-
-        signal(SIGINT, SignalHandler);
 
         switch(etw_dump(etlfile, extcap_conf->fifo, params, &ret, &err_msg))
         {
