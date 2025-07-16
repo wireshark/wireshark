@@ -40,6 +40,16 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one.
 
+* Renegotiated DTLS session is not being decrypted. wsbuglink:20362[].
+* Wireshark is completely stuck in initialization because androiddump recv() is blocked. wsbuglink:20526[].
+* Fuzz job UTF-8 encoding issue: fuzz-2025-06-20-7318.pcap. wsbuglink:20585[].
+* Crash when showing packet in new window after reloading Lua plugins with a certain gui.column.format preference. wsbuglink:20588[].
+* Bug in UDS dissector with Service ReadDataByPeriodicIdentifier Response. wsbuglink:20589[].
+* Packet diagram doesn't show non-standard field value representations. wsbuglink:20590[].
+* Packet diagram shows representation twice when field type is FT_NONE. wsbuglink:20601[].
+* application/x-www-form-urlencoded key parsed incorrectly following a name-value byte sequence with no '=' wsbuglink:20615[].
+* DNP3 time stamp was unable to work after epoch time(year 2038) wsbuglink:20618[].
+
 // == Known Bugs
 
 === New and Updated Features
@@ -55,18 +65,36 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.7.. | ag packet- | sort -u)
+// ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.8.. | ag packet- | sort -u)
 [commaize]
 --
+ASTERIX
+DLT
+DNP 3.0
+DOF
+DTLS
+ETSI CAT
+Gryphon
+IPsec
+ISObus VT
+KRB5
+MBIM
+RTCP
+SLL
+STCSIG
+TETRA
+UDS
+URL Encoded Form Data
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng
+--
 
 === Updated File Format Decoding Support
 
