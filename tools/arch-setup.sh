@@ -91,6 +91,7 @@ BASIC_LIST="base-devel
 	snappy
 	spandsp
 	speexdsp
+	xxhash
 	zlib
 	zstd"
 

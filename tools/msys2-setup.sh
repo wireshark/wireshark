@@ -98,6 +98,7 @@ BASIC_LIST="base-devel \
 	${PACKAGE_PREFIX}-speexdsp \
 	${PACKAGE_PREFIX}-toolchain \
 	${PACKAGE_PREFIX}-winsparkle \
+	${PACKAGE_PREFIX}-xxhash \
 	${PACKAGE_PREFIX}-zlib \
 	${PACKAGE_PREFIX}-zstd"
 

@@ -95,6 +95,7 @@ ADDITIONAL_LIST="
 	perl
 	py3-pytest
 	py3-pytest-xdist
+	xxhash-dev
 	"
 
 # Uncomment to add PNG compression utilities used by compress-pngs:
