@@ -576,19 +576,24 @@ wmem_strong_hash(const uint8_t *buf, const size_t len)
 unsigned
 wmem_str_hash(const void *key)
 {
-    return wmem_strong_hash((const uint8_t *)key, strlen((const char *)key));
+#ifdef HAVE_XXHASH
+    return (uint32_t)XXH3_64bits_withSeed((const uint8_t*)key, strlen((const char*)key), postseed);
+#else
+    return g_str_hash(key);
+#endif
 }
 
+/* No need for a strong hash here, for our purpose fast functions are more important */
 unsigned
 wmem_int64_hash(const void *key)
 {
-    return wmem_strong_hash((const uint8_t *)key, sizeof(uint64_t));
+    return g_int64_hash(key);
 }
 
 unsigned
 wmem_double_hash(const void *key)
 {
-    return wmem_strong_hash((const uint8_t *)key, sizeof(double));
+    return g_double_hash(key);
 }
 
 /*
