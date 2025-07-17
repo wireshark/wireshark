@@ -714,7 +714,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         n += 4;
         siz = tvb_strsize(tvb, n);
         proto_tree_add_item(shrub, hf_logical_prepare_gid, tvb, n, siz, ENC_ASCII);
-        n += siz;
         break;
 
     /* Prepare*/
@@ -731,7 +730,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         n += 4;
         siz = tvb_strsize(tvb, n);
         proto_tree_add_item(shrub, hf_logical_prepare_gid, tvb, n, siz, ENC_ASCII);
-        n += siz;
         break;
 
     /* Commit Prepared */
@@ -748,7 +746,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         n += 4;
         siz = tvb_strsize(tvb, n);
         proto_tree_add_item(shrub, hf_logical_prepare_gid, tvb, n, siz, ENC_ASCII);
-        n += siz;
         break;
 
     /* Rollback Prepared */
@@ -767,7 +764,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         n += 4;
         siz = tvb_strsize(tvb, n);
         proto_tree_add_item(shrub, hf_logical_prepare_gid, tvb, n, siz, ENC_ASCII);
-        n += siz;
         break;
 
     /* Stream Prepare */
@@ -784,7 +780,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         n += 4;
         siz = tvb_strsize(tvb, n);
         proto_tree_add_item(shrub, hf_logical_prepare_gid, tvb, n, siz, ENC_ASCII);
-        n += siz;
         break;
     default:
         return;
