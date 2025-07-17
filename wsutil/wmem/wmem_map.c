@@ -537,7 +537,7 @@ uint32_t
 wmem_strong_hash(const uint8_t *buf, const size_t len)
 {
 #ifdef HAVE_XXHASH
-    return (uint32_t)XXH32(buf, len, postseed);
+    return (uint32_t)XXH3_64bits_withSeed(buf, len, postseed);
 #else
     const uint8_t * const end = (const uint8_t *)buf + len;
     uint32_t hash = preseed + (uint32_t)len;
