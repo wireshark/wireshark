@@ -282,6 +282,16 @@ ipv6_oat_hash(const void *key)
     return h;
 }
 
+unsigned
+ws_ipv6_hash(const void* key)
+{
+#ifdef HAVE_XXHASH
+    return wmem_strong_hash(key, 16);
+#else
+    return ipv6_oat_hash(key);
+#endif
+}
+
 gboolean
 ipv6_equal(const void *v1, const void *v2)
 {
@@ -3682,7 +3692,7 @@ host_name_lookup_init(void)
         manually_resolved_ipv4_list = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     if (manually_resolved_ipv6_list == NULL)
-        manually_resolved_ipv6_list = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
+        manually_resolved_ipv6_list = wmem_map_new(wmem_epan_scope(), ws_ipv6_hash, ipv6_equal);
 
     /*
      * Load the global hosts file, if we have one.
