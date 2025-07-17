@@ -28,7 +28,10 @@
 #ifdef HAVE_LZ4FRAME_H
 #include <lz4.h>
 #include <lz4frame.h>
-#endif
+#ifdef HAVE_XXHASH
+#include <xxhash.h>
+#endif /* HAVE_XXHASH */
+#endif /* HAVE_LZ4FRAME_H */
 
 #include "packet-tcp.h"
 #include "packet-tls.h"
@@ -806,9 +809,9 @@ dissect_kafka_regular_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 /* HELPERS */
 
-#ifdef HAVE_LZ4FRAME_H
+#if defined(HAVE_LZ4FRAME_H) && !defined(HAVE_XXHASH)
 /* Local copy of XXH32() algorithm as found in https://github.com/lz4/lz4/blob/v1.7.5/lib/xxhash.c
-   as some packagers are not providing xxhash.h in liblz4 */
+   as most packagers provide xxhash.h separately from liblz4, and it may not be installed */
 typedef struct {
     uint32_t total_len_32;
     uint32_t large_len;
@@ -911,7 +914,7 @@ static uint32_t XXH32_endian(const void* input, size_t len, uint32_t seed, XXH_e
     return h32;
 }
 
-static unsigned XXH32(const void* input, size_t len, unsigned seed)
+static uint32_t XXH32(const void* input, size_t len, uint32_t seed)
 {
     XXH_endianess endian_detected = (XXH_endianess)XXH_CPU_LITTLE_ENDIAN;
     if (endian_detected==XXH_littleEndian)
@@ -919,7 +922,7 @@ static unsigned XXH32(const void* input, size_t len, unsigned seed)
     else
         return XXH32_endian(input, len, seed, XXH_bigEndian);
 }
-#endif /* HAVE_LZ4FRAME_H */
+#endif /* defined(HAVE_LZ4FRAME_H) && !defined(HAVE_XXHASH) */
 
 static const char *
 kafka_error_to_str(kafka_error_t error)
@@ -1763,6 +1766,9 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length, t
     /* Prepare compressed data buffer */
     uint8_t *data = (uint8_t*)tvb_memdup(pinfo->pool, tvb, offset, length);
     /* Override header checksum to workaround buggy Kafka implementations */
+    /* XXX - We shouldn't need to do this if the magic byte (msg version) is > 0
+     * https://github.com/apache/kafka/commit/8fe2552239863f3a01d01708d55edf3c7082ff92
+     */
     if (length > 7) {
         uint32_t hdr_end = 6;
         if (data[4] & 0x08) {
