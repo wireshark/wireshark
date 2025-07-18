@@ -463,7 +463,6 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item_ret_uint(lin_tree, hf_lin_event_id, tvb, 8, 4, ENC_BIG_ENDIAN, &event_id);
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(event_id, lin_event_type_names, "0x%08x"));
         proto_item_set_end(ti_root, tvb, 12);
-        return 12; /* 8 Byte header + 4 Byte payload */
         }
         break;
 
@@ -475,19 +474,15 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             dissect_lin_message(next_tvb, pinfo, tree, &lininfo);
         }
+
+        /* Include padding to a multiple of 4 bytes */
+        if (payload_length <= 4)
+            proto_item_set_end(ti_root, tvb, 12);
+        else if (payload_length <= 8)
+            proto_item_set_end(ti_root, tvb, 16);
         break;
     }
-
-    /* format pads to 4 bytes*/
-    if (payload_length <= 4) {
-        proto_item_set_end(ti_root, tvb, 12);
-        return 12;
-    } else if (payload_length <= 8) {
-        proto_item_set_end(ti_root, tvb, 16);
-        return 16;
-    } else {
-        return tvb_captured_length(tvb);
-    }
+    return tvb_captured_length(tvb);
 }
 
 void
