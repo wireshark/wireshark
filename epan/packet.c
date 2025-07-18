@@ -1266,15 +1266,10 @@ dissector_get_table_checked(const char *name, dissector_handle_t handle, dissect
 	return true;
 }
 
-/* Add an entry to a uint dissector table. */
-void
-dissector_add_uint(const char *name, const uint32_t pattern, dissector_handle_t handle)
+static void
+dissector_add_uint_real(const char *name _U_, const uint32_t pattern, dissector_handle_t handle, dissector_table_t sub_dissectors)
 {
-	dissector_table_t  sub_dissectors;
 	dtbl_entry_t      *dtbl_entry;
-
-	if (!dissector_get_table_checked(name, handle, &sub_dissectors))
-		return;
 
 	switch (sub_dissectors->type) {
 
@@ -1306,6 +1301,18 @@ dissector_add_uint(const char *name, const uint32_t pattern, dissector_handle_t 
 	/* do the table insertion */
 	g_hash_table_insert(sub_dissectors->hash_table,
 			     GUINT_TO_POINTER(pattern), (void *)dtbl_entry);
+}
+
+/* Add an entry to a uint dissector table. */
+void
+dissector_add_uint(const char *name, const uint32_t pattern, dissector_handle_t handle)
+{
+	dissector_table_t sub_dissectors;
+
+	if (!dissector_get_table_checked(name, handle, &sub_dissectors))
+		return;
+
+	dissector_add_uint_real(name, pattern, handle, sub_dissectors);
 
 	/*
 	 * Now, if this table supports "Decode As", add this handle
@@ -1316,8 +1323,6 @@ dissector_add_uint(const char *name, const uint32_t pattern, dissector_handle_t 
 		dissector_add_for_decode_as(name, handle);
 }
 
-
-
 void dissector_add_uint_range(const char *name, range_t *range,
 			      dissector_handle_t handle)
 {
@@ -1325,23 +1330,21 @@ void dissector_add_uint_range(const char *name, range_t *range,
 	uint32_t i, j;
 
 	if (range) {
-		if (range->nranges == 0) {
-			/*
-			 * Even an empty range would want a chance for
-			 * Decode As, if the dissector table supports
-			 * it.
-			 */
-			sub_dissectors = find_dissector_table(name);
-			if (sub_dissectors->supports_decode_as)
-				dissector_add_for_decode_as(name, handle);
+		if (!dissector_get_table_checked(name, handle, &sub_dissectors))
+			return;
+
+		for (i = 0; i < range->nranges; i++) {
+			for (j = range->ranges[i].low; j < range->ranges[i].high; j++)
+				dissector_add_uint_real(name, j, handle, sub_dissectors);
+			dissector_add_uint_real(name, range->ranges[i].high, handle, sub_dissectors);
 		}
-		else {
-			for (i = 0; i < range->nranges; i++) {
-				for (j = range->ranges[i].low; j < range->ranges[i].high; j++)
-					dissector_add_uint(name, j, handle);
-				dissector_add_uint(name, range->ranges[i].high, handle);
-			}
-		}
+		/*
+		 * Even an empty range would want a chance for
+		 * Decode As, if the dissector table supports
+		 * it.
+		 */
+		if (sub_dissectors->supports_decode_as)
+			dissector_add_for_decode_as(name, handle);
 	}
 }
 
