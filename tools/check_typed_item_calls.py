@@ -1488,6 +1488,12 @@ class Item:
                 print('Warning: ' + filename, hf, 'filter ' + filter + 'label', label, 'but is a v6 field')
                 warnings_found += 1
 
+        # TODO: Could/should this entry use one of the port type display types?
+        if False:
+            if item_type == 'FT_UINT16':
+                if label.lower().find('port') != -1:
+                    print('Warning: ' + filename, hf, 'filter "' + filter + '" label "' + label + '" field might be a transport port - should use e.g., BASE_PT_UDP as display??')
+                    warnings_found += 1
 
 
     def __str__(self):

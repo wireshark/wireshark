@@ -8062,17 +8062,17 @@ proto_register_gsm_a_bssmap(void)
     },
     { &hf_gsm_a_bssmap_aoip_trans_ipv4,
         { "Transport Layer Address (IPv4)","gsm_a.bssmap.aoip_trans_ipv4",
-        FT_IPv4,BASE_NONE,  NULL, 0x0,
+        FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_aoip_trans_ipv6,
         { "Transport Layer Address (IPv6)","gsm_a.bssmap.aoip_trans_ipv6",
-        FT_IPv6,BASE_NONE,  NULL, 0x0,
+        FT_IPv6, BASE_NONE,NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_aoip_trans_port,
         { "UDP Port","gsm_a.bssmap.aoip_trans_port",
-        FT_UINT16, BASE_DEC,NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_fi,

@@ -4478,7 +4478,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_port_count, { "Port Count", "cip.tcpip.port_count", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_tcpip_port_name, { "Port Name", "cip.tcpip.port_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-      { &hf_tcpip_port_number, { "Port Number", "cip.tcpip.port_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_tcpip_port_number, { "Port Number", "cip.tcpip.port_number", FT_UINT16, BASE_PT_TCP, NULL, 0, NULL, HFILL } },
       { &hf_tcpip_port_protocol, { "Protocol", "cip.tcpip.protocol", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0, NULL, HFILL } },
       { &hf_tcpip_port_admin_state, { "Admin State", "cip.tcpip.admin_state", FT_BOOLEAN, BASE_NONE, TFS(&tfs_open_closed), 0, NULL, HFILL } },
 

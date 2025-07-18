@@ -2222,22 +2222,22 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_GPRS_port,
 			{ "UDP Port for GPRS user data transport","uma.urr.gprs_port",
-			FT_UINT16,BASE_DEC,  NULL, 0x0,
+			FT_UINT16,BASE_PT_UDP,  NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_UNC_tcp_port,
 			{ "UNC TCP port","uma.urr.tcp_port",
-			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"UDP Port for GPRS user data transport", HFILL }
+			FT_UINT16,BASE_PT_TCP,  NULL, 0x0,
+			"TCP Port for GPRS user data transport", HFILL }
 		},
 		{ &hf_uma_urr_RTP_port,
 			{ "RTP UDP port","uma.urr.rtp_port",
-			FT_UINT16,BASE_DEC,  NULL, 0x0,
+			FT_UINT16,BASE_PT_UDP,  NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RTCP_port,
 			{ "RTCP UDP port","uma.urr.rtcp_port",
-			FT_UINT16,BASE_DEC,  NULL, 0x0,
+			FT_UINT16,BASE_PT_UDP,  NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_RXLEV_NCELL,

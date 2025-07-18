@@ -1275,7 +1275,7 @@ proto_register_zabbix(void)
         },
         { &hf_zabbix_agent_listenport,
             { "Agent listen port", "zabbix.agent.listen_port",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_PT_TCP, NULL, 0,
             NULL, HFILL }
         },
         { &hf_zabbix_agent_variant,

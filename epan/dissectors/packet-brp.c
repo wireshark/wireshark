@@ -334,7 +334,7 @@ void proto_register_brp (void)
           { "Destination IP Address", "brp.dstip", FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_brp_dstuport,
-          { "Destination UDP Port", "brp.dstuport", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Destination UDP Port", "brp.dstuport", FT_UINT16, BASE_PT_UDP, NULL, 0x0,
             NULL, HFILL }},
         { &hf_brp_mbz,
           { "MBZ", "brp.mbz", FT_UINT24, BASE_DEC, NULL, 0x0,

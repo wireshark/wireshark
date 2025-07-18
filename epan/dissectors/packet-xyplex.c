@@ -157,12 +157,12 @@ proto_register_xyplex(void)
 
     { &hf_xyplex_server_port,
       { "Server Port",        "xyplex.server_port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_xyplex_return_port,
       { "Return Port",   "xyplex.return_port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_xyplex_reserved,

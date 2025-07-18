@@ -2298,7 +2298,7 @@ proto_register_fcels (void)
           {"IP Version", "fcels.rnid.ipvers", FT_UINT8, BASE_HEX,
            VALS (fc_els_rnid_ipvers_val), 0x0, NULL, HFILL}},
         { &hf_fcels_tcpport,
-          {"TCP/UDP Port Number", "fcels.rnid.tcpport", FT_UINT16, BASE_DEC,
+          {"TCP/UDP Port Number", "fcels.rnid.tcpport", FT_UINT16, BASE_PT_TCP,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_ip,
           {"IP Address", "fcels.rnid.ip", FT_IPv6, BASE_NONE, NULL, 0x0, NULL,

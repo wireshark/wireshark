@@ -1683,13 +1683,13 @@ proto_register_acdr(void)
         },
         { &hf_acdr_ext_srcudp,
             { "Packet source UDP port", "acdr.ext.src_port",
-                FT_UINT16, BASE_DEC,
+                FT_UINT16, BASE_PT_UDP,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_acdr_ext_dstudp,
             { "Packet destination UDP port", "acdr.ext.dst_port",
-                FT_UINT16, BASE_DEC,
+                FT_UINT16, BASE_PT_UDP,
                 NULL, 0x0,
                 NULL, HFILL }
         },

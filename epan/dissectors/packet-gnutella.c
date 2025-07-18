@@ -690,7 +690,7 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_pong_port,
 			{ "Port", "gnutella.pong.port",
-			FT_UINT16, BASE_DEC, NULL, 0,
+			FT_UINT16, BASE_PT_TCP, NULL, 0,
 			"Gnutella Pong TCP Port", HFILL }
 		},
 		{ &hf_gnutella_pong_ip,
@@ -750,7 +750,7 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_queryhit_port,
 			{ "Port", "gnutella.queryhit.port",
-			FT_UINT16, BASE_DEC, NULL, 0,
+			FT_UINT16, BASE_PT_TCP, NULL, 0,
 			"Gnutella QueryHit Port", HFILL }
 		},
 		{ &hf_gnutella_queryhit_ip,

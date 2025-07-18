@@ -1660,7 +1660,7 @@ proto_register_bitcoin(void)
     },
     { &hf_msg_addrv2_port,
       { "Node port", "bitcoin.addrv2.port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_bitcoin_msg_addrv2,
@@ -2405,7 +2405,7 @@ proto_register_bitcoin(void)
     },
     { &hf_address_port,
       { "Node port", "bitcoin.address.port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_string_value,

@@ -8738,7 +8738,7 @@ proto_register_acn(void)
     /* Broker Redirect IPv4 TCP Port */
     { &hf_rdmnet_broker_redirect_ipv4_tcp_port,
       { "IPv4 TCP Port", "rdmnet.broker.redirect_ipv4.tcp_port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         "Redirect IPv4 TCP port", HFILL }
     },
     /* Broker Redirect IPv6 Address. TODO: is filter correct here? */
@@ -8750,7 +8750,7 @@ proto_register_acn(void)
     /* Broker Redirect IPv6 TCP Port */
     { &hf_rdmnet_broker_redirect_ipv6_tcp_port,
       { "TCP Port", "rdmnet.broker.redirect_ipv6.tcp_port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         "Redirect IPv6 TCP port", HFILL }
     },
     /* Broker Disconnect Reason */

@@ -11489,7 +11489,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ext_hdr_udp_port,
          { "UDP Port", "gtp.ext_hdr.udp_port",
-           FT_UINT16, BASE_DEC, NULL, 0,
+           FT_UINT16, BASE_PT_UDP, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_length,

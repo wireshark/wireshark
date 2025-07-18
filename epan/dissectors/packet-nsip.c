@@ -1092,7 +1092,7 @@ proto_register_nsip(void)
 #endif
     { &hf_nsip_ip_element_udp_port,
       { "UDP Port", "nsip.ip_element.udp_port",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nsip_ip_element_signalling_weight,

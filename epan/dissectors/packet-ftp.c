@@ -1730,7 +1730,7 @@ proto_register_ftp(void)
 
         { &hf_ftp_pasv_port,
           { "Passive port", "ftp.passive.port",
-            FT_UINT16, BASE_DEC, NULL,0x0,
+            FT_UINT16, BASE_PT_TCP, NULL,0x0,
             "Passive FTP server port", HFILL }},
 
         { &hf_ftp_pasv_nat,
@@ -1745,7 +1745,7 @@ proto_register_ftp(void)
 
         { &hf_ftp_active_port,
           {"Active port", "ftp.active.port",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_PT_TCP, NULL, 0x0,
            "Active FTP client port", HFILL }},
 
         { &hf_ftp_active_nat,
@@ -1770,7 +1770,7 @@ proto_register_ftp(void)
 
         { &hf_ftp_eprt_port,
           { "Extended active port", "ftp.eprt.port",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_PT_TCP, NULL, 0,
             "Extended active FTP client listener port", HFILL }},
 
         { &hf_ftp_epsv_ip,
@@ -1785,7 +1785,7 @@ proto_register_ftp(void)
 
         { &hf_ftp_epsv_port,
           { "Extended passive port", "ftp.epsv.port",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_PT_TCP, NULL, 0,
             "Extended passive FTP server port", HFILL }},
 
         { &hf_ftp_command_response_first_frame_num,

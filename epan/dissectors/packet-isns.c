@@ -1376,12 +1376,12 @@ void proto_register_isns(void)
 
     { &hf_isns_heartbeat_tcp_port,
       { "Heartbeat TCP Port", "isns.heartbeat.tcpport",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         "Server TCP Port", HFILL }},
 
     { &hf_isns_heartbeat_udp_port,
       { "Heartbeat UDP Port", "isns.heartbeat.udpport",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         "Server UDP Port", HFILL }},
 
 

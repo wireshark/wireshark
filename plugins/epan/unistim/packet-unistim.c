@@ -3581,7 +3581,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_nat_port,
         {"NAT Port","unistim.audio.nat.port",FT_UINT16,
-         BASE_DEC,NULL,0x0,NULL,HFILL}
+         BASE_PT_UDP,NULL,0x0,NULL,HFILL}
       },
       { &hf_audio_nat_ip_address,
         {"NAT IP Address","unistim.audio.nat.ip",FT_IPv4,

@@ -8837,12 +8837,12 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_low,
         { "IPv4 TCP port low","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_tcp_port_low",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_high,
         { "IPv4 TCP port high","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_tcp_port_high",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_TCP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_pkmf_address_type,
