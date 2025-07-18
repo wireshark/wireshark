@@ -8849,9 +8849,7 @@ proto_set_cant_toggle(const int proto_id)
 static int
 proto_register_field_common(protocol_t *proto, header_field_info *hfi, const int parent)
 {
-	if (proto != NULL) {
-		g_ptr_array_add(proto->fields, hfi);
-	}
+	g_ptr_array_add(proto->fields, hfi);
 
 	return proto_register_field_init(hfi, parent);
 }
@@ -8867,18 +8865,26 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 
 	proto = find_protocol_by_id(parent);
 
+	/* if (proto == NULL) - error or return? */
+
 	if (proto->fields == NULL) {
+		/* Ironically, the NEW_PROTO_TREE_API was removed shortly before
+		 * GLib introduced g_ptr_array_new_from_array, which might have
+		 * given a reason to actually use it. (#17774)
+		 */
 		proto->fields = g_ptr_array_sized_new(num_records);
 	}
 
 	for (i = 0; i < num_records; i++, ptr++) {
 		/*
 		 * Make sure we haven't registered this yet.
-		 * Most fields have variables associated with them
-		 * that are initialized to -1; some have array elements,
-		 * or possibly uninitialized variables, so we also allow
-		 * 0 (which is unlikely to be the field ID we get back
-		 * from "proto_register_field_init()").
+		 * Most fields have variables associated with them that
+		 * are initialized to 0; some are initialized to -1 (which
+		 * was the standard before 4.4).
+		 *
+		 * XXX - Since this is called almost 300000 times at startup,
+		 * it might be nice to compare to only 0 and require
+		 * dissectors to pass in zero for unregistered fields.
 		 */
 		if (*ptr->p_id != -1 && *ptr->p_id != 0) {
 			REPORT_DISSECTOR_BUG(
