@@ -56,7 +56,7 @@ static const range_string class_id_names[] = {
     { 0x0130, 0x0131, "Cisco Systems, Inc." },
     { 0x0132, 0x0135, "Google LLC" },
     { 0x0136, 0x0136, "InfoQuick Global Connection Tech Ltd." },
-    { 0x0137, 0x0163, "Unssigned" },
+    { 0x0137, 0x0163, "Unassigned" },
     { 0x0164, 0x0164, "cPacket Networks, Inc." },
     { 0x0165, 0xFEFF, "Unassigned" },
     { 0xFFF0, 0xFFFF, "Experimental" },
