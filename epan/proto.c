@@ -576,11 +576,11 @@ proto_init(GSList *register_all_plugin_protocols_list,
 {
 	proto_cleanup_base();
 
-	proto_names        = g_hash_table_new(g_str_hash, g_str_equal);
-	proto_short_names  = g_hash_table_new(g_str_hash, g_str_equal);
-	proto_filter_names = g_hash_table_new(g_str_hash, g_str_equal);
+	proto_names        = g_hash_table_new(wmem_str_hash, g_str_equal);
+	proto_short_names  = g_hash_table_new(wmem_str_hash, g_str_equal);
+	proto_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
 
-	proto_reserved_filter_names = g_hash_table_new(g_str_hash, g_str_equal);
+	proto_reserved_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
 	for (const char **ptr = reserved_filter_names; *ptr != NULL; ptr++) {
 		/* GHashTable has no key destructor so the cast is safe. */
 		g_hash_table_add(proto_reserved_filter_names, *(char **)ptr);
@@ -589,9 +589,9 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	gpa_hfinfo.len           = 0;
 	gpa_hfinfo.allocated_len = 0;
 	gpa_hfinfo.hfi           = NULL;
-	gpa_name_map             = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
+	gpa_name_map             = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 	wmem_map_reserve(gpa_name_map, PROTO_PRE_ALLOC_HF_FIELDS_MEM);
-	gpa_protocol_aliases     = g_hash_table_new(g_str_hash, g_str_equal);
+	gpa_protocol_aliases     = g_hash_table_new(wmem_str_hash, g_str_equal);
 	deregistered_fields      = g_ptr_array_new();
 	deregistered_data        = g_ptr_array_new();
 	deregistered_slice       = g_ptr_array_new();
@@ -978,7 +978,7 @@ prefix_hash (const void *key) {
 		}
 	}
 
-	tmp = g_str_hash(copy);
+	tmp = wmem_str_hash(copy);
 	g_free(copy);
 	return tmp;
 }
