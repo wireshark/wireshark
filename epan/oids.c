@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EPAN
 
 #include <glib.h>
 #include <stdio.h>
@@ -37,11 +38,7 @@ static bool load_smi_modules;
 static bool suppress_smi_errors;
 #endif
 
-#define D(level,args) do if (debuglevel >= level) { printf args; printf("\n"); fflush(stdout); } while(0)
-
 #include "oids.h"
-
-static int debuglevel;
 
 /*
  * From SNMPv2-SMI and X.690
@@ -83,10 +80,7 @@ static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -
 // NOLINTNEXTLINE(misc-no-recursion)
 static void prepopulate_oids(void) {
 	if (!oid_root.children) {
-		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
 		uint32_t subid;
-
-		debuglevel = debug_env ? (int)strtoul(debug_env,NULL,10) : 0;
 
 		oid_root.children = wmem_tree_new(wmem_epan_scope());
 
@@ -116,7 +110,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 			if (i == oid_len) {
 				if (n->name) {
 					if (!g_str_equal(n->name,name)) {
-						D(2,("Renaming Oid from: %s -> %s, this means the same oid is registered more than once",n->name,name));
+						ws_debug("Renaming Oid from: %s -> %s, this means the same oid is registered more than once",n->name,name);
 					}
 					wmem_free(wmem_epan_scope(), n->name);
 				}
@@ -159,16 +153,24 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 	return NULL;
 }
 
+static void oid_subids_debug(const char* name, uint32_t *subids, unsigned len, const char* method) {
+	if (_LOG_DEBUG_ENABLED) {
+		if (ws_log_msg_is_active(LOG_DOMAIN_EPAN, LOG_LEVEL_NOISY)) {
+			char* sub = oid_subid2string(NULL, subids, len);
+			ws_noisy("Oid (from %s): %s %s ", method, name?name:"NULL", sub);
+			wmem_free(NULL, sub);
+		}
+	}
+}
+
 // NOLINTNEXTLINE(misc-no-recursion)
 void oid_add(const char* name, unsigned oid_len, uint32_t *subids) {
 	ws_assert(subids && *subids <= 2);
 	if (oid_len) {
-		char* sub = oid_subid2string(NULL, subids,oid_len);
-		D(3,("\tOid (from subids): %s %s ",name?name:"NULL", sub));
+		oid_subids_debug(name, subids, oid_len, "subids");
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
-		wmem_free(NULL, sub);
 	} else {
-		D(1,("Failed to add Oid: %s (from subids)",name?name:"NULL"));
+		ws_info("Failed to add Oid: %s (from subids)", name?name:"NULL");
 	}
 }
 
@@ -177,12 +179,10 @@ void oid_add_from_string(const char* name, const char *oid_str) {
 	unsigned oid_len = oid_string2subid(NULL, oid_str, &subids);
 
 	if (oid_len) {
-		char* sub = oid_subid2string(NULL, subids,oid_len);
-		D(3,("\tOid (from string): %s %s ",name?name:"NULL", sub));
+		oid_subids_debug(name, subids, oid_len, "string");
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
-		wmem_free(NULL, sub);
 	} else {
-		D(1,("Failed to add Oid: %s %s ",name?name:"NULL", oid_str?oid_str:NULL));
+		ws_info("Failed to add Oid: %s %s ", name?name:"NULL", oid_str?oid_str:NULL);
 	}
 	wmem_free(NULL, subids);
 }
@@ -192,14 +192,14 @@ extern void oid_add_from_encoded(const char* name, const uint8_t *oid, int oid_l
 	unsigned subids_len = oid_encoded2subid(NULL, oid, oid_len, &subids);
 
 	if (subids_len) {
-		char* sub = oid_subid2string(NULL, subids,subids_len);
-		D(3,("\tOid (from encoded): %s %s ",name, sub));
+		oid_subids_debug(name, subids, subids_len, "string");
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,subids_len,subids);
-		wmem_free(NULL, sub);
 	} else {
-		char* bytestr = bytes_to_str_punct(NULL, oid, oid_len, ':');
-		D(1,("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len, bytestr));
-		wmem_free(NULL, bytestr);
+		if (ws_log_msg_is_active(LOG_DOMAIN_EPAN, LOG_LEVEL_INFO)) {
+			char* bytestr = bytes_to_str_punct(NULL, oid, oid_len, ':');
+			ws_info("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len, bytestr);
+			wmem_free(NULL, bytestr);
+		}
 	}
 	wmem_free(NULL, subids);
 }
@@ -545,14 +545,14 @@ static void register_mibs(void) {
 	char* path_str;
 
 	if (!load_smi_modules) {
-		D(1,("OID resolution not enabled"));
+		ws_info("OID resolution not enabled");
 		return;
 	}
 
 	/* TODO: Remove this workaround when unregistration of "MIBs" proto is solved.
 	 * Wireshark does not support that yet. :-( */
 	if (oids_init_done) {
-		D(1,("Exiting register_mibs() to avoid double registration of MIBs proto."));
+		ws_info("Exiting register_mibs() to avoid double registration of MIBs proto.");
 		return;
 	}
 
@@ -566,7 +566,7 @@ static void register_mibs(void) {
 	smiSetErrorHandler(smi_error_handler);
 
 	path_str = oid_get_default_mib_path();
-	D(1,("SMI Path: '%s'",path_str));
+	ws_info("SMI Path: '%s'",path_str);
 
 	smiSetPath(path_str);
 
@@ -578,9 +578,9 @@ static void register_mibs(void) {
 		} else {
 			char* mod_name =  smiLoadModule(smi_modules[i].name);
 			if (mod_name)
-				D(2,("Loaded: '%s'[%u] as %s",smi_modules[i].name,i,mod_name ));
+				ws_debug("Loaded: '%s'[%u] as %s", smi_modules[i].name, i, mod_name);
 			else
-				D(1,("Failed to load: '%s'[%u]",smi_modules[i].name,i));
+				ws_info("Failed to load: '%s'[%u]", smi_modules[i].name, i);
 		}
 	}
 
@@ -590,9 +590,9 @@ static void register_mibs(void) {
 					   "The Current Path is: %s\n\nYou can avoid this error message "
 					   "by removing the missing MIB modules at Edit -> Preferences"
 					   " -> Name Resolution -> SMI (MIB and PIB) modules or by "
-					   "installing them.\n" , smi_errors->str , path_str);
+					   "installing them.\n", smi_errors->str, path_str);
 		}
-		D(1,("Errors while loading:\n%s\n",smi_errors->str));
+		ws_info("Errors while loading:\n%s", smi_errors->str);
 	}
 
 	g_free(path_str);
@@ -602,7 +602,7 @@ static void register_mibs(void) {
 		 smiModule;
 		 smiModule = smiGetNextModule(smiModule)) {
 
-		D(3,("\tModule: %s", smiModule->name));
+		ws_debug("Module: %s", smiModule->name);
 
 		/* TODO: Check libsmi version at compile time and disable this
 		 * workaround for libsmi versions where this problem is fixed.
@@ -626,7 +626,6 @@ static void register_mibs(void) {
 			const oid_value_type_t* typedata =  get_typedata(smiType);
 			oid_key_t* key;
 			oid_kind_t kind = smikind(smiNode,&key);
-			char *sub;
 			char *oid = smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_QUALIFIED);
 			oid_info_t* oid_data = add_oid(oid,
 						       kind,
@@ -636,10 +635,13 @@ static void register_mibs(void) {
 						       smiNode->oid);
 			smi_free (oid);
 
-			sub = oid_subid2string(NULL, smiNode->oid, smiNode->oidlen);
-			D(4,("\t\tNode: kind=%d oid=%s name=%s ",
-				 oid_data->kind, sub, oid_data->name));
-			wmem_free(NULL, sub);
+			if (ws_log_msg_is_active(LOG_DOMAIN_EPAN, LOG_LEVEL_NOISY)) {
+				char *sub;
+				sub = oid_subid2string(NULL, smiNode->oid, smiNode->oidlen);
+				ws_noisy("Node: kind=%d oid=%s name=%s ",
+					 oid_data->kind, sub, oid_data->name);
+				wmem_free(NULL, sub);
+			}
 
 			if ( typedata && oid_data->value_hfid == -2 ) {
 				SmiNamedNumber* smiEnum;
@@ -721,8 +723,8 @@ static void register_mibs(void) {
 
 			if ((key = oid_data->key)) {
 				for(; key; key = key->next) {
-					D(5,("\t\t\tIndex: name=%s subids=%u key_type=%d",
-						 key->name, key->num_subids, key->key_type ));
+					ws_noisy("Index: name=%s subids=%u key_type=%d",
+						 key->name, key->num_subids, key->key_type);
 
 					if (key->hfid == -2) {
 						hf_register_info hf;
@@ -862,7 +864,7 @@ void oids_init(void) {
 #ifdef HAVE_LIBSMI
 	register_mibs();
 #else
-	D(1,("libsmi disabled oid resolution not enabled"));
+	ws_info("libsmi disabled oid resolution not enabled");
 #endif
 }
 
@@ -870,7 +872,7 @@ void oids_cleanup(void) {
 #ifdef HAVE_LIBSMI
 	unregister_mibs();
 #else
-	D(1,("libsmi disabled oid resolution not enabled"));
+	ws_info("libsmi disabled oid resolution not enabled");
 #endif
 }
 
@@ -907,11 +909,10 @@ static unsigned check_num_oid(const char* str) {
 	char c = '.';
 	unsigned n = 0;
 
-	D(8,("check_num_oid: '%s'",str));
+	ws_noisy("check_num_oid: '%s'",str);
 	if (!r) return 0;
 
 	do {
-		D(9,("\tcheck_num_oid: '%c' %u",*r,n));
 		switch(*r) {
 			case '.': case '\0':
 				n++;
@@ -940,7 +941,7 @@ unsigned oid_string2subid(wmem_allocator_t *scope, const char* str, uint32_t** s
 	 */
 	uint64_t subid = 0;
 
-	D(6,("oid_string2subid: str='%s'",str));
+	ws_noisy("oid_string2subid: str='%s'",str);
 
 	if (!n) {
 		*subids_p = NULL;
@@ -1285,7 +1286,7 @@ oid_get_default_mib_path(void) {
 	path_str = g_string_new("");
 
 	if (!load_smi_modules) {
-		D(1,("OID resolution not enabled"));
+		ws_info("OID resolution not enabled");
 		return g_string_free(path_str, FALSE);
 	}
 #ifdef _WIN32
