@@ -81,11 +81,6 @@ static expert_field ei_flexray_symbol_frame;
 static expert_field ei_flexray_error_flag;
 static expert_field ei_flexray_stfi_flag;
 
-#define FLEXRAY_FRAME 0x01
-#define FLEXRAY_SYMBOL 0x02
-
-#define FLEXRAY_HEADER_LENGTH 5
-
 static const value_string flexray_type_names[] = {
     { FLEXRAY_FRAME, "FRAME" },
     { FLEXRAY_SYMBOL, "SYMB" },
@@ -449,41 +444,41 @@ proto_register_flexray(void) {
         { &hf_flexray_measurement_header_field, {
             "Measurement Header", "flexray.mhf", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_flexray_ti, {
-            "Type Index", "flexray.ti", FT_UINT8, BASE_HEX, VALS(flexray_type_names), 0x7f, NULL, HFILL } },
+            "Type Index", "flexray.ti", FT_UINT8, BASE_HEX, VALS(flexray_type_names), FLEXRAY_TYPE_MASK, NULL, HFILL } },
         { &hf_flexray_ch, {
-            "Channel", "flexray.ch", FT_BOOLEAN, 8, TFS(&flexray_channel_tfs), 0x80, NULL, HFILL } },
+            "Channel", "flexray.ch", FT_BOOLEAN, 8, TFS(&flexray_channel_tfs), FLEXRAY_CHANNEL_MASK, NULL, HFILL } },
         { &hf_flexray_error_flags_field, {
             "Error Flags", "flexray.eff", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_flexray_fcrc_err, {
-            "Frame CRC error", "flexray.fcrc_err", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL } },
+            "Frame CRC error", "flexray.fcrc_err", FT_BOOLEAN, 8, NULL, FLEXRAY_FCRC_ERROR, NULL, HFILL } },
         { &hf_flexray_hcrc_err, {
-            "Header CRC error", "flexray.hcrc_err", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL } },
+            "Header CRC error", "flexray.hcrc_err", FT_BOOLEAN, 8, NULL, FLEXRAY_HCRC_ERROR, NULL, HFILL } },
         { &hf_flexray_fes_err, {
-            "Frame End Sequence error", "flexray.fes_err", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL } },
+            "Frame End Sequence error", "flexray.fes_err", FT_BOOLEAN, 8, NULL, FLEXRAY_FES_ERROR, NULL, HFILL } },
         { &hf_flexray_cod_err, {
-            "Coding error", "flexray.cod_err", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL } },
+            "Coding error", "flexray.cod_err", FT_BOOLEAN, 8, NULL, FLEXRAY_COD_ERROR, NULL, HFILL } },
         { &hf_flexray_tss_viol, {
-            "TSS violation", "flexray.tss_viol", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
+            "TSS violation", "flexray.tss_viol", FT_BOOLEAN, 8, NULL, FLEXRAY_TSS_ERROR, NULL, HFILL } },
         { &hf_flexray_frame_header, {
             "FlexRay Frame Header", "flexray.frame_header", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_flexray_res, {
-            "Reserved", "flexray.res", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL } },
+            "Reserved", "flexray.res", FT_BOOLEAN, 8, NULL, FLEXRAY_RES_MASK, NULL, HFILL } },
         { &hf_flexray_ppi, {
-            "Payload Preamble Indicator", "flexray.ppi", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL } },
+            "Payload Preamble Indicator", "flexray.ppi", FT_BOOLEAN, 8, NULL, FLEXRAY_PPI_MASK, NULL, HFILL } },
         { &hf_flexray_nfi, {
-            "Null Frame Indicator", "flexray.nfi", FT_BOOLEAN, 8, TFS(&flexray_nfi_tfs), 0x20, NULL, HFILL } },
+            "Null Frame Indicator", "flexray.nfi", FT_BOOLEAN, 8, TFS(&flexray_nfi_tfs), FLEXRAY_NFI_MASK, NULL, HFILL } },
         { &hf_flexray_sfi, {
-            "Sync Frame Indicator", "flexray.sfi", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL } },
+            "Sync Frame Indicator", "flexray.sfi", FT_BOOLEAN, 8, NULL, FLEXRAY_SFI_MASK, NULL, HFILL } },
         { &hf_flexray_stfi, {
-            "Startup Frame Indicator", "flexray.stfi", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL } },
+            "Startup Frame Indicator", "flexray.stfi", FT_BOOLEAN, 8, NULL, FLEXRAY_STFI_MASK, NULL, HFILL } },
         { &hf_flexray_fid, {
-            "Frame ID", "flexray.fid", FT_UINT16, BASE_DEC, NULL, 0x07ff, NULL, HFILL } },
+            "Frame ID", "flexray.fid", FT_UINT16, BASE_DEC, NULL, FLEXRAY_ID_MASK, NULL, HFILL } },
         { &hf_flexray_pl, {
-            "Payload length", "flexray.pl", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+            "Payload length", "flexray.pl", FT_UINT8, BASE_DEC, NULL, FLEXRAY_LENGTH_MASK, NULL, HFILL } },
         { &hf_flexray_hcrc, {
-            "Header CRC", "flexray.hcrc", FT_UINT24, BASE_HEX, NULL, 0x01ffc0, NULL, HFILL } },
+            "Header CRC", "flexray.hcrc", FT_UINT24, BASE_HEX, NULL, FLEXRAY_HEADER_CRC_MASK, NULL, HFILL } },
         { &hf_flexray_cc, {
-            "Cycle Counter", "flexray.cc", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
+            "Cycle Counter", "flexray.cc", FT_UINT8, BASE_DEC, NULL, FLEXRAY_CC_MASK, NULL, HFILL } },
         { &hf_flexray_sl, {
             "Symbol length", "flexray.sl", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
         { &hf_flexray_flexray_id, {

@@ -14,9 +14,31 @@
 #ifndef __PACKET_LIN_H__
 #define __PACKET_LIN_H__
 
-#define LIN_DIAG_MASTER_REQUEST_FRAME 0x3c
-#define LIN_DIAG_SLAVE_RESPONSE_FRAME 0x3d
-#define LIN_ID_MASK                   0x3f
+#define LIN_PAYLOAD_LENGTH_MASK                         0xf0
+
+#define LIN_MSG_TYPE_MASK                               0x0c
+#define LIN_MSG_TYPE_FRAME                              0
+#define LIN_MSG_TYPE_EVENT                              3
+
+#define LIN_CHECKSUM_TYPE_MASK                          0x03
+
+#define LIN_FRAME_ID_MASK                               0x3f
+
+#define LIN_EVENT_TYPE_GO_TO_SLEEP_EVENT_BY_GO_TO_SLEEP 0xB0B00001
+#define LIN_EVENT_TYPE_GO_TO_SLEEP_EVENT_BY_INACTIVITY  0xB0B00002
+#define LIN_EVENT_TYPE_WAKE_UP_BY_WAKE_UP_SIGNAL        0xB0B00004
+
+#define LIN_ERROR_NO_SLAVE_RESPONSE                     0x01
+#define LIN_ERROR_FRAMING_ERROR                         0x02
+#define LIN_ERROR_PARITY_ERROR                          0x04
+#define LIN_ERROR_CHECKSUM_ERROR                        0x08
+#define LIN_ERROR_INVALID_ID_ERROR                      0x10
+#define LIN_ERROR_OVERFLOW_ERROR                        0x20
+
+
+#define LIN_DIAG_MASTER_REQUEST_FRAME                   0x3c
+#define LIN_DIAG_SLAVE_RESPONSE_FRAME                   0x3d
+#define LIN_ID_MASK                                     0x3f
 
 /* bus_id 0 means ANY Bus */
 struct lin_info {

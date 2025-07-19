@@ -75,9 +75,6 @@ static int * const error_fields[] = {
 
 static dissector_table_t subdissector_table;
 
-#define LIN_MSG_TYPE_FRAME 0
-#define LIN_MSG_TYPE_EVENT 3
-
 static const value_string lin_msg_type_names[] = {
     { LIN_MSG_TYPE_FRAME, "Frame" },
     { LIN_MSG_TYPE_EVENT, "Event" },
@@ -96,10 +93,6 @@ static const value_string lin_checksum_type_names[] = {
     { LIN_CHKSUM_TYPE_UNDEF, "Undefined" },
     {0, NULL}
 };
-
-#define LIN_EVENT_TYPE_GO_TO_SLEEP_EVENT_BY_GO_TO_SLEEP 0xB0B00001
-#define LIN_EVENT_TYPE_GO_TO_SLEEP_EVENT_BY_INACTIVITY  0xB0B00002
-#define LIN_EVENT_TYPE_WAKE_UP_BY_WAKE_UP_SIGNAL        0xB0B00004
 
 static const value_string lin_event_type_names[] = {
     { LIN_EVENT_TYPE_GO_TO_SLEEP_EVENT_BY_GO_TO_SLEEP, "Go-to-Sleep event by Go-to-Sleep frame" },
@@ -500,19 +493,19 @@ proto_register_lin(void) {
             FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_lin_payload_length,
             { "Length", "lin.length",
-            FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, NULL, LIN_PAYLOAD_LENGTH_MASK, NULL, HFILL }},
         { &hf_lin_message_type,
             { "Message Type", "lin.message_type",
-            FT_UINT8, BASE_DEC, VALS(lin_msg_type_names), 0x0c, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, VALS(lin_msg_type_names), LIN_MSG_TYPE_MASK, NULL, HFILL }},
         { &hf_lin_checksum_type,
             { "Checksum Type", "lin.checksum_type",
-            FT_UINT8, BASE_DEC, VALS(lin_checksum_type_names), 0x03, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, VALS(lin_checksum_type_names), LIN_CHECKSUM_TYPE_MASK, NULL, HFILL }},
         { &hf_lin_pid,
             { "Protected ID", "lin.protected_id",
             FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_lin_id,
             { "Frame ID", "lin.frame_id",
-            FT_UINT8, BASE_HEX_DEC, NULL, 0x3f, NULL, HFILL }},
+            FT_UINT8, BASE_HEX_DEC, NULL, LIN_FRAME_ID_MASK, NULL, HFILL }},
         { &hf_lin_parity,
             { "Parity", "lin.frame_parity",
             FT_UINT8, BASE_HEX_DEC, NULL, 0xc0, NULL, HFILL }},
@@ -524,22 +517,22 @@ proto_register_lin(void) {
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
         { &hf_lin_err_no_slave_response,
             { "No Slave Response Error", "lin.errors.no_slave_response",
-            FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+            FT_BOOLEAN, 8, NULL, LIN_ERROR_NO_SLAVE_RESPONSE, NULL, HFILL }},
         { &hf_lin_err_framing,
             { "Framing Error", "lin.errors.framing_error",
-            FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+            FT_BOOLEAN, 8, NULL, LIN_ERROR_FRAMING_ERROR, NULL, HFILL }},
         { &hf_lin_err_parity,
             { "Parity Error", "lin.errors.parity_error",
-            FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+            FT_BOOLEAN, 8, NULL, LIN_ERROR_PARITY_ERROR, NULL, HFILL }},
         { &hf_lin_err_checksum,
             { "Checksum Error", "lin.errors.checksum_error",
-            FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+            FT_BOOLEAN, 8, NULL, LIN_ERROR_CHECKSUM_ERROR, NULL, HFILL }},
         { &hf_lin_err_invalidid,
             { "Invalid ID Error", "lin.errors.invalid_id_error",
-            FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+            FT_BOOLEAN, 8, NULL, LIN_ERROR_INVALID_ID_ERROR, NULL, HFILL }},
         { &hf_lin_err_overflow,
             { "Overflow Error", "lin.errors.overflow_error",
-            FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+            FT_BOOLEAN, 8, NULL, LIN_ERROR_OVERFLOW_ERROR, NULL, HFILL }},
         { &hf_lin_event_id,
             { "Event ID", "lin.event_id",
             FT_UINT32, BASE_HEX_DEC, VALS(lin_event_type_names), 0x00, NULL, HFILL }},

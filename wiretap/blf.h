@@ -3,7 +3,7 @@
  * Binary Log File (BLF) file format from Vector Informatik decoder
  * for the Wiretap library.
  *
- * Copyright (c) 2021-2024 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright (c) 2021-2025 by Dr. Lars Völker <lars.voelker@technica-engineering.de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -683,6 +683,15 @@ typedef struct blf_apptext {
 #define BLF_APPTEXT_XML_GENERAL     0x01
 #define BLF_APPTEXT_XML_CHANNELS    0x02
 #define BLF_APPTEXT_XML_IDENTITY    0x03
+
+#define BLF_APPTEXT_TAG_DISS_ETHSTATUS      "blf-ethernetstatus-obj"
+#define BLF_APPTEXT_TAG_DISS_ETHPHYSTATUS   "blf-ethernetphystate-obj"
+#define BLF_APPTEXT_TAG_DISS_DEFAULT        "data-text-lines"
+#define BLF_APPTEXT_COL_PROT_TEXT           "BLF App text"
+#define BLF_APPTEXT_COL_INFO_TEXT           "Metadata"
+#define BLF_APPTEXT_COL_INFO_TEXT_GENERAL   "Metadata: General"
+#define BLF_APPTEXT_COL_INFO_TEXT_CHANNELS  "Metadata: Channels"
+#define BLF_APPTEXT_COL_INFO_TEXT_IDENTITY  "Metadata: Identity"
 
 #define BLF_BUSTYPE_CAN 1
 #define BLF_BUSTYPE_LIN 5
