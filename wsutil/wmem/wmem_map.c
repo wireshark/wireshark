@@ -57,9 +57,7 @@ typedef struct _wmem_map_item_t {
 } wmem_map_item_t;
 
 struct _wmem_map_t {
-    /* Number of items stored. This can be larger than capacity, because
-     * the table is chained (i.e., each hash value stores a linked list
-     * of all items with that hash), though performance degrades. */
+    /* Number of items stored. */
     size_t count;
 
     /* The base-2 logarithm of the actual size of the table. We store this
@@ -71,6 +69,20 @@ struct _wmem_map_t {
     unsigned min_capacity;
 
     wmem_map_item_t **table;
+    wmem_map_item_t *items;
+
+    /* Next unused item in the items array */
+    wmem_map_item_t *next_item;
+
+    /* An pointer array of items that had keys removed from the map without
+     * replacing their values. For more speed, we could instead just leave such
+     * items orphaned (not decrementing map->count but keeping a count of
+     * deleted items so that wmem_map_size is accurate). The map would be more
+     * likely to reach the item count limit (2^32) with many removals and
+     * insertions (but our largest uses do not remove items so that might be
+     * acceptable.)
+     */
+    GPtrArray *deleted_items;
 
     GHashFunc  hash_func;
     GEqualFunc eql_func;
@@ -104,6 +116,9 @@ wmem_map_init_table(wmem_map_t *map)
     map->count     = 0;
     map->capacity  = map->min_capacity;
     map->table     = wmem_alloc0_array(map->data_allocator, wmem_map_item_t*, CAPACITY(map));
+    /* We do *not* need to 0 these, unlike the pointers. */
+    map->items     = wmem_alloc_array(map->data_allocator, wmem_map_item_t, CAPACITY(map));
+    map->next_item = map->items;
 }
 
 wmem_map_t *
@@ -121,6 +136,9 @@ wmem_map_new(wmem_allocator_t *allocator,
     map->count = 0;
     map->min_capacity = WMEM_MAP_DEFAULT_CAPACITY;
     map->table = NULL;
+    map->items = NULL;
+    map->next_item = NULL;
+    map->deleted_items = g_ptr_array_new();
 
     return map;
 }
@@ -133,6 +151,9 @@ wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
 
     map->count = 0;
     map->table = NULL;
+    map->items = NULL;
+    map->next_item = NULL;
+    g_ptr_array_set_size(map->deleted_items, 0);
 
     if (event == WMEM_CB_DESTROY_EVENT) {
         wmem_unregister_callback(map->metadata_allocator, map->metadata_scope_cb_id);
@@ -168,6 +189,9 @@ wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_
     map->count = 0;
     map->min_capacity = WMEM_MAP_DEFAULT_CAPACITY;
     map->table = NULL;
+    map->items = NULL;
+    map->next_item = NULL;
+    map->deleted_items = g_ptr_array_new();
 
     map->metadata_scope_cb_id = wmem_register_callback(metadata_scope, wmem_map_destroy_cb, map);
     map->data_scope_cb_id  = wmem_register_callback(data_scope, wmem_map_reset_cb, map);
@@ -183,7 +207,11 @@ wmem_map_grow(wmem_map_t *map, unsigned new_capacity)
     unsigned          slot;
 
     if (new_capacity > 32) {
-        ws_warning("wmem_map does not support more than 2^32 buckets");
+        // Run time error
+        // XXX - If we really need to support more than 2^32 items,
+        // we can allocate a new items array without changing
+        // the number of slots in this case.
+        ws_error("wmem_map does not support more than 2^32 items");
         return;
     }
 
@@ -200,6 +228,14 @@ wmem_map_grow(wmem_map_t *map, unsigned new_capacity)
      * increment it) and allocate new table */
     map->capacity = new_capacity;
     map->table = wmem_alloc0_array(map->data_allocator, wmem_map_item_t*, CAPACITY(map));
+    /* allocate new items, continuing to use the existing items. */
+    /* XXX - If this is called when the map is not full (i.e., when
+     * map->count != old_cap, which can only happen if calling
+     * wmem_map_reserve after inserting items), then some items are
+     * orphaned. Alternatively we could do a more expensive copy in that
+     * case.  */
+    map->items = wmem_alloc_array(map->data_allocator, wmem_map_item_t, CAPACITY(map) - map->count);
+    map->next_item = map->items;
 
     /* copy all the elements over from the old table */
     for (i=0; i<old_cap; i++) {
@@ -244,7 +280,12 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     }
 
     /* insert new item */
-    (*item) = wmem_new(map->data_allocator, wmem_map_item_t);
+    if (map->deleted_items->len) {
+        *item = g_ptr_array_remove_index_fast(map->deleted_items, map->deleted_items->len - 1);
+    } else {
+        ws_assert(map->next_item);
+        *item = map->next_item++;
+    }
 
     (*item)->key   = key;
     (*item)->value = value;
@@ -365,7 +406,7 @@ wmem_map_remove(wmem_map_t *map, const void *key)
             tmp     = (*item);
             value   = tmp->value;
             (*item) = tmp->next;
-            wmem_free(map->data_allocator, tmp);
+            g_ptr_array_add(map->deleted_items, tmp);
             map->count--;
             return value;
         }
@@ -396,6 +437,7 @@ wmem_map_steal(wmem_map_t *map, const void *key)
             /* found it */
             tmp     = (*item);
             (*item) = tmp->next;
+            g_ptr_array_add(map->deleted_items, tmp);
             map->count--;
             return true;
         }
@@ -490,7 +532,7 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
             if (foreach_func((void *)(*item)->key, (void *)(*item)->value, user_data)) {
                 tmp   = *item;
                 *item = tmp->next;
-                wmem_free(map->data_allocator, tmp);
+                g_ptr_array_add(map->deleted_items, tmp);
                 map->count--;
                 deleted++;
             } else {
@@ -504,9 +546,6 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
 unsigned
 wmem_map_size(wmem_map_t *map)
 {
-    // XXX - The map actually can (very rarely) have more elements
-    // than buckets and thus more than can fit in an unsigned. This
-    // should be changed at some point. (It would be an ABI break.)
     return (unsigned)map->count;
 }
 
@@ -520,6 +559,11 @@ wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
     map->min_capacity = MAX(map->min_capacity, WMEM_MAP_DEFAULT_CAPACITY);
 
     if (map->table) {
+        /* XXX - Should reserving after an item has been inserted be allowed?
+         * Either we orphan some items in the old array or have to do a more
+         * expensive copy operation.
+         */
+        ws_warning("Capacity should be reserved when first creating a map.");
         wmem_map_grow(map, map->min_capacity);
     }
 

@@ -199,9 +199,6 @@ wmem_map_find(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
  *
  * @param map The map to use
  * @return the number of elements
- *
- * @warning The map can hold more than 2^32 elements (though this is
- * very unlikely). This function ought to return a size_t.
 */
 WS_DLL_PUBLIC
 unsigned
