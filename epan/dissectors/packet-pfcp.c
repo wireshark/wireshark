@@ -18907,7 +18907,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_nokia_health_report_interval,
-        { "Health Report Interval", "pfcp.nokia.healt_report_interval",
+        { "Health Report Interval", "pfcp.nokia.health_report_interval",
             FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
