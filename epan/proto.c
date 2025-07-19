@@ -9268,6 +9268,24 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	if (!hfinfo->abbrev || !hfinfo->abbrev[0])
 		REPORT_DISSECTOR_BUG("Field '%s' does not have an abbreviation", hfinfo->name);
 
+	/* TODO: This check is a significant percentage of startup time (~10%),
+	   although not nearly as slow as what's enabled by ENABLE_CHECK_FILTER.
+	   It might be nice to have a way to disable this check when, e.g.,
+	   running TShark many times with the same configuration. */
+	/* Check that the filter name (abbreviation) is legal;
+	 * it must contain only alphanumerics, '-', "_", and ".". */
+	unsigned char c;
+	c = module_check_valid_name(hfinfo->abbrev, false);
+	if (c) {
+		if (c == '.') {
+			REPORT_DISSECTOR_BUG("Invalid leading, duplicated or trailing '.' found in filter name '%s'", hfinfo->abbrev);
+		} else if (g_ascii_isprint(c)) {
+			REPORT_DISSECTOR_BUG("Invalid character '%c' in filter name '%s'", c, hfinfo->abbrev);
+		} else {
+			REPORT_DISSECTOR_BUG("Invalid byte \\%03o in filter name '%s'", c, hfinfo->abbrev);
+		}
+	}
+
 	/*  These types of fields are allowed to have value_strings,
 	 *  true_false_strings or a protocol_t struct
 	 */
@@ -9892,23 +9910,11 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 	hfinfo->id = gpa_hfinfo.len - 1;
 
 	/* if we have real names, enter this field in the name tree */
-	if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) {
+	/* Already checked in tmp_fld_check_assert */
+	/*if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) */
+	{
 
 		header_field_info *same_name_next_hfinfo;
-		unsigned char c;
-
-		/* Check that the filter name (abbreviation) is legal;
-		 * it must contain only alphanumerics, '-', "_", and ".". */
-		c = proto_check_field_name(hfinfo->abbrev);
-		if (c) {
-			if (c == '.') {
-				REPORT_DISSECTOR_BUG("Invalid leading, duplicated or trailing '.' found in filter name '%s'", hfinfo->abbrev);
-			} else if (g_ascii_isprint(c)) {
-				REPORT_DISSECTOR_BUG("Invalid character '%c' in filter name '%s'", c, hfinfo->abbrev);
-			} else {
-				REPORT_DISSECTOR_BUG("Invalid byte \\%03o in filter name '%s'", c, hfinfo->abbrev);
-			}
-		}
 
 		/* We allow multiple hfinfo's to be registered under the same
 		 * abbreviation. This was done for X.25, as, depending
