@@ -10788,6 +10788,7 @@ static const value_string usb_products_vals[] = {
     { 0x054c0e78, "Sony A6700" },
     { 0x054c0e80, "Sony ILCE-9M3" },
     { 0x054c0e90, "Sony ILX-LR1" },
+    { 0x054c0ee7, "Sony ZV-E10M2" },
     { 0x054c1000, "Wireless Buzz! Receiver" },
     { 0x054c1294, "Sony DCR-SR75" },
     { 0x05500002, "InkJet Color Printer" },
