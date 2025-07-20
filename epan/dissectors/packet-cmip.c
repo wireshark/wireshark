@@ -5772,22 +5772,22 @@ void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector_handle("2.9.0.0.2", cmip_handle, proto_cmip, "cmip");
 	register_ber_oid_dissector_handle("2.9.1.1.4", cmip_handle, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
-	oid_add_from_string("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");
-	oid_add_from_string("2.9.3.2.3.2","managedObjectClass(3) attributeValueChangeRecord(2)");
-	oid_add_from_string("2.9.3.2.3.3","managedObjectClass(3) discriminator(3)");
-	oid_add_from_string("2.9.3.2.3.4","managedObjectClass(3) eventForwardingDiscriminator(4)");
-	oid_add_from_string("2.9.3.2.3.5","managedObjectClass(3) eventLogRecord(5)");
-	oid_add_from_string("2.9.3.2.3.6","managedObjectClass(3) log(6)");
-	oid_add_from_string("2.9.3.2.3.7","managedObjectClass(3) logRecord(7)");
-	oid_add_from_string("2.9.3.2.3.8","managedObjectClass(3) objectCreationRecord(8)");
-	oid_add_from_string("2.9.3.2.3.9","managedObjectClass(3) objectDeletionRecord(9)");
-	oid_add_from_string("2.9.3.2.3.10","managedObjectClass(3) relationshipChangeRecord(10)");
-	oid_add_from_string("2.9.3.2.3.11","managedObjectClass(3) securityAlarmReportRecord(11)");
-	oid_add_from_string("2.9.3.2.3.12","managedObjectClass(3) stateChangeRecord(12)");
-	oid_add_from_string("2.9.3.2.3.13","managedObjectClass(3) system(13)");
-	oid_add_from_string("2.9.3.2.3.14","managedObjectClass(3) top(14)");
-	oid_add_from_string("2.9.3.2.4.14","administrativeStatePackage(14)");
-	oid_add_from_string("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
+	oid_add_from_string("managedObjectClass(3) alarmRecord(1)", "2.9.3.2.3.1");
+	oid_add_from_string("managedObjectClass(3) attributeValueChangeRecord(2)", "2.9.3.2.3.2");
+	oid_add_from_string("managedObjectClass(3) discriminator(3)", "2.9.3.2.3.3");
+	oid_add_from_string("managedObjectClass(3) eventForwardingDiscriminator(4)", "2.9.3.2.3.4");
+	oid_add_from_string("managedObjectClass(3) eventLogRecord(5)", "2.9.3.2.3.5");
+	oid_add_from_string("managedObjectClass(3) log(6)", "2.9.3.2.3.6");
+	oid_add_from_string("managedObjectClass(3) logRecord(7)", "2.9.3.2.3.7");
+	oid_add_from_string("managedObjectClass(3) objectCreationRecord(8)", "2.9.3.2.3.8");
+	oid_add_from_string("managedObjectClass(3) objectDeletionRecord(9)", "2.9.3.2.3.9");
+	oid_add_from_string("managedObjectClass(3) relationshipChangeRecord(10)", "2.9.3.2.3.10");
+	oid_add_from_string("managedObjectClass(3) securityAlarmReportRecord(11)", "2.9.3.2.3.11");
+	oid_add_from_string("managedObjectClass(3) stateChangeRecord(12)", "2.9.3.2.3.12");
+	oid_add_from_string("managedObjectClass(3) system(13)", "2.9.3.2.3.13");
+	oid_add_from_string("managedObjectClass(3) top(14)", "2.9.3.2.3.14");
+	oid_add_from_string("administrativeStatePackage(14)", "2.9.3.2.4.14");
+	oid_add_from_string("joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)", "2.9.1.1.4");
 
 /*#include "packet-cmip-dis-tab.c" */
 }
