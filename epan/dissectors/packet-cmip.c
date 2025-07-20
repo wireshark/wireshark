@@ -5760,7 +5760,6 @@ void proto_register_cmip(void) {
   register_ber_oid_dissector("2.9.3.2.7.71", dissect_WeekMask_PDU, proto_cmip, "weekMask(71)");
   register_ber_oid_dissector("2.9.3.2.7.115", dissect_LifecycleState_PDU, proto_cmip, "lifecycleState(115)");
 
-    oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", proto_cmip, FT_UINT32, BASE_DEC);
 
@@ -5787,7 +5786,6 @@ void proto_reg_handoff_cmip(void) {
 	oid_add_from_string("managedObjectClass(3) system(13)", "2.9.3.2.3.13");
 	oid_add_from_string("managedObjectClass(3) top(14)", "2.9.3.2.3.14");
 	oid_add_from_string("administrativeStatePackage(14)", "2.9.3.2.4.14");
-	oid_add_from_string("joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)", "2.9.1.1.4");
 
 /*#include "packet-cmip-dis-tab.c" */
 }
