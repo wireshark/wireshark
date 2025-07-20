@@ -2965,6 +2965,27 @@ Example:
         dissector_add_uint("udp.port", FOO_PORT, foo_handle);
     }
 
+2.2.8 Exported PDUs
+
+Wireshark supports Exported PDUs (Protocol Data Units), which allow pre-processed or extracted protocol payloads
+to be re-encapsulated and interpreted as individual packets. This is useful for cases where an external tool extracts
+sessions (e.g., VoIP, HTTP) and reinjects them into a capture for post-analysis.
+
+To handle Exported PDUs, Wireshark uses the `exported_pdu` dissector, which can wrap protocols like TCP, UDP, or any
+other payload into a new frame.
+
+An Exported PDU typically includes the following fields:
+
+- `pdu_type`: The protocol type of the encapsulated PDU.
+- `tvb`: The data buffer containing the payload.
+- `metadata`: (Optional) Custom information passed to the dissector.
+
+Plugins or dissectors can create and register exported PDUs using the internal API or by writing their data in PCAPNG
+format with `block_type` `0x00000BAD`.
+
+This mechanism improves modular analysis and allows tools to reuse Wireshark’s decoding logic.
+
+For more, see: `epan/exported_pdu.h`
 
 
 2.3 Dynamic conversation dissector registration.

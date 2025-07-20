@@ -5454,6 +5454,15 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F2A,   "KELLER Druckmesstechnik AG" },
     { 0x0F2B,   "ElitEngineering LLC" },
     { 0x0F2C,   "Vision Group Inc." },
+    { 0x0F2D,   "ClipsClips LLC" },
+    { 0x0F2E,   "BRITZ INTERNATIONAL CO.,LTD" },
+    { 0x0F2F,   "ThingCo Limited" },
+    { 0x0F30,   "Opal Camera, Inc." },
+    { 0x0F31,   "TECHNOLOGIES FOR FREERIDE s.r.o" },
+    { 0x0F32,   "FLINTEC UK LIMITED" },
+    { 0x0F33,   "TETNET" },
+    { 0x0F34,   "NINGBO SHARKWARD ELECTRONICS CO.,LTD" },
+    { 0x0F35,   "Audeze LLC" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

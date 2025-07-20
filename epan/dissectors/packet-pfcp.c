@@ -1155,33 +1155,33 @@ static int hf_pfcp_bbf_dynamic_nat_block_port_range_end_port;
 
 static int hf_pfcp_bbf_event_time_stamp;
 
-static int hf_pfcp_bbf_direction = -1;
-static int hf_pfcp_bbf_family = -1;
-static int hf_pfcp_bbf_sgrp_identifier = -1;
-static int hf_pfcp_bbf_sgrp_state = -1;
-static int hf_pfcp_bbf_sgrp_flags = -1;
-static int hf_pfcp_bbf_sgrp_flags_b0_ras = -1;
-static int hf_pfcp_bbf_sgrp_flags_b1_psa = -1;
-static int hf_pfcp_bbf_operational_condition = -1;
-static int hf_pfcp_bbf_ipv4_prefix = -1;
-static int hf_pfcp_bbf_ipv4_prefix_length = -1;
-static int hf_pfcp_bbf_ipv6_prefix = -1;
-static int hf_pfcp_bbf_ipv6_prefix_length = -1;
-static int hf_pfcp_bbf_prefix_tag_usage = -1;
-static int hf_pfcp_bbf_prefix_tag = -1;
-static int hf_pfcp_bbf_error_code = -1;
-static int hf_pfcp_bbf_error_message = -1;
-static int hf_pfcp_bbf_maximum_acl_chain_length = -1;
-static int hf_pfcp_bbf_forwarding_capability = -1;
-static int hf_pfcp_bbf_connectivity_status = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type_b0_lpr = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type_b1_sgr = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type_b2_nir = -1;
-static int hf_pfcp_bbf_ctag_range_start = -1;
-static int hf_pfcp_bbf_ctag_range_end = -1;
-static int hf_pfcp_bbf_stag_range_start = -1;
-static int hf_pfcp_bbf_stag_range_end = -1;
+static int hf_pfcp_bbf_direction;
+static int hf_pfcp_bbf_family;
+static int hf_pfcp_bbf_sgrp_identifier;
+static int hf_pfcp_bbf_sgrp_state;
+static int hf_pfcp_bbf_sgrp_flags;
+static int hf_pfcp_bbf_sgrp_flags_b0_ras;
+static int hf_pfcp_bbf_sgrp_flags_b1_psa;
+static int hf_pfcp_bbf_operational_condition;
+static int hf_pfcp_bbf_ipv4_prefix;
+static int hf_pfcp_bbf_ipv4_prefix_length;
+static int hf_pfcp_bbf_ipv6_prefix;
+static int hf_pfcp_bbf_ipv6_prefix_length;
+static int hf_pfcp_bbf_prefix_tag_usage;
+static int hf_pfcp_bbf_prefix_tag;
+static int hf_pfcp_bbf_error_code;
+static int hf_pfcp_bbf_error_message;
+static int hf_pfcp_bbf_maximum_acl_chain_length;
+static int hf_pfcp_bbf_forwarding_capability;
+static int hf_pfcp_bbf_connectivity_status;
+static int hf_pfcp_bbf_vendor_specific_node_report_type;
+static int hf_pfcp_bbf_vendor_specific_node_report_type_b0_lpr;
+static int hf_pfcp_bbf_vendor_specific_node_report_type_b1_sgr;
+static int hf_pfcp_bbf_vendor_specific_node_report_type_b2_nir;
+static int hf_pfcp_bbf_ctag_range_start;
+static int hf_pfcp_bbf_ctag_range_end;
+static int hf_pfcp_bbf_stag_range_start;
+static int hf_pfcp_bbf_stag_range_end;
 
 /* Travelping */
 static int hf_pfcp_enterprise_travelping_packet_measurement;
@@ -1209,7 +1209,7 @@ static int hf_pfcp_travelping_trace_state_str;
 
 /* Juniper Networks */
 
-static int hf_pfcp_jnpr_cp_id_opaque_string = -1;
+static int hf_pfcp_jnpr_cp_id_opaque_string;
 
 /* Nokia */
 
@@ -1374,7 +1374,7 @@ static int ett_pfcp_enterprise_travelping_error_report;
 static int ett_pfcp_enterprise_travelping_created_nat_binding;
 static int ett_pfcp_enterprise_travelping_trace_info;
 
-static int ett_pfcp_jnpr = -1;
+static int ett_pfcp_jnpr;
 
 static int ett_pfcp_bbf_ppp_protocol_flags;
 static int ett_pfcp_bbf_l2tp_endp_flags;
@@ -18907,7 +18907,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_nokia_health_report_interval,
-        { "Health Report Interval", "pfcp.nokia.healt_report_interval",
+        { "Health Report Interval", "pfcp.nokia.health_report_interval",
             FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },

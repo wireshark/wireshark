@@ -1286,7 +1286,7 @@ column_register_fields(void)
       if (col_format_abbrev(cfmt->fmt) && !used_fmts[cfmt->fmt]) {
         used_fmts[cfmt->fmt] = true;
         hf_id = g_new(int, 1);
-        *hf_id = -1;
+        *hf_id = 0;
         new_hf.p_id = hf_id;
         new_hf.hfinfo.name = g_strdup(col_format_desc(cfmt->fmt));
         new_hf.hfinfo.abbrev = g_strdup(col_format_abbrev(cfmt->fmt));

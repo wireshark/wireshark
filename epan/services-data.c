@@ -5280,6 +5280,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 113, "ident",             "" },
     { 143, "imap",              "Internet Message Access Protocol" },
     { 271, "pt-tls",            "IETF Network Endpoint Assessment (NEA) Posture Transport Protocol over TLS (PT-TLS)" },
+    { 300, "tacacss",           "TLS Secure Login Host Protocol (TACACSS)" },
     { 323, "rpki-rtr",          "Resource PKI to Router Protocol" },
     { 324, "rpki-rtr-tls",      "Resource PKI to Router Protocol over TLS" },
     { 456, "macon-tcp",         "" },
