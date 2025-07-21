@@ -42,6 +42,7 @@ Wireshark es considerado una herramienta indispensable para la administraci�n,
 6. <a id="6"></a> [Stack Overflow: Para qu� sirve Wireshark](https://es.stackoverflow.com/questions/92619/para-qu%C3%A9-sirve-wireshark)  
 7. <a id="7"></a> Chappell, L., & Combs, G. (2021). *Wireshark 101: Essential Skills for Network Analysis*. Protocol Analysis Institute.
 
+8. Es importante determinar cual es el procedimiento a seguir para la actualizacion de github
 ---
 
 **En conclusi�n:**  
