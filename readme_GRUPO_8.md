@@ -1,32 +1,34 @@
-# Wireshark: resumen y justificación técnica
+# Wireshark: resumen y justificaciï¿½n tï¿½cnica
 
 ## Resumen de la utilidad de Wireshark
 
-Wireshark es un analizador de protocolos de red de código abierto ampliamente reconocido por su capacidad para capturar y examinar en profundidad el tráfico de red en tiempo real. Su uso está extendido en ambientes profesionales, académicos y de investigación, permitiendo analizar el flujo de información hasta el nivel más bajo de los paquetes, visualizar la estructura de protocolos, filtrar tráfico específico e identificar anomalías o patrones anómalos en la red [[1]](#1).
+Wireshark es un analizador de protocolos de red de cï¿½digo abierto ampliamente reconocido por su capacidad para capturar y examinar en profundidad el trï¿½fico de red en tiempo real. Su uso estï¿½ extendido en ambientes profesionales, acadï¿½micos y de investigaciï¿½n, permitiendo analizar el flujo de informaciï¿½n hasta el nivel mï¿½s bajo de los paquetes, visualizar la estructura de protocolos, filtrar trï¿½fico especï¿½fico e identificar anomalï¿½as o patrones anï¿½malos en la red [[1]](#1).
 
-Entre sus funciones más relevantes destacan:
-- Captura en tiempo real y análisis retrospectivo de paquetes.
-- Filtros avanzados para examinar tráfico específico.
-- Interpretación de una amplia variedad de protocolos modernos y legacy.
-- Exportación de datos y generación de informes para documentación o auditoría.
+Entre sus funciones mï¿½s relevantes destacan:
+- Captura en tiempo real y anï¿½lisis retrospectivo de paquetes.
+- Filtros avanzados para examinar trï¿½fico especï¿½fico.
+- Interpretaciï¿½n de una amplia variedad de protocolos modernos y legacy.
+- Exportaciï¿½n de datos y generaciï¿½n de informes para documentaciï¿½n o auditorï¿½a.
 
 ---
 
-## Justificación técnica y basada en evidencia
+## Justificaciï¿½n tï¿½cnica y basada en evidencia
 
-Wireshark es considerado una herramienta indispensable para la administración, diagnóstico y auditoría de redes. Los siguientes criterios técnicos, validados por la literatura especializada, lo justifican:
+Se agrega comentario para la Rama1GCamacho y evidenciar los cambios en el master de Wireshark
 
-1. **Diagnóstico profundo y resolución de problemas**  
-   Wireshark facilita la detección y solución eficiente de fallos de red, errores de configuración, tráfico malicioso y problemas de rendimiento. La captura y análisis visual de los paquetes permite aislar rápidamente la causa raíz de los problemas, aspecto resaltado en diversas publicaciones técnicas y manuales de referencia [[2]](#2), [[3]](#3).
+Wireshark es considerado una herramienta indispensable para la administraciï¿½n, diagnï¿½stico y auditorï¿½a de redes. Los siguientes criterios tï¿½cnicos, validados por la literatura especializada, lo justifican:
+
+1. **Diagnï¿½stico profundo y resoluciï¿½n de problemas**  
+   Wireshark facilita la detecciï¿½n y soluciï¿½n eficiente de fallos de red, errores de configuraciï¿½n, trï¿½fico malicioso y problemas de rendimiento. La captura y anï¿½lisis visual de los paquetes permite aislar rï¿½pidamente la causa raï¿½z de los problemas, aspecto resaltado en diversas publicaciones tï¿½cnicas y manuales de referencia [[2]](#2), [[3]](#3).
 
 2. **Ciberseguridad y forense digital**  
-   Es una herramienta central para el análisis forense de incidentes de seguridad, ya que permite identificar patrones de ataque (por ejemplo, DDoS, sniffing de contraseñas, exfiltración de datos), analizar la comunicación entre sistemas y recolectar evidencia técnica en investigaciones forenses [[4]](#4), [[7]](#7).
+   Es una herramienta central para el anï¿½lisis forense de incidentes de seguridad, ya que permite identificar patrones de ataque (por ejemplo, DDoS, sniffing de contraseï¿½as, exfiltraciï¿½n de datos), analizar la comunicaciï¿½n entre sistemas y recolectar evidencia tï¿½cnica en investigaciones forenses [[4]](#4), [[7]](#7).
 
-3. **Valor académico y científico**  
-   Wireshark se emplea para la docencia y experimentación en programas universitarios de redes y ciberseguridad, al permitir a los estudiantes observar el funcionamiento real de los protocolos en distintos escenarios [[2]](#2), [[5]](#5).
+3. **Valor acadï¿½mico y cientï¿½fico**  
+   Wireshark se emplea para la docencia y experimentaciï¿½n en programas universitarios de redes y ciberseguridad, al permitir a los estudiantes observar el funcionamiento real de los protocolos en distintos escenarios [[2]](#2), [[5]](#5).
 
-4. **Versatilidad y actualización constante**  
-   Es un software de código abierto con una comunidad activa que asegura un soporte continuo, inclusión de nuevos protocolos y respuesta ágil ante vulnerabilidades recientes [[1]](#1).
+4. **Versatilidad y actualizaciï¿½n constante**  
+   Es un software de cï¿½digo abierto con una comunidad activa que asegura un soporte continuo, inclusiï¿½n de nuevos protocolos y respuesta ï¿½gil ante vulnerabilidades recientes [[1]](#1).
 
 ---
 
@@ -34,13 +36,13 @@ Wireshark es considerado una herramienta indispensable para la administración, d
 
 1. <a id="1"></a> [Wireshark Official Documentation. Wireshark User's Guide](https://www.wireshark.org/docs/wsug_html_chunked/)  
 2. <a id="2"></a> Sanders, L. (2017). *Wireshark Network Analysis (2nd Edition)*. Protocol Analysis Institute.  
-3. <a id="3"></a> De Sort, J. (2022). *Monitorización de redes con Wireshark*. Editorial UOC.  
+3. <a id="3"></a> De Sort, J. (2022). *Monitorizaciï¿½n de redes con Wireshark*. Editorial UOC.  
 4. <a id="4"></a> Hemdan, E.E., & Mahmoud, M. (2019). "Research on Wireshark tool as a network protocol analyzer". *Journal of Computer Science Applications and Information Technology*.  
 5. <a id="5"></a> Felicia, A. (2018). "Review of Wireshark as a packet analysis tool for network traffic forensic investigation". *International Journal of Computer Applications*.  
-6. <a id="6"></a> [Stack Overflow: Para qué sirve Wireshark](https://es.stackoverflow.com/questions/92619/para-qu%C3%A9-sirve-wireshark)  
+6. <a id="6"></a> [Stack Overflow: Para quï¿½ sirve Wireshark](https://es.stackoverflow.com/questions/92619/para-qu%C3%A9-sirve-wireshark)  
 7. <a id="7"></a> Chappell, L., & Combs, G. (2021). *Wireshark 101: Essential Skills for Network Analysis*. Protocol Analysis Institute.
 
 ---
 
-**En conclusión:**  
-Wireshark es una herramienta de referencia obligada por su capacidad de ofrecer diagnóstico preciso, soporte a la ciberseguridad y enseñanza de redes, situación avalada por la literatura académica y la comunidad técnica mundial.
+**En conclusiï¿½n:**  
+Wireshark es una herramienta de referencia obligada por su capacidad de ofrecer diagnï¿½stico preciso, soporte a la ciberseguridad y enseï¿½anza de redes, situaciï¿½n avalada por la literatura acadï¿½mica y la comunidad tï¿½cnica mundial.
