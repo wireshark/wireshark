@@ -15,13 +15,10 @@ is configurable via extcap options.
 
 @note
 {
-To use this script on Windows, please generate an extcap_example.bat inside
-the extcap folder, with the following content:
+To use this script on Windows, please also include extcap_example.bat inside
+the extcap folder, next to extcap_example.py.
 
--------
-@echo off
-C:\Windows\py.exe C:\Path\to\extcap_example.py %*
--------
+https://gitlab.com/wireshark/wireshark/-/blob/master/doc/extcap_example.bat
 
 Windows is not able to execute Python scripts directly, which also goes for all
 other script-based formats beside VBScript
