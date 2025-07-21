@@ -123,6 +123,7 @@ def extcap_config(interface, option):
     args.append((10, '--logfile', 'Log File Test', 'The Log File Test', 'fileselect', '{group=Time / Log}'))
     args.append((11, '--radio', 'Radio Test', 'Radio Test Value', 'radio', '{group=Selection}'))
     args.append((12, '--multi', 'MultiCheck Test', 'MultiCheck Test Value', 'multicheck', '{group=Selection}'))
+    args.append((13, '--table', 'Table Test', 'Table test value', 'table', '{configurable=true}{prefix=--opt}{group=Table}'))
 
     if option == "remote":
         values.append((3, "if1", "Remote Interface 1", "false"))
@@ -156,6 +157,9 @@ def extcap_config(interface, option):
         multi_values.append(((12, "m2c1g1", "Checkable Grandchild", "false", "true"), "m2c1"))
         multi_values.append(((12, "m2c2", "Uncheckable Child 2", "false", "false"), "m2"))
         multi_values.append(((12, "m2c2g1", "Uncheckable Grandchild", "false", "false"), "m2c2"))
+        # Table
+        multi_values.append(((13, "m1", "Configurable option 1", "false", "true"), None))
+        multi_values.append(((13, "m2", "Configurable option 2", "false", "true"), None))
 
     for value in values:
         print("value {arg=%d}{value=%s}{display=%s}{default=%s}" % value)
@@ -165,6 +169,20 @@ def extcap_config(interface, option):
         extra = "{parent=%s}" % parent if parent else ""
         print("".join((sentence, extra)))
 
+def extcap_config_option(interface, option_name, option_value):
+    args = []
+
+    if option_name != "table":
+        return
+    if option_value == "m1":
+        args.append((0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}{default=5}'))
+        args.append((1, '--message', 'Message', 'Package message content', 'string', '{required=true}{placeholder=Please enter a message here ...}'))
+    elif option_value == "m2":
+        args.append((0, '--d1test', 'Double 1 Test', 'Long Test Value', 'double', '{default=123.456}{group=Numeric Values}'))
+        args.append((1, '--d2test', 'Double 2 Test', 'Long Test Value', 'double', '{default= 123,456}{group=Numeric Values}'))
+
+    for arg in args:
+        print("arg {number=%d}{call=%s}{display=%s}{tooltip=%s}{type=%s}%s" % arg)
 
 def extcap_version():
     print("extcap {version=1.0}{help=https://www.wireshark.org}{display=Example extcap interface}")
@@ -453,6 +471,8 @@ if __name__ == '__main__':
     parser.add_argument("--extcap-interface", help="Provide the interface to capture from")
     parser.add_argument("--extcap-dlts", help="Provide a list of dlts for the given interface", action="store_true")
     parser.add_argument("--extcap-config", help="Provide a list of configurations for the given interface", action="store_true")
+    parser.add_argument("--extcap-config-option-name", help="Provide a list of sub-configuration for a configuration")
+    parser.add_argument("--extcap-config-option-value", help="Provide a list of sub-configuration for a configuration")
     parser.add_argument("--extcap-capture-filter", help="Used together with capture to provide a capture filter")
     parser.add_argument("--fifo", help="Use together with capture to provide the fifo to dump data to")
     parser.add_argument("--extcap-control-in", help="Used to get control messages from toolbar")
@@ -521,7 +541,9 @@ if __name__ == '__main__':
     if args.extcap_reload_option and len(args.extcap_reload_option) > 0:
         option = args.extcap_reload_option
 
-    if args.extcap_config:
+    if args.extcap_config_option_name:
+        extcap_config_option(interface, args.extcap_config_option_name, args.extcap_config_option_value)
+    elif args.extcap_config:
         extcap_config(interface, option)
     elif args.extcap_dlts:
         extcap_dlts(interface)

@@ -878,13 +878,13 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
     {
         ctx_column_ = curIndex.column();
         QMimeData * mimeData = new QMimeData();
-        QWidget * content = nullptr;
+        DragLabel * drag_label = nullptr;
 
         QString filter = getFilterFromRowAndColumn(curIndex);
         QList<int> rows = selectedRows();
         if (rows.count() > 1)
         {
-            QStringList content;
+            QStringList entries;
             foreach (int row, rows)
             {
                 QModelIndex idx = model()->index(row, 0);
@@ -892,11 +892,11 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
                     continue;
 
                 QString entry = createSummaryText(idx, CopyAsText);
-                content << entry;
+                entries << entry;
             }
 
-            if (content.count() > 0)
-                mimeData->setText(content.join("\n"));
+            if (entries.count() > 0)
+                mimeData->setText(entries.join("\n"));
         }
         else if (! filter.isEmpty())
         {
@@ -921,7 +921,7 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
             filterData["description"] = name;
 
             mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
-            content = new DragLabel(QStringLiteral("%1\n%2").arg(name, abbrev), this);
+            drag_label = new DragLabel(QStringLiteral("%1\n%2").arg(name, abbrev), this);
         }
         else
         {
@@ -934,13 +934,14 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
         {
             QDrag * drag = new QDrag(this);
             drag->setMimeData(mimeData);
-            if (content)
+            if (drag_label)
             {
                 qreal dpr = window()->windowHandle()->devicePixelRatio();
-                QPixmap pixmap= QPixmap(content->size() * dpr);
+                QPixmap pixmap= QPixmap(drag_label->size() * dpr);
                 pixmap.setDevicePixelRatio(dpr);
-                content->render(&pixmap);
+                drag_label->render(&pixmap);
                 drag->setPixmap(pixmap);
+                delete drag_label;
             }
 
             drag->exec(Qt::CopyAction);

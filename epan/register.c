@@ -64,27 +64,33 @@ register_all_protocols_worker(void *arg _U_)
 void
 register_all_protocols(register_cb cb, void *cb_data)
 {
-    const char *cb_name;
-    register_cb_done_q = g_async_queue_new();
     bool called_back = false;
-    GThread *rapw_thread;
-    const char *error_message;
-
-    rapw_thread = g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
-    while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
-        g_mutex_lock(&cur_cb_name_mtx);
-        cb_name = cur_cb_name;
-        g_mutex_unlock(&cur_cb_name_mtx);
-        if (cb && cb_name) {
-            cb(RA_REGISTER, cb_name, cb_data);
-            called_back = true;
+    if (!cb) {
+        for (unsigned long i = 0; i < dissector_reg_proto_count; i++) {
+            dissector_reg_proto[i].cb_func();
         }
-    }
-    error_message = (const char *) g_thread_join(rapw_thread);
-    if (error_message != NULL)
-        THROW_MESSAGE(DissectorError, error_message);
-    if (cb && !called_back) {
-        cb(RA_REGISTER, "finished", cb_data);
+    } else {
+        const char *error_message; /* XXX - This isn't const, and should be freed. */
+        const char *cb_name;
+        GThread *rapw_thread;
+
+        register_cb_done_q = g_async_queue_new();
+        rapw_thread = g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
+        while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
+            g_mutex_lock(&cur_cb_name_mtx);
+            cb_name = cur_cb_name;
+            g_mutex_unlock(&cur_cb_name_mtx);
+            if (cb_name) {
+                cb(RA_REGISTER, cb_name, cb_data);
+                called_back = true;
+            }
+        }
+        error_message = (const char *) g_thread_join(rapw_thread);
+        if (error_message != NULL)
+            THROW_MESSAGE(DissectorError, error_message);
+        if (!called_back) {
+            cb(RA_REGISTER, "finished", cb_data);
+        }
     }
 }
 
@@ -120,29 +126,39 @@ register_all_protocol_handoffs_worker(void *arg _U_)
 void
 register_all_protocol_handoffs(register_cb cb, void *cb_data)
 {
-    const char *cb_name;
-    bool called_back = false;
-    GThread *raphw_thread;
-    const char *error_message;
-
-    set_cb_name(NULL);
-    raphw_thread = g_thread_new("register_all_protocol_handoffs_worker", &register_all_protocol_handoffs_worker, NULL);
-    while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
-        g_mutex_lock(&cur_cb_name_mtx);
-        cb_name = cur_cb_name;
-        g_mutex_unlock(&cur_cb_name_mtx);
-        if (cb && cb_name) {
-            cb(RA_HANDOFF, cb_name, cb_data);
-            called_back = true;
+    if (!cb) {
+        for (unsigned long i = 0; i < dissector_reg_handoff_count; i++) {
+            dissector_reg_handoff[i].cb_func();
+        }
+    } else {
+        bool called_back = false;
+        const char *error_message; /* XXX - This isn't const, and should be freed */
+        const char *cb_name;
+        GThread *raphw_thread;
+        if (register_cb_done_q == NULL) {
+            register_cb_done_q = g_async_queue_new();
+        }
+        set_cb_name(NULL);
+        raphw_thread = g_thread_new("register_all_protocol_handoffs_worker", &register_all_protocol_handoffs_worker, NULL);
+        while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
+            g_mutex_lock(&cur_cb_name_mtx);
+            cb_name = cur_cb_name;
+            g_mutex_unlock(&cur_cb_name_mtx);
+            if (cb_name) {
+                cb(RA_HANDOFF, cb_name, cb_data);
+                called_back = true;
+            }
+        }
+        error_message = (const char *) g_thread_join(raphw_thread);
+        if (error_message != NULL)
+            THROW_MESSAGE(DissectorError, error_message);
+        if (!called_back) {
+            cb(RA_HANDOFF, "finished", cb_data);
         }
     }
-    error_message = (const char *) g_thread_join(raphw_thread);
-    if (error_message != NULL)
-        THROW_MESSAGE(DissectorError, error_message);
-    if (cb && !called_back) {
-        cb(RA_HANDOFF, "finished", cb_data);
+    if (register_cb_done_q) {
+        g_async_queue_unref(register_cb_done_q);
     }
-    g_async_queue_unref(register_cb_done_q);
 }
 
 unsigned long register_count(void)

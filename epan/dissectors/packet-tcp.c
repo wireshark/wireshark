@@ -8611,6 +8611,32 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if(tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info) {
             tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
         }
+
+        /* Follow-up of the conversation over ICMP errors.
+         * When coming over an error packet (typically ICMP), we want to save the
+         * conversation type, and have a specific tracking then we can match with
+         * ordinary, non error packets.
+         */
+        if (pinfo->flags.in_error_pkt) {
+            /* Save the conversation type */
+            pinfo->track_ctype = CONVERSATION_TCP;
+
+            conversation_t *err_conv = NULL;
+            err_conv = find_conversation_err_pkts(pinfo->num, CONVERSATION_TCP, tcpd->stream, conv->conv_index);
+            if(!err_conv) {
+                /* Create the conversation tracking the ordinary TCP conversation */
+                err_conv = conversation_new_err_pkts(pinfo->num, CONVERSATION_TCP, tcpd->stream, conv->conv_index );
+
+                /* Align the setup_frame with the TCP conversation's one */
+                err_conv->setup_frame = conv->setup_frame;
+            }
+            else if (pinfo->num > err_conv->last_frame) {
+                /* If we have multiple error packets related to this same UDP conversation,
+                 * extend the tracker conversation.
+                 */
+                err_conv->last_frame = pinfo->num;
+            }
+        }
     }
 
     /* is there any manual analysis waiting ? */

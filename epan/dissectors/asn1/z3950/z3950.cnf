@@ -105,16 +105,16 @@ TaggedElement/content taggedElement_content
 CategoryInfo/category categoryInfo_category
 TermListDetails/attributes termListDetails_attributes
 AttributeSetInfo/attributes attributeSetInfo_attributes
-ExtendedServicesRequest/description extendedServicesRequest_description 
+ExtendedServicesRequest/description extendedServicesRequest_description
 
 #.END
 
 #.REGISTER
-Explain-Record  B "1.2.840.10003.5.100" "Explain-record"
-SutrsRecord     B "1.2.840.10003.5.101" "Sutrs-record"
-OPACRecord      B "1.2.840.10003.5.102" "OPAC-record"
-BriefBib        B "1.2.840.10003.5.103" "Summary-record"
-GenericRecord   B "1.2.840.10003.5.105" "GRS-1-record"
+Explain-Record  B "1.2.840.10003.5.100" "Explain"
+SutrsRecord     B "1.2.840.10003.5.101" "SUTRS"
+OPACRecord      B "1.2.840.10003.5.102" "OPAC"
+BriefBib        B "1.2.840.10003.5.103" "Summary"
+GenericRecord   B "1.2.840.10003.5.105" "GRS-1"
 TaskPackage     B "1.2.840.10003.5.106" "ESTaskPackage"
 DiagnosticFormat  B "1.2.840.10003.4.2" "diag-1"
 PromptObject    B "1.2.840.10003.8.1" "Prompt-1"
