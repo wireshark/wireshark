@@ -98,9 +98,9 @@ static int hf_phr_ofdm_length;
 static int hf_phr_ofdm_scrambler;
 
 /* Expert info fields - used for warnings and notes*/
-static expert_field ei_silabs_dch_unsupported_type = EI_INIT;
-static expert_field ei_silabs_dch_unsupported_protocol = EI_INIT;
-static expert_field ei_silabs_dch_invalid_appendedinfolen = EI_INIT;
+static expert_field ei_silabs_dch_unsupported_type;
+static expert_field ei_silabs_dch_unsupported_protocol;
+static expert_field ei_silabs_dch_invalid_appendedinfolen;
 
 /* Bit-mask for the EFR32 phr field */
 #define EFR32_PHR_PACKETLEN_MASK 0xFF
