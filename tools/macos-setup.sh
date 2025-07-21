@@ -178,7 +178,7 @@ LIBXML2_VERSION=2.11.5
 LZ4_VERSION=1.9.4
 SBC_VERSION=2.0
 CARES_VERSION=1.31.0
-LIBSSH_VERSION=0.10.5
+LIBSSH_VERSION=0.11.2
 # mmdbresolve
 MAXMINDDB_VERSION=1.9.1
 NGHTTP2_VERSION=1.62.1
@@ -1775,7 +1775,7 @@ install_zlibng() {
         cd zlib-ng-$ZLIBNG_VERSION
         mkdir build
         cd build
-        "${DO_CMAKE[@]}" .. 
+        "${DO_CMAKE[@]}" ..
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ../..
@@ -2789,7 +2789,7 @@ install_minizip_ng() {
         cd minizip-ng-$MINIZIPNG_VERSION
         mkdir build
         cd build
-        "${DO_CMAKE[@]}" .. 
+        "${DO_CMAKE[@]}" ..
         make "${MAKE_BUILD_OPTS[@]}"
         $DO_MAKE_INSTALL
         cd ../..
