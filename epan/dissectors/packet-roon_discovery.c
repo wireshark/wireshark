@@ -55,8 +55,8 @@ typedef struct {
 // Prototypes
 void proto_reg_handoff_roon_discover(void);
 void proto_register_roon_discover(void);
-conversation_t *roon_find_or_create_conversation(packet_info *pinfo,
-                                                 bool ephemeral);
+static conversation_t *roon_find_or_create_conversation(packet_info *pinfo,
+                                                        bool ephemeral);
 static roon_transaction_t *transaction_start(packet_info *pinfo,
                                              proto_tree *tree,
                                              char *tid,
@@ -204,7 +204,7 @@ compare_uuids(const void *va, const void *vb) {
 }
 
 // returns the name of the UUID from the roon_uuid_map or NULL if not exists
-const char *
+static const char *
 roon_map_uuid(char *key, const roon_uuid_map rm[]) {
     size_t len = roon_uuid_length(rm);
     roon_uuid_map map[1] = {{ key, NULL }};
@@ -494,7 +494,7 @@ proto_reg_handoff_roon_discover(void)
  *  The frame number and addresses are taken from pinfo.
  *  Ignores the destination address as it may be a broadcast/multicast address.
 */
-conversation_t *
+static conversation_t *
 roon_find_or_create_conversation(packet_info *pinfo, bool ephemeral)
 {
     conversation_t *conv=NULL;
