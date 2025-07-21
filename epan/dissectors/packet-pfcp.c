@@ -1155,33 +1155,33 @@ static int hf_pfcp_bbf_dynamic_nat_block_port_range_end_port;
 
 static int hf_pfcp_bbf_event_time_stamp;
 
-static int hf_pfcp_bbf_direction = -1;
-static int hf_pfcp_bbf_family = -1;
-static int hf_pfcp_bbf_sgrp_identifier = -1;
-static int hf_pfcp_bbf_sgrp_state = -1;
-static int hf_pfcp_bbf_sgrp_flags = -1;
-static int hf_pfcp_bbf_sgrp_flags_b0_ras = -1;
-static int hf_pfcp_bbf_sgrp_flags_b1_psa = -1;
-static int hf_pfcp_bbf_operational_condition = -1;
-static int hf_pfcp_bbf_ipv4_prefix = -1;
-static int hf_pfcp_bbf_ipv4_prefix_length = -1;
-static int hf_pfcp_bbf_ipv6_prefix = -1;
-static int hf_pfcp_bbf_ipv6_prefix_length = -1;
-static int hf_pfcp_bbf_prefix_tag_usage = -1;
-static int hf_pfcp_bbf_prefix_tag = -1;
-static int hf_pfcp_bbf_error_code = -1;
-static int hf_pfcp_bbf_error_message = -1;
-static int hf_pfcp_bbf_maximum_acl_chain_length = -1;
-static int hf_pfcp_bbf_forwarding_capability = -1;
-static int hf_pfcp_bbf_connectivity_status = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type_b0_lpr = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type_b1_sgr = -1;
-static int hf_pfcp_bbf_vendor_specific_node_report_type_b2_nir = -1;
-static int hf_pfcp_bbf_ctag_range_start = -1;
-static int hf_pfcp_bbf_ctag_range_end = -1;
-static int hf_pfcp_bbf_stag_range_start = -1;
-static int hf_pfcp_bbf_stag_range_end = -1;
+static int hf_pfcp_bbf_direction;
+static int hf_pfcp_bbf_family;
+static int hf_pfcp_bbf_sgrp_identifier;
+static int hf_pfcp_bbf_sgrp_state;
+static int hf_pfcp_bbf_sgrp_flags;
+static int hf_pfcp_bbf_sgrp_flags_b0_ras;
+static int hf_pfcp_bbf_sgrp_flags_b1_psa;
+static int hf_pfcp_bbf_operational_condition;
+static int hf_pfcp_bbf_ipv4_prefix;
+static int hf_pfcp_bbf_ipv4_prefix_length;
+static int hf_pfcp_bbf_ipv6_prefix;
+static int hf_pfcp_bbf_ipv6_prefix_length;
+static int hf_pfcp_bbf_prefix_tag_usage;
+static int hf_pfcp_bbf_prefix_tag;
+static int hf_pfcp_bbf_error_code;
+static int hf_pfcp_bbf_error_message;
+static int hf_pfcp_bbf_maximum_acl_chain_length;
+static int hf_pfcp_bbf_forwarding_capability;
+static int hf_pfcp_bbf_connectivity_status;
+static int hf_pfcp_bbf_vendor_specific_node_report_type;
+static int hf_pfcp_bbf_vendor_specific_node_report_type_b0_lpr;
+static int hf_pfcp_bbf_vendor_specific_node_report_type_b1_sgr;
+static int hf_pfcp_bbf_vendor_specific_node_report_type_b2_nir;
+static int hf_pfcp_bbf_ctag_range_start;
+static int hf_pfcp_bbf_ctag_range_end;
+static int hf_pfcp_bbf_stag_range_start;
+static int hf_pfcp_bbf_stag_range_end;
 
 /* Travelping */
 static int hf_pfcp_enterprise_travelping_packet_measurement;
@@ -1209,7 +1209,11 @@ static int hf_pfcp_travelping_trace_state_str;
 
 /* Juniper Networks */
 
-static int hf_pfcp_jnpr_cp_id_opaque_string = -1;
+static int hf_pfcp_jnpr_cp_id_opaque_string;
+static int hf_pfcp_jnpr_filter_length;
+static int hf_pfcp_jnpr_filter_data;
+static int hf_pfcp_jnpr_filter_service_info_len;
+static int hf_pfcp_jnpr_filter_service_info_data;
 
 /* Nokia */
 
@@ -1374,7 +1378,7 @@ static int ett_pfcp_enterprise_travelping_error_report;
 static int ett_pfcp_enterprise_travelping_created_nat_binding;
 static int ett_pfcp_enterprise_travelping_trace_info;
 
-static int ett_pfcp_jnpr = -1;
+static int ett_pfcp_jnpr;
 
 static int ett_pfcp_bbf_ppp_protocol_flags;
 static int ett_pfcp_bbf_l2tp_endp_flags;
@@ -12487,8 +12491,41 @@ dissect_pfcp_jnpr_cp_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return len;
 }
 
+static int
+dissect_pfcp_jnpr_filter_var(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    uint32_t filter_len;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_filter_length, tvb, offset, 2, ENC_BIG_ENDIAN, &filter_len);
+    offset += 2;
+
+    if (filter_len > 0 && (offset + filter_len) <= tvb_reported_length(tvb)) {
+        proto_tree_add_item(tree, hf_pfcp_jnpr_filter_data, tvb, offset, filter_len, ENC_NA);
+    }
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_filter_service_object(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    uint32_t filter_data_len;
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_filter_service_info_len, tvb, offset, 2, ENC_BIG_ENDIAN, &filter_data_len);
+    offset+=2;
+
+    if (filter_data_len > 0 && (offset + filter_data_len) <= tvb_reported_length(tvb)) {
+        proto_tree_add_item(tree, hf_pfcp_jnpr_filter_service_info_data, tvb, offset, filter_data_len, ENC_NA);
+    }
+
+    return tvb_reported_length(tvb);
+}
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
-    { VENDOR_JUNIPER, 32943 , "CP ID"                              , dissect_pfcp_jnpr_cp_id, -1 } ,
+    { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
+    { VENDOR_JUNIPER, 32912 , "Filter Variable"                     , dissect_pfcp_jnpr_filter_var, -1 } ,
+    { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
 
 /************************************ Nokia ***********************************/
@@ -18224,6 +18261,28 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
+        { &hf_pfcp_jnpr_filter_length,
+        { "Filter Length", "pfcp.jnpr.filter_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_filter_data,
+        { "Filter Data", "pfcp.jnpr.filter_data",
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_filter_service_info_len,
+        { "Filter Service Info Length", "pfcp.jnpr.fsi_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_filter_service_info_data,
+        { "Filter Service Info Data", "pfcp.jnpr.fsi_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+
         /* Nokia */
 
         { &hf_pfcp_nokia_sap_template,
@@ -18907,7 +18966,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_nokia_health_report_interval,
-        { "Health Report Interval", "pfcp.nokia.healt_report_interval",
+        { "Health Report Interval", "pfcp.nokia.health_report_interval",
             FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },

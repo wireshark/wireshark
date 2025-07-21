@@ -483,6 +483,7 @@ extcap_format_external_arguments(GHashTable* extcap_args)
         if (value != NULL)
         {
             command_line.append(g_strdup((char*)value));
+            command_line.append(" ");
         }
     }
 
@@ -503,7 +504,7 @@ void ExtArgTable::extcap_options_finished(QStandardItem* item)
         }
     }
 
-    if (dev_found)
+    if (dev_found && device->external_cap_args_settings != NULL)
     {
         QString arguments = extcap_format_external_arguments(device->external_cap_args_settings);
         item->setData(arguments, Qt::UserRole + 1);

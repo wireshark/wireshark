@@ -2161,7 +2161,7 @@ col_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_set_hidden(ti);
     col_tree = proto_item_add_subtree(ti, ett_cols);
     for (int i = 0; i < cinfo->num_cols; ++i) {
-      if (cinfo->columns[i].hf_id != -1) {
+      if (cinfo->columns[i].hf_id > 0) {
         if (cinfo->columns[i].col_fmt == COL_CUSTOM) {
           ti = proto_tree_add_string_format(col_tree, cinfo->columns[i].hf_id, tvb, 0, 0, get_column_text(cinfo, i), "%s: %s", get_column_title(i), get_column_text(cinfo, i));
         } else {

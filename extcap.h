@@ -46,6 +46,7 @@
 #define EXTCAP_ARGUMENT_RUN_CAPTURE             "--capture"
 #define EXTCAP_ARGUMENT_CAPTURE_FILTER          "--extcap-capture-filter"
 #define EXTCAP_ARGUMENT_RUN_PIPE                "--fifo"
+#define EXTCAP_ARGUMENT_CLEANUP_POSTKILL        "--extcap-cleanup-postkill"
 #define EXTCAP_ARGUMENT_CONTROL_IN              "--extcap-control-in"
 #define EXTCAP_ARGUMENT_CONTROL_OUT             "--extcap-control-out"
 

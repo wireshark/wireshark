@@ -311,9 +311,13 @@ may differ from *-a packets:*<capture packet count>.
 -C  <configuration profile>::
 +
 --
-Run with the given configuration profile. If used in conjunction with
---global-profile, then the global profile with the associated name
-would be used.
+Run with the given configuration profile.
+
+If used in conjunction with --global-profile, the specified profile will be loaded from the global configuration directory instead of the user's personal configuration directory.
+(typically on UN*X'/usr/share/wireshark/profiles', On Windows, the directory is a profiles subdirectory of the directory in which Wireshark was installed, e.g., C:\Program Files\Wireshark\profiles.
+On macOS, when running from an app bundle, it is the Contents/Resources/share/wireshark/profiles subdirectory within the app bundle.)
+
+This option is useful in shared environments or automated testing setups where consistent configurations are needed, and user-specific settings should be avoided.
 --
 
 -D|--list-interfaces::

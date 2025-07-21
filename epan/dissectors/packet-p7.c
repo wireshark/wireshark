@@ -5803,7 +5803,7 @@ void proto_reg_handoff_p7(void) {
   register_ber_oid_dissector("2.6.4.9.5", dissect_ChangeCredentialsAlgorithms_PDU, proto_p7, "id-ext-protected-change-credentials-capability");
   register_ber_oid_dissector("2.6.4.9.3", dissect_OriginatorToken_PDU, proto_p7, "id-ext-originator-token");
   register_ber_oid_dissector("2.6.4.9.4", dissect_ProtectedChangeCredentials_PDU, proto_p7, "id-ext-protected-change-credentials");
-  register_ber_oid_dissector("2.6.0.2.10""id-as-ms-rtse", dissect_RTSE_apdus_PDU, proto_p7, "");
+  register_ber_oid_dissector("2.6.0.2.10", dissect_RTSE_apdus_PDU, proto_p7, "id-as-ms-rtse");
 
 
   /* APPLICATION CONTEXT */

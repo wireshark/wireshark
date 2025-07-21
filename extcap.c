@@ -1265,6 +1265,32 @@ extcap_has_toolbar(const char *ifname)
     return false;
 }
 
+bool
+extcap_cleanup_postkill(const char* ifname)
+{
+    bool res = false;
+    const char* dirname;
+    char* args;
+
+    extcap_ensure_all_interfaces_loaded();
+
+    extcap_interface* interface = extcap_find_interface_for_ifname(ifname);
+    if (interface)
+    {
+        ws_info("(extcap_cleanup_postkill) Extcap path %s", interface->extcap_path);
+
+        dirname = get_extcap_dir();
+        args = g_strdup(EXTCAP_ARGUMENT_CLEANUP_POSTKILL);
+
+        char* command_output;
+        res = ws_pipe_spawn_sync(dirname, interface->extcap_path, 1, &args, &command_output);
+
+        g_free(args);
+    }
+
+    return res;
+}
+
 #ifdef HAVE_LIBPCAP
 static gboolean extcap_terminate_cb(void *user_data)
 {
@@ -1307,6 +1333,9 @@ static gboolean extcap_terminate_cb(void *user_data)
             g_source_remove(interface_opts->extcap_stderr_watch);
             interface_opts->extcap_stderr_watch = 0;
         }
+
+        /* Process was killed, call extcap in postkill cleanup mode. */
+        extcap_cleanup_postkill(interface_opts->name);
     }
 
     capture_opts->wait_for_extcap_cbs = true;

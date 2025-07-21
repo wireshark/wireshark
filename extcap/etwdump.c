@@ -60,13 +60,14 @@ static const struct ws_option longopts[] = {
 
 int g_include_undecidable_event;
 
-static void SignalHandler(_U_ int signal)
+static void graceful_shutdown_cb(void)
 {
     SUPER_EVENT_TRACE_PROPERTIES super_trace_properties = { 0 };
     // "you only need to set the Wnode.BufferSize, Wnode.Guid, LoggerNameOffset, and LogFileNameOffset"
     super_trace_properties.prop.Wnode.BufferSize = sizeof(SUPER_EVENT_TRACE_PROPERTIES);
     super_trace_properties.prop.LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
     super_trace_properties.prop.LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
+
     /* Close trace when press CONTROL+C when running this console alone */
     ControlTrace((TRACEHANDLE)NULL, LOGGER_NAME, &super_trace_properties.prop, EVENT_TRACE_CONTROL_STOP);
 }
@@ -125,22 +126,23 @@ static DWORD list_providers(unsigned inc)
     {
         // 1. First we output a group of "scenario" providers.
         // Those scenario are partially taken from Microsoft Message Analyser, partially from other documentation.
-        printf("value {arg=%u}{value=SCENARIO}{display=Scenarios}{enabled=false}\n", inc);
+        printf("value {arg=%u}{value=SCENARIO}{display=Supported Scenarios}{enabled=false}\n", inc);
 
+        // Some of Microsoft Message Analyser original scenarios are not fully implemented and are therefore commented out.
+        // One can still enable any of the providers using the "ALL" section, but don't display them in the "Supported" tab.
+        // Enable them once they're more nicely supported.
         printf("value {arg=%u}{value=Microsoft-Windows-NDIS-PacketCapture}{display=Local Network Interfaces (Microsoft-Windows-NDIS-PacketCapture)}{parent=SCENARIO}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-Ras-NdisWanPacketCapture}{display=VPN traffic (Microsoft-Windows-Ras-NdisWanPacketCapture)}{parent=SCENARIO}\n", inc);
+        // printf("value {arg=%u}{value=Microsoft-Windows-Ras-NdisWanPacketCapture}{display=VPN traffic (Microsoft-Windows-Ras-NdisWanPacketCapture)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Microsoft-Windows-Wmbclass-Opn}{display=Mobile Broadband (Microsoft-Windows-Wmbclass-Opn)}{parent=SCENARIO}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-LDAP-Client}{display=SASL LDAP pre-encryption (Microsoft-Windows-LDAP-Client)}{parent=SCENARIO}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-WinINet-Capture}{display=WinInet HTTPS pre-encryption (Microsoft-Windows-WinINet-Capture)}{parent=SCENARIO}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-Wmbclass-Opn}{display=Mobile Broadband (Microsoft-Windows-Wmbclass-Opn)}{parent=SCENARIO}\n", inc);
+        // printf("value {arg=%u}{value=Microsoft-Windows-LDAP-Client}{display=SASL LDAP pre-encryption (Microsoft-Windows-LDAP-Client)}{parent=SCENARIO}\n", inc);
+        // printf("value {arg=%u}{value=Microsoft-Windows-WinINet-Capture}{display=WinInet HTTPS pre-encryption (Microsoft-Windows-WinINet-Capture)}{parent=SCENARIO}\n", inc);
         printf("value {arg=%u}{value=Microsoft-Windows-RPC}{display=RPC (Microsoft-Windows-RPC)}{parent=SCENARIO}\n", inc);
-        printf("value {arg=%u}{value=SMB}{display=SMB}{parent=SCENARIO}{enabled=false}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-SMBClient}{display=SMB Client Payloads (Microsoft-Windows-SMBClient)}{parent=SMB}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-SMBServer}{display=SMB Server Payloads (Microsoft-Windows-SMBServer)}{parent=SMB}\n", inc);
-        printf("value {arg=%u}{value=BLUETOOTH}{display=Bluetooth}{parent=SCENARIO}{enabled=false}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-BTH-BTHPORT}{display=Bluetooth Host Radio (Microsoft-Windows-BTH-BTHPORT)}{parent=BLUETOOTH}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-BTH-BTHUSB}{display=Bluetooth USB (Microsoft-Windows-BTH-BTHUSB)}{parent=BLUETOOTH}\n", inc);
-        printf("value {arg=%u}{value=Microsoft-Windows-Bluetooth-Bthmini}{display=Bluetooth HCI (Microsoft-Windows-Bluetooth-Bthmini)}{parent=BLUETOOTH}\n", inc);
+        printf("value {arg=%u}{value=Microsoft-Windows-SMBClient}{display=SMB Client Payloads (Microsoft-Windows-SMBClient)}{parent=SCENARIO}\n", inc);
+        printf("value {arg=%u}{value=Microsoft-Windows-SMBServer}{display=SMB Server Payloads (Microsoft-Windows-SMBServer)}{parent=SCENARIO}\n", inc);
+        // printf("value {arg=%u}{value=BLUETOOTH}{display=Bluetooth}{parent=SCENARIO}{enabled=false}\n", inc);
+        // printf("value {arg=%u}{value=Microsoft-Windows-BTH-BTHPORT}{display=Bluetooth Host Radio (Microsoft-Windows-BTH-BTHPORT)}{parent=BLUETOOTH}\n", inc);
+        // printf("value {arg=%u}{value=Microsoft-Windows-BTH-BTHUSB}{display=Bluetooth USB (Microsoft-Windows-BTH-BTHUSB)}{parent=BLUETOOTH}\n", inc);
+        // printf("value {arg=%u}{value=Microsoft-Windows-Bluetooth-Bthmini}{display=Bluetooth HCI (Microsoft-Windows-Bluetooth-Bthmini)}{parent=BLUETOOTH}\n", inc);
 
         // 2. Then we output all the providers
         printf("value {arg=%u}{value=ALL}{display=All}{enabled=false}\n", inc);
@@ -244,6 +246,8 @@ static int list_config_option(char* interface, char* option_name, char* option_v
     unsigned inc = 0;
     unsigned loglevelselector = 0;
 
+    (void)option_value;
+
     if (!interface) {
         ws_warning("No interface specified.");
         return EXIT_FAILURE;
@@ -263,20 +267,21 @@ static int list_config_option(char* interface, char* option_name, char* option_v
      * There's always at least the keyword and the level argument to offer.
      */
     printf("arg {number=%u}{call=--k}{display=Keywords}"
-        "{type=string}{tooltip=What keywords to select for this provider. Defaults to ALL}{default=0xffffffffffffffff}\n",
+        "{type=long}{tooltip=What keywords to select for this provider. Defaults to ALL}"
+        "{default=0xffffffffffffffff}{group=ETW Generic}\n",
         inc++);
     loglevelselector = inc;
     printf("arg {number=%u}{call=--l}{display=Level}"
-        "{type=selector}{tooltip=What log level to apply to this provider}\n",
+        "{type=selector}{tooltip=What log level to apply to this provider}{group=ETW Generic}\n",
         inc++);
 
     /* The 6 possible log levels (from traceview) */
-    printf("value {arg=%u}{value=0}{display=0 Log always}{default=false}\n", loglevelselector);
-    printf("value {arg=%u}{value=1}{display=1 Critical}{default=false}\n", loglevelselector);
-    printf("value {arg=%u}{value=2}{display=2 Error}{default=false}\n", loglevelselector);
-    printf("value {arg=%u}{value=3}{display=3 Warning}{default=false}\n", loglevelselector);
-    printf("value {arg=%u}{value=4}{display=4 Information}{default=false}\n", loglevelselector);
-    printf("value {arg=%u}{value=5}{display=5 Verbose}{default=true}\n", loglevelselector);
+    printf("value {arg=%u}{value=0}{display=0 Log always}{default=false}{group=ETW Generic}\n", loglevelselector);
+    printf("value {arg=%u}{value=1}{display=1 Critical}{default=false}{group=ETW Generic}\n", loglevelselector);
+    printf("value {arg=%u}{value=2}{display=2 Error}{default=false}{group=ETW Generic}\n", loglevelselector);
+    printf("value {arg=%u}{value=3}{display=3 Warning}{default=false}{group=ETW Generic}\n", loglevelselector);
+    printf("value {arg=%u}{value=4}{display=4 Information}{default=true}{group=ETW Generic}\n", loglevelselector);
+    printf("value {arg=%u}{value=5}{display=5 Verbose}{default=false}{group=ETW Generic}\n", loglevelselector);
 
     return EXIT_SUCCESS;
 }
@@ -322,6 +327,20 @@ int main(int argc, char* argv[])
         ETWDUMP_VERSION_RELEASE, help_url);
     g_free(help_url);
     extcap_base_register_interface(extcap_conf, ETW_EXTCAP_INTERFACE, "Event Tracing for Windows (ETW) reader", 290, "DLT_ETW");
+
+    if (!extcap_base_register_graceful_shutdown_cb(extcap_conf, graceful_shutdown_cb))
+    {
+        ret = EXIT_FAILURE;
+        goto end;
+    }
+
+    /* etwdump will be killed and the capture won't be properly closed. We need to add a postkill
+     * cleanup hook. */
+    if (!extcap_base_register_cleanup_postkill_cb(extcap_conf, graceful_shutdown_cb))
+    {
+        ret = EXIT_FAILURE;
+        goto end;
+    }
 
     help_header = ws_strdup_printf(
         " %s --extcap-interfaces\n"
@@ -415,8 +434,6 @@ int main(int argc, char* argv[])
         }
 
         wtap_init(false);
-
-        signal(SIGINT, SignalHandler);
 
         switch(etw_dump(etlfile, extcap_conf->fifo, params, &ret, &err_msg))
         {
