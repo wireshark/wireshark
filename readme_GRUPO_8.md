@@ -44,6 +44,7 @@ Wireshark es considerado una herramienta indispensable para la administraci�n,
 
 8. Es importante determinar cual es el procedimiento a seguir para la actualizacion de github
 ---
+9. Comentario Carl Brandt actualización Github
 
 **En conclusi�n:**  
 Wireshark es una herramienta de referencia obligada por su capacidad de ofrecer diagn�stico preciso, soporte a la ciberseguridad y ense�anza de redes, situaci�n avalada por la literatura acad�mica y la comunidad t�cnica mundial.
