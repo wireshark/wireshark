@@ -1214,6 +1214,22 @@ static int hf_pfcp_jnpr_filter_length;
 static int hf_pfcp_jnpr_filter_data;
 static int hf_pfcp_jnpr_filter_service_info_len;
 static int hf_pfcp_jnpr_filter_service_info_data;
+static int hf_pfcp_jnpr_sgrp_name;
+static int hf_pfcp_jnpr_logical_port_address;
+static int hf_pfcp_jnpr_compute_limit_exceeded;
+static int hf_pfcp_jnpr_final_stats;
+
+static const value_string compute_limit_vals[] = {
+    { 0, "Off" },
+    { 1, "On" },
+    { 0, NULL }
+};
+
+static const value_string final_stats[] = {
+    { 0, "Do not send final stats" },
+    { 1, "Send final stats" },
+    { 0, NULL }
+};
 
 /* Nokia */
 
@@ -12522,9 +12538,46 @@ static int dissect_pfcp_jnpr_filter_service_object(tvbuff_t *tvb, packet_info *p
     return tvb_reported_length(tvb);
 }
 
+static int dissect_pfcp_jnpr_sgrp_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint sgrp_name_len = tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_pfcp_jnpr_sgrp_name, tvb, 0, sgrp_name_len, ENC_ASCII);
+
+    return sgrp_name_len;
+}
+
+static int dissect_pfcp_jnpr_logical_port_address_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint data_len = tvb_reported_length(tvb);
+
+    for(guint offset = 0; offset + 4 <= data_len; offset += 4) {
+        proto_tree_add_item(tree, hf_pfcp_jnpr_logical_port_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+
+    return data_len;
+}
+
+static int dissect_pfcp_jnpr_compute_limit_exceeded(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_compute_limit_exceeded, tvb, 0, 1, ENC_NA);
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_accounting_type_final(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_final_stats, tvb, 0, 1, ENC_NA);
+    return tvb_reported_length(tvb);
+
+}
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
     { VENDOR_JUNIPER, 32912 , "Filter Variable"                     , dissect_pfcp_jnpr_filter_var, -1 } ,
+    { VENDOR_JUNIPER, 32915 , "Compute Limit Exceeded"              , dissect_pfcp_jnpr_compute_limit_exceeded, -1 } ,
+    { VENDOR_JUNIPER, 32917 , "Accounting Type Final"               , dissect_pfcp_jnpr_accounting_type_final, -1 } ,
+    { VENDOR_JUNIPER, 32919 , "SGRP Name"                           , dissect_pfcp_jnpr_sgrp_name, -1 } ,
+    { VENDOR_JUNIPER, 32921 , "Logical Port Address List"           , dissect_pfcp_jnpr_logical_port_address_list, -1 } ,
     { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
 
@@ -18280,7 +18333,32 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_jnpr_filter_service_info_data,
         { "Filter Service Info Data", "pfcp.jnpr.fsi_data",
-            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_sgrp_name,
+        { "SGRP Name", "pfcp.jnpr.sgrp_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_logical_port_address,
+        { "Logical Port IP Address", "pfcp.jnpr.lport_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_compute_limit_exceeded,
+        { "Compute Limit Exceeded", "pfcp.jnpr.compute_limit_exceeded",
+            FT_UINT8, BASE_DEC, VALS(compute_limit_vals),
+            0x01, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_final_stats,
+        { "Final Stats Flag", "pfcp.jnpr.final_stats",
+            FT_UINT8, BASE_DEC, VALS(final_stats),
+            0x0, NULL, HFILL }
         },
 
         /* Nokia */
