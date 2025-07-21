@@ -159,6 +159,10 @@ typedef struct _packet_info {
   int dissection_depth;         /**< The current "depth" or layer number in the current frame */
 
   uint32_t stream_id;            /**< Conversation Stream ID of the highest protocol */
+  uint32_t track_ctype;          /**< Tracks the conversation type for these protocols
+                                      subscribing to an error packet follow-up.
+                                      Typically transport protocols such as UDP or TCP
+                                      are likely to be followed up by ICMP. */
 } packet_info;
 
 /** @} */

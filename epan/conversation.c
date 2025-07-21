@@ -70,7 +70,8 @@ enum {
     NO_ADDR2_IDX_COUNT = ENDP_EXACT_IDX,
     NO_PORT2_IDX_COUNT = ENDP_EXACT_IDX,
     NO_ADDR2_PORT2_IDX_COUNT = PORT2_IDX,
-    ENDP_NO_PORTS_IDX = ADDR2_IDX
+    ENDP_NO_PORTS_IDX = ADDR2_IDX,
+    ERR_PKTS_COUNT = PORT2_IDX
 };
 
 /* Element offsets for the deinterlacer conversations */
@@ -175,6 +176,20 @@ static wmem_map_t *conversation_hashtable_no_addr2_or_port2_anc;
  * Hash table for deinterlacing conversations (typically L1 or L2)
  */
 static wmem_map_t *conversation_hashtable_deinterlacer = NULL;
+
+/*
+ * Hash table for tracking conversations involved in error packets.
+ * Conversations stored here don't have an autonomous existence,
+ * strictly speaking, but are a reference to other ones stored in
+ * other tables (such as conversation_hashtable_exact_addr_port).
+ * This table should be understood as an outgrowth of other tables.
+ * Note on this table keys: they are composed of 3 elements:
+ *  id   : the conv_index for this conversation in this table
+ *  rid  : reference conv_index for the transport conversation
+ *         stored in table conversation_hashtable_exact_addr_port
+ *  ctype: conversation type of the transport conversation
+ */
+static wmem_map_t *conversation_hashtable_err_pkts = NULL;
 
 static uint32_t new_index;
 
@@ -748,6 +763,18 @@ conversation_init(void)
     wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), no_addr2_or_port2_anc_map_key),
                     conversation_hashtable_no_addr2_or_port2_anc);
 
+    conversation_element_t err_pkts_elements[ERR_PKTS_COUNT] = {
+        { CE_UINT, .uint_val = 0 },
+        { CE_UINT, .uint_val = 0 },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = CONVERSATION_NONE }
+    };
+    char *err_pkts_map_key = conversation_element_list_name(wmem_epan_scope(), err_pkts_elements);
+    conversation_hashtable_err_pkts = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
+                                                       conversation_hash_element_list,
+                                                       conversation_match_element_list);
+    wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), err_pkts_map_key),
+                    conversation_hashtable_err_pkts);
+
 }
 
 /**
@@ -1181,6 +1208,28 @@ conversation_new_by_id(const uint32_t setup_frame, const conversation_type ctype
     elements[1].conversation_type_val = ctype;
     conversation->key_ptr = elements;
     conversation_insert_into_hashtable(conversation_hashtable_id, conversation);
+
+    return conversation;
+}
+
+conversation_t *
+conversation_new_err_pkts(const uint32_t setup_frame, const conversation_type ctype, const uint32_t id, const uint32_t rid)
+{
+    conversation_t *conversation = wmem_new0(wmem_file_scope(), conversation_t);
+    conversation->conv_index = new_index;
+    conversation->setup_frame = conversation->last_frame = setup_frame;
+
+    new_index++;
+
+    conversation_element_t *elements = wmem_alloc(wmem_file_scope(), sizeof(conversation_element_t) * 3);
+    elements[0].type = CE_UINT;
+    elements[0].uint_val = id;
+    elements[1].type = CE_UINT;
+    elements[1].uint_val = rid;
+    elements[2].type = CE_CONVERSATION_TYPE;
+    elements[2].conversation_type_val = ctype;
+    conversation->key_ptr = elements;
+    conversation_insert_into_hashtable(conversation_hashtable_err_pkts, conversation);
 
     return conversation;
 }
@@ -2658,6 +2707,29 @@ find_conversation_by_id(const uint32_t frame, const conversation_type ctype, con
     return conversation_lookup_hashtable(conversation_hashtable_id, frame, elements);
 }
 
+static gboolean
+find_conversation_by_index(void *key _U_, void *value, void *user_data)
+{
+    uint32_t convid = GPOINTER_TO_UINT(user_data);
+    conversation_t *conv = (conversation_t*)value;
+    if (conv->conv_index == convid) {
+        return true;
+    }
+    return false;
+}
+
+conversation_t *
+find_conversation_err_pkts(const uint32_t frame, const conversation_type ctype, const uint32_t id, const uint32_t rid)
+{
+    conversation_element_t elements[3] = {
+        { CE_UINT, .uint_val = id },
+        { CE_UINT, .uint_val = rid },
+        { CE_CONVERSATION_TYPE, .conversation_type_val = ctype }
+    };
+
+    return conversation_lookup_hashtable(conversation_hashtable_err_pkts, frame, elements);
+}
+
 void
 conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_data)
 {
@@ -3083,14 +3155,62 @@ find_conversation_pinfo_ro(const packet_info *pinfo, const unsigned options)
             DPRINT(("found previous conversation elements for frame #%u (last_frame=%d)",
                         pinfo->num, conv->last_frame));
         }
-    } else {
-        if ((conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), options, false)) != NULL) {
-            DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
-                        pinfo->num, conv->last_frame));
-        }
-        /* else: something is either not implemented or not handled,
-         * ICMP Type 3/11 are good examples. */
+    } else if ((conv = find_conversation_strat(pinfo, conversation_pt_to_conversation_type(pinfo->ptype), options, false)) != NULL) {
+             DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
+                         pinfo->num, conv->last_frame));
     }
+    /* If none of the above found any ordinary conversation,
+     * we might be dealing with an error packet referencing/carrying a known conversation.
+     * ICMP Type 3/11 are good examples, give them a chance to be identified.
+     * Note, any Transport protocol might be updated to allow this mechanism to work.
+     */
+    else if( (pinfo->track_ctype>0) ) {
+
+        /* reference id */
+        uint32_t conv_index = 0;
+
+        /* Parse all keys and find the one matching id and ctype,
+         * the reference id is what we are looking for.
+         */
+        wmem_list_t *err_pkts_keys = wmem_map_get_keys(NULL, conversation_hashtable_err_pkts);
+        for (wmem_list_frame_t *cur_frame = wmem_list_head(err_pkts_keys ); cur_frame; cur_frame = wmem_list_frame_next(cur_frame)) {
+            conversation_element_t *cet = (conversation_element_t *)wmem_list_frame_data(cur_frame);
+            if(cet) {
+                if( (cet[2].conversation_type_val == pinfo->track_ctype) && (cet[0].uint_val == pinfo->stream_id) ) {
+                    conv_index = cet[1].uint_val;
+                    break;
+                }
+            }
+        }
+        wmem_destroy_list(err_pkts_keys);
+
+        /* Now, bring the transport conversation as we know its conv_index.
+         * Note: the way conversations are added (starting from lower layers),
+         * it's currently not possible to see a transport conversation
+         * with conv_index with value 0.
+         * XXX - Check if that is also true for PDU.
+         */
+        if(conv_index>0) {
+            conversation_t *tsconv = NULL;
+
+            /* If a deinterlacing key was requested, search for the conversation
+             * in the deinterlaced version of the "addr_port" table.
+             * XXX - as this check is becoming redundant, isolate it in a function ?
+             */
+            if( (pinfo->pseudo_header != NULL)
+              && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
+              && (prefs.conversation_deinterlacing_key>0)) {
+                tsconv = wmem_map_find(conversation_hashtable_exact_addr_port_anc, find_conversation_by_index, GUINT_TO_POINTER(conv_index));
+            }
+            else {
+                tsconv = wmem_map_find(conversation_hashtable_exact_addr_port, find_conversation_by_index, GUINT_TO_POINTER(conv_index));
+            }
+            if(tsconv) {
+                conv = tsconv;
+            }
+        }
+    }
+    /* else: something is either not implemented or not handled */
 
     DENDENT();
 
