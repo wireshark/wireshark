@@ -205,6 +205,7 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
             break;
         case EXTCAP_OPT_CLEANUP_POSTKILL:
             extcap->do_cleanup_postkill = 1;
+            break;
         case EXTCAP_OPT_VERSION:
             extcap->ws_version = g_strdup(optargument);
             extcap->do_version = 1;
