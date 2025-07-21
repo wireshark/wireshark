@@ -225,10 +225,10 @@ static int ett_ext_output_state;
 static int ett_ext_output_state_x;
 static int ett_output_state_time;
 
-static expert_field ei_sick_cola_command = EI_INIT;
-static expert_field ei_sick_cola_command_name = EI_INIT;
-static expert_field ei_sick_cola_command_parameter = EI_INIT;
-static expert_field ei_sick_cola_b_checksum = EI_INIT;
+static expert_field ei_sick_cola_command;
+static expert_field ei_sick_cola_command_name;
+static expert_field ei_sick_cola_command_parameter;
+static expert_field ei_sick_cola_b_checksum;
 
 //Preferences
 static uint32_t g_number_of_outputs = 1;

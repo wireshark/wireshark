@@ -1,6 +1,6 @@
 /* packet-geneve.c
  * Routines for Geneve - Generic Network Virtualization Encapsulation
- * https://tools.ietf.org/html/draft-ietf-nvo3-geneve
+ * https://tools.ietf.org/html/rfc8926
  *
  * Copyright (c) 2024 cPacket Networks, Inc. All Rights Reserved.
  * Author: Martin Greenberg <mgreenberg@cpacket.com>
@@ -39,6 +39,8 @@
 #define OPT_FLAGS_SHIFT 5
 #define OPT_LEN_MASK 0x1F
 
+/* https://www.iana.org/assignments/nvo3/nvo3.xhtml#geneve-option-class last update 2024-12-20 */
+
 static const range_string class_id_names[] = {
     { 0, 0xFF, "Standard" },
     { 0x0100, 0x0100, "Linux" },
@@ -56,9 +58,22 @@ static const range_string class_id_names[] = {
     { 0x0130, 0x0131, "Cisco Systems, Inc." },
     { 0x0132, 0x0135, "Google LLC" },
     { 0x0136, 0x0136, "InfoQuick Global Connection Tech Ltd." },
-    { 0x0137, 0x0163, "Unassigned" },
+    { 0x0137, 0x0140, "Alibaba, inc" },
+    { 0x0141, 0x0144, "Palo Alto Networks" },
+    { 0x0145, 0x0149, "Huawei Technologies Co., Ltd" },
+    { 0x014A, 0x014A, "EMnify GmbH" },
+    { 0x014B, 0x014B, "Cilium" },
+    { 0x014C, 0x014C, "Corelight, Inc." },
+    { 0x014D, 0x014D, "1NCE GmbH" },
+    { 0x014E, 0x0157, "Cloud of China Telecom (CTYUN)" },
+    { 0x0158, 0x0161, "Volcengine, inc" },
+    { 0x0162, 0x0162, "nat64.net" },
+    { 0x0163, 0x0163, "Multi Segment SD-WAN" },
     { 0x0164, 0x0164, "cPacket Networks, Inc." },
-    { 0x0165, 0xFEFF, "Unassigned" },
+    { 0x0165, 0x0167, "Tencent" },
+    { 0x0168, 0x0168, "ExtraHop Networks, Inc." },
+    { 0x0169, 0x0169, "Soosan INT Co., Ltd." },
+    { 0x016A, 0xFEFF, "Unassigned" },
     { 0xFFF0, 0xFFFF, "Experimental" },
     { 0, 0, NULL }
 };

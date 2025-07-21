@@ -4155,7 +4155,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     int         data_start = offset;
     int         tl_offset;
     bool        crc_OK = false;
-    tvbuff_t   *next_tvb;
+    tvbuff_t   *next_tvb = NULL;
     unsigned    i;
     uint32_t    ext_seq;
     static int * const transport_flags[] = {
@@ -4289,10 +4289,18 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
       if (frag_al)
       {
-        next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
-          "Reassembled DNP 3.0 Application Layer message", frag_al, &dnp3_frag_items,
-          NULL, dnp3_tree);
+        /* Check the FIN bit because the DNP3 dissector is only called once
+         * and so the curr_layer_num check in processed_reassembled_data
+         * does not help for multiple messages in one frame. */
+        if (tr_fin) {
+          next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
+            "Reassembled DNP 3.0 Application Layer message", frag_al, &dnp3_frag_items,
+            NULL, dnp3_tree);
+        }
         if (next_tvb) {
+          /* next_tvb should be non-NULL if this is a FIN and we reassembled,
+           * but check for bugs caused by non-standard fragmentation methods
+           * (#20336).  */
           /* As a complete AL message will have cleared the info column,
              make sure source and dest are always in the info column */
           //col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
@@ -4301,6 +4309,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         }
         else
         {
+          proto_tree_add_uint(dnp3_tree, hf_dnp3_fragment_reassembled_in, tvb, 0, 0,
+            frag_al->reassembled_in);
           /* Lock any column info set by the DL and TL */
           col_set_fence(pinfo->cinfo, COL_INFO);
           col_append_fstr(pinfo->cinfo, COL_INFO,

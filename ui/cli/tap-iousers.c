@@ -241,6 +241,16 @@ iousers_draw(void *arg)
 	printf("================================================================================\n");
 }
 
+static void iousers_finish(void *arg)
+{
+	if (!arg)
+		return;
+	conv_hash_t *hash = (conv_hash_t*)arg;
+	io_users_t *iu = (io_users_t *)hash->user_data;
+	if (iu)
+		g_free(iu);
+}
+
 void init_iousers(struct register_ct *ct, const char *filter)
 {
 	io_users_t *iu;
@@ -251,7 +261,7 @@ void init_iousers(struct register_ct *ct, const char *filter)
 	iu->filter = g_strdup(filter);
 	iu->hash.user_data = iu;
 
-	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_conversation_packet_func(ct), iousers_draw, NULL);
+	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_conversation_packet_func(ct), iousers_draw, iousers_finish);
 	if (error_string) {
 		g_free(iu);
 		cmdarg_err("Couldn't register conversations tap: %s",

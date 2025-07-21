@@ -482,20 +482,20 @@ static int hf_bmpv4_tlv_value_string;
 static int hf_bmpv4_tlv_value_bool;
 static int hf_bmpv4_tlv_value_index;
 static int hf_bmpv4_tlv_group_id;
-static int hf_bmpv4_tlv_path_status_status = -1;
-static int hf_bmpv4_tlv_path_status_reason = -1;
+static int hf_bmpv4_tlv_path_status_status;
+static int hf_bmpv4_tlv_path_status_reason;
 
-static int hf_bmp_path_status_invalid = -1;
-static int hf_bmp_path_status_best = -1;
-static int hf_bmp_path_status_non_selected = -1;
-static int hf_bmp_path_status_primary = -1;
-static int hf_bmp_path_status_backup = -1;
-static int hf_bmp_path_status_non_installed = -1;
-static int hf_bmp_path_status_best_external = -1;
-static int hf_bmp_path_status_addpath = -1;
-static int hf_bmp_path_status_filtered_in = -1;
-static int hf_bmp_path_status_filtered_out = -1;
-static int hf_bmp_path_status_invalid_rov = -1;
+static int hf_bmp_path_status_invalid;
+static int hf_bmp_path_status_best;
+static int hf_bmp_path_status_non_selected;
+static int hf_bmp_path_status_primary;
+static int hf_bmp_path_status_backup;
+static int hf_bmp_path_status_non_installed;
+static int hf_bmp_path_status_best_external;
+static int hf_bmp_path_status_addpath;
+static int hf_bmp_path_status_filtered_in;
+static int hf_bmp_path_status_filtered_out;
+static int hf_bmp_path_status_invalid_rov;
 
 static int * const hf_bmpv4_tlv_path_status[] = {
         &hf_bmp_path_status_invalid,
@@ -534,7 +534,7 @@ static int ett_bmp_route_policy_tlv_policy_flags;
 static int ett_bmp_route_policy_tlv_policy;
 static int ett_bmpv4_tlv;
 static int ett_bmpv4_tlv_value;
-static int ett_bmpv4_tlv_path_status = -1;
+static int ett_bmpv4_tlv_path_status;
 
 
 static expert_field ei_stat_data_unknown;

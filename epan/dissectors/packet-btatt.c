@@ -10670,14 +10670,14 @@ btatt_dissect_attribute_handle(uint16_t handle, tvbuff_t *tvb, packet_info *pinf
 
     /* Note for BT GATT subdissectors:
      * It will implicitly call dissect_btgatt() which retrieves the BT UUID
-     * from its protocol name and then calls dissect_attribute_value().
+     * from the registered data and then calls dissect_attribute_value().
      */
 
     return dissector_try_uint_with_data(att_handle_dissector_table, handle, tvb, pinfo, tree, true, att_data);
 }
 
 static int
-dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, void *cb)
 {
     proto_item  *main_item;
     proto_tree  *main_tree;
@@ -10687,17 +10687,10 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     main_item = proto_tree_add_item(tree, (int) GPOINTER_TO_UINT(wmem_list_frame_data(wmem_list_tail(pinfo->layers))), tvb, 0, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btgatt);
 
-    if (strlen(pinfo->current_proto) > 7) {
-        uuid.size = 2;
-        uuid.bt_uuid = (uint16_t) g_ascii_strtoull(pinfo->current_proto + strlen(pinfo->current_proto) - 7, NULL, 16);
-        uuid.data[1] = uuid.bt_uuid & 0xFF;
-        uuid.data[0] = (uuid.bt_uuid >> 8) & 0xFF;
-    } else {
-        uuid.size = 2;
-        uuid.bt_uuid = 0;
-        uuid.data[1] = 0;
-        uuid.data[0] = 0;
-    }
+    uuid.size = 2;
+    uuid.bt_uuid = (uint16_t)GPOINTER_TO_UINT(cb);
+    uuid.data[1] = uuid.bt_uuid & 0xFF;
+    uuid.data[0] = (uuid.bt_uuid >> 8) & 0xFF;
 
     return dissect_attribute_value(main_tree, patron_item, pinfo, tvb,
             0, tvb_captured_length(tvb), 0, uuid, (btatt_data_t *) data);
@@ -17638,16 +17631,17 @@ proto_reg_handoff_btatt(void)
         const char *name;
         const char *short_name;
         const char *abbrev;
+        unsigned    uuid = btatt_handle_strings[i_array].value;
         dissector_handle_t  handle_tmp;
         int                 proto_tmp;
 
-        if (btatt_handle_strings[i_array].value < 0x1800) {
+        if (uuid < 0x1800) {
             continue;
         }
 
         // Skip Units (0x27xx) and Members (0xFxxx)
-        if (((btatt_handle_strings[i_array].value & 0xFF00) == 0x2700) ||
-            ((btatt_handle_strings[i_array].value & 0xF000) == 0xF000))
+        if (((uuid & 0xFF00) == 0x2700) ||
+            ((uuid & 0xF000) == 0xF000))
         {
             continue;
         }
@@ -17656,8 +17650,8 @@ proto_reg_handoff_btatt(void)
         short_name = btatt_handle_strings[i_array].short_name;
         abbrev = btatt_handle_strings[i_array].abbrev;
 
-        proto_tmp = proto_register_protocol(name, short_name, abbrev);
-        handle_tmp = register_dissector(abbrev, dissect_btgatt, proto_tmp);
+        proto_tmp = proto_register_protocol_in_name_only(name, short_name, abbrev, proto_btatt, FT_BYTES);
+        handle_tmp = register_dissector_with_data(abbrev, dissect_btgatt, proto_tmp, GUINT_TO_POINTER(uuid));
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
@@ -18076,7 +18070,7 @@ proto_register_btgatt(void)
 
     proto_btgatt = proto_register_protocol("Bluetooth GATT Attribute Protocol", "BT GATT", "btgatt");
 
-    btgatt_handle = register_dissector("btgatt", dissect_btgatt, proto_btgatt);
+    btgatt_handle = register_dissector_with_data("btgatt", dissect_btgatt, proto_btgatt, NULL);
 
     proto_register_field_array(proto_btgatt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

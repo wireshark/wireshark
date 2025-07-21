@@ -39,6 +39,7 @@ extern "C" {
     EXTCAP_OPT_CONFIG, \
     EXTCAP_OPT_CONFIG_OPTION_NAME, \
     EXTCAP_OPT_CONFIG_OPTION_VALUE, \
+    EXTCAP_OPT_CLEANUP_POSTKILL, \
     EXTCAP_OPT_CAPTURE, \
     EXTCAP_OPT_CAPTURE_FILTER, \
     EXTCAP_OPT_FIFO, \
@@ -54,6 +55,7 @@ extern "C" {
     { "extcap-config", ws_no_argument, NULL, EXTCAP_OPT_CONFIG}, \
     { "extcap-config-option-name", ws_required_argument, NULL, EXTCAP_OPT_CONFIG_OPTION_NAME}, \
     { "extcap-config-option-value", ws_required_argument, NULL, EXTCAP_OPT_CONFIG_OPTION_VALUE }, \
+    { "extcap-cleanup-postkill", ws_no_argument, NULL, EXTCAP_OPT_CLEANUP_POSTKILL }, \
     { "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
     { "extcap-capture-filter", ws_required_argument,    NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
     { "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
@@ -84,11 +86,14 @@ typedef struct _extcap_parameters
     uint8_t do_version;
     uint8_t do_list_dlts;
     uint8_t do_list_interfaces;
+    uint8_t do_cleanup_postkill;
 
     char * help_header;
     GList * help_options;
 
     enum ws_log_level debug;
+
+    void (*cleanup_postkill_cb)(void);
 } extcap_parameters;
 
 /* used to inform to extcap application that end of application is requested */
@@ -100,6 +105,10 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap, const char *
 /* used to inform extcap framework that graceful shutdown supported by the extcap
  */
 bool extcap_base_register_graceful_shutdown_cb(extcap_parameters * extcap, void (*callback)(void));
+
+/* used to cleanup extcap if previous program was terminated
+ */
+bool extcap_base_register_cleanup_postkill_cb(extcap_parameters* extcap, void (*callback)(void));
 
 void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename, const char * major, const char * minor, const char * release, const char * helppage);
 void extcap_base_set_compiled_with(extcap_parameters * extcap, const char *fmt, ...);

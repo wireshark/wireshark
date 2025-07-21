@@ -1274,6 +1274,31 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
          */
         pinfo->stream_id = udpd->stream;
 
+        /* Follow-up of the conversation over ICMP errors.
+         * When coming over an error packet (typically ICMP), we want to save the
+         * conversation type, and have a specific tracking then we can match with
+         * ordinary, non error packets.
+         */
+        if (pinfo->flags.in_error_pkt) {
+            /* Save the conversation type */
+            pinfo->track_ctype = CONVERSATION_UDP;
+
+            conversation_t *err_conv = NULL;
+            err_conv = find_conversation_err_pkts(pinfo->num, CONVERSATION_UDP, udpd->stream, conv->conv_index);
+            if(!err_conv) {
+                /* Create the conversation tracking the ordinary UDP conversation */
+                err_conv = conversation_new_err_pkts(pinfo->num, CONVERSATION_UDP, udpd->stream, conv->conv_index);
+
+                /* Align the setup_frame with the UDP conversation's one */
+                err_conv->setup_frame = conv->setup_frame;
+            }
+            else if (pinfo->num > err_conv->last_frame) {
+                /* If we have multiple error packets related to this same UDP conversation,
+                 * extend the tracker conversation.
+                 */
+                err_conv->last_frame = pinfo->num;
+            }
+        }
     }
 
     tap_queue_packet(udp_tap, pinfo, udph);

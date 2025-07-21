@@ -3419,7 +3419,6 @@ void proto_register_gsm_map(void) {
   gsm_map_tap = register_tap("gsm_map");
 
 #include "packet-gsm_map-dis-tab.c"
-  oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
    *

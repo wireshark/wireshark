@@ -310,7 +310,7 @@ ChangeCredentialsAlgorithms			B	"2.6.4.9.5"	"id-ext-protected-change-credentials
 OriginatorToken						B	"2.6.4.9.3"	"id-ext-originator-token"
 ProtectedChangeCredentials			B	"2.6.4.9.4"	"id-ext-protected-change-credentials"
 
-RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
+RTSE-apdus	B	"2.6.0.2.10"	"id-as-ms-rtse"
 
 #.FN_PARS	AttributeType	FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
 

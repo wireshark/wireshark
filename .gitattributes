@@ -1,5 +1,6 @@
 *                           text=auto
 *.sh                        eol=lf
+*.bat                       eol=crlf
 /test/run_and_catch_crashes eol=lf
 .bzrignore                  export-ignore
 .gitattributes              export-ignore
