@@ -4824,7 +4824,7 @@ static bool blf_dump_interface_setup(wtap_dumper *wdh, int *err) {
         return true;
     }
 
-    /* Try 2: Generate new IDs by mapping pcapng and also add names to BLF */
+    /* Try 2: Generate new IDs by mapping Interface IDs and also add names to BLF */
     for (unsigned i = 0; i < wdh->interface_data->len; i++) {
         ws_debug("i: %d", i);
 
@@ -4889,6 +4889,11 @@ static bool blf_dump_interface_setup(wtap_dumper *wdh, int *err) {
 
                 /* write channel name !*/
                 if (!wtap_dump_file_write(wdh, iface_name, strlen(iface_name), err)) {
+                    return false;
+                }
+
+                /* mapping up to 256 interface ids to channels directly */
+                if (!blf_dump_set_interface_mapping(wdh, i, mand_data->wtap_encap, (uint16_t)i, UINT16_MAX)) {
                     return false;
                 }
             }
