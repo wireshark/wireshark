@@ -1,0 +1,8 @@
+Zabbix Agent request for active checks for "Zabbix3.0-client", Len=53 (59394 → 10051)
+Zabbix Server/proxy response for active checks for "Zabbix3.0-client" (success), Len=2032 (10051 → 59394)
+Zabbix Agent data from "Zabbix3.0-client", Len=165 (59396 → 10051)
+Zabbix Server/proxy response for agent data for "Zabbix3.0-client" (success), Len=90 (10051 → 59396)
+Zabbix Agent data from "Zabbix3.0-client", Len=2398 (59398 → 10051)
+Zabbix Server/proxy response for agent data for "Zabbix3.0-client" (success), Len=92 (10051 → 59398)
+Zabbix Agent response for passive checks, Len=1 (10050 → 34438)
+Zabbix Agent response for passive checks, Len=8 (10050 → 34448)

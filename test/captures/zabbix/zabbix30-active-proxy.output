@@ -1,0 +1,4 @@
+Zabbix Request proxy config for "Zabbix3.0-proxy", Len=51 (46684 → 10051)
+Zabbix Server response for proxy config for "Zabbix3.0-proxy", Len=8487 (10051 → 46684)
+Zabbix Proxy heartbeat from "Zabbix3.0-proxy", Len=54 (46686 → 10051)
+Zabbix Server response for active proxy heartbeat for "Zabbix3.0-proxy" (success), Len=22 (10051 → 46686)

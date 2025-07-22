@@ -1,0 +1,5 @@
+Zabbix Agent data from "Zabbix70-agent", Len=184 (38445 → 10051)
+Zabbix Server/proxy response for agent data for "Zabbix70-agent" (success), Len=85 (10051 → 38445)
+Zabbix Agent request for active checks for "Zabbix70-agent", Len=122 (45737 → 10051)
+Zabbix Server/proxy response for active checks for "Zabbix70-agent" (success), Len=150 (10051 → 45737)
+Zabbix Agent heartbeat from "Zabbix70-agent", Len=80 (41535 → 10051)
