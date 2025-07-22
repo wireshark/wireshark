@@ -287,9 +287,6 @@ QWidget* ExtArgTable::createEditor(QWidget* parent)
     tableView->setMinimumHeight(200);
     tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    if (_argument->configurable)
-        tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     tableView->verticalHeader()->hide();
     tableView->horizontalHeader()->hide();
 
@@ -390,8 +387,15 @@ void ExtArgTable::addChecked(QStringList checked, QStringList options)
         }
     }
 
-    tableView->resizeColumnToContents(1);
-    tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    if (tableView->horizontalHeader()->count() > 0)
+    {
+        // Qt <6.9 bug (fixed in 6.9): setting the ResizeMode of a column before it has at least 1 element
+        // will make a segfault.
+        tableView->resizeColumnToContents(1);
+        tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+        if (_argument->configurable)
+            tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    }
 }
 
 void ExtArgTable::setDefaultValue()
