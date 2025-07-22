@@ -700,6 +700,203 @@ static const value_string rdm_product_cat_vals[] = {
 };
 static value_string_ext rdm_product_cat_vals_ext = VALUE_STRING_EXT_INIT(rdm_product_cat_vals);
 
+/* E1.20 Table A-6 */
+#define RDM_PRODUCT_DETAIL_NOT_DECLARED		0x0000
+// Generally applied to fixtures
+#define RDM_PRODUCT_DETAIL_ARC			0x0001
+#define RDM_PRODUCT_DETAIL_METAL_HALIDE		0x0002
+#define RDM_PRODUCT_DETAIL_INCANDESCENT		0x0003
+#define RDM_PRODUCT_DETAIL_LED			0x0004
+#define RDM_PRODUCT_DETAIL_FLUORESCENT		0x0005
+#define RDM_PRODUCT_DETAIL_COLDCATHODE		0x0006
+#define RDM_PRODUCT_DETAIL_ELECTROLUMINESCENT	0x0007
+#define RDM_PRODUCT_DETAIL_LASER		0x0008
+#define RDM_PRODUCT_DETAIL_FLASHTUBE		0x0009
+// Generally applied to fixture accessories
+#define RDM_PRODUCT_DETAIL_COLORSCROLLER	0x0100
+#define RDM_PRODUCT_DETAIL_COLORWHEEL		0x0101
+#define RDM_PRODUCT_DETAIL_COLORCHANGE		0x0102
+#define RDM_PRODUCT_DETAIL_IRIS_DOUSER		0x0103
+#define RDM_PRODUCT_DETAIL_DIMMING_SHUTTER	0x0104
+#define RDM_PRODUCT_DETAIL_PROFILE_SHUTTER	0x0105
+#define RDM_PRODUCT_DETAIL_BARNDOOR_SHUTTER	0x0106
+#define RDM_PRODUCT_DETAIL_EFFECTS_DISC		0x0107
+#define RDM_PRODUCT_DETAIL_GOBO_ROTATOR		0x0108
+// Generally applied to Projectors
+#define RDM_PRODUCT_DETAIL_VIDEO		0x0200
+#define RDM_PRODUCT_DETAIL_SLIDE		0x0201
+#define RDM_PRODUCT_DETAIL_FILM			0x0202
+#define RDM_PRODUCT_DETAIL_OILWHEEL		0x0203
+#define RDM_PRODUCT_DETAIL_LCDGATE		0x0204
+// Generally applied to Atmospheric Effects
+#define RDM_PRODUCT_DETAIL_FOGGER_GLYCOL	0x0300
+#define RDM_PRODUCT_DETAIL_FOGGER_MINERALOIL	0x0301
+#define RDM_PRODUCT_DETAIL_FOGGER_WATER		0x0302
+#define RDM_PRODUCT_DETAIL_CO2			0x0303
+#define RDM_PRODUCT_DETAIL_LN2			0x0304
+#define RDM_PRODUCT_DETAIL_BUBBLE		0x0305
+#define RDM_PRODUCT_DETAIL_FLAME_PROPANE	0x0306
+#define RDM_PRODUCT_DETAIL_FLAME_OTHER		0x0307
+#define RDM_PRODUCT_DETAIL_OLEFACTORY_STIMULATOR	0x0308
+#define RDM_PRODUCT_DETAIL_SNOW			0x0309
+#define RDM_PRODUCT_DETAIL_WATER_JET		0x030A
+#define RDM_PRODUCT_DETAIL_WIND			0x030B
+#define RDM_PRODUCT_DETAIL_CONFETTI		0x030C
+#define RDM_PRODUCT_DETAIL_HAZARD		0x030D
+// Generally applied to Dimmers/Power controllers
+#define RDM_PRODUCT_DETAIL_PHASE_CONTROL	0x0400
+#define RDM_PRODUCT_DETAIL_REVERSE_PHASE_CONTROL	0x0401
+#define RDM_PRODUCT_DETAIL_SINE			0x0402
+#define RDM_PRODUCT_DETAIL_PWM			0x0403
+#define RDM_PRODUCT_DETAIL_DC			0x0404
+#define RDM_PRODUCT_DETAIL_HFBALLAST		0x0405
+#define RDM_PRODUCT_DETAIL_HFHV_NEONBALLAST	0x0406
+#define RDM_PRODUCT_DETAIL_HFHV_EL		0x0407
+#define RDM_PRODUCT_DETAIL_MHR_BALLAST		0x0408
+#define RDM_PRODUCT_DETAIL_BITANGLE_MODULATION	0x0409
+#define RDM_PRODUCT_DETAIL_FREQUENCY_MODULATION	0x040A
+#define RDM_PRODUCT_DETAIL_HIGHFREQUENCY_12V	0x040B
+#define RDM_PRODUCT_DETAIL_RELAY_MECHANICAL	0x040C
+#define RDM_PRODUCT_DETAIL_RELAY_ELECTRONIC	0x040D
+#define RDM_PRODUCT_DETAIL_SWITCH_ELECTRONIC	0x040E
+#define RDM_PRODUCT_DETAIL_CONTACTOR		0x040F
+// Generally applied to Scenic drive
+#define RDM_PRODUCT_DETAIL_MIRRORBALL_ROTATOR	0x0500
+#define RDM_PRODUCT_DETAIL_OTHER_ROTATOR	0x0501
+#define RDM_PRODUCT_DETAIL_KABUKI_DROP		0x0502
+#define RDM_PRODUCT_DETAIL_CURTAIN		0x0503
+#define RDM_PRODUCT_DETAIL_LINESET		0x0504
+#define RDM_PRODUCT_DETAIL_MOTOR_CONTROL	0x0505
+#define RDM_PRODUCT_DETAIL_DAMPER_CONTROL	0x0506
+// Generally applied to Data Distribution
+#define RDM_PRODUCT_DETAIL_SPLITTER		0x0600
+#define RDM_PRODUCT_DETAIL_ETHERNET_NODE	0x0601
+#define RDM_PRODUCT_DETAIL_MERGE		0x0602
+#define RDM_PRODUCT_DETAIL_DATAPATCH		0x0603
+#define RDM_PRODUCT_DETAIL_WIRELESS_LINK	0x0604
+// Generally applied to Data Conversion and Interfaces
+#define RDM_PRODUCT_DETAIL_PROTOCOL_CONVERTOR	0x0701
+#define RDM_PRODUCT_DETAIL_ANALOG_DEMULTIPLEX	0x0702
+#define RDM_PRODUCT_DETAIL_ANALOG_MULTIPLEX	0x0703
+#define RDM_PRODUCT_DETAIL_SWITCH_PANEL		0x0704
+// Generally applied to Audio or Video (AV) devices
+#define RDM_PRODUCT_DETAIL_ROUTER		0x0800
+#define RDM_PRODUCT_DETAIL_FADER		0x0801
+#define RDM_PRODUCT_DETAIL_MIXER		0x0802
+// Generally applied to Controllers, Backup devices, and Test Equipment
+#define RDM_PRODUCT_DETAIL_CHANGEOVER_MANUAL	0x0900
+#define RDM_PRODUCT_DETAIL_CHANGEOVER_AUTO	0x0901
+#define RDM_PRODUCT_DETAIL_TEST			0x0902
+// Could be applied to any category
+#define RDM_PRODUCT_DETAIL_GFI_RCD		0x0A00
+#define RDM_PRODUCT_DETAIL_BATTERY		0x0A01
+#define RDM_PRODUCT_DETAIL_CONTROLLABLE_BREAKER	0x0A02
+// Input Devices E1.20-2025
+#define RDM_PRODUCT_DETAIL_INPUT		0x0B00
+#define RDM_PRODUCT_DETAIL_SENSOR		0x0B01
+#define RDM_PRODUCT_DETAIL_OTHER		0x7FFF
+
+static const value_string rdm_product_detail_vals[] = {
+  { RDM_PRODUCT_DETAIL_NOT_DECLARED,	"Not Declared" },
+// Generally applied to fixtures
+  { RDM_PRODUCT_DETAIL_ARC,		"Arc Lamp" },
+  { RDM_PRODUCT_DETAIL_METAL_HALIDE,	"Metal Halide" },
+  { RDM_PRODUCT_DETAIL_INCANDESCENT,	"Incandescent" },
+  { RDM_PRODUCT_DETAIL_LED,		"LED" },
+// ANSI-ESTA E1.20-2010 misspells this FLUROESCENT
+  { RDM_PRODUCT_DETAIL_FLUORESCENT,	"Fluorescent" },
+  { RDM_PRODUCT_DETAIL_COLDCATHODE,	"Cold Cathode" },
+  { RDM_PRODUCT_DETAIL_ELECTROLUMINESCENT,	"Electroluminescent" },
+  { RDM_PRODUCT_DETAIL_LASER,		"LED" },
+  { RDM_PRODUCT_DETAIL_FLASHTUBE,	"Flashtube" },
+// Generally applied to fixture accessories
+  { RDM_PRODUCT_DETAIL_COLORSCROLLER,	"Color Scroller" },
+  { RDM_PRODUCT_DETAIL_COLORWHEEL,	"Color Wheel" },
+  { RDM_PRODUCT_DETAIL_COLORCHANGE,	"Color Change" },
+  { RDM_PRODUCT_DETAIL_IRIS_DOUSER,	"Iris / Douser" },
+  { RDM_PRODUCT_DETAIL_DIMMING_SHUTTER,	"Dimming Shutter" },
+  { RDM_PRODUCT_DETAIL_PROFILE_SHUTTER,	"Profile Shutter" },
+  { RDM_PRODUCT_DETAIL_BARNDOOR_SHUTTER,	"Barn Door Shutter" },
+  { RDM_PRODUCT_DETAIL_EFFECTS_DISC,	"Effects Disc" },
+  { RDM_PRODUCT_DETAIL_GOBO_ROTATOR,	"Gobo Rotator" },
+// Generally applied to Projectors
+  { RDM_PRODUCT_DETAIL_VIDEO,		"Video" },
+  { RDM_PRODUCT_DETAIL_SLIDE,		"Slide" },
+  { RDM_PRODUCT_DETAIL_FILM,		"Film" },
+  { RDM_PRODUCT_DETAIL_OILWHEEL,	"Oil Wheel" },
+  { RDM_PRODUCT_DETAIL_LCDGATE,		"LCD Gate" },
+// Generally applied to Atmospheric Effects
+  { RDM_PRODUCT_DETAIL_FOGGER_GLYCOL,	"Fogger, Glycol" },
+  { RDM_PRODUCT_DETAIL_FOGGER_MINERALOIL,	"Fogger, Mineral Oil" },
+  { RDM_PRODUCT_DETAIL_FOGGER_WATER,	"Fogger, Water" },
+// ANSI E1.20-2010 has a '0' instead of 'O' in CO2
+  { RDM_PRODUCT_DETAIL_CO2,		"Dry Ice / CO2 based" },
+  { RDM_PRODUCT_DETAIL_LN2,		"Liquid Nitrogen based" },
+  { RDM_PRODUCT_DETAIL_BUBBLE,		"Bubble or Foam" },
+  { RDM_PRODUCT_DETAIL_FLAME_PROPANE,	"Propane Flame" },
+  { RDM_PRODUCT_DETAIL_FLAME_OTHER,	"Other Flame" },
+  { RDM_PRODUCT_DETAIL_OLEFACTORY_STIMULATOR,	"Scents" },
+  { RDM_PRODUCT_DETAIL_SNOW,		"Snow" },
+  { RDM_PRODUCT_DETAIL_WATER_JET,	"Water Jet" },
+  { RDM_PRODUCT_DETAIL_WIND,		"Wind" },
+  { RDM_PRODUCT_DETAIL_CONFETTI,	"Confetti" },
+  { RDM_PRODUCT_DETAIL_HAZARD,		"Hazard (any pyrotechnic)" },
+// Generally applied to Dimmers/Power controllers
+  { RDM_PRODUCT_DETAIL_PHASE_CONTROL,	"Phase Control" },
+  { RDM_PRODUCT_DETAIL_REVERSE_PHASE_CONTROL,	"Reverse Phase Control" },
+  { RDM_PRODUCT_DETAIL_SINE,		"Sine" },
+  { RDM_PRODUCT_DETAIL_PWM,		"Pulse Width Modulation" },
+  { RDM_PRODUCT_DETAIL_DC,		"DC" },
+  { RDM_PRODUCT_DETAIL_HFBALLAST,	"HF Ballast" },
+  { RDM_PRODUCT_DETAIL_HFHV_NEONBALLAST,	"HF Neon Ballast" },
+  { RDM_PRODUCT_DETAIL_HFHV_EL,		"HFHV Electroluminescent" },
+  { RDM_PRODUCT_DETAIL_MHR_BALLAST,	"Metal Halide Ballast" },
+  { RDM_PRODUCT_DETAIL_BITANGLE_MODULATION,	"Bit Angle Modulation" },
+  { RDM_PRODUCT_DETAIL_FREQUENCY_MODULATION,	"Frequency Modulation" },
+  { RDM_PRODUCT_DETAIL_HIGHFREQUENCY_12V,	"High Frequency 12V" },
+  { RDM_PRODUCT_DETAIL_RELAY_MECHANICAL,	"Mechanical Relay" },
+  { RDM_PRODUCT_DETAIL_RELAY_ELECTRONIC,	"Electronic Relay" },
+  { RDM_PRODUCT_DETAIL_SWITCH_ELECTRONIC,	"Electronic Switch" },
+  { RDM_PRODUCT_DETAIL_CONTACTOR,	"Contactor" },
+// Generally applied to Scenic driver
+  { RDM_PRODUCT_DETAIL_MIRRORBALL_ROTATOR,	"Mirror Ball Rotator" },
+  { RDM_PRODUCT_DETAIL_OTHER_ROTATOR,	"Other Rotator" },
+  { RDM_PRODUCT_DETAIL_KABUKI_DROP,	"Kabuki Drop" },
+  { RDM_PRODUCT_DETAIL_CURTAIN,		"Curtain" },
+  { RDM_PRODUCT_DETAIL_LINESET,		"Line Set" },
+  { RDM_PRODUCT_DETAIL_MOTOR_CONTROL,	"Motor Control" },
+  { RDM_PRODUCT_DETAIL_DAMPER_CONTROL,	"Damper Control" },
+// Generally applied to Data Distribution
+  { RDM_PRODUCT_DETAIL_SPLITTER,	"Splitter" },
+  { RDM_PRODUCT_DETAIL_ETHERNET_NODE,	"DMX512 to/from Ethernet" },
+  { RDM_PRODUCT_DETAIL_MERGE,		"DMX512 Combiner" },
+  { RDM_PRODUCT_DETAIL_DATAPATCH,	"Datapatch" },
+  { RDM_PRODUCT_DETAIL_WIRELESS_LINK,	"Wireless Link" },
+// Generally applied to Data Conversion and Interfaces
+  { RDM_PRODUCT_DETAIL_PROTOCOL_CONVERTOR,	"Protocol Converter" },
+  { RDM_PRODUCT_DETAIL_ANALOG_DEMULTIPLEX,	"DMX512 to DC Voltage" },
+  { RDM_PRODUCT_DETAIL_ANALOG_MULTIPLEX,	"DC Voltage to DMX512" },
+  { RDM_PRODUCT_DETAIL_SWITCH_PANEL,	"Switch Panel" },
+// Generally applied to Audio or Video (AV) devices
+  { RDM_PRODUCT_DETAIL_ROUTER,		"Router" },
+  { RDM_PRODUCT_DETAIL_FADER,		"Fader" },
+  { RDM_PRODUCT_DETAIL_MIXER,		"Mixer" },
+// Generally applied to Controllers, Backup devices, and Test Equipment
+  { RDM_PRODUCT_DETAIL_CHANGEOVER_MANUAL,	"Manual Changeover" },
+  { RDM_PRODUCT_DETAIL_CHANGEOVER_AUTO,	"Auto Changeover" },
+  { RDM_PRODUCT_DETAIL_TEST,		"Test Equipment" },
+// Could be applied to any category
+  { RDM_PRODUCT_DETAIL_GFI_RCD,		"Includes GFI/RCD Trip" },
+  { RDM_PRODUCT_DETAIL_BATTERY,		"Battery Operated" },
+  { RDM_PRODUCT_DETAIL_CONTROLLABLE_BREAKER,	"Controllable Breaker" },
+// Input Devices E1.20-2025
+  { RDM_PRODUCT_DETAIL_INPUT,		"Generic Input" },
+  { RDM_PRODUCT_DETAIL_SENSOR,		"Sensor Input" },
+  { RDM_PRODUCT_DETAIL_OTHER,		"Other" },
+  { 0, NULL },
+};
+static value_string_ext rdm_product_detail_vals_ext = VALUE_STRING_EXT_INIT(rdm_product_detail_vals);
+
 /* E1.37-1 */
 #define RDM_PRESET_NOT_PROGRAMMED        0x00
 #define RDM_PRESET_PROGRAMMED            0x01
@@ -947,7 +1144,7 @@ static int hf_rdm_pd_status_messages_data_value_2;
 static int hf_rdm_pd_status_id;
 static int hf_rdm_pd_status_id_description;
 static int hf_rdm_pd_sub_device_status_report_threshold_status_type;
-static int hf_rdm_pd_product_detail_id_list;
+static int hf_rdm_pd_product_detail_id;
 static int hf_rdm_pd_factory_defaults;
 static int hf_rdm_pd_background_discovery_endpoint_id;
 static int hf_rdm_pd_background_discovery_enabled;
@@ -2031,7 +2228,7 @@ dissect_rdm_pd_product_detail_id_list(tvbuff_t *tvb, unsigned offset, proto_tree
   switch(cc) {
   case RDM_CC_GET_COMMAND_RESPONSE:
     while (len >= 2) {
-      rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_product_detail_id_list, tvb, &offset, 2);
+      rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_product_detail_id, tvb, &offset, 2);
       len -= 2;
     }
     break;
@@ -5582,9 +5779,9 @@ proto_register_rdm(void)
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_rdm_pd_product_detail_id_list,
-      { "Sensor Count", "rdm.pd.product_detail_id_list",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+    { &hf_rdm_pd_product_detail_id,
+      { "Product Detail ID", "rdm.pd.product_detail_id",
+        FT_UINT16, BASE_HEX | BASE_EXT_STRING, &rdm_product_detail_vals_ext, 0x0,
         NULL, HFILL }},
 
     { &hf_rdm_pd_factory_defaults,
