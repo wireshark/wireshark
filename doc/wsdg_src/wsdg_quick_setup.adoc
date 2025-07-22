@@ -401,7 +401,7 @@ controls for playing back streams in the RTP Player dialog
 * You can deselect all of the other the components
 such as “Qt Charts” or “Android xxxx” as they aren’t required.
 
-The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2019_64_
+The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64_
 Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
 
 Qt 6 is the default option for building Wireshark, but Wireshark has support for Qt 5.12 and later. To enable Wireshark to build with Qt 5 pass `-DUSE_qt6=OFF`
@@ -417,7 +417,7 @@ Then just run the following command to launch the installation.
 
 [subs="attributes+"]
 ----
-.\aqt.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2019_64 -m qt5compat debug_info qtmultimedia
+.\aqt.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2022_64 -m qt5compat debug_info qtmultimedia
 ----
 
 [#ChSetupPython]
@@ -661,7 +661,7 @@ rem Set *one* of these.
 set WIRESHARK_BASE_DIR=C:\Development
 rem set WIRESHARK_LIB_DIR=c:\wireshark-x64-libs
 rem Set the Qt installation directory
-set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{windows-qt6-lts-version}\msvc2019_64
+set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64
 rem Append a custom string to the package version. Optional.
 set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
