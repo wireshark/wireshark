@@ -960,7 +960,6 @@ proto_register_bluetooth(void)
 
 
     proto_bluetooth = proto_register_protocol("Bluetooth", "Bluetooth", "bluetooth");
-    prefs_register_protocol(proto_bluetooth, NULL);
 
     register_dissector("bluetooth_ubertooth", dissect_bluetooth_ubertooth, proto_bluetooth);
 
