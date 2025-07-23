@@ -1218,6 +1218,16 @@ static int hf_pfcp_jnpr_sgrp_name;
 static int hf_pfcp_jnpr_logical_port_address;
 static int hf_pfcp_jnpr_compute_limit_exceeded;
 static int hf_pfcp_jnpr_final_stats;
+static int hf_pfcp_jnpr_error_event_id;
+static int hf_pfcp_jnpr_error_event_len;
+static int hf_pfcp_jnpr_error_event_desc;
+static int hf_pfcp_jnpr_mcast_flags;
+static int hf_pfcp_jnpr_mcast_group_threshold;
+static int hf_pfcp_jnpr_src_ip_ie_group;
+static int hf_pfcp_jnpr_nested_ie_type;
+static int hf_pfcp_jnpr_nested_ie_len;
+static int hf_pfcp_jnpr_source_ip_spare;
+static int hf_pfcp_jnpr_source_ip;
 
 static const value_string compute_limit_vals[] = {
     { 0, "Off" },
@@ -1228,6 +1238,16 @@ static const value_string compute_limit_vals[] = {
 static const value_string final_stats[] = {
     { 0, "Do not send final stats" },
     { 1, "Send final stats" },
+    { 0, NULL }
+};
+
+static const value_string mcast_flags_vals[] = {
+    { 0x01, "Distributed" },
+    { 0x02, "Centralized" },
+    { 0x04, "Promiscuous" },
+    { 0x08, "Passive Allow Receive" },
+    { 0x10, "Passive Send General Query" },
+    { 0x20, "Passive Send Group Query" },
     { 0, NULL }
 };
 
@@ -12571,13 +12591,56 @@ static int dissect_pfcp_jnpr_accounting_type_final(tvbuff_t *tvb, packet_info *p
 
 }
 
+static int dissect_pfcp_jnpr_error_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint data_len = tvb_reported_length(tvb);
+
+    uint32_t error_event_id;
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_error_event_id, tvb, 0, 4, ENC_BIG_ENDIAN, &error_event_id);
+
+    if (data_len >= 6) {
+        guint32 error_event_len;
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_error_event_len, tvb, 4, 2, ENC_BIG_ENDIAN, &error_event_len);
+
+        if (error_event_len > 0 && data_len >= (6 + error_event_len)) {
+            proto_tree_add_item(tree, hf_pfcp_jnpr_error_event_desc, tvb, 6, error_event_len, ENC_ASCII);
+        }
+    }
+
+    return data_len;
+}
+
+static int dissect_pfcp_jnpr_mcast_service_object(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_mcast_flags, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_mcast_group_threshold, tvb, 1, 1, ENC_BIG_ENDIAN);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_dbng_inet_tcp_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *ti = proto_tree_add_item(tree, hf_pfcp_jnpr_src_ip_ie_group, tvb, 0, 9, ENC_NA);
+    proto_tree *subtree = proto_item_add_subtree(ti, ett_pfcp_jnpr);
+
+    proto_tree_add_item(subtree, hf_pfcp_jnpr_nested_ie_type, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_pfcp_jnpr_nested_ie_len, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_pfcp_jnpr_source_ip_spare, tvb, 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_pfcp_jnpr_source_ip, tvb, 5, 4, ENC_BIG_ENDIAN);
+
+    return tvb_reported_length(tvb);
+}
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
+    { VENDOR_JUNIPER, 32911 , "Error Event Report"                  , dissect_pfcp_jnpr_error_event, -1 } ,
     { VENDOR_JUNIPER, 32912 , "Filter Variable"                     , dissect_pfcp_jnpr_filter_var, -1 } ,
     { VENDOR_JUNIPER, 32915 , "Compute Limit Exceeded"              , dissect_pfcp_jnpr_compute_limit_exceeded, -1 } ,
     { VENDOR_JUNIPER, 32917 , "Accounting Type Final"               , dissect_pfcp_jnpr_accounting_type_final, -1 } ,
+    { VENDOR_JUNIPER, 32918 , "Multicast Service Object"            , dissect_pfcp_jnpr_mcast_service_object, -1 } ,
     { VENDOR_JUNIPER, 32919 , "SGRP Name"                           , dissect_pfcp_jnpr_sgrp_name, -1 } ,
     { VENDOR_JUNIPER, 32921 , "Logical Port Address List"           , dissect_pfcp_jnpr_logical_port_address_list, -1 } ,
+    { VENDOR_JUNIPER, 32929 , "DBNG INET TCP Address"               , dissect_pfcp_jnpr_dbng_inet_tcp_addr, -1 } ,
     { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
 
@@ -18359,6 +18422,66 @@ proto_register_pfcp(void)
         { "Final Stats Flag", "pfcp.jnpr.final_stats",
             FT_UINT8, BASE_DEC, VALS(final_stats),
             0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_error_event_id,
+        { "Error Event ID", "pfcp.jnpr.error_event_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_error_event_len,
+        { "Error Event Length", "pfcp.jnpr.error_event_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_error_event_desc,
+        { "Error Event Description", "pfcp.jnpr.error_event_desc",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_mcast_flags,
+        { "Multicast Flags", "pfcp.jnpr.mcast_flags",
+            FT_UINT8, BASE_HEX, VALS(mcast_flags_vals),
+            0x3F, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_mcast_group_threshold,
+        { "Group Threshold", "pfcp.jnpr.mcast_group_threshold",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_source_ip_spare,
+        { "Source IP Spare", "pfcp.jnpr.source_ip_spare",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_nested_ie_type,
+        { "Nested IE Type", "pfcp.jnpr.nested_ie_type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_nested_ie_len,
+        { "Nested IE Length", "pfcp.jnpr.nested_ie_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_source_ip,
+        { "Source IP Address", "pfcp.jnpr.source_ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_src_ip_ie_group,
+        { "Source IP Address IE [Grouped]", "pfcp.jnpr.src_ip_ie_group",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
 
         /* Nokia */
