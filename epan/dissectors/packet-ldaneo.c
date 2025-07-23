@@ -115,6 +115,7 @@ static expert_field ei_ldaneo_invalid;
 static expert_field ei_ldaneo_port_id_invalid;
 static expert_field ei_ldaneo_pcs_code_invalid;
 static expert_field ei_ldaneo_port_speed_invalid;
+static expert_field ei_ldaneo_cant_handle_picoseconds;
 
 /* Speed configuration */
 static const value_string port_speed_str[] = {
@@ -357,6 +358,9 @@ dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree_add_uint(ts_tree, hf_ldaneo_picosec, tvb, offset, LDANEO_PICOSEC_LENGTH,
             timestamp.picosec);
     proto_tree_add_time(ts_tree, hf_ldaneo_datetime, tvb, offset, LDANEO_PICOSEC_LENGTH, &ts);
+#else
+    proto_tree_add_expert(ts_tree, pinfo, &ei_ldaneo_cant_handle_picoseconds, tvb,
+            offset, LDANEO_PORTID_LENGTH);
 #endif
 
     return offset + LDANEO_PICOSEC_LENGTH;
@@ -465,6 +469,10 @@ proto_register_ldaneo(void)
         {
             &ei_ldaneo_port_id_invalid,
             {"ldaneo.portid_invalid", PI_MALFORMED, PI_ERROR, "Invalid port ID", EXPFILL}
+        },
+        {
+            &ei_ldaneo_cant_handle_picoseconds,
+            {"ldaneo.portid_invalid", PI_UNDECODED, PI_WARN, "Wireshark doesn't handle picosecond time stamps on this platform", EXPFILL}
         }
     };
     /* Setup protocol subtree array */
