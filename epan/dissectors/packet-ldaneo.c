@@ -203,7 +203,7 @@ extract_nstime(tvbuff_t *tvb, int32_t offset)
 }
 #else
 static timestamp_data
-extract_nstime(tvbuff_t *, int )
+extract_nstime(tvbuff_t *tvb _U_, int32_t offset _U_)
 {
    timestamp_data result = {0, 0};
    return result;
