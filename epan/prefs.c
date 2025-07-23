@@ -494,10 +494,13 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         module->description = description;
         module->help = help;
 
-        if (prefs_find_module(name) == NULL) {
-            wmem_tree_insert_string(prefs_modules, name, module,
-                                  WMEM_TREE_STRING_NOCASE);
+        /* Registering it as a module (not just as a subtree) twice is an
+         * error in the code for the same reason as below. */
+        if (prefs_find_module(name) != NULL) {
+            ws_error("Preference module \"%s\" is being registered twice", name);
         }
+        wmem_tree_insert_string(prefs_modules, name, module,
+                              WMEM_TREE_STRING_NOCASE);
 
         return module;
     }
