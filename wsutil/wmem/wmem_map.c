@@ -121,6 +121,20 @@ wmem_map_init_table(wmem_map_t *map)
     map->next_item = map->items;
 }
 
+static bool
+wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+        void *user_data)
+{
+    wmem_map_t *map = (wmem_map_t*)user_data;
+
+    g_ptr_array_free(map->deleted_items, TRUE);
+    if (map->data_scope_cb_id) {
+        wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
+    }
+
+    return false;
+}
+
 wmem_map_t *
 wmem_map_new(wmem_allocator_t *allocator,
         GHashFunc hash_func, GEqualFunc eql_func)
@@ -140,6 +154,11 @@ wmem_map_new(wmem_allocator_t *allocator,
     map->next_item = NULL;
     map->deleted_items = g_ptr_array_new();
 
+    // The first callback ID wmem_register_callback assigns is 1, so
+    // 0 means unused.
+    map->data_scope_cb_id = 0;
+    map->metadata_scope_cb_id = wmem_register_callback(allocator, wmem_map_destroy_cb, map);
+
     return map;
 }
 
@@ -157,21 +176,11 @@ wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
 
     if (event == WMEM_CB_DESTROY_EVENT) {
         wmem_unregister_callback(map->metadata_allocator, map->metadata_scope_cb_id);
+        g_ptr_array_free(map->deleted_items, TRUE);
         wmem_free(map->metadata_allocator, map);
     }
 
     return true;
-}
-
-static bool
-wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
-        void *user_data)
-{
-    wmem_map_t *map = (wmem_map_t*)user_data;
-
-    wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
-
-    return false;
 }
 
 wmem_map_t *
