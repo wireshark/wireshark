@@ -3968,8 +3968,7 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     fix_endianness_blf_fileheader(fileheader);
 
     /* seek to start of file */
-    wtap_dump_file_seek(wdh, 0, SEEK_SET, err);
-    if (*err != 0) {
+    if (!wtap_dump_file_seek(wdh, 0, SEEK_SET, err)) {
         return false;
     }
 
@@ -4699,6 +4698,7 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh _U_, const wtap_rec *rec _U_, in
         if (col_proto_len == strlen(BLF_APPTEXT_COL_PROT_TEXT) && 0 == strncmp(BLF_APPTEXT_COL_PROT_TEXT, &pd[col_proto_pos], col_proto_len)) {
             blf_apptext_t apptext_header;
             apptext_header.source = BLF_APPTEXT_METADATA;
+            apptext_header.reservedAppText1 = 0;
             apptext_header.reservedAppText2 = 412; /* not sure what to put in but this is commonly used!? */
             uint32_t payload_len = (uint32_t)(length - pos);
             apptext_header.textLength = payload_len;
