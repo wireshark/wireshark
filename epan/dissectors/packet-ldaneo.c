@@ -253,7 +253,7 @@ dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         if (pref_timestamp_validation) {
             nstime_t delta;
             nstime_delta(&delta, &pinfo->abs_ts, &ts);
-            if (labs(delta.secs) > SECONDS_IN_MONTH) {
+            if (labs((long)(delta.secs)) > SECONDS_IN_MONTH) {
                 continue;
             }
         }
