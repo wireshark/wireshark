@@ -34,6 +34,8 @@
 #include "packet-kerberos.h"
 #include "read_keytab_file.h"
 
+#include <libxml/parser.h>
+
 #include "packet-xml.h"
 #include "packet-acdr.h"
 
@@ -91,6 +93,14 @@ static int pref_default_encoding = IANA_CS_UTF_8;
 static wmem_array_t *hf_arr;
 static GArray *ett_arr;
 static GRegex* encoding_pattern;
+
+/* The full paths of DTDs that register their own protocols, keyed by the
+ * protocol short name / filter name (guaranteed to be the same.) */
+wmem_map_t *dtd_proto_files;
+
+/* The full paths of DTDs that do not register their own protocols, but
+ * register their fields under the main XML protocol. */
+wmem_list_t *dtd_noproto_files;
 
 static const char *default_media_types[] = {
     "text/xml",
@@ -304,6 +314,23 @@ get_char_encoding(tvbuff_t* tvb, packet_info* pinfo, char** ret_encoding_name) {
     return ws_encoding_id;
 }
 
+static gboolean
+register_dtd_fields_and_remove(void *key, void *value _U_, void *user_data)
+{
+    // If necessary this will call dtd_register_fields, which will also remove
+    // it from the prefixes-to-register table. (The prefix function might have
+    // already been called once, e.g. from putting the prefix in the display
+    // filter combobox.)
+    //
+    // XXX - Perhaps it would be easier to just have a function to
+    // call a prefix initializer directly by the prefix?
+    char *cdata_name = wmem_strdup_printf((wmem_allocator_t*)user_data, "%s.cdata", (char*)key);
+    proto_registrar_get_byname(cdata_name);
+
+    // Always remove it from the map, so this only happens once.
+    return TRUE;
+}
+
 static int
 dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -313,6 +340,15 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     const char       *colinfo_str;
     tvbuff_t         *decoded;
     uint16_t          try_bom;
+
+    // Register the fields if we haven't done so already.
+    // First the base XML protocol
+    if (hf_xmlpi <= 0) {
+        proto_registrar_get_byname("xml.xmlpi");
+    }
+
+    // Now all the other protocols
+    wmem_map_foreach_remove(dtd_proto_files, register_dtd_fields_and_remove, pinfo->pool);
 
     if (stack != NULL)
         g_ptr_array_free(stack, true);
@@ -364,6 +400,11 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     root_ns = NULL;
 
+    /* XXX - If we have a proto_name but no media_type, then we register a
+     * protocol but can never look up its root element and NS here. That
+     * doesn't seem right. (None of the DTDs distributed with Wireshark
+     * are that way, though.)
+     */
     if (pinfo->match_string)
         root_ns = (xml_ns_t *)wmem_map_lookup(media_types, pinfo->match_string);
 
@@ -1585,12 +1626,22 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         char *cdata_name = wmem_strdup_printf(wmem_epan_scope(), "%s.cdata", root_element->fqn);
         add_xml_field(hfs, &root_element->hf_cdata, root_element->name, cdata_name);
 
-        root_element->hf_tag = proto_register_protocol(full_name, short_name, short_name);
+        /* Should already be registered in register_dtd_proto.
+         * Note that if we switch to PINOs we'll have to use
+         * proto_registrar_get_id_byname because PINOs aren't in
+         * the separate proto short name table. */
+        root_element->hf_tag = proto_get_id_by_short_name(short_name);
+        if (root_element->hf_tag <= 0) {
+            /* Well, how did I get here? This isn't my beautiful protocol.
+             * This shouldn't happen. */
+            root_element->hf_tag = proto_register_protocol(full_name, short_name, short_name);
+        }
         proto_register_field_array(root_element->hf_tag, (hf_register_info*)wmem_array_get_raw(hfs), wmem_array_get_count(hfs));
         proto_register_subtree_array((int **)etts->data, etts->len);
 
         if (dtd_data->media_type) {
             char* media_type = wmem_strdup(wmem_epan_scope(), dtd_data->media_type);
+            // Replace the current value with the real root element.
             wmem_map_insert(media_types, media_type, root_element);
         }
 
@@ -1602,6 +1653,209 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
     destroy_dtd_data(dtd_data);
     wmem_free(wmem_epan_scope(), root_name);
+}
+
+static void register_dtd_fields(const char *unused _U_);
+
+static void register_dtd_proto(dtd_build_data_t *dtd_data, const char *fullpath, GString *errors _U_)
+{
+    /*
+     * if we were given a proto_name the namespace will be registered
+     * as an independent protocol.
+     * XXX - Should these be PINOs? The standard xml_handle is called,
+     * which means that enabling and disabling the protocols has no
+     * effect.
+     */
+    if( dtd_data->proto_name ) {
+        char *full_name, *short_name;
+
+        short_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_name);
+        if (dtd_data->description) {
+            full_name = wmem_strdup(wmem_epan_scope(), dtd_data->description);
+        } else if (dtd_data->proto_root) {
+            full_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_root);
+        } else {
+            full_name = short_name;
+        }
+
+        /*root_element->hf_tag = */ proto_register_protocol(full_name, short_name, short_name);
+
+        /* Register the prefix so that the fields under this prefix get
+         * automatically registered when requested. */
+        proto_register_prefix(short_name, register_dtd_fields);
+        wmem_map_insert(dtd_proto_files, short_name, wmem_strdup(wmem_epan_scope(), fullpath));
+
+    } else {
+        /* These fields will have a "xml." prefix and need to be registered
+         * along with that prefix. */
+        wmem_list_append(dtd_noproto_files, wmem_strdup(wmem_epan_scope(), fullpath));
+    }
+
+    /* If there's a media type, add it to the map so that the generic XML
+     * dissector will get called for that media type. For cases where there
+     * is a proto_name, we'll make the real root element namespace and replace
+     * the common XML NS with it later it later in register_dtd, before we
+     * need it in dissect_xml.
+     *
+     * We could, if we wanted, construct the root element here; we don't have
+     * the elements and attributes (which we still get from the lex-based
+     * parser), but we could create it with everything else, and then finish it
+     * later in register_dtd.
+     */
+
+    if (dtd_data->media_type) {
+        char* media_type = wmem_strdup(wmem_epan_scope(), dtd_data->media_type);
+        wmem_map_insert(media_types, media_type, &xml_ns /* root_element */);
+    }
+
+    destroy_dtd_data(dtd_data);
+}
+
+struct _proto_xmlpi_attr {
+        const char* name;
+        void (*act)(char*);
+};
+
+static dtd_build_data_t *g_build_data;
+
+static void set_proto_name (char* val) { g_free(g_build_data->proto_name); g_build_data->proto_name = g_ascii_strdown(val, -1); }
+static void set_media_type (char* val) { g_free(g_build_data->media_type); g_build_data->media_type = g_strdup(val); }
+static void set_proto_root (char* val) { g_free(g_build_data->proto_root); g_build_data->proto_root = g_ascii_strdown(val, -1); }
+static void set_description (char* val) { g_free(g_build_data->description); g_build_data->description = g_strdup(val); }
+static void set_recursive (char* val) { g_build_data->recursion = ( g_ascii_strcasecmp(val,"yes") == 0 ) ? true : false; }
+
+#define SKIP_WSP(p) \
+    while (g_ascii_isspace(*p)) { \
+        p++; \
+    }
+
+static void dtd_pi_cb(void *ctx _U_, const xmlChar *target, const xmlChar *data)
+{
+    if (strcmp(target, "wireshark-protocol") == 0) {
+
+        struct _proto_xmlpi_attr* pa;
+        static struct _proto_xmlpi_attr proto_attrs[] =
+        {
+                { "proto_name", set_proto_name },
+                { "media", set_media_type },
+                { "root", set_proto_root },
+                { "description", set_description },
+                { "hierarchy", set_recursive },
+                {NULL,NULL}
+        };
+
+        const xmlChar* endp;
+        // libxml2 will skip all the whitespace between the PITarget and data,
+        // but not internal to the data (as expected).
+        // https://www.w3.org/TR/xml/#NT-PI
+        // Processing instructions character data can be nearly anything and
+        // is defined by us. It's been defined as a set of key value pairs.
+        // The restrictions on the Name and Value characters has not been
+        // exactly the same as that in the XML spec.
+        while (*data) {
+            bool got_it = false;
+            endp = data;
+            while (g_ascii_isalnum(*endp) || *endp == '_' || *endp == '-') {
+                endp++;
+            }
+            char *keyval = g_strndup(data, endp - data);
+            data = endp;
+            SKIP_WSP(data);
+            if (*data != '=') {
+                g_string_append_printf(g_build_data->error,
+                    "error in wireshark-protocol xmpl: could not find attribute value!");
+                g_free(keyval);
+                return;
+            }
+            data++;
+            SKIP_WSP(data);
+            if (*data != '"') {
+                g_string_append_printf(g_build_data->error,
+                    "error in wireshark-protocol xmpl: could not find attribute value!");
+                g_free(keyval);
+                return;
+            }
+            data++;
+            endp = strchr(data, '"');
+            if (endp == NULL) {
+                g_string_append_printf(g_build_data->error,
+                    "error in wireshark-protocol xmpl: could not find attribute value!");
+                g_free(keyval);
+                return;
+            }
+            char *value = g_strndup(data, endp - data);
+            for (pa = proto_attrs; pa->name; pa++) {
+                if (g_ascii_strcasecmp(keyval, pa->name) == 0) {
+                    pa->act(value);
+                    got_it = true;
+                    break;
+                }
+            }
+            g_free(value);
+            if (!got_it) {
+                g_string_append_printf(g_build_data->error,
+                    "error in wireshark-protocol xmpl: no such parameter %s!", keyval);
+                g_free(keyval);
+                return;
+            }
+            g_free(keyval);
+            data = endp + 1; // skip past quote
+            SKIP_WSP(data);
+        }
+    }
+}
+
+static void dtd_internalSubset_cb(void *ctx _U_, const xmlChar *name, const xmlChar *publicId _U_, const xmlChar *systemId _U_)
+{
+    g_free(g_build_data->proto_root);
+    g_build_data->proto_root = g_ascii_strdown(name, -1);
+    if (!g_build_data->proto_name) {
+        g_build_data->proto_name = g_ascii_strdown(name, -1);
+    }
+
+}
+
+static void dtd_elementDecl_cb(void *ctx _U_, const xmlChar *name, int type _U_, xmlElementContent *content _U_)
+{
+    /* we will use the first element found as root in case no other one was given. */
+    if (!g_build_data->proto_root) {
+        g_build_data->proto_root = g_ascii_strdown(name, -1);
+    }
+}
+
+static void dtd_error_cb(void *ctx _U_, const char *msg, ...)
+{
+    char buf[40];
+    va_list args;
+    va_start(args, msg);
+    va_list args2;
+    va_copy(args2, args);
+    vsnprintf(buf, sizeof(buf), msg, args);
+    va_end(args);
+    /* We allow (see dc.dtd and itunes.dtd) "DTDs" that have a DOCTYPE
+     * declaration. That makes them not valid external DTDs. They also
+     * aren't valid XML documents with internal DTDs (which is how libxml2
+     * tried to parse them) because they have no tags.
+     * Parsing them as a DTD gives the "Content error in the external subset"
+     * error; parsing them as a document gives the "Start tag expected"
+     * error.
+     *
+     * So we ignore those errors and report others. If those are the only
+     * errors, then we'll call it valid and fully parse it later with the
+     * lex-based parser.
+     *
+     * XXX - Can we achieve the same result while forcing the DTDs to
+     * be normal standalone external DTDs? Make people use the "root"
+     * attribute if necessary? Need to verify that it would parse the same,
+     * but it would simplify the code. We could also insert an empty tag
+     * or something to make libxml2 happy, but the flex-based parser complains
+     * in that case.
+     */
+    if (!g_str_has_prefix(buf, "Start tag expected") &&
+        !g_str_has_prefix(buf, "Content error in the external subset")) {
+        g_string_append_vprintf(g_build_data->error, msg, args2);
+    }
+    va_end(args2);
 }
 
 #  define DIRECTORY_T GDir
@@ -1633,6 +1887,10 @@ static void init_xml_names(void)
     unknown_ns.attributes = xml_ns.attributes = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
 
     xml_new_namespace(xmpli_names, "xml", "version", "encoding", "standalone", NULL);
+    wmem_map_foreach(xmpli_names, add_xmlpi_namespace, (void *)"xml.xmlpi");
+
+    dtd_proto_files = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
+    dtd_noproto_files = wmem_list_new(wmem_epan_scope());
 
     dirname = get_persconffile_path("dtds", false);
 
@@ -1646,42 +1904,89 @@ static void init_xml_names(void)
         if ((dir = OPENDIR_OP(dirname)) != NULL) {
             GString *errors = g_string_new("");
 
+            xmlSAXHandler saxHandler;
+            xmlSAXVersion(&saxHandler, 2);
+            saxHandler.processingInstruction = dtd_pi_cb;
+            saxHandler.internalSubset = dtd_internalSubset_cb;
+            saxHandler.elementDecl = dtd_elementDecl_cb;
+            saxHandler.attributeDecl = NULL;
+            saxHandler.error = dtd_error_cb;
+
+            xmlParserInputBuffer *buffer;
+
+            xmlDtdPtr dtd;
+            xmlDocPtr doc;
+            xmlParserCtxt *ctxt;
+
             while ((file = DIRGETNEXT_OP(dir)) != NULL) {
                 unsigned namelen;
                 filename = GETFNAME_OP(file);
 
                 namelen = (int)strlen(filename);
                 if ( namelen > 4 && ( g_ascii_strcasecmp(filename+(namelen-4), ".dtd")  == 0 ) ) {
-                    GString *preparsed;
-                    dtd_build_data_t *dtd_data;
-
+                    g_build_data = g_new0(dtd_build_data_t, 1);
+                    g_build_data->elements = g_ptr_array_new();
+                    g_build_data->attributes = g_ptr_array_new();
+                    g_build_data->error = g_string_new("");
+                    char * fullpath = g_build_filename(dirname, filename, NULL);
+                    buffer = xmlParserInputBufferCreateFilename(fullpath, XML_CHAR_ENCODING_UTF8);
+                    // xmlCtxtParseDtd is introduced in 2.14.0; before that
+                    // there's no way to parse a DTD using a xmlParserCtxt
+                    // or userData, just with a saxHandler directly. That
+                    // also means that instead of using a dtd_build_data_t
+                    // as user data, we just use a global.
+                    dtd = xmlIOParseDTD(&saxHandler, buffer, XML_CHAR_ENCODING_UTF8);
+                    /* Is it a regular standalone external DTD? */
+                    if (dtd) {
+                        xmlFreeDtd(dtd);
+                    } else {
+                        /* OK, it is a XML document with an internal DTD but
+                         * possibly lacking any tags? */
+#if LIBXML_VERSION >= 21100
+                        ctxt = xmlNewSAXParserCtxt(&saxHandler, NULL /*g_build_data*/);
+#else
+                        ctxt = xmlNewParserCtxt();
+                        if (ctxt->sax != NULL) {
+                            xmlFree(ctxt->sax);
+                        }
+                        ctxt->sax = &saxHandler;
+                        //ctxt->userData = g_build_data;
+#endif
+                        // We don't actually want the document here, so
+                        // we could use xmlParseDocument, but we need
+                        // to set the input (use xmlCreateURLParserCtxt
+                        // from parserInternals.h?)
+                        doc = xmlCtxtReadFile(ctxt, fullpath, NULL, 0);
+                        // We don't need XML_PARSE_DTDLOAD because we don't
+                        // want *external* DTDs or entities. We might need
+                        // XML_PARSE_NOENT eventually though.
+                        xmlFreeDoc(doc);
+#if LIBXML_VERSION < 21100
+                        // sax not copied here, so remove it so it doesn't get
+                        // freed (it was declared on the stack).
+                        ctxt->sax = NULL;
+#endif
+                        xmlFreeParserCtxt(ctxt);
+                    }
+                    // xmlIOParseDTD: "input will be freed by the function"
+                    // (even on error), so no need for
+                    // xmlFreeParserInputBuffer(buffer);
+                    if (g_build_data->error->len) {
+                        report_failure("DTD Parser in file %s: %s",
+                                       fullpath, g_build_data->error->str);
+                        g_free(fullpath);
+                        destroy_dtd_data(g_build_data);
+                        continue;
+                    }
                     g_string_truncate(errors, 0);
-                    preparsed = dtd_preparse(dirname, filename, errors);
-
+                    register_dtd_proto(g_build_data, fullpath, errors);
                     if (errors->len) {
-                        report_failure("Dtd Preparser in file %s%c%s: %s",
-                                       dirname, G_DIR_SEPARATOR, filename, errors->str);
+                        report_failure("Dtd Registration in file: %s: %s",
+                                       fullpath, errors->str);
+                        g_free(fullpath);
                         continue;
                     }
-
-                    dtd_data = dtd_parse(preparsed);
-
-                    g_string_free(preparsed, true);
-
-                    if (dtd_data->error->len) {
-                        report_failure("Dtd Parser in file %s%c%s: %s",
-                                       dirname, G_DIR_SEPARATOR, filename, dtd_data->error->str);
-                        destroy_dtd_data(dtd_data);
-                        continue;
-                    }
-
-                    register_dtd(dtd_data, errors);
-
-                    if (errors->len) {
-                        report_failure("Dtd Registration in file: %s%c%s: %s",
-                                       dirname, G_DIR_SEPARATOR, filename, errors->str);
-                        continue;
-                    }
+                    g_free(fullpath);
                 }
             }
             g_string_free(errors, true);
@@ -1692,9 +1997,127 @@ static void init_xml_names(void)
 
     g_free(dirname);
 
-    wmem_map_foreach(xmpli_names, add_xmlpi_namespace, (void *)"xml.xmlpi");
-
     wmem_free(wmem_epan_scope(), dummy);
+}
+
+static void
+register_dtd_fields(const char *field_name)
+{
+    const char   *fullpath;
+
+    GString *errors = g_string_new("");
+
+    GString *preparsed;
+    dtd_build_data_t *dtd_data;
+
+    /* prefix initializers get called with the field name; get the prefix. */
+    /* We could also use specialized hash and equal functions like in proto.c */
+    char *prefix;
+    const char* dotp = strchr(field_name, '.');
+    if (dotp) {
+        prefix = wmem_strndup(wmem_epan_scope(), field_name, dotp - field_name);
+    } else {
+        prefix = wmem_strdup(wmem_epan_scope(), field_name);
+    }
+    fullpath = wmem_map_lookup(dtd_proto_files, prefix);
+    if (!fullpath) {
+        ws_warning("DTD proto name %s not found!", prefix);
+        wmem_free(wmem_epan_scope(), prefix);
+        goto cleanup;
+    }
+    wmem_free(wmem_epan_scope(), prefix);
+    preparsed = dtd_preparse(fullpath, errors);
+
+    if (errors->len) {
+        report_failure("Dtd Preparser in file %s: %s",
+                       fullpath, errors->str);
+        goto cleanup;
+    }
+
+    dtd_data = dtd_parse(preparsed);
+
+    g_string_free(preparsed, true);
+
+    if (dtd_data->error->len) {
+        report_failure("Dtd Parser in file %s: %s",
+                       fullpath, dtd_data->error->str);
+        destroy_dtd_data(dtd_data);
+        goto cleanup;
+    }
+
+    register_dtd(dtd_data, errors);
+
+    if (errors->len) {
+        report_failure("Dtd Registration in file: %s: %s",
+                       fullpath, errors->str);
+    }
+
+cleanup:
+    g_string_free(errors, true);
+}
+
+static void
+register_xml_fields(const char *unused _U_)
+{
+    const char   *fullpath;
+
+    // Register any fields from DTDs that don't register their own protocol
+    // They will get added to the globals hf_array and ett_array
+    GString *errors = g_string_new("");
+
+    GString *preparsed;
+    dtd_build_data_t *dtd_data;
+
+    for (wmem_list_frame_t *iter = wmem_list_head(dtd_noproto_files);
+        iter; iter = wmem_list_frame_next(iter)) {
+
+        fullpath = wmem_list_frame_data(iter);
+        DISSECTOR_ASSERT(fullpath);
+
+        g_string_truncate(errors, 0);
+        preparsed = dtd_preparse(fullpath, errors);
+
+        if (errors->len) {
+            report_failure("Dtd Preparser in file %s: %s",
+                           fullpath, errors->str);
+            continue;
+        }
+
+        dtd_data = dtd_parse(preparsed);
+
+        g_string_free(preparsed, true);
+
+        if (dtd_data->error->len) {
+            report_failure("Dtd Parser in file %s: %s",
+                           fullpath, dtd_data->error->str);
+            destroy_dtd_data(dtd_data);
+            continue;
+        }
+
+        register_dtd(dtd_data, errors);
+
+        if (errors->len) {
+            report_failure("Dtd Registration in file: %s: %s",
+                           fullpath, errors->str);
+        }
+    }
+
+    g_string_free(errors, true);
+
+    expert_module_t* expert_xml;
+
+    static ei_register_info ei[] = {
+        { &ei_xml_closing_unopened_tag, { "xml.closing_unopened_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened tag", EXPFILL }},
+        { &ei_xml_closing_unopened_xmpli_tag, { "xml.closing_unopened_xmpli_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened xmpli tag", EXPFILL }},
+        { &ei_xml_unrecognized_text, { "xml.unrecognized_text", PI_PROTOCOL, PI_WARN, "Unrecognized text", EXPFILL }},
+    };
+
+    proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)wmem_array_get_raw(hf_arr), wmem_array_get_count(hf_arr));
+    proto_register_subtree_array((int **)ett_arr->data, ett_arr->len);
+    expert_xml = expert_register_protocol(xml_ns.hf_tag);
+    expert_register_field_array(expert_xml, ei, array_length(ei));
+
+    g_array_free(ett_arr, true);
 }
 
 static void
@@ -1768,14 +2191,7 @@ proto_register_xml(void)
         }
     };
 
-    static ei_register_info ei[] = {
-        { &ei_xml_closing_unopened_tag, { "xml.closing_unopened_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened tag", EXPFILL }},
-        { &ei_xml_closing_unopened_xmpli_tag, { "xml.closing_unopened_xmpli_tag", PI_MALFORMED, PI_ERROR, "Closing an unopened xmpli tag", EXPFILL }},
-        { &ei_xml_unrecognized_text, { "xml.unrecognized_text", PI_PROTOCOL, PI_WARN, "Unrecognized text", EXPFILL }},
-    };
-
     module_t *xml_module;
-    expert_module_t* expert_xml;
 
     hf_arr  = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
     ett_arr = g_array_new(false, false, sizeof(int *));
@@ -1787,10 +2203,7 @@ proto_register_xml(void)
 
     xml_ns.hf_tag = proto_register_protocol("eXtensible Markup Language", "XML", xml_ns.name);
 
-    proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)wmem_array_get_raw(hf_arr), wmem_array_get_count(hf_arr));
-    proto_register_subtree_array((int **)ett_arr->data, ett_arr->len);
-    expert_xml = expert_register_protocol(xml_ns.hf_tag);
-    expert_register_field_array(expert_xml, ei, array_length(ei));
+    proto_register_prefix(xml_ns.name, register_xml_fields);
 
     xml_module = prefs_register_protocol(xml_ns.hf_tag, NULL);
     prefs_register_obsolete_preference(xml_module, "heuristic");
@@ -1805,8 +2218,6 @@ proto_register_xml(void)
                                    "Use this charset if the 'encoding' attribute of XML declaration is missing."
                                    "Unsupported encoding will be replaced by the default UTF-8.",
                                    &pref_default_encoding, ws_supported_mibenum_vals_character_sets_ev_array, false);
-
-    g_array_free(ett_arr, true);
 
     register_init_routine(&xml_init_protocol);
     register_cleanup_routine(&xml_cleanup_protocol);

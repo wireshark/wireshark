@@ -92,8 +92,7 @@ DIAG_OFF_FLEX()
 #define ECHO g_string_append(yyextra->current,yytext);
 
 struct _dtd_preparse_scanner_state {
-	const char* dtd_dirname;
-	const char* filename;
+	char* filename;
 	unsigned linenum;
 
 	GString* error;
@@ -235,8 +234,7 @@ static gboolean free_gstring_hash_items(void *k,void *v,void *p _U_) {
 	return true;
 }
 
-extern GString* dtd_preparse(const char* dname,const  char* fname, GString* err) {
-	char* fullname = ws_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
+extern GString* dtd_preparse(const char* fullname, GString* err) {
 	FILE *in;
 	yyscan_t scanner;
 	Dtd_PreParse_scanner_state_t state;
@@ -246,7 +244,6 @@ extern GString* dtd_preparse(const char* dname,const  char* fname, GString* err)
 	if (!in) {
 		if (err)
 			g_string_append_printf(err, "Could not open file: '%s', error: %s",fullname,g_strerror(errno));
-		g_free(fullname);
 		return NULL;
 	}
 
@@ -255,14 +252,12 @@ extern GString* dtd_preparse(const char* dname,const  char* fname, GString* err)
 			g_string_append_printf(err, "Can't initialize scanner: %s",
 			    strerror(errno));
 		fclose(in);
-		g_free(fullname);
 		return NULL;
 	}
 
 	Dtd_PreParse_set_in(in, scanner);
 
-	state.dtd_dirname = dname;
-	state.filename = fname;
+	state.filename = g_path_get_basename(fullname);
 	state.linenum = 1;
 
 	state.error = err;
@@ -282,7 +277,7 @@ extern GString* dtd_preparse(const char* dname,const  char* fname, GString* err)
 	g_hash_table_foreach_remove(state.entities,free_gstring_hash_items,NULL);
 	g_hash_table_destroy(state.entities);
 
-	g_free(fullname);
+	g_free(state.filename);
 
 	return state.output;
 }
