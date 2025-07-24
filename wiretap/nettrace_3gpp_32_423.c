@@ -217,6 +217,7 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 	xmlDocPtr           doc;
 	xmlNodePtr root_element;
 	exported_pdu_info_t  exported_pdu_info = { 0 };
+	exported_pdu_info_t  proxy_exported_pdu_info = { 0 };
 	char function_str[MAX_FUNCTION_LEN + 1];
 	char name_str[MAX_NAME_LEN + 1];
 	char proto_name_str[MAX_PROTO_LEN + 1];
@@ -263,6 +264,8 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 	/* Clear for each iteration */
 	exported_pdu_info.presence_flags = 0;
 	exported_pdu_info.ptype = EXP_PDU_PT_NONE;
+	proxy_exported_pdu_info.presence_flags = 0;
+	proxy_exported_pdu_info.ptype = EXP_PDU_PT_NONE;
 
 	//Start with attributes not existing
 	function_str[0] = '\0';
@@ -353,6 +356,13 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 
 				nettrace_parse_address(target_content, false/* DST */, &exported_pdu_info);
 				xmlFree(target_content);
+			}
+			else if (xmlStrcmp(cur->name, (const xmlChar*)"proxy") == 0) {
+				xmlChar* proxy_content = xmlNodeGetContent(cur);
+
+				/* proxy info will be save in destination ip/port */
+				nettrace_parse_address(proxy_content, false/* SRC */, &proxy_exported_pdu_info);
+				xmlFree(proxy_content);
 			}
 			else if (xmlStrcmp(cur->name, (const xmlChar*)"rawMsg") == 0) {
 				bool found_protocol = false;
@@ -457,25 +467,46 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_SRC_BIT) {
 					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV4_LEN);
 				}
+				else if (proxy_exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_SRC, proxy_exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
+				}
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
 					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
+				}
+				else if (proxy_exported_pdu_info.presence_flags & EXP_PDU_TAG_IP_DST_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV4_DST, proxy_exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV4_LEN);
 				}
 
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_SRC_BIT) {
 					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_SRC, exported_pdu_info.src_ip, EXP_PDU_TAG_IPV6_LEN);
 				}
+				else if (proxy_exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_SRC, proxy_exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
+				}
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
 					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_DST, exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
+				}
+				else if (proxy_exported_pdu_info.presence_flags & EXP_PDU_TAG_IP6_DST_BIT) {
+					wtap_buffer_append_epdu_tag(&rec->data, EXP_PDU_TAG_IPV6_DST, proxy_exported_pdu_info.dst_ip, EXP_PDU_TAG_IPV6_LEN);
 				}
 
 				if (exported_pdu_info.presence_flags & (EXP_PDU_TAG_SRC_PORT_BIT | EXP_PDU_TAG_DST_PORT_BIT)) {
 					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_PORT_TYPE, exported_pdu_info.ptype);
 				}
+				else if (proxy_exported_pdu_info.presence_flags & (EXP_PDU_TAG_SRC_PORT_BIT | EXP_PDU_TAG_DST_PORT_BIT)) {
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_PORT_TYPE, proxy_exported_pdu_info.ptype);
+				}
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_SRC_PORT_BIT) {
 					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_SRC_PORT, exported_pdu_info.src_port);
 				}
+				else if (proxy_exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_SRC_PORT, proxy_exported_pdu_info.dst_port);
+				}
 				if (exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
 					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DST_PORT, exported_pdu_info.dst_port);
+				}
+				else if (proxy_exported_pdu_info.presence_flags & EXP_PDU_TAG_DST_PORT_BIT) {
+					wtap_buffer_append_epdu_uint(&rec->data, EXP_PDU_TAG_DST_PORT, proxy_exported_pdu_info.dst_port);
 				}
 
 				/* Add end of options */
