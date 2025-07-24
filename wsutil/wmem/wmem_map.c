@@ -128,6 +128,7 @@ wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
     wmem_map_t *map = (wmem_map_t*)user_data;
 
     g_ptr_array_free(map->deleted_items, TRUE);
+    map->deleted_items = NULL;
     if (map->data_scope_cb_id) {
         wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
     }
@@ -157,7 +158,7 @@ wmem_map_new(wmem_allocator_t *allocator,
     // The first callback ID wmem_register_callback assigns is 1, so
     // 0 means unused.
     map->data_scope_cb_id = 0;
-    map->metadata_scope_cb_id = wmem_register_callback(allocator, wmem_map_destroy_cb, map);
+    map->metadata_scope_cb_id = allocator ? wmem_register_callback(allocator, wmem_map_destroy_cb, map) : 0;
 
     return map;
 }
@@ -541,7 +542,8 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
             if (foreach_func((void *)(*item)->key, (void *)(*item)->value, user_data)) {
                 tmp   = *item;
                 *item = tmp->next;
-                g_ptr_array_add(map->deleted_items, tmp);
+                if (map->deleted_items)
+                    g_ptr_array_add(map->deleted_items, tmp);
                 map->count--;
                 deleted++;
             } else {

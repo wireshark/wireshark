@@ -52,6 +52,10 @@ typedef struct _wmem_map_t wmem_map_t;
  * @param hash_func The hash function used to place inserted keys.
  * @param eql_func  The equality function used to compare inserted keys.
  * @return The newly-allocated map.
+ *
+ * @note It is technically possible to use this with a NULL allocator scope,
+ * but a GHashTable should probably be used instead, as it has more capabilities
+ * to help manage memory that must be freed manually.
  */
 WS_DLL_PUBLIC
 wmem_map_t *
@@ -70,6 +74,8 @@ G_GNUC_MALLOC;
  * The primary use for this function is to create maps that reset for each new
  * capture file that is loaded. This can be done by specifying wmem_epan_scope()
  * as the metadata scope and wmem_file_scope() as the data scope.
+ *
+ * @warning This cannot be used with either allocator scope being NULL.
  */
 WS_DLL_PUBLIC
 wmem_map_t *
