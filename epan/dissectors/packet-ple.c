@@ -13,9 +13,9 @@
 
 /*
  * Relevant IETF documentation:
- * - draft-ietf-pals-ple-15
+ * - RFC 9801
  * - RFC 4385
- * - draft-ietf-mpls-1stnibble-07
+ * - RFC 9790
  */
 
 #include "config.h"
@@ -103,7 +103,7 @@ dissect_ple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ple_ti = proto_tree_add_item(tree, proto_ple, tvb, 0, -1, ENC_NA);
     ple_tree = proto_item_add_subtree(ple_ti, ett_ple);
 
-    /* PLE Control Word, as per PLE draft-15, section 5.2.1 */
+    /* PLE Control Word, as per RFC 9801, section 5.2.1 */
     ple_cw_ti = proto_tree_add_item(ple_tree, hf_ple_cw, tvb, offset, 4, ENC_BIG_ENDIAN);
     ple_cw_tree = proto_item_add_subtree(ple_cw_ti, ett_ple_cw);
 
@@ -143,7 +143,7 @@ dissect_ple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     offset += 4;
 
-    /* RTP Header, as per PLE draft-15, section 5.2.2 */
+    /* RTP Header, as per RFC 9801, section 5.2.2 */
     struct _rtp_info rtp_info;
 
     int rtp_header_len = dissect_rtp_shim_header(tvb, offset, pinfo, ple_tree, &rtp_info);

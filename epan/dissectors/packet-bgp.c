@@ -1259,9 +1259,9 @@ static dissector_handle_t bgp_handle;
  #define SRV6_ENDPOINT_BEHAVIOR_END_M                  0x004A /* End.M (Mirror SID) [draft-ietf-rtgwg-srv6-egress-protection-02]                          */
 #define SRV6_ENDPOINT_BEHAVIOR_END_REPLICATE          0x004B /* End.Replicate [RFC9524]                                                                  */
 #define SRV6_ENDPOINT_BEHAVIOR_END_NSH                0x0054 /* End.NSH - NSH Segment [RFC9491]                                                          */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX1                0x009E /* End.DX1 [draft-ietf-pals-ple-02]                                                         */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX1_NEXT_CSID      0x009F /* End.DX1 with NEXT-CSID [draft-ietf-pals-ple-02]                                          */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX1_REPL_CSID      0x00A0 /* End.DX1 with REPLACE-CSID [draft-ietf-pals-ple-02]                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX1                0x009E /* End.DX1 [RFC9801]                                                                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX1_NEXT_CSID      0x009F /* End.DX1 with NEXT-CSID [RFC9801]                                                         */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX1_REPL_CSID      0x00A0 /* End.DX1 with REPLACE-CSID [RFC9801]                                                      */
 #define SRV6_ENDPOINT_BEHAVIOR_OPAQUE                 0xFFFF /* Opaque [RFC8986]                                                                         */
 
 static const value_string bgptypevals[] = {
