@@ -1561,6 +1561,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     /*
      * if we were given a proto_name the namespace will be registered
      * as an independent protocol.
+     * XXX - Should these be PINOs? The standard xml_handle is called,
+     * which means that enabling and disabling the protocols has no
+     * effect.
      */
     if( dtd_data->proto_name ) {
         int *ett_p;
@@ -1571,12 +1574,16 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         } else {
             full_name = wmem_strdup(wmem_epan_scope(), root_name);
         }
-        short_name = wmem_strdup_printf(wmem_epan_scope(),"%s_%s", dtd_data->proto_name, "dtd");
+        short_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_name);
 
         ett_p = &root_element->ett;
         g_array_append_val(etts, ett_p);
 
-        add_xml_field(hfs, &root_element->hf_cdata, root_element->name, root_element->fqn);
+        /* Ensure the cdata field (a FT_STRING) has a different abbrev
+         * than the FT_PROTOCOL. (XXX - Maybe we should do this for all
+         * the cdata fields?) */
+        char *cdata_name = wmem_strdup_printf(wmem_epan_scope(), "%s.cdata", root_element->fqn);
+        add_xml_field(hfs, &root_element->hf_cdata, root_element->name, cdata_name);
 
         root_element->hf_tag = proto_register_protocol(full_name, short_name, short_name);
         proto_register_field_array(root_element->hf_tag, (hf_register_info*)wmem_array_get_raw(hfs), wmem_array_get_count(hfs));
