@@ -142,14 +142,22 @@ static const roon_map roon_disco_bool_fields[] = {
     { NULL     , NULL            , NULL }                  ,
 };
 
-#define ROON_DISCOVERY_ALT_METHOD "d7634b85-8190-470f-aa51-6cb5538dc1b9" // this is the discovery that happens over ephemeral ports
+/*
+ * This is the discovery that happens over ephemeral ports.
+ * It is used by both clients and servers to discover each other and is
+ * very chatty for whatever reason.
+*/
+#define ROON_DISCOVERY_SERVICE_ID "d7634b85-8190-470f-aa51-6cb5538dc1b9"
+#define UNKNOWN_ROON_SERVICE_NAME "Unknown Roon Service"
 // Roon ServiceIDs and their names.  Must be sorted by uuid.
 static const roon_uuid_map roon_service_ids[] = {
-    {"00720724-5143-4a9b-abac-0e50cba674bb", "Roon Node.js"}  , // Roon Node.js SDK https://github.com/RoonLabs/node-roon-api/blob/master/lib.js#L137
-    {"5a955bb8-9673-4f8d-9437-4c6b7b18fba8", "Roon Endpoint"} , // audio output available for Roon (bridge, RoonApp, etc)
-    {"d52b2cb7-02c5-48fc-981b-a10f0aadd93b", "Roon Server"}   , // query on broadcast:9003, replies from udp/9003
-    {ROON_DISCOVERY_ALT_METHOD,              "Roon DiscoAlt"} , // Both clients and servers do this ephemeral discovery thing
-    {NULL,                                   NULL}            ,
+    {"00720724-5143-4a9b-abac-0e50cba674bb", "Roon Node.js"}    , // Roon Node.js SDK https://github.com/RoonLabs/node-roon-api/blob/master/lib.js#L137
+    {"5a955bb8-9673-4f8d-9437-4c6b7b18fba8", "Roon Endpoint"}   , // Client looking for other Clients.
+    {"5e2042ad-9bc5-4508-be92-ff68f19bdc93", "Roon RATT"}       , // Server looking for Roon RAAT Transport?
+    {"b39fcfbc-17de-46c8-81ad-82a910747be0", "Roon New Client"} , // Clients announcing themselves?
+    {"d52b2cb7-02c5-48fc-981b-a10f0aadd93b", "Roon Server"}     , // Client looking for servers, query on broadcast:9003, replies from udp/9003
+    {ROON_DISCOVERY_SERVICE_ID,              "Roon Discovery"}  , // Clients and servers discovering each other, responses require connection tracking
+    {NULL,                                   NULL}              ,
 };
 
 // compares two roon_map entries by their key
@@ -291,10 +299,10 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (strcmp(key, "service_id") == 0 || strcmp(key, "query_service_id") == 0) {
                 // figure out the service name from the UUID
                 roon_service_name = roon_map_uuid(value, roon_service_ids);
-                roon_service_name = roon_service_name ? roon_service_name : "Unknown Roon Service";
+                roon_service_name = roon_service_name ? roon_service_name : UNKNOWN_ROON_SERVICE_NAME;
                 // add it to the tree
                 proto_tree_add_string_format_value(roon_discover_tree, *treeValue, tvb, i, next, value, "%s [%s]", value, roon_service_name);
-                if (g_ascii_strcasecmp(value, ROON_DISCOVERY_ALT_METHOD) == 0) {
+                if (g_ascii_strcasecmp(value, ROON_DISCOVERY_SERVICE_ID) == 0) {
                     use_ephemeral_port = true;
                 }
                 continue;  // next iteration... don't add the field again
