@@ -263,6 +263,32 @@ wmem_map_grow(wmem_map_t *map, unsigned new_capacity)
     wmem_free(map->data_allocator, old_table);
 }
 
+void
+wmem_map_destroy(wmem_map_t *map, bool free_keys _U_, bool free_values _U_)
+{
+    // TODO: call wmem_map_foreach_remove to free the keys and values
+    // if asked.
+    if (map->deleted_items) {
+        // Handle case where something calls wmem_map_destroy in its own
+        // callback after the wmem_map_destroy_cb has been called. (This
+        // function unregisters the callback so the reverse direction can't
+        // happen.)
+        g_ptr_array_free(map->deleted_items, TRUE);
+    }
+    map->deleted_items = NULL;
+    if (map->metadata_allocator) {
+        wmem_unregister_callback(map->metadata_allocator, map->metadata_scope_cb_id);
+    }
+    if (map->data_allocator) {
+        wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
+    }
+    wmem_free(map->data_allocator, map->table);
+    // The arrays of items created before the last time the map grew the map
+    // are orphaned and get freed when the data_allocator does.
+    wmem_free(map->data_allocator, map->items);
+    wmem_free(map->metadata_allocator, map);
+}
+
 void *
 wmem_map_insert(wmem_map_t *map, const void *key, void *value)
 {

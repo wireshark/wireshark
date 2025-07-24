@@ -226,6 +226,24 @@ WS_DLL_PUBLIC
 size_t
 wmem_map_reserve(wmem_map_t *map, uint64_t capacity);
 
+/** Cleanup memory used by the map instead of waiting for the allocator pool
+ * to be freed or destroyed. Do NOT simply call wmem_free on a wmem_map_t.
+ *
+ * @param map The map to use
+ * @param free_keys Whether to free the keys as well
+ * @param free_values Whether to free the keys as well
+ *
+ * @warning The implementation is still incomplete; free_keys and free_values
+ * have no effect yet. wmem_map, like other wmem functions, is designed to be
+ * automatically cleaned up when the allocator pool is reset. If you find
+ * yourself calling this function, consider whether too many maps are being
+ * created or the maps should have a custom allocator with its own lifetime.
+ * NULL allocated maps should be a GHashTable instead.
+ */
+WS_DLL_PUBLIC
+void
+wmem_map_destroy(wmem_map_t *map, bool free_keys, bool free_values);
+
 /** Compute a strong hash value for an arbitrary sequence of bytes. Use of this
  * hash value should be secure against algorithmic complexity attacks, even for
  * short keys. The computation uses a random seed which is generated on wmem
