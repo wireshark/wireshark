@@ -763,7 +763,9 @@ rtp_dyn_payload_value_destroy(void *data)
     encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*) data;
     wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->encoding_name);
     wmem_map_foreach_remove(encoding_name_and_rate_pt->fmtp_map, fmtp_free, wmem_file_scope());
-    wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->fmtp_map);
+    // To free a wmem_map, we would need a proper destroy function. Just
+    // let wmem handle it.
+    // wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->fmtp_map);
     wmem_free(wmem_file_scope(), encoding_name_and_rate_pt);
 }
 
@@ -902,6 +904,7 @@ rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
                              GUINT_TO_POINTER(pt));
         if (!encoding_name_and_rate_pt) {
             encoding_name_and_rate_pt = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+            // XXX - Do we really need to create these maps on later passes?
             encoding_name_and_rate_pt->fmtp_map = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
             g_hash_table_insert(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
         }
