@@ -255,8 +255,11 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     // We add the title for the entire plot as label to the top x axis, to use
     // the available space as best as we can (and to always have the number of
     // rows in the layout equal to the number of Axis Rects).
-    QString title = tr("Wireshark Plots: %1").arg(cap_file_.fileDisplayName());
-    plot->xAxis2->setLabel(title);
+    if (application_flavor_is_wireshark()) {
+        plot->xAxis2->setLabel(tr("Wireshark Plots: %1").arg(cap_file_.fileDisplayName()));
+    } else {
+        plot->xAxis2->setLabel(tr("Stratoshark Plots: %1").arg(cap_file_.fileDisplayName()));
+    }
 
     // Step 2: Create the bottom "degenerate" plot, consisting only of the
     // bottom axis, and do the same as above.
