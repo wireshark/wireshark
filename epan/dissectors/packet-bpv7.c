@@ -609,8 +609,8 @@ void bp_block_primary_free(wmem_allocator_t *alloc, bp_block_primary_t *obj) {
     bp_eid_free(obj->rep_nodeid);
     wmem_free(alloc, obj->frag_offset);
     wmem_free(alloc, obj->total_len);
-    wmem_free(alloc, obj->sec.data_i);
-    wmem_free(alloc, obj->sec.data_c);
+    wmem_map_destroy(obj->sec.data_i, true, true);
+    wmem_map_destroy(obj->sec.data_c, true, true);
     wmem_free(alloc, obj);
 }
 

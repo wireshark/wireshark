@@ -763,9 +763,7 @@ rtp_dyn_payload_value_destroy(void *data)
     encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*) data;
     wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->encoding_name);
     wmem_map_foreach_remove(encoding_name_and_rate_pt->fmtp_map, fmtp_free, wmem_file_scope());
-    // To free a wmem_map, we would need a proper destroy function. Just
-    // let wmem handle it.
-    // wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->fmtp_map);
+    wmem_map_destroy(encoding_name_and_rate_pt->fmtp_map, false, false);
     wmem_free(wmem_file_scope(), encoding_name_and_rate_pt);
 }
 
