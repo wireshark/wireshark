@@ -195,6 +195,10 @@ nettrace_parse_address(char* curr_pos, bool is_src_addr, exported_pdu_info_t *ex
 			else if (g_ascii_strncasecmp(matched_transport, "sctp", 4) == 0) {
 				exported_pdu_info->ptype = EXP_PDU_PT_SCTP;
 			}
+			else {
+				/* fall to something so that ports are shown in column */
+				exported_pdu_info->ptype = EXP_PDU_PT_TCP;
+			}
 		}
 		if (is_src_addr) {
 			exported_pdu_info->presence_flags |= EXP_PDU_TAG_SRC_PORT_BIT;
