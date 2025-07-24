@@ -178,8 +178,7 @@ for details.
 
 
 def verify_merge_request():
-    # Not needed if/when https://gitlab.com/gitlab-org/gitlab/-/issues/23308 is fixed.
-    gitlab_api_pfx = "https://gitlab.com/api/v4"
+    gitlab_api_pfx = os.getenv('CI_API_V4_URL')
     # gitlab.com/wireshark/wireshark = 7898047
     project_id = os.getenv('CI_MERGE_REQUEST_PROJECT_ID')
     ansi_csi = '\x1b['
