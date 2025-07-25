@@ -1,11 +1,13 @@
 /* packet-http-urlencoded.c
- * Routines for dissection of HTTP urlecncoded form, based on packet-text-media.c (C) Olivier Biot, 2004.
+ * Routines for dissection of HTTP urlencoded form, based on packet-text-media.c (C) Olivier Biot, 2004.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * https://url.spec.whatwg.org/#application/x-www-form-urlencoded
  */
 #include "config.h"
 
