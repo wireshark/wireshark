@@ -12,6 +12,9 @@
 
 		(c)Copyright 2006 Hewlett-Packard Development Company, LP.
 		   Contact: olivier.jacques@hp.com
+
+                Latest RFC:
+                https://datatracker.ietf.org/doc/rfc5022/
 -->
 
 <!ELEMENT MediaServerControl (request | response | notification) >
@@ -19,10 +22,11 @@
 <!ATTLIST MediaServerControl version CDATA #REQUIRED >
 <!ELEMENT request (configure_conference | configure_leg | play | playcollect | playrecord | managecontent | faxplay | faxrecord | stop)>
 <!ELEMENT configure_conference (subscribe?)>
+<!-- The MSCML yesNoType should also have | 1 | 0 in addition but Wireshark's
+     parser doesn't like it. Should the yesNoType be an entity? -->
 <!ATTLIST configure_conference
 	id CDATA #IMPLIED
 	reservedtalkers NMTOKEN #IMPLIED
-        <!-- there should be | 1 | 0 in addition but Wireshark doesn't like it -->
 	reserveconfmedia (yes | no | true | false) "yes"
 >
 <!ELEMENT configure_leg (inputgain?, outputgain?, configure_team?, subscribe?)>
@@ -133,15 +137,14 @@
 	numtalkers CDATA #REQUIRED
 >
 <!ELEMENT keypress (status)>
+<!-- FIXME: Added for events in leg_eventsubscriptionType -->
 <!ATTLIST keypress
 	digit CDATA #REQUIRED
 	length (standard | long) #REQUIRED
 	method (standard | long | double) #REQUIRED
 	interdigittime CDATA #REQUIRED
-        <!-- FIXME: Added for events in leg_eventsubscriptionType -->
-        report (standard | long | both | none) #REQUIRED
-        maskdigits (yes | no | true | false) "no"
-        <!-- /FIXME -->
+	report (standard | long | both | none) #REQUIRED
+	maskdigits (yes | no | true | false) "no"
 >
 <!ELEMENT signal EMPTY>
 <!-- FIXME: added because signal can be of type CDATA and nmtoken -->
@@ -221,8 +224,8 @@
 <!-- FIXME: two different activetalkers defined
 <!ELEMENT activetalkers EMPTY>
 <!ATTLIST activetalkers
-        report (yes | no | true | false) #REQUIRED
-        interval CDATA "60s"
+	report (yes | no | true | false) #REQUIRED
+	interval CDATA "60s"
 >
 -->
 
@@ -235,8 +238,8 @@
 -->
 <!ELEMENT activetalkers (talker*)?>
 <!ATTLIST activetalkers
-        report (yes | no | true | false) #IMPLIED
-        interval CDATA "60s"
+	report (yes | no | true | false) #IMPLIED
+	interval CDATA "60s"
 >
 <!ELEMENT talker EMPTY>
 <!ATTLIST talker
@@ -257,11 +260,11 @@
 	ratedelta CDATA "0"
 >
 <!ELEMENT variable EMPTY>
+<!-- FIXME: USD creates an error -> is it because of all capital? -->
+<!-- subtype (mdy | dmy | ymd | ndn | t12 | t24 | USD | gen | ndn | crd | ord) #IMPLIED -->
 <!ATTLIST variable
 	type (dat | dig | dur | mth | mny | num | sil | str | tme | wkd) #REQUIRED
-        <!-- FIXME: USD creates an error -> is it because of all capital? -->
-	<!-- subtype (mdy | dmy | ymd | ndn | t12 | t24 | USD | gen | ndn | crd | ord) #IMPLIED -->
-	subtype (mdy | dmy | ymd | ndn | usd | t12 | t24 | gen | ndn | crd | ord) #IMPLIED
+	subtype (mdy | dmy | ymd | ndn | usd | t12 | t24 | gen | crd | ord) #IMPLIED
 	value CDATA #REQUIRED
 >
 <!ELEMENT auto EMPTY>
