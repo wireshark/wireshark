@@ -1625,6 +1625,10 @@ static void init_xml_names(void)
     xmpli_names = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
     media_types = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
 
+    for(i=0;i<array_length(default_media_types);i++) {
+        wmem_map_insert(media_types, (void *)default_media_types[i], &xml_ns);
+    }
+
     unknown_ns.elements = xml_ns.elements = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
     unknown_ns.attributes = xml_ns.attributes = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
 
@@ -1687,12 +1691,6 @@ static void init_xml_names(void)
     }
 
     g_free(dirname);
-
-    for(i=0;i<array_length(default_media_types);i++) {
-        if( ! wmem_map_lookup(media_types, default_media_types[i]) ) {
-            wmem_map_insert(media_types, (void *)default_media_types[i], &xml_ns);
-        }
-    }
 
     wmem_map_foreach(xmpli_names, add_xmlpi_namespace, (void *)"xml.xmlpi");
 
