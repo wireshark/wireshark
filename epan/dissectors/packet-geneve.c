@@ -236,10 +236,10 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
             switch (len) {
                 case 12: {
                     proto_tree_add_item(opt_tree, hf_geneve_opt_cilium_service_ipv4, tvb, offset,
-                                        4, ENC_NA);
+                                        4, ENC_BIG_ENDIAN);
                     offset += 4;
                     proto_tree_add_item(opt_tree, hf_geneve_opt_cilium_service_port, tvb, offset,
-                                        2, ENC_NA);
+                                        2, ENC_BIG_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(opt_tree, hf_geneve_opt_cilium_service_pad, tvb, offset,
                                         2, ENC_NA);
@@ -250,7 +250,7 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
                                         16, ENC_NA);
                     offset += 16;
                     proto_tree_add_item(opt_tree, hf_geneve_opt_cilium_service_port, tvb, offset,
-                                        2, ENC_NA);
+                                        2, ENC_BIG_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(opt_tree, hf_geneve_opt_cilium_service_pad, tvb, offset,
                                         2, ENC_NA);
@@ -543,7 +543,7 @@ proto_register_geneve(void)
             NULL, HFILL }
         },
         { &hf_geneve_opt_cilium_service_ipv6,
-          { "Cilium Service IPv4", "geneve.option.cilium.service.ipv6",
+          { "Cilium Service IPv6", "geneve.option.cilium.service.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
