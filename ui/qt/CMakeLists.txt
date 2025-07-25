@@ -66,6 +66,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/traffic_types_list.h
 	widgets/wireless_timeline.h
 	widgets/wireshark_file_dialog.h
+	widgets/customplot.h
 )
 
 set(WIRESHARK_3RD_PARTY_WIDGET_HEADERS
@@ -230,6 +231,7 @@ set(WIRESHARK_QT_HEADERS
 	plot.h
 	plot_action.h
 	plot_dialog.h
+	marker_dialog.h
 	preference_editor_frame.h
 	preferences_dialog.h
 	print_dialog.h
@@ -343,6 +345,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/traffic_types_list.cpp
 	widgets/wireless_timeline.cpp
 	widgets/wireshark_file_dialog.cpp
+	widgets/customplot.cpp
 )
 
 set(WIRESHARK_3RD_PARTY_WIDGET_SRCS
@@ -493,6 +496,7 @@ set(WIRESHARK_QT_SRC
 	packet_list.cpp
 	packet_range_group_box.cpp
 	plot_action.cpp
+	marker_dialog.cpp
 	preference_editor_frame.cpp
 	preferences_dialog.cpp
 	print_dialog.cpp

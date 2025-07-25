@@ -22,7 +22,7 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
        <item>
-        <widget class="QCustomPlot" name="plot" native="true">
+        <widget class="CustomPlot" name="plot" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -418,6 +418,59 @@
     <string>Shift+Y</string>
    </property>
   </action>
+  <action name="actionAddMarker">
+      <property name="text">
+          <string>Add Marker</string>
+      </property>
+  </action>
+  <action name="actionMoveMarker">
+      <property name="text">
+          <string>Move Marker</string>
+      </property>
+  </action>
+  <action name="actionShowPosMarker">
+      <property name="text">
+          <string>Show Pos Marker</string>
+      </property>
+      <property name="checkable">
+	  <bool>true</bool>
+      </property>
+      <property name="checked">
+	  <bool>false</bool>
+      </property>
+  </action>
+  <action name="actionShowMarkersDifference">
+      <property name="text">
+          <string>Show Markers Difference</string>
+      </property>
+      <property name="checkable">
+	  <bool>true</bool>
+      </property>
+      <property name="checked">
+	  <bool>true</bool>
+      </property>
+  </action>
+  <action name="actionDeleteMarker">
+      <property name="text">
+          <string>Delete Marker</string>
+      </property>
+  </action>
+  <action name="actionDeleteAllMarkers">
+      <property name="text">
+          <string>Delete All</string>
+      </property>
+  </action>
+  <action name="actionShowDataPointMarker">
+      <property name="text">
+          <string>Show Markers DataPoints</string>
+      </property>
+      <property name="checkable">
+	  <bool>true</bool>
+      </property>
+      <property name="checked">
+	  <bool>true</bool>
+      </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -436,9 +489,9 @@
    <header>widgets/stock_icon_tool_button.h</header>
   </customwidget>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>CustomPlot</class>
    <extends>QWidget</extends>
-   <header>widgets/qcustomplot.h</header>
+   <header>widgets/customplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

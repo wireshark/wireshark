@@ -63,6 +63,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tree.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_types_list.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/wireshark_file_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/customplot.h
 )
 
 set (STRATOSHARK_WIDGET_HEADERS ${WIRESHARK_WIDGET_HEADERS})
@@ -237,6 +238,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page.h
 	${CMAKE_SOURCE_DIR}/ui/qt/wireshark_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/marker_dialog.h
 )
 
 if(WIRESHARK_CUSTOM_QT_HEADERS)
@@ -310,6 +312,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_tree.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/traffic_types_list.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/wireshark_file_dialog.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/customplot.cpp
 )
 
 set (STRATOSHARK_WIDGET_SRCS ${WIRESHARK_WIDGET_SRCS})
@@ -470,6 +473,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/uat_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/welcome_page.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/wireshark_dialog.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/marker_dialog.cpp
 )
 
 if(WIRESHARK_CUSTOM_QT_SRCS)

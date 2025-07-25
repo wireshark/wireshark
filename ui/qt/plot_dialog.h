@@ -18,7 +18,7 @@
 
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
-
+#include <ui/qt/widgets/customplot.h>
 #include "wireshark_dialog.h"
 
 #include <QPointer>
@@ -37,7 +37,7 @@ class QCPMarginGroup;
 class QPushButton;
 class QRubberBand;
 class QTimer;
-
+class QCustomPlot;
 /* define Plot specific UAT columns */
 enum UatColumnsPlot { plotColEnabled = 0, plotColIdx, plotColName, plotColDFilter, plotColColor, plotColStyle, plotColYField, plotColYAxisFactor, plotColMaxNum };
 
@@ -103,7 +103,8 @@ protected slots:
 
 signals:
     void goToPacket(int packet, int hf_id);
-
+    void updateMarker(const int size, const double xCoord, const int);
+    void setPosMarker(const double xCoord, const int selectMPos, const int posMPos);
 private:
     void loadProfileGraphs();
     void createPlot(int currentRow);
@@ -133,7 +134,14 @@ private:
     void removeExcessPlots();
     void setTracerColor();
     QCPAxisRect* axisRectFromPos(const QPoint& pos);
-
+    void addMarkerDifference();
+    int visibleMarker(const bool first = true) const;
+    Marker* addMarker(const bool isPosMarker);
+    void drawMarker(const Marker*);
+    void drawMarkers();
+    void addDataPointsMarkers();
+    void updateFirstAxisRectHeight();
+    QList<QCPAxisRect*> axisRects() const;
     Ui::PlotDialog* ui;
     QPushButton* copy_bt_;
     CopyFromProfileButton* copy_profile_bt_;
@@ -162,7 +170,7 @@ private:
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
     bool abs_time_;
-
+    double last_right_clicked_pos_;
 private slots:
     static void applyChanges();
     /* This function will take care of retapping and redrawing. */
@@ -211,6 +219,14 @@ private slots:
     void on_actionMoveDown1_triggered() { panAxes(0, -1); }
     void on_actionToggleTimeOrigin_triggered();
     void on_rightButtonBox_accepted();
+
+    void on_actionAddMarker_triggered();
+    void on_actionMoveMarker_triggered();
+    void on_actionShowPosMarker_triggered();
+    void on_actionShowMarkersDifference_triggered();
+    void on_actionDeleteMarker_triggered();
+    void on_actionDeleteAllMarkers_triggered();
+    void on_actionShowDataPointMarker_triggered();
 
 };
 

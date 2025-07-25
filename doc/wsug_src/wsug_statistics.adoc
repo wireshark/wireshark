@@ -656,6 +656,34 @@ Show the axis scale also on top of the plot.
 Enable legend::
 Show a plot legend.
 
+Add Marker::
+
+Add marker with x-axis of current mouse position.
+
+Move Marker::
+
+Moves the selected marker to a specific x-axis position provided by the user.
+
+Show Pos Marker::
+
+Show or hide the pos marker, you can then change it to the desired position by dragging and dropping it or left click.
+
+Show Differences::
+
+User can show or hide the difference between markers.
+
+Show Data Point Marker::
+
+User can show or hide data point marker.
+
+Delete Marker::
+
+Delete the selected marker.
+
+Delete All::
+
+Delete all markers, including the Pos Marker "P".
+
 The main dialog buttons along the bottom let you do the following:
 
 btn:[Help] will take you to this section of the User’s Guide.

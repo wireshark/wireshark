@@ -20,7 +20,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/resize_header_view.h>
-#include <ui/qt/widgets/qcustomplot.h>
+
 #include <ui/qt/widgets/qcp_spacer_legend_item.h>
 #include <ui/qt/widgets/qcp_string_legend_item.h>
 #include <ui/qt/widgets/copy_from_profile_button.h>
@@ -144,7 +144,8 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     need_recalc_(false),
     need_retap_(false),
     auto_axes_(true),
-    abs_time_(false)
+    abs_time_(false),
+    last_right_clicked_pos_(0.0)
 {
     ui->setupUi(this);
     ui->hintLabel->setSmallText();
@@ -209,6 +210,15 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     ctx_menu_.addAction(ui->actionCrosshairs);
     ctx_menu_.addAction(ui->actionTopAxis);
     ctx_menu_.addAction(ui->actionLegend);
+    QMenu* markerMenu = new QMenu("Markers", this);
+    markerMenu->addAction(ui->actionAddMarker);
+    markerMenu->addAction(ui->actionMoveMarker);
+    markerMenu->addAction(ui->actionShowPosMarker);
+    markerMenu->addAction(ui->actionShowMarkersDifference);
+    markerMenu->addAction(ui->actionShowDataPointMarker);
+    markerMenu->addAction(ui->actionDeleteMarker);
+    markerMenu->addAction(ui->actionDeleteAllMarkers);
+    ctx_menu_.addMenu(markerMenu);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     // Let's try to explain the layout of this QCustomPlot.
@@ -237,21 +247,25 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
 
     margin_group_ = new QCPMarginGroup(plot);
 
-    // Step 1: Remove the axes we don't need from the default plot.
-    plot->axisRect(0)->removeAxis(plot->xAxis);
-    plot->axisRect(0)->removeAxis(plot->yAxis);
-    plot->axisRect(0)->removeAxis(plot->yAxis2);
+    // Step 1: Hide the axes we don't need from the default plot.
+    plot->xAxis->setVisible(false);
+    plot->yAxis->setVisible(false);
+    plot->yAxis2->setVisible(false);
     // Set the bottom margin to 0.
     plot->axisRect(0)->setAutoMargins(QCP::MarginSides(QCP::msAll).setFlag(QCP::msBottom, false));
     plot->axisRect(0)->setMargins(QMargins());
+    plot->axisRect(0)->setBackground(QBrush(QColor::fromRgb(162, 210, 255)));
     // And make sure it uses as little vertical space as possible.
     plot->axisRect(0)->setMinimumSize(0, 0);
     plot->axisRect(0)->setMaximumSize(QWIDGETSIZE_MAX, 0);
+    plot->axisRect(0)->setRangeZoom(Qt::Orientation::Horizontal);
+    plot->axisRect(0)->setRangeDragAxes(NULL, NULL);
     // Add to margin group.
     plot->axisRect(0)->setMarginGroup(QCP::msLeft | QCP::msRight, margin_group_);
     // Make it visible, but leave the tick labels disabled.
     plot->xAxis2->setTickLabels(false);
     plot->xAxis2->setVisible(true);
+    plot->xAxis2->setTicks(false);
     // We add the title for the entire plot as label to the top x axis, to use
     // the available space as best as we can (and to always have the number of
     // rows in the layout equal to the number of Axis Rects).
@@ -442,6 +456,14 @@ void PlotDialog::createPlot(int currentRow)
         connect(plot, &Plot::requestRetap, this, &PlotDialog::scheduleRetap);
         connect(plot, &Plot::requestRecalc, this, &PlotDialog::scheduleRecalc);
         connect(plot, &Plot::requestReplot, this, &PlotDialog::scheduleReplot);
+
+        axisRect->axis(QCPAxis::atBottom)->setRange(ui->plot->xAxis->range());
+
+        // Synchronize their ranges
+        connect(axisRect->axis(QCPAxis::atBottom), QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged),
+            ui->plot->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::setRange));
+        connect(ui->plot->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged),
+            axisRect->axis(QCPAxis::atBottom), QOverload<const QCPRange&>::of(&QCPAxis::setRange));
 
         syncPlotSettings(currentRow);
     }
@@ -655,6 +677,7 @@ void PlotDialog::removeExcessPlots()
 
 void PlotDialog::modelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>&)
 {
+    ui->plot->deleteMarkersElements();
     for (int row = topLeft.row(); row <= bottomRight.row(); row++) {
         Plot* plot = plots_.takeAt(row);
         if (plot) {
@@ -685,10 +708,12 @@ void PlotDialog::modelDataChanged(const QModelIndex& topLeft, const QModelIndex&
     }
 
     removeExcessPlots();
+    drawMarkers();
 }
 
 void PlotDialog::modelRowsReset()
 {
+    ui->plot->deleteMarkersElements();
     foreach(Plot * plot, plots_) {
         if (plot) delete plot;
     }
@@ -703,18 +728,22 @@ void PlotDialog::modelRowsReset()
     ui->deleteToolButton->setEnabled(false);
     ui->copyToolButton->setEnabled(false);
     ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
+    drawMarkers();
 }
 
 void PlotDialog::modelRowsInserted(const QModelIndex&, int first, int last)
 {
+    ui->plot->deleteMarkersElements();
     // first to last is inclusive
     for (int i = first; i <= last; i++) {
         createPlot(i);
     }
+    drawMarkers();
 }
 
 void PlotDialog::modelRowsRemoved(const QModelIndex&, int first, int last)
 {
+    ui->plot->deleteMarkersElements();
     // first to last is inclusive
     for (int i = last; i >= first; i--) {
         Plot* plot = plots_.takeAt(i);
@@ -722,10 +751,12 @@ void PlotDialog::modelRowsRemoved(const QModelIndex&, int first, int last)
     }
 
     removeExcessPlots();
+    drawMarkers();
 }
 
 void PlotDialog::modelRowsMoved(const QModelIndex& source, int sourceStart, int sourceEnd, const QModelIndex& dest, int destinationRow)
 {
+    ui->plot->deleteMarkersElements();
     // The source and destination parent are always the same for UatModel.
     ws_assert(source == dest);
     // Either destinationRow < sourceStart, or destinationRow > sourceEnd.
@@ -764,6 +795,7 @@ void PlotDialog::modelRowsMoved(const QModelIndex& source, int sourceStart, int 
     }
 
     updateLegend(); // Change order of the plots in the legend
+    drawMarkers();
 }
 
 void PlotDialog::updateStatistics()
@@ -814,7 +846,15 @@ void PlotDialog::updateStatistics()
             need_replot_ = false;
             getGraphInfo();
             updateHint();
-            auto_axes_ ? resetAxes() : ui->plot->replot();
+            if (auto_axes_)
+            {
+                resetAxes();
+            }
+            else
+            {
+                addDataPointsMarkers();
+                ui->plot->replot();
+            }
         }
     }
 }
@@ -931,6 +971,13 @@ void PlotDialog::updateHint()
 
 void PlotDialog::showContextMenu(const QPoint& pos)
 {
+    if (const QCPAxisRect* rect = axisRectFromPos(pos)) {
+        if (rect->axis(QCPAxis::AxisType::atBottom))
+            last_right_clicked_pos_ = rect->axis(QCPAxis::AxisType::atBottom)->pixelToCoord(pos.x());
+    }
+    QString actionDeleteTxt = QStringLiteral("Delete Marker %1")
+        .arg(ui->plot->selectedMarker(Marker::index(ui->plot->posMarker())));
+    ui->actionDeleteMarker->setText(actionDeleteTxt);
     if (ui->plot->legend->visible() && ui->plot->legend->selectTest(pos, false) >= 0) {
         QMenu* menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose);
@@ -971,7 +1018,7 @@ void PlotDialog::showContextMenu(const QPoint& pos)
             }
         }
 
-        foreach(const QCPAxisRect * axisRect, ui->plot->axisRects()) {
+        foreach(const QCPAxisRect * axisRect, axisRects()) {
             const QCPAxis* leftAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
             if (leftAxis && leftAxis->selectTest(pos, false) >= 0) {
                 QMenu* menu = new QMenu(this);
@@ -1069,11 +1116,39 @@ QCPAxisRect* PlotDialog::axisRectFromPos(const QPoint& pos)
     return Q_NULLPTR;
 }
 
+void PlotDialog::addMarkerDifference()
+{
+    if (ui->plot->markers().isEmpty() || !ui->actionShowMarkersDifference->isChecked()) {
+        return;
+    }
+    ui->plot->clearMarkerDifferences();
+    ui->plot->showMarkerDifferences();
+    ui->plot->replot();
+}
+
+int PlotDialog::visibleMarker(const bool first) const
+{
+    int idx = -1;
+    for (const Marker* m : ui->plot->visibleMarkers()) {
+        if (first || idx != -1) {
+            return m->index();
+        }
+        idx = m->index();
+    }
+    return -1;
+}
+
 void PlotDialog::graphClicked(QMouseEvent* event)
 {
+    bool movePosMarker = !ui->plot->mousePressed(event->pos());
     switch (event->button()) {
     case Qt::LeftButton:
         if (const QCPAxisRect* axisRect = axisRectFromPos(event->pos())) {
+            if (movePosMarker && ui->plot->axisRect(0) == axisRect) {
+                Marker* m = addMarker(true);
+                m->setXCoord(ui->plot->xAxis->pixelToCoord(event->pos().x()));
+                ui->plot->markerMoved(m);
+            }
             ui->plot->setCursor(QCursor(Qt::ClosedHandCursor));
             if (base_graph_ && axisRect->graphs().contains(base_graph_)) {
                 on_actionGoToPacket_triggered();
@@ -1105,7 +1180,7 @@ void PlotDialog::mouseMoved(QMouseEvent* event)
         // the default cursor for the position we're at.
         ui->plot->setCursor(QCursor(axisRectFromPos(event->pos()) ? Qt::OpenHandCursor : Qt::ArrowCursor));
 
-        if (tracer_->graph()) {
+        if (tracer_->graph() && tracer_->graph()->keyAxis()) {
             tracer_->setGraphKey(tracer_->graph()->keyAxis()->pixelToCoord(event->pos().x()));
             ui->plot->replot();
         }
@@ -1143,9 +1218,10 @@ void PlotDialog::mouseReleased(QMouseEvent* event)
             if (zoom_ranges.isValid() && axisRect) {
                 axisRect->axis(QCPAxis::AxisType::atBottom)->setRange(
                     QCPRange(zoom_ranges.x(), zoom_ranges.x() + zoom_ranges.width()));
-                axisRect->axis(QCPAxis::AxisType::atLeft)->setRange(
-                    QCPRange(zoom_ranges.y(), zoom_ranges.y() + zoom_ranges.height()));
-
+                if (axisRect != ui->plot->axisRect(0)) {
+                    axisRect->axis(QCPAxis::AxisType::atLeft)->setRange(
+                        QCPRange(zoom_ranges.y(), zoom_ranges.y() + zoom_ranges.height()));
+                }
                 ui->plot->replot();
             }
             else {
@@ -1154,6 +1230,8 @@ void PlotDialog::mouseReleased(QMouseEvent* event)
             }
         }
     }
+
+    ui->plot->mouseReleased();
 }
 
 QRectF PlotDialog::getZoomRanges(QRect zoom_rect, QCPAxisRect** matchedAxisRect)
@@ -1197,25 +1275,23 @@ void PlotDialog::resetAxes()
         ui->plot->xAxis2->range().sanitizedForLogScale() : ui->plot->xAxis2->range();
     double axis_pixels = ui->plot->xAxis2->axisRect()->width();
     ui->plot->xAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
-
-    foreach(const QCPAxisRect * axisRect, ui->plot->axisRects()) {
+    for (const QCPAxisRect* axisRect : axisRects()) {
         QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
-        if (yAxis) {
-            QCPRange y_range = yAxis->scaleType() == QCPAxis::stLogarithmic ?
-                yAxis->range().sanitizedForLogScale() : yAxis->range();
-            axis_pixels = yAxis->axisRect()->height();
-            yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, y_range.center());
-        }
+        QCPRange y_range = yAxis->scaleType() == QCPAxis::stLogarithmic ?
+            yAxis->range().sanitizedForLogScale() : yAxis->range();
+        axis_pixels = yAxis->axisRect()->height();
+        yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, y_range.center());
     }
 
     auto_axes_ = true;
+    addDataPointsMarkers();
     ui->plot->replot();
 }
 
 void PlotDialog::doZoom(bool in, bool y)
 {
     if (y) {
-        foreach(QCPAxisRect * axisRect, ui->plot->axisRects()) {
+        foreach(QCPAxisRect* axisRect, axisRects()) {
             QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
             if (yAxis) {
                 double v_factor = axisRect->rangeZoomFactor(Qt::Vertical);
@@ -1260,7 +1336,7 @@ void PlotDialog::panAxes(int x_pixels, int y_pixels)
     double h_pan = ui->plot->xAxis2->range().size() * x_pixels / ui->plot->xAxis2->axisRect()->width();
     if (h_pan) ui->plot->xAxis2->moveRange(h_pan);
 
-    foreach(const QCPAxisRect * axisRect, ui->plot->axisRects()) {
+    foreach(const QCPAxisRect * axisRect, axisRects()) {
         QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
         if (yAxis) {
             double v_pan = yAxis->range().size() * y_pixels / yAxis->axisRect()->height();
@@ -1269,6 +1345,62 @@ void PlotDialog::panAxes(int x_pixels, int y_pixels)
     }
 
     ui->plot->replot();
+}
+
+Marker* PlotDialog::addMarker(const bool isPosMarker)
+{
+    Marker* m = Q_NULLPTR;
+    if (isPosMarker || ui->plot->markers().isEmpty()) {
+        m = ui->plot->addMarker(last_right_clicked_pos_, true);
+    }
+    if (!isPosMarker) {
+        m = ui->plot->addMarker(last_right_clicked_pos_, false);
+        drawMarker(m);
+    }
+    return m;
+}
+
+void PlotDialog::drawMarker(const Marker* marker)
+{
+    ui->plot->addMarkerElements(marker);
+    if (marker->isPosMarker()) {
+        ui->plot->markerVisibilityChanged(marker);
+    }
+    addDataPointsMarkers();
+    addMarkerDifference();
+}
+
+void PlotDialog::drawMarkers() {
+    for (const Marker* m : ui->plot->markers()) {
+        drawMarker(m);
+    }
+}
+
+void PlotDialog::updateFirstAxisRectHeight() {
+    int minHeight = 0;
+    qsizetype nbVisibleMarkers = ui->plot->visibleMarkers().size();
+    if (ui->actionShowMarkersDifference->isChecked() && nbVisibleMarkers > 1) {
+        minHeight = 40;
+    }
+    else if (nbVisibleMarkers > 0) {
+        minHeight = 20;
+    }
+    if (ui->plot->axisRectCount() >= 2 && getAxisRect(1)->axis(QCPAxis::AxisType::atTop)->tickLabels()) {
+        minHeight += 18;
+    }
+    ui->plot->axisRect(0)->setMinimumSize(0, minHeight);
+    ui->plot->replot();
+}
+
+QList<QCPAxisRect*> PlotDialog::axisRects() const {
+    QList<QCPAxisRect*> list;
+    for (qsizetype i = 1; i < ui->plot->axisRects().size(); i++) {
+        QCPAxisRect* axisRect = ui->plot->axisRects()[i];
+        if (axisRect->axisCount(QCPAxis::AxisType::atLeft) > 0) {
+            list << axisRect;
+        }
+    }
+    return list;
 }
 
 void PlotDialog::on_actionCrosshairs_triggered(bool checked)
@@ -1296,8 +1428,10 @@ void PlotDialog::on_actionCrosshairs_triggered(bool checked)
 
 void PlotDialog::on_actionTopAxis_triggered(bool checked)
 {
-    ui->plot->xAxis2->setTickLabels(checked);
-    ui->plot->replot();
+    if (ui->plot->axisRectCount() >= 2) {
+        getAxisRect(1)->axis(QCPAxis::AxisType::atTop)->setTickLabels(checked);
+    }
+    updateFirstAxisRectHeight();
 }
 
 void PlotDialog::setTracerColor()
@@ -1440,9 +1574,8 @@ void PlotDialog::on_actionLegend_triggered(bool checked)
 
 void PlotDialog::on_actionLogScale_triggered(bool checked)
 {
-    foreach(const QCPAxisRect * axisRect, ui->plot->axisRects()) {
-        QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
-        if (yAxis) {
+    foreach(const QCPAxisRect * axisRect, axisRects()) {
+        if (QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft)) {
             if (checked) {
                 yAxis->setScaleType(QCPAxis::stLogarithmic);
                 yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
@@ -1502,7 +1635,7 @@ void PlotDialog::on_deleteToolButton_clicked()
     }
 
     ui->plotUat->setCurrentIndex(uat_model_->index(qMax(0, topRow - 1), plotColEnabled));
-
+    getGraphInfo();
     // We should probably be smarter about this.
     hint_err_.clear();
     updateHint();
@@ -1542,6 +1675,7 @@ void PlotDialog::on_clearToolButton_clicked()
 
     hint_err_.clear();
     updateHint();
+    getGraphInfo();
 }
 
 void PlotDialog::on_moveUpwardsToolButton_clicked()
@@ -1595,6 +1729,76 @@ void PlotDialog::on_actionToggleTimeOrigin_triggered()
     }
     updateXAxisLabel();
     updateHint();
+}
+
+void PlotDialog::on_actionAddMarker_triggered()
+{
+    addMarker(false);
+    updateFirstAxisRectHeight();
+}
+
+void PlotDialog::on_actionMoveMarker_triggered()
+{
+    MarkerDialog dialog(this, true, ui->plot->markers());
+    dialog.adjustSize();
+    if (dialog.exec() == QDialog::Accepted) {
+        bool ok;
+        double newPos = dialog.getText().toDouble(&ok);
+        Marker* m = ui->plot->marker(dialog.selectedMarker());
+        if (ok && m)
+        {
+            m->setXCoord(newPos);
+            ui->plot->markerMoved(m);
+        }
+    }
+}
+
+void PlotDialog::on_actionShowPosMarker_triggered()
+{
+    Marker* pos = addMarker(true);
+    pos->setVisibility(!pos->visible());
+    drawMarker(pos);
+    ui->plot->markerVisibilityChanged(pos);
+    addMarkerDifference();
+    updateFirstAxisRectHeight();
+}
+
+void PlotDialog::on_actionShowMarkersDifference_triggered()
+{
+    ui->plot->showMarkersDifference(ui->actionShowMarkersDifference->isChecked());
+    ui->plot->clearMarkerDifferences();
+    ui->plot->replot();
+    addMarkerDifference();
+    updateFirstAxisRectHeight();
+}
+
+void PlotDialog::on_actionDeleteMarker_triggered()
+{
+    const int idx = ui->plot->selectedMarker();
+    if (Marker* m = ui->plot->marker(idx)) {
+        if(m->isPosMarker()){
+            ui->actionShowPosMarker->setChecked(false);
+        }
+        ui->plot->deleteMarkerElements(m->index());
+        ui->plot->deleteMarker(m);
+        addMarkerDifference();
+    }
+    updateFirstAxisRectHeight();
+}
+
+void PlotDialog::on_actionDeleteAllMarkers_triggered()
+{
+    ui->actionShowPosMarker->setChecked(false);
+    if (ui->plot->markers().isEmpty())
+        return;
+    ui->plot->deleteMarkersElements();
+    ui->plot->deleteAllMarkers();
+    updateFirstAxisRectHeight();
+}
+
+void PlotDialog::on_actionShowDataPointMarker_triggered()
+{
+    ui->plot->setDataPointVisibility(ui->actionShowDataPointMarker->isChecked());
 }
 
 void PlotDialog::updateXAxisLabel()
@@ -1680,4 +1884,14 @@ bool PlotDialog::makeCsv(QTextStream& stream) const
         }
     }
     return false;
+}
+
+void PlotDialog::addDataPointsMarkers()
+{
+    if (ui->actionShowDataPointMarker->isChecked()) {
+        for (const Plot* plot : plots_) {
+            if(plot)
+                ui->plot->addDataPointsMarker(plot->graph());
+        }
+    }
 }
