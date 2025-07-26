@@ -3135,6 +3135,10 @@ ssh_kex_shared_secret(int kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignu
     }
 
     if(kex_type==SSH_KEX_DH_GEX){
+        if (modulo == NULL) {
+            ws_debug("Missing group modulo");
+            return NULL;
+        }
         gcry_mpi_t b = NULL;
         gcry_mpi_scan(&b, GCRYMPI_FMT_USG, pub->data, pub->length, NULL);
         gcry_mpi_t d = NULL, e = NULL, m = NULL;
