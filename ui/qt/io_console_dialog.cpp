@@ -15,8 +15,7 @@
 
 #include "main_application.h"
 
-extern "C"
-{
+extern "C" {
     static void print_function(const char *str, void *ptr);
 }
 
@@ -31,12 +30,13 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
                                  funnel_console_eval_cb_t eval_cb,
                                  funnel_console_open_cb_t open_cb,
                                  funnel_console_close_cb_t close_cb,
-                                 void *callback_data = nullptr) : GeometryStateDialog(&parent),
-                                                                  ui(new Ui::IOConsoleDialog),
-                                                                  eval_cb_(eval_cb),
-                                                                  open_cb_(open_cb),
-                                                                  close_cb_(close_cb),
-                                                                  callback_data_(callback_data)
+                                 void *callback_data = nullptr) :
+    GeometryStateDialog(&parent),
+    ui(new Ui::IOConsoleDialog),
+    eval_cb_(eval_cb),
+    open_cb_(open_cb),
+    close_cb_(close_cb),
+    callback_data_(callback_data)
 {
     ui->setupUi(this);
 
@@ -57,7 +57,7 @@ IOConsoleDialog::IOConsoleDialog(QWidget &parent,
 
     ui->inputTextEdit->setFont(mainApp->monospaceFont());
     ui->inputTextEdit->setPlaceholderText(tr("Use %1 to evaluate.")
-                                              .arg(eval_button->shortcut().toString(QKeySequence::NativeText)));
+                                          .arg(eval_button->shortcut().toString(QKeySequence::NativeText)));
     ui->inputTextEdit->setAcceptRichText(false);
 
     ui->outputTextEdit->setFont(mainApp->monospaceFont());
@@ -108,30 +108,21 @@ void IOConsoleDialog::acceptInput()
     char *error_str = nullptr;
     char *error_hint = nullptr;
     int result = eval_cb_(qUtf8Printable(text), &error_str, &error_hint, callback_data_);
-    if (result != 0)
-    {
-        if (error_hint)
-        {
+    if (result != 0) {
+        if (error_hint) {
             QString hint(error_hint);
             setHintText(hint.at(0).toUpper() + hint.mid(1));
             g_free(error_hint);
-        }
-        else if (result < 0)
-        {
+        } else if (result < 0) {
             setHintText("Error loading string");
-        }
-        else
-        {
+        } else {
             setHintText("Error running chunk");
         }
-        if (error_str)
-        {
+        if (error_str) {
             appendOutputText(QString(error_str));
             g_free(error_str);
         }
-    }
-    else
-    {
+    } else {
         setHintText("Code evaluated successfully");
         connect(ui->inputTextEdit, &QTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
     }
