@@ -851,7 +851,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000) {
 			expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
 							  "Arrival Time: Fractional second %09ld is invalid,"
-							  " the valid range is 0-1000000000",
+							  " the valid range is 0-999999999",
 							  (long) pinfo->abs_ts.nsecs);
 		}
 		if (do_frame_dissection) {
@@ -1573,7 +1573,7 @@ proto_register_frame(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_comments_text, { "frame.comment.expert", PI_COMMENTS_GROUP, PI_COMMENT, "Formatted comment", EXPFILL }},
-		{ &ei_arrive_time_out_of_range, { "frame.time_invalid", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
+		{ &ei_arrive_time_out_of_range, { "frame.time_invalid", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-999999999)", EXPFILL }},
 		{ &ei_incomplete, { "frame.incomplete", PI_UNDECODED, PI_NOTE, "Incomplete dissector", EXPFILL }},
 		{ &ei_len_lt_caplen, { "frame.len_lt_caplen", PI_MALFORMED, PI_ERROR, "Frame length is less than captured length", EXPFILL }}
 	};
