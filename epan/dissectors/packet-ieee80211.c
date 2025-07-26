@@ -73,6 +73,7 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <wsutil/array.h>
+#include <wsutil/bits_ctz.h>
 
 #include "packet-wps.h"
 #include "packet-e212.h"
@@ -5290,6 +5291,7 @@ static int hf_ieee80211_block_ack_multi_tid_reserved;
 static int hf_ieee80211_block_ack_multi_tid_value;
 static int hf_ieee80211_block_ack_bitmap;
 static int hf_ieee80211_block_ack_bitmap_missing_frame;
+static int hf_ieee80211_block_ack_bitmap_last_ack_frame;
 static int hf_ieee80211_block_ack_gcr_addr;
 
 static int hf_ieee80211_block_ack_multi_sta_aid11;
@@ -37668,6 +37670,75 @@ static const value_string block_ack_type_vals[] = {
 };
 
 static int
+dissect_ieee80211_block_ack_bitmap(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, uint16_t ssn, unsigned bitmap_size)
+{
+  uint64_t    bitmap;
+  uint16_t    last_ack_frame_pos = 0;
+  int         f;
+  int         i;
+  unsigned    j;
+
+  proto_item *ba_bitmap_item = proto_tree_add_item(tree,
+                          hf_ieee80211_block_ack_bitmap,
+                          tvb, offset, bitmap_size, ENC_NA);
+  proto_item *ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item,
+                          ett_block_ack_bitmap);
+  proto_item * last_ack_frame_item;
+
+  /* Handle bitmap_size = 4 for Multi-STA block ack */
+  if (bitmap_size == 4)
+  {
+     bitmap = tvb_get_letohl(tvb, offset);
+
+    if (bitmap != 0)
+      last_ack_frame_pos = ws_ilog2(bitmap);
+
+    for (f = 0; f < last_ack_frame_pos && f < 32; f++) {
+      if (bitmap & (UINT64_C(1) << f))
+        continue;
+      proto_tree_add_uint_format_value(ba_bitmap_tree,
+                    hf_ieee80211_block_ack_bitmap_missing_frame,
+                    tvb, offset + (f/8), 1, ssn + f, "%u",
+                    (ssn + f) & 0x0fff);
+    }
+
+  } else {
+    /* Browse the bitmap backwards to find the last acknowledged frame */
+    for (i = bitmap_size - 8; i >= 0; i -= 8) {
+      bitmap = tvb_get_letoh64(tvb, offset + i);
+
+      if (bitmap == 0)
+        continue;
+
+      last_ack_frame_pos = i * 8 + ws_ilog2(bitmap);
+      break;
+    }
+
+    /* Browse the bitmap up to the last the last acknowledged frame */
+      for (j = 0; j < bitmap_size * 8; j += 64) {
+      bitmap = tvb_get_letoh64(tvb, offset + j/8);
+      for (f = 0; f < 64 && (f + j) < last_ack_frame_pos; f++) {
+        if (bitmap & (UINT64_C(1) << f))
+          continue;
+        proto_tree_add_uint_format_value(ba_bitmap_tree,
+                      hf_ieee80211_block_ack_bitmap_missing_frame,
+                      tvb, offset + ((f + j)/8), 1, ssn + f + j, "%u",
+                      (ssn + f + j) & 0x0fff);
+      }
+    }
+  }
+
+  last_ack_frame_item = proto_tree_add_uint_format_value(ba_bitmap_tree,
+    hf_ieee80211_block_ack_bitmap_last_ack_frame,
+    tvb, offset + (last_ack_frame_pos/8), 1, ssn + last_ack_frame_pos, "%u",
+    (ssn + last_ack_frame_pos) & 0x0fff);
+  proto_item_set_generated(last_ack_frame_item);
+
+  return offset + bitmap_size;
+}
+
+static int
 dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, bool isDMG, bool is_req, bool has_fcs)
 {
@@ -37679,10 +37750,6 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
   unsigned        i;
   proto_tree     *ba_mtid_tree, *ba_mtid_sub_tree;
   uint16_t        ssn;
-  uint64_t        bmap;
-  int             f;
-  proto_item     *ba_bitmap_item;
-  proto_tree     *ba_bitmap_tree;
   uint16_t        aid_tid;
   proto_tree     *ba_multi_sta_tree;
   int             ba_start = offset;
@@ -37719,13 +37786,6 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
     break;
 
   case COMPRESSED_BLOCK_ACK:
-    /*
-     * FIXME: For 802.11ax, the block ack bitmap can be 8 or 32 bytes
-     * depending on the values of the fragment number subfield in the
-     * SSC! All values other that 0 and 2 in bits B1 & B2 are reserved.
-     *
-     *  802.11be allows the block ack bitmap to be 64 or 128 bytes as well.
-     */
     ssn = tvb_get_letohs(tvb, offset);
     frag_num = ssn & 0x0F;
     ssn >>= 4;
@@ -37743,23 +37803,7 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
         bytes = 8;
       }
 
-      ba_bitmap_item = proto_tree_add_item(ba_tree,
-                          hf_ieee80211_block_ack_bitmap,
-                          tvb, offset, bytes, ENC_NA);
-      ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item,
-                          ett_block_ack_bitmap);
-      for (i = 0; i < (bytes * 8); i += 64) {
-        bmap = tvb_get_letoh64(tvb, offset + i/8);
-        for (f = 0; f < 64; f++) {
-          if (bmap & (UINT64_C(1) << f))
-            continue;
-          proto_tree_add_uint_format_value(ba_bitmap_tree,
-                          hf_ieee80211_block_ack_bitmap_missing_frame,
-                          tvb, offset + ((f + i)/8), 1, ssn + f + i, "%u",
-                          (ssn + f + i) & 0x0fff);
-        }
-      }
-      offset += bytes;
+      offset = dissect_ieee80211_block_ack_bitmap(tvb, pinfo, ba_tree, offset, ssn, bytes);
     }
     break;
 
@@ -37776,19 +37820,7 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
       ssn = tvb_get_letohs(tvb, offset);
       ssn >>= 4;
 
-      bmap = tvb_get_letoh64(tvb, offset);
-      ba_bitmap_item = proto_tree_add_item(ba_tree,
-                        hf_ieee80211_block_ack_bitmap,
-                        tvb, offset, 8, ENC_NA);
-      ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item,
-                        ett_block_ack_bitmap);
-      for (f = 0; f < 64; f++) {
-        if (bmap & (UINT64_C(1) << f))
-          continue;
-        proto_tree_add_uint(ba_bitmap_tree,
-                        hf_ieee80211_block_ack_bitmap_missing_frame,
-                        tvb, offset + (f/8), 1, ssn + f);
-      }
+      dissect_ieee80211_block_ack_bitmap(tvb, pinfo, ba_tree, offset, ssn, 8);
       offset += 8;
       proto_tree_add_item(ba_tree, hf_ieee80211_block_ack_RBUFCAP, tvb, offset,
                         1, ENC_LITTLE_ENDIAN);
@@ -37891,23 +37923,7 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
               bitmap_size = ((frag_num + 2) & 0x6) >> 1;  /* Turn into an exponent */
               bitmap_size = 4 << bitmap_size;  /* It goes 4, 8, 16, 32 */
             }
-            ba_bitmap_item = proto_tree_add_item(ba_multi_sta_tree,
-                        hf_ieee80211_block_ack_bitmap, tvb,
-                        offset, bitmap_size, ENC_NA);
-            ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item,
-                                ett_block_ack_bitmap);
-            for (i = 0; i < bitmap_size * 8; i += 64) {
-              bmap = tvb_get_letoh64(tvb, offset + i/8);
-              for (f = 0; f < ((bitmap_size == 4 ? 4 : 8) * 8); f++) {
-                if (bmap & (UINT64_C(1) << f))
-                  continue;
-                proto_tree_add_uint_format_value(ba_bitmap_tree,
-                              hf_ieee80211_block_ack_bitmap_missing_frame,
-                              tvb, offset + ((f + i)/8), 1, ssn + f + i, "%u",
-                              (ssn + f + i) & 0x0fff);
-              }
-            }
-            offset += bitmap_size;
+            offset = dissect_ieee80211_block_ack_bitmap(tvb, pinfo, ba_multi_sta_tree, offset, ssn, bitmap_size);
           }
         } else {
           offset += add_ff_block_ack_ssc(ba_multi_sta_tree, tvb, pinfo, offset);
@@ -43632,7 +43648,12 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_bitmap_missing_frame,
-     {"Missing frame", "wlan.ba.bm.missing_frame",
+     {"Not acknowledged frame", "wlan.ba.bm.missing_frame",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_block_ack_bitmap_last_ack_frame,
+     {"Last acknowledged frame", "wlan.ba.bm.last_ack_frame",
       FT_UINT32, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
