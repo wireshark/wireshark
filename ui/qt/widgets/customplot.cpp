@@ -10,7 +10,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <wsutil/utf8_entities.h>
+
 #include <ui/qt/widgets/customplot.h>
+
 static const QString marker_title_object_name_ = "marker_title_%1";
 static const QString marker_label_object_name_ = "marker_label_%1";
 static const QString marker_line_object_name_ = "marker_line_%1";
@@ -95,7 +98,7 @@ void CustomPlot::showMarkerDifferences()
             auto old_clipaxisrect = tracer()->clipAxisRect();
             tracer()->setClipAxisRect(xAxis->axisRect());
             updateQCPItemText(label,
-                QString("%1-->%2 \n %3 %4")
+                QString("%1 " UTF8_RIGHTWARDS_ARROW " %2 \n %3 %4")
                 .arg(ordered.at(i)->name())
                 .arg(ordered.at(next)->name())
                 .arg(difference)
