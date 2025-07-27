@@ -30,6 +30,7 @@ trans.ko               = ui/qt/wireshark_ko.ts
 trans.ca               = ui/qt/wireshark_ca.ts
 trans.ga_IE            = ui/qt/wireshark_ga_IE.ts
 trans.pt_BR            = ui/qt/wireshark_pt_BR.ts
+trans.id               = ui/qt/wireshark_id.ts
 replace_edited_strings = false
 keep_translations      = false
 

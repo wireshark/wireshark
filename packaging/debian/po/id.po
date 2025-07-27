@@ -1,42 +1,38 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the wireshark package.
-#
+# 
 # Translators:
+# Andika Triwidada <andika@gmail.com>, 2024-2025
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2024-05-20 18:25+0000\n"
-"PO-Revision-Date: 2017-09-22 06:50+0000\n"
-"Last-Translator: Gerald Combs <gerald@wireshark.org>\n"
-"Language-Team: Indonesian (http://www.transifex.com/wireshark/wireshark/"
-"language/id/)\n"
-"Language: id\n"
+"PO-Revision-Date: 2015-05-06 21:00+0000\n"
+"Last-Translator: Andika Triwidada <andika@gmail.com>, 2024-2025\n"
+"Language-Team: Indonesian (http://app.transifex.com/wireshark/wireshark/language/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. Type: boolean
 #. Description
 #: ../templates:2001
 msgid "Should non-superusers be able to capture packets?"
-msgstr "Bolehkan pengguna non-superuser untuk menangkap paket?"
+msgstr "Apakah pengguna non-superuser dapat menangkap paket?"
 
 #. Type: boolean
 #. Description
 #: ../templates:2001
 msgid ""
 "Dumpcap can be installed in a way that allows members of the \"wireshark\" "
-"system group to capture packets. This is recommended over the alternative of "
-"running Wireshark/Tshark directly as root, because less of the code will run "
-"with elevated privileges."
-msgstr ""
-"Dumpcap dapat dipasang dengan cara memperbolehkan anggota dari grup system "
-"\"wireshark\" untuk menangkap paket. Hal ini dianjurkan sebagai alternatif "
-"untuk menjalankan Wireshark/Tshark sebagai root, karena sedikit kode yang "
-"berjalan dengan hak tertinggi"
+"system group to capture packets. This is recommended over the alternative of"
+" running Wireshark/Tshark directly as root, because less of the code will "
+"run with elevated privileges."
+msgstr "Dumpcap dapat dipasang dengan suatu cara yang memungkinkan anggota dari grup sistem \"wireshark\" untuk menangkap paket. Hal ini dianjurkan sebagai alternatif untuk menjalankan Wireshark/Tshark secara langsung sebagai root, karena lebih sedikit kode yang berjalan dengan hak yang ditingkatkan."
 
 #. Type: boolean
 #. Description
@@ -44,11 +40,9 @@ msgstr ""
 #. Description
 #: ../templates:2001 ../templates:7001
 msgid ""
-"For more detailed information please see /usr/share/doc/wireshark-common/"
-"README.Debian."
-msgstr ""
-"Untuk informasi lebih lanjut silakan lihat /usr/share/doc/wireshark-common/"
-"README.Debian."
+"For more detailed information please see /usr/share/doc/wireshark-"
+"common/README.Debian."
+msgstr "Untuk informasi lebih rinci silakan lihat /usr/share/doc/wireshark-common/README.Debian."
 
 #. Type: boolean
 #. Description
@@ -58,15 +52,13 @@ msgstr ""
 msgid ""
 "Enabling this feature may be a security risk, so it is disabled by default. "
 "If in doubt, it is suggested to leave it disabled."
-msgstr ""
-"Mengaktifkan fitur ini akan menyebabkan resiko keamanan, jadi secara bawaan "
-"akan di non-aktifkan. Jika ragu, disarankan untuk dibiarkan dinonaktifkan"
+msgstr "Mengaktifkan fitur ini akan dapat menyebabkan resiko keamanan, jadi secara bawaan akan dinon-aktifkan. Jika ragu, disarankan untuk membiarkan itu nonaktif."
 
 #. Type: error
 #. Description
 #: ../templates:3001
 msgid "Creating the wireshark system group failed"
-msgstr ""
+msgstr "Pembuatan grup sistem wireshark gagal"
 
 #. Type: error
 #. Description
@@ -74,7 +66,7 @@ msgstr ""
 msgid ""
 "The wireshark group does not exist, and creating it failed, so Wireshark "
 "cannot be configured to capture traffic as an unprivileged user."
-msgstr ""
+msgstr "Grup wireshark tidak ada, dan penciptaannya gagal, sehingga Wireshark tidak dapat dikonfigurasi untuk menangkap lalu lintas sebagai seorang pengguna tanpa hak khusus."
 
 #. Type: error
 #. Description
@@ -82,13 +74,13 @@ msgstr ""
 msgid ""
 "Please create the wireshark system group and try configuring wireshark-"
 "common again."
-msgstr ""
+msgstr "Harap buat grup sistem wireshark dan cobalah mengonfigurasi wireshark-common lagi."
 
 #. Type: error
 #. Description
 #: ../templates:4001
 msgid "The wireshark group is a system group"
-msgstr ""
+msgstr "Grup wireshark adalah sebuah grup sistem"
 
 #. Type: error
 #. Description
@@ -96,7 +88,7 @@ msgstr ""
 msgid ""
 "The wireshark group exists as a user group, but the preferred configuration "
 "is for it to be created as a system group."
-msgstr ""
+msgstr "Grup wireshark ada sebagai sebuah grup pengguna, tapi konfigurasi yang disukai adalah agar itu dibuat sebagai sebuah grup sistem."
 
 #. Type: error
 #. Description
@@ -104,13 +96,13 @@ msgstr ""
 msgid ""
 "As a result, purging wireshark-common will not remove the wireshark group, "
 "but everything else should work properly."
-msgstr ""
+msgstr "Sebagai hasilnya, menghapus tuntas wireshark-common tidak akan menghapus grup wireshark, tapi semua yang lain seharusnya bekerja dengan benar."
 
 #. Type: error
 #. Description
 #: ../templates:5001
 msgid "Setting capabilities for dumpcap failed"
-msgstr ""
+msgstr "Penataan kapabilitas bagi dumpcap gagal"
 
 #. Type: error
 #. Description
@@ -118,13 +110,13 @@ msgstr ""
 msgid ""
 "The attempt to use Linux capabilities to grant packet-capturing privileges "
 "to the dumpcap binary failed. Instead, it has had the set-user-id bit set."
-msgstr ""
+msgstr "Upaya untuk memakai kapabilitas Linux untuk memberikan hak menangkap paket ke biner dumpcap gagal. Sebagai pengganti, itu telah menata bit set-user-id."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid "Removal of the wireshark group failed"
-msgstr ""
+msgstr "Penghapusan grup wireshark gagal"
 
 #. Type: error
 #. Description
@@ -133,76 +125,65 @@ msgid ""
 "When the wireshark-common package is configured to allow non-superusers to "
 "capture packets the postinst script of wireshark-common creates the "
 "wireshark group as a system group."
-msgstr ""
+msgstr "Ketika paket wireshark-common dikonfigurasi untuk mengizinkan bukan pengguna super menangkap paket, skrip postinst dari wireshark-common membuat grup wireshark sebagai suatu grup sistem."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid ""
-"However, on this system the wireshark group is a user group instead of being "
-"a system group, so purging wireshark-common did not remove it."
-msgstr ""
+"However, on this system the wireshark group is a user group instead of being"
+" a system group, so purging wireshark-common did not remove it."
+msgstr "Namun, pada sistem ini grup wireshark adalah suatu grup pengguna, bukan sebuah grup sistem, sehingga menghapus tuntas wireshark-common tidak menghapusnya."
 
 #. Type: error
 #. Description
 #: ../templates:6001
 msgid "If the group is no longer needed, please remove it manually."
-msgstr ""
+msgstr "Bila grup tersebut tidak diperlukan lagi, harap hapus secara manual."
 
 #. Type: boolean
 #. Description
 #: ../templates:7001
-#, fuzzy
-#| msgid "Should non-superusers be able to capture packets?"
 msgid "Should non-superusers be able to capture system calls?"
-msgstr "Bolehkan pengguna non-superuser untuk menangkap paket?"
+msgstr "Apakah yang bukan pengguna super dapat menangkap panggilan sistem?"
 
 #. Type: boolean
 #. Description
 #: ../templates:7001
-#, fuzzy
-#| msgid ""
-#| "Dumpcap can be installed in a way that allows members of the "
-#| "\"wireshark\" system group to capture packets. This is recommended over "
-#| "the alternative of running Wireshark/Tshark directly as root, because "
-#| "less of the code will run with elevated privileges."
 msgid ""
 "The falcodump external capture utility (extcap) can be installed in a way "
 "that allows members of the \"scap\" system group to capture system calls. "
-"This is recommended over the alternative of running Logray directly as root, "
-"because less of the code will run with elevated privileges."
-msgstr ""
-"Dumpcap dapat dipasang dengan cara memperbolehkan anggota dari grup system "
-"\"wireshark\" untuk menangkap paket. Hal ini dianjurkan sebagai alternatif "
-"untuk menjalankan Wireshark/Tshark sebagai root, karena sedikit kode yang "
-"berjalan dengan hak tertinggi"
+"This is recommended over the alternative of running Stratoshark directly as "
+"root, because less of the code will run with elevated privileges."
+msgstr "Utilitas penangkapan eksternal (extcap) falcodump dapat dipasang dengan cara yang memungkinkan anggota dari grup sistem \"scap\" menangkap pemanggilan sistem. Ini lebih direkomendasikan daripada alternatif menjalankan Stratoshark secara langsung sebagai root, karena lebih sedikit kode yang akan dijalankan dengan hak yang ditingkatkan."
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid "Creating the \"scap\" system group failed"
-msgstr ""
+msgstr "Pembuatan grup sistem \"scap\" gagal"
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid ""
-"The \"scap\" group does not exist, and creating it failed, so Logray cannot "
-"be configured to capture system calls as an unprivileged user."
-msgstr ""
+"The \"scap\" group does not exist, and creating it failed, so Stratoshark "
+"cannot be configured to capture system calls as an unprivileged user."
+msgstr "Grup \"scap\" tidak ada, dan upaya membuatnya gagal, sehingga Stratoshark tidak bisa dikonfigurasi untuk menangkap panggilan sistem sebagai pengguna tanpa hak khusus."
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid ""
-"Please create the \"scap\" system group and try configuring logray again."
-msgstr ""
+"Please create the \"scap\" system group and try configuring stratoshark "
+"again."
+msgstr "Silakan buat grup sistem \"scap\" dan cobalah mengonfigurasi stratoshark lagi."
 
 #. Type: error
 #. Description
 #: ../templates:9001
 msgid "The \"scap\" group is a system group"
-msgstr ""
+msgstr "Grup \"scap\" adalah sebuah grup sistem"
 
 #. Type: error
 #. Description
@@ -210,12 +191,12 @@ msgstr ""
 msgid ""
 "The \"scap\" group exists as a user group, but the preferred configuration "
 "is for it to be created as a system group."
-msgstr ""
+msgstr "Grup \"scap\" ada sebagai sebuah grup pengguna, tapi konfigurasi yang disukai adalah agar itu dibuat sebagai sebuah grup sistem."
 
 #. Type: error
 #. Description
 #: ../templates:9001
 msgid ""
-"As a result, purging logray will not remove the \"scap\" group, but "
+"As a result, purging stratoshark will not remove the \"scap\" group, but "
 "everything else should work properly."
-msgstr ""
+msgstr "Akibatnya, membuang habis stratoshark tidak akan mengubah grup \"scap\", tetapi semua yang lain mestinya bekerja dengan benar."

@@ -700,6 +700,7 @@ set(WIRESHARK_QT_TS
 	wireshark_fr.ts
 	wireshark_ga_IE.ts
 	wireshark_hu.ts
+	wireshark_id.ts
 	wireshark_it.ts
 	wireshark_ja_JP.ts
 	wireshark_ko.ts
