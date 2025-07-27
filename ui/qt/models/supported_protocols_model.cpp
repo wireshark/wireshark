@@ -164,6 +164,7 @@ void SupportedProtocolsModel::populate()
     SupportedProtocolsItem *protoItem, *fieldItem;
     protocol_t *protocol;
 
+    proto_initialize_all_prefixes();
     for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1;
         proto_id = proto_get_next_protocol(&proto_cookie)) {
 
