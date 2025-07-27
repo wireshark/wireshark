@@ -1228,6 +1228,18 @@ static int hf_pfcp_jnpr_nested_ie_type;
 static int hf_pfcp_jnpr_nested_ie_len;
 static int hf_pfcp_jnpr_source_ip_spare;
 static int hf_pfcp_jnpr_source_ip;
+static int hf_pfcp_jnpr_hi_prio_port;
+static int hf_pfcp_jnpr_med_hi_prio_port;
+static int hf_pfcp_jnpr_med_prio_port;
+static int hf_pfcp_jnpr_med_low_prio_port;
+static int hf_pfcp_jnpr_low_prio_port;
+static int hf_pfcp_jnpr_accounting_port;
+static int hf_pfcp_jnpr_session_port;
+static int hf_pfcp_jnpr_cos_fwd_len;
+static int hf_pfcp_jnpr_cos_fwd_data;
+static int hf_pfcp_jnpr_delete_flag;
+static int hf_pfcp_jnpr_ih_flag;
+static int hf_pfcp_jnpr_max_hierarchy_levels;
 
 static const value_string compute_limit_vals[] = {
     { 0, "Off" },
@@ -12631,7 +12643,56 @@ static int dissect_pfcp_jnpr_dbng_inet_tcp_addr(tvbuff_t *tvb, packet_info *pinf
     return tvb_reported_length(tvb);
 }
 
+static int dissect_pfcp_jnpr_cpri_port_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint len = tvb_reported_length(tvb);
+
+    if (len >= 2)  proto_tree_add_item(tree, hf_pfcp_jnpr_hi_prio_port,       tvb, 0,  2, ENC_BIG_ENDIAN);
+    if (len >= 4)  proto_tree_add_item(tree, hf_pfcp_jnpr_med_hi_prio_port,   tvb, 2,  2, ENC_BIG_ENDIAN);
+    if (len >= 6)  proto_tree_add_item(tree, hf_pfcp_jnpr_med_prio_port,      tvb, 4,  2, ENC_BIG_ENDIAN);
+    if (len >= 8)  proto_tree_add_item(tree, hf_pfcp_jnpr_med_low_prio_port,  tvb, 6,  2, ENC_BIG_ENDIAN);
+    if (len >= 10) proto_tree_add_item(tree, hf_pfcp_jnpr_low_prio_port,      tvb, 8,  2, ENC_BIG_ENDIAN);
+    if (len >= 12) proto_tree_add_item(tree, hf_pfcp_jnpr_accounting_port,    tvb, 10, 2, ENC_BIG_ENDIAN);
+    if (len >= 14) proto_tree_add_item(tree, hf_pfcp_jnpr_session_port,       tvb, 12, 2, ENC_BIG_ENDIAN);
+
+    return len;
+}
+
+static int dissect_pfcp_jnpr_cos_forwarding_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint offset = 0;
+    uint32_t info_len;
+    guint len = tvb_reported_length(tvb);
+
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_cos_fwd_len, tvb, offset, 2, ENC_BIG_ENDIAN, &info_len);
+    offset += 2;
+
+    if (info_len > 0 && (offset + info_len) <= len) {
+        proto_tree_add_item(tree, hf_pfcp_jnpr_cos_fwd_data, tvb, offset, info_len, ENC_NA);
+    }
+
+    return len;
+}
+
+static int dissect_pfcp_jnpr_port_network_instance_delete(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_delete_flag, tvb, 0, 1, ENC_BIG_ENDIAN);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_hierarchical_schedule(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    uint32_t max_levels;
+
+    proto_tree_add_item(tree, hf_pfcp_jnpr_ih_flag, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_max_hierarchy_levels, tvb, 1, 1, ENC_BIG_ENDIAN, &max_levels);
+
+    return tvb_reported_length(tvb);
+}
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
+    { VENDOR_JUNIPER, 32905 , "CPRI Port Info"                      , dissect_pfcp_jnpr_cpri_port_info, -1 } ,
     { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
     { VENDOR_JUNIPER, 32911 , "Error Event Report"                  , dissect_pfcp_jnpr_error_event, -1 } ,
     { VENDOR_JUNIPER, 32912 , "Filter Variable"                     , dissect_pfcp_jnpr_filter_var, -1 } ,
@@ -12640,7 +12701,10 @@ static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32918 , "Multicast Service Object"            , dissect_pfcp_jnpr_mcast_service_object, -1 } ,
     { VENDOR_JUNIPER, 32919 , "SGRP Name"                           , dissect_pfcp_jnpr_sgrp_name, -1 } ,
     { VENDOR_JUNIPER, 32921 , "Logical Port Address List"           , dissect_pfcp_jnpr_logical_port_address_list, -1 } ,
+    { VENDOR_JUNIPER, 32922 , "Port Network Instance Delete"        , dissect_pfcp_jnpr_port_network_instance_delete, -1 } ,
     { VENDOR_JUNIPER, 32929 , "DBNG INET TCP Address"               , dissect_pfcp_jnpr_dbng_inet_tcp_addr, -1 } ,
+    { VENDOR_JUNIPER, 32930 , "COS Forwarding Class Info"           , dissect_pfcp_jnpr_cos_forwarding_class, -1 } ,
+    { VENDOR_JUNIPER, 32940 , "Hierarchical Schedule"               , dissect_pfcp_jnpr_hierarchical_schedule, -1 } ,
     { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
 
@@ -18481,6 +18545,78 @@ proto_register_pfcp(void)
         { &hf_pfcp_jnpr_src_ip_ie_group,
         { "Source IP Address IE [Grouped]", "pfcp.jnpr.src_ip_ie_group",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_hi_prio_port,
+        { "HiPrioPortNo", "pfcp.jnpr.hi_prio_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_med_hi_prio_port,
+        { "MedHiPrioPortNo", "pfcp.jnpr.med_hi_prio_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_med_prio_port,
+        { "MedPrioPortNo", "pfcp.jnpr.med_prio_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_med_low_prio_port,
+        { "MedLowPrioPortNo", "pfcp.jnpr.med_low_prio_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_low_prio_port,
+        { "LowPrioPortNo", "pfcp.jnpr.low_prio_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_accounting_port,
+        { "AccountingPortNo", "pfcp.jnpr.accounting_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_session_port,
+        { "SessionPortNo", "pfcp.jnpr.session_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_cos_fwd_len,
+        { "COS Forwarding Class Info Length", "pfcp.jnpr.cos_fwd_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_cos_fwd_data,
+        { "COS Forwarding Class Info Data", "pfcp.jnpr.cos_fwd_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_delete_flag,
+        { "Delete Flag", "pfcp.jnpr.port_network_instance_delete_flag",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_ih_flag,
+        { "Implicit Hierarchy (IH)", "pfcp.jnpr.hierarchical_schedule.ih",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_max_hierarchy_levels,
+        { "Maximum Hierarchy Levels", "pfcp.jnpr.hierarchical_schedule.levels",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
