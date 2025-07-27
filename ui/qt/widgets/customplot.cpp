@@ -272,9 +272,14 @@ void CustomPlot::addDataPointsMarker(QCPGraph* graph)
 
 void CustomPlot::deleteMarker(Marker* m)
 {
+    // indexOf returns (and takeAt takes) a qsizetype in Qt 6 but
+    // an int in Qt5. Cast to an int for now (we don't expect more
+    // than 2^32 items) and avoid shortening warnings on 64-bit.
     int i = (int)markers_.indexOf(m);
-    Marker* mToDelete = markers_.takeAt(i);
-    delete mToDelete;
+    if (i >= 0) {
+        Marker* mToDelete = markers_.takeAt(i);
+        delete mToDelete;
+    }
 }
 
 void CustomPlot::deleteAllMarkers()
