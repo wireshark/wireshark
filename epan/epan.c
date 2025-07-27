@@ -273,13 +273,6 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		wireshark_abort_on_too_many_items = false;
 	}
 
-	/*
-	 * proto_init -> register_all_protocols -> g_async_queue_new which
-	 * requires threads to be initialized. This happens automatically with
-	 * GLib 2.32, before that g_thread_init must be called. But only since
-	 * GLib 2.24, multiple invocations are allowed. Check for an earlier
-	 * invocation just in case.
-	 */
 	/* initialize memory allocation subsystem */
 	wmem_init_scopes();
 
