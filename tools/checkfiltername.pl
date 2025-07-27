@@ -337,6 +337,7 @@ sub is_proto_dup_allowed {
 	if (($_[0] eq "fcs") && (index($_[1], "fcsmask") >= 0)) {return 1;}
 	if (($_[0] eq "fmp") && (index($_[1], "fmp") >= 0)) {return 1;}
 	if (($_[0] eq "fr") && (index($_[1], "frame_relay") >= 0)) {return 1;}
+	if (($_[0] eq "http") && (index($_[1], "http2_") >= 0)) {return 1;}
 	if (($_[0] eq "lustre") && (index($_[1], "lustre_") >= 0)) {return 1;}
 	if (($_[0] eq "mac") && (index($_[1], "macd") >= 0)) {return 1;}
 	if (($_[0] eq "mac") && (index($_[1], "macis") >= 0)) {return 1;}
