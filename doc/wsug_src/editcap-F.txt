@@ -2,6 +2,7 @@ editcap: The available capture file types for the "-F" flag are:
     pcap - Wireshark/tcpdump/... - pcap
     pcapng - Wireshark/... - pcapng
     5views - InfoVista 5View capture
+    blf - Vector Informatik Binary Logging Format (BLF) logfile
     btsnoop - Symbian OS btsnoop
     commview-ncf - TamoSoft CommView NCF
     commview-ncfx - TamoSoft CommView NCFX

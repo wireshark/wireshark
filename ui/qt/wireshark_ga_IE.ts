@@ -802,10 +802,10 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln lá</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
         </translation>
     </message>
     <message>
@@ -1028,10 +1028,10 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln lá</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
         </translation>
     </message>
     <message>
@@ -1606,7 +1606,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Socruithe comhéadain Extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -3056,11 +3056,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>ExtArgTable</name>
     <message>
         <source>Add custom data</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuir sonraí saincheaptha leis</translation>
     </message>
     <message>
         <source>Custom:</source>
-        <translation type="unfinished"></translation>
+        <translation>Saincheaptha:</translation>
     </message>
 </context>
 <context>
@@ -3095,11 +3095,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Interface Sub-options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fo-roghanna Comhéadain</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Ceart go leor</translation>
     </message>
     <message>
         <source>Default</source>
@@ -3119,7 +3119,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Sábháil paraiméadair nuair a thosaíonn an gabháil</translation>
     </message>
 </context>
 <context>
@@ -4079,7 +4079,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Console</source>
-        <translation type="unfinished"></translation>
+        <translation>Consól</translation>
     </message>
     <message>
         <source>Evaluate</source>
@@ -4183,7 +4183,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Scoránaigh tarraing luiche / súmáil&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Scoránaigh gabhála / am seisiúin tionscnaimh&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Scoránaigh croshairs&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Scoránaigh lárachros&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -4198,19 +4198,19 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Remove the selected graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bain na graif roghnaithe.</translation>
     </message>
     <message>
         <source>Duplicate the selected graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déan na graif roghnaithe a dhúbailt.</translation>
     </message>
     <message>
         <source>Move the selected graphs upwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog na graif roghnaithe suas.</translation>
     </message>
     <message>
         <source>Move the selected graphs downwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog na graif roghnaithe síos.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -4391,11 +4391,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Crosshairs</translation>
+        <translation>Lárachros</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Athraigh crosshairs</translation>
+        <translation>Athraigh lárachros</translation>
     </message>
     <message>
         <source>Space</source>
@@ -6443,7 +6443,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>3GPP Mac Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>Staitisticí Mac 3GPP (%1 UEanna, %2 frámaí)</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
@@ -6505,7 +6505,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Scoránaigh tarraing / súmáil luch&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Scoránaigh gabháil / tionscnamh ama seisiúin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Scoránaigh crosbhealaí&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Scoránaigh lárachros&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -6656,11 +6656,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Crosairí</translation>
+        <translation>Lárachros</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Scoránaigh crosbhealaí</translation>
+        <translation>Scoránaigh lárachros</translation>
     </message>
     <message>
         <source>Space</source>
@@ -6803,11 +6803,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Launch UL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Seoladh Graf UL</translation>
     </message>
     <message>
         <source>Launch DL Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Lainseáil Graf DL</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
@@ -6871,7 +6871,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>LTE RLC Statistics (%1 UEs, %2 frames)</source>
-        <translation type="unfinished"></translation>
+        <translation>Staitisticí LTE RLC (%1 UEanna, %2 frámaí)</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
@@ -7311,6 +7311,29 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Vendor Name</source>
         <translation>Ainm an Díoltóra</translation>
+    </message>
+</context>
+<context>
+    <name>MarkerDialog</name>
+    <message>
+        <source>Choose marker:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter new position:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7940,25 +7963,25 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>Plot</name>
     <message>
         <source>Field cannot be empty!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir leis an réimse a bheith folamh!</translation>
     </message>
 </context>
 <context>
     <name>PlotAction</name>
     <message>
         <source>Plot %1 with current filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Plota %1 leis an scagaire reatha</translation>
     </message>
     <message>
         <source>Plot %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Plota %1</translation>
     </message>
 </context>
 <context>
     <name>PlotDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialóg</translation>
+        <translation>Dialóg</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -7991,363 +8014,424 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Aicearraí méarchláir luachmhara agus iontacha a shábhálann am&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zúmáil isteach&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zúmáil amach&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;Zúmáil isteach ais-X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;Zúmáil amach ais-X&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Zúmáil isteach ais-Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Zúmáil amach ais-Y&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Athshocraigh an plota go dtí a staid tosaigh&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Bog ar dheis 10 picteilín&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Bog ar chlé 10 picteilín&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Bog suas 10 picteilín&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Bog síos 10 picteilíní&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Bog ar dheis 1 picteilín&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Bog ar chlé 1 picteilín&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Bog suas 1 picteilín&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Bog síos 1 picteilín&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Téigh go dtí an phaicéad faoin gcúrsóir&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Athraigh bunús ama&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Athraigh lárachros&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;a&lt;/th&gt;&lt;td&gt;Athraigh ais uachtarach&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new plot.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuir plota nua leis.</translation>
     </message>
     <message>
         <source>Remove the selected plots.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bain na plotaí roghnaithe.</translation>
     </message>
     <message>
         <source>Duplicate the selected plots.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déan na plotaí roghnaithe a dhúbailt.</translation>
     </message>
     <message>
         <source>Move the selected plots upwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog na plotaí roghnaithe suas.</translation>
     </message>
     <message>
         <source>Move the selected plots downwards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog na plotaí roghnaithe síos.</translation>
     </message>
     <message>
         <source>Clear all plots.</source>
-        <translation type="unfinished"></translation>
+        <translation>Glan na plotaí go léir.</translation>
     </message>
     <message>
         <source>Automatic update</source>
-        <translation type="unfinished">Nuashonrú uathoibríoch</translation>
+        <translation>Nuashonrú uathoibríoch</translation>
     </message>
     <message>
         <source>Reset Plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Athshocraigh an Plota</translation>
     </message>
     <message>
         <source>Reset the plot to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Athshocraigh an plota go dtí a staid tosaigh.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Zúmáil Isteach</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Zúmáil Amach</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog Suas 10 Picteilín</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">Suas</translation>
+        <translation>Suas</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog ar Chlé 10 Picteilín</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Ar chlé</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog ar Dheis 10 Picteilín</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Ar dheis</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog Síos 10 Picteilín</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Síos</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog Suas 1 Picteilín</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished">Shift+Suas</translation>
+        <translation>Shift+Suas</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog ar Chlé 1 Picteilín</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Clé</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog ar Dheis 1 Picteilín</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Dheis</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Bog Síos 1 Picteilín</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished">Bog síos 1 Picteilín</translation>
+        <translation>Bog síos 1 Picteilín</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished">Shift+Síos</translation>
+        <translation>Shift+Síos</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Téigh go dtí an Pacáiste Faoin gCúrsóir</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Téigh go dtí an pacáiste atá faoin gcúrsóir faoi láthair</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>Bunús ama</translation>
     </message>
     <message>
         <source>Toggle between time relative to first data point and time relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Athraigh idir am i gcoibhneas leis an gcéad phointe sonraí agus am i gcoibhneas le tús an ghabhála</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished">Scála logála</translation>
+        <translation>Scála loga</translation>
     </message>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
-        <translation type="unfinished">Scoránaigh Y-ais idir scála logartamach agus líneach</translation>
+        <translation>Athraigh an ais-Y idir scála logartamach agus líneach</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Lárachros</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Lárachros a scoránaigh</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished">Spás</translation>
+        <translation>Spás</translation>
     </message>
     <message>
         <source>Top axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Ais uachtarach</translation>
     </message>
     <message>
         <source>Toggle top axis on and off</source>
-        <translation type="unfinished"></translation>
+        <translation>Athraigh an ais uachtarach ar siúl agus as</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation type="unfinished">Finscéal</translation>
+        <translation>Finscéal</translation>
     </message>
     <message>
         <source>Toggle legend</source>
-        <translation type="unfinished">Scoránaigh an finscéal</translation>
+        <translation>Scoraigh finscéal</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Zúmáil Isteach Ais X</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Zúmáil Amach Ais X</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished">Shift+X</translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Zúmáil Isteach Ais Y</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Zúmáil Amach Ais Y</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished">Shift+Y</translation>
+        <translation>Shift+Y</translation>
+    </message>
+    <message>
+        <source>Add Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Pos Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Markers Difference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Markers DataPoints</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>Plotaí</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished">Sábháil Mar…</translation>
+        <translation>Sábháil Mar…</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Cóipeáil</translation>
     </message>
     <message>
         <source>Copy plots from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cóipeáil plotaí ó phróifíl eile.</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
+        <translation>Plotaí Wireshark: %1</translation>
+    </message>
+    <message>
+        <source>Stratoshark Plots: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filtered packets</source>
-        <translation type="unfinished">Paicéid scagtha</translation>
+        <translation>Paicéid scagtha</translation>
     </message>
     <message>
         <source>Filtered events</source>
-        <translation type="unfinished">Imeachtaí scagtha</translation>
+        <translation>Imeachtaí scagtha</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished">Gach paicéad</translation>
+        <translation>Gach paicéad</translation>
     </message>
     <message>
         <source>All events</source>
-        <translation type="unfinished">Gach imeacht</translation>
+        <translation>Gach imeacht</translation>
     </message>
     <message>
         <source>Seq. num.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uimh. Sraith.</translation>
     </message>
     <message>
         <source>Event latency</source>
-        <translation type="unfinished"></translation>
+        <translation>Moill imeachta</translation>
     </message>
     <message>
         <source>Frame num.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uimhir fráma.</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>Scaoil chun súmáil isteach, x = %1 go %2, y = %3 go %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir raon a roghnú.</translation>
     </message>
     <message>
         <source>Select a plot for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Roghnaigh plota le haghaidh sonraí.</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished">Cliceáil chun paicéad a roghnú</translation>
+        <translation>Cliceáil chun pacáiste a roghnú</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paicéad</translation>
     </message>
     <message>
         <source>Click to select event</source>
-        <translation type="unfinished">Cliceáil chun imeacht a roghnú</translation>
+        <translation>Cliceáil chun imeacht a roghnú</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished">Imeacht</translation>
+        <translation>Imeacht</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished">%1 (%2s%3).</translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished">Bog go dtí an barr ar chlé</translation>
+        <translation>Bog go barr na láimhe clé</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished">Bog go dtí an lár is fearr</translation>
+        <translation>Bog go dtí an lár barr</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished">Bog go dtí an barr ar dheis</translation>
+        <translation>Bog go barr ar dheis</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished">Bog go bun ar chlé</translation>
+        <translation>Bog go dtí an bun ar chlé</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished">Bog go dtí an bun lár</translation>
+        <translation>Bog go dtí an lár ag bun</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished">Bog go bun ar dheis</translation>
+        <translation>Bog go dtí an bun ar dheis</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">Am (s)</translation>
+        <translation>Am (s)</translation>
     </message>
     <message>
         <source>relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>i gcoibhneas le tús an ghabhála</translation>
     </message>
     <message>
         <source>relative to first data point</source>
-        <translation type="unfinished"></translation>
+        <translation>i gcoibhneas leis an gcéad phointe sonraí</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Formáid Doiciméad Iniompartha (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafaicí Líonra Inaistrithe (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Léarscáil Ghiotáin Windows (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Formáid Idirmhalartaithe Comhaid JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished">Sábháil Graf Mar…</translation>
+        <translation>Sábháil Graf Mar…</translation>
     </message>
 </context>
 <context>
@@ -8610,10 +8694,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)...</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Próifíl Phearsanta Roghnaithe %Ln...</numerusform>
+            <numerusform>%Ln Próifílí Pearsanta Roghnaithe...</numerusform>
+            <numerusform>%Ln Próifílí Pearsanta Roghnaithe...</numerusform>
         </translation>
     </message>
     <message>
@@ -10302,7 +10386,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ullmhaigh scagaire a mheaitseálann na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10673,7 +10757,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ullmhaigh scagaire a mheaitseálann na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -11020,7 +11104,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <translation type="unfinished"></translation>
+        <translation>Oscail an fhuinneog anailíse do na sruthanna roghnaithe agus cuir leis í</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11076,7 +11160,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcáil na paicéid de na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11120,7 +11204,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ullmhaigh scagaire a mheaitseálann na sruthanna roghnaithe.</translation>
     </message>
     <message>
         <source>P</source>
@@ -12588,7 +12672,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Scoránaigh tarraing / súmáil luch&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Scoránaigh uimhreacha coibhneasta / dearbhsheichimh&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Scoránaigh gabháil / tionscnamh ama seisiúin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Scoránaigh crosbhealaí&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spás&lt;/th&gt;&lt;td&gt;Scoránaigh lárachros&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;Babhta Turas Am graf&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;Graf tréchur&lt;/td&gt;&lt;/th&gt;
@@ -12886,11 +12970,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Crosairí</translation>
+        <translation>Lárachros</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Scoránaigh crosbhealaí</translation>
+        <translation>Scoránaigh lárachros</translation>
     </message>
     <message>
         <source>Space</source>
@@ -13533,7 +13617,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <translation type="unfinished"></translation>
+        <translation>Taispeáin seicheamh sreafa do na glaonna roghnaithe.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13541,7 +13625,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ullmhaigh scagaire a mheaitseálann na glaonna roghnaithe.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -15196,7 +15280,7 @@ a:hover {
     </message>
     <message>
         <source>Redissect Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Athdhíchóimeáil na bPacáistí</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -15340,11 +15424,11 @@ a:hover {
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished"></translation>
+        <translation>Plotaí</translation>
     </message>
     <message>
         <source>Plot display filter fields over time</source>
-        <translation type="unfinished"></translation>
+        <translation>Plota réimsí scagaire taispeántais thar am</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
@@ -16114,10 +16198,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Scrios tráchtanna ón bpacáiste %Ln</numerusform>
+            <numerusform>Scrios tráchtanna ó phaicéid %Ln</numerusform>
+            <numerusform>Scrios tráchtanna ó phaicéid %Ln</numerusform>
         </translation>
     </message>
     <message>
