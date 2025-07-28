@@ -478,7 +478,7 @@ dissect_zcl_thermostat_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t 
 } /*dissect_zcl_thermostat_attr_data*/
 
 /**
- *ZigBee ZCL IAS Zone cluste protocol registration.
+ *ZigBee ZCL Thermostat cluster protocol registration.
  *
 */
 void
@@ -569,19 +569,19 @@ proto_register_zbee_zcl_thermostat(void)
                 "Cooling setpoint in degrees Celsius", HFILL }}
     };
 
-    /* ZCL IAS Zone subtrees */
+    /* ZCL Thermostat cluster subtrees */
     static int *ett[ZBEE_ZCL_THERMOSTAT_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_thermostat;
     ett[1] = &ett_zbee_zcl_thermostat_schedule_days;
     ett[2] = &ett_zbee_zcl_thermostat_schedule_mode;
 
-    /* Register the ZigBee ZCL IAS Zoben cluster protocol name and description */
+    /* Register the ZigBee ZCL Thermostat cluster protocol name and description */
     proto_zbee_zcl_thermostat = proto_register_protocol("ZigBee ZCL Thermostat", "ZCL Thermostat", ZBEE_PROTOABBREV_ZCL_THERMOSTAT);
     proto_register_field_array(proto_zbee_zcl_thermostat, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Register the ZigBee ZCL IAS Zone dissector. */
+    /* Register the ZigBee ZCL Thermostat dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_THERMOSTAT, dissect_zbee_zcl_thermostat, proto_zbee_zcl_thermostat);
 } /*proto_register_zbee_zcl_thermostat*/
 
@@ -945,7 +945,7 @@ proto_reg_handoff_zbee_zcl_ias_zone(void)
 } /*proto_reg_handoff_zbee_zcl_ias_zone*/
 
 /**
- *ZigBee ZCL IAS Zone cluste protocol registration.
+ *ZigBee ZCL IAS Zone cluster protocol registration.
  *
 */
 void
