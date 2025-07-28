@@ -63,7 +63,6 @@
 #include "secrets.h"
 #include "funnel.h"
 #include "wscbor.h"
-#include <dtd.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -441,7 +440,6 @@ epan_cleanup(void)
 	cleanup_enabled_and_disabled_lists();
 	stats_tree_cleanup();
 	funnel_cleanup();
-	dtd_location(NULL);
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif

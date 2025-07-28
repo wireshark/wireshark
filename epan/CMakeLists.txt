@@ -66,8 +66,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	disabled_protos.h
 	conversation_filter.h
 	dccpservicecodes.h
-	dtd.h
-	dtd_parse.h
 	dvb_chartbl.h
 	eap.h
 	eapol_keydes_types.h
@@ -275,14 +273,11 @@ set(LIBWIRESHARK_FILES ${LIBWIRESHARK_NONGENERATED_FILES})
 
 add_lex_files(LEX_FILES LIBWIRESHARK_FILES
 	diam_dict.l
-	dtd_parse.l
-	dtd_preparse.l
 	uat_load.l
 	protobuf_lang_scanner.l
 )
 
 add_lemon_files(LEMON_FILES LIBWIRESHARK_FILES
-	dtd_grammar.lemon
 	protobuf_lang_parser.lemon
 )
 
