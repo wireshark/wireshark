@@ -20,8 +20,11 @@
 #include <epan/proto_data.h>
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
+#include <epan/uat.h>
+#include <epan/exceptions.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/wsgcrypt.h>
 
 #define STR_NONNULL(str) ((str) ? ((const char*)str) : "(null)")
 
@@ -174,6 +177,7 @@ static int hf_collectd_val_unknown;
 static int hf_collectd_data_severity;
 static int hf_collectd_data_message;
 static int hf_collectd_data_sighash;
+static int hf_collectd_data_sighash_status;
 static int hf_collectd_data_initvec;
 static int hf_collectd_data_username_len;
 static int hf_collectd_data_username;
@@ -201,9 +205,149 @@ static expert_field ei_collectd_type;
 static expert_field ei_collectd_invalid_length;
 static expert_field ei_collectd_data_valcnt;
 static expert_field ei_collectd_garbage;
+static expert_field ei_collectd_sighash_bad;
 
 /* Prototype for the handoff function */
 void proto_reg_handoff_collectd (void);
+
+typedef struct {
+	char *username;
+	char *password;
+
+	bool cipher_hd_created;
+	bool md_hd_created;
+	gcry_cipher_hd_t cipher_hd;
+	gcry_md_hd_t md_hd;
+
+} uat_collectd_record_t;
+
+static uat_collectd_record_t *uat_collectd_records;
+
+static uat_t *collectd_uat;
+static unsigned num_uat;
+
+UAT_CSTRING_CB_DEF(uat_collectd_records, username, uat_collectd_record_t)
+UAT_CSTRING_CB_DEF(uat_collectd_records, password, uat_collectd_record_t)
+
+static void*
+uat_collectd_record_copy_cb(void* n, const void* o, size_t size _U_) {
+	uat_collectd_record_t* new_rec = (uat_collectd_record_t *)n;
+	const uat_collectd_record_t* old_rec = (const uat_collectd_record_t *)o;
+
+	new_rec->username = g_strdup(old_rec->username);
+	new_rec->password = g_strdup(old_rec->password);
+
+	new_rec->cipher_hd_created = FALSE;
+	new_rec->md_hd_created = FALSE;
+
+	return new_rec;
+}
+
+static bool
+uat_collectd_record_update_cb(void* r, char** err _U_) {
+	uat_collectd_record_t* rec = (uat_collectd_record_t *)r;
+
+	if (rec->cipher_hd_created) {
+		gcry_cipher_close(rec->cipher_hd);
+		rec->cipher_hd_created = false;
+	}
+	if (rec->md_hd_created) {
+		gcry_md_close(rec->md_hd);
+		rec->md_hd_created = false;
+	}
+
+	return true;
+}
+
+static void
+uat_collectd_record_free_cb(void* r) {
+	uat_collectd_record_t* rec = (uat_collectd_record_t *)r;
+
+	g_free(rec->username);
+	g_free(rec->password);
+
+	if (rec->cipher_hd_created) {
+		gcry_cipher_close(rec->cipher_hd);
+		rec->cipher_hd_created = false;
+	}
+	if (rec->md_hd_created) {
+		gcry_md_close(rec->md_hd);
+		rec->md_hd_created = false;
+	}
+}
+
+static uat_collectd_record_t*
+collectd_get_record(const char* username)
+{
+	uat_collectd_record_t *record = NULL;
+	for (unsigned i = 0; i < num_uat; ++i) {
+		record = &uat_collectd_records[i];
+		if (strcmp(username, record->username) == 0) {
+			return record;
+		}
+	}
+	return NULL;
+}
+
+static gcry_cipher_hd_t*
+collectd_get_cipher(const char* username)
+{
+	uat_collectd_record_t *record = collectd_get_record(username);
+	if (record == NULL) {
+		return NULL;
+	}
+	if (record->cipher_hd_created) {
+		return &record->cipher_hd;
+	}
+	gcry_error_t err;
+	unsigned char password_hash[32];
+	DISSECTOR_ASSERT(record->password);
+	gcry_md_hash_buffer(GCRY_MD_SHA256, password_hash, record->password, strlen(record->password));
+	if (gcry_cipher_open(&record->cipher_hd, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_OFB, 0)) {
+		gcry_cipher_close(record->cipher_hd);
+		ws_debug("error opening aes256 cipher handle");
+		return NULL;
+	}
+
+	err = gcry_cipher_setkey(record->cipher_hd, password_hash, sizeof(password_hash));
+	if (err != 0) {
+		gcry_cipher_close(record->cipher_hd);
+		ws_debug("error setting key");
+		return NULL;
+	}
+	record->cipher_hd_created = true;
+	return &record->cipher_hd;
+}
+
+static gcry_md_hd_t*
+collectd_get_md(const char* username)
+{
+	uat_collectd_record_t *record = collectd_get_record(username);
+	if (record == NULL) {
+		return NULL;
+	}
+	if (record->md_hd_created) {
+		gcry_md_reset(record->md_hd);
+		return &record->md_hd;
+	}
+	gcry_error_t err;
+	DISSECTOR_ASSERT(record->password);
+	err = gcry_md_open(&record->md_hd, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
+	if (err != 0) {
+		gcry_md_close(record->md_hd);
+		ws_debug("error opening sha256 message digest handle: %s", gcry_strerror(err));
+		return NULL;
+	}
+
+	err = gcry_md_setkey(record->md_hd, record->password, strlen(record->password));
+	if (err != 0) {
+		gcry_md_close(record->md_hd);
+		ws_debug("error setting key: %s", gcry_strerror(err));
+		return NULL;
+	}
+	record->md_hd_created = true;
+	return &record->md_hd;
+}
 
 static nstime_t
 collectd_time_to_nstime (uint64_t t)
@@ -397,7 +541,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, int type_hf,
 
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
-	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII|ENC_NA, pinfo->pool, ret_string);
+	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII, pinfo->pool, ret_string);
 
 	proto_item_append_text(pt, "\"%s\"", *ret_string);
 
@@ -743,6 +887,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	int type;
 	int length;
 	int size;
+	const uint8_t *username;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -792,15 +937,42 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 			     length);
-	proto_tree_add_item (pt, hf_collectd_data_sighash, tvb, offset + 4, 32, ENC_NA);
-	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 36, length - 36, ENC_ASCII);
-
+	// proto_tree_add_checksum adds two ti but only returns the first,
+	// which makes it hard to move the username after the second item,
+	// so extract the string directly, then add a username item later.
+	//
+	// XXX - Are we sure this string is ASCII? Probably UTF-8 these days.
+	// The same goes for all the other strings in the protocol.
+	username = tvb_get_string_enc(pinfo->pool, tvb, offset + 36, length - 36, ENC_ASCII);
+	uint8_t *hash = NULL;
+	gcry_md_hd_t *md_hd = collectd_get_md(username);
+	if (md_hd) {
+		uint8_t *buffer = tvb_memdup(pinfo->pool, tvb, offset + 36, tvb_reported_length_remaining(tvb, offset + 36));
+		gcry_md_write(*md_hd, buffer, size - 36);
+		hash = gcry_md_read(*md_hd, GCRY_MD_SHA256);
+		if (hash == NULL) {
+			ws_debug("gcry_md_read failed");
+		}
+	}
+	proto_tree_add_checksum_bytes(pt, tvb, offset + 4, hf_collectd_data_sighash,
+		hf_collectd_data_sighash_status, &ei_collectd_sighash_bad, pinfo,
+		hash, 32, hash ? PROTO_CHECKSUM_VERIFY : PROTO_CHECKSUM_NO_FLAGS);
+	proto_tree_add_item(pt, hf_collectd_data_username, tvb, offset + 36, length - 36, ENC_ASCII);
 	return 0;
 } /* int dissect_collectd_signature */
 
+/* We recurse after decrypting. In practice encryption is always the first
+ * part and contains everything, so we could avoid recursion by checking
+ * for it at the start of dissect_collect and not try to decrypt encrypted
+ * parts in other positions. */
 static int
-dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
-			    int offset, proto_tree *tree_root)
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_collectd_parts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
+
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_collectd_encrypted(tvbuff_t *tvb, packet_info *pinfo,
+			   int offset, proto_tree *tree_root)
 {
 	proto_item *pi;
 	proto_tree *pt;
@@ -808,6 +980,7 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 	int length;
 	int size;
 	int username_length;
+	const uint8_t *username;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -872,16 +1045,53 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 				  ett_collectd_encryption, NULL, "collectd %s segment: AES-256",
 				  val_to_str_const (type, part_names, "UNKNOWN"));
 
-	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
-	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
-	proto_tree_add_uint (pt, hf_collectd_data_username_len, tvb, offset + 4, 2, username_length);
-	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 6, username_length, ENC_ASCII);
-	proto_tree_add_item (pt, hf_collectd_data_initvec, tvb,
-			     offset + (6 + username_length), 16, ENC_NA);
-	proto_tree_add_item (pt, hf_collectd_data_encrypted, tvb,
-			     offset + (22 + username_length),
-			     length - (22 + username_length), ENC_NA);
+	proto_tree_add_uint(pt, hf_collectd_type, tvb, offset, 2, type);
+	offset += 2;
+	proto_tree_add_uint(pt, hf_collectd_length, tvb, offset, 2, length);
+	offset += 2;
+	proto_tree_add_uint(pt, hf_collectd_data_username_len, tvb, offset, 2, username_length);
+	offset += 2;
+	proto_tree_add_item_ret_string(pt, hf_collectd_data_username, tvb, offset, username_length, ENC_ASCII, pinfo->pool, &username);
+	offset += username_length;
 
+	proto_tree_add_item(pt, hf_collectd_data_initvec, tvb,
+			     offset, 16, ENC_NA);
+	offset += 16;
+
+	int buffer_size = length - (22 + username_length);
+	// Must be >= 20 (checked above)
+	proto_tree_add_item(pt, hf_collectd_data_encrypted, tvb,
+			    offset,
+			    buffer_size, ENC_NA);
+	gcry_cipher_hd_t *cipher_hd;
+	cipher_hd = collectd_get_cipher(username);
+	if (cipher_hd) {
+		gcry_error_t err;
+		uint8_t iv[16];
+		tvb_memcpy(tvb, iv, offset - 16, 16);
+		err = gcry_cipher_setiv(*cipher_hd, iv, 16);
+		if (err != 0) {
+			gcry_cipher_close(*cipher_hd);
+			ws_debug("error setting key: %s", gcry_strerror(err));
+		}
+		uint8_t *buffer = tvb_memdup(pinfo->pool, tvb, offset, buffer_size);
+		err = gcry_cipher_decrypt(*cipher_hd, buffer, buffer_size, NULL, 0);
+		if (err != 0) {
+			ws_debug("gcry_cipher_decrypt failed: %s", gcry_strerror(err));
+		}
+		tvbuff_t *decrypted_tvb = tvb_new_child_real_data(tvb, buffer, buffer_size, buffer_size);
+		add_new_data_source(pinfo, decrypted_tvb, "Decrypted collectd");
+		uint8_t hash[20];
+		gcry_md_hash_buffer(GCRY_MD_SHA1, hash, buffer + 20, buffer_size - 20);
+		proto_tree_add_checksum_bytes(pt, decrypted_tvb, 0, hf_collectd_data_sighash,
+			hf_collectd_data_sighash_status, &ei_collectd_sighash_bad, pinfo,
+			hash, 20, PROTO_CHECKSUM_VERIFY);
+		if (tvb_memeql(decrypted_tvb, 0, hash, 20) == 0) {
+			// We recurse here, but consumed 22 + username_len bytes
+			// so we'll run out of packet before stack exhaustion.
+			dissect_collectd_parts(tvb_new_subset_remaining(decrypted_tvb, 20), pinfo, tree_root, NULL);
+		}
+	}
 	return 0;
 } /* int dissect_collectd_encrypted */
 
@@ -914,6 +1124,7 @@ stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, cons
 }
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_collectd_parts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *collectd_tree, void* data _U_)
 {
 	int offset;
@@ -934,6 +1145,8 @@ dissect_collectd_parts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *collectd_t
 	size = tvb_reported_length(tvb);
 
 	status = 0;
+	offset = 0;
+	size = tvb_reported_length(tvb);
 	while ((size > 0) && (status == 0))
 	{
 		int part_type;
@@ -1275,6 +1488,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 void proto_register_collectd(void)
 {
 	expert_module_t* expert_collectd;
+	module_t *collectd_module;
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
@@ -1359,6 +1573,10 @@ void proto_register_collectd(void)
 			{ "Signature", "collectd.data.sighash", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_collectd_data_sighash_status,
+			{ "Signature", "collectd.data.sighash.status", FT_UINT8, BASE_NONE,
+				VALS(proto_checksum_vals), 0x0, NULL, HFILL }
+		},
 		{ &hf_collectd_data_initvec,
 			{ "Init vector", "collectd.data.initvec", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
@@ -1397,6 +1615,7 @@ void proto_register_collectd(void)
 		{ &ei_collectd_garbage, { "collectd.garbage", PI_MALFORMED, PI_ERROR, "Garbage at end of packet", EXPFILL }},
 		{ &ei_collectd_data_valcnt, { "collectd.data.valcnt.mismatch", PI_MALFORMED, PI_WARN, "Number of values and length of part do not match. Assuming length is correct.", EXPFILL }},
 		{ &ei_collectd_type, { "collectd.type.unknown", PI_UNDECODED, PI_NOTE, "Unknown part type", EXPFILL }},
+		{ &ei_collectd_sighash_bad, { "collectd.data.sighash.bad", PI_CHECKSUM, PI_ERROR, "Bad hash", EXPFILL }},
 	};
 
 	/* Register the protocol name and description */
@@ -1407,6 +1626,31 @@ void proto_register_collectd(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_collectd = expert_register_protocol(proto_collectd);
 	expert_register_field_array(expert_collectd, ei, array_length(ei));
+
+	collectd_module = prefs_register_protocol(proto_collectd, NULL);
+
+	static uat_field_t collectd_uat_flds[] = {
+		UAT_FLD_CSTRING(uat_collectd_records, username, "Username", "Username"),
+		UAT_FLD_CSTRING(uat_collectd_records, password, "Password", "Password"),
+		UAT_END_FIELDS
+	};
+
+	collectd_uat = uat_new("collectd Authentication",
+		sizeof(uat_collectd_record_t),
+		"collectd",
+		true,
+		&uat_collectd_records,
+		&num_uat,
+		UAT_AFFECTS_DISSECTION,
+		NULL,
+		uat_collectd_record_copy_cb,
+		uat_collectd_record_update_cb,
+		uat_collectd_record_free_cb,
+		NULL,
+		NULL,
+		collectd_uat_flds);
+
+	prefs_register_uat_preference(collectd_module, "auth", "Authentication", "A table of user credentials for verifying signatures and decrypting encrypted packets", collectd_uat);
 
 	tap_collectd = register_tap ("collectd");
 
