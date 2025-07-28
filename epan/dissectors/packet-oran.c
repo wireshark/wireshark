@@ -547,6 +547,7 @@ static expert_field ei_oran_se24_nothing_to_inherit;
 static expert_field ei_oran_num_sinr_per_prb_unknown;
 static expert_field ei_oran_start_symbol_id_bits_ignored;
 static expert_field ei_oran_user_group_id_reserved_value;
+static expert_field ei_oran_port_list_index_zero;
 
 
 /* These are the message types handled by this dissector */
@@ -3079,8 +3080,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         if (numPortc > 0) {
                             /* first portListIndex is outside loop */
                             uint32_t port_list_index;
-                            proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
+                            proto_item *pli_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
                                                          offset, 1, ENC_BIG_ENDIAN, &port_list_index);
+                            if (port_list_index == 0) {
+                                /* Value 0 is reserved */
+                                expert_add_info(pinfo, pli_ti, &ei_oran_port_list_index_zero);
+                            }
                             offset += 1;
 
                             for (n=0; n < numPortc-1; n++) {
@@ -3101,8 +3106,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                 }
 
                                 /* subsequent portListIndex */
-                                proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
+                                pli_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
                                                              offset, 1, ENC_BIG_ENDIAN, &port_list_index);
+                                if (port_list_index == 0) {
+                                    /* Value 0 is reserved */
+                                    expert_add_info(pinfo, pli_ti, &ei_oran_port_list_index_zero);
+                                }
                                 offset += 1;
 
                                 proto_item_append_text(extension_ti, "%u:%u ", port_list_index, id);
@@ -8726,7 +8735,8 @@ proto_register_oran(void)
         { &ei_oran_se24_nothing_to_inherit, { "oran_fh_cus.se24_nothing_to_inherit", PI_MALFORMED, PI_WARN, "SE10 doesn't have type 2 or 3 before trying to inherit", EXPFILL }},
         { &ei_oran_num_sinr_per_prb_unknown, { "oran_fh_cus.unexpected_num_sinr_per_prb", PI_MALFORMED, PI_WARN, "invalid numSinrPerPrb value", EXPFILL }},
         { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }},
-        { &ei_oran_user_group_id_reserved_value, { "oran_fh_cus.user_group_id.reserved_value", PI_MALFORMED, PI_WARN, "userGroupId value 255 is reserved", EXPFILL }}
+        { &ei_oran_user_group_id_reserved_value, { "oran_fh_cus.user_group_id.reserved_value", PI_MALFORMED, PI_WARN, "userGroupId value 255 is reserved", EXPFILL }},
+        { &ei_oran_port_list_index_zero, { "oran_fh_cus.port_list_index.zero", PI_MALFORMED, PI_WARN, "portListIndex should not be zero", EXPFILL }}
     };
 
     /* Register the protocol name and description */
