@@ -242,7 +242,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
             col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Missing MSRCP Response]");
         }
 
-        nxt_ti = proto_tree_add_item(msrcp_tree, hf_msrcp_ext_header, tvb, 0, 0, ENC_ASCII);
+        nxt_ti = proto_tree_add_item(msrcp_tree, hf_msrcp_ext_header, tvb, 0, 0, ENC_NA);
         nxt_tree = proto_item_add_subtree(nxt_ti, ett_msrcp_nxt);
         proto_tree_add_item(nxt_tree, hf_msrcp_ext_next_header, tvb, tree_offset, 2, ENC_LITTLE_ENDIAN);
         tree_offset += 2;

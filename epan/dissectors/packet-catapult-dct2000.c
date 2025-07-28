@@ -3605,37 +3605,37 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_ipprim_udp_src_port,
             { "UDP Source Port",
-              "dct2000.ipprim.udp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ipprim.udp.srcport", FT_UINT16, BASE_PT_UDP, NULL, 0x0,
               "IPPrim UDP Source Port", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_udp_dst_port,
             { "UDP Destination Port",
-              "dct2000.ipprim.udp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ipprim.udp.dstport", FT_UINT16, BASE_PT_UDP, NULL, 0x0,
               "IPPrim UDP Destination Port", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_udp_port,
             { "UDP Port",
-              "dct2000.ipprim.udp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ipprim.udp.port", FT_UINT16, BASE_PT_UDP, NULL, 0x0,
               "IPPrim UDP Port", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_tcp_src_port,
             { "TCP Source Port",
-              "dct2000.ipprim.tcp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ipprim.tcp.srcport", FT_UINT16, BASE_PT_TCP, NULL, 0x0,
               "IPPrim TCP Source Port", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_tcp_dst_port,
             { "TCP Destination Port",
-              "dct2000.ipprim.tcp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ipprim.tcp.dstport", FT_UINT16, BASE_PT_TCP, NULL, 0x0,
               "IPPrim TCP Destination Port", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_tcp_port,
             { "TCP Port",
-              "dct2000.ipprim.tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.ipprim.tcp.port", FT_UINT16, BASE_PT_TCP, NULL, 0x0,
               "IPPrim TCP Port", HFILL
             }
         },
@@ -3678,7 +3678,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_sctpprim_dst_port,
             { "UDP Destination Port",
-              "dct2000.sctprim.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "dct2000.sctprim.dstport", FT_UINT16, BASE_PT_SCTP, NULL, 0x0,
               "SCTPPrim Destination Port", HFILL
             }
         },

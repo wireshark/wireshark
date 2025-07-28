@@ -8827,12 +8827,12 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_low,
         { "IPv4 UDP port low","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_udp_port_low",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_high,
         { "IPv4 UDP port high","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_udp_port_high",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_low,

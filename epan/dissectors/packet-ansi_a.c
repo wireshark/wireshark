@@ -12532,7 +12532,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_a2p_bearer_sess_udp_port,
             { "Session UDP Port", "ansi_a_bsmap.a2p_bearer_sess.udp_port",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_a2p_bearer_form_num_formats,
@@ -12582,7 +12582,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_a2p_bearer_form_format_udp_port,
             { "Bearer UDP Port", "ansi_a_bsmap.a2p_bearer_form.format.udp_port",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_a_a2p_bearer_form_format_ext_len,

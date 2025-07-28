@@ -21268,7 +21268,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_udpv4_wan_locator_public_port, {
         "Public port", "rtps.udpv4_wan_locator.public_port",
-        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        FT_UINT16, BASE_PT_UDP, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_udpv4_wan_locator_local_ip,{
         "Local IP", "rtps.udpv4_wan_locator.local_ip",
@@ -21276,7 +21276,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_udpv4_wan_locator_local_port,{
         "Local port", "rtps.udpv4_wan_locator.local_port",
-        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        FT_UINT16, BASE_PT_UDP, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_flag_udpv4_wan_binding_ping_e, {
         "Endianness", "rtps.flag.udpv4_wan_binding_ping.e",
@@ -21425,6 +21425,27 @@ void proto_register_rtps(void) {
     &ett_rtps_property,
     &ett_rtps_topic_info,
     &ett_rtps_topic_info_dw_qos,
+    &ett_rtps_type_bound_seq,
+    &ett_rtps_type_dep,
+    &ett_rtps_type_id,
+    &ett_rtps_type_object_v2,
+    &ett_rtps_type_object_v2_complete_type_detail,
+    &ett_rtps_type_object_v2_alias,
+    &ett_rtps_type_object_v2_alias_body,
+    &ett_rtps_type_object_v2_struct,
+    &ett_rtps_type_object_v2_struct_header,
+    &ett_rtps_type_object_v2_member_seq,
+    &ett_rtps_type_object_v2_member,
+    &ett_rtps_type_object_v2_union,
+    &ett_rtps_type_object_v2_union_header,
+    &ett_rtps_type_object_v2_union_discriminator,
+    &ett_rtps_type_object_v2_union_label_seq,
+    &ett_rtps_type_object_v2_enum,
+    &ett_rtps_type_object_v2_enum_header,
+    &ett_rtps_type_object_v2_enum_literal,
+    &ett_rtps_type_deps_seq,
+    &ett_rtps_type_id_w_deps,
+    &ett_rtps_type_id_w_size,
     &ett_rtps_type_object,
     &ett_rtps_type_information,
     &ett_rtps_type_lookup_request,
@@ -21436,6 +21457,8 @@ void proto_register_rtps(void) {
     &ett_rtps_type_lookup_deps_seq,
     &ett_rtps_type_lookup_request_data,
     &ett_rtps_instance_name,
+    &ett_rtps_type_information_minimal,
+    &ett_rtps_type_information_complete,
     &ett_rtps_type_library,
     &ett_rtps_type_element,
     &ett_rtps_type_annotation_usage_list,

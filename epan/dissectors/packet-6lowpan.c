@@ -3383,10 +3383,10 @@ proto_register_6lowpan(void)
         /* Uncompressed UDP fields. */
         { &hf_6lowpan_udp_src,
           { "Source port",                    "6lowpan.udp.src",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_udp_dst,
           { "Destination port",               "6lowpan.udp.dst",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_udp_len,
           { "UDP length",                     "6lowpan.udp.length",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

@@ -3234,13 +3234,13 @@ proto_register_rohc(void)
             },
             { &hf_rohc_udp_src_port,
               { "Source Port","rohc.udp_src_port",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_PT_UDP, NULL, 0x0,
                 NULL , HFILL
               }
             },
             { &hf_rohc_udp_dst_port,
               { "Destination Port","rohc.udp_dst_port",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_PT_UDP, NULL, 0x0,
                 NULL , HFILL
               }
             },

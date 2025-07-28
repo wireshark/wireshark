@@ -1084,7 +1084,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 1;
             break;
         case 0x0D:
-            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_config_212_kbps, tvb, offset, 3, ENC_NA);
+            sub_item = proto_tree_add_item(pn532_tree, hf_pn532_config_212_kbps, tvb, offset, 3, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn532_config_212_kbps);
 
             proto_tree_add_item(sub_tree, hf_pn532_config_ciu_rx_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);

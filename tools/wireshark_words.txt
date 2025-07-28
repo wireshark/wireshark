@@ -761,6 +761,7 @@ dlmap
 dlmapc
 dlsch
 dlstatus
+dlvol
 dmacros
 dmefs
 dmepi
@@ -2575,6 +2576,7 @@ smime
 sminfo
 smpdirected
 smpte
+smreq
 smrse
 smscb
 sname
@@ -2860,6 +2862,7 @@ tostring
 totemsrp
 touchlink
 touchpad
+tovol
 toyota
 traceroute
 traff
@@ -2942,6 +2945,7 @@ uinteger
 ulmap
 ulong
 ulsch
+ulvol
 umask
 unack
 unacked

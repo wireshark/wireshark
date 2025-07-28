@@ -902,7 +902,7 @@ proto_register_asap(void)
     { &hf_dccp_port,              { "Port",                        "asap.dccp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_dccp_reserved,          { "Reserved",                    "asap.dccp_transport_reserved",                  FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_dccp_service_code,      { "Service Code",                "asap.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
-    { &hf_sctp_port,              { "Port",                        "asap.sctp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
+    { &hf_sctp_port,              { "Port",                        "asap.sctp_transport_port",                      FT_UINT16,  BASE_PT_SCTP,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_transport_use,          { "Transport Use",               "asap.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),       0x0,                       NULL, HFILL } },
     { &hf_tcp_port,               { "Port",                        "asap.tcp_transport_port",                       FT_UINT16,  BASE_PT_TCP,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_udp_port,               { "Port",                        "asap.udp_transport_port",                       FT_UINT16,  BASE_PT_UDP,  NULL,                             0x0,                       NULL, HFILL } },

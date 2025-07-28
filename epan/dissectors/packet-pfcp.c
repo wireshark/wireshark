@@ -16677,7 +16677,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_mptcp_proxy_port,
         { "MPTCP proxy port", "pfcp.mptcp_proxy.port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_PT_TCP, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_mptcp_proxy_ip_address_ipv4,

@@ -552,7 +552,7 @@ dissect_navitrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		break;
 
 	case nav_TeachingToggled_v1:	//Teaching response v1
-		proto_tree_add_item(navitrol_tree, hf_navitrol_teaching_command, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(navitrol_tree, hf_navitrol_teaching_command, tvb, offset, 1, navitrol_endian);
 		/* offset += 1; */
 		break;
 

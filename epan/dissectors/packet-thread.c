@@ -4222,7 +4222,7 @@ proto_register_thread_mc(void)
         { &hf_thread_mc_tlv_udp_port,
             { "UDP Port",
             "thread_meshcop.tlv.udp_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0,
             NULL,
             HFILL }
         },
@@ -4334,7 +4334,7 @@ proto_register_thread_mc(void)
         { &hf_thread_mc_tlv_udp_encap_src_port,
             { "Source UDP Port",
             "thread_meshcop.tlv.udp_encap_src_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0,
             NULL,
             HFILL }
         },
@@ -4342,7 +4342,7 @@ proto_register_thread_mc(void)
         { &hf_thread_mc_tlv_udp_encap_dst_port,
             { "Destination UDP Port",
             "thread_meshcop.tlv.udp_encap_dst_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0,
             NULL,
             HFILL }
         },
@@ -4471,7 +4471,7 @@ proto_register_thread_mc(void)
         { &hf_thread_mc_tlv_ae_udp_port,
             { "AE UDP Port",
             "thread_meshcop.tlv.ae_udp_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0,
             NULL,
             HFILL }
         },
@@ -4479,7 +4479,7 @@ proto_register_thread_mc(void)
         { &hf_thread_mc_tlv_nmkp_udp_port,
             { "NMKP UDP Port",
             "thread_meshcop.tlv.nmkp_udp_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_PT_UDP, NULL, 0x0,
             NULL,
             HFILL }
         },
