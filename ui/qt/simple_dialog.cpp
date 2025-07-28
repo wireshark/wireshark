@@ -279,7 +279,12 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
 
 
     message_box_->setText(primary);
-    message_box_->setInformativeText(secondary);
+    // This used to be DetailedText, which is broken on Qt6.5 for macOS:
+    // https://bugreports.qt.io/browse/QTBUG-118992
+    // It might make sense to send very long messages to DetailedText,
+    // at least on versions that work, or have an explicit tertiary text.
+    // https://gitlab.com/wireshark/wireshark/-/issues/20573
+    setInformativeText(secondary);
 }
 
 SimpleDialog::~SimpleDialog()
