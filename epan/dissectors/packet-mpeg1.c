@@ -20,8 +20,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-rtp_pt.h"
 
-#include <epan/rtp_pt.h>
 
 void proto_register_mpeg1(void);
 void proto_reg_handoff_mpeg1(void);

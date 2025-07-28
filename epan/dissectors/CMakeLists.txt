@@ -576,6 +576,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-rsvp.h
 	packet-rtcp.h
 	packet-rtp.h
+	packet-rtp_pt.h
 	packet-rtp-events.h
 	packet-rtse.h
 	packet-rtsp.h
@@ -619,7 +620,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-sysdig-event.h
 	packet-syslog.h
 	packet-t124.h
-	packet-t30.h
 	packet-t38.h
 	packet-tacacs.h
 	packet-tcap.h

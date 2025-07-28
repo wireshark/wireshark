@@ -20,7 +20,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <epan/rtp_pt.h>
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
@@ -41,6 +40,7 @@
 
 #include "packet-gsm_osmux.h"
 #include "packet-rtp.h"
+#include "packet-rtp_pt.h"
 #include "packet-rtcp.h"
 #include "packet-t38.h"
 #include "packet-msrp.h"

@@ -11637,6 +11637,21 @@ void proto_register_h225(void) {
   oid_add_from_string("Version 4","0.0.8.2250.0.4");
   oid_add_from_string("Version 5","0.0.8.2250.0.5");
   oid_add_from_string("Version 6","0.0.8.2250.0.6");
+
+  register_external_value_string("T_h323_message_body_vals", T_h323_message_body_vals);
+  register_external_value_string("h225_ReleaseCompleteReason_vals", h225_ReleaseCompleteReason_vals);
+  register_external_value_string("FacilityReason_vals", FacilityReason_vals);
+  register_external_value_string("h225_RasMessage_vals", h225_RasMessage_vals);
+  register_external_value_string("GatekeeperRejectReason_vals", GatekeeperRejectReason_vals);
+  register_external_value_string("RegistrationRejectReason_vals", RegistrationRejectReason_vals);
+  register_external_value_string("UnregRequestReason_vals", UnregRequestReason_vals);
+  register_external_value_string("UnregRejectReason_vals", UnregRejectReason_vals);
+  register_external_value_string("AdmissionRejectReason_vals", AdmissionRejectReason_vals);
+  register_external_value_string("BandRejectReason_vals", BandRejectReason_vals);
+  register_external_value_string("LocationRejectReason_vals", LocationRejectReason_vals);
+  register_external_value_string("DisengageReason_vals", DisengageReason_vals);
+  register_external_value_string("DisengageRejectReason_vals", DisengageRejectReason_vals);
+  register_external_value_string("InfoRequestNakReason_vals", InfoRequestNakReason_vals);
 }
 
 

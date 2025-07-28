@@ -11116,6 +11116,11 @@ proto_register_bthci_cmd(void)
 
     vendor_dissector_table = register_decode_as_next_proto(proto_bthci_cmd, "bthci_cmd.vendor",
                                                            "BT HCI Command Vendor", bthci_cmd_vendor_prompt);
+
+    register_external_value_string("bthci_cmd_scan_enable_values", bthci_cmd_scan_enable_values);
+    register_external_value_string("bthci_cmd_encrypt_mode_vals", bthci_cmd_encrypt_mode_vals);
+    register_external_value_string("bthci_cmd_authentication_enable_values", bthci_cmd_authentication_enable_values);
+    register_external_value_string("bthci_cmd_inq_modes", bthci_cmd_inq_modes);
 }
 
 

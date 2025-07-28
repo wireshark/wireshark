@@ -839,17 +839,16 @@ uint16_t de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_DLL_PUBLIC const value_string gsm_a_bssmap_msg_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_mm_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_rr_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_cc_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_gmm_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_sms_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_sm_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_ss_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_tp_strings[];
-WS_DLL_PUBLIC const value_string gsm_a_rr_short_pd_msg_strings[];
-WS_DLL_PUBLIC const char *gsm_a_pd_str[];
+extern const value_string gsm_a_bssmap_msg_strings[];
+extern const value_string gsm_a_dtap_msg_mm_strings[];
+extern const value_string gsm_a_dtap_msg_rr_strings[];
+extern const value_string gsm_a_dtap_msg_cc_strings[];
+extern const value_string gsm_a_dtap_msg_gmm_strings[];
+extern const value_string gsm_a_dtap_msg_sms_strings[];
+extern const value_string gsm_a_dtap_msg_sm_strings[];
+extern const value_string gsm_a_dtap_msg_ss_strings[];
+extern const value_string gsm_a_dtap_msg_tp_strings[];
+extern const value_string gsm_a_rr_short_pd_msg_strings[];
 
 extern const value_string gsm_a_sm_qos_del_of_err_sdu_vals[];
 extern const value_string gsm_a_sm_qos_traffic_cls_vals[];

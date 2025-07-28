@@ -561,6 +561,8 @@ proto_register_rtp_events(void)
 
 	rtp_events_handle = register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
 	rtp_event_tap = register_tap("rtpevent");
+
+	register_external_value_string_ext("rtp_event_type_values_ext", &rtp_event_type_values_ext);
 }
 
 

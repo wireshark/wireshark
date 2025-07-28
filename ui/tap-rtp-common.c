@@ -23,7 +23,6 @@
 
 #include <glib.h>
 
-#include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-rtp.h>
@@ -267,7 +266,7 @@ static void update_payload_names(rtpstream_info_t *stream_info, const struct _rt
     else {
         /* String is created from const strings only */
         new_payload_type_str = val_to_str_ext_const(rtpinfo->info_payload_type,
-            &rtp_payload_type_short_vals_ext,
+            get_external_value_string_ext("rtp_payload_type_short_vals_ext"),
             PAYLOAD_UNKNOWN_STR
         );
     }

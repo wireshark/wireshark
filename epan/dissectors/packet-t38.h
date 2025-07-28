@@ -75,8 +75,8 @@ void t38_add_address(packet_info *pinfo,
                      const char *setup_method, uint32_t setup_frame_number);
 
 
-WS_DLL_PUBLIC const value_string t38_T30_indicator_vals[];
-WS_DLL_PUBLIC const value_string t38_T30_data_vals[];
+extern const value_string t38_T30_indicator_vals[];
+extern const value_string t38_T30_data_vals[];
 
 
 

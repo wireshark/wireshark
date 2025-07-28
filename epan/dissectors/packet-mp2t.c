@@ -17,8 +17,6 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
-#include <epan/rtp_pt.h>
-
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
@@ -32,6 +30,7 @@
 #include "packet-l2tp.h"
 #include "packet-udp.h"
 #include "packet-mp2t.h"
+#include "packet-rtp_pt.h"
 
 void proto_register_mp2t(void);
 void proto_reg_handoff_mp2t(void);

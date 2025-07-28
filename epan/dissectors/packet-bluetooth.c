@@ -1023,6 +1023,8 @@ proto_register_bluetooth(void)
     bluetooth_bthci_handle = register_dissector("bluetooth.bthci", dissect_bluetooth_bthci, proto_bluetooth);
     bluetooth_btmon_handle = register_dissector("bluetooth.btmon", dissect_bluetooth_btmon, proto_bluetooth);
     bluetooth_usb_handle = register_dissector("bluetooth.usb", dissect_bluetooth_usb, proto_bluetooth);
+
+    register_external_value_string_ext("bluetooth_company_id_vals_ext", &bluetooth_company_id_vals_ext);
 }
 
 void

@@ -14,7 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/rtp_pt.h>
+#include "packet-rtp_pt.h"
 
 void proto_reg_handoff_g723(void);
 void proto_register_g723(void);

@@ -17,7 +17,6 @@
 #include <wsutil/codecs.h>
 #include <wsutil/wslog.h>
 
-#include <epan/rtp_pt.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-iuup.h>
 #include <epan/dissectors/packet-amr.h>
@@ -62,7 +61,7 @@ decode_rtp_create_decoder(uint8_t payload_type, const char *payload_type_str, in
     if (payload_type_str)
          decoder->handle = find_codec(payload_type_str);
     if (!decoder->handle) {
-        const char *p = try_val_to_str_ext(payload_type, &rtp_payload_type_short_vals_ext);
+        const char *p = try_val_to_str_ext(payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"));
         if (p)
             decoder->handle = find_codec(p);
     }

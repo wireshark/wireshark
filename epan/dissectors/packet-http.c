@@ -5050,6 +5050,7 @@ proto_register_http(void)
 	/* exclude "=", separating key and value should be done separately */
 	ws_mempbrk_compile(&pbrk_sub_delims, "!$&'()*+,;");
 
+	register_external_value_string("vals_http_status_code", vals_http_status_code);
 }
 
 /*

@@ -70,11 +70,11 @@ typedef struct _h225_packet_info {
 #include <epan/asn1.h>
 #include "packet-per.h"
 
-WS_DLL_PUBLIC const value_string T_h323_message_body_vals[];
-WS_DLL_PUBLIC const value_string h225_ReleaseCompleteReason_vals[];
+extern const value_string T_h323_message_body_vals[];
+extern const value_string h225_ReleaseCompleteReason_vals[];
 extern const value_string h225_PresentationIndicator_vals[];
 extern const value_string h225_ScreeningIndicator_vals[];
-WS_DLL_PUBLIC const value_string FacilityReason_vals[];
+extern const value_string FacilityReason_vals[];
 extern const value_string h225_TransportAddress_vals[];
 extern const value_string h225_SupportedProtocols_vals[];
 extern const value_string AliasAddress_vals[];
@@ -84,18 +84,18 @@ extern const value_string h225_PrivateTypeOfNumber_vals[];
 extern const value_string h225_IntegrityMechanism_vals[];
 extern const value_string h225_CryptoH323Token_vals[];
 extern const value_string h225_GenericIdentifier_vals[];
-WS_DLL_PUBLIC const value_string h225_RasMessage_vals[];
-WS_DLL_PUBLIC const value_string GatekeeperRejectReason_vals[];
-WS_DLL_PUBLIC const value_string RegistrationRejectReason_vals[];
-WS_DLL_PUBLIC const value_string UnregRequestReason_vals[];
-WS_DLL_PUBLIC const value_string UnregRejectReason_vals[];
+extern const value_string h225_RasMessage_vals[];
+extern const value_string GatekeeperRejectReason_vals[];
+extern const value_string RegistrationRejectReason_vals[];
+extern const value_string UnregRequestReason_vals[];
+extern const value_string UnregRejectReason_vals[];
 extern const value_string h225_TransportQOS_vals[];
-WS_DLL_PUBLIC const value_string AdmissionRejectReason_vals[];
-WS_DLL_PUBLIC const value_string BandRejectReason_vals[];
-WS_DLL_PUBLIC const value_string LocationRejectReason_vals[];
-WS_DLL_PUBLIC const value_string DisengageReason_vals[];
-WS_DLL_PUBLIC const value_string DisengageRejectReason_vals[];
-WS_DLL_PUBLIC const value_string InfoRequestNakReason_vals[];
+extern const value_string AdmissionRejectReason_vals[];
+extern const value_string BandRejectReason_vals[];
+extern const value_string LocationRejectReason_vals[];
+extern const value_string DisengageReason_vals[];
+extern const value_string DisengageRejectReason_vals[];
+extern const value_string InfoRequestNakReason_vals[];
 WS_DLL_PUBLIC int dissect_h225_ReleaseCompleteReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h225_PresentationIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h225_ScreeningIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

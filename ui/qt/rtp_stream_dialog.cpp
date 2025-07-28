@@ -13,7 +13,6 @@
 #include "file.h"
 
 #include "epan/addr_resolv.h"
-#include <epan/rtp_pt.h>
 
 #include <wsutil/utf8_entities.h>
 

@@ -123,7 +123,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	register.h
 	req_resp_hdrs.h
 	rtd_table.h
-	rtp_pt.h
 	sctpppids.h
 	secrets.h
 	show_exception.h

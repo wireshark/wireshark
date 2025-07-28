@@ -38,8 +38,6 @@ typedef struct _sip_reason_code_info_t
     unsigned                   cause_value;
 } sip_reason_code_info_t;
 
-WS_DLL_PUBLIC const value_string sip_response_code_vals[];
-
 extern void dfilter_store_sip_from_addr(tvbuff_t *tvb, proto_tree *tree,
     unsigned parameter_offset, unsigned parameter_len);
 

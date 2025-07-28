@@ -218,7 +218,7 @@ QString Mtp3SummaryDialog::summaryToHtml()
         }
 
         out << table_row_begin
-            << table_data_tmpl.arg(mtp3_service_indicator_code_short_vals[ws_si_code].strptr)
+            << table_data_tmpl.arg(val_to_str_const((unsigned)ws_si_code, vs_get_external_value_string("mtp3_service_indicator_code_short_vals"), "Unknown"))
             << table_data_tmpl.arg(si_msus)
             << table_data_tmpl.arg(msus_s_str)
             << table_data_tmpl.arg(si_bytes)

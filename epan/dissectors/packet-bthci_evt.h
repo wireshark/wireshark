@@ -19,8 +19,8 @@ extern const value_string bthci_evt_mws_transport_layer_vals[];
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC const value_string bthci_evt_lmp_version[];
-WS_DLL_PUBLIC const value_string bthci_evt_hci_version[];
+extern const value_string bthci_evt_lmp_version[];
+extern const value_string bthci_evt_hci_version[];
 
 #ifdef __cplusplus
 }

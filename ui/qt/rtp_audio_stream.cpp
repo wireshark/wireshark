@@ -13,10 +13,10 @@
 
 #include <speex/speex_resampler.h>
 
-#include <epan/rtp_pt.h>
 #include <epan/to_str.h>
 
 #include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtp_pt.h>
 
 #include <ui/rtp_media.h>
 #include <ui/rtp_stream.h>
@@ -285,7 +285,7 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
         if (rtp_packet->info->info_payload_type_str) {
             payload_name = rtp_packet->info->info_payload_type_str;
         } else {
-            payload_name = try_val_to_str_ext(rtp_packet->info->info_payload_type, &rtp_payload_type_short_vals_ext);
+            payload_name = try_val_to_str_ext(rtp_packet->info->info_payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"));
         }
         if (!payload_name.isEmpty()) {
             payload_names_ << payload_name;

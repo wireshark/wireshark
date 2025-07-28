@@ -1804,6 +1804,8 @@ proto_register_rtsp(void)
      * Register for tapping
      */
     rtsp_tap = register_tap("rtsp"); /* RTSP statistics tap */
+
+    register_external_value_string("rtsp_status_code_vals", rtsp_status_code_vals);
 }
 
 void

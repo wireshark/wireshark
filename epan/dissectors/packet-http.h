@@ -13,7 +13,7 @@
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 
-WS_DLL_PUBLIC const value_string vals_http_status_code[];
+extern const value_string vals_http_status_code[];
 
 WS_DLL_PUBLIC
 void http_tcp_dissector_add(uint32_t port, dissector_handle_t handle);

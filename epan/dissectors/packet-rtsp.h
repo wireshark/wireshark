@@ -21,6 +21,4 @@ typedef struct _rtsp_info_value_t {
 	char    *request_uri;
 } rtsp_info_value_t;
 
-WS_DLL_PUBLIC const value_string rtsp_status_code_vals[];
-
 #endif /* __PACKET_RTSP_H__ */

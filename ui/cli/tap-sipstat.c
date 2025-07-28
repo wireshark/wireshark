@@ -67,19 +67,20 @@ static void
 sip_init_hash(sipstat_t *sp)
 {
 	int i;
+	value_string* response_codes = vs_get_external_value_string("sip_response_code_vals");
 
 	/* Create responses table */
 	sp->hash_responses = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 
 	/* Add all response codes */
-	for (i=0; sip_response_code_vals[i].strptr; i++)
+	for (i=0; response_codes[i].strptr; i++)
 	{
 		int *key = g_new (int, 1);
 		sip_response_code_t *sc = g_new (sip_response_code_t, 1);
-		*key = sip_response_code_vals[i].value;
+		*key = response_codes[i].value;
 		sc->packets = 0;
 		sc->response_code =  *key;
-		sc->name = sip_response_code_vals[i].strptr;
+		sc->name = response_codes[i].strptr;
 		sc->sp = sp;
 		g_hash_table_insert(sc->sp->hash_responses, key, sc);
 	}

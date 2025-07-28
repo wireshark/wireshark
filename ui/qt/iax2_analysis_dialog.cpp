@@ -13,11 +13,11 @@
 #include "file.h"
 
 #include <epan/epan_dissect.h>
-#include <epan/rtp_pt.h>
 
 #include <epan/dfilter/dfilter.h>
 
 #include <epan/dissectors/packet-iax2.h>
+#include <epan/dissectors/packet-rtp_pt.h>
 
 #include "ui/help_url.h"
 #ifdef IAX2_RTP_STREAM_CHECK

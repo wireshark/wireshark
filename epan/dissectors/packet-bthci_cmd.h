@@ -47,15 +47,15 @@ extern value_string_ext bthci_cmd_cs_shape_vals_ext;
 extern const value_string bthci_cmd_io_capability_vals[];
 extern const value_string bthci_cmd_oob_data_present_vals[];
 extern const value_string bthci_cmd_address_types_vals[];
-WS_DLL_PUBLIC const value_string bthci_cmd_scan_enable_values[];
+extern const value_string bthci_cmd_scan_enable_values[];
 extern const value_string bthci_cmd_page_scan_modes[];
 extern const value_string bthci_cmd_page_scan_repetition_modes[];
 extern const value_string bthci_cmd_page_scan_period_modes[];
 extern const value_string bthci_cmd_notification_types[];
 
-WS_DLL_PUBLIC const value_string bthci_cmd_encrypt_mode_vals[];
-WS_DLL_PUBLIC const value_string bthci_cmd_authentication_enable_values[];
-WS_DLL_PUBLIC const value_string bthci_cmd_inq_modes[];
+extern const value_string bthci_cmd_encrypt_mode_vals[];
+extern const value_string bthci_cmd_authentication_enable_values[];
+extern const value_string bthci_cmd_inq_modes[];
 
 extern bool bthci_vendor_android;
 extern const uint16_t bthci_vendor_manufacturer_android;

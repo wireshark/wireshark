@@ -33,7 +33,7 @@ typedef struct _isup_tap_rec_t {
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_DLL_PUBLIC value_string_ext isup_message_type_value_acro_ext;
+extern value_string_ext isup_message_type_value_acro_ext;
 WS_DLL_PUBLIC value_string_ext q850_cause_code_vals_ext;
 /*
  * Export some definitions and value_string tables for other dissectors

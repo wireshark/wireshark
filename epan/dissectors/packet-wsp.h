@@ -24,13 +24,6 @@
 extern value_string_ext vals_wsp_reason_codes_ext;
 
 /*
- * the following allows TAP code access to the messages
- * without having to duplicate it. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-WS_DLL_PUBLIC value_string_ext wsp_vals_pdu_type_ext;
-WS_DLL_PUBLIC value_string_ext wsp_vals_status_ext;
-/*
  * exported functionality
  */
 void add_post_data (proto_tree *, tvbuff_t *, unsigned, const char *,

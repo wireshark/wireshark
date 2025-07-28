@@ -22,6 +22,12 @@
 
 #include <wsutil/wslog.h>
 
+ /*
+  * List of registered value strings for use outside of dissectors
+  */
+static GHashTable* registered_vs;
+static GHashTable* registered_vs_ext;
+
 
 /* Sort function that can be used with dynamically created value_strings */
 int
@@ -1009,6 +1015,49 @@ try_bytesprefix_to_str(const uint8_t *haystack, const size_t haystack_len, const
 
     return NULL;
 }
+
+void
+value_string_externals_init(void)
+{
+    registered_vs = g_hash_table_new(g_str_hash, g_str_equal);
+    registered_vs_ext = g_hash_table_new(g_str_hash, g_str_equal);
+}
+
+void value_string_externals_cleanup(void)
+{
+    g_hash_table_destroy(registered_vs);
+    g_hash_table_destroy(registered_vs_ext);
+}
+
+void
+register_external_value_string(const char* name, const value_string* vs)
+{
+    g_hash_table_insert(registered_vs, (void*)name, (void*)vs);
+}
+
+value_string*
+vs_get_external_value_string(const char* name)
+{
+    value_string* ret = (value_string*)g_hash_table_lookup(registered_vs, name);
+    DISSECTOR_ASSERT(ret != NULL);
+    return ret;
+}
+
+void
+register_external_value_string_ext(const char* name, const value_string_ext* vse)
+{
+    g_hash_table_insert(registered_vs_ext, (void*)name, (void*)vse);
+}
+
+value_string_ext*
+get_external_value_string_ext(const char* name)
+{
+    value_string_ext* ret = (value_string_ext*)g_hash_table_lookup(registered_vs_ext, name);
+    DISSECTOR_ASSERT(ret != NULL);
+    return ret;
+}
+
+
 
 /* MISC */
 

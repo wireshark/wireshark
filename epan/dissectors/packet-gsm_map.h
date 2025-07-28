@@ -95,7 +95,7 @@ int dissect_gsm_map_ExtensionContainer(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 /* --- Module MAP-CommonDataTypes --- --- ---                                 */
 
 extern const value_string gsm_map_NetworkResource_vals[];
-WS_DLL_PUBLIC const value_string gsm_map_LCSClientInternalID_vals[];
+extern const value_string gsm_map_LCSClientInternalID_vals[];
 extern const value_string gsm_map_LCSServiceTypeID_vals[];
 extern const value_string gsm_map_CellGlobalIdOrServiceAreaIdOrLAI_vals[];
 extern const value_string gsm_map_BasicServiceCode_vals[];
@@ -145,8 +145,8 @@ int dissect_gsm_map_ss_EraseCC_EntryRes(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 /* --- Module MAP-ER-DataTypes --- --- ---                                    */
 
-WS_DLL_PUBLIC const value_string gsm_map_er_UnauthorizedLCSClient_Diagnostic_vals[];
-WS_DLL_PUBLIC const value_string gsm_map_er_PositionMethodFailure_Diagnostic_vals[];
+extern const value_string gsm_map_er_UnauthorizedLCSClient_Diagnostic_vals[];
+extern const value_string gsm_map_er_PositionMethodFailure_Diagnostic_vals[];
 WS_DLL_PUBLIC int dissect_gsm_map_er_UnauthorizedLCSClient_Diagnostic(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 WS_DLL_PUBLIC int dissect_gsm_map_er_PositionMethodFailure_Diagnostic(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
@@ -162,9 +162,9 @@ int dissect_gsm_map_sm_SM_RP_OA(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
-WS_DLL_PUBLIC const value_string gsm_map_ms_DefaultGPRS_Handling_vals[];
-WS_DLL_PUBLIC const value_string gsm_map_ms_NotificationToMSUser_vals[];
-WS_DLL_PUBLIC const value_string gsm_map_ms_DefaultSMS_Handling_vals[];
+extern const value_string gsm_map_ms_DefaultGPRS_Handling_vals[];
+extern const value_string gsm_map_ms_NotificationToMSUser_vals[];
+extern const value_string gsm_map_ms_DefaultSMS_Handling_vals[];
 extern const value_string gsm_map_ms_SubscriberState_vals[];
 WS_DLL_PUBLIC int dissect_gsm_map_ms_DefaultGPRS_Handling(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_ms_QoS_Subscribed(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -201,7 +201,7 @@ int dissect_gsm_map_ch_UU_Data(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 /* --- Module MAP-LCS-DataTypes --- --- ---                                   */
 
-WS_DLL_PUBLIC const value_string gsm_map_lcs_LCSClientType_vals[];
+extern const value_string gsm_map_lcs_LCSClientType_vals[];
 WS_DLL_PUBLIC int dissect_gsm_map_lcs_LocationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_lcs_DeferredLocationEventType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_lcs_LCS_ClientID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -265,7 +265,7 @@ int dissect_gsm_old_ProtectedPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
-WS_DLL_PUBLIC const value_string gsm_ss_LocationMethod_vals[];
+extern const value_string gsm_ss_LocationMethod_vals[];
 WS_DLL_PUBLIC int dissect_gsm_ss_LocationMethod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_ss_LCS_SLMOLRArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_ss_LCS_SLMOLRRes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

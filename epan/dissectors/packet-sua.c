@@ -2480,6 +2480,8 @@ proto_register_sua(void)
   sua_tap = register_tap("sua");
 
   assocs = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+  register_external_value_string("sua_co_class_type_acro_values", sua_co_class_type_acro_values);
 }
 
 void

@@ -22,8 +22,8 @@
 
 #include <epan/packet.h>
 
-#include <epan/rtp_pt.h>
 #include <epan/iax2_codec_type.h>
+#include "packet-rtp_pt.h"
 
 void proto_register_h261(void);
 void proto_reg_handoff_h261(void);

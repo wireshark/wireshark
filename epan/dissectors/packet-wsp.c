@@ -7194,6 +7194,10 @@ proto_register_wsp(void)
 
     wsp_fromudp_handle = register_dissector("wsp.udp", dissect_wsp_fromudp,
                                                  proto_wsp);
+
+    register_external_value_string_ext("wsp_vals_pdu_type_ext", &wsp_vals_pdu_type_ext);
+    register_external_value_string_ext("wsp_vals_status_ext", &wsp_vals_status_ext);
+
 }
 
 void

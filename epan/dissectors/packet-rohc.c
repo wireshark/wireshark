@@ -24,12 +24,12 @@
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
-#include <epan/rtp_pt.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-rohc.h"
+#include "packet-rtp_pt.h"
 
 void proto_register_rohc(void);
 void proto_reg_handoff_rohc(void);

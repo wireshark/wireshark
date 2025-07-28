@@ -59,8 +59,8 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-tcp.h"
+#include "packet-rtp_pt.h"
 
-#include <epan/rtp_pt.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
 
@@ -476,7 +476,7 @@ static const value_string rtp_payload_type_vals[] =
 /* 94 */    { 94,               "Unassigned" },
 /* 95 */    { 95,               "Unassigned" },
         /* Added to support additional RTP payload types
-         * See epan/rtp_pt.h */
+         * See packet-rtp_pt.h */
         { PT_UNDF_96,   "DynamicRTP-Type-96" },
         { PT_UNDF_97,   "DynamicRTP-Type-97" },
         { PT_UNDF_98,   "DynamicRTP-Type-98" },
@@ -3697,6 +3697,9 @@ proto_register_rtp(void)
 
     register_init_routine(rtp_dyn_payloads_init);
     register_decode_as(&rtp_da);
+
+    register_external_value_string_ext("rtp_payload_type_vals_ext", &rtp_payload_type_vals_ext);
+    register_external_value_string_ext("rtp_payload_type_short_vals_ext", &rtp_payload_type_short_vals_ext);
 }
 
 void

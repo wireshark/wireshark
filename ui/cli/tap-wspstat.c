@@ -223,7 +223,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 
 	sp = g_new(wspstat_t, 1);
 	sp->hash = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
-	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(&wsp_vals_status_ext);
+	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(get_external_value_string_ext("wsp_vals_status_ext"));
 	for (i=0; wsp_vals_status_p[i].strptr; i++ )
 	{
 		sc = g_new(wsp_status_code_t, 1);
@@ -241,7 +241,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 	for (i=0; i<sp->num_pdus; i++)
 	{
 		sp->pdu_stats[i].packets = 0;
-		sp->pdu_stats[i].type = try_val_to_str_ext( index2pdut( i ), &wsp_vals_pdu_type_ext) ;
+		sp->pdu_stats[i].type = try_val_to_str_ext( index2pdut( i ), get_external_value_string_ext("wsp_vals_pdu_type_ext"));
 	}
 
 	error_string = register_tap_listener(

@@ -12,11 +12,6 @@
 #define __RTP_PT_H__
 
 #include <epan/value_string.h>
-#include "ws_symbol_export.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 /*
  * RTP Payload types
@@ -89,12 +84,8 @@ extern "C" {
 #define PT_UNDF_126     126
 #define PT_UNDF_127     127
 
-WS_DLL_PUBLIC value_string_ext rtp_payload_type_vals_ext;
-WS_DLL_PUBLIC value_string_ext rtp_payload_type_short_vals_ext;
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+extern value_string_ext rtp_payload_type_vals_ext;
+extern value_string_ext rtp_payload_type_short_vals_ext;
 
 #endif
 

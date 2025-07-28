@@ -81,7 +81,7 @@ extern void dissect_mtp3_3byte_pc(tvbuff_t *tvb, packet_info* pinfo, unsigned of
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_DLL_PUBLIC const value_string mtp3_service_indicator_code_short_vals[];
+extern const value_string mtp3_service_indicator_code_short_vals[];
 
 #define MTP_SI_SNM	0x0
 #define MTP_SI_MTN	0x1

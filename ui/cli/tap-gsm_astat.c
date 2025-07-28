@@ -46,6 +46,26 @@ typedef struct _gsm_a_stat_t {
     int         sacch_rr_message_type[0x100];
 } gsm_a_stat_t;
 
+static const value_string gsm_a_pd_vals[] = {
+    {PD_GCC, "Group Call Control"},
+    {PD_BCC, "Broadcast Call Control"},
+    {PD_RSVD_1, "EPS session management messages"},
+    {PD_CC, "Call Control; call related SS messages"},
+    {PD_GTTP, "GPRS Transparent Transport Protocol (GTTP)"},
+    {PD_MM, "Mobility Management messages"},
+    {PD_RR, "Radio Resources Management messages"},
+    {PD_UNK_1, "EPS mobility management messages"},
+    {PD_GMM, "GPRS Mobility Management messages"},
+    {PD_SMS, "SMS messages"},
+    {PD_SM, "GPRS Session Management messages"},
+    {PD_SS, "Non call related SS messages"},
+    {PD_LCS, "Location services specified in 3GPP TS 44.071"},
+    {PD_UNK_2, "Unknown"},
+    {PD_RSVD_EXT, "Reserved for extension of the PD to one octet length"},
+    {PD_TP, "Special conformance testing functions"},
+    { 0,    NULL }
+};
+
 
 static tap_packet_status
 gsm_a_stat_packet(
@@ -121,186 +141,83 @@ gsm_a_stat_packet(
     return(TAP_PACKET_REDRAW);
 }
 
+static void
+gsm_a_stat_draw_vs_helper(int* message_type, value_string* vs_draw)
+{
+    uint8_t i = 0;
+    while (vs_draw[i].strptr)
+    {
+        const value_string* vs = &vs_draw[i];
+        if (message_type[vs->value] > 0)
+        {
+            printf("0x%02x  %-50s%d\n",
+                vs->value,
+                vs->strptr,
+                message_type[vs->value]);
+        }
+
+        i++;
+    }
+
+}
 
 static void
 gsm_a_stat_draw(
     void                *tapdata)
 {
     gsm_a_stat_t        *stat_p = (gsm_a_stat_t *)tapdata;
-    uint8_t             i;
-
 
     printf("\n");
     printf("=========== GS=M A-i/f Statistics ============================\n");
     printf("BSSMAP\n");
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_bssmap_msg_strings[i].strptr)
-    {
-        if (stat_p->bssmap_message_type[gsm_a_bssmap_msg_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_bssmap_msg_strings[i].value,
-                   gsm_a_bssmap_msg_strings[i].strptr,
-                   stat_p->bssmap_message_type[gsm_a_bssmap_msg_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->bssmap_message_type, vs_get_external_value_string("gsm_a_bssmap_msg_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_MM]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_MM, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_mm_strings[i].strptr)
-    {
-        if (stat_p->dtap_mm_message_type[gsm_a_dtap_msg_mm_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_mm_strings[i].value,
-                   gsm_a_dtap_msg_mm_strings[i].strptr,
-                   stat_p->dtap_mm_message_type[gsm_a_dtap_msg_mm_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_mm_message_type, vs_get_external_value_string("gsm_a_dtap_msg_mm_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_RR]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_RR, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_rr_strings[i].strptr)
-    {
-        if (stat_p->dtap_rr_message_type[gsm_a_dtap_msg_rr_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_rr_strings[i].value,
-                   gsm_a_dtap_msg_rr_strings[i].strptr,
-                   stat_p->dtap_rr_message_type[gsm_a_dtap_msg_rr_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_rr_message_type, vs_get_external_value_string("gsm_a_dtap_msg_rr_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_CC]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_CC, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_cc_strings[i].strptr)
-    {
-        if (stat_p->dtap_cc_message_type[gsm_a_dtap_msg_cc_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_cc_strings[i].value,
-                   gsm_a_dtap_msg_cc_strings[i].strptr,
-                   stat_p->dtap_cc_message_type[gsm_a_dtap_msg_cc_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_cc_message_type, vs_get_external_value_string("gsm_a_dtap_msg_cc_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_GMM]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_GMM, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_gmm_strings[i].strptr)
-    {
-        if (stat_p->dtap_gmm_message_type[gsm_a_dtap_msg_gmm_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_gmm_strings[i].value,
-                   gsm_a_dtap_msg_gmm_strings[i].strptr,
-                   stat_p->dtap_gmm_message_type[gsm_a_dtap_msg_gmm_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_gmm_message_type, vs_get_external_value_string("gsm_a_dtap_msg_gmm_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_SMS]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_SMS, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_sms_strings[i].strptr)
-    {
-        if (stat_p->dtap_sms_message_type[gsm_a_dtap_msg_sms_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_sms_strings[i].value,
-                   gsm_a_dtap_msg_sms_strings[i].strptr,
-                   stat_p->dtap_sms_message_type[gsm_a_dtap_msg_sms_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_sms_message_type, vs_get_external_value_string("gsm_a_dtap_msg_sms_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_SM]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_SM, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_sm_strings[i].strptr)
-    {
-        if (stat_p->dtap_sm_message_type[gsm_a_dtap_msg_sm_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_sm_strings[i].value,
-                   gsm_a_dtap_msg_sm_strings[i].strptr,
-                   stat_p->dtap_sm_message_type[gsm_a_dtap_msg_sm_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_sm_message_type, vs_get_external_value_string("gsm_a_dtap_msg_sm_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_SS]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_SS, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_ss_strings[i].strptr)
-    {
-        if (stat_p->dtap_ss_message_type[gsm_a_dtap_msg_ss_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_ss_strings[i].value,
-                   gsm_a_dtap_msg_ss_strings[i].strptr,
-                   stat_p->dtap_ss_message_type[gsm_a_dtap_msg_ss_strings[i].value]);
-        }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_ss_message_type, vs_get_external_value_string("gsm_a_dtap_msg_ss_strings"));
 
-        i++;
-    }
-
-    printf("\nDTAP %s\n", gsm_a_pd_str[PD_TP]);
+    printf("\nDTAP %s\n", val_to_str_const(PD_TP, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_dtap_msg_tp_strings[i].strptr)
-    {
-        if (stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_dtap_msg_tp_strings[i].value,
-                   gsm_a_dtap_msg_tp_strings[i].strptr,
-                   stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value]);
-        }
-
-        i++;
-    }
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_tp_message_type, vs_get_external_value_string("gsm_a_dtap_msg_tp_strings"));
 
     printf("\nSACCH Radio Resources Management messages\n");
     printf("Message (ID)Type                                        Number\n");
 
-    i = 0;
-    while (gsm_a_rr_short_pd_msg_strings[i].strptr)
-    {
-        if (stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value] > 0)
-        {
-            printf("0x%02x  %-50s%d\n",
-                   gsm_a_rr_short_pd_msg_strings[i].value,
-                   gsm_a_rr_short_pd_msg_strings[i].strptr,
-                   stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value]);
-        }
-
-        i++;
-    }
+    gsm_a_stat_draw_vs_helper(stat_p->sacch_rr_message_type, vs_get_external_value_string("gsm_a_rr_short_pd_msg_strings"));
 
     printf("==============================================================\n");
 }

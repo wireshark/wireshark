@@ -7736,6 +7736,8 @@ void proto_register_sip(void)
 
     register_follow_stream(proto_sip, "sip_follow", sip_follow_conv_filter, sip_follow_index_filter, sip_follow_address_filter,
                            udp_port_to_display, follow_tvb_tap_listener, NULL, NULL);
+
+    register_external_value_string("sip_response_code_vals", sip_response_code_vals);
 }
 
 void

@@ -4243,6 +4243,8 @@ proto_register_sccp(void)
   sccp_tap = register_tap("sccp");
 
   register_decode_as(&sccp_da);
+
+  register_external_value_string("sccp_message_type_acro_values", sccp_message_type_acro_values);
 }
 
 void

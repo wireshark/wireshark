@@ -38,15 +38,14 @@
 #include "epan/dissectors/packet-actrace.h"
 #include "epan/dissectors/packet-q931.h"
 #include "epan/dissectors/packet-rtp.h"
+#include "epan/dissectors/packet-rtp_pt.h"
 #include "epan/dissectors/packet-rtp-events.h"
 #include "epan/dissectors/packet-t38.h"
-#include "epan/dissectors/packet-t30.h"
 #include "epan/dissectors/packet-h248.h"
 #include "epan/dissectors/packet-sccp.h"
 #include "plugins/epan/unistim/packet-unistim.h"
 #include "epan/dissectors/packet-skinny.h"
 #include "epan/dissectors/packet-iax2.h"
-#include "epan/rtp_pt.h"
 
 #include "ui/rtp_stream.h"
 #include "ui/simple_dialog.h"
@@ -685,7 +684,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
             }
         }
         if (!strinfo->first_payload_type_name) {
-            strinfo->first_payload_type_name = val_to_str_ext(strinfo->first_payload_type, &rtp_payload_type_short_vals_ext, "%u");
+            strinfo->first_payload_type_name = val_to_str_ext(strinfo->first_payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"), "%u");
         }
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
@@ -770,7 +769,7 @@ rtp_draw(void *tap_offset_ptr)
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP",
                         rtp_listinfo->first_payload_type_name,
                         (rtp_listinfo->rtp_event == -1)?
-                        "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"),
+                        "":val_to_str_ext_const(rtp_listinfo->rtp_event, get_external_value_string_ext("rtp_event_type_values_ext"), "Unknown RTP Event"),
                         (rtp_listinfo->ed137_info!=NULL?" ":""),
                         (rtp_listinfo->ed137_info!=NULL?rtp_listinfo->ed137_info:"")
                 );
@@ -869,7 +868,7 @@ rtp_packet_draw(void *tap_offset_ptr)
                                                                (rtp_listinfo->is_srtp)?"SRTP":"RTP",
                                                                rtp_listinfo->first_payload_type_str,
                                                                (rtp_listinfo->rtp_event == -1)?
-                                                               "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
+                                                               "":val_to_str_ext_const(rtp_listinfo->rtp_event, get_external_value_string_ext("rtp_event_type_values_ext"), "Unknown RTP Event"));
                         new_gai->comment = ws_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
                                                            (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
                                                            duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
@@ -1012,7 +1011,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
 
     /* add the item to the graph list */
     if (t38_info->type_msg == 0) { /* 0=t30-indicator */
-        tmp_str1 = val_to_str_wmem(NULL, t38_info->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)");
+        tmp_str1 = val_to_str_wmem(NULL, t38_info->t30ind_value, vs_get_external_value_string("t38_T30_indicator_vals"), "Ukn (0x%02X)");
         frame_label = g_strdup(tmp_str1);
         comment = ws_strdup_printf("t38:t30 Ind:%s", tmp_str1);
         wmem_free(NULL, tmp_str1);
@@ -1024,7 +1023,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
             case 2: /* hdlc-fcs-OK */
             case 4: /* hdlc-fcs-OK-sig-end */
                 tmp_str1 = val_to_str_ext_wmem(NULL, t38_info->t30_Facsimile_Control & 0x7F,
-                            &t30_facsimile_control_field_vals_short_ext,
+                            get_external_value_string_ext("t30_facsimile_control_field_vals_short_ext"),
                             "Ukn (0x%02X)");
                 frame_label = ws_strdup_printf("%s %s",
                         tmp_str1,
@@ -1032,10 +1031,10 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
                 wmem_free(NULL, tmp_str1);
 
                 tmp_str1 = val_to_str_ext_wmem(NULL, t38_info->t30_Facsimile_Control & 0x7F,
-                            &t30_facsimile_control_field_vals_ext,
+                            get_external_value_string_ext("t30_facsimile_control_field_vals_ext"),
                             "Ukn (0x%02X)");
                 tmp_str2 = val_to_str_wmem(NULL, t38_info->data_value,
-                            t38_T30_data_vals,
+                            vs_get_external_value_string("t38_T30_data_vals"),
                             "Ukn (0x%02X)");
                 comment      = ws_strdup_printf("t38:%s:HDLC:%s", tmp_str2, tmp_str1);
                 wmem_free(NULL, tmp_str1);
@@ -1044,7 +1043,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
             case 3: /* hdlc-fcs-BAD */
             case 5: /* hdlc-fcs-BAD-sig-end */
                 frame_label = g_strdup(t38_info->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
-                tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, t38_T30_data_vals, "Ukn (0x%02X)");
+                tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, vs_get_external_value_string("t38_T30_data_vals"), "Ukn (0x%02X)");
                 comment    = ws_strdup_printf("WARNING: received t38:%s:HDLC:%s",
                         tmp_str1,
                         t38_info->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
@@ -1052,7 +1051,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
                 break;
             case 7: /* t4-non-ecm-sig-end */
                 duration = nstime_to_sec(&pinfo->rel_ts) - t38_info->time_first_t4_data;
-                tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, t38_T30_data_vals, "Ukn (0x%02X)");
+                tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, vs_get_external_value_string("t38_T30_data_vals"), "Ukn (0x%02X)");
                 frame_label = ws_strdup_printf("t4-non-ecm-data:%s", tmp_str1);
                 const char *comment_fmt_src = "t38:t4-non-ecm-data:%%s Duration: %%.%dfs %%s";
                 char *comment_fmt = ws_strdup_printf(comment_fmt_src, prefs.gui_decimal_places1);
@@ -1446,7 +1445,7 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
         /* Let's analyze the call state */
 
-        frame_label = g_strdup(val_to_str_ext_const(pi->message_type, &isup_message_type_value_acro_ext, "Unknown"));
+        frame_label = g_strdup(val_to_str_ext_const(pi->message_type, get_external_value_string_ext("isup_message_type_value_acro_ext"), "Unknown"));
 
         if (callsinfo->npackets == 1) { /* this is the first packet, that must be an IAM */
 
@@ -1492,7 +1491,7 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                 g_free(comment);
                 comment = ws_strdup_printf("Cause %i - %s",
                         pi->cause_value,
-                        val_to_str_ext_const(pi->cause_value, &q931_cause_code_vals_ext, "(Unknown)"));
+                        val_to_str_ext_const(pi->cause_value, get_external_value_string_ext("q931_cause_code_vals_ext"), "(Unknown)"));
                 break;
         }
 
@@ -1758,7 +1757,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                 /* get the Q931 Release cause code */
                 if (tapinfo->q931_cause_value != 0xFF) {
                     comment = ws_strdup_printf("H225 Q931 Rel Cause (%i):%s", tapinfo->q931_cause_value,
-                            val_to_str_ext_const(tapinfo->q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
+                            val_to_str_ext_const(tapinfo->q931_cause_value, get_external_value_string_ext("q931_cause_code_vals_ext"), "<unknown>"));
                 } else { /* Cause not set */
                     comment = g_strdup("H225 No Q931 Rel Cause");
                 }
@@ -1878,7 +1877,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                 }
                 if (tapinfo->q931_cause_value != 0xFF) {
                     comment = ws_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", tapinfo->actrace_trunk, tapinfo->q931_cause_value,
-                            val_to_str_ext_const(tapinfo->q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
+                            val_to_str_ext_const(tapinfo->q931_cause_value, get_external_value_string_ext("q931_cause_code_vals_ext"), "<unknown>"));
                 } else { /* Cause not set */
                     comment = g_strdup("AC_ISDN No Q931 Rel Cause");
                 }
@@ -1888,7 +1887,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         if (!comment)
             comment = ws_strdup_printf("AC_ISDN  trunk:%u", tapinfo->actrace_trunk );
 
-        tmp_str = val_to_str_wmem(NULL, pi->message_type, q931_message_type_vals, "<unknown (%d)>");
+        tmp_str = val_to_str_wmem(NULL, pi->message_type, vs_get_external_value_string("q931_message_type_vals"), "<unknown (%d)>");
         add_to_graph(tapinfo, pinfo, edt, tmp_str, comment, callsinfo->call_num,
                 tapinfo->actrace_direction?&pstn_add:&(pinfo->src),
                 tapinfo->actrace_direction?&(pinfo->src):&pstn_add,
@@ -2172,7 +2171,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             default:
                 comment = g_strdup("H225 RAS");
         }
-        frame_label = g_strdup(val_to_str_const(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
+        frame_label = g_strdup(val_to_str_const(pi->msg_tag, vs_get_external_value_string("h225_RasMessage_vals"), "<unknown>"));
     } else {
         frame_label = g_strdup("H225: Unknown");
         comment = NULL;
@@ -3289,7 +3288,7 @@ static tap_packet_status
 sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
-    sccp_payload_values = sccp_message_type_acro_values;
+    sccp_payload_values = vs_get_external_value_string("sccp_message_type_acro_values");
     return sccp_calls(tapinfo, pinfo, edt, prot_info, REDRAW_SCCP);
 }
 
@@ -3308,7 +3307,7 @@ static tap_packet_status
 sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, tap_flags_t flags _U_) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sua_);
 
-    sccp_payload_values = sua_co_class_type_acro_values;
+    sccp_payload_values = vs_get_external_value_string("sua_co_class_type_acro_values");
     return sccp_calls(tapinfo, pinfo, edt, prot_info, REDRAW_SUA);
 }
 

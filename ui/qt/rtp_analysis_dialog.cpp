@@ -14,11 +14,11 @@
 
 #include "epan/epan_dissect.h"
 #include <epan/addr_resolv.h>
-#include "epan/rtp_pt.h"
 
 #include "epan/dfilter/dfilter.h"
 
 #include "epan/dissectors/packet-rtp.h"
+#include "epan/dissectors/packet-rtp_pt.h"
 
 #include <ui/rtp_media.h>
 

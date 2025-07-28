@@ -316,7 +316,7 @@ static expert_field ei_sctp_tsn_retransmitted;
 static expert_field ei_sctp_sack_chunk_gap_block_malformed;
 static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100;
 
-WS_DLL_PUBLIC_DEF const value_string chunk_type_values[] = {
+const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
   { SCTP_INIT_CHUNK_ID,              "INIT" },
   { SCTP_INIT_ACK_CHUNK_ID,          "INIT_ACK" },
@@ -5336,6 +5336,8 @@ proto_register_sctp(void)
         sctp_assoc_hash, sctp_assoc_equal);
   assoc_info_half_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
         sctp_assoc_half_hash, sctp_assoc_half_equal);
+
+  register_external_value_string("chunk_type_values", chunk_type_values);
 }
 
 void

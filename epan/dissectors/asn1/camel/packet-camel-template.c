@@ -1589,6 +1589,8 @@ void proto_register_camel(void) {
 
   register_srt_table(proto_camel, PSNAME, 1, camelstat_packet, camelstat_init, NULL);
   register_stat_tap_table_ui(&camel_stat_table);
+
+  register_external_value_string("camelSRTtype_naming", camelSRTtype_naming);
 }
 
 /*

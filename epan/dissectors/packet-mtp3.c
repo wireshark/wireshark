@@ -1131,6 +1131,8 @@ proto_register_mtp3(void)
          &mtp3_show_itu_priority);
 
   register_stat_tap_table_ui(&mtp3_stat_table);
+
+  register_external_value_string("mtp3_service_indicator_code_short_vals", mtp3_service_indicator_code_short_vals);
 }
 
 void

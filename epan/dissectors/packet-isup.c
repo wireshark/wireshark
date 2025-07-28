@@ -12285,6 +12285,8 @@ proto_register_isup(void)
   stats_tree_cfg *st_config = stats_tree_register("isup", "isup_msg", "_ISUP Messages",
                                  0, msg_stats_tree_packet, msg_stats_tree_init, NULL);
   stats_tree_set_group(st_config, REGISTER_TELEPHONY_GROUP_UNSORTED);
+
+  register_external_value_string_ext("isup_message_type_value_acro_ext", &isup_message_type_value_acro_ext);
 }
 
 

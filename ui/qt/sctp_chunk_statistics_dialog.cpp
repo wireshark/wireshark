@@ -68,7 +68,7 @@ void SCTPChunkStatisticsDialog::initializeChunkMap()
         temp.id = i;
         temp.row = i;
         snprintf(buf, sizeof buf, "%d", i);
-        (void) g_strlcpy(temp.name, val_to_str_const(i, chunk_type_values, "NA"), sizeof temp.name);
+        (void) g_strlcpy(temp.name, val_to_str_const(i, vs_get_external_value_string("chunk_type_values"), "NA"), sizeof temp.name);
         if (strcmp(temp.name, "NA") == 0) {
             temp.hide = 1;
             (void) g_strlcpy(temp.name, buf, sizeof temp.name);

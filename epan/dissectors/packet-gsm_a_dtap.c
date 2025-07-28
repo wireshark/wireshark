@@ -382,24 +382,6 @@ static const value_string gsm_dtap_elem_strings[] = {
 };
 value_string_ext gsm_dtap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_dtap_elem_strings);
 
-const char *gsm_a_pd_str[] = {
-    "Group Call Control",
-    "Broadcast Call Control",
-    "EPS session management messages",
-    "Call Control; call related SS messages",
-    "GPRS Transparent Transport Protocol (GTTP)",
-    "Mobility Management messages",
-    "Radio Resources Management messages",
-    "EPS mobility management messages",
-    "GPRS Mobility Management messages",
-    "SMS messages",
-    "GPRS Session Management messages",
-    "Non call related SS messages",
-    "Location services specified in 3GPP TS 44.071",
-    "Unknown",
-    "Reserved for extension of the PD to one octet length",
-    "Special conformance testing functions"
-};
 /* L3 Protocol discriminator values according to TS 24 007 (6.4.0)  */
 const value_string protocol_discriminator_vals[] = {
     {0x0,       "Group call control"},

@@ -11869,6 +11869,9 @@ proto_register_bthci_evt(void)
 
     hci_evt_vendor_dissector_table = register_decode_as_next_proto(proto_bthci_evt, "bthci_evt.vendor",
                                                            "BT HCI Event Vendor", bthci_evt_vendor_prompt);
+
+    register_external_value_string("bthci_evt_lmp_version", bthci_evt_lmp_version);
+    register_external_value_string("bthci_evt_hci_version", bthci_evt_hci_version);
 }
 
 

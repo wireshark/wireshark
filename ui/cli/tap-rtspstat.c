@@ -61,17 +61,18 @@ static void
 rtsp_init_hash( rtspstat_t *sp)
 {
 	int i;
+	value_string* status_codes = vs_get_external_value_string("rtsp_status_code_vals");
 
 	sp->hash_responses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
-	for (i=0 ; rtsp_status_code_vals[i].strptr ; i++ )
+	for (i=0 ; status_codes[i].strptr ; i++ )
 	{
 		rtsp_response_code_t *sc = g_new (rtsp_response_code_t, 1);
 		sc->packets = 0;
-		sc->response_code = rtsp_status_code_vals[i].value;
-		sc->name = rtsp_status_code_vals[i].strptr;
+		sc->response_code = status_codes[i].value;
+		sc->name = status_codes[i].strptr;
 		sc->sp = sp;
-		g_hash_table_insert( sc->sp->hash_responses, GINT_TO_POINTER(rtsp_status_code_vals[i].value), sc);
+		g_hash_table_insert( sc->sp->hash_responses, GINT_TO_POINTER(status_codes[i].value), sc);
 	}
 	sp->hash_requests = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 }

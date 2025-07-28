@@ -1396,6 +1396,8 @@ proto_register_t38(void)
                 "this T.38 stream to be created",
                 &global_t38_show_setup_info);
 
+  register_external_value_string("t38_T30_indicator_vals", t38_T30_indicator_vals);
+  register_external_value_string("t38_T30_data_vals", t38_T30_data_vals);
 }
 
 void

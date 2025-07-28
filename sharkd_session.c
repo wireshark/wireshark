@@ -52,7 +52,6 @@
 #include <epan/to_str.h>
 
 #include <epan/dissectors/packet-h225.h>
-#include <epan/rtp_pt.h>
 #include <ui/voip_calls.h>
 #include <ui/rtp_stream.h>
 #include <ui/tap-rtp-common.h>
@@ -64,6 +63,7 @@
 
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtp_pt.h>
 #include <ui/rtp_media.h>
 #include <ui/mcast_stream.h>
 #include <speex/speex_resampler.h>
