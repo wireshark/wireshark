@@ -1240,6 +1240,9 @@ static int hf_pfcp_jnpr_cos_fwd_data;
 static int hf_pfcp_jnpr_delete_flag;
 static int hf_pfcp_jnpr_ih_flag;
 static int hf_pfcp_jnpr_max_hierarchy_levels;
+static int hf_pfcp_jnpr_li_source_port;
+static int hf_pfcp_jnpr_li_service_id;
+static int hf_pfcp_jnpr_li_md_header;
 
 static const value_string compute_limit_vals[] = {
     { 0, "Off" },
@@ -12691,6 +12694,27 @@ static int dissect_pfcp_jnpr_hierarchical_schedule(tvbuff_t *tvb, packet_info *p
     return tvb_reported_length(tvb);
 }
 
+static int dissect_pfcp_jnpr_li_source_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_li_source_port, tvb, 0, 2, ENC_BIG_ENDIAN);
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_li_service_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_li_service_id, tvb, 0, 4, ENC_BIG_ENDIAN);
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_li_md_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    guint length = tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_pfcp_jnpr_li_md_header, tvb, 0, length, ENC_NA);
+
+    return length;
+}
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32905 , "CPRI Port Info"                      , dissect_pfcp_jnpr_cpri_port_info, -1 } ,
     { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
@@ -12704,6 +12728,10 @@ static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32922 , "Port Network Instance Delete"        , dissect_pfcp_jnpr_port_network_instance_delete, -1 } ,
     { VENDOR_JUNIPER, 32929 , "DBNG INET TCP Address"               , dissect_pfcp_jnpr_dbng_inet_tcp_addr, -1 } ,
     { VENDOR_JUNIPER, 32930 , "COS Forwarding Class Info"           , dissect_pfcp_jnpr_cos_forwarding_class, -1 } ,
+    { VENDOR_JUNIPER, 32931 , "Lawful Intercept"                    , dissect_pfcp_grouped_ie_wrapper, -1 },
+    { VENDOR_JUNIPER, 32932 , "Source Port"                         , dissect_pfcp_jnpr_li_source_port, -1 },
+    { VENDOR_JUNIPER, 32933 , "Service ID"                          , dissect_pfcp_jnpr_li_service_id, -1 },
+    { VENDOR_JUNIPER, 32934 , "MD Header Contents"                  , dissect_pfcp_jnpr_li_md_header, -1 },
     { VENDOR_JUNIPER, 32940 , "Hierarchical Schedule"               , dissect_pfcp_jnpr_hierarchical_schedule, -1 } ,
     { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
@@ -18617,6 +18645,24 @@ proto_register_pfcp(void)
         { &hf_pfcp_jnpr_max_hierarchy_levels,
         { "Maximum Hierarchy Levels", "pfcp.jnpr.hierarchical_schedule.levels",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_li_source_port,
+        { "Source Port", "pfcp.jnpr.li.source_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_li_service_id,
+        { "Service ID", "pfcp.jnpr.li.service_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_li_md_header,
+        { "MD Header Contents", "pfcp.jnpr.li.md_header",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
