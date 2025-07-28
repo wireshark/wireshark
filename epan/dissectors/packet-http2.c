@@ -2168,6 +2168,39 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
         }
     }
 
+    if (strcmp(header_name, HTTP2_HEADER_3GPP_SBI_CORRELATION_INFO) == 0) {
+        char *correlation_info = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+
+        if(http2_3gpp_session) {
+            /* 3GPP Supi look up */
+            GMatchInfo *match_info_imsi;
+            static GRegex *regex_imsi = NULL;
+            char *matched_imsi = NULL;
+
+            /* 3GPP TS 29.571
+            * String identifying a Supi that shall contain either an IMSI, a network specific identifier,
+            * a Global Cable Identifier (GCI) or a Global Line Identifier (GLI) as specified in clause 2.2A of 3GPP TS 23.003.
+            *
+            * We are interested in IMSI and will be formatted as follows:
+            *   Pattern: '^imsi-[0-9]{5,15}$'
+            */
+            if (regex_imsi == NULL) {
+                regex_imsi = g_regex_new (
+                    ".*imsi-([0-9]{5,15}).*",
+                    G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+            }
+
+            g_regex_match(regex_imsi, correlation_info, 0, &match_info_imsi);
+
+            if (g_match_info_matches(match_info_imsi)) {
+                matched_imsi = g_match_info_fetch(match_info_imsi, 1); //will be empty string if imsi is not in supi
+                if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
+                    stream_info->imsi = matched_imsi;
+                }
+            }
+            g_regex_unref(regex_imsi);
+        }
+    }
 
     if (strcmp(header_name, HTTP2_HEADER_AUTHORITY) == 0) {
         stream_info->authority = wmem_strndup(wmem_file_scope(), header_value, header_value_length);

@@ -29,6 +29,7 @@ extern "C" {
 #define HTTP2_HEADER_UNKNOWN "<unknown>"
 /* http2 for grpc */
 #define HTTP2_HEADER_GRPC_ENCODING "grpc-encoding"
+#define HTTP2_HEADER_3GPP_SBI_CORRELATION_INFO "3gpp-sbi-correlation-info"
 
 int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ );
 
