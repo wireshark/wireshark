@@ -546,6 +546,8 @@ Windows x64 Package:
     - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp $(Get-ChildItem "*shark-release-info-*-windows-*.ini") "$env:MC_DESTINATION_RELEASE/" }
     - C:\Windows\py.exe -m pytest
+  after_script:
+    - if ($env:CI_JOB_STATUS -ne "success") { C:\gitlab-builds\bin\check-job.ps1 }
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
@@ -592,6 +594,8 @@ Windows Arm64 Package:
     - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp $(Get-ChildItem "*shark-release-info-*-windows-*.ini") "$env:MC_DESTINATION_RELEASE/" }
     - C:\Windows\py.exe -m pytest
+  after_script:
+    - if ($env:CI_JOB_STATUS -ne "success") { C:\gitlab-builds\bin\check-job.ps1 }
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
