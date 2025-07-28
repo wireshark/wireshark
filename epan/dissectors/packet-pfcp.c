@@ -1243,6 +1243,10 @@ static int hf_pfcp_jnpr_max_hierarchy_levels;
 static int hf_pfcp_jnpr_li_source_port;
 static int hf_pfcp_jnpr_li_service_id;
 static int hf_pfcp_jnpr_li_md_header;
+static int hf_pfcp_jnpr_operation_type;
+static int hf_pfcp_jnpr_address_qualifier;
+static int hf_pfcp_jnpr_addr_primary;
+static int hf_pfcp_jnpr_addr_preferred;
 
 static const value_string compute_limit_vals[] = {
     { 0, "Off" },
@@ -1263,6 +1267,14 @@ static const value_string mcast_flags_vals[] = {
     { 0x08, "Passive Allow Receive" },
     { 0x10, "Passive Send General Query" },
     { 0x20, "Passive Send Group Query" },
+    { 0, NULL }
+};
+
+static const value_string op_type_vals[] = {
+    { 1, "Add" },
+    { 2, "Delete" },
+    { 4, "Modify" },
+    { 0, "None" },
     { 0, NULL }
 };
 
@@ -12715,6 +12727,26 @@ static int dissect_pfcp_jnpr_li_md_header(tvbuff_t *tvb, packet_info *pinfo _U_,
     return length;
 }
 
+static int dissect_pfcp_jnpr_address_qualifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const addr_qualifier_flags[] = {
+        &hf_pfcp_jnpr_addr_primary,
+        &hf_pfcp_jnpr_addr_preferred,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_pfcp_jnpr_address_qualifier, ett_pfcp_jnpr, addr_qualifier_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_pfcp_jnpr_operation_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_operation_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+
+    return tvb_reported_length(tvb);
+}
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32905 , "CPRI Port Info"                      , dissect_pfcp_jnpr_cpri_port_info, -1 } ,
     { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
@@ -12726,6 +12758,10 @@ static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32919 , "SGRP Name"                           , dissect_pfcp_jnpr_sgrp_name, -1 } ,
     { VENDOR_JUNIPER, 32921 , "Logical Port Address List"           , dissect_pfcp_jnpr_logical_port_address_list, -1 } ,
     { VENDOR_JUNIPER, 32922 , "Port Network Instance Delete"        , dissect_pfcp_jnpr_port_network_instance_delete, -1 } ,
+    { VENDOR_JUNIPER, 32925 , "Network Instance Port Address List"  , dissect_pfcp_grouped_ie_wrapper, -1 } ,
+    { VENDOR_JUNIPER, 32926 , "Network Instance Address"            , dissect_pfcp_grouped_ie_wrapper, -1 } ,
+    { VENDOR_JUNIPER, 32927 , "Address Qualifier"                   , dissect_pfcp_jnpr_address_qualifier, -1 } ,
+    { VENDOR_JUNIPER, 32928 , "Address Operation Type"              , dissect_pfcp_jnpr_operation_type, -1 } ,
     { VENDOR_JUNIPER, 32929 , "DBNG INET TCP Address"               , dissect_pfcp_jnpr_dbng_inet_tcp_addr, -1 } ,
     { VENDOR_JUNIPER, 32930 , "COS Forwarding Class Info"           , dissect_pfcp_jnpr_cos_forwarding_class, -1 } ,
     { VENDOR_JUNIPER, 32931 , "Lawful Intercept"                    , dissect_pfcp_grouped_ie_wrapper, -1 },
@@ -18664,6 +18700,30 @@ proto_register_pfcp(void)
         { "MD Header Contents", "pfcp.jnpr.li.md_header",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_operation_type,
+        { "Operation Type", "pfcp.jnpr.operation_type",
+            FT_UINT8, BASE_DEC, VALS(op_type_vals),
+            0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_address_qualifier,
+        { "Address Qualifier", "pfcp.jnpr.addr_qualifier",
+            FT_UINT8, BASE_HEX, NULL,
+            0x03, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_addr_primary,
+        { "Primary", "pfcp.jnpr.addr_qualifier.primary",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset),
+            0x01, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_addr_preferred,
+        { "Preferred", "pfcp.jnpr.addr_qualifier.preferred",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset),
+            0x02, NULL, HFILL }
         },
 
         /* Nokia */
