@@ -1,6 +1,8 @@
 /* packet-collectd.c
  * Routines for collectd (http://collectd.org/) network plugin dissection
  *
+ * https://github.com/collectd/collectd/wiki/Binary-protocol
+ *
  * Copyright 2008 Bruno Premont <bonbons at linux-vserver.org>
  * Copyright 2009-2013 Florian Forster <octo at collectd.org>
  *
@@ -15,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
 
@@ -40,6 +43,9 @@
 void proto_register_collectd(void);
 
 static dissector_handle_t collectd_handle;
+
+#define TAP_DATA_KEY 0
+#define COL_DATA_KEY 1
 
 typedef struct value_data_s {
 	const uint8_t *host;
@@ -92,6 +98,16 @@ typedef struct tap_data_s {
 	string_counter_t *plugins;
 	string_counter_t *types;
 } tap_data_t;
+
+typedef struct column_data_s {
+	unsigned pkt_plugins;
+	unsigned pkt_values;
+	unsigned pkt_messages;
+	unsigned pkt_unknown;
+	unsigned pkt_errors;
+
+	const uint8_t *pkt_host;
+} column_data_t;
 
 static const value_string part_names[] = {
 	{ TYPE_VALUES,          "VALUES" },
@@ -898,125 +914,30 @@ stats_account_string (wmem_allocator_t *scope, string_counter_t **ret_list, cons
 }
 
 static int
-dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_collectd_parts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *collectd_tree, void* data _U_)
 {
-	static tap_data_t tap_data;
-
 	int offset;
 	int size;
-	const uint8_t *pkt_host = NULL;
-	int pkt_plugins = 0, pkt_values = 0, pkt_messages = 0, pkt_unknown = 0, pkt_errors = 0;
 	value_data_t vdispatch;
 	notify_data_t ndispatch;
 	int status;
 	proto_item *pi;
-	proto_tree *collectd_tree;
 	proto_tree *pt;
 
 	memset(&vdispatch, '\0', sizeof(vdispatch));
 	memset(&ndispatch, '\0', sizeof(ndispatch));
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "collectd");
-	col_clear(pinfo->cinfo, COL_INFO);
+	tap_data_t *tap_data = p_get_proto_data(pinfo->pool, pinfo, proto_collectd, TAP_DATA_KEY);
+	column_data_t *col_data = p_get_proto_data(pinfo->pool, pinfo, proto_collectd, COL_DATA_KEY);
 
 	offset = 0;
 	size = tvb_reported_length(tvb);
 
-	/* create the collectd protocol tree */
-	pi = proto_tree_add_item(tree, proto_collectd, tvb, 0, -1, ENC_NA);
-	collectd_tree = proto_item_add_subtree(pi, ett_collectd);
-
-	memset (&tap_data, 0, sizeof (tap_data));
-
 	status = 0;
 	while ((size > 0) && (status == 0))
 	{
-
 		int part_type;
 		int part_length;
-
-		/* Let's handle the easy case first real quick: All we do here
-		 * is extract a host name and count the number of values,
-		 * plugins and notifications. The payload is not checked at
-		 * all, but the same checks are run on the part_length stuff -
-		 * it's important to keep an eye on that. */
-		if (!tree)
-		{
-			/* Check for garbage at end of packet. */
-			if (size < 4)
-			{
-				pkt_errors++;
-				break;
-			}
-
-			part_type = tvb_get_ntohs (tvb, offset);
-			part_length  = tvb_get_ntohs (tvb, offset+2);
-
-			/* Check if part_length is in the valid range. */
-			if ((part_length < 4) || (part_length > size))
-			{
-				pkt_errors++;
-				break;
-			}
-
-			switch (part_type) {
-			case TYPE_HOST:
-				vdispatch.host = tvb_get_string_enc(pinfo->pool, tvb,
-						offset + 4, part_length - 4, ENC_ASCII);
-				if (pkt_host == NULL)
-					pkt_host = vdispatch.host;
-				break;
-			case TYPE_TIME:
-			case TYPE_TIME_HR:
-				break;
-			case TYPE_PLUGIN:
-				vdispatch.plugin = tvb_get_string_enc(pinfo->pool, tvb,
-						offset + 4, part_length - 4, ENC_ASCII);
-				pkt_plugins++;
-				break;
-			case TYPE_PLUGIN_INSTANCE:
-				break;
-			case TYPE_TYPE:
-				vdispatch.type = tvb_get_string_enc(pinfo->pool, tvb,
-						offset + 4, part_length - 4, ENC_ASCII);
-				break;
-			case TYPE_TYPE_INSTANCE:
-				break;
-			case TYPE_INTERVAL:
-			case TYPE_INTERVAL_HR:
-				break;
-			case TYPE_VALUES:
-			{
-				pkt_values++;
-
-				tap_data.values_num++;
-				stats_account_string (pinfo->pool,
-						      &tap_data.hosts,
-						      vdispatch.host);
-				stats_account_string (pinfo->pool,
-						      &tap_data.plugins,
-						      vdispatch.plugin);
-				stats_account_string (pinfo->pool,
-						      &tap_data.types,
-						      vdispatch.type);
-
-				break;
-			}
-			case TYPE_MESSAGE:
-				pkt_messages++;
-				break;
-			case TYPE_SEVERITY:
-				break;
-			default:
-				pkt_unknown++;
-			}
-
-			offset  += part_length;
-			size    -= part_length;
-			continue;
-		} /* if (!tree) */
-
-		/* Now we do the same steps again, but much more thoroughly. */
 
 		/* Check if there are at least four bytes left first.
 		 * Four bytes are used to read the type and the length
@@ -1028,7 +949,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 						  offset, -1,
 						  "Garbage at end of packet: Length = %i <BAD>",
 						  size);
-			pkt_errors++;
+			col_data->pkt_errors++;
 			break;
 		}
 
@@ -1060,7 +981,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				expert_add_info_format(pinfo, pi, &ei_collectd_invalid_length,
 							"Bad part length: Larger than remaining packet size.");
 
-			pkt_errors++;
+			col_data->pkt_errors++;
 			break;
 		}
 
@@ -1077,11 +998,11 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.host,
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 			else
 			{
-				if (pkt_host == NULL)
-					pkt_host = vdispatch.host;
+				if (col_data->pkt_host == NULL)
+					col_data->pkt_host = vdispatch.host;
 				ndispatch.host_off = vdispatch.host_off;
 				ndispatch.host_len = vdispatch.host_len;
 				ndispatch.host = vdispatch.host;
@@ -1100,9 +1021,9 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.plugin,
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 			else
-				pkt_plugins++;
+				col_data->pkt_plugins++;
 
 			break;
 		}
@@ -1117,7 +1038,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.plugin_instance,
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
@@ -1132,7 +1053,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.type,
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
@@ -1147,7 +1068,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.type_instance,
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
@@ -1163,7 +1084,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.time_value,
 					collectd_tree, &pi);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
@@ -1178,7 +1099,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch.interval,
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
@@ -1190,19 +1111,19 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&vdispatch,
 					collectd_tree);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 			else
-				pkt_values++;
+				col_data->pkt_values++;
 
-			tap_data.values_num++;
+			tap_data->values_num++;
 			stats_account_string (pinfo->pool,
-					      &tap_data.hosts,
+					      &tap_data->hosts,
 					      vdispatch.host);
 			stats_account_string (pinfo->pool,
-					      &tap_data.plugins,
+					      &tap_data->plugins,
 					      vdispatch.plugin);
 			stats_account_string (pinfo->pool,
-					      &tap_data.types,
+					      &tap_data->types,
 					      vdispatch.type);
 
 			break;
@@ -1220,10 +1141,10 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					collectd_tree, &pi);
 			if (status != 0)
 			{
-				pkt_errors++;
+				col_data->pkt_errors++;
 				break;
 			}
-			pkt_messages++;
+			col_data->pkt_messages++;
 
 			pt = proto_item_get_subtree (pi);
 
@@ -1244,7 +1165,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 					&ndispatch.severity,
 					collectd_tree, &pi);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 			else
 			{
 				proto_item_set_text (pi,
@@ -1263,7 +1184,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 							     offset,
 							     collectd_tree);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
@@ -1273,14 +1194,14 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			status = dissect_collectd_encrypted (tvb, pinfo,
 					offset, collectd_tree);
 			if (status != 0)
-				pkt_errors++;
+				col_data->pkt_errors++;
 
 			break;
 		}
 
 		default:
 		{
-			pkt_unknown++;
+			col_data->pkt_unknown++;
 			pt = proto_tree_add_subtree_format(collectd_tree, tvb,
 						  offset, part_length, ett_collectd_unknown, NULL,
 						  "collectd %s segment: %i bytes",
@@ -1304,39 +1225,50 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		size    -= part_length;
 	} /* while ((size > 4) && (status == 0)) */
 
-	if (pkt_errors && pkt_unknown)
-		col_add_fstr (pinfo->cinfo, COL_INFO,
-			      "Host=%s, %2d value%s for %d plugin%s %d message%s %d unknown, %d error%s",
-			      pkt_host,
-			      pkt_values, plurality (pkt_values, " ", "s"),
-			      pkt_plugins, plurality (pkt_plugins, ", ", "s,"),
-			      pkt_messages, plurality (pkt_messages, ", ", "s,"),
-			      pkt_unknown,
-			      pkt_errors, plurality (pkt_errors, "", "s"));
-	else if (pkt_errors)
-		col_add_fstr (pinfo->cinfo, COL_INFO, "Host=%s, %2d value%s for %d plugin%s %d message%s %d error%s",
-			      pkt_host,
-			      pkt_values, plurality (pkt_values, " ", "s"),
-			      pkt_plugins, plurality (pkt_plugins, ", ", "s,"),
-			      pkt_messages, plurality (pkt_messages, ", ", "s,"),
-			      pkt_errors, plurality (pkt_errors, "", "s"));
-	else if (pkt_unknown)
-		col_add_fstr (pinfo->cinfo, COL_INFO,
-			      "Host=%s, %2d value%s for %d plugin%s %d message%s %d unknown",
-			      pkt_host,
-			      pkt_values, plurality (pkt_values, " ", "s"),
-			      pkt_plugins, plurality (pkt_plugins, ", ", "s,"),
-			      pkt_messages, plurality (pkt_messages, ", ", "s,"),
-			      pkt_unknown);
-	else
-		col_add_fstr (pinfo->cinfo, COL_INFO, "Host=%s, %2d value%s for %d plugin%s %d message%s",
-			      pkt_host,
-			      pkt_values, plurality (pkt_values, " ", "s"),
-			      pkt_plugins, plurality (pkt_plugins, ", ", "s,"),
-			      pkt_messages, plurality (pkt_messages, "", "s"));
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *pi;
+	proto_tree *collectd_tree;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "collectd");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	tap_data_t *tap_data = wmem_new0(pinfo->pool, tap_data_t);
+	p_add_proto_data(pinfo->pool, pinfo, proto_collectd, TAP_DATA_KEY, tap_data);
+
+	column_data_t *col_data = wmem_new0(pinfo->pool, column_data_t);
+	p_add_proto_data(pinfo->pool, pinfo, proto_collectd, COL_DATA_KEY, col_data);
+
+	/* create the collectd protocol tree */
+	pi = proto_tree_add_item(tree, proto_collectd, tvb, 0, -1, ENC_NA);
+	collectd_tree = proto_item_add_subtree(pi, ett_collectd);
+
+	dissect_collectd_parts(tvb, pinfo, collectd_tree, data);
+
+	/* Put summary information in columns */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Host=%s, %2d value%s for %d plugin%s %d message%s",
+			col_data->pkt_host,
+			col_data->pkt_values, plurality(col_data->pkt_values, " ", "s"),
+			col_data->pkt_plugins, plurality(col_data->pkt_plugins, ", ", "s,"),
+			col_data->pkt_messages, plurality(col_data->pkt_messages, ", ", "s"));
+
+	if (col_data->pkt_unknown) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %d unknown",
+			col_data->pkt_unknown);
+	}
+
+	if (col_data->pkt_errors) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, ", %d error%s",
+			col_data->pkt_errors, plurality(col_data->pkt_errors, "", "s"));
+	}
 
 	/* Dispatch tap data. */
-	tap_queue_packet (tap_collectd, pinfo, &tap_data);
+	tap_queue_packet(tap_collectd, pinfo, tap_data);
+
 	return tvb_captured_length(tvb);
 } /* void dissect_collectd */
 
