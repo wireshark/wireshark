@@ -542,11 +542,11 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
     pi = proto_tree_add_item(current_frame->tree, hfid, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
 
-    text = tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len);
+    text = tvb_format_text(current_frame->pinfo->pool, tok->tvb, tok->offset, tok->len);
     proto_item_set_text(pi, "%s", text);
 
     if (is_cdata) {
-        new_frame                 = wmem_new(wmem_packet_scope(), xml_frame_t);
+        new_frame                 = wmem_new(current_frame->pinfo->pool, xml_frame_t);
         new_frame->type           = XML_FRAME_CDATA;
         new_frame->name           = NULL;
         new_frame->name_orig_case = NULL;
@@ -591,7 +591,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     proto_item      *pi;
     proto_tree      *pt;
     tvbparse_elem_t *name_tok      = tok->sub->next;
-    char            *name          = tvb_get_string_enc(wmem_packet_scope(), name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
+    char            *name          = tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
     xml_ns_t        *ns            = (xml_ns_t *)wmem_map_lookup(xmpli_names, name);
     xml_frame_t     *new_frame;
 
@@ -609,11 +609,11 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
     pi = proto_tree_add_item(current_frame->tree, hf_tag, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
 
-    proto_item_set_text(pi, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, (name_tok->offset - tok->offset) + name_tok->len));
+    proto_item_set_text(pi, "%s", tvb_format_text(current_frame->pinfo->pool, tok->tvb, tok->offset, (name_tok->offset - tok->offset) + name_tok->len));
 
     pt = proto_item_add_subtree(pi, ett);
 
-    new_frame                 = wmem_new(wmem_packet_scope(), xml_frame_t);
+    new_frame                 = wmem_new(current_frame->pinfo->pool, xml_frame_t);
     new_frame->type           = XML_FRAME_XMPLI;
     new_frame->name           = name;
     new_frame->name_orig_case = name;
@@ -663,8 +663,8 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         tvbparse_elem_t *leaf_tok = name_tok->sub->sub->next->next;
         xml_ns_t        *nameroot_ns;
 
-        root_name      = (char *)tvb_get_string_enc(wmem_packet_scope(), root_tok->tvb, root_tok->offset, root_tok->len, ENC_ASCII);
-        name           = (char *)tvb_get_string_enc(wmem_packet_scope(), leaf_tok->tvb, leaf_tok->offset, leaf_tok->len, ENC_ASCII);
+        root_name      = (char *)tvb_get_string_enc(current_frame->pinfo->pool, root_tok->tvb, root_tok->offset, root_tok->len, ENC_ASCII);
+        name           = (char *)tvb_get_string_enc(current_frame->pinfo->pool, leaf_tok->tvb, leaf_tok->offset, leaf_tok->len, ENC_ASCII);
         name_orig_case = name;
 
         nameroot_ns = (xml_ns_t *)wmem_map_lookup(xml_ns.elements, root_name);
@@ -679,8 +679,8 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         }
 
     } else {
-        name = tvb_get_string_enc(wmem_packet_scope(), name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
-        name_orig_case = wmem_strdup(wmem_packet_scope(), name);
+        name = tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
+        name_orig_case = wmem_strdup(current_frame->pinfo->pool, name);
         ascii_strdown_inplace(name);
 
         if(current_frame->ns) {
@@ -697,13 +697,13 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
     }
 
     pi = proto_tree_add_item(current_frame->tree, ns->hf_tag, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
-    proto_item_set_text(pi, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb,
+    proto_item_set_text(pi, "%s", tvb_format_text(current_frame->pinfo->pool, tok->tvb,
                                                   tok->offset,
                                                   (name_tok->offset - tok->offset) + name_tok->len));
 
     pt = proto_item_add_subtree(pi, ns->ett);
 
-    new_frame = wmem_new(wmem_packet_scope(), xml_frame_t);
+    new_frame = wmem_new(current_frame->pinfo->pool, xml_frame_t);
     new_frame->type           = XML_FRAME_TAG;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;
@@ -810,7 +810,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
             nonce_cdata = xml_get_cdata(nonce_frame);
         }
         if (nonce_cdata != NULL) {
-            char *text = tvb_format_text(wmem_packet_scope(), nonce_cdata->value, 0,
+            char *text = tvb_format_text(current_frame->pinfo->pool, nonce_cdata->value, 0,
                                          tvb_reported_length(nonce_cdata->value));
             nonce_tvb = base64_to_tvb(nonce_cdata->value, text);
         }
@@ -833,12 +833,12 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
             struct decryption_key *key;
             char *id_str;
 
-            id_str = tvb_format_text(wmem_packet_scope(),
+            id_str = tvb_format_text(current_frame->pinfo->pool,
                                      id_frame->value, 0,
                                      tvb_reported_length(id_frame->value));
 
-            key = wmem_new0(wmem_packet_scope(), struct decryption_key);
-            key->id = wmem_strdup_printf(wmem_packet_scope(), "#%s", id_str);
+            key = wmem_new0(current_frame->pinfo->pool, struct decryption_key);
+            key->id = wmem_strdup_printf(current_frame->pinfo->pool, "#%s", id_str);
             P_SHA1(ek->keyvalue, ek->keylength, seed, seed_length, key->key);
             key->key_length = key_length;
 
@@ -868,7 +868,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         }
 
         if (uri_frame != NULL) {
-            char *key_id = tvb_format_text(wmem_packet_scope(), uri_frame->value, 0,
+            char *key_id = tvb_format_text(current_frame->pinfo->pool, uri_frame->value, 0,
                                            tvb_reported_length(uri_frame->value));
 
             key = (const struct decryption_key *)wmem_map_lookup(top_frame->decryption_keys, key_id);
@@ -877,7 +877,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
             cdata_frame = xml_get_cdata(current_frame);
         }
         if (cdata_frame != NULL) {
-            char *text = tvb_format_text(wmem_packet_scope(), cdata_frame->value, 0,
+            char *text = tvb_format_text(current_frame->pinfo->pool, cdata_frame->value, 0,
                                          tvb_reported_length(cdata_frame->value));
             crypt_tvb = base64_to_tvb(cdata_frame->value, text);
         }
@@ -886,7 +886,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
             uint8_t *data = NULL;
             unsigned data_length = tvb_reported_length(crypt_tvb);
 
-            data = (uint8_t *)tvb_memdup(wmem_packet_scope(),
+            data = (uint8_t *)tvb_memdup(current_frame->pinfo->pool,
                                          crypt_tvb, 0, data_length);
 
             /* Open the cipher. */
@@ -914,11 +914,11 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
                                                          name_tok->tvb, name_tok->offset,
                                                          name_tok->len, ENC_ASCII);
 
-    proto_item_set_text(dtd_item, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
+    proto_item_set_text(dtd_item, "%s", tvb_format_text(current_frame->pinfo->pool, tok->tvb, tok->offset, tok->len));
 
-    new_frame = wmem_new(wmem_packet_scope(), xml_frame_t);
+    new_frame = wmem_new(current_frame->pinfo->pool, xml_frame_t);
     new_frame->type           = XML_FRAME_DTD_DOCTYPE;
-    new_frame->name           = (char *)tvb_get_string_enc(wmem_packet_scope(), name_tok->tvb,
+    new_frame->name           = (char *)tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb,
                                                                   name_tok->offset,
                                                                   name_tok->len, ENC_ASCII);
     new_frame->name_orig_case = new_frame->name;
@@ -979,8 +979,8 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     proto_item      *pi;
     xml_frame_t     *new_frame;
 
-    name           = tvb_get_string_enc(wmem_packet_scope(), tok->sub->tvb, tok->sub->offset, tok->sub->len, ENC_ASCII);
-    name_orig_case = wmem_strdup(wmem_packet_scope(), name);
+    name           = tvb_get_string_enc(current_frame->pinfo->pool, tok->sub->tvb, tok->sub->offset, tok->sub->len, ENC_ASCII);
+    name_orig_case = wmem_strdup(current_frame->pinfo->pool, name);
     ascii_strdown_inplace(name);
 
     if(current_frame->ns && (hfidp = (int *)wmem_map_lookup(current_frame->ns->attributes, name) )) {
@@ -992,11 +992,11 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     }
 
     pi = proto_tree_add_item(current_frame->tree, hfid, value->tvb, value->offset, value->len, ENC_UTF_8|ENC_NA);
-    proto_item_set_text(pi, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
+    proto_item_set_text(pi, "%s", tvb_format_text(current_frame->pinfo->pool, tok->tvb, tok->offset, tok->len));
 
     current_frame->last_item = pi;
 
-    new_frame = wmem_new(wmem_packet_scope(), xml_frame_t);
+    new_frame = wmem_new(current_frame->pinfo->pool, xml_frame_t);
     new_frame->type           = XML_FRAME_ATTRIB;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;
