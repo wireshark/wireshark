@@ -1601,7 +1601,7 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
     switch (num_prbx) {
         case 0:
             /* None -> all */
-            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d (all PRBs)    ", section_id);
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %4d     (all PRBs)", section_id);
             break;
         case 1:
             /* Single PRB */
@@ -2156,6 +2156,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_item *beamId_ti = NULL;
     bool beamId_ignored = false;
 
+    proto_item *numsymbol_ti = NULL;
+    bool numsymbol_ignored = false;
+
     proto_item *numprbc_ti = NULL;
 
     /* Config affecting ext11 bundles (initially unset) */
@@ -2249,8 +2252,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                               hf_oran_reMask, ett_oran_remask, remask_flags, ENC_BIG_ENDIAN, &remask);
             offset++;
             /* numSymbol */
+            /* TODO: should warn if startSymbol + numSymbol would be > 14? */
             uint32_t numSymbol;
-            proto_item *numsymbol_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
+            numsymbol_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
             if ((sectionType == SEC_C_RRM_MEAS_REPORTS) && (numSymbol != 14)) {     /* Section type 10 */
                 proto_item_append_text(numsymbol_ti, " (for ST10, should be 14!)");
                 expert_add_info_format(pinfo, numsymbol_ti, &ei_oran_st10_numsymbol_not_14,
@@ -2885,6 +2889,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 6: /* SE 6: Non-contiguous PRB allocation in time and frequency domain */
             {
+                /* numSymbol not used in this case */
+                if (numsymbol_ti && !numsymbol_ignored) {
+                    proto_item_append_text(numsymbol_ti, " (ignored)");
+                    numsymbol_ignored = true;
+                }
+
                 /* Update ext6 recorded info */
                 ext11_settings.ext6_set = true;
 
@@ -3268,6 +3278,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 12: /* SE 12: Non-Contiguous PRB Allocation with Frequency Ranges */
             {
+                /* numSymbol not used in this case */
+                if (numsymbol_ti && !numsymbol_ignored) {
+                    proto_item_append_text(numsymbol_ti, " (ignored)");
+                    numsymbol_ignored = true;
+                }
+
                 ext11_settings.ext12_set = true;
 
                 /* priority */
@@ -3456,6 +3472,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 if (beamId_ti && !beamId_ignored) {
                     proto_item_append_text(beamId_ti, " (ignored)");
                     beamId_ignored = true;
+                }
+
+                /* numSymbol not used in this case */
+                if (numsymbol_ti && !numsymbol_ignored) {
+                    proto_item_append_text(numsymbol_ti, " (ignored)");
+                    numsymbol_ignored = true;
                 }
 
                 /* disableBFWs */
@@ -7607,7 +7629,7 @@ proto_register_oran(void)
         { &hf_oran_eAxC_mask,
           { "eAxC Mask", "oran_fh_cus.eaxcmask",
             FT_UINT16, BASE_HEX,
-            NULL, 0x0,
+            NULL, 0xffff,
             "Which eAxC_ID values the C-Plane message applies to", HFILL }
         },
         /* technology (interface name) 7.7.9.2 */
