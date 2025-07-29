@@ -2885,13 +2885,14 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                         }
                         xmlFree(str_code);
                     }
-                    element->enums = g_slist_append(element->enums, tlv_enum);
+                    element->enums = g_slist_prepend(element->enums, tlv_enum);
                 }
             }
-
-            (*tlvs) = g_slist_append((*tlvs), element);
+            element->enums = g_slist_reverse(element->enums);
+            (*tlvs) = g_slist_prepend((*tlvs), element);
         }
     }
+    (*tlvs) = g_slist_reverse(*tlvs);
 cleanup:
     xmlFreeDoc(doc);
 
@@ -2924,7 +2925,7 @@ wimaxasncp_dict_process(void* data, void* user_data)
     if (dict_tlv->enums != NULL)
     {
         /* Create array for enums */
-        wmem_array_t* array = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+        wmem_array_t* array = wmem_array_sized_new(wmem_epan_scope(), sizeof(value_string), 16);
 
         /* Copy each entry into value_string array */
         g_slist_foreach(dict_tlv->enums, wimaxasncp_dict_enum_process, array);
@@ -3282,16 +3283,15 @@ register_wimaxasncp_fields(const char* unused _U_)
      * ------------------------------------------------------------------------
      */
 
-    wimaxasncp_build_dict.hf = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
+    wimaxasncp_build_dict.hf = wmem_array_sized_new(wmem_epan_scope(), sizeof(hf_register_info), array_length(hf_base));
     wmem_array_append(wimaxasncp_build_dict.hf, hf_base, array_length(hf_base));
 
-    wimaxasncp_build_dict.ett = wmem_array_new(wmem_epan_scope(), sizeof(int*));
+    wimaxasncp_build_dict.ett = wmem_array_sized_new(wmem_epan_scope(), sizeof(int*), array_length(ett_base));
     wmem_array_append(wimaxasncp_build_dict.ett, ett_base, array_length(ett_base));
 
     /* Convert the dictionary data to epan scoped data structures */
     wimaxasncp_tlvs = wmem_list_new(wmem_epan_scope());
     g_slist_foreach(all_tlvs, wimaxasncp_dict_process, wimaxasncp_tlvs);
-
     /* add an entry for unknown TLVs */
     add_tlv_reg_info(&wimaxasncp_tlv_not_found);
 
