@@ -746,6 +746,7 @@ extern void
 ssl_change_cipher(SslDecryptSession *ssl_session, bool server);
 
 /** Try to decrypt an ssl record
+ @param allocator scope allocation of the decrypted data
  @param ssl ssl_session the store all the session data
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record
@@ -760,7 +761,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, bool server);
  @param outl the decrypted data len
  @return 0 on success */
 extern int
-ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint16_t record_version,
+ssl_decrypt_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint16_t record_version,
         bool ignore_mac_failed,
         const unsigned char *in, uint16_t inl, const unsigned char *cid, uint8_t cidl,
         StringInfo *comp_str, StringInfo *out_str, unsigned *outl);

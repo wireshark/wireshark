@@ -1228,7 +1228,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset, SslDecry
     /* run decryption and add decrypted payload to protocol data, if decryption
      * is successful*/
     ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
-    success = ssl_decrypt_record(ssl, decoder, content_type, record_version, tls_ignore_mac_failed,
+    success = ssl_decrypt_record(pinfo->pool, ssl, decoder, content_type, record_version, tls_ignore_mac_failed,
                            tvb_get_ptr(tvb, offset, record_length), record_length, NULL, 0,
                            &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
     /*  */
@@ -1266,7 +1266,7 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
         }
 
         ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
-        success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, false,
+        success = ssl_decrypt_record(pinfo->pool, ssl, ssl->client, SSL_ID_APP_DATA, 0x303, false,
                                      tvb_get_ptr(tvb, offset, record_length), record_length, NULL, 0,
                                      &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
         if (success) {
@@ -1306,7 +1306,7 @@ decrypt_tls13_early_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
         }
 
         ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
-        success = ssl_decrypt_record(ssl, ssl->client, SSL_ID_APP_DATA, 0x303, false, record, record_length, NULL, 0,
+        success = ssl_decrypt_record(pinfo->pool, ssl, ssl->client, SSL_ID_APP_DATA, 0x303, false, record, record_length, NULL, 0,
                                      &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0;
         if (success) {
             ssl_debug_printf("Early data decryption succeeded, cipher = %#x\n", cipher);

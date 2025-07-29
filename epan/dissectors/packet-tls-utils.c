@@ -5453,7 +5453,7 @@ dtls_check_mac(SslDecryptSession *ssl, SslDecoder*decoder, int ct, uint8_t* data
 
 
 static bool
-tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
+tls_decrypt_aead_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, SslDecoder *decoder,
         uint8_t ct, uint16_t record_version,
         bool ignore_mac_failed,
         const unsigned char *in, uint16_t inl,
@@ -5553,7 +5553,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     if (is_cid) { /* if connection ID */
         if (ssl->session.deprecated_cid) {
             aad_len = 14 + cidl;
-            aad = wmem_alloc(wmem_packet_scope(), aad_len);
+            aad = wmem_alloc(allocator, aad_len);
             phton64(aad, decoder->seq);         /* record sequence number */
             phton16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
             aad[8] = ct;                        /* TLSCompressed.type */
@@ -5563,7 +5563,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             phton16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
         } else {
             aad_len = 23 + cidl;
-            aad = wmem_alloc(wmem_packet_scope(), aad_len);
+            aad = wmem_alloc(allocator, aad_len);
             memset(aad, 0xFF, 8);               /* seq_num_placeholder */
             aad[8] = ct;                        /* TLSCompressed.type */
             aad[9] = cidl;                      /* cid_length */
@@ -5576,7 +5576,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         }
     } else if (is_v12) {
         aad_len = 13;
-        aad = wmem_alloc(wmem_packet_scope(), aad_len);
+        aad = wmem_alloc(allocator, aad_len);
         phton64(aad, decoder->seq);         /* record sequence number */
         if (version == DTLSV1DOT2_VERSION) {
             phton16(aad, decoder->epoch);   /* DTLS 1.2 includes epoch. */
@@ -5589,7 +5589,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         aad = decoder->dtls13_aad.data;
     } else if (draft_version >= 25 || draft_version == 0) {
         aad_len = 5;
-        aad = wmem_alloc(wmem_packet_scope(), aad_len);
+        aad = wmem_alloc(allocator, aad_len);
         aad[0] = ct;                        /* TLSCiphertext.opaque_type (23) */
         phton16(aad + 1, record_version);   /* TLSCiphertext.legacy_record_version (0x0303) */
         phton16(aad + 3, inl);              /* TLSCiphertext.length */
@@ -5655,7 +5655,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
 /* Assume that we are called only for a non-NULL decoder which also means that
  * we have a non-NULL decoder->cipher_suite. */
 int
-ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint16_t record_version,
+ssl_decrypt_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint16_t record_version,
         bool ignore_mac_failed,
         const unsigned char *in, uint16_t inl, const unsigned char *cid, uint8_t cidl,
         StringInfo *comp_str, StringInfo *out_str, unsigned *outl)
@@ -5689,7 +5689,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, uint8_t ct, uint
         ssl->session.version == TLSV1DOT3_VERSION ||
         ssl->session.version == DTLSV1DOT3_VERSION) {
 
-        if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, ignore_mac_failed, in, inl, cid, cidl, out_str, &worklen)) {
+        if (!tls_decrypt_aead_record(allocator, ssl, decoder, ct, record_version, ignore_mac_failed, in, inl, cid, cidl, out_str, &worklen)) {
             /* decryption failed */
             return -1;
         }
