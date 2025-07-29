@@ -173,7 +173,6 @@ static int hf_mqttsn_protocol_id;
 static int hf_mqttsn_topic_id;
 static int hf_mqttsn_msg_id;
 static int hf_mqttsn_topic;
-static int hf_mqttsn_topic_name_or_id;
 static int hf_mqttsn_sleep_timer;
 static int hf_mqttsn_will_topic;
 static int hf_mqttsn_will_msg;
@@ -196,6 +195,7 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     int long_hdr_len = 0;
     uint8_t mqttsn_msg_type_id;
     uint16_t mqttsn_msg_len;
+    int8_t mqttsn_topic_id_type = MQTTSN_TOPIC_NORMAL_ID;
 
     /* Get the message length. */
     mqttsn_msg_len = tvb_get_uint8(tvb, offset);
@@ -303,11 +303,13 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             /* Publish */
             case MQTTSN_PUBLISH:
                 /* Add DUP, QoS, Retain and Topic ID Type flags. */
+                mqttsn_topic_id_type = tvb_get_uint8(tvb, offset) & MQTTSN_MASK_TOPIC_ID_TYPE;
                 proto_tree_add_bitmask(mqttsn_msg_tree, tvb, offset, hf_mqttsn_flags, ett_mqttsn_flags, publish_flags, ENC_BIG_ENDIAN);
                 offset += 1;
                 break;
 
             case MQTTSN_SUBSCRIBE:
+                mqttsn_topic_id_type = tvb_get_uint8(tvb, offset) & MQTTSN_MASK_TOPIC_ID_TYPE;
                 proto_tree_add_bitmask(mqttsn_msg_tree, tvb, offset, hf_mqttsn_flags, ett_mqttsn_flags, subscribe_flags, ENC_BIG_ENDIAN);
                 offset += 1;
                 break;
@@ -318,6 +320,7 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 break;
 
             case MQTTSN_UNSUBSCRIBE:
+                mqttsn_topic_id_type = tvb_get_uint8(tvb, offset) & MQTTSN_MASK_TOPIC_ID_TYPE;
                 proto_tree_add_bitmask(mqttsn_msg_tree, tvb, offset, hf_mqttsn_flags, ett_mqttsn_flags, unsubscribe_flags, ENC_BIG_ENDIAN);
                 offset += 1;
                 break;
@@ -426,7 +429,11 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             /* Publish */
             case MQTTSN_PUBLISH:
                 /* | 1,2 - Topic ID | 3,4 - Message ID | 5:n - Publish data | */
-                proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                if (mqttsn_topic_id_type == MQTTSN_TOPIC_SHORT_NAME) {
+                    proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic, tvb, offset, 2, ENC_ASCII);
+                } else {
+                    proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                }
                 offset += 2;
                 proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -457,7 +464,13 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 /* | 1,2 - Message ID | 5:n - Topic name _OR_ 5,6 - Topic ID | */
                 proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic_name_or_id, tvb, offset, (mqttsn_msg_len - offset), ENC_ASCII);
+                if (mqttsn_topic_id_type == MQTTSN_TOPIC_PREDEF_ID) {
+                    proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                } else if (mqttsn_topic_id_type == MQTTSN_TOPIC_SHORT_NAME) {
+                    proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic, tvb, offset, 2, ENC_ASCII);
+                } else {
+                    proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_topic, tvb, offset, (mqttsn_msg_len - offset), ENC_ASCII);
+                }
                 break;
 
             /* Subscribe Acknowledgment */
@@ -674,11 +687,6 @@ void proto_register_mqttsn(void)
         },
         { &hf_mqttsn_topic,
             { "Topic Name", "mqttsn.topic",
-                FT_STRING, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_mqttsn_topic_name_or_id,
-            { "Topic Name/ID", "mqttsn.topic.name.or.id",
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
