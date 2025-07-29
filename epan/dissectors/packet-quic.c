@@ -3144,7 +3144,7 @@ quic_hkdf_expand_label(int hash_algo, uint8_t *secret, unsigned secret_len, cons
  * false is returned on error (see "error" parameter for the reason).
  */
 static bool
-quic_derive_initial_secrets(const quic_cid_t *cid,
+quic_derive_initial_secrets(wmem_allocator_t* allocator, const quic_cid_t *cid,
                             uint8_t client_initial_secret[HASH_SHA2_256_LENGTH],
                             uint8_t server_initial_secret[HASH_SHA2_256_LENGTH],
                             uint32_t version,
@@ -3232,7 +3232,7 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
                            cid->cid, cid->len, secret);
     }
     if (err) {
-        *error = wmem_strdup_printf(wmem_packet_scope(), "Failed to extract secrets: %s", gcry_strerror(err));
+        *error = wmem_strdup_printf(allocator, "Failed to extract secrets: %s", gcry_strerror(err));
         return false;
     }
 
@@ -3344,12 +3344,12 @@ quic_ciphers_prepare(quic_ciphers *ciphers, int hash_algo, int cipher_algo, int 
 
 
 static bool
-quic_create_initial_decoders(const quic_cid_t *cid, const char **error, quic_info_data_t *quic_info)
+quic_create_initial_decoders(wmem_allocator_t* allocator, const quic_cid_t *cid, const char **error, quic_info_data_t *quic_info)
 {
     uint8_t         client_secret[HASH_SHA2_256_LENGTH];
     uint8_t         server_secret[HASH_SHA2_256_LENGTH];
 
-    if (!quic_derive_initial_secrets(cid, client_secret, server_secret, quic_info->version, error)) {
+    if (!quic_derive_initial_secrets(allocator, cid, client_secret, server_secret, quic_info->version, error)) {
         return false;
     }
 
@@ -4132,7 +4132,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             quic_connection_equal(&dcid, &conn->client_dcid_initial)) {
             /* Create new decryption context based on the Client Connection
              * ID from the *very first* Client Initial packet. */
-            quic_create_initial_decoders(&dcid, &error, conn);
+            quic_create_initial_decoders(pinfo->pool, &dcid, &error, conn);
         } else if (long_packet_type == QUIC_LPT_INITIAL && from_server &&
                    version != conn->version) {
             /* Compatibile Version Negotiation: the server (probably) updated the connection version.
@@ -4142,7 +4142,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
              */
             conn->version = version;
             quic_ciphers_reset(ciphers);
-            quic_create_initial_decoders(&conn->client_dcid_initial, &error, conn);
+            quic_create_initial_decoders(pinfo->pool, &conn->client_dcid_initial, &error, conn);
         } else if (long_packet_type == QUIC_LPT_0RTT) {
             early_data_secret_len = tls13_get_quic_secret(pinfo, false, TLS_SECRET_0RTT_APP, DIGEST_MIN_SIZE, DIGEST_MAX_SIZE, early_data_secret);
             if (early_data_secret_len == 0) {
