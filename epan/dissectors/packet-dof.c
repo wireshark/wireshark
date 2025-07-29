@@ -813,8 +813,8 @@ static int dissect_2008_16_security_13(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_2009_11_type_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static const char* dof_oid_create_standard_string(uint32_t bufferSize, const uint8_t *pOIDBuffer, packet_info *pinfo);
-static const char* dof_iid_create_standard_string(uint32_t bufferSize, const uint8_t *pIIDBuffer);
+static const char* dof_oid_create_standard_string(wmem_allocator_t* allocator, uint32_t bufferSize, const uint8_t *pOIDBuffer, packet_info *pinfo);
+static const char* dof_iid_create_standard_string(wmem_allocator_t* allocator, uint32_t bufferSize, const uint8_t *pIIDBuffer);
 static uint8_t dof_oid_create_internal(const char *oid, uint32_t *size, uint8_t *buffer);
 static void dof_oid_new_standard_string(const char *data, uint32_t *rsize, uint8_t **oid);
 static int read_c4(tvbuff_t *tvb, int offset, uint32_t *v, int *len);
@@ -1377,11 +1377,11 @@ static int oap_1_tree_add_alias(dof_api_data *api_data, oap_1_packet_data *oap_p
             options_tree = proto_item_add_subtree(ti, ett_oap_1_alias);
 
             /* Decode the Interface */
-            ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_interfaceid, tvb, 0, 0, binding->iid, "%s", dof_iid_create_standard_string(binding->iid_length, binding->iid));
+            ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_interfaceid, tvb, 0, 0, binding->iid, "%s", dof_iid_create_standard_string(pinfo->pool, binding->iid_length, binding->iid));
             proto_item_set_generated(ti);
 
             /* Decode the Object ID */
-            ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_objectid, tvb, 0, 0, binding->oid, "%s", dof_oid_create_standard_string(binding->oid_length, binding->oid, pinfo));
+            ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_objectid, tvb, 0, 0, binding->oid, "%s", dof_oid_create_standard_string(pinfo->pool, binding->oid_length, binding->oid, pinfo));
             proto_item_set_generated(ti);
 
             proto_tree_add_uint_format(options_tree, hf_oap_1_alias_frame,
@@ -3076,7 +3076,7 @@ static int dissect_2009_11_type_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if (tree)
     {
         ti = proto_tree_get_parent(tree);
-        proto_item_set_text(ti, "Object ID: %s", dof_oid_create_standard_string(tvb_reported_length(tvb), tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), pinfo));
+        proto_item_set_text(ti, "Object ID: %s", dof_oid_create_standard_string(pinfo->pool, tvb_reported_length(tvb), tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), pinfo));
     }
 
     offset = read_c4(tvb, offset, &oid_class, &oid_class_len);
@@ -3595,11 +3595,11 @@ static void init_addr_port_tables(void)
 
 static unsigned next_addr_port_id = 1;
 
-#define EP_COPY_ADDRESS(to, from) { \
+#define EP_COPY_ADDRESS(alloc, to, from) { \
     uint8_t *EP_COPY_ADDRESS_data; \
     (to)->type = (from)->type; \
     (to)->len = (from)->len; \
-    EP_COPY_ADDRESS_data = (uint8_t*) wmem_alloc(wmem_packet_scope(),(from)->len); \
+    EP_COPY_ADDRESS_data = (uint8_t*) wmem_alloc(alloc,(from)->len); \
     memcpy(EP_COPY_ADDRESS_data, (from)->data, (from)->len); \
     (to)->priv = EP_COPY_ADDRESS_data; \
     (to)->data = (to)->priv; \
@@ -3607,7 +3607,7 @@ static unsigned next_addr_port_id = 1;
 
 /* Return the transport ID, a unique number for each transport sender.
  */
-static unsigned assign_addr_port_id(address *addr, uint16_t port)
+static unsigned assign_addr_port_id(wmem_allocator_t* allocator, address *addr, uint16_t port)
 {
     addr_port_key lookup_key;
     addr_port_key *key;
@@ -3619,7 +3619,7 @@ static unsigned assign_addr_port_id(address *addr, uint16_t port)
 
     /* Build a (non-allocated) key to do the lookup. */
 
-    EP_COPY_ADDRESS(&lookup_key.addr, addr);
+    EP_COPY_ADDRESS(allocator, &lookup_key.addr, addr);
     lookup_key.port = port;
 
     value = GPOINTER_TO_UINT(g_hash_table_lookup(addr_port_to_id, &lookup_key));
@@ -3998,7 +3998,7 @@ static void DOFObjectID_InitStruct(DOFObjectID newObjID, uint32_t dataLen)
     newObjID->len = dataLen;
 }
 
-static DOFObjectID DOFObjectID_Create_Unmarshal(uint32_t *length, const uint8_t *buffer)
+static DOFObjectID DOFObjectID_Create_Unmarshal(wmem_allocator_t* allocator, uint32_t *length, const uint8_t *buffer)
 {
     uint32_t len = *length;
 
@@ -4045,7 +4045,7 @@ static DOFObjectID DOFObjectID_Create_Unmarshal(uint32_t *length, const uint8_t 
                     /* Legal OID described at buffer must have enough buffer bytes, final check. */
                     if (len >= computedSize)
                     {
-                        DOFObjectID newObjID = (DOFObjectID)wmem_alloc0(wmem_packet_scope(), sizeof(DOFObjectID_t) + (sizeof(uint8_t) * (computedSize + 1)));
+                        DOFObjectID newObjID = (DOFObjectID)wmem_alloc0(allocator, sizeof(DOFObjectID_t) + (sizeof(uint8_t) * (computedSize + 1)));
                         /* Adds space for null-terminator, just in case. */
 
                         *length = computedSize;
@@ -4072,10 +4072,10 @@ allocErrorOut :
     return NULL;
 }
 
-static DOFObjectID DOFObjectID_Create_Bytes(uint32_t bufferSize, const uint8_t *pOIDBuffer)
+static DOFObjectID DOFObjectID_Create_Bytes(wmem_allocator_t* allocator, uint32_t bufferSize, const uint8_t *pOIDBuffer)
 {
     uint32_t     len = bufferSize;
-    DOFObjectID rval = DOFObjectID_Create_Unmarshal(&len, pOIDBuffer);
+    DOFObjectID rval = DOFObjectID_Create_Unmarshal(allocator, &len, pOIDBuffer);
 
     if (rval)
     {
@@ -4122,7 +4122,7 @@ static uint32_t ObjectID_ToStringLength(const DOFObjectID oid, packet_info *pinf
                 len++;
             len += 5;  /* {xx}: */
             /* Handle embedded Object IDs. */
-            embedOID = DOFObjectID_Create_Bytes(DOFObjectIDAttribute_GetValueSize(avpDescriptor),
+            embedOID = DOFObjectID_Create_Bytes(pinfo->pool, DOFObjectIDAttribute_GetValueSize(avpDescriptor),
                                                 DOFObjectIDAttribute_GetValue(avpDescriptor));
             if (embedOID)
             {
@@ -4229,7 +4229,7 @@ static uint32_t ObjectID_ToString(const DOFObjectID oid, char *pBuf, packet_info
             pBuf[len++] = ':';
 
             /* Handle embedded Object IDs. */
-            embedOID = DOFObjectID_Create_Bytes(DOFObjectIDAttribute_GetValueSize(avpDescriptor),
+            embedOID = DOFObjectID_Create_Bytes(pinfo->pool, DOFObjectIDAttribute_GetValueSize(avpDescriptor),
                                                 DOFObjectIDAttribute_GetValue(avpDescriptor));
             if (embedOID)
             {
@@ -4252,12 +4252,12 @@ static uint32_t ObjectID_ToString(const DOFObjectID oid, char *pBuf, packet_info
     return len;
 }
 
-static const char* dof_iid_create_standard_string(uint32_t bufferSize, const uint8_t *pIIDBuffer)
+static const char* dof_iid_create_standard_string(wmem_allocator_t* allocator, uint32_t bufferSize, const uint8_t *pIIDBuffer)
 {
     char *pRetval;
     unsigned len = 9 + (bufferSize - 1) * 2;   /* Alias is always [{AA}:{01234567}] */
 
-    pRetval = (char *)wmem_alloc(wmem_packet_scope(), len + 1);
+    pRetval = (char *)wmem_alloc(allocator, len + 1);
     if (pRetval)
     {
         InterfaceID_ToString(pIIDBuffer, pRetval);
@@ -4267,19 +4267,19 @@ static const char* dof_iid_create_standard_string(uint32_t bufferSize, const uin
     return pRetval;
 }
 
-static const char* dof_oid_create_standard_string(uint32_t bufferSize, const uint8_t *pOIDBuffer, packet_info *pinfo)
+static const char* dof_oid_create_standard_string(wmem_allocator_t* allocator, uint32_t bufferSize, const uint8_t *pOIDBuffer, packet_info *pinfo)
 {
     DOFObjectID oid;
     char *pRetval;
     uint32_t len = bufferSize;
 
-    oid = DOFObjectID_Create_Unmarshal(&len, pOIDBuffer);
+    oid = DOFObjectID_Create_Unmarshal(allocator, &len, pOIDBuffer);
     if (!oid)
         return "Illegal OID";
 
     len = ObjectID_ToStringLength(oid, pinfo);
     /* Use PCRMem_Alloc() and not DOFMem_Alloc() because app caller will be freeing memory with PCRMem_Destroy(). */
-    pRetval = (char *)wmem_alloc(wmem_packet_scope(), len + 1);
+    pRetval = (char *)wmem_alloc(allocator, len + 1);
     if (pRetval)
     {
         ObjectID_ToString(oid, pRetval, pinfo);
@@ -5772,8 +5772,8 @@ static int dissect_dof_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (addresses_equal(&transport_session->server.addr, &pinfo->src) && (transport_session->server.port == pinfo->srcport))
             transport_packet->is_sent_by_client = false;
 
-        transport_packet->sender_id = assign_addr_port_id(&pinfo->src, pinfo->srcport);
-        transport_packet->receiver_id = assign_addr_port_id(&pinfo->dst, pinfo->destport);
+        transport_packet->sender_id = assign_addr_port_id(pinfo->pool, &pinfo->src, pinfo->srcport);
+        transport_packet->receiver_id = assign_addr_port_id(pinfo->pool, &pinfo->dst, pinfo->destport);
 
         api_data->transport_session = &transport_session->common;
         api_data->transport_packet = transport_packet;
@@ -6010,8 +6010,8 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 {
                     ref_is_new = true;
                     ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
-                    ref->transport_packet.sender_id = assign_addr_port_id(&pinfo->src, pinfo->srcport);
-                    ref->transport_packet.receiver_id = assign_addr_port_id(&pinfo->dst, pinfo->destport);
+                    ref->transport_packet.sender_id = assign_addr_port_id(pinfo->pool, &pinfo->src, pinfo->srcport);
+                    ref->transport_packet.receiver_id = assign_addr_port_id(pinfo->pool, &pinfo->dst, pinfo->destport);
                     packet->dof_packets = ref;
                     ref->start_offset = raw_offset;
                 }
@@ -6215,8 +6215,8 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 {
                     ref_is_new = true;
                     ref = wmem_new0(wmem_file_scope(), tcp_dof_packet_ref);
-                    ref->transport_packet.sender_id = assign_addr_port_id(&pinfo->src, pinfo->srcport);
-                    ref->transport_packet.receiver_id = assign_addr_port_id(&pinfo->dst, pinfo->destport);
+                    ref->transport_packet.sender_id = assign_addr_port_id(pinfo->pool, &pinfo->src, pinfo->srcport);
+                    ref->transport_packet.receiver_id = assign_addr_port_id(pinfo->pool, &pinfo->dst, pinfo->destport);
                     packet->dof_packets = ref;
                     ref->start_offset = raw_offset;
                 }
@@ -6781,7 +6781,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             if (packet_data->sender_sid)
             {
-                const char *SID = dof_oid_create_standard_string(packet_data->sender_sid[0], packet_data->sender_sid + 1, pinfo);
+                const char *SID = dof_oid_create_standard_string(pinfo->pool, packet_data->sender_sid[0], packet_data->sender_sid + 1, pinfo);
                 ti = proto_tree_add_bytes_format_value(tree, hf_2008_1_dpp_sid_str, tvb, 0, 0, packet_data->sender_sid, "%s", SID);
                 proto_item_set_generated(ti);
             }
@@ -6792,7 +6792,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             if (packet_data->receiver_sid)
             {
-                const char *SID = dof_oid_create_standard_string(packet_data->receiver_sid[0], packet_data->receiver_sid + 1, pinfo);
+                const char *SID = dof_oid_create_standard_string(pinfo->pool, packet_data->receiver_sid[0], packet_data->receiver_sid + 1, pinfo);
                 ti = proto_tree_add_bytes_format_value(tree, hf_2008_1_dpp_rid_str, tvb, 0, 0, packet_data->receiver_sid, "%s", SID);
                 proto_item_set_generated(ti);
             }
@@ -12402,9 +12402,9 @@ static int p_compare(const void *a, const void *b)
 }
 
 #if 0 /* TODO not used yet */
-static void dof_session_add_proto_data(dof_session_data *session, int proto, void *proto_data)
+static void dof_session_add_proto_data(wmem_allocator_t* allocator, dof_session_data *session, int proto, void *proto_data)
 {
-    dof_proto_data *p1 = wmem_new0(wmem_packet_scope(), dof_proto_data);
+    dof_proto_data *p1 = wmem_new0(allocator, dof_proto_data);
 
     p1->proto = proto;
     p1->proto_data = proto_data;
