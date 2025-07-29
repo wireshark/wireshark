@@ -885,7 +885,8 @@ sccp_reassembly_get_id(packet_info *pinfo, uint32_t offset, uint32_t key, bool m
 
 static tvbuff_t *
 sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                          uint16_t length_offset, uint32_t source_local_ref, bool more_frags)
+                          uint16_t length_offset, uint32_t source_local_ref, bool more_frags,
+                          uint8_t pointer_length)
 {
   bool      save_fragmented;
   tvbuff_t *new_tvb;
@@ -893,7 +894,16 @@ sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   unsigned  fragment_len;
   uint32_t  abs_offset, frags_id;
 
-  fragment_len = tvb_get_uint8(tvb, length_offset);
+  switch (pointer_length) {
+  case POINTER_LENGTH:
+    fragment_len = tvb_get_uint8(tvb, length_offset);
+    break;
+  case POINTER_LENGTH_LONG:
+    fragment_len = tvb_get_uint16(tvb, length_offset, ENC_LITTLE_ENDIAN);
+    break;
+  default:
+    ws_assert_not_reached();
+  }
   /* Assume that the absolute offset within the tvb uniquely identifies the
    * message in this frame. */
   abs_offset = tvb_raw_offset(tvb) + length_offset;
@@ -905,7 +915,7 @@ sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = true;
     frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
-                                     tvb, length_offset + 1,
+                                     tvb, length_offset + pointer_length,
                                      pinfo,
                                      frags_id,        /* ID for fragments belonging together */
                                      NULL,
@@ -917,7 +927,7 @@ sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       wmem_tree_remove32(sccp_reassembly_ids, source_local_ref);
     }
 
-    new_tvb = process_reassembled_data(tvb, length_offset + 1, pinfo,
+    new_tvb = process_reassembled_data(tvb, length_offset + pointer_length, pinfo,
                                        "Reassembled SCCP", frag_msg,
                                        &sccp_xudt_msg_frag_items,
                                        NULL, tree);
@@ -931,7 +941,7 @@ sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /*
      * There is only a single fragment, reassembly is not required.
      */
-    new_tvb = tvb_new_subset_length(tvb, length_offset + 1, fragment_len);
+    new_tvb = tvb_new_subset_length(tvb, length_offset + pointer_length, fragment_len);
   }
   return new_tvb;
 }
@@ -2867,7 +2877,8 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 static int
 dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                     proto_tree *tree, int offset, sccp_decode_context_t *sccp_info,
-                    uint16_t *optional_pointer_p, uint16_t *orig_opt_ptr_p)
+                    uint16_t *optional_pointer_p, uint16_t *orig_opt_ptr_p,
+                    uint8_t pointer_length)
 {
   uint16_t  variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   uint16_t  optional_pointer  = 0, orig_opt_ptr = 0, optional_pointer1 = 0;
@@ -2912,10 +2923,10 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
      *  message.
      */
 
-  VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
-  VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH);
-  VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH);
-  OPTIONAL_POINTER(POINTER_LENGTH);
+  VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, pointer_length);
+  VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, pointer_length);
+  VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, pointer_length);
+  OPTIONAL_POINTER(pointer_length);
 
   sccp_info->assoc = get_sccp_assoc(pinfo, msg_offset, sccp_info);
   build_assoc_tree(tvb, pinfo, sccp_tree, sccp_info, msg_offset);
@@ -2959,14 +2970,15 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       if ((octet & 0x0f) == 0)
         more_frag = false;
 
-      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer3, source_local_ref, more_frag);
+      new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer3, source_local_ref, more_frag, pointer_length);
 
       if (new_tvb)
         dissect_sccp_data_param(new_tvb, pinfo, tree, sccp_info->assoc);
     }
   } else {
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_DATA, variable_pointer3, sccp_info);
+                                    (pointer_length == POINTER_LENGTH) ? PARAMETER_DATA : PARAMETER_LONG_DATA,
+                                    variable_pointer3, sccp_info);
   }
 
   *optional_pointer_p = optional_pointer;
@@ -3144,7 +3156,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       if(dt1_ignore_length && remaining_length > 255) {
         new_tvb = tvb_new_subset_length(tvb, variable_pointer1 + 1, remaining_length);
       } else {
-        new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer1, source_local_ref, more);
+        new_tvb = sccp_reassemble_fragments(tvb, pinfo, tree, variable_pointer1, source_local_ref, more, POINTER_LENGTH);
       }
 
       if (new_tvb)
@@ -3339,7 +3351,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      HOP_COUNTER_LENGTH, &sccp_info);
 
     offset = dissect_xudt_common(tvb, pinfo, sccp_tree, tree, offset, &sccp_info,
-                                 &optional_pointer, &orig_opt_ptr);
+                                 &optional_pointer, &orig_opt_ptr, POINTER_LENGTH);
     break;
 
   case SCCP_MSG_TYPE_XUDTS:
@@ -3356,7 +3368,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      HOP_COUNTER_LENGTH, &sccp_info);
 
     offset = dissect_xudt_common(tvb, pinfo, sccp_tree, tree, offset, &sccp_info,
-                                 &optional_pointer, &orig_opt_ptr);
+                                 &optional_pointer, &orig_opt_ptr, POINTER_LENGTH);
 
     pinfo->flags.in_error_pkt = save_in_error_pkt;
     break;
@@ -3371,25 +3383,15 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      PARAMETER_HOP_COUNTER, offset,
                                      HOP_COUNTER_LENGTH, &sccp_info);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG);
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG);
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG);
-    OPTIONAL_POINTER(POINTER_LENGTH_LONG);
-
-    sccp_info.assoc = get_sccp_assoc(pinfo, msg_offset, &sccp_info);
-    build_assoc_tree(tvb, pinfo, sccp_tree, &sccp_info, msg_offset);
-
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLED_PARTY_ADDRESS,
-                                    variable_pointer1, &sccp_info);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLING_PARTY_ADDRESS,
-                                    variable_pointer2, &sccp_info);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_LONG_DATA, variable_pointer3, &sccp_info);
+    offset = dissect_xudt_common(tvb, pinfo, sccp_tree, tree, offset, &sccp_info,
+                                 &optional_pointer, &orig_opt_ptr, POINTER_LENGTH_LONG);
     break;
 
   case SCCP_MSG_TYPE_LUDTS:
+  {
+    bool save_in_error_pkt = pinfo->flags.in_error_pkt;
+    pinfo->flags.in_error_pkt = true;
+
     sccp_info.sccp_msg = new_ud_msg(pinfo, sccp_info.message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
                                      PARAMETER_RETURN_CAUSE, offset,
@@ -3398,24 +3400,12 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      PARAMETER_HOP_COUNTER, offset,
                                      HOP_COUNTER_LENGTH, &sccp_info);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG);
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG);
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG);
-    OPTIONAL_POINTER(POINTER_LENGTH_LONG);
+    offset = dissect_xudt_common(tvb, pinfo, sccp_tree, tree, offset, &sccp_info,
+                                 &optional_pointer, &orig_opt_ptr, POINTER_LENGTH_LONG);
 
-    sccp_info.assoc = get_sccp_assoc(pinfo, msg_offset, &sccp_info);
-    build_assoc_tree(tvb, pinfo, sccp_tree, &sccp_info, msg_offset);
-
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLED_PARTY_ADDRESS,
-                                    variable_pointer1, &sccp_info);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_CALLING_PARTY_ADDRESS,
-                                    variable_pointer2, &sccp_info);
-    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-                                    PARAMETER_LONG_DATA, variable_pointer3, &sccp_info);
+    pinfo->flags.in_error_pkt = save_in_error_pkt;
     break;
-
+  }
   default:
     dissect_sccp_unknown_message(tvb, sccp_tree);
   }
