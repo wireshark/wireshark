@@ -314,7 +314,7 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 		 * tvb starts at the beginning of the record.
 		 */
 		sid_tvb=tvb_new_subset_length_caplen(tvb, sid_offset, MIN((int)sid_length, tvb_captured_length_remaining(tvb, offset)), sid_length);
-		dissect_nt_sid(sid_tvb, 0, tree, "SID", NULL, -1);
+		dissect_nt_sid(sid_tvb, pinfo, 0, tree, "SID", NULL, -1);
 	}
 	return offset;
 }

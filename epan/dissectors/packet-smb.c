@@ -9224,7 +9224,7 @@ dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int of
 }
 
 int
-dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, uint16_t *bcp)
+dissect_nt_user_quota(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, uint16_t *bcp)
 {
 	int     old_offset, old_sid_offset;
 	uint32_t qsize;
@@ -9265,7 +9265,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, uint16_t *bcp
 
 		/* SID of the user */
 		old_sid_offset = offset;
-		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Quota", NULL, -1);
 		*bcp -= (offset-old_sid_offset);
 
 		if (qsize) {
@@ -9279,7 +9279,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, uint16_t *bcp
 
 
 int
-dissect_nt_get_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t *bcp)
+dissect_nt_get_user_quota(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, uint32_t *bcp)
 {
 	int     old_offset, old_sid_offset;
 	uint32_t qsize;
@@ -9299,7 +9299,7 @@ dissect_nt_get_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t 
 
 		/* SID of the user */
 		old_sid_offset = offset;
-		offset = dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID", NULL, -1);
 		*bcp -= (offset-old_sid_offset);
 
 		if (qsize) {
@@ -9392,10 +9392,10 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		proto_tree_add_item(tree, hf_smb_length_of_sid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
-		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Quota", NULL, -1);
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
-		offset = dissect_nt_user_quota(tvb, tree, offset, &bcp);
+		offset = dissect_nt_user_quota(tvb, pinfo, tree, offset, &bcp);
 		break;
 	}
 
@@ -10004,7 +10004,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
 		bcp = len;
-		offset = dissect_nt_user_quota(tvb, tree, offset, &bcp);
+		offset = dissect_nt_user_quota(tvb, pinfo, tree, offset, &bcp);
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		/* not decoded yet */
@@ -16972,7 +16972,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		for (i = 0; i < num_sids; i++) {
 			old_sid_offset = offset;
-			offset = dissect_nt_sid(tvb, offset, st_sids, "SID", NULL, -1);
+			offset = dissect_nt_sid(tvb, pinfo, offset, st_sids, "SID", NULL, -1);
 			CHECK_BYTE_COUNT_TRANS_SUBR(offset-old_sid_offset);
 			*bcp -= (offset - old_sid_offset);
 		}

@@ -3523,7 +3523,7 @@ dissect_smb2_sec_info_00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
 }
 
 static int
-dissect_smb2_quota_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_quota_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3535,7 +3535,7 @@ dissect_smb2_quota_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 	}
 
 	bcp = tvb_captured_length_remaining(tvb, offset);
-	offset = dissect_nt_user_quota(tvb, tree, offset, &bcp);
+	offset = dissect_nt_user_quota(tvb, pinfo, tree, offset, &bcp);
 
 	return offset;
 }
@@ -5605,8 +5605,8 @@ static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	offset += 4;
 
 	/* Owner and Group SID */
-	offset = dissect_nt_sid(tvb, offset, tree, "Owner SID", NULL, -1);
-	offset = dissect_nt_sid(tvb, offset, tree, "Group SID", NULL, -1);
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Owner SID", NULL, -1);
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Group SID", NULL, -1);
 
 	if (si->saved)
 		si->saved->num_matched++;
@@ -6364,9 +6364,9 @@ dissect_smb2_getinfo_buffer_quota(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	offset += 4;
 
 	if (sidlist_len != 0) {
-		offset = dissect_nt_get_user_quota(tvb, tree, offset, &sidlist_len);
+		offset = dissect_nt_get_user_quota(tvb, pinfo, tree, offset, &sidlist_len);
 	} else if (startsid_len != 0) {
-		offset = dissect_nt_sid(tvb, offset + startsid_offset, tree, "Start SID", NULL, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset + startsid_offset, tree, "Start SID", NULL, -1);
 	}
 
 	return offset;
@@ -10354,8 +10354,8 @@ dissect_smb2_posix_buffer_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 	offset += 4;
 
 	/* Owner and Group SID */
-	offset = dissect_nt_sid(tvb, offset, tree, "Owner SID", NULL, -1);
-	dissect_nt_sid(tvb, offset, tree, "Group SID", NULL, -1);
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Owner SID", NULL, -1);
+	dissect_nt_sid(tvb, pinfo, offset, tree, "Group SID", NULL, -1);
 }
 
 #define SMB2_AAPL_SERVER_QUERY	1

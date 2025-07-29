@@ -2006,7 +2006,7 @@ static int dissect_mq_xid(tvbuff_t* tvb, proto_tree* tree, mq_parm_t* p_mq_parm,
     return iSizeXid;
 }
 
-static int dissect_mq_sid(tvbuff_t* tvb, proto_tree* tree, mq_parm_t* p_mq_parm, int offset)
+static int dissect_mq_sid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, mq_parm_t* p_mq_parm, int offset)
 {
     uint8_t iSIDL;
     uint8_t iSID;
@@ -2023,7 +2023,7 @@ static int dissect_mq_sid(tvbuff_t* tvb, proto_tree* tree, mq_parm_t* p_mq_parm,
         offset++;
         if (iSID == MQ_MQSIDT_NT_SECURITY_ID)
         {
-            offset = dissect_nt_sid(tvb, offset, tree, "SID", &sid_str, -1);
+            offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID", &sid_str, -1);
         }
         else
         {
@@ -3260,7 +3260,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             if (iSizeUID == 132)
             {
                 proto_tree_add_item(mq_tree, hf_mq_uid_longuserid, tvb, offset + 28, 64, p_mq_parm->mq_str_enc);
-                dissect_mq_sid(tvb, mq_tree, p_mq_parm, offset + 92);
+                dissect_mq_sid(tvb, pinfo, mq_tree, p_mq_parm, offset + 92);
             }
         }
         offset += iSizeUID;

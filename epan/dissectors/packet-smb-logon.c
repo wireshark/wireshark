@@ -500,7 +500,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 			/* Domain SID */
 			offset = dissect_nt_sid(
-				tvb, offset, tree, "Domain", NULL, -1);
+				tvb, pinfo, offset, tree, "Domain", NULL, -1);
 		}
 
 		/* NT version */
@@ -552,7 +552,7 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		offset = ((offset + 3)/4)*4;
 
 		/* Domain SID */
-		offset = dissect_nt_sid(tvb, offset, tree, "Domain", NULL, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Domain", NULL, -1);
 	}
 
 	/* NT version */

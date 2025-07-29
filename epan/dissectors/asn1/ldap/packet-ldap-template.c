@@ -638,7 +638,7 @@ static char *ldapvalue_string;
  * display it as a string, othervise just display it in hex.
  */
 static int
-dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
+dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
 {
   int8_t ber_class;
   bool pc, ind, is_ascii;
@@ -671,7 +671,7 @@ dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_c
 
     /* this octet string contains an NT SID */
     sid_tvb=tvb_new_subset_length(tvb, offset, len);
-    dissect_nt_sid(sid_tvb, 0, tree, "SID", &tmpstr, hf_index);
+    dissect_nt_sid(sid_tvb, actx->pinfo, 0, tree, "SID", &tmpstr, hf_index);
     ldapvalue_string=tmpstr;
 
     goto finished;
@@ -1748,12 +1748,12 @@ dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 }
 
 static int
-dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   char *tmpstr;
 
   /* this octet string contains an NT SID */
-  dissect_nt_sid(tvb, 0, tree, "SID", &tmpstr, hf_ldap_sid);
+  dissect_nt_sid(tvb, pinfo, 0, tree, "SID", &tmpstr, hf_ldap_sid);
   ldapvalue_string=tmpstr;
   return tvb_captured_length(tvb);
 }

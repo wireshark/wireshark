@@ -1386,7 +1386,7 @@ dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return offset;
 	}
 
-	newoffset = dissect_nt_sid(tvb, offset, tree, name, &sid_str,
+	newoffset = dissect_nt_sid(tvb, pinfo, offset, tree, name, &sid_str,
 				hf_nt_domain_sid);
 	/* The dissected stuff can't be more than 28 bytes */
 	if ((newoffset - offset) > 28) {
@@ -1443,7 +1443,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, di, drep,
 			hf_nt_count, NULL);
 
-	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str,
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, name, &sid_str,
 				hf_nt_domain_sid);
 
 	/* dcv can be null, for example when this ndr structure is embedded

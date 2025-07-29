@@ -2475,7 +2475,7 @@ static value_string_ext wkwn_S_1_5_21_rids_ext = VALUE_STRING_EXT_INIT(wkwn_S_1_
  * field, it will just pass a FT_STRING hf field here
  */
 int
-dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+dissect_nt_sid(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree,
 	       const char *name, char **sid_str, int hf_sid)
 {
 	int offset_sid_start = offset, sa_offset, rid_offset=0, wkwn_sid1_len=0,
@@ -2516,18 +2516,18 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		offset++;
 	}
 
-	sid_in_dec_str = wmem_strbuf_create(wmem_packet_scope());
+	sid_in_dec_str = wmem_strbuf_create(pinfo->pool);
 	wmem_strbuf_append_printf (sid_in_dec_str, "S-%u-%" PRIu64, revision, authority);
 
 	/*  If sid_display_hex is set, sid_in_dec_str is still needed for
 		looking up well-known SIDs*/
 	if (sid_display_hex) {
-		sid_in_hex_str = wmem_strbuf_create(wmem_packet_scope());
+		sid_in_hex_str = wmem_strbuf_create(pinfo->pool);
 		wmem_strbuf_append_printf (sid_in_hex_str, "S-%x-%" PRIx64, revision, authority);
 	}
 
-	wkwn_sid1_str = wmem_strbuf_create(wmem_packet_scope());
-	label_str = wmem_strbuf_create(wmem_packet_scope());
+	wkwn_sid1_str = wmem_strbuf_create(pinfo->pool);
+	label_str = wmem_strbuf_create(pinfo->pool);
 
 	if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-16")==0)
 		S_1_16 = true;
@@ -2552,9 +2552,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 
 	sa_offset = offset;
-	sa_str = wmem_strbuf_create(wmem_packet_scope());
-	wkwn_sid2_str = wmem_strbuf_create(wmem_packet_scope());
-	domain_str = wmem_strbuf_create(wmem_packet_scope());
+	sa_str = wmem_strbuf_create(pinfo->pool);
+	wkwn_sid2_str = wmem_strbuf_create(pinfo->pool);
+	domain_str = wmem_strbuf_create(pinfo->pool);
 
 	/* Build the sub-authorities and full SID strings */
 	for(i=1; i<num_auth+1; i++) {
@@ -2740,13 +2740,13 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	/* If requested, return SID string with mapped name */
 	if(sid_str){
 		if(wmem_strbuf_get_len(label_str) > 0){
-			*sid_str = wmem_strdup_printf(wmem_packet_scope(), "%s  (%s)",
+			*sid_str = wmem_strdup_printf(pinfo->pool, "%s  (%s)",
 				(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)), wmem_strbuf_get_str(label_str));
 		} else {
-			*sid_str = wmem_strdup(wmem_packet_scope(), sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str));
+			*sid_str = wmem_strdup(pinfo->pool, sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str));
 		}
 		if(!(*sid_str)){
-			*sid_str=wmem_strdup(wmem_packet_scope(), "corrupted SID");
+			*sid_str=wmem_strdup(pinfo->pool, "corrupted SID");
 		}
 	}
 	return offset;
@@ -2754,7 +2754,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE Value, see [MS-DTYP] v20180912 section 2.4.4.15 */
 static int
-dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, proto_tree *tree,
+dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, packet_info* pinfo, int value_offset, proto_tree *tree,
 					       uint16_t value_type, proto_item *sra_item)
 {
 	unsigned value_len;
@@ -2789,7 +2789,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 		break;
 
 	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_SID:
-		value_offset = dissect_nt_sid(tvb, value_offset, tree,
+		value_offset = dissect_nt_sid(tvb, pinfo, value_offset, tree,
 					      "SID", &value_str, hf_nt_ace_sra_value_sid);
 		break;
 
@@ -2817,7 +2817,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 
 	if (sra_item) {
 		if ((value_str == NULL) && value_item) {
-			value_str = proto_item_get_display_repr(wmem_packet_scope(), value_item);
+			value_str = proto_item_get_display_repr(pinfo->pool, value_item);
 		}
 
 		if (value_str == NULL) {
@@ -2837,7 +2837,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE, see [MS-DTYP] v20180912 section 2.4.4.15 */
 static int
-dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t size, proto_tree *parent_tree)
+dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, packet_info* pinfo, int offset, uint16_t size, proto_tree *parent_tree)
 {
 	/* The caller has already dissected Header, Mask and Sid. Therefore
 	   this function only dissects Attribute Data. This data takes
@@ -2866,7 +2866,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t siz
 					tvb, name_offset, name_len,
 					ENC_UTF_16 | ENC_LITTLE_ENDIAN);
 	proto_item_append_text(sra_item, ": %s=",
-			       proto_item_get_display_repr(wmem_packet_scope(), name_item));
+			       proto_item_get_display_repr(pinfo->pool, name_item));
 	offset += sizeof(name);
 
 	/* ValueType */
@@ -2939,7 +2939,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t siz
 		value_offset = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(value_offset_tree, hf_nt_ace_sra_value_offset,
 				    tvb, offset, sizeof(value_offset), value_offset);
-		dissect_nt_ace_system_resource_attribute_value(tvb, start_offset + value_offset,
+		dissect_nt_ace_system_resource_attribute_value(tvb, pinfo, start_offset + value_offset,
 							       value_tree, value_type, sra_item);
 		offset += sizeof(value_offset);
 	}
@@ -3080,7 +3080,7 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 	    case COND_ACE_TOKEN_SID:
 		offset += sizeof(len);
 
-		offset = dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID", NULL, -1);
 		break;
 
 	    case COND_ACE_TOKEN_LOCAL_ATTRIBUTE:
@@ -3700,7 +3700,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 		/* SID */
-		offset = dissect_nt_sid(tvb, offset, tree, "SID", &sid_str, -1);
+		offset = dissect_nt_sid(tvb, pinfo, offset, tree, "SID", &sid_str, -1);
 
 		if (item)
 			proto_item_append_text(
@@ -3724,7 +3724,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		    case ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE:
-			dissect_nt_ace_system_resource_attribute(tvb, offset, data_size, tree);
+			dissect_nt_ace_system_resource_attribute(tvb, pinfo, offset, data_size, tree);
 			break;
 		}
 		break;
@@ -4048,7 +4048,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		    break;
 	    }
 	    TRY{
-	      offset_v = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
+	      offset_v = dissect_nt_sid(tvb, pinfo, item_offset, tree, "Owner", NULL, -1);
 	      if (offset_v > end_offset)
 	        end_offset = offset_v;
 	    }
@@ -4073,7 +4073,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		    break;
 	    }
 	    TRY {
-	      offset_v = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
+	      offset_v = dissect_nt_sid(tvb, pinfo, item_offset, tree, "Group", NULL, -1);
 	      if (offset_v > end_offset)
 	        end_offset = offset_v;
 	    }

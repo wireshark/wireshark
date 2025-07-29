@@ -82,7 +82,7 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	/*offset += 4;*/
 
 	/* sid */
-	dissect_nt_sid(tvb, old_offset+4+sid_offset, tree, "sid", NULL, -1);
+	dissect_nt_sid(tvb, pinfo, old_offset+4+sid_offset, tree, "sid", NULL, -1);
 
 	/* certificate */
 	next_tvb = tvb_new_subset_length(tvb, old_offset+4+cert_offset, cert_length);
