@@ -6937,7 +6937,7 @@ static int rtps_util_add_type_annotation_usage(proto_tree *tree,
   return offset;
 }
 
-static int rtps_util_add_type_library_type(proto_tree *tree,
+static int rtps_util_add_type_library_type(proto_tree *tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info *info) {
   proto_tree * annotation_tree;
   uint32_t member_id = 0, member_length = 0, long_number, i;
@@ -6967,7 +6967,7 @@ static int rtps_util_add_type_library_type(proto_tree *tree,
   rtps_util_add_string(tree, tvb, offset_tmp, hf_rtps_type_object_type_property_name,
           encoding);
   long_number = tvb_get_uint32(tvb, offset_tmp, encoding);
-  name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp+4, long_number, ENC_ASCII);
+  name = tvb_get_string_enc(pinfo->pool, tvb, offset_tmp + 4, long_number, ENC_ASCII);
   if (info)
     (void) g_strlcpy(info->member_name, name, sizeof(info->member_name));
 
@@ -6992,14 +6992,14 @@ static int rtps_util_add_type_library_type(proto_tree *tree,
   return offset;
 }
 
-static void rtps_util_add_type_element_enumeration(proto_tree *tree,
+static void rtps_util_add_type_element_enumeration(proto_tree *tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info) {
   proto_tree * enumerated_constant;
   uint32_t member_id = 0, member_length = 0;
   uint32_t long_number, i;
   int enum_size, offset_tmp;
 
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   /* dissect Bound */
@@ -7016,7 +7016,7 @@ static void rtps_util_add_type_element_enumeration(proto_tree *tree,
     uint32_t size, value;
     enum_size = offset_tmp;
     size = tvb_get_uint32(tvb, offset_tmp + 4, encoding);
-    name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp + 8, size, ENC_ASCII);
+    name = tvb_get_string_enc(pinfo->pool, tvb, offset_tmp + 8, size, ENC_ASCII);
     value = tvb_get_uint32(tvb, offset_tmp, encoding);
     enumerated_constant = proto_tree_add_subtree_format(tree, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "%s (%u)", name, value);
@@ -7029,11 +7029,11 @@ static void rtps_util_add_type_element_enumeration(proto_tree *tree,
   info->num_elements = 0;
 }
 
-static void rtps_util_add_type_element_sequence(proto_tree *tree,
+static void rtps_util_add_type_element_sequence(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info) {
   uint32_t member_id = 0, member_length = 0;
   int zero_alignment;
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   zero_alignment = offset;
@@ -7049,11 +7049,11 @@ static void rtps_util_add_type_element_sequence(proto_tree *tree,
     info->bound = tvb_get_int32(tvb, offset, encoding);
 }
 
-static void rtps_util_add_type_element_string(proto_tree *tree,
+static void rtps_util_add_type_element_string(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info _U_) {
   uint32_t member_id = 0, member_length = 0;
   int zero_alignment;
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   zero_alignment = offset;
@@ -7068,13 +7068,13 @@ static void rtps_util_add_type_element_string(proto_tree *tree,
   offset = check_offset_addition(offset, member_length, tree, NULL, tvb);
 }
 
-static void rtps_util_add_type_element_array(proto_tree *tree,
+static void rtps_util_add_type_element_array(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info _U_) {
   proto_tree * bound_tree;
   uint32_t member_id = 0, member_length = 0;
   uint32_t long_number, i;
   int zero_alignment, offset_tmp;
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   /* Dissect Collection Type */
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
@@ -7103,17 +7103,17 @@ static void rtps_util_add_type_element_array(proto_tree *tree,
   }
 }
 
-static void rtps_util_add_type_element_alias(proto_tree *tree,
+static void rtps_util_add_type_element_alias(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info) {
   uint32_t member_id = 0, member_length = 0;
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   /* dissect base_type */
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   rtps_util_add_type_id(tree, tvb, offset, encoding, offset, hf_rtps_type_object_base_type, NULL, &(info->base_type_id));
 }
 
-static int rtps_util_add_type_member(proto_tree *tree,
+static int rtps_util_add_type_member(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding,
         dissection_info * info, dissection_element * member_object) {
   proto_tree * member_property, *annotation_tree;
@@ -7141,7 +7141,7 @@ static int rtps_util_add_type_member(proto_tree *tree,
           offset, -1, tree, &member_type_id);
   rtps_util_add_string(member_property, tvb, offset_tmp, hf_rtps_type_object_name, encoding);
   long_number = tvb_get_uint32(tvb, offset_tmp, encoding);
-  name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp+4, long_number, ENC_ASCII);
+  name = tvb_get_string_enc(pinfo->pool, tvb, offset_tmp+4, long_number, ENC_ASCII);
   proto_item_append_text(tree, " %s (ID: %d)", name, member_id);
   if (member_object) {
     member_object->member_id = member_id;
@@ -7184,7 +7184,7 @@ static int rtps_util_add_type_member(proto_tree *tree,
   return offset;
 }
 
-static int rtps_util_add_type_union_member(proto_tree *tree,
+static int rtps_util_add_type_union_member(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, uint64_t union_type_id,
         bool is_discriminator, dissection_info * info _U_) {
   proto_tree * labels;
@@ -7192,7 +7192,7 @@ static int rtps_util_add_type_union_member(proto_tree *tree,
   int offset_tmp;
   uint32_t member_id = 0, member_length = 0;
   dissection_element object;
-  offset = rtps_util_add_type_member(tree, tvb, offset, encoding, NULL, &object); //&(info->elements[i])
+  offset = rtps_util_add_type_member(tree, pinfo, tvb, offset, encoding, NULL, &object); //&(info->elements[i])
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   offset_tmp = offset;
@@ -7259,13 +7259,13 @@ static int rtps_util_add_type_union_member(proto_tree *tree,
   return offset;
 }
 
-static void rtps_util_add_type_element_union(proto_tree *tree,
+static void rtps_util_add_type_element_union(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info) {
   proto_tree * members;
   uint32_t member_id = 0, member_length = 0;
   uint32_t long_number, i;
   int offset_tmp;
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   offset_tmp = offset;
@@ -7281,7 +7281,7 @@ static void rtps_util_add_type_element_union(proto_tree *tree,
     int offset_member = offset_tmp;
     member = proto_tree_add_subtree(members, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "Member");
-    offset_tmp = rtps_util_add_type_union_member(member, tvb, offset_tmp, encoding,
+    offset_tmp = rtps_util_add_type_union_member(member, pinfo, tvb, offset_tmp, encoding,
         info->type_id, (i == 0), info);
     proto_item_set_len(member, offset_tmp - offset_member);
   }
@@ -7293,7 +7293,7 @@ static void rtps_util_add_type_element_union(proto_tree *tree,
   proto_item_set_len(members, offset_tmp - offset);
 }
 
-static void rtps_util_add_type_element_struct(proto_tree *tree,
+static void rtps_util_add_type_element_struct(proto_tree* tree, packet_info* pinfo,
         tvbuff_t * tvb, int offset, const unsigned encoding, dissection_info * info) {
   proto_tree * member;
   uint32_t member_id = 0, member_length = 0;
@@ -7302,7 +7302,7 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
   wmem_array_t *elements = NULL;
   dissection_element zero_element = {0};
 
-  offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
+  offset = rtps_util_add_type_library_type(tree, pinfo, tvb, offset, encoding, info);
 
   /* dissect base_type */
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
@@ -7325,9 +7325,9 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
           ett_rtps_type_enum_constant, NULL, "");
       if (info && elements) {
         wmem_array_append_one(elements, zero_element);
-        offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, info, wmem_array_index(elements, i));
+        offset_tmp = rtps_util_add_type_member(member, pinfo, tvb, offset_tmp, encoding, info, wmem_array_index(elements, i));
       } else {
-        offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, NULL, NULL);
+        offset_tmp = rtps_util_add_type_member(member, pinfo, tvb, offset_tmp, encoding, NULL, NULL);
       }
       proto_item_set_len(member, offset_tmp - member_size);
   }
@@ -7376,25 +7376,25 @@ static int rtps_util_add_type_library_element(proto_tree *tree, packet_info * pi
   proto_item_set_len(element_tree, member_length + offset - initial_offset);
   switch (long_number) {
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE: /*ENUMERATION */
-      rtps_util_add_type_element_enumeration(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_enumeration(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE: /* ALIAS */
-      rtps_util_add_type_element_alias(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_alias(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE: /* ARRAY */
-      rtps_util_add_type_element_array(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_array(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE: /* SEQUENCE */
-      rtps_util_add_type_element_sequence(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_sequence(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRING_TYPE: /* STRING : COLLECTION */
-      rtps_util_add_type_element_string(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_string(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE:
-      rtps_util_add_type_element_union(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_union(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE: /* STRUCT */
-      rtps_util_add_type_element_struct(element_tree, tvb, offset, encoding, info);
+      rtps_util_add_type_element_struct(element_tree, pinfo, tvb, offset, encoding, info);
       break;
     case RTI_CDR_TYPE_OBJECT_TYPE_KIND_MODULE:
       /* This does *not* fill in the info structure, so do *not* add it. */
