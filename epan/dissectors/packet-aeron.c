@@ -210,13 +210,13 @@ struct aeron_frame_info_t_stct
 #define AERON_FRAME_INFO_FLAGS_KEEPALIVE       0x00000002
 #define AERON_FRAME_INFO_FLAGS_REASSEMBLED_MSG 0x00000004
 
-static wmem_tree_key_t * aeron_frame_info_key_build(uint32_t frame, uint32_t ofs)
+static wmem_tree_key_t * aeron_frame_info_key_build(wmem_allocator_t* allocator, uint32_t frame, uint32_t ofs)
 {
     wmem_tree_key_t * fkey;
     uint32_t * key;
 
-    fkey = wmem_alloc_array(wmem_packet_scope(), wmem_tree_key_t, 2);
-    key = wmem_alloc_array(wmem_packet_scope(), uint32_t, 2);
+    fkey = wmem_alloc_array(allocator, wmem_tree_key_t, 2);
+    key = wmem_alloc_array(allocator, uint32_t, 2);
     key[0] = frame;
     key[1] = ofs;
     fkey[0].length = 2;
@@ -234,16 +234,16 @@ static aeron_frame_info_t * aeron_frame_info_lookup(wmem_tree_key_t * key)
     return (fi);
 }
 
-static aeron_frame_info_t * aeron_frame_info_find(uint32_t frame, uint32_t ofs)
+static aeron_frame_info_t * aeron_frame_info_find(wmem_allocator_t* allocator, uint32_t frame, uint32_t ofs)
 {
-    wmem_tree_key_t * key = aeron_frame_info_key_build(frame, ofs);
+    wmem_tree_key_t * key = aeron_frame_info_key_build(allocator, frame, ofs);
     return (aeron_frame_info_lookup(key));
 }
 
-static aeron_frame_info_t * aeron_frame_info_add(uint32_t frame, uint32_t ofs)
+static aeron_frame_info_t * aeron_frame_info_add(wmem_allocator_t* allocator, uint32_t frame, uint32_t ofs)
 {
     aeron_frame_info_t * fi;
-    wmem_tree_key_t * key = aeron_frame_info_key_build(frame, ofs);
+    wmem_tree_key_t * key = aeron_frame_info_key_build(allocator, frame, ofs);
 
     fi = aeron_frame_info_lookup(key);
     if (fi == NULL)
@@ -667,21 +667,21 @@ static bool aeron_is_address_multicast(const address * addr)
     return false;
 }
 
-static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo)
+static char * aeron_format_transport_uri(wmem_allocator_t* allocator, const aeron_conversation_info_t * cinfo)
 {
     wmem_strbuf_t * uri;
 
-    uri = wmem_strbuf_new(wmem_packet_scope(), "aeron:udp?");
+    uri = wmem_strbuf_new(allocator, "aeron:udp?");
     if (aeron_is_address_multicast(cinfo->addr2))
     {
         switch (cinfo->addr2->type)
         {
             case AT_IPv6:
-                wmem_strbuf_append_printf(uri, "group=[%s]:%" PRIu16, address_to_str(wmem_packet_scope(), cinfo->addr2), cinfo->port2);
+                wmem_strbuf_append_printf(uri, "group=[%s]:%" PRIu16, address_to_str(allocator, cinfo->addr2), cinfo->port2);
                 break;
             case AT_IPv4:
             default:
-                wmem_strbuf_append_printf(uri, "group=%s:%" PRIu16, address_to_str(wmem_packet_scope(), cinfo->addr2), cinfo->port2);
+                wmem_strbuf_append_printf(uri, "group=%s:%" PRIu16, address_to_str(allocator, cinfo->addr2), cinfo->port2);
                 break;
         }
     }
@@ -690,11 +690,11 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
         switch (cinfo->addr2->type)
         {
             case AT_IPv6:
-                wmem_strbuf_append_printf(uri, "remote=[%s]:%" PRIu16, address_to_str(wmem_packet_scope(), cinfo->addr2), cinfo->port2);
+                wmem_strbuf_append_printf(uri, "remote=[%s]:%" PRIu16, address_to_str(allocator, cinfo->addr2), cinfo->port2);
                 break;
             case AT_IPv4:
             default:
-                wmem_strbuf_append_printf(uri, "remote=%s:%" PRIu16, address_to_str(wmem_packet_scope(), cinfo->addr2), cinfo->port2);
+                wmem_strbuf_append_printf(uri, "remote=%s:%" PRIu16, address_to_str(allocator, cinfo->addr2), cinfo->port2);
                 break;
         }
     }
@@ -1989,7 +1989,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
         DISSECTOR_ASSERT(last_frame_found == true);
         if (last_frame_found)
         {
-            finfo = aeron_frame_info_find(msg->last_frame, last_frame_offset);
+            finfo = aeron_frame_info_find(wmem_packet_scope(), msg->last_frame, last_frame_offset);
         }
         msg->reassembled_data = tvb_new_real_data(buf, msg->length, msg->length);
         DISSECTOR_ASSERT(finfo != NULL);
@@ -2926,7 +2926,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Aeron");
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_INFO, aeron_format_transport_uri(cinfo));
+    col_add_str(pinfo->cinfo, COL_INFO, aeron_format_transport_uri(pinfo->pool, cinfo));
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     length_remaining = tvb_reported_length(tvb);
@@ -2944,7 +2944,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
         if (aeron_sequence_analysis)
         {
-            finfo = aeron_frame_info_add(pinfo->num, (uint32_t) offset);
+            finfo = aeron_frame_info_add(pinfo->pool, pinfo->num, (uint32_t) offset);
         }
         frame_length = tvb_get_letohl(tvb, offset + O_AERON_BASIC_FRAME_LENGTH);
         frame_flags = tvb_get_uint8(tvb, offset + O_AERON_BASIC_FLAGS);
