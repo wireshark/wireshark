@@ -34,9 +34,10 @@ static uint32_t postseed;
 void
 wmem_init_hashing(void)
 {
+    /* Get a random odd integer to multiply the hash by. */
     x = g_random_int();
-    if (G_UNLIKELY(x == 0))
-        x = 1;
+    if ((x % 2) == 0)
+        x += 1;
 
     preseed  = g_random_int();
     postseed = g_random_int();
