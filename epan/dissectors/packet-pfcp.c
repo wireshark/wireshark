@@ -1247,6 +1247,7 @@ static int hf_pfcp_jnpr_operation_type;
 static int hf_pfcp_jnpr_address_qualifier;
 static int hf_pfcp_jnpr_addr_primary;
 static int hf_pfcp_jnpr_addr_preferred;
+static int hf_pfcp_jnpr_targeted_distribution_weight;
 
 static const value_string compute_limit_vals[] = {
     { 0, "Off" },
@@ -12747,6 +12748,14 @@ static int dissect_pfcp_jnpr_operation_type(tvbuff_t *tvb, packet_info *pinfo _U
     return tvb_reported_length(tvb);
 }
 
+static int dissect_pfcp_jnpr_targeted_distribution(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_targeted_distribution_weight, tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    return tvb_reported_length(tvb);
+}
+
+
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32905 , "CPRI Port Info"                      , dissect_pfcp_jnpr_cpri_port_info, -1 } ,
     { VENDOR_JUNIPER, 32910 , "Filter Service Object"               , dissect_pfcp_jnpr_filter_service_object, -1 } ,
@@ -12768,6 +12777,7 @@ static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32932 , "Source Port"                         , dissect_pfcp_jnpr_li_source_port, -1 },
     { VENDOR_JUNIPER, 32933 , "Service ID"                          , dissect_pfcp_jnpr_li_service_id, -1 },
     { VENDOR_JUNIPER, 32934 , "MD Header Contents"                  , dissect_pfcp_jnpr_li_md_header, -1 },
+    { VENDOR_JUNIPER, 32937 , "Targeted Distribution"               , dissect_pfcp_jnpr_targeted_distribution, -1 },
     { VENDOR_JUNIPER, 32940 , "Hierarchical Schedule"               , dissect_pfcp_jnpr_hierarchical_schedule, -1 } ,
     { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
@@ -18724,6 +18734,12 @@ proto_register_pfcp(void)
         { "Preferred", "pfcp.jnpr.addr_qualifier.preferred",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset),
             0x02, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_targeted_distribution_weight,
+        { "Weight", "pfcp.jnpr.targeted_distribution.weight",
+            FT_UINT16, BASE_DEC, NULL,
+            0x0, NULL, HFILL }
         },
 
         /* Nokia */
