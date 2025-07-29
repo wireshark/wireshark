@@ -210,7 +210,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     ctx_menu_.addAction(ui->actionCrosshairs);
     ctx_menu_.addAction(ui->actionTopAxis);
     ctx_menu_.addAction(ui->actionLegend);
-    QMenu* markerMenu = new QMenu("Markers", this);
+    QMenu* markerMenu = new QMenu(tr("Markers"), &ctx_menu_);
     markerMenu->addAction(ui->actionAddMarker);
     markerMenu->addAction(ui->actionMoveMarker);
     markerMenu->addAction(ui->actionShowPosMarker);
