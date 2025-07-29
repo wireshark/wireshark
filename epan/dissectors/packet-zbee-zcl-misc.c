@@ -257,9 +257,6 @@ static int ett_zbee_zcl_thermostat_schedule_mode;
 void proto_register_zbee_zcl_thermostat(void);
 void proto_reg_handoff_zbee_zcl_thermostat(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 static int  dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, unsigned offset);
 static void dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, unsigned offset);
 static void dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, unsigned offset);
@@ -470,12 +467,12 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_thermostat_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_thermostat_attr_data*/
@@ -604,7 +601,7 @@ proto_reg_handoff_zbee_zcl_thermostat(void)
                             hf_zbee_zcl_thermostat_attr_id,
                             hf_zbee_zcl_thermostat_srv_rx_cmd_id,
                             hf_zbee_zcl_thermostat_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_thermostat_attr_data
+                            dissect_zcl_thermostat_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_thermostat*/
 
@@ -776,9 +773,6 @@ void proto_reg_handoff_zbee_zcl_ias_zone(void);
 /* Command Dissector Helpers. */
 static int dissect_zbee_zcl_ias_zone   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_ias_zone_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* ZoneStatus bitmask helper */
 static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, unsigned offset);
 
@@ -904,7 +898,7 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_ias_zone_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -925,7 +919,7 @@ dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset
 
         case ZBEE_ZCL_ATTR_ID_IAS_CIE_ADDRESS:
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_ias_zone_attr_data*/
@@ -946,7 +940,7 @@ proto_reg_handoff_zbee_zcl_ias_zone(void)
                             hf_zbee_zcl_ias_zone_attr_id,
                             hf_zbee_zcl_ias_zone_srv_rx_cmd_id,
                             hf_zbee_zcl_ias_zone_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_ias_zone_attr_data
+                            dissect_zcl_ias_zone_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_ias_zone*/
 

@@ -1261,7 +1261,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, p
  *@return payload processed offset.
  */
 static unsigned
-dissect_zbee_nwk_gp_cmd_write_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_zbee_nwk_gp_cmd_write_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, unsigned offset)
 {
     uint8_t cr_options = 0;
@@ -1319,7 +1319,7 @@ dissect_zbee_nwk_gp_cmd_write_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, 
             dissect_zcl_attr_id(tvb, att_tree, &offset, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
 
             /* Dissect the attribute data type and data */
-            dissect_zcl_attr_data_type_val(tvb, att_tree, &offset, attr_id, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
+            dissect_zcl_attr_data_type_val(tvb, pinfo, att_tree, &offset, attr_id, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
         }
     }
     return offset;
@@ -1337,7 +1337,7 @@ dissect_zbee_nwk_gp_cmd_write_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, 
  *@return payload processed offset.
  */
 static unsigned
-dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, unsigned offset)
 {
     uint8_t cr_options;
@@ -1399,12 +1399,12 @@ dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pin
                 == ZBEE_ZCL_STAT_SUCCESS)
             {
                 /* Dissect the attribute data type and data */
-                dissect_zcl_attr_data_type_val(tvb, att_tree, &offset, attr_id, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
+                dissect_zcl_attr_data_type_val(tvb, pinfo, att_tree, &offset, attr_id, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
             }
             else
             {
                 /* Data type field is always present (not like in ZCL read attribute response command) */
-                dissect_zcl_attr_data(tvb, att_tree, &offset,
+                dissect_zcl_attr_data(tvb, pinfo, att_tree, &offset,
                     dissect_zcl_attr_uint8(tvb, att_tree, &offset, &hf_zbee_nwk_gp_zcl_attr_data_type), ZBEE_ZCL_FCF_TO_CLIENT );
             }
         }
@@ -1449,7 +1449,7 @@ dissect_zbee_nwk_gp_cmd_multi_cluster_reporting(tvbuff_t *tvb, packet_info *pinf
         dissect_zcl_attr_id(tvb, subtree, &offset, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
 
         /* Dissect the attribute data type and data */
-        dissect_zcl_attr_data_type_val(tvb, subtree, &offset, attr_id, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
+        dissect_zcl_attr_data_type_val(tvb, pinfo, subtree, &offset, attr_id, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
         // TODO how to dissect when data type is different from expected one for this attribute ? this shouldn't happen
     }
     return offset;

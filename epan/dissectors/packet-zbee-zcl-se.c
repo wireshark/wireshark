@@ -125,9 +125,6 @@ VALUE_STRING_ARRAY(zbee_zcl_keep_alive_attr_names);
 void proto_register_zbee_zcl_keep_alive(void);
 void proto_reg_handoff_zbee_zcl_keep_alive(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -158,7 +155,7 @@ static int ett_zbee_zcl_keep_alive;
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_keep_alive_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -179,7 +176,7 @@ dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offs
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_keep_alive_attr_data*/
@@ -253,7 +250,7 @@ proto_reg_handoff_zbee_zcl_keep_alive(void)
                             hf_zbee_zcl_keep_alive_attr_id,
                             -1,
                             -1, -1,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_keep_alive_attr_data
+                            dissect_zcl_keep_alive_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_keep_alive*/
 
@@ -1469,9 +1466,6 @@ VALUE_STRING_ARRAY(zbee_zcl_price_tariff_charging_scheme_names);
 void proto_register_zbee_zcl_price(void);
 void proto_reg_handoff_zbee_zcl_price(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_price_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_price_get_current_price              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zcl_price_get_scheduled_prices           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
@@ -1681,7 +1675,7 @@ static int * const zbee_zcl_price_tariff_type_mask[] = {
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_price_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -1691,7 +1685,7 @@ dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, u
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_price_attr_data*/
@@ -3569,7 +3563,7 @@ proto_reg_handoff_zbee_zcl_price(void)
                             hf_zbee_zcl_price_attr_client_id,
                             hf_zbee_zcl_price_srv_rx_cmd_id,
                             hf_zbee_zcl_price_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_price_attr_data
+                            dissect_zcl_price_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_price*/
 
@@ -3686,8 +3680,6 @@ static void dissect_zcl_drlc_cancel_all_load_control_event  (tvbuff_t *tvb, prot
 static void dissect_zcl_drlc_report_event_status            (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zcl_drlc_get_scheduled_events           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_drlc_attr_data                                  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -3846,7 +3838,7 @@ static void decode_zcl_drlc_average_load_adjustment_percentage(char *s, int8_t v
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_drlc_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -3856,7 +3848,7 @@ dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, ui
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_drlc_attr_data*/
@@ -4433,7 +4425,7 @@ proto_reg_handoff_zbee_zcl_drlc(void)
                             hf_zbee_zcl_drlc_attr_client_id,
                             hf_zbee_zcl_drlc_srv_rx_cmd_id,
                             hf_zbee_zcl_drlc_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_drlc_attr_data
+                            dissect_zcl_drlc_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_drlc*/
 
@@ -5527,9 +5519,6 @@ VALUE_STRING_ARRAY(zbee_zcl_met_snapshot_payload_type);
 void proto_register_zbee_zcl_met(void);
 void proto_reg_handoff_zbee_zcl_met(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_met_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_met_get_profile                     (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zcl_met_request_mirror_rsp              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
@@ -5918,7 +5907,7 @@ static int ett_zbee_zcl_met_bit_field_allocation;
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_met_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     if (client_attr) {
         switch (attr_id) {
@@ -5959,7 +5948,7 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uin
                 break;
 
             default: /* Catch all */
-                dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+                dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
                 break;
         }
     }
@@ -5972,7 +5961,7 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uin
                 break;
 
             default: /* Catch all */
-                dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+                dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
                 break;
         }
     }
@@ -7816,7 +7805,7 @@ proto_reg_handoff_zbee_zcl_met(void)
                             hf_zbee_zcl_met_attr_client_id,
                             hf_zbee_zcl_met_srv_rx_cmd_id,
                             hf_zbee_zcl_met_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_met_attr_data
+                            dissect_zcl_met_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_met*/
 
@@ -8373,9 +8362,6 @@ VALUE_STRING_ARRAY(zbee_zcl_tun_srv_tx_cmd_names);
 void proto_register_zbee_zcl_tun(void);
 void proto_reg_handoff_zbee_zcl_tun(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_tun_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* Private functions prototype */
 
 /*************************/
@@ -8458,7 +8444,7 @@ VALUE_STRING_ARRAY(zbee_zcl_tun_status_names);
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_tun_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* cluster specific attributes */
@@ -8474,7 +8460,7 @@ dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uin
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_ias_zone_attr_data*/
@@ -8914,7 +8900,7 @@ proto_reg_handoff_zbee_zcl_tun(void)
                             -1,
                             hf_zbee_zcl_tun_srv_rx_cmd_id,
                             hf_zbee_zcl_tun_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_tun_attr_data
+                            dissect_zcl_tun_attr_data
                          );
 } /* proto_reg_handoff_zbee_zcl_tun */
 
@@ -9103,9 +9089,6 @@ VALUE_STRING_ARRAY(zbee_zcl_pp_srv_tx_cmd_names);
 void proto_register_zbee_zcl_pp(void);
 void proto_reg_handoff_zbee_zcl_pp(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_pp_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_pp_select_available_emergency_credit    (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zcl_pp_change_debt                          (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
@@ -9292,7 +9275,7 @@ static int ett_zbee_zcl_pp_publish_debt_log_entry[ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEB
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_pp_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -9307,7 +9290,7 @@ dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint
             *offset += 2;
             break;
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_pp_attr_data*/
@@ -10397,7 +10380,7 @@ proto_reg_handoff_zbee_zcl_pp(void)
                             -1,
                             hf_zbee_zcl_pp_srv_rx_cmd_id,
                             hf_zbee_zcl_pp_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_pp_attr_data
+                            dissect_zcl_pp_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_pp*/
 
@@ -10443,9 +10426,6 @@ void proto_reg_handoff_zbee_zcl_energy_management(void);
 
 static void dissect_zbee_zcl_energy_management_manage_event             (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void dissect_zbee_zcl_energy_management_report_event_status      (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
-
-/* Attribute Dissector Helpers */
-static void dissect_zcl_energy_management_attr_data                     (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -10565,7 +10545,7 @@ static const range_string zbee_zcl_energy_management_load_control_event_critical
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_energy_management_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -10575,7 +10555,7 @@ dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigne
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_energy_management_attr_data*/
@@ -10941,7 +10921,7 @@ proto_reg_handoff_zbee_zcl_energy_management(void)
                             -1,
                             hf_zbee_zcl_energy_management_srv_rx_cmd_id,
                             hf_zbee_zcl_energy_management_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_energy_management_attr_data
+                            dissect_zcl_energy_management_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_energy_management*/
 
@@ -10996,9 +10976,6 @@ VALUE_STRING_ARRAY(zbee_zcl_calendar_srv_tx_cmd_names);
 /*************************/
 void proto_register_zbee_zcl_calendar(void);
 void proto_reg_handoff_zbee_zcl_calendar(void);
-
-/* Attribute Dissector Helpers */
-static void dissect_zcl_calendar_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_calendar_get_calendar (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
@@ -11105,7 +11082,7 @@ VALUE_STRING_ARRAY(zbee_zcl_calendar_time_reference_names);
  *@param client_attr ZCL client
  */
 static void
-dissect_zcl_calendar_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_calendar_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -11115,7 +11092,7 @@ dissect_zcl_calendar_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_calendar_attr_data*/
@@ -11906,7 +11883,7 @@ proto_reg_handoff_zbee_zcl_calendar(void)
                             -1,
                             hf_zbee_zcl_calendar_srv_rx_cmd_id,
                             hf_zbee_zcl_calendar_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_calendar_attr_data
+                            dissect_zcl_calendar_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_calendar*/
 
@@ -11956,9 +11933,6 @@ VALUE_STRING_ARRAY(zbee_zcl_daily_schedule_srv_tx_cmd_names);
 /*************************/
 void proto_register_zbee_zcl_daily_schedule(void);
 void proto_reg_handoff_zbee_zcl_daily_schedule(void);
-
-/* Attribute Dissector Helpers */
-static void dissect_zcl_daily_schedule_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Command Dissector Helpers */
 static void dissect_zcl_daily_schedule_get_schedule(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
@@ -12292,12 +12266,12 @@ dissect_zcl_daily_schedule_get_day_profile(tvbuff_t *tvb, proto_tree *tree, unsi
  *@param data_type attribute data type
  */
 static void
-dissect_zcl_daily_schedule_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_daily_schedule_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     (void)attr_id;
     /* Catch all */
-    dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
-} /*dissect_zcl_calendar_attr_data*/
+    dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
+} /*dissect_zcl_daily_schedule_attr_data*/
 
 /**
  *This function registers the ZCL Calendar dissector
@@ -12408,9 +12382,9 @@ proto_reg_handoff_zbee_zcl_daily_schedule(void)
                             -1,
                             hf_zbee_zcl_daily_schedule_srv_rx_cmd_id,
                             hf_zbee_zcl_daily_schedule_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_daily_schedule_attr_data
+                            dissect_zcl_daily_schedule_attr_data
                          );
-} /*proto_reg_handoff_zbee_zcl_calendar*/
+} /*proto_reg_handoff_zbee_zcl_daily_schedule*/
 
 
 /* ########################################################################## */
@@ -12980,9 +12954,6 @@ VALUE_STRING_ARRAY(zbee_zcl_device_management_configuration_controls);
 void proto_register_zbee_zcl_device_management(void);
 void proto_reg_handoff_zbee_zcl_device_management(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -13112,7 +13083,7 @@ static int ett_zbee_zcl_device_management_proposed_tenancy_change_control;
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_device_management_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     switch (attr_id) {
         /* applies to all SE clusters */
@@ -13122,7 +13093,7 @@ dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigne
             break;
 
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_device_management_attr_data*/
@@ -13853,7 +13824,7 @@ proto_reg_handoff_zbee_zcl_device_management(void)
                             hf_zbee_zcl_device_management_attr_client_id,
                             hf_zbee_zcl_device_management_srv_rx_cmd_id,
                             hf_zbee_zcl_device_management_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_device_management_attr_data
+                            dissect_zcl_device_management_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_device_management*/
 
@@ -14631,9 +14602,6 @@ VALUE_STRING_ARRAY(zbee_zcl_sub_ghz_srv_tx_cmd_names);
 void proto_register_zbee_zcl_sub_ghz(void);
 void proto_reg_handoff_zbee_zcl_sub_ghz(void);
 
-/* Attribute Dissector Helpers */
-static void dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* Command Dissector Helpers */
 static void dissect_zcl_sub_ghz_suspend_zcl_messages(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
@@ -14668,7 +14636,7 @@ static int ett_zbee_zcl_sub_ghz;
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+dissect_zcl_sub_ghz_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -14684,7 +14652,7 @@ dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset,
         case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_30_CHANNEL_MASK:
         case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_31_CHANNEL_MASK:
         default: /* Catch all */
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 } /*dissect_zcl_sub_ghz_attr_data*/
@@ -14846,7 +14814,7 @@ proto_reg_handoff_zbee_zcl_sub_ghz(void)
                             -1,
                             hf_zbee_zcl_sub_ghz_srv_rx_cmd_id,
                             hf_zbee_zcl_sub_ghz_srv_tx_cmd_id,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_sub_ghz_attr_data
+                            dissect_zcl_sub_ghz_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_sub_ghz*/
 

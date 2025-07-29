@@ -94,9 +94,6 @@
 void proto_register_zbee_zcl_appl_idt(void);
 void proto_reg_handoff_zbee_zcl_appl_idt(void);
 
-/* Command Dissector Helpers */
-static void dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
-
 /* Private functions prototype */
 
 /*************************/
@@ -214,8 +211,8 @@ dissect_zbee_zcl_appl_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
  *@param data_type attribute data type
  *@param client_attr ZCL client
 */
-void
-dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+static void
+dissect_zcl_appl_idt_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     proto_tree  *sub_tree;
     uint64_t    value64;
@@ -266,7 +263,7 @@ dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -341,7 +338,7 @@ proto_reg_handoff_zbee_zcl_appl_idt(void)
                             hf_zbee_zcl_appl_idt_attr_id,
                             hf_zbee_zcl_appl_idt_attr_id,
                             -1, -1,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_appl_idt_attr_data
+                            dissect_zcl_appl_idt_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_appl_idt*/
 
@@ -394,9 +391,6 @@ proto_reg_handoff_zbee_zcl_appl_idt(void)
 
 void proto_register_zbee_zcl_met_idt(void);
 void proto_reg_handoff_zbee_zcl_met_idt(void);
-
-/* Command Dissector Helpers */
-static void dissect_zcl_met_idt_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -479,8 +473,8 @@ dissect_zbee_zcl_met_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
  *@param data_type attribute data type
  *@param client_attr ZCL client
 */
-void
-dissect_zcl_met_idt_attr_data (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
+static void
+dissect_zcl_met_idt_attr_data (proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -496,7 +490,7 @@ dissect_zcl_met_idt_attr_data (proto_tree *tree, tvbuff_t *tvb, unsigned *offset
             break;
 
         default:
-            dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+            dissect_zcl_attr_data(tvb, pinfo, tree, offset, data_type, client_attr);
             break;
     }
 
@@ -554,7 +548,7 @@ proto_reg_handoff_zbee_zcl_met_idt(void)
                             hf_zbee_zcl_met_idt_attr_id,
                             hf_zbee_zcl_met_idt_attr_id,
                             -1, -1,
-                            (zbee_zcl_fn_attr_data)dissect_zcl_met_idt_attr_data
+                            dissect_zcl_met_idt_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_met_idt*/
 
