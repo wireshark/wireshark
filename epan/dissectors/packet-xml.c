@@ -1325,17 +1325,10 @@ static xml_ns_t *duplicate_element(xml_ns_t *orig)
     return new_item;
 }
 
-static char *fully_qualified_name(GPtrArray *hier, char *name, char *proto_name)
+static char *fully_qualified_name(const char *name, const char *parent_name)
 {
-    unsigned i;
-    wmem_strbuf_t *s = wmem_strbuf_new(wmem_epan_scope(), proto_name);
-
-    wmem_strbuf_append(s, ".");
-
-    for (i = 1; i < hier->len; i++) {
-        wmem_strbuf_append_printf(s, "%s.", (char *)g_ptr_array_index(hier, i));
-    }
-
+    wmem_strbuf_t *s = wmem_strbuf_new(wmem_epan_scope(), parent_name);
+    wmem_strbuf_append_c(s, '.');
     wmem_strbuf_append(s, name);
 
     return wmem_strbuf_finalize(s);
@@ -1350,7 +1343,7 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
                                GString    *error,
                                wmem_array_t *hfs,
                                GArray     *etts,
-                               char       *proto_name)
+                               const char *parent_name)
 {
     xml_ns_t *fresh;
     xml_ns_t *orig;
@@ -1384,7 +1377,7 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
         return NULL;
     }
 
-    fqn = fully_qualified_name(hier, elem_name, proto_name);
+    fqn = fully_qualified_name(elem_name, parent_name);
 
     fresh = duplicate_element(orig);
     fresh->fqn = fqn;
@@ -1405,7 +1398,7 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
         xml_ns_t *child_element = NULL;
 
         g_ptr_array_add(hier, elem_name);
-        child_element = make_xml_hier(child_name, root, elements, hier, error, hfs, etts, proto_name);
+        child_element = make_xml_hier(child_name, root, elements, hier, error, hfs, etts, fqn);
         g_ptr_array_remove_index_fast(hier, hier->len - 1);
 
         if (child_element) {
@@ -1581,7 +1574,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
             curr_name = (char *)g_ptr_array_remove_index(root_element->element_names, 0);
             fresh       = duplicate_element((xml_ns_t *)wmem_map_lookup(elements, curr_name));
-            fresh->fqn  = fully_qualified_name(hier, curr_name, root_name);
+            fresh->fqn  = fully_qualified_name(curr_name, root_name);
 
             add_xml_field(hfs, &(fresh->hf_tag), curr_name, fresh->fqn);
             add_xml_field(hfs, &(fresh->hf_cdata), curr_name, fresh->fqn);
