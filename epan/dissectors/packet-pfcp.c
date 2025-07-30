@@ -1248,6 +1248,14 @@ static int hf_pfcp_jnpr_address_qualifier;
 static int hf_pfcp_jnpr_addr_primary;
 static int hf_pfcp_jnpr_addr_preferred;
 static int hf_pfcp_jnpr_targeted_distribution_weight;
+static int hf_pfcp_jnpr_l2tp_flag;
+static int hf_pfcp_jnpr_l2tp_tunnel_id;
+static int hf_pfcp_jnpr_l2tp_src_port;
+static int hf_pfcp_jnpr_l2tp_dst_port;
+static int hf_pfcp_jnpr_l2tp_tos_reflect;
+static int hf_pfcp_jnpr_l2tp_is_lns;
+static int hf_pfcp_jnpr_l2tp_ipv4;
+static int hf_pfcp_jnpr_l2tp_tunnel_index;
 
 static const value_string compute_limit_vals[] = {
     { 0, "Off" },
@@ -12755,6 +12763,20 @@ static int dissect_pfcp_jnpr_targeted_distribution(tvbuff_t *tvb, packet_info *p
     return tvb_reported_length(tvb);
 }
 
+static int dissect_pfcp_jnpr_remote_l2tp_tunnel_endpoint(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_flag, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_tunnel_id, tvb, 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_src_port, tvb, 3, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_dst_port, tvb, 5, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_tos_reflect, tvb, 7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_is_lns, tvb, 8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_ipv4, tvb, 9, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_jnpr_l2tp_tunnel_index, tvb, 13, 4, ENC_BIG_ENDIAN);
+
+    return tvb_reported_length(tvb);
+}
+
 
 static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32905 , "CPRI Port Info"                      , dissect_pfcp_jnpr_cpri_port_info, -1 } ,
@@ -12778,7 +12800,9 @@ static pfcp_generic_ie_t pfcp_jnpr_ies[] = {
     { VENDOR_JUNIPER, 32933 , "Service ID"                          , dissect_pfcp_jnpr_li_service_id, -1 },
     { VENDOR_JUNIPER, 32934 , "MD Header Contents"                  , dissect_pfcp_jnpr_li_md_header, -1 },
     { VENDOR_JUNIPER, 32937 , "Targeted Distribution"               , dissect_pfcp_jnpr_targeted_distribution, -1 },
+    { VENDOR_JUNIPER, 32938 , "Remote L2TP Tunnel Endpoint"         , dissect_pfcp_jnpr_remote_l2tp_tunnel_endpoint, -1 },
     { VENDOR_JUNIPER, 32940 , "Hierarchical Schedule"               , dissect_pfcp_jnpr_hierarchical_schedule, -1 } ,
+    { VENDOR_JUNIPER, 32941 , "L2TP"                                , dissect_pfcp_grouped_ie_wrapper, -1 } ,
     { VENDOR_JUNIPER, 32943 , "CP ID"                               , dissect_pfcp_jnpr_cp_id, -1 } ,
 };
 
@@ -18740,6 +18764,46 @@ proto_register_pfcp(void)
         { "Weight", "pfcp.jnpr.targeted_distribution.weight",
             FT_UINT16, BASE_DEC, NULL,
             0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_flag,
+        { "L2TP Flags", "pfcp.l2tp.flag",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_tunnel_id,
+        { "Tunnel ID", "pfcp.l2tp.tunnel_id",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_src_port,
+        { "Source Port", "pfcp.l2tp.src_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_dst_port,
+        { "Destination Port", "pfcp.l2tp.dst_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_tos_reflect,
+        { "TOS Reflect", "pfcp.l2tp.tos_reflect",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_is_lns,
+        { "Is LNS Tunnel", "pfcp.l2tp.is_lns",
+            FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_ipv4,
+        { "IPv4 Address", "pfcp.l2tp.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+
+        { &hf_pfcp_jnpr_l2tp_tunnel_index,
+        { "Tunnel Index", "pfcp.l2tp.tunnel_index",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
 
         /* Nokia */
