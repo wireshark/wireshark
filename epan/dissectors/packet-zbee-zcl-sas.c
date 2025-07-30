@@ -1033,7 +1033,7 @@ dissect_zcl_ias_wd_squawk(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
  *@param data_type attribute data type
  *@param client_attr ZCL client
 */
-void
+static void
 dissect_zcl_ias_wd_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */

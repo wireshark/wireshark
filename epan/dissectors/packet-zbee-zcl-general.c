@@ -1955,7 +1955,7 @@ dissect_zcl_groups_get_group_membership_response(tvbuff_t *tvb, proto_tree *tree
  *      none
  *---------------------------------------------------------------
  */
-void
+static void
 dissect_zcl_groups_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
@@ -6951,7 +6951,7 @@ dissect_zbee_zcl_binary_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
  *      none
  *---------------------------------------------------------------
  */
-void
+static void
 dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     static int * const status_flags[] = {
