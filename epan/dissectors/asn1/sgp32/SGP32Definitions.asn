@@ -1,0 +1,1046 @@
+-- 2.1.3  ASN.1
+
+SGP32Definitions {joint-iso-itu-t(2) international-organizations(23) gsma(146) rsp(1) asn1modules(1) sgp32v1(31)}
+DEFINITIONS
+AUTOMATIC TAGS ::=
+-- EXTENSIBILITY IMPLIED ::=
+BEGIN
+
+IMPORTS Certificate, SubjectPublicKeyInfo FROM PKIX1Explicit88 {iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit(18)}
+SubjectKeyIdentifier FROM PKIX1Implicit88 {iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-implicit(19)}
+CancelSessionReason, ServerSigned1, RspCapability, Iccid, TransactionId, ProfileInfoListRequest,  RulesAuthorisationTable, EUICCInfo1, DeviceInfo, VersionType, UICCCapability, PprIds, CertificationDataObject, Octet1, Octet16, Octet32, PrepareDownloadResponseOk, PrepareDownloadResponseError, AuthenticateResponseError, CtxParams1, ProfileInstallationResultData, OtherSignedNotification, EuiccSignPIR, ErrorResult, NotificationMetadata, CancelSessionResponseOk, SmdpSigned2, BoundProfilePackage, NotificationEvent, VendorSpecificExtension, DpProprietaryData, OperatorId, NotificationConfigurationInformation, ProfileClass, IconType, ProfileState, OctetTo16 FROM RSPDefinitions {joint-iso-itu-t(2) international-organizations(23) gsma(146) rsp(1) asn1modules(1) sgp22v2(2)};
+
+  -- 2.11.1.1  EuiccPackageRequest
+
+  EuiccPackageRequest ::= [81] SEQUENCE { -- Tag ' BF51', #SupportedForPsmoV1.0.0#
+    euiccPackageSigned EuiccPackageSigned,
+    eimSignature [APPLICATION 55] OCTET STRING -- Tag '5F37'
+  }
+
+  EuiccPackageSigned ::= SEQUENCE {
+    eimId [0] UTF8String (SIZE(1..128)),
+    eidValue [APPLICATION 26] Octet16, -- Tag '5A'
+    counterValue [1] INTEGER,
+    eimTransactionId [2] TransactionId OPTIONAL,
+    euiccPackage EuiccPackage
+  }
+
+  EuiccPackage ::= CHOICE {
+    psmoList SEQUENCE OF Psmo, -- #SupportedForPsmoV1.0.0#
+    ecoList  SEQUENCE OF Eco -- #SupportedForEcoV1.0.0#
+  }
+
+  -- 2.11.1.1.1  eIM Configuration Data
+
+  EimConfigurationData ::= SEQUENCE {
+    eimId [0] UTF8String (SIZE(1..128)), -- eimId of eIM
+    eimFqdn [1] UTF8String OPTIONAL, -- FQDN of eIM or intermediate server, if used
+    eimIdType [2] EimIdType OPTIONAL,
+    counterValue [3] INTEGER OPTIONAL, -- initial counterValue for the eIM
+    associationToken [4] INTEGER OPTIONAL,	
+    eimPublicKeyData [5] CHOICE {
+      eimPublicKey SubjectPublicKeyInfo, -- public key of eIM, used for eUICC Package signature verification, where the encoding follows X.509 standard
+      eimCertificate Certificate -- certificate of eIM, used for eUICC Package signature verification, where the encoding follows X.509 standard
+    } OPTIONAL, 
+    trustedPublicKeyDataTls [6] CHOICE {
+       trustedEimPkTls SubjectPublicKeyInfo, -- public key of eIM, used for TLS or DTLS, where the encoding follows X.509 standard 
+       trustedCertificateTls Certificate -- either the certificate of eIM, used for (D)TLS, or the certificate of the CA, where the encoding follows X.509 standard
+     } OPTIONAL,
+    eimSupportedProtocol [7] EimSupportedProtocol OPTIONAL,
+    euiccCiPKId [8] SubjectKeyIdentifier OPTIONAL, -- CI Public Key Identifier supported on the eUICC for signature creation
+    indirectProfileDownload[9] NULL OPTIONAL -- support of Indirect Profile download with indicated EimSupportedProtocol
+  }
+  EimIdType ::= INTEGER {
+    eimIdTypeOid(1),
+    eimIdTypeFqdn(2),
+    eimIdTypeProprietary(3)
+  }
+  EimSupportedProtocol ::= BIT STRING {
+    eimRetrieveHttps(0),
+    eimRetrieveCoaps(1),
+    eimInjectHttps(2),
+    eimInjectCoaps(3),
+    eimProprietary(4)
+  }
+
+  -- 2.11.1.1.2  eUICC Package Request Containing eCOs
+
+  Eco ::= CHOICE {
+    addEim [8] EimConfigurationData, -- for eIM configuration data see 2.11.1
+    deleteEim [9] SEQUENCE {eimId [0] UTF8String},
+    updateEim [10] EimConfigurationData,
+    listEim [11] SEQUENCE {}
+  }
+
+  -- 2.11.1.1.3  eUICC Package Request Containing PSMOs
+
+  Psmo ::= CHOICE {
+    enable [3] SEQUENCE {
+      iccid [APPLICATION 26] Iccid,
+      rollbackFlag NULL OPTIONAL
+    },
+    disable [4] SEQUENCE {iccid [APPLICATION 26] Iccid},
+    delete [5] SEQUENCE {iccid [APPLICATION 26] Iccid},
+    listProfileInfo [45] ProfileInfoListRequest, -- Tag 'BF2D'
+    getRAT [6] SEQUENCE {},
+    configureImmediateEnable [7] SEQUENCE {
+      immediateEnableFlag [0] NULL OPTIONAL,
+      defaultSmdpOid [1] OBJECT IDENTIFIER OPTIONAL,
+      defaultSmdpAddress [2] UTF8String OPTIONAL
+    },
+    setFallbackAttribute [8] SEQUENCE {iccid [APPLICATION 26] Iccid},
+    unsetFallbackAttribute [9] SEQUENCE {},
+    setDefaultDpAddress [101] SetDefaultDpAddressRequest -- Tag 'BF65'
+  }
+
+  -- 2.11.1.2  IpaEuiccDataRequest
+
+  IpaEuiccDataRequest ::= [82] SEQUENCE { -- Tag BF52
+    tagList	[APPLICATION 28] OCTET STRING, -- Tag '5C'
+    euiccCiPKIdentifierToBeUsed OCTET STRING OPTIONAL, -- CI Public Key Identifier (possibly truncated) supported on the eUICC for signature creation
+    searchCriteriaNotification [1] CHOICE {
+      seqNumber [0] INTEGER,
+      profileManagementOperation [1] NotificationEvent
+    } OPTIONAL,
+    searchCriteriaEuiccPackageResult [2] CHOICE {
+      seqNumber [0] INTEGER 
+    } OPTIONAL,
+    eimTransactionId [3] TransactionId OPTIONAL -- Tag '83'
+  }
+
+  -- 2.11.1.3  ProfileDownloadTriggerRequest
+
+  ProfileDownloadTriggerRequest ::= [84] SEQUENCE { -- Tag 'BF54'
+    profileDownloadData [0] ProfileDownloadData OPTIONAL,
+    eimTransactionId [2] TransactionId OPTIONAL
+  }
+  ProfileDownloadData ::= CHOICE {
+    activationCode [0] UTF8String (SIZE(0..255)),
+    contactDefaultSmdp [1] NULL,
+    contactSmds [2] SEQUENCE {
+      smdsAddress UTF8String OPTIONAL
+    }
+  }
+
+  -- 2.11.1.4  EimAcknowledgements
+
+  EimAcknowledgements ::= [83] SEQUENCE OF SequenceNumber -- Tag BF53
+  SequenceNumber ::= [0] INTEGER
+
+  -- 2.11.2.1  EuiccPackageResult
+
+  EuiccPackageResult ::= [81] CHOICE { -- Tag 'BF51' #SupportedForPsmoV1.0.0#
+    euiccPackageResultSigned EuiccPackageResultSigned,
+    euiccPackageErrorSigned EuiccPackageErrorSigned,
+    euiccPackageErrorUnsigned EuiccPackageErrorUnsigned
+  }
+  EuiccPackageResultSigned ::= SEQUENCE {
+    euiccPackageResultDataSigned EuiccPackageResultDataSigned, 
+    euiccSignEPR [APPLICATION 55] OCTET STRING -- Tag '5F37'
+  }
+  EuiccPackageResultDataSigned ::= SEQUENCE { -- #SupportedForPsmoV1.0.0#
+    eimId [0] UTF8String (SIZE(1..128)),
+    counterValue [1] INTEGER,
+    eimTransactionId[2] TransactionId OPTIONAL,
+    seqNumber [3] INTEGER,
+    euiccResult SEQUENCE OF EuiccResultData
+  }
+  EuiccResultData ::= CHOICE {
+    enableResult [3] EnableProfileResult, 
+    disableResult [4] DisableProfileResult, 
+    deleteResult [5] DeleteProfileResult, 
+    listProfileInfoResult [45] ProfileInfoListResponse, 
+    getRATResult [6] RulesAuthorisationTable, -- see SGP.22
+    configureImmediateEnableResult [7] ConfigureImmediateEnableResult,
+    addEimResult [8] AddEimResult,
+    deleteEimResult [9] DeleteEimResult,
+    updateEimResult [10] UpdateEimResult,
+    listEimResult [11] ListEimResult,
+    rollbackResult [12] RollbackProfileResult,
+    setFallbackAttributeResult [13] SetFallbackAttributeResult,
+    unsetFallbackAttributeResult [14] UnsetFallbackAttributeResult,
+    processingTerminated INTEGER {
+      resultSizeOverflow(1),
+      unknownOrDamagedCommand(2),
+      interruption(3),
+      undefinedError(127)
+    },
+    setDefaultDpAddressResult [101] SetDefaultDpAddressResponse
+  }
+  EuiccPackageErrorSigned ::= SEQUENCE {
+    euiccPackageErrorDataSigned EuiccPackageErrorDataSigned, 
+    euiccSignEPE [APPLICATION 55] OCTET STRING -- Tag '5F37'
+  }
+  EuiccPackageErrorDataSigned ::= SEQUENCE {
+    eimId [0] UTF8String (SIZE(1..128)),
+    counterValue [1] INTEGER,
+    eimTransactionId [2] TransactionId OPTIONAL,
+    euiccPackageErrorCode EuiccPackageErrorCode
+  }
+  EuiccPackageErrorCode ::= INTEGER {
+    invalidEid(3),
+    replayError(4),
+    counterValueOutOfRange(6),
+    sizeOverflow(15),
+    ecallActive(104),
+    undefinedError(127)
+}
+
+  EuiccPackageErrorUnsigned ::= SEQUENCE {
+    eimId [0] UTF8String (SIZE(1..128)),
+    eimTransactionId [2] TransactionId OPTIONAL,
+    associationToken [4] INTEGER OPTIONAL
+  }
+  ConfigureImmediateEnableResult ::= INTEGER {
+    ok(0),
+    insufficientMemory(1),
+    commandError(7),
+    undefinedError(127)
+  }
+  EnableProfileResult ::= INTEGER {
+    ok(0),
+    iccidOrAidNotFound(1),
+    profileNotInDisabledState(2),
+    disallowedByPolicy(3),
+    catBusy(5),
+    rollbackNotAvailable(20),
+    undefinedError(127)
+  }
+  DisableProfileResult ::= INTEGER {
+    ok(0),
+    iccidOrAidNotFound(1),
+    profileNotInEnabledState(2),
+    disallowedByPolicy(3),
+    catBusy(5),
+    undefinedError(127)
+  }
+  DeleteProfileResult ::= INTEGER {
+    ok(0),
+    iccidOrAidNotFound(1),
+    profileNotInDisabledState(2),
+    disallowedByPolicy(3),
+    rollbackNotAvailable(20),
+    returnFallbackProfile(21),	
+    undefinedError(127)
+  }
+  ProfileInfoListResponse ::= [45] CHOICE {
+    profileInfoListOk SEQUENCE OF ProfileInfo, -- see SGP.22
+    profileInfoListError ProfileInfoListError
+  }
+  ProfileInfoListError ::= INTEGER {
+    incorrectInputValues(1),
+    profileChangeOngoing (11),	
+    undefinedError(127)
+  }
+  RollbackProfileResult ::= INTEGER {
+    ok(0),	
+    undefinedError(127)
+  } 
+  SetFallbackAttributeResult ::= INTEGER {
+    ok(0),
+    iccidOrAidNotFound (1),
+    fallbackNotAllowed (2),
+    fallbackProfileEnabled (3),
+    undefinedError (127)
+  }
+  UnsetFallbackAttributeResult ::= INTEGER {
+    ok(0),
+    noFallbackAttribute(2),
+    fallbackProfileEnabled (3),
+    commandError(7),	
+    undefinedError (127)
+  }
+  AddEimResult ::= CHOICE {
+    associationToken [4] INTEGER,
+    addEimResultCode INTEGER {
+      ok(0),
+      insufficientMemory(1),
+      associatedEimAlreadyExists(2),
+      ciPKUnknown(3),
+      invalidAssociationToken(5),
+      counterValueOutOfRange(6),
+      commandError(7),
+      undefinedError(127)
+    }
+  }
+  DeleteEimResult ::= INTEGER {
+    ok(0),
+    eimNotFound(1),
+    lastEimDeleted(2), -- no eIM Configuration Data available in eUICC,
+    commandError(7),	
+    undefinedError(127)
+  }
+  UpdateEimResult ::= INTEGER {
+    ok(0),
+    eimNotFound (1),
+    ciPKUnknown(3),
+    counterValueOutOfRange(6),
+    commandError(7),
+    undefinedError(127)
+  }
+  ListEimResult ::= CHOICE {
+    eimIdList SEQUENCE OF EimIdInfo,
+    listEimError INTEGER {	
+      undefinedError(127)
+    }
+  }
+  EimIdInfo ::= SEQUENCE {
+    eimId [0] UTF8String (SIZE(1..128)),
+    eimIdType [2] EimIdType OPTIONAL -- present in case of eimIdTypeOid and eimIdTypeFqdn
+  }
+
+  -- 2.11.2.2  IpaEuiccDataResponse
+
+  IpaEuiccDataErrorCode ::= INTEGER {
+    incorrectTagList (1), 
+    euiccCiPKIdNotFound(5),
+    ecallActive(104),
+    undefinedError(127)
+  } 
+
+  IpaEuiccDataResponseError ::= SEQUENCE {
+    eimTransactionId [0] TransactionId OPTIONAL,
+    ipaEuiccDataErrorCode IpaEuiccDataErrorCode
+  }
+
+  IpaEuiccDataResponse ::= [82] CHOICE { -- Tag 'BF52'
+    ipaEuiccData IpaEuiccData,
+    ipaEuiccDataResponseError IpaEuiccDataResponseError
+  }
+
+  PendingNotificationList ::= SEQUENCE OF PendingNotification
+  EuiccPackageResultList ::= SEQUENCE OF EuiccPackageResult
+
+  IpaEuiccData ::= SEQUENCE {
+    notificationsList [0] PendingNotificationList OPTIONAL, -- Tag 'A0'
+    defaultSmdpAddress [1] UTF8String OPTIONAL, -- Tag '81'
+    euiccPackageResultList [2] EuiccPackageResultList OPTIONAL, -- Tag 'A2'
+    euiccInfo1 [32] EUICCInfo1 OPTIONAL, -- Tag 'BF20'
+    euiccInfo2 [34] EUICCInfo2 OPTIONAL, -- Tag 'BF22'
+    rootSmdsAddress [3] UTF8String OPTIONAL, -- Tag '83'
+    associationToken [4] INTEGER OPTIONAL, -- Tag '84'
+    eumCertificate [5] Certificate OPTIONAL, -- Tag 'A5'
+    euiccCertificate [6] Certificate OPTIONAL, -- Tag 'A6'
+    eimTransactionId [7] TransactionId OPTIONAL, -- Tag '87'
+    ipaCapabilities [8] IpaCapabilities OPTIONAL, -- Tag 'A8'
+    deviceInfo [9] DeviceInfo OPTIONAL -- Tag 'A9'
+  }
+
+  -- 2.11.2.3  ProfileDownloadTriggerResult
+
+  ProfileDownloadTriggerResult ::= [84] SEQUENCE { -- tag 'BF54'
+    eimTransactionId [2] TransactionId OPTIONAL,
+    profileDownloadTriggerResultData CHOICE {
+      profileInstallationResult [55] ProfileInstallationResult, -- see SGP.22 [4]
+      profileDownloadError SEQUENCE {
+        profileDownloadErrorReason [0] INTEGER {
+          ecallActive (104),
+          undefinedError(127)
+        },			
+        errorResponse OCTET STRING OPTIONAL
+      }
+    }
+  }
+
+  -- 3.8.4	ISD-R Selection and IPAe Activation
+
+  ISDRProprietaryApplicationTemplateIoT ::= [PRIVATE 1] SEQUENCE { -- Tag 'E1' 
+    euiccConfiguration BIT STRING {
+      ipaeSupported(0), -- IPA in the eUICC (IPAe) supported
+      enabledProfile(1) -- eUICC contains an Enabled Profile
+    }
+  }
+
+  IpaeActivationRequest ::= [66] SEQUENCE { -- Tag 'BF42'
+    ipaeOption BIT STRING {
+      activateIpae(0) -- IPAe activation
+    }
+  }
+
+  IpaeActivationResponse ::= [66] SEQUENCE { -- Tag 'BF42'
+    ipaeActivationResult INTEGER {ok(0), notSupported(1)}
+  }
+
+  -- 4.1  IPA Capabilities
+
+  IpaCapabilities ::= SEQUENCE {
+    ipaFeatures [0] BIT STRING {
+    directRspServerCommunication (0),
+    indirectRspServerCommunication (1),
+    eimDownloadDataHandling (2),
+    eimCtxParams1Generation (3),
+    eimProfileMetadataVerification (4),
+    minimizeEsipaBytes (5)
+    },
+    ipaSupportedProtocols [1] BIT STRING {
+      ipaRetrieveHttps(0),
+      ipaRetrieveCoaps(1),
+      ipaInjectHttps(2),
+      ipaInjectCoaps(3),
+      ipaProprietary(4)
+    } OPTIONAL
+  }
+
+  -- 4.4 Profile MetaData
+
+  -- Definition of ProfileInfo
+  ProfileInfo ::= [PRIVATE 3] SEQUENCE { -- Tag 'E3'
+    iccid Iccid OPTIONAL,
+    isdpAid [APPLICATION 15] OctetTo16 OPTIONAL, -- AID of the ISD-P containing the Profile, tag '4F'
+    profileState [112] ProfileState OPTIONAL, -- Tag '9F70'
+    profileNickname [16] UTF8String (SIZE(0..64)) OPTIONAL, -- Tag '90'
+    serviceProviderName [17] UTF8String (SIZE(0..32)) OPTIONAL, -- Tag '91'
+    profileName [18] UTF8String (SIZE(0..64)) OPTIONAL, -- Tag '92'
+    iconType [19] IconType OPTIONAL, -- Tag '93'
+    icon [20] OCTET STRING (SIZE(0..1024)) OPTIONAL, -- Tag '94', see condition in ES10b:GetProfilesInfo
+    profileClass [21] ProfileClass OPTIONAL, -- Tag '95'
+    notificationConfigurationInfo [22] SEQUENCE OF NotificationConfigurationInformation OPTIONAL, -- Tag 'B6'
+    profileOwner [23] OperatorId OPTIONAL, -- Tag 'B7'
+    dpProprietaryData [24] DpProprietaryData OPTIONAL, -- Tag 'B8'
+    profilePolicyRules [25] PprIds OPTIONAL, -- Tag '99'
+    serviceSpecificDataStoredInEuicc [34] VendorSpecificExtension OPTIONAL, -- Tag 'BF22'
+    ecallIndication [123] BOOLEAN OPTIONAL, -- Tag '9F7B'
+    fallbackAttribute [38] BOOLEAN DEFAULT FALSE, -- Tag '9F26', indicates a Fallback Profile if set to TRUE
+    fallbackAllowed [103] BOOLEAN OPTIONAL -- Tag '9F67', indicates if Fallback is authorized by the Profile Owner
+  }
+
+  -- 5.5 ES8+ beetween SM-DP+ and eUICC
+
+  StoreMetadataRequest ::= [37] SEQUENCE { -- Tag 'BF25'
+    iccid Iccid,
+    serviceProviderName [17] UTF8String (SIZE(0..32)), -- Tag '91'
+    profileName [18] UTF8String (SIZE(0..64)), -- Tag '92' (corresponds to 'Short Description' defined in SGP.21 [2])
+    iconType [19] IconType OPTIONAL, -- Tag '93' (JPG or PNG)
+    icon [20] OCTET STRING (SIZE(0..1024)) OPTIONAL, -- Tag '94' (Data of the icon. Size 64 x 64 pixel. This field SHALL only be present if iconType is present)
+    profileClass [21] ProfileClass DEFAULT operational, -- Tag '95'
+    notificationConfigurationInfo [22] SEQUENCE OF NotificationConfigurationInformation OPTIONAL,
+    profileOwner [23] OperatorId OPTIONAL, -- Tag 'B7'
+    profilePolicyRules [25] PprIds OPTIONAL, -- Tag '99'
+    serviceSpecificDataStoredInEuicc [34] VendorSpecificExtension OPTIONAL, -- Tag 'BF22'
+    serviceSpecificDataNotStoredInEuicc [35] VendorSpecificExtension OPTIONAL, -- Tag ‘BF23’
+    ecallIndication [123] BOOLEAN OPTIONAL, -- Tag '9F7B'
+    fallbackAllowed [103] BOOLEAN OPTIONAL -- Tag '9F67'
+  }
+
+  -- 5.6.1 Function (ES9+): AuthenticateClient
+  
+  AuthenticateClientRequest ::= [59] SEQUENCE { -- Tag 'BF3B'
+    transactionId [0] TransactionId,
+    authenticateServerResponse [56] AuthenticateServerResponse -- This is the response from ES10b.AuthenticateServer
+  }
+
+  -- 5.9.2  Function (ES10b): GetEUICCInfo
+
+  EUICCInfo2 ::= [34] SEQUENCE { -- Tag 'BF22' 
+    profileVersion [1] VersionType, -- Base eUICC Profile package version supported 
+    svn [2] VersionType, -- GSMA SGP.22 version supported (SVN)referenced by SGP.32
+    euiccFirmwareVer [3] VersionType, -- eUICC Firmware version 
+    extCardResource [4] OCTET STRING, -- Extended Card Resource Information according to ETSI TS 102 226 
+    uiccCapability [5] UICCCapability, 
+    ts102241Version [6] VersionType OPTIONAL, 
+    globalplatformVersion [7] VersionType OPTIONAL, 
+    rspCapability [8] RspCapability, 
+    euiccCiPKIdListForVerification [9] SEQUENCE OF SubjectKeyIdentifier, -- List of CI Public Key Identifiers supported on the eUICC for signature verification 
+    euiccCiPKIdListForSigning [10] SEQUENCE OF SubjectKeyIdentifier, -- List of CI Public Key Identifier supported on the eUICC for signature creation 
+    euiccCategory [11] INTEGER { 
+      other(0), 
+      basicEuicc(1), 
+      mediumEuicc(2), 
+      contactlessEuicc(3) 
+    } OPTIONAL, 
+    forbiddenProfilePolicyRules [25] PprIds OPTIONAL, -- Tag '99' 
+    ppVersion VersionType, -- Protection Profile version 
+    sasAcreditationNumber UTF8String (SIZE(0..64)), 
+    certificationDataObject [12] CertificationDataObject OPTIONAL, 
+    treProperties [13] BIT STRING { 
+      isDiscrete(0), 
+      isIntegrated(1), 
+      usesRemoteMemory(2) -- refers to the usage of remote memory protected by the Remote Memory Protection Function described in SGP.21 [4] 
+    } OPTIONAL, 
+    treProductReference [14] UTF8String OPTIONAL, -- Platform_Label as defined in GlobalPlatform DLOA specification [57] 
+    additionalEuiccProfilePackageVersions [15] SEQUENCE OF VersionType OPTIONAL,
+    ipaMode [16] IpaMode OPTIONAL, -- active IPA, mandatory within SGP.32
+    euiccCiPKIdListForSigningV3 [17] SEQUENCE OF SubjectKeyIdentifier OPTIONAL, -- not used by this version of SGP.32.
+    additionalEuiccInfo [18] OCTET STRING (SIZE(0..32)) OPTIONAL,	-- not used by this version of SGP.32
+    highestSvn [19] VersionType OPTIONAL, -- not used by this version of SGP.32 
+    iotSpecificInfo [20] IoTSpecificInfo OPTIONAL -- mandatory within SGP.32 
+  }
+
+  -- Definition of IoTSpecificInfo
+  IoTSpecificInfo ::= SEQUENCE {
+    iotVersion [0] SEQUENCE OF VersionType, -- SGP.32 version(s) supported by the eUICC, at least one must be present
+    ecallSupported [1] NULL OPTIONAL, -- if present, eUICC supports the Emergency Mechanism
+    fallbackSupported [2] NULL OPTIONAL -- if present, eUICC supports the Fallback Mechanism
+  }
+
+  -- Definition of IpaMode
+  IpaMode ::= INTEGER {
+    ipad (0), -- IPAd is active
+    ipae (1) -- IPAe is active
+  }
+
+  -- 5.9.4  Function (ES10b): AddInitialEim
+  
+  AddInitialEimRequest ::= [87] SEQUENCE { -- Tag 'BF57' 
+    eimConfigurationDataList [0] SEQUENCE OF EimConfigurationData
+  }
+
+  AddInitialEimResponse ::= [87] CHOICE { -- Tag 'BF57'
+    addInitialEimOk SEQUENCE OF CHOICE {
+      associationToken [4] INTEGER,
+      addOk NULL
+    },
+    addInitialEimError INTEGER {
+        insufficientMemory(1),
+      associatedEimAlreadyExists (2),
+      ciPKUnknown(3),
+      invalidAssociationToken(5),
+      counterValueOutOfRange(6),
+      commandError(7),
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.5  Function (ES10b): eUICCMemoryReset
+
+  EuiccMemoryResetRequest ::= [100] SEQUENCE { -- Tag 'BF64'
+    resetOptions [2] BIT STRING {
+      deleteOperationalProfiles(0),
+      deleteFieldLoadedTestProfiles(1),
+      resetDefaultSmdpAddress(2),	
+      deletePreLoadedTestProfiles(3),
+      deleteProvisioningProfiles(4),
+      resetEimConfigData(5),
+      resetImmediateEnableConfig (6)
+    }
+  }
+
+  EuiccMemoryResetResponse ::= [100] SEQUENCE { -- Tag 'BF64'
+    resetResult INTEGER {ok(0), nothingToDelete(1), catBusy(5), ecallActive(104), undefinedError(127)},
+    resetEimResult INTEGER {ok(0), nothingToDelete(1), eimResetNotSupported(2), undefinedError(127)} OPTIONAL,
+    resetImmediateEnableConfigResult INTEGER {ok(0), resetIECNotSupported (1), undefinedError(127)} OPTIONAL
+  }
+
+  -- 5.9.10  Function (ES10b): GetCerts
+
+  GetCertsRequest ::= [86] SEQUENCE { -- Tag 'BF56'
+    euiccCiPKId SubjectKeyIdentifier OPTIONAL -- CI Public Key Identifier supported on the eUICC for signature creation 
+  }
+
+  GetCertsResponse ::= [86] CHOICE { -- Tag 'BF56'
+    certs SEQUENCE {
+      eumCertificate [5] Certificate, -- Tag 'A5'
+      euiccCertificate [6] Certificate -- Tag 'A6'
+    },
+    getCertsError INTEGER {invalidCiPKId(1), undfinedError(127)}
+  }
+
+  -- 5.9.11  Function (ES10b): RetrieveNotificationsList
+
+  RetrieveNotificationsListRequest ::= [43] SEQUENCE { -- Tag 'BF2B'
+    searchCriteria CHOICE {
+      seqNumber [0] INTEGER,
+      profileManagementOperation [1] NotificationEvent,
+      euiccPackageResults [2] NULL
+    } OPTIONAL
+  }
+
+  RetrieveNotificationsListResponse ::= [43] CHOICE { -- Tag 'BF2B'
+    notificationList PendingNotificationList, -- Tag 'A0'
+    notificationsListResultError INTEGER { undefinedError(127)}, -- Tag '81'
+    euiccPackageResultList EuiccPackageResultList -- Tag 'A2'
+  }
+
+  -- 5.9.15  Function (ES10b): ImmediateEnable
+  
+  ImmediateEnableRequest ::= [90] SEQUENCE { -- Tag 'BF5A'
+    refreshFlag BOOLEAN -- indicating whether REFRESH is required
+  }
+
+  ImmediateEnableResponse ::= [90] SEQUENCE { -- Tag 'BF5A'
+    immediateEnableResult [0] INTEGER {
+      ok(0),
+      immediateEnableNotAvailable (1),
+      noSessionContext(4),
+      catBusy(5),
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.16  Function (ES10b): ProfileRollback
+
+  ProfileRollbackRequest ::= [88] SEQUENCE { -- Tag 'BF58'
+    refreshFlag BOOLEAN -- indicating whether REFRESH is required
+  }
+
+  ProfileRollbackResponse ::= [88] SEQUENCE { -- Tag 'BF58'
+    cmdResult INTEGER {
+      ok(0),
+      rollbackNotAllowed(1), -- Usage of rollback was not granted by the eIM
+      catBusy(5),
+      commandError(7),
+      undefinedError(127)
+    },
+    eUICCPackageResult [81] EuiccPackageResult OPTIONAL
+  }
+
+  -- 5.9.17  Function (ES10b): ConfigureImmediateProfileEnabling
+
+  ConfigureImmediateProfileEnablingRequest ::= [89] SEQUENCE { -- Tag 'BF59'
+    immediateEnableFlag [0] NULL OPTIONAL,
+    defaultSmdpOid [1] OBJECT IDENTIFIER OPTIONAL,
+    defaultSmdpAddress [2] UTF8String OPTIONAL
+  }
+
+  ConfigureImmediateProfileEnablingResponse ::= [89] SEQUENCE { -- Tag 'BF59'
+    configImmediateEnableResult [0] INTEGER {
+      ok(0),
+      insufficientMemory(1),
+      associatedEimAlreadyExists(2),
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.18  Function (ES10b): GetEimConfigurationData
+
+  GetEimConfigurationDataRequest ::= [85] SEQUENCE { -- Tag 'BF55'
+    searchCriteria CHOICE {
+      eimId [0] UTF8String (SIZE(1..128))	
+    } OPTIONAL
+  }
+
+  GetEimConfigurationDataResponse ::= [85] SEQUENCE { -- Tag 'BF55'
+    eimConfigurationDataList [0] SEQUENCE OF EimConfigurationData
+  }
+
+  -- 5.9.20	Function (ES10b): ExecuteFallbackMechanism
+
+  ExecuteFallbackMechanismRequest ::= [93] SEQUENCE { -- Tag ' BF5D'
+    refreshFlag BOOLEAN -- indicating whether REFRESH is required
+  }
+
+  ExecuteFallbackMechanismResponse ::= [93] SEQUENCE { -- Tag ' BF5D'
+    executeFallbackMechanismResult [0] INTEGER {
+      ok(0),
+      profileNotInDisabledState(2),
+      catBusy(5),
+      fallbackNotAvailable(6), -- Fallback Attribute not set
+      commandError(7),
+      ecallActive(104),
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.21	Function (ES10b): ReturnFromFallback
+
+  ReturnFromFallbackRequest ::= [94] SEQUENCE { -- Tag 'BF5E'
+    refreshFlag BOOLEAN -- indicating whether REFRESH is required
+  }
+
+  ReturnFromFallbackResponse ::= [94] SEQUENCE { -- Tag 'BF5E'
+    returnFromFallbackResult [0] INTEGER {
+      ok(0),
+      catBusy(5),
+      fallbackNotAvailable(6), -- Fallback Attribute not set 
+      commandError(7),
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.22 Function (ES10b): EnableEmergencyProfile
+
+  EnableEmergencyProfileRequest ::= [91] SEQUENCE { -- Tag 'BF5B'
+    refreshFlag BOOLEAN -- indicating whether REFRESH is required
+  }
+
+  EnableEmergencyProfileResponse ::= [91] SEQUENCE { -- Tag 'BF5B'
+    enableEmergencyProfileResult [0] INTEGER {
+      ok(0),
+      profileNotInDisabledState(2),
+      catBusy(5),
+      ecallNotAvailable(8), -- Emergency Profile does not exist
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.23 Function (ES10b): DisableEmergencyProfile
+
+  DisableEmergencyProfileRequest ::= [92] SEQUENCE { -- Tag 'BF5C'
+    refreshFlag BOOLEAN -- indicating whether REFRESH is required
+  }
+
+  DisableEmergencyProfileResponse ::= [92] SEQUENCE { -- Tag 'BF5C'
+    disableEmergencyProfileResult [0] INTEGER {
+      ok(0),
+      profileNotInEnabledState(2),
+      catBusy(5),
+      undefinedError(127)
+    }
+  }
+
+  -- 5.9.24 Function (ES10b): GetConnectivityParameters
+
+  GetConnectivityParametersRequest ::= [95] SEQUENCE { -- Tag 'BF5F'
+  }
+
+  GetConnectivityParametersResponse ::= [95] CHOICE { -- Tag 'BF5F'
+     connectivityParameters ConnectivityParameters,
+     connectivityParametersError ConnectivityParametersError
+  }
+
+  ConnectivityParameters ::= SEQUENCE {
+     httpParams [1] OCTET STRING OPTIONAL	-- Also used for CoAP
+  }
+
+  ConnectivityParametersError ::= INTEGER {
+     parametersNotAvailable(1),
+     undefinedError(127)
+  }
+
+  -- 5.9.25	Function (ES10b): SetDefaultDpAddress
+  
+  SetDefaultDpAddressRequest ::= [101] SEQUENCE { -- Tag 'BF65'
+    defaultDpAddress UTF8String -- Default SM-DP+ address as an FQDN
+  }
+
+  SetDefaultDpAddressResponse ::= [101] SEQUENCE { -- Tag 'BF65'
+    setDefaultDpAddressResult INTEGER { ok (0), undefinedError (127)}
+  }
+
+  -- 5.14.2  Function: (ESipa) GetBoundProfilePackage
+
+  PrepareDownloadResponse ::= [33] CHOICE { -- Tag 'BF21'
+    downloadResponseOk PrepareDownloadResponseOk,
+    downloadResponseError PrepareDownloadResponseError,
+    compactDownloadResponseOk CompactPrepareDownloadResponseOk
+  }
+  CompactPrepareDownloadResponseOk ::= SEQUENCE {
+    compactEuiccSigned2 CompactEuiccSigned2, -- Compact version of EuiccSigned2
+    euiccSignature2 [APPLICATION 55] OCTET STRING -- tag '5F37' signature on EuiccSigned2
+  }
+  CompactEuiccSigned2 ::= SEQUENCE {
+    euiccOtpk [APPLICATION 73] OCTET STRING OPTIONAL, -- otPK.EUICC.ECKA, tag '5F49' euiccOtpk is always present except if bppEuiccOtpk was chosen by the eUICC
+    hashCc Octet32 OPTIONAL -- Hash of confirmation code, if not received from eIM
+  }
+
+  -- 5.14.3  Function: (Esipa) AuthenticateClient
+
+  EuiccSigned1 ::= SEQUENCE {
+    transactionId [0] TransactionId,
+    serverAddress [3] UTF8String,
+    serverChallenge [4] Octet16, 	-- The RSP Server Challenge
+    euiccInfo2 [34] EUICCInfo2,
+    ctxParams1 CtxParams1
+  }
+  AuthenticateResponseOk ::= SEQUENCE {
+    euiccSigned1 EuiccSigned1, 		-- Signed information
+    euiccSignature1 [APPLICATION 55] OCTET STRING,	--EUICC_Sign1, tag 5F37
+    euiccCertificate Certificate, 	-- eUICC Certificate (CERT.EUICC.ECDSA) signed by the EUM
+    eumCertificate Certificate 	-- EUM Certificate (CERT.EUM.ECDSA) signed by the requested CI
+  }
+  AuthenticateServerResponse ::= [56] CHOICE { -- Tag 'BF38'
+    authenticateResponseOk AuthenticateResponseOk,
+    authenticateResponseError AuthenticateResponseError,
+    compactAuthenticateResponseOk CompactAuthenticateResponseOk
+  }
+  CompactAuthenticateResponseOk ::= SEQUENCE {
+    signedData CHOICE {
+      euiccSigned1 EuiccSigned1,
+      compactEuiccSigned1 [0] CompactEuiccSigned1 -- Compact version of EuiccSigned1
+    },
+    euiccSignature1 [APPLICATION 55] OCTET STRING, -- tag 5F37 signature on EuiccSigned1
+    euiccCertificate [1] Certificate OPTIONAL, -- eUICC Certificate (CERT.EUICC.ECDSA)
+    eumCertificate [2] Certificate OPTIONAL -- EUM Certificate (CERT.EUM.ECDSA)
+  }
+  CompactEuiccSigned1 ::= SEQUENCE {
+    extCardResource [4] OCTET STRING, -- Extended Card Resource Information according to ETSI TS 102 226 extracted from euiccInfo2,
+    ctxParams1 [2] CtxParams1 OPTIONAL -- ctxParams1 may be left out by IPA if eIM ctxParams1 was received from the eIM
+  }
+
+  -- 5.14.7  Function (ESipa): HandleNotification
+
+  PendingNotification ::= CHOICE {
+    profileInstallationResult [55] ProfileInstallationResult, -- tag 'BF37'
+    otherSignedNotification OtherSignedNotification,
+    compactProfileInstallationResult [0] CompactProfileInstallationResult,
+    compactOtherSignedNotification [1] CompactOtherSignedNotification
+  }
+  ProfileInstallationResult ::= [55] SEQUENCE { -- Tag 'BF37'
+    profileInstallationResultData [39] ProfileInstallationResultData,
+    euiccSignPIR EuiccSignPIR
+  }
+  CompactProfileInstallationResult ::= SEQUENCE {
+    compactProfileInstallationResultData [0] CompactProfileInstallationResultData,
+    euiccSignPIR EuiccSignPIR
+  }
+  CompactProfileInstallationResultData ::= SEQUENCE {
+    transactionId [0] TransactionId, -- The TransactionID generated by the SM-DP+
+    seqNumber INTEGER,
+    iccidPresent BOOLEAN DEFAULT TRUE,
+    compactFinalResult [2] CHOICE {
+      compactSuccessResult CompactSuccessResult,
+      errorResult ErrorResult
+    }
+  }
+  CompactSuccessResult ::= SEQUENCE {
+    compactAid [APPLICATION 15] OCTET STRING (SIZE (2)), -- Byte 14 and 15 of ISD-P AID
+    simaResponse OCTET STRING OPTIONAL -- MUST be present if the simaResponse value (EUICCResponse) is different from the 9-byte value ‘30 07 A0 05 30 03 80 01 00’ representing success
+  }
+  CompactOtherSignedNotification ::= SEQUENCE {
+    eidValue [APPLICATION 26] Octet16 OPTIONAL, -- Tag '5A'
+    tbsOtherNotification NotificationMetadata,
+    euiccNotificationSignature [APPLICATION 55] OCTET STRING -- eUICC signature of tbsOtherNotification, Tag '5F37'
+  }
+
+  -- 5.14.8  Function (ESipa): CancelSession
+
+  CancelSessionResponse ::= [65] CHOICE { -- Tag 'BF41'
+    cancelSessionResponseOk CancelSessionResponseOk,
+    cancelSessionResponseError INTEGER {invalidTransactionId(5), undefinedError(127)},
+    compactCancelSessionResponseOk CompactCancelSessionResponseOk
+  }
+  CompactCancelSessionResponseOk ::= SEQUENCE {
+    compactEuiccCancelSessionSigned CompactEuiccCancelSessionSigned,  -- Compact version of euiccCancelSessionSigned
+    euiccCancelSessionSignature [APPLICATION 55] OCTET STRING -- tag 5F37 signature on euiccCancelSessionSigned
+  }
+  CompactEuiccCancelSessionSigned ::= SEQUENCE {
+    reason CancelSessionReason OPTIONAL
+  }
+
+  -- 6.3.1  ASN.1 structures for ESipa messages between IPA and eIM
+
+  EsipaMessageFromIpaToEim ::= CHOICE {
+    initiateAuthenticationRequestEsipa [57] InitiateAuthenticationRequestEsipa, -- Tag 'BF39'
+    authenticateClientRequestEsipa [59] AuthenticateClientRequestEsipa, -- Tag 'BF3B'
+    getBoundProfilePackageRequestEsipa [58] GetBoundProfilePackageRequestEsipa, -- Tag 'BF3A'
+    cancelSessionRequestEsipa [65] CancelSessionRequestEsipa, -- Tag 'BF41'
+    handleNotificationEsipa [61] HandleNotificationEsipa, -- Tag 'BF3D'
+    transferEimPackageResponse [78] TransferEimPackageResponse, -- Tag 'BF4E'
+    getEimPackageRequest [79] GetEimPackageRequest, -- Tag 'BF4F'
+    provideEimPackageResult [80] ProvideEimPackageResult -- Tag 'BF50'
+  }
+  EsipaMessageFromEimToIpa ::= CHOICE {
+    initiateAuthenticationResponseEsipa [57] InitiateAuthenticationResponseEsipa, -- Tag 'BF39'
+    authenticateClientResponseEsipa [59] AuthenticateClientResponseEsipa, -- Tag 'BF3B'
+    getBoundProfilePackageResponseEsipa [58] GetBoundProfilePackageResponseEsipa, -- Tag 'BF3A'
+    cancelSessionResponseEsipa [65] CancelSessionResponseEsipa, -- Tag 'BF41'
+    transferEimPackageRequest [78] TransferEimPackageRequest, -- Tag 'BF4E'
+    getEimPackageResponse [79] GetEimPackageResponse, -- Tag 'BF4F'
+    provideEimPackageResultResponse [80] ProvideEimPackageResultResponse -- Tag 'BF50'
+  }
+
+  -- 6.3.2.1	ESipa.InitiateAuthentication
+
+  InitiateAuthenticationRequestEsipa ::= [57] SEQUENCE { -- Tag 'BF39'
+    euiccChallenge [1] Octet16, -- random eUICC challenge
+    smdpAddress [3] UTF8String OPTIONAL,
+    euiccInfo1 EUICCInfo1 OPTIONAL,
+    eimTransactionId [2] TransactionId OPTIONAL
+  }
+
+  InitiateAuthenticationResponseEsipa ::= [57] CHOICE { -- Tag 'BF39'
+    initiateAuthenticationOkEsipa InitiateAuthenticationOkEsipa,
+    initiateAuthenticationErrorEsipa INTEGER {
+      invalidDpAddress(1),
+      euiccVersionNotSupportedByDp(2),
+      ciPKIdNotSupported(3),
+      smdpAddressMismatch(50),
+      smdpOidMismatch(51),
+      invalidEimTransactionId(52),		
+      undefinedError(127)
+    }
+  }
+  InitiateAuthenticationOkEsipa ::= SEQUENCE {
+    transactionId [0] TransactionId OPTIONAL, -- The TransactionID generated by the SM-DP+
+    serverSigned1 ServerSigned1, -- Signed information
+    serverSignature1 [APPLICATION 55] OCTET STRING, -- Server Sign1, Tag '5F37'
+    euiccCiPKIdentifierToBeUsed OCTET STRING, -- Key identifier (possibly truncated) of the CI Public Key to be used as required by ES10b.AuthenticateServer
+    serverCertificate Certificate,
+    matchingId UTF8String OPTIONAL,
+    ctxParams1 [2] CtxParams1 OPTIONAL
+  }
+
+  -- 6.3.2.2  ESipa.AuthenticateClient
+
+  AuthenticateClientRequestEsipa ::= [59] SEQUENCE { -- Tag 'BF3B'
+    transactionId [0] TransactionId, -- The TransactionID generated by the SM-DP+/SM-DS
+    authenticateServerResponse [56] AuthenticateServerResponse -- This is the response from ES10b.AuthenticateServer, possibly in compact format
+  } 
+  AuthenticateClientResponseEsipa ::= [59] CHOICE { -- Tag 'BF3B'
+    authenticateClientOkDPEsipa AuthenticateClientOkDPEsipa,
+    authenticateClientOkDSEsipa AuthenticateClientOkDSEsipa,
+    authenticateClientErrorEsipa INTEGER {
+      eumCertificateInvalid(1),
+      eumCertificateExpired(2),
+      euiccCertificateInvalid(3),
+      euiccCertificateExpired(4),
+      euiccSignatureInvalid(5),
+      matchingIdRefused(6),
+      eidMismatch(7),
+      noEligibleProfile(8),
+      ciPKUnknown(9),
+      invalidTransactionId(10),
+      insufficientMemory(11),
+      pprNotAllowed(50),
+      eventIdUnknown(56),
+      undefinedError(127)
+    }
+  }
+  AuthenticateClientOkDPEsipa ::= SEQUENCE {
+    transactionId [0] TransactionId OPTIONAL, -- The TransactionID generated by the SM-DP+
+    profileMetaData [37] StoreMetadataRequest OPTIONAL,
+    smdpSigned2 SmdpSigned2, -- Signed information
+    smdpSignature2 [APPLICATION 55] OCTET STRING, -- Tag '5F37'
+    smdpCertificate Certificate, -- CERT.DPpb.ECDSA
+    hashCc Octet32 OPTIONAL -- Hash of confirmation code
+  }
+  AuthenticateClientOkDSEsipa ::= SEQUENCE {
+    transactionId [0] TransactionId, -- The TransactionID generated by the SM-DS
+    profileDownloadTrigger [84] ProfileDownloadTriggerRequest OPTIONAL -- Tag 'BF54' 
+  }
+
+  -- 6.3.2.3  ESipa.GetBoundProfilePackage
+
+  GetBoundProfilePackageRequestEsipa ::= [58] SEQUENCE { -- Tag 'BF3A'
+    transactionId [0] TransactionId, -- The TransactionID generated by the SM-DP+
+    prepareDownloadResponse [33] PrepareDownloadResponse -- This is the response from ES10b.PrepareDownload, possibly in compact format
+  } 
+  GetBoundProfilePackageResponseEsipa ::= [58] CHOICE { -- Tag 'BF3A'
+    getBoundProfilePackageOkEsipa GetBoundProfilePackageOkEsipa,
+    getBoundProfilePackageErrorEsipa INTEGER {
+      euiccSignatureInvalid(1),
+      confirmationCodeMissing(2),
+      confirmationCodeRefused(3),
+      confirmationCodeRetriesExceeded(4),
+      bppRebindingRefused(5),
+      downloadOrderExpired(6),
+      metadataMismatch(50),
+      invalidTransactionId(95),
+      undefinedError(127)
+    }
+  } 
+  GetBoundProfilePackageOkEsipa ::= SEQUENCE {
+    transactionId [0] TransactionId OPTIONAL, -- The TransactionID generated by the SM-DP+
+    boundProfilePackage [54] BoundProfilePackage
+  }
+
+  -- 6.3.2.4  ESipa.HandleNotification
+  
+  HandleNotificationEsipa ::= [61] CHOICE { -- Tag 'BF3D'
+    pendingNotification [0] PendingNotification, -- A Notification to be delivered to a Notification Receiver, possibly in compact format
+
+    provideEimPackageResult [80] ProvideEimPackageResult -- Tag 'BF50'
+  }
+
+  -- 6.3.2.5  ESipa.CancelSession
+
+  CancelSessionRequestEsipa ::= [65] SEQUENCE { -- Tag 'BF41'
+    transactionId TransactionId, -- The TransactionID generated by the SM-DP+
+    cancelSessionResponse CancelSessionResponse -- This is the response from ES10b. CancelSession function, possibly in compact format
+  }
+  CancelSessionResponseEsipa ::= [65] CHOICE { -- Tag 'BF41'
+    cancelSessionOk CancelSessionOk,
+    cancelSessionError INTEGER {
+      invalidTransactionId(1),
+      euiccSignatureInvalid(2),
+      undefinedError(127) 
+    }
+  }
+  CancelSessionOk ::= SEQUENCE { -- This function has no output data
+  } 
+
+  -- 6.3.2.6  ESipa.GetEimPackage
+
+  StateChangeCause ::= INTEGER {
+    otherEim(0), -- for change(s) requested by another registered eIM
+    fallback(1), -- for change(s) following fallback requested by IPA
+    emergencyProfile(2), -- for change(s) following Emergency Profile swap requested by IPA
+    local(3), -- for change(s) applied locally (RFU, not supported in this version)
+    reset(4), -- for change(s) following an euicc reset
+    immediateEnableProfile(5), -- for change(s) following immediate Profile enabling requested by IPA  
+    deviceChange(6), -- for change(s) detected by IPAe following a IoT Device change (removable eSIMs)
+    undefined(127)  -- unknown cause
+  }
+
+  GetEimPackageRequest ::= [79] SEQUENCE { -- Tag 'BF4F'
+    eidValue [APPLICATION 26] Octet16, -- Tag '5A'
+    notifyStateChange [0] NULL OPTIONAL, -- Notification to the eIM that it should update its information about the eUICC (e.g. list of profiles, profile states...)
+    stateChangeCause [1] StateChangeCause OPTIONAL, -- Provide the cause of the notified state change(s)
+    rPLMN [2] OCTET STRING (SIZE(3)) OPTIONAL -- MCC and MNC of the last registered PLMN, coded as defined in 3GPP TS 24.008 [22]
+  }
+  GetEimPackageResponse ::= [79] CHOICE { -- Tag 'BF4F'
+    euiccPackageRequest [81] EuiccPackageRequest, -- Tag 'BF51'
+    ipaEuiccDataRequest [82] IpaEuiccDataRequest, -- Tag 'BF52'	
+    profileDownloadTriggerRequest [84] ProfileDownloadTriggerRequest, -- Tag 'BF54'
+    eimPackageError INTEGER {
+      noEimPackageAvailable(1),
+      eidNotFound(2),
+      invalidEid(3),
+      missingEid(4),
+      undefinedError(127)
+    }
+  }
+
+  -- 6.3.2.7  ESipa.ProvideEimPackageResult
+  
+  EimPackageResultErrorCode ::= INTEGER {
+    invalidPackageFormat(1),
+    unknownPackage(2),
+    undefinedError(127) 
+  }  
+
+  EimPackageResultResponseError ::= SEQUENCE {
+    eimTransactionId [0] TransactionId OPTIONAL,
+    eimPackageResultErrorCode EimPackageResultErrorCode
+  }
+
+  EimPackageResult ::= CHOICE {
+    euiccPackageResult [81] EuiccPackageResult, -- Tag 'BF51'
+    ePRAndNotifications SEQUENCE {
+      euiccPackageResult [81] EuiccPackageResult, -- Tag 'BF51'
+      notificationList [0] PendingNotificationList -- Tag 'A0'
+    },
+    ipaEuiccDataResponse [82] IpaEuiccDataResponse, -- Tag 'BF52'
+    profileDownloadTriggerResult [84] ProfileDownloadTriggerResult, -- Tag 'BF54'
+    eimPackageResultResponseError [0] EimPackageResultResponseError
+  }
+
+  ProvideEimPackageResult ::= [80] SEQUENCE { -- Tag 'BF50'
+    eidValue [APPLICATION 26] Octet16 OPTIONAL, -- Tag '5A'
+    eimPackageResult EimPackageResult
+  }
+  ProvideEimPackageResultResponse ::= [80] CHOICE { -- Tag 'BF50'
+    eimAcknowledgements [83] EimAcknowledgements,-- Tag 'BF53'
+    emptyResponse SEQUENCE {}, -- because EimAcknowledgements was OPTIONAL
+    provideEimPackageResultError INTEGER {
+      eidNotFound(2),
+      invalidEid(3),
+      missingEid(4),
+      undefinedError(127)
+    }
+  }
+
+  -- 6.3.3.1  ESipa.TransferEimPackage
+
+  TransferEimPackageRequest ::= [78] CHOICE { -- Tag 'BF4E'
+    euiccPackageRequest [81] EuiccPackageRequest, -- Tag 'BF51'
+    ipaEuiccDataRequest [82] IpaEuiccDataRequest, -- Tag 'BF52'
+    eimAcknowledgements [83] EimAcknowledgements, -- Tag 'BF53'
+    profileDownloadTriggerRequest [84] ProfileDownloadTriggerRequest -- Tag 'BF54'
+  }
+  TransferEimPackageResponse ::= [78] CHOICE { -- Tag 'BF4E'
+    euiccPackageResult [81] EuiccPackageResult, -- Tag 'BF51'
+    ePRAndNotifications SEQUENCE {
+      euiccPackageResult [81] EuiccPackageResult, -- Tag 'BF51'
+      notificationList [0] PendingNotificationList  -- Tag 'A0'
+    },
+    ipaEuiccDataResponse [82] IpaEuiccDataResponse, -- Tag 'BF52'
+    eimPackageReceived NULL,
+    eimPackageError INTEGER {
+      invalidPackageFormat(1),
+      unknownPackage(2),
+      undefinedError(127)
+    }
+  }
+
+END

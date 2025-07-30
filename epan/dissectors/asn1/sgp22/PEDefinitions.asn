@@ -1,0 +1,51 @@
+PEDefinitions {joint-iso-itu-t(2) international-organizations(23) tca(143) euicc-profile(1) spec-version(1) version-three(3)}
+DEFINITIONS
+AUTOMATIC TAGS ::=
+-- EXTENSIBILITY IMPLIED ::=
+BEGIN
+EXPORTS UICCCapability; -- Definition to be used in remote provisioning specifications for eligibility check
+
+-- WS modification: Removed unused definitions to avoid a long list in .OMIT_ASSIGNMENT
+
+-- Definition of UICCCapability
+UICCCapability ::= BIT STRING {
+	contactlessSupport(0), 	-- Contactless (SWP, HCI and associated APIs)
+	usimSupport(1), 		-- USIM as defined by 3GPP
+	isimSupport(2), 		-- ISIM as defined by 3GPP
+	csimSupport(3), 		-- CSIM as defined by 3GPP2
+
+	akaMilenage(4), 		-- Milenage as AKA algorithm
+	akaCave(5),				-- CAVE as authentication algorithm
+	akaTuak128(6), 			-- TUAK as AKA algorithm with 128 bit key length
+	akaTuak256(7), 			-- TUAK as AKA algorithm with 256 bit key length
+	usimTestAlgorithm(8), 	-- USIM test algorithm
+	rfu2(9), 					-- reserved for further algorithms
+
+	gbaAuthenUsim(10),	-- GBA authentication in the context of USIM
+	gbaAuthenISim(11), 	-- GBA authentication in the context of ISIM
+	mbmsAuthenUsim(12), 	-- MBMS authentication in the context of USIM
+	eapClient(13), 			-- EAP client
+
+	javacard(14),				-- Java Card(TM) support
+	multos(15),				-- Multos support
+
+	multipleUsimSupport(16),	-- Multiple USIM applications are supported within the same Profile
+	multipleIsimSupport(17),	-- Multiple ISIM applications are supported within the same Profile
+	multipleCsimSupport(18),	-- Multiple CSIM applications are supported within the same Profile
+
+	berTlvFileSupport(19),	-- BER TLV files
+	dfLinkSupport(20),	-- Linked Directory Files
+	catTp(21),					-- Support of CAT TP
+	getIdentity(22),		-- Support of the GET IDENTITY command as defined in ETSI TS 102 221
+	profile-a-x25519(23),	-- Support of ECIES Profile A as defined in 3GPP TS 33.501 [87]
+	profile-b-p256(24),	-- Support of ECIES Profile B as defined in 3GPP TS 33.501 [87]
+	suciCalculatorApi(25),	-- Support of the associated API for SUCI derivation as defined in 3GPP 31.130 [31.130]
+	dns-resolution(26),	-- Support of DNS Resolution as defined by GP Amd B
+	scp11ac(27),			-- Support of GP Amd F SCP11 variants a and c
+	scp11c-authorization-mechanism(28),	-- Support of SCP11c authorization mechanism (Tag 'BF20')
+	s16mode(29),			-- Support of S16 mode as defined in GP Amd D and Amd F
+	eaka(30),					-- Support of enhanced AKA algorithm as defined in 3GPP TS [33.102]
+	iotminimal(31)			-- Support of IoT Minimal Profile as described in section 7.5
+}
+
+END

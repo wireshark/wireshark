@@ -121,6 +121,8 @@ set(ASN1_SRC_DIRS
 	s1ap
 	sabp
 	sbc-ap
+	sgp22
+	sgp32
 	smrse
 	snmp
 	spnego

@@ -1,0 +1,76 @@
+# sgp32.cnf
+
+#.MODULE_IMPORT
+PKIX1Explicit88 pkix1explicit
+PKIX1Implicit88 pkix1implicit
+RSPDefinitions sgp22
+
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../sgp22/sgp22_exp.cnf
+
+#.OMIT_ASSIGNMENT
+AuthenticateClientRequest
+EsipaMessageFromIpaToEim
+EsipaMessageFromEimToIpa
+#.END
+
+#.REGISTER
+ISDRProprietaryApplicationTemplateIoT      N sgp32.request   0xE1
+RetrieveNotificationsListRequest           N sgp32.request   0xBF2B
+RetrieveNotificationsListResponse          N sgp32.response  0xBF2B
+InitiateAuthenticationRequestEsipa         N sgp32.request   0xBF39
+InitiateAuthenticationResponseEsipa        N sgp32.response  0xBF39
+GetBoundProfilePackageRequestEsipa         N sgp32.request   0xBF3A
+GetBoundProfilePackageResponseEsipa        N sgp32.response  0xBF3A
+AuthenticateClientRequestEsipa             N sgp32.request   0xBF3B
+AuthenticateClientResponseEsipa            N sgp32.response  0xBF3B
+HandleNotificationEsipa                    N sgp32.request   0xBF3D
+CancelSessionRequestEsipa                  N sgp32.request   0xBF41
+CancelSessionResponseEsipa                 N sgp32.response  0xBF41
+IpaeActivationRequest                      N sgp32.request   0xBF42
+IpaeActivationResponse                     N sgp32.response  0xBF42
+TransferEimPackageRequest                  N sgp32.request   0xBF4E
+TransferEimPackageResponse                 N sgp32.response  0xBF4E
+GetEimPackageRequest                       N sgp32.request   0xBF4F
+GetEimPackageResponse                      N sgp32.response  0xBF4F
+ProvideEimPackageResult                    N sgp32.request   0xBF50
+ProvideEimPackageResultResponse            N sgp32.response  0xBF50
+EuiccPackageRequest                        N sgp32.request   0xBF51
+EuiccPackageResult                         N sgp32.response  0xBF51
+IpaEuiccDataRequest                        N sgp32.request   0xBF52
+IpaEuiccDataResponse                       N sgp32.response  0xBF52
+EimAcknowledgements                        N sgp32.request   0xBF53
+ProfileDownloadTriggerRequest              N sgp32.request   0xBF54
+ProfileDownloadData                        N sgp32.response  0xBF54
+GetEimConfigurationDataRequest             N sgp32.request   0xBF55
+GetEimConfigurationDataResponse            N sgp32.response  0xBF55
+GetCertsRequest                            N sgp32.request   0xBF56
+GetCertsResponse                           N sgp32.response  0xBF56
+AddInitialEimRequest                       N sgp32.request   0xBF57
+AddInitialEimResponse                      N sgp32.response  0xBF57
+ProfileRollbackRequest                     N sgp32.request   0xBF58
+ProfileRollbackResponse                    N sgp32.response  0xBF58
+ConfigureImmediateProfileEnablingRequest   N sgp32.request   0xBF59
+ConfigureImmediateProfileEnablingResponse  N sgp32.response  0xBF59
+ImmediateEnableRequest                     N sgp32.request   0xBF5A
+ImmediateEnableResponse                    N sgp32.response  0xBF5A
+EnableEmergencyProfileRequest              N sgp32.request   0xBF5B
+EnableEmergencyProfileResponse             N sgp32.response  0xBF5B
+DisableEmergencyProfileRequest             N sgp32.request   0xBF5C
+DisableEmergencyProfileResponse            N sgp32.response  0xBF5C
+ExecuteFallbackMechanismRequest            N sgp32.request   0xBF5D
+ExecuteFallbackMechanismResponse           N sgp32.response  0xBF5D
+ReturnFromFallbackRequest                  N sgp32.request   0xBF5E
+ReturnFromFallbackResponse                 N sgp32.response  0xBF5E
+GetConnectivityParametersRequest           N sgp32.request   0xBF5F
+GetConnectivityParametersResponse          N sgp32.response  0xBF5F
+EuiccMemoryResetRequest                    N sgp32.request   0xBF64
+EuiccMemoryResetResponse                   N sgp32.response  0xBF64
+SetDefaultDpAddressRequest                 N sgp32.request   0xBF65
+SetDefaultDpAddressResponse                N sgp32.response  0xBF65
+# fallbackAttribute                        N sgp32.request   0x9F26
+# fallbackAllowed                          N sgp32.request   0x9F67
+# ecallIndication                          N sgp32.request   0x9F7B
+
+#.END

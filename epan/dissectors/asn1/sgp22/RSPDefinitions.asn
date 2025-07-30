@@ -1,0 +1,829 @@
+RSPDefinitions {joint-iso-itu-t(2) international-organizations(23) gsma(146) rsp(1)  asn1modules(1) sgp22v2(2)}
+DEFINITIONS
+AUTOMATIC TAGS ::=
+-- EXTENSIBILITY IMPLIED ::=
+BEGIN
+
+IMPORTS Certificate, CertificateList, Time FROM PKIX1Explicit88 {iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit(18)}
+SubjectKeyIdentifier FROM PKIX1Implicit88 {iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-implicit(19)}
+UICCCapability FROM PEDefinitions {joint-iso-itu-t(2) international-organizations(23) tca(143) euicc-profile(1) spec-version(1) version-three(3)};
+-- The UICCCapability import module version is defined in section 5.7.8
+
+id-rsp OBJECT IDENTIFIER ::= {joint-iso-itu-t(2) international-organizations(23) gsma(146) rsp(1)}
+
+-- Basic types, for size constraints
+Octet8 ::= OCTET STRING (SIZE(8))
+Octet4 ::= OCTET STRING (SIZE(4))
+Octet16 ::= OCTET STRING (SIZE(16))
+OctetTo16 ::= OCTET STRING (SIZE(1..16))
+Octet32 ::= OCTET STRING (SIZE(32))
+Octet1 ::= OCTET STRING(SIZE(1))
+Octet2 ::= OCTET STRING (SIZE(2))
+VersionType ::= OCTET STRING(SIZE(3)) -- major/minor/revision version are coded as binary value on byte 1/2/3, e.g. '02 00 0C' for v2.0.12.
+-- If revision is not used (e.g. v2.1), byte 3 SHALL be set to '00'.
+Iccid ::= [APPLICATION 26] OCTET STRING (SIZE(10)) -- ICCID as coded in EFiccid, corresponding tag is '5A'
+RemoteOpId ::= [2] INTEGER {installBoundProfilePackage(1)}
+TransactionId ::= OCTET STRING (SIZE(1..16))
+
+-- Definition of EUICCInfo1 --------------------------
+GetEuiccInfo1Request ::= [32] SEQUENCE { -- Tag 'BF20'
+}
+
+EUICCInfo1 ::= [32] SEQUENCE { -- Tag 'BF20'
+	svn [2] VersionType, 	-- GSMA SGP.22 version supported (SVN)
+	euiccCiPKIdListForVerification [9] SEQUENCE OF SubjectKeyIdentifier, -- List of CI Public Key Identifiers supported on the eUICC for signature verification
+	euiccCiPKIdListForSigning [10] SEQUENCE OF SubjectKeyIdentifier -- List of CI Public Key Identifier supported on the eUICC for signature creation
+}
+
+-- Definition of EUICCInfo2 --------------------------
+GetEuiccInfo2Request ::= [34] SEQUENCE { -- Tag 'BF22'
+}
+
+EUICCInfo2 ::= [34] SEQUENCE { -- Tag 'BF22'
+	profileVersion [1] VersionType, 	-- Base eUICC Profile package version supported
+	svn [2] VersionType, 	-- GSMA SGP.22 version supported (SVN)
+	euiccFirmwareVer [3] VersionType, 	-- eUICC Firmware version
+	extCardResource [4] OCTET STRING, 	-- Extended Card Resource Information according to ETSI TS 102 226
+	uiccCapability [5] UICCCapability,
+	ts102241Version [6] VersionType OPTIONAL,
+	globalplatformVersion [7] VersionType OPTIONAL,
+	rspCapability [8] RspCapability,
+	euiccCiPKIdListForVerification [9] SEQUENCE OF SubjectKeyIdentifier, -- List of CI Public Key Identifiers supported on the eUICC for signature verification
+	euiccCiPKIdListForSigning [10] SEQUENCE OF SubjectKeyIdentifier, -- List of CI Public Key Identifier supported on the eUICC for signature creation
+	euiccCategory [11] INTEGER {
+		other(0),
+		basicEuicc(1),
+		mediumEuicc(2),
+		contactlessEuicc(3)
+	} OPTIONAL,
+	forbiddenProfilePolicyRules [25] PprIds OPTIONAL, -- Tag '99'
+	ppVersion VersionType, -- Protection Profile version
+	sasAcreditationNumber UTF8String (SIZE(0..64)),
+	certificationDataObject [12] CertificationDataObject OPTIONAL, 
+	treProperties [13] BIT STRING { 
+     isDiscrete(0),	
+		isIntegrated(1),
+		usesRemoteMemory(2) -- refers to the usage of remote memory protected by the Remote Memory Protection Function described in SGP.21 [4]
+	} OPTIONAL,
+	treProductReference [14] UTF8String OPTIONAL, -- Platform_Label as defined in GlobalPlatform DLOA specification [57]
+additionalEuiccProfilePackageVersions [15] SEQUENCE OF VersionType OPTIONAL
+}
+
+-- Definition of RspCapability
+RspCapability ::= BIT STRING {
+	additionalProfile(0), -- at least one more Profile can be installed
+	crlSupport(1), -- CRL
+	rpmSupport(2), -- Remote Profile Management
+	testProfileSupport (3), -- support for test profile
+  deviceInfoExtensibilitySupport (4),  -- support for ASN.1 extensibility in the Device Info
+	serviceSpecificDataSupport (5)  -- support for Service Specific Data in the Profile Metadata
+
+}
+
+-- Definition of CertificationDataObject
+CertificationDataObject ::= SEQUENCE {
+	platformLabel UTF8String,	-- Platform_Label as defined in GlobalPlatform DLOA specification [57]
+	discoveryBaseURL UTF8String	-- Discovery Base URL of the SE default DLOA Registrar as defined in GlobalPlatform DLOA specification [57]
+}
+
+CertificateInfo ::= BIT STRING {
+
+	reserved(0), 	-- eUICC has a CERT.EUICC.ECDSA in GlobalPlatform format. The use of this bit is deprecated.
+	certSigningX509(1), 	-- eUICC has a CERT.EUICC.ECDSA in X.509 format
+	rfu2(2),
+	rfu3(3),
+	reserved2(4), -- Handling of Certificate in GlobalPlatform format. The use of this bit is deprecated.
+	certVerificationX509(5)-- Handling of Certificate in X.509 format
+}
+
+
+-- Definition of DeviceInfo
+DeviceInfo ::= SEQUENCE {
+	tac Octet4,
+	deviceCapabilities DeviceCapabilities,
+	imei Octet8 OPTIONAL
+}
+
+DeviceCapabilities ::= SEQUENCE { -- Highest fully supported release for each definition
+  -- The device SHALL set all the capabilities it supports
+	gsmSupportedRelease VersionType OPTIONAL, 
+	utranSupportedRelease VersionType OPTIONAL,
+	cdma2000onexSupportedRelease VersionType OPTIONAL,
+	cdma2000hrpdSupportedRelease VersionType OPTIONAL,
+	cdma2000ehrpdSupportedRelease VersionType OPTIONAL,
+	eutranEpcSupportedRelease VersionType OPTIONAL,
+	contactlessSupportedRelease VersionType OPTIONAL,
+	rspCrlSupportedVersion VersionType OPTIONAL,
+   nrEpcSupportedRelease VersionType OPTIONAL,	
+	nr5gcSupportedRelease VersionType OPTIONAL,
+	eutran5gcSupportedRelease VersionType OPTIONAL,
+  lpaSvn VersionType OPTIONAL, -- Not defined in this version of SGP.22
+	catSupportedClasses CatSupportedClasses OPTIONAL, -- Not defined in this version of SGP.22
+	euiccFormFactorType EuiccFormFactorType OPTIONAL, -- Not defined in this version of SGP.22
+	deviceAdditionalFeatureSupport DeviceAdditionalFeatureSupport OPTIONAL
+}
+
+-- Definition of DeviceAdditionalFeatureSupport
+DeviceAdditionalFeatureSupport ::= SEQUENCE {
+	naiSupport VersionType OPTIONAL, -- Device supports Network Access Identifier
+	groupOfDeviceManufacturerOid OBJECT IDENTIFIER OPTIONAL -- the OID of Device Manufacturer or the Group of Device Manufacturers as defined in SGP.29
+}
+
+CatSupportedClasses ::= BIT STRING 
+EuiccFormFactorType ::= INTEGER
+
+
+ProfileInfoListRequest ::= [45] SEQUENCE { -- Tag 'BF2D'
+	searchCriteria [0] CHOICE {
+		isdpAid [APPLICATION 15] OctetTo16, -- AID of the ISD-P, tag '4F'
+		iccid Iccid, -- ICCID, tag '5A'
+		profileClass [21] ProfileClass -- Tag '95'
+	} OPTIONAL,
+	tagList [APPLICATION 28] OCTET STRING OPTIONAL -- tag '5C'
+}
+
+-- Definition of ProfileInfoList
+ProfileInfoListResponse ::= [45] CHOICE { -- Tag 'BF2D'
+	profileInfoListOk SEQUENCE OF ProfileInfo,
+	profileInfoListError ProfileInfoListError
+}
+
+ProfileInfo ::= [PRIVATE 3] SEQUENCE { -- Tag 'E3'
+	iccid Iccid OPTIONAL,
+	isdpAid [APPLICATION 15] OctetTo16 OPTIONAL, -- AID of the ISD-P containing the Profile, tag '4F'
+	profileState [112] ProfileState OPTIONAL, -- Tag '9F70'
+	profileNickname [16] UTF8String (SIZE(0..64)) OPTIONAL, -- Tag '90'
+	serviceProviderName [17] UTF8String (SIZE(0..32)) OPTIONAL, -- Tag '91'
+	profileName [18] UTF8String (SIZE(0..64)) OPTIONAL, -- Tag '92'
+	iconType [19] IconType OPTIONAL, -- Tag '93'
+	icon [20] OCTET STRING (SIZE(0..1024)) OPTIONAL, -- Tag '94', see condition in ES10c:GetProfilesInfo
+	profileClass [21] ProfileClass OPTIONAL, -- Tag '95'
+	notificationConfigurationInfo [22] SEQUENCE OF NotificationConfigurationInformation OPTIONAL, -- Tag 'B6'
+	profileOwner [23] OperatorId OPTIONAL, -- Tag 'B7'
+	dpProprietaryData [24] DpProprietaryData OPTIONAL, -- Tag 'B8'
+	profilePolicyRules [25] PprIds OPTIONAL, -- Tag '99'
+	serviceSpecificDataStoredInEuicc [34] VendorSpecificExtension OPTIONAL -- Tag 'BF22'
+}
+
+PprIds ::= BIT STRING {-- Definition of Profile Policy Rules identifiers
+	pprUpdateControl(0), -- defines how to update PPRs via ES6
+	ppr1(1), -- Indicator for PPR1 'Disabling of this Profile is not allowed'
+	ppr2(2) -- Indicator for PPR2 'Deletion of this Profile is not allowed'
+}
+
+OperatorId ::= SEQUENCE {
+	mccMnc OCTET STRING (SIZE(3)), -- MCC and MNC coded as defined in 3GPP TS 24.008 [32]
+	gid1 OCTET STRING OPTIONAL, -- referring to content of EF GID1 (file identifier '6F3E') as defined in 3GPP TS 31.102 [54]
+	gid2 OCTET STRING OPTIONAL -- referring to content of EF GID2 (file identifier '6F3F') as defined in 3GPP TS 31.102 [54]
+}
+
+ProfileInfoListError ::= INTEGER {incorrectInputValues(1), undefinedError(127)}
+
+-- Definition of StoreMetadata request
+
+StoreMetadataRequest ::= [37] SEQUENCE { -- Tag 'BF25'
+	iccid Iccid,
+	serviceProviderName [17] UTF8String (SIZE(0..32)), -- Tag '91'
+	profileName [18] UTF8String (SIZE(0..64)), -- Tag '92' (corresponds to 'Short Description' defined in SGP.21 [2])
+	iconType [19] IconType OPTIONAL, -- Tag '93' (JPG or PNG)
+	icon [20] OCTET STRING (SIZE(0..1024)) OPTIONAL, -- Tag '94'(Data of the icon. Size 64 x 64 pixel. This field SHALL only be present if iconType is present)
+	profileClass [21] ProfileClass DEFAULT operational, -- Tag '95'
+	notificationConfigurationInfo [22] SEQUENCE OF NotificationConfigurationInformation OPTIONAL,
+	profileOwner [23] OperatorId OPTIONAL, -- Tag 'B7'
+	profilePolicyRules [25] PprIds OPTIONAL, -- Tag '99'
+	serviceSpecificDataStoredInEuicc [34] VendorSpecificExtension OPTIONAL, -- Tag 'BF22'
+	serviceSpecificDataNotStoredInEuicc [35] VendorSpecificExtension OPTIONAL -- Tag 'BF23'
+
+}
+
+NotificationEvent ::= BIT STRING {
+	notificationInstall(0),
+	notificationEnable(1),
+	notificationDisable(2),
+	notificationDelete(3)
+}
+
+NotificationConfigurationInformation ::= SEQUENCE {
+	profileManagementOperation NotificationEvent,
+	notificationAddress UTF8String -- FQDN to forward the notification
+}
+
+OPENTYPE ::= CLASS {
+  &typeId OBJECT IDENTIFIER,
+  &Type
+}
+
+VendorSpecificExtension ::= SEQUENCE OF SEQUENCE {
+	vendorOid [0] OPENTYPE.&typeId, -- OID of the vendor who defined this specific extension
+	vendorSpecificData [1] OPENTYPE.&Type
+}
+
+IconType ::= INTEGER {jpg(0), png(1)}
+ProfileState ::= INTEGER {disabled(0), enabled(1)}
+ProfileClass ::= INTEGER {test(0), provisioning(1), operational(2)}
+
+-- Definition of UpdateMetadata request
+UpdateMetadataRequest ::= [42] SEQUENCE {  -- Tag 'BF2A'
+	serviceProviderName [17] UTF8String (SIZE(0..32)) OPTIONAL, -- Tag '91'
+	profileName [18] UTF8String (SIZE(0..64)) OPTIONAL, -- Tag '92'
+	iconType [19] IconType OPTIONAL, -- Tag '93'
+	icon [20] OCTET STRING (SIZE(0..1024)) OPTIONAL, -- Tag '94' 
+	profilePolicyRules [25] PprIds OPTIONAL, -- Tag '99'
+	serviceSpecificDataStoredInEuicc [34] VendorSpecificExtension OPTIONAL -- Tag 'BF22'
+
+}
+
+-- Definition of data objects for command PrepareDownload -------------------------
+PrepareDownloadRequest ::= [33] SEQUENCE {  -- Tag 'BF21'
+	smdpSigned2 SmdpSigned2, 			-- Signed information
+	smdpSignature2 [APPLICATION 55] OCTET STRING, 	-- DP_Sign1, tag '5F37'
+	hashCc Octet32 OPTIONAL, -- Hash of confirmation code
+	smdpCertificate Certificate	-- CERT.DPpb.ECDSA
+}
+
+SmdpSigned2 ::= SEQUENCE {
+	transactionId [0] TransactionId,	-- The TransactionID generated by the SM DP+
+	ccRequiredFlag BOOLEAN,	--Indicates if the Confirmation Code is required
+	bppEuiccOtpk [APPLICATION 73] OCTET STRING OPTIONAL 	-- otPK.EUICC.ECKA already used for binding the BPP, tag '5F49'
+}
+
+PrepareDownloadResponse ::= [33] CHOICE {  -- Tag 'BF21'
+	downloadResponseOk PrepareDownloadResponseOk,
+	downloadResponseError PrepareDownloadResponseError
+}
+
+PrepareDownloadResponseOk ::= SEQUENCE {
+	euiccSigned2 EUICCSigned2, 	-- Signed information
+	euiccSignature2 [APPLICATION 55] OCTET STRING	-- tag '5F37'
+}
+
+EUICCSigned2 ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	euiccOtpk [APPLICATION 73] OCTET STRING, 		-- otPK.EUICC.ECKA, tag '5F49'
+	hashCc Octet32 OPTIONAL 		-- Hash of confirmation code
+}
+
+PrepareDownloadResponseError ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	downloadErrorCode DownloadErrorCode
+}
+
+DownloadErrorCode ::= INTEGER {invalidCertificate(1), invalidSignature(2), unsupportedCurve(3), noSessionContext(4), invalidTransactionId(5), undefinedError(127)}
+
+-- Definition of data objects for command AuthenticateServer--------------------
+AuthenticateServerRequest ::= [56] SEQUENCE { -- Tag 'BF38'
+	serverSigned1 ServerSigned1, 				-- Signed information
+	serverSignature1 [APPLICATION 55] OCTET STRING, 	-- tag ‘5F37’
+	euiccCiPKIdToBeUsed SubjectKeyIdentifier, 		-- CI Public Key Identifier to be used
+	serverCertificate Certificate, -- RSP Server Certificate CERT.XXauth.ECDSA
+	ctxParams1 CtxParams1
+}
+
+ServerSigned1 ::= SEQUENCE {
+	transactionId [0] TransactionId,		-- The Transaction ID generated by the RSP Server
+	euiccChallenge [1] Octet16,		-- The eUICC Challenge
+	serverAddress [3] UTF8String, 	-- The RSP Server address
+	serverChallenge [4] Octet16		-- The RSP Server Challenge
+}
+
+CtxParams1 ::= CHOICE {
+	ctxParamsForCommonAuthentication CtxParamsForCommonAuthentication -- New contextual data objects MAY be defined for extensibility
+}
+
+CtxParamsForCommonAuthentication ::= SEQUENCE {
+	matchingId UTF8String OPTIONAL,-- The MatchingId could be the Activation code token or EventID or empty
+	deviceInfo DeviceInfo -- The Device information
+}
+
+AuthenticateServerResponse ::= [56] CHOICE { -- Tag 'BF38'
+	authenticateResponseOk AuthenticateResponseOk,
+	authenticateResponseError AuthenticateResponseError
+}
+
+AuthenticateResponseOk ::= SEQUENCE {
+	euiccSigned1 EuiccSigned1, 		-- Signed information
+	euiccSignature1 [APPLICATION 55] OCTET STRING,	--EUICC_Sign1, tag 5F37
+	euiccCertificate Certificate, 	-- eUICC Certificate (CERT.EUICC.ECDSA) signed by the EUM
+	eumCertificate Certificate 	-- EUM Certificate (CERT.EUM.ECDSA) signed by the requested CI
+}
+
+EuiccSigned1 ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	serverAddress [3] UTF8String,
+	serverChallenge [4] Octet16, 	-- The RSP Server Challenge
+	euiccInfo2 [34] EUICCInfo2,
+	ctxParams1 CtxParams1
+}
+
+AuthenticateResponseError ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	authenticateErrorCode AuthenticateErrorCode
+}
+
+AuthenticateErrorCode ::= INTEGER {invalidCertificate(1), invalidSignature(2), unsupportedCurve(3), noSessionContext(4), invalidOid(5), euiccChallengeMismatch(6), ciPKUnknown(7), undefinedError(127)}
+
+-- Definition of Cancel Session------------------------------
+CancelSessionRequest ::= [65] SEQUENCE { -- Tag 'BF41'
+	transactionId TransactionId,	 -- The TransactionID generated by the RSP Server
+	reason CancelSessionReason
+}
+
+CancelSessionReason ::= INTEGER {endUserRejection(0), postponed(1), timeout(2), pprNotAllowed(3), metadataMismatch(4), loadBppExecutionError(5), undefinedReason(127)}
+
+CancelSessionResponse ::= [65] CHOICE { -- Tag 'BF41'
+	cancelSessionResponseOk CancelSessionResponseOk,
+	cancelSessionResponseError INTEGER {invalidTransactionId(5), undefinedError(127)}
+}
+
+CancelSessionResponseOk ::= SEQUENCE {
+	euiccCancelSessionSigned EuiccCancelSessionSigned, 	-- Signed information
+	euiccCancelSessionSignature [APPLICATION 55] OCTET STRING	-- tag '5F37
+}
+
+EuiccCancelSessionSigned ::= SEQUENCE {
+	transactionId TransactionId,
+	smdpOid OBJECT IDENTIFIER, -- SM-DP+ OID as contained in CERT.DPauth.ECDSA
+	reason CancelSessionReason
+}
+
+-- Definition of Bound Profile Package --------------------------
+BoundProfilePackage ::= [54] SEQUENCE { -- Tag 'BF36'
+	initialiseSecureChannelRequest [35] InitialiseSecureChannelRequest, -- Tag 'BF23'
+	firstSequenceOf87 [0] SEQUENCE OF [7] OCTET STRING, -- sequence of '87' TLVs
+	sequenceOf88 [1] SEQUENCE OF [8] OCTET STRING, -- sequence of '88' TLVs
+	secondSequenceOf87 [2] SEQUENCE OF [7] OCTET STRING OPTIONAL, -- sequence of '87' TLVs
+	sequenceOf86 [3] SEQUENCE OF [6] OCTET STRING -- sequence of '86' TLVs
+}
+
+-- Definition of Get eUICC Challenge --------------------------
+GetEuiccChallengeRequest ::= [46] SEQUENCE { -- Tag 'BF2E'
+}
+
+GetEuiccChallengeResponse ::= [46] SEQUENCE { -- Tag 'BF2E'
+	euiccChallenge Octet16  -- random eUICC challenge
+}
+
+-- Definition of Profile Installation Result
+ProfileInstallationResult ::= [55] SEQUENCE { -- Tag 'BF37'
+	profileInstallationResultData [39] ProfileInstallationResultData,
+	euiccSignPIR EuiccSignPIR
+}
+
+ProfileInstallationResultData ::= [39] SEQUENCE { -- Tag 'BF27'
+	transactionId[0] TransactionId, -- The TransactionID generated by the SM-DP+
+	notificationMetadata[47] NotificationMetadata,
+	smdpOid OBJECT IDENTIFIER, -- SM-DP+ OID (same value as in CERT.DPpb.ECDSA)
+	finalResult [2] CHOICE {
+		successResult SuccessResult,
+		errorResult ErrorResult
+	}
+}
+
+EuiccSignPIR ::= [APPLICATION 55] OCTET STRING -- Tag '5F37', eUICC’s signature
+
+SuccessResult ::= SEQUENCE {
+	aid [APPLICATION 15] OCTET STRING (SIZE (5..16)), -- AID of ISD-P
+	simaResponse OCTET STRING -- contains (multiple) 'EUICCResponse' as defined in [5]
+}
+
+ErrorResult ::= SEQUENCE {
+	bppCommandId BppCommandId,
+	errorReason ErrorReason,
+	simaResponse OCTET STRING OPTIONAL -- contains (multiple) 'EUICCResponse' as defined in [5]
+}
+
+BppCommandId ::= INTEGER {initialiseSecureChannel(0), configureISDP(1), storeMetadata(2), storeMetadata2(3), replaceSessionKeys(4), loadProfileElements(5)}
+
+ErrorReason ::= INTEGER {
+	incorrectInputValues(1),
+	invalidSignature(2),
+	invalidTransactionId(3),
+	unsupportedCrtValues(4),
+	unsupportedRemoteOperationType(5),
+	unsupportedProfileClass(6),
+	scp03tStructureError(7),
+	scp03tSecurityError(8),
+	installFailedDueToIccidAlreadyExistsOnEuicc(9),	installFailedDueToInsufficientMemoryForProfile(10),
+	installFailedDueToInterruption(11),
+	installFailedDueToPEProcessingError (12),
+	installFailedDueToDataMismatch(13),
+	testProfileInstallFailedDueToInvalidNaaKey(14),
+	pprNotAllowed(15),
+	installFailedDueToUnknownError(127)
+}
+
+ListNotificationRequest ::= [40] SEQUENCE { -- Tag 'BF28'
+	profileManagementOperation [1] NotificationEvent OPTIONAL
+}
+
+ListNotificationResponse ::= [40] CHOICE { -- Tag 'BF28'
+	notificationMetadataList SEQUENCE OF NotificationMetadata, 
+	listNotificationsResultError INTEGER {undefinedError(127)}
+}
+
+NotificationMetadata ::= [47] SEQUENCE { -- Tag 'BF2F'
+	seqNumber [0] INTEGER,
+	profileManagementOperation [1] NotificationEvent, /*Only one bit SHALL be set to 1*/
+	notificationAddress UTF8String, -- FQDN to forward the notification
+	iccid Iccid OPTIONAL
+}
+
+-- Definition of Profile Nickname Information
+SetNicknameRequest ::= [41] SEQUENCE {  -- Tag 'BF29'
+	iccid Iccid,
+	profileNickname [16] UTF8String (SIZE(0..64))
+}
+
+SetNicknameResponse ::= [41] SEQUENCE { -- Tag 'BF29'
+	setNicknameResult INTEGER {ok(0), iccidNotFound (1), undefinedError(127)}
+}
+-- Definition of Activation Code Retrieval Info
+
+ActivationCodeRetrievalInfo ::= CHOICE {
+	activationCodeForProfileRedownload [1] UTF8String (SIZE(0..255)), -- Activation Code to be used for Profile re-download
+	activationCodeRetrievalAvailable [2] BOOLEAN, -- the Activation Code Retrieval is available
+	retryDelay [3] INTEGER -- expected time (in minutes) by when the SM-DP is ready
+}
+
+id-rsp-metadata OBJECT IDENTIFIER ::= { id-rsp metadata(3)}
+id-rsp-metadata-serviceSpecificOIDs OBJECT IDENTIFIER ::= { id-rsp-metadata serviceSpecificOIDs (1)}
+id-rsp-metadata-activationCodeRetrievalInfo OBJECT IDENTIFIER ::= { id-rsp-metadata activationCodeRetrievalInfo (1)}
+
+
+id-rsp-cert-objects OBJECT IDENTIFIER ::= {  id-rsp cert-objects(2)}
+
+id-rspExt OBJECT IDENTIFIER ::= {id-rsp-cert-objects 0}
+
+id-rspRole OBJECT IDENTIFIER ::= {id-rsp-cert-objects 1}
+
+-- Definition of OIDs for role identification
+id-rspRole-ci OBJECT IDENTIFIER ::= {id-rspRole 0}
+id-rspRole-euicc OBJECT IDENTIFIER ::= {id-rspRole 1}
+id-rspRole-eum OBJECT IDENTIFIER ::= {id-rspRole 2}
+id-rspRole-dp-tls OBJECT IDENTIFIER ::= {id-rspRole 3}
+id-rspRole-dp-auth OBJECT IDENTIFIER ::= {id-rspRole 4}
+id-rspRole-dp-pb OBJECT IDENTIFIER ::= {id-rspRole 5}
+id-rspRole-ds-tls OBJECT IDENTIFIER ::= {id-rspRole 6}
+id-rspRole-ds-auth OBJECT IDENTIFIER ::= {id-rspRole 7}
+
+--Definition of data objects for InitialiseSecureChannel Request
+InitialiseSecureChannelRequest ::= [35] SEQUENCE { -- Tag 'BF23'
+	remoteOpId RemoteOpId, -- Remote Operation Type Identifier (value SHALL be set to installBoundProfilePackage)
+	transactionId [0] TransactionId, -- The TransactionID generated by the SM-DP+
+	controlRefTemplate[6] IMPLICIT ControlRefTemplate, -- Control Reference Template (Key Agreement). Current specification considers a subset of CRT specified in GlobalPlatform Card Specification [8], section 6.4.2.3 for the Mutual Authentication Data Field
+	smdpOtpk [APPLICATION 73] OCTET STRING, ---otPK.DP.ECKA as specified in GlobalPlatform Card Specification [8] section 6.4.2.3 for ePK.OCE.ECKA, tag '5F49'
+	smdpSign [APPLICATION 55] OCTET STRING -- SM-DP's signature, tag '5F37'
+}
+
+ControlRefTemplate ::= SEQUENCE { 
+	keyType[0] Octet1, -- Key type according to GlobalPlatform Card Specification [8] Table 11-16, AES= '88', Tag '80'
+	keyLen[1] Octet1, --Key length in number of bytes. For current specification key length SHALL by 0x10 bytes, Tag '81'
+	hostId[4] OctetTo16 -- Host ID value , Tag '84'
+}
+
+--Definition of data objects for ConfigureISDPRequest 
+ConfigureISDPRequest ::= [36] SEQUENCE { -- Tag 'BF24'
+	dpProprietaryData [24] DpProprietaryData OPTIONAL -- Tag 'B8'
+}
+
+DpProprietaryData ::= SEQUENCE { --  maximum size including tag and length field: 128 bytes
+	dpOid OBJECT IDENTIFIER -- OID in the tree of the SM-DP+ that created the Profile
+	-- additional data objects defined by the SM-DP+ MAY follow
+}
+
+-- Definition of request message for command ReplaceSessionKeys
+ReplaceSessionKeysRequest ::= [38] SEQUENCE { -- tag 'BF26'
+/*The new initial MAC chaining value*/
+	initialMacChainingValue OCTET STRING,
+/*New session key value for encryption/decryption (PPK-ENC)*/
+	ppkEnc OCTET STRING,
+/*New session key value of the session key C-MAC computation/verification (PPK-MAC)*/
+	ppkCmac OCTET STRING
+}
+
+-- Definition of data objects for RetrieveNotificationsList
+RetrieveNotificationsListRequest ::= [43] SEQUENCE { -- Tag 'BF2B'
+	searchCriteria CHOICE {
+		seqNumber [0] INTEGER,
+		profileManagementOperation [1] NotificationEvent
+	} OPTIONAL
+}
+
+RetrieveNotificationsListResponse ::= [43] CHOICE { -- Tag 'BF2B'
+	notificationList SEQUENCE OF PendingNotification,
+	notificationsListResultError INTEGER { undefinedError(127)}
+}
+
+PendingNotification ::= CHOICE {
+	profileInstallationResult [55] ProfileInstallationResult, -- tag 'BF37'
+	otherSignedNotification OtherSignedNotification
+}
+
+OtherSignedNotification ::= SEQUENCE {
+	tbsOtherNotification NotificationMetadata,
+	euiccNotificationSignature [APPLICATION 55] OCTET STRING,	-- eUICC signature of tbsOtherNotification, Tag '5F37'
+	euiccCertificate Certificate, 	-- eUICC Certificate (CERT.EUICC.ECDSA) signed by the EUM
+	eumCertificate Certificate 	-- EUM Certificate (CERT.EUM.ECDSA) signed by the requested CI
+}
+
+-- Definition of notificationSent
+NotificationSentRequest ::= [48] SEQUENCE { -- Tag 'BF30'
+	seqNumber [0] INTEGER
+}
+
+NotificationSentResponse ::= [48] SEQUENCE { -- Tag 'BF30'
+	deleteNotificationStatus INTEGER {ok(0), nothingToDelete(1), undefinedError(127)}
+}
+
+-- Definition of Enable Profile --------------------------
+EnableProfileRequest ::= [49] SEQUENCE { -- Tag 'BF31'
+	profileIdentifier CHOICE {
+		isdpAid [APPLICATION 15] OctetTo16, -- AID, tag '4F'
+		iccid Iccid -- ICCID, tag '5A'
+	},
+	refreshFlag BOOLEAN -- indicating whether REFRESH is required
+}
+
+EnableProfileResponse ::= [49] SEQUENCE { -- Tag 'BF31'
+	enableResult INTEGER {ok(0), iccidOrAidNotFound (1), profileNotInDisabledState(2), disallowedByPolicy(3), wrongProfileReenabling(4), catBusy(5), undefinedError(127)}
+}
+
+-- Definition of Disable Profile --------------------------
+DisableProfileRequest ::= [50] SEQUENCE { -- Tag 'BF32'
+	profileIdentifier CHOICE {
+		isdpAid [APPLICATION 15] OctetTo16, -- AID, tag '4F'
+		iccid Iccid -- ICCID, tag '5A'
+	},
+	refreshFlag BOOLEAN -- indicating whether REFRESH is required
+}
+
+DisableProfileResponse ::= [50] SEQUENCE { -- Tag 'BF32'
+	disableResult INTEGER {ok(0), iccidOrAidNotFound (1), profileNotInEnabledState(2), disallowedByPolicy(3), catBusy(5), undefinedError(127)}
+}
+
+-- Definition of Delete Profile --------------------------
+DeleteProfileRequest ::= [51] CHOICE { -- Tag 'BF33'
+	isdpAid [APPLICATION 15] OctetTo16, -- AID, tag '4F'
+	iccid Iccid -- ICCID, tag '5A'
+}
+
+DeleteProfileResponse ::= [51] SEQUENCE { -- Tag 'BF33'
+	deleteResult INTEGER {ok(0), iccidOrAidNotFound (1), profileNotInDisabledState(2), disallowedByPolicy(3), undefinedError(127)}
+}
+
+-- Definition of Memory Reset --------------------------
+EuiccMemoryResetRequest ::= [52] SEQUENCE { -- Tag 'BF34'
+	resetOptions [2] BIT STRING {
+		deleteOperationalProfiles(0),
+		deleteFieldLoadedTestProfiles(1),
+		resetDefaultSmdpAddress(2)}
+}
+
+EuiccMemoryResetResponse ::= [52] SEQUENCE { -- Tag 'BF34'
+	resetResult INTEGER {ok(0), nothingToDelete(1), catBusy(5), undefinedError(127)}
+}
+
+-- Definition of Get EID --------------------------
+GetEuiccDataRequest ::= [62] SEQUENCE { -- Tag 'BF3E'
+	tagList [APPLICATION 28] Octet1  -- tag '5C', the value SHALL be set to '5A'
+}
+
+GetEuiccDataResponse ::= [62] SEQUENCE { -- Tag 'BF3E'
+	eidValue [APPLICATION 26] Octet16  -- tag '5A'
+}
+
+-- Definition of Get Rat
+
+GetRatRequest ::= [67] SEQUENCE { -- Tag ' BF43'
+	-- No input data
+}
+
+
+GetRatResponse ::= [67] SEQUENCE { -- Tag 'BF43'
+	rat RulesAuthorisationTable 
+}
+
+RulesAuthorisationTable ::= SEQUENCE OF ProfilePolicyAuthorisationRule
+ProfilePolicyAuthorisationRule ::= SEQUENCE {
+	pprIds PprIds,
+	allowedOperators SEQUENCE OF OperatorId,
+	pprFlags BIT STRING {consentRequired(0)}
+}
+
+-- Definition of data structure containing the list of CRL segments
+SegmentedCrlList ::= SEQUENCE OF CertificateList
+
+-- Definition of data structure command for loading a CRL
+LoadCRLRequest ::= [53] SEQUENCE { -- Tag 'BF35'
+	-- A CRL
+	crl CertificateList
+}
+
+-- Definition of data structure response for loading a CRL
+LoadCRLResponse ::= [53] CHOICE {  -- Tag 'BF35'
+	loadCRLResponseOk LoadCRLResponseOk,
+	loadCRLResponseError LoadCRLResponseError
+}
+
+LoadCRLResponseOk ::= SEQUENCE {
+	missingParts SEQUENCE OF INTEGER OPTIONAL
+}
+LoadCRLResponseError ::= INTEGER {invalidSignature(1), invalidCRLFormat(2), notEnoughMemorySpace(3), verificationKeyNotFound(4), fresherCrlAlreadyLoaded(5), baseCrlMissing(6), undefinedError(127)}
+
+-- Definition of the extension for Certificate Expiration Date
+id-rsp-expDate OBJECT IDENTIFIER ::= {id-rspExt 1}
+ExpirationDate ::= Time
+
+-- Definition of the extension id for total partial-CRL number
+id-rsp-totalPartialCrlNumber OBJECT IDENTIFIER ::= {id-rspExt 2}
+TotalPartialCrlNumber ::= INTEGER
+
+
+-- Definition of the extension id for the partial-CRL number
+id-rsp-partialCrlNumber OBJECT IDENTIFIER ::= {id-rspExt 3}
+PartialCrlNumber ::= INTEGER
+
+-- Definition for ES9+ ASN.1 Binding --------------------------
+RemoteProfileProvisioningRequest ::= [2] CHOICE { -- Tag 'A2'
+	initiateAuthenticationRequest [57] InitiateAuthenticationRequest,  -- Tag 'BF39'
+	authenticateClientRequest [59] AuthenticateClientRequest, -- Tag 'BF3B'
+	getBoundProfilePackageRequest [58] GetBoundProfilePackageRequest,  -- Tag 'BF3A'
+	cancelSessionRequestEs9 [65] CancelSessionRequestEs9, -- Tag 'BF41'
+	handleNotification [61] HandleNotification -- tag 'BF3D'
+}
+
+RemoteProfileProvisioningResponse ::= [2] CHOICE { -- Tag 'A2'
+	initiateAuthenticationResponse [57] InitiateAuthenticationResponse, -- Tag 'BF39'
+	authenticateClientResponseEs9 [59] AuthenticateClientResponseEs9, -- Tag 'BF3B'
+	getBoundProfilePackageResponse [58] GetBoundProfilePackageResponse, -- Tag 'BF3A'
+	cancelSessionResponseEs9 [65] CancelSessionResponseEs9, -- Tag 'BF41'
+	authenticateClientResponseEs11 [64] AuthenticateClientResponseEs11 -- Tag 'BF40'
+}
+
+InitiateAuthenticationRequest ::= [57] SEQUENCE { -- Tag 'BF39'
+	euiccChallenge [1] Octet16, -- random eUICC challenge
+	smdpAddress [3] UTF8String,
+	euiccInfo1 EUICCInfo1
+}
+
+InitiateAuthenticationResponse ::= [57] CHOICE { -- Tag 'BF39'
+	initiateAuthenticationOk InitiateAuthenticationOkEs9,
+	initiateAuthenticationError INTEGER {
+		invalidDpAddress(1),
+		euiccVersionNotSupportedByDp(2),
+		ciPKNotSupported(3)
+	}
+}
+
+InitiateAuthenticationOkEs9 ::= SEQUENCE {
+	transactionId [0] TransactionId, -- The TransactionID generated by the SM-DP+
+	serverSigned1 ServerSigned1, -- Signed information
+	serverSignature1 [APPLICATION 55] OCTET STRING, -- Server_Sign1, tag '5F37'
+	euiccCiPKIdToBeUsed SubjectKeyIdentifier, -- The curve CI Public Key to be used as required by ES10b.AuthenticateServer
+	serverCertificate Certificate
+}
+
+AuthenticateClientRequest ::= [59] SEQUENCE { -- Tag 'BF3B'
+	transactionId [0] TransactionId,
+	authenticateServerResponse [56] AuthenticateServerResponse, -- This is the response from ES10b.AuthenticateServer
+	useMatchingIdForAcr NULL OPTIONAL -- as defined in section 5.6.3
+}
+
+AuthenticateClientResponseEs9 ::= [59] CHOICE { -- Tag 'BF3B'
+	authenticateClientOk [0] AuthenticateClientOk,
+	authenticateClientError [1] INTEGER {
+		eumCertificateInvalid(1),
+		eumCertificateExpired(2),
+		euiccCertificateInvalid(3),
+		euiccCertificateExpired(4),
+		euiccSignatureInvalid(5),
+		matchingIdRefused(6),
+		eidMismatch(7),
+		noEligibleProfile(8),
+		ciPKUnknown(9),
+		invalidTransactionId(10),
+		insufficientMemory(11), -- Note: values 12-17 are reserved for future versions of SGP.22
+		downloadOrderExpired(18),
+		undefinedError(127)
+	},
+	authenticateClientOkAcr [5] AuthenticateClientOkAcr
+}
+
+AuthenticateClientOk ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	profileMetaData [37] StoreMetadataRequest,
+	smdpSigned2 SmdpSigned2, -- Signed information
+	smdpSignature2 [APPLICATION 55] OCTET STRING, 	-- tag '5F37'
+	smdpCertificate Certificate	-- CERT.DPpb.ECDSA
+}
+
+AuthenticateClientOkAcr ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	profileMetaData [37] StoreMetadataRequest
+}
+
+GetBoundProfilePackageRequest ::= [58] SEQUENCE { -- Tag 'BF3A'
+	transactionId [0] TransactionId,
+	prepareDownloadResponse [33] PrepareDownloadResponse
+}
+
+GetBoundProfilePackageResponse ::= [58] CHOICE { -- Tag 'BF3A'
+	getBoundProfilePackageOk GetBoundProfilePackageOk,
+	getBoundProfilePackageError INTEGER {
+		euiccSignatureInvalid(1),
+		confirmationCodeMissing(2),
+		confirmationCodeRefused(3),
+		confirmationCodeRetriesExceeded(4),
+		bppRebindingRefused(5),
+		deprecated(6), -- this value is no longer used
+		invalidTransactionId(95),
+		undefinedError(127)
+	}
+}
+
+GetBoundProfilePackageOk ::= SEQUENCE {
+	transactionId [0] TransactionId,
+	boundProfilePackage [54] BoundProfilePackage
+}
+
+HandleNotification ::= [61] SEQUENCE {  -- Tag 'BF3D'
+	pendingNotification PendingNotification
+}
+
+CancelSessionRequestEs9 ::= [65] SEQUENCE { -- Tag 'BF41'
+	transactionId TransactionId,
+	cancelSessionResponse  CancelSessionResponse -- data structure defined for ES10b.CancelSession function
+}
+
+CancelSessionResponseEs9 ::= [65] CHOICE { -- Tag 'BF41'
+	cancelSessionOk CancelSessionOk,
+	cancelSessionError INTEGER {
+		invalidTransactionId(1),
+		euiccSignatureInvalid(2),
+		undefinedError(127)
+	}
+}
+
+CancelSessionOk ::= SEQUENCE { -- This function has no output data
+}
+
+EuiccConfiguredAddressesRequest ::= [60] SEQUENCE { -- Tag 'BF3C'
+}
+
+EuiccConfiguredAddressesResponse ::= [60] SEQUENCE {  -- Tag 'BF3C'
+	defaultDpAddress UTF8String OPTIONAL,  -- Default SM-DP+ address as an FQDN
+	rootDsAddress UTF8String  -- Root SM-DS address as an FQDN
+}
+
+ISDRProprietaryApplicationTemplate ::= [PRIVATE 0] SEQUENCE { -- Tag 'E0'	
+	svn [2] VersionType, 	-- GSMA SGP.22 version supported (SVN)
+	lpaeSupport BIT STRING {
+		lpaeUsingCat(0), -- LPA in the eUICC using Card Application Toolkit 
+		lpaeUsingScws(1) -- LPA in the eUICC using Smartcard Web Server
+	} OPTIONAL
+}
+
+LpaeActivationRequest ::= [66] SEQUENCE { -- Tag 'BF42'
+	lpaeOption BIT STRING {
+		activateCatBasedLpae(0), -- LPAe with LUIe based on CAT
+		activateScwsBasedLpae(1) -- LPAe with LUIe based on SCWS
+	}
+}
+
+LpaeActivationResponse ::= [66] SEQUENCE { -- Tag 'BF42'
+	lpaeActivationResult INTEGER {ok(0), notSupported(1)}
+}
+
+SetDefaultDpAddressRequest ::= [63] SEQUENCE { -- Tag 'BF3F'
+	defaultDpAddress UTF8String -- Default SM-DP+ address as an FQDN
+}
+
+SetDefaultDpAddressResponse ::= [63] SEQUENCE { -- Tag 'BF3F'
+	setDefaultDpAddressResult INTEGER { ok (0), undefinedError (127)}
+}
+
+AuthenticateClientResponseEs11 ::= [64] CHOICE {  -- Tag 'BF40'
+	authenticateClientOk AuthenticateClientOkEs11,
+	authenticateClientError INTEGER {
+		eumCertificateInvalid(1),
+		eumCertificateExpired(2),
+		euiccCertificateInvalid(3),
+		euiccCertificateExpired(4),
+		euiccSignatureInvalid(5),
+		eventIdUnknown(6),
+		invalidTransactionId(7),
+		undefinedError(127)
+	}
+}
+
+AuthenticateClientOkEs11 ::= SEQUENCE {
+	transactionId TransactionId,
+	eventEntries SEQUENCE OF EventEntries
+}
+
+EventEntries ::= SEQUENCE {
+	eventId UTF8String,
+	rspServerAddress UTF8String
+}
+
+END

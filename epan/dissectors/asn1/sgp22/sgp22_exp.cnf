@@ -1,0 +1,13 @@
+#.IMPORT_TAG
+# CtxParams1                            BER_CLASS_UNI  BER_UNI_TAG_CHOICE
+EUICCInfo1                            BER_CLASS_CON  32
+EuiccSignPIR                          BER_CLASS_APP  55
+Iccid                                 BER_CLASS_APP  26
+NotificationConfigurationInformation  BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
+NotificationMetadata                  BER_CLASS_CON  47
+Octet32                               BER_CLASS_UNI  BER_UNI_TAG_OCTETSTRING
+OtherSignedNotification               BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
+ServerSigned1                         BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
+SmdpSigned2                           BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
+VersionType                           BER_CLASS_UNI  BER_UNI_TAG_OCTETSTRING
+#.END
