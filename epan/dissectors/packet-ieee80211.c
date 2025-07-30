@@ -33897,7 +33897,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       dissect_vendor_ie_apple(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     default:
-      proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset + 1, tag_vs_len - 1, ENC_NA);
       break;
   }
 
