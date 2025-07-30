@@ -1319,20 +1319,81 @@ update_someip_parameter_base_type_list(void *r, char **err) {
         return false;
     }
 
+    if (rec->data_type == NULL || rec->data_type[0] == 0) {
+        *err = ws_strdup_printf("Data Type cannot be empty (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
+    /* now check data_types and length in detail */
+    if (strncmp(rec->data_type, "uint", 4) == 0) {
+        if (strncmp(rec->data_type, "uint8", 5) == 0) {
+            if (rec->bitlength_base_type != 8 || rec->bitlength_encoded_type != 8) {
+                *err = ws_strdup_printf("Data Type uint8 must have length 8 and 8 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "uint16", 6) == 0) {
+            if (rec->bitlength_base_type != 16 || rec->bitlength_encoded_type != 16) {
+                *err = ws_strdup_printf("Data Type uint16 must have length 16 and 16 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "uint32", 6) == 0) {
+            if (rec->bitlength_base_type != 32 || rec->bitlength_encoded_type != 32) {
+                *err = ws_strdup_printf("Data Type uint32 must have length 32 and 32 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "uint64", 6) == 0) {
+            if (rec->bitlength_base_type != 64 || rec->bitlength_encoded_type != 64) {
+                *err = ws_strdup_printf("Data Type uint64 must have length 64 and 64 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else {
+            *err = ws_strdup_printf("Data Type uint can be 8, 16, 32, or 64 bit (ID: 0x%x)!", rec->id);
+            return false;
+        }
+    } else if (strncmp(rec->data_type, "int", 3) == 0) {
+        if (strncmp(rec->data_type, "int8", 4) == 0) {
+            if (rec->bitlength_base_type != 8 || rec->bitlength_encoded_type != 8) {
+                *err = ws_strdup_printf("Data Type int8 must have length 8 and 8 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "int16", 5) == 0) {
+            if (rec->bitlength_base_type != 16 || rec->bitlength_encoded_type != 16) {
+                *err = ws_strdup_printf("Data Type int16 must have length 16 and 16 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "int32", 5) == 0) {
+            if (rec->bitlength_base_type != 32 || rec->bitlength_encoded_type != 32) {
+                *err = ws_strdup_printf("Data Type int32 must have length 32 and 32 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "int64", 5) == 0) {
+            if (rec->bitlength_base_type != 64 || rec->bitlength_encoded_type != 64) {
+                *err = ws_strdup_printf("Data Type int64 must have length 64 and 64 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else {
+            *err = ws_strdup_printf("Data Type int can be 8, 16, 32, or 64 bit (ID: 0x%x)!", rec->id);
+            return false;
+        }
+    } else if (strncmp(rec->data_type, "float", 5) == 0) {
+        if (strncmp(rec->data_type, "float32", 7) == 0) {
+            if (rec->bitlength_base_type != 32 || rec->bitlength_encoded_type != 32) {
+                *err = ws_strdup_printf("Data Type float32 must have length 32 and 32 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        } else if (strncmp(rec->data_type, "float64", 7) == 0) {
+            if (rec->bitlength_base_type != 64 || rec->bitlength_encoded_type != 64) {
+                *err = ws_strdup_printf("Data Type float64 must have length 64 and 64 (ID: 0x%x)!", rec->id);
+                return false;
+            }
+        }
+    } else {
+        *err = ws_strdup_printf("Data Type only supports uint8/uint16/uin32/uint64, int8/int16/int32/int64, and float32/float64 (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
     if (rec->id > 0xffffffff) {
         *err = ws_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
-        return false;
-    }
-
-    if (rec->bitlength_base_type != 8 && rec->bitlength_base_type != 16 && rec->bitlength_base_type != 32 && rec->bitlength_base_type != 64) {
-        *err = ws_strdup_printf("Bit length of base type may only be 8, 16, 32, or 64. Affected item: ID (%i) Name (%s).", rec->id, rec->name);
-        return false;
-    }
-
-    /* As long as we check that rec->bitlength_base_type equals rec->bitlength_encoded_type, we do not have to check that bitlength_encoded_type is 8, 16, 32, or 64. */
-
-    if (rec->bitlength_base_type != rec->bitlength_encoded_type) {
-        *err = ws_strdup_printf("Bit length of encoded type must be equal to bit length of base type. Affected item: ID (%i) Name (%s). Shortened types supported by Signal-PDU dissector.", rec->id, rec->name);
         return false;
     }
 
@@ -2308,32 +2369,16 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref) {
                 ret.type = FT_UINT8;
             } else if (g_strcmp0(tmp->data_type, "uint16") == 0) {
                 ret.type = FT_UINT16;
-            } else if (g_strcmp0(tmp->data_type, "uint24") == 0) {
-                ret.type = FT_UINT24;
             } else if (g_strcmp0(tmp->data_type, "uint32") == 0) {
                 ret.type = FT_UINT32;
-            } else if (g_strcmp0(tmp->data_type, "uint40") == 0) {
-                ret.type = FT_UINT40;
-            } else if (g_strcmp0(tmp->data_type, "uint48") == 0) {
-                ret.type = FT_UINT48;
-            } else if (g_strcmp0(tmp->data_type, "uint56") == 0) {
-                ret.type = FT_UINT56;
             } else if (g_strcmp0(tmp->data_type, "uint64") == 0) {
                 ret.type = FT_UINT64;
             } else if (g_strcmp0(tmp->data_type, "int8") == 0) {
                 ret.type = FT_INT8;
             } else if (g_strcmp0(tmp->data_type, "int16") == 0) {
                 ret.type = FT_INT16;
-            } else if (g_strcmp0(tmp->data_type, "int24") == 0) {
-                ret.type = FT_INT24;
             } else if (g_strcmp0(tmp->data_type, "int32") == 0) {
                 ret.type = FT_INT32;
-            } else if (g_strcmp0(tmp->data_type, "int40") == 0) {
-                ret.type = FT_INT40;
-            } else if (g_strcmp0(tmp->data_type, "int48") == 0) {
-                ret.type = FT_INT48;
-            } else if (g_strcmp0(tmp->data_type, "int56") == 0) {
-                ret.type = FT_INT56;
             } else if (g_strcmp0(tmp->data_type, "int64") == 0) {
                 ret.type = FT_INT64;
             } else if (g_strcmp0(tmp->data_type, "float32") == 0) {
