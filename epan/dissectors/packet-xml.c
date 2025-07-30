@@ -2126,15 +2126,7 @@ register_xml_fields(const char *unused _U_)
 }
 
 static void
-xml_init_protocol(void)
-{
-    // The longest encoding at https://www.iana.org/assignments/character-sets/character-sets.xml
-    // is 45 characters (Extended_UNIX_Code_Packed_Format_for_Japanese).
-    encoding_pattern = g_regex_new("^\\s*<[?]xml\\s+version\\s*=\\s*[\"']\\s*(?U:.+)\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*((?U).{1,50})\\s*[\"']", G_REGEX_CASELESS, 0, 0);
-}
-
-static void
-xml_cleanup_protocol(void) {
+xml_shutdown_protocol(void) {
     g_regex_unref(encoding_pattern);
 }
 
@@ -2224,8 +2216,10 @@ proto_register_xml(void)
                                    "Unsupported encoding will be replaced by the default UTF-8.",
                                    &pref_default_encoding, ws_supported_mibenum_vals_character_sets_ev_array, false);
 
-    register_init_routine(&xml_init_protocol);
-    register_cleanup_routine(&xml_cleanup_protocol);
+    // The longest encoding at https://www.iana.org/assignments/character-sets/character-sets.xml
+    // is 45 characters (Extended_UNIX_Code_Packed_Format_for_Japanese).
+    encoding_pattern = g_regex_new("^\\s*<[?]xml\\s+version\\s*=\\s*[\"']\\s*(?U:.+)\\s*[\"']\\s+encoding\\s*=\\s*[\"']\\s*((?U).{1,50})\\s*[\"']", G_REGEX_CASELESS, 0, 0);
+    register_shutdown_routine(&xml_shutdown_protocol);
 
     xml_handle = register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
