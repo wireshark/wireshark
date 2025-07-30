@@ -20701,6 +20701,7 @@ static void
 dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 {
   int tag_len = tvb_reported_length(tag_tvb);
+  int dissect;
   uint8_t subtype;
   int offset = 0;
   tvbuff_t *vendor_tvb;
@@ -20711,7 +20712,10 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
   subtype = tvb_get_uint8(tag_tvb, 3);
   proto_item_append_text(item, ": %s", val_to_str_const(subtype, wfa_subtype_vals, "Unknown"));
   vendor_tvb = tvb_new_subset_length(tag_tvb, offset + 4, tag_len - 4);
-  dissector_try_uint_with_data(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, false, NULL);
+  dissect = dissector_try_uint_with_data(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, false, NULL);
+  if (dissect <= 0) {
+      proto_tree_add_item(item, hf_ieee80211_tag_vendor_data, vendor_tvb, 0, tag_len - 4, ENC_NA);
+  }
 }
 
 static const range_string kde_selectors_rvals[] = {
