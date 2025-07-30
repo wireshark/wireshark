@@ -29,6 +29,6 @@
 
 void
 dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
-		 int size, packet_info* pinfo);
+		 int size, packet_info* pinfo, bool add_details);
 
 #endif

@@ -2231,7 +2231,7 @@ static int
 dissect_wsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         unsigned offset, uint16_t len)
 {
-    dissect_wps_tlvs(tree, tvb, offset, len, pinfo);
+    dissect_wps_tlvs(tree, tvb, offset, len, pinfo, true);
     offset += len;
 
     return offset;
