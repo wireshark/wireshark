@@ -1260,6 +1260,10 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
 
     while(dtd_data->elements->len) {
         dtd_named_list_t *nl = (dtd_named_list_t *)g_ptr_array_remove_index_fast(dtd_data->elements, 0);
+        // Make sure the names get freed. (We don't set this earlier because
+        // g_ptr_array_steal_index[_fast] wasn't introduced until GLib 2.58,
+        // and our current minimum is 2.54)
+        g_ptr_array_set_free_func(nl->list, g_free);
         g_ptr_array_free(nl->list, true);
         g_free(nl->name);
         g_free(nl);
@@ -1269,6 +1273,7 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
 
     while(dtd_data->attributes->len) {
         dtd_named_list_t *nl = (dtd_named_list_t *)g_ptr_array_remove_index_fast(dtd_data->attributes, 0);
+        g_ptr_array_set_free_func(nl->list, g_free);
         g_ptr_array_free(nl->list, true);
         g_free(nl->name);
         g_free(nl);
