@@ -757,6 +757,7 @@ proto_cleanup_base(void)
 
 	if (saved_dir_queue != NULL) {
 		g_queue_clear_full(saved_dir_queue, g_free);
+		g_queue_free(saved_dir_queue);
 		saved_dir_queue = NULL;
 	}
 }
