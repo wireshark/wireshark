@@ -252,7 +252,12 @@ There is no new or updated capture file support in this release.
 // --
 // --
 
-// === New and Updated Capture Interfaces support
+=== New and Updated Capture Interfaces support
+
+* On Windows, etwdump's user-friendliness has been greatly improved
+  thanks to various extcap changes. It should also now display the
+  raw bytes of unknown events.
+
 // [commaize]
 // --
 // --
