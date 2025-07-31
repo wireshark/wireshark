@@ -77,6 +77,37 @@ static tvbparse_wanted_t *want_heur;
 static wmem_map_t *xmpli_names;
 static wmem_map_t *media_types;
 
+
+typedef struct _xml_ns_t {
+    /* the name of this namespace */
+    char* name;
+
+    /* its fully qualified name */
+    const char* fqn;
+
+    /* the contents of the whole element from <> to </> */
+    int hf_tag;
+
+    /* chunks of cdata from <> to </> excluding sub tags */
+    int hf_cdata;
+
+    /* the subtree for its sub items  */
+    int ett;
+
+    wmem_map_t* attributes;
+    /*  key:   the attribute name
+        value: hf_id of what's between quotes */
+
+        /* the namespace's namespaces */
+    wmem_map_t* elements;
+    /*	key:   the element name
+        value: the child namespace */
+
+    GList* element_names;
+    /* imported directly from the parser and used while building the namespace */
+
+} xml_ns_t;
+
 static xml_ns_t xml_ns     = {"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t unknown_ns = {"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
@@ -91,7 +122,7 @@ static int pref_default_encoding = IANA_CS_UTF_8;
 
 typedef struct _dtd_named_list_t {
     char* name;
-    GPtrArray* list;
+    GList* list;
 } dtd_named_list_t;
 
 typedef struct _dtd_build_data_t {
@@ -1201,6 +1232,11 @@ static void add_xml_field(wmem_array_t *hfs, int *p_id, const char *name, const 
     wmem_array_append_one(hfs, hfri);
 }
 
+static char* fully_qualified_name(const char* name, const char* parent_name)
+{
+    return wmem_strdup_printf(wmem_epan_scope(), "%s.%s", parent_name, name);
+}
+
 static void add_xml_attribute_names(void *k, void *v, void *p)
 {
     struct _attr_reg_data *d = (struct _attr_reg_data *)p;
@@ -1209,6 +1245,36 @@ static void add_xml_attribute_names(void *k, void *v, void *p)
     add_xml_field(d->hf, (int*) v, (char *)k, basename);
 }
 
+typedef struct _xml_element_iter_data
+{
+    xml_ns_t* root_element;
+    wmem_array_t* hfs;
+    GArray* etts;
+} xml_element_iter_data;
+
+static void add_xml_flat_element_names(void* k, void* v, void* p)
+{
+    char* name = (char*)k;
+    xml_ns_t* fresh = (xml_ns_t*)v;
+    xml_element_iter_data* data = (xml_element_iter_data*)p;
+    struct _attr_reg_data d;
+    int* ett_p;
+
+    fresh->fqn = fully_qualified_name(name, data->root_element->name);
+
+    add_xml_field(data->hfs, &(fresh->hf_tag), name, fresh->fqn);
+    add_xml_field(data->hfs, &(fresh->hf_cdata), name, fresh->fqn);
+
+    d.basename = fresh->fqn;
+    d.hf = data->hfs;
+
+    wmem_map_foreach(fresh->attributes, add_xml_attribute_names, &d);
+
+    ett_p = &fresh->ett;
+    g_array_append_val(data->etts, ett_p);
+
+    wmem_map_insert(data->root_element->elements, (void*)fresh->name, fresh);
+}
 
 static void add_xmlpi_namespace(void *k _U_, void *v, void *p)
 {
@@ -1230,21 +1296,11 @@ static void add_xmlpi_namespace(void *k _U_, void *v, void *p)
 
 static void destroy_dtd_data(dtd_build_data_t* dtd_data)
 {
-    g_free(dtd_data->proto_name);
-    g_free(dtd_data->media_type);
-    g_free(dtd_data->description);
-    g_free(dtd_data->proto_root);
-
     g_string_free(dtd_data->error, true);
 
     while (dtd_data->elements->len) {
         dtd_named_list_t* nl = (dtd_named_list_t*)g_ptr_array_remove_index_fast(dtd_data->elements, 0);
-        // Make sure the names get freed. (We don't set this earlier because
-        // g_ptr_array_steal_index[_fast] wasn't introduced until GLib 2.58,
-        // and our current minimum is 2.54)
-        g_ptr_array_set_free_func(nl->list, g_free);
-        g_ptr_array_free(nl->list, true);
-        g_free(nl->name);
+        g_list_free(nl->list);
         g_free(nl);
     }
 
@@ -1252,9 +1308,7 @@ static void destroy_dtd_data(dtd_build_data_t* dtd_data)
 
     while (dtd_data->attributes->len) {
         dtd_named_list_t* nl = (dtd_named_list_t*)g_ptr_array_remove_index_fast(dtd_data->attributes, 0);
-        g_ptr_array_set_free_func(nl->list, g_free);
-        g_ptr_array_free(nl->list, true);
-        g_free(nl->name);
+        g_list_free(nl->list);
         g_free(nl);
     }
 
@@ -1298,21 +1352,12 @@ static xml_ns_t *duplicate_element(xml_ns_t *orig)
     return new_item;
 }
 
-static char *fully_qualified_name(const char *name, const char *parent_name)
-{
-    wmem_strbuf_t *s = wmem_strbuf_new(wmem_epan_scope(), parent_name);
-    wmem_strbuf_append_c(s, '.');
-    wmem_strbuf_append(s, name);
-
-    return wmem_strbuf_finalize(s);
-}
-
 
 // NOLINTNEXTLINE(misc-no-recursion)
 static xml_ns_t *make_xml_hier(char       *elem_name,
                                xml_ns_t   *root,
                                wmem_map_t *elements,
-                               GPtrArray  *hier,
+                               GQueue     *hier,
                                GString    *error,
                                wmem_array_t *hfs,
                                GArray     *etts,
@@ -1322,8 +1367,7 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
     xml_ns_t *orig;
     char     *fqn;
     int      *ett_p;
-    bool      recurred = false;
-    unsigned  i;
+    unsigned  depth;
     struct _attr_reg_data  d;
 
     if ( g_str_equal(elem_name, root->name) ) {
@@ -1335,32 +1379,30 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
         return NULL;
     }
 
-    if (hier->len >= prefs.gui_max_tree_depth) {
-        g_string_append_printf(error, "hierarchy too deep: %u\n", hier->len);
+    depth = g_queue_get_length(hier);
+    if (depth >= prefs.gui_max_tree_depth) {
+        g_string_append_printf(error, "hierarchy too deep: %u\n", depth);
         return NULL;
     }
 
-    for (i = 0; i < hier->len; i++) {
-        if( (elem_name) && (strcmp(elem_name, (char *) g_ptr_array_index(hier, i) ) == 0 )) {
-            recurred = true;
+    for (GList* list = hier->head; list != NULL; list = list->next) {
+        if( (elem_name) && (strcmp(elem_name, (char *)list->data) == 0 )) {
+            /* Already handled */
+            return NULL;
         }
-    }
-
-    if (recurred) {
-        return NULL;
     }
 
     fqn = fully_qualified_name(elem_name, parent_name);
 
-    if (hier->len > 1) {
+    if (depth > 1) {
         fresh = duplicate_element(orig);
     } else {
         fresh = orig;
     }
     fresh->fqn = fqn;
 
-    add_xml_field(hfs, &(fresh->hf_tag), wmem_strdup(wmem_epan_scope(), elem_name), fqn);
-    add_xml_field(hfs, &(fresh->hf_cdata), wmem_strdup(wmem_epan_scope(), elem_name), fqn);
+    add_xml_field(hfs, &(fresh->hf_tag), elem_name, fqn);
+    add_xml_field(hfs, &(fresh->hf_cdata), elem_name, fqn);
 
     ett_p = &fresh->ett;
     g_array_append_val(etts, ett_p);
@@ -1370,13 +1412,13 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
 
     wmem_map_foreach(fresh->attributes, add_xml_attribute_names, &d);
 
-    for (i = 0; i < orig->element_names->len; i++) {
-        char *child_name = (char *)g_ptr_array_index(orig->element_names, i);
-        xml_ns_t *child_element = NULL;
+    for (GList* current_element = orig->element_names; current_element != NULL; current_element = current_element->next) {
+        char* child_name = (char*)current_element->data;
+        xml_ns_t* child_element = NULL;
 
-        g_ptr_array_add(hier, elem_name);
+        g_queue_push_head(hier, elem_name);
         child_element = make_xml_hier(child_name, root, elements, hier, error, hfs, etts, fqn);
-        g_ptr_array_remove_index_fast(hier, hier->len - 1);
+        g_queue_pop_head(hier);
 
         if (child_element) {
             wmem_map_insert(fresh->elements, child_element->name, child_element);
@@ -1385,12 +1427,11 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
     return fresh;
 }
 
-static void free_elements(void *k _U_, void *v, void *p _U_)
+static void free_elements(void* k _U_, void* v, void* p _U_)
 {
-    xml_ns_t *e = (xml_ns_t *)v;
+    xml_ns_t* e = (xml_ns_t*)v;
 
-    g_ptr_array_set_free_func(e->element_names, g_free);
-    g_ptr_array_free(e->element_names, true);
+    g_list_free(e->element_names);
     e->element_names = NULL;
 }
 
@@ -1401,9 +1442,8 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     xml_ns_t   *root_element  = NULL;
     wmem_array_t *hfs;
     GArray     *etts;
-    GPtrArray  *hier;
     char       *curr_name;
-    GPtrArray  *element_names = g_ptr_array_new();
+    GList      *element_names = NULL;
 
     /* we first populate elements with the those coming from the parser */
     while(dtd_data->elements->len) {
@@ -1412,9 +1452,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
         /* we will use the first element found as root in case no other one was given. */
         if (root_name == NULL)
-            root_name = wmem_strdup(wmem_epan_scope(), nl->name);
+            root_name = nl->name;
 
-        element->name          = wmem_strdup(wmem_epan_scope(), nl->name);
+        element->name          = nl->name;
         element->element_names = nl->list;
         element->hf_tag        = -1;
         element->hf_cdata      = -1;
@@ -1427,10 +1467,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             free_elements(NULL, element, NULL);
         } else {
             wmem_map_insert(elements, element->name, element);
-            g_ptr_array_add(element_names, wmem_strdup(wmem_epan_scope(), element->name));
+            element_names = g_list_prepend(element_names, element->name);
         }
 
-        g_free(nl->name);
         g_free(nl);
     }
 
@@ -1440,32 +1479,26 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         xml_ns_t         *element = (xml_ns_t *)wmem_map_lookup(elements, nl->name);
 
         if (element) {
-            while(nl->list->len) {
-                char *name = (char *)g_ptr_array_remove_index(nl->list, 0);
+            for (GList* current_attribute = nl->list; current_attribute != NULL; current_attribute = current_attribute->next) {
+                char *name = (char *)current_attribute->data;
                 int   *id_p = wmem_new(wmem_epan_scope(), int);
 
                 *id_p = -1;
-                wmem_map_insert(element->attributes, wmem_strdup(wmem_epan_scope(), name), id_p);
-                g_free(name);
+                wmem_map_insert(element->attributes, name, id_p);
             }
         }
         else {
             g_string_append_printf(errors, "element %s is not defined\n", nl->name);
         }
 
-        g_free(nl->name);
-        g_ptr_array_free(nl->list, true);
+        g_list_free(nl->list);
         g_free(nl);
     }
 
     /* if a proto_root is defined in the dtd we'll use that as root */
     if ( dtd_data->proto_root ) {
-        wmem_free(wmem_epan_scope(), root_name);
-        root_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_root);
+        root_name = dtd_data->proto_root;
     }
-
-    /* we use a stack with the names to avoid recurring infinitely */
-    hier = g_ptr_array_new();
 
     /*
      * if a proto name was given in the dtd the dtd will be used as a protocol
@@ -1474,7 +1507,6 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     if( ! dtd_data->proto_name ) {
         hfs  = hf_arr;
         etts = ett_arr;
-        g_ptr_array_add(hier, wmem_strdup(wmem_epan_scope(), "xml"));
     } else {
         /*
          * if we were given a proto_name the namespace will be registered
@@ -1487,7 +1519,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     /* the root element of the dtd's namespace */
     root_element = wmem_new(wmem_epan_scope(), xml_ns_t);
     root_element->name          = wmem_strdup(wmem_epan_scope(), root_name);
-    root_element->fqn           = dtd_data->proto_name ? wmem_strdup(wmem_epan_scope(), dtd_data->proto_name) : root_element->name;
+    root_element->fqn           = dtd_data->proto_name ? dtd_data->proto_name : root_element->name;
     root_element->hf_tag        = -1;
     root_element->hf_cdata      = -1;
     root_element->ett           = -1;
@@ -1501,6 +1533,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
      */
     if (dtd_data->recursion) {
         xml_ns_t *orig_root;
+        GQueue* hier = g_queue_new(); /* Acts as a stack with the names to avoid recurring infinitely */
+        if (!dtd_data->proto_name)
+            g_queue_push_head(hier, "xml");
 
         make_xml_hier(root_name, root_element, elements, hier, errors, hfs, etts, dtd_data->proto_name);
 
@@ -1522,55 +1557,34 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         }
 
         /* we then create all the sub hierarchies to catch the recurred cases */
-        g_ptr_array_add(hier, root_name);
+        g_queue_push_head(hier, root_name);
 
-        while(root_element->element_names->len) {
-            curr_name = (char *)g_ptr_array_remove_index(root_element->element_names, 0);
+        while (root_element->element_names != NULL)
+        {
+            curr_name = (char*)root_element->element_names->data;
+            root_element->element_names = g_list_remove(root_element->element_names, curr_name);
 
-            if( ! wmem_map_lookup(root_element->elements, curr_name) ) {
-                xml_ns_t *fresh = make_xml_hier(curr_name, root_element, elements, hier, errors,
-                                              hfs, etts, dtd_data->proto_name);
-                wmem_map_insert(root_element->elements, (void *)fresh->name, fresh);
+            if (!wmem_map_lookup(root_element->elements, curr_name)) {
+                xml_ns_t* fresh = make_xml_hier(curr_name, root_element, elements, hier, errors,
+                    hfs, etts, dtd_data->proto_name);
+                wmem_map_insert(root_element->elements, (void*)fresh->name, fresh);
             }
         }
 
+        /* No longer need the heirarchy check */
+        g_queue_free(hier);
+
     } else {
         /* a flat namespace */
-        g_ptr_array_add(hier, root_name);
+        xml_element_iter_data iterdata = {
+            .root_element = root_element,
+            .hfs = hfs,
+            .etts = etts
+        };
 
         root_element->attributes = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
-
-        while(root_element->element_names->len) {
-            xml_ns_t *fresh;
-            int *ett_p;
-            struct _attr_reg_data d;
-
-            curr_name = (char *)g_ptr_array_remove_index(root_element->element_names, 0);
-            fresh       = (xml_ns_t *)wmem_map_remove(elements, curr_name);
-            ws_assert(fresh);
-            fresh->fqn  = fully_qualified_name(curr_name, root_name);
-
-            add_xml_field(hfs, &(fresh->hf_tag), curr_name, fresh->fqn);
-            add_xml_field(hfs, &(fresh->hf_cdata), curr_name, fresh->fqn);
-
-            d.basename = fresh->fqn;
-            d.hf = hfs;
-
-            wmem_map_foreach(fresh->attributes, add_xml_attribute_names, &d);
-
-            ett_p = &fresh->ett;
-            g_array_append_val(etts, ett_p);
-
-            g_ptr_array_set_free_func(fresh->element_names, g_free);
-            g_ptr_array_free(fresh->element_names, true);
-
-            wmem_map_insert(root_element->elements, (void *)fresh->name, fresh);
-        }
+        wmem_map_foreach(elements, add_xml_flat_element_names, &iterdata);
     }
-
-    g_ptr_array_free(element_names, true);
-
-    g_ptr_array_free(hier, true);
 
     /*
      * if we were given a proto_name the namespace will be registered
@@ -1579,16 +1593,16 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
      * which means that enabling and disabling the protocols has no
      * effect.
      */
-    if( dtd_data->proto_name ) {
+    if ( dtd_data->proto_name ) {
         int *ett_p;
         char *full_name, *short_name;
 
         if (dtd_data->description) {
-            full_name = wmem_strdup(wmem_epan_scope(), dtd_data->description);
+            full_name = dtd_data->description;
         } else {
-            full_name = wmem_strdup(wmem_epan_scope(), root_name);
+            full_name = root_name;
         }
-        short_name = wmem_strdup(wmem_epan_scope(), dtd_data->proto_name);
+        short_name = dtd_data->proto_name;
 
         ett_p = &root_element->ett;
         g_array_append_val(etts, ett_p);
@@ -1604,8 +1618,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         proto_register_subtree_array((int **)etts->data, etts->len);
 
         if (dtd_data->media_type) {
-            char* media_type = wmem_strdup(wmem_epan_scope(), dtd_data->media_type);
-            wmem_map_insert(media_types, media_type, root_element);
+            wmem_map_insert(media_types, dtd_data->media_type, root_element);
         }
 
         g_array_free(etts, true);
@@ -1640,7 +1653,9 @@ static void dtd_pi_cb(void* ctx _U_, const xmlChar* target, const xmlChar* data)
                 {
                     if (xmlStrcmp(attr->name, (const xmlChar*)"proto_name") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->proto_name = g_ascii_strdown(value, -1);
+                        char* lower_proto = g_ascii_strdown(value, -1);
+                        g_build_data->proto_name = wmem_strdup(wmem_epan_scope(), lower_proto);
+                        g_free(lower_proto);
                         xmlFree(value);
                     }
                     if (xmlStrcmp(attr->name, (const xmlChar*)"root") == 0) {
@@ -1650,12 +1665,12 @@ static void dtd_pi_cb(void* ctx _U_, const xmlChar* target, const xmlChar* data)
                     }
                     else if (xmlStrcmp(attr->name, (const xmlChar*)"media") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->media_type = g_strdup(value);
+                        g_build_data->media_type = wmem_strdup(wmem_epan_scope(), value);
                         xmlFree(value);
                     }
                     else if (xmlStrcmp(attr->name, (const xmlChar*)"description") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->description = g_strdup(value);
+                        g_build_data->description = wmem_strdup(wmem_epan_scope(), value);
                         xmlFree(value);
                     }
                     else if (xmlStrcmp(attr->name, (const xmlChar*)"hierarchy") == 0) {
@@ -1675,49 +1690,62 @@ static void dtd_pi_cb(void* ctx _U_, const xmlChar* target, const xmlChar* data)
 
 static void dtd_internalSubset_cb(void* ctx _U_, const xmlChar* name, const xmlChar* publicId _U_, const xmlChar* systemId _U_)
 {
-    g_free(g_build_data->proto_root);
-    g_build_data->proto_root = g_ascii_strdown((const char*)name, -1);
+    char* lower_root = g_ascii_strdown((const char*)name, -1);
+    wmem_free(wmem_epan_scope(), g_build_data->proto_root);
+    g_build_data->proto_root = wmem_strdup(wmem_epan_scope(), lower_root);
+    g_free(lower_root);
     if (!g_build_data->proto_name) {
-        g_build_data->proto_name = g_strdup(g_build_data->proto_root);
+        g_build_data->proto_name = g_build_data->proto_root;
     }
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dtd_elementDecl_add_list(GPtrArray* list, xmlElementContent* content)
+static GList* dtd_elementDecl_add_list(GList* list, xmlElementContent* content)
 {
     if (content != NULL) {
         if (content->c1 != NULL) {
-            if (content->c1->name != NULL)
-                g_ptr_array_add(list, g_ascii_strdown((const char*)content->c1->name, -1));
-
-            dtd_elementDecl_add_list(list, content->c1);
+            if (content->c1->name != NULL) {
+                char* lower_name = g_ascii_strdown((const char*)content->c1->name, -1);
+                list = g_list_prepend(list, wmem_strdup(wmem_epan_scope(), lower_name));
+                g_free(lower_name);
+            }
+            list = dtd_elementDecl_add_list(list, content->c1);
         }
         if (content->c2 != NULL) {
-            if (content->c2->name != NULL)
-                g_ptr_array_add(list, g_ascii_strdown((const char*)content->c2->name, -1));
-
-            dtd_elementDecl_add_list(list, content->c2);
+            if (content->c2->name != NULL) {
+                char* lower_name = g_ascii_strdown((const char*)content->c2->name, -1);
+                list = g_list_prepend(list, wmem_strdup(wmem_epan_scope(), lower_name));
+                g_free(lower_name);
+            }
+            list = dtd_elementDecl_add_list(list, content->c2);
         }
     }
+
+    return list;
 }
 
 static void dtd_elementDecl_cb(void* ctx _U_, const xmlChar* name, int type _U_, xmlElementContent* content _U_)
 {
+    char* lower_name = g_ascii_strdown((const char*)name, -1);
+
     /* we will use the first element found as root in case no other one was given. */
     if (!g_build_data->proto_root) {
-        g_build_data->proto_root = g_ascii_strdown((const char*)name, -1);
+        g_build_data->proto_root = wmem_strdup(wmem_epan_scope(), lower_name);
     }
 
     dtd_named_list_t* new_element = g_new0(dtd_named_list_t, 1);
 
-    new_element->name = g_ascii_strdown((const char*)name, -1);
-    new_element->list = g_ptr_array_new();
+    new_element->name = wmem_strdup(wmem_epan_scope(), lower_name);
+    new_element->list = NULL;
+    g_free(lower_name);
 
     //Make list
-    if ((content != NULL) && (content->name != NULL))
-        g_ptr_array_add(new_element->list, g_ascii_strdown((const char*)content->name, -1));
-
-    dtd_elementDecl_add_list(new_element->list, content);
+    if ((content != NULL) && (content->name != NULL)) {
+        lower_name = g_ascii_strdown((const char*)content->name, -1);
+        new_element->list = g_list_prepend(new_element->list, wmem_strdup(wmem_epan_scope(), lower_name));
+        g_free(lower_name);
+    }
+    new_element->list = dtd_elementDecl_add_list(new_element->list, content);
 
     g_ptr_array_add(g_build_data->elements, new_element);
 }
@@ -1739,18 +1767,20 @@ static void dtd_attributeDecl_cb(void* ctx _U_, const xmlChar* elem, const xmlCh
         attribute = g_build_data->attributes->pdata[i - 1];
         if (strcmp(attribute->name, elem_down) == 0) {
             found = true;
-            g_free(elem_down);
             break;
         }
     }
     if (!found) {
         attribute = g_new0(dtd_named_list_t, 1);
-        attribute->name = elem_down;
-        attribute->list = g_ptr_array_new();
+        attribute->name = wmem_strdup(wmem_epan_scope(), elem_down);
+        attribute->list = NULL;
         g_ptr_array_add(g_build_data->attributes, attribute);
     }
+    g_free(elem_down);
 
-    g_ptr_array_add(attribute->list, g_ascii_strdown((const char*)fullname, -1));
+    char* lower_fullname = g_ascii_strdown((const char*)fullname, -1);
+    attribute->list = g_list_prepend(attribute->list, wmem_strdup(wmem_epan_scope(), lower_fullname));
+    g_free(lower_fullname);
     // We don't use this. We're allowed to free it, as the default SAX2 handler
     // here does and it's not used after this by the main parser.
     if (tree != NULL)
@@ -1863,11 +1893,11 @@ dtd_parse_libxml2(char* filename)
     if (!external_dtd && (g_build_data->elements->len > 0)) {
 
         dtd_named_list_t* new_element = g_new(dtd_named_list_t, 1);
-        new_element->name = g_strdup(g_build_data->proto_name);
-        new_element->list = g_ptr_array_new();
+        new_element->name = g_build_data->proto_name;
+        new_element->list = NULL;
         for (unsigned i = 0; i < g_build_data->elements->len; i++) {
             dtd_named_list_t* el = (dtd_named_list_t*)g_ptr_array_index(g_build_data->elements, i);
-            g_ptr_array_add(new_element->list, xmlStrdup(el->name));
+            new_element->list = g_list_prepend(new_element->list, el->name);
         }
 
         g_ptr_array_add(g_build_data->elements, new_element);
