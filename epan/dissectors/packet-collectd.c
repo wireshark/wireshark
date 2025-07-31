@@ -1071,13 +1071,14 @@ dissect_collectd_encrypted(tvbuff_t *tvb, packet_info *pinfo,
 		tvb_memcpy(tvb, iv, offset - 16, 16);
 		err = gcry_cipher_setiv(*cipher_hd, iv, 16);
 		if (err != 0) {
-			gcry_cipher_close(*cipher_hd);
 			ws_debug("error setting key: %s", gcry_strerror(err));
+			return 0; // Should there be another return code for this?
 		}
 		uint8_t *buffer = tvb_memdup(pinfo->pool, tvb, offset, buffer_size);
 		err = gcry_cipher_decrypt(*cipher_hd, buffer, buffer_size, NULL, 0);
 		if (err != 0) {
 			ws_debug("gcry_cipher_decrypt failed: %s", gcry_strerror(err));
+			return 0; // Should there be another return code for this?
 		}
 		tvbuff_t *decrypted_tvb = tvb_new_child_real_data(tvb, buffer, buffer_size, buffer_size);
 		add_new_data_source(pinfo, decrypted_tvb, "Decrypted collectd");
