@@ -35,6 +35,7 @@ static mmdb_lookup_t mmdb_not_found;
 #include <epan/addr_resolv.h>
 #include <epan/uat.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 
 #include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
@@ -603,9 +604,20 @@ static void maxmind_db_post_update_cb(void) {
         }
     }
 
-    if (gbl_resolv_flags.maxmind_geoip) {
+    /* The first time this is called on startup gbl_resolv_flags.maxmind_geoip
+     * doesn't yet reflect the configuration profile settings or the command
+     * line settings. We want to start the process (which is moderately
+     * expensive) iff the preference is set when prefs_apply_all() is called.
+     *
+     * XXX - There might be other UATs that want slightly different behavior
+     * when first called on startup versus later. Is there a more general way
+     * to handle this?
+     */
+    static bool maxmind_db_init = false;
+    if (maxmind_db_init && gbl_resolv_flags.maxmind_geoip) {
         mmdb_resolve_start();
     }
+    maxmind_db_init = true;
 }
 
 /**
@@ -647,6 +659,14 @@ maxmind_db_pref_init(module_t *nameres)
             " Wireshark will look in each directory for files ending"
             " with \".mmdb\".",
             maxmind_db_paths_uat);
+
+    /* This ensures that prefs_apply_all calls maxmind_db_pref_apply() even
+     * if the configuration profile and command line don't change the
+     * maxmind_geoip preference (or any other nameres preference) from its
+     * default. The default is true, so we need to call mmdb_resolve_start
+     * in that case.
+     */
+    nameres->prefs_changed_flags |= PREF_EFFECT_DISSECTION;
 }
 
 void maxmind_db_pref_cleanup(void)
