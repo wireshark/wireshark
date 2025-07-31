@@ -262,7 +262,7 @@ typedef struct blf_canfdmessage {
 #define BLF_CANFDMESSAGE64_FLAG_EDL                 0x001000
 #define BLF_CANFDMESSAGE64_FLAG_BRS                 0x002000
 #define BLF_CANFDMESSAGE64_FLAG_ESI                 0x004000
-#define BLF_CANFDMESSAGE64_FLAG_BURST               0x200000
+#define BLF_CANFDMESSAGE64_FLAG_BURST               0x020000
 
 typedef struct blf_canfdmessage64 {
     uint8_t  channel;
