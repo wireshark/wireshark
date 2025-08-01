@@ -1385,7 +1385,8 @@ dissector_add_range_preference(const char *name, dissector_handle_t handle, cons
 		module = prefs_register_protocol(proto_id, NULL);
 	}
 
-	const char *fullname = wmem_strdup_printf(wmem_epan_scope(), "%s%s", name, dissector_handle_get_pref_suffix(handle));
+	const char *pref_suffix = dissector_handle_get_pref_suffix(handle);
+	const char *fullname = wmem_strdup_printf(wmem_epan_scope(), "%s%s", name, pref_suffix);
 
 	/* Some preference callback functions use the proto_reg_handoff_
 		routine to apply preferences, which could duplicate the
@@ -1424,6 +1425,40 @@ dissector_add_range_preference(const char *name, dissector_handle_t handle, cons
 
 		range_convert_str(wmem_epan_scope(), range, range_str, max_value);
 		prefs_register_decode_as_range_preference(module, fullname, title, description, range, max_value, name, handle_desc);
+	} else {
+		/* We have a duplicate. This might just be the handoff routine
+		 * getting called twice, which isn't ideal but we can ignore
+		 * for now. Log it at a level that isn't printed by default.
+		 */
+		ws_info("Registering automatic preference %s in %s twice", fullname, module_name);
+		/* Check this is just registering the same handle to the same
+		 * preference, and not registering a different handle of the
+		 * same protocol and the same pref_suffix to the same table.
+		 */
+		dissector_handle_t dup_handle;
+		for (GSList *entry = pref_dissector_table->dissector_handles; entry != NULL; entry = g_slist_next(entry))
+		{
+			dup_handle = (dissector_handle_t)entry->data;
+			if (handle->protocol != dup_handle->protocol) {
+				continue;
+			}
+			if ((g_strcmp0(pref_suffix, dissector_handle_get_pref_suffix(dup_handle)) == 0) &&
+			    (handle != dup_handle))
+			{
+				const char *dissector_name = dissector_handle_get_dissector_name(handle);
+				if (dissector_name == NULL)
+					dissector_name = "(anonymous)";
+				const char *dup_dissector_name;
+				dup_dissector_name = dissector_handle_get_dissector_name(dup_handle);
+				if (dup_dissector_name == NULL) {
+					dup_dissector_name = "(anonymous)";
+				}
+				ws_dissector_bug("Dissectors %s and %s in dissector table %s would have the same Decode As preference\n",
+				    dissector_name,
+				    dup_dissector_name,
+				    name);
+			}
+		}
 	}
 
 	return *range;
@@ -2286,7 +2321,6 @@ void
 dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 {
 	dissector_table_t  sub_dissectors;
-	GSList            *entry;
 	dissector_handle_t dup_handle;
 
 	if (!dissector_get_table_checked(name, handle, &sub_dissectors))
@@ -2350,38 +2384,6 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	  the need for the NULL check */
 	if (sub_dissectors->protocol != NULL)
 		register_depend_dissector(proto_get_protocol_short_name(sub_dissectors->protocol), proto_get_protocol_short_name(handle->protocol));
-
-	/* We support adding automatic Decode As preferences on 32-bit
-	 * integer tables. Make sure that the preference we would generate has
-	 * a unique name. That means that for a given table's entries, each
-	 * dissector handle for the same protocol must have a unique pref suffix.
-	 *
-	 * XXX - Check if we can speed this up too. (At least the protocol ID
-	 * comparison is an integer, not a string.)
-	 */
-	if (FT_IS_UINT32(sub_dissectors->type)) {
-		const char* pref_suffix = dissector_handle_get_pref_suffix(handle);
-		for (entry = sub_dissectors->dissector_handles; entry != NULL; entry = g_slist_next(entry))
-		{
-			dup_handle = (dissector_handle_t)entry->data;
-			if (handle->protocol != dup_handle->protocol) {
-				continue;
-			}
-			if (g_strcmp0(pref_suffix, dissector_handle_get_pref_suffix(dup_handle)) == 0)
-			{
-				const char *dup_dissector_name;
-				dup_dissector_name = dissector_handle_get_dissector_name(dup_handle);
-				if (dup_dissector_name == NULL) {
-					dup_dissector_name = "(anonymous)";
-					fprintf(stderr, "Dissector for %s is anonymous", proto_get_protocol_short_name(dup_handle->protocol));
-				}
-				ws_dissector_bug("Dissectors %s and %s in dissector table %s would have the same Decode As preference\n",
-				    dissector_name,
-				    dup_dissector_name,
-				    name);
-			}
-		}
-	}
 
 	/* Add it to the list. */
 	g_hash_table_insert(sub_dissectors->da_descriptions, (void *)handle->description, handle);
