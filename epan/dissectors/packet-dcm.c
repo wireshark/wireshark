@@ -765,6 +765,7 @@ dcm_init(void)
     /* Add UID objects to hash table */
     if (dcm_uid_table == NULL) {
         dcm_uid_table = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+        wmem_map_reserve(dcm_uid_table, array_length(dcm_uid_data));
         for (i = 0; i < array_length(dcm_uid_data); i++) {
             wmem_map_insert(dcm_uid_table, (void *) dcm_uid_data[i].value,
             (void *) &dcm_uid_data[i]);
@@ -774,6 +775,7 @@ dcm_init(void)
     /* Add Tag objects to hash table */
     if (dcm_tag_table == NULL) {
         dcm_tag_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
+        wmem_map_reserve(dcm_tag_table, array_length(dcm_tag_data));
         for (i = 0; i < array_length(dcm_tag_data); i++) {
             wmem_map_insert(dcm_tag_table, GUINT_TO_POINTER(dcm_tag_data[i].tag),
             (void *) &dcm_tag_data[i]);
