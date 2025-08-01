@@ -414,6 +414,7 @@ static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const 
 		if (cfilter) {
 			ssh_channel_printf(channel, "configure terminal\n");
 			ssh_channel_printf(channel, "no ip access-list ex %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+			ssh_channel_printf(channel, "end\n");
 		}
 
 		read_output_bytes(channel, -1, NULL);
