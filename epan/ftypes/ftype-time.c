@@ -536,7 +536,7 @@ time_is_zero(const fvalue_t *fv)
 static bool
 time_is_negative(const fvalue_t *fv)
 {
-	return fv->value.time.secs < 0;
+	return nstime_is_negative(&fv->value.time);
 }
 
 static enum ft_result
