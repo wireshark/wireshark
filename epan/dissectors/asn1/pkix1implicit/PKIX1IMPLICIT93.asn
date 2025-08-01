@@ -89,7 +89,7 @@ KeyIdentifier ::= OCTET STRING
 --        SYNTAX          SubjectKeyIdentifier
 --        IDENTIFIED BY   id-ce-subjectKeyIdentifier }
 --
---SubjectKeyIdentifier ::= KeyIdentifier
+SubjectKeyIdentifier ::= KeyIdentifier
 --
 --keyUsage EXTENSION ::= {
 --        SYNTAX  KeyUsage

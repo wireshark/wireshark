@@ -2,6 +2,7 @@
 AuthorityInfoAccessSyntax BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 GeneralName              BER_CLASS_CON -1/*choice*/
 KeyIdentifier            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+SubjectKeyIdentifier     BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 ReasonFlags		 BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 UserNotice               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
