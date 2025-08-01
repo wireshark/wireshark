@@ -296,7 +296,7 @@ static int dissect_logcat_text_long(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
 
-static void logcat_text_init(void)
+static void logcat_text_create_regex(void)
 {
     special_regex =    g_regex_new(SPECIAL_STRING,    (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_OPTIMIZE | G_REGEX_RAW),  G_REGEX_MATCH_NOTEMPTY, NULL);
     brief_regex =      g_regex_new(BRIEF_STRING,      (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_OPTIMIZE | G_REGEX_RAW),  G_REGEX_MATCH_NOTEMPTY, NULL);
@@ -308,7 +308,7 @@ static void logcat_text_init(void)
     long_regex =       g_regex_new(LONG_STRING,       (GRegexCompileFlags)(G_REGEX_MULTILINE | G_REGEX_OPTIMIZE | G_REGEX_RAW), G_REGEX_MATCH_NOTEMPTY, NULL);
 }
 
-static void logcat_text_cleanup(void)
+static void logcat_text_shutdown(void)
 {
     g_regex_unref(special_regex);
     g_regex_unref(brief_regex);
@@ -382,8 +382,8 @@ void proto_register_logcat_text(void) {
     logcat_text_long_handle =       register_dissector("logcat_text_long",
             dissect_logcat_text_long, proto_logcat_text);
 
-    register_init_routine(logcat_text_init);
-    register_cleanup_routine(logcat_text_cleanup);
+    logcat_text_create_regex();
+    register_shutdown_routine(logcat_text_shutdown);
 
     expert_module = expert_register_protocol(proto_logcat_text);
     expert_register_field_array(expert_module, ei, array_length(ei));
