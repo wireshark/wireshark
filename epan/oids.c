@@ -556,7 +556,7 @@ static void register_mibs(void) {
 		return;
 	}
 
-	hfa = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
+	hfa = wmem_array_sized_new(wmem_epan_scope(), sizeof(hf_register_info), 1024); /* oids 631 */
 	etta = g_array_new(false,true,sizeof(int*));
 
 	smiInit("wireshark");
@@ -671,7 +671,7 @@ static void register_mibs(void) {
 				oid_data->value_hfid = -1;
 
 				if ( IS_ENUMABLE(hf.hfinfo.type) && (smiEnum = smiGetFirstNamedNumber(smiType))) {
-					GArray* vals = g_array_new(true,true,sizeof(value_string));
+					GArray* vals = g_array_sized_new(true,true,sizeof(value_string), 16);
 
 					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum)) {
 						if (smiEnum->name) {
@@ -751,7 +751,6 @@ static void register_mibs(void) {
 	proto_mibs = proto_register_protocol("MIBs", "MIBS", "mibs");
 
 	proto_register_field_array(proto_mibs, (hf_register_info*)wmem_array_get_raw(hfa), wmem_array_get_count(hfa));
-
 	proto_register_subtree_array((int**)(void*)etta->data, etta->len);
 
 	g_array_free(etta,true);
