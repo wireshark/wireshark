@@ -16034,7 +16034,7 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   uint8_t vht_action, field_val;
   uint64_t msa_value;
   uint64_t upa_value;
-  int m;
+  int m, half, msa_index;
   proto_item *ti;
   proto_tree *ti_tree;
   proto_item *msa, *upa;
@@ -16071,22 +16071,18 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
                                       offset, 16, ENC_NA);
       upa_tree = proto_item_add_subtree(upa, ett_vht_upa);
 
-      upa_value = tvb_get_letoh64(tvb, offset);
-      for (m = 0; m < 32; m++) {
-          if (msa_value & (INT64_C(1) << m)) {
-              field_val = (uint8_t) ((upa_value >> m*2) & 0x3);
-              proto_tree_add_uint_format(upa_tree, hf_ieee80211_vht_user_position_field,
-                                               tvb, offset + (m/4), 1, field_val, "User Position in Group ID %d: %u", m, field_val);
+      for (half = 0, msa_index = 0; half < 2; half++) {
+          upa_value = tvb_get_letoh64(tvb, offset);
+          for (m = 0; m < 64; m += 2, msa_index++) {
+              if (msa_value & (INT64_C(1) << msa_index)) {
+                  field_val = (uint8_t)((upa_value >> m) & 0x3);
+                  proto_tree_add_uint_format(upa_tree, hf_ieee80211_vht_user_position_field,
+                      tvb, offset + (m / 8), 1, field_val, "User Position in Group ID %d: %u", msa_index, field_val);
+              }
           }
+          offset += 8;
       }
-      upa_value = tvb_get_letoh64(tvb, offset+8);
-      for (m = 0; m < 32; m++) {
-          if (msa_value & (INT64_C(1) << (32+m))) {
-              field_val = (uint8_t) ((upa_value >> m*2) & 0x3);
-              proto_tree_add_uint_format(upa_tree, hf_ieee80211_vht_user_position_field,
-                                               tvb, (offset + 8) + (m/4), 1, field_val, "User Position in Group ID %d: %u", m, field_val);
-          }
-      }
+
       offset += tvb_reported_length_remaining(tvb, offset);
     }
     break;
