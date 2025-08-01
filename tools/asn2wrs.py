@@ -4127,8 +4127,7 @@ class SeqType (SqType):
             autotag = True
             lst = self.all_components()
             for e in (self.elt_list):
-                if e.val.HasOwnTag(): autotag = False
-                break
+                if e.val.HasOwnTag(): autotag = False; break
         # expand COMPONENTS OF
         if self.need_components():
             if components_available:
