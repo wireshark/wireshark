@@ -19,6 +19,7 @@
 #include <epan/expert.h>
 
 #include "packet-gsmtap.h"
+#include "packet-sgp32.h"
 
 void proto_register_gsm_sim(void);
 void proto_reg_handoff_gsm_sim(void);
@@ -463,6 +464,7 @@ typedef struct {
 	uint32_t rsp_frame;
 	nstime_t cmd_time;
 	uint8_t  cmd_ins;
+	uint8_t  cmd_p1;
 	uint8_t  cmd_p2;
 } gsm_sim_transaction_t;
 
@@ -998,6 +1000,8 @@ static const value_string apdu_ins_vals[] = {
 	{ 0xE6, "TERMINATE DF" },
 	{ 0xE8, "TERMINATE EF" },
 	{ 0xFE, "TERMINATE CARD USAGE" },
+	/* GlobalPlatform Card Specification */
+	{ 0xE2, "STORE DATA" },
 	{ 0, NULL }
 };
 
@@ -1861,6 +1865,20 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		}
 		offset += data_offs + p3;
 		break;
+	case 0xE2: /* STORE DATA */
+		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
+		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
+		if (((p1 & 0x78) == 0x10) && is_sgp32_request(subtvb)) {
+			dissect_sgp32_request(subtvb, pinfo, tree, NULL);
+		} else {
+			proto_tree_add_item(tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
+		}
+		offset += data_offs + p3;
+		if (tvb_reported_length_remaining(tvb, offset)) {
+			dissect_apdu_le(tree, tvb, offset, extended_len, false);
+			offset += (extended_len ? 2 : 1);
+		}
+		break;
 	case 0x04: /* INVALIDATE */
 	case 0x44: /* REHABILITATE */
 	case 0xFA: /* SLEEP */
@@ -1880,6 +1898,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	unsigned tvb_len = tvb_reported_length(tvb);
 	gsm_sim_transaction_t *gsm_sim_trans = NULL;
 	uint8_t ins = 0x00;
+	uint8_t p1 = 0x00;
 	uint8_t p2 = 0x00;
 	bool response_only = true;
 
@@ -1902,6 +1921,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 		if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
 			ins = gsm_sim_trans->cmd_ins;
+			p1 = gsm_sim_trans->cmd_p1;
 			p2 = gsm_sim_trans->cmd_p2;
 		}
 		apdu_len = tvb_len - offset - 2;
@@ -1924,6 +1944,14 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				proto_tree_add_item(sim_tree, hf_auth_gsm_kc, tvb, offset+4, 8, ENC_NA);
 			} else {
 				dissect_auth_response(p2 & 0x07, tvb, sim_tree, offset, apdu_len);
+			}
+			break;
+		case 0xE2: /* STORE DATA */
+			subtvb = tvb_new_subset_length(tvb, offset, apdu_len);
+			if (((p1 & 0x78) == 0x10) && is_sgp32_response(subtvb)) {
+				dissect_sgp32_response(subtvb, pinfo, sim_tree, NULL);
+			} else {
+				proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, apdu_len, ENC_NA);
 			}
 			break;
 		case 0xF2: /* STATUS */
@@ -2039,6 +2067,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		gsm_sim_trans->rsp_frame = 0;
 		gsm_sim_trans->cmd_time = pinfo->fd->abs_ts;
 		gsm_sim_trans->cmd_ins = ins;
+		gsm_sim_trans->cmd_p1 = p1;
 		gsm_sim_trans->cmd_p2 = p2;
 
 		wmem_tree_insert32(transactions, pinfo->num, gsm_sim_trans);
