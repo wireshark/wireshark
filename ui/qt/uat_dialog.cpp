@@ -448,7 +448,7 @@ void UatDialog::on_buttonBox_helpRequested()
     help_page.append(".html");
     url = gchar_free_to_qstring(user_guide_url(help_page.toUtf8().constData()));
     if (!url.isNull()) {
-        QDesktopServices::openUrl(QUrl(url));
+        QDesktopServices::openUrl(QUrl(QDir::fromNativeSeparators(url)));
     }
 }
 
