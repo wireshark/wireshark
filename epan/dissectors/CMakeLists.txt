@@ -2218,6 +2218,10 @@ set(DISSECTOR_FILES
 )
 source_group(dissectors FILES ${DISSECTOR_FILES})
 
+add_lex_files(LEX_FILES DISSECTOR_LEX
+	radius_dict.l
+)
+
 set(ALL_DISSECTOR_SRC
 	${DISSECTOR_FILES}
 	${CORBA_IDL_DISSECTOR_SRC}
@@ -2267,6 +2271,7 @@ set(CLEAN_FILES
 	${NCP2222_DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
 	${DISSECTOR_REG_SRC}
+	${DISSECTOR_LEX}
 )
 
 set_source_files_properties(
@@ -2281,6 +2286,7 @@ add_library(dissectors OBJECT
 
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
+	${DISSECTOR_LEX}
 )
 
 target_include_directories(dissectors

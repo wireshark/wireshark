@@ -277,7 +277,6 @@ add_lex_files(LEX_FILES LIBWIRESHARK_FILES
 	diam_dict.l
 	dtd_parse.l
 	dtd_preparse.l
-	radius_dict.l
 	uat_load.l
 	protobuf_lang_scanner.l
 )
