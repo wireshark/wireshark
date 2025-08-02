@@ -37,6 +37,12 @@ bool nstime_is_zero(const nstime_t *nstime)
     return nstime->secs == 0 && nstime->nsecs == 0;
 }
 
+/* is the given nstime_t currently negative? */
+bool nstime_is_negative(const nstime_t *nstime)
+{
+    return nstime->secs < 0 || nstime->nsecs < 0;
+}
+
 /* set the given nstime_t to (0,maxint) to mark it as "unset"
  * That way we can find the first frame even when a timestamp
  * is zero (fix for bug 1056)
