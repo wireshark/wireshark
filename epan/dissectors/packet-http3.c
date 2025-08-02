@@ -52,6 +52,7 @@ void proto_reg_handoff_http3(void);
 void proto_register_http3(void);
 
 static dissector_handle_t http3_handle;
+static dissector_handle_t http3_datagram_handle;
 
 #define PROTO_DATA_KEY_HEADER 0
 #define PROTO_DATA_KEY_QPACK 1
@@ -173,6 +174,11 @@ static int hf_http3_settings_h3_datagram_draft04;
 static int hf_http3_priority_update_element_id;
 static int hf_http3_priority_update_field_value;
 
+static int hf_http3_datagram;
+static int hf_http3_datagram_quarter_stream_id;
+static int hf_http3_datagram_request_stream_id;
+static int hf_http3_datagram_payload;
+
 static expert_field ei_http3_qpack_failed;
 /* HTTP3 dissection EIs */
 static expert_field ei_http3_unknown_stream_type;
@@ -182,6 +188,8 @@ static expert_field ei_http3_header_encoded_state;
 static expert_field ei_http3_header_decoding_failed;
 static expert_field ei_http3_header_decoding_blocked;
 static expert_field ei_http3_header_decoding_no_output;
+/* HTTP3 datagram prefix EIs */
+static expert_field ei_http3_datagram_invalid_stream_id;
 
 /* Initialize the subtree pointers */
 static int ett_http3;
@@ -193,6 +201,8 @@ static int ett_http3_headers;
 static int ett_http3_headers_qpack_blocked;
 static int ett_http3_qpack_update;
 static int ett_http3_qpack_opcode;
+static int ett_http3_datagram;
+static int ett_http3_datagram_stream_id;
 
 /**
  * HTTP3 header constants.
@@ -2251,11 +2261,24 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     return offset;
 }
 
+static proto_tree *
+start_http3_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    proto_item * ti;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP3");
+    // Only clear the columns if this is the first HTTP/3 STREAM in the packet.
+    if (proto_get_layer_num(pinfo, proto_http3) == 1) {
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
+
+    ti = proto_tree_add_item(tree, proto_http3, tvb, 0, -1, ENC_NA);
+    return proto_item_add_subtree(ti, ett_http3);
+}
+
 static int
 dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     quic_stream_info *   stream_info = (quic_stream_info *)data;
-    proto_item *         ti;
     proto_tree *         http3_tree;
     int                  offset = 0;
     http3_stream_info_t *http3_stream;
@@ -2280,14 +2303,7 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP3");
-    // Only clear the columns if this is the first HTTP/3 STREAM in the packet.
-    if (proto_get_layer_num(pinfo, proto_http3) == 1) {
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
-
-    ti         = proto_tree_add_item(tree, proto_http3, tvb, 0, -1, ENC_NA);
-    http3_tree = proto_item_add_subtree(ti, ett_http3);
+    http3_tree = start_http3_tree(tvb, pinfo, tree);
 
     http3_stream = (http3_stream_info_t *)quic_stream_get_proto_data(pinfo, stream_info);
     if (!http3_stream) {
@@ -2319,6 +2335,44 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         dissect_http3_uni_stream(tvb, pinfo, http3_tree, offset, stream_info, http3_stream);
         break;
     }
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_http3_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    quic_datagram_info * datagram_info = (quic_datagram_info *)data;
+    uint64_t             request_stream_id;
+    proto_item         * ti;
+    proto_tree         * http3_tree, * datragram_tree, * stream_id_tree;
+    int32_t              lenvar;
+    int                  offset = 0;
+
+    if (!datagram_info) {
+        return 0;
+    }
+
+    http3_tree = start_http3_tree(tvb, pinfo, tree);
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "DATAGRAM");
+
+    ti = proto_tree_add_item(http3_tree, hf_http3_datagram, tvb, offset, -1, ENC_NA);
+    datragram_tree = proto_item_add_subtree(ti, ett_http3_datagram);
+
+    ti = proto_tree_add_item_ret_varint(datragram_tree, hf_http3_datagram_quarter_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &request_stream_id, &lenvar);
+    stream_id_tree = proto_item_add_subtree(ti, ett_http3_datagram_stream_id);
+
+    if (request_stream_id > (2ULL >> 60) - 1) {
+        proto_tree_add_expert_format(stream_id_tree, pinfo, &ei_http3_datagram_invalid_stream_id, tvb, offset, lenvar,
+                                             "Quarter Stream ID is too big");
+        return tvb_captured_length(tvb);
+    }
+
+    request_stream_id = request_stream_id * 4;
+    ti = proto_tree_add_uint64(stream_id_tree, hf_http3_datagram_request_stream_id, tvb, offset, lenvar, request_stream_id);
+    proto_item_set_generated(ti);
+    offset += lenvar;
+
+    proto_tree_add_item(datragram_tree, hf_http3_datagram_payload, tvb, offset, -1, ENC_NA);
 
     return tvb_captured_length(tvb);
 }
@@ -2888,6 +2942,28 @@ proto_register_http3(void)
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+
+        /* Datagram */
+        { &hf_http3_datagram,
+            { "Datagram", "http3.datagram",
+              FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_datagram_quarter_stream_id,
+            { "Quarter Stream ID", "http3.datagram.quarter_stream_id",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Request stream id divided by 4", HFILL }
+        },
+        { &hf_http3_datagram_request_stream_id,
+            { "Associated Request Stream ID", "http3.datagram.request_stream_id",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Request stream id", HFILL }
+        },
+        { &hf_http3_datagram_payload,
+            { "Datagram Payload", "http3.datagram.payload",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
     };
 
     static int *ett[] = {&ett_http3,
@@ -2898,7 +2974,9 @@ proto_register_http3(void)
                           &ett_http3_headers,
                           &ett_http3_headers_qpack_blocked,
                           &ett_http3_qpack_update,
-                          &ett_http3_qpack_opcode};
+                          &ett_http3_qpack_opcode,
+                          &ett_http3_datagram,
+                          &ett_http3_datagram_stream_id};
 
     static ei_register_info ei[] = {
         { &ei_http3_unknown_stream_type,
@@ -2925,6 +3003,10 @@ proto_register_http3(void)
           { "http3.expert.header_decoding.no_output", PI_UNDECODED, PI_NOTE,
             "Failed to decode HTTP3 header name/value (QPACK decoder no emission)", EXPFILL}
         },
+        { &ei_http3_datagram_invalid_stream_id,
+          { "http3.expert.datagram.invalid_stream_id", PI_UNDECODED, PI_WARN,
+            "Failed to decode HTTP3 datagram stream id", EXPFILL}
+        },
     };
 
     proto_http3 = proto_register_protocol("Hypertext Transfer Protocol Version 3", "HTTP3", "http3");
@@ -2938,6 +3020,7 @@ proto_register_http3(void)
     expert_register_field_array(expert_http3, ei, array_length(ei));
 
     http3_handle = register_dissector("http3", dissect_http3, proto_http3);
+    http3_datagram_handle = register_dissector("http3.datagram", dissect_http3_datagram, proto_http3);
 #ifdef HAVE_NGHTTP3
     /* Fill hash table with static headers */
     register_static_headers();
@@ -2948,6 +3031,7 @@ void
 proto_reg_handoff_http3(void)
 {
     dissector_add_string("quic.proto", "h3", http3_handle);
+    dissector_add_string("quic.proto.datagram", "h3", http3_datagram_handle);
 }
 
 /**

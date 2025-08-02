@@ -228,6 +228,7 @@ static dissector_handle_t quic_handle;
 static dissector_handle_t tls13_handshake_handle;
 
 static dissector_table_t quic_proto_dissector_table;
+static dissector_table_t quic_datagram_proto_dissector_table; // Dissector of QUIC DATAGRAM frames
 
 /* Fields for showing reassembly results for fragments of QUIC stream data. */
 static const fragment_items quic_stream_fragment_items = {
@@ -442,6 +443,7 @@ struct quic_info_data {
     quic_cid_t      client_odcid;   /**< Original DCID, if there has been a Retry seen. */
     dissector_handle_t app_handle;  /**< Application protocol handle (NULL if unknown). */
     dissector_handle_t zrtt_app_handle;  /**< Application protocol handle (NULL if unknown) for 0-RTT data. */
+    dissector_handle_t app_datagram_handle;  /**< Application protocol handle for datagrams (NULL if unknown). */
     wmem_map_t     *client_streams; /**< Map from Stream ID -> STREAM info (uint64_t -> quic_stream_state), sent by the client. */
     wmem_map_t     *server_streams; /**< Map from Stream ID -> STREAM info (uint64_t -> quic_stream_state), sent by the server. */
     wmem_list_t    *streams_list;   /**< Ordered list of QUIC Stream ID in this connection (both directions). Used by "Follow QUIC Stream" functionality */
@@ -2927,6 +2929,15 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 length = (uint32_t) tvb_reported_length_remaining(tvb, offset);
             }
             proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (uint32_t)length, ENC_NA);
+            if (quic_info->app_datagram_handle) {
+                tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+                proto_tree *top_tree = proto_tree_get_parent_tree(quic_tree);
+                quic_datagram_info datagram_info = {
+                    .quic_info = quic_info,
+                    .from_server = from_server,
+                };
+                call_dissector_with_data(quic_info->app_datagram_handle, next_tvb, pinfo, top_tree, &datagram_info);
+            }
             offset += (uint32_t)length;
         }
         break;
@@ -3563,10 +3574,12 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, bool fr
         const char *proto_name = tls_get_alpn(pinfo);
         if (proto_name) {
             quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, proto_name);
+            quic_info->app_datagram_handle = dissector_get_string_handle(quic_datagram_proto_dissector_table, proto_name);
             // If no specific handle is found, alias "h3-*" to "h3" and "doq-*" to "doq"
             if (!quic_info->app_handle) {
                 if (g_str_has_prefix(proto_name, "h3-")) {
                     quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "h3");
+                    quic_info->app_datagram_handle = dissector_get_string_handle(quic_datagram_proto_dissector_table, "h3");
                 } else if (g_str_has_prefix(proto_name, "doq-")) {
                     quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "doq");
                 }
@@ -5926,6 +5939,7 @@ proto_register_quic(void)
      * bytes, but in practice these do not exist yet.
      */
     quic_proto_dissector_table = register_dissector_table("quic.proto", "QUIC Protocol", proto_quic, FT_STRING, STRING_CASE_SENSITIVE);
+    quic_datagram_proto_dissector_table = register_dissector_table("quic.proto.datagram", "QUIC Protocol for DATAGRAM frames", proto_quic, FT_STRING, STRING_CASE_SENSITIVE);
 
     quic_follow_tap = register_tap("quic_follow");
 }

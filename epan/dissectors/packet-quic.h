@@ -33,6 +33,15 @@ typedef struct _quic_stream_info {
     bool        from_server;
 } quic_stream_info;
 
+/**
+ * Metadata for a DATAGRAM frame.
+ * https://datatracker.ietf.org/doc/html/rfc9221
+ */
+typedef struct _quic_datagram_info {
+    struct quic_info_data *quic_info;    /**< Opaque data structure to find the QUIC session. */
+    bool        from_server;
+} quic_datagram_info;
+
 /*
  * Although the QUIC SCID/DCID length field can store at most 255, v1 limits the
  * CID length to 20.
