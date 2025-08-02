@@ -4274,11 +4274,15 @@ dissect_ber_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
     struct ber_phdr *ber = (struct ber_phdr *)data;
     const char *ptr;
-    const char *file_syntax = NULL;
+    const char *syntax = NULL;
 
-    if ((ptr = strrchr(ber->pathname, '.')) != NULL)
-        file_syntax = get_ber_oid_syntax(ptr);
-    return dissect_ber_common(tvb, pinfo, tree, file_syntax);
+    if (decode_as_syntax) {
+        syntax = decode_as_syntax;
+    } else if ((ptr = strrchr(ber->pathname, '.')) != NULL) {
+        syntax = get_ber_oid_syntax(ptr);
+    }
+
+    return dissect_ber_common(tvb, pinfo, tree, syntax);
 }
 
 bool
