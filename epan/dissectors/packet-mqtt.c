@@ -1802,7 +1802,7 @@ void proto_register_mqtt(void)
                                &mqtt_message_decodes,
                                &num_mqtt_message_decodes,
                                UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
-                               "ChMQTTMessageDecoding",
+                               NULL,
                                mqtt_message_decode_copy_cb,
                                mqtt_message_decode_update_cb,
                                mqtt_message_decode_free_cb,

@@ -13687,7 +13687,7 @@ proto_register_amqp(void)
                                &amqp_message_decodes,
                                &num_amqp_message_decodes,
                                UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
-                               "ChamqpMessageDecoding",
+                               NULL,
                                amqp_message_decode_copy_cb,
                                amqp_message_decode_update_cb,
                                amqp_message_decode_free_cb,
