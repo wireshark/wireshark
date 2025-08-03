@@ -1307,7 +1307,6 @@ static wmem_map_t *copy_attributes_hash(wmem_map_t *src)
 static xml_ns_t *duplicate_element(xml_ns_t *orig)
 {
     xml_ns_t *new_item = wmem_new(wmem_epan_scope(), xml_ns_t);
-    unsigned  i;
 
     new_item->name          = wmem_strdup(wmem_epan_scope(), orig->name);
     new_item->hf_tag        = -1;
@@ -1315,12 +1314,7 @@ static xml_ns_t *duplicate_element(xml_ns_t *orig)
     new_item->ett           = -1;
     new_item->attributes    = copy_attributes_hash(orig->attributes);
     new_item->elements      = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
-    new_item->element_names = g_ptr_array_new();
-
-    for(i=0; i < orig->element_names->len; i++) {
-        g_ptr_array_add(new_item->element_names,
-                           g_ptr_array_index(orig->element_names, i));
-    }
+    new_item->element_names = NULL;    // Not used for duplication
 
     return new_item;
 }
@@ -1379,7 +1373,11 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
 
     fqn = fully_qualified_name(elem_name, parent_name);
 
-    fresh = duplicate_element(orig);
+    if (hier->len > 1) {
+        fresh = duplicate_element(orig);
+    } else {
+        fresh = orig;
+    }
     fresh->fqn = fqn;
 
     add_xml_field(hfs, &(fresh->hf_tag), wmem_strdup(wmem_epan_scope(), elem_name), fqn);
@@ -1393,8 +1391,8 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
 
     wmem_map_foreach(fresh->attributes, add_xml_attribute_names, &d);
 
-    while(fresh->element_names->len) {
-        char *child_name = (char *)g_ptr_array_remove_index(fresh->element_names, 0);
+    for (i = 0; i < orig->element_names->len; i++) {
+        char *child_name = (char *)g_ptr_array_index(orig->element_names, i);
         xml_ns_t *child_element = NULL;
 
         g_ptr_array_add(hier, elem_name);
@@ -1405,9 +1403,6 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
             wmem_map_insert(fresh->elements, child_element->name, child_element);
         }
     }
-
-    g_ptr_array_free(fresh->element_names, true);
-    fresh->element_names = NULL;
     return fresh;
 }
 
@@ -1415,11 +1410,9 @@ static void free_elements(void *k _U_, void *v, void *p _U_)
 {
     xml_ns_t *e = (xml_ns_t *)v;
 
-    while (e->element_names->len) {
-        g_free(g_ptr_array_remove_index(e->element_names, 0));
-    }
-
+    g_ptr_array_set_free_func(e->element_names, g_free);
     g_ptr_array_free(e->element_names, true);
+    e->element_names = NULL;
 }
 
 static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
@@ -1573,7 +1566,8 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             struct _attr_reg_data d;
 
             curr_name = (char *)g_ptr_array_remove_index(root_element->element_names, 0);
-            fresh       = duplicate_element((xml_ns_t *)wmem_map_lookup(elements, curr_name));
+            fresh       = (xml_ns_t *)wmem_map_remove(elements, curr_name);
+            ws_assert(fresh);
             fresh->fqn  = fully_qualified_name(curr_name, root_name);
 
             add_xml_field(hfs, &(fresh->hf_tag), curr_name, fresh->fqn);
@@ -1587,6 +1581,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             ett_p = &fresh->ett;
             g_array_append_val(etts, ett_p);
 
+            g_ptr_array_set_free_func(fresh->element_names, g_free);
             g_ptr_array_free(fresh->element_names, true);
 
             wmem_map_insert(root_element->elements, (void *)fresh->name, fresh);
