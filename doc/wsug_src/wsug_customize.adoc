@@ -1536,10 +1536,10 @@ the performance impact is slight.
 Wireshark can decrypt Encrypted Payloads of IKEv2 (Internet Key Exchange version
 2) packets if necessary information is provided. Note that you can decrypt only
 IKEv2 packets with this feature. If you want to decrypt IKEv1 packets or ESP
-packets, use Log Filename setting under ISAKMP protocol preference or settings
-under ESP protocol preference respectively.
+packets, edit ISAKMP protocol preference IKEv1 Decryption Table or ESP
+protocol preference ESP SAs respectively.
 
-This is handled by a user table, as described in <<ChUserTable>>,
+This is handled by a UAT, as described in <<ChUserTable>>,
 with the following fields:
 
 Initiator’s SPI::

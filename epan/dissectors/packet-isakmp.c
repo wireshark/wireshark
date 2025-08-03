@@ -8136,7 +8136,7 @@ proto_register_isakmp(void)
       &ikev1_uat_data,
       &num_ikev1_uat_data,
       UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
-      "ChIKEv1DecryptionSection",
+      NULL,
       ikev1_uat_data_copy_cb,
       ikev1_uat_data_update_cb,
       ikev1_uat_data_free_cb,
