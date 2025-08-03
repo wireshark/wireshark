@@ -97,6 +97,7 @@ static int hf_icmp_transmit_timestamp;
 static int hf_icmp_address_mask;
 static int hf_icmp_length;
 static int hf_icmp_length_original_datagram;
+static int hf_icmp_data;
 
 /* Mobile ip */
 static int hf_icmp_mip_type;
@@ -157,6 +158,7 @@ static int hf_icmp_mpls_ttl;
 static int hf_icmp_mpls_data;
 
 static int ett_icmp;
+static int ett_icmp_data;
 static int ett_icmp_mip;
 static int ett_icmp_mip_flags;
 
@@ -1859,6 +1861,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 * malformed packets as we try to access data that isn't there. */
 		if (tvb_captured_length_remaining(tvb, 8) < 8) {
 			if (tvb_captured_length_remaining(tvb, 8) > 0) {
+				ti = proto_tree_add_item(icmp_tree, hf_icmp_data, tvb, 8, -1, ENC_NA);
+				proto_item_set_hidden(ti);
 				call_data_dissector(tvb_new_subset_remaining
 					       (tvb, 8), pinfo, icmp_tree);
 			}
@@ -1871,22 +1875,27 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 */
 		int len = get_best_guess_timestamp(tvb, 8, &pinfo->abs_ts, &ts);
 		if (len) {
-			proto_tree_add_time(icmp_tree, hf_icmp_data_time,
+			ti = proto_tree_add_item(icmp_tree, hf_icmp_data, tvb, 8, -1, ENC_NA);
+			proto_tree *icmp_data_tree = proto_item_add_subtree(ti, ett_icmp_data);
+
+			proto_tree_add_time(icmp_data_tree, hf_icmp_data_time,
 					    tvb, 8, len, &ts);
 			nstime_delta(&time_relative, &pinfo->abs_ts,
 				     &ts);
-			ti = proto_tree_add_time(icmp_tree,
+			ti = proto_tree_add_time(icmp_data_tree,
 						 hf_icmp_data_time_relative,
 						 tvb, 8, len,
 						 &time_relative);
 			proto_item_set_generated(ti);
 			call_data_dissector(tvb_new_subset_remaining(tvb,
 								8 + len),
-				       pinfo, icmp_tree);
+				       pinfo, icmp_data_tree);
 		} else {
 			heur_dtbl_entry_t *hdtbl_entry;
 			next_tvb = tvb_new_subset_remaining(tvb, 8);
 			if (!dissector_try_heuristic(icmp_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+				ti = proto_tree_add_item(icmp_tree, hf_icmp_data, next_tvb, 0, -1, ENC_NA);
+				proto_item_set_hidden(ti);
 				call_data_dissector(next_tvb, pinfo, icmp_tree);
 			}
 		}
@@ -2260,6 +2269,11 @@ void proto_register_icmp(void)
 		  "The time between the request and the response, in ms.",
 		  HFILL}},
 
+		{&hf_icmp_data,
+		 {"ICMP Data", "icmp.data",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
 		{&hf_icmp_data_time,
 		 {"Timestamp from icmp data", "icmp.data_time",
 		  FT_ABSOLUTE_TIME,
@@ -2419,6 +2433,7 @@ void proto_register_icmp(void)
 
 	static int *ett[] = {
 		&ett_icmp,
+		&ett_icmp_data,
 		&ett_icmp_mip,
 		&ett_icmp_mip_flags,
 		/* MPLS extensions */
