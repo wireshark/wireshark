@@ -70,8 +70,9 @@
 #define DATAFILE_SOMEIP_UNIONS                  "SOMEIP_parameter_unions"
 #define DATAFILE_SOMEIP_TYPEDEFS                "SOMEIP_parameter_typedefs"
 #define DATAFILE_SOMEIP_ENUMS                   "SOMEIP_parameter_enums"
+#define DATAFILE_SOMEIP_BITFIELDS               "SOMEIP_parameter_bitfields"
 
-#define SOMEIP_PARAMETER_DATA_TYPE_UNKNOWN      0
+#define SOMEIP_PARAMETER_DATA_TYPE_MIN          1
 #define SOMEIP_PARAMETER_DATA_TYPE_BASE_TYPE    1
 #define SOMEIP_PARAMETER_DATA_TYPE_STRING       2
 #define SOMEIP_PARAMETER_DATA_TYPE_ARRAY        3
@@ -79,6 +80,10 @@
 #define SOMEIP_PARAMETER_DATA_TYPE_UNION        5
 #define SOMEIP_PARAMETER_DATA_TYPE_TYPEDEF      6
 #define SOMEIP_PARAMETER_DATA_TYPE_ENUM         7
+#define SOMEIP_PARAMETER_DATA_TYPE_BITFIELD     8
+#define SOMEIP_PARAMETER_DATA_TYPE_MAX          8
+
+#define SOMEIP_PARAMETER_DATA_TYPE_BITFIELD_INT 0xFE
 
 /*** SOME/IP ***/
 #define SOMEIP_HDR_LEN                          16
@@ -192,6 +197,8 @@ static int hf_payload_str_string;
 static int hf_payload_str_array;
 static int hf_payload_str_struct;
 static int hf_payload_str_union;
+static int hf_payload_str_bitfield;
+static int hf_payload_bitfield_item;
 
 static int hf_payload_wtlv_tag;
 static int hf_payload_wtlv_tag_res;
@@ -206,6 +213,8 @@ static hf_register_info *dynamic_hf_struct;
 static unsigned dynamic_hf_struct_size;
 static hf_register_info *dynamic_hf_union;
 static unsigned dynamic_hf_union_size;
+static hf_register_info *dynamic_hf_bitfield;
+static unsigned dynamic_hf_bitfield_size;
 
 static int ett_someip_tp_fragment;
 static int ett_someip_tp_fragments;
@@ -215,6 +224,7 @@ static int ett_someip_array;
 static int ett_someip_array_dim;
 static int ett_someip_struct;
 static int ett_someip_union;
+static int ett_someip_bitfield;
 static int ett_someip_parameter;
 static int ett_someip_wtlv_tag;
 
@@ -298,6 +308,7 @@ static GHashTable *data_someip_parameter_structs;
 static GHashTable *data_someip_parameter_unions;
 static GHashTable *data_someip_parameter_typedefs;
 static GHashTable *data_someip_parameter_enums;
+static GHashTable *data_someip_parameter_bitfields;
 
 /*** Taps ***/
 static int tap_someip_messages = -1;
@@ -573,6 +584,49 @@ typedef struct _someip_parameter_enum_uat {
 } someip_parameter_enum_uat_t;
 
 
+
+/*** Parameter Bitfield UAT (ID: 8) ***/
+
+typedef struct _someip_parameter_bitfield_item {
+    uint8_t     bit_number;
+    char       *bit_name;
+    int        *hf_id;
+    char       *filter_string;
+} someip_parameter_bitfield_item_t;
+
+#define INIT_SOMEIP_PARAMETER_BITFIELD_ITEM(NAME) \
+    (NAME)->bit_number      = 0; \
+    (NAME)->bit_name        = NULL; \
+    (NAME)->hf_id           = NULL; \
+    (NAME)->filter_string   = NULL;
+
+typedef struct _someip_parameter_bitfield {
+    uint32_t    id;
+    char       *name;
+    uint8_t     number_of_bits;
+    uint32_t    num_of_items;
+
+    someip_parameter_bitfield_item_t *items;
+} someip_parameter_bitfield_t;
+
+#define INIT_SOMEIP_PARAMETER_BITFIELD(NAME) \
+    (NAME)->id              = 0; \
+    (NAME)->name            = NULL; \
+    (NAME)->number_of_bits  = 0; \
+    (NAME)->num_of_items    = 0; \
+    (NAME)->items           = NULL;
+
+typedef struct _someip_parameter_bitfield_uat {
+    uint32_t            id;
+    char               *name;
+    uint32_t            number_of_bits;
+    uint32_t            num_of_items;
+    uint32_t            bit_number;
+    char               *bit_name;
+    char               *filter_string;
+} someip_parameter_bitfield_uat_t;
+
+
 typedef struct _generic_one_id_string {
     unsigned   id;
     char   *name;
@@ -619,6 +673,9 @@ static unsigned someip_parameter_typedefs_num;
 
 static someip_parameter_enum_uat_t *someip_parameter_enums;
 static unsigned someip_parameter_enums_num;
+
+static someip_parameter_bitfield_uat_t *someip_parameter_bitfields;
+static unsigned someip_parameter_bitfields_num;
 
 void proto_register_someip(void);
 void proto_reg_handoff_someip(void);
@@ -1108,6 +1165,10 @@ get_enum_config(uint32_t id) {
     return (someip_parameter_enum_t *)get_generic_config(data_someip_parameter_enums, GUINT_TO_POINTER(id));
 }
 
+static someip_parameter_bitfield_t*
+get_bitfield_config(uint32_t id) {
+    return (someip_parameter_bitfield_t *)get_generic_config(data_someip_parameter_bitfields, GUINT_TO_POINTER(id));
+}
 
 /*** Parameter List ***/
 UAT_HEX_CB_DEF(someip_parameter_list, service_id, someip_parameter_list_uat_t)
@@ -1186,6 +1247,11 @@ update_someip_parameter_list(void *r, char **err) {
 
     if (rec->pos >= rec->num_of_params) {
         *err = ws_strdup_printf("Position >= Number of Parameters");
+        return false;
+    }
+
+    if (rec->data_type < SOMEIP_PARAMETER_DATA_TYPE_MIN || rec->data_type > SOMEIP_PARAMETER_DATA_TYPE_MAX) {
+        *err = ws_strdup_printf("Data Type can be only in range %d .. %d!", SOMEIP_PARAMETER_DATA_TYPE_MIN, SOMEIP_PARAMETER_DATA_TYPE_MAX);
         return false;
     }
 
@@ -1615,6 +1681,11 @@ update_someip_parameter_array(void *r, char **err) {
         return false;
     }
 
+    if (rec->data_type < SOMEIP_PARAMETER_DATA_TYPE_MIN || rec->data_type > SOMEIP_PARAMETER_DATA_TYPE_MAX) {
+        *err = ws_strdup_printf("Data Type can be only in range %d .. %d!", SOMEIP_PARAMETER_DATA_TYPE_MIN, SOMEIP_PARAMETER_DATA_TYPE_MAX);
+        return false;
+    }
+
     if (rec->data_type == SOMEIP_PARAMETER_DATA_TYPE_ARRAY && rec->id == rec->id_ref) {
         *err = ws_strdup_printf("An array cannot include itself (ID: 0x%x)!", rec->id);
         return false;
@@ -1771,6 +1842,11 @@ update_someip_parameter_struct(void *r, char **err) {
         return false;
     }
 
+    if (rec->data_type < SOMEIP_PARAMETER_DATA_TYPE_MIN || rec->data_type > SOMEIP_PARAMETER_DATA_TYPE_MAX) {
+        *err = ws_strdup_printf("Data Type can be only in range %d .. %d!", SOMEIP_PARAMETER_DATA_TYPE_MIN, SOMEIP_PARAMETER_DATA_TYPE_MAX);
+        return false;
+    }
+
     if (rec->data_type == SOMEIP_PARAMETER_DATA_TYPE_STRUCT && rec->id == rec->id_ref) {
         *err = ws_strdup_printf("A struct cannot include itself (ID: 0x%x)!", rec->id);
         return false;
@@ -1922,6 +1998,11 @@ update_someip_parameter_union(void *r, char **err) {
         return false;
     }
 
+    if (rec->data_type < SOMEIP_PARAMETER_DATA_TYPE_MIN || rec->data_type > SOMEIP_PARAMETER_DATA_TYPE_MAX) {
+        *err = ws_strdup_printf("Data Type can be only in range %d .. %d!", SOMEIP_PARAMETER_DATA_TYPE_MIN, SOMEIP_PARAMETER_DATA_TYPE_MAX);
+        return false;
+    }
+
     if (rec->data_type == SOMEIP_PARAMETER_DATA_TYPE_UNION && rec->id == rec->id_ref) {
         *err = ws_strdup_printf("A union cannot include itself (ID: 0x%x)!", rec->id);
         return false;
@@ -2044,6 +2125,11 @@ update_someip_parameter_typedef_list(void *r, char **err) {
         return false;
     }
 
+    if (rec->data_type < SOMEIP_PARAMETER_DATA_TYPE_MIN || rec->data_type > SOMEIP_PARAMETER_DATA_TYPE_MAX) {
+        *err = ws_strdup_printf("Data Type can be only in range %d .. %d!", SOMEIP_PARAMETER_DATA_TYPE_MIN, SOMEIP_PARAMETER_DATA_TYPE_MAX);
+        return false;
+    }
+
     if (rec->data_type == SOMEIP_PARAMETER_DATA_TYPE_TYPEDEF && rec->id == rec->id_ref) {
         *err = ws_strdup_printf("A typedef cannot reference itself (ID: 0x%x)!", rec->id);
         return false;
@@ -2145,6 +2231,11 @@ update_someip_parameter_enum(void *r, char **err) {
         return false;
     }
 
+    if (rec->data_type < SOMEIP_PARAMETER_DATA_TYPE_MIN || rec->data_type > SOMEIP_PARAMETER_DATA_TYPE_MAX) {
+        *err = ws_strdup_printf("Data Type can be only in range %d .. %d!", SOMEIP_PARAMETER_DATA_TYPE_MIN, SOMEIP_PARAMETER_DATA_TYPE_MAX);
+        return false;
+    }
+
     if (rec->data_type == SOMEIP_PARAMETER_DATA_TYPE_ENUM) {
         *err = ws_strdup_printf("An enum cannot reference an enum (ID: 0x%x)!", rec->id);
         return false;
@@ -2181,8 +2272,8 @@ free_someip_parameter_enum(void *data) {
 
 static void
 post_update_someip_parameter_enum_read_in_data(someip_parameter_enum_uat_t *data, unsigned data_num, GHashTable *ht) {
-    unsigned                                i;
-    unsigned                                j;
+    unsigned                        i;
+    unsigned                        j;
     someip_parameter_enum_t        *list;
     someip_parameter_enum_item_t   *item;
 
@@ -2245,6 +2336,170 @@ post_update_someip_parameter_enum_cb(void) {
 }
 
 
+/*** Parameter Bitfields (ID: 8) ***/
+UAT_HEX_CB_DEF(someip_parameter_bitfields, id, someip_parameter_bitfield_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_bitfields, name, someip_parameter_bitfield_uat_t)
+UAT_DEC_CB_DEF(someip_parameter_bitfields, number_of_bits, someip_parameter_bitfield_uat_t)
+UAT_DEC_CB_DEF(someip_parameter_bitfields, num_of_items, someip_parameter_bitfield_uat_t)
+
+UAT_DEC_CB_DEF(someip_parameter_bitfields, bit_number, someip_parameter_bitfield_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_bitfields, bit_name, someip_parameter_bitfield_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_bitfields, filter_string, someip_parameter_bitfield_uat_t)
+
+static void *
+copy_someip_parameter_bitfield_cb(void *n, const void *o, size_t size _U_) {
+    someip_parameter_bitfield_uat_t        *new_rec = (someip_parameter_bitfield_uat_t *)n;
+    const someip_parameter_bitfield_uat_t  *old_rec = (const someip_parameter_bitfield_uat_t *)o;
+
+    new_rec->id = old_rec->id;
+    if (old_rec->name) {
+        new_rec->name = g_strdup(old_rec->name);
+    } else {
+        new_rec->name = NULL;
+    }
+
+    new_rec->number_of_bits = old_rec->number_of_bits;
+    new_rec->num_of_items   = old_rec->num_of_items;
+    new_rec->bit_number     = old_rec->bit_number;
+    if (old_rec->bit_name) {
+        new_rec->bit_name = g_strdup(old_rec->bit_name);
+    } else {
+        new_rec->bit_name = NULL;
+    }
+    if (old_rec->filter_string) {
+        new_rec->filter_string = g_strdup(old_rec->filter_string);
+    } else {
+        new_rec->filter_string = NULL;
+    }
+
+    return new_rec;
+}
+
+static bool
+update_someip_parameter_bitfield(void *r, char **err) {
+    someip_parameter_bitfield_uat_t *rec = (someip_parameter_bitfield_uat_t *)r;
+
+    if (rec->name == NULL || rec->name[0] == 0) {
+        *err = ws_strdup_printf("Name cannot be empty (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
+    if (rec->number_of_bits != 8 && rec->number_of_bits != 16 && rec->number_of_bits != 32 && rec->number_of_bits != 64) {
+        *err = ws_strdup_printf("Number of Bits must be 8, 16, 32, 64 (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
+    if (rec->num_of_items == 0) {
+        *err = ws_strdup_printf("Number_of_Items = 0 (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
+    if (rec->bit_number >= rec->number_of_bits) {
+        *err = ws_strdup_printf("Bit Number must be < Number of Bits (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
+    if (rec->bit_name == NULL || rec->bit_name[0] == 0) {
+        *err = ws_strdup_printf("Bit Name cannot be empty (ID: 0x%x)!", rec->id);
+        return false;
+    }
+
+    return true;
+}
+
+static void
+free_someip_parameter_bitfield_cb(void *r) {
+    someip_parameter_bitfield_uat_t *rec = (someip_parameter_bitfield_uat_t *)r;
+    if (rec->name) {
+        g_free(rec->name);
+        rec->name = NULL;
+    }
+
+    if (rec->bit_name) {
+        g_free(rec->bit_name);
+        rec->bit_name = NULL;
+    }
+
+    if (rec->filter_string) {
+        g_free(rec->filter_string);
+        rec->filter_string = NULL;
+    }
+}
+
+static void
+free_someip_parameter_bitfield(void *data) {
+    someip_parameter_bitfield_t *list = (someip_parameter_bitfield_t *)data;
+
+    if (list->items != NULL) {
+        wmem_free(wmem_epan_scope(), (void *)(list->items));
+        list->items = NULL;
+    }
+
+    wmem_free(wmem_epan_scope(), (void *)data);
+}
+
+static void
+post_update_someip_parameter_bitfield_read_in_data(someip_parameter_bitfield_uat_t *data, unsigned data_num, GHashTable *ht) {
+    if (ht == NULL || data == NULL) {
+        return;
+    }
+
+    for (unsigned i = 0; i < data_num; i++) {
+        someip_parameter_bitfield_t *list = g_hash_table_lookup(ht, GUINT_TO_POINTER(data[i].id));
+        if (list == NULL) {
+            list = wmem_new(wmem_epan_scope(), someip_parameter_bitfield_t);
+            INIT_SOMEIP_PARAMETER_BITFIELD(list)
+
+            list->id             = data[i].id;
+            list->name           = data[i].name;
+            list->number_of_bits = data[i].number_of_bits;
+            list->num_of_items   = data[i].num_of_items;
+            list->items = wmem_alloc0_array(wmem_epan_scope(), someip_parameter_bitfield_item_t, list->num_of_items);
+
+            /* create new entry ... */
+            g_hash_table_insert(ht, GUINT_TO_POINTER(data[i].id), list);
+        }
+
+        /* and now we add to item array */
+        if (list->num_of_items > 0 && data[i].num_of_items == list->num_of_items) {
+
+            /* find first empty slot */
+            unsigned j;
+            for (j = 0; j < list->num_of_items && list->items[j].bit_name != NULL; j++);
+
+            if (j < list->num_of_items) {
+                someip_parameter_bitfield_item_t *item = &(list->items[j]);
+                INIT_SOMEIP_PARAMETER_BITFIELD_ITEM(item)
+
+                /* we do not care if we overwrite param */
+                item->bit_number    = data[i].bit_number;
+                item->bit_name      = data[i].bit_name;
+                item->filter_string = data[i].filter_string;
+            }
+        }
+    }
+}
+
+static void
+reset_someip_parameter_bitfield_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_someip_parameter_bitfields) {
+        g_hash_table_destroy(data_someip_parameter_bitfields);
+        data_someip_parameter_bitfields = NULL;
+    }
+
+    set_prefs_changed();
+}
+
+static void
+post_update_someip_parameter_bitfield_cb(void) {
+    reset_someip_parameter_bitfield_cb();
+
+    data_someip_parameter_bitfields = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_bitfield);
+    post_update_someip_parameter_bitfield_read_in_data(someip_parameter_bitfields, someip_parameter_bitfields_num, data_someip_parameter_bitfields);
+}
+
+
 static void
 deregister_dynamic_hf_data(hf_register_info **hf_array, unsigned *hf_size) {
     if (*hf_array) {
@@ -2291,6 +2546,11 @@ reset_someip_dynamic_parameter_cb(void) {
         g_hash_table_destroy(data_someip_parameter_unions);
         data_someip_parameter_unions = NULL;
     }
+    if (data_someip_parameter_bitfields) {
+        deregister_dynamic_hf_data(&dynamic_hf_bitfield, &dynamic_hf_bitfield_size);
+        g_hash_table_destroy(data_someip_parameter_bitfields);
+        data_someip_parameter_bitfields = NULL;
+    }
 
     set_prefs_changed();
 }
@@ -2310,22 +2570,26 @@ post_update_someip_dynamic_parameter_cb(void) {
 
     data_someip_parameter_unions = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_union);
     post_update_someip_parameter_union_read_in_data(someip_parameter_unions, someip_parameter_unions_num, data_someip_parameter_unions);
+
+    data_someip_parameter_bitfields = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, &free_someip_parameter_bitfield);
+    post_update_someip_parameter_bitfield_read_in_data(someip_parameter_bitfields, someip_parameter_bitfields_num, data_someip_parameter_bitfields);
 }
 
 typedef struct _param_return_attibutes_t {
     enum ftenum     type;
     int             display_base;
     char           *base_type_name;
+    uint64_t        bitmask;
 } param_return_attributes_t;
 
-static param_return_attributes_t
-get_param_attributes(uint8_t data_type, uint32_t id_ref) {
+static void
+get_param_attributes(uint8_t data_type, uint32_t id_ref, unsigned child_pos, param_return_attributes_t *ret) {
     int count = 10;
 
-    param_return_attributes_t ret;
-    ret.type = FT_NONE;
-    ret.display_base = BASE_NONE;
-    ret.base_type_name = NULL;
+    ret->type = FT_NONE;
+    ret->display_base = BASE_NONE;
+    ret->base_type_name = NULL;
+    ret->bitmask = 0;
 
     /* we limit the number of typedef recursion to "count" */
     while (data_type == SOMEIP_PARAMETER_DATA_TYPE_TYPEDEF && count > 0) {
@@ -2349,72 +2613,120 @@ get_param_attributes(uint8_t data_type, uint32_t id_ref) {
 
     if (data_type == SOMEIP_PARAMETER_DATA_TYPE_STRING) {
         someip_parameter_string_t *tmp = get_string_config(id_ref);
-        ret.type = FT_STRING;
-        ret.display_base = BASE_NONE;
+        ret->type = FT_STRING;
+        ret->display_base = BASE_NONE;
         if (tmp != NULL) {
-            ret.base_type_name = tmp->name;
+            ret->base_type_name = tmp->name;
         }
-        return ret;
+        return;
     }
 
     if (data_type == SOMEIP_PARAMETER_DATA_TYPE_BASE_TYPE) {
         someip_parameter_base_type_list_t *tmp = get_base_type_config(id_ref);
 
-        ret.display_base = BASE_DEC;
+        ret->display_base = BASE_DEC;
 
         if (tmp != NULL) {
-            ret.base_type_name = tmp->name;
+            ret->base_type_name = tmp->name;
 
             if (g_strcmp0(tmp->data_type, "uint8") == 0) {
-                ret.type = FT_UINT8;
+                ret->type = FT_UINT8;
             } else if (g_strcmp0(tmp->data_type, "uint16") == 0) {
-                ret.type = FT_UINT16;
+                ret->type = FT_UINT16;
             } else if (g_strcmp0(tmp->data_type, "uint32") == 0) {
-                ret.type = FT_UINT32;
+                ret->type = FT_UINT32;
             } else if (g_strcmp0(tmp->data_type, "uint64") == 0) {
-                ret.type = FT_UINT64;
+                ret->type = FT_UINT64;
             } else if (g_strcmp0(tmp->data_type, "int8") == 0) {
-                ret.type = FT_INT8;
+                ret->type = FT_INT8;
             } else if (g_strcmp0(tmp->data_type, "int16") == 0) {
-                ret.type = FT_INT16;
+                ret->type = FT_INT16;
             } else if (g_strcmp0(tmp->data_type, "int32") == 0) {
-                ret.type = FT_INT32;
+                ret->type = FT_INT32;
             } else if (g_strcmp0(tmp->data_type, "int64") == 0) {
-                ret.type = FT_INT64;
+                ret->type = FT_INT64;
             } else if (g_strcmp0(tmp->data_type, "float32") == 0) {
-                ret.type = FT_FLOAT;
-                ret.display_base = BASE_NONE;
+                ret->type = FT_FLOAT;
+                ret->display_base = BASE_NONE;
             } else if (g_strcmp0(tmp->data_type, "float64") == 0) {
-                ret.type = FT_DOUBLE;
-                ret.display_base = BASE_NONE;
+                ret->type = FT_DOUBLE;
+                ret->display_base = BASE_NONE;
             } else {
-                ret.type = FT_NONE;
+                ret->type = FT_NONE;
             }
         } else {
-            ret.type = FT_NONE;
+            ret->type = FT_NONE;
         }
     }
 
+    if (data_type == SOMEIP_PARAMETER_DATA_TYPE_BITFIELD) {
+        someip_parameter_bitfield_t *tmp = get_bitfield_config(id_ref);
+
+        ret ->display_base = BASE_DEC;
+
+        if (tmp != NULL) {
+            ret->base_type_name = tmp->name;
+
+            switch (tmp->number_of_bits) {
+            case 8:
+                ret->type = FT_UINT8;
+                break;
+            case 16:
+                ret->type = FT_UINT16;
+                break;
+            case 32:
+                ret->type = FT_UINT32;
+                break;
+            case 64:
+                ret->type = FT_UINT64;
+                break;
+            }
+        }
+
+        return;
+    }
+
+    if (data_type == SOMEIP_PARAMETER_DATA_TYPE_BITFIELD_INT) {
+        someip_parameter_bitfield_t *tmp = get_bitfield_config(id_ref);
+
+        if (tmp != NULL) {
+            ret->display_base = tmp->number_of_bits;
+
+            someip_parameter_bitfield_item_t *item = &(tmp->items[child_pos]);
+
+            if (item != NULL && item->bit_number < 64) {
+                ret->bitmask = (uint64_t)1 << item->bit_number;
+            }
+
+            ret->type = FT_BOOLEAN;
+        }
+
+        return;
+    }
+
     /* all other types are handled or don't need a type! */
-    return ret;
+    return;
 }
 
 static int*
-update_dynamic_hf_entry(hf_register_info *hf_array, int pos, uint32_t data_type, unsigned id_ref, char *param_name, char *filter_string) {
-    param_return_attributes_t   attribs;
-    int                        *hf_id;
+update_dynamic_hf_entry(hf_register_info *hf_array, int pos, uint32_t data_type, unsigned id_ref, char *param_name, char *filter_string, unsigned child_pos) {
+    if (filter_string == NULL) {
+        ws_debug("empty filter string (pos %d)", pos);
+        return NULL;
+    }
 
-    attribs = get_param_attributes(data_type, id_ref);
+    param_return_attributes_t attribs;
+    get_param_attributes(data_type, id_ref, child_pos, &attribs);
     if (hf_array == NULL || attribs.type == FT_NONE) {
         return NULL;
     }
 
-    hf_id = g_new(int, 1);
+    int *hf_id = g_new(int, 1);
     *hf_id = 0;
     hf_array[pos].p_id = hf_id;
 
     hf_array[pos].hfinfo.strings = NULL;
-    hf_array[pos].hfinfo.bitmask = 0;
+    hf_array[pos].hfinfo.bitmask = attribs.bitmask;
     hf_array[pos].hfinfo.blurb   = NULL;
 
     if (attribs.base_type_name == NULL) {
@@ -2440,12 +2752,13 @@ update_dynamic_param_hf_entry(void *key _U_, void *value, void *data) {
 
     for (i = 0; i < list->num_of_items ; i++) {
         if (*pos >= dynamic_hf_param_size) {
+            ws_critical("out of dynamic hf space for parameters!");
             return;
         }
 
         someip_parameter_item_t *item = &(list->items[i]);
 
-        item->hf_id = update_dynamic_hf_entry(dynamic_hf_param, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_param, *pos, item->data_type, item->id_ref, item->name, item->filter_string, 0);
 
         if (item->hf_id != NULL) {
             (*pos)++;
@@ -2459,10 +2772,11 @@ update_dynamic_array_hf_entry(void *key _U_, void *value, void *data) {
     someip_parameter_array_t   *item = (someip_parameter_array_t *)value;
 
     if (*pos >= dynamic_hf_array_size) {
+        ws_critical("out of dynamic hf space for arrays!");
         return;
     }
 
-    item->hf_id = update_dynamic_hf_entry(dynamic_hf_array, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
+    item->hf_id = update_dynamic_hf_entry(dynamic_hf_array, *pos, item->data_type, item->id_ref, item->name, item->filter_string, 0);
 
     if (item->hf_id != NULL) {
         (*pos)++;
@@ -2477,11 +2791,12 @@ update_dynamic_struct_hf_entry(void *key _U_, void *value, void *data) {
 
     for (i = 0; i < list->num_of_items; i++) {
         if (*pos >= dynamic_hf_struct_size) {
+            ws_critical("out of dynamic hf space for structs!");
             return;
         }
         someip_parameter_item_t *item = &(list->items[i]);
 
-        item->hf_id = update_dynamic_hf_entry(dynamic_hf_struct, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_struct, *pos, item->data_type, item->id_ref, item->name, item->filter_string, 0);
 
         if (item->hf_id != NULL) {
             (*pos)++;
@@ -2497,12 +2812,35 @@ update_dynamic_union_hf_entry(void *key _U_, void *value, void *data) {
 
     for (i = 0; i < list->num_of_items; i++) {
         if (*pos >= dynamic_hf_union_size) {
+            ws_critical("out of dynamic hf space for unions!");
             return;
         }
 
         someip_parameter_union_item_t *item = &(list->items[i]);
 
-        item->hf_id = update_dynamic_hf_entry(dynamic_hf_union, *pos, item->data_type, item->id_ref, item->name, item->filter_string);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_union, *pos, item->data_type, item->id_ref, item->name, item->filter_string, 0);
+
+        if (item->hf_id != NULL) {
+            (*pos)++;
+        }
+    }
+}
+
+static void
+update_dynamic_bitfield_hf_entry(void *key _U_, void *value, void *data) {
+    uint32_t                       *pos = (uint32_t *)data;
+    someip_parameter_bitfield_t    *list = (someip_parameter_bitfield_t *)value;
+    unsigned                        i = 0;
+
+    for (i = 0; i < list->num_of_items; i++) {
+        if (*pos >= dynamic_hf_bitfield_size) {
+            ws_critical("out of dynamic hf space for bitfield bits!");
+            return;
+        }
+
+        someip_parameter_bitfield_item_t *item = &(list->items[i]);
+
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_bitfield, *pos, SOMEIP_PARAMETER_DATA_TYPE_BITFIELD_INT, list->id, item->bit_name, item->filter_string, i);
 
         if (item->hf_id != NULL) {
             (*pos)++;
@@ -2541,6 +2879,13 @@ update_dynamic_hf_entries_someip_parameter(void) {
         uint32_t pos = 0;
         g_hash_table_foreach(data_someip_parameter_unions, update_dynamic_union_hf_entry, &pos);
         proto_register_field_array(proto_someip, dynamic_hf_union, pos);
+    }
+    if (data_someip_parameter_bitfields != NULL) {
+        deregister_dynamic_hf_data(&dynamic_hf_bitfield, &dynamic_hf_bitfield_size);
+        allocate_dynamic_hf_data(&dynamic_hf_bitfield, &dynamic_hf_bitfield_size, someip_parameter_bitfields_num);
+        uint32_t pos = 0;
+        g_hash_table_foreach(data_someip_parameter_bitfields, update_dynamic_bitfield_hf_entry, &pos);
+        proto_register_field_array(proto_someip, dynamic_hf_bitfield, pos);
     }
 }
 
@@ -3260,6 +3605,71 @@ dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+dissect_someip_payload_bitfield(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset_orig, uint32_t id, char *name, int *hf_id_ptr, int wtlv_offset) {
+    proto_item *ti = NULL;
+    proto_tree *subtree = NULL;
+    int         offset = offset_orig;
+
+    someip_parameter_bitfield_t *config = NULL;
+    config = get_bitfield_config(id);
+
+    if (config == NULL) {
+        expert_someip_payload_config_error(tree, pinfo, tvb, offset, 0, "Bitfield ID not configured");
+        return 0;
+    }
+
+    unsigned number_of_bytes = config->number_of_bits / 8;
+
+    if (number_of_bytes > (unsigned)tvb_captured_length_remaining(tvb, offset)) {
+        expert_someip_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+        return 0;
+    }
+
+    if (hf_id_ptr != NULL) {
+        int hf_id = *hf_id_ptr;
+        ti = proto_tree_add_item(tree, hf_id, tvb, offset_orig, number_of_bytes, ENC_BIG_ENDIAN);
+    } else {
+        ti = proto_tree_add_string_format(tree, hf_payload_str_bitfield, tvb, offset_orig, number_of_bytes, name, "bitfield %s [%s]", name, config->name);
+    }
+    dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, NULL);
+    subtree = proto_item_add_subtree(ti, ett_someip_bitfield);
+
+    uint64_t value = 0;
+    switch (config->number_of_bits) {
+    case 64:
+        value = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
+        break;
+    case 32:
+        value = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+        break;;
+    case 16:
+        value = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+        break;
+    default:
+    case 8:
+        value = tvb_get_uint8(tvb, offset);
+        break;
+    }
+
+    if (someip_deserializer_debugging_activated) {
+        proto_item_append_text(ti, "  [Debug: Bitfield ID 0x%04x]", id);
+    }
+
+    for (unsigned i = 0; i < config->num_of_items; i++) {
+        someip_parameter_bitfield_item_t *item = &(config->items[i]);
+
+        if (item->hf_id != NULL) {
+            proto_tree_add_item(subtree, *(item->hf_id), tvb, offset_orig, number_of_bytes, ENC_BIG_ENDIAN);
+        } else {
+            uint32_t mask = (uint32_t)(1 << (item->bit_number));
+            proto_tree_add_boolean_format(subtree, hf_payload_bitfield_item, tvb, offset, number_of_bytes, value, "%s (bit %d): %d", item->bit_name, item->bit_number, (value & mask) != 0);
+        }
+    }
+
+    return number_of_bytes;
+}
+
+static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_someip_payload_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t data_type, uint32_t idref, char *name, int *hf_id_ptr, int wtlv_offset) {
     int bytes_parsed = 0;
@@ -3284,6 +3694,9 @@ dissect_someip_payload_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         break;
     case SOMEIP_PARAMETER_DATA_TYPE_TYPEDEF:
         bytes_parsed = dissect_someip_payload_typedef(tvb, pinfo, tree, offset, idref, name, hf_id_ptr, wtlv_offset);
+        break;
+    case SOMEIP_PARAMETER_DATA_TYPE_BITFIELD:
+        bytes_parsed = dissect_someip_payload_bitfield(tvb, pinfo, tree, offset, idref, name, hf_id_ptr, wtlv_offset);
         break;
     default:
         proto_tree_add_expert_format(tree, pinfo, &ei_someip_payload_config_error, tvb, offset, 0,
@@ -3363,6 +3776,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
     case SOMEIP_PARAMETER_DATA_TYPE_TYPEDEF:
     case SOMEIP_PARAMETER_DATA_TYPE_BASE_TYPE:
     case SOMEIP_PARAMETER_DATA_TYPE_ENUM:
+    case SOMEIP_PARAMETER_DATA_TYPE_BITFIELD:
     default:
         /* This happens only if configuration or message are buggy. */
         return -2;
@@ -3835,14 +4249,15 @@ proto_register_someip(void) {
     uat_t *someip_eventgroup_uat;
     uat_t *someip_client_uat;
 
-    uat_t  *someip_parameter_list_uat;
-    uat_t  *someip_parameter_base_type_list_uat;
-    uat_t  *someip_parameter_strings_uat;
-    uat_t  *someip_parameter_arrays_uat;
-    uat_t  *someip_parameter_structs_uat;
-    uat_t  *someip_parameter_unions_uat;
-    uat_t  *someip_parameter_enums_uat;
-    uat_t  *someip_parameter_typedefs_uat;
+    uat_t *someip_parameter_list_uat;
+    uat_t *someip_parameter_base_type_list_uat;
+    uat_t *someip_parameter_strings_uat;
+    uat_t *someip_parameter_arrays_uat;
+    uat_t *someip_parameter_structs_uat;
+    uat_t *someip_parameter_unions_uat;
+    uat_t *someip_parameter_typedefs_uat;
+    uat_t *someip_parameter_enums_uat;
+    uat_t *someip_parameter_bitfields_uat;
 
     /* data fields */
     static hf_register_info hf[] = {
@@ -3972,6 +4387,7 @@ proto_register_someip(void) {
             { "Type", "someip.payload.type",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
+
         { &hf_payload_str_base, {
             "(base)", "someip.payload.base",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -3987,6 +4403,12 @@ proto_register_someip(void) {
         { &hf_payload_str_union, {
             "(union)", "someip.payload.union",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_payload_str_bitfield, {
+            "(bitfield)", "someip.payload.bitfield",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_payload_bitfield_item, {
+            "bit", "someip.payload.bitfield.bit",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 
         { &hf_payload_wtlv_tag, {
             "WTLV-TAG", "someip.payload.wtlvtag",
@@ -4015,6 +4437,7 @@ proto_register_someip(void) {
         &ett_someip_array_dim,
         &ett_someip_struct,
         &ett_someip_union,
+        &ett_someip_bitfield,
 
         &ett_someip_parameter,
         &ett_someip_wtlv_tag,
@@ -4053,14 +4476,14 @@ proto_register_someip(void) {
         UAT_FLD_HEX(someip_parameter_list, service_id,              "Service ID",               "ID of the SOME/IP Service (16bit hex without leading 0x)"),
         UAT_FLD_HEX(someip_parameter_list, method_id,               "Method ID",                "ID of the SOME/IP Method/Event/Notifier (16bit hex without leading 0x)"),
         UAT_FLD_DEC(someip_parameter_list, version,                 "Version",                  "Version of the SOME/IP Service (8bit dec)"),
-        UAT_FLD_HEX(someip_parameter_list, message_type,            "Message Type",             "Message Type (8bit hex without leading 0x)"),
+        UAT_FLD_HEX(someip_parameter_list, message_type,            "Message Type",             "Message Type (8bit hex without leading 0x) (0: request, 1: request_no_return, 2: event, 0x80: response, 0x81: exception)"),
         UAT_FLD_BOOL(someip_parameter_list, wtlv_encoding,          "WTLV Extension?",          "SOME/IP is extended by Wiretag-Length-Value encoding for this parameter list (not pure SOME/IP)"),
 
         UAT_FLD_DEC(someip_parameter_list, num_of_params,           "Number of Parameters",     "Number of Parameters (16bit dec), needs to be larger than greatest Parameter Position/ID"),
 
         UAT_FLD_DEC(someip_parameter_list, pos,                     "Parameter Position/ID",    "Position or ID of parameter (16bit dec, starting with 0)"),
         UAT_FLD_CSTRING(someip_parameter_list, name,                "Parameter Name",           "Name of parameter (string)"),
-        UAT_FLD_DEC(someip_parameter_list, data_type,               "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
+        UAT_FLD_DEC(someip_parameter_list, data_type,               "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum, 8: bitfield)"),
         UAT_FLD_HEX(someip_parameter_list, id_ref,                  "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_CSTRING(someip_parameter_list, filter_string,       "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
@@ -4091,7 +4514,7 @@ proto_register_someip(void) {
     static uat_field_t someip_parameter_array_uat_fields[] = {
         UAT_FLD_HEX(someip_parameter_arrays, id,                    "ID",                       "ID of SOME/IP array (32bit hex without leading 0x)"),
         UAT_FLD_CSTRING(someip_parameter_arrays, name,              "Array Name",               "Name of array"),
-        UAT_FLD_DEC(someip_parameter_arrays, data_type,             "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
+        UAT_FLD_DEC(someip_parameter_arrays, data_type,             "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum, 8: bitfield)"),
         UAT_FLD_HEX(someip_parameter_arrays, id_ref,                "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_DEC(someip_parameter_arrays, num_of_dims,           "Number of Items",          "Number of Dimensions (16bit dec)"),
         UAT_FLD_CSTRING(someip_parameter_arrays, filter_string,     "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
@@ -4114,7 +4537,7 @@ proto_register_someip(void) {
 
         UAT_FLD_DEC(someip_parameter_structs, pos,                  "Parameter Position/ID",    "Position or ID of parameter (16bit dec, starting with 0)"),
         UAT_FLD_CSTRING(someip_parameter_structs, name,             "Parameter Name",           "Name of parameter (string)"),
-        UAT_FLD_DEC(someip_parameter_structs, data_type,            "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
+        UAT_FLD_DEC(someip_parameter_structs, data_type,            "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum, 8: bitfield)"),
         UAT_FLD_HEX(someip_parameter_structs, id_ref,               "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_CSTRING(someip_parameter_structs, filter_string,    "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
@@ -4131,7 +4554,7 @@ proto_register_someip(void) {
 
         UAT_FLD_DEC(someip_parameter_unions, type_id,               "Type ID",                  "ID of Type (32bit dec, starting with 0)"),
         UAT_FLD_CSTRING(someip_parameter_unions, type_name,         "Type Name",                "Name of Type (string)"),
-        UAT_FLD_DEC(someip_parameter_unions, data_type,             "Data Type",                "Type of payload (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
+        UAT_FLD_DEC(someip_parameter_unions, data_type,             "Data Type",                "Type of payload (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum, 8: bitfield)"),
         UAT_FLD_HEX(someip_parameter_unions, id_ref,                "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_CSTRING(someip_parameter_unions, filter_string,     "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
@@ -4148,12 +4571,24 @@ proto_register_someip(void) {
     static uat_field_t someip_parameter_enum_uat_fields[] = {
         UAT_FLD_HEX(someip_parameter_enums, id,                     "ID",                       "ID of SOME/IP enum (32bit hex without leading 0x)"),
         UAT_FLD_CSTRING(someip_parameter_enums, name,               "Name",                     "Name of Enumeration (string)"),
-        UAT_FLD_DEC(someip_parameter_enums, data_type,              "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
+        UAT_FLD_DEC(someip_parameter_enums, data_type,              "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum, 8: bitfield)"),
         UAT_FLD_HEX(someip_parameter_enums, id_ref,                 "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_DEC(someip_parameter_enums, num_of_items,           "Number of Items",          "Number of Items (32bit dec)"),
 
         UAT_FLD_HEX(someip_parameter_enums, value,                  "Value",                    "Value (64bit uint hex)"),
         UAT_FLD_CSTRING(someip_parameter_enums, value_name,         "Value Name",               "Name (string)"),
+        UAT_END_FIELDS
+    };
+
+    static uat_field_t someip_parameter_bitfield_uat_fields[] = {
+        UAT_FLD_HEX(someip_parameter_bitfields, id,                 "ID",                       "ID of SOME/IP bitfield (32bit hex without leading 0x)"),
+        UAT_FLD_CSTRING(someip_parameter_bitfields, name,           "Name",                     "Name of Bitfield (string)"),
+        UAT_FLD_DEC(someip_parameter_bitfields, number_of_bits,     "Number of Bits",           "Number of Bits (8, 16, 32, 64)"),
+        UAT_FLD_DEC(someip_parameter_bitfields, num_of_items,       "Number of Items",          "Number of Items (32bit dec)"),
+
+        UAT_FLD_DEC(someip_parameter_bitfields, bit_number,         "Bit Number",               "Value (8bit uint dec)"),
+        UAT_FLD_CSTRING(someip_parameter_bitfields, bit_name,       "Bit Name",                 "Name (string)"),
+        UAT_FLD_CSTRING(someip_parameter_bitfields, filter_string,  "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
     };
 
@@ -4451,6 +4886,25 @@ proto_register_someip(void) {
 
     prefs_register_uat_preference(someip_module, "_someip_parameter_enums", "SOME/IP Parameter Enums",
         "A table to define enumerations used by SOME/IP", someip_parameter_enums_uat);
+
+    someip_parameter_bitfields_uat = uat_new("SOME/IP Parameter Bitfields",
+        sizeof(someip_parameter_bitfield_uat_t),           /* record size           */
+        DATAFILE_SOMEIP_BITFIELDS,                         /* filename              */
+        true,                                              /* from profile          */
+        (void **)&someip_parameter_bitfields,              /* data_ptr              */
+        &someip_parameter_bitfields_num,                   /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                            /* but not fields        */
+        NULL,                                              /* help                  */
+        copy_someip_parameter_bitfield_cb,                 /* copy callback         */
+        update_someip_parameter_bitfield,                  /* update callback       */
+        free_someip_parameter_bitfield_cb,                 /* free callback         */
+        post_update_someip_parameter_bitfield_cb,          /* post update callback  */
+        reset_someip_parameter_bitfield_cb,                /* reset callback        */
+        someip_parameter_bitfield_uat_fields               /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(someip_module, "_someip_parameter_bitfields", "SOME/IP Parameter Bitfields",
+        "A table to define bitfields used by SOME/IP", someip_parameter_bitfields_uat);
 }
 
 void
