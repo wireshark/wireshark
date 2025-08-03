@@ -5470,6 +5470,11 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F3A,   "Southern Audio Services, Inc" },
     { 0x0F3B,   "SANWA NEWTEC CO.,LTD." },
     { 0x0F3C,   "Mobile Technology Solutions LLC" },
+    { 0x0F3D,   "Vitio Medical S.L." },
+    { 0x0F3E,   "Salyx Medical Inc." },
+    { 0x0F3F,   "Landig + Lava GmbH & Co. KG" },
+    { 0x0F40,   "Health Data Insight C.I.C." },
+    { 0x0F41,   "BONX INC." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

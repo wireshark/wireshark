@@ -8254,6 +8254,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Markers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark Plots: %1</source>
         <translation type="unfinished"></translation>
     </message>

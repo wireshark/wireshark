@@ -8253,6 +8253,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Markers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark Plots: %1</source>
         <translation type="unfinished"></translation>
     </message>

@@ -8283,6 +8283,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Copia els gràfics d&apos;un altre perfil.</translation>
     </message>
     <message>
+        <source>Markers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wireshark Plots: %1</source>
         <translation>Gràfics del Wireshark: %1</translation>
     </message>
