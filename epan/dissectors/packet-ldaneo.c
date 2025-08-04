@@ -146,12 +146,12 @@ static bool pref_timestamp_validation = true;
  * Extract timestamp data from buffer
  */
 #if defined(_M_X64) && (_MSC_VER >= 1920)
-static timestamp_data
-extract_nstime(tvbuff_t *tvb, int32_t offset)
+static bool
+extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 {
    uint32_t i;
    uint8_t picosec_buf[LDANEO_PICOSEC_LENGTH];
-   uint64_t nanosec;
+   int64_t nanosec;
    uint64_t picosec_counter_high;
    uint64_t picosec_counter_low;
    int64_t remainder = 0;
@@ -170,20 +170,24 @@ extract_nstime(tvbuff_t *tvb, int32_t offset)
       }
    }
 
+   /* Sanity check the data to make sure the result will fit into a 64-bit integer */
+   if (picosec_counter_high >= 500) {
+     return false;
+   }
+
    /* Calculate picosec and nanosec */
    nanosec = _div128(picosec_counter_high, picosec_counter_low, 1000, &remainder);
 
-   timestamp_data result = {(uint16_t)remainder, nanosec};
-   return result;
+   data->picosec = (uint16_t)remainder;
+   data->nanosec = nanosec;
+   return true;
 }
 #elif defined(__SIZEOF_INT128__)
-static timestamp_data
-extract_nstime(tvbuff_t *tvb, int32_t offset)
+static bool
+extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 {
    uint8_t picosec_buf[LDANEO_PICOSEC_LENGTH];
-   uint16_t picosec;
    uint32_t i;
-   uint64_t nanosec;
 
    /* Fill 10 byte timestamp buffer */
    tvb_memcpy(tvb, picosec_buf, offset, LDANEO_PICOSEC_LENGTH);
@@ -196,18 +200,16 @@ extract_nstime(tvbuff_t *tvb, int32_t offset)
    }
 
    /* Calculate picosec and nanosec */
-   picosec = picosec_counter % 1000;
-   nanosec = picosec_counter / 1000;
-
-   timestamp_data result = {picosec, nanosec};
-   return result;
+   data->picosec = (uint16_t)(picosec_counter % 1000);
+   data->nanosec = picosec_counter / 1000;
+   return true;
 }
 #else
-static timestamp_data
-extract_nstime(tvbuff_t *tvb _U_, int32_t offset _U_)
+static bool
+extract_nstime(tvbuff_t *tvb _U_, int32_t offset _U_, timestamp_data* data)
 {
-   timestamp_data result = {0, 0};
-   return result;
+   *data = {0, 0};
+   return true;
 }
 #endif
 
@@ -245,7 +247,9 @@ dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* Extract timestamp segments */
-        timestamp = extract_nstime(tvb, offset + LDANEO_DATA_LENGTH - LDANEO_PICOSEC_LENGTH);
+        if (!extract_nstime(tvb, offset + LDANEO_DATA_LENGTH - LDANEO_PICOSEC_LENGTH, &timestamp)) {
+            continue;
+        }
         ts_sec = (uint32_t)(timestamp.nanosec / 1000000000);
         ts_nsec = timestamp.nanosec % 1000000000;
         ts = (nstime_t)NSTIME_INIT_SECS_NSECS(ts_sec, ts_nsec);
