@@ -1729,6 +1729,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Error */
     return;
   }
+
   for (n = 0; n < nr_pages; n++) {
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, 83, ett_sabp_cbs_page, NULL,
                 "CB page %u data",  n+1);
@@ -1737,8 +1738,8 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cb_inf_msg_len = tvb_get_uint8(tvb,offset+82);
     page_tvb = tvb_new_subset_length(tvb, offset, cb_inf_msg_len);
     unpacked_tvb = dissect_cbs_data(sms_encoding, page_tvb, subtree, pinfo, 0);
-    len = tvb_captured_length(unpacked_tvb);
     if (unpacked_tvb != NULL){
+      len = tvb_captured_length(unpacked_tvb);
       if (tree != NULL){
         proto_tree *cbs_page_subtree = proto_item_add_subtree(cbs_page_item, ett_sabp_cbs_page_content);
         proto_tree_add_item(cbs_page_subtree, hf_sabp_cbs_page_content, unpacked_tvb, 0, len, ENC_UTF_8);
