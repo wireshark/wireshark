@@ -3968,7 +3968,8 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     fix_endianness_blf_fileheader(fileheader);
 
     /* seek to start of file */
-    if (!wtap_dump_file_seek(wdh, 0, SEEK_SET, err)) {
+    int64_t tmp = wtap_dump_file_seek(wdh, 0, SEEK_SET, err);
+    if (*err != 0 || tmp != 0) {
         return false;
     }
 
