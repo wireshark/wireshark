@@ -244,13 +244,12 @@ Identifier-Locator Network Protocol (ILNP)
 
 Too many protocol updates have been made to list them all here.
 
-//=== New and Updated Capture File Support
+== New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-// Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF is now improved (including writing to BLF)
+--
 
 === New and Updated Capture Interfaces support
 
