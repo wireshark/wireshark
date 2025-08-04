@@ -904,6 +904,7 @@ errored
 errorlog
 errorportinfo
 erspan
+esipa
 españa
 esperanto
 essar
@@ -924,6 +925,7 @@ ettarr
 etwdump
 etype
 eucjpms
+euicc
 europe
 eutra
 eutran
@@ -1192,6 +1194,7 @@ hytec
 iabtnl
 ibsdh
 icapability
+iccid
 icelandic
 icmpv
 icontrol

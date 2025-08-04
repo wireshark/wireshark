@@ -2430,8 +2430,8 @@ static value_string_ext selector_algorithm_ext = VALUE_STRING_EXT_INIT(selector_
 
 static const value_string performance_monitor_specials[] = {
     { 0xFFFFFFFF, "Not Measured"},
-    { 0xFFFF, "Not Measured"},
-    { 0xFF, "Not Measured"},
+    { 0xFFFF,     "Not Measured"},
+    { 0xFF,       "Not Measured"},
     { 0, NULL }
 };
 
@@ -20467,42 +20467,42 @@ proto_register_netflow(void)
         {&hf_pie_ixia_gtp_uli_cell_nr_cellid,
          {"GTP ULI nrCellId", "cflow.pie.ixia.gtp-uli-nrCellId",
           FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ULI nrCellId", HFILL}
+          NULL, HFILL}
         },
 
         /* ixia, 3054 / 382 */
         {&hf_pie_ixia_gtp_rat_type_name,
          {"GTP RAT Type Name", "cflow.pie.ixia.gtp-rat-type-name",
           FT_STRING, BASE_NONE, NULL, 0x0,
-          "RAT Type Name", HFILL}
+          NULL, HFILL}
         },
 
         /* ixia, 3054 / 383 */
         {&hf_pie_ixia_gtp_mobile_country_name,
          {"GTP Mobile Country Name", "cflow.pie.ixia.gtp-mobile-country-name",
           FT_STRING, BASE_NONE, NULL, 0x0,
-          "Mobile Country Name", HFILL}
+          NULL, HFILL}
         },
 
         /* ixia, 3054 / 384 */
         {&hf_pie_ixia_gtp_mobile_network_name,
          {"GTP Mobile Network Name", "cflow.pie.ixia.gtp-mobile-network-name",
           FT_STRING, BASE_NONE, NULL, 0x0,
-          "Mobile Network Name", HFILL}
+          NULL, HFILL}
         },
 
         /* ixia, 3054 / 385 */
         {&hf_pie_ixia_gtp_mobile_device_model,
          {"GTP Mobile Device Model", "cflow.pie.ixia.gtp-mobile-device-model",
           FT_STRING, BASE_NONE, NULL, 0x0,
-          "Mobile Device Model", HFILL}
+          NULL, HFILL}
         },
 
         /* ixia, 3054 / 386 */
         {&hf_pie_ixia_gtp_mobile_device_manufacturer,
          {"GTP Mobile Device Manufacturer", "cflow.pie.ixia.gtp-mobile-device-manufacturer",
           FT_STRING, BASE_NONE, NULL, 0x0,
-          "Mobile Device Manufacturer", HFILL}
+          NULL, HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */

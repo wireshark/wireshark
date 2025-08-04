@@ -697,7 +697,7 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
                         "INVALID IPv6 table empty!");
     }
 
-    return proto_tree_add_ipv4_format(tree, hf_index, tvb, offset, length, host_addr, "INVALID IP family");
+    return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, host_addr, "INVALID IP family");
 }
 
 #define WCCP_IP_MAX_LENGTH (WS_INET_ADDRSTRLEN > 46 ? WS_INET_ADDRSTRLEN : 46)
@@ -2978,7 +2978,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_router_identity_ip_index,
-      { "IP Address", "wccp.router_identity.ip_address.index", FT_UINT32, BASE_HEX, NULL, 0x0,
+      { "IP Address", "wccp.router_identity.ip_address.index", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_router_identity_ipv4,
@@ -3062,7 +3062,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_assignment_key_ip_index,
-      { "Assignment Key IP Address", "wccp.assignment_key.ip_index", FT_UINT32, BASE_HEX, NULL, 0x0,
+      { "Assignment Key IP Address", "wccp.assignment_key.ip_index", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_assignment_key_ipv4,
@@ -3150,7 +3150,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_wc_identity_ip_address_index,
-      { "Web Cache Identity", "wccp.wc_identity_ip_address.index", FT_UINT32, BASE_HEX, NULL, 0x0,
+      { "Web Cache Identity", "wccp.wc_identity_ip_address.index", FT_UINT32, BASE_DEC, NULL, 0x0,
         "The IP identifying the Web Cache", HFILL }
     },
     { &hf_wc_identity_ip_address_ipv4,

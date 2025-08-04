@@ -1571,7 +1571,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             }
         }
 
-        /* No longer need the heirarchy check */
+        /* No longer need the hierarchy check */
         g_queue_free(hier);
 
     } else {

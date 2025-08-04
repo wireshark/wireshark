@@ -2957,7 +2957,7 @@ proto_register_http3(void)
         { &hf_http3_datagram_request_stream_id,
             { "Associated Request Stream ID", "http3.datagram.request_stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Request stream id", HFILL }
+              NULL, HFILL }
         },
         { &hf_http3_datagram_payload,
             { "Datagram Payload", "http3.datagram.payload",
