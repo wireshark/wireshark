@@ -9396,6 +9396,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tcpd->rev->mss = 536;
             break;
         case AT_IPv6:
+        case AT_ILNP_NID:
             tcpd->fwd->mss = 1220;
             tcpd->rev->mss = 1220;
             break;
