@@ -1690,10 +1690,8 @@ static void dtd_pi_cb(void* ctx _U_, const xmlChar* target, const xmlChar* data)
 
 static void dtd_internalSubset_cb(void* ctx _U_, const xmlChar* name, const xmlChar* publicId _U_, const xmlChar* systemId _U_)
 {
-    char* lower_root = g_ascii_strdown((const char*)name, -1);
     wmem_free(wmem_epan_scope(), g_build_data->proto_root);
-    g_build_data->proto_root = wmem_strdup(wmem_epan_scope(), lower_root);
-    g_free(lower_root);
+    g_build_data->proto_root = wmem_ascii_strdown(wmem_epan_scope(), (const char*)name, -1);
     if (!g_build_data->proto_name) {
         g_build_data->proto_name = g_build_data->proto_root;
     }
@@ -1705,17 +1703,13 @@ static GList* dtd_elementDecl_add_list(GList* list, xmlElementContent* content)
     if (content != NULL) {
         if (content->c1 != NULL) {
             if (content->c1->name != NULL) {
-                char* lower_name = g_ascii_strdown((const char*)content->c1->name, -1);
-                list = g_list_prepend(list, wmem_strdup(wmem_epan_scope(), lower_name));
-                g_free(lower_name);
+                list = g_list_prepend(list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)content->c1->name, -1));
             }
             list = dtd_elementDecl_add_list(list, content->c1);
         }
         if (content->c2 != NULL) {
             if (content->c2->name != NULL) {
-                char* lower_name = g_ascii_strdown((const char*)content->c2->name, -1);
-                list = g_list_prepend(list, wmem_strdup(wmem_epan_scope(), lower_name));
-                g_free(lower_name);
+                list = g_list_prepend(list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)content->c2->name, -1));
             }
             list = dtd_elementDecl_add_list(list, content->c2);
         }
@@ -1726,24 +1720,19 @@ static GList* dtd_elementDecl_add_list(GList* list, xmlElementContent* content)
 
 static void dtd_elementDecl_cb(void* ctx _U_, const xmlChar* name, int type _U_, xmlElementContent* content _U_)
 {
-    char* lower_name = g_ascii_strdown((const char*)name, -1);
+    dtd_named_list_t* new_element = g_new0(dtd_named_list_t, 1);
+
+    new_element->name = wmem_ascii_strdown(wmem_epan_scope(), (const char*)name, -1);
+    new_element->list = NULL;
 
     /* we will use the first element found as root in case no other one was given. */
     if (!g_build_data->proto_root) {
-        g_build_data->proto_root = wmem_strdup(wmem_epan_scope(), lower_name);
+        g_build_data->proto_root = new_element->name;
     }
-
-    dtd_named_list_t* new_element = g_new0(dtd_named_list_t, 1);
-
-    new_element->name = wmem_strdup(wmem_epan_scope(), lower_name);
-    new_element->list = NULL;
-    g_free(lower_name);
 
     //Make list
     if ((content != NULL) && (content->name != NULL)) {
-        lower_name = g_ascii_strdown((const char*)content->name, -1);
-        new_element->list = g_list_prepend(new_element->list, wmem_strdup(wmem_epan_scope(), lower_name));
-        g_free(lower_name);
+        new_element->list = g_list_prepend(new_element->list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)content->name, -1));
     }
     new_element->list = dtd_elementDecl_add_list(new_element->list, content);
 
@@ -1778,9 +1767,7 @@ static void dtd_attributeDecl_cb(void* ctx _U_, const xmlChar* elem, const xmlCh
     }
     g_free(elem_down);
 
-    char* lower_fullname = g_ascii_strdown((const char*)fullname, -1);
-    attribute->list = g_list_prepend(attribute->list, wmem_strdup(wmem_epan_scope(), lower_fullname));
-    g_free(lower_fullname);
+    attribute->list = g_list_prepend(attribute->list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)fullname, -1));
     // We don't use this. We're allowed to free it, as the default SAX2 handler
     // here does and it's not used after this by the main parser.
     if (tree != NULL)
