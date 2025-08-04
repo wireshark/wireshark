@@ -367,3 +367,16 @@ void Plot::makeCsv(QTextStream& stream) const
         stream << '\n';
     }
 }
+
+QCPRange Plot::recentDrawnDataRange(int count) const
+{
+    QCPRange result;
+    if (visible() && graph() && !graph()->data()->isEmpty()) {
+        const QSharedPointer<QCPGraphDataContainer>& dataContainer = graph()->data();
+        const int totalSize = dataContainer->size();
+        int index = totalSize > count ? totalSize - count : 0;
+        result.lower = dataContainer.data()->at(index)->key;
+        result.upper = dataContainer.data()->at(totalSize - 1)->key;
+    }
+    return result;
+}

@@ -142,6 +142,7 @@ private:
     void addDataPointsMarkers();
     void updateFirstAxisRectHeight();
     QList<QCPAxisRect*> axisRects() const;
+    void autoScroll() const;
     Ui::PlotDialog* ui;
     QPushButton* copy_bt_;
     CopyFromProfileButton* copy_profile_bt_;
@@ -219,6 +220,7 @@ private slots:
     void on_actionMoveDown1_triggered() { panAxes(0, -1); }
     void on_actionToggleTimeOrigin_triggered();
     void on_rightButtonBox_accepted();
+    void on_actionAutoScroll_triggered(bool checked);
 
     void on_actionAddMarker_triggered();
     void on_actionMoveMarker_triggered();

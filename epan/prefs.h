@@ -216,6 +216,7 @@ typedef struct _e_prefs {
   bool         gui_io_graph_enable_legend;
   bool         gui_plot_automatic_update;
   bool         gui_plot_enable_legend;
+  bool         gui_plot_enable_auto_scroll;
   bool         gui_packet_details_show_byteview;
   char        *capture_device;
   char        *capture_devices_linktypes;

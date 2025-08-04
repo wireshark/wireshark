@@ -656,6 +656,9 @@ Show the axis scale also on top of the plot.
 Enable legend::
 Show a plot legend.
 
+Enable auto scroll::
+Goes automatically to the last drawn points.
+
 Add Marker::
 
 Add marker with x-axis of current mouse position.

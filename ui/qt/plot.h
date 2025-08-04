@@ -27,6 +27,8 @@ typedef struct _plot_item_t {
     double      value;      /* Value of the field (always converted to double) */
 } plot_item_t;
 
+class QCPRange;
+
 class Plot : public Graph {
     Q_OBJECT
 
@@ -52,6 +54,7 @@ public:
     uint32_t packetFromTime(double ts) const;
 
     void makeCsv(QTextStream& stream) const;
+    QCPRange recentDrawnDataRange(int count) const;
 
 public slots:
     void captureEvent(const CaptureEvent& e);

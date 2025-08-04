@@ -185,6 +185,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
 
     ui->automaticUpdateCheckBox->setChecked(prefs.gui_plot_automatic_update);
     ui->actionLegend->setChecked(prefs.gui_plot_enable_legend);
+    ui->actionAutoScroll->setChecked(prefs.gui_plot_enable_auto_scroll);
 
     ctx_menu_.addAction(ui->actionZoomIn);
     ctx_menu_.addAction(ui->actionZoomInX);
@@ -209,6 +210,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     ctx_menu_.addAction(ui->actionLogScale);
     ctx_menu_.addAction(ui->actionCrosshairs);
     ctx_menu_.addAction(ui->actionTopAxis);
+    ctx_menu_.addAction(ui->actionAutoScroll);
     ctx_menu_.addAction(ui->actionLegend);
     QMenu* markerMenu = new QMenu(tr("Markers"), &ctx_menu_);
     markerMenu->addAction(ui->actionAddMarker);
@@ -853,6 +855,7 @@ void PlotDialog::updateStatistics()
             else
             {
                 addDataPointsMarkers();
+                autoScroll();
                 ui->plot->replot();
             }
         }
@@ -1051,6 +1054,7 @@ void PlotDialog::moveLegend()
 
 void PlotDialog::updateLegend()
 {
+    if (!prefs.gui_plot_enable_legend) return;
     QCPLegend* legend = ui->plot->legend;
 
     legend->setVisible(false);
@@ -1269,12 +1273,20 @@ QRectF PlotDialog::getZoomRanges(QRect zoom_rect, QCPAxisRect** matchedAxisRect)
 
 void PlotDialog::resetAxes()
 {
-    ui->plot->rescaleAxes(true);
+    double axis_pixels;
+    if (ui->actionAutoScroll->isChecked()) {
+        foreach(QCPAxisRect * axisRect, axisRects()) {
+            axisRect->axis(QCPAxis::AxisType::atLeft)->rescale(true);
+        }
+    }
+    else {
+        ui->plot->rescaleAxes(true);
 
-    QCPRange x_range = ui->plot->xAxis2->scaleType() == QCPAxis::stLogarithmic ?
-        ui->plot->xAxis2->range().sanitizedForLogScale() : ui->plot->xAxis2->range();
-    double axis_pixels = ui->plot->xAxis2->axisRect()->width();
-    ui->plot->xAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
+        QCPRange x_range = ui->plot->xAxis2->scaleType() == QCPAxis::stLogarithmic ?
+            ui->plot->xAxis2->range().sanitizedForLogScale() : ui->plot->xAxis2->range();
+        axis_pixels = ui->plot->xAxis2->axisRect()->width();
+        ui->plot->xAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
+    }
     for (const QCPAxisRect* axisRect : axisRects()) {
         QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
         QCPRange y_range = yAxis->scaleType() == QCPAxis::stLogarithmic ?
@@ -1284,6 +1296,7 @@ void PlotDialog::resetAxes()
     }
 
     auto_axes_ = true;
+    autoScroll();
     addDataPointsMarkers();
     ui->plot->replot();
 }
@@ -1401,6 +1414,26 @@ QList<QCPAxisRect*> PlotDialog::axisRects() const {
         }
     }
     return list;
+}
+
+void PlotDialog::autoScroll() const {
+    if (!ui->actionAutoScroll->isChecked()) return;
+
+    // Number of the max data points shown when auto-scrolling to the end
+    constexpr int last_data_nb = 100; // TODO: Make this configurable if needed
+    QCPRange range;
+    for (const Plot* plot : plots_) {
+        if (plot) {
+            QCPRange plotRange = plot->recentDrawnDataRange(last_data_nb);
+            if (QCPRange::validRange(plotRange) && plotRange.upper > range.upper) {
+                range = plotRange;
+            }
+        }
+    }
+    if (QCPRange::validRange(range)) {
+        ui->plot->xAxis->setRange(range);
+        ui->plot->replot();
+    }
 }
 
 void PlotDialog::on_actionCrosshairs_triggered(bool checked)
@@ -1569,6 +1602,7 @@ void PlotDialog::on_actionLegend_triggered(bool checked)
     prefs.gui_plot_enable_legend = checked;
     prefs_main_write();
 
+    ui->plot->legend->setVisible(checked);
     ui->plot->legend->layer()->replot();
 }
 
@@ -1858,6 +1892,15 @@ void PlotDialog::on_rightButtonBox_accepted()
         if (save_ok) {
             mainApp->setLastOpenDirFromFilename(file_name);
         }
+    }
+}
+
+void PlotDialog::on_actionAutoScroll_triggered(bool checked) {
+    ui->actionAutoScroll->setChecked(checked);
+    prefs.gui_plot_enable_auto_scroll = checked;
+    if (checked) {
+        autoScroll();
+        ui->plot->replot();
     }
 }
 

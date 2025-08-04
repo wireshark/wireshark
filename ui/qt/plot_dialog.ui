@@ -471,6 +471,17 @@
 	  <bool>true</bool>
       </property>
   </action>
+  <action name="actionAutoScroll">
+   <property name="text">
+    <string>Auto Scroll</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
