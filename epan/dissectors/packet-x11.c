@@ -1089,7 +1089,7 @@ static const value_string zero_is_none_vals[] = {
 #define CARD8(name)    FIELD8(name)
 #define CARD16(name)   (FIELD16(name))
 #define CARD32(name)   (FIELD32(name))
-#define COLOR_FLAGS(name) colorFlags(tvb, offsetp, t)
+#define COLOR_FLAGS(name) colorFlags(tvb, pinfo, offsetp, t)
 #define COLORMAP(name) FIELD32(name)
 #define CURSOR(name)   FIELD32(name)
 #define DRAWABLE(name) FIELD32(name)
@@ -1105,7 +1105,7 @@ static const value_string zero_is_none_vals[] = {
 #define KEYCODE_DECODED(name, keycode, mask)  do {                    \
       proto_tree_add_uint_format(t, hf_x11_##name, tvb, offset, 1,    \
       keycode, "keycode: %d (%s)",                                    \
-      keycode,  keycode2keysymString(state->keycodemap,               \
+      keycode,  keycode2keysymString(pinfo->pool, state->keycodemap,  \
       state->first_keycode, state->keysyms_per_keycode,               \
       state->modifiermap, state->keycodes_per_modifier,               \
       keycode, mask));                                                \
@@ -1127,7 +1127,7 @@ static const value_string zero_is_none_vals[] = {
                                val_to_str(eventcode & 0x7F,           \
                                           state->eventcode_vals,      \
                                           "<Unknown eventcode %u>")); \
-      decode_x11_event(next_tvb, eventcode, sent, event_proto_tree,   \
+      decode_x11_event(next_tvb, pinfo, eventcode, sent, event_proto_tree,   \
                        state, byte_order);                            \
       offset = next_offset;                                           \
 } while (0)
@@ -1139,7 +1139,7 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofIPADDRESS(name, length) { listOfByte(tvb, offsetp, t, hf_x11_##name, (length), false); }
 #define LISTofCARD16(name, length) { listOfCard16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 2, byte_order); }
 #define LISTofCARD32(name, length) { listOfCard32(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, (length) / 4, byte_order); }
-#define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, offsetp, t, hf_x11_##name, (length) / 12, byte_order); }
+#define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, pinfo, offsetp, t, hf_x11_##name, (length) / 12, byte_order); }
 #define LISTofKEYCODE(map, name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, map, (length), byte_order); }
 #define LISTofKEYSYM(name, map, keycode_first, keycode_count, \
     keysyms_per_keycode) {\
@@ -1149,9 +1149,9 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofPIXMAPFORMAT(name, length) { listOfPixmapFormat(tvb, offsetp, t, hf_x11_##name, (length), byte_order); }
 #define LISTofSCREEN(name, length) { listOfScreen(tvb, offsetp, t, hf_x11_##name, (length), byte_order); }
 #define LISTofSEGMENT(name) { listOfSegment(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, byte_order); }
-#define LISTofSTRING8(name, length) { listOfString8(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_string, (length), byte_order); }
-#define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, false, next_offset, byte_order); }
-#define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, true, next_offset, byte_order); }
+#define LISTofSTRING8(name, length) { listOfString8(tvb, pinfo, offsetp, t, hf_x11_##name, hf_x11_##name##_string, (length), byte_order); }
+#define LISTofTEXTITEM8(name) { listOfTextItem(tvb, pinfo, offsetp, t, hf_x11_##name, false, next_offset, byte_order); }
+#define LISTofTEXTITEM16(name) { listOfTextItem(tvb, pinfo, offsetp, t, hf_x11_##name, true, next_offset, byte_order); }
 #define OPCODE() {                                                \
       opcode = tvb_get_uint8(tvb, *offsetp);                             \
       proto_tree_add_uint(t, hf_x11_opcode, tvb, *offsetp,        \
@@ -1167,7 +1167,7 @@ static const value_string zero_is_none_vals[] = {
 #define SETofKEYBUTMASK(name) { setOfKeyButMask(tvb, offsetp, t, byte_order, 1); }
 #define SETofPOINTEREVENT(name) { setOfPointerEvent(tvb, offsetp, t, byte_order); }
 #define STRING8(name, length)  { string8(tvb, offsetp, t, hf_x11_##name, length); }
-#define STRING16(name, length)  { string16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length, byte_order); }
+#define STRING16(name, length)  { string16(tvb, pinfo, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length, byte_order); }
 #define TIMESTAMP(name){ timestamp(tvb, offsetp, t, hf_x11_##name, byte_order); }
 #define UNDECODED(x)   { proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,  x, ENC_NA); *offsetp += x; }
 #define PAD()          { if (next_offset - *offsetp > 0) proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, ENC_NA); *offsetp = next_offset; }
@@ -1268,7 +1268,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   unsigned byte_order);
 
 static void
-decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
+decode_x11_event(tvbuff_t *tvb, packet_info* pinfo, unsigned char eventcode, const char *sent,
                  proto_tree *t, x11_conv_data_t *state,
                  unsigned byte_order);
 
@@ -1314,7 +1314,7 @@ static uint32_t add_boolean(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
       return v;
 }
 
-static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
+static void colorFlags(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tree *t)
 {
       unsigned do_red_green_blue = tvb_get_uint8(tvb, *offsetp);
       proto_item *ti;
@@ -1322,7 +1322,7 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
       if (do_red_green_blue) {
             bool sep = false;
-            wmem_strbuf_t *buffer = wmem_strbuf_create(wmem_packet_scope());
+            wmem_strbuf_t *buffer = wmem_strbuf_create(pinfo->pool);
             wmem_strbuf_append(buffer, "flags: ");
 
             if (do_red_green_blue & 0x1) {
@@ -1507,7 +1507,7 @@ static void listOfDouble(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+static void listOfColorItem(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tree *t, int hf,
                             int length, unsigned byte_order)
 {
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
@@ -1520,7 +1520,7 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             wmem_strbuf_t *buffer;
             const char *sep;
 
-            buffer=wmem_strbuf_create(wmem_packet_scope());
+            buffer=wmem_strbuf_create(pinfo->pool);
             wmem_strbuf_append(buffer, "colorItem ");
             red = tvb_get_uint16(tvb, *offsetp + 4, byte_order);
             green = tvb_get_uint16(tvb, *offsetp + 6, byte_order);
@@ -1549,18 +1549,11 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             *offsetp += 2;
             proto_tree_add_item(ttt, hf_x11_coloritem_blue, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
-            colorFlags(tvb, offsetp, ttt);
+            colorFlags(tvb, pinfo, offsetp, ttt);
             proto_tree_add_item(ttt, hf_x11_coloritem_unused, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
       }
 }
-
-#if 0  /* XXX: Use of GTree no longer needed; use value_string_ext */
-static int compareGuint32(const void *a, const void *b)
-{
-      return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);
-}
-#endif
 
 static void
 XConvertCase(register int sym, int *lower, int *upper)
@@ -1664,7 +1657,7 @@ XConvertCase(register int sym, int *lower, int *upper)
 }
 
 static const char *
-keycode2keysymString(int *keycodemap[256], int first_keycode,
+keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int first_keycode,
                      int keysyms_per_keycode,
                      int *modifiermap[array_length(modifiers)],
                      int keycodes_per_modifier,
@@ -1839,7 +1832,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
       if (keysym == XK_VoidSymbol)
             keysym = NoSymbol;
 
-      return wmem_strdup_printf(wmem_packet_scope(), "%d, \"%s\"", keysym, keysymString(keysym));
+      return wmem_strdup_printf(allocator, "%d, \"%s\"", keysym, keysymString(keysym));
 #endif
 }
 
@@ -2189,7 +2182,7 @@ static void listOfPixmapFormat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int h
       }
 }
 
-static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+static void listOfString8(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tree *t, int hf,
                           int hf_item, int length, unsigned byte_order)
 {
       char *s = NULL;
@@ -2211,7 +2204,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
       while(length--) {
             unsigned l = tvb_get_uint8(tvb, *offsetp);
-            s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offsetp + 1, l, ENC_ASCII);
+            s = tvb_get_string_enc(pinfo->pool, tvb, *offsetp + 1, l, ENC_ASCII);
             proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
             *offsetp += l + 1;
       }
@@ -2229,12 +2222,12 @@ static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, unsigned leng
 /* XXX - assumes that the string encoding is ASCII; even if 0x00 through
    0x7F are ASCII, 0x80 through 0xFF might not be, and even 0x00 through
    0x7F aren't necessarily ASCII. */
-static char *tvb_get_ascii_string16(tvbuff_t *tvb, int offset, unsigned length)
+static char *tvb_get_ascii_string16(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, unsigned length)
 {
       wmem_strbuf_t *str;
       uint8_t ch;
 
-      str = wmem_strbuf_new_sized(wmem_packet_scope(), length + 1);
+      str = wmem_strbuf_new_sized(scope, length + 1);
 
       while(length--) {
             offset++;
@@ -2248,7 +2241,7 @@ static char *tvb_get_ascii_string16(tvbuff_t *tvb, int offset, unsigned length)
       return wmem_strbuf_finalize(str);
 }
 
-static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+static void listOfTextItem(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tree *t, int hf,
     int sizeIs16, int next_offset, unsigned byte_order)
 {
       char *s = NULL;
@@ -2285,7 +2278,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                   int8_t delta = tvb_get_uint8(tvb, *offsetp + 1);
                   if (sizeIs16) {
                         if (stringIsActuallyAn8BitString(tvb, *offsetp + 2, l)) {
-                              s = tvb_get_ascii_string16(tvb, *offsetp + 2, l);
+                              s = tvb_get_ascii_string16(pinfo->pool, tvb, *offsetp + 2, l);
                               tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l*2 + 2,
                                                                "textitem (string): delta = %d, \"%s\"",
                                                                delta, s);
@@ -2297,14 +2290,14 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                               tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l*2 + 2,
                                                                "textitem (string): delta = %d, %s",
                                                                delta,
-                                                               tvb_bytes_to_str(wmem_packet_scope(), tvb, *offsetp + 2, l*2));
+                                                               tvb_bytes_to_str(pinfo->pool, tvb, *offsetp + 2, l*2));
                               ttt = proto_item_add_subtree(tti, ett_x11_text_item);
                               proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, byte_order);
                               proto_tree_add_item(ttt, hf_x11_textitem_string_string16_bytes, tvb, *offsetp + 2, l*2, byte_order);
                         }
                         *offsetp += l*2 + 2;
                   } else {
-                        s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offsetp + 2, l, ENC_ASCII);
+                        s = tvb_get_string_enc(pinfo->pool, tvb, *offsetp + 2, l, ENC_ASCII);
                         tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
                                                          "textitem (string): delta = %d, \"%s\"",
                                                          delta, s);
@@ -2696,14 +2689,14 @@ static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 
 /* The length supplied is the length of the string in CHAR2Bs (half the number of bytes) */
 
-static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+static void string16(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto_tree *t, int hf,
     int hf_bytes, unsigned length, unsigned byte_order)
 {
       unsigned l = length*2; /* byte count */
       char *s;
 
       if (stringIsActuallyAn8BitString(tvb, *offsetp, length)) {
-            s = tvb_get_ascii_string16(tvb, *offsetp, length);
+            s = tvb_get_ascii_string16(pinfo->pool, tvb, *offsetp, length);
             proto_tree_add_string_format_value(t, hf, tvb, *offsetp, l, s, "\"%s\"", s);
       } else
             proto_tree_add_item(t, hf_bytes, tvb, *offsetp, l, byte_order);
@@ -5781,13 +5774,13 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if (tree == NULL)
             return;
 
-      decode_x11_event(tvb, eventcode, sent, t, state, byte_order);
+      decode_x11_event(tvb, pinfo, eventcode, sent, t, state, byte_order);
 
       return;
 }
 
 static void
-decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
+decode_x11_event(tvbuff_t *tvb, packet_info* pinfo, unsigned char eventcode, const char *sent,
                  proto_tree *t, x11_conv_data_t *state,
                  unsigned byte_order)
 {
