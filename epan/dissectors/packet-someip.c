@@ -249,6 +249,7 @@ static bool someip_tp_reassemble = true;
 static bool someip_deserializer_activated = true;
 static bool someip_deserializer_debugging_activated;
 static bool someip_deserializer_wtlv_default;
+static bool someip_test_tcp_for_valid_someip = true;
 static bool someip_detect_dtls;
 
 /* SOME/IP Message Types */
@@ -4125,14 +4126,39 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return SOMEIP_HDR_LEN + someip_payload_length;
 }
 
+static bool
+test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_) {
+    if (tvb_captured_length_remaining(tvb, offset) < SOMEIP_HDR_LEN) {
+        return false;
+    }
+
+    if (tvb_get_uint32(tvb, offset + 4, ENC_BIG_ENDIAN) < 8) {
+        return false;
+    }
+
+    if ((tvb_get_uint8(tvb, offset + 12)) != SOMEIP_PROTOCOL_VERSION) {
+        return false;
+    }
+
+    if (!try_val_to_str((tvb_get_uint8(tvb, offset + 14) & ~SOMEIP_MSGTYPE_TP_MASK), someip_msg_type)) {
+        return false;
+    }
+
+    return true;
+}
+
 static unsigned
 get_someip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_) {
+    if (someip_test_tcp_for_valid_someip && !test_someip(pinfo, tvb, offset, data)) {
+        return tvb_captured_length_remaining(tvb, offset);
+    }
+
     return SOMEIP_HDR_PART1_LEN + (unsigned)tvb_get_ntohl(tvb, offset + 4);
 }
 
 static int
 dissect_someip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    tcp_dissect_pdus(tvb, pinfo, tree, true, SOMEIP_HDR_PART1_LEN, get_someip_message_len, dissect_someip_message, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, SOMEIP_HDR_LEN, get_someip_message_len, dissect_someip_message, data);
     return tvb_reported_length(tvb);
 }
 
@@ -4203,27 +4229,6 @@ dissect_someip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     return udp_dissect_pdus(tvb, pinfo, tree, SOMEIP_HDR_PART1_LEN, NULL, get_someip_message_len, dissect_someip_message, data);
-}
-
-static bool
-test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_) {
-    if (tvb_captured_length(tvb) < SOMEIP_HDR_LEN) {
-        return false;
-    }
-
-    if (tvb_get_uint32(tvb, 4, ENC_BIG_ENDIAN) < 8) {
-        return false;
-    }
-
-    if ((tvb_get_uint8(tvb, 12)) != SOMEIP_PROTOCOL_VERSION) {
-        return false;
-    }
-
-    if (!try_val_to_str((tvb_get_uint8(tvb, 14) & ~SOMEIP_MSGTYPE_TP_MASK), someip_msg_type)) {
-        return false;
-    }
-
-    return true;
 }
 
 static bool
@@ -4734,6 +4739,11 @@ proto_register_someip(void) {
         "Try WTLV payload dissection for unconfigured messages (not pure SOME/IP)",
         "Should the SOME/IP Dissector use the payload dissector with the experimental WTLV encoding for unconfigured messages?",
         &someip_deserializer_wtlv_default);
+
+    prefs_register_bool_preference(someip_module, "payload_dissector_test_tcp_for_valid_someip",
+        "Test TCP segments for valid SOME/IP (improve results with missing TCP segments)",
+        "Should the SOME/IP Dissector test TCP segments for being correct SOME/IP? This is helpful to resync after missing segments.",
+        &someip_test_tcp_for_valid_someip);
 
     someip_parameter_list_uat = uat_new("SOME/IP Parameter List",
         sizeof(someip_parameter_list_uat_t),               /* record size           */
