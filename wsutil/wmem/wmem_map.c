@@ -75,7 +75,7 @@ struct _wmem_map_t {
     /* Next unused item in the items array */
     wmem_map_item_t *next_item;
 
-    /* An pointer array of items that had keys removed from the map without
+    /* A stack of items that had keys removed from the map without
      * replacing their values. For more speed, we could instead just leave such
      * items orphaned (not decrementing map->count but keeping a count of
      * deleted items so that wmem_map_size is accurate). The map would be more
@@ -83,7 +83,7 @@ struct _wmem_map_t {
      * insertions (but our largest uses do not remove items so that might be
      * acceptable.)
      */
-    GPtrArray *deleted_items;
+    wmem_stack_t *deleted_items;
 
     GHashFunc  hash_func;
     GEqualFunc eql_func;
@@ -128,8 +128,6 @@ wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 {
     wmem_map_t *map = (wmem_map_t*)user_data;
 
-    g_ptr_array_free(map->deleted_items, TRUE);
-    map->deleted_items = NULL;
     if (map->data_scope_cb_id) {
         wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
     }
@@ -154,12 +152,12 @@ wmem_map_new(wmem_allocator_t *allocator,
     map->table = NULL;
     map->items = NULL;
     map->next_item = NULL;
-    map->deleted_items = g_ptr_array_new();
+    map->deleted_items = wmem_stack_new(allocator);
 
     // The first callback ID wmem_register_callback assigns is 1, so
     // 0 means unused.
     map->data_scope_cb_id = 0;
-    map->metadata_scope_cb_id = allocator ? wmem_register_callback(allocator, wmem_map_destroy_cb, map) : 0;
+    map->metadata_scope_cb_id = 0;
 
     return map;
 }
@@ -174,11 +172,12 @@ wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
     map->table = NULL;
     map->items = NULL;
     map->next_item = NULL;
-    g_ptr_array_set_size(map->deleted_items, 0);
+    while (wmem_stack_count(map->deleted_items))
+        wmem_stack_pop(map->deleted_items);
 
     if (event == WMEM_CB_DESTROY_EVENT) {
         wmem_unregister_callback(map->metadata_allocator, map->metadata_scope_cb_id);
-        g_ptr_array_free(map->deleted_items, TRUE);
+        wmem_destroy_stack(map->deleted_items);
         wmem_free(map->metadata_allocator, map);
     }
 
@@ -202,7 +201,7 @@ wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_
     map->table = NULL;
     map->items = NULL;
     map->next_item = NULL;
-    map->deleted_items = g_ptr_array_new();
+    map->deleted_items = wmem_stack_new(metadata_scope);
 
     map->metadata_scope_cb_id = wmem_register_callback(metadata_scope, wmem_map_destroy_cb, map);
     map->data_scope_cb_id  = wmem_register_callback(data_scope, wmem_map_reset_cb, map);
@@ -274,7 +273,7 @@ wmem_map_destroy(wmem_map_t *map, bool free_keys _U_, bool free_values _U_)
         // callback after the wmem_map_destroy_cb has been called. (This
         // function unregisters the callback so the reverse direction can't
         // happen.)
-        g_ptr_array_free(map->deleted_items, TRUE);
+        wmem_destroy_stack(map->deleted_items);
     }
     map->deleted_items = NULL;
     if (map->metadata_allocator) {
@@ -317,8 +316,8 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     }
 
     /* insert new item */
-    if (map->deleted_items->len) {
-        *item = g_ptr_array_remove_index_fast(map->deleted_items, map->deleted_items->len - 1);
+    if (G_UNLIKELY(wmem_stack_count(map->deleted_items))) {
+        *item = wmem_stack_pop(map->deleted_items);
     } else {
         ws_assert(map->next_item);
         *item = map->next_item++;
@@ -443,7 +442,7 @@ wmem_map_remove(wmem_map_t *map, const void *key)
             tmp     = (*item);
             value   = tmp->value;
             (*item) = tmp->next;
-            g_ptr_array_add(map->deleted_items, tmp);
+            wmem_stack_push(map->deleted_items, tmp);
             map->count--;
             return value;
         }
@@ -474,7 +473,7 @@ wmem_map_steal(wmem_map_t *map, const void *key)
             /* found it */
             tmp     = (*item);
             (*item) = tmp->next;
-            g_ptr_array_add(map->deleted_items, tmp);
+            wmem_stack_push(map->deleted_items, tmp);
             map->count--;
             return true;
         }
@@ -570,7 +569,7 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
                 tmp   = *item;
                 *item = tmp->next;
                 if (map->deleted_items)
-                    g_ptr_array_add(map->deleted_items, tmp);
+                    wmem_stack_push(map->deleted_items, tmp);
                 map->count--;
                 deleted++;
             } else {
