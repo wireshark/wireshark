@@ -128,11 +128,11 @@ dissect_getquota_result(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static int
-dissect_getquota_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_getquota_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
-	offset = dissect_rpc_string(tvb, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 			hf_rquota_pathp, offset, NULL);
 
 	offset = dissect_rpc_uint32(tvb, tree,
@@ -164,11 +164,11 @@ static const value_string rquota1_proc_vals[] = {
 
 
 static int
-dissect_getquota2_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_getquota2_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
-	offset = dissect_rpc_string(tvb, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 			hf_rquota_pathp, offset, NULL);
 
 	offset = dissect_rpc_uint32(tvb, tree,

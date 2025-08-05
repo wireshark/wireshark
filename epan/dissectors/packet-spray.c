@@ -60,9 +60,9 @@ dissect_get_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 }
 
 static int
-dissect_spray_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_spray_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	return dissect_rpc_data(tvb, tree, hf_spray_sprayarr, 0);
+	return dissect_rpc_data(tvb, pinfo, tree, hf_spray_sprayarr, 0);
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */

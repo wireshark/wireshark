@@ -370,7 +370,7 @@ static const value_string portmap2_proc_vals[] = {
 
 /* RFC 1833, Page 3 */
 static int
-dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item* rpcb_item;
 	proto_tree* rpcb_tree;
@@ -390,11 +390,11 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree
 
 	offset = dissect_rpc_uint32(tvb, rpcb_tree,
 	    hf_portmap_rpcb_version, offset);
-	offset = dissect_rpc_string(tvb, rpcb_tree,
+	offset = dissect_rpc_string(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_netid, offset, NULL);
-	offset = dissect_rpc_string(tvb, rpcb_tree,
+	offset = dissect_rpc_string(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_addr, offset, NULL);
-	offset = dissect_rpc_string(tvb, rpcb_tree,
+	offset = dissect_rpc_string(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_owner, offset, NULL);
 
 	/* now we know, that rpcb is shorter */
@@ -418,10 +418,10 @@ dissect_rpcb3_getaddr_call(tvbuff_t *tvb, packet_info *pinfo,
 
 /* RFC 1833, Page 7 */
 static int
-dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, void* data _U_)
 {
-	return dissect_rpc_string(tvb, tree, hf_portmap_uaddr, 0, NULL);
+	return dissect_rpc_string(tvb, pinfo, tree, hf_portmap_uaddr, 0, NULL);
 }
 
 
@@ -441,7 +441,7 @@ dissect_rpcb_rmtcallres(tvbuff_t *tvb, packet_info *pinfo _U_,
 	int offset = 0;
 
 	/* Dissect the remote universal address. */
-	offset = dissect_rpc_string(tvb, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 	    hf_portmap_rpcb_addr, offset, NULL);
 
 	/* Dissect the result of this procedure.

@@ -31,9 +31,9 @@ static int hf_rwall_procedure_v1;
 static int ett_rwall;
 
 static int
-dissect_rwall_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_rwall_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	return dissect_rpc_string(tvb, tree, hf_rwall_message, 0, NULL);
+	return dissect_rpc_string(tvb, pinfo, tree, hf_rwall_message, 0, NULL);
 }
 
 static const vsff rwall1_proc[] = {

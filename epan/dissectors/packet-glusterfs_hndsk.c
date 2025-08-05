@@ -120,7 +120,7 @@ gluster_hndsk_2_getspec_reply(tvbuff_t *tvb, packet_info *pinfo,
 {
 	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
-	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_spec, offset,
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_spec, offset,
 									NULL);
 	offset = gluster_rpc_dissect_dict(tree, pinfo, tvb, hf_gluster_hndsk_dict,
 								offset);
@@ -136,7 +136,7 @@ gluster_hndsk_2_getspec_call(tvbuff_t *tvb,
 	proto_tree_add_item(tree, hf_gluster_hndsk_flags, tvb, offset,
 								4, ENC_BIG_ENDIAN);
 	offset += 4;
-	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_key, offset,
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_key, offset,
 								NULL);
 	offset = gluster_rpc_dissect_dict(tree, pinfo, tvb, hf_gluster_hndsk_dict,
 								offset);
@@ -155,11 +155,11 @@ gluster_hndsk_2_set_lk_ver_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 gluster_hndsk_2_set_lk_ver_call(tvbuff_t *tvb,
-				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
-	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_uid, offset,
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_uid, offset,
 									NULL);
 	offset = dissect_rpc_uint32(tvb, tree,hf_gluster_hndsk_lk_ver, offset);
 	return offset;
@@ -204,7 +204,7 @@ gluster_hndsk_2_get_volume_info_reply(tvbuff_t *tvb, packet_info *pinfo,
 {
 	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
-	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_op_errstr, offset,
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_hndsk_op_errstr, offset,
 				    NULL);
 	offset = gluster_rpc_dissect_dict(tree, pinfo, tvb, hf_gluster_hndsk_dict,
 					  offset);
@@ -246,7 +246,7 @@ gluster_cbk_cache_invalidation_call(tvbuff_t *tvb,
 {
 	int offset = 0;
 
-	offset = dissect_rpc_string(tvb, tree, hf_gluster_cbk_gfid, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_gluster_cbk_gfid, offset, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_cbk_upcall_event_type, offset);
 	offset = glusterfs_rpc_dissect_upcall_flags(tree, tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_cbk_ci_expire_time_attr, offset);

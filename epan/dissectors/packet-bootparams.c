@@ -74,24 +74,24 @@ dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 
 
 static int
-dissect_getfile_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_getfile_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
-	offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
-	offset = dissect_rpc_string(tvb, tree, hf_bootparams_fileid, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_fileid, offset, NULL);
 
 	return offset;
 }
 
 static int
-dissect_getfile_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_getfile_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
-	offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
 	offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_hostaddr);
-	offset = dissect_rpc_string(tvb, tree, hf_bootparams_filepath, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_filepath, offset, NULL);
 
 	return offset;
 }
@@ -105,12 +105,12 @@ dissect_whoami_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 }
 
 static int
-dissect_whoami_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_whoami_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
-    offset = dissect_rpc_string(tvb, tree, hf_bootparams_host, offset, NULL);
-	offset = dissect_rpc_string(tvb, tree, hf_bootparams_domain, offset, NULL);
+    offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_domain, offset, NULL);
 	offset = dissect_bp_address(tvb, offset, tree, hf_bootparams_routeraddr);
 
 	return offset;

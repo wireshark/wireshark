@@ -155,7 +155,7 @@ WS_DLL_PUBLIC int dissect_rpc_unknown(tvbuff_t *tvb,
         packet_info *pinfo, proto_tree *tree, void *data);
 WS_DLL_PUBLIC int dissect_rpc_bool(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
-WS_DLL_PUBLIC int dissect_rpc_string(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_string(tvbuff_t *tvb, packet_info* pinfo,
 	proto_tree *tree, int hfindex, int offset, const char **string_buffer_ret);
 WS_DLL_PUBLIC
 int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
@@ -165,9 +165,9 @@ int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     bool fixed_length, uint32_t length,
     bool string_data, const char **string_buffer_ret,
     dissect_function_t *dissect_it);
-WS_DLL_PUBLIC int dissect_rpc_data(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_data(tvbuff_t *tvb, packet_info* pinfo,
 	proto_tree *tree, int hfindex, int offset);
-WS_DLL_PUBLIC int dissect_rpc_bytes(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_bytes(tvbuff_t *tvb, packet_info* pinfo,
 	proto_tree *tree, int hfindex, int offset, uint32_t length,
 	bool string_data, const char **string_buffer_ret);
 WS_DLL_PUBLIC int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,

@@ -34,10 +34,10 @@ static int ett_ypbind;
 
 
 static int
-dissect_ypbind_domain_v2_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_ypbind_domain_v2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* domain */
-	return dissect_rpc_string(tvb, tree, hf_ypbind_domain, 0, NULL);
+	return dissect_rpc_string(tvb, pinfo, tree, hf_ypbind_domain, 0, NULL);
 }
 
 #define YPBIND_RESP_TYPE_SUCC_VAL	1
@@ -93,12 +93,12 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
 	/* domain */
-	offset = dissect_rpc_string(tvb, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 			hf_ypbind_domain, offset, NULL);
 
 	/* ip address */

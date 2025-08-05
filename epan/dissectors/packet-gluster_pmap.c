@@ -68,9 +68,9 @@ gluster_pmap_portbybrick_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 gluster_pmap_portbybrick_call(tvbuff_t *tvb,
-				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	return dissect_rpc_string(tvb, tree, hf_gluster_brick, 0, NULL);
+	return dissect_rpc_string(tvb, pinfo, tree, hf_gluster_brick, 0, NULL);
 }
 
 /* Based on rpc/rpc-lib/src/rpc-common.c, but xdr encoding/decoding is broken.
@@ -78,7 +78,7 @@ gluster_pmap_portbybrick_call(tvbuff_t *tvb,
  * encode/decode, xdr_u_quad_t() is used (which is uint32_t).
  */
 static int
-gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							proto_tree *tree, void* data _U_)
 {
 	proto_item *detail_item;
@@ -89,7 +89,7 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 							ett_gluster_dump_detail, &detail_item, "Available Program: ");
 
 	/* progname */
-	offset = dissect_rpc_string(tvb, detail_tree, hf_gluster_progname,
+	offset = dissect_rpc_string(tvb, pinfo, detail_tree, hf_gluster_progname,
 							offset, &progname);
 	proto_item_append_text(detail_item, "%s", progname);
 
