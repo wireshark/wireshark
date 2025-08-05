@@ -1,0 +1,360 @@
+[#ChapterWiretap]
+
+== Wiretap
+Wiretap is a library used for reading and writing capture files in various formats.
+
+=== Background
+
+Wiretap was initially developed as a library to replaceme
+libpcap, the current standard Unix library for packet capturing. Libpcap
+is great in that it is very platform independent and has a wonderful
+BPF optimizing engine. But it has some shortcomings as well. These
+shortcomings came to a head during Wireshark's development.
+Wiretap was developed so that:
+
+1. The library can easily be amended with new packet filtering objects.
+Libpcap is very TCP/IP-oriented. I want to filter on IPX objects, SNA objects,
+etc. I also want any decent programmer to be able to add new filters to the
+library.
+
+2. The library can read file formats from many packet-capturing utilities.
+Libpcap only reads Libpcap files.
+
+3. The library can capture on more than one network interface at a time, and
+save this trace in one file.
+
+4. Network names can be resolved immediately after a trace and saved in the
+trace file. That way, I can ship a trace of my firewall-protected network to a
+colleague, and he'll see the proper hostnames for the IP addresses in the
+packet capture, even though he doesn't have access to the DNS server behind my
+LAN's firewall.
+
+5. I want to look into the possibility of compressing packet data when saved
+to a file, like Sniffer.
+
+6. The packet-filter can be optimized for the host OS. Not all OSes have BPF;
+SunOS has NIT and Solaris has DLPI, which both use the CMU/Stanford
+packet-filter pseudomachine. RMON has another type of packet-filter syntax
+which we could support.
+
+Wiretap is very good at reading many file formats, as per #2
+above. Wiretap has no filter capability at present; it currently doesn't
+support packet capture, so it wouldn't be useful there, and filtering
+when reading a capture file is done by Wireshark, using a more powerful
+filtering mechanism than that provided by BPF.
+
+=== Creating a new wiretap module
+
+As a demonstrative example, let's create a new wiretap module for a new "Data Undergoing Mysterious Breakage" (DUMB) format. The DUMB format starts with the magic text "DUMB" and is a series of single-digit data lengths and then the associated strings.
+
+To add support for the new DUMB capture format, our first step will be to create two new files, `dumb.h` and `dumb.c` in the wiretap directory. These will contain the code for handling the new format.
+
+Now we're ready to begin working on `dumb.c`. At minimum, it requires a few functions:
+
+* An `open` routine (`dumb_open`) to determine if this is the correct parser for this file format
+* A `read` routine (`dumb_read`) that can read a packet from the file.
+* A `seek_and_read` routine (`dumb_seek_and_read`) to read a packet from a specific location in the file
+
+```c
+/* dumb.c
+ *
+ * Copyright 2025, Moshe Kaplan
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * Sample file for demonstrating new wiretap module
+ */
+
+#include "config.h"
+#include "dumb.h"
+
+#include <string.h>
+
+#include "wtap-int.h"
+#include "file_wrappers.h"
+
+#define MAGIC_SIZE	4
+
+static const unsigned char dumb_magic[MAGIC_SIZE] = {
+	'D', 'U', 'M', 'B'
+};
+
+static int dumb_file_type_subtype = -1;
+
+void register_dumb(void);
+
+static bool dumb_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data_offset);
+static bool dumb_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, int* err, char** err_info);
+static bool dumb_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info);
+
+wtap_open_return_val dumb_open(wtap *wth, int *err, char **err_info)
+{
+    uint8_t filebuf[MAGIC_SIZE];
+    int bytes_read;
+
+    /* Read the magic into memory */
+    bytes_read = file_read(filebuf, MAGIC_SIZE, wth->fh);
+    if (bytes_read < 0) {
+        /* Read error. */
+        *err = file_error(wth->fh, err_info);
+        return WTAP_OPEN_ERROR;
+    }
+ 
+    if (bytes_read < MAGIC_SIZE) {
+        /* Not enough bytes */
+        return WTAP_OPEN_NOT_MINE;
+    }
+
+    if (memcmp(filebuf, dumb_magic, sizeof(dumb_magic)) != 0)
+		return WTAP_OPEN_NOT_MINE;
+
+    /* Looks like it's ours! Prepare the data structures: */
+
+    wth->file_type_subtype = dumb_file_type_subtype;
+    wth->file_encap = WTAP_ENCAP_JSON;
+    wth->file_tsprec = WTAP_TSPREC_SEC;
+    wth->subtype_read = dumb_read;
+    wth->subtype_seek_read = dumb_seek_read;
+    wth->snapshot_length = 0;
+
+    /* And return that it's ours */
+    return WTAP_OPEN_MINE;
+}
+
+static const struct supported_block_type dumb_blocks_supported[] = {
+    /* We support packet blocks, with no comments or other options. */
+    { WTAP_ENCAP_PER_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
+static const struct file_type_subtype_info dumb_info = {
+    "Data Undergoing Mysterious Breakage (DUMB) file format", "dumb", "dumb", NULL,
+    false, BLOCKS_SUPPORTED(dumb_blocks_supported),
+    NULL, NULL, NULL
+};
+
+void register_dumb(void)
+{
+    dumb_file_type_subtype = wtap_register_file_type_subtype(&dumb_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("dumb",
+                                                   dumb_file_type_subtype);
+}
+
+/* Read the next packet */
+static bool dumb_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_t *data_offset)
+{
+    *data_offset = file_tell(wth->fh);
+	return dumb_read_packet(wth, wth->fh, rec, err, err_info);
+}
+
+static bool dumb_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, int* err, char** err_info)
+{
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+        return false;
+
+    return dumb_read_packet(wth, wth->random_fh, rec, err, err_info);
+}
+
+
+static bool dumb_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
+{
+    uint8_t     payload_raw;    /* Length of the packet's data: Data */
+    uint8_t     packet_size;    /* Length of the entire packet: Length + Data */
+    uint8_t     *packet_data;   /* Actual data within the packet */
+    
+    /* Read the header with the size
+       Use wtap_read_bytes_or_eof because we may be at EOF before we start
+     */
+    if (!wtap_read_bytes_or_eof(fh, &payload_raw, sizeof(payload_raw), err, err_info)) {
+        return false;
+    }
+
+    /* Validate that the header is between 0 and 9 bytes */
+    if (payload_raw < '0' || payload_raw > '9') {
+        return false;
+    }
+    /* Convert digit from an ASCII character to integer */
+    packet_size = payload_raw - '0';
+
+    /* Prepare the buffer for our data */
+    ws_buffer_assure_space(&rec->data, packet_size);
+    ws_buffer_increase_length(&rec->data, packet_size);
+    packet_data = ws_buffer_start_ptr(&rec->data);
+
+    /* Read in the packet data
+       Use wtap_read_bytes to return an error of WTAP_ERR_SHORT_READ if we hit EOF.
+    */
+    if (!wtap_read_bytes(fh, packet_data, packet_size, err, err_info)) {
+        return false;
+    }
+
+    wtap_setup_packet_rec(rec, wth->file_encap);
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+    rec->rec_header.packet_header.caplen = packet_size;
+    rec->rec_header.packet_header.len = packet_size;
+    return true;
+}
+```
+
+
+`dumb.h` will have the functions exposed to the rest of wiretap. For now, that will only need to be `dumb_open`:
+
+```c
+#ifndef __DUMB_H__
+#define __DUMB_H__
+
+#include <glib.h>
+#include "wtap.h"
+
+wtap_open_return_val dumb_open(wtap *wth, int *err, char **err_info);
+
+#endif
+```
+
+Now that we have `dumb.c` and `dumb.h`, let's integrate them into Wireshark:
+
+* In `wiretap/CMakeLists.txt`, add `dumb.c` to the list of `WIRETAP_C_MODULE_FILES`
+
+* In `wiretap/file_access.c`:
+** Add an #include for `dumb.h`
+** Modify `open_info_base` table to define the DUMB format as being supported by Wireshark and specify the `dumb_open` routine. For example:
+```c
+{ "Data Undergoing Mysterious Breakage (DUMB) file", OPEN_INFO_MAGIC, dumb_open, "dumb", NULL, NULL },
+```
+** Modify the `wireshark_file_type_extensions_base` table so that this format can be selected with the 'open' dialog.
+```c
+{ "Data Undergoing Mysterious Breakage (DUMB)", true, "dumb" },
+```
+
+With this, we now have added support for a simple DUMB file format to libwiretap. Let's now review this code in more detail:
+
+We declared our DUMB format by adding an entry to `file_access.c`'s `open_info_base` :
+```c
+{ "Data Undergoing Mysterious Breakage (DUMB) file", OPEN_INFO_MAGIC, dumb_open, "dumb", NULL, NULL },
+```
+
+`open_info_base` is an array of `open_info` objects. `open_info` objects are specified as the following (from `file_access.c`):
+```c
+struct open_info {
+    const char *name;                 /* Description */
+    wtap_open_type type;              /* Open routine type */
+    wtap_open_routine_t open_routine; /* Open routine */
+    const char *extensions;           /* List of extensions used for this file type */
+    char **extensions_set;            /* Array of those extensions; populated using extensions member during initialization */
+    void* wslua_data;                 /* Data for Lua file readers */
+};
+```
+
+The important values here are the `name`, `type`, and `open_routine`. The remaining parameters can be `NULL`.
+
+For convenience, we also added an entry to `file_access.c`'s `wireshark_file_type_extensions_base` table so that this format can be selected with the 'open' dialog.
+
+```c
+{ "Data Undergoing Mysterious Breakage (DUMB)", true, "dumb" },
+```
+
+Each entry in this table is an `file_extension_info`, as defined in `wtap.h`:
+
+```c
+struct file_extension_info {
+    /* the file type description */
+    const char *name;
+
+    /* true if this is a capture file type */
+    bool is_capture_file;
+
+    /* a semicolon-separated list of file extensions used for this type */
+    const char *extensions;
+};
+```
+
+If `is_capture_file` is `true`, then the extensions specified in `extensions` will be included within Wireshark's list of known capture file types and so included in Wireshark's `Open Capture File` dialog.
+
+Now let's get to the meat of it in `dumb.c`, starting with `dumb_open`. `dumb_open` reads `MAGIC_SIZE` (4) bytes from the file and confirms that they are equal to "DUMB". Once the  validation is complete, the `wtap` object in `wth` is set with the various required values, which most significantly contains the filetype information, encapsulation type (`WTAP_ENCAP_JSON`), and the functions used for sequential reading (`subtype_read`), and random access (`subtype_seek_read`). `dumb_open` then returns `WTAP_OPEN_MINE` to indicate that this is the correct handler.
+
+In this example, `dumb_read` (`subtype_read`) and `dumb_seek_read` (`subtype_seek_read`) are the functions called by the rest of Wireshark to retrieve data from the DUMB capture file format. `dumb_read` is the general routine used for reading packets from the capture file and will generally be called repeatedly until the entire file is processed. `dumb_seek_read` would be used later to "seek and read" for individual packets. To avoid repeating the code, both functions call a `dumb_read_packet` function, which does the heavy lifting of extracting data from the file.
+
+
+We also needed to add a registration routine of `register_dumb`. This will be added to `wtap_modules.c` by `make-regs.py` as part of the build process.
+The `register_dumb` routine takes a `file_type_subtype_info` struct and passes it to `wtap_register_file_type_subtype`.
+The `file_type_subtype_info` includes a descriptive name, a
+short name that's convenient to type on a command line (no blanks or
+capital letters, please), common file extensions to open and save,
+any block types supported, and pointers to the "can_write_encap" and
+if writing that file type is supported (see below), "dump_open" routines 
+otherwise NULL pointers.
+
+```c
+static const struct supported_block_type dumb_blocks_supported[] = {
+    /* We support packet blocks, with no comments or other options. */
+    { WTAP_ENCAP_PER_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
+static const struct file_type_subtype_info dumb_info = {
+    "Data Undergoing Mysterious Breakage (DUMB) file format", "dumb", "dumb", NULL,
+    false, BLOCKS_SUPPORTED(dumb_blocks_supported),
+    NULL, NULL, NULL
+};
+
+void register_dumb(void)
+{
+    dumb_file_type_subtype = wtap_register_file_type_subtype(&dumb_info);
+...
+}
+```
+
+=== Additional notes on adding support for reading new capture formats
+
+If the "open" routine allocates any memory, you'll need to create a "close" routine
+by setting the `wtap` 's `subtype_close` member.
+
+The "read" routine should set the variable `data_offset` to the byte
+offset within the capture file from which the "seek and read" routine
+will read.  If the capture records consist of:
+
+	capture record header
+	pseudo-header (e.g., for ATM)
+	frame data
+
+then `data_offset` should point to the pseudo-header.  The first
+sequential read pass will process and store the capture record header
+data, but it will not store the pseudo-header.  Note that the
+seek_and_read routine should work with the "random_fh" file handle
+of the passed in wtap struct, instead of the "fh" file handle used
+in the normal read routine.
+
+
+=== Adding support for writing capture formats
+To add the ability to write a new capture file format, you have to:
+
+* Add a "can_write_encap" routine that returns an indication of
+whether a given packet encapsulation format is supported by the
+new capture file format;
+
+* Add a "dump_open" routine that starts writing a file (writing
+	headers, allocating data structures, etc.);
+
+* Add a "dump" routine to write a packet to a file, and have the
+	"dump_open" routine set the "subtype_write" member of the
+	"wtap_dumper" structure passed to it to point to it;
+
+* Add a "dump_close" routine, if necessary (if, for example, the
+	"dump_open" routine allocates any memory, or if some of the file
+	header can be written only after all the packets have been
+	written), and have the "dump_open" routine set the
+	"subtype_close" member of the "wtap_dumper" structure to point
+	to it;
+
+* Put pointers to the "can_write_encap" and "dump_open" routines
+	in the "file_type_subtype_info" struct passed to
+	wtap_register_file_type_subtypes().
+
+
+=== Adding support for a new encapsulation type
+
+// Start by describing encapsulation types
+{missing}

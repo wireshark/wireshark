@@ -65,6 +65,8 @@ include::wsdg_capture.adoc[]
 
 include::wsdg_dissection.adoc[]
 
+include::wsdg_wiretap.adoc[]
+
 include::wsdg_lua_support.adoc[]
 
 include::wsdg_userinterface.adoc[]
