@@ -121,14 +121,14 @@ void knxip_ccm_calc_cbc_mac( uint8_t p_mac[ KNX_KEY_LENGTH ], const uint8_t key[
 }
 
 // Encrypt for KNX IP Security or KNX Data Security
-uint8_t* knx_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
+uint8_t* knx_ccm_encrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
   const uint8_t* mac, uint8_t mac_length, const uint8_t ctr_0[ KNX_KEY_LENGTH ], uint8_t s0_bytes_used_for_mac )
 {
   if( p_length >= 0 && !(p_length && !p_bytes) )
   {
     // NB: mac_length = 16 (for IP Security), or 4 (for Data Security)
 
-    uint8_t* result = p_result ? p_result : (uint8_t*) wmem_alloc( wmem_packet_scope(), p_length + mac_length );
+    uint8_t* result = p_result ? p_result : (uint8_t*) wmem_alloc(scope, p_length + mac_length );
 
     uint8_t* dest = result;
 
@@ -188,22 +188,22 @@ uint8_t* knx_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ]
 }
 
 // Encrypt for KNX IP Security (with 16-byte MAC and Nonce based on 6-byte Sequence ID)
-uint8_t* knxip_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
+uint8_t* knxip_ccm_encrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
   const uint8_t mac[KNX_KEY_LENGTH], const uint8_t* nonce, uint8_t nonce_length )
 {
   uint8_t ctr_0[ KNX_KEY_LENGTH ];
   build_ctr0( ctr_0, nonce, nonce_length );
-  return knx_ccm_encrypt( p_result, key, p_bytes, p_length, mac, KNX_KEY_LENGTH, ctr_0, KNX_KEY_LENGTH );
+  return knx_ccm_encrypt(scope, p_result, key, p_bytes, p_length, mac, KNX_KEY_LENGTH, ctr_0, KNX_KEY_LENGTH );
 }
 
 // Decrypt for KNX-IP Security (with 16-byte MAC and Nonce based on 6-byte Sequence ID)
-uint8_t* knxip_ccm_decrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* crypt, int crypt_length,
+uint8_t* knxip_ccm_decrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* crypt, int crypt_length,
   const uint8_t* nonce, uint8_t nonce_length )
 {
   int p_length = crypt_length - KNX_KEY_LENGTH;
   uint8_t ctr_0[ KNX_KEY_LENGTH ];
   build_ctr0( ctr_0, nonce, nonce_length );
-  return knx_ccm_encrypt( p_result, key, crypt, p_length, crypt + p_length, KNX_KEY_LENGTH, ctr_0, KNX_KEY_LENGTH );
+  return knx_ccm_encrypt(scope, p_result, key, crypt, p_length, crypt + p_length, KNX_KEY_LENGTH, ctr_0, KNX_KEY_LENGTH );
 }
 
 static void fprintf_hex( FILE* f, const uint8_t* data, uint8_t length )

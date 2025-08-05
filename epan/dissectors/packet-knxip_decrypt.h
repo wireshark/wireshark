@@ -24,15 +24,15 @@ void knxip_ccm_calc_cbc_mac( uint8_t p_mac[ KNX_KEY_LENGTH ], const uint8_t key[
   const uint8_t* nonce, uint8_t nonce_length );
 
 // Encrypt for KNX IP Security or KNX Data Security
-uint8_t* knx_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
+uint8_t* knx_ccm_encrypt( wmem_allocator_t* scope, uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
   const uint8_t* mac, uint8_t mac_length, const uint8_t ctr_0[ KNX_KEY_LENGTH ], uint8_t s0_bytes_used_for_mac);
 
 // Encrypt for KNX IP Security
-uint8_t* knxip_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
+uint8_t* knxip_ccm_encrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
   const uint8_t mac[ KNX_KEY_LENGTH ], const uint8_t* nonce, uint8_t nonce_length );
 
 // Decrypt for KNX IP Security
-uint8_t* knxip_ccm_decrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* crypt, int crypt_length,
+uint8_t* knxip_ccm_decrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* crypt, int crypt_length,
   const uint8_t* nonce, uint8_t nonce_length );
 
 // For importing keyring.XML file exported from ETS:

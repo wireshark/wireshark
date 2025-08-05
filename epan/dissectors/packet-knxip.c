@@ -2581,7 +2581,7 @@ static uint8_t dissect_resetter( tvbuff_t* tvb, packet_info* pinfo, proto_item* 
 
 /* Decrypt SECURE_WRAPPER. Returns decrypted part if MAC matches
 */
-static uint8_t* decrypt_secure_wrapper( const uint8_t* key, const uint8_t* data, int h_length, int p_length )
+static uint8_t* decrypt_secure_wrapper(wmem_allocator_t* scope, const uint8_t* key, const uint8_t* data, int h_length, int p_length )
 {
   uint8_t header_length = *data;
   int a_length = header_length + 2;
@@ -2593,7 +2593,7 @@ static uint8_t* decrypt_secure_wrapper( const uint8_t* key, const uint8_t* data,
   if( h_length >= header_length + 16 && p_length >= 16 )
   {
     const uint8_t* nonce = data + a_length;
-    uint8_t* decrypted = knxip_ccm_decrypt( NULL, key, data + h_length, p_length, nonce, 14 );
+    uint8_t* decrypted = knxip_ccm_decrypt(scope, NULL, key, data + h_length, p_length, nonce, 14 );
 
     if( decrypted )
     {
@@ -2606,7 +2606,7 @@ static uint8_t* decrypt_secure_wrapper( const uint8_t* key, const uint8_t* data,
       /* Check MAC */
       if( memcmp( decrypted + p_length, mac, 16 ) != 0 )
       {
-        wmem_free( wmem_packet_scope(), decrypted );
+        wmem_free(scope, decrypted );
         decrypted = NULL;
       }
     }
@@ -2749,7 +2749,7 @@ static uint8_t dissect_secure_wrapper( uint8_t header_length, tvbuff_t* tvb, pac
                 if( memcmp( mca_key->mca, dest_addr, 4 ) == 0 )
                 {
                   key = mca_key->key;
-                  decrypted = decrypt_secure_wrapper( key, a_data, a_length, size );
+                  decrypted = decrypt_secure_wrapper(pinfo->pool, key, a_data, a_length, size );
                   if( decrypted )
                   {
                     make_key_info( decrypt_info, sizeof decrypt_info, key, "MCA" );
@@ -2765,7 +2765,7 @@ static uint8_t dissect_secure_wrapper( uint8_t header_length, tvbuff_t* tvb, pac
               for( key_index = 0; key_index < knx_decryption_key_count; ++key_index )
               {
                 key = knx_decryption_keys[ key_index ];
-                decrypted = decrypt_secure_wrapper( key, a_data, a_length, size );
+                decrypted = decrypt_secure_wrapper(pinfo->pool, key, a_data, a_length, size );
                 if( decrypted )
                 {
                   make_key_info( decrypt_info, sizeof decrypt_info, key, NULL );
@@ -2821,13 +2821,13 @@ static uint8_t dissect_secure_wrapper( uint8_t header_length, tvbuff_t* tvb, pac
 
 /* Check encrypted MAC in TIMER_NOTIFY
 */
-static uint8_t check_timer_sync_mac( const uint8_t* key, const uint8_t* data, int header_length )
+static uint8_t check_timer_sync_mac(wmem_allocator_t* scope, const uint8_t* key, const uint8_t* data, int header_length )
 {
   // Calculate and encrypt MAC
   const uint8_t* nonce = data + header_length;
   uint8_t mac[ KNX_KEY_LENGTH ];
-  knxip_ccm_calc_cbc_mac( mac, key, data, header_length, NULL, 0, nonce, 14 );
-  knxip_ccm_encrypt( mac, key, NULL, 0, mac, nonce, 14 );
+  knxip_ccm_calc_cbc_mac(mac, key, data, header_length, NULL, 0, nonce, 14 );
+  knxip_ccm_encrypt( scope, mac, key, NULL, 0, mac, nonce, 14 );
 
   // Check MAC
   return (memcmp( nonce + 14, mac, 16 ) == 0);
@@ -2916,7 +2916,7 @@ static uint8_t dissect_timer_notify( uint8_t header_length, tvbuff_t* tvb, packe
               if( memcmp( mca_key->mca, dest_addr, 4 ) == 0 )
               {
                 key = mca_key->key;
-                if( check_timer_sync_mac( key, a_data, header_length ) )
+                if( check_timer_sync_mac(pinfo->pool, key, a_data, header_length ) )
                 {
                   mac_ok = 1;
                   make_key_info( mac_info, sizeof mac_info, key, "MCA" );
@@ -2932,7 +2932,7 @@ static uint8_t dissect_timer_notify( uint8_t header_length, tvbuff_t* tvb, packe
             for( key_index = 0; key_index < knx_decryption_key_count; ++key_index )
             {
               key = knx_decryption_keys[ key_index ];
-              if( check_timer_sync_mac( key, a_data, header_length ) )
+              if( check_timer_sync_mac(pinfo->pool, key, a_data, header_length ) )
               {
                 mac_ok = 1;
                 make_key_info( mac_info, sizeof mac_info, key, NULL );
