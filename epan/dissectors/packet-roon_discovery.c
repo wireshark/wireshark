@@ -90,6 +90,7 @@ static int hf_roon_disco_query_service_id;
 static int hf_roon_disco_raat_version;
 static int hf_roon_disco_service_id;
 static int hf_roon_disco_tcp_port;
+static int hf_roon_disco_tcp_port_v2;
 static int hf_roon_disco_tid;
 static int hf_roon_disco_unique_id;
 static int hf_roon_disco_user_id;
@@ -132,6 +133,7 @@ static const roon_map roon_disco_string_fields[] = {
     { "raat_version"     , "RAAT Version"     , &hf_roon_disco_raat_version }     ,
     { "service_id"       , "ServiceID"        , &hf_roon_disco_service_id }       ,
     { "tcp_port"         , "TCP Port"         , &hf_roon_disco_tcp_port }         ,
+    { "tcp_port_v2"      , "TCP Port v2"      , &hf_roon_disco_tcp_port_v2 }      ,
     { "unique_id"        , "UniqueID"         , &hf_roon_disco_unique_id }        ,
     { "user_id"          , "UserID"           , &hf_roon_disco_user_id }          ,
     { NULL               , NULL               , NULL }                            ,
@@ -151,7 +153,7 @@ static const roon_map roon_disco_bool_fields[] = {
 #define UNKNOWN_ROON_SERVICE_NAME "Unknown Roon Service"
 // Roon ServiceIDs and their names.  Must be sorted by uuid.
 static const roon_uuid_map roon_service_ids[] = {
-    {"00720724-5143-4a9b-abac-0e50cba674bb", "Roon Node.js"}    , // Roon Node.js SDK https://github.com/RoonLabs/node-roon-api/blob/master/lib.js#L137
+    {"00720724-5143-4a9b-abac-0e50cba674bb", "Roon API Client"} , // Roon Node.js SDK https://github.com/RoonLabs/node-roon-api/blob/master/lib.js#L137
     {"5a955bb8-9673-4f8d-9437-4c6b7b18fba8", "Roon Endpoint"}   , // Client looking for other Clients.
     {"5e2042ad-9bc5-4508-be92-ff68f19bdc93", "Roon RATT"}       , // Server looking for Roon RAAT Transport?
     {"b39fcfbc-17de-46c8-81ad-82a910747be0", "Roon New Client"} , // Clients announcing themselves?
@@ -438,7 +440,11 @@ proto_register_roon_discover(void)
               FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
         { &hf_roon_disco_tcp_port,
-          { "TCP PORT", "roon_disco.tcp_port",
+          { "TCP Port", "roon_disco.tcp_port",
+              FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+        { &hf_roon_disco_tcp_port_v2,
+          { "TCP Port v2", "roon_disco.tcp_port_v2",
               FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
         { &hf_roon_disco_tid,
