@@ -458,6 +458,10 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
         write_profile_recent();
     }
 
+    // Freeze the packet list early to avoid updating column data before doing a
+    // full redissection. The packet list will be thawed when redissection is done.
+    emit freezePacketList(true);
+
     /* Set profile name and update the status bar */
     set_profile_name (profile_name);
     emit profileNameChanged(profile_name);
@@ -495,10 +499,6 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
 
     setMonospaceFont(prefs.gui_font_name);
     ColorUtils::setScheme(prefs.gui_color_scheme);
-
-    // Freeze the packet list early to avoid updating column data before doing a
-    // full redissection. The packet list will be thawed when redissection is done.
-    emit freezePacketList(true);
 
     emit columnsChanged();
     emit colorsChanged();
