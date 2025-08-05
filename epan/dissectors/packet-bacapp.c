@@ -8489,10 +8489,17 @@ fSessionKey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset
 static void
 format_object_identifier(char *s, uint32_t object_id)
 {
-    snprintf(s, ITEM_LABEL_LENGTH,
-            "%s-%u",
-            val_to_str(object_id_type(object_id), BACnetObjectTypeAbbrev, "%u"),
-            object_id_instance(object_id));
+    // This can be called when wmem_packet_scope is not in scope, so
+    // we can't use the non const val_to_str.
+    uint32_t type = object_id_type(object_id);
+    const char* abbrev = try_val_to_str(type, BACnetObjectTypeAbbrev);
+    if (abbrev) {
+        snprintf(s, ITEM_LABEL_LENGTH,
+                "%s-%u", abbrev, object_id_instance(object_id));
+    } else {
+        snprintf(s, ITEM_LABEL_LENGTH,
+                "[%u]-%u", type, object_id_instance(object_id));
+    }
 }
 
 static unsigned
