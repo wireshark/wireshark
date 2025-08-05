@@ -29,8 +29,8 @@ struct TextLine {
 #endif
     int highlight_start;
     int highlight_length;
-    int field_start;
-    int field_length;
+    int kv_start;
+    int kv_length;
 };
 
 struct TextBlock {

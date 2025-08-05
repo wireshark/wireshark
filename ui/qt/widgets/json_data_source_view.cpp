@@ -83,7 +83,11 @@ void JsonDataSourceView::markField(int start, int length, bool scroll_to)
     for (auto &text_block : text_blocks_) {
         for (auto &text_line : text_block.text_lines) {
             row_y += line_height_;
-            if (text_line.field_start == start && text_line.field_length == length) {
+            int end = start + length;
+            int kv_end = text_line.kv_start + text_line.kv_length;
+            // Let dissectors provide the offset+length of either the value itself
+            // or the key+value
+            if (text_line.kv_start <= start && kv_end == end) {
                 selected_line_ = &text_line;
                 goto sl_found;
             }
@@ -196,8 +200,8 @@ void JsonDataSourceView::keyPressEvent(QKeyEvent *event)
         qsizetype idx = event->key() == Qt::Key_Up ? INT32_MAX : -1;
         for (const auto &text_block : text_blocks_) {
             for (const auto &text_line : text_block.text_lines) {
-                if (text_line.field_length > 0) {
-                    if (selected_line_ && selected_line_->field_start == text_line.field_start && selected_line_->field_length == text_line.field_length) {
+                if (text_line.kv_length > 0) {
+                    if (selected_line_ && selected_line_->kv_start == text_line.kv_start && selected_line_->kv_length == text_line.kv_length) {
                         idx = selectable_lines.size() + (event->key() == Qt::Key_Up ? -1 : 1);
                     }
                     selectable_lines.append(&text_line);
@@ -213,10 +217,10 @@ void JsonDataSourceView::keyPressEvent(QKeyEvent *event)
             auto select_line = selectable_lines.at(idx);
 
             setUpdatesEnabled(false);
-            emit byteSelected(select_line->field_start);
+            emit byteSelected(select_line->kv_start + select_line->kv_length - 1);
             setUpdatesEnabled(true);
 
-            markField(select_line->field_start, select_line->field_length, true);
+            markField(select_line->kv_start, select_line->kv_length, true);
         }
     }
     break;
@@ -254,7 +258,7 @@ void JsonDataSourceView::mousePressEvent(QMouseEvent *event)
 
     if (selected_line_ && selected_line_ != old_selected_line) {
         setUpdatesEnabled(false);
-        emit byteSelected(selected_line_->field_start);
+        emit byteSelected(selected_line_->kv_start + selected_line_->kv_length - 1);
         viewport()->update();
         setUpdatesEnabled(true);
     }
@@ -268,7 +272,7 @@ void JsonDataSourceView::mouseMoveEvent(QMouseEvent *event)
     hovered_line_ = findTextLine(ev_line);
 
     if (hovered_line_ && old_hovered_line != hovered_line_) {
-        emit byteHovered(hovered_line_->field_start);
+        emit byteHovered(hovered_line_->kv_start);
         viewport()->update();
     }
 }
@@ -323,8 +327,8 @@ void JsonDataSourceView::addTextLine(TextBlock &text_block, TextLine &text_line,
     text_line.line = next_line;
     text_line.highlight_start = -1;
     text_line.highlight_length = -1;
-    text_line.field_start = 0;
-    text_line.field_length = 0;
+    text_line.kv_start = 0;
+    text_line.kv_length = 0;
 }
 
 bool JsonDataSourceView::prettyPrintPlain(const char *in_buf, QString &out_str)
@@ -376,8 +380,8 @@ bool JsonDataSourceView::addJsonObject()
     TextLine text_line;
     text_line.highlight_start = -1;
     text_line.highlight_length = -1;
-    text_line.field_start = 0;
-    text_line.field_length = 0;
+    text_line.kv_start = 0;
+    text_line.kv_length = 0;
 
     QColor key_color = QColor(ColorUtils::themeIsDark() ? tango_aluminium_3 : tango_aluminium_5);
     QColor str_val_color = QColor(ColorUtils::themeIsDark() ? tango_chameleon_3 : tango_chameleon_5);
@@ -409,14 +413,17 @@ bool JsonDataSourceView::addJsonObject()
             ptok->size--;
         }
 
+        // Dissectors will likely provide the value offset+length, but the key+value
+        // offset+length creates a larger target for markField.
         if (is_key && idx < num_tokens - 1) {
             val_idx = idx + 1;
             jsmntok_t *v_tok = &tokens[val_idx];
             // Offsets are from the start of the tvb.
-            text_line.field_start = tok->start - 1;
+            text_line.kv_start = tok->start - 1;
             if (v_tok->type == JSMN_STRING || v_tok->type == JSMN_PRIMITIVE) {
                 // Include preceding and succeeding quotes.
-                text_line.field_length = v_tok->end - tok->start + (v_tok->type == JSMN_STRING ? 2 : 1);
+                // text_line.field_start = tok->start;
+                text_line.kv_length = v_tok->end - tok->start + (v_tok->type == JSMN_STRING ? 2 : 1);
             }
         }
 
