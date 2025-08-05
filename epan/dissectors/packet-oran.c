@@ -13,7 +13,8 @@
  /*
    * Dissector for the O-RAN Fronthaul CUS protocol specification.
    * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-   * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification
+   * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification.
+   *   - haven't spotted any differences in v18.00
    * Note that other eCPRI message types are handled in packet-ecpri.c
    */
 
@@ -2390,10 +2391,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         unsigned sample_len_in_bytes = ((bit_offset%8)+pref_sample_bit_width_sinr+7)/8;
                         proto_item *val_ti = proto_tree_add_float(c_section_tree, hf_oran_sinr_value, tvb,
                                                                    bit_offset/8, sample_len_in_bytes, value);
+
                         /* Show here which subcarriers share which values (they all divide 12..) */
-                        proto_item_append_text(val_ti, " (PRB=%u, subcarriers %u-%u)",
+                        if (num_sinr_per_prb == 12) {
+                            proto_item_append_text(val_ti, " (PRB=%u, subcarrier %u)",
+                                               startPrbu+(prb*(rb+1)),
+                                               n*(12/num_sinr_per_prb));
+                        }
+                        else {
+                            proto_item_append_text(val_ti, " (PRB=%u, subcarriers %u-%u)",
                                                startPrbu+(prb*(rb+1)),
                                                n*(12/num_sinr_per_prb), (n+1)*(12/num_sinr_per_prb)-1);
+                        }
                         bit_offset += pref_sample_bit_width_sinr;
                     }
 
@@ -4118,7 +4127,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_item(extension_tree, (n % 2) ? hf_oran_reserved_1bit : hf_oran_reserved_bit4,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                    /* numSinrPerPrb (3 bits) */
+                    /* numSinrPerPrb (3 bits).  Taken from alternate nibbles within byte.  */
                     proto_tree_add_item(extension_tree, (n % 2) ? hf_oran_num_sinr_per_prb : hf_oran_num_sinr_per_prb_right,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (n % 2) {
