@@ -325,14 +325,11 @@ void PacketList::colorsChanged()
         "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %4, stop: 0.5 %3, stop: 1 %4);"
         "}";
 
-    QString hover_style;
-#if !defined(Q_OS_WIN)
-    hover_style = QStringLiteral(
+    QString hover_style = QStringLiteral(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
         "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
-#endif
 
     QString active_style   = QString();
     QString inactive_style = QString();
