@@ -17,6 +17,9 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
+
+#include <wiretap/wtap.h>
 
 #include "packet-gsmtap.h"
 #include "packet-sgp32.h"
@@ -404,6 +407,7 @@ static int hf_seek_mode;
 static int hf_seek_type;
 static int hf_seek_rec_nr;
 
+static int hf_related_to;
 static int hf_response_in;
 static int hf_response_to;
 static int hf_response_time;
@@ -459,16 +463,57 @@ static dissector_handle_t sim_handle, sim_part_handle;
 /* The response contains no channel number to compare to and the spec explicitly
  * prohibits interleaving of command/response pairs, regardless of logical channels.
  */
-typedef struct {
+typedef struct gsm_sim_transaction {
 	uint32_t cmd_frame;
 	uint32_t rsp_frame;
 	nstime_t cmd_time;
 	uint8_t  cmd_ins;
 	uint8_t  cmd_p1;
 	uint8_t  cmd_p2;
+
+	/* Related transaction used for GET RESPONSE and APDU reassembly. May point to self. */
+	struct gsm_sim_transaction *related_trans;
 } gsm_sim_transaction_t;
 
 static wmem_tree_t *transactions;
+static reassembly_table gsm_sim_reassembly_table;
+
+static int hf_gsm_sim_fragments;
+static int hf_gsm_sim_fragment;
+static int hf_gsm_sim_fragment_overlap;
+static int hf_gsm_sim_fragment_overlap_conflicts;
+static int hf_gsm_sim_fragment_multiple_tails;
+static int hf_gsm_sim_fragment_too_long_fragment;
+static int hf_gsm_sim_fragment_error;
+static int hf_gsm_sim_fragment_count;
+static int hf_gsm_sim_reassembled_in;
+static int hf_gsm_sim_reassembled_length;
+
+static int ett_gsm_sim_fragment;
+static int ett_gsm_sim_fragments;
+
+static const fragment_items gsm_sim_frag_items = {
+	/* Fragment subtrees */
+	&ett_gsm_sim_fragment,
+	&ett_gsm_sim_fragments,
+	/* Fragment fields */
+	&hf_gsm_sim_fragments,
+	&hf_gsm_sim_fragment,
+	&hf_gsm_sim_fragment_overlap,
+	&hf_gsm_sim_fragment_overlap_conflicts,
+	&hf_gsm_sim_fragment_multiple_tails,
+	&hf_gsm_sim_fragment_too_long_fragment,
+	&hf_gsm_sim_fragment_error,
+	&hf_gsm_sim_fragment_count,
+	/* Reassembled in field */
+	&hf_gsm_sim_reassembled_in,
+	/* Reassembled length field */
+	&hf_gsm_sim_reassembled_length,
+	/* Reassembled data field */
+	NULL,
+	/* Tag */
+	"APDU fragments"
+};
 
 static int * const tprof_b1_fields[] = {
 	&hf_tp_prof_dld,
@@ -1622,6 +1667,47 @@ dissect_apdu_le(proto_tree *tree, tvbuff_t *tvb, int offset, bool extended_len, 
 	}
 }
 
+static tvbuff_t *
+gsm_sim_apdu_reassemble(tvbuff_t *tvb, int offset, packet_info *pinfo, gsm_sim_transaction_t *gsm_sim_trans,
+			proto_tree *sim_tree, uint8_t *apdu_ins, uint8_t *apdu_p1, uint8_t *apdu_p2)
+{
+	unsigned tvb_len = tvb_reported_length(tvb);
+	unsigned apdu_len = tvb_len - offset - 2;
+	tvbuff_t *subtvb = NULL;
+	uint8_t sw1;
+
+	if (!gsm_sim_trans || gsm_sim_trans->rsp_frame != pinfo->num) {
+		/* No transaction found, return the current tvb subset */
+		return tvb_new_subset_length(tvb, offset, apdu_len);
+	}
+
+	/* Try reassembly if SW1 is "Response ready" or instruction is "GET RESPONSE" */
+	sw1 = tvb_get_uint8(tvb, tvb_len - 2);
+	if (sw1 == 0x61 || gsm_sim_trans->cmd_ins == 0xC0) {
+		fragment_head *frag_msg;
+
+		/* The APDU reassembly is using the command frame number as id. */
+		frag_msg = fragment_add_seq_next(&gsm_sim_reassembly_table, tvb, offset, pinfo,
+						 gsm_sim_trans->related_trans->cmd_frame, NULL,
+						 apdu_len, sw1 == 0x61);
+		subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled APDU",
+						  frag_msg, &gsm_sim_frag_items, NULL, sim_tree);
+	}
+
+	if (!subtvb) {
+		subtvb = tvb_new_subset_length(tvb, offset, apdu_len);
+	}
+
+	if (gsm_sim_trans != gsm_sim_trans->related_trans) {
+		/* Use INS, P1 and P2 from the related command */
+		*apdu_ins = gsm_sim_trans->related_trans->cmd_ins;
+		*apdu_p1 = gsm_sim_trans->related_trans->cmd_p1;
+		*apdu_p2 = gsm_sim_trans->related_trans->cmd_p2;
+	}
+
+	return subtvb;
+}
+
 static int
 dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended_len,
 		 tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -1897,6 +1983,10 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	proto_item *ti = NULL;
 	unsigned tvb_len = tvb_reported_length(tvb);
 	gsm_sim_transaction_t *gsm_sim_trans = NULL;
+	wmem_tree_key_t key[4];
+	uint32_t interface_id = 0;
+	uint32_t layer_num = pinfo->curr_layer_num;
+	uint32_t frame_num = pinfo->num;
 	uint8_t ins = 0x00;
 	uint8_t p1 = 0x00;
 	uint8_t p2 = 0x00;
@@ -1909,26 +1999,53 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		sim_tree = proto_item_add_subtree(ti, ett_sim);
 	}
 
+	if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+		interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+	}
+
+	key[0].length = 1;
+	key[0].key = &interface_id;
+	key[1].length = 1;
+	key[1].key = &layer_num;
+	key[2].length = 1;
+	key[2].key = &frame_num;
+	key[3].length = 0;
+	key[3].key = NULL;
+
 	/* Receive the largest key that is less than or equal to our frame number */
-	gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_le(transactions, pinfo->num);
+	gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_array_le(transactions, key);
 	if (!PINFO_FD_VISITED(pinfo) && gsm_sim_trans && gsm_sim_trans->rsp_frame == 0) {
+		if (gsm_sim_trans->cmd_ins == 0xC0) { /* GET RESPONSE */
+			/* Make a reference to the first APDU this GET RESPONSE is related to */
+			gsm_sim_transaction_t *prev_trans;
+			frame_num = gsm_sim_trans->cmd_frame - 1;
+			prev_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_array_le(transactions, key);
+			if (prev_trans) {
+				gsm_sim_trans->related_trans = prev_trans->related_trans;
+			}
+		}
 		gsm_sim_trans->rsp_frame = pinfo->num;
 	}
 
 	if ((tvb_len-offset) > 2) {
 		tvbuff_t *subtvb;
 		unsigned apdu_len;
+		uint8_t apdu_ins;
 
+		/* Use INS, P1 and P2 from the command */
 		if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
 			ins = gsm_sim_trans->cmd_ins;
 			p1 = gsm_sim_trans->cmd_p1;
 			p2 = gsm_sim_trans->cmd_p2;
 		}
-		apdu_len = tvb_len - offset - 2;
 
-		switch (ins) {
+		apdu_len = tvb_len - offset - 2;
+		apdu_ins = ins;
+
+		subtvb = gsm_sim_apdu_reassemble(tvb, offset, pinfo, gsm_sim_trans, sim_tree, &apdu_ins, &p1, &p2);
+
+		switch (apdu_ins) {
 		case 0x12: /* FETCH */
-			subtvb = tvb_new_subset_length(tvb, offset, apdu_len);
 			dissect_bertlv(subtvb, pinfo, sim_tree, NULL);
 			response_only = false;
 			break;
@@ -1947,7 +2064,6 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			}
 			break;
 		case 0xE2: /* STORE DATA */
-			subtvb = tvb_new_subset_length(tvb, offset, apdu_len);
 			if (((p1 & 0x78) == 0x10) && is_sgp32_response(subtvb)) {
 				dissect_sgp32_response(subtvb, pinfo, sim_tree, NULL);
 			} else {
@@ -1994,15 +2110,23 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		}
 	}
 
-	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num && gsm_sim_trans->cmd_frame != gsm_sim_trans->rsp_frame) {
+	if (gsm_sim_trans && gsm_sim_trans->rsp_frame == pinfo->num) {
 		nstime_t ns;
 
-		ti = proto_tree_add_uint(sim_tree, hf_response_to, NULL, 0, 0, gsm_sim_trans->cmd_frame);
-		proto_item_set_generated(ti);
+		if (gsm_sim_trans != gsm_sim_trans->related_trans) {
+			ti = proto_tree_add_uint(sim_tree, hf_related_to, NULL, 0, 0,
+						 gsm_sim_trans->related_trans->cmd_frame);
+			proto_item_set_generated(ti);
+		}
 
-		nstime_delta(&ns, &pinfo->fd->abs_ts, &gsm_sim_trans->cmd_time);
-		ti = proto_tree_add_time(sim_tree, hf_response_time, NULL, 0, 0, &ns);
-		proto_item_set_generated(ti);
+		if (gsm_sim_trans->cmd_frame != gsm_sim_trans->rsp_frame) {
+			ti = proto_tree_add_uint(sim_tree, hf_response_to, NULL, 0, 0, gsm_sim_trans->cmd_frame);
+			proto_item_set_generated(ti);
+
+			nstime_delta(&ns, &pinfo->fd->abs_ts, &gsm_sim_trans->cmd_time);
+			ti = proto_tree_add_time(sim_tree, hf_response_time, NULL, 0, 0, &ns);
+			proto_item_set_generated(ti);
+		}
 	}
 
 	return offset;
@@ -2019,6 +2143,9 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	proto_tree *sim_tree;
 	int rc = -1;
 	gsm_sim_transaction_t *gsm_sim_trans;
+	wmem_tree_key_t key[4];
+	uint32_t interface_id = 0;
+	uint32_t layer_num = pinfo->curr_layer_num;
 
 	/* Structure of command APDU: CLA INS P1 P2 [Lc] [Data] [Le]
 	 *
@@ -2058,8 +2185,21 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		p3_present = false;
 	}
 
+	if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+		interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+	}
+
+	key[0].length = 1;
+	key[0].key = &interface_id;
+	key[1].length = 1;
+	key[1].key = &layer_num;
+	key[2].length = 1;
+	key[2].key = &pinfo->num;
+	key[3].length = 0;
+	key[3].key = NULL;
+
 	if (PINFO_FD_VISITED(pinfo)) {
-		gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32(transactions, pinfo->num);
+		gsm_sim_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_array(transactions, key);
 	} else {
 		/* This is the first time we see this packet, so create a new transaction */
 		gsm_sim_trans = wmem_new(wmem_file_scope(), gsm_sim_transaction_t);
@@ -2069,8 +2209,9 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		gsm_sim_trans->cmd_ins = ins;
 		gsm_sim_trans->cmd_p1 = p1;
 		gsm_sim_trans->cmd_p2 = p2;
+		gsm_sim_trans->related_trans = gsm_sim_trans; /* Default to self */
 
-		wmem_tree_insert32(transactions, pinfo->num, gsm_sim_trans);
+		wmem_tree_insert32_array(transactions, key, gsm_sim_trans);
 	}
 
 	ti = proto_tree_add_item(tree, proto_gsm_sim, next_tvb, 0, -1, ENC_NA);
@@ -2144,6 +2285,13 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	}
 
 	if (gsm_sim_trans && gsm_sim_trans->cmd_frame == pinfo->num && gsm_sim_trans->rsp_frame != 0) {
+
+		if (gsm_sim_trans != gsm_sim_trans->related_trans) {
+			ti = proto_tree_add_uint(sim_tree, hf_related_to, NULL, 0, 0,
+						 gsm_sim_trans->related_trans->cmd_frame);
+			proto_item_set_generated(ti);
+		}
+
 		ti = proto_tree_add_uint(sim_tree, hf_response_in, NULL, 0, 0, gsm_sim_trans->rsp_frame);
 		proto_item_set_generated(ti);
 	}
@@ -3928,6 +4076,11 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL },
 		},
 
+		{ &hf_related_to,
+			{ "Related To", "gsm_sim.related_to",
+			  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			  "This APDU is related to the command in this frame", HFILL }
+		},
 		{ &hf_response_in,
 			{ "Response In", "gsm_sim.response_in",
 			  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
@@ -3942,6 +4095,50 @@ proto_register_gsm_sim(void)
 			{ "Response Time", "gsm_sim.response_time",
 			  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 			  "The time between the command and the response", HFILL }
+		},
+
+		/* Fragment entries */
+		{ &hf_gsm_sim_fragments,
+			{ "APDU fragments", "gsm_sim.fragments", FT_NONE, BASE_NONE,
+			  NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment,
+			{ "APDU fragment", "gsm_sim.fragment", FT_FRAMENUM, BASE_NONE,
+			  NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment_overlap,
+			{ "APDU fragment overlap", "gsm_sim.fragment.overlap", FT_BOOLEAN,
+			  BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment_overlap_conflicts,
+			{ "APDU fragment overlapping with conflicting data",
+			  "gsm_sim.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment_multiple_tails,
+			{ "APDU has multiple tail fragments",
+			  "gsm_sim.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment_too_long_fragment,
+			{ "APDU fragment too long", "gsm_sim.fragment.too_long_fragment",
+			  FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment_error,
+			{ "APDU defragmentation error", "gsm_sim.fragment.error", FT_FRAMENUM,
+			  BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_fragment_count,
+			{ "APDU fragment count", "gsm_sim.fragment.count", FT_UINT32, BASE_DEC,
+			  NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gsm_sim_reassembled_in,
+			{ "Reassembled APDU in frame", "gsm_sim.reassembled.in", FT_FRAMENUM, BASE_NONE,
+			  NULL, 0x00, "This APDU packet is reassembled in this frame", HFILL }
+		},
+		{ &hf_gsm_sim_reassembled_length,
+			{ "Reassembled APDU length", "gsm_sim.reassembled.length", FT_UINT32, BASE_DEC,
+			  NULL, 0x00, "The total length of the reassembled payload", HFILL }
 		},
 	};
 	static int *ett[] = {
@@ -4003,6 +4200,7 @@ proto_register_gsm_sim(void)
 	expert_register_field_array(expert_gsm_sim, ei, array_length(ei));
 
 	transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	reassembly_table_register (&gsm_sim_reassembly_table, &addresses_reassembly_table_functions);
 
 	/* This dissector is for SIMtrace, which always combines the command
 	 * & response APDUs into one packet before sending it to GSMTAP. Cf.
