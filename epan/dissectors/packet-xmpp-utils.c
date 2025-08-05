@@ -407,13 +407,12 @@ static GList*
 xmpp_find_element_by_name(xmpp_element_t *packet,const char *name)
 {
     GList *found_elements;
-    xmpp_element_t *search_element;
 
     /*create fake element only with name*/
-    search_element = wmem_new(wmem_packet_scope(), xmpp_element_t);
-    search_element->name = wmem_strdup(wmem_packet_scope(), name);
+    xmpp_element_t search_element;
+    search_element.name = (char*)name;
 
-    found_elements = g_list_find_custom(packet->elements, search_element, xmpp_element_t_cmp);
+    found_elements = g_list_find_custom(packet->elements, &search_element, xmpp_element_t_cmp);
 
     if(found_elements)
         return found_elements;
