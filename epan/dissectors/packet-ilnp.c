@@ -356,7 +356,13 @@ dissect_ilnp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             *str_ilnp_src_ilv, *str_ilnp_dst_ilv;
     conversation_t* conv;
     struct ilnp_analysis* ilnpd;
-    ilnp_tap_info_t* ilnph = wmem_new0(pinfo->pool, ilnp_tap_info_t);
+    ilnp_tap_info_t* ilnph;
+
+    //ILNP works on top of IPv6 only (as it "repurposes" the address data)
+    if ((pinfo->net_src.type != AT_IPv6) || (pinfo->net_dst.type != AT_IPv6))
+        return 0;
+
+    ilnph = wmem_new0(pinfo->pool, ilnp_tap_info_t);
 
     // Define ilnp tree and add it as a subtree to the main proto tree
     ilnp_item = proto_tree_add_item(tree, proto_ilnp, tvb, 0, -1, ENC_NA);
