@@ -94,6 +94,7 @@ static int hf_sll_hatype;
 static int hf_sll_ifindex;
 static int hf_sll_ltype;
 static int hf_sll_pkttype;
+static int hf_sll_reserved;
 static int hf_sll_src_eth;
 static int hf_sll_src_ipv4;
 static int hf_sll_src_other;
@@ -476,6 +477,8 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 	case WTAP_ENCAP_SLL2:
 		protocol = add_protocol_type(fh_tree, tvb, 0, hatype);
 
+		proto_tree_add_item(fh_tree, hf_sll_reserved, tvb, 2, 2, ENC_NA);
+
 		proto_tree_add_item(fh_tree, hf_sll_ifindex, tvb, 4, 4, ENC_BIG_ENDIAN);
 
 		proto_tree_add_uint(fh_tree, hf_sll_hatype, tvb, 8, 2, hatype);
@@ -571,6 +574,11 @@ proto_register_sll(void)
 			{ "Interface index", "sll.ifindex",
 			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
+		},
+		{ &hf_sll_reserved,
+			{ "Reserved", "sll.reserved",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  "Reserved bytes", HFILL }
 		},
 	};
 
