@@ -26,6 +26,7 @@ extern "C" {
 #define HTTP2_HEADER_AUTHORITY ":authority"
 #define HTTP2_HEADER_SCHEME ":scheme"
 #define HTTP2_HEADER_CONTENT_TYPE "content-type"
+#define HTTP2_HEADER_PROTOCOL ":protocol"
 #define HTTP2_HEADER_UNKNOWN "<unknown>"
 /* http2 for grpc */
 #define HTTP2_HEADER_GRPC_ENCODING "grpc-encoding"

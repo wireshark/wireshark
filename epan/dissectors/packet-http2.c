@@ -254,6 +254,9 @@ typedef struct {
     const char *imsi;
     const char *referenceid;
     const char *location;
+    const char *protocol;
+    dissector_handle_t next_handle;	/**< Protocol from extended CONNECT */
+    http_upgrade_info_t *upgrade_info; /**< Data for new protocol */
 } http2_stream_info_t;
 #endif
 /* struct to hold data per HTTP/2 session */
@@ -452,6 +455,7 @@ static int hf_http2_headers_status;
 static int hf_http2_headers_path;
 static int hf_http2_headers_method;
 static int hf_http2_headers_scheme;
+static int hf_http2_headers_protocol;
 static int hf_http2_headers_accept;
 static int hf_http2_headers_accept_charset;
 static int hf_http2_headers_accept_encoding;
@@ -767,6 +771,12 @@ register_static_headers(void) {
         {
             &hf_http2_headers_scheme,
                 {":scheme", "http2.headers.scheme",
+                 FT_STRING, BASE_NONE, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_protocol,
+                {":protocol", "http2.headers.protocol",
                  FT_STRING, BASE_NONE, NULL, 0x0,
                  NULL, HFILL}
         },
@@ -1598,8 +1608,12 @@ http2_get_request_full_uri(packet_info *pinfo, http2_session_t *http2_session, u
            "All HTTP/2 requests MUST include exactly one valid value for the
            ":method", ":scheme", and ":path" pseudo-header fields, unless they
            are CONNECT requests"
+           RFC8441 4:
+           "On requests that contain the :protocol pseudo-header field, the
+           :scheme and :path pseudo-header fields of the target URI (see
+           Section 5) MUST also be included."
         */
-        if (stream_info->is_stream_http_connect) {
+        if (stream_info->is_stream_http_connect && !stream_info->protocol) {
             uri = wmem_strdup(pinfo->pool, stream_info->authority);
         } else {
             uri = wmem_strdup_printf(pinfo->pool, "%s://%s%s", stream_info->scheme, stream_info->authority, stream_info->path);
@@ -2076,6 +2090,17 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0 &&
                 strcmp(header_value, HTTP2_HEADER_METHOD_CONNECT) == 0) {
         stream_info->is_stream_http_connect = true;
+    }
+
+    /* Prepare dissector for extended CONNECT protocol */
+    if (stream_info->is_stream_http_connect
+        && strcmp(header_name, HTTP2_HEADER_PROTOCOL) == 0) {
+        stream_info->protocol = header_value;
+        stream_info->next_handle = http_upgrade_dissector(header_value);
+        stream_info->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
+        stream_info->upgrade_info->server_port = pinfo->destport;
+        stream_info->upgrade_info->http_version = 2;
+        stream_info->upgrade_info->get_header_value = http2_get_header_value;
     }
 
     /* Populate the content type so we can dissect the body later */
@@ -3425,9 +3450,10 @@ dissect_http2_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, http2_session
                                 uint8_t flags)
 {
     http2_data_stream_reassembly_info_t *reassembly = get_data_reassembly_info(pinfo, http2_session);
+    http2_stream_info_t *stream_info = get_stream_info(pinfo, http2_session, false);
 
     /* Is the frame part of a body that is going to be reassembled? */
-    if(!IS_HTTP2_END_STREAM(flags)) {
+    if(!IS_HTTP2_END_STREAM(flags) && !stream_info->is_stream_http_connect) {
         proto_item_append_text(http2_tree, " (partial entity body)");
     }
 
@@ -3437,12 +3463,16 @@ dissect_http2_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, http2_session
     }
 
     /* Is this part of a tunneled connection? */
-    http2_stream_info_t *stream_info = get_stream_info(pinfo, http2_session, false);
     if (stream_info->is_stream_http_connect) {
         proto_item_append_text(http2_tree, " (tunneled data)");
     }
 
     proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, length, ENC_NA);
+
+    if (stream_info->next_handle) {
+        stream_info->upgrade_info->from_server = select_http2_flow_index(pinfo, http2_session) == 1;
+        call_dissector_only(stream_info->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, proto_tree_get_parent_tree(proto_tree_get_parent_tree(http2_tree)), stream_info->upgrade_info);
+    }
 }
 
 static void
@@ -5342,6 +5372,7 @@ proto_reg_handoff_http2(void)
     dissector_add_string("tls.alpn", "h2", http2_handle);
     dissector_add_string("http.upgrade", "h2", http2_handle);
     dissector_add_string("http.upgrade", "h2c", http2_handle);
+    dissector_add_string("http.upgrade", "HTTP/2.0", http2_handle);
 
     heur_dissector_add("tls", dissect_http2_heur_ssl, "HTTP2 over TLS", "http2_tls", proto_http2, HEURISTIC_ENABLE);
     heur_dissector_add("tcp", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);

@@ -44,6 +44,8 @@
 #include <wsutil/pint.h>
 #include <wsutil/ws_assert.h>
 
+#include "charsets.h"
+
 #ifdef HAVE_NGHTTP3
 #include <nghttp3/nghttp3.h>
 #endif
@@ -348,10 +350,15 @@ typedef enum _http3_stream_dir {
  * HTTP3 Server Push being an exception to the rule.
  */
 typedef struct _http3_stream_info {
-    uint64_t          id;                 /**< HTTP3 stream id */
-    uint64_t          uni_stream_type;    /**< Unidirectional stream type */
-    uint64_t          broken_from_offset; /**< Unrecognized stream starting at offset (if non-zero). */
-    http3_stream_dir  direction;
+    uint64_t             id;                   /**< HTTP3 stream id */
+    uint64_t             uni_stream_type;      /**< Unidirectional stream type */
+    uint64_t             broken_from_offset;   /**< Unrecognized stream starting at offset (if non-zero). */
+    http3_stream_dir     direction;
+    wmem_list_t         *request_header_data;  /**< List of request header data */
+    wmem_list_t         *response_header_data; /**< List of response header data */
+    const char          *protocol;             /**< Protocol from extended CONNECT */
+    dissector_handle_t   next_handle;	       /**< Dissector for extended CONNECT protocol */
+    http_upgrade_info_t *upgrade_info;         /**< Data for new protocol */
 } http3_stream_info_t;
 
 /**
@@ -366,8 +373,9 @@ typedef struct _http3_stream_info {
 typedef void *qpack_decoder_t;
 typedef void *qpack_decoder_ctx_t;
 typedef struct _http3_session_info {
-    unsigned        id;
-    qpack_decoder_t qpack_decoder[2]; /**< Decoders for outgoing/incoming QPACK streams. */
+    unsigned             id;
+    qpack_decoder_t      qpack_decoder[2]; /**< Decoders for outgoing/incoming QPACK streams. */
+    http3_stream_info_t *current_stream; /**< Currently processed stream */
 } http3_session_info_t;
 
 /**
@@ -628,6 +636,14 @@ http3_check_frame_size(tvbuff_t *tvb, packet_info *pinfo, int offset)
     return false;
 }
 
+static inline http3_stream_dir
+http3_packet_get_direction(quic_stream_info *stream_info)
+{
+    return stream_info->from_server
+        ? FROM_CLIENT_TO_SERVER
+        : FROM_SERVER_TO_CLIENT;
+}
+
 /**
  * Functions to support decompression of HTTP3 headers.
  */
@@ -849,14 +865,6 @@ http3_get_qpack_encoder_state(packet_info *pinfo, tvbuff_t *tvb, unsigned offset
     return data;
 }
 
-static inline http3_stream_dir
-http3_packet_get_direction(quic_stream_info *stream_info)
-{
-    return stream_info->from_server
-        ? FROM_CLIENT_TO_SERVER
-        : FROM_SERVER_TO_CLIENT;
-}
-
 static proto_item *
 try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, uint32_t length, const char *header_name,
                            const char *header_value)
@@ -940,6 +948,51 @@ get_header_field_pstr(wmem_allocator_t *scratch, nghttp3_qpack_nv *header_nv, co
 
     *outp   = pstr;
     *outlen = pstr_len;
+}
+
+const char*
+http3_get_header_value(packet_info *pinfo, const char* name, bool the_other_direction) {
+    wmem_list_t          *header_data_list;
+    wmem_list_frame_t    *frame;
+    http3_header_data_t  *header_data;
+    http3_session_info_t *http3_session = http3_session_lookup_or_create(pinfo);
+    http3_stream_info_t  *http3_stream  = http3_session->current_stream;
+
+    if (!http3_stream) {
+        return NULL;
+    }
+
+    if ((http3_stream->direction && the_other_direction) || (!http3_stream->direction && !the_other_direction)) {
+        header_data_list = http3_stream->request_header_data;
+    } else {
+        header_data_list = http3_stream->response_header_data;
+    }
+
+    if (!header_data_list) {
+        return NULL;
+    }
+
+    for (frame = wmem_list_head(header_data_list);
+        frame;
+        frame = wmem_list_frame_next(frame))
+    {
+        header_data = (http3_header_data_t*)wmem_list_frame_data(frame);
+        if (!header_data) {
+            continue;
+        }
+        for (unsigned i = 0; i < wmem_array_get_count(header_data->header_fields); ++i) {
+            http3_header_field_t *in;
+            uint32_t             name_len;
+            in = (http3_header_field_t *)wmem_array_index(header_data->header_fields, i);
+            name_len = pntoh32(in->decoded.bytes);
+            if (strlen(name) == name_len && strncmp(in->decoded.bytes + 4, name, name_len) == 0) {
+                return get_ascii_string(pinfo->pool,
+                    in->decoded.bytes + 4 + name_len + 4,
+                    pntoh32(in->decoded.bytes + 4 + name_len));
+            }
+        }
+    }
+    return NULL;
 }
 
 static int
@@ -1073,6 +1126,18 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             HEADER_BLOCK_ENC_ITER_INC(header_data, nread);
         }
         nghttp3_qpack_stream_context_del(sctx);
+
+        if (stream_info->from_server) {
+            if (!http3_stream->response_header_data) {
+                http3_stream->response_header_data = wmem_list_new(wmem_file_scope());
+            }
+            wmem_list_append(http3_stream->response_header_data, header_data);
+        } else {
+            if (!http3_stream->request_header_data) {
+                http3_stream->request_header_data = wmem_list_new(wmem_file_scope());
+            }
+            wmem_list_append(http3_stream->request_header_data, header_data);
+        }
     }
 
     /* Check if any expert information fields have to be added.
@@ -1206,34 +1271,22 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         char         *uri;
         bool         authority_contains_target = false;
 
-        if (strncmp(pseudo_headers.method, "CONNECT", 7) == 0) {
+        if (strcmp(pseudo_headers.method, "CONNECT") == 0) {
             /* This is a variant of CONNECT method.
              * Supported variants:
-             * 1. "CONNECT-UDP"
-             *     https://www.ietf.org/archive/id/draft-schinazi-masque-connect-udp-00.html#section-3
-             * 2. "Plain CONNECT"
+             * 1. "Plain CONNECT"
              *    https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
-             * 3. "Extended CONNECT"
+             * 2. "Extended CONNECT"
              *     https://www.rfc-editor.org/rfc/rfc9298.html#section-2
              *     https://www.rfc-editor.org/rfc/rfc9298.html#section-3.4
              *     https://www.rfc-editor.org/rfc/rfc8441.html#section-4
              *
-             * Both the "CONNECT-UDP" and "Plain CONNECT" utilize the
-             * `:authority' pseudo-header as the connection target.
+             * "Plain CONNECT" utilizes the `:authority' pseudo-header as
+             * the connection target.
              * The "Extended CONNECT" uses the pseudo-headers
              * in the same way as other HTTP methods.
              */
-            if (strcmp(pseudo_headers.method, "CONNECT-UDP") == 0) {
-                /* This is CONNECT-UDP method
-                 * https://www.ietf.org/archive/id/draft-schinazi-masque-connect-udp-00.html#section-3
-                 *
-                 * Pseudo-header semantics:
-                 * `:method' contains  "CONNECT-UDP"
-                 * `:authority' contains the target host:port
-                 * `:scheme' and `:path' MUST be empty.
-                 */
-                 authority_contains_target = true;
-            } else if (pseudo_headers.protocol == NULL) {
+            if (pseudo_headers.protocol == NULL) {
                 /* This is the plain CONNECT method
                  * https://www.rfc-editor.org/rfc/rfc7231#section-4.3.6
                  *
@@ -1243,6 +1296,13 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
                  * `:scheme' and `:path' MUST be empty
                  */
                  authority_contains_target = true;
+            } else {
+                http3_stream->protocol = wmem_strdup(wmem_file_scope(), pseudo_headers.protocol);
+                http3_stream->next_handle = http_upgrade_dissector(http3_stream->protocol);
+                http3_stream->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
+                http3_stream->upgrade_info->server_port = pinfo->destport;
+                http3_stream->upgrade_info->http_version = 3;
+                http3_stream->upgrade_info->get_header_value = http3_get_header_value;
             }
         }
 
@@ -1271,6 +1331,13 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
     return tvb_offset;
 }
+
+#else /* HAVE_NGHTTP3 */
+const char *
+http3_get_header_value(packet_info *pinfo _U_, const char* name _U_, bool the_other_direction _U_) {
+    return NULL;
+}
+
 #endif /* HAVE_NGHTTP3 */
 
 static http3_session_info_t *
@@ -1384,6 +1451,10 @@ dissect_http3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http3_tree, un
     remaining = tvb_reported_length(tvb);
     inner_conv = http3_find_inner_conversation(pinfo, stream_info, http3_stream, &saved_ctx);
     ti_data    = proto_tree_add_item(http3_tree, hf_http3_data, tvb, offset, remaining, ENC_NA);
+    if (http3_stream->next_handle) {
+        http3_stream->upgrade_info->from_server = http3_stream->direction;
+        call_dissector_only(http3_stream->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, proto_tree_get_parent_tree(proto_tree_get_parent_tree(proto_tree_get_parent_tree(http3_tree))), http3_stream->upgrade_info);
+    }
     http3_reset_inner_conversation(pinfo, saved_ctx);
 
     return tvb_reported_length(tvb);
@@ -2278,10 +2349,12 @@ start_http3_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 static int
 dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    quic_stream_info *   stream_info = (quic_stream_info *)data;
-    proto_tree *         http3_tree;
-    int                  offset = 0;
-    http3_stream_info_t *http3_stream;
+    quic_stream_info *    stream_info = (quic_stream_info *)data;
+    proto_tree *          http3_tree;
+    int                   offset = 0;
+    http3_stream_info_t  *http3_stream;
+    http3_session_info_t *http3_session;
+    bool                  from_server;
 
     if (!stream_info) {
         return 0;
@@ -2305,12 +2378,24 @@ dissect_http3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     http3_tree = start_http3_tree(tvb, pinfo, tree);
 
+    /* We need a single HTTP/3 stream for both directions */
+    from_server = stream_info->from_server;
+    if (QUIC_STREAM_TYPE(stream_info->stream_id) == QUIC_STREAM_CLIENT_BIDI && from_server) {
+        stream_info->from_server = false;
+    }
     http3_stream = (http3_stream_info_t *)quic_stream_get_proto_data(pinfo, stream_info);
     if (!http3_stream) {
         http3_stream = wmem_new0(wmem_file_scope(), http3_stream_info_t);
         quic_stream_add_proto_data(pinfo, stream_info, http3_stream);
         http3_stream->id               = stream_info->stream_id;
     }
+    if (QUIC_STREAM_TYPE(stream_info->stream_id) == QUIC_STREAM_CLIENT_BIDI && from_server) {
+        stream_info->from_server = true;
+    }
+
+    http3_session = http3_session_lookup_or_create(pinfo);
+    http3_session->current_stream = http3_stream;
+    http3_stream->direction = http3_packet_get_direction(stream_info);
 
     // If a STREAM has unknown data, everything afterwards cannot be dissected.
     if (http3_stream->broken_from_offset && http3_stream->broken_from_offset <= stream_info->offset + offset) {

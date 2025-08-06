@@ -358,6 +358,9 @@ typedef struct {
 	/* request or response streaming reassembly data */
 	http_streaming_reassembly_data_t* req_streaming_reassembly_data;
 	http_streaming_reassembly_data_t* res_streaming_reassembly_data;
+	/* request and response headers */
+	wmem_map_t *request_headers;
+	wmem_map_t *response_headers;
 } http_req_res_private_data_t;
 
  typedef struct _request_trans_t {
@@ -1177,6 +1180,33 @@ push_res(http_conv_t *conv_data, packet_info *pinfo)
 	return req_res;
 }
 
+dissector_handle_t
+http_upgrade_dissector(const char *protocol) {
+	return dissector_get_string_handle(upgrade_subdissector_table, protocol);
+}
+
+const char *
+http_get_header_value(packet_info* pinfo, const char *name, bool the_other_direction) {
+	conversation_t* conv = find_or_create_conversation(pinfo);
+	const http_conv_t *conv_data = (http_conv_t *)conversation_get_proto_data(conv, proto_http);
+	if (conv_data) {
+		const http_req_res_t *req_res = conv_data->req_res_tail;
+		if (req_res && req_res->private_data) {
+			const http_req_res_private_data_t *private = (http_req_res_private_data_t *)req_res->private_data;
+			if (private) {
+				wmem_map_t *headers = (conv_data->server_port == pinfo->destport && the_other_direction) || (
+					                      conv_data->server_port == pinfo->srcport && !the_other_direction)
+					                      ? private->response_headers
+					                      : private->request_headers;
+				if (headers) {
+					return wmem_map_lookup(headers, name);
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     proto_tree *tree, http_conv_t *conv_data,
@@ -1559,7 +1589,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		DISSECTOR_ASSERT_HINT(header_value_map == NULL, "The header_value_map variable should be NULL while headers is NULL.");
 
 		headers = wmem_new0((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), headers_t);
-		header_value_map = wmem_map_new((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), g_str_hash, g_str_equal);
+		header_value_map = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
 	}
 
 	if (streaming_chunk_mode && begin_with_chunk) {
@@ -1738,10 +1768,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					curr->request_method = wmem_strdup(wmem_file_scope(), stat_info->request_method);
 					prv_data = curr->private_data;
 					prv_data->req_fwd_flow = direction;
+					prv_data->request_headers = header_value_map;
 				} else if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
 					curr = push_res(conv_data, pinfo);
 					prv_data = curr->private_data;
 					prv_data->req_fwd_flow = -direction;
+					prv_data->response_headers = header_value_map;
 				}
 			}
 			if (reqresp_dissector) {
@@ -2509,15 +2541,7 @@ dissecting_body:
 		 * with 101 Switching Protocols. See RFC 7230 Section 6.7.
 		 */
 		if (headers->upgrade && curr->response_code == 101) {
-			next_handle = dissector_get_string_handle(upgrade_subdissector_table, headers->upgrade);
-			if (!next_handle) {
-				char *slash_pos = strchr(headers->upgrade, '/');
-				if (slash_pos) {
-					/* Try again without version suffix. */
-					next_handle = dissector_get_string_handle(upgrade_subdissector_table,
-							wmem_strndup(pinfo->pool, headers->upgrade, slash_pos - headers->upgrade));
-				}
-			}
+			next_handle = http_upgrade_dissector(headers->upgrade);
 			server_acked = true;
 		}
 
@@ -2527,6 +2551,11 @@ dissecting_body:
 			conv_data->next_handle = next_handle;
 			copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
 			conv_data->server_port = pinfo->srcport;
+			/* Prepare structure for upgrade protocol data */
+			conv_data->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
+			conv_data->upgrade_info->server_port = pinfo->destport;
+			conv_data->upgrade_info->http_version = 1;
+			conv_data->upgrade_info->get_header_value = http_get_header_value;
 		}
 	}
 
@@ -3539,18 +3568,16 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * has value_bytes_len bytes in it.
 	 */
 	value_bytes_len = line_end_offset - value_offset;
-	value_bytes = (char *)wmem_alloc((scope ? scope : pinfo->pool), value_bytes_len+1);
+	value_bytes = (char *)wmem_alloc(wmem_file_scope(), value_bytes_len+1);
 	memcpy(value_bytes, &line[value_offset - offset], value_bytes_len);
 	value_bytes[value_bytes_len] = '\0';
 	value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_bytes_len, ENC_ASCII);
 	/* The length of the value might change after UTF-8 sanitization */
 	value_len = (int)strlen(value);
 
-	if (scope == pinfo->pool) {
-		wmem_map_insert(header_value_map, header_name, value_bytes);
-	} else if (scope) { /* (!PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) */
-		wmem_map_insert(header_value_map, wmem_strdup(scope, header_name), value_bytes);
-	} /* else skip while (PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) */
+	if (!PINFO_FD_VISITED(pinfo)) { /* Record header if packet was not visited yet */
+		wmem_map_insert(header_value_map, wmem_strdup(wmem_file_scope(), header_name), value_bytes);
+	}
 
 	if (hf_index == -1) {
 		/*
@@ -3815,18 +3842,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, value_offset + f, part_len, ENC_ASCII);
 					f += part_len;
 				}
-			}
-			break;
-
-		case HDR_WEBSOCKET_PROTOCOL:
-			if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
-				conv_data->websocket_protocol = wmem_strndup(wmem_file_scope(), value, value_len);
-			}
-			break;
-
-		case HDR_WEBSOCKET_EXTENSIONS:
-			if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
-				conv_data->websocket_extensions = wmem_strndup(wmem_file_scope(), value, value_len);
 			}
 			break;
 
@@ -4380,7 +4395,9 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (pinfo->can_desegment > 0)
 				pinfo->can_desegment++;
 			if (conv_data->next_handle) {
-				call_dissector_only(conv_data->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+				conv_data->upgrade_info->from_server = pinfo->srcport == conv_data->server_port && addresses_equal(
+					                                       &pinfo->src, &conv_data->server_addr);
+				call_dissector_only(conv_data->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, conv_data->upgrade_info);
 			} else {
 				call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			}
