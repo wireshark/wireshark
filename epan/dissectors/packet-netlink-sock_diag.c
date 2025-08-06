@@ -891,7 +891,7 @@ dissect_sock_diag_packet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, 
 	proto_tree_add_item(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_netlink_sock_diag_packet_proto, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_netlink_sock_diag_packet_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	_dissect_padding(tree, tvb, offset, 2);

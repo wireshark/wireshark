@@ -2221,7 +2221,7 @@ typedef struct ddict_vendor
 
 } ddict_vendor_t;
 
-void ddictionary_clean_vendor(void* data, void* user_data _U_)
+static void ddictionary_clean_vendor(void* data, void* user_data _U_)
 {
 	ddict_vendor_t* v = (ddict_vendor_t*)data;
 	xmlFree(v->name);

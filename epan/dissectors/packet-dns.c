@@ -4223,7 +4223,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     case T_EUI64: /* EUI64 (109) */
     {
-      proto_tree_add_item(rr_tree, hf_dns_eui64, tvb, cur_offset, 8, ENC_NA);
+      proto_tree_add_item(rr_tree, hf_dns_eui64, tvb, cur_offset, 8, ENC_BIG_ENDIAN);
       /*cur_offset += 8;*/
     }
     break;

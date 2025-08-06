@@ -290,9 +290,8 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
     }
 
-    /* TODO: should be ENC_LITTLE_ENDIAN? */
     proto_tree_add_item(pcomascii_tree, hf_pcomascii_unitid, tvb,
-            offset, 2, ENC_NA);
+            offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     // CCs can be 2 or 3 hex chars

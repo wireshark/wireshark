@@ -95,8 +95,8 @@ if args.open:
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
-    # Filter files.
-    files_staged = list(filter(lambda f : f.endwith('.c'), files_staged))
+    # Filter files.  TODO: also check directory?
+    files_staged = list(filter(lambda f : f.endswith('.c'), files_staged))
     for f in files_staged:
         if f not in files:
             dissectors.append(f)

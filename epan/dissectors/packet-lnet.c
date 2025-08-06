@@ -530,9 +530,9 @@ dissect_lnet_ack(tvbuff_t * tvb, proto_tree *tree, int offset, uint64_t *match)
        __u32               mlength;
        } WIRE_ATTR lnet_ack_t; */
 
-    proto_tree_add_item(tree, hf_dst_wmd_interface, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(tree, hf_dst_wmd_interface, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset+=8;
-    proto_tree_add_item(tree, hf_dst_wmd_object, tvb, offset, 8, ENC_NA);
+    proto_tree_add_item(tree, hf_dst_wmd_object, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset+=8;
     proto_tree_add_item_ret_uint64(tree, hf_match_bits, tvb, offset, 8, ENC_LITTLE_ENDIAN, match);
     offset+=8;
