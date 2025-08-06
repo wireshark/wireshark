@@ -234,10 +234,12 @@ static aeron_frame_info_t * aeron_frame_info_lookup(wmem_tree_key_t * key)
     return (fi);
 }
 
-static aeron_frame_info_t * aeron_frame_info_find(wmem_allocator_t* allocator, uint32_t frame, uint32_t ofs)
+static aeron_frame_info_t * aeron_frame_info_find(uint32_t frame, uint32_t ofs)
 {
-    wmem_tree_key_t * key = aeron_frame_info_key_build(allocator, frame, ofs);
-    return (aeron_frame_info_lookup(key));
+    wmem_tree_key_t * key = aeron_frame_info_key_build(NULL, frame, ofs);
+    aeron_frame_info_t* aeron_frame = (aeron_frame_info_lookup(key));
+    wmem_free(NULL, key);
+    return aeron_frame;
 }
 
 static aeron_frame_info_t * aeron_frame_info_add(wmem_allocator_t* allocator, uint32_t frame, uint32_t ofs)
@@ -1989,7 +1991,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
         DISSECTOR_ASSERT(last_frame_found == true);
         if (last_frame_found)
         {
-            finfo = aeron_frame_info_find(wmem_packet_scope(), msg->last_frame, last_frame_offset);
+            finfo = aeron_frame_info_find(msg->last_frame, last_frame_offset);
         }
         msg->reassembled_data = tvb_new_real_data(buf, msg->length, msg->length);
         DISSECTOR_ASSERT(finfo != NULL);
