@@ -1626,9 +1626,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
     wmem_map_insert(xml_ns.elements, root_element->name, root_element);
     wmem_map_foreach(elements, free_elements, NULL);
+    free_elements(NULL, root_element, NULL);
 
     destroy_dtd_data(dtd_data);
-    wmem_free(wmem_epan_scope(), root_name);
 }
 
 static dtd_build_data_t* g_build_data;
