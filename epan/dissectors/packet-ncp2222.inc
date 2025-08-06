@@ -2744,73 +2744,6 @@ align_4(tvbuff_t *tvb, uint32_t aoffset)
     return 0;
 }
 
-/*
- * XXX - should we just use regular string functions, or proto_item_
- * functions, with ENC_UTF_16|ENC_LITTLE_ENDIAN (or ENC_UCS_2, if
- * they don't support full UTF-16)?
- */
-static const char *
-get_string(tvbuff_t* tvb, unsigned offset, unsigned str_length)
-{
-    char *dest_buf;
-    int i;
-    uint16_t c_char;
-    int length_remaining = 0;
-    int max_length = (str_length < NW_UNI_MAX) ? str_length : NW_UNI_MAX;
-
-    length_remaining = tvb_captured_length_remaining(tvb, offset);
-    if((int)str_length > length_remaining)
-    {
-        THROW(ReportedBoundsError);
-    }
-
-    if(str_length == 0)
-    {
-        return "";
-    }
-
-    dest_buf = (char *)wmem_alloc(wmem_packet_scope(), max_length + 1);
-    dest_buf[0] = '\0';
-
-    for ( i = 0; i < (int)str_length; i++ )
-    {
-        c_char = tvb_get_uint8(tvb, offset );
-        if (c_char<0x20 || c_char>0x7e)
-        {
-            if (c_char != 0x00)
-            {
-                c_char = '.';
-                dest_buf[i] = c_char & 0xff;
-            }
-            else
-            {
-                i--;
-                str_length--;
-            }
-        }
-        else
-        {
-            dest_buf[i] = c_char & 0xff;
-        }
-        offset++;
-        length_remaining--;
-
-        if(length_remaining==1)
-        {
-            dest_buf[i+1] = '\0';
-            return dest_buf;
-        }
-        if (i >= 1023) { /* Don't process beyond the size of our variable */
-            break;       /* If string is too long just return the first 1K. */
-        }
-    }
-    if (i < 0) {
-        i = 0;
-    }
-    dest_buf[i] = '\0';
-    return dest_buf;
-}
-
 /* Echo the NDS EID and name for NCP 22,51 replies to expert tap */
 static void ncp1633_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec _U_, bool request)
 {
@@ -3079,9 +3012,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             {
                 value1 = tvb_get_letohl(tvb, voffset);
                 voffset = voffset + 4;
-                vvalues->vstring = get_string(tvb, voffset, value1);
-                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                      value1, vvalues->vstring);
+                proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
                 voffset = check_offset_addition(voffset, value1, nvtree, pinfo, tvb);
                 voffset += align_4(tvb, voffset);
             }
@@ -3173,9 +3106,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
         case 0x0000000b:        /* Fax Number */
             value1 = tvb_get_letohl(tvb, voffset); /* length of field */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value1);
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value1, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = check_offset_addition(voffset, value1, nvtree, pinfo, tvb);
             voffset += align_4(tvb, voffset);
             break;
@@ -3216,9 +3149,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
                 break;
             case NDS_PTYPE_URL:
             case NDS_PTYPE_DNS:
-                vvalues->vstring = get_string(tvb, voffset, value3);
-                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                      value3, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
                 break;
             default:
                 break;
@@ -3236,16 +3169,16 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset = voffset+4;
             value3 = tvb_get_letohl(tvb, voffset); /* Length of Volume name */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value3);
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value3, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = check_offset_addition(voffset, value3, nvtree, pinfo, tvb);
             voffset += align_4(tvb, voffset);
             value4 = tvb_get_letohl(tvb, voffset); /* Length of Path name */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value4);
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value4, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value4, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = check_offset_addition(voffset, value4, nvtree, pinfo, tvb);
             voffset += align_4(tvb, voffset);
             break;
@@ -3254,9 +3187,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset); /* Length of Server name */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value2);
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value2, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = check_offset_addition(voffset, value2, nvtree, pinfo, tvb);
             voffset += align_4(tvb, voffset);
             proto_tree_add_item(nvtree, hf_replica_type, tvb, voffset, 2, ENC_LITTLE_ENDIAN);
@@ -3314,9 +3247,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
                     break;
                 case NDS_PTYPE_URL:
                 case NDS_PTYPE_DNS:
-                    vvalues->vstring = get_string(tvb, voffset, value5);
-                    proto_tree_add_string(adtree, hf_value_string, tvb, voffset,
-                                          value5, vvalues->vstring);
+                    proto_tree_add_item_ret_string(adtree, hf_value_string,
+                            tvb, voffset, value5, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                            pinfo->pool, (const uint8_t**)&vvalues->vstring);
                     break;
                 default:
                     break;
@@ -3330,9 +3263,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset);
             voffset = voffset + 4;
-            vvalues->vstring = get_string(tvb, voffset, value2); /* Unicode String */
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value2, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             if (strcmp(vvalues->vstring, "[Entry Rights]")) {
                 entry_rights=true;
             }
@@ -3344,9 +3277,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset += align_4(tvb, voffset);
             value3 = tvb_get_letohl(tvb, voffset);
             voffset = voffset + 4;
-            vvalues->vstring = get_string(tvb, voffset, value3); /* Unicode Subject Name */
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value3, vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                    tvb, voffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = check_offset_addition(voffset, value3, nvtree, pinfo, tvb);
             voffset += align_4(tvb, voffset);
             /* Entry or Attribute Privileges */
@@ -3429,10 +3362,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset = voffset+4;
             value3 = tvb_get_letohl(tvb, voffset);         /* Length of string */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value3);
-            proto_tree_add_string_format(nvtree, hf_value_string, tvb, voffset,
-                                         value3, vvalues->vstring,
-                                         "Server Distinguished Name - %s", vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_server_distinguished_name,
+                    tvb, voffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = voffset+value3;
             voffset += align_4(tvb, voffset);
             break;
@@ -3459,10 +3391,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset = voffset+4;
             value4 = tvb_get_letohl(tvb, voffset);         /* Distinguished Name */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value4);
-            proto_tree_add_string_format(nvtree, hf_value_string, tvb, voffset,
-                                         value4, vvalues->vstring,
-                                         "Distinguished Name - %s", vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_distinguished_name,
+                    tvb, voffset, value4, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = voffset+value4;
             voffset += align_4(tvb, voffset);
             break;
@@ -3477,10 +3408,9 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             voffset = voffset+4;
             value3 = tvb_get_letohl(tvb, voffset);         /* Subject */
             voffset = voffset+4;
-            vvalues->vstring = get_string(tvb, voffset, value3);
-            proto_tree_add_string_format(nvtree, hf_value_string, tvb, voffset,
-                                         value3, vvalues->vstring,
-                                         "Subject - %s", vvalues->vstring);
+            proto_tree_add_item_ret_string(nvtree, hf_subject,
+                    tvb, voffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&vvalues->vstring);
             voffset = voffset+value3;
             voffset += align_4(tvb, voffset);
             break;
@@ -3496,7 +3426,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             value1 = tvb_get_letohl(tvb, voffset);
             voffset = voffset + 4;
             if (strcmp(vvalues->vstring, "zendmSearchOrder")==0) {
-                vvalues->vstring = get_string(tvb, voffset, value1);
+                vvalues->vstring = tvb_get_string_enc(pinfo->pool, tvb, voffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                 if (strcmp(vvalues->vstring, "0")==0) {
                     vvalues->vstring = "Value (0) = Object";
                 }
@@ -3542,13 +3472,15 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
                 else if (strcmp(vvalues->vstring, "210")==0) {
                     vvalues->vstring = "Value (210) = Container, Group, Object";
                 }
+                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
+                                  value1, vvalues->vstring);
             }
             else
             {
-                vvalues->vstring = get_string(tvb, voffset, value1);
+                proto_tree_add_item_ret_string(nvtree, hf_value_string,
+                        tvb, voffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&vvalues->vstring);
             }
-            proto_tree_add_string(nvtree, hf_value_string, tvb, voffset,
-                                  value1, vvalues->vstring);
             voffset = voffset + value1;
             voffset += align_4(tvb, voffset);
             break;
@@ -3589,16 +3521,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
     case 1: /* Unicode String */
         value1 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, value1);
-        proto_tree_add_string_format(estree, hf_mv_string, tvb, ioffset,
-                                     value1, values->vstring, "Delimiter ->%s", values->vstring);
+        proto_tree_add_item_ret_string(estree, hf_delimiter,
+                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset=ioffset + value1;
         ioffset += align_4(tvb, ioffset);
         value2 = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, value2);
-        proto_tree_add_string(estree, hf_mv_string, tvb, ioffset,
-                              value2, values->vstring);
+        proto_tree_add_item_ret_string(estree, hf_mv_string,
+                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         values->voffset = check_offset_addition(ioffset, value2, estree, NULL, tvb);
         ioffset = values->voffset;
         ioffset += align_4(tvb, ioffset);
@@ -3620,16 +3552,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
         case 1: /* Unicode String */
             value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string_format(nestree, hf_mv_string, tvb, ioffset,
-                                         value2, values->vstring, "Delimiter ->%s", values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_delimiter,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, nestree, NULL, tvb);
             ioffset += align_4(tvb, ioffset);
             value3 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value3);
-            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
-                                  value3, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_mv_string,
+                    tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             values->voffset=ioffset + value3;
             ioffset = values->voffset;
             ioffset += align_4(tvb, ioffset);
@@ -3660,16 +3592,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
             }
             value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value4);
-            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
-                                  value4, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_mv_string,
+                    tvb, ioffset, value4, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset=ioffset + value4;
             ioffset += align_4(tvb, ioffset);
             value5 = tvb_get_letohl(tvb, ioffset);   /* RDN */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value5);
-            proto_tree_add_string(nestree, hf_rdn_string, tvb, ioffset,
-                                  value5, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_rdn_string,
+                    tvb, ioffset, value5, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset=ioffset + value5;
             ioffset += align_4(tvb, ioffset);
             break;
@@ -3701,16 +3633,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
         case 1: /* Unicode String */
             value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string_format(nestree, hf_mv_string, tvb, ioffset,
-                                         value2, values->vstring, "Delimiter ->%s", values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_delimiter,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, nestree, NULL, tvb);
             ioffset += align_4(tvb, ioffset);
             value3 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value3);
-            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
-                                  value3, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_mv_string,
+                    tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             values->voffset=ioffset + value3;
             ioffset = values->voffset;
             ioffset += align_4(tvb, ioffset);
@@ -3741,16 +3673,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
             }
             value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value4);
-            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
-                                  value4, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_mv_string,
+                    tvb, ioffset, value4, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset=ioffset + value4;
             ioffset += align_4(tvb, ioffset);
             value5 = tvb_get_letohl(tvb, ioffset);   /* RDN */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value5);
-            proto_tree_add_string(nestree, hf_rdn_string, tvb, ioffset,
-                                  value5, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_rdn_string,
+                    tvb, ioffset, value5, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset=ioffset + value5;
             ioffset += align_4(tvb, ioffset);
             break;
@@ -3808,9 +3740,9 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
                     break;
                 case NDS_PTYPE_URL:
                 case NDS_PTYPE_DNS:
-                    values->vstring = get_string(tvb, ioffset, value3);
-                    proto_tree_add_string(sub1tree, hf_value_string, tvb, ioffset,
-                                          value3, values->vstring);
+                    proto_tree_add_item_ret_string(sub1tree, hf_value_string,
+                            tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                            pinfo->pool, (const uint8_t**)&values->vstring);
                     break;
                 default:
                     break;
@@ -3837,16 +3769,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
         case 1: /* Unicode String */
             value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string_format(nestree, hf_mv_string, tvb, ioffset,
-                                         value2, values->vstring, "Delimiter ->%s", values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_delimiter,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, nestree, NULL, tvb);
             ioffset += align_4(tvb, ioffset);
             value3 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value3);
-            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
-                                  value3, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_mv_string,
+                    tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             values->voffset=check_offset_addition(ioffset, value3, nestree, NULL, tvb);
             ioffset = values->voffset;
             ioffset += align_4(tvb, ioffset);
@@ -3877,16 +3809,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
             }
             value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value4);
-            proto_tree_add_string(nestree, hf_mv_string, tvb, ioffset,
-                                  value4, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_mv_string,
+                    tvb, ioffset, value4, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value4, nestree, NULL, tvb);
             ioffset += align_4(tvb, ioffset);
             value5 = tvb_get_letohl(tvb, ioffset);   /* RDN */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value5);
-            proto_tree_add_string(nestree, hf_rdn_string, tvb, ioffset,
-                                  value5, values->vstring);
+            proto_tree_add_item_ret_string(nestree, hf_rdn_string,
+                    tvb, ioffset, value5, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value5, nestree, NULL, tvb);
             ioffset += align_4(tvb, ioffset);
             break;
@@ -3927,16 +3859,16 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
         }
         value3 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, value3);
-        proto_tree_add_string(sub1tree, hf_mv_string, tvb, ioffset,
-                              value3, values->vstring);
+        proto_tree_add_item_ret_string(sub1tree, hf_mv_string,
+                tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, value3, sub1tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
         value4 = tvb_get_letohl(tvb, ioffset);   /* RDN */
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, value4);
-        proto_tree_add_string(sub1tree, hf_rdn_string, tvb, ioffset,
-                              value4, values->vstring);
+        proto_tree_add_item_ret_string(sub1tree, hf_rdn_string,
+                tvb, ioffset, value4, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset=check_offset_addition(ioffset, value4, sub1tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
         break;
@@ -3957,7 +3889,7 @@ print_es_type(proto_tree *estree, packet_info *pinfo, tvbuff_t *tvb, nds_val *va
 static void process_set_filter(proto_tree* , tvbuff_t*, packet_info*, nds_val*);
 
 static void
-process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
+process_search_expression(proto_tree *it_tree, packet_info* pinfo, tvbuff_t *tvb, nds_val *values)
 {
     uint32_t    search_tag, ioffset;
     const char *search_string;
@@ -3980,9 +3912,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         /* start of DCWPutAttribute */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutAttribute */
 
@@ -3993,9 +3925,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutValue */
 
@@ -4004,9 +3936,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         /* start of DCWPutAttribute */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
         /* end of DCWPutAttribute */
         break;
@@ -4020,9 +3952,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         break;
     case NDS_SEARCH_BASE_CLASS:
@@ -4037,9 +3969,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 #endif
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutValue */
         break;
@@ -4059,9 +3991,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         /* start of DCWPutAttribute */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutAttribute */
 
@@ -4072,9 +4004,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutValue */
         break;
@@ -4094,9 +4026,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         /* start of DCWPutAttribute */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutAttribute */
 
@@ -4107,9 +4039,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutValue */
 
@@ -4125,9 +4057,9 @@ process_search_expression(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset + 4;
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                              values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset += values->vvalue;
         /* end of DCWPutValue */
 
@@ -4177,7 +4109,7 @@ process_search_subexpression(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pi
 }
 
 static void
-process_search_match(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
+process_search_match(proto_tree *it_tree, packet_info* pinfo, tvbuff_t *tvb, nds_val *values)
 {
     uint32_t    ioffset;
 
@@ -4198,9 +4130,9 @@ process_search_match(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     /* start of DCWPutAttribute */
     values->vvalue = tvb_get_letohl(tvb, ioffset);
     ioffset = ioffset + 4;
-    values->vstring = get_string(tvb, ioffset, values->vvalue);
-    proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-            values->vvalue, values->vstring);
+    proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+            tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+            pinfo->pool, (const uint8_t**)&values->vstring);
     ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
     /* end of DCWPutAttribute */
 
@@ -4211,9 +4143,9 @@ process_search_match(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
     ioffset = ioffset + 4;
     values->vvalue = tvb_get_letohl(tvb, ioffset);
     ioffset = ioffset + 4;
-    values->vstring = get_string(tvb, ioffset, values->vvalue);
-    proto_tree_add_string(it_tree, hf_mv_string, tvb, ioffset,
-                          values->vvalue, values->vstring);
+    proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+            tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+            pinfo->pool, (const uint8_t**)&values->vstring);
     ioffset += values->vvalue;
     /* end of DCWPutValue */
 
@@ -4241,14 +4173,14 @@ process_set_filter(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, nds_v
     {
     case NDS_SEARCH_ITEM:
         /* DCWPutSearchExp */
-        process_search_expression(it_tree, tvb, values);
+        process_search_expression(it_tree, pinfo, tvb, values);
         break;
 
     case NDS_SEARCH_EXTENSIBLE:
 #if 0
         err = DCWPutSearchExtMatch(context, syncFormat, cur, limit, sexp->u.extMatch);
 #endif
-        process_search_match(it_tree, tvb, values);
+        process_search_match(it_tree, pinfo, tvb, values);
         break;
 
     case NDS_SEARCH_OR:
@@ -4376,50 +4308,45 @@ process_entry_info(proto_tree *it_tree, packet_info* pinfo, tvbuff_t *tvb, nds_v
     if (iter_flags & DSI_BASE_CLASS) { /* Base Class */
         values->vvalue = tvb_get_letohl(tvb, ioffset);         /* Length of string */
         ioffset = ioffset+4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string_format(it_tree, hf_value_string, tvb, ioffset,
-                values->vvalue, values->vstring,
-                "Base Class: - %s", values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_nds_base_class,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
     }
     if (iter_flags & DSI_ENTRY_RDN) { /* Relative Distinguished Name */
         values->vvalue = tvb_get_letohl(tvb, ioffset);         /* Length of string */
         ioffset = ioffset+4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string_format(it_tree, hf_value_string, tvb, ioffset,
-                 values->vvalue, values->vstring,
-                 "Relative Distinguished Name - %s", values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_relative_distinguished_name,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
     }
     if (iter_flags & DSI_ENTRY_DN) { /* Distinguished Name */
         values->vvalue = tvb_get_letohl(tvb, ioffset);         /* Length of string */
         ioffset = ioffset+4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string_format(it_tree, hf_value_string, tvb, ioffset,
-                 values->vvalue, values->vstring,
-                 "Distinguished Name - %s", values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_distinguished_name,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
     }
     if (iter_flags & DSI_PARTITION_ROOT_DN) { /* Root Distinguished Name */
         values->vvalue = tvb_get_letohl(tvb, ioffset);         /* Length of string */
         ioffset = ioffset+4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string_format(it_tree, hf_value_string, tvb, ioffset,
-                 values->vvalue, values->vstring,
-                 "Root Distinguished Name - %s", values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_root_distinguished_name,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
     }
     if (iter_flags & DSI_PARENT_DN) { /* Parent Distinguished Name */
         values->vvalue = tvb_get_letohl(tvb, ioffset);         /* Length of string */
         ioffset = ioffset+4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string_format(it_tree, hf_value_string, tvb, ioffset,
-                 values->vvalue, values->vstring,
-                 "Parent Distinguished Name - %s", values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_parent_distinguished_name,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
         ioffset += align_4(tvb, ioffset);
     }
@@ -4432,9 +4359,9 @@ process_entry_info(proto_tree *it_tree, packet_info* pinfo, tvbuff_t *tvb, nds_v
     if (iter_flags & DSI_DEREFERENCED_BASE_CLASS) { /* Dereference Base Class */
         values->vvalue = tvb_get_letohl(tvb, ioffset);
         ioffset = ioffset + 4;
-        values->vstring = get_string(tvb, ioffset, values->vvalue);
-        proto_tree_add_string(it_tree, hf_deref_base, tvb, ioffset,
-                values->vvalue, values->vstring);
+        proto_tree_add_item_ret_string(it_tree, hf_deref_base,
+                tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                pinfo->pool, (const uint8_t**)&values->vstring);
         ioffset = check_offset_addition(ioffset, values->vvalue, it_tree, NULL, tvb);
     }
     if (iter_flags & DSI_REPLICA_NUMBER) { /* Replica Number */
@@ -4578,9 +4505,9 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, uin
 #if 0
                     values.vvalue = tvb_get_letohl(tvb, ioffset);
                     ioffset = ioffset + 4;
-                    values.vstring = get_string(tvb, ioffset, values.vvalue);
-                    proto_tree_add_string(it_subtree, hf_mv_string, tvb, ioffset,
-                            values.vvalue, values.vstring);
+                    proto_tree_add_item_ret_string(it_tree, hf_mv_string,
+                            tvb, ioffset, values->vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                            pinfo->pool, (const uint8_t**)&values->vstring);
                     ioffset = check_offset_addition(ioffset, values.vvalue, it_subtree, pinfo, tvb);
 #endif
                     /* end of DCWPutAttribute */
@@ -4621,9 +4548,9 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, uin
                 }
                 values.vvalue = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
-                values.vstring = get_string(tvb, ioffset, values.vvalue);
-                proto_tree_add_string(it_subtree, hf_mv_string, tvb, ioffset,
-                        values.vvalue, values.vstring);
+                proto_tree_add_item_ret_string(it_subtree, hf_mv_string,
+                        tvb, ioffset, values.vvalue, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values.vstring);
                 ioffset = check_offset_addition(ioffset, values.vvalue, it_subtree, pinfo, tvb);
                 ioffset += align_4(tvb, ioffset);
                 break;
@@ -4807,9 +4734,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value1);
-            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                  value1, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                    tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
         }
         break;
@@ -4823,9 +4750,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset += align_4(tvb, ioffset);
                 value1 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
-                values->vstring = get_string(tvb, ioffset, value1);
-                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                      value1, values->vstring);
+                proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                        tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
             }
             break;
@@ -4838,9 +4765,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
-                values->vstring = get_string(tvb, ioffset, value2);
-                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                      value2, values->vstring);
+                proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                        tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 ioffset += value2;
                 ioffset += align_4(tvb, ioffset);
                 values->voffset = ioffset;
@@ -4856,9 +4783,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
-                values->vstring = get_string(tvb, ioffset, value2);
-                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                      value2, values->vstring);
+                proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                        tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 values->voffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
                 ioffset += value2;
                 ioffset += align_4(tvb, ioffset);
@@ -4885,9 +4812,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
-                values->vstring = get_string(tvb, ioffset, value2);
-                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                      value2, values->vstring);
+                proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                        tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
                 ioffset += align_4(tvb, ioffset);
                 value3 = tvb_get_letohl(tvb, ioffset);
@@ -4934,9 +4861,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
-                values->vstring = get_string(tvb, ioffset, value2);
-                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                      value2, values->vstring);
+                proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                        tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
                 value3 = tvb_get_letohl(tvb, ioffset);
 
@@ -4994,9 +4921,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         {
             value1 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value1);
-            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                  value1, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                    tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
             values->voffset = ioffset;
@@ -5011,9 +4938,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value1);
-            proto_tree_add_string(ntree, hf_nds_base, tvb, ioffset,
-                                  value1, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_nds_base,
+                    tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             values->mvtype = MVTYPE_ATTR_REQUEST;
             ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
         }
@@ -5073,9 +5000,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case 0x00000040:                /*p3values.bit7 = "Distinguished Name"*/
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_nds_name, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_nds_name,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     case 0x00000080:                /*p3values.bit8 = "Replica Type & State"*/
@@ -5120,9 +5047,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset = ioffset+4;
             value2 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            temp_values.vstring = get_string(tvb, ioffset, value2);   /* Name of Attribute */
-            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                  value2, temp_values.vstring);
+            proto_tree_add_item_ret_string(ntree, hf_mv_string,     /* Name of Attribute */
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&temp_values.vstring);
             ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
             if(value1 != 1 && value1 != 6)
@@ -5188,9 +5115,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     break;
                 case NDS_PTYPE_URL:
                 case NDS_PTYPE_DNS:
-                    values->vstring = get_string(tvb, ioffset, value3);
-                    proto_tree_add_string(atree, hf_value_string, tvb, ioffset,
-                                          value3, values->vstring);
+                    proto_tree_add_item_ret_string(atree, hf_value_string,
+                            tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                            pinfo->pool, (const uint8_t**)&values->vstring);
                     break;
                 default:
                     break;
@@ -5240,9 +5167,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 break;
             case NDS_PTYPE_URL:
             case NDS_PTYPE_DNS:
-                values->vstring = get_string(tvb, ioffset, value3);
-                proto_tree_add_string(atree, hf_value_string, tvb, ioffset,
-                                      value3, values->vstring);
+                proto_tree_add_item_ret_string(atree, hf_value_string,
+                        tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 break;
             default:
                 break;
@@ -5435,41 +5362,41 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case DSI_BASE_CLASS:              /* Base Class */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_nds_base, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_nds_base,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     case DSI_ENTRY_RDN:               /* Relative Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_nds_relative_dn, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_nds_relative_dn,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     case DSI_ENTRY_DN:                /* Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_nds_name, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_nds_name,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     case DSI_PARTITION_ROOT_DN:       /* Root Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_nds_name, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_nds_name,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     case DSI_PARENT_DN:               /* Parent Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_nds_name, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_nds_name,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     case DSI_PURGE_TIME:              /* Purge Time */
@@ -5483,9 +5410,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     case DSI_DEREFERENCED_BASE_CLASS: /* Dereference Base Class */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value1);
-                        proto_tree_add_string(ntree, hf_deref_base, tvb, ioffset,
-                                              value1, temp_values.vstring);
+                        proto_tree_add_item_ret_string(ntree, hf_deref_base,
+                                tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value1, ntree, pinfo, tvb);
                         break;
                     default:
@@ -5550,9 +5477,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            temp_values.vstring = get_string(tvb, ioffset, value1);
-            sub1item = proto_tree_add_string(ntree, hf_nds_base_class, tvb, ioffset,
-                                             value1, temp_values.vstring);
+            sub1item = proto_tree_add_item_ret_string(ntree, hf_nds_base_class,
+                    tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&temp_values.vstring);
             sub1tree = proto_item_add_subtree(sub1item, ett_nds);
             ioffset = check_offset_addition(ioffset, value1, sub1tree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
@@ -5595,9 +5522,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_super, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_nds_super,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5610,9 +5537,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_base_class, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_nds_base_class,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5625,9 +5552,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5640,9 +5567,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5656,9 +5583,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset += align_4(tvb, ioffset);
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
                         {
@@ -5711,17 +5638,17 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_acl_protected_attribute, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_nds_acl_protected_attribute,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
 
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_acl_subject, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_nds_acl_subject,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
 
@@ -5783,9 +5710,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_super, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_nds_super,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5798,9 +5725,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_base_class, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_nds_base_class,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5813,9 +5740,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5828,9 +5755,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5843,9 +5770,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     {
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                                tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                                pinfo->pool, (const uint8_t**)&temp_values.vstring);
                         ioffset = check_offset_addition(ioffset, value2, sub2tree, pinfo, tvb);
                         ioffset += align_4(tvb, ioffset);
                     }
@@ -5868,9 +5795,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value1);
-            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                  value1, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                    tvb, ioffset, value1, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = ioffset + value1;
         }
         if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
@@ -5885,9 +5812,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value2 = tvb_get_letohl(tvb, ioffset);
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                  value2, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
         }
         if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
@@ -5902,16 +5829,16 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value2 = tvb_get_letohl(tvb, ioffset);  /* Attribute Name */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string(ntree, hf_nds_attribute_dn, tvb, ioffset,
-                                  value2, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_nds_attribute_dn,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
             value2 = tvb_get_letohl(tvb, ioffset);  /* DN of Trustee */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string(ntree, hf_nds_trustee_dn, tvb, ioffset,
-                                  value2, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_nds_trustee_dn,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
             proto_tree_add_item(ntree, hf_nds_privileges, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
@@ -5930,16 +5857,16 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value2 = tvb_get_letohl(tvb, ioffset);  /* Attribute Name */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string(ntree, hf_nds_attribute_dn, tvb, ioffset,
-                                  value2, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_nds_attribute_dn,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
             value2 = tvb_get_letohl(tvb, ioffset);  /* DN of Trustee */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value2);
-            proto_tree_add_string(ntree, hf_nds_trustee_dn, tvb, ioffset,
-                                  value2, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_nds_trustee_dn,
+                    tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = check_offset_addition(ioffset, value2, ntree, pinfo, tvb);
             ioffset += align_4(tvb, ioffset);
             value1 = tvb_get_letohl(tvb, ioffset);  /* Privileges */
@@ -5963,9 +5890,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             if (value1 == 0) { /* RDN Hint - really just returns the dist name + timestamp info */
                 value2 = tvb_get_letohl(tvb, ioffset);  /* Distinguished Name Len, String[len]*/
                 ioffset = ioffset + 4;
-                values->vstring = get_string(tvb, ioffset, value2);
-                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                      value2, values->vstring);
+                proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                        tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                        pinfo->pool, (const uint8_t**)&values->vstring);
                 ioffset += value2;
                 ioffset += align_4(tvb, ioffset);
                 ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
@@ -6012,9 +5939,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 2;
                         value2 = tvb_get_letohl(tvb, ioffset);  /* Distinguished Name Len, String[len]*/
                         ioffset = ioffset + 4;
-                        values->vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, values->vstring);
+                        proto_tree_add_item_ret_string(sub2tree, hf_mv_string,
+                            tvb, ioffset, value2, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                            pinfo->pool, (const uint8_t**)&values->vstring);
                         ioffset += value2;
                     }
                     /* XXX: What if "multiple items" ?                 */
@@ -6031,9 +5958,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             values->voffset=ioffset;
             break;
         default: /* All other name types are just a string */
-            values->vstring = get_string(tvb, ioffset, values->vlength);
-            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                  values->vlength, values->vstring);
+            proto_tree_add_item_ret_string(ntree, hf_mv_string,
+                    tvb, ioffset, values->vlength, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             values->voffset=ioffset + values->vlength;
             /*ioffset = values->voffset;
             ioffset += align_4(tvb, ioffset);*/
@@ -6063,9 +5990,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             value3 = tvb_get_letohl(tvb, ioffset);  /* Attribute Name */
             ioffset = ioffset + 4;
-            values->vstring = get_string(tvb, ioffset, value3);
-            proto_tree_add_string(sub2tree, hf_nds_attribute_dn, tvb, ioffset,
-                                  value3, values->vstring);
+            proto_tree_add_item_ret_string(sub2tree, hf_nds_attribute_dn,
+                    tvb, ioffset, value3, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                    pinfo->pool, (const uint8_t**)&values->vstring);
             ioffset = ioffset + value3;
 
             if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
