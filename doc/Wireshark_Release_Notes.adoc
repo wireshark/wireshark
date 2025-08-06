@@ -238,6 +238,7 @@ VLP-16 Data and Position messaging
 Navitrol messaging
 SICK CoLA Ascii and CoLA Binary protocols
 Identifier-Locator Network Protocol (ILNP)
+BIST TotalView-ITCH protocol (BIST-ITCH)
 --
 
 === Updated Protocol Support
