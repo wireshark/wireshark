@@ -347,7 +347,7 @@ get_nbns_name(tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int nbns_d
 
     nbname_buf = (char *)wmem_alloc(allocator, NBNAME_BUF_LEN);
     nbname = nbname_buf;
-    used_bytes = get_dns_name(tvb, offset, 0, nbns_data_offset, &name, &name_len);
+    used_bytes = get_dns_name(allocator, tvb, offset, 0, nbns_data_offset, &name, &name_len);
 
     /* OK, now undo the first-level encoding. */
     pname = &name[0];

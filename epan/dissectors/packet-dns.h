@@ -24,7 +24,7 @@ extern const value_string dns_classes[];
  * data without any validation for a string encoding. This is the callers responsibility.
  * Return int name_len: byte length of "name".
  */
-int get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
+int get_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const char **name, int* name_len);
 
 #define MAX_DNAME_LEN   255             /* maximum domain name length */

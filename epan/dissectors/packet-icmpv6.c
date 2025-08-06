@@ -2296,7 +2296,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 opt_offset += 2;
 
                 /* PvD ID FQDN */
-                used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dns_name, &dns_len);
+                used_bytes = get_dns_name(pinfo->pool, tvb, opt_offset, 0, opt_offset, &dns_name, &dns_len);
                 name_out = format_text(pinfo->pool, dns_name, dns_len);
                 proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_pvd_id_fqdn, tvb, opt_offset, used_bytes, name_out);
                 proto_item_append_text(ti, " : %s", name_out);
@@ -2584,7 +2584,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                         opt_offset += padd_length;
                         break;
                     }
-                    used_bytes = get_dns_name(tvb, opt_offset, 0, opt_offset, &dnssl_name, &dnssl_len);
+                    used_bytes = get_dns_name(pinfo->pool, tvb, opt_offset, 0, opt_offset, &dnssl_name, &dnssl_len);
                     name_out = format_text(pinfo->pool, dnssl_name, dnssl_len);
                     proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnssl, tvb, opt_offset, used_bytes, name_out);
                     proto_item_append_text(ti, " %s", name_out);
@@ -3899,7 +3899,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
             case ICMP6_NI_SUBJ_FQDN: {
                 int fqdn_len;
                 const char *fqdn_name;
-                used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name, &fqdn_len);
+                used_bytes = get_dns_name(pinfo->pool, tvb, ni_offset, 0, ni_offset, &fqdn_name, &fqdn_len);
                 proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, used_bytes,
                     format_text(pinfo->pool, fqdn_name, fqdn_len));
                 ni_offset += used_bytes;
@@ -3931,7 +3931,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
                         break;
                     }
                     /* Node Name */
-                    used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &node_name, &node_name_len);
+                    used_bytes = get_dns_name(pinfo->pool, tvb, ni_offset, 0, ni_offset, &node_name, &node_name_len);
                     proto_tree_add_string(tree, hf_icmpv6_ni_reply_node_name, tvb, ni_offset, used_bytes,
                         format_text(pinfo->pool, node_name, node_name_len));
                     ni_offset += used_bytes;

@@ -4131,7 +4131,7 @@ int dissect_mscldap_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, i
   unsigned name_len;
 
   /* The name data MUST start at offset 0 of the tvb */
-  compr_len = get_dns_name(tvb, offset, max_len, 0, &name, &name_len);
+  compr_len = get_dns_name(scope, tvb, offset, max_len, 0, &name, &name_len);
   *str = get_utf_8_string(scope, name, name_len);
   return offset + compr_len;
 }

@@ -3239,7 +3239,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         const char *dns_name;
         int dns_name_len;
 
-        get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
+        get_dns_name(pinfo->pool, tvb, off, optlen, off, &dns_name, &dns_name_len);
         proto_tree_add_string(subtree, hf_option_failover_dns_hostname, tvb, off, optlen, format_text(pinfo->pool, dns_name, dns_name_len));
         break;
         }
@@ -3248,7 +3248,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         const char *dns_name;
         int dns_name_len;
 
-        get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
+        get_dns_name(pinfo->pool, tvb, off, optlen, off, &dns_name, &dns_name_len);
         proto_tree_add_string(subtree, hf_option_failover_dns_zonename, tvb, off, optlen, format_text(pinfo->pool, dns_name, dns_name_len));
         break;
         }

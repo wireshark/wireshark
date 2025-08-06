@@ -86,7 +86,7 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	const char   *str = NULL;
 
 	/* The name data MUST start at offset 0 of the tvb */
-	compr_len = get_dns_name(tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str, &str_len);
+	compr_len = get_dns_name(pinfo->pool, tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str, &str_len);
 	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, format_text(pinfo->pool, str, str_len));
 
 	if (data)

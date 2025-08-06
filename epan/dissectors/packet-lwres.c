@@ -487,7 +487,7 @@ static void dissect_srv_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
         port     = tvb_get_ntohs(tvb, curr + 6);
         /*namelen = len - 8;*/
 
-        used_bytes = get_dns_name(tvb, curr + 8, 0, curr + 8, &dname, &dlen);
+        used_bytes = get_dns_name(pinfo->pool, tvb, curr + 8, 0, curr + 8, &dname, &dlen);
 
         rec_tree = proto_tree_add_subtree_format(srv_rec_tree, tvb, curr, 6,
                     ett_srv_rec_item, NULL,
@@ -553,7 +553,7 @@ static void dissect_mx_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tr
         priority = tvb_get_ntohs(tvb, curr + 2);
         /*namelen  =  len - 4;*/
 
-        used_bytes  = get_dns_name(tvb, curr + 4, 0, curr + 4, &dname, &dlen);
+        used_bytes  = get_dns_name(pinfo->pool, tvb, curr + 4, 0, curr + 4, &dname, &dlen);
 
         rec_tree = proto_tree_add_subtree_format(mx_rec_tree, tvb, curr,6,ett_mx_rec_item,NULL,
                         "MX record: pri=%d,dname=%s", priority,
@@ -602,7 +602,7 @@ static void dissect_ns_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tr
         /*len = tvb_get_ntohs(tvb, curr);*/
         /*namelen = len - 2;*/
 
-        used_bytes = get_dns_name(tvb, curr + 2, 0, curr + 2, &dname, &dlen);
+        used_bytes = get_dns_name(pinfo->pool, tvb, curr + 2, 0, curr + 2, &dname, &dlen);
 
         rec_tree = proto_tree_add_subtree_format(ns_rec_tree, tvb, curr,4, ett_ns_rec_item, NULL, "NS record: dname=%s",
                         format_text(pinfo->pool, dname, dlen));

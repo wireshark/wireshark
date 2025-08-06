@@ -797,7 +797,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			} else {
                                 char *name_out;
 
-				get_dns_name(tvb, offset, len, 0, &apn, &apn_len);
+				get_dns_name(pinfo->pool, tvb, offset, len, 0, &apn, &apn_len);
 				name_out = format_text(pinfo->pool, apn, apn_len);
 				proto_tree_add_string(att_tree, hf_gsup_apn, tvb, offset, len, name_out);
 				proto_item_append_text(ti, ", %s", name_out);
