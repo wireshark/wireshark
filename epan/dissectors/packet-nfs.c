@@ -8590,9 +8590,9 @@ dissect_nfs4_open_delegation(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_nfs_rpcsec_gss_info(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs_rpcsec_gss_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
-	offset = dissect_nfs4_sec_oid(tvb, offset, NULL, tree, NULL);
+	offset = dissect_nfs4_sec_oid(tvb, offset, pinfo, tree, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_qop, offset);
 	offset = dissect_rpc_uint32(tvb, tree,
 		hf_nfs4_secinfo_rpcsec_gss_info_service, offset);
@@ -10788,7 +10788,7 @@ dissect_nfs4_compound_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 static int
-dissect_nfs4_secinfo_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_nfs4_secinfo_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, void *data _U_)
 {
 	unsigned flavor;
@@ -10803,7 +10803,7 @@ dissect_nfs4_secinfo_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	{
 		case RPCSEC_GSS:
 			secftree = proto_item_add_subtree(fitem, ett_nfs4_secinfo_flavor_info);
-			offset = dissect_nfs_rpcsec_gss_info(tvb, offset, secftree);
+			offset = dissect_nfs_rpcsec_gss_info(tvb, pinfo, offset, secftree);
 			break;
 
 		default:
