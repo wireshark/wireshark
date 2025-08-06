@@ -3608,6 +3608,7 @@ BACnetObjectType [] = {
 
 static const value_string
 BACnetObjectTypeAbbrev[] = {
+    {  0, "AI" },
     {  1, "AO" },
     {  2, "AV" },
     {  3, "BI" },
