@@ -175,6 +175,11 @@ void PreferencesDialog::setPane(const QString module_name)
     pd_ui_->prefsView->setPane(module_name);
 }
 
+void PreferencesDialog::enableAggregationOptions(bool enable)
+{
+    pd_ui_->captureFrame->enableAggregationOptions(enable);
+}
+
 void PreferencesDialog::keyPressEvent(QKeyEvent *event)
 {
     if (pd_ui_->advancedSearchLineEdit->hasFocus() && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)) {
@@ -421,6 +426,10 @@ void PreferencesDialog::apply()
 
     /* Fill in capture options with values from the preferences */
     prefs_to_capture_opts();
+    mainApp->emitAppSignal(MainApplication::AggregationVisiblity);
+    if (redissect_flags & PREF_EFFECT_AGGREGATION) {
+        mainApp->emitAppSignal(MainApplication::AggregationChanged);
+    }
 
     mainApp->setMonospaceFont(prefs.gui_font_name);
 

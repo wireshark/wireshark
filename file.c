@@ -1692,6 +1692,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, bo
         ws_assert(compiled && dfcode);
     }
 
+    if (!redissect) {
+        packet_list_need_recreate_visible_rows();
+    }
+
     dfilter_free(cf->dfcode);
     cf->dfcode = dfcode;
     tap_load_main_filter(dfcode);
@@ -1912,6 +1916,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, bo
              * "init_dissection()"), and null out the GSList pointer. */
             frame_data_reset(fdata);
             frames_count = cf->count;
+        } else {
+            frame_data_aggregation_free(fdata);
         }
 
         /* Frame dependencies from the previous dissection/filtering are no longer valid. */
@@ -2439,6 +2445,10 @@ cf_retap_packets(capture_file *cf)
 
     ws_assert_not_reached();
     return CF_READ_OK;
+}
+
+void cf_retap_aggregation_packets(capture_file* cf, bool enable) {
+    rescan_packets(cf, enable ? "Aggregation" : "Resetting", NULL, false);
 }
 
 typedef struct {

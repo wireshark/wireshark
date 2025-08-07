@@ -79,6 +79,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	exported_pdu.h
 	fifo_string_cache.h
 	filter_expressions.h
+	aggregation_fields.h
 	follow.h
 	frame_data.h
 	frame_data_sequence.h
@@ -190,6 +191,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	exported_pdu.c
 	fifo_string_cache.c
 	filter_expressions.c
+	aggregation_fields.c
 	follow.c
 	frame_data.c
 	frame_data_sequence.c

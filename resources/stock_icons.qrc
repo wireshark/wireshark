@@ -108,6 +108,8 @@
         <file>stock_icons/16x16/x-resize-columns@2x.png</file>
         <file>stock_icons/16x16/x-stay-last.png</file>
         <file>stock_icons/16x16/x-stay-last@2x.png</file>
+        <file>stock_icons/16x16/aggregation.png</file>
+        <file>stock_icons/16x16/aggregation@2x.png</file>
         <file>stock_icons/16x16/zoom-in.template.png</file>
         <file>stock_icons/16x16/zoom-in.template@2x.png</file>
         <file>stock_icons/16x16/zoom-original.template.png</file>
@@ -163,6 +165,8 @@
         <file>stock_icons/24x24/x-resize-columns@2x.png</file>
         <file>stock_icons/24x24/x-stay-last.png</file>
         <file>stock_icons/24x24/x-stay-last@2x.png</file>
+        <file>stock_icons/24x24/aggregation.png</file>
+        <file>stock_icons/24x24/aggregation@2x.png</file>
         <file>stock_icons/24x24/zoom-in.template.png</file>
         <file>stock_icons/24x24/zoom-in.template@2x.png</file>
         <file>stock_icons/24x24/zoom-original.template.png</file>

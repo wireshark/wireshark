@@ -127,6 +127,7 @@ typedef struct recent_settings_tag {
     bool        statusbar_show;
     bool        packet_list_colorize;
     bool        capture_auto_scroll;
+    bool        aggregation_view;
     ts_type     gui_time_format;
     int         gui_time_precision;
     ts_seconds_type gui_seconds_format;

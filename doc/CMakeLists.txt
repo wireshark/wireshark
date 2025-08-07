@@ -256,6 +256,7 @@ set(WSUG_GRAPHICS
 	wsug_src/images/toolbar/x-colorize-packets.png
 	wsug_src/images/toolbar/x-resize-columns.png
 	wsug_src/images/toolbar/x-stay-last.png
+	wsug_src/images/toolbar/aggregation.png
 	wsug_src/images/toolbar/zoom-in.png
 	wsug_src/images/toolbar/zoom-original.png
 	wsug_src/images/toolbar/zoom-out.png

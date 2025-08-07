@@ -33,7 +33,8 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
     color_ver_(0),
     colorized_(false),
     conv_index_(0),
-    read_failed_(false)
+    read_failed_(false),
+    row_(0)
 {
 }
 

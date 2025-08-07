@@ -176,6 +176,7 @@ DIAG_ON(frame-larger-than=)
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMutex>
+#include <ui/tap-aggregation.h>
 
 // XXX You must uncomment QT_WINEXTRAS_LIB lines in CMakeList.txt and
 // cmakeconfig.h.in.
@@ -766,6 +767,7 @@ void WiresharkMainWindow::captureEventHandler(CaptureEvent ev)
 void WiresharkMainWindow::captureFileOpened() {
     if (capture_file_.window() != this) return;
 
+    register_tap_listener_aggregation();
     file_set_dialog_->fileOpened(capture_file_.capFile());
     setMenusForFileSet(true);
     emit setCaptureFile(capture_file_.capFile());
@@ -1018,6 +1020,25 @@ void WiresharkMainWindow::stopCapture() {
     capture_stop(&cap_session_);
 #endif // HAVE_LIBPCAP
 
+}
+
+void WiresharkMainWindow::aggregationViewChanged(bool enable) const {
+    recent.aggregation_view = enable;
+    main_ui_->actionAggregationView->setEnabled(false);
+    QTimer::singleShot(100,
+        [this]() {
+            bool tap_registered = register_tap_listener_aggregation();
+            bool cf_ready = capture_file_.capFile() && !capture_file_.capFile()->read_lock;
+            if (recent.aggregation_view) {
+                if (cf_ready && tap_registered) {
+                    cf_retap_aggregation_packets(capture_file_.capFile(), recent.aggregation_view);
+                }
+            }
+            else if (cf_ready) {
+                cf_retap_aggregation_packets(capture_file_.capFile(), recent.aggregation_view);
+            }
+            main_ui_->actionAggregationView->setEnabled(true);
+        });
 }
 
 // Keep focus rects from showing through the welcome screen. Primarily for
@@ -2521,6 +2542,7 @@ void WiresharkMainWindow::showPreferencesDialog(QString module_name)
     pref_dialog->setWindowModality(Qt::ApplicationModal);
     pref_dialog->setAttribute(Qt::WA_DeleteOnClose);
     pref_dialog->show();
+    pref_dialog->enableAggregationOptions(!main_ui_->actionAggregationView->isChecked());
 }
 
 // View Menu
@@ -3043,6 +3065,8 @@ void WiresharkMainWindow::connectGoMenuActions()
     // a temporary change)
     connect(main_ui_->actionGoAutoScroll, &QAction::toggled, this,
             [this](bool checked) { packet_list_->setVerticalAutoScroll(checked); });
+
+    connect(main_ui_->actionAggregationView, &QAction::toggled, this, &WiresharkMainWindow::aggregationViewChanged);
 }
 
 void WiresharkMainWindow::goToConversationFrame(bool go_next, bool start_current) {

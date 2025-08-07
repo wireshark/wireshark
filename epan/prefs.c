@@ -45,6 +45,7 @@
 #include <epan/uat-int.h>
 
 #include "epan/filter_expressions.h"
+#include "epan/aggregation_fields.h"
 
 #include "epan/wmem_scopes.h"
 #include <epan/stats_tree.h>
@@ -2065,9 +2066,13 @@ prefs_is_preference_obsolete(pref_t *pref)
 void
 prefs_set_preference_effect_fields(module_t *module, const char *name)
 {
-    pref_t * pref = prefs_find_preference(module, name);
+    prefs_set_preference_effect(module, name, PREF_EFFECT_FIELDS);
+}
+
+void prefs_set_preference_effect(module_t* module, const char* name, unsigned flags) {
+    pref_t* pref = prefs_find_preference(module, name);
     if (pref) {
-        prefs_set_effect_flags(pref, prefs_get_effect_flags(pref) | PREF_EFFECT_FIELDS);
+        prefs_set_effect_flags(pref, prefs_get_effect_flags(pref) | flags);
     }
 }
 
@@ -2260,9 +2265,13 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
             *pref->varp.colorp = pref->stashed_val.color;
         }
         break;
-
-    case PREF_STATIC_TEXT:
     case PREF_UAT:
+        if (pref->varp.uat && pref->varp.uat->changed) {
+            unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+            pref->varp.uat->changed = false;
+        }
+        break;
+    case PREF_STATIC_TEXT:
     case PREF_CUSTOM:
         break;
 
@@ -3793,7 +3802,7 @@ prefs_register_modules(void)
      * preference "string compare list" in set_pref()
      */
     capture_module = prefs_register_module(NULL, "capture", "Capture",
-        "Capture preferences", NULL, NULL, false);
+        "Capture preferences", NULL, apply_aggregation_prefs, false);
     /* Capture preferences don't affect dissection */
     prefs_set_module_effect_flags(capture_module, PREF_EFFECT_CAPTURE);
 
@@ -3851,6 +3860,9 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.capture_update_interval);
 
+    prefs_register_bool_preference(capture_module, "enable_aggregation_view", "Enable aggregation view",
+        "Enable Aggregation View for real-time capturing", &prefs.enable_aggregation);
+
     prefs_register_bool_preference(capture_module, "no_interface_load", "Don't load interfaces on startup",
         "Don't automatically load capture interfaces on startup", &prefs.capture_no_interface_load);
 
@@ -3873,6 +3885,7 @@ prefs_register_modules(void)
     custom_cbs.to_str_cb = capture_column_to_str_cb;
     prefs_register_list_custom_preference(capture_module, "columns", "Capture options dialog column list",
         "List of columns to be displayed", &custom_cbs, capture_column_init_cb, &prefs.capture_columns);
+    aggregation_field_register_uat(capture_module);
 
     /* Name Resolution */
     nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
@@ -4484,6 +4497,7 @@ pre_init_prefs(void)
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;
     prefs.capture_no_extcap             = false;
     prefs.capture_show_info             = false;
+    prefs.enable_aggregation            = false;
 
     if (!prefs.capture_columns) {
         /* First time through */

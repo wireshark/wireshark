@@ -46,6 +46,7 @@ public:
     QModelIndex parent(const QModelIndex &) const;
     int packetNumberToRow(int packet_num) const;
     unsigned recreateVisibleRows();
+    inline void needRecreateVisibleRows() { need_recreate_visible_rows_ = !physical_rows_.isEmpty(); }
     void clear();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -57,7 +58,7 @@ public:
     frame_data *getRowFdata(QModelIndex idx) const;
     frame_data *getRowFdata(int row) const;
     void ensureRowColorized(int row);
-    int visibleIndexOf(frame_data *fdata) const;
+    int visibleIndexOf(const frame_data *fdata) const;
     /**
      * @brief Invalidate any cached column strings.
      */
@@ -97,6 +98,7 @@ private:
     QVector<PacketListRecord *> visible_rows_;
     QVector<PacketListRecord *> new_visible_rows_;
     QVector<int> number_to_row_;
+    bool need_recreate_visible_rows_;
 
     static int sort_column_;
     static int sort_column_is_numeric_;
@@ -115,6 +117,7 @@ private:
     int idle_dissection_row_;
 
     bool isNumericColumn(int column);
+    void updateVisibleRows(PacketListRecord*);
 };
 
 #endif // PACKET_LIST_MODEL_H

@@ -126,6 +126,44 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="aggregationSetVisibilityCheckBox">
+     <property name="text">
+      <string>Enable Aggregation View for real-time capturing</string>
+     </property>
+     <property name="toolTip">
+      <string>This option can only be changed when Aggregation Mode is not active.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="aggreagtionHL">
+     <item>
+      <widget class="QLabel" name="aggregationLabel">
+       <property name="text">
+	<string>Aggregation fields</string>
+       </property>
+       <property name="toolTip">
+	<string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="aggreagationEditButton">
+       <property name="text">
+	<string>Edit..</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="aggregationHorizontalSpacer">
+       <property name="orientation">
+	<enum>Qt:Horizontal</enum>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QCheckBox" name="captureNoInterfaceLoad">
      <property name="text">
       <string>Don't load interfaces on startup</string>

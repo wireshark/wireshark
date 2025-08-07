@@ -327,6 +327,7 @@ private slots:
     void pushLiveCaptureInProgress();
     void popLiveCaptureInProgress();
     void stopCapture();
+    void aggregationViewChanged(bool enable) const;
 
     void loadWindowGeometry();
     void saveWindowGeometry();

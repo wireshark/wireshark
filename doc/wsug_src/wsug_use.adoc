@@ -865,7 +865,8 @@ image::images/ws-main-toolbar.png[{screenshot-attrs}]
 |image:images/toolbar/go-jump.png[{toolbar-icon-attrs}]     |btn:[Go to Packet...]|menu:Go[Go to Packet...]| Go to a specific packet.
 |image:images/toolbar/go-first.png[{toolbar-icon-attrs}]    |btn:[Go To First Packet]|menu:Go[First Packet]| Jump to the first packet of the capture file.
 |image:images/toolbar/go-last.png[{toolbar-icon-attrs}]     |btn:[Go To Last Packet]|menu:Go[Last Packet]| Jump to the last packet of the capture file.
-|image:images/toolbar/x-stay-last.png[{toolbar-icon-attrs}] |btn:[Auto Scroll in Live Capture]|menu:View[Auto Scroll in Live Capture]| Auto scroll packet list while doing a live capture (or not).
+|image:images/toolbar/x-stay-last.png[{toolbar-icon-attrs}] |btn:[Auto Scroll in Live Capture]|menu:Go[Auto Scroll in Live Capture]| Auto scroll packet list while doing a live capture (or not).
+|image:images/toolbar/aggregation.png[{toolbar-icon-attrs}] |btn:[Aggregation View]|menu:Go[Aggregation View]| Use as Aggregation view to see all the frames without duplication. The essential purpose of this mode is to filter packets by fields values to show you the last received ones, the aggregation fields added by user in capture preferences see (<<ChCustPreferencesSection>>).
 // --
 |image:images/toolbar/x-colorize-packets.png[{toolbar-icon-attrs}] |btn:[Colorize]|menu:View[Colorize Packet List]| Colorize the packet list (or not).
 // --

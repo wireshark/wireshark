@@ -44,6 +44,12 @@ typedef enum {
   PACKET_CHAR_ENC_CHAR_EBCDIC    = 1  /* EBCDIC */
 } packet_char_enc;
 
+typedef struct _aggregation_key {
+  gchar*  field;
+  GSList* values;
+  int     values_num;
+} aggregation_key;
+
 /** The frame number is the ordinal number of the frame in the capture, so
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown".
@@ -92,15 +98,23 @@ typedef struct _frame_data {
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
   uint32_t     frame_ref_num; /**< Previous reference frame (0 if this is one) */
   uint32_t     prev_dis_num; /**< Previous displayed frame (0 if first one) */
+  GSList*      aggregation_keys; /**< Holds the aggregation_key values used for rendering the aggregation view. */
 } frame_data;
 DIAG_ON_PEDANTIC
 
 /** compare two frame_datas */
 WS_DLL_PUBLIC int frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);
 
+/** compare two frame_aggregation_field_datas */
+WS_DLL_PUBLIC int frame_data_aggregation_compare(const frame_data* fdata1, const frame_data* fdata2);
+
 WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
 
 WS_DLL_PUBLIC void frame_data_destroy(frame_data *fdata);
+
+WS_DLL_PUBLIC void free_aggregation_key(gpointer key);
+
+WS_DLL_PUBLIC void frame_data_aggregation_free(frame_data *fdata);
 
 WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, uint32_t num,
                 const wtap_rec *rec, int64_t offset,

@@ -43,6 +43,15 @@ extern "C" {
 #define CONV_DEINT_KEY_MAC        0x04
 #define CONV_DEINT_KEY_VLAN       0x08
 
+/* Bitmask of flags for the effect of a preference in Wireshark */
+#define PREF_EFFECT_DISSECTION        (1u << 0)
+#define PREF_EFFECT_CAPTURE           (1u << 1)
+#define PREF_EFFECT_GUI_LAYOUT        (1u << 2)
+#define PREF_EFFECT_FIELDS            (1u << 3)
+#define PREF_EFFECT_GUI               (1u << 4)
+#define PREF_EFFECT_GUI_COLOR         (1u << 5)
+#define PREF_EFFECT_AGGREGATION       (1u << 6)
+
 struct epan_uat;
 struct _e_addr_resolve;
 
@@ -232,6 +241,9 @@ typedef struct _e_prefs {
   bool         capture_pcap_ng;
   bool         capture_real_time;
   unsigned     capture_update_interval;
+  bool         enable_aggregation;
+  GList*       aggregation_fields;
+  int          aggregation_fields_num;
   bool         capture_no_interface_load;
   bool         capture_no_extcap;
   bool         capture_show_info;
@@ -871,6 +883,8 @@ WS_DLL_PUBLIC void prefs_register_custom_preference_TCP_Analysis(module_t *modul
 WS_DLL_PUBLIC void prefs_set_preference_effect_fields(module_t *module,
     const char *name);
 
+WS_DLL_PUBLIC void prefs_set_preference_effect(module_t* module,
+    const char* name, unsigned flags);
 
 typedef unsigned (*pref_cb)(pref_t *pref, void *user_data);
 

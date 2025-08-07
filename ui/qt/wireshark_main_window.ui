@@ -272,6 +272,7 @@
     <addaction name="actionGoPreviousHistoryPacket"/>
     <addaction name="separator"/>
     <addaction name="actionGoAutoScroll"/>
+    <addaction name="actionAggregationView"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -787,6 +788,7 @@
    <addaction name="actionGoFirstPacket"/>
    <addaction name="actionGoLastPacket"/>
    <addaction name="actionGoAutoScroll"/>
+   <addaction name="actionAggregationView"/>
    <addaction name="separator"/>
    <addaction name="actionViewColorizePacketList"/>
    <addaction name="separator"/>
@@ -2750,6 +2752,17 @@
    </property>
    <property name="toolTip">
     <string>Automatically scroll to the last packet during a live capture.</string>
+   </property>
+  </action>
+  <action name="actionAggregationView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Aggregation in Live Capture</string>
+   </property>
+   <property name="toolTip">
+    <string>Aggregation View.</string>
    </property>
   </action>
   <action name="actionAnalyzeExpertInfo">

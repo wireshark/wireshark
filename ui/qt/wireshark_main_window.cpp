@@ -90,6 +90,7 @@ DIAG_ON(frame-larger-than=)
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QUrl>
+#include <ui/tap-aggregation.h>
 
 //menu_recent_file_write_all
 
@@ -431,6 +432,11 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updatePreferenceActions);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::zoomText);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updateTitlebar);
+    connect(mainApp, &MainApplication::aggregationVisiblity,
+        [this] {
+            main_ui_->actionAggregationView->setVisible(prefs.enable_aggregation);
+        });
+    connect(mainApp, &MainApplication::aggregationChanged, [this]() { if (recent.aggregation_view) { aggregationViewChanged(true); } });
 
     connect(mainApp, &MainApplication::updateRecentCaptureStatus, this, &WiresharkMainWindow::updateRecentCaptures);
     connect(mainApp, &MainApplication::preferencesChanged, this, &WiresharkMainWindow::updateRecentCaptures);
@@ -2084,6 +2090,7 @@ void WiresharkMainWindow::initMainToolbarIcons()
     main_ui_->actionGoPreviousHistoryPacket->setIcon(StockIcon("go-previous"));
     main_ui_->actionGoNextHistoryPacket->setIcon(StockIcon("go-next"));
     main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
+    main_ui_->actionAggregationView->setIcon(StockIcon("aggregation"));
 
     main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
 
@@ -2388,6 +2395,9 @@ void WiresharkMainWindow::setMenusForCaptureFile(bool force_disable)
         can_save = cf_can_save(capture_file_.capFile());
         can_save_as = cf_can_save_as(capture_file_.capFile());
     }
+
+    main_ui_->actionAggregationView->setVisible(prefs.enable_aggregation);
+    main_ui_->actionAggregationView->setChecked(recent.aggregation_view);
 
     main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(enable);
     main_ui_->actionFileMerge->setEnabled(can_write);

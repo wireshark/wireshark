@@ -60,6 +60,7 @@ extern void packet_list_recent_write_all(FILE *rf);
 extern void packet_list_clear(void);
 extern void packet_list_freeze(void);
 extern void packet_list_recreate_visible_rows(void);
+extern void packet_list_need_recreate_visible_rows(void);
 extern void packet_list_thaw(void);
 extern unsigned packet_list_append(column_info *cinfo, frame_data *fdata);
 extern void packet_list_queue_draw(void);

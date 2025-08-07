@@ -424,6 +424,14 @@ void cf_redissect_packets(capture_file *cf);
  */
 cf_read_status_t cf_retap_packets(capture_file *cf);
 
+/**
+ * Rescan all packets to switch to aggregation view.
+ *
+ * @param cf the capture file
+ * @param enable the aggregation view
+ */
+void cf_retap_aggregation_packets(capture_file* cf, bool enable);
+
 /* print_range, enum which frames should be printed */
 typedef enum {
     print_range_selected_only,    /* selected frame(s) only (currently only one) */

@@ -45,6 +45,7 @@
 #define RECENT_KEY_STATUSBAR_SHOW               "gui.statusbar_show"
 #define RECENT_KEY_PACKET_LIST_COLORIZE         "gui.packet_list_colorize"
 #define RECENT_KEY_CAPTURE_AUTO_SCROLL          "capture.auto_scroll"
+#define RECENT_KEY_AGGREGATION_VIEW             "capture.aggregation_view"
 #define RECENT_GUI_TIME_FORMAT                  "gui.time_format"
 #define RECENT_GUI_TIME_PRECISION               "gui.time_precision"
 #define RECENT_GUI_SECONDS_FORMAT               "gui.seconds_format"
@@ -1067,6 +1068,10 @@ write_profile_recent(void)
             RECENT_KEY_CAPTURE_AUTO_SCROLL,
             recent.capture_auto_scroll);
 
+    write_recent_boolean(rf, "use as aggragation view",
+        RECENT_KEY_AGGREGATION_VIEW,
+        recent.aggregation_view);
+
     write_recent_enum(rf, "Timestamp display format",
             RECENT_GUI_TIME_FORMAT, ts_type_values,
             recent.gui_time_format);
@@ -1370,6 +1375,8 @@ read_set_recent_pair_static(char *key, const char *value,
         parse_recent_boolean(value, &recent.packet_list_colorize);
     } else if (strcmp(key, RECENT_KEY_CAPTURE_AUTO_SCROLL) == 0) {
         parse_recent_boolean(value, &recent.capture_auto_scroll);
+    } else if (strcmp(key, RECENT_KEY_AGGREGATION_VIEW) == 0) {
+        parse_recent_boolean(value, &recent.aggregation_view);
     } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
         recent.gui_time_format = (ts_type)str_to_val(value, ts_type_values,
             application_flavor_is_wireshark() ? TS_RELATIVE : TS_ABSOLUTE);
