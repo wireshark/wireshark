@@ -683,7 +683,7 @@ void AboutDialog::copyActionTriggered(bool copyRow)
                 row << tree->model()->data(dataIdx).toString();
             }
 
-            clipdata.append(row.join("\t\t").append("\n"));
+            clipdata.append(row.join("\t").append("\n"));
 
             visitedRows << index.row();
         }
