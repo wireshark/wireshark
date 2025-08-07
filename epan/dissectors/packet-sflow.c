@@ -790,6 +790,7 @@ static int ett_sflow_lag_port_state_flags;
 static int ett_sflow_5_output_interface;
 
 static expert_field ei_sflow_invalid_address_type;
+static expert_field ei_sflow_unknown_record_format;
 
 static dissector_table_t   header_subdissector_table;
 
@@ -1668,8 +1669,8 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
     proto_tree *flow_data_tree;
-    proto_item *ti;
-    uint32_t    enterprise_format, enterprise, format;
+    proto_item *ti, *expert_ti;
+    uint32_t    enterprise_format, enterprise, format, length;
 
     /* what kind of flow sample is it? */
     enterprise_format = tvb_get_ntohl(tvb, offset);
@@ -1686,7 +1687,7 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_record_format, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(flow_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
         offset += 4;
 
         switch (format) {
@@ -1751,12 +1752,13 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_sflow_5_extended_80211_aggregation(tvb, flow_data_tree, offset);
                 break;
             default:
+                expert_ti = proto_tree_add_item(flow_data_tree, hf_sflow_enterprise_data, tvb, offset, length, ENC_NA);
+                expert_add_info(pinfo, expert_ti, &ei_sflow_unknown_record_format);
+                offset += WS_ROUNDUP_4(length);
                 break;
         }
     } else {
         /* unknown enterprise format, what to do?? */
-        uint32_t length;
-
         flow_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_sflow_5_flow_record, &ti, "Unknown enterprise format");
         proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, 4,
@@ -2085,8 +2087,8 @@ dissect_sflow_5_radio_utilization(proto_tree *counter_data_tree, tvbuff_t *tvb, 
 static int
 dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, int offset) {
     proto_tree *counter_data_tree;
-    proto_item *ti;
-    uint32_t    enterprise_format, enterprise, format;
+    proto_item *ti, *expert_ti;
+    uint32_t    enterprise_format, enterprise, format, length;
 
     /* what kind of flow sample is it? */
     enterprise_format = tvb_get_ntohl(tvb, offset);
@@ -2103,7 +2105,7 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, int offset) {
         proto_tree_add_item(counter_data_tree, hf_sflow_5_counters_record_format, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(counter_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(counter_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
         offset += 4;
 
         switch (format) {
@@ -2135,11 +2137,12 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, int offset) {
                 offset = dissect_sflow_5_radio_utilization(counter_data_tree, tvb, offset);
                 break;
             default:
+                expert_ti = proto_tree_add_item(counter_data_tree, hf_sflow_enterprise_data, tvb, offset, length, ENC_NA);
+                expert_add_info(NULL, expert_ti, &ei_sflow_unknown_record_format);
+                offset += WS_ROUNDUP_4(length);
                 break;
         }
     } else { /* unknown enterprise format, what to do?? */
-        uint32_t length;
-
         counter_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_sflow_5_counters_record, &ti, "Unknown enterprise format");
         proto_tree_add_uint_format_value(counter_data_tree, hf_sflow_enterprise, tvb, offset, 4,
@@ -3923,6 +3926,7 @@ proto_register_sflow(void) {
 
     static ei_register_info ei[] = {
         { &ei_sflow_invalid_address_type, { "sflow.invalid_address_type", PI_MALFORMED, PI_ERROR, "Unknown/invalid address type", EXPFILL }},
+        { &ei_sflow_unknown_record_format, { "sflow.unknown_record_format", PI_UNDECODED, PI_NOTE, "Unknown/invalid record type", EXPFILL }},
     };
 
     expert_module_t* expert_sflow;
