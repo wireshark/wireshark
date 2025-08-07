@@ -2540,7 +2540,7 @@ tcp_track_contiguity(uint32_t seq, uint32_t nextseq, struct tcp_analysis *tcpd) 
     while( (j<next_crlen) &&
            (GE_SEQ(nextseq,tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][0]))) {
 
-        // keep the highest RE boundary
+        // keep the highest RE boundary between nextseq and this range block
         if(GT_SEQ(tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][1],nextseq)) {
             tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[dstindex][1] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[j][1];
         }
@@ -2553,8 +2553,10 @@ tcp_track_contiguity(uint32_t seq, uint32_t nextseq, struct tcp_analysis *tcpd) 
 
     // proceed to the shrinking/merging
     for(int k=dstindex+1; k<1+crlen-toShrink; k++) {
-        tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k][0] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k+toShrink][0];
-        tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k][1] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k+toShrink][1];
+        if(k+toShrink<MAX_CONTIGUOUS_SEQUENCES) {
+            tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k][0] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k+toShrink][0];
+            tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k][1] = tcpd->fwd->tcp_analyze_seq_info->contiguous_ranges[k+toShrink][1];
+        }
     }
 
     /* finally, update the array size */
