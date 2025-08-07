@@ -182,16 +182,16 @@ extern int dissect_PNIO_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, int offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, uint16_t frameid);
-                    
+
 extern int dissect_PNIO_RTC1_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, uint16_t frameid);
 
-extern int dissect_RTC3_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo, 
+extern int dissect_RTC3_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep _U_, void* data);
 
 extern int dissect_PNIO_RSI(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, uint8_t *drep);
-                    
+
 extern int dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset, packet_info* pinfo,
                     proto_tree* tree, uint8_t* drep);
 
@@ -213,9 +213,3 @@ extern ARUUIDFrame* pn_find_aruuid_frame_setup(packet_info* pinfo);
 extern void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* conversation);
 
 extern bool dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-
-#define MAX_LINE_LENGTH          1024   /* used for fgets() */
-
-/* Read a string from an "xml" file, dropping xml comment blocks */
-#include <stdio.h>
-extern char *pn_fgets(char *str, int n, FILE *stream, wmem_allocator_t *scope);
