@@ -1654,8 +1654,8 @@ blf_read_wlanframe(blf_params_t* params, int* err, char** err_info, int64_t bloc
     return true;
 }
 
-static uint8_t can_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8 };
-static uint8_t canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
+static const uint8_t can_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8 };
+static const uint8_t canfd_dlc_to_length[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
 
 static bool
 blf_can_fill_buf_and_rec(blf_params_t *params, int *err, char **err_info, uint32_t canid, uint8_t payload_length, uint8_t payload_length_valid, uint64_t start_position,
@@ -4186,11 +4186,11 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
     return true;
 }
 
-static uint8_t canfd_length_to_dlc[] = { 0, 1, 2, 3,   4, 5, 6, 7,   8, 0, 0, 0,  9, 0, 0, 0,
-                                        10, 0, 0, 0,  11, 0, 0, 0,  12, 0, 0, 0,  0, 0, 0, 0,
-                                        13, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,
-                                        14, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,
-                                        15 };
+static const uint8_t canfd_length_to_dlc[] = { 0, 1, 2, 3,   4, 5, 6, 7,   8, 0, 0, 0,  9, 0, 0, 0,
+                                              10, 0, 0, 0,  11, 0, 0, 0,  12, 0, 0, 0,  0, 0, 0, 0,
+                                              13, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,
+                                              14, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,
+                                              15 };
 
 static bool blf_dump_socketcan(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err _U_, char **err_info _U_, uint64_t obj_timestamp,
                                const uint8_t *pd, size_t length, bool is_can, bool is_canfd, bool is_rx, bool is_tx) {

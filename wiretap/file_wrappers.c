@@ -43,7 +43,7 @@
 /*
  * List of compression types supported.
  */
-static struct compression_type {
+static const struct compression_type {
     wtap_compression_type  type;
     const char            *extension;
     const char            *description;
@@ -68,7 +68,7 @@ static wtap_compression_type file_get_compression_type(FILE_T stream);
 wtap_compression_type
 wtap_name_to_compression_type(const char *name)
 {
-    for (struct compression_type *p = compression_types;
+    for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
 		if (!g_strcmp0(name, p->name))
 			return p->type;
@@ -79,7 +79,7 @@ wtap_name_to_compression_type(const char *name)
 wtap_compression_type
 wtap_extension_to_compression_type(const char *ext)
 {
-    for (struct compression_type *p = compression_types;
+    for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
 		if (!g_strcmp0(ext, p->extension))
 			return p->type;
@@ -90,7 +90,7 @@ wtap_extension_to_compression_type(const char *ext)
 bool
 wtap_can_write_compression_type(wtap_compression_type compression_type)
 {
-    for (struct compression_type *p = compression_types; p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
+    for (const struct compression_type *p = compression_types; p->type != WTAP_UNKNOWN_COMPRESSION; p++) {
 		if (compression_type == p->type)
 			return p->can_write_compressed;
 	}
@@ -107,7 +107,7 @@ wtap_get_compression_type(wtap *wth)
 const char *
 wtap_compression_type_description(wtap_compression_type compression_type)
 {
-	for (struct compression_type *p = compression_types;
+	for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNCOMPRESSED; p++) {
 		if (p->type == compression_type)
 			return p->description;
@@ -118,7 +118,7 @@ wtap_compression_type_description(wtap_compression_type compression_type)
 const char *
 wtap_compression_type_extension(wtap_compression_type compression_type)
 {
-	for (struct compression_type *p = compression_types;
+	for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNCOMPRESSED; p++) {
 		if (p->type == compression_type)
 			return p->extension;
@@ -129,7 +129,7 @@ wtap_compression_type_extension(wtap_compression_type compression_type)
 const char *
 wtap_compression_type_name(wtap_compression_type compression_type)
 {
-	for (struct compression_type *p = compression_types;
+	for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNCOMPRESSED; p++) {
 		if (p->type == compression_type)
 			return p->name;
@@ -144,7 +144,7 @@ wtap_get_all_compression_type_extensions_list(void)
 
 	extensions = NULL;	/* empty list, to start with */
 
-	for (struct compression_type *p = compression_types;
+	for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNCOMPRESSED; p++)
 		extensions = g_slist_prepend(extensions, (void *)p->extension);
 
@@ -158,7 +158,7 @@ wtap_get_all_output_compression_type_names_list(void)
 
 	names = NULL;	/* empty list, to start with */
 
-	for (struct compression_type *p = compression_types;
+	for (const struct compression_type *p = compression_types;
 	    p->type != WTAP_UNCOMPRESSED; p++) {
             if (p->can_write_compressed)
                 names = g_slist_prepend(names, (void *)p->name);

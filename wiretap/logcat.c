@@ -19,7 +19,7 @@ void register_logcat(void);
 
 /* Returns '?' for invalid priorities */
 static char get_priority(const uint8_t priority) {
-    static char priorities[] = "??VDIWEFS";
+    static const char priorities[] = "??VDIWEFS";
 
     if (priority >= (uint8_t) sizeof(priorities))
         return '?';

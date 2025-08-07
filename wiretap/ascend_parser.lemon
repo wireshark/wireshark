@@ -432,9 +432,8 @@ datagroup ::= dataln .
     */
     (void)yypParser;
     (void)yyminor;
-    static char *err = "non-packet data";
 
-    parser_state->ascend_parse_error = err;
+    parser_state->ascend_parse_error = "non-packet data";
 }
 
 %code {

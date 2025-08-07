@@ -758,7 +758,7 @@ typedef struct {
  * NSS for various MCS values.
  */
 #define MAX_HT_MCS 76
-static unsigned nss_for_mcs[MAX_HT_MCS+1] = {
+static const unsigned nss_for_mcs[MAX_HT_MCS+1] = {
         1, 1, 1, 1, 1, 1, 1, 1,                               /* 0-7 */
         2, 2, 2, 2, 2, 2, 2, 2,                               /* 8-15 */
         3, 3, 3, 3, 3, 3, 3, 3,                               /* 16-23 */

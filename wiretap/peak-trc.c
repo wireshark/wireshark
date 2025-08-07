@@ -71,7 +71,7 @@ typedef struct {
 
 static int peak_trc_file_type_subtype = -1;
 
-static peak_trc_column_map_t colmap[] = {
+static const peak_trc_column_map_t colmap[] = {
     {Col_BusNumber, 'B', "\\s*(([0-9]*)|-)"},
     /* This isn't a real column type, so give it a "type" that shouldn't be used */
     {Col_BusNumber_v1, 1, "\\s*([0-9]*)"},
@@ -218,7 +218,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
                     {
                         if (state->column_positions[col_type] == column_index)
                         {
-                            for (peak_trc_column_map_t* item = colmap; item->type != Col_Invalid; item++)
+                            for (const peak_trc_column_map_t * item = colmap; item->type != Col_Invalid; item++)
                             {
                                 if ((int)item->type == col_type)
                                 {
@@ -300,7 +300,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
                 }
 
                 /* Assign the column value if found */
-                for (peak_trc_column_map_t* item = colmap; item->type != Col_Invalid; item++)
+                for (const peak_trc_column_map_t* item = colmap; item->type != Col_Invalid; item++)
                 {
                     if ((*iter)[0] == item->code)
                     {

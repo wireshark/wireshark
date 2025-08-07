@@ -277,7 +277,7 @@ mpeg_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	return true;
 }
 
-struct _mpeg_magic {
+const struct _mpeg_magic {
 	size_t len;
 	const char* match;
 	bool is_audio;
@@ -334,7 +334,7 @@ wtap_open_return_val
 mpeg_open(wtap *wth, int *err, char **err_info)
 {
 	char magic_buf[16];
-	struct _mpeg_magic* m;
+	const struct _mpeg_magic* m;
 	mpeg_t *mpeg;
 
 	if (!wtap_read_bytes(wth->fh, magic_buf, sizeof magic_buf,

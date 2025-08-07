@@ -627,7 +627,7 @@ struct encap_type_info {
 	const char *description;
 };
 
-static struct encap_type_info encap_table_base[] = {
+static const struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_UNKNOWN */
 	{ "unknown", "Unknown" },
 
@@ -1393,7 +1393,7 @@ wtap_name_to_encap(const char *name)
 /*
  * For precision values that correspond to a specific precision.
  */
-static const char *precnames[NUM_WS_TSPREC_VALS] = {
+static const char * const precnames[NUM_WS_TSPREC_VALS] = {
 	"seconds",
 	"100 milliseconds (deciseconds)",
 	"10 milliseconds (centiseconds)",
@@ -1421,7 +1421,7 @@ wtap_tsprec_string(int tsprec)
 	return s;
 }
 
-static const char *wtap_errlist[] = {
+static const char * const wtap_errlist[] = {
 	/* WTAP_ERR_NOT_REGULAR_FILE */
 	"The file isn't a plain file or pipe",
 
