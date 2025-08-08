@@ -22,6 +22,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#if !GLIB_CHECK_VERSION(2, 60, 0)
+
+#define g_queue_clear_full queue_clear_full
+static inline void
+queue_clear_full (GQueue * queue, GDestroyNotify free_func)
+{
+  gpointer data;
+
+  while ((data = g_queue_pop_head (queue)) != NULL)
+    free_func (data);
+}
+
+#endif
+
 #if !GLIB_CHECK_VERSION(2, 61, 2)
 
 typedef volatile gint   gatomicrefcount;
