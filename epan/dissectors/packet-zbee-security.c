@@ -586,7 +586,12 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
                              * of ZC. Seek for it in the address translation
                              * table. */
                             addr16.addr = 0;
-                            addr16.pan = ieee_hints->src_pan;
+                            /* Zigbee Direct packets relayed over BLE interface will not have IEEE/MAC
+                             * header. As a result 'ieee_hints' can be NULL. */
+                            if (ieee_hints)
+                            {
+                                addr16.pan = ieee_hints->src_pan;
+                            }
                             map_rec = (ieee802154_map_rec *) g_hash_table_lookup(zbee_nwk_map.short_table, &addr16);
                             if (map_rec)
                             {
