@@ -6342,8 +6342,8 @@ static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_apsd;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_radio_msnt;
-static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback;
-static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback;
+static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_reserved_b4;
+static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_reserved_b5;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_very_high_throughput;
@@ -6356,6 +6356,7 @@ static int hf_ieee80211_tag_neighbor_report_bssid_info_ess_with_colocated_ap;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_oct_supported_with_reporting_ap;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_colocated_6ghz_ap;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_eht;
+static int hf_ieee80211_tag_neighbor_report_bssid_info_dmg_positioning;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reserved;
 static int hf_ieee80211_tag_neighbor_report_ope_class;
 static int hf_ieee80211_tag_neighbor_report_channel_number;
@@ -30544,6 +30545,25 @@ static void
 dissect_he_operation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   int offset, int len _U_);
 
+static const value_string phy_type_vals[] = {
+  { 2, "DSSS 2.4 GHz" },
+  { 4, "OFDM" },
+  { 5, "HRDSSS" },
+  { 6, "ERP" },
+  { 7, "HT" },
+  { 8, "DMG" },
+  { 9, "VHT" },
+  { 10, "TVHT" },
+  { 11, "S1G" },
+  { 12, "CDMG" },
+  { 13, "CMMG" },
+  { 14, "HE" },
+  { 15, "EDMG" },
+  { 17, "NGV" },
+  { 18, "EHT" },
+  { 0, NULL }
+};
+
 static int
 dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -30580,8 +30600,8 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_apsd, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_radio_msnt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_reserved_b4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_reserved_b5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_very_high_throughput, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -30594,6 +30614,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_oct_supported_with_reporting_ap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_colocated_6ghz_ap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_eht, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_dmg_positioning, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
@@ -53610,15 +53631,15 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 32, NULL, 0x00000080,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback,
-     {"Delayed Block Ack", "wlan.nreport.bssid.info.capability.dback",
+    {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_reserved_b4,
+     {"Reserved", "wlan.nreport.bssid.info.capability.reserved_b4",
       FT_BOOLEAN, 32, NULL, 0x00000100,
-      NULL, HFILL }},
+      "Was Delayed Block Ack until 802.11-2016", HFILL }},
 
-    {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback,
-     {"Immediate Block Ack", "wlan.nreport.bssid.info.capability.iback",
+    {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_reserved_b5,
+     {"Reserved", "wlan.nreport.bssid.info.capability.reserved_b5",
       FT_BOOLEAN, 32, NULL, 0x00000200,
-      NULL, HFILL }},
+      "Was Immediate Block Ack until 802.11-2016", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain,
      {"Mobility Domain", "wlan.nreport.bssid.info.mobilitydomain",
@@ -53626,12 +53647,12 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput,
-     {"High Throughput Control (+HTC)", "wlan.nreport.bssid.info.hthroughput",
+     {"High Throughput (HT AP)", "wlan.nreport.bssid.info.hthroughput",
       FT_BOOLEAN, 32, NULL, 0x00000800,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_very_high_throughput,
-     {"Very High Throughput (+VHT)", "wlan.nreport.bssid.info.vht",
+     {"Very High Throughput (VHT AP)", "wlan.nreport.bssid.info.vht",
       FT_BOOLEAN, 32, NULL, 0x00001000,
       NULL, HFILL }},
 
@@ -53676,28 +53697,33 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_eht,
-     {"Extremely High Throughput", "wlan.nreport.bssid.info.eht",
+     {"Extremely High Throughput (EHT AP)", "wlan.nreport.bssid.info.eht",
       FT_BOOLEAN, 32, NULL, 0x00200000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_bssid_info_dmg_positioning,
+     {"DMG Positioning", "wlan.nreport.bssid.info.dmg_positioning",
+      FT_BOOLEAN, 32, NULL, 0x00400000,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_reserved,
      {"Reserved", "wlan.nreport.bssid.info.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0xFFC00000,
+      FT_UINT32, BASE_HEX, NULL, 0xFF800000,
       "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_ope_class,
      {"Operating Class", "wlan.nreport.opeclass",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(oper_class_rvals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_channel_number,
      {"Channel Number", "wlan.nreport.channumber",
-      FT_UINT8, BASE_CUSTOM, CF_FUNC(channel_number_custom), 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_phy_type,
      {"PHY Type", "wlan.nreport.phytype",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, VALS(phy_type_vals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_subelement_id,
