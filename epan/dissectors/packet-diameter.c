@@ -2790,6 +2790,7 @@ ddictionary_process_file(const char* dir, const char* filename, ddict_t* dict)
 			}
 
 			dict->xmlpis = g_slist_prepend(dict->xmlpis, element);
+			xmlFree(content);
 		}
 	}
 
