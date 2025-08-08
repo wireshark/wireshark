@@ -210,6 +210,9 @@ static int hf_zbee_zdp_scan_channel;
        int hf_zbee_zdp_rtg_destination;
        int hf_zbee_zdp_rtg_next_hop;
        int hf_zbee_zdp_rtg_status;
+       int hf_zbee_zdp_rtg_mem_constrained_flag;
+       int hf_zbee_zdp_rtg_mto_flag;
+       int hf_zbee_zdp_rtg_rrec_req_flag;
 
 
 /* Subtree indices. */
@@ -239,6 +242,7 @@ static int ett_zbee_zdp_bind_table;
        int ett_zbee_zdp_cache;
        int ett_zbee_zdp_nwk_desc;
        int ett_zbee_zdp_table_entry;
+       int ett_zbee_zdp_rtg_status_set;
 static int ett_zbee_zdp_descriptor_capability_field;
 
 /* Expert Info */
@@ -1982,11 +1986,23 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_rtg_status,
-        { "Status",         "zbee_zdp.routing.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_rtg_status_vals), 0x0,
+        { "Status",         "zbee_zdp.routing.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_rtg_status_vals), 0x07,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_rtg_next_hop,
         { "Next Hop",         "zbee_zdp.routing.next_hop", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_rtg_mem_constrained_flag,
+        { "Memory Constrained flag",        "zbee_zdp.routing.mem_constrained", FT_UINT8, BASE_DEC, NULL, 0x08,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_rtg_mto_flag,
+        { "Many-to-one flag",               "zbee_zdp.routing.mto", FT_UINT8, BASE_DEC, NULL, 0x10,
+           NULL, HFILL }},
+
+        { &hf_zbee_zdp_rtg_rrec_req_flag,
+        { "Route record required flag",     "zbee_zdp.routing.rrec_req", FT_UINT8, BASE_DEC, NULL, 0x20,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_ieee_join_start_index,
@@ -2099,6 +2115,7 @@ void proto_register_zbee_zdp(void)
         &ett_zbee_zdp_table_entry,
         &ett_zbee_zdp_descriptor_capability_field,
         &ett_zbee_zdp_perm_join_fc,
+        &ett_zbee_zdp_rtg_status_set,
     };
 
     expert_module_t *expert_zbee_zdp;
