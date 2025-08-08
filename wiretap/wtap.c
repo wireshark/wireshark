@@ -1331,6 +1331,9 @@ static const struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_DECT_NR */
 	{ "dect_nr", "DECT-2020 New Radio (NR) MAC layer" },
+
+	/* WTAP_ENCAP_MMODULE */
+	{ "m_module", "Bachmann M-Module File" },
 };
 
 WS_DLL_LOCAL

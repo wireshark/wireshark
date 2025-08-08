@@ -312,6 +312,7 @@ extern "C" {
 #define WTAP_ENCAP_MDB                          223
 #define WTAP_ENCAP_EMS                          224
 #define WTAP_ENCAP_DECT_NR                      225
+#define WTAP_ENCAP_MMODULE                      226
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -1195,6 +1196,11 @@ struct ber_phdr {
     const char *pathname;   /* Path name of file. */
 };
 
+/* File "pseudo-header" for M-Module files. */
+struct mmodule_phdr {
+     uint8_t chunktype;
+};
+
 union wtap_pseudo_header {
     struct eth_phdr     eth;
     struct dte_dce_phdr dte_dce;
@@ -1223,6 +1229,7 @@ union wtap_pseudo_header {
     struct logcat_phdr  logcat;
     struct netmon_phdr  netmon;
     struct ber_phdr     ber;
+    struct mmodule_phdr mmodule;
 };
 
 /*

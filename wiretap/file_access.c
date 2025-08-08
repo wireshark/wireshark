@@ -60,6 +60,7 @@
 #include "logcat_text.h"
 #include "json.h"
 #include "json_log.h"
+#include "mmodule.h"
 #include "observer.h"
 #include "k12.h"
 #include "ber.h"
@@ -451,6 +452,7 @@ static const struct open_info open_info_base[] = {
 	/* JSON Log needs to be before JSON because it handles a variety of JSON logs */
 	{ "JSON Log",                               OPEN_INFO_HEURISTIC, json_log_open,            "jsonl;log", NULL, NULL },
 	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
+	{ "Bachmann M-Module File",                 OPEN_INFO_HEURISTIC, mmodule_open,             "m",        NULL, NULL },
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
 	{ "3gpp phone log",                         OPEN_INFO_MAGIC,     log3gpp_open,             "log",      NULL, NULL },
 	{ "MP4 media file",                         OPEN_INFO_MAGIC,     mp4_open,                 "mp4",      NULL, NULL },
