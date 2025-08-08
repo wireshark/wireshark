@@ -147,6 +147,10 @@ typedef struct {
 #define ZBEE_NWK_GP_CMD_READ_ATTRIBUTE_OPT_MULTI_RECORD         0x01
 #define ZBEE_NWK_GP_CMD_READ_ATTRIBUTE_OPT_MAN_FIELD_PRESENT    0x02
 
+#define ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_FRAME_TYPE               0x03
+#define ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_MAN_FIELD_PRESENT        0x04
+#define ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_DIRECTION                0x08
+
 /* Definitions for GP Channel Request command. */
 #define ZBEE_NWK_GP_CMD_CHANNEL_REQUEST_1ST 0x0F
 #define ZBEE_NWK_GP_CMD_CHANNEL_REQUEST_2ND 0xF0
@@ -278,6 +282,14 @@ static int hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec;
 static int hf_zbee_nwk_gp_cmd_read_att_opt_man_field_present;
 static int hf_zbee_nwk_gp_cmd_read_att_opt;
 static int hf_zbee_nwk_gp_cmd_read_att_record_len;
+
+/* ZCL Tunnel */
+static int hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_frame_type;
+static int hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_man_field_present;
+static int hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_direction;
+static int hf_zbee_nwk_gp_cmd_zcl_tunnel_opt;
+static int hf_zbee_nwk_gp_cmd_zcl_tunnel_command_id;
+static int hf_zbee_nwk_gp_cmd_zcl_tunnel_payload_len;
 
 /* Common to commands returning data */
 static int hf_zbee_nwk_gp_zcl_attr_status;
@@ -443,6 +455,7 @@ static const value_string zbee_nwk_gp_app_id_names[] = {
     XXX( /*FP*/ ZB_GP_CMD_ID_MANUFACTURER_SPECIFIC_MCLUSTER_REPORTING , 0xA3, "Manufacturer-specific multi-cluster reporting" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_REQUEST_ATTRIBUTES                       , 0xA4, "Request Attributes" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_READ_ATTRIBUTES_RESPONSE                 , 0xA5, "Read Attributes Response" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_ZCL_TUNNELING                            , 0xA6, "ZCL Tunneling" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_ANY_SENSOR_COMMAND_A0_A3                 , 0xAF, "Any GPD sensor command (0xA0 - 0xA3)" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_COMMISSIONING                            , 0xE0, "Commissioning" ) \
     XXX( /*F */ ZB_GP_CMD_ID_DECOMMISSIONING                          , 0xE1, "Decommissioning" ) \
@@ -1412,6 +1425,54 @@ dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pin
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_read_attributes_response */
 
+/**
+ * Dissector for ZigBee Green Power ZCL tunneling command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param packet packet data.
+ *@param offset current payload offset.
+ *@return payload processed offset.
+ */
+static unsigned
+dissect_zbee_nwk_gp_cmd_zcl_tunneling(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+    zbee_nwk_green_power_packet *packet _U_, unsigned offset)
+{
+    uint8_t tun_options;
+
+    static int * const options[] = {
+        &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_frame_type,
+        &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_man_field_present,
+        &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_direction,
+        NULL
+    };
+
+    /* Get Options Field, build subtree and display the results. */
+    tun_options = tvb_get_uint8(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_zcl_tunnel_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
+    offset += 1;
+
+    /* Parse and display manufacturer ID value. */
+    if (tun_options & ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_MAN_FIELD_PRESENT) {
+        proto_tree_add_item(tree, hf_zbee_zcl_gp_cmd_ms_manufacturer_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    proto_tree_add_item(tree, hf_zbee_nwk_gp_zcl_attr_cluster_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_zcl_tunnel_command_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_zcl_tunnel_payload_len, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* We're not parsing the ZCL payload, as it's non-trivial and will require a lot of refactoring of the
+     * ZCL data parsers to make work. For now, let it just show up as raw data. */
+
+    return offset;
+} /* dissect_zbee_nwk_gp_cmd_zcl_tunneling */
 
 /**
  *Dissector for ZigBee Green Power multi-cluster reporting command.
@@ -1690,6 +1751,9 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case ZB_GP_CMD_ID_READ_ATTRIBUTES_RESPONSE:
             offset = dissect_zbee_nwk_gp_cmd_read_attributes_response(tvb, pinfo, cmd_tree, packet, offset);
             break;
+        case ZB_GP_CMD_ID_ZCL_TUNNELING:
+            offset = dissect_zbee_nwk_gp_cmd_zcl_tunneling(tvb, pinfo, cmd_tree, packet, offset);
+            break;
         case ZB_GP_CMD_ID_ANY_SENSOR_COMMAND_A0_A3:
             /* TODO: implement it. */
             break;
@@ -1926,8 +1990,6 @@ dissect_zbee_nwk_heur_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     /* We must have the IEEE 802.15.4 headers. */
     if (packet == NULL) return false;
-    /* ZigBee green power never uses 16-bit source addresses. */
-    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) return false;
 
     /* If the frame type and version are not sane, then it's probably not ZGP. */
     fcf = tvb_get_uint8(tvb, 0);
@@ -2240,6 +2302,30 @@ proto_register_zbee_nwk_gp(void)
         { &hf_zbee_nwk_gp_cmd_read_att_opt,
             { "Option field", "zbee_nwk_gp.cmd.read_att.opt", FT_UINT8, BASE_HEX, NULL,
                 0x0, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_frame_type,
+            { "Frame type", "zbee_nwk_gp.cmd.zcl_tunnel.opt.frame_type", FT_UINT8, BASE_HEX, NULL,
+                ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_FRAME_TYPE, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_man_field_present,
+            { "Manufacturer field present", "zbee_nwk_gp.cmd.zcl_tunnel.opt.man_field_present", FT_BOOLEAN, 8, NULL,
+                ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_MAN_FIELD_PRESENT, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt_direction,
+            { "Direction", "zbee_nwk_gp.cmd.zcl_tunnel.opt.direction", FT_UINT8, BASE_HEX, NULL,
+                ZBEE_NWK_GP_CMD_ZCL_TUNNEL_OPT_DIRECTION, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_zcl_tunnel_opt,
+            { "Option field", "zbee_nwk_gp.cmd.zcl_tunnel.opt", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_zcl_tunnel_command_id,
+            { "Zigbee Command ID", "zbee_nwk_gp.cmd.zcl_tunnel.command_id", FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_zcl_tunnel_payload_len,
+            { "Length of Payload",  "zbee_nwk_gp.cmd.zcl_tunnel.payload_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
 
         { &hf_zbee_zcl_gp_cmd_ms_manufacturer_code,
             { "Manufacturer Code", "zbee_nwk_gp.cmd.manufacturer_code", FT_UINT16, BASE_HEX, VALS(zbee_mfr_code_names),
