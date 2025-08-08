@@ -1519,14 +1519,15 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
                 (*offset) += 2;
 
                 if ( IS_ANALOG_SUBTYPE(data_type) ) {
-                    /* Dissect reportable change */
+                    /* Dissect reportable change, type will match attribute type */
                     dissect_zcl_attr_data_general(tvb, pinfo, sub_tree, offset, attr_id, data_type, cluster_id, mfr_code, direction == ZBEE_ZCL_FCF_TO_SERVER);
                 }
 
-            } else {
-                /* Dissect timeout period */
-               proto_tree_add_item(tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-               (*offset) += 2;
+            }
+            else if ( attr_dir == ZBEE_ZCL_DIR_RECEIVED ) {
+                    /* Dissect timeout period */
+                    proto_tree_add_item(tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                    (*offset) += 2;
             }
         }
     }

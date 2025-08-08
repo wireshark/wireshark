@@ -4411,6 +4411,8 @@ static int hf_zbee_zcl_level_control_rate;
 static int hf_zbee_zcl_level_control_step_mode;
 static int hf_zbee_zcl_level_control_step_size;
 static int hf_zbee_zcl_level_control_transit_time;
+static int hf_zbee_zcl_level_control_options_mask;
+static int hf_zbee_zcl_level_control_options_override;
 static int hf_zbee_zcl_level_control_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
@@ -4479,6 +4481,14 @@ dissect_zcl_level_control_move_to_level(tvbuff_t *tvb, proto_tree *tree, unsigne
     /* Retrieve "Transition Time" field */
     proto_tree_add_item(tree, hf_zbee_zcl_level_control_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
+
+    /* Retrieve "OptionMask" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_options_mask, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "OptionsOverride" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_options_override, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
 
 } /*dissect_zcl_level_control_move_to_level*/
 
@@ -4734,6 +4744,14 @@ proto_register_zbee_zcl_level_control(void)
 
         { &hf_zbee_zcl_level_control_transit_time,
             { "Transition Time", "zbee_zcl_general.level_control.transit_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_options_mask,
+            { "OptionsMask", "zbee_zcl_general.level_control.options_mask", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+	{ &hf_zbee_zcl_level_control_options_override,
+            { "OptionsOverride", "zbee_zcl_general.level_control.options_override", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_level_control_srv_rx_cmd_id,
@@ -15838,6 +15856,7 @@ static int hf_zbee_zcl_touchlink_ext_addr;
 static int hf_zbee_zcl_touchlink_panid;
 static int hf_zbee_zcl_touchlink_sub_devices;
 static int hf_zbee_zcl_touchlink_total_groups;
+static int hf_zbee_zcl_touchlink_total_endpoints;
 static int hf_zbee_zcl_touchlink_endpoint;
 static int hf_zbee_zcl_touchlink_profile_id;
 static int hf_zbee_zcl_touchlink_device_id;
@@ -15861,6 +15880,8 @@ static int hf_zbee_zcl_touchlink_network_key;
 static int hf_zbee_zcl_touchlink_init_addr;
 static int hf_zbee_zcl_touchlink_init_eui64;
 static int hf_zbee_zcl_touchlink_status;
+static int hf_zbee_zcl_touchlink_device_record_count;
+static int hf_zbee_zcl_touchlink_sort;
 
 /* Initialize the subtree pointers */
 static int ett_zbee_zcl_touchlink;
@@ -15868,6 +15889,10 @@ static int ett_zbee_zcl_touchlink_zbee;
 static int ett_zbee_zcl_touchlink_info;
 static int ett_zbee_zcl_touchlink_keybits;
 static int ett_zbee_zcl_touchlink_groups;
+static int ett_zbee_zcl_touchlink_device_record;
+static int ett_zbee_zcl_touchlink_device_records;
+static int ett_zbee_zcl_touchlink_endpoint;
+static int ett_zbee_zcl_touchlink_endpoints;
 
 static expert_field ei_zbee_zcl_touchlink_no_key = EI_INIT;
 
@@ -16263,6 +16288,7 @@ dissect_zcl_touchlink_network_update_request(tvbuff_t *tvb, proto_tree *tree, un
     *offset += 2;
 } /*dissect_zcl_touchlink_network_update_request*/
 
+
 /**
  *This function decodes the Scan Response payload.
  *
@@ -16359,6 +16385,58 @@ dissect_zcl_touchlink_network_start_response(tvbuff_t *tvb, proto_tree *tree, un
 } /* dissect_zcl_touchlink_network_start_response */
 
 /**
+ *This function decodes the Device Information Response payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_device_info_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
+{
+    proto_tree *list_tree;
+    uint8_t count, idx;
+
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_sub_devices, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_start_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    count = tvb_get_uint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_device_record_count, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    list_tree = proto_tree_add_subtree(tree, tvb, *offset, count * 16, ett_zbee_zcl_touchlink_device_records, NULL, "Device Records");
+    for (idx = 0; idx < count; idx++) {
+        proto_tree *record_tree;
+        unsigned record_start = *offset;
+
+        // Create subtree for this record
+        record_tree = proto_tree_add_subtree_format(
+            list_tree, tvb, record_start, 16,
+            ett_zbee_zcl_touchlink_device_record, NULL,
+            "Device Record %u", (idx + 1) // numbering
+        );
+
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_ext_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+        *offset += 8;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_endpoint, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_profile_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_device_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_version, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_group_count, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_sort, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+    }
+} /* dissect_zcl_touchlink_device_info_response */
+
+/**
  *This function decodes the Endpoint Information payload.
  *
  *@param  tvb the tv buffer of the current data_type
@@ -16410,6 +16488,52 @@ dissect_zcl_touchlink_group_id_response(tvbuff_t *tvb, proto_tree *tree, unsigne
         *offset += 1;
     }
 } /* dissect_zcl_touchlink_group_id_response */
+
+/**
+ *This function decodes the Get Endpoint List Response payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_endpoint_list_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
+{
+    proto_tree *list_tree;
+    uint8_t count, idx;
+
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_total_endpoints, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_start_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    count = tvb_get_uint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_count, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    list_tree = proto_tree_add_subtree(tree, tvb, *offset, count * 8, ett_zbee_zcl_touchlink_endpoints, NULL, "Endpoint Information Records");
+    for (idx = 0; idx < count; idx++) {
+        proto_tree *record_tree;
+        unsigned record_start = *offset;
+
+        // Create subtree for this record
+        record_tree = proto_tree_add_subtree_format(
+            list_tree, tvb, record_start, 8,
+            ett_zbee_zcl_touchlink_endpoint, NULL,
+            "Endpoint Record %u", (idx + 1) // numbering
+        );
+
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_endpoint, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_profile_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_device_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_version, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+    }
+} /* dissect_zcl_touchlink_endpoint_list_response */
 
 /**
  *ZigBee ZCL Touchlink Commissioining cluster dissector for wireshark.
@@ -16528,6 +16652,7 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 break;
 
             case ZBEE_ZCL_CMD_ID_DEVICE_INFO_RESPONSE:
+                dissect_zcl_touchlink_device_info_response(tvb, tree, &offset);
                 break;
 
             case ZBEE_ZCL_CMD_ID_ENDPOINT_INFORMATION:
@@ -16539,7 +16664,7 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 break;
 
             case ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_RESPONSE:
-                /* No payload */
+                dissect_zcl_touchlink_endpoint_list_response(tvb, tree, &offset);
                 break;
 
             default:
@@ -16633,6 +16758,14 @@ proto_register_zbee_zcl_touchlink(void)
             { "Start index", "zbee_zcl_general.touchlink.index", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_touchlink_device_record_count,
+            { "Device Record Count", "zbee_zcl_general.touchlink.device_record_count", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_sort,
+            { "Sort", "zbee_zcl_general.touchlink.sort", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_touchlink_ident_duration,
             { "Identify duration", "zbee_zcl_general.touchlink.duration", FT_UINT16, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
@@ -16658,7 +16791,7 @@ proto_register_zbee_zcl_touchlink(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_touchlink_nwk_addr,
-            { "Network Address", "zbee_zcl_general.touchlink.nwk_addr", FT_UINT16, BASE_DEC, NULL,
+            { "Network Address", "zbee_zcl_general.touchlink.nwk_addr", FT_UINT16, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_touchlink_ext_addr,
@@ -16675,6 +16808,10 @@ proto_register_zbee_zcl_touchlink(void)
 
         { &hf_zbee_zcl_touchlink_total_groups,
             { "Total Group Identifiers", "zbee_zcl_general.touchlink.total_groups", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_total_endpoints,
+            { "Total Endpoints", "zbee_zcl_general.touchlink.total_endpoints", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_touchlink_endpoint,
@@ -16761,6 +16898,8 @@ proto_register_zbee_zcl_touchlink(void)
         &ett_zbee_zcl_touchlink_info,
         &ett_zbee_zcl_touchlink_keybits,
         &ett_zbee_zcl_touchlink_groups,
+        &ett_zbee_zcl_touchlink_device_records,
+        &ett_zbee_zcl_touchlink_endpoints,
     };
 
     static ei_register_info ei[] = {
