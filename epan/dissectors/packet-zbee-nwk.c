@@ -369,8 +369,9 @@ static const value_string zbee_nwk_link_power_delta_types[] = {
 };
 
 static const value_string zbee_nwk_commissioning_types[] = {
-    { 0x00, "Initial Join with Key Negotiation" },
-    { 0x01, "Rejoin with Key Negotiation" },
+    { 0x00, "Initial Join" },
+    { 0x01, "Rejoin" },
+    { 0x02, "Establish Trusted Link" },
     { 0, NULL }
 };
 

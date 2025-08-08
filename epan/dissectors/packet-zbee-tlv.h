@@ -185,6 +185,8 @@
 #define ZBEE_TLV_TYPE_LINK_KEY_FLAG_PERMANENT   0
 #define ZBEE_TLV_TYPE_LINK_KEY_FLAG_PROVISIONAL 1
 
+#define ZBEE_TLV_LK_FEATURES_CAPABILITIES_FC_SYNC_SUPPORTED     0b00000001
+
 unsigned dissect_zbee_tlvs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, void *data, uint8_t source_type, unsigned cmd_id);
 
 #endif

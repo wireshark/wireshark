@@ -56,12 +56,16 @@
 #define ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM   0x11
 #define ZBEE_APS_CMD_RELAY_MSG_UPSTREAM     0x12
 
-#define ZBEE_APS_CMD_KEY_TC_MASTER          0x00
-#define ZBEE_APS_CMD_KEY_STANDARD_NWK       0x01
-#define ZBEE_APS_CMD_KEY_APP_MASTER         0x02
-#define ZBEE_APS_CMD_KEY_APP_LINK           0x03
-#define ZBEE_APS_CMD_KEY_TC_LINK            0x04
-#define ZBEE_APS_CMD_KEY_HIGH_SEC_NWK       0x05
+#define ZBEE_APS_CMD_KEY_TC_MASTER                  0x00
+#define ZBEE_APS_CMD_KEY_STANDARD_NWK               0x01
+#define ZBEE_APS_CMD_KEY_APP_MASTER                 0x02
+#define ZBEE_APS_CMD_KEY_APP_LINK                   0x03
+#define ZBEE_APS_CMD_KEY_TC_LINK                    0x04
+#define ZBEE_APS_CMD_KEY_HIGH_SEC_NWK               0x05
+#define ZBEE_APS_CMD_KEY_EPHEMERAL_GLOBAL_AUTH      0xB0
+#define ZBEE_APS_CMD_KEY_EPHEMERAL_UNIQUE_AUTH      0xB1
+#define ZBEE_APS_CMD_KEY_BASIC_AUTH                 0xB2
+#define ZBEE_APS_CMD_KEY_ADMIN_AUTH                 0xB3
 
 #define ZBEE_APS_CMD_SKKE_DATA_LENGTH       16
 #define ZBEE_APS_CMD_KEY_LENGTH             16

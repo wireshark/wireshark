@@ -1212,6 +1212,20 @@ static expert_field ei_command_parameter_unexpected;
 static dissector_table_t vendor_dissector_table;
 static dissector_table_t hci_vendor_table;
 
+/* Zigbee Direct specific definitions. */
+static int hf_btcommon_eir_ad_zd_ext;
+static int hf_btcommon_eir_ad_zd_ext_zd_version;
+static int hf_btcommon_eir_ad_zd_ext_zd_flag_ZDTS;
+static int hf_btcommon_eir_ad_zd_ext_zd_flag_PermitJoin;
+static int hf_btcommon_eir_ad_zd_zigbee_panid;
+static int hf_btcommon_eir_ad_zd_zigbee_nwkaddr;
+static int ett_zigbee_direct_adv_extension;
+
+#define ZD_AD_EXTENSION_VERSION             0xf << 0
+#define ZD_AD_EXTENSION_ZD_FLAG_ZDTS          1 << 4
+#define ZD_AD_EXTENSION_ZD_FLAG_PERMIT_JOIN   1 << 5
+#define ZD_AD_EXTENSION_ZD_FLAG_RESERVED      3 << 6
+
 /* Initialize the subtree pointers */
 static int ett_bthci_cmd;
 static int ett_opcode;
@@ -3235,6 +3249,8 @@ void proto_register_bthci_cmd(void);
 void proto_reg_handoff_bthci_cmd(void);
 void proto_register_btcommon(void);
 void proto_reg_handoff_btcommon(void);
+static void dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb,
+  const gint start, gint length);
 
 static void bthci_cmd_vendor_prompt(packet_info *pinfo _U_, char* result)
 {
@@ -11073,7 +11089,8 @@ proto_register_bthci_cmd(void)
         &ett_adv_test_flags,
         &ett_override_config,
         &ett_override_params,
-        &ett_spacing_types
+        &ett_spacing_types,
+        &ett_zigbee_direct_adv_extension
     };
 
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
@@ -11384,7 +11401,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 uuid = get_bluetooth_uuid(tvb, offset-2, 2);
                 if (!dissector_try_string_with_data(bluetooth_eir_ad_service_uuid, print_numeric_bluetooth_uuid(pinfo->pool, &uuid),
                         tvb_new_subset_length(tvb, offset, length - 2), pinfo, entry_tree, true, bluetooth_eir_ad_data)) {
-                    proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
+                    /* Zigbee Direct */
+                    if (uuid.bt_uuid == 0xfff7) {
+                      /* Parse Zigbee Direct Advertisement data (5 bytes).*/
+                      dissect_zigbee_direct_adv_data(entry_tree, tvb, offset, length - 2);
+                    }
+                    else {
+                      proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
+                    }
                 }
                 offset += length - 2;
             }
@@ -12038,6 +12062,36 @@ proto_register_btcommon(void)
           {"Data",                               "btcommon.eir_ad.entry.data",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_zd_ext,
+          { "Zigbee Direct Extension Data",      "btcommon.eir_ad.entry.zd_extension",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_zd_ext_zd_version,
+          { "Zigbee Direct version",             "btcommon.eir_ad.entry.zd_version",
+            FT_UINT8, BASE_HEX, NULL, ZD_AD_EXTENSION_VERSION,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_zd_ext_zd_flag_ZDTS,
+          { "Zigbee Direct Tunnel Support (ZDTS)", "btcommon.eir_ad.entry.zd_flags_zdts",
+            FT_UINT8, BASE_HEX, NULL, ZD_AD_EXTENSION_ZD_FLAG_ZDTS,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_zd_ext_zd_flag_PermitJoin,
+          { "Permit Join",                       "btcommon.eir_ad.entry.zd_flags_permitjoin",
+            FT_UINT8, BASE_HEX, NULL, ZD_AD_EXTENSION_ZD_FLAG_PERMIT_JOIN,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_zd_zigbee_panid,
+          { "Zigbee PAN ID",                     "btcommon.eir_ad.entry.zd_zigbee_panid",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_zd_zigbee_nwkaddr,
+          { "Zigbee NWK address",                "btcommon.eir_ad.entry.zd_zigbee_nwk_addr",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_service_data,
           {"Service Data",                       "btcommon.eir_ad.entry.service_data",
@@ -13159,6 +13213,36 @@ proto_reg_handoff_btcommon(void)
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
 }
 
+/* Helper function to dissect Zigbee Direct advertisement data. */
+static void
+dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const gint start, gint length)
+{
+    guint offset = start;
+
+    static int * const zd_adv_data[] = {
+        &hf_btcommon_eir_ad_zd_ext_zd_version,
+        &hf_btcommon_eir_ad_zd_ext_zd_flag_ZDTS,
+        &hf_btcommon_eir_ad_zd_ext_zd_flag_PermitJoin,
+        NULL
+    };
+
+    /* Sanity, ensure we have minimum data as per Zigbee Direct extension to BLE advertisement. */
+    if (length < 5) {
+      return; /* Malformed or truncated Zigbee Direct Advertisement data. */
+    }
+
+    /* Zigbee Direct extension: Version & Flags. */
+    proto_tree_add_bitmask(tree, tvb, offset, hf_btcommon_eir_ad_zd_ext, ett_zigbee_direct_adv_extension, zd_adv_data, ENC_NA);
+    offset += 1;
+
+    /* Zigbee PAN ID. */
+    proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_panid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Zigbee NWK address. */
+    proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_nwkaddr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+}
 
 
 /*

@@ -245,12 +245,16 @@ static const value_string zbee_aps_cmd_names[] = {
 
 /* APS Key Names */
 static const value_string zbee_aps_key_names[] = {
-    { ZBEE_APS_CMD_KEY_TC_MASTER,       "Trust Center Master Key" },
-    { ZBEE_APS_CMD_KEY_STANDARD_NWK,    "Standard Network Key" },
-    { ZBEE_APS_CMD_KEY_APP_MASTER,      "Application Master Key" },
-    { ZBEE_APS_CMD_KEY_APP_LINK,        "Application Link Key" },
-    { ZBEE_APS_CMD_KEY_TC_LINK,         "Trust Center Link Key" },
-    { ZBEE_APS_CMD_KEY_HIGH_SEC_NWK,    "High-Security Network Key" },
+    { ZBEE_APS_CMD_KEY_TC_MASTER,               "Trust Center Master Key" },
+    { ZBEE_APS_CMD_KEY_STANDARD_NWK,            "Standard Network Key" },
+    { ZBEE_APS_CMD_KEY_APP_MASTER,              "Application Master Key" },
+    { ZBEE_APS_CMD_KEY_APP_LINK,                "Application Link Key" },
+    { ZBEE_APS_CMD_KEY_TC_LINK,                 "Trust Center Link Key" },
+    { ZBEE_APS_CMD_KEY_HIGH_SEC_NWK,            "High-Security Network Key" },
+    { ZBEE_APS_CMD_KEY_EPHEMERAL_GLOBAL_AUTH,   "Ephemeral Global Authorization Key" },
+    { ZBEE_APS_CMD_KEY_EPHEMERAL_UNIQUE_AUTH,   "Ephemeral Unique Authorization Key" },
+    { ZBEE_APS_CMD_KEY_BASIC_AUTH,              "Basic Authorization Key" },
+    { ZBEE_APS_CMD_KEY_ADMIN_AUTH,              "Administrative Authorization Key" },
     { 0, NULL }
 };
 
@@ -1071,15 +1075,21 @@ dissect_zbee_aps_no_endpt:
         uint32_t        num_blocks;
         fragment_head   *frag_msg = NULL;
         tvbuff_t        *new_tvb;
+        guint32         counter;
 
         /* Set the fragmented flag. */
         pinfo->fragmented = true;
+
+        /* Compute the extended counter based on the 'raw packet' counter. This is particularly important in
+         * case of 'APS Relay' commands, which carry either APSDE-DATA or APS commands potentially originating
+         * from a different device than the 'APS Relay' command itself and can carry a different APS counter value. */
+        counter = zbee_aps_calculate_extended_counter(node_data_packet->extended_counter, packet.counter);
 
         /* The source address (short address and PAN ID) and APS Counter pair form a unique identifier
          * for each message (fragmented or not). Hash these together to
          * create the message id for the fragmentation handler.
          */
-        msg_id = ((nwk->src)<<16) + (node_data_packet->extended_counter & 0xffff);
+        msg_id = ((nwk->src)<<16) + (counter & 0xffff);
         if (nwk_hints) {
             msg_id ^= (nwk_hints->src_pan)<<16;
         }
@@ -1381,6 +1391,12 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_tree_add_uint(tree, hf_zbee_aps_cmd_key_type, tvb, offset, 1, key_type);
     offset += 1;
 
+    if ((key_type == ZBEE_APS_CMD_KEY_EPHEMERAL_GLOBAL_AUTH)
+        || (key_type == ZBEE_APS_CMD_KEY_EPHEMERAL_UNIQUE_AUTH)) {
+        /* APS Transport key frame with ephemeral keytype will not have Key descriptor field. */
+        return offset;
+    }
+
     /* Coincidentally, all the key descriptors start with the key. So
      * get and display it.
      */
@@ -1397,6 +1413,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     switch (key_type) {
         case ZBEE_APS_CMD_KEY_STANDARD_NWK:
         case ZBEE_APS_CMD_KEY_HIGH_SEC_NWK:
+        case ZBEE_APS_CMD_KEY_BASIC_AUTH:
             {
                 /* Network Key */
                 uint8_t seqno;
