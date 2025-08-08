@@ -644,7 +644,7 @@ create_source_hfids(bridge_info* bi)
 // Plugins whose data should be displayed as JSON.
 // XXX This should probably be a preference.
 // We could also do this by numeric ID: https://github.com/falcosecurity/plugins
-static const char *json_plugins[] = {"cloudtrail", "k8saudit"};
+static const char *json_plugins[] = {"cloudtrail", "k8saudit", "gcpaudit"};
 
 void
 import_plugin(char* fname)
@@ -1444,7 +1444,7 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                 /* Restore Protocol and Info columns */
                 col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
             }
-            int addr_fld_idx = bi->hf_id_to_addr_id ? bi->hf_id_to_addr_id[fld_idx] : 0;
+            int addr_fld_idx = bi->hf_id_to_addr_id ? bi->hf_id_to_addr_id[fld_idx] : -1;
             if (addr_fld_idx >= 0) {
                 ws_in4_addr v4_addr;
                 ws_in6_addr v6_addr;
