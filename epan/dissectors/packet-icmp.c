@@ -70,6 +70,8 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 /* Decode the end of the ICMP payload as ICMP MPLS extensions
 if the packet in the payload has more than 128 bytes */
 static bool favor_icmp_mpls_ext;
+/* Never try to interpret ICMP echo data as timestamp */
+static bool never_timestamp;
 
 static int proto_icmp;
 
@@ -1861,19 +1863,22 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 * malformed packets as we try to access data that isn't there. */
 		if (tvb_captured_length_remaining(tvb, 8) < 8) {
 			if (tvb_captured_length_remaining(tvb, 8) > 0) {
-				ti = proto_tree_add_item(icmp_tree, hf_icmp_data, tvb, 8, -1, ENC_NA);
-				proto_item_set_hidden(ti);
-				call_data_dissector(tvb_new_subset_remaining
-					       (tvb, 8), pinfo, icmp_tree);
+				heur_dtbl_entry_t *hdtbl_entry;
+				next_tvb = tvb_new_subset_remaining(tvb, 8);
+				if (!dissector_try_heuristic(icmp_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+					ti = proto_tree_add_item(icmp_tree, hf_icmp_data, next_tvb, 0, -1, ENC_NA);
+					proto_item_set_hidden(ti);
+					call_data_dissector(next_tvb, pinfo, icmp_tree);
+				}
 			}
 			break;
 		}
 
 		/* Interpret the first 8 or 16 bytes of the icmp data as a timestamp
 		 * But only if it does look like it's a timestamp.
-		 *
 		 */
-		int len = get_best_guess_timestamp(tvb, 8, &pinfo->abs_ts, &ts);
+		int len = never_timestamp ? 0 : get_best_guess_timestamp(tvb, 8, &pinfo->abs_ts, &ts);
+
 		if (len) {
 			ti = proto_tree_add_item(icmp_tree, hf_icmp_data, tvb, 8, -1, ENC_NA);
 			proto_tree *icmp_data_tree = proto_item_add_subtree(ti, ett_icmp_data);
@@ -2471,6 +2476,11 @@ void proto_register_icmp(void)
 				       "Favor ICMP extensions for MPLS",
 				       "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
 				       &favor_icmp_mpls_ext);
+
+	prefs_register_bool_preference(icmp_module, "never_timestamp",
+				       "Never interpret ICMP echo data bytes as timestamp",
+				       "Rather then interpreting ICMP echo data as timestamp always treat is as raw data",
+				       &never_timestamp);
 
 	register_seq_analysis("icmp", "ICMP Flows", proto_icmp, NULL, TL_REQUIRES_COLUMNS, icmp_seq_analysis_packet);
 	icmp_handle = register_dissector("icmp", dissect_icmp, proto_icmp);
