@@ -3668,7 +3668,7 @@ mysql_dissect_binlog_event_heartbeat_v2(tvbuff_t *tvb, packet_info *pinfo, int o
 	proto_item_append_text(parent_item, " OTW_HB_LOG_FILENAME_FIELD");
 	offset += 1;
 
-	fle = tvb_get_fle(tvb, hb_v2_subtree, offset, &num, ENC_NA);
+	fle = tvb_get_fle(tvb, hb_v2_subtree, offset, &num, NULL);
 	offset += fle;
 
 	proto_tree_add_item(hb_v2_subtree, hf_mysql_binlog_hb_event_filename, tvb, offset, (gint) num, ENC_ASCII);
