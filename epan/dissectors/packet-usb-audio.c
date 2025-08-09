@@ -335,6 +335,32 @@ static int hf_ms_if_midi_out_bnrinputpins;
 static int hf_ms_if_midi_out_basourceid;
 static int hf_ms_if_midi_out_basourcepin;
 static int hf_ms_if_midi_out_ijack;
+static int hf_ms_if_midi_element_belementid;
+static int hf_ms_if_midi_element_bnrinputpins;
+static int hf_ms_if_midi_element_basourceid;
+static int hf_ms_if_midi_element_basourcepin;
+static int hf_ms_if_midi_element_bnroutputpins;
+static int hf_ms_if_midi_element_binterminallink;
+static int hf_ms_if_midi_element_boutterminallink;
+static int hf_ms_if_midi_element_belcapssize;
+static int hf_ms_if_midi_element_caps;
+static int hf_ms_if_midi_element_cap1;
+static int hf_ms_if_midi_element_caps_d0;
+static int hf_ms_if_midi_element_caps_d1;
+static int hf_ms_if_midi_element_caps_d2;
+static int hf_ms_if_midi_element_caps_d3;
+static int hf_ms_if_midi_element_caps_d4;
+static int hf_ms_if_midi_element_caps_d5;
+static int hf_ms_if_midi_element_caps_d6;
+static int hf_ms_if_midi_element_caps_d7;
+static int hf_ms_if_midi_element_cap2;
+static int hf_ms_if_midi_element_caps_d8;
+static int hf_ms_if_midi_element_caps_d9;
+static int hf_ms_if_midi_element_caps_d10;
+static int hf_ms_if_midi_element_caps_d11;
+static int hf_ms_if_midi_element_cap2_rsv;
+static int hf_ms_if_midi_element_cap3_rsv;
+static int hf_ms_if_midi_element_ielement;
 static int hf_ms_ep_gen_numjacks;
 static int hf_ms_ep_gen_baassocjackid;
 static int hf_ms_ep_desc_subtype;
@@ -396,6 +422,8 @@ static int ett_as_if_gen_formats;
 static int ett_as_if_gen_bmchannelconfig;
 static int ett_as_ep_gen_attributes;
 static int ett_as_ep_gen_controls;
+static int ett_ms_if_midi_element_caps1;
+static int ett_ms_if_midi_element_caps2;
 static int ett_wvalue;
 static int ett_windex;
 static int ett_parameter_block;
@@ -2137,6 +2165,89 @@ dissect_ms_if_midi_out_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
+dissect_ms_if_midi_element_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+        proto_tree *tree, urb_info_t *urb _U_)
+{
+    int         offset_start = offset;
+    proto_tree *bitmap_tree;
+    proto_item *ti;
+    uint8_t     nrinputpins;
+    unsigned    elcapssize;
+
+    static int * const el_caps_1[] = {
+        &hf_ms_if_midi_element_caps_d0,
+        &hf_ms_if_midi_element_caps_d1,
+        &hf_ms_if_midi_element_caps_d2,
+        &hf_ms_if_midi_element_caps_d3,
+        &hf_ms_if_midi_element_caps_d4,
+        &hf_ms_if_midi_element_caps_d5,
+        &hf_ms_if_midi_element_caps_d6,
+        &hf_ms_if_midi_element_caps_d7,
+        NULL
+    };
+    static int * const el_caps_2[] = {
+        &hf_ms_if_midi_element_caps_d8,
+        &hf_ms_if_midi_element_caps_d9,
+        &hf_ms_if_midi_element_caps_d10,
+        &hf_ms_if_midi_element_caps_d11,
+        &hf_ms_if_midi_element_cap2_rsv,
+        NULL
+    };
+
+    proto_tree_add_item(tree, hf_ms_if_midi_element_belementid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ms_if_midi_element_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nrinputpins = tvb_get_uint8(tvb, offset);
+    offset += 1;
+    while (nrinputpins)
+    {
+        proto_tree_add_item(tree, hf_ms_if_midi_element_basourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_ms_if_midi_element_basourcepin, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        nrinputpins--;
+    }
+
+    proto_tree_add_item(tree, hf_ms_if_midi_element_bnroutputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ms_if_midi_element_binterminallink, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ms_if_midi_element_boutterminallink, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint(tree, hf_ms_if_midi_element_belcapssize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &elcapssize);
+    offset += 1;
+
+    if (elcapssize > 0) {
+        ti = proto_tree_add_item(tree, hf_ms_if_midi_element_caps, tvb, offset, elcapssize, ENC_NA);
+
+        bitmap_tree = proto_item_add_subtree(ti, ett_ms_if_midi_element_caps1);
+        proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ms_if_midi_element_cap1, ett_ms_if_midi_element_caps1,
+            el_caps_1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        elcapssize -= 1;
+    }
+    if (elcapssize > 0) {
+        bitmap_tree = proto_item_add_subtree(ti, ett_ms_if_midi_element_caps2);
+        proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ms_if_midi_element_cap2, ett_ms_if_midi_element_caps2,
+            el_caps_2, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        elcapssize -= 1;
+    }
+    while (elcapssize > 0) {
+        proto_tree_add_item(tree, hf_ms_if_midi_element_cap3_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        elcapssize -= 1;
+    }
+
+    proto_tree_add_item(tree, hf_ms_if_midi_element_ielement, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static int
 dissect_ms_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, urb_info_t *urb _U_)
 {
@@ -2330,6 +2441,10 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case MS_IF_SUBTYPE_MIDI_OUT_JACK:
                 bytes_dissected += dissect_ms_if_midi_out_body(tvb, offset, pinfo,
+                        desc_tree, urb);
+                break;
+            case MS_IF_SUBTYPE_ELEMENT:
+                bytes_dissected += dissect_ms_if_midi_element_body(tvb, offset, pinfo,
                         desc_tree, urb);
                 break;
             default:
@@ -3701,7 +3816,7 @@ proto_register_usb_audio(void)
         { &hf_ms_if_midi_out_bjackid,
             { "Jack ID", "usbaudio.ms_if_midi_out.bJackID",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bJackID", HFILL }},
-       { &hf_ms_if_midi_out_bnrinputpins,
+        { &hf_ms_if_midi_out_bnrinputpins,
             { "Number of Input Pins", "usbaudio.ms_if_midi_out.bNrInputPins",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInputPins", HFILL }},
         { &hf_ms_if_midi_out_basourceid,
@@ -3713,6 +3828,84 @@ proto_register_usb_audio(void)
         { &hf_ms_if_midi_out_ijack,
             { "String descriptor index", "usbaudio.ms_if_midi_out.iJack",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iJack", HFILL }},
+        { &hf_ms_if_midi_element_belementid,
+            { "Element ID", "usbaudio.ms_if_midi_element.bElementId",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bElementID", HFILL }},
+        { &hf_ms_if_midi_element_bnrinputpins,
+            { "Number of Input Pins", "usbaudio.ms_if_midi_element.bNrInputPins",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInputPins", HFILL }},
+        { &hf_ms_if_midi_element_basourceid,
+            { "Connected MIDI Entity", "usbaudio.ms_if_midi_element.baSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceID", HFILL }},
+        { &hf_ms_if_midi_element_basourcepin,
+            { "Entity Output Pin", "usbaudio.ms_if_midi_element.BaSourcePin",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "BaSourcePin", HFILL }},
+        { &hf_ms_if_midi_element_bnroutputpins,
+            { "Number of Output Pins", "usbaudio.ms_if_midi_element.bNrOutputPins",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrOutputPins", HFILL }},
+        { &hf_ms_if_midi_element_binterminallink,
+            { "Input Terminal ID", "usbaudio.ms_if_midi_element.bInTerminalLink",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bInTerminalLink", HFILL }},
+        { &hf_ms_if_midi_element_boutterminallink,
+            { "Output Terminal ID", "usbaudio.ms_if_midi_element.bOutTerminalLink",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bOutTerminalLink", HFILL }},
+        { &hf_ms_if_midi_element_belcapssize,
+            { "Capabilities bitmap size", "usbaudio.ms_if_midi_element.bElCapsSize",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bElCapsSize", HFILL }},
+        { &hf_ms_if_midi_element_caps,
+            { "Element Capabilities", "usbaudio.ms_if_midi_element.bmElementCaps",
+              FT_BYTES, BASE_NONE, NULL, 0x0, "bmElementCaps", HFILL }},
+        { &hf_ms_if_midi_element_cap1,
+            { "Element Capability Byte 1", "usbaudio.ms_if_midi_element.bmElementCap1",
+              FT_UINT8, BASE_HEX, NULL, 0x0, "bmElementCaps", HFILL }},
+        { &hf_ms_if_midi_element_caps_d0,
+            { "Custom Undefined Type", "usbaudio.ms_if_midi_element.bmElementCaps.d0",
+              FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d1,
+            { "MIDI CLOCK", "usbaudio.ms_if_midi_element.bmElementCaps.d1",
+              FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d2,
+            { "MTC", "usbaudio.ms_if_midi_element.bmElementCaps.d2",
+              FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d3,
+            { "MMC", "usbaudio.ms_if_midi_element.bmElementCaps.d3",
+              FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d4,
+            { "GM1", "usbaudio.ms_if_midi_element.bmElementCaps.d4",
+              FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d5,
+            { "GM2", "usbaudio.ms_if_midi_element.bmElementCaps.d5",
+              FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d6,
+            { "GS", "usbaudio.ms_if_midi_element.bmElementCaps.d6",
+              FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d7,
+            { "XG", "usbaudio.ms_if_midi_element.bmElementCaps.d7",
+              FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+        { &hf_ms_if_midi_element_cap2,
+            { "Element Capability Byte 2", "usbaudio.ms_if_midi_element.bmElementCap2",
+              FT_UINT8, BASE_HEX, NULL, 0x0, "bmElementCaps", HFILL }},
+        { &hf_ms_if_midi_element_caps_d8,
+            { "EFX", "usbaudio.ms_if_midi_element.bmElementCaps.d8",
+              FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d9,
+            { "MIDI Patch Bay", "usbaudio.ms_if_midi_element.bmElementCaps.d9",
+              FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d10,
+            { "DLS1", "usbaudio.ms_if_midi_element.bmElementCaps.d10",
+              FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+        { &hf_ms_if_midi_element_caps_d11,
+            { "DLS2", "usbaudio.ms_if_midi_element.bmElementCaps.d11",
+              FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+        { &hf_ms_if_midi_element_cap2_rsv,
+            { "Reserved", "usbaudio.ms_if_midi_element.bmElementCaps.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+        { &hf_ms_if_midi_element_cap3_rsv,
+            { "Reserved", "usbaudio.ms_if_midi_element.bmElementCaps.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_ms_if_midi_element_ielement,
+            { "String descriptor index", "usbaudio.ms_if_midi_element.iElement",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iElement", HFILL }},
 
         { &hf_ms_ep_desc_subtype,
             { "Subtype", "usbaudio.ms_ep_subtype", FT_UINT8,
@@ -3874,6 +4067,8 @@ proto_register_usb_audio(void)
         &ett_as_if_gen_bmchannelconfig,
         &ett_as_ep_gen_attributes,
         &ett_as_ep_gen_controls,
+        &ett_ms_if_midi_element_caps1,
+        &ett_ms_if_midi_element_caps2,
         &ett_wvalue,
         &ett_windex,
         &ett_parameter_block,
