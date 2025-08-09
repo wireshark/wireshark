@@ -27,6 +27,7 @@ use Encode;
 use English;
 use Getopt::Long;
 use Text::Balanced qw(extract_bracketed);
+use Term::ANSIColor qw(:constants);
 
 my %APIs = (
         # API groups.
@@ -414,7 +415,7 @@ sub check_snprintf_plus_strlen($$)
                 my ($item) = @items;
                 shift @items;
                 if ($item =~ / strlen\s*\( /xos) {
-                        print STDERR "Error: ".$filename." uses snprintf + strlen to assemble strings.\n";
+                        print STDERR RED, "Error: ".$filename." uses snprintf + strlen to assemble strings.\n", RESET;
                         $errorCount++;
                         last;
                 }
@@ -593,7 +594,7 @@ sub check_proto_tree_add_XXX($$)
                 if ($args =~ /,\s*tvb_get_/xos) {
                         if (($func =~ m/^proto_tree_add_(time|bytes|ipxnet|ipv4|ipv6|ether|guid|oid|string|boolean|float|double|uint|uint64|int|int64|eui64|bitmask_list_value)$/)
                            ) {
-                                print STDERR "Error: ".$filename." uses $func with tvb_get_*. Use proto_tree_add_item instead\n";
+                                print STDERR RED, "Error: ".$filename." uses $func with tvb_get_*. Use proto_tree_add_item instead\n", RESET;
                                 $errorCount++;
 
                                 # Print out the function args to make it easier
@@ -614,7 +615,7 @@ sub check_proto_tree_add_XXX($$)
                 if ($args =~ /,\s*ENC_/xos) {
                         if (!($func =~ /proto_tree_add_(time|item|bitmask|[a-z0-9]+_bits_format_value|bits_item|bits_ret_val|item_ret_int|item_ret_uint|bytes_item|checksum)/xos)
                            ) {
-                                print STDERR "Error: ".$filename." uses $func with ENC_*.\n";
+                                print STDERR RED, "Error: ".$filename." uses $func with ENC_*.\n", RESET;
                                 $errorCount++;
 
                                 # Print out the function args to make it easier
@@ -691,7 +692,7 @@ sub check_ett_registration($$)
         }
 
         if (@unUsedEtts) {
-                print STDERR "Error: found these unused ett variables in ".$filename.": ".join(' ', @unUsedEtts)."\n";
+                print STDERR RED, "Error: found these unused ett variables in ".$filename.": ".join(' ', @unUsedEtts)."\n", RESET;
                 $errorCount++;
         }
 
@@ -746,100 +747,100 @@ sub check_hf_entries($$)
                 #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=>$convert<, bitmask=$bitmask, blurb=$blurb\n";
 
                 if ($abbrev eq '""' || $abbrev eq "NULL") {
-                        print STDERR "Error: $hf does not have an abbreviation in $filename\n";
+                        print STDERR RED, "Error: $hf does not have an abbreviation in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($abbrev =~ m/\.\.+/) {
-                        print STDERR "Error: the abbreviation for $hf ($abbrev) contains two or more sequential periods in $filename\n";
+                        print STDERR RED, "Error: the abbreviation for $hf ($abbrev) contains two or more sequential periods in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($name eq $abbrev) {
-                        print STDERR "Error: the abbreviation for $hf ($abbrev) matches the field name ($name) in $filename\n";
+                        print STDERR RED, "Error: the abbreviation for $hf ($abbrev) matches the field name ($name) in $filename\n", RESET;
                         $errorCount++;
                 }
                 if (lc($name) eq lc($blurb)) {
-                        print STDERR "Error: the blurb for $hf ($blurb) matches the field name ($name) in $filename\n";
+                        print STDERR RED, "Error: the blurb for $hf ($blurb) matches the field name ($name) in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($name =~ m/"\s+/) {
-                        print STDERR "Error: the name for $hf ($name) has leading space in $filename\n";
+                        print STDERR RED, "Error: the name for $hf ($name) has leading space in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($name =~ m/\s+"/) {
-                        print STDERR "Error: the name for $hf ($name) has trailing space in $filename\n";
+                        print STDERR RED, "Error: the name for $hf ($name) has trailing space in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($blurb =~ m/"\s+/) {
-                        print STDERR "Error: the blurb for $hf ($blurb) has leading space in $filename\n";
+                        print STDERR RED, "Error: the blurb for $hf ($blurb) has leading space in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($blurb =~ m/\s+"/) {
-                        print STDERR "Error: the blurb for $hf ($blurb) has trailing space in $filename\n";
+                        print STDERR RED, "Error: the blurb for $hf ($blurb) has trailing space in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($abbrev =~ m/\s+/) {
-                        print STDERR "Error: the abbreviation for $hf ($abbrev) has white space in $filename\n";
+                        print STDERR RED, "Error: the abbreviation for $hf ($abbrev) has white space in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ("\"".$hf ."\"" eq $name) {
-                        print STDERR "Error: name is the hf_variable_name in field $name ($abbrev) in $filename\n";
+                        print STDERR RED, "Error: name is the hf_variable_name in field $name ($abbrev) in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ("\"".$hf ."\"" eq $abbrev) {
-                        print STDERR "Error: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n";
+                        print STDERR RED, "Error: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($ft ne "FT_BOOLEAN" && $convert =~ m/^TFS\(.*\)/) {
-                        print STDERR "Error: $hf uses a true/false string but is an $ft instead of FT_BOOLEAN in $filename\n";
+                        print STDERR RED, "Error: $hf uses a true/false string but is an $ft instead of FT_BOOLEAN in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($ft eq "FT_BOOLEAN" && $convert =~ m/^VALS\(.*\)/) {
-                        print STDERR "Error: $hf uses a value_string but is an FT_BOOLEAN in $filename\n";
+                        print STDERR RED, "Error: $hf uses a value_string but is an FT_BOOLEAN in $filename\n", RESET;
                         $errorCount++;
                 }
                 if (($ft eq "FT_BOOLEAN") && ($bitmask !~ /^(0x)?0+$/) && ($display =~ /^BASE_/)) {
-                        print STDERR "Error: $hf: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n";
+                        print STDERR RED, "Error: $hf: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n", RESET;
                         $errorCount++;
                 }
                 if (($ft eq "FT_BOOLEAN") && ($convert !~ m/^((0[xX]0?)?0$|NULL$|TFS)/)) {
-                        print STDERR "Error: $hf: FT_BOOLEAN with non-null 'convert' field missing TFS in $filename\n";
+                        print STDERR RED, "Error: $hf: FT_BOOLEAN with non-null 'convert' field missing TFS in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($convert =~ m/RVALS/ && $display !~ m/BASE_RANGE_STRING/) {
-                        print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
+                        print STDERR RED, "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($convert =~ m/VALS64/ && $display !~ m/BASE_VAL64_STRING/) {
-                        print STDERR "Error: $hf uses VALS64 but 'display' does not include BASE_VAL64_STRING in $filename\n";
+                        print STDERR RED, "Error: $hf uses VALS64 but 'display' does not include BASE_VAL64_STRING in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($display =~ /BASE_EXT_STRING/ && $convert !~ /^(VALS_EXT_PTR\(|&)/) {
-                        print STDERR "Error: $hf: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '$convert' in $filename\n";
+                        print STDERR RED, "Error: $hf: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '$convert' in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($display =~ /BASE_UNIT_STRING/ && ($convert !~ m/^((0[xX]0?)?0$|NULL$|UNS)/)) {
-                        print STDERR "Error: $hf: BASE_UNIT_STRING with non-null 'convert' field missing UNS in $filename\n";
+                        print STDERR RED, "Error: $hf: BASE_UNIT_STRING with non-null 'convert' field missing UNS in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($ft =~ m/^FT_U?INT(8|16|24|32)$/ && $convert =~ m/^VALS64\(/) {
-                        print STDERR "Error: $hf: 32-bit field must use VALS instead of VALS64 in $filename\n";
+                        print STDERR RED, "Error: $hf: 32-bit field must use VALS instead of VALS64 in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($ft =~ m/^FT_U?INT(40|48|56|64)$/ && $convert =~ m/^VALS\(/) {
-                        print STDERR "Error: $hf: 64-bit field must use VALS64 instead of VALS in $filename\n";
+                        print STDERR RED, "Error: $hf: 64-bit field must use VALS64 instead of VALS in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($convert =~ m/^(VALS|VALS64|RVALS)\(&.*\)/) {
-                        print STDERR "Error: $hf is passing the address of a pointer to $1 in $filename\n";
+                        print STDERR RED, "Error: $hf is passing the address of a pointer to $1 in $filename\n", RESET;
                         $errorCount++;
                 }
                 if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
-                        print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in $filename ?\n";
+                        print STDERR RED, "Error: non-null $hf 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in $filename ?\n", RESET;
                         $errorCount++;
                 }
 ## Benign...
 ##              if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
-##                      print STDERR "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
+##                      print STDERR RED, "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n", RESET;
 ##                      $errorCount++;
 ##              }
                 ##if ($errorCount != $errorCount_save) {
@@ -913,7 +914,7 @@ sub check_try_catch($$)
         my @items = (${$fileContentsRef} =~ m/ \bTRY\s*\{ (.+?) \}\s* \\? \s*ENDTRY\b /xsg);
         for my $block (@items) {
                 if ($block =~ m/ \breturn\b /x) {
-                        print STDERR "Error: return is forbidden in TRY/CATCH in $filename\n";
+                        print STDERR RED, "Error: return is forbidden in TRY/CATCH in $filename\n", RESET;
                         $errorCount++;
                 }
 
@@ -926,7 +927,7 @@ sub check_try_catch($$)
                         $seen{$gotoLabel} = 1;
 
                         if ($block !~ /^ \s* $gotoLabel \s* :/xsgm) {
-                                print STDERR "Error: goto to label '$gotoLabel' outside TRY/CATCH is forbidden in $filename\n";
+                                print STDERR RED, "Error: goto to label '$gotoLabel' outside TRY/CATCH is forbidden in $filename\n", RESET;
                                 $errorCount++;
                         }
                 }
@@ -1152,7 +1153,7 @@ while ($_ = pop @filelist)
                 $fileContents .= $_;
                 eval { decode( 'UTF-8', $_, Encode::FB_CROAK ) };
                 if ($EVAL_ERROR) {
-                        print STDERR "Error: Found an invalid UTF-8 sequence on line " .$line. " of " .$filename."\n";
+                        print STDERR RED, "Error: Found an invalid UTF-8 sequence on line " .$line. " of " .$filename."\n", RESET;
                         $errorCount++;
                 }
                 $line++;
@@ -1175,7 +1176,7 @@ while ($_ = pop @filelist)
                 # some point, so Don't Do That.
                 #
                 # Can I get an "amen!"?
-                print STDERR "Error: Found modelines with tabstops set to something other than 8 in " .$filename."\n";
+                print STDERR RED, "Error: Found modelines with tabstops set to something other than 8 in " .$filename."\n", RESET;
                 $errorCount++;
         }
 
@@ -1192,7 +1193,7 @@ while ($_ = pop @filelist)
         if ($fileContents =~ m{ %\d*?ll }dxo)
         {
                 # use PRI[dux...]N instead of ll
-                print STDERR "Error: Found %ll in " .$filename."\n";
+                print STDERR RED, "Error: Found %ll in " .$filename."\n", RESET;
                 $errorCount++;
         }
 
@@ -1201,7 +1202,7 @@ while ($_ = pop @filelist)
                 # %hh is C99 and Windows doesn't like it:
                 # http://connect.microsoft.com/VisualStudio/feedback/details/416843/sscanf-cannot-not-handle-hhd-format
                 # Need to use temporary variables instead.
-                print STDERR "Error: Found %hh in " .$filename."\n";
+                print STDERR RED, "Error: Found %hh in " .$filename."\n", RESET;
                 $errorCount++;
         }
 
