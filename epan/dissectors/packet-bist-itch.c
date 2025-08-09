@@ -15,10 +15,8 @@
 
 #include "config.h"
 
-#include <stdbool.h>
-#include <inttypes.h>
-#include <stdlib.h>
-#include <string.h>
+#include <wireshark.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/column-utils.h>
@@ -26,7 +24,7 @@
 #include <wsutil/type_util.h>
 #include <wsutil/wmem/wmem.h>
 
-static bool bist_show_bigint_price = false;
+static bool bist_show_bigint_price;
 static dissector_handle_t bist_handle;
 
 static const value_string message_types_val[] = {
@@ -44,19 +42,19 @@ static const value_string message_types_val[] = {
     { 'V', "Short Sell Status"         },
     { 'O', "Order Book State"          },
     { 'L', "Tick Size"                 },
-    { 0,     NULL                       }
+    { 0,   NULL                        }
 };
 
 static const value_string bist_itch_side_vals[] = {
     { 'B', "Buy"  },
     { 'S', "Sell" },
-    { 0,    NULL   }
+    { 0,   NULL   }
 };
 
 static const value_string bist_itch_event_vals[] = {
     { 'O', "Start of Messages" },
     { 'C', "End of Messages"   },
-    { 0,    NULL               }
+    { 0,   NULL                }
 };
 
 
@@ -152,6 +150,7 @@ static int dissect_order_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_append_fstr(pinfo->cinfo, COL_INFO, "%" PRIu64 " ", oid);
     return offset + 8;
 }
+
 /* Guard for optional/trailing bytes: if remaining < len, bail out (goto done). */
 /* Avoids malformed on omitted reserved fields; don’t use for required fields. */
 #define NEED(len) do { \
@@ -164,140 +163,130 @@ dissect_bist_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
     proto_item *ti;
     proto_tree *bist_tree = NULL;
-    int        offset    = 0;
-    uint8_t      type      = tvb_get_uint8(tvb, offset);
+    int         offset    = 0;
+    uint8_t     type      = tvb_get_uint8(tvb, offset);
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "bist‑ITCH");
     const char *type_desc = val_to_str(type, message_types_val, "Unknown (0x%02x)");
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo,   COL_INFO,  type_desc);
+    col_add_str(pinfo->cinfo, COL_INFO, type_desc);
 
     ti = proto_tree_add_protocol_format(tree, proto_bist, tvb, 0, -1,
-                                    "bist ITCH, %s", type_desc);
+                                        "bist ITCH, %s", type_desc);
     bist_tree = proto_item_add_subtree(ti, ett_bist_itch);
     proto_tree_add_uint(bist_tree, hf_bist_message_type, tvb, 0, 1, type);
     offset += 1;
 
     switch (type) {
     case 'A': { // Add Order
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_side,        tvb, offset, 1, ENC_BIG_ENDIAN);   offset += 1;
-            NEED(4);
-            proto_tree_add_item(bist_tree, hf_bist_ranking_seq, tvb, offset, 4, ENC_BIG_ENDIAN);   offset += 4;
-            NEED(8 + 4 + 2 + 1);
-            offset = dissect_quantity(tvb, pinfo, bist_tree, offset);  // 8
-            offset = add_price(bist_tree, hf_bist_price, tvb, offset); // 4
-            proto_tree_add_item(bist_tree, hf_bist_order_attributes, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-            proto_tree_add_item(bist_tree, hf_bist_lot_type,        tvb, offset, 1, ENC_BIG_ENDIAN);   offset += 1;
-            NEED(8);
-            proto_tree_add_item(bist_tree, hf_bist_ranking_time, tvb, offset, 8, ENC_BIG_ENDIAN);  offset += 8;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        NEED(4);
+        proto_tree_add_item(bist_tree, hf_bist_ranking_seq, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        NEED(8 + 4 + 2 + 1);
+        offset = dissect_quantity(tvb, pinfo, bist_tree, offset);  // 8
+        offset = add_price(bist_tree, hf_bist_price, tvb, offset); // 4
+        proto_tree_add_item(bist_tree, hf_bist_order_attributes, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(bist_tree, hf_bist_lot_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        NEED(8);
+        proto_tree_add_item(bist_tree, hf_bist_ranking_time, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        break;
     }
     case 'Z': { // Equilibrium Price
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_eq_bid_qty,  tvb, offset, 8, ENC_BIG_ENDIAN);   offset += 8;
-            proto_tree_add_item(bist_tree, hf_bist_eq_ask_qty,  tvb, offset, 8, ENC_BIG_ENDIAN);   offset += 8;
-            offset = add_price(bist_tree, hf_bist_price,         tvb, offset);
-            offset = add_price(bist_tree, hf_bist_best_bid_price,tvb, offset);
-            offset = add_price(bist_tree, hf_bist_best_ask_price,tvb, offset);
-            proto_tree_add_item(bist_tree, hf_bist_bid_qty,      tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-            proto_tree_add_item(bist_tree, hf_bist_ask_qty,      tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_eq_bid_qty, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        proto_tree_add_item(bist_tree, hf_bist_eq_ask_qty, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        offset = add_price(bist_tree, hf_bist_price, tvb, offset);
+        offset = add_price(bist_tree, hf_bist_best_bid_price, tvb, offset);
+        offset = add_price(bist_tree, hf_bist_best_ask_price, tvb, offset);
+        proto_tree_add_item(bist_tree, hf_bist_bid_qty, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        proto_tree_add_item(bist_tree, hf_bist_ask_qty, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        break;
     }
     case 'M': { // Combo Leg
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_combo_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_leg_order_book,     tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_leg_side, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            proto_tree_add_item(bist_tree, hf_bist_leg_ratio, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_combo_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_leg_order_book, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_leg_side, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        proto_tree_add_item(bist_tree, hf_bist_leg_ratio, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        break;
     }
     case 'E': { // Order Executed
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            offset = dissect_quantity(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_match_id, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-            proto_tree_add_item(bist_tree, hf_bist_combo_group, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;proto_tree_add_item(bist_tree, hf_bist_reserved1, tvb, offset, 7, ENC_NA); offset += 7;
-            proto_tree_add_item(bist_tree, hf_bist_reserved2, tvb, offset, 7, ENC_NA); offset += 7;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        offset = dissect_quantity(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_match_id, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        proto_tree_add_item(bist_tree, hf_bist_combo_group, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_reserved1, tvb, offset, 7, ENC_NA); offset += 7;
+        proto_tree_add_item(bist_tree, hf_bist_reserved2, tvb, offset, 7, ENC_NA); offset += 7;
+        break;
     }
     case 'T': { // Second
-            proto_tree_add_item(bist_tree, hf_bist_second, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            break;
+        proto_tree_add_item(bist_tree, hf_bist_second, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        break;
     }
     case 'P': { // Trade
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_match_id, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-            proto_tree_add_item(bist_tree, hf_bist_combo_group, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            offset = dissect_quantity(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            offset = add_price(bist_tree, hf_bist_price, tvb, offset);
-            proto_tree_add_item(bist_tree, hf_bist_reserved1, tvb, offset, 7, ENC_NA); offset += 7;
-            proto_tree_add_item(bist_tree, hf_bist_reserved2, tvb, offset, 7, ENC_NA); offset += 7;
-            proto_tree_add_item(bist_tree, hf_bist_printable, tvb, offset, 1, ENC_ASCII);
-            offset += 1;
-            proto_tree_add_item(bist_tree, hf_bist_occurred_cross, tvb, offset, 1, ENC_ASCII);
-            offset += 1;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_match_id, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        proto_tree_add_item(bist_tree, hf_bist_combo_group, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        offset = dissect_quantity(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        offset = add_price(bist_tree, hf_bist_price, tvb, offset);
+        proto_tree_add_item(bist_tree, hf_bist_reserved1, tvb, offset, 7, ENC_NA); offset += 7;
+        proto_tree_add_item(bist_tree, hf_bist_reserved2, tvb, offset, 7, ENC_NA); offset += 7;
+        proto_tree_add_item(bist_tree, hf_bist_printable, tvb, offset, 1, ENC_ASCII); offset += 1;
+        proto_tree_add_item(bist_tree, hf_bist_occurred_cross, tvb, offset, 1, ENC_ASCII); offset += 1;
+        break;
     }
     case 'C': { // Order Executed with price
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            offset = dissect_quantity(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_match_id, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-            proto_tree_add_item(bist_tree, hf_bist_combo_group, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_reserved1, tvb, offset, 7, ENC_NA); offset += 7;
-            proto_tree_add_item(bist_tree, hf_bist_reserved2, tvb, offset, 7, ENC_NA); offset += 7;
-            offset = add_price(bist_tree, hf_bist_price, tvb, offset);
-            proto_tree_add_item(bist_tree, hf_bist_occurred_cross, tvb, offset, 1, ENC_ASCII);
-            offset += 1;
-            proto_tree_add_item(bist_tree, hf_bist_printable, tvb, offset, 1, ENC_ASCII);
-            offset += 1;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        offset = dissect_quantity(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_match_id, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        proto_tree_add_item(bist_tree, hf_bist_combo_group, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_reserved1, tvb, offset, 7, ENC_NA); offset += 7;
+        proto_tree_add_item(bist_tree, hf_bist_reserved2, tvb, offset, 7, ENC_NA); offset += 7;
+        offset = add_price(bist_tree, hf_bist_price, tvb, offset);
+        proto_tree_add_item(bist_tree, hf_bist_occurred_cross, tvb, offset, 1, ENC_ASCII); offset += 1;
+        proto_tree_add_item(bist_tree, hf_bist_printable, tvb, offset, 1, ENC_ASCII); offset += 1;
+        break;
     }
     case 'D': { // Order Delete
-            offset = dissect_timestamp(tvb, bist_tree, offset);
-            offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
-            proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-            proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset);
+        offset = dissect_order_id(tvb, pinfo, bist_tree, offset);
+        proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_side, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        break;
     }
     case 'S': { // System Event
-            offset = dissect_timestamp(tvb, bist_tree, offset);                  // 1..4
-            proto_tree_add_item(bist_tree, hf_bist_event_code, tvb, offset, 1, ENC_BIG_ENDIAN); // 'O' or 'C'
-            offset += 1;
-            break;
+        offset = dissect_timestamp(tvb, bist_tree, offset); // 1..4
+        proto_tree_add_item(bist_tree, hf_bist_event_code, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;  // 'O' or 'C'
+        break;
     }
     case 'R': { // Orderbook Directory
         offset = dissect_timestamp(tvb, bist_tree, offset);
         proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_symbol,       tvb, offset, 32, ENC_ASCII);     offset += 32;
-        proto_tree_add_item(bist_tree, hf_bist_long_name,    tvb, offset, 32, ENC_ASCII);     offset += 32;
-        proto_tree_add_item(bist_tree, hf_bist_isin,         tvb, offset, 12, ENC_ASCII);     offset += 12;
+        proto_tree_add_item(bist_tree, hf_bist_symbol, tvb, offset, 32, ENC_ASCII); offset += 32;
+        proto_tree_add_item(bist_tree, hf_bist_long_name, tvb, offset, 32, ENC_ASCII); offset += 32;
+        proto_tree_add_item(bist_tree, hf_bist_isin, tvb, offset, 12, ENC_ASCII); offset += 12;
         proto_tree_add_item(bist_tree, hf_bist_financial_product, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-        proto_tree_add_item(bist_tree, hf_bist_trading_currency,  tvb, offset, 3, ENC_ASCII); offset += 3;
-        proto_tree_add_item(bist_tree, hf_bist_price_decimals,    tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-        proto_tree_add_item(bist_tree, hf_bist_nominal_decimals,  tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-        proto_tree_add_item(bist_tree, hf_bist_odd_lot_size,      tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_round_lot_size,    tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_block_lot_size,    tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_nominal_value,     tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-        proto_tree_add_item(bist_tree, hf_bist_number_of_leg,     tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+        proto_tree_add_item(bist_tree, hf_bist_trading_currency, tvb, offset, 3, ENC_ASCII); offset += 3;
+        proto_tree_add_item(bist_tree, hf_bist_price_decimals, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(bist_tree, hf_bist_nominal_decimals, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(bist_tree, hf_bist_odd_lot_size, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_round_lot_size, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_block_lot_size, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(bist_tree, hf_bist_nominal_value, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        proto_tree_add_item(bist_tree, hf_bist_number_of_leg, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
         proto_tree_add_item(bist_tree, hf_bist_underlying_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
         offset = add_price(bist_tree, hf_bist_strike_price, tvb, offset);
         proto_tree_add_item(bist_tree, hf_bist_expiration_date, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
@@ -315,22 +304,21 @@ dissect_bist_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     case 'V': { // Short Sell Status
         offset = dissect_timestamp(tvb, bist_tree, offset);
         proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_short_sell_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+        proto_tree_add_item(bist_tree, hf_bist_short_sell_status, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
         break;
     }
     case 'O': { // Orderbook State
         offset = dissect_timestamp(tvb, bist_tree, offset);
         proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_state_name,   tvb, offset, 20, ENC_ASCII);     offset += 20;
+        proto_tree_add_item(bist_tree, hf_bist_state_name, tvb, offset, 20, ENC_ASCII); offset += 20;
         break;
     }
     case 'L': { // Tick Size
         offset = dissect_timestamp(tvb, bist_tree, offset);
         proto_tree_add_item(bist_tree, hf_bist_orderbook_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(bist_tree, hf_bist_tick_size,    tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
-        offset = add_price(bist_tree, hf_bist_price_from,   tvb, offset);
-        offset = add_price(bist_tree, hf_bist_price_to,     tvb, offset);
+        proto_tree_add_item(bist_tree, hf_bist_tick_size, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+        offset = add_price(bist_tree, hf_bist_price_from, tvb, offset);
+        offset = add_price(bist_tree, hf_bist_price_to, tvb, offset);
         break;
     }
     default: {
@@ -341,11 +329,9 @@ dissect_bist_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     /* Show any trailing/extra bytes for this message type. */
-    if (bist_tree) {
-        int rem = tvb_reported_length_remaining(tvb, offset);
-        if (rem > 0)
-            proto_tree_add_item(bist_tree, hf_bist_unexpected, tvb, offset, rem, ENC_NA);
-    }
+    NEED(1);
+    proto_tree_add_item(bist_tree, hf_bist_unexpected, tvb, offset, -1, ENC_NA);
+
 done:
     return tvb_captured_length(tvb);
 }
@@ -395,6 +381,7 @@ void proto_register_bist(void)
         { &hf_bist_put_or_call,          { "Put/Call",                "bist-itch.put_or_call",             FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL } },
         { &hf_bist_ranking_type,         { "Ranking Type",            "bist-itch.ranking_type",            FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL } },
         { &hf_bist_message,              { "Raw Message",             "bist-itch.message",                 FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_bist_combo_orderbook_id,   { "Combo Order Book ID",     "bist-itch.combo_orderbook_id",      FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
         { &hf_bist_leg_order_book,       { "Leg Order Book ID",       "bist-itch.leg_order_book",          FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
         { &hf_bist_leg_side,             { "Leg Side",                "bist-itch.leg_side",                FT_UINT8,  BASE_HEX,  VALS(bist_itch_side_vals), 0x0, NULL, HFILL } },
         { &hf_bist_leg_ratio,            { "Leg Ratio",               "bist-itch.leg_ratio",               FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
@@ -403,17 +390,20 @@ void proto_register_bist(void)
         { &hf_bist_best_bid_price,       { "Best Bid Price",          "bist-itch.best_bid_price",          FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_bist_best_ask_price,       { "Best Ask Price",          "bist-itch.best_ask_price",          FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_bist_best_bid_qty,         { "Next-Level Bid Qty",      "bist-itch.best_bid_qty",            FT_UINT64, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
-        { &hf_bist_eq_bid_qty, { "Avail Bid Qty at Equilibrium", "bist-itch.eq_bid_qty", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_bist_eq_ask_qty, { "Avail Ask Qty @ Equilibrium", "bist-itch.eq_ask_qty", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_bist_reserved1, { "Reserved", "bist-itch.reserved1", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_bist_reserved2, { "Reserved", "bist-itch.reserved2", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_bist_unexpected, { "Unexpected Bytes", "bist-itch.unexpected", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_bist_eq_bid_qty,           { "Avail Bid Qty at Equilibrium", "bist-itch.eq_bid_qty",         FT_UINT64, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
+        { &hf_bist_eq_ask_qty,           { "Avail Ask Qty @ Equilibrium", "bist-itch.eq_ask_qty",          FT_UINT64, BASE_DEC,  NULL, 0x0, NULL, HFILL } },
+        { &hf_bist_reserved1,            { "Reserved",                "bist-itch.reserved1",               FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_bist_reserved2,            { "Reserved",                "bist-itch.reserved2",               FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_bist_unexpected,           { "Unexpected Bytes",        "bist-itch.unexpected",              FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
-    static int *ett[] = { &ett_bist_itch };
+
+    static int *ett[] = {
+        &ett_bist_itch
+    };
 
     proto_bist = proto_register_protocol("BIST ITCH", "BIST‑ITCH", "bist_itch");
     proto_register_field_array(proto_bist, hf_bist, array_length(hf_bist));
-    proto_register_subtree_array(ett,      array_length(ett));
+    proto_register_subtree_array(ett, array_length(ett));
 
     module_t *pref = prefs_register_protocol(proto_bist, NULL);
     prefs_register_bool_preference(pref, "show_bigint_price",
