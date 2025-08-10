@@ -208,8 +208,9 @@ extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 static bool
 extract_nstime(tvbuff_t *tvb _U_, int32_t offset _U_, timestamp_data* data)
 {
-   *data = {0, 0};
-   return true;
+    data->picosec = 0;
+    data->nanosec = 0;
+    return true;
 }
 #endif
 
@@ -489,11 +490,7 @@ proto_register_ldaneo(void)
     };
 
     /* Register the protocol name and description */
-    proto_ldaneo = proto_register_protocol(
-            "LDANeo Device trailer",
-            "LDANeo",
-            "ldaneo"
-    );
+    proto_ldaneo = proto_register_protocol("LDANeo Device trailer", "LDANeo", "ldaneo");
 
     /* Register the header fields and subtrees */
     proto_register_field_array(proto_ldaneo, hf, array_length(hf));
