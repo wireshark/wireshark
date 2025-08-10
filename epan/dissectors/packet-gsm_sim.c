@@ -54,6 +54,7 @@ static int hf_bin_offset;
 static int hf_referencing;
 static int hf_sfi;
 static int hf_record_nr;
+static int hf_record_id;
 static int hf_record_file;
 static int hf_record_mode;
 static int hf_auth_rand_len;
@@ -92,6 +93,13 @@ static int hf_select_selection;
 
 static int hf_status_application_status;
 static int hf_status_return_data;
+
+static int hf_search_ef_identifier;
+static int hf_search_mode;
+static int hf_search_enhanced_type;
+static int hf_search_enhanced_mode;
+static int hf_search_enhanced_offset;
+static int hf_search_enhanced_value;
 
 static int hf_suspend_uicc_op;
 static int hf_suspend_uicc_min_time_unit;
@@ -421,10 +429,6 @@ static int hf_tp_pa_prov_loci_ng_ran_satellite_timing_advance_info;
 static int hf_tp_rfu14;
 
 static int hf_cat_ber_tag;
-
-static int hf_seek_mode;
-static int hf_seek_type;
-static int hf_seek_rec_nr;
 
 static int hf_related_to;
 static int hf_response_in;
@@ -1069,18 +1073,42 @@ static const value_string apdu_ins_vals[] = {
 	{ 0, NULL }
 };
 
-/* Section 9.2.7 */
-static const value_string seek_type_vals[] = {
-	{ 1, "update record pointer, no output" },
-	{ 2, "update record pointer, return record number" },
+/* Section 7.3.7 */
+
+static const range_string search_ef_identifier_vals[] = {
+	{ 0, 0, "Currently selected EF" },
+	{ 1, 30, "Short EF identifier" },
+	{ 31, 31, "Reserved for future use" },
+	{ 0, 0, NULL}
+};
+
+static const value_string search_mode_vals[] = {
+	{ 0x00, "Forward from first occurrence" },
+	{ 0x01, "Backward from last occurrence" },
+	{ 0x02, "Forward from next occurrence" },
+	{ 0x03, "Backward from previous occurrence" },
+	{ 0x04, "Forward from P1" },
+	{ 0x05, "Backward from P1" },
+	{ 0x06, "Enhanced search" },
+	{ 0x07, "Proprietary search" },
 	{ 0, NULL }
 };
 
-static const value_string seek_mode_vals[] = {
-	{ 0x01, "from the beginning forward" },
-	{ 0x02, "from the end backward" },
-	{ 0x03, "from the next location forward" },
-	{ 0x04, "from the previous location backward" },
+static const value_string search_enhanced_type[] = {
+	{ 0x00, "The subsequent byte is an offset (start from that position)" },
+	{ 0x01, "The subsequent byte is a value (start after the first occurrence)" },
+	{ 0, NULL }
+};
+
+static const value_string search_enhanced_mode_vals[] = {
+	{ 0x00, "Forward from first occurrence" },
+	{ 0x01, "Backward from last occurrence" },
+	{ 0x02, "Forward from next occurrence" },
+	{ 0x03, "Backward from previous occurrence" },
+	{ 0x04, "Forward from P1" },
+	{ 0x05, "Backward from P1" },
+	{ 0x06, "Forward from next record" },
+	{ 0x07, "Backward from previous record" },
 	{ 0, NULL }
 };
 
@@ -1822,6 +1850,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 	uint16_t g16;
 	tvbuff_t *subtvb;
 	int i, start_offset;
+	uint8_t first_byte;
 	const int data_offs = DATA_OFFS + (extended_len ? 2 : 0);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
@@ -1860,6 +1889,16 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		proto_tree_add_item(tree, hf_record_nr, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_record_file, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_record_mode, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
+		break;
+	case 0xA2: /* SEARCH RECORD */
+		first_byte = tvb_get_uint8(tvb, offset+data_offs);
+		if (((p2 & 0x04) == 0) || (((p2 & 0x07) == 0x06) && ((first_byte & 0x04) == 0))) {
+			proto_tree_add_item(tree, hf_record_id, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
+		} else {
+			proto_tree_add_item(tree, hf_record_nr, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
+		}
+		proto_tree_add_item(tree, hf_search_ef_identifier, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_search_mode, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		break;
 	case 0x88: /* RUN GSM ALGORITHM / AUTHENTICATE */
 		proto_tree_add_item(tree, hf_apdu_p1, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
@@ -1966,13 +2005,25 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		offset += data_offs + p3;
 		break;
 	case 0xA2: /* SEARCH RECORD */
-		proto_tree_add_item(tree, hf_seek_mode, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_seek_type, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		dissect_apdu_lc(tree, tvb, offset+P3_OFFS, extended_len);
-		proto_tree_add_item(tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
-		offset += data_offs + p3;
-		if ((p2 & 0xF0) == 0x20)
-			proto_tree_add_item(tree, hf_seek_rec_nr, tvb, offset++, 1, ENC_BIG_ENDIAN);
+		offset += data_offs;
+		if ((p2 & 0x07) == 0x06) { /* Enhanced search */
+			proto_tree_add_item(tree, hf_search_enhanced_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_search_enhanced_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+			if ((first_byte & 0xF8) == 0) {
+				proto_tree_add_item(tree, hf_search_enhanced_offset, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			} else {
+				proto_tree_add_item(tree, hf_search_enhanced_value, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			}
+			p3 -= 2; /* Reduced by 2 bytes for the enhanced search indication */
+		}
+		proto_tree_add_item(tree, hf_apdu_data, tvb, offset, p3, ENC_NA);
+		offset += p3;
+		if (tvb_reported_length_remaining(tvb, offset)) {
+			dissect_apdu_le(tree, tvb, offset, extended_len, false);
+			offset += (extended_len ? 2 : 1);
+		}
 		break;
 	case 0x32: /* INCREASE */
 		offset += data_offs;
@@ -2561,9 +2612,14 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 		{ &hf_record_nr,
-			{ "Record number", "gsm_sim.record_nr",
+			{ "Record Number", "gsm_sim.record_nr",
 			  FT_UINT8, BASE_DEC, NULL, 0,
-			  "Offset into binary file", HFILL }
+			  NULL, HFILL }
+		},
+		{ &hf_record_id,
+			{ "Record Identifier", "gsm_sim.record_id",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL },
 		},
 		{ &hf_record_file,
 			{ "File", "gsm_sim.record_file",
@@ -4273,19 +4329,35 @@ proto_register_gsm_sim(void)
 			  "Card Application Toolkit BER-TLV tag", HFILL },
 		},
 
-		{ &hf_seek_mode,
-			{ "Seek Mode", "gsm_sim.seek_mode",
-			  FT_UINT8, BASE_HEX, VALS(seek_mode_vals), 0x0F,
+		{ &hf_search_ef_identifier,
+			{ "EF Identifier", "gsm_sim.search_ef_identifier",
+			FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(search_ef_identifier_vals), 0xF8,
+			NULL, HFILL },
+		},
+		{ &hf_search_mode,
+			{ "Search Mode", "gsm_sim.search_mode",
+			  FT_UINT8, BASE_HEX, VALS(search_mode_vals), 0x07,
 			  NULL, HFILL },
 		},
-		{ &hf_seek_type,
-			{ "Seek Type", "gsm_sim.seek_type",
-			  FT_UINT8, BASE_DEC, VALS(seek_type_vals), 0x0F,
-			  NULL, HFILL },
+		{ &hf_search_enhanced_type,
+			{ "Enhanced Search Type", "gsm_sim.search_enhanced_type",
+			FT_UINT8, BASE_HEX, VALS(search_enhanced_type), 0xF8,
+			NULL, HFILL },
 		},
-		{ &hf_seek_rec_nr,
-			{ "Seek Record Number", "gsm_sim.seek_rec_nr",
-			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL },
+		{ &hf_search_enhanced_mode,
+			{ "Enhanced Search Mode", "gsm_sim.search_enhanced_mode",
+			FT_UINT8, BASE_HEX, VALS(search_enhanced_mode_vals), 0x07,
+			NULL, HFILL },
+		},
+		{ &hf_search_enhanced_offset,
+			{ "Enhanced Search Offset", "gsm_sim.search_enhanced_offset",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL },
+		},
+		{ &hf_search_enhanced_value,
+			{ "Enhanced Search Value", "gsm_sim.search_enhanced_value",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL },
 		},
 
 		{ &hf_related_to,
