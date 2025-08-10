@@ -849,6 +849,7 @@ static const value_string message_type[] = {
 /* ************************************************************************* */
 /*                      Message Element Type                                 */
 /* ************************************************************************* */
+// https://www.iana.org/assignments/capwap-parameters/capwap-parameters.xhtml#capwap-parameters-2
 #define TYPE_AC_DESCRIPTOR                        1
 #define TYPE_AC_IPV4_LIST                         2
 #define TYPE_AC_IPV6_LIST                         3
@@ -2913,14 +2914,19 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
         break;
 
     case IEEE80211_WTP_QUALITY_OF_SERVICE: /* IEEE 802.11 WTP Quality of Service (1045) */
+    {
+        static int * const wtp_qos_tag_flags[] = {
+            &hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_reserved,
+            &hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_p,
+            &hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_q,
+            &hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_d,
+            &hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_o,
+            &hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_i,
+            NULL
+        };
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_reserved, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_p, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_q, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_d, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_o, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_tag_pol_i, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(sub_msg_element_type_tree, tvb, offset + 5, 1, wtp_qos_tag_flags, ENC_BIG_ENDIAN);
 
         char *strs[] = { " Voice", " Video", " Best Effort", " Background" };
         for(int r = 0; r < 4; r++) {
@@ -2936,8 +2942,8 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
             proto_tree_add_item(qos_sub_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_8021p, tvb, offset+6+(r*8)+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(qos_sub_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_qos_dscp_tag, tvb, offset+6+(r*8)+7, 1, ENC_BIG_ENDIAN);
         }
-
         break;
+    }
 
     case IEEE80211_WTP_RADIO_CONFIGURATION: /* ieee80211 WTP Radio Configuration (1046) */
         if (optlen != 16) {
@@ -2955,20 +2961,26 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
         break;
 
     case IEEE80211_WTP_RADIO_INFORMATION: /* ieee80211 WTP Radio Information (1048) */
+    {
+        static int* const wtp_radio_info_radio_type_flags[] = {
+            &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_n,
+            &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g,
+            &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a,
+            &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b,
+            NULL
+        };
+
         if (optlen != 5) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
-                           "IEEE80211 WTP Radio Information length %u wrong, must be = 5", optlen);
-        break;
+                "IEEE80211 WTP Radio Information length %u wrong, must be = 5", optlen);
+            break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_reserved, tvb, offset+5, 3, ENC_NA);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_n, tvb, offset+8, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g, tvb, offset+8, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a, tvb, offset+8, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_reserved, tvb, offset + 5, 3, ENC_NA);
+
+        proto_tree_add_bitmask_list(sub_msg_element_type_tree, tvb, offset + 8, 1, wtp_radio_info_radio_type_flags, ENC_BIG_ENDIAN);
         break;
-
-
+    }
 
     case IEEE80211_SUPPORTED_MAC_PROFILES:{ /* ieee80211 Supported MAC Profiles (1060) */
         uint8_t num_profiles;
@@ -3097,12 +3109,22 @@ static int
 dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned offset, packet_info *pinfo, uint8_t *payload_type, uint8_t *payload_wbid, bool *fragment_is, bool *fragment_more, uint32_t *fragment_id, uint32_t *fragment_offset)
 {
     unsigned plen = 0, hlen = 0;
-    proto_item *ti, *ti_flag, *ti_len;
+    proto_item *ti, *ti_len;
     proto_tree *capwap_header_tree;
-    proto_tree *capwap_header_flags_tree;
     unsigned flags = 0;
     uint8_t maclength, wirelesslength;
     unsigned align = 0;
+
+    static int* const header_flags[] = {
+        &hf_capwap_header_flags_t,
+        &hf_capwap_header_flags_f,
+        &hf_capwap_header_flags_l,
+        &hf_capwap_header_flags_w,
+        &hf_capwap_header_flags_m,
+        &hf_capwap_header_flags_k,
+        &hf_capwap_header_flags_r,
+        NULL
+    };
 
     /* RFC 5415  HLEN:  A 5-bit field containing the length of the CAPWAP transport header in 4-byte words */
     /* As we display the preamble separately reduce the length by 1 */
@@ -3124,16 +3146,8 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned o
 
     /* Flags : 9 Bits */
     flags = tvb_get_bits16(tvb, (offset+plen)*8+15, 9, ENC_BIG_ENDIAN);
-    ti_flag = proto_tree_add_item(capwap_header_tree, hf_capwap_header_flags, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    capwap_header_flags_tree = proto_item_add_subtree(ti_flag, ett_capwap_header_flags);
 
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_t, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_f, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_l, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_w, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_m, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_k, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_header_flags_tree, hf_capwap_header_flags_r, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(capwap_header_tree, tvb, offset + plen, hf_capwap_header_flags, ett_capwap_header_flags, header_flags, ENC_BIG_ENDIAN);
 
     /* Fragment ??*/
     *fragment_is = ((flags & 0x80) == 0x80) ? true : false;
