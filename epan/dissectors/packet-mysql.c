@@ -1130,6 +1130,10 @@ static int proto_mysql;
 /* dissector configuration */
 static bool mysql_desegment = true;
 static bool mysql_showquery;
+static bool mysql_deprecate_eof = true;
+static bool mysql_query_attributes;
+static bool mariadb_extended_metadata;
+static bool mariadb_cache_metadata;
 
 /* expand-the-tree flags */
 static int ett_mysql;
@@ -1849,18 +1853,52 @@ find_or_create_mysql_conn_data(conversation_t *conversation)
 		conn_data->encoding_results = ENC_UTF_8;
 
 		// Client and server capability flags
-		// Set in case the conversation doesn't start with greeting/login
+		// Set in case the conversation doesn't start with greeting/login,
+		// as some of the capabilities alter dissection in ways that
+		// cannot be easily detected.
 		// It might be inconsistent whether clients set a flag even if
 		// the server denied capability by not setting the flag.
 		// TODO - Preferences to control the defaults. (#19856)
+		/* Always set the 4.1 protocol capabilities. (MySQL 4.1 was
+		 * released October 2004; there are probably very few clients
+		 * that use the older protocol, though another preference
+		 * could be added as necessary.) */
 		conn_data->clnt_caps = MYSQL_CAPS_CU     // CLIENT_PROTOCOL_41
 			^ MYSQL_CAPS_SC;		 // CLIENT_SECURE_CONNECTION / _RESERVED2
-		conn_data->clnt_caps_ext = MYSQL_CAPS_DE // CLIENT_DEPRECATE_EOF
-			^ MYSQL_CAPS_ST;                 // CLIENT_SESSION_TRACK
 		conn_data->srv_caps = MYSQL_CAPS_CU      // CLIENT_PROTOCOL_41
 			^ MYSQL_CAPS_SC;		 // CLIENT_SECURE_CONNECTION / _RESERVED2
-		conn_data->srv_caps_ext = MYSQL_CAPS_DE  // CLIENT_DEPRECATE_EOF
-			^ MYSQL_CAPS_ST;                 // CLIENT_SESSION_TRACK
+		/* These two extended capabilities go together. The EOF packet
+		 * was deprecated in order to enable session state tracking.
+		 * Not all clients/connectors support deprecating the EOF. */
+		if (mysql_deprecate_eof) {
+			conn_data->clnt_caps_ext |= MYSQL_CAPS_DE // CLIENT_DEPRECATE_EOF
+				^ MYSQL_CAPS_ST;                  // CLIENT_SESSION_TRACK
+			conn_data->srv_caps_ext |= MYSQL_CAPS_DE  // CLIENT_DEPRECATE_EOF
+				^ MYSQL_CAPS_ST;                  // CLIENT_SESSION_TRACK
+		}
+		/* QUERY_ATTRIBUTES was introduced in MySQL 8.0.23 and is not backwards
+		 * compatible. */
+		if (mysql_query_attributes) {
+			conn_data->clnt_caps_ext |= MYSQL_CAPS_QA; // CLIENT_QUERY_ATTRIBUTES
+			conn_data->srv_caps_ext |= MYSQL_CAPS_QA;  // CLIENT_QUERY_ATTRIBUTES
+		}
+		if (mariadb_extended_metadata) {
+			conn_data->mariadb_client_ext_caps |= MARIADB_CAPS_EM;
+			conn_data->mariadb_server_ext_caps |= MARIADB_CAPS_EM;
+		}
+		if (mariadb_cache_metadata) {
+			conn_data->mariadb_client_ext_caps |= MARIADB_CAPS_ME;
+			conn_data->mariadb_server_ext_caps |= MARIADB_CAPS_ME;
+		}
+
+		// Some extended capabilities add extra to Login packets, but
+		// also to MYSQL_CHANGE_USER commands (since the capabilities
+		// are not resent on a Change User.)
+		// Those include MYSQL_CAPS_PA (PLUGIN_AUTH), added MySQL 5.5.7,
+		// and MYSQL_CAPS_CA (CONNECT_ATTRS) and MYSQL_CAPS_AL
+		// (PLUGIN_AUTH_LENENC_CLIENT_DATA), both added in MySQL 5.6.7.
+		// We could also add preferences for Zlib and Zstandard compression,
+		// and for character sets.
 
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
@@ -6343,6 +6381,39 @@ void proto_register_mysql(void)
 					"Show SQL Query string in INFO column",
 					"Whether the MySQL dissector should display the SQL query string in the INFO column.",
 					&mysql_showquery);
+
+	prefs_register_bool_preference(mysql_module, "assume_deprecate_eof",
+					"Assume DEPRECATE_EOF capability",
+					"Whether the MySQL dissector should assume that the MYSQL_DEPRECATE_EOF"
+					" capability is negotiated when the login handshake is not captured."
+					" This capability was introduced with MySQL 5.5.7 to enable session"
+					" state tracking but is not supported by all connectors because of"
+					" backwards compatibility issues.",
+					&mysql_deprecate_eof);
+
+	prefs_register_bool_preference(mysql_module, "assume_query_attributes",
+					"Assume QUERY_ATTRIBUTES capability",
+					"Whether the MySQL dissector should assume that the MYSQL_QUERY_ATTRIBUTES"
+					" capability is negotiated when the login handshake is not captured."
+					" This capability was introduced with MySQL 8.0.23 and presents"
+					" backwards compatibility issues.",
+					&mysql_query_attributes);
+
+	prefs_register_bool_preference(mysql_module, "assume_extended_metadata",
+					"Assume MariaDB EXTENDED_METADATA capability",
+					"Whether the MySQL dissector should assume that the MariaDB EXTENDED_METADATA"
+					" capability is negotiated when the login handshake is not captured."
+					" This capability was introduced with MariaDB 10.5.2 and presents"
+					" backwards compatibility issues.",
+					&mariadb_extended_metadata);
+
+	prefs_register_bool_preference(mysql_module, "assume_cache_metadata",
+					"Assume MariaDB CACHE_METADATA capability",
+					"Whether the MySQL dissector should assume that the MariaDB CACHE_METADATA"
+					" capability is negotiated when the login handshake is not captured."
+					" This capability was introduced with MariaDB 10.6.0 and presents"
+					" backwards compatibility issues.",
+					&mariadb_cache_metadata);
 
 	reassembly_table_register(&mysql_reassembly_table,
 		&addresses_ports_reassembly_table_functions);
