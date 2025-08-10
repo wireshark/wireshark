@@ -589,7 +589,7 @@ wmem_map_size(wmem_map_t *map)
 size_t
 wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
 {
-    ws_return_val_if(!capacity, CAPACITY(map));
+    ws_return_val_if(!capacity, ((size_t)1) << map->min_capacity);
 
     map->min_capacity = ws_ilog2(capacity) + 1;
 
@@ -606,7 +606,7 @@ wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
 
     map->min_capacity = MIN(map->min_capacity, 32);
 
-    return CAPACITY(map);
+    return ((size_t)1) << map->min_capacity;
 }
 
 /* Borrowed from Perl 5.18. This is based on Bob Jenkin's one-at-a-time
