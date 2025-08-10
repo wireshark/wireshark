@@ -3880,7 +3880,17 @@ static uint32_t pcapng_compute_string_option_size(wtap_optval_t *optval)
 {
     uint32_t size = 0;
 
-    size = (uint32_t)strlen(optval->stringval) & 0xffff;
+    size = (uint32_t)strlen(optval->stringval);
+
+    if (size > 65535) {
+        /*
+         * Too big to fit in the option.
+         * Don't write anything.
+         *
+         * XXX - truncate it?  Report an error?
+         */
+        size = 0;
+    }
 
     return size;
 }
