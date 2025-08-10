@@ -3853,7 +3853,10 @@ dissector_dump_decodes_display(const char *table_name,
 	ws_assert(dtbl_entry);
 
 	handle   = dtbl_entry->current;
-	ws_assert(handle);
+	/* current might be NULL, if there was an initial value but then
+	 * set to no handle via Decode As. */
+	if (!handle)
+		return;
 
 	proto_id = dissector_handle_get_protocol_index(handle);
 
