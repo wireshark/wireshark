@@ -2805,6 +2805,7 @@ void WiresharkMainWindow::setNameResolution()
         packet_list_->resetColumns();
     }
     mainApp->emitAppSignal(WiresharkApplication::NameResolutionChanged);
+    prefs_main_write();
 }
 
 void WiresharkMainWindow::zoomText()
