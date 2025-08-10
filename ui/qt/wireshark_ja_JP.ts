@@ -3036,11 +3036,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ExtArgTable</name>
     <message>
         <source>Add custom data</source>
-        <translation type="unfinished"></translation>
+        <translation>カスタムデータを追加</translation>
     </message>
     <message>
         <source>Custom:</source>
-        <translation type="unfinished"></translation>
+        <translation>カスタム:</translation>
     </message>
 </context>
 <context>
@@ -3075,11 +3075,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Interface Sub-options</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース サブオプション</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Default</source>
@@ -7271,23 +7271,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>MarkerDialog</name>
     <message>
         <source>Choose marker:</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーを選択:</translation>
     </message>
     <message>
         <source>Enter new position:</source>
-        <translation type="unfinished"></translation>
+        <translation>新規位置を入力:</translation>
     </message>
     <message>
         <source>Move marker</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーを移動</translation>
     </message>
     <message>
         <source>Delete marker</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーを削除</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -8217,31 +8217,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーを追加</translation>
     </message>
     <message>
         <source>Move Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーを移動</translation>
     </message>
     <message>
         <source>Show Pos Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Posマーカーを表示</translation>
     </message>
     <message>
         <source>Show Markers Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーの差異を表示</translation>
     </message>
     <message>
         <source>Delete Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーを削除</translation>
     </message>
     <message>
         <source>Delete All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてを削除</translation>
     </message>
     <message>
         <source>Show Markers DataPoints</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカーのデータポイントを表示</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8261,7 +8261,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Markers</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカー</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
@@ -8269,7 +8269,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Stratoshark 描画: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>

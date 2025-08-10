@@ -3046,11 +3046,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>ExtArgTable</name>
     <message>
         <source>Add custom data</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix dades personalitzades</translation>
     </message>
     <message>
         <source>Custom:</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalitzada:</translation>
     </message>
 </context>
 <context>
@@ -3085,11 +3085,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Interface Sub-options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcions d&apos;interfície secundàries</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>D&apos;acord</translation>
     </message>
     <message>
         <source>Default</source>
@@ -7292,23 +7292,23 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>MarkerDialog</name>
     <message>
         <source>Choose marker:</source>
-        <translation type="unfinished"></translation>
+        <translation>Escull un marcador:</translation>
     </message>
     <message>
         <source>Enter new position:</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriu la posició nova:</translation>
     </message>
     <message>
         <source>Move marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou un marcador</translation>
     </message>
     <message>
         <source>Delete marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra un marcador</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>D&apos;acord</translation>
     </message>
 </context>
 <context>
@@ -8240,31 +8240,31 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Add Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegeix un marcador</translation>
     </message>
     <message>
         <source>Move Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Mou un marcador</translation>
     </message>
     <message>
         <source>Show Pos Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra el marcador de posició</translation>
     </message>
     <message>
         <source>Show Markers Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra la diferència de marcadors</translation>
     </message>
     <message>
         <source>Delete Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra marcador</translation>
     </message>
     <message>
         <source>Delete All</source>
-        <translation type="unfinished"></translation>
+        <translation>Esborra&apos;ls tots</translation>
     </message>
     <message>
         <source>Show Markers DataPoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra els punts de dades dels marcadors</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8284,7 +8284,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcadors</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
@@ -8292,7 +8292,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gràfics del Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
