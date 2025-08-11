@@ -3733,7 +3733,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             break;
 
         case 0x003c: /* Flow Spec Modify */
-            proto_tree_add_item(tree, hf_bthci_cmd_logical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bthci_cmd_flow_spec(tvb, offset, pinfo, tree, true);
             offset = dissect_bthci_cmd_flow_spec(tvb, offset, pinfo, tree, false);

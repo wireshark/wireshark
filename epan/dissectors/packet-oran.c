@@ -7748,8 +7748,8 @@ proto_register_oran(void)
         /* 7.7.20.5 numPuncPrb */
         { &hf_oran_numPuncPrb,
           { "numPuncPrb", "oran_fh_cus.numPuncPrb",
-            FT_UINT24, BASE_DEC,
-            NULL, 0x03ffff,
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0,
             "the number of PRBs of the puncturing pattern", HFILL}
         },
         /* 7.7.20.6 puncReMask */

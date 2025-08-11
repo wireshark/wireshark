@@ -37,6 +37,11 @@ def name_has_one_of(name, substring_list):
             return True
     return False
 
+# TODO: show in red and automatically inc errors_found
+def show_error(**kwargs):
+    print(kwargs)
+
+
 # An individual call to an API we are interested in.
 # Used by APICheck below.
 class Call:
@@ -537,6 +542,17 @@ class ProtoTreeAddItemCheck(APICheck):
                                 self.fun_name + ' called for', call.hf_name, ' - ',
                                 'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
                             warnings_found += 1
+
+                    # If have mask and length is too short, that is likely to be a problem.
+                    # N.B. shouldn't be from width of field, but how many bytes a mask spans (e.g., 0x0ff0 spans 2 bytes)
+                    if (item_lengths[items_defined[call.hf_name].item_type] > call.length and
+                        items_defined[call.hf_name].mask_value != 0 and
+                        int((items_defined[call.hf_name].mask_width + 7)/8) > call.length):
+
+                        print('Warning:', self.file + ':' + str(call.line_number),
+                            self.fun_name + ' called for', call.hf_name, ' - ',
+                            'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length, 'and mask is', hex(items_defined[call.hf_name].mask_value))
+                        warnings_found += 1
 
                 # Checking that encoding arg is compatible with item type
                 check_call_enc_matches_item(items_defined, call, self)
@@ -1304,11 +1320,11 @@ class ExpertEntry:
 
         # Some immediate checks (already covered by other scripts)
         if group not in valid_groups:
-            print('Error:', filename, 'Expert group', group, 'is not in', valid_groups)
+            print('Error:', filename, name, 'Expert group', group, 'is not in', valid_groups)
             errors_found += 1
 
         if severity not in valid_levels:
-            print('Error:', filename, 'Expert severity', severity, 'is not in', valid_levels)
+            print('Error:', filename, name, 'Expert severity', severity, 'is not in', valid_levels)
             errors_found += 1
 
         # Checks on the summary field

@@ -1279,6 +1279,7 @@ inmarsat
 inoage
 inode
 inodes
+inout
 inspiron
 installers
 instantiate
@@ -2166,6 +2167,7 @@ quadro
 quadruplet
 quadruplets
 qualcomm
+quals
 quantifiers
 quantization
 quantized
@@ -2672,6 +2674,7 @@ strcmp
 strdup
 streamid
 strfunc
+stringified
 stringz
 stringzpad
 strlen
@@ -2735,6 +2738,7 @@ superseding
 superset
 suppfeat
 svalidator
+svalue
 svcparam
 svcparams
 sverige
@@ -3134,6 +3138,7 @@ userdata
 userinfo
 userlist
 userplane
+ushort
 utf8mb
 utf8string
 utilization

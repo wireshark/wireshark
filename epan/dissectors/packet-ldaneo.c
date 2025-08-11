@@ -477,7 +477,7 @@ proto_register_ldaneo(void)
         },
         {
             &ei_ldaneo_cant_handle_picoseconds,
-            {"ldaneo.portid_invalid", PI_UNDECODED, PI_WARN, "Wireshark doesn't handle picosecond time stamps on this platform", EXPFILL}
+            {"ldaneo.cant_handle_picoseconds", PI_UNDECODED, PI_WARN, "Wireshark doesn't handle picosecond time stamps on this platform", EXPFILL}
         }
     };
     /* Setup protocol subtree array */

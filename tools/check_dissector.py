@@ -10,6 +10,7 @@ import os
 import signal
 import argparse
 import subprocess
+import re
 
 # Run battery of tests on one or more dissectors.
 
@@ -44,13 +45,15 @@ parser.add_argument('--file-list', action='store',
                     help='file with list of dissectors')
 parser.add_argument('--open', action='store_true',
                     help='look for dissectors among upon files')
+parser.add_argument('--commits', action='store',
+                    help='last N commits to check')
 parser.add_argument('--build-folder', action='store',
                     help='build folder')
 
 args = parser.parse_args()
 
-if not args.file and not args.file_list and not args.open:
-    print('Need to specify --file, --file-list or --open')
+if not args.file and not args.file_list and not args.open and not args.commits:
+    print('Need to specify --file, --file-list or --open or --commits')
     exit(1)
 
 # TODO: verify build-folder if set.
@@ -82,6 +85,10 @@ if args.file_list:
                 else:
                     dissectors.append(f)
 
+def is_dissector_file(filename):
+    p = re.compile(r'.*(packet|file)-.*\.c')
+    return p.match(filename)
+
 if args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
@@ -89,7 +96,7 @@ if args.open:
              for f in subprocess.check_output(command).splitlines()]
     # Filter files.
     # TODO: should filter here (and below) with a better check for dissectors
-    dissectors = list(filter(lambda f : f.endswith('.c'), files))
+    dissectors = list(filter(lambda f : is_dissector_file))
 
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
@@ -100,6 +107,16 @@ if args.open:
     for f in files_staged:
         if f not in files:
             dissectors.append(f)
+
+if args.commits:
+    # Get files affected by specified number of commits.
+    command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
+    files = {f.decode('utf-8')
+             for f in subprocess.check_output(command).splitlines()}
+    # Will examine dissector files only
+    files = set(filter(is_dissector_file, files))
+    dissectors.extend(files)
+
 
 # Tools that should be run on selected files.
 # Boolean arg is for whether build-dir is needed in order to run it.

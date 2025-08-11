@@ -712,11 +712,12 @@ tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree, tvbuff_t
     /* format a more readable time */
     proto_item_append_text ( time_item, "%04d/%03d:%02d:%02d:%02d.%1d", year + 1900, jday, hour, minute, second, tenths );
 
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_delta_time_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_computed_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_not_retrieved_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
-    /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_reserved, tvb, *offset, 1, ENC_BIG_ENDIAN ); */
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_source_apid, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    /* These flags are all 2-bytes, was it correct to change length here to 2? */
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_delta_time_flag, tvb, *offset, 2, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_computed_flag, tvb, *offset, 2, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_not_retrieved_flag, tvb, *offset, 2, ENC_BIG_ENDIAN );
+    /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_reserved, tvb, *offset, 2, ENC_BIG_ENDIAN ); */
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_source_apid, tvb, *offset, 2, ENC_BIG_ENDIAN );
   }
 
   if ( mjfs_present )

@@ -35,7 +35,7 @@ static dissector_handle_t avb17221_handle;
 #define ADP_CD_OFFSET                       0
 #define ADP_VERSION_OFFSET                  1
 #define ADP_VALID_TIME_OFFSET               2
-#define ADP_CD_LENGTH_OFFSET                3
+#define ADP_CD_LENGTH_OFFSET                2
 #define ADP_ENTITY_ID_OFFSET                4
 #define ADP_ENTITY_MODEL_ID_OFFSET          P1722_HEADER_OFFSET+0
 #define ADP_ENTITY_CAP_OFFSET               P1722_HEADER_OFFSET+8
@@ -4575,7 +4575,7 @@ dissect_17221_adp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *adp_tree)
 
    proto_tree_add_item(adp_tree, hf_adp_message_type, tvb, ADP_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(adp_tree, hf_adp_valid_time, tvb, ADP_VALID_TIME_OFFSET, 1, ENC_BIG_ENDIAN);
-   proto_tree_add_item(adp_tree, hf_adp_cd_length, tvb, ADP_CD_LENGTH_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_cd_length, tvb, ADP_CD_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(adp_tree, hf_adp_entity_id, tvb, ADP_ENTITY_ID_OFFSET, 8, ENC_BIG_ENDIAN);
    proto_tree_add_item(adp_tree, hf_adp_entity_model_id, tvb, ADP_ENTITY_MODEL_ID_OFFSET, 8, ENC_BIG_ENDIAN);
 
