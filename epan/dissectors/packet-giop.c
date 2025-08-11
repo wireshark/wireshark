@@ -3512,13 +3512,13 @@ int16_t get_CDR_short(tvbuff_t *tvb, int *offset, bool stream_is_big_endian, int
  * to eliminate function-local variables in packet-parlay.c .
  */
 void
-giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
+giop_add_CDR_string(wmem_allocator_t* scope, proto_tree *tree, tvbuff_t *tvb, int *offset,
                     bool stream_is_big_endian, int boundary, int hf)
 {
     uint32_t     u_octet4;
     const char *seq = NULL;
 
-    u_octet4 = get_CDR_string(wmem_packet_scope(), tvb, &seq, offset, stream_is_big_endian, boundary);
+    u_octet4 = get_CDR_string(scope, tvb, &seq, offset, stream_is_big_endian, boundary);
     proto_tree_add_string(tree, hf, tvb, *offset-u_octet4, u_octet4, (u_octet4 > 0) ? seq : "");
 }
 

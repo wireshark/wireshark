@@ -353,7 +353,7 @@ WS_DLL_PUBLIC int16_t get_CDR_short(tvbuff_t *tvb, int *offset,
     bool stream_is_big_endian, int boundary);
 
 
-WS_DLL_PUBLIC void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC void giop_add_CDR_string(wmem_allocator_t* scope, proto_tree *tree, tvbuff_t *tvb, int *offset,
     bool stream_is_big_endian, int boundary,
     int hf);
 

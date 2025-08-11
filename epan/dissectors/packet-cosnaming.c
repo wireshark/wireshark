@@ -154,7 +154,7 @@ decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo
     proto_tree_add_uint(tree, hf_CosNaming_NamingContext_NotFound_rest_of_name_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name);
 
     {
-        proto_tree *tree_bak_09Tpe7TmnKrq = tree;
+        proto_tree *tree_bak_sN7PpePOWxPI = tree;
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_NotFound_rest_of_name");
         for (i_CosNaming_NamingContext_NotFound_rest_of_name=0; i_CosNaming_NamingContext_NotFound_rest_of_name < u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name; i_CosNaming_NamingContext_NotFound_rest_of_name++) {
 
@@ -164,7 +164,7 @@ decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo
             decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "CosNaming_NameComponent"  */
         }
-        tree = tree_bak_09Tpe7TmnKrq;
+        tree = tree_bak_sN7PpePOWxPI;
     }
 
 }
@@ -187,7 +187,7 @@ decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *
     proto_tree_add_uint(tree, hf_CosNaming_NamingContext_CannotProceed_rest_of_name_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name);
 
     {
-        proto_tree *tree_bak_JSHneL6pZlpo = tree;
+        proto_tree *tree_bak_n2och9bbrypj = tree;
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_CannotProceed_rest_of_name");
         for (i_CosNaming_NamingContext_CannotProceed_rest_of_name=0; i_CosNaming_NamingContext_CannotProceed_rest_of_name < u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name; i_CosNaming_NamingContext_CannotProceed_rest_of_name++) {
 
@@ -197,7 +197,7 @@ decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *
             decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "CosNaming_NameComponent"  */
         }
-        tree = tree_bak_JSHneL6pZlpo;
+        tree = tree_bak_n2och9bbrypj;
     }
 
 }
@@ -289,7 +289,7 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
             proto_tree_add_uint(tree, hf_CosNaming_BindingIterator_next_n_bl_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_BindingIterator_next_n_bl);
 
             {
-                proto_tree *tree_bak_E4cwUte8TciR = tree;
+                proto_tree *tree_bak_lOrY4Yas5zrz = tree;
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_BindingIterator_next_n_bl");
                 for (i_CosNaming_BindingIterator_next_n_bl=0; i_CosNaming_BindingIterator_next_n_bl < u_octet4_loop_CosNaming_BindingIterator_next_n_bl; i_CosNaming_BindingIterator_next_n_bl++) {
 
@@ -299,7 +299,7 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
                     decode_CosNaming_Binding_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "CosNaming_Binding"  */
                 }
-                tree = tree_bak_E4cwUte8TciR;
+                tree = tree_bak_lOrY4Yas5zrz;
             }
 
             break;
@@ -380,7 +380,7 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             proto_tree_add_uint(tree, hf_CosNaming_NamingContext_list_bl_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_list_bl);
 
             {
-                proto_tree *tree_bak_5xFdi4agCjhj = tree;
+                proto_tree *tree_bak_r4nJKtAYqIw5 = tree;
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_list_bl");
                 for (i_CosNaming_NamingContext_list_bl=0; i_CosNaming_NamingContext_list_bl < u_octet4_loop_CosNaming_NamingContext_list_bl; i_CosNaming_NamingContext_list_bl++) {
 
@@ -390,7 +390,7 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
                     decode_CosNaming_Binding_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "CosNaming_Binding"  */
                 }
-                tree = tree_bak_5xFdi4agCjhj;
+                tree = tree_bak_r4nJKtAYqIw5;
             }
 
             get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
@@ -460,7 +460,7 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_new_context_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_new_context_n);
 
         {
-            proto_tree *tree_bak_EvONX2gOyah6 = tree;
+            proto_tree *tree_bak_BHYgx5zpcC0E = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_bind_new_context_n");
             for (i_CosNaming_NamingContext_bind_new_context_n=0; i_CosNaming_NamingContext_bind_new_context_n < u_octet4_loop_CosNaming_NamingContext_bind_new_context_n; i_CosNaming_NamingContext_bind_new_context_n++) {
 
@@ -470,7 +470,7 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_EvONX2gOyah6;
+            tree = tree_bak_BHYgx5zpcC0E;
         }
 
         break;
@@ -544,7 +544,7 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_unbind_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_unbind_n);
 
         {
-            proto_tree *tree_bak_5uqRsRwEVFim = tree;
+            proto_tree *tree_bak_og2p7UwY7Q0P = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_unbind_n");
             for (i_CosNaming_NamingContext_unbind_n=0; i_CosNaming_NamingContext_unbind_n < u_octet4_loop_CosNaming_NamingContext_unbind_n; i_CosNaming_NamingContext_unbind_n++) {
 
@@ -554,7 +554,7 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_5uqRsRwEVFim;
+            tree = tree_bak_og2p7UwY7Q0P;
         }
 
         break;
@@ -597,7 +597,7 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_resolve_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_resolve_n);
 
         {
-            proto_tree *tree_bak_RKEfOtemf4os = tree;
+            proto_tree *tree_bak_wonRbCJQPWgM = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_resolve_n");
             for (i_CosNaming_NamingContext_resolve_n=0; i_CosNaming_NamingContext_resolve_n < u_octet4_loop_CosNaming_NamingContext_resolve_n; i_CosNaming_NamingContext_resolve_n++) {
 
@@ -607,7 +607,7 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_RKEfOtemf4os;
+            tree = tree_bak_wonRbCJQPWgM;
         }
 
         break;
@@ -650,7 +650,7 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_context_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_context_n);
 
         {
-            proto_tree *tree_bak_9TQVabcmASYc = tree;
+            proto_tree *tree_bak_d8p16zGHQjeJ = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_rebind_context_n");
             for (i_CosNaming_NamingContext_rebind_context_n=0; i_CosNaming_NamingContext_rebind_context_n < u_octet4_loop_CosNaming_NamingContext_rebind_context_n; i_CosNaming_NamingContext_rebind_context_n++) {
 
@@ -660,7 +660,7 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_9TQVabcmASYc;
+            tree = tree_bak_d8p16zGHQjeJ;
         }
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
@@ -705,7 +705,7 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_context_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_context_n);
 
         {
-            proto_tree *tree_bak_s91VIl9VUpG1 = tree;
+            proto_tree *tree_bak_a8ay6oVAs7pR = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_bind_context_n");
             for (i_CosNaming_NamingContext_bind_context_n=0; i_CosNaming_NamingContext_bind_context_n < u_octet4_loop_CosNaming_NamingContext_bind_context_n; i_CosNaming_NamingContext_bind_context_n++) {
 
@@ -715,7 +715,7 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_s91VIl9VUpG1;
+            tree = tree_bak_a8ay6oVAs7pR;
         }
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
@@ -760,7 +760,7 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_n);
 
         {
-            proto_tree *tree_bak_UWooUkg0Qqpj = tree;
+            proto_tree *tree_bak_7q1ctV9HQ17F = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_rebind_n");
             for (i_CosNaming_NamingContext_rebind_n=0; i_CosNaming_NamingContext_rebind_n < u_octet4_loop_CosNaming_NamingContext_rebind_n; i_CosNaming_NamingContext_rebind_n++) {
 
@@ -770,7 +770,7 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_UWooUkg0Qqpj;
+            tree = tree_bak_7q1ctV9HQ17F;
         }
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
@@ -815,7 +815,7 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
         proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_n);
 
         {
-            proto_tree *tree_bak_3nWkRtOzQey4 = tree;
+            proto_tree *tree_bak_g8cYf54EU4Lr = tree;
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_NamingContext_bind_n");
             for (i_CosNaming_NamingContext_bind_n=0; i_CosNaming_NamingContext_bind_n < u_octet4_loop_CosNaming_NamingContext_bind_n; i_CosNaming_NamingContext_bind_n++) {
 
@@ -825,7 +825,7 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
                 decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "CosNaming_NameComponent"  */
             }
-            tree = tree_bak_3nWkRtOzQey4;
+            tree = tree_bak_g8cYf54EU4Lr;
         }
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
@@ -868,7 +868,7 @@ decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     proto_tree_add_uint(tree, hf_CosNaming_Binding_binding_name_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_Binding_binding_name);
 
     {
-        proto_tree *tree_bak_pYEBTg0SDLpl = tree;
+        proto_tree *tree_bak_GQVzOpg8ctyt = tree;
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence CosNaming_Binding_binding_name");
         for (i_CosNaming_Binding_binding_name=0; i_CosNaming_Binding_binding_name < u_octet4_loop_CosNaming_Binding_binding_name; i_CosNaming_Binding_binding_name++) {
 
@@ -878,7 +878,7 @@ decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
             decode_CosNaming_NameComponent_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "CosNaming_NameComponent"  */
         }
-        tree = tree_bak_pYEBTg0SDLpl;
+        tree = tree_bak_GQVzOpg8ctyt;
     }
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -891,9 +891,9 @@ static void
 decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const char *operation _U_, bool stream_is_big_endian _U_)
 {
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_CosNaming_NameComponent_id);
+    giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_CosNaming_NameComponent_id);
 
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_CosNaming_NameComponent_kind);
+    giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_CosNaming_NameComponent_kind);
 
 }
 

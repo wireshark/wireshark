@@ -2149,7 +2149,7 @@ u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
 proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, u_octet4);
 """
     template_get_CDR_string = """\
-giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_@hfname@);
+giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_@hfname@);
 """
     template_get_CDR_wstring = """\
 u_octet4 = get_CDR_wstring(tvb, &seq, offset, stream_is_big_endian, boundary, header);
