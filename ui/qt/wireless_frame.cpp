@@ -336,10 +336,7 @@ void WirelessFrame::setInterfaceInfo()
 
 int WirelessFrame::getCenterFrequency(int control_frequency, int bandwidth)
 {
-    if (bandwidth < 80 || control_frequency < 5180)
-        return -1;
-
-    return ((control_frequency - 5180) / bandwidth) * bandwidth + 5180 + (bandwidth / 2) - 10;
+    return ws80211_get_center_frequency(control_frequency, bandwidth);
 }
 
 int WirelessFrame::getBandwidthFromChanType(int chan_type)

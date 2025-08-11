@@ -125,6 +125,15 @@ int ws80211_set_fcs_validation(const char *name, enum ws80211_fcs_validation fcs
  */
 const char *ws80211_get_helper_path(void);
 
+
+/** Return center frequency of an 80M/160M/320M channel.
+ *
+ * @param control_frequency Control channel frequency in MHz.
+ * @param bandwidth Bandwidth of the channel in MHz.
+ * @return Center frequency of the channel in MHz or -1 on failure.
+ */
+int ws80211_get_center_frequency(int control_frequency, int bandwidth);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
