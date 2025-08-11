@@ -67,8 +67,7 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 						match_len = tvb_get_letohs(tvb, offset+in_off);
 						in_off += 2;
 						if (match_len == 0) {
-							/* This case isn't documented */
-							match_len = tvb_get_letohs(tvb, offset+in_off);
+							match_len = tvb_get_letohl(tvb, offset+in_off);
 							in_off += 4;
 						}
 						if (match_len < 15+7)
