@@ -903,7 +903,7 @@ dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen, int
        proto_tree_add_uint(body_tree, hf_hartip_pt_rsp_poll_address, tvb, offset, 1, short_addr);
        offset += 1;
      } else {
-       /* TODO  Chop of the two first bits here, too? */
+       /* TODO  Chop off the two first bits here, too? */
        proto_tree_add_item(body_tree, hf_hartip_pt_rsp_unique_id, tvb, offset, 5, ENC_NA);
        offset += 5;
      }

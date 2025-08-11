@@ -297,7 +297,7 @@ for more examples on how to do this.
 
 There is currently a bug in Asn2wrs that makes it
 generate incorrect code for the case when tagged assignments are used.
-The bug is two-fold, first the generated code "forgets" to strip of the
+The bug is two-fold, first the generated code "forgets" to strip off the
 actual tag and length, second it fails to specify 'implicit_tag'
 properly.
 

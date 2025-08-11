@@ -73,7 +73,7 @@ typedef struct
 	uint32_t	RecSize;		/* Size of one record */
 	uint32_t	RecNb;			/* Number of records */
 	uint32_t	Utc;
-	uint32_t	NanoSecondes;
+	uint32_t	NanoSeconds;
 	uint32_t	RecInfo;		/* Info about Alarm / Event / Frame captured */
 }t_5VW_TimeStamped_Header;
 
@@ -277,13 +277,13 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	hdr->RecSubType = pletoh32(&hdr->RecSubType);
 	hdr->RecSize = pletoh32(&hdr->RecSize);
 	hdr->Utc = pletoh32(&hdr->Utc);
-	hdr->NanoSecondes = pletoh32(&hdr->NanoSecondes);
+	hdr->NanoSeconds = pletoh32(&hdr->NanoSeconds);
 
 	wtap_setup_packet_rec(rec, wth->file_encap);
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = hdr->Utc;
-	rec->ts.nsecs = hdr->NanoSecondes;
+	rec->ts.nsecs = hdr->NanoSeconds;
 	rec->rec_header.packet_header.caplen = hdr->RecSize;
 	rec->rec_header.packet_header.len = hdr->RecSize;
 
@@ -395,7 +395,7 @@ static bool _5views_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return false;
 	}
 	HeaderFrame.Utc = GUINT32_TO_LE((uint32_t)rec->ts.secs);
-	HeaderFrame.NanoSecondes = GUINT32_TO_LE(rec->ts.nsecs);
+	HeaderFrame.NanoSeconds = GUINT32_TO_LE(rec->ts.nsecs);
 	HeaderFrame.RecSize = GUINT32_TO_LE(rec->rec_header.packet_header.len);
 	HeaderFrame.RecInfo = GUINT32_TO_LE(0);
 
