@@ -42,6 +42,8 @@ static int hf_hsfz_length;
 static int hf_hsfz_ctrlword;
 static int hf_hsfz_source_address;
 static int hf_hsfz_target_address;
+static int hf_hsfz_tester_address_expected;
+static int hf_hsfz_tester_address_received;
 static int hf_hsfz_address;
 static int hf_hsfz_ident_string;
 static int hf_hsfz_data;
@@ -275,6 +277,13 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         }
         break;
 
+    case HSFZ_CTRLWORD_INCORRECT_TESTER_ADDRESS:
+        dissect_hsfz_address(tvb, pinfo, hsfz_tree, offset, hf_hsfz_tester_address_expected);
+        offset += 1;
+
+        dissect_hsfz_address(tvb, pinfo, hsfz_tree, offset, hf_hsfz_tester_address_received);
+        break;
+
     case HSFZ_CTRLWORD_INCORRECT_DEST_ADDRESS:
     case HSFZ_CTRLWORD_OUT_OF_MEMORY:
         if (hsfz_ctrlword == HSFZ_CTRLWORD_INCORRECT_DEST_ADDRESS || hsfz_length >= 2) {
@@ -334,6 +343,10 @@ void proto_register_hsfz(void) {
         { "Source Address", "hsfz.sourceaddr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_hsfz_target_address,
         { "Target Address", "hsfz.targetaddr", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_hsfz_tester_address_expected,
+        { "Tester Address Expected", "hsfz.tester_address_expected", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_hsfz_tester_address_received,
+        { "Tester Address Received", "hsfz.tester_address_received", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_hsfz_address,
         { "Address", "hsfz.address", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_hsfz_ident_string,
