@@ -488,58 +488,52 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
 
-	value = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_time, tvb, offset, 4, value);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_time, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
 	offset += 4;
 
-	source = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_source, tvb, offset, 4, source);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_source, tvb, offset, 4, ENC_BIG_ENDIAN, &source);
 	offset += 4;
 
-	curr_state = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_current_state, tvb, offset, 4, curr_state);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_current_state, tvb, offset, 4, ENC_BIG_ENDIAN, &curr_state);
 	offset += 4;
 
-	event = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_event, tvb, offset, 4, event);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_event, tvb, offset, 4, ENC_BIG_ENDIAN, &event);
 	offset += 4;
 
-	next_state = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_next_state, tvb, offset, 4, next_state);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_next_state, tvb, offset, 4, ENC_BIG_ENDIAN, &next_state);
 	offset += 4;
 
-	function = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_function, tvb, offset, 4, function);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_function, tvb, offset, 4, ENC_BIG_ENDIAN, &function);
 	offset += 4;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|",
 			val_to_str_const(source, actrace_cas_source_vals_short, "ukn"),
 			curr_state,
-			val_to_str_ext(event, &actrace_cas_event_vals_ext, "%d"),
+			val_to_str_ext_wmem(pinfo->pool, event, &actrace_cas_event_vals_ext, "%d"),
 			next_state,
-			val_to_str_ext(function, &actrace_cas_function_vals_ext, "%d"));
+			val_to_str_ext_wmem(pinfo->pool, function, &actrace_cas_function_vals_ext, "%d"));
 
 	par0 = tvb_get_ntohl(tvb, offset);
 	switch (function)
 	{
 		case SEND_EVENT:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
-				par0, "%s",  val_to_str_ext(par0, &actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
+				par0, "%s",  val_to_str_ext_wmem(pinfo->pool, par0, &actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str_ext(par0, &actrace_cas_pstn_event_vals_ext, "%d"));
+					val_to_str_ext_wmem(pinfo->pool, par0, &actrace_cas_pstn_event_vals_ext, "%d"));
 			break;
 		case CHANGE_COLLECT_TYPE:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
-				par0, "%s", val_to_str(par0, actrace_cas_collect_type_vals, "Unknown (%d)"));
+				par0, "%s", val_to_str_wmem(pinfo->pool, par0, actrace_cas_collect_type_vals, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str(par0, actrace_cas_collect_type_vals, "%d"));
+					val_to_str_wmem(pinfo->pool, par0, actrace_cas_collect_type_vals, "%d"));
 			break;
 		case SEND_MF:
 		case SEND_DEST_NUM:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
-				par0, "%s", val_to_str(par0, actrace_cas_send_type_vals, "Unknown (%d)"));
+				par0, "%s", val_to_str_wmem(pinfo->pool, par0, actrace_cas_send_type_vals, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str(par0, actrace_cas_send_type_vals, "%d"));
+					val_to_str_wmem(pinfo->pool, par0, actrace_cas_send_type_vals, "%d"));
 			break;
 		default:
 			proto_tree_add_int(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4, par0);
@@ -550,32 +544,28 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	par1 = tvb_get_ntohl(tvb, offset);
 	if (function == SEND_EVENT) {
 		proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4,
-			par1, "%s", val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
+			par1, "%s", val_to_str_ext_wmem(pinfo->pool, par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-				val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "%d"));
+				val_to_str_ext_wmem(pinfo->pool, par1, &actrace_cas_cause_vals_ext, "%d"));
 	} else {
 		proto_tree_add_int(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4, par1);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);
 	}
 	offset += 4;
 
-	par2 = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_par2, tvb, offset, 4, par2);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_par2, tvb, offset, 4, ENC_BIG_ENDIAN, &par2);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par2);
 	offset += 4;
 
-	trunk = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_trunk, tvb, offset, 4, trunk);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_trunk, tvb, offset, 4, ENC_BIG_ENDIAN, &trunk);
 	offset += 4;
 
-	bchannel = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_bchannel, tvb, offset, 4, bchannel);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_bchannel, tvb, offset, 4, ENC_BIG_ENDIAN, &bchannel);
 	offset += 4;
 
 	col_prepend_fstr(pinfo->cinfo, COL_INFO, "t%db%d|", trunk, bchannel);
 
-	value = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_cas_connection_id, tvb, offset, 4, value);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_cas_connection_id, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
 
 	/* Add tap info for the Voip Graph */
 	if (source == ACTRACE_CAS_SOURCE_DSP) {
@@ -641,21 +631,18 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	offset += 4;
 
-	value = tvb_get_ntohl(tvb, offset+4);
-	proto_tree_add_int(actrace_tree, hf_actrace_isdn_direction, tvb, offset, 4, value);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_isdn_direction, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
 	offset += 4;
 	/* PSTN = Network */
 	isdn.uton = (value==BLADE_TO_PSTN);
 	isdn.channel = 0; /* D channel */
 
-	trunk = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_isdn_trunk, tvb, offset, 2, trunk);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_isdn_trunk, tvb, offset, 2, ENC_BIG_ENDIAN, &trunk);
 	offset += 4;
 
 	offset += 32;
 
-	len = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_int(actrace_tree, hf_actrace_isdn_length, tvb, offset, 2, len);
+	proto_tree_add_item_ret_int(actrace_tree, hf_actrace_isdn_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
 
 	/* if it is a q931 packet (we don't want LAPD packets for Voip Graph) add tap info */
 	if (len > 4) {
