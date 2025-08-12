@@ -278,7 +278,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo,
     header.length = g_ntohs(header.length);
 
     col_append_str(pinfo->cinfo, COL_INFO,
-        val_to_str_ext(header.type, &control_msg_vals_ext, "Bad Type: 0x%02x"));
+        val_to_str_ext_wmem(pinfo->pool, header.type, &control_msg_vals_ext, "Bad Type: 0x%02x"));
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */

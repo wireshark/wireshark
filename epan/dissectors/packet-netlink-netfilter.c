@@ -1674,7 +1674,7 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_netfilter);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, -1, NULL);
+	offset = dissect_netlink_header(tvb, pinfo, nlmsg_tree, offset, nl_data->encoding, -1, NULL);
 	proto_tree_add_item(nlmsg_tree, hf_netlink_netfilter_subsys, tvb, 4, 2, nl_data->encoding);
 	switch (nl_data->type >> 8) {
 		case WS_NFNL_SUBSYS_CTNETLINK_EXP:

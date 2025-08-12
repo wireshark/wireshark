@@ -1587,7 +1587,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
             col_append_str(pinfo->cinfo, COL_INFO,
-                            val_to_str_ext(eap_type, &eap_type_vals_ext, "Unknown type (0x%02X)"));
+                            val_to_str_ext_wmem(pinfo->pool, eap_type, &eap_type_vals_ext, "Unknown type (0x%02X)"));
         }
 
         col_append_str(pinfo->cinfo, COL_INFO, "]");
@@ -1612,7 +1612,7 @@ static void wimaxasncp_dissect_tlv_value(
             if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
             {
                 proto_item_append_text(item, ", %s",
-                                       val_to_str_ext(eap_type, &eap_type_vals_ext,
+                                       val_to_str_ext_wmem(pinfo->pool, eap_type, &eap_type_vals_ext,
                                        "Unknown type (0x%02X)"));
             }
             proto_item_append_text(item, ")");

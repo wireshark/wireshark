@@ -1615,7 +1615,7 @@ static uint32_t dissect_iax2_command(tvbuff_t *tvb, uint32_t offset,
   offset++;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                     val_to_str_ext(csub, &iax_iax_subclasses_ext, "unknown (0x%02x)"));
+                     val_to_str_ext_wmem(pinfo->pool, csub, &iax_iax_subclasses_ext, "unknown (0x%02x)"));
 
   if (offset >= tvb_reported_length(tvb))
     return offset;
@@ -1835,15 +1835,15 @@ dissect_fullpacket(tvbuff_t *tvb, uint32_t offset,
 
   /* add frame type to info line */
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s, source call# %d, timestamp %ums",
-                 val_to_str_ext(type, &iax_frame_types_ext, "Unknown (0x%02x)"),
+                 val_to_str_ext_wmem(pinfo->pool, type, &iax_frame_types_ext, "Unknown (0x%02x)"),
                  scallno, ts);
 
-  iax2_info->messageName = val_to_str_ext(type, &iax_frame_types_ext, "Unknown (0x%02x)");
+  iax2_info->messageName = val_to_str_ext_wmem(pinfo->pool, type, &iax_frame_types_ext, "Unknown (0x%02x)");
 
   switch (type) {
   case AST_FRAME_IAX:
     offset=dissect_iax2_command(tvb, offset+9, pinfo, packet_type_tree, iax_packet);
-    iax2_info->messageName = val_to_str_ext(csub, &iax_iax_subclasses_ext, "unknown (0x%02x)");
+    iax2_info->messageName = val_to_str_ext_wmem(pinfo->pool, csub, &iax_iax_subclasses_ext, "unknown (0x%02x)");
     if (csub < NUM_TAP_IAX_VOIP_STATES) iax2_info->callState = tap_iax_voip_state[csub];
     break;
 
@@ -1862,8 +1862,8 @@ dissect_fullpacket(tvbuff_t *tvb, uint32_t offset,
     offset += 10;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                      val_to_str_ext(csub, &iax_cmd_subclasses_ext, "unknown (0x%02x)"));
-    iax2_info->messageName = val_to_str_ext (csub, &iax_cmd_subclasses_ext, "unknown (0x%02x)");
+                      val_to_str_ext_wmem(pinfo->pool, csub, &iax_cmd_subclasses_ext, "unknown (0x%02x)"));
+    iax2_info->messageName = val_to_str_ext_wmem(pinfo->pool, csub, &iax_cmd_subclasses_ext, "unknown (0x%02x)");
     if (csub < NUM_TAP_CMD_VOIP_STATES) iax2_info->callState = tap_cmd_voip_state[csub];
     break;
 

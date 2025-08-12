@@ -2035,7 +2035,7 @@ dissect_opt_quickstart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         offset += 1;
         proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_BIG_ENDIAN, &qs_ttl);
         proto_item_append_text(pi, ", %s, QS TTL %u",
-                               val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
+                               val_to_str_ext_wmem(pinfo->pool, rate, &qs_rate_vals_ext, "Unknown (%u)"),
                                qs_ttl);
         if (iph != NULL) {
             uint8_t ttl_diff;
@@ -2052,7 +2052,7 @@ dissect_opt_quickstart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         break;
     case QS_RATE_REPORT:
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(pi, ", %s", val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
+        proto_item_append_text(pi, ", %s", val_to_str_ext_wmem(pinfo->pool, rate, &qs_rate_vals_ext, "Unknown (%u)"));
         offset += 1;
         proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -2948,7 +2948,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
 
         opt_type = tvb_get_uint8(tvb, offset);
         opt_len = tvb_get_uint8(tvb, offset + 1);
-        opt_name = val_to_str_ext(opt_type, &ipv6_opt_type_vals_ext, "Unknown IPv6 Option (%u)");
+        opt_name = val_to_str_ext_wmem(pinfo->pool, opt_type, &ipv6_opt_type_vals_ext, "Unknown IPv6 Option (%u)");
 
         pi = proto_tree_add_none_format(exthdr_tree, hf_ipv6_opt, tvb, offset, 2 + opt_len,
                     "%s", opt_name);
@@ -3645,7 +3645,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Set DSCP column */
     col_add_str(pinfo->cinfo, COL_DSCP_VALUE,
-                val_to_str_ext(IPDSFIELD_DSCP(ip6_tcls), &dscp_short_vals_ext, "%u"));
+                val_to_str_ext_wmem(pinfo->pool, IPDSFIELD_DSCP(ip6_tcls), &dscp_short_vals_ext, "%u"));
 
     proto_tree_add_item_ret_uint(ipv6_tree, hf_ipv6_flow, tvb,
                         offset + IP6H_CTL_FLOW + 1, 3, ENC_BIG_ENDIAN, &ip6_flow);

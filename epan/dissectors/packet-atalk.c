@@ -964,7 +964,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   offset++;
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
-               val_to_str_ext(fn, &pap_function_vals_ext, "Unknown (0x%01x)"), connID);
+               val_to_str_ext_wmem(pinfo->pool, fn, &pap_function_vals_ext, "Unknown (0x%01x)"), connID);
 
   switch(fn) {
   case PAPOpenConn:
@@ -1089,7 +1089,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                 val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
+                 val_to_str_ext_wmem(pinfo->pool, fn, &asp_func_vals_ext, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, ENC_NA);
@@ -1352,7 +1352,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
   fn = tvb_get_uint8(tvb, 0);
   col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str_ext(fn, &zip_function_vals_ext, "Unknown ZIP function (%02x)"));
+              val_to_str_ext_wmem(pinfo->pool, fn, &zip_function_vals_ext, "Unknown ZIP function (%02x)"));
 
   if (!tree)
     return tvb_captured_length(tvb);
@@ -1517,7 +1517,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   pinfo->srcport = sport;
 
   col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str_ext(type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
+              val_to_str_ext_wmem(pinfo->pool, type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
 
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
@@ -1594,7 +1594,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_type, tvb, 12, 1, ENC_NA, &type);
 
   col_add_str(pinfo->cinfo, COL_INFO,
-    val_to_str_ext(type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
+    val_to_str_ext_wmem(pinfo->pool, type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
 
   set_address(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
   copy_address_shallow(&pinfo->src, &pinfo->net_src);
@@ -1653,7 +1653,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   type = tvb_get_uint8(tvb, 2);
   col_add_str(pinfo->cinfo, COL_INFO,
-    val_to_str_ext(type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
+    val_to_str_ext_wmem(pinfo->pool, type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
   proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
 
   new_tvb = tvb_new_subset_remaining(tvb, 3);

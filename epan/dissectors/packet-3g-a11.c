@@ -1323,7 +1323,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 
         ext_tree = proto_tree_add_subtree_format(exts_tree, tvb, offset, ext_len + hdrLen,
                                  ett_a11_ext, NULL, "Extension: %s",
-                                 val_to_str_ext(ext_type, &a11_ext_types_ext,
+                                 val_to_str_ext_wmem(pinfo->pool, ext_type, &a11_ext_types_ext,
                                             "Unknown Extension %u"));
 
         proto_tree_add_uint(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);

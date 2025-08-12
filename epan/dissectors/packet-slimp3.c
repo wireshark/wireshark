@@ -322,14 +322,14 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 /* This is the custom SLIMP3 remote. */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_infrared_slimp3, tvb, offset+8, 4, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", SLIMP3: %s",
-                                val_to_str_ext(i1, &slimp3_ir_codes_slimp3_ext, "Unknown (0x%0x)"));
+                                val_to_str_ext_wmem(pinfo->pool, i1, &slimp3_ir_codes_slimp3_ext, "Unknown (0x%0x)"));
             }
             else if (tvb_get_uint8(tvb, offset+6) == 0xff &&
                      tvb_get_uint8(tvb, offset+7) == 16) {
                 /* This is a JVC DVD player remote */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_infrared_jvc, tvb, offset+8, 4, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", JVC: %s",
-                                val_to_str(i1, slimp3_ir_codes_jvc, "Unknown (0x%0x)"));
+                                val_to_str_wmem(pinfo->pool, i1, slimp3_ir_codes_jvc, "Unknown (0x%0x)"));
             } else {
                 /* Unknown code; just write it */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_infrared, tvb, offset+8, 4, ENC_BIG_ENDIAN);

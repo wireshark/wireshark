@@ -1093,12 +1093,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 #if 1
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s: %s",
-					    val_to_str_ext(tag, &comp_tlv_tag_vals_ext, "%02x"),
+					    val_to_str_ext_wmem(pinfo->pool, tag, &comp_tlv_tag_vals_ext, "%02x"),
 					    (len > 0) ? tvb_bytes_to_str(pinfo->pool, tvb, pos, len) : "");
 #else
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s:   ",
-					    val_to_str_ext(tag, &comp_tlv_tag_vals_ext, "%02x"));
+					    val_to_str_ext_wmem(pinfo->pool, tag, &comp_tlv_tag_vals_ext, "%02x"));
 #endif
 		elem_tree = proto_item_add_subtree(ti, ett_elem);
 
@@ -1114,7 +1114,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			}
 			/* append command type to INFO column */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str_ext(g8, &cmd_type_vals_ext, "%02x "));
+					val_to_str_ext_wmem(pinfo->pool, g8, &cmd_type_vals_ext, "%02x "));
 			switch (g8) {
 			case 0x01:
 				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
@@ -1311,7 +1311,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				}
 				proto_tree_add_uint(elem_tree, hf_ctlv_event, tvb, pos+i, 1, event);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-						val_to_str_ext(event, &event_list_vals_ext, "%02x "));
+						val_to_str_ext_wmem(pinfo->pool, event, &event_list_vals_ext, "%02x "));
 			}
 			break;
 		case 0x1b:	/* location status */

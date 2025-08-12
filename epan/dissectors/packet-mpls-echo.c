@@ -601,7 +601,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, pr
         if (tree) {
             tlv_fec_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + pad,
                                      ett_mpls_echo_tlv_fec, NULL, "FEC Element %u: %s",
-                                     idx, val_to_str_ext(type, &mpls_echo_tlv_fec_names_ext,
+                                     idx, val_to_str_ext_wmem(pinfo->pool, type, &mpls_echo_tlv_fec_names_ext,
                                                          "Unknown FEC type (0x%04X)"));
 
             /* FEC sub-TLV Type and Length */
@@ -1625,7 +1625,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_
     if (tree) {
         mpls_echo_tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4, ett_mpls_echo_tlv, NULL,
                                   "%s%s", in_errored ? "Errored TLV Type: " : "",
-                                 val_to_str_ext(type, &mpls_echo_tlv_type_names_ext, "Unknown TLV type (0x%04X)"));
+                                 val_to_str_ext_wmem(pinfo->pool, type, &mpls_echo_tlv_type_names_ext, "Unknown TLV type (0x%04X)"));
 
         /* MPLS Echo TLV Type and Length */
         if (in_errored) {

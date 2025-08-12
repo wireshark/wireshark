@@ -2513,7 +2513,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
     /* Add payload type to information string */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext(info.payloadtype, &payloadtypenames_ext, "Unknown Payload Type (0x%x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_wmem(pinfo->pool, info.payloadtype, &payloadtypenames_ext, "Unknown Payload Type (0x%x)"));
 
     /* Process packet types for specific payload types */
     switch (info.format)

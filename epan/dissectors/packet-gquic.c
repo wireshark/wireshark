@@ -1795,7 +1795,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 offset += 8;
                 proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_rsts_error_code, tvb, offset, 4, gquic_info->encoding, &error_code);
                 offset += 4;
-                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext(error_code, &rststream_error_code_vals_ext, "Unknown (%d)"));
+                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext_wmem(pinfo->pool, error_code, &rststream_error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "RST STREAM");
                 }
             break;
@@ -1810,7 +1810,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII);
                 offset += len_reason;
-                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
+                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext_wmem(pinfo->pool, error_code, &error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "Connection Close");
                 }
             break;
@@ -1827,7 +1827,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII);
                 offset += len_reason;
-                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", last_good_stream_id, val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
+                proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", last_good_stream_id, val_to_str_ext_wmem(pinfo->pool, error_code, &error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "GOAWAY");
                 }
             break;

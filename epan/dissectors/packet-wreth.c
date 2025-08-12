@@ -1046,7 +1046,7 @@ int WrethAckPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tre
 
 /*****************************************************************************/
 
-int WrethNackPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethNackPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pinfo, proto_tree * pWrethTree)
 {
     uint16_t Size;
     uint16_t ErrorCode;
@@ -1057,12 +1057,12 @@ int WrethNackPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tr
     if((Size != 0)&&(Size != 6))
     {
         /* Invalid ack frame */
-        col_set_str(pInfo->cinfo, COL_INFO, "Invalid non acknowledge frame");
+        col_set_str(pinfo->cinfo, COL_INFO, "Invalid non acknowledge frame");
         return 0;
     }
 
 
-    col_add_str(pInfo->cinfo, COL_INFO, val_to_str_ext(ErrorCode, &ErrorCode_vals_ext, "Unknown 0x%04x"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, ErrorCode, &ErrorCode_vals_ext, "Unknown 0x%04x"));
 
     if(Size == 6)
     {
@@ -1090,7 +1090,7 @@ int WrethMailPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tr
 
 /*****************************************************************************/
 
-int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree, uint8_t fragmented)
+int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pinfo, proto_tree * pWrethTree, uint8_t fragmented)
 {
     proto_item *mi;
     proto_tree *pWrethMailboxTree;
@@ -1173,17 +1173,17 @@ int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, prot
         proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_Filler, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
         Offset += 2;
 
-        col_add_fstr(pInfo->cinfo, COL_INFO, "Mail : Codef = Ox%X (%s), Status = %02d (%s), Card = %d, Chan = %d" ,
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Mail : Codef = Ox%X (%s), Status = %02d (%s), Card = %d, Chan = %d" ,
                      Codef,
-                     val_to_str_ext(Codef, &tabCodef_ext, "Unknown 0x%04x"),
+                     val_to_str_ext_wmem(pinfo->pool, Codef, &tabCodef_ext, "Unknown 0x%04x"),
                      Status,
-                     val_to_str_ext(Status, &tabStatus_ext, "Unknown %d"),
+                     val_to_str_ext_wmem(pinfo->pool, Status, &tabStatus_ext, "Unknown %d"),
                      Card,
                      Chan);
     }
     else
     {
-        col_set_str(pInfo->cinfo, COL_INFO, "Mail : Data Second Fragment ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Mail : Data Second Fragment ");
     }
 
     if (0 != Nb)
@@ -1192,10 +1192,10 @@ int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, prot
         switch(Codef)
         {
             case 0x1002: /*Master Info*/
-                WrethCodefMasterInfoDissection(tvb, Offset, pInfo, pWrethMailboxTree);
+                WrethCodefMasterInfoDissection(tvb, Offset, pinfo, pWrethMailboxTree);
                 break;
             case 0x1079: /*Equipment Info*/
-                WrethCodefEquipmentInfoDissection(tvb, Offset, pInfo, pWrethMailboxTree);
+                WrethCodefEquipmentInfoDissection(tvb, Offset, pinfo, pWrethMailboxTree);
                 break;
             default:
                 proto_tree_add_protocol_format(pWrethMailboxTree, wreth_proto, tvb, Offset, -1, "Data");

@@ -6573,7 +6573,7 @@ return_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffse
     expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, ENC_BIG_ENDIAN);
     if (expert_status != 0) {
         expert_add_info_format(pinfo, expert_item, &ei_ndps_return_code, "Fault: %s",
-                               val_to_str_ext(expert_status, &ndps_error_types_ext, "Unknown NDPS Error (0x%08x)"));
+                               val_to_str_ext_wmem(pinfo->pool, expert_status, &ndps_error_types_ext, "Unknown NDPS Error (0x%08x)"));
     }
     foffset += 4;
     if (tvb_get_ntohl(tvb, foffset-4) != 0)
@@ -6672,7 +6672,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     {
         expert_status = tvb_get_ntohl(tvb, foffset);
         expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, ENC_BIG_ENDIAN);
-        expert_add_info_format(pinfo, expert_item, &ei_ndps_return_code, "Fault: %s", val_to_str_ext(expert_status, &ndps_error_types_ext, "Unknown NDPS Error (0x%08x)"));
+        expert_add_info_format(pinfo, expert_item, &ei_ndps_return_code, "Fault: %s", val_to_str_ext_wmem(pinfo->pool, expert_status, &ndps_error_types_ext, "Unknown NDPS Error (0x%08x)"));
         col_append_str(pinfo->cinfo, COL_INFO, "- Error");
         return foffset;
     }

@@ -342,7 +342,7 @@ static value_string_ext pp_pid_vals_ext = VALUE_STRING_EXT_INIT(pp_pid_vals);
 
 
 /* Code to actually dissect the packets */
-static unsigned dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
+static unsigned dissect_one_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
                 unsigned offset)
 {
     proto_item *ti;
@@ -352,7 +352,7 @@ static unsigned dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
     unsigned pad_len;
 
     unsigned type = tvb_get_ntohs(tvb, offset);
-    const char *name = val_to_str_ext(type, &pp_pid_vals_ext, TYPE_UNKNOWN);
+    const char *name = val_to_str_ext_wmem(pinfo->pool, type, &pp_pid_vals_ext, TYPE_UNKNOWN);
     proto_item_append_text(ti, " : %s", name);
 
     proto_tree_add_item(tlv_tree, hf_pp_pid_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -378,12 +378,12 @@ static unsigned dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
 
 
 static unsigned
-dissect_multiple_tlvs(tvbuff_t *tvb, proto_item *ti,
+dissect_multiple_tlvs(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
                 unsigned offset, unsigned len)
 {
     unsigned end = offset + len;
     while(offset < end) {
-        offset = dissect_one_tlv(tvb, ti, offset);
+        offset = dissect_one_tlv(tvb, pinfo, ti, offset);
     }
     return offset;
 }
@@ -445,7 +445,7 @@ dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, unsigned offset, unsigned len
 }
 
 static unsigned
-dissect_one_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
+dissect_one_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned offset)
 {
     proto_item *ti;
     proto_tree *pdu_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_pp_pdu, &ti, "PDU");
@@ -477,7 +477,7 @@ dissect_one_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
         case PP_SET :
         case PP_GET_REPLY :
         case PP_ARP_INFO :
-            dissect_multiple_tlvs(tvb, pdu_tree, offset, len);
+            dissect_multiple_tlvs(tvb, pinfo, pdu_tree, offset, len);
             break;
         case PP_DATA :
             dissect_data_payload(tvb, pdu_tree, offset, len);
@@ -491,12 +491,12 @@ dissect_one_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 }
 
 static unsigned
-dissect_multiple_pdus(tvbuff_t *tvb, proto_item *ti,
+dissect_multiple_pdus(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
                 unsigned offset, unsigned len)
 {
     unsigned end = offset + len;
     while(offset < end) {
-        offset = dissect_one_pdu(tvb, ti, offset);
+        offset = dissect_one_pdu(tvb, pinfo, ti, offset);
     }
     return offset;
 }
@@ -597,7 +597,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     pathport_tree = proto_item_add_subtree(ti, ett_pathport);
     offset = dissect_header(tvb, pathport_tree, PATHPORT_HEADER_OFFSET);
     remaining_len = tvb_reported_length_remaining(tvb, offset);
-    offset = dissect_multiple_pdus(tvb, tree, offset, remaining_len);
+    offset = dissect_multiple_pdus(tvb, pinfo, tree, offset, remaining_len);
 
     return offset;
 }

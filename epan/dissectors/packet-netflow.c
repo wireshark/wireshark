@@ -13133,7 +13133,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             proto_tree_add_item(field_tree, *v9_template_type_hf_list[fields_type],
                                 tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(field_item, ": %s",
-                                   val_to_str_ext(type, v9_template_type_vse_list[fields_type], "Unknown(%d)"));
+                                   val_to_str_ext_wmem(pinfo->pool, type, v9_template_type_vse_list[fields_type], "Unknown(%d)"));
         } else { /* v10 */
             proto_tree_add_item(field_tree, hf_cflow_template_ipfix_pen_provided,
                                 tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -13142,7 +13142,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                 rp_ti = proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type],
                                             tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(field_item, ": %s",
-                                       val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type], "Unknown(%d)"));
+                                       val_to_str_ext_wmem(pinfo->pool, type&0x7fff, v10_template_type_vse_list[fields_type], "Unknown(%d)"));
                 if (pen == REVPEN) {
                     proto_item_append_text(rp_ti, " [Reverse]");
                     proto_item_append_text(field_item, " [Reverse]");
@@ -13153,7 +13153,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                     proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type_pen],
                                         tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_item_append_text(field_item, ": %s",
-                                           val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type_pen], "Unknown(%d)"));
+                                           val_to_str_ext_wmem(pinfo->pool, type&0x7fff, v10_template_type_vse_list[fields_type_pen], "Unknown(%d)"));
                 } else { /* Private Enterprise */
                     proto_item *pen_ti;
                     pen_ti = proto_tree_add_item(field_tree, hf_cflow_template_ipfix_field_type_enterprise,

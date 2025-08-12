@@ -906,7 +906,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     {
         const char *subtype_str;
 
-        subtype_str = val_to_str_ext(subtype, &vc_if_descriptor_subtypes_ext, "Unknown (0x%x)");
+        subtype_str = val_to_str_ext_wmem(pinfo->pool, subtype, &vc_if_descriptor_subtypes_ext, "Unknown (0x%x)");
 
         tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, descriptor_len,
                                    ett_descriptor_video_control, &item, "VIDEO CONTROL INTERFACE DESCRIPTOR [%s]",
@@ -1344,7 +1344,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, packet
 
     subtype = tvb_get_uint8(tvb, offset+2);
 
-    subtype_str = val_to_str_ext(subtype, &vs_if_descriptor_subtypes_ext, "Unknown (0x%x)");
+    subtype_str = val_to_str_ext_wmem(pinfo->pool, subtype, &vs_if_descriptor_subtypes_ext, "Unknown (0x%x)");
     tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, descriptor_len,
             ett_descriptor_video_streaming, NULL, "VIDEO STREAMING INTERFACE DESCRIPTOR [%s]",
             subtype_str);

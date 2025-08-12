@@ -1809,7 +1809,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         for (j = 0; j < (mylen - 8) / 4; j++) {
                             proto_tree_add_uint_format(lmp_subobj_tree, hf_lmp_free_timeslots, tvb, offset2+l+8+(j*4), 4,
                                                 tvb_get_ntoh24(tvb, offset2+l+9+(j*4)), "%s: %d free timeslots",
-                                                val_to_str_ext(tvb_get_uint8(tvb, offset2+l+8+(j*4)),
+                                                val_to_str_ext_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+l+8+(j*4)),
                                                                &gmpls_sonet_signal_type_str_ext,
                                                                "Unknown Signal Type (%d)"),
                                                 tvb_get_ntoh24(tvb, offset2+l+9+(j*4)));

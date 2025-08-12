@@ -331,7 +331,7 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, -1, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-            val_to_str_ext(octet, &amr_nb_codec_mode_request_vals_ext, "Unknown (%d)" ));
+            val_to_str_ext_wmem(pinfo->pool, octet, &amr_nb_codec_mode_request_vals_ext, "Unknown (%d)" ));
     return tvb_captured_length(tvb);
 }
 
@@ -354,7 +354,7 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, -1, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-            val_to_str_ext(octet, &amr_wb_codec_mode_request_vals_ext, "Unknown (%d)" ));
+            val_to_str_ext_wmem(pinfo->pool, octet, &amr_wb_codec_mode_request_vals_ext, "Unknown (%d)" ));
     return tvb_captured_length(tvb);
 }
 

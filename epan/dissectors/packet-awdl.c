@@ -1333,7 +1333,7 @@ awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 
   if (tree) {
     ti = proto_tree_add_item(orig_tree, hf_awdl_tag, tvb, offset, tag_len + hdr_len, ENC_NA);
-    proto_item_append_text(ti, ": %s", val_to_str_ext(tag_no, &tag_num_vals_ext, "Unknown (%d)"));
+    proto_item_append_text(ti, ": %s", val_to_str_ext_wmem(pinfo->pool, tag_no, &tag_num_vals_ext, "Unknown (%d)"));
     tree = proto_item_add_subtree(ti, ett_awdl_tag);
   }
 
@@ -1353,7 +1353,7 @@ awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     proto_tree_add_item(tree, hf_awdl_tag_data, tag_tvb, 0, tag_len, ENC_NA);
     expert_add_info_format(pinfo, ti_tag, &ei_awdl_tag_data,
                            "Dissector for AWDL tag (%s) code not implemented",
-                           val_to_str_ext(tag_no, &tag_num_vals_ext, "(%d)"));
+                           val_to_str_ext_wmem(pinfo->pool, tag_no, &tag_num_vals_ext, "(%d)"));
     proto_item_append_text(ti, ": Undecoded");
   }
   else if (parsed > 0 && (unsigned int) parsed < tag_len)

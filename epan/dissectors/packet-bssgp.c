@@ -568,7 +568,7 @@ xa6     Timing Advance Request
             tvb, curr_offset, 0, \
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
-            get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EMT_pdu_type, EMT_elem_idx), \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \

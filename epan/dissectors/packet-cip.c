@@ -8653,7 +8653,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
    /* watch for service collisions */
    proto_item_append_text( rrsc_item, "%s (%s)",
-               val_to_str( ( service & CIP_SC_MASK ),
+               val_to_str_wmem(pinfo->pool, ( service & CIP_SC_MASK ),
                   cip_sc_vals_cm , "Unknown Service (0x%02x)"),
                val_to_str_const( ( service & CIP_SC_RESPONSE_MASK )>>7,
                   cip_sc_rr, "") );
@@ -8675,7 +8675,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
          /* Add general status */
          proto_tree_add_item(status_tree, hf_cip_cm_genstat, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
-         proto_item_append_text( status_item, "%s", val_to_str_ext( gen_status,
+         proto_item_append_text( status_item, "%s", val_to_str_ext_wmem(pinfo->pool, gen_status,
                         &cip_gs_vals_ext , "Unknown Response (%x)")   );
 
          /* Add additional status size */
@@ -8685,7 +8685,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          {
             add_status = tvb_get_letohs( tvb, offset + 4 );
             proto_tree_add_item(status_tree, hf_cip_cm_ext_status, tvb, offset+4, 2, ENC_LITTLE_ENDIAN );
-            proto_item_append_text(status_item, ", Extended: %s", val_to_str_ext(add_status, &cip_cm_ext_st_vals_ext, "Reserved (0x%04x)"));
+            proto_item_append_text(status_item, ", Extended: %s", val_to_str_ext_wmem(pinfo->pool, add_status, &cip_cm_ext_st_vals_ext, "Reserved (0x%04x)"));
 
             switch(add_status)
             {
@@ -9764,19 +9764,19 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
       /* Add general status */
       gen_status = tvb_get_uint8( tvb, offset+2 );
       proto_tree_add_item(status_tree, hf_cip_genstat, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
-      proto_item_append_text( status_item, "%s: ", val_to_str_ext( gen_status,
+      proto_item_append_text( status_item, "%s: ", val_to_str_ext_wmem(pinfo->pool, gen_status,
                      &cip_gs_vals_ext , "Unknown Response (%x)")   );
 
       if (is_msp_item == false)
       {
           /* Add reply status to info column */
           col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ",
-              val_to_str_ext(gen_status, &cip_gs_vals_ext, "Unknown Response (%x)"));
+              val_to_str_ext_wmem(pinfo->pool, gen_status, &cip_gs_vals_ext, "Unknown Response (%x)"));
       }
       else
       {
           proto_item_append_text(msp_item, "%s: ",
-              val_to_str_ext(gen_status, &cip_gs_vals_ext, "Unknown Response (%x)"));
+              val_to_str_ext_wmem(pinfo->pool, gen_status, &cip_gs_vals_ext, "Unknown Response (%x)"));
       }
 
       /* Add additional status size */

@@ -716,7 +716,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         uint8_t iCommand = parentType;
         iCommand = tvb_get_uint8(tvb, offset + 0);
         inner_item = proto_tree_add_item(tree, particularize(field, hf_openwire_none), tvb, startOffset, -1, ENC_NA);
-        proto_item_append_text(inner_item, ": %s", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
+        proto_item_append_text(inner_item, ": %s", val_to_str_ext_wmem(pinfo->pool, iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
         object_tree = proto_item_add_subtree(inner_item, ett_openwire_type);
         increment_dissection_depth(pinfo);
         int command_offset = 1 + dissect_openwire_command(tvb, pinfo, object_tree, offset, parentType);
@@ -883,7 +883,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         proto_tree    *object_tree;
         proto_item    *ti;
         ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, -1, ENC_NA);
-        proto_item_append_text(ti, ": %s", val_to_str_ext(type, &openwire_type_vals_ext, "Unknown (0x%02x)"));
+        proto_item_append_text(ti, ": %s", val_to_str_ext_wmem(pinfo->pool, type, &openwire_type_vals_ext, "Unknown (0x%02x)"));
         proto_item_append_text(ti, "%s", cache_str);
 
         object_tree = proto_item_add_subtree(ti, ett_openwire_type);
@@ -1209,7 +1209,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
                 {
                     iTransactionType = tvb_get_uint8(tvb, offset);
                     offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_type, OPENWIRE_TYPE_BYTE, iCommand, false);
-                    proto_item_append_text(tree, " (%s)", val_to_str_ext(iTransactionType, &openwire_transaction_type_vals_ext, "Unknown (0x%02x)"));
+                    proto_item_append_text(tree, " (%s)", val_to_str_ext_wmem(pinfo->pool, iTransactionType, &openwire_transaction_type_vals_ext, "Unknown (0x%02x)"));
                 }
             }
             else if (iCommand == OPENWIRE_PRODUCER_ACK)
@@ -1313,13 +1313,13 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         iCommand = tvb_get_uint8(tvb, offset + 4);
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, " | ",
-                            val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
+                            val_to_str_ext_wmem(pinfo->pool, iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
         col_set_fence(pinfo->cinfo, COL_INFO);
 
         detect_protocol_options(tvb, pinfo, offset, iCommand);
 
         ti = proto_tree_add_item(tree, proto_openwire, tvb, offset, -1, ENC_NA);
-        proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
+        proto_item_append_text(ti, " (%s)", val_to_str_ext_wmem(pinfo->pool, iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
         openwireroot_tree = proto_item_add_subtree(ti, ett_openwire);
 
         proto_tree_add_item(openwireroot_tree, hf_openwire_length, tvb, offset + 0, 4, ENC_BIG_ENDIAN);

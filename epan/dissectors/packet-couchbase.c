@@ -2128,14 +2128,14 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (illegal) {
     proto_tree_add_expert_format(extras_tree, pinfo, &ei_warn_shall_not_have_extras, tvb, offset, 0,
                            "%s %s should not have extras",
-                           val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
+                           val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
     offset += extlen;
   } else if (missing) {
 
     proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_extras, tvb, offset, 0,
                            "%s %s must have Extras",
-                           val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode Ox%x"),
+                           val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Opcode Ox%x"),
                            request ? "Request" : "Response");
 }
 
@@ -2217,7 +2217,7 @@ static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case SERVER_OPCODE_ACTIVE_EXTERNAL_USERS:
         expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_key,
                                "%s %s shall not have Key",
-                               val_to_str_ext(opcode,
+                               val_to_str_ext_wmem(pinfo->pool, opcode,
                                               &server_opcode_vals_ext,
                                               "Opcode 0x%x"),
                                request ? "Request" : "Response");
@@ -2372,12 +2372,12 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (illegal) {
     expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_key, "%s %s shall not have Key",
-                           val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
+                           val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
   } else if (missing) {
     proto_tree_add_expert_format(tree, pinfo, &ei_warn_must_have_key, tvb, offset, 0,
                            "%s %s must have Key",
-                           val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode Ox%x"),
+                           val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Opcode Ox%x"),
                            request ? "Request" : "Response");
   }
 }
@@ -2877,11 +2877,11 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (illegal) {
     expert_add_info_format(pinfo, ti, &ei_warn_shall_not_have_value, "%s %s shall not have Value",
-                           val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
+                           val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
   } else if (missing) {
     expert_add_info_format(pinfo, ti, &ei_value_missing, "%s %s must have Value",
-                           val_to_str_ext(opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
+                           val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Opcode 0x%x"),
                            request ? "Request" : "Response");
   }
 }
@@ -3419,8 +3419,8 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     ti = proto_tree_add_item(couchbase_tree, hf_status, tvb, 6, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
       expert_add_info_format(pinfo, ti, &ei_warn_unknown_opcode, "%s: %s",
-                             val_to_str_ext(opcode, &client_opcode_vals_ext, "Unknown opcode (0x%x)"),
-                             val_to_str_ext(status, &status_vals_ext, "Status: 0x%x"));
+                             val_to_str_ext_wmem(pinfo->pool, opcode, &client_opcode_vals_ext, "Unknown opcode (0x%x)"),
+                             val_to_str_ext_wmem(pinfo->pool, status, &status_vals_ext, "Status: 0x%x"));
     }
   }
 
@@ -3577,7 +3577,7 @@ static void dissect_client_value(tvbuff_t *tvb,
         dissect_multipath_mutation_response(tvb, pinfo, tree, offset, size);
       }
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                      val_to_str_ext(status, &status_vals_ext,
+                      val_to_str_ext_wmem(pinfo->pool, status, &status_vals_ext,
                                      "Unknown status: 0x%x"));
     } else {
       /* Newer opcodes do not include a value in non-SUCCESS responses. */
@@ -3603,10 +3603,10 @@ static void dissect_client_value(tvbuff_t *tvb,
                                    ENC_ASCII);
           expert_add_info_format(pinfo, ti, &ei_value_missing,
                                  "%s with status %s (0x%x) must have Value",
-                                 val_to_str_ext(opcode,
+                                 val_to_str_ext_wmem(pinfo->pool, opcode,
                                                 &client_opcode_vals_ext,
                                                 "Opcode 0x%x"),
-                                 val_to_str_ext(status,
+                                 val_to_str_ext_wmem(pinfo->pool, status,
                                                 &status_vals_ext,
                                                 "Unknown"),
                                  status);
@@ -3649,7 +3649,7 @@ static void dissect_server_response_value(tvbuff_t *tvb,
                                          int offset,
                                          int size) {
   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                  val_to_str_ext(get_status(tvb), &status_vals_ext,
+                  val_to_str_ext_wmem(pinfo->pool, get_status(tvb), &status_vals_ext,
                                  "Unknown status: 0x%x"));
 
   switch (get_opcode(tvb)) {

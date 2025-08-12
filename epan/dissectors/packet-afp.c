@@ -5162,12 +5162,12 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	afp_command = request_val->command;
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		     val_to_str_ext(afp_command, &CommandCode_vals_ext,
+		     val_to_str_ext_wmem(pinfo->pool, afp_command, &CommandCode_vals_ext,
 				"Unknown command (%u)"),
 		     atp_asp_dsi_info->reply ? "reply" : "request");
 	if (atp_asp_dsi_info->reply && atp_asp_dsi_info->code != 0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (%d)",
-			val_to_str_ext(atp_asp_dsi_info->code, &asp_error_vals_ext,
+			val_to_str_ext_wmem(pinfo->pool, atp_asp_dsi_info->code, &asp_error_vals_ext,
 				"Unknown error (%u)"), atp_asp_dsi_info->code);
 	}
 

@@ -7568,10 +7568,9 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     str = try_val_to_str_idx_ext((uint32_t) oct, &gsm_a_bssmap_msg_strings_ext, &idx);
 
     if (sccp_msg_p && !sccp_msg_p->data.co.label) {
-        sccp_msg_p->data.co.label = wmem_strdup(wmem_file_scope(),
-                                                val_to_str_ext((uint32_t)oct,
+        sccp_msg_p->data.co.label = val_to_str_ext_wmem(wmem_file_scope(), (uint32_t)oct,
                                                 &gsm_a_bssmap_msg_strings_ext,
-                                                "BSSMAP (0x%02x)"));
+                                                "BSSMAP (0x%02x)");
     }
 
     /*

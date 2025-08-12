@@ -4352,7 +4352,7 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Registration Response SID = %u (%s)", sid,
-                val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, response, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
@@ -4798,7 +4798,7 @@ dissect_regack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Registration Acknowledge SID = %u (%s)", sid,
-                val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, response, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
   if(tvb_reported_length_remaining(tvb, 3) > 0 )
@@ -4847,7 +4847,7 @@ dissect_dsarsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Add Response ID = %u (%s)", transid,
-                val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, response, &docsis_conf_code_ext, "%d"));
 
   /* Call dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
@@ -4870,7 +4870,7 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Add Acknowledge: Transaction ID = %u (%s)", transid,
-                val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, response, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
@@ -4915,7 +4915,7 @@ dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Change Response: Transaction ID = %u (%s)", transid,
-                val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, response, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
@@ -4939,7 +4939,7 @@ dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Change Acknowledge: Transaction ID = %u (%s)", transid,
-                val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, response, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
@@ -4987,7 +4987,7 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Delete Response: Transaction ID = %u (%s)",
-                tranid, val_to_str_ext (confcode, &docsis_conf_code_ext, "%d"));
+                tranid, val_to_str_ext_wmem(pinfo->pool, confcode, &docsis_conf_code_ext, "%d"));
 
   return tvb_captured_length(tvb);
 }
@@ -6770,7 +6770,7 @@ dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Bonding Change Response: Tran-Id = %u (%s) ", transid,
-                val_to_str_ext (confcode, &docsis_conf_code_ext, "%d"));
+                val_to_str_ext_wmem(pinfo->pool, confcode, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);

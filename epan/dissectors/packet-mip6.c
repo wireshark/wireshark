@@ -3829,7 +3829,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* Process mobility header */
     type = tvb_get_uint8(tvb, MIP6_TYPE_OFF);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(type, &mip6_mh_types_ext, "Unknown Mobility Header (%u)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, type, &mip6_mh_types_ext, "Unknown Mobility Header (%u)"));
     switch (type) {
     case MIP6_BRR:
         /* 0 Binding Refresh Request */

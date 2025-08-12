@@ -684,7 +684,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
             }
         }
         if (!strinfo->first_payload_type_name) {
-            strinfo->first_payload_type_name = val_to_str_ext(strinfo->first_payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"), "%u");
+            strinfo->first_payload_type_name = val_to_str_ext_wmem(wmem_file_scope(), strinfo->first_payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"), "%u");
         }
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;

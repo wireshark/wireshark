@@ -2037,7 +2037,7 @@ static void process_control_avps(tvbuff_t *tvb,
         /* IETF AVP:s */
         l2tp_avp_tree =  proto_tree_add_subtree_format(l2tp_tree, tvb, idx,
                                   avp_len, ett_l2tp_avp, NULL, "%s AVP",
-                                  val_to_str_ext(avp_type, &avp_type_vals_ext, "Unknown (%u)"));
+                                  val_to_str_ext_wmem(pinfo->pool, avp_type, &avp_type_vals_ext, "Unknown (%u)"));
 
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
@@ -2769,7 +2769,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 col_add_fstr(pinfo->cinfo, COL_INFO,
                                 "%s - %s (ccid=0x%08X)",
                                 control_msg ,
-                                val_to_str_ext(msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
+                                val_to_str_ext_wmem(pinfo->pool, msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
                                 ccid);
             }
             else {
@@ -2981,7 +2981,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 col_add_fstr(pinfo->cinfo, COL_INFO,
                                 "%s - %s (tunnel id=%u, session id=%u)",
                                 control_msg,
-                                val_to_str_ext(msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
+                                val_to_str_ext_wmem(pinfo->pool, msg_type, &l2tp_message_type_short_str_vals_ext, "Unknown (%u)"),
                                 tid, cid);
             }
             else

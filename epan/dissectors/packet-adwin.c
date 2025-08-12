@@ -589,13 +589,13 @@ dissect_UDPH1_generic(tvbuff_t *tvb, packet_info *pinfo,
 
 	instructionID = tvb_get_letohl(tvb, 0);
 	*info_string = wmem_strdup_printf(pinfo->pool, "%s: %s", packet_name,
-				        val_to_str_ext(instructionID, &instruction_mapping_ext, "unknown instruction: %d"));
+				        val_to_str_ext_wmem(pinfo->pool, instructionID, &instruction_mapping_ext, "unknown instruction: %d"));
 
 	if (instructionID == I_3PLUS1) {
 		char *tmp = *info_string;
 
 		i3plus1code = tvb_get_letohl(tvb, 20);
-		*info_string = wmem_strdup_printf(pinfo->pool, "%s: %s", tmp, val_to_str_ext(i3plus1code, &instruction_3plus1_mapping_ext, "unknown 3+1 code: %d"));
+		*info_string = wmem_strdup_printf(pinfo->pool, "%s: %s", tmp, val_to_str_ext_wmem(pinfo->pool, i3plus1code, &instruction_3plus1_mapping_ext, "unknown 3+1 code: %d"));
 	}
 
 	/* Get the transaction identifier */

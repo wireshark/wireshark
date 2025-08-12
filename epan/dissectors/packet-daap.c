@@ -458,7 +458,7 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
       offset += 4;
 
       proto_item_append_text(tag_ti, "%s, %u byte%c",
-            val_to_str_ext(tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"),
+            val_to_str_ext_wmem(pinfo->pool, tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"),
             tagsize, plurality(tagsize, ' ', 's'));
       proto_item_set_len(tag_ti, 8+tagsize);
 

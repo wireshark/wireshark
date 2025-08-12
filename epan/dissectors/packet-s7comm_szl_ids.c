@@ -6511,7 +6511,7 @@ s7comm_decode_szl_id_xy78_idx_xxxx(tvbuff_t *tvb,
                 chet_item_gen = proto_tree_add_uint(cdiag_entry_item_tree, hf_s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8, tvb, offset-2, 2, chet);
                 PROTO_ITEM_SET_GENERATED(chet_item_gen);
                 proto_item_append_text(cdiag_entry_item, " / %s",
-                    val_to_str_ext(chet, &s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names_ext, "unknown 0x%04x"));
+                    val_to_str_ext_wmem(pinfo->pool, chet, &s7comm_szl_xy78_xxxx_dis_cdiag_entry_chet_text_list_8_names_ext, "unknown 0x%04x"));
             } else {
                 proto_item_append_text(cdiag_entry_item, " / CHET: 0x%04x", chet);
             }

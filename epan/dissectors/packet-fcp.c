@@ -604,7 +604,7 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fch
     uint8_t op;
 
     op = tvb_get_uint8(tvb, 0);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(op, &fc_els_proto_val_ext, "0x%x"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, op, &fc_els_proto_val_ext, "0x%x"));
     proto_tree_add_item(tree, hf_fcp_els_op, tvb, 0, 1, ENC_NA);
 
     switch (op) {   /* XXX should switch based on conv for LS_ACC */

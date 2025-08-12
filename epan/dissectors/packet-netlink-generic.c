@@ -373,7 +373,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_generic);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, hf_genl_family_id, &pi_type);
+	offset = dissect_netlink_header(tvb, pinfo, nlmsg_tree, offset, nl_data->encoding, hf_genl_family_id, &pi_type);
 	family_name = (const char *)wmem_map_lookup(genl_family_map, GUINT_TO_POINTER(nl_data->type));
 	proto_item_append_text(pi_type, " (%s)", family_name ? family_name : "Unknown");
 

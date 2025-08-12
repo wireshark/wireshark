@@ -1497,7 +1497,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *_tvb, packet_info *pinfo, proto_tree 
     }
 
     target_info_tree = proto_tree_add_subtree_format(tree, tvb, item_offset, item_length, *tif_p->ett, &target_info_tf,
-                                  "Attribute: %s", val_to_str_ext(item_type, &ntlm_name_types_ext, "Unknown (%d)"));
+                                  "Attribute: %s", val_to_str_ext_wmem(pinfo->pool, item_type, &ntlm_name_types_ext, "Unknown (%d)"));
 
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_type,    tvb, type_offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_length,  tvb, len_offset,  2, ENC_LITTLE_ENDIAN);

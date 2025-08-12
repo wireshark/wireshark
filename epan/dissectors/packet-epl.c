@@ -3257,7 +3257,7 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 	offset += 2;
 
 	col_append_str(pinfo->cinfo, COL_INFO,
-						val_to_str_ext(rcid, &asnd_cid_vals_ext, "Unknown (%d)"));
+						val_to_str_ext_wmem(pinfo->pool, rcid, &asnd_cid_vals_ext, "Unknown (%d)"));
 
 	return offset;
 }
@@ -3323,7 +3323,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_uint(epl_tree, hf_epl_asnd_nmtcommand_cid, tvb, offset, 1, epl_asnd_nmtcommand_cid);
 	offset += 2;
 
-	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(epl_asnd_nmtcommand_cid, &asnd_cid_vals_ext, "Unknown(%d)"));
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, epl_asnd_nmtcommand_cid, &asnd_cid_vals_ext, "Unknown(%d)"));
 
 	switch (epl_asnd_nmtcommand_cid)
 	{
@@ -4045,7 +4045,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 			sub_val = str_to_val(sub_str, sod_cmd_sub_str_val, error);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%d]: (0x%04X/%d)",
-							val_to_str_ext(EPL_ASND_SDO_COMMAND_WRITE_BY_INDEX, &epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
+							val_to_str_ext_wmem(pinfo->pool, EPL_ASND_SDO_COMMAND_WRITE_BY_INDEX, &epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 							segment_size, idx, subindex);
 
 			if (obj || sod_index == error)
@@ -4362,7 +4362,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 	{   /* request */
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%d]:",
-				val_to_str_ext(EPL_ASND_SDO_COMMAND_WRITE_MULTIPLE_PARAMETER_BY_INDEX,
+				val_to_str_ext_wmem(pinfo->pool, EPL_ASND_SDO_COMMAND_WRITE_MULTIPLE_PARAMETER_BY_INDEX,
 				&epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 				segment_size);
 
@@ -4577,7 +4577,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 	else
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Response %s[%d]:",
-				val_to_str_ext(EPL_ASND_SDO_COMMAND_WRITE_MULTIPLE_PARAMETER_BY_INDEX,
+				val_to_str_ext_wmem(pinfo->pool, EPL_ASND_SDO_COMMAND_WRITE_MULTIPLE_PARAMETER_BY_INDEX,
 				&epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 				segment_size);
 
@@ -4695,7 +4695,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 	if (response)
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%d]:",
-				val_to_str_ext(EPL_ASND_SDO_COMMAND_READ_MULTIPLE_PARAMETER_BY_INDEX,
+				val_to_str_ext_wmem(pinfo->pool, EPL_ASND_SDO_COMMAND_READ_MULTIPLE_PARAMETER_BY_INDEX,
 				&epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 				segment_size);
 
@@ -4936,7 +4936,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 	else
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Request %s[%d]:",
-				val_to_str_ext(EPL_ASND_SDO_COMMAND_READ_MULTIPLE_PARAMETER_BY_INDEX,
+				val_to_str_ext_wmem(pinfo->pool, EPL_ASND_SDO_COMMAND_READ_MULTIPLE_PARAMETER_BY_INDEX,
 				&epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 				segment_size);
 
@@ -5088,7 +5088,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 		offset += 1;
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%d]: (0x%04X/%d)",
-						 val_to_str_ext(EPL_ASND_SDO_COMMAND_READ_BY_INDEX, &epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
+						 val_to_str_ext_wmem(pinfo->pool, EPL_ASND_SDO_COMMAND_READ_BY_INDEX, &epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 						 segment_size, idx, subindex);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s", val_to_str_ext_const(((uint32_t) (idx << 16)), &sod_index_names, "User Defined"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, "/%s)",val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));

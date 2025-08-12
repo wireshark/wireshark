@@ -178,7 +178,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 	sv_id = tvb_get_uint8(tvb, svoff+1);
 	proto_tree_add_item(sv_tree, hf_trmac_sv_id, tvb, svoff+1, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(sv_item, " (%s)", val_to_str_ext(sv_id, &subvector_vs_ext, "Unknown subvector ID 0x%02X"));
+	proto_item_append_text(sv_item, " (%s)", val_to_str_ext_wmem(pinfo->pool, sv_id, &subvector_vs_ext, "Unknown subvector ID 0x%02X"));
 
 	switch(sv_id) {
 		case 0x01: /* Beacon Type */
@@ -488,7 +488,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	/* Interpret the major vector */
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str_ext(mv_val, &major_vector_vs_ext, "Unknown Major Vector: %u"));
+		    val_to_str_ext_wmem(pinfo->pool, mv_val, &major_vector_vs_ext, "Unknown Major Vector: %u"));
 
 	/* interpret the subvectors */
 	sv_offset = 4;

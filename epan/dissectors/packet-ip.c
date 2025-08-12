@@ -1571,14 +1571,14 @@ dissect_ipopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
                                           tvb, offset + 1, 1, ttl_diff);
     proto_item_set_generated(ti);
     proto_item_append_text(tf, ", %s, QS TTL %u, QS TTL diff %u",
-                           val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
+                           val_to_str_ext_wmem(pinfo->pool, rate, &qs_rate_vals_ext, "Unknown (%u)"),
                            tvb_get_uint8(tvb, offset + 1), ttl_diff);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_nonce, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_reserved, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
   } else if (function == QS_RATE_REPORT) {
     proto_tree_add_item(field_tree, hf_ip_opt_qs_rate, tvb, offset, 1, ENC_NA);
     proto_item_append_text(tf, ", %s",
-                           val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"));
+                           val_to_str_ext_wmem(pinfo->pool, rate, &qs_rate_vals_ext, "Unknown (%u)"));
     proto_tree_add_item(field_tree, hf_ip_opt_qs_unused, tvb, offset + 1, 1, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_nonce, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_reserved, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
@@ -2019,7 +2019,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   iph->ip_tos = tvb_get_uint8(tvb, offset + 1);
   if (g_ip_dscp_actif) {
     col_add_str(pinfo->cinfo, COL_DSCP_VALUE,
-                val_to_str_ext(IPDSFIELD_DSCP(iph->ip_tos), &dscp_short_vals_ext, "%u"));
+                val_to_str_ext_wmem(pinfo->pool, IPDSFIELD_DSCP(iph->ip_tos), &dscp_short_vals_ext, "%u"));
   }
 
   if (tree) {

@@ -683,7 +683,7 @@ dissect_om2k_attr_unkn(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, i
 	proto_tree_add_bytes_format(tree, hf_om2k_unknown_val, tvb,
 				    offset, len, NULL,
 				    "%s: %s",
-				    val_to_str_ext(iei, &om2k_attr_vals_ext, "0x%02x"),
+				    val_to_str_ext_wmem(pinfo->pool, iei, &om2k_attr_vals_ext, "0x%02x"),
 				    tvb_bytes_to_str(pinfo->pool, tvb, offset, len));
 	return len;
 }
@@ -1182,7 +1182,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 			tmp = tvb_get_uint8(tvb, offset);
 			proto_tree_add_uint_format(tree, hf_om2k_unknown_tag, tvb,
 					    offset-1, 1, tmp, "Tag %s: 0x%02x",
-					    val_to_str_ext(iei, &om2k_attr_vals_ext, "0x%02x"), tmp);
+					    val_to_str_ext_wmem(pinfo->pool, iei, &om2k_attr_vals_ext, "0x%02x"), tmp);
 			offset++;
 			break;
 		}
@@ -1252,13 +1252,13 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	offset += dissect_om2k_mo(tvb, offset, pinfo, om2k_tree);  /* appends to COL_INFO */
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s ",
-			val_to_str_ext(msg_code, &om2k_msgcode_vals_ext,
+			val_to_str_ext_wmem(pinfo->pool, msg_code, &om2k_msgcode_vals_ext,
 				   "unknown 0x%04x"));
 
 	if (tree == NULL)
 		return tvb_captured_length(tvb);   /* No refs to COL_...  beyond this point */
 
-	msgt_str = val_to_str_ext(msg_code, &om2k_msgcode_vals_ext, "unknown 0x%04x");
+	msgt_str = val_to_str_ext_wmem(pinfo->pool, msg_code, &om2k_msgcode_vals_ext, "unknown 0x%04x");
 	proto_item_append_text(ti, " %s ", msgt_str);
 
 	switch (msg_code) {

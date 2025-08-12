@@ -9601,7 +9601,7 @@ dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb_reported_length_remaining(tvb, offset));
 
         tlv_tree = proto_tree_add_subtree(tree, tvb, offset, tlv_len + 3,
-                                          ett_tlv, NULL, val_to_str_ext(tlv_type,
+                                          ett_tlv, NULL, val_to_str_ext_wmem(pinfo->pool, tlv_type,
                                                 &ieee1905_tlv_types_vals_ext,
                                                 "Unknown: %02x"));
 
@@ -9782,7 +9782,7 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     message_type = tvb_get_ntohs(tvb, 2);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_ext(message_type, &ieee1905_message_type_vals_ext,
+                val_to_str_ext_wmem(pinfo->pool, message_type, &ieee1905_message_type_vals_ext,
                         "Unknown: %u"));
 
     ti = proto_tree_add_item(tree, proto_ieee1905, tvb, 0, -1, ENC_NA);

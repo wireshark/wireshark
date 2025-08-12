@@ -10696,7 +10696,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
       }
 
       proto_item_append_text(eap_tree, ": %s",
-                             val_to_str_ext(tvb_get_uint8(tvb, offset),
+                             val_to_str_ext_wmem(pinfo->pool, tvb_get_uint8(tvb, offset),
                                             &eap_type_vals_ext, "Unknown (%d)"));
       proto_tree_add_item(eap_tree, hf_ieee80211_ff_anqp_nai_realm_eap_method,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -10724,7 +10724,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
         if ((auth_param_id == 3) && (auth_param_len == 1)) {
           uint8_t inner_method = tvb_get_uint8(tvb, offset);
           const char *str;
-          str = val_to_str_ext(inner_method, &eap_type_vals_ext, "Unknown (%d)");
+          str = val_to_str_ext_wmem(pinfo->pool, inner_method, &eap_type_vals_ext, "Unknown (%d)");
 
           proto_item_append_text(eap_tree, " / %s", str);
           proto_item_append_text(item, " - %s", str);
@@ -11711,9 +11711,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   if (id != ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST) {
     if (idx == 0) {
       proto_item_append_text(tree, " - %s",
-                             val_to_str_ext(id, &anqp_info_id_vals_ext, "Unknown (%u)"));
+                             val_to_str_ext_wmem(pinfo->pool, id, &anqp_info_id_vals_ext, "Unknown (%u)"));
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                      val_to_str_ext(id, &anqp_info_id_vals_ext, "Unknown (%u)"));
+                      val_to_str_ext_wmem(pinfo->pool, id, &anqp_info_id_vals_ext, "Unknown (%u)"));
     } else if (idx == 1) {
       proto_item_append_text(tree, ", ..");
       col_append_str(pinfo->cinfo, COL_INFO, ", ..");
@@ -23961,7 +23961,7 @@ dissect_ric_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   while ( desc_cnt != 0 ) {
 
     next_ie = tvb_get_uint8(tvb, offset);
-    proto_item_append_text(field_data->item_tag, " :(%d:%s)", desc_cnt, val_to_str_ext(next_ie, &tag_num_vals_ext, "Reserved (%d)"));
+    proto_item_append_text(field_data->item_tag, " :(%d:%s)", desc_cnt, val_to_str_ext_wmem(pinfo->pool, next_ie, &tag_num_vals_ext, "Reserved (%d)"));
     /* Recursive call to avoid duplication of code*/
     offset_r = add_tagged_field(pinfo, sub_tree, tvb, offset, field_data->ftype, ids, G_N_ELEMENTS(ids), NULL);
     if (offset_r == 0 )/* should never happen, returns a min of 2*/
@@ -31484,10 +31484,10 @@ add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
     if (tag_no == TAG_ELEMENT_ID_EXTENSION) {
       ext_tag_no  = tvb_get_uint8(tvb, offset + 2);
       ti = proto_tree_add_item(orig_tree, hf_ieee80211_ext_tag, tvb, offset + 2, tag_len + tag_overhead - 2, ENC_NA);
-      proto_item_append_text(ti, ": %s", val_to_str_ext(ext_tag_no, &tag_num_vals_eid_ext_ext, "Unknown (%d)"));
+      proto_item_append_text(ti, ": %s", val_to_str_ext_wmem(pinfo->pool, ext_tag_no, &tag_num_vals_eid_ext_ext, "Unknown (%d)"));
     } else {
       ti = proto_tree_add_item(orig_tree, hf_ieee80211_tag, tvb, offset, 2 + tag_len + tag_overhead - 2, ENC_NA);
-      proto_item_append_text(ti, ": %s", val_to_str_ext(tag_no, &tag_num_vals_ext, "Unknown (%d)"));
+      proto_item_append_text(ti, ": %s", val_to_str_ext_wmem(pinfo->pool, tag_no, &tag_num_vals_ext, "Unknown (%d)"));
     }
 
     tree = proto_item_add_subtree(ti, ett_80211_mgt_ie);
@@ -31561,7 +31561,7 @@ add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
       expert_add_info_format(pinfo, ti_tag, &ei_ieee80211_tag_data,
                              "Dissector for 802.11 IE Tag"
                              " (%s) code not implemented, Contact"
-                             " Wireshark developers if you want this supported", val_to_str_ext(tag_no,
+                             " Wireshark developers if you want this supported", val_to_str_ext_wmem(pinfo->pool, tag_no,
                                             &tag_num_vals_ext, "(%d)"));
       proto_item_append_text(ti, ": Undecoded");
   }
@@ -35937,7 +35937,7 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       expert_add_info_format(pinfo, field_data->item_tag, &ei_ieee80211_tag_data,
                              "Dissector for 802.11 Extension Tag"
                              " (%s) code not implemented, Contact"
-                             " Wireshark developers if you want this supported", val_to_str_ext(ext_tag_no,
+                             " Wireshark developers if you want this supported", val_to_str_ext_wmem(pinfo->pool, ext_tag_no,
                                             &tag_num_vals_eid_ext_ext, "%d"));
       proto_item_append_text(field_data->item_tag, ": Undecoded");
       break;

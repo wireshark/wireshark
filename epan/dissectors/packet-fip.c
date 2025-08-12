@@ -265,12 +265,12 @@ static dissector_handle_t fc_handle;
  * Insert common descriptor type and length fields.
  */
 static proto_tree*
-fip_desc_type_len(proto_tree *tree, tvbuff_t *tvb, uint8_t dtype, int ett, proto_item** item)
+fip_desc_type_len(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, uint8_t dtype, int ett, proto_item** item)
 {
     proto_tree* ret_tree;
 
     ret_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett, item,
-            "Descriptor: %s ", val_to_str_ext(dtype, &fip_desc_types_ext, "Unknown 0x%x"));
+            "Descriptor: %s ", val_to_str_ext_wmem(pinfo->pool, dtype, &fip_desc_types_ext, "Unknown 0x%x"));
     proto_tree_add_item(ret_tree, hf_fip_desc_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ret_tree, hf_fip_desc_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 
@@ -360,22 +360,22 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     switch (op) {
     case FIP_OP_DISC:
-        info = val_to_str(sub, fip_disc_subcodes, "Discovery 0x%x");
+        info = val_to_str_wmem(pinfo->pool, sub, fip_disc_subcodes, "Discovery 0x%x");
         break;
     case FIP_OP_LS:
-        info = val_to_str(sub, fip_ls_subcodes, "Link Service 0x%x");
+        info = val_to_str_wmem(pinfo->pool, sub, fip_ls_subcodes, "Link Service 0x%x");
         break;
     case FIP_OP_CTRL:
-        info = val_to_str(sub, fip_ctrl_subcodes, "Control 0x%x");
+        info = val_to_str_wmem(pinfo->pool, sub, fip_ctrl_subcodes, "Control 0x%x");
         break;
     case FIP_OP_VLAN:
-        info = val_to_str(sub, fip_vlan_subcodes, "VLAN 0x%x");
+        info = val_to_str_wmem(pinfo->pool, sub, fip_vlan_subcodes, "VLAN 0x%x");
         break;
     case FIP_OP_VN2VN:
-        info = val_to_str(sub, fip_vn2vn_subcodes, "VN2VN 0x%x");
+        info = val_to_str_wmem(pinfo->pool, sub, fip_vn2vn_subcodes, "VN2VN 0x%x");
         break;
     default:
-        info = val_to_str(op, fip_opcodes, "Unknown op 0x%x");
+        info = val_to_str_wmem(pinfo->pool, op, fip_opcodes, "Unknown op 0x%x");
         break;
     }
 
@@ -436,31 +436,31 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         switch (dtype) {
         case FIP_DT_PRI:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_pri, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_pri, &item);
             proto_tree_add_item(subtree, hf_fip_desc_pri, desc_tvb,
                     3, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(item, "%u", tvb_get_uint8(desc_tvb, 3));
             break;
         case FIP_DT_MAC:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_mac, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_mac, &item);
             proto_tree_add_item(subtree, hf_fip_desc_mac, desc_tvb,
                     2, 6, ENC_NA);
             proto_item_append_text(item, "%s",
                     tvb_bytes_to_str_punct(pinfo->pool, desc_tvb, 2, 6, ':'));
             break;
         case FIP_DT_MAP_OUI:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_map, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_map, &item);
             proto_tree_add_item(subtree, hf_fip_desc_map, desc_tvb,
                     5, 3, ENC_NA);
             proto_item_append_text(item, "%s", tvb_fc_to_str(pinfo->pool, desc_tvb, 5));
             break;
         case FIP_DT_NAME:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_name, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_name, &item);
             proto_tree_add_item(subtree, hf_fip_desc_name, desc_tvb, 4, 8, ENC_NA);
             proto_item_append_text(item, "%s", tvb_fcwwn_to_str(pinfo->pool, desc_tvb, 4));
             break;
         case FIP_DT_FAB:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_fab, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_fab, &item);
             proto_tree_add_item(subtree, hf_fip_desc_fab_vfid, desc_tvb,
                     2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree, hf_fip_desc_fab_map, desc_tvb,
@@ -469,7 +469,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_item_append_text(item, "%s", tvb_fcwwn_to_str(pinfo->pool, desc_tvb, 8));
             break;
         case FIP_DT_FCOE_SIZE:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_mdl, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_mdl, &item);
             proto_tree_add_item(subtree, hf_fip_desc_fcoe_size, desc_tvb,
                     2, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(item, "%u", tvb_get_ntohs(desc_tvb, 2));
@@ -481,14 +481,14 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tvbuff_t *ls_tvb;
             fc_data_t fc_data = {ETHERTYPE_FIP, 0};
 
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_caps, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_caps, &item);
             ls_tvb = tvb_new_subset_length_caplen(desc_tvb, 4, dlen - 4, -1);
             call_dissector_with_data(fc_handle, ls_tvb, pinfo, subtree, &fc_data);
             proto_item_append_text(item, "%u bytes", dlen - 4);
         }
             break;
         case FIP_DT_VN:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_vn, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_vn, &item);
             proto_tree_add_item(subtree, hf_fip_desc_vn_mac, desc_tvb,
                     2, 6, ENC_NA);
             proto_tree_add_item(subtree, hf_fip_desc_vn_fid, desc_tvb,
@@ -500,14 +500,14 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     tvb_get_ntoh24(desc_tvb, 9));
             break;
         case FIP_DT_FKA:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_fka, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_fka, &item);
             val = tvb_get_ntohl(desc_tvb, 4);
             proto_tree_add_uint_format_value(subtree, hf_fip_desc_fka,
                     desc_tvb, 4, 4, val, "%u ms", val);
             proto_item_append_text(item, "%u ms", val);
             break;
         case FIP_DT_VEND:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_vend, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_vend, &item);
             proto_tree_add_item(subtree, hf_fip_desc_vend, desc_tvb,
                     4, 8, ENC_NA);
             if (tvb_reported_length_remaining(desc_tvb, 9)) {
@@ -516,17 +516,17 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
             break;
         case FIP_DT_VLAN:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_vlan, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_vlan, &item);
             proto_tree_add_item(subtree, hf_fip_desc_vlan, desc_tvb,
                     2, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(item, "%u", tvb_get_ntohs(desc_tvb, 2));
             break;
         case FIP_DT_FC4F:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_fc4f, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_fc4f, &item);
             fip_desc_fc4f(desc_tvb, subtree, item);
             break;
         default:
-            subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_unk, &item);
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_unk, &item);
             proto_tree_add_item(subtree, hf_fip_desc_unk, desc_tvb,
                     2, -1, ENC_NA);
             break;

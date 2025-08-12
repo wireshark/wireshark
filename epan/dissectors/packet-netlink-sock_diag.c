@@ -974,7 +974,7 @@ dissect_netlink_sock_diag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_sock_diag);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, hf_netlink_sock_diag_nltype, NULL);
+	offset = dissect_netlink_header(tvb, pinfo, nlmsg_tree, offset, nl_data->encoding, hf_netlink_sock_diag_nltype, NULL);
 
 	info.pinfo = pinfo;
 

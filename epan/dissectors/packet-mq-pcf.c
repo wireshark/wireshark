@@ -613,7 +613,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
     uint32_t    uTyp, uCnt, uCC, uRC;
 
     ti = proto_tree_add_item(tree, proto_mqpcf, tvb, offset, -1, ENC_NA);
-    proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &mq_MQCMD_xvals, "Unknown (0x%02x)"));
+    proto_item_append_text(ti, " (%s)", val_to_str_ext_wmem(pinfo->pool, iCommand, &mq_MQCMD_xvals, "Unknown (0x%02x)"));
     mqroot_tree = proto_item_add_subtree(ti, ett_mqpcf);
 
     mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeMQCFH, ett_mqpcf_cfh, &ti, "MQ Command Format Header");

@@ -2518,7 +2518,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               al_bi_val = tvb_get_uint8(tvb, offset);
               al_2bit = ((al_bi_val >> (bitindex << 1)) & 3);
 
-              proto_item_append_text(point_item, ", State: %s", val_to_str_ext(al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"));
+              proto_item_append_text(point_item, ", State: %s", val_to_str_ext_wmem(pinfo->pool, al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"));
               switch (bitindex)
               {
               case 0:
@@ -2588,7 +2588,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 1;
 
               al_2bit = (al_ptflags >> 6) & 3;
-              proto_item_append_text(point_item, ", State: %s", val_to_str_ext(al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"));
+              proto_item_append_text(point_item, ", State: %s", val_to_str_ext_wmem(pinfo->pool, al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"));
               proto_item_set_len(point_item, data_pos - offset);
 
               offset = data_pos;
@@ -2634,7 +2634,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
               proto_item_append_text(point_item, ", State: %s, Timestamp: %s",
-                                     val_to_str_ext(al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"),
+                                     val_to_str_ext_wmem(pinfo->pool, al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"),
                                      abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
               proto_item_set_len(point_item, data_pos - offset);
 
@@ -2672,7 +2672,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 case AL_OBJ_2BIC_RTIME:
                   al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
                   proto_item_append_text(point_item, ", State: %s, Timestamp: %s",
-                                         val_to_str_ext(al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"),
+                                         val_to_str_ext_wmem(pinfo->pool, al_2bit, &dnp3_al_dbi_vals_ext, "Unknown double bit state (0x%02x)"),
                                          abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
                   break;
               }
@@ -2748,7 +2748,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             {
               /* Get the status code */
               al_ctlobj_stat = tvb_get_uint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
-              ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
+              ctl_status_str = val_to_str_ext_wmem(pinfo->pool, al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
               proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
               proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
 
@@ -2847,7 +2847,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               /* Get control status */
               al_ctlobj_stat = tvb_get_uint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
-              ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
+              ctl_status_str = val_to_str_ext_wmem(pinfo->pool, al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
               proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
               proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
               data_pos += 1;
@@ -3668,7 +3668,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_SA_SECSTATEVTT: /* Security Statistic Event w/ Time (Obj:122, Var:02) */
 
               /* Security Statistic Description */
-              sec_stat_str = val_to_str_ext(al_ptaddr, &dnp3_al_sa_secstat_vals_ext, "Unknown statistic (%u)");
+              sec_stat_str = val_to_str_ext_wmem(pinfo->pool, al_ptaddr, &dnp3_al_sa_secstat_vals_ext, "Unknown statistic (%u)");
               proto_item_append_text(point_item, " %s", sec_stat_str);
 
               /* Quality Flags */
@@ -3753,7 +3753,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   al_ctl = tvb_get_uint8(tvb, offset);
   al_seq = al_ctl & DNP3_AL_SEQ;
   al_func = tvb_get_uint8(tvb, (offset+1));
-  func_code_str = val_to_str_ext(al_func, &dnp3_al_func_vals_ext, "Unknown function (0x%02x)");
+  func_code_str = val_to_str_ext_wmem(pinfo->pool, al_func, &dnp3_al_func_vals_ext, "Unknown function (0x%02x)");
 
   /* Clear out lower layer info */
   col_clear(pinfo->cinfo, COL_INFO);

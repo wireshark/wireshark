@@ -2616,10 +2616,10 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 	req_tree = proto_item_add_subtree(request_item, ett_request);
 
 	opcode = tvb_get_uint8(tvb, offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(opcode, &mysql_command_vals_ext, "Unknown (%u) "));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext_wmem(pinfo->pool, opcode, &mysql_command_vals_ext, "Unknown (%u) "));
 
 	proto_tree_add_item(req_tree, hf_mysql_command, tvb, offset, 1, ENC_NA);
-	proto_item_append_text(request_item, " %s", val_to_str_ext(opcode, &mysql_command_vals_ext, "Unknown (%u)"));
+	proto_item_append_text(request_item, " %s", val_to_str_ext_wmem(pinfo->pool, opcode, &mysql_command_vals_ext, "Unknown (%u)"));
 	offset += 1;
 
 

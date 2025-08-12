@@ -235,7 +235,7 @@ extern int hf_3gpp_tmsi;
 #define NAS_5GS_PDU_TYPE_SM         18
 #define NAS_5GS_PDU_TYPE_UPDP       19
 
-extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
+extern const char* get_gsm_a_msg_string(wmem_allocator_t* pool, int pdu_type, int idx);
 
 /*
  * this should be set on a per message basis, if possible
@@ -455,7 +455,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
             tvb, curr_offset, 0, \
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
-            get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EMT_pdu_type, EMT_elem_idx), \
             /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
@@ -481,7 +481,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
             tvb, curr_offset, 0, \
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
-            get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EMT_pdu_type, EMT_elem_idx), \
             /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
@@ -502,7 +502,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
             tvb, curr_offset, 0, \
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
-            get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EMT_pdu_type, EMT_elem_idx), \
             /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
@@ -552,7 +552,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
             tvb, curr_offset, 0, \
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
-            get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EMT_pdu_type, EMT_elem_idx), \
             /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
         ); \
@@ -602,7 +602,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
         proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
             tvb, curr_offset, 0, \
             "Missing Mandatory element %s%s, rest of dissection is suspect", \
-            get_gsm_a_msg_string(EML_pdu_type, EML_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EML_pdu_type, EML_elem_idx), \
             /* coverity[array_null] */ \
             (EML_elem_name_addition == NULL) ? "" : EML_elem_name_addition \
         ); \
@@ -622,7 +622,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
         proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
             tvb, curr_offset, 0, \
             "Missing Mandatory element %s%s, rest of dissection is suspect", \
-            get_gsm_a_msg_string(EML_pdu_type, EML_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EML_pdu_type, EML_elem_idx), \
             /* coverity[array_null] */ \
             (EML_elem_name_addition == NULL) ? "" : EML_elem_name_addition \
         ); \
@@ -642,7 +642,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
         proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
             tvb, curr_offset, 0, \
             "Missing Mandatory element %s%s, rest of dissection is suspect", \
-            get_gsm_a_msg_string(EMV_pdu_type, EMV_elem_idx), \
+            get_gsm_a_msg_string(pinfo->pool, EMV_pdu_type, EMV_elem_idx), \
             /* coverity[array_null] */ \
             (EMV_elem_name_addition == NULL) ? "" : EMV_elem_name_addition \
         ); \
@@ -663,8 +663,8 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
         proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
             tvb, curr_offset, 0, \
             "Missing Mandatory elements %s %s, rest of dissection is suspect", \
-            get_gsm_a_msg_string(EMV_pdu_type1, EMV_elem_idx1), \
-            get_gsm_a_msg_string(EMV_pdu_type2, EMV_elem_idx2) \
+            get_gsm_a_msg_string(pinfo->pool, EMV_pdu_type1, EMV_elem_idx1), \
+            get_gsm_a_msg_string(pinfo->pool, EMV_pdu_type2, EMV_elem_idx2) \
             /* coverity[array_null] */ \
         ); \
     } \

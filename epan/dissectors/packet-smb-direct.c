@@ -263,7 +263,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		if (status != 0) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", Error: %s",
-				val_to_str_ext(status, &NT_errors_ext, "Unknown (0x%08X)"));
+				val_to_str_ext_wmem(pinfo->pool, status, &NT_errors_ext, "Unknown (0x%08X)"));
 		}
 
 		if (tree == NULL) {

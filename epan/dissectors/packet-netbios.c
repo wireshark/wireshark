@@ -1108,7 +1108,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	command = MIN(command, array_length(dissect_netb));
 
 		/* print command name */
-	command_name = val_to_str_ext(command, &cmd_vals_ext, "Unknown (0x%02x)");
+	command_name = val_to_str_ext_wmem(pinfo->pool, command, &cmd_vals_ext, "Unknown (0x%02x)");
 	switch ( command ) {
 		case NB_NAME_QUERY:
 			name_type = get_netbios_name( tvb, offset + 12, name, (NETBIOS_NAME_LEN - 1)*4 + 1);

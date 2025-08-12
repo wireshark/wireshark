@@ -666,7 +666,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	int value_offset;
 	bool handled = false;
 
-	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext(pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)"));
+	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext_wmem(oinfo->pinfo->pool, pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)"));
 	proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, OBDII_PID_POS, 1, pid);
 
 	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, MIN(oinfo->value_bytes, 4), ENC_NA);
@@ -1250,7 +1250,7 @@ dissect_obdii_mode_09(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	uint8_t pid = tvb_get_uint8(tvb, OBDII_PID_POS);
 	int value_offset;
 
-	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext(pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)"));
+	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext_wmem(oinfo->pinfo->pool, pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)"));
 	proto_tree_add_uint(tree, hf_obdii_mode09_pid, tvb, OBDII_PID_POS, 1, pid);
 
 	value_offset = OBDII_VAL_OFF;
@@ -1307,7 +1307,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 	switch (oinfo->mode)
 	{
 	case 0x01:
-		pid_str = val_to_str_ext(pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)");
+		pid_str = val_to_str_ext_wmem(oinfo->pinfo->pool, pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)");
 		proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, OBDII_PID_POS, pid_len, pid);
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;
@@ -1318,7 +1318,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 		break;
 
 	case 0x09:
-		pid_str = val_to_str_ext(pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)");
+		pid_str = val_to_str_ext_wmem(oinfo->pinfo->pool, pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)");
 		proto_tree_add_uint(tree, hf_obdii_mode09_pid, tvb, OBDII_PID_POS, pid_len, pid);
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;

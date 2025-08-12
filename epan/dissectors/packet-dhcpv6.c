@@ -2147,8 +2147,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     /* Replace "Text item" option header with a filterable field which in turn eliminates the need
      * for the "Value:" raw data field. */
     option_item = proto_tree_add_string_format(bp_tree, hf_option_type_str, tvb, off, 4 + optlen,
-                    val_to_str_ext(opttype, &opttype_vals_ext, "DHCP option %u"),
-                    "%s", val_to_str_ext(opttype, &opttype_vals_ext, "DHCP option %u"));
+                    val_to_str_ext_wmem(pinfo->pool, opttype, &opttype_vals_ext, "DHCP option %u"),
+                    "%s", val_to_str_ext_wmem(pinfo->pool, opttype, &opttype_vals_ext, "DHCP option %u"));
 
     subtree = proto_item_add_subtree(option_item, ett_dhcpv6_option);
 
@@ -2718,7 +2718,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
          * DHCP.
          */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv4o6");
-        col_prepend_fstr(pinfo->cinfo, COL_INFO, "%-12s ", val_to_str_ext(msgtype, &msgtype_vals_ext, "Message Type %u"));
+        col_prepend_fstr(pinfo->cinfo, COL_INFO, "%-12s ", val_to_str_ext_wmem(pinfo->pool, msgtype, &msgtype_vals_ext, "Message Type %u"));
         break;
     }
 
@@ -3533,7 +3533,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint8_t            msgtype;
     msgtype = tvb_get_uint8(tvb, off);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext(msgtype, &msgtype_vals_ext, "Message Type %u"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_wmem(pinfo->pool, msgtype, &msgtype_vals_ext, "Message Type %u"));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, eoff - off, ENC_NA);

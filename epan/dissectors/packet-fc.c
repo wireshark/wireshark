@@ -911,7 +911,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
             proto_tree_add_uint_format_value(fc_tree, hf_fc_type, tvb,
                                         offset+8, FC_TYPE_SIZE,
                                         fchdr->type,"0x%x(%s)", fchdr->type,
-                                        fclctl_get_typestr ((uint8_t) (fchdr->r_ctl & 0x0F),
+                                        fclctl_get_typestr (pinfo->pool, (uint8_t) (fchdr->r_ctl & 0x0F),
                                                             fchdr->type));
         } else {
             proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, ENC_BIG_ENDIAN);

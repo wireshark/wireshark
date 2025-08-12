@@ -4175,7 +4175,7 @@ get_field_type_parameters(tvbuff_t *tvb, int blob_offset, uint8_t field_type, ui
 /******************************************************************************/
 /* Get Field Name */
 static const char *
-get_field_name(uint8_t blob_type, uint16_t field_number)
+get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number)
 {
   uint16_t temp_field_number;
   const char *field_name;
@@ -4184,76 +4184,76 @@ get_field_name(uint8_t blob_type, uint16_t field_number)
   switch (blob_type) {
     case ACN_BLOB_IPV4:
     case ACN_BLOB_IPV6:
-      field_name = val_to_str(field_number, acn_blob_ip_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_ip_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ERROR1:
-      field_name = val_to_str(field_number, acn_blob_error1_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_error1_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ERROR2:
-      field_name = val_to_str(field_number, acn_blob_error2_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_error2_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_METADATA:
-      field_name = val_to_str(field_number, acn_blob_metadata_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_metadata_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_METADATA_DEVICES:
-      field_name = val_to_str(field_number, acn_blob_metadata_devices_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_metadata_devices_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_METADATA_TYPES:
-      field_name = val_to_str(field_number, acn_blob_metadata_types_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_metadata_types_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_TIME1:
-      field_name = val_to_str(field_number, acn_blob_time1_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_time1_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_LOAD_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_load_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_load_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMING_RACK_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMING_RACK_STATUS_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_status_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_status_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_STATUS_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_status_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_status_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_SET_LEVELS_OPERATION:
-      field_name = val_to_str(field_number, acn_blob_set_levels_operation_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_set_levels_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_PRESET_OPERATION:
-      field_name = val_to_str(field_number, acn_blob_preset_operation_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_preset_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ADVANCED_FEATURES_OPERATION:
-      field_name = val_to_str(field_number, acn_blob_advanced_features_operation_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_advanced_features_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIRECT_CONTROL_OPERATION:
-      field_name = val_to_str(field_number, acn_blob_direct_control_operation_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_direct_control_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_GENERATE_CONFIG_OPERATION:
-      field_name = val_to_str(field_number, acn_blob_generate_config_operation_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_generate_config_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ERROR3:
-      field_name = val_to_str(field_number, acn_blob_error3_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_error3_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_PROPERTIES2:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_LOAD_PROPERTIES2:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_load_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_load_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_RACK_PROPERTIES2:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_rack_status_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_status_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_STATUS_PROPERTIES2:
-      field_name = val_to_str_ext(field_number, &acn_blob_dimmer_status_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_status_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_TIME2:
-      field_name = val_to_str(field_number, acn_blob_time2_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_time2_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_RPC:
       {
@@ -4261,14 +4261,14 @@ get_field_name(uint8_t blob_type, uint16_t field_number)
         /* field names 4 repeats: 1, 2, 3, 4, 4, 4, ... */
         if (temp_field_number > 3)
           temp_field_number = 4;
-        field_name = val_to_str(temp_field_number, acn_blob_rpc_field_name, "not valid (%d)");
+        field_name = val_to_str_wmem(scope, temp_field_number, acn_blob_rpc_field_name, "not valid (%d)");
       }
       break;
     case ACN_BLOB_DHCP_CONFIG_SUBNET:
-      field_name = val_to_str(field_number, acn_blob_dhcp_config_subnet_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_dhcp_config_subnet_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DHCP_CONFIG_STATIC_ROUTE:
-      field_name = val_to_str(field_number, acn_blob_dhcp_config_static_route_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_dhcp_config_static_route_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ENERGY_MANAGEMENT:
       {
@@ -4276,23 +4276,23 @@ get_field_name(uint8_t blob_type, uint16_t field_number)
         /* field names 4 through 7 repeat: 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, ... */
         if (temp_field_number > 3)
           temp_field_number = (field_number % 4) + 4;
-        field_name = val_to_str(temp_field_number, acn_blob_energy_management_field_name, "not valid (%d)");
+        field_name = val_to_str_wmem(scope, temp_field_number, acn_blob_energy_management_field_name, "not valid (%d)");
       }
       break;
     case ACN_BLOB_PRESET_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_preset_properties_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_preset_properties_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_TIME3:
-      field_name = val_to_str(field_number, acn_blob_time3_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_time3_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ENERGY_COST:
-      field_name = val_to_str(field_number, acn_blob_energy_cost_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_energy_cost_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_SEQUENCE_OPERATIONS:
-      field_name = val_to_str(field_number, acn_blob_sequence_operation_field_name, "not valid (%d)");
+      field_name = val_to_str_wmem(scope, field_number, acn_blob_sequence_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_SEQUENCE_STEP_PROPERTIES:
-      field_name = val_to_str_ext(field_number, &acn_blob_sequence_step_properties_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_sequence_step_properties_field_name_ext, "not valid (%d)");
       break;
     default:
       field_name = "Unknown field";
@@ -4443,7 +4443,7 @@ display_blob_field_value(tvbuff_t *tvb, proto_tree *field_tree, uint16_t field_n
 /******************************************************************************/
 /* Display Blob Field */
 static void
-display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, uint8_t blob_type, int *blob_offset, uint16_t *field_number, int display_variblob_as_CID)
+display_blob_field(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, uint8_t blob_type, int *blob_offset, uint16_t *field_number, int display_variblob_as_CID)
 {
   uint8_t           field_type;
   uint8_t           field_length;
@@ -4469,7 +4469,7 @@ display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, uint8_t blob_type, int 
         /* uint2 */
         field_length = 2;
         blob_offset3 = 2;
-        field_name = get_field_name(blob_type, temp_field_number);
+        field_name = get_field_name(pinfo->pool, blob_type, temp_field_number);
 
         /* Create Sub Tree for Field Type*/
         fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, *blob_offset, field_length, ENC_NA);
@@ -4487,7 +4487,7 @@ display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, uint8_t blob_type, int 
         /* uint4 */
         field_length = 4;
         blob_offset3 = 4;
-        field_name = get_field_name(blob_type, temp_field_number);
+        field_name = get_field_name(pinfo->pool, blob_type, temp_field_number);
 
         /* Create Sub Tree for Field Type*/
         fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, *blob_offset, field_length, ENC_NA);
@@ -4504,7 +4504,7 @@ display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, uint8_t blob_type, int 
     /* Get field type*/
     field_type = tvb_get_uint8(tvb, *blob_offset);
     get_field_type_parameters(tvb, *blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
-    field_name = get_field_name(blob_type, *field_number);
+    field_name = get_field_name(pinfo->pool, blob_type, *field_number);
 
     /* Create Sub Tree for Field Type*/
     fi = proto_tree_add_item(blob_tree, hf_acn_blob_tree_field_type, tvb, *blob_offset, field_length + 1, ENC_NA);
@@ -4531,7 +4531,7 @@ display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, uint8_t blob_type, int 
 /******************************************************************************/
 /* Dissect Blob Metadata */
 static uint32_t
-dissect_acn_blob_metadata(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+dissect_acn_blob_metadata(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, int blob_offset, int end_offset)
 {
   uint8_t  blob_type = ACN_BLOB_METADATA;
   uint16_t field_number = 1;
@@ -4548,7 +4548,7 @@ dissect_acn_blob_metadata(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset,
 
     }
 
-    display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, display_variblob_as_CID);
+    display_blob_field(tvb, pinfo, blob_tree, blob_type, &blob_offset, &field_number, display_variblob_as_CID);
   }
   return 0;
 }
@@ -4556,7 +4556,7 @@ dissect_acn_blob_metadata(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset,
 /******************************************************************************/
 /* Dissect Blob Preset Properties */
 static uint32_t
-dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+dissect_acn_blob_preset_properties(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, int blob_offset, int end_offset)
 {
   uint8_t      blob_type = ACN_BLOB_PRESET_PROPERTIES;
   uint8_t      field_type;
@@ -4578,7 +4578,7 @@ dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blo
       field_type = tvb_get_uint8(tvb, blob_offset);
       get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
 
-      field_name = get_field_name(blob_type, field_number);
+      field_name = get_field_name(pinfo->pool, blob_type, field_number);
       field_number += 1;
 
       /* Create Sub Tree for Field Type */
@@ -4589,7 +4589,7 @@ dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blo
       sub_blob_index = 0;
 
       while ((sub_blob_index < max_sub_blobs) && (blob_offset < end_offset)) {
-        display_blob_field(tvb, sub_blob_tree, blob_type, &blob_offset, &field_number, 0);
+        display_blob_field(tvb, pinfo, sub_blob_tree, blob_type, &blob_offset, &field_number, 0);
 
         sub_blob_index += 1;
       }
@@ -4597,7 +4597,7 @@ dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blo
     }
 
     else {
-      display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, 0);
+      display_blob_field(tvb, pinfo, blob_tree, blob_type, &blob_offset, &field_number, 0);
     }
 
   }
@@ -4607,7 +4607,7 @@ dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blo
 /******************************************************************************/
 /* Dissect Blob Dimming Rack Properties v2 */
 static uint32_t
-dissect_acn_blob_dimming_rack_properties_v2(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+dissect_acn_blob_dimming_rack_properties_v2(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, int blob_offset, int end_offset)
 {
   uint8_t      blob_type = ACN_BLOB_DIMMER_RACK_PROPERTIES2;
   uint16_t     field_number = 1;
@@ -4626,7 +4626,7 @@ dissect_acn_blob_dimming_rack_properties_v2(tvbuff_t *tvb, proto_tree *blob_tree
 
     }
 
-    display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, display_variblob_as_CID);
+    display_blob_field(tvb, pinfo, blob_tree, blob_type, &blob_offset, &field_number, display_variblob_as_CID);
   }
   return 0;
 }
@@ -4634,7 +4634,7 @@ dissect_acn_blob_dimming_rack_properties_v2(tvbuff_t *tvb, proto_tree *blob_tree
 /******************************************************************************/
 /* Dissect Blob Dimming Rack Status Properties v2 */
 static uint32_t
-dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, proto_tree *blob_tree, int blob_offset, int end_offset)
+dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, packet_info* pinfo, proto_tree *blob_tree, int blob_offset, int end_offset)
 {
   uint8_t      blob_type;
   uint8_t      field_type;
@@ -4664,7 +4664,7 @@ dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, proto_tree *bl
       field_type = tvb_get_uint8(tvb, blob_offset);
       get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
 
-      field_name = get_field_name(blob_type, field_number);
+      field_name = get_field_name(pinfo->pool, blob_type, field_number);
       field_number += 1;
 
       /* Create Sub Tree for Field Type */
@@ -4676,7 +4676,7 @@ dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, proto_tree *bl
       sub_blob_index = 0;
 
       while ((sub_blob_index < number_of_sub_blobs) && (blob_offset < end_offset)) {
-        display_blob_field(tvb, sub_blob_tree, blob_type, &blob_offset, &field_number, 0);
+        display_blob_field(tvb, pinfo, sub_blob_tree, blob_type, &blob_offset, &field_number, 0);
 
         sub_blob_index += 1;
 
@@ -4685,7 +4685,7 @@ dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, proto_tree *bl
     }
 
     else {
-      display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, 0);
+      display_blob_field(tvb, pinfo, blob_tree, blob_type, &blob_offset, &field_number, 0);
     }
 
   }
@@ -4726,7 +4726,7 @@ get_blob_type_from_fields(tvbuff_t *tvb, int blob_offset, int end_offset)
 /******************************************************************************/
 /* Dissect Blob */
 static uint32_t
-dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, int blob_offset, int end_offset)
+dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree, int blob_offset, int end_offset)
 {
   /* Declarations for blobs*/
   uint8_t    blob_type;
@@ -4769,21 +4769,21 @@ dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, in
   blob_offset += 1;
 
   if (blob_type == ACN_BLOB_METADATA) {
-    return dissect_acn_blob_metadata(tvb, blob_tree, blob_offset, end_offset);
+    return dissect_acn_blob_metadata(tvb, pinfo, blob_tree, blob_offset, end_offset);
   }
   if (blob_type == ACN_BLOB_PRESET_PROPERTIES) {
-    return dissect_acn_blob_preset_properties(tvb, blob_tree, blob_offset, end_offset);
+    return dissect_acn_blob_preset_properties(tvb, pinfo, blob_tree, blob_offset, end_offset);
   }
   if (blob_type == ACN_BLOB_DIMMER_RACK_PROPERTIES2) {
-    return dissect_acn_blob_dimming_rack_properties_v2(tvb, blob_tree, blob_offset, end_offset);
+    return dissect_acn_blob_dimming_rack_properties_v2(tvb, pinfo, blob_tree, blob_offset, end_offset);
   }
   if (blob_type == ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2) {
-    return dissect_acn_blob_dimming_rack_status_properties_v2(tvb, blob_tree, blob_offset, end_offset);
+    return dissect_acn_blob_dimming_rack_status_properties_v2(tvb, pinfo, blob_tree, blob_offset, end_offset);
   }
 
   /* Loop though dissecting fields until the end is reached */
   while (blob_offset < end_offset) {
-    display_blob_field(tvb, blob_tree, blob_type, &blob_offset, &field_number, 0);
+    display_blob_field(tvb, pinfo, blob_tree, blob_type, &blob_offset, &field_number, 0);
   }
   return 0;
 }

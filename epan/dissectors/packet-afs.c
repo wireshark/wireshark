@@ -2919,19 +2919,19 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		if ( vals_ext ) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: %s (%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
-				val_to_str_ext(port, &port_types_short_ext, "Unknown(%d)"),
+				val_to_str_ext_wmem(pinfo->pool, port, &port_types_short_ext, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
-				val_to_str_ext(opcode, vals_ext, "Unknown(%d)"), opcode);
+				val_to_str_ext_wmem(pinfo->pool, opcode, vals_ext, "Unknown(%d)"), opcode);
 		} else {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: Unknown(%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
-				val_to_str_ext(port, &port_types_short_ext, "Unknown(%d)"),
+				val_to_str_ext_wmem(pinfo->pool, port, &port_types_short_ext, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				opcode);
 		}
 	} else {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s %s",
-			val_to_str_ext(port, &port_types_short_ext, "Unknown(%d)"),
+			val_to_str_ext_wmem(pinfo->pool, port, &port_types_short_ext, "Unknown(%d)"),
 			reply ? "Reply" : "Request"
 			);
 	}
@@ -2972,7 +2972,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			opcode, "%s%s%s %s",
 			VALID_OPCODE(opcode) ? "" : "Encrypted ",
 			typenode == hf_afs_ubik ? "UBIK - " : "",
-			val_to_str_ext(port, &port_types_ext, "Unknown(%d)"),
+			val_to_str_ext_wmem(pinfo->pool, port, &port_types_ext, "Unknown(%d)"),
 			reply ? "Reply" : "Request");
 
 		if( request_val && !reply && request_val->rep_num) {

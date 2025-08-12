@@ -1194,7 +1194,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         col_set_str(pinfo->cinfo, COL_INFO, "Rcvd Broadcom ");
 
         event_code = tvb_get_uint8(tvb, offset);
-        description = val_to_str_ext(event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
+        description = val_to_str_ext_wmem(pinfo->pool, event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
         col_append_str(pinfo->cinfo, COL_INFO, description);
         proto_tree_add_item(main_tree, hf_broadcom_event_code, tvb, offset, 1, ENC_NA);
         offset += 1;

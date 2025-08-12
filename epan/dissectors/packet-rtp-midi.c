@@ -2955,7 +2955,7 @@ decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned in
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 	note = tvb_get_uint8( tvb, offset );
-	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+	note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 	velocity = tvb_get_uint8( tvb, offset + 1 );
 
 	if ( using_rs ) {
@@ -2997,7 +2997,7 @@ decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 	note = tvb_get_uint8( tvb, offset );
-	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+	note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 	velocity = tvb_get_uint8( tvb, offset + 1 );
 
 	/* special case velocity=0 for Note-On means Note-Off (to preserve running-status!) */
@@ -3046,7 +3046,7 @@ decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 	note = tvb_get_uint8( tvb, offset );
-	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+	note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 	pressure = tvb_get_uint8( tvb, offset + 1 );
 
 	if ( using_rs ) {
@@ -3205,7 +3205,7 @@ decode_control_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 	controller = tvb_get_uint8( tvb, offset );
-	ctrl_str = val_to_str_ext( controller, &rtp_midi_controller_values_ext, "Unknown: %d" );
+	ctrl_str = val_to_str_ext_wmem(pinfo->pool, controller, &rtp_midi_controller_values_ext, "Unknown: %d" );
 	value = tvb_get_uint8( tvb, offset + 1 );
 
 	if ( using_rs ) {
@@ -3565,7 +3565,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		offset	 += 16;
 
 		for ( i=0; i < 128; i++ ) {
-			note_str = val_to_str_ext( i, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+			note_str = val_to_str_ext_wmem(pinfo->pool, i, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 			tune_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3, ett_rtp_midi_sysex_common_tune_note, NULL, "Note: %s", note_str );
 
@@ -3595,7 +3595,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			note = tvb_get_uint8( tvb, offset );
 
-			note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+			note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 			tune_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3, ett_rtp_midi_sysex_common_tune_note, NULL, "Note: %s", note_str );
 
@@ -5062,7 +5062,7 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			note = tvb_get_uint8( tvb, offset ) & 0x7f;
 			velocity = tvb_get_uint8( tvb, offset + 1 ) & 0x7f;
 
-			note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+			note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 			rtp_midi_loglist_tree = proto_tree_add_subtree_format(rtp_midi_loglist_tree, tvb, offset, 2,
 						ett_rtp_midi_cj_chapter_n_logitem, NULL, "%s (n=%s, v=%d)", RTP_MIDI_TREE_NAME_CJ_CHAPTER_N_LOGITEM, note_str, velocity );
@@ -5137,7 +5137,7 @@ decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		octet = tvb_get_uint8( tvb, offset + 1 );
 		count_vel = octet & 0x7f;
 
-		note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+		note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 		if ( octet & 0x80 ) {
 			log_tree = proto_tree_add_subtree_format(rtp_midi_loglist_tree, tvb, offset, 2, ett_rtp_midi_cj_chapter_e_logitem, NULL,
@@ -5208,7 +5208,7 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		note	 = tvb_get_uint8( tvb, offset ) & 0x7f;
 		pressure = tvb_get_uint8( tvb, offset + 1 ) & 0x7f;
 
-		note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
+		note_str = val_to_str_ext_wmem(pinfo->pool, note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
 		log_tree = proto_tree_add_subtree_format(rtp_midi_loglist_tree, tvb, offset, 2, ett_rtp_midi_cj_chapter_a_logitem, NULL,
 				"%s (n=%s, p=%d)", RTP_MIDI_TREE_NAME_CJ_CHAPTER_A_LOGITEM, note_str, pressure );

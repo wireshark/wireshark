@@ -4332,13 +4332,13 @@ static int dissect_c15ch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-        val_to_str_ext(msg_type, &c15_msg_types_ext, "Unknown Type: %d") );
+        val_to_str_ext_wmem(pinfo->pool, msg_type, &c15_msg_types_ext, "Unknown Type: %d") );
 
     if (tree) /* we are being asked for details... */
     {
         ti = proto_tree_add_item(tree, proto_c15ch, tvb, 0, 36, ENC_NA);
         proto_item_append_text(ti, ", Type: %s",
-            val_to_str_ext(msg_type, &c15_msg_types_ext, "Unknown Type: %d"));
+            val_to_str_ext_wmem(pinfo->pool, msg_type, &c15_msg_types_ext, "Unknown Type: %d"));
         c15ch_tree = proto_item_add_subtree(ti, ett_c15ch);
         proto_tree_add_item(c15ch_tree, hf_c15ch_version,  tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_tree, hf_c15ch_msgtype,  tvb, 4, 4, ENC_BIG_ENDIAN);
@@ -4379,7 +4379,7 @@ static int dissect_c15ch_ama(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     call_type_val = tvb_get_uint8(tvb, 40);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Call Type: %s",
-        val_to_str_ext(call_type_val, &ama_call_types_ext, "Unknown %d"));
+        val_to_str_ext_wmem(pinfo->pool, call_type_val, &ama_call_types_ext, "Unknown %d"));
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_ama, tvb, 0, 41, ENC_NA);
@@ -5835,7 +5835,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     col_clear(pinfo->cinfo, COL_INFO);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: CP_EVENT, PM Type: %s",
-        val_to_str_ext(pm_value, &c15_pm_types_ext, "Unknown %d") );
+        val_to_str_ext_wmem(pinfo->pool, pm_value, &c15_pm_types_ext, "Unknown %d") );
 
     if ( ( pm_value <= MAX_PM_VAL ) && ( pm_value != DIG_CKT_TEST_PM_VALUE ) )
     {
@@ -5865,7 +5865,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Event Type: %s, Parm: %d",
-        val_to_str_ext(event_value, &c15_event_types_ext, "Unknown %d"), parm_value);
+        val_to_str_ext_wmem(pinfo->pool, event_value, &c15_event_types_ext, "Unknown %d"), parm_value);
 
 
     if (tree)
@@ -6656,12 +6656,12 @@ static int dissect_c15ch_out_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     data_type = tvb_get_uint8(tvb, 14);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: OUT_GWE, Msg Subtype: %s",
-        val_to_str_ext(msg_type, &c15_out_gwe_msg_types_ext, "Unknown Msg Subtype: %d") );
+        val_to_str_ext_wmem(pinfo->pool, msg_type, &c15_out_gwe_msg_types_ext, "Unknown Msg Subtype: %d") );
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_out_gwe, tvb, 0, 15, ENC_NA);
         proto_item_append_text(ti, ", Msg Subtype: %s",
-            val_to_str_ext(msg_type, &c15_out_gwe_msg_types_ext, "Unknown Msg Subtype: %d"));
+            val_to_str_ext_wmem(pinfo->pool, msg_type, &c15_out_gwe_msg_types_ext, "Unknown Msg Subtype: %d"));
         c15ch_out_gwe_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
 
         ti = proto_tree_add_item(c15ch_out_gwe_tree, hf_c15ch_out_gwe_ni_tn,

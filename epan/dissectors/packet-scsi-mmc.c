@@ -441,7 +441,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
 
                     profile=tvb_get_ntohs(try_tvb, try_offset);
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile, try_tvb, try_offset, 2, ENC_BIG_ENDIAN);
-                    proto_item_append_text(it, "%s", val_to_str_ext(profile, &scsi_getconf_current_profile_val_ext, "Unknown 0x%04x"));
+                    proto_item_append_text(it, "%s", val_to_str_ext_wmem(pinfo->pool, profile, &scsi_getconf_current_profile_val_ext, "Unknown 0x%04x"));
 
                     cur_profile=tvb_get_uint8(try_tvb, try_offset+2);
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, try_tvb, try_offset+2, 1, ENC_BIG_ENDIAN);

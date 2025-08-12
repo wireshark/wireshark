@@ -1968,7 +1968,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     eap_type = tvb_get_uint8(tvb, 4);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                      val_to_str_ext(eap_type, &eap_type_vals_ext,
+                      val_to_str_ext_wmem(pinfo->pool, eap_type, &eap_type_vals_ext,
                                      "Unknown type (0x%02x)"));
     eap_type_item = proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
 

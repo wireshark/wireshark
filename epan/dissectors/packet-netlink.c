@@ -311,7 +311,7 @@ dissect_netlink_attributes_array(tvbuff_t *tvb, int hf_type, int ett_array, int 
 }
 
 int
-dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, int hf_type, proto_item **pi_type)
+dissect_netlink_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int encoding, int hf_type, proto_item **pi_type)
 {
 	uint16_t hdr_flags;
 	uint16_t hdr_type;
@@ -345,9 +345,9 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 	}
 	/* TODO export hf_try_val_to_str? */
 	if (hfi_type->strings && hfi_type->display & BASE_EXT_STRING) {
-		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str_ext(hdr_type, (value_string_ext *)hfi_type->strings, "0x%04x"));
+		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str_ext_wmem(pinfo->pool, hdr_type, (value_string_ext *)hfi_type->strings, "0x%04x"));
 	} else if (hfi_type->strings) {
-		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str(hdr_type, (const value_string *)hfi_type->strings, "0x%04x"));
+		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str_wmem(pinfo->pool, hdr_type, (const value_string *)hfi_type->strings, "0x%04x"));
 	} else {
 		proto_item_append_text(fh_hdr, " (type: 0x%04x)", hdr_type);
 	}
@@ -378,7 +378,7 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 }
 
 static void
-dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
+dissect_netlink_error(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int encoding)
 {
 	/*
 	 * XXX - this should make sure we don't run past the end of the
@@ -392,7 +392,7 @@ dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
 	proto_tree_add_item(tree, hf_netlink_error, tvb, offset, 4, encoding);
 	offset += 4;
 
-	dissect_netlink_header(tvb, tree, offset, encoding, -1, NULL);
+	dissect_netlink_header(tvb, pinfo, tree, offset, encoding, -1, NULL);
 }
 
 static int
@@ -515,10 +515,10 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 			 * header and the payload. Note that pkt_len>=16.
 			 */
 			fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
-			offset = dissect_netlink_header(tvb, fh_msg, offset, encoding, -1, NULL);
+			offset = dissect_netlink_header(tvb, pinfo, fh_msg, offset, encoding, -1, NULL);
 
 			if (msg_type == WS_NLMSG_ERROR) {
-				dissect_netlink_error(tvb, fh_msg, offset, encoding);
+				dissect_netlink_error(tvb, pinfo, fh_msg, offset, encoding);
 			} else if (pkt_len > 16) {
 				next_tvb = tvb_new_subset_length(tvb, offset, pkt_len - 16);
 				call_data_dissector(next_tvb, pinfo, fh_msg);
