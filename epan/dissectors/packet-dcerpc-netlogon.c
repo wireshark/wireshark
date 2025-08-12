@@ -5581,7 +5581,7 @@ netlogon_dissect_DELTA_ENUM(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_delta_type, &type);
 
-    proto_item_append_text(item, "%s", val_to_str(
+    proto_item_append_text(item, "%s", val_to_str_wmem(pinfo->pool,
                                type, delta_type_vals, "Unknown"));
 
     offset = netlogon_dissect_DELTA_ID_UNION(tvb, offset,

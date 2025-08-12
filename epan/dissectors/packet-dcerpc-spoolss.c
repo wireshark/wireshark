@@ -2832,7 +2832,7 @@ dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    hf_notify_option_type, &type);
 
 	proto_item_append_text(
-		item, ": %s", val_to_str(type, printer_notify_types,
+		item, ": %s", val_to_str_wmem(pinfo->pool, type, printer_notify_types,
 					 "Unknown (%d)"));
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, di, drep,
@@ -4641,7 +4641,7 @@ SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", %s jobid %d",
-			val_to_str(cmd, setjob_commands, "Unknown (%d)"),
+			val_to_str_wmem(pinfo->pool, cmd, setjob_commands, "Unknown (%d)"),
 			jobid);
 
 	return offset;
@@ -6205,12 +6205,12 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	switch(type) {
 	case PRINTER_NOTIFY_TYPE:
-		field_string = val_to_str_ext(
+		field_string = val_to_str_ext_wmem(pinfo->pool,
 			field, &printer_notify_option_data_vals_ext,
 			"Unknown (%d)");
 		break;
 	case JOB_NOTIFY_TYPE:
-		field_string = val_to_str_ext(
+		field_string = val_to_str_ext_wmem(pinfo->pool,
 			field, &job_notify_option_data_vals_ext,
 			"Unknown (%d)");
 		break;
@@ -6221,7 +6221,7 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_item_append_text(
 		item, "%s, %s",
-		val_to_str(type, printer_notify_types, "Unknown (%d)"),
+		val_to_str_wmem(pinfo->pool, type, printer_notify_types, "Unknown (%d)"),
 		field_string);
 
 	offset = dissect_ndr_uint32(

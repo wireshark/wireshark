@@ -72,14 +72,14 @@ PIDL_dissect_uint8_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(%d)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(%d)",val_to_str_wmem(pinfo->pool, val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "%d", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(0x%02x)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(0x%02x)",val_to_str_wmem(pinfo->pool, val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "0x%02x", val);
             }
@@ -160,14 +160,14 @@ PIDL_dissect_uint16_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(%d)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(%d)",val_to_str_wmem(pinfo->pool, val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "%d", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(0x%04x)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(0x%04x)",val_to_str_wmem(pinfo->pool, val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "0x%04x", val);
             }
@@ -287,14 +287,14 @@ PIDL_dissect_uint32_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(%d)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(%d)",val_to_str_wmem(pinfo->pool, val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "%d", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(0x%08x)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(0x%08x)",val_to_str_wmem(pinfo->pool, val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "0x%08x", val);
             }
@@ -405,14 +405,14 @@ PIDL_dissect_uint64_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str( (uint32_t) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str_wmem(pinfo->pool, (uint32_t) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "%" PRIu64, val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str( (uint32_t) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str_wmem(pinfo->pool, (uint32_t) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "0x%" PRIx64, val);
             }

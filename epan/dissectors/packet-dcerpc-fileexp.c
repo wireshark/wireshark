@@ -298,7 +298,7 @@ inode, volume, etc all will be garbage.
     uint32_t st; \
     const char *st_str; \
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_error_st, &st); \
-    st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u"); \
+    st_str = val_to_str_ext_wmem(pinfo->pool, st, &dce_error_vals_ext, "%u"); \
     if (st) { \
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
     } else { \
@@ -816,7 +816,7 @@ dissect_afsErrorStatus (tvbuff_t *tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_afserrorstatus_st,
                        &st);
-  st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");
+  st_str = val_to_str_ext_wmem(pinfo->pool, st, &dce_error_vals_ext, "%u");
 
   col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);
 

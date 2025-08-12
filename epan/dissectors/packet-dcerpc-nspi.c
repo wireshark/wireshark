@@ -9524,7 +9524,7 @@ nspi_dissect_NspiBind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -9582,7 +9582,7 @@ nspi_dissect_NspiUnbind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -9761,7 +9761,7 @@ nspi_dissect_NspiQueryRows_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -9979,7 +9979,7 @@ nspi_dissect_NspiGetMatches_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -10116,7 +10116,7 @@ nspi_dissect_NspiDNToEph_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -10253,7 +10253,7 @@ nspi_dissect_NspiGetProps_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -10411,7 +10411,7 @@ nspi_dissect_NspiGetHierarchyInfo_response(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_nspi_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, nspi_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
