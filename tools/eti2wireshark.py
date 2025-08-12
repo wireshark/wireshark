@@ -547,7 +547,7 @@ def mk_int_case(size, signed, proto):
         size_str = 'l'
     elif size == 8:
         size_str = '64'
-    type_str = f'g{unsigned_str}int{size * 8}'
+    type_str = f'{unsigned_str}int{size * 8}_t'
     no_value_str = f'INT{size * 8}_MIN' if signed else f'UINT{size * 8}_MAX'
     pt_size = '64' if size == 8 else ''
     if signed:
@@ -555,7 +555,7 @@ def mk_int_case(size, signed, proto):
     else:
         hex_str = '0x' + 'ff' * size
     if size == 1:
-        fn = f'tvb_get_g{unsigned_str}int8'
+        fn = f'tvb_get_{unsigned_str}int8'
     else:
         fn = f'tvb_get_letoh{signed_str}{size_str}'
     s = f'''case {size}:
@@ -623,7 +623,7 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "{proto.upper()}");
     col_clear(pinfo->cinfo, COL_INFO);
     uint16_t templateid = tvb_get_letohs(tvb, {template_off});
-    const char *template_str = val_to_str_ext(templateid, &template_id_vals_ext, "Unknown {proto.upper()} template: 0x%04x");
+    const char *template_str = val_to_str_ext_wmem(pinfo->pool, templateid, &template_id_vals_ext, "Unknown {proto.upper()} template: 0x%04x");
     col_add_str(pinfo->cinfo, COL_INFO, template_str);
 
     /* create display subtree for the protocol */
