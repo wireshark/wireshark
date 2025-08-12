@@ -84,11 +84,11 @@ dissect_cdt_AlgorithmID_ShortForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                                 &value);
 
   proto_item_append_text (cdt_item, ", %s",
-                          val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
+                          val_to_str_wmem(actx->pinfo->pool, value, cdt_AlgorithmID_ShortForm_vals,
                                       "unknown"));
 
   col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
+                   val_to_str_wmem(actx->pinfo->pool, value, cdt_AlgorithmID_ShortForm_vals,
                                "unknown"));
 
 
@@ -144,11 +144,11 @@ dissect_cdt_ContentType_ShortForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                                 &content_type);
 
   proto_item_append_text (cdt_item, ", %s",
-                          val_to_str (content_type, cdt_ContentType_ShortForm_vals,
+                          val_to_str_wmem(actx->pinfo->pool, content_type, cdt_ContentType_ShortForm_vals,
                                       "unknown"));
 
   col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str (content_type, cdt_ContentType_ShortForm_vals,
+                   val_to_str_wmem(actx->pinfo->pool, content_type, cdt_ContentType_ShortForm_vals,
                                "unknown"));
 
 

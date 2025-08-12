@@ -965,7 +965,7 @@ static void ldap_do_protocolop(packet_info *pinfo)
 
   if (do_protocolop) {
 
-    valstr = val_to_str(ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%u)");
+    valstr = val_to_str_wmem(pinfo->pool, ProtocolOp, ldap_ProtocolOp_choice_vals, "Unknown (%u)");
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", valstr, MessageID);
 
@@ -1433,7 +1433,7 @@ dissect_ldap_AuthenticationChoice(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if((branch > -1) && (branch < (int)array_length(AuthenticationChoice_choice)))
     auth = AuthenticationChoice_choice[branch].value;
 
-  valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%u)");
+  valstr = val_to_str_wmem(actx->pinfo->pool, auth, ldap_AuthenticationChoice_vals, "Unknown auth(%u)");
 
   /* If auth is NTLM (10 or 11) don't add to column as the NTLM dissection will do this */
   if ((auth !=  10) && (auth != 11))
@@ -1533,7 +1533,7 @@ dissect_ldap_BindResponse_resultCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   ldap_do_protocolop(actx->pinfo);
 
-  valstr = val_to_str(result, ldap_BindResponse_resultCode_vals, "Unknown result(%u)");
+  valstr = val_to_str_wmem(actx->pinfo->pool, result, ldap_BindResponse_resultCode_vals, "Unknown result(%u)");
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", valstr);
 
@@ -1758,7 +1758,7 @@ dissect_ldap_T_scope(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
   ldap_do_protocolop(actx->pinfo);
 
-  valstr = val_to_str(scope, ldap_T_scope_vals, "Unknown scope(%u)");
+  valstr = val_to_str_wmem(actx->pinfo->pool, scope, ldap_T_scope_vals, "Unknown scope(%u)");
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", valstr);
 
@@ -2435,7 +2435,7 @@ dissect_ldap_T_resultCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   ldap_do_protocolop(actx->pinfo);
 
-  valstr = val_to_str(result, ldap_T_resultCode_vals, "Unknown result(%u)");
+  valstr = val_to_str_wmem(actx->pinfo->pool, result, ldap_T_resultCode_vals, "Unknown result(%u)");
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", valstr);
 

@@ -2083,7 +2083,7 @@ dissect_cmip_CMIPAbortSource(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &value);
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " AbortSource:%s", val_to_str(value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%d"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " AbortSource:%s", val_to_str_wmem(actx->pinfo->pool, value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%d"));
 
   return offset;
 }
@@ -3494,9 +3494,9 @@ dissect_cmip_T_local(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
                                                 &opcode);
 
   if(opcode_type== OPCODE_RETURN_ERROR){
-	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, cmip_error_code_vals, " Unknown Opcode:%d"));
+	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, opcode, cmip_error_code_vals, " Unknown Opcode:%d"));
   }else{
-	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%d"));
+	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, opcode, cmip_Opcode_vals, " Unknown Opcode:%d"));
   }
 
   return offset;

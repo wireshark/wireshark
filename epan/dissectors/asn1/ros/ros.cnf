@@ -172,7 +172,7 @@ Reject/problem/returnResult	rejectResult
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, ros_GeneralProblem_vals, "GeneralProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, ros_GeneralProblem_vals, "GeneralProblem(%%d)"));
 
 #.FN_PARS InvokeProblem
 	VAL_PTR = &problem
@@ -182,7 +182,7 @@ Reject/problem/returnResult	rejectResult
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, ros_InvokeProblem_vals, "InvokeProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, ros_InvokeProblem_vals, "InvokeProblem(%%d)"));
 
 #.FN_PARS ReturnResultProblem
 	VAL_PTR = &problem
@@ -192,7 +192,7 @@ Reject/problem/returnResult	rejectResult
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, ros_ReturnResultProblem_vals, "ReturnResultProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, ros_ReturnResultProblem_vals, "ReturnResultProblem(%%d)"));
 
 #.FN_PARS ReturnErrorProblem
 	VAL_PTR = &problem
@@ -202,6 +202,6 @@ Reject/problem/returnResult	rejectResult
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, ros_ReturnErrorProblem_vals, "ReturnErrorProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, ros_ReturnErrorProblem_vals, "ReturnErrorProblem(%%d)"));
 
 #.END

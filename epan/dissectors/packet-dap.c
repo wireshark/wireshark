@@ -2083,7 +2083,7 @@ dissect_dap_ServiceProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, dap_ServiceProblem_vals, "ServiceProblem(%d)"));
 
 
   return offset;
@@ -2112,7 +2112,7 @@ dissect_dap_SecurityProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, dap_SecurityProblem_vals, "SecurityProblem(%d)"));
 
 
   return offset;
@@ -2766,7 +2766,7 @@ dissect_dap_LimitProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, dap_LimitProblem_vals, "LimitProblem(%d)"));
 
 
   return offset;
@@ -2959,7 +2959,7 @@ dissect_dap_T_subset(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
                                                 &subset);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(subset, dap_T_subset_vals, "Subset(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, subset, dap_T_subset_vals, "Subset(%d)"));
 
 
 
@@ -4440,7 +4440,7 @@ dissect_dap_UpdateProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, dap_UpdateProblem_vals, "UpdateProblem(%d)"));
 
 
   return offset;

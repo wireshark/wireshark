@@ -316,7 +316,7 @@ OPERATION.&ResultType
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, dap_SecurityProblem_vals, "SecurityProblem(%%d)"));
 
 #.FN_PARS ServiceProblem
 	VAL_PTR = &problem
@@ -326,7 +326,7 @@ OPERATION.&ResultType
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, dap_ServiceProblem_vals, "ServiceProblem(%%d)"));
 
 #.FN_PARS UpdateProblem
 	VAL_PTR = &problem
@@ -336,7 +336,7 @@ OPERATION.&ResultType
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, dap_UpdateProblem_vals, "UpdateProblem(%%d)"));
 
 #.FN_PARS LimitProblem
 	VAL_PTR = &problem
@@ -346,7 +346,7 @@ OPERATION.&ResultType
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, dap_LimitProblem_vals, "LimitProblem(%%d)"));
 
 #.END
 
@@ -356,7 +356,7 @@ OPERATION.&ResultType
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(subset, dap_T_subset_vals, "Subset(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, subset, dap_T_subset_vals, "Subset(%%d)"));
 
 
 #.FN_BODY Name

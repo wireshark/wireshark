@@ -106,7 +106,7 @@ InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
   int precedence = -1;
   %(DEFAULT_BODY)s
   if(precedence != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%%s)", val_to_str(precedence, p772_PrimaryPrecedence_vals, "precedence(%%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%%s)", val_to_str_wmem(actx->pinfo->pool, precedence, p772_PrimaryPrecedence_vals, "precedence(%%d)"));
 
 #.FN_PARS CopyPrecedence
   VAL_PTR=&precedence
@@ -114,4 +114,4 @@ InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
   int precedence = -1;
   %(DEFAULT_BODY)s
   if(precedence != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%%s)", val_to_str(precedence, p772_CopyPrecedence_vals, "precedence(%%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%%s)", val_to_str_wmem(actx->pinfo->pool, precedence, p772_CopyPrecedence_vals, "precedence(%%d)"));

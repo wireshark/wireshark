@@ -140,11 +140,11 @@ static const ain_err_t ain_err_tab[] = {
   %(DEFAULT_BODY)s
     if (ain_opcode_type == AIN_OPCODE_RETURN_ERROR){
       errorCode = opcode;
-      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, ain_err_code_string_vals, "Unknown AIN error (%%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, errorCode, ain_err_code_string_vals, "Unknown AIN error (%%u)"));
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }else{
-      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, ain_opr_code_strings, "Unknown AIN (%%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN (%%u)"));
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }

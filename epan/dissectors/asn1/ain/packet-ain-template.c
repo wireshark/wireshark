@@ -163,22 +163,22 @@ dissect_ain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
     case 1:
         opcode = p_private_tcap->d.OperationCode_private;
         /*ansi_map_is_invoke = true;*/
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Invoke ", val_to_str(opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
-        proto_item_append_text(p_private_tcap->d.OperationCode_item, " %s", val_to_str(opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Invoke ", val_to_str_wmem(pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
+        proto_item_append_text(p_private_tcap->d.OperationCode_item, " %s", val_to_str_wmem(pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
         dissect_invokeData(ain_tree, tvb, 0, &asn1_ctx);
         /*update_saved_invokedata(pinfo, p_private_tcap);*/
         break;
     //case 2:
     //    opcode = find_saved_invokedata(&asn1_ctx, p_private_tcap);
-    //    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnResult ", val_to_str_ext(opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
-    //    proto_item_append_text(p_private_tcap->d.OperationCode_item, " %s", val_to_str_ext(opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+    //    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnResult ", val_to_str_ext_wmem(pinfo->pool, opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+    //    proto_item_append_text(p_private_tcap->d.OperationCode_item, " %s", val_to_str_ext_wmem(pinfo->pool, opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
     //    dissect_returnData(ain_tree, tvb, 0, &asn1_ctx);
     //    break;
     case 3:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnError ", val_to_str(opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnError ", val_to_str_wmem(pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
         break;
     case 4:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reject ", val_to_str(opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reject ", val_to_str_wmem(pinfo->pool, opcode, ain_opr_code_strings, "Unknown AIN PDU (%u)"));
         break;
     default:
         /* Must be Invoke ReturnResult ReturnError or Reject */

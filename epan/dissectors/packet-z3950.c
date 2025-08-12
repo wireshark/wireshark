@@ -2536,7 +2536,7 @@ dissect_z3950_T_attributeElement_attributeType(bool implicit_tag _U_, tvbuff_t *
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
     proto_item_append_text(actx->created_item, " (%s)",
-      val_to_str(att_type, z3950_bib1_att_types, "Unknown bib-1 attributeType %d"));
+      val_to_str_wmem(actx->pinfo->pool, att_type, z3950_bib1_att_types, "Unknown bib-1 attributeType %d"));
     atinfo_data->attype = att_type;
   }
   return offset;
@@ -2579,7 +2579,7 @@ dissect_z3950_T_attributeValue_numeric(bool implicit_tag _U_, tvbuff_t *tvb _U_,
     }
     if (att_value_string) {
       proto_item_append_text(actx->created_item, " (%s)",
-        val_to_str(att_value, att_value_string, "Unknown bib-1 attributeValue %d"));
+        val_to_str_wmem(actx->pinfo->pool, att_value, att_value_string, "Unknown bib-1 attributeValue %d"));
     }
   }
   return offset;
@@ -3209,7 +3209,7 @@ dissect_z3950_T_condition(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY);
   if (diaginfo_data && diaginfo_data->diagsetidx == Z3950_DIAGSET_BIB1) {
     proto_item_append_text(actx->created_item, " (%s)",
-      val_to_str(diag_condition, z3950_bib1_diagconditions, "Unknown bib-1 diagnostic %d"));
+      val_to_str_wmem(actx->pinfo->pool, diag_condition, z3950_bib1_diagconditions, "Unknown bib-1 diagnostic %d"));
     diaginfo_data->diagcondition = diag_condition;
   }
   return offset;

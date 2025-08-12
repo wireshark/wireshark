@@ -809,7 +809,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   ie_len = tvb_get_uint8(tvb, offset + 1);
 
   ie_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_q932_ie, NULL,
-            val_to_str(ie_type, VALS(q932_str_ie_type), "unknown (0x%02X)"));
+            val_to_str_wmem(pinfo->pool, ie_type, VALS(q932_str_ie_type), "unknown (0x%02X)"));
 
   proto_tree_add_item(ie_tree, hf_q932_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(ie_tree, hf_q932_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);

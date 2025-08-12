@@ -185,7 +185,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
     proto_item_append_text(actx->created_item, " (%s)",
-      val_to_str(att_type, z3950_bib1_att_types, "Unknown bib-1 attributeType %d"));
+      val_to_str_wmem(actx->pinfo->pool, att_type, z3950_bib1_att_types, "Unknown bib-1 attributeType %d"));
     atinfo_data->attype = att_type;
   }
 #.FN_HDR AttributeElement/attributeValue/numeric
@@ -221,7 +221,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
     }
     if (att_value_string) {
       proto_item_append_text(actx->created_item, " (%s)",
-        val_to_str(att_value, att_value_string, "Unknown bib-1 attributeValue %d"));
+        val_to_str_wmem(actx->pinfo->pool, att_value, att_value_string, "Unknown bib-1 attributeValue %d"));
     }
   }
 #.FN_HDR DefaultDiagFormat/diagnosticSetId
@@ -261,7 +261,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
   diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY);
   if (diaginfo_data && diaginfo_data->diagsetidx == Z3950_DIAGSET_BIB1) {
     proto_item_append_text(actx->created_item, " (%s)",
-      val_to_str(diag_condition, z3950_bib1_diagconditions, "Unknown bib-1 diagnostic %d"));
+      val_to_str_wmem(actx->pinfo->pool, diag_condition, z3950_bib1_diagconditions, "Unknown bib-1 diagnostic %d"));
     diaginfo_data->diagcondition = diag_condition;
   }
 #

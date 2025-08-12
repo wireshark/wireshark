@@ -46,7 +46,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_T_standard_vals, "standard(%%d"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, update, disp_T_standard_vals, "standard(%%d"));
 
 #.FN_PARS RefreshInformation
 	VAL_PTR = &update
@@ -56,7 +56,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RefreshInformation_vals, "unknown(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, update, disp_RefreshInformation_vals, "unknown(%%d)"));
 
 #.END
 
@@ -66,7 +66,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_StandardUpdate_vals, "unknown(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, update, disp_StandardUpdate_vals, "unknown(%%d)"));
 
 #.FN_PARS CoordinateShadowUpdateResult
 	VAL_PTR = &update
@@ -76,7 +76,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, update, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
 
 #.FN_PARS RequestShadowUpdateResult
 	VAL_PTR = &update
@@ -86,7 +86,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, update, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
 
 #.FN_PARS UpdateShadowResult
 	VAL_PTR = &update
@@ -96,7 +96,7 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_UpdateShadowResult_vals, "unknown(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, update, disp_UpdateShadowResult_vals, "unknown(%%d)"));
 
 #.FN_PARS ShadowProblem
 	VAL_PTR = &problem
@@ -106,4 +106,4 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, disp_ShadowProblem_vals, "ShadowProblem(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str_wmem(actx->pinfo->pool, problem, disp_ShadowProblem_vals, "ShadowProblem(%%d)"));
