@@ -269,6 +269,75 @@ static void parse_band_vht_capa(struct ws80211_interface *iface,
 }
 #endif /* HAVE_NL80211_VHT_CAPABILITY */
 
+#ifdef HAVE_NL80211_EHT_CAPABILITY
+static void parse_band_he_cap_phy(struct ws80211_interface *iface,
+				  struct nlattr *tb)
+{
+	/* For our purposes, this should be redundant with the HT and VHT caps
+	 * already parsed. (Would anything support a particular bandwidth for
+	 * HE but not for VHT?) It is here as a useful POC that the EHT code
+	 * below should work if you have 802.11ax but not 802.11be gear. */
+	uint32_t chan_cap_phy;
+	if (!tb) return;
+
+	chan_cap_phy = (nla_get_u32(tb) >> 1) & 0xf;
+	iface->channel_types |= 1 << WS80211_CHAN_HT20;
+	if (chan_cap_phy & 1) {
+		/* 40 MHz in 2.4 GHz band */
+		iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+		iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+	}
+	if (chan_cap_phy & 2) {
+		/* 40 & 80 MHz in the 5 GHz and 6 GHz bands */
+		iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+		iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+		iface->channel_types |= 1 << WS80211_CHAN_VHT80;
+	}
+	if (chan_cap_phy & 4) {
+		/* 160 MHz in the 5 GHz and 6 GHz bands */
+		/* If set, above bit must also be set. */
+		iface->channel_types |= 1 << WS80211_CHAN_VHT160;
+	}
+	if (chan_cap_phy & 8) {
+		/* 160/80+80 MHz in the 5 GHz and 6 GHz bands */
+		/* If set, above bit must also be set. */
+		iface->channel_types |= 1 << WS80211_CHAN_VHT80P80;
+	}
+}
+
+static void parse_band_eht_cap_phy(struct ws80211_interface *iface,
+				   struct nlattr *tb)
+{
+	uint32_t chan_cap_phy;
+	if (!tb) return;
+
+	chan_cap_phy = (nla_get_u32(tb) >> 1) & 1;
+	if (chan_cap_phy == 1) {
+		iface->channel_types |= 1 << WS80211_CHAN_EHT320;
+	}
+}
+
+static void parse_band_iftype_data(struct ws80211_interface *iface _U_,
+			     struct nlattr *tb)
+{
+	struct nlattr *nl_iftype;
+	struct nlattr *tb_iftype[NL80211_BAND_IFTYPE_ATTR_MAX + 1];
+	int rem_iftype;
+
+	if (!tb) return;
+
+	/* HE and EHT capabilities are nested inside this attribute */
+	nla_for_each_nested(nl_iftype, tb, rem_iftype) {
+		nla_parse(tb_iftype, NL80211_BAND_IFTYPE_ATTR_MAX,
+			  (struct nlattr *)nla_data(nl_iftype),
+			  nla_len(nl_iftype), NULL);
+
+		parse_band_he_cap_phy(iface, tb_iftype[NL80211_BAND_IFTYPE_ATTR_HE_CAP_PHY]);
+		parse_band_eht_cap_phy(iface, tb_iftype[NL80211_BAND_IFTYPE_ATTR_EHT_CAP_PHY]);
+	}
+}
+#endif /* HAVE_NL80211_EHT_CAPABILITY */
+
 static void parse_supported_iftypes(struct ws80211_interface *iface,
 				    struct nlattr *tb)
 {
@@ -336,6 +405,9 @@ static void parse_wiphy_bands(struct ws80211_interface *iface,
 #ifdef HAVE_NL80211_VHT_CAPABILITY
 		parse_band_vht_capa(iface, tb_band[NL80211_BAND_ATTR_VHT_CAPA]);
 #endif /* HAVE_NL80211_VHT_CAPABILITY */
+#ifdef HAVE_NL80211_EHT_CAPABILITY
+		parse_band_iftype_data(iface, tb_band[NL80211_BAND_ATTR_IFTYPE_DATA]);
+#endif /* HAVE_NL80211_EHT_CAPABILITY */
 		parse_band_freqs(iface, tb_band[NL80211_BAND_ATTR_FREQS]);
 	}
 }
@@ -510,6 +582,12 @@ static int get_iface_info_handler(struct nl_msg *msg, void *arg)
 				iface_info->pub->current_chan_type = WS80211_CHAN_VHT160;
 				found_ch_width = true;
 				break;
+#ifdef HAVE_NL80211_EHT_CAPABILITY
+			case NL80211_CHAN_WIDTH_320:
+				iface_info->pub->current_chan_type = WS80211_CHAN_EHT320;
+				found_ch_width = true;
+				break;
+#endif /* HAVE_NL80211_EHT_CAPABILITY */
 			}
 		}
 		if (tb_msg[NL80211_ATTR_CENTER_FREQ1]) {
@@ -818,6 +896,12 @@ int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U
 		NLA_PUT_U32(msg, NL80211_ATTR_CENTER_FREQ1, center_freq);
 		break;
 #endif
+#ifdef HAVE_NL80211_EHT_CAPABILITY
+	case WS80211_CHAN_EHT320:
+		NLA_PUT_U32(msg, NL80211_ATTR_CHANNEL_WIDTH, NL80211_CHAN_WIDTH_320);
+		NLA_PUT_U32(msg, NL80211_ATTR_CENTER_FREQ1, center_freq);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -871,6 +955,8 @@ ws80211_str_to_chan_type(const char *s)
 		ret = WS80211_CHAN_VHT80P80;
 	if (!strcmp(s, CHAN_VHT160))
 		ret = WS80211_CHAN_VHT160;
+	if (!strcmp(s, CHAN_EHT320))
+		ret = WS80211_CHAN_EHT320;
 
 	return ret;
 }
@@ -893,6 +979,8 @@ const char
 		return CHAN_VHT80P80;
 	case WS80211_CHAN_VHT160:
 		return CHAN_VHT160;
+	case WS80211_CHAN_EHT320:
+		return CHAN_EHT320;
 	}
 	return NULL;
 }

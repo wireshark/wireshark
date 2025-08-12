@@ -300,10 +300,10 @@ Set the channel on the interface; this is supported only on IEEE
 802.11 Wi-Fi interfaces, and supported only on some operating systems.
 
 __freq__ is the frequency of the channel.  __type__ is the type of the
-channel, for 802.11n and 802.11ac.  The values for __type__ are
+channel for 802.11n and later.  The values for __type__ are
 --
 
-NOHT:: Used for non-802.11n/non-802.1ac channels
+NOHT:: Used for 802.11b/g channels
 
 HT20:: 20 MHz channel
 
@@ -318,6 +318,8 @@ Two 80 MHz channels combined, with __centerfreq1__ and __centerfreq2__ as
 the center frequencies of the two channels
 
 VHT160:: 160 MHz channel, with __centerfreq1__ as its center frequency
+
+EHT320:: 320 MHz channel, with __centerfreq1__ as its center frequency
 
 -L|--list-data-link-types::
 List the data link types supported by the interface and exit. The reported

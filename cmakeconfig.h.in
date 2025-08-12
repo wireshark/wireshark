@@ -225,6 +225,9 @@
 /* VHT_CAPABILITY is supported */
 #cmakedefine HAVE_NL80211_VHT_CAPABILITY 1
 
+/* EHT_CAPABILITY is supported */
+#cmakedefine HAVE_NL80211_EHT_CAPABILITY 1
+
 /* Define to 1 if you have macOS frameworks */
 #cmakedefine HAVE_MACOS_FRAMEWORKS 1
 

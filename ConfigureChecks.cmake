@@ -252,6 +252,13 @@ if (NL_FOUND)
 		}"
 		HAVE_NL80211_VHT_CAPABILITY
 	)
+	check_c_source_compiles(
+		"#include <linux/nl80211.h>
+		int main(void) {
+			enum nl80211_attrs x = NL80211_ATTR_EHT_CAPABILITY;
+		}"
+		HAVE_NL80211_EHT_CAPABILITY
+	)
 endif()
 
 #
