@@ -24,16 +24,25 @@ void register_json(void);
 
 wtap_open_return_val json_open(wtap *wth, int *err, char **err_info)
 {
+    int64_t filesize;
     uint8_t* filebuf;
     int bytes_read;
 
     /* XXX checking the full file contents might be a bit expensive, maybe
      * resort to simpler heuristics like '{' or '[' (with some other chars)? */
-    filebuf = (uint8_t*)g_malloc0(MAX_FILE_SIZE);
+    if ((filesize = wtap_file_size(wth, err)) == -1)
+        return WTAP_OPEN_ERROR;
+
+    if (filesize > MAX_FILE_SIZE) {
+        /* Avoid allocating space for an immensely-large file. */
+        filesize = MAX_FILE_SIZE;
+    }
+
+    filebuf = (uint8_t*)g_malloc0(filesize);
     if (!filebuf)
         return WTAP_OPEN_ERROR;
 
-    bytes_read = file_read(filebuf, MAX_FILE_SIZE, wth->fh);
+    bytes_read = file_read(filebuf, (unsigned int) filesize, wth->fh);
     if (bytes_read < 0) {
         /* Read error. */
         *err = file_error(wth->fh, err_info);
