@@ -331,7 +331,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-crmf.h
 	packet-csn1.h
 	packet-dap.h
-	packet-dcc.h
 	packet-dccp.h
 	packet-dcerpc.h
 	packet-dcerpc-browser.h
