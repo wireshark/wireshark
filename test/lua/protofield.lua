@@ -14,7 +14,7 @@ local n_frames = 4
 local taptests = {
     [FRAME]=n_frames,
     [PER_FRAME]=n_frames*8,
-    [OTHER]=52,
+    [OTHER]=57,
 }
 testlib.init(taptests)
 
@@ -44,6 +44,9 @@ testlib.test(OTHER,"ProtoField-char-unit-string", not success)
 
 success = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
 testlib.test(OTHER,"ProtoField-char-range-string", success)
+
+success = pcall(ProtoField.new, "char base RANGE_STRING and SPECIAL_VALS", "test.char6", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING | base.SPECIAL_VALS)
+testlib.test(OTHER,"ProtoField-char-range-string-special-vals", success)
 
 -- Field type: BOOLEAN/UINT64 with (64 bit) mask
 success = pcall(ProtoField.new, "boolean", "test.boolean0", ftypes.BOOLEAN, nil, base.HEX, 0x1)
@@ -191,6 +194,17 @@ testlib.test(OTHER,"ProtoField-unitstring-userdata", not success)
 -- Too many items are not supported
 success = pcall(ProtoField.uint16, "test.bad3", "Bad3", base.UNIT_STRING, {"too", "many", "items"})
 testlib.test(OTHER,"ProtoField-unitstring-too-many-items", not success)
+
+-- base.SPECIAL_VALS
+success = pcall(ProtoField.uint16, "test.special_vals", "SPECIAL_VALS base with empty table", base.DEC | base.SPECIAL_VALS, {})
+testlib.test(OTHER,"ProtoField-special-vals", success)
+success = pcall(ProtoField.uint16, "test.special_vals.no_table", "SPECIAL_VALS base with range string", base.DEC | base.RANGE_STRING | base.SPECIAL_VALS, {{0, 1, "Value"}})
+testlib.test(OTHER,"ProtoField-special-vals-with-range-string", success)
+success = pcall(ProtoField.uint16, "test.special_vals.unitstring", "SPECIAL_VALS base with unit string", base.DEC | base.UNIT_STRING | base.SPECIAL_VALS, {" sec", " secs"})
+testlib.test(OTHER,"ProtoField-special-vals-with-unitstring", not success)
+success = pcall(ProtoField.uint16, "test.special_vals.no_table", "SPECIAL_VALS base without table", base.DEC | base.SPECIAL_VALS)
+testlib.test(OTHER,"ProtoField-special-vals-no-table", not success)
+
 
 local numinits = 0
 function test_proto.init()
