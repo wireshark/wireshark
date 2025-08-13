@@ -10,7 +10,7 @@
  */
 
 #include "config.h"
-#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
 #include <inttypes.h>
@@ -1202,51 +1202,6 @@ typedef enum sti_type_t {
 } sti_type_t;
 
 
-static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_);
-static int dissect_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo);
-static int dissect_dsrc_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo);
-static int dissect_cv2x_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo);
-static int dissect_cv2x_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo);
-static int dissect_nav(tvbuff_t* tvb, proto_tree* c2p_tree);
-static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo);
-
-static void set_col_info(tvbuff_t* tvb, struct epan_column_info* cinfo);
-static const char* get_type_str(tvbuff_t* tvb);
-static uint8_t get_type_int(tvbuff_t* tvb);
-static uint8_t get_version(tvbuff_t* tvb);
-static void set_tst_proto_item_info(tvbuff_t* tvb, int offset, proto_item* ti);
-
-static void channel_format(char* string, uint32_t value);
-static void datarate_format(char* string, uint32_t value);
-static void latitude_format(char* string, uint32_t value);
-static void longitude_format(char* string, uint32_t value);
-static void altitude_format(char* string, uint32_t value);
-static void speed_format(char* string, uint32_t value);
-static void heading_format(char* string, uint32_t value);
-static void semi_axis_format(char* string, uint32_t value);
-static void altitude_acc_format(char* string, uint32_t value);
-static void heading_acc_format(char* string, uint32_t value);
-static void speed_acc_format(char* string, uint32_t value);
-static void power_format(char* string, uint32_t value);
-static void cv2x_tx_power_format(char* string, int32_t value);
-static void priority_format(char* string, uint32_t value);
-static void cbr_format(char* string, uint32_t value);
-static void gps_timestamp_format(char* string, uint64_t value);
-static bool sti_value_common_format(char* string, int64_t value);
-static void sti_value_angle_format(char* string, int64_t value);
-static void sti_value_acceleration_format(char* string, int64_t value);
-static void sti_value_angular_velocity_format(char* string, int64_t value);
-static void sti_value_thousandths_format(char* string, int64_t value);
-static void sti_value_length_format(char* string, int64_t value);
-static void sti_value_mass_format(char* string, int64_t value);
-static void sti_value_rain_rate_format(char* string, int64_t value);
-static void sti_value_solar_irradiance_format(char* string, int64_t value);
-static void sti_value_temperature_format(char* string, int64_t value);
-static void sti_value_pressure_format(char* string, int64_t value);
-static void sti_value_sweep_rate_format(char* string, int64_t value);
-static void sti_value_integer_format(char* string, int64_t value);
-
-
 static int proto_desc;
 static int ett_c2p;
 static dissector_handle_t ieee80211_handle;
@@ -1929,57 +1884,6 @@ static int* sti_params[STI_TYPE_LAST] = {
     [STI_PROJECT_31] = &hf_c2p_sti_value_integer_desc,
 };
 
-
-static void set_col_info(tvbuff_t* tvb, struct epan_column_info* cinfo)
-{
-    col_clear(cinfo, COL_INFO);
-    static const char* COL_INFO_DEFAULT_STR = "C2P";
-
-    col_set_str(cinfo, COL_PROTOCOL, COL_INFO_DEFAULT_STR);
-    col_add_fstr(cinfo,
-                 COL_INFO,
-                 "Type: %s",
-                 get_type_str(tvb));
-}
-
-static const char* get_type_str(tvbuff_t* tvb)
-{
-    const char* result = NULL;
-
-    if(NULL != tvb) {
-        uint8_t type = get_type_int(tvb);
-
-        result = val_to_str(type, c2p_types, "Unknown (%d)");
-    }
-
-    return result;
-}
-
-static uint8_t get_type_int(tvbuff_t* tvb)
-{
-    uint8_t result = 0U;
-
-    if(NULL != tvb) {
-        result = tvb_get_uint8(tvb, 0);
-        result &= 0x0FU;
-    }
-
-    return result;
-}
-
-static uint8_t get_version(tvbuff_t* tvb)
-{
-    uint8_t result = 0U;
-
-    if(NULL != tvb) {
-        result = tvb_get_uint8(tvb, 0);
-        result &= 0xF0U;
-        result >>= 4U;
-    }
-
-    return result;
-}
-
 static void set_tst_proto_item_info(tvbuff_t* tvb, int offset, proto_item* ti)
 {
     if((NULL != tvb) && (NULL != ti)) {
@@ -2200,52 +2104,17 @@ static void cv2x_tx_power_format(char* string, int32_t value)
     }
 }
 
-
-static void priority_format(char* string, uint32_t value)
-{
-    typedef enum {
-        V2X_PRIO_MOST_URGENT = 0,
-        V2X_PRIO_1 = 1,
-        V2X_PRIO_2 = 2,
-        V2X_PRIO_3 = 3,
-        V2X_PRIO_4 = 4,
-        V2X_PRIO_5 = 5,
-        V2X_PRIO_6 = 6,
-        V2X_PRIO_BACKGROUND = 7
-    } v2x_priority_t;
-
-    v2x_priority_t prio = (v2x_priority_t)value;
-
-    switch(prio) {
-        case V2X_PRIO_MOST_URGENT:
-            snprintf(string, ITEM_LABEL_LENGTH, "Highest priority (%d)", prio);
-            break;
-        case V2X_PRIO_1:
-            snprintf(string, ITEM_LABEL_LENGTH, "Level 1 priority (%d)", prio);
-            break;
-        case V2X_PRIO_2:
-            snprintf(string, ITEM_LABEL_LENGTH, "Level 2 priority (%d)", prio);
-            break;
-        case V2X_PRIO_3:
-            snprintf(string, ITEM_LABEL_LENGTH, "Level 3 priority (%d)", prio);
-            break;
-        case V2X_PRIO_4:
-            snprintf(string, ITEM_LABEL_LENGTH, "Level 4 priority (%d)", prio);
-            break;
-        case V2X_PRIO_5:
-            snprintf(string, ITEM_LABEL_LENGTH, "Level 5 priority (%d)", prio);
-            break;
-        case V2X_PRIO_6:
-            snprintf(string, ITEM_LABEL_LENGTH, "Level 6 priority (%d)", prio);
-            break;
-        case V2X_PRIO_BACKGROUND:
-            snprintf(string, ITEM_LABEL_LENGTH, "Lowest priority (%d)", prio);
-            break;
-        default:
-            snprintf(string, ITEM_LABEL_LENGTH, "Unknown priority (%d)", prio);
-            break;
-    }
-}
+static const value_string priority_format_vals[] = {
+    {0, "Highest priority"},
+    {1, "Level 1 priority"},
+    {2, "Level 2 priority"},
+    {3, "Level 3 priority"},
+    {4, "Level 4 priority"},
+    {5, "Level 5 priority"},
+    {6, "Level 6 priority"},
+    {7, "Lowest priority"},
+    {0, NULL}
+};
 
 static void cbr_format(char* string, uint32_t value)
 {
@@ -2628,7 +2497,7 @@ static int dissect_nav(tvbuff_t* tvb, proto_tree* c2p_tree)
     return offset;
 }
 
-static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo _U_)
+static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     int offset = 0;
 
@@ -2638,9 +2507,8 @@ static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo _
     offset += 4;
 
     for(uint32_t i = 0UL; i < length; ++i) {
-        enum { DISPLAY_STR_MAX_LEN = 32UL };
-        char display_str[DISPLAY_STR_MAX_LEN] = {0};
-        snprintf(display_str, sizeof(display_str), "STI #%lu", (unsigned long)i);
+        char* str_display;
+        str_display = wmem_strdup_printf(pinfo->pool, "STI #%lu", (unsigned long)i);
         /* STI item length is 4 bytes of type and 8 bytes of value */
         static const int STI_ITEM_LEN = 12UL;
         proto_tree* subtree = proto_tree_add_subtree(c2p_tree,
@@ -2649,7 +2517,7 @@ static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo _
                                                      STI_ITEM_LEN,
                                                      ett_c2p,
                                                      NULL,
-                                                     display_str);
+                                                     str_display);
         sti_type_t sti_type = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(subtree,
@@ -2681,18 +2549,23 @@ static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo _
 static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     int offset = 0;
+    uint32_t type, version;
+    char* str_type;
 
-    set_col_info(tvb, pinfo->cinfo);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "C2P");
+    col_clear(pinfo->cinfo, COL_INFO);
+
 
     proto_item* ti = proto_tree_add_item(tree, proto_desc, tvb, 0, -1, ENC_NA);
-
-    proto_item_append_text(ti, ", Type: %s", get_type_str(tvb));
 
     proto_tree* c2p_tree = proto_item_add_subtree(ti, ett_c2p);
 
     /* Version & type */
-    proto_tree_add_item(c2p_tree, hf_c2p_version_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(c2p_tree, hf_c2p_type_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(c2p_tree, hf_c2p_version_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &version);
+    proto_tree_add_item_ret_uint(c2p_tree, hf_c2p_type_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
+    str_type = val_to_str_wmem(pinfo->pool, type, c2p_types, "Unknown (%d)");
+    proto_item_append_text(ti, ", Type: %s", str_type);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s", str_type);
     offset += 1;
 
     /* Timestamp */
@@ -2716,8 +2589,6 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
     /* Dissect the rest depending on type */
     tvbuff_t* next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
-    uint8_t type = get_type_int(tvb);
-    uint8_t version = get_version(tvb);
 
     static uint8_t C2P_VERSION_0 = 0U;
     static uint8_t C2P_VERSION_1 = 1U;
@@ -3238,8 +3109,8 @@ void proto_register_c2p(void)
                 "Preserved SPS Tx priority'",
                 "c2p.cv2x_bw_res_tx_priority",
                 FT_UINT8,
-                BASE_CUSTOM,
-                CF_FUNC(priority_format),
+                BASE_DEC,
+                VALS(priority_format_vals),
                 0x00,
                 NULL,
                 HFILL
