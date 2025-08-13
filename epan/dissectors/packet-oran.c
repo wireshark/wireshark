@@ -214,7 +214,8 @@ static int hf_oran_blockScaler;
 static int hf_oran_compBitWidth;
 static int hf_oran_compShift;
 
-static int hf_oran_repetition;
+static int hf_oran_se6_repetition;
+
 static int hf_oran_rbgSize;
 static int hf_oran_rbgMask;
 static int hf_oran_noncontig_priority;
@@ -269,6 +270,7 @@ static int hf_oran_eAxC_mask;
 static int hf_oran_technology;
 static int hf_oran_nullLayerInd;
 
+static int hf_oran_se19_repetition;
 static int hf_oran_portReMask;
 static int hf_oran_portSymbolMask;
 
@@ -1242,6 +1244,17 @@ static const true_false_string measurement_flag_tfs = {
   "at least one additional measurement report or command after the current one",
   "no additional measurement report or command"
 };
+
+static const true_false_string repetition_se6_tfs = {
+  "repeated highest priority data section in the C-Plane message",
+  "no repetition"
+};
+
+static const true_false_string repetition_se19_tfs = {
+  "per port information not present in the extension",
+  "per port info present in the extension"
+};
+
 
 
 /* Forward declaration */
@@ -2908,7 +2921,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 ext11_settings.ext6_set = true;
 
                 /* repetition */
-                proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(extension_tree, hf_oran_se6_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
                 /* rbgSize (PRBs per bit set in rbgMask) */
                 uint32_t rbgSize;
                 proto_item *rbg_size_ti;
@@ -3498,7 +3511,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 /* repetition (1 bit) */
                 uint64_t repetition;
-                proto_tree_add_bits_ret_val(extension_tree, hf_oran_repetition, tvb, (offset*8)+1, 1, &repetition, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_ret_val(extension_tree, hf_oran_se19_repetition, tvb, (offset*8)+1, 1, &repetition, ENC_BIG_ENDIAN);
                 /* numPortc (6 bits) */
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPortc,
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
@@ -3509,13 +3522,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* symbolMask (14 bits) */
                 offset = dissect_symbolmask(tvb, extension_tree, offset, NULL, NULL);
 
-                /* bfwCompHdr */
                 uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                 proto_item *comp_meth_ti = NULL;
-                offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
-                                            &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
                 if (!repetition) {
+
+                    if (!disableBFWs) {
+                        /* bfwCompHdr */
+                        offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
+                                                    &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
+                    }
 
                     /* Add entries for each port */
                     for (unsigned port=0; port < numPortc; port++) {
@@ -7081,10 +7097,10 @@ proto_register_oran(void)
         },
 
         /* Section 7.7.6.6 */
-        { &hf_oran_repetition,
+        { &hf_oran_se6_repetition,
           { "repetition", "oran_fh_cus.repetition",
             FT_BOOLEAN, BASE_NONE,
-            NULL, 0x0,
+            TFS(&repetition_se6_tfs), 0x0,
             "Repetition of a highest priority data section for C-Plane", HFILL}
         },
         /* 7.7.20.9 */
@@ -7101,7 +7117,7 @@ proto_register_oran(void)
             NULL, 0x0fffffff,
             "Each bit indicates whether a corresponding resource block group is present", HFILL}
         },
-        /* 7.7.6.5 */
+        /* 7.7.6.5.  Also 7.7.12.3 and 7.7.19.5 */
         { &hf_oran_noncontig_priority,
           { "priority", "oran_fh_cus.priority",
             FT_UINT8, BASE_HEX,
@@ -7647,7 +7663,16 @@ proto_register_oran(void)
             "Whether corresponding layer is nulling-layer or not", HFILL }
         },
 
-        /* Exttype 19 (7.7.19.8) */
+        /* Exttype 19 */
+        /* 7.7.19.3 */
+        { &hf_oran_se19_repetition,
+          { "repetition", "oran_fh_cus.repetition",
+            FT_BOOLEAN, BASE_NONE,
+            TFS(&repetition_se19_tfs), 0x0,
+            "repeat port info flag", HFILL}
+        },
+        /* 7.7.19.8 */
+        /* TODO: break down into each RE as done for 7.5.3.5 ? */
         { &hf_oran_portReMask,
           { "portReMask", "oran_fh_cus.portReMask",
             FT_BOOLEAN, 16,
