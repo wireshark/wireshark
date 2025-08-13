@@ -18,6 +18,7 @@ mergecap - Merges two or more capture files into one
 [ *-I* <__IDB merge mode__> ]
 [ *-s* <__snaplen__> ]
 [ *-V* ]
+[ --no-merging-comment ]
 *-w* <__outfile__>|-
 <__infile__> [<__infile__> __...__]
 
@@ -156,6 +157,17 @@ This setting is mandatory.
 Compress the output file using the type compression format.
 *--compress* with no argument provides a list of the compression formats supported
 for writing. The type given takes precedence over the extension of __outfile__.
+--
+
+--no-merging-comment::
++
+--
+Inhibit generating the capture comment "File created by merging:...". to the
+output file
+
+By default a multiline capture comment is generated to the output (merged)
+file that lists all of the files being merged. However, if the generated capture
+comment is longer than 65535 bytes it is silently dropped.
 --
 
 include::diagnostic-options.adoc[]

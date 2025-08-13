@@ -480,7 +480,7 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
 /* creates a section header block for the new output file */
 static GArray*
 create_shb_header(const merge_in_file_t *in_files, const unsigned in_file_count,
-                  const char *app_name)
+                  const char *app_name, const bool add_merging_comment)
 {
     GArray  *shb_hdrs;
     wtap_block_t shb_hdr;
@@ -503,10 +503,12 @@ create_shb_header(const merge_in_file_t *in_files, const unsigned in_file_count,
      * descriptions, IDBs, etc.? came from which files?
      */
 
-    g_string_append_printf(comment_gstr, "File created by merging: \n");
+    if(add_merging_comment) {
+        g_string_append_printf(comment_gstr, "File created by merging: \n");
 
-    for (i = 0; i < in_file_count; i++) {
-        g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
+        for (i = 0; i < in_file_count; i++) {
+            g_string_append_printf(comment_gstr, "File%d: %s \n", i+1, in_files[i].filename);
+        }
     }
 
     os_info_str = g_string_new("");
@@ -1245,7 +1247,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
                    optional tempdir in tempfile mode (NULL for OS default) */
                    char **out_filenamep, const char *pfx, /* tempfile mode  */
                    const int file_type, const char *const *in_filenames,
-                   const unsigned in_file_count, const bool do_append,
+                   const unsigned in_file_count, const bool add_merging_comment, const bool do_append,
                    idb_merge_mode mode, unsigned snaplen,
                    const char *app_name, const char* app_env_var_prefix, merge_progress_callback_t* cb, ws_compression_type compression_type)
 {
@@ -1331,7 +1333,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
          */
         if (wtap_file_type_subtype_supports_block(file_type,
                                                   WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
-            shb_hdrs = create_shb_header(in_files, open_file_count, app_name);
+            shb_hdrs = create_shb_header(in_files, open_file_count, app_name, add_merging_comment);
             ws_debug("SHB created");
 
             idb_inf = generate_merged_idbs(in_files, open_file_count, &mode);
@@ -1476,7 +1478,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
         // We recurse here, but we're limited by MAX_MERGE_FILES
         status = merge_files_common(out_filename, out_filenamep, pfx,
                     file_type, (const char**)temp_files->pdata,
-                    temp_files->len, do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
+                    temp_files->len, add_merging_comment, do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
         /* If that failed, it has already reported an error */
         g_ptr_array_free(temp_files, true);
     }
@@ -1492,7 +1494,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
 bool
 merge_files(const char* out_filename, const int file_type,
             const char *const *in_filenames, const unsigned in_file_count,
-            const bool do_append, const idb_merge_mode mode,
+            const bool add_merging_comment, const bool do_append, const idb_merge_mode mode,
             unsigned snaplen, const char *app_name, const char* app_env_var_prefix,
             merge_progress_callback_t* cb, const  ws_compression_type compression_type)
 {
@@ -1514,7 +1516,7 @@ merge_files(const char* out_filename, const int file_type,
     }
 
     return merge_files_common(out_filename, NULL, NULL,
-                              file_type, in_filenames, in_file_count,
+                              file_type, in_filenames, in_file_count, add_merging_comment,
                               do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
 }
 
@@ -1526,8 +1528,8 @@ merge_files(const char* out_filename, const int file_type,
 bool
 merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pfx,
                         const int file_type, const char *const *in_filenames,
-                        const unsigned in_file_count, const bool do_append,
-                        const idb_merge_mode mode, unsigned snaplen,
+                        const unsigned in_file_count, const bool add_merging_comment,
+                        const bool do_append, const idb_merge_mode mode, unsigned snaplen,
                         const char *app_name, const char* app_env_var_prefix, merge_progress_callback_t* cb)
 {
     ws_assert(out_filenamep != NULL);
@@ -1536,7 +1538,7 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
     *out_filenamep = NULL;
 
     return merge_files_common(tmpdir, out_filenamep, pfx,
-                              file_type, in_filenames, in_file_count,
+                              file_type, in_filenames, in_file_count, add_merging_comment,
                               do_append, mode, snaplen, app_name, app_env_var_prefix, cb, WS_FILE_UNCOMPRESSED);
 }
 
@@ -1547,13 +1549,13 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
  */
 bool
 merge_files_to_stdout(const int file_type, const char *const *in_filenames,
-                      const unsigned in_file_count, const bool do_append,
-                      const idb_merge_mode mode, unsigned snaplen,
+                      const unsigned in_file_count, const bool add_merging_comment,
+                      const bool do_append, const idb_merge_mode mode, unsigned snaplen,
                       const char *app_name, const char* app_env_var_prefix, merge_progress_callback_t* cb,
                       ws_compression_type compression_type)
 {
     return merge_files_common(NULL, NULL, NULL,
-                              file_type, in_filenames, in_file_count,
+                              file_type, in_filenames, in_file_count, add_merging_comment,
                               do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
 }
 

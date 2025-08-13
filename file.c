@@ -1480,7 +1480,7 @@ cf_merge_files_to_tempfile(void *pd_window, const char *temp_dir, char **out_fil
     /* merge the files */
     status = merge_files_to_tempfile(temp_dir, out_filenamep, "wireshark", file_type,
             in_filenames,
-            in_file_count, do_append,
+            in_file_count, true /* add_merging_comment */, do_append,
             IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,
             "Wireshark", "WIRESHARK", & cb);
 
