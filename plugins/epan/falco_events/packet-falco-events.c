@@ -641,10 +641,20 @@ create_source_hfids(bridge_info* bi)
     }
 }
 
+#define K8SAUDIT_PLUGIN_ID    1
+#define CLOUDTRAIL_PLUGIN_ID  2
+#define GCPAUDIT_PLUGIN_ID   12
+
 // Plugins whose data should be displayed as JSON.
 // XXX This should probably be a preference.
-// We could also do this by numeric ID: https://github.com/falcosecurity/plugins
-static const char *json_plugins[] = {"cloudtrail", "k8saudit", "gcpaudit"};
+static const uint32_t json_plugins[] = {K8SAUDIT_PLUGIN_ID, CLOUDTRAIL_PLUGIN_ID, GCPAUDIT_PLUGIN_ID};
+
+static const value_string source_id_to_name[] = {
+    { K8SAUDIT_PLUGIN_ID,   "Kubernetes Audit Logs" },
+    { CLOUDTRAIL_PLUGIN_ID, "AWS CloudTrail" },
+    { GCPAUDIT_PLUGIN_ID,   "Google Cloud Audit Logs" },
+    { 0, NULL }
+};
 
 void
 import_plugin(char* fname)
@@ -663,12 +673,15 @@ import_plugin(char* fname)
     create_source_hfids(bi);
 
     const char *source_name = get_sinsp_source_name(bi->ssi);
-    const char *plugin_name = g_strdup_printf("%s Falco Events Plugin", source_name);
+    const char *plugin_name = try_val_to_str(bi->source_id, source_id_to_name);
+    if (!plugin_name) {
+        plugin_name = g_strdup_printf("%s Falco Events Plugin", source_name);
+    }
     bi->proto = proto_register_protocol(plugin_name, source_name, source_name);
 
     bi->media_type = DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM;
     for (size_t i = 0; i < array_length(json_plugins); i++) {
-        if (strcmp(json_plugins[i], source_name) == 0) {
+        if (json_plugins[i] == bi->source_id) {
             bi->media_type = DS_MEDIA_TYPE_APPLICATION_JSON;
         }
     }
