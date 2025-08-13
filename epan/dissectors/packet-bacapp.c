@@ -7456,21 +7456,15 @@ fGetMaxAPDUSize(uint8_t idx)
 }
 #endif
 
-static const char*
-val_to_split_str(uint32_t val, uint32_t split_val, const value_string *vs,
-    const char *fmt, const char *split_fmt)
-    G_GNUC_PRINTF(4, 0)
-    G_GNUC_PRINTF(5, 0);
-
 /* Used when there are ranges of reserved and proprietary enumerations */
 static const char*
-val_to_split_str(uint32_t val, uint32_t split_val, const value_string *vs,
+val_to_split_str(wmem_allocator_t* scope, uint32_t val, uint32_t split_val, const value_string *vs,
     const char *fmt, const char *split_fmt)
 {
     if (val < split_val)
-        return val_to_str(val, vs, fmt);
+        return val_to_str_wmem(scope, val, vs, fmt);
     else
-        return val_to_str(val, vs, split_fmt);
+        return val_to_str_wmem(scope, val, vs, split_fmt);
 }
 
 /* from clause 20.2.1.3.2 Constructed Data */
@@ -7659,7 +7653,7 @@ fTagHeaderTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len,
                     ett_bacapp_tag, &ti,
                     "Application Tag: %s, Length/Value/Type: %u",
-                    val_to_str(*tag_no, BACnetApplicationTagNumber,
+                    val_to_str_wmem(pinfo->pool, *tag_no, BACnetApplicationTagNumber,
                         ASHRAE_Reserved_Fmt),
                     *lvt);
         }
@@ -7816,7 +7810,7 @@ fEnumeratedTagSplit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (fUnsigned32(tvb, offset+tag_len, lvt, &val)) {
         if (vs)
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-                ett_bacapp_tag, NULL, "%s %s (%u)", label, val_to_split_str(val, split_val, vs,
+                ett_bacapp_tag, NULL, "%s %s (%u)", label, val_to_split_str(pinfo->pool, val, split_val, vs,
                 ASHRAE_Reserved_Fmt, Vendor_Proprietary_Fmt), val);
         else
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
@@ -7993,7 +7987,7 @@ fPresentValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offs
                 if (vs) {
                     subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len, ett_bacapp_tag, NULL,
                         "Present Value (enum value): %s",
-                        val_to_split_str(enum_index,
+                        val_to_split_str(pinfo->pool, enum_index,
                         split_val,
                         vs,
                         ASHRAE_Reserved_Fmt,
@@ -8017,7 +8011,7 @@ fPresentValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offs
             object_type = object_id_type(object_id);
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len + 4, ett_bacapp_tag, NULL,
                 "Present Value (enum value): %s",
-                val_to_split_str(object_type,
+                val_to_split_str(pinfo->pool, object_type,
                 128,
                 BACnetObjectType,
                 ASHRAE_Reserved_Fmt,
@@ -8187,9 +8181,9 @@ fWeekNDay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
     dayOfWeek = tvb_get_uint8(tvb, offset+tag_len+2);
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
                  ett_bacapp_tag, NULL, "%s %s, %s",
-                 val_to_str(month, months, "month (%d) not found"),
-                 val_to_str(weekOfMonth, weekofmonth, "week of month (%d) not found"),
-                 val_to_str(dayOfWeek, day_of_week, "day of week (%d) not found"));
+                 val_to_str_wmem(pinfo->pool, month, months, "month (%d) not found"),
+                 val_to_str_wmem(pinfo->pool, weekOfMonth, weekofmonth, "week of month (%d) not found"),
+                 val_to_str_wmem(pinfo->pool, dayOfWeek, day_of_week, "day of week (%d) not found"));
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     return offset+tag_len+lvt;
@@ -8219,18 +8213,18 @@ fDate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, cons
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL,
             "%s%s %d, %d, (Day of Week = %s)",
-            label, val_to_str(month,
+            label, val_to_str_wmem(pinfo->pool, month,
                 months,
                 "month (%d) not found"),
-            day, year, val_to_str(weekday,
+            day, year, val_to_str_wmem(pinfo->pool, weekday,
                 day_of_week,
                 "(%d) not found"));
     } else {
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL,
             "%s%s %d, any year, (Day of Week = %s)",
-            label, val_to_str(month, months, "month (%d) not found"),
-            day, val_to_str(weekday, day_of_week, "(%d) not found"));
+            label, val_to_str_wmem(pinfo->pool, month, months, "month (%d) not found"),
+            day, val_to_str_wmem(pinfo->pool, weekday, day_of_week, "(%d) not found"));
     }
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
@@ -8517,7 +8511,7 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
     object_type = object_id_type(object_id);
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_length + 4,
             ett_bacapp_tag, NULL, "%s: %s, %u", proto_registrar_get_name(hfid),
-            val_to_split_str(object_type,
+            val_to_split_str(pinfo->pool, object_type,
                 128,
                 BACnetObjectType,
                 ASHRAE_Reserved_Fmt,
@@ -8525,7 +8519,7 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             object_id_instance(object_id));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s,%u ",
-            val_to_split_str(object_type,
+            val_to_split_str(pinfo->pool, object_type,
                 128,
                 BACnetObjectType,
                 ASHRAE_Reserved_Fmt,
@@ -8535,7 +8529,7 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
     /* update BACnet Statistics */
     updateBacnetInfoValue(BACINFO_OBJECTID,
                   wmem_strdup(pinfo->pool,
-                    val_to_split_str(object_type, 128,
+                    val_to_split_str(pinfo->pool, object_type, 128,
                     BACnetObjectType, ASHRAE_Reserved_Fmt,
                     Vendor_Proprietary_Fmt)));
     updateBacnetInfoValue(BACINFO_INSTANCEID,
@@ -8872,12 +8866,12 @@ fPropertyIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL,
             "%s: %s (%u)", label,
-            val_to_split_str(propertyIdentifier, 512,
+            val_to_split_str(pinfo->pool, propertyIdentifier, 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
                 Vendor_Proprietary_Fmt), propertyIdentifier);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                val_to_split_str(propertyIdentifier, 512,
+                val_to_split_str(pinfo->pool, propertyIdentifier, 512,
                     BACnetPropertyIdentifier,
                     ASHRAE_Reserved_Fmt,
                     Vendor_Proprietary_Fmt));
@@ -9130,7 +9124,7 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
             if (src != NULL) {
                 proto_tree_add_boolean_format(subtree, hf_bacapp_bit, tvb, offset+i+1, 1,
                                             (tmp & (1 << (7 - j))), "%s = %s",
-                                            val_to_str((unsigned) (i*8 +j), src, ASHRAE_Reserved_Fmt),
+                                            val_to_str_wmem(pinfo->pool, (unsigned) (i*8 +j), src, ASHRAE_Reserved_Fmt),
                                             (tmp & (1 << (7 - j))) ? "TRUE" : "FALSE");
             } else {
                 bf_arr[MIN(255, (i*8)+j)] = tmp & (1 << (7 - j)) ? '1' : '0';
@@ -9481,7 +9475,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
     if (propertyIdentifier >= 0) {
         snprintf(ar, sizeof(ar), "%s: ",
-            val_to_split_str(propertyIdentifier, 512,
+            val_to_split_str(pinfo->pool, propertyIdentifier, 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
                 Vendor_Proprietary_Fmt));
@@ -10974,7 +10968,7 @@ fWeeklySchedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned of
             return offset; /* outer encoding will print out closing tag */
         }
         subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_bacapp_value, NULL,
-                                val_to_str(i++, day_of_week, "day of week (%d) not found"));
+                                val_to_str_wmem(pinfo->pool, i++, day_of_week, "day of week (%d) not found"));
         offset = fDailySchedule(tvb, pinfo, subtree, offset);
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }
@@ -16170,7 +16164,7 @@ static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    char  i = 1, ar[256];
+    char  i = 1, *str_ar;
     unsigned lastoffset = 0;
     uint8_t tag_no;
     uint8_t tag_info;
@@ -16189,8 +16183,8 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* exit loop if nothing happens inside */
         lastoffset = offset;
-        snprintf(ar, sizeof(ar), "%s[%d]: ",
-            val_to_split_str(87 , 512,
+        str_ar = wmem_strdup_printf(pinfo->pool, "%s[%d]: ",
+            val_to_split_str(pinfo->pool, 87 , 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
                 Vendor_Proprietary_Fmt),
@@ -16198,7 +16192,7 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
         fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         if ( ! tag_is_context_specific(tag_info)) {
             /* DMR Should be fAbstractNSyntax, but that's where we came from! */
-            offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            offset = fApplicationTypes(tvb, pinfo, tree, offset, str_ar);
         } else {
             if (tag_is_opening(tag_info) && tag_no == 0) {
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
@@ -16215,7 +16209,7 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             } else {
                 /* DMR Should be fAbstractNSyntax, but that's where we came from! */
-                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, str_ar);
             }
         }
         /* there are only 16 priority array elements */
@@ -17850,7 +17844,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
         bacapp_reason = tvb_get_uint8(tvb, offset + 2);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-                        val_to_split_str(bacapp_reason,
+                        val_to_split_str(pinfo->pool, bacapp_reason,
                                          64,
                                          BACnetRejectReason,
                                          ASHRAE_Reserved_Fmt,
@@ -17861,7 +17855,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         updateBacnetInfoValue(BACINFO_SERVICE,
                               wmem_strconcat(pinfo->pool, rejstr,
-                                             val_to_split_str(bacapp_reason, 64,
+                                             val_to_split_str(pinfo->pool, bacapp_reason, 64,
                                                               BACnetRejectReason,
                                                               ASHRAE_Reserved_Fmt,
                                                               Vendor_Proprietary_Fmt),
@@ -17871,7 +17865,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
         bacapp_reason = tvb_get_uint8(tvb, offset + 2);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
-                        val_to_split_str(bacapp_reason,
+                        val_to_split_str(pinfo->pool, bacapp_reason,
                                          64,
                                          BACnetAbortReason,
                                          ASHRAE_Reserved_Fmt,
@@ -17882,7 +17876,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         updateBacnetInfoValue(BACINFO_SERVICE,
                               wmem_strconcat(pinfo->pool, abortstr,
-                                             val_to_split_str(bacapp_reason,
+                                             val_to_split_str(pinfo->pool, bacapp_reason,
                                                               64,
                                                               BACnetAbortReason,
                                                               ASHRAE_Reserved_Fmt,

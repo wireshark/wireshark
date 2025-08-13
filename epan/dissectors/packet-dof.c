@@ -2432,7 +2432,7 @@ static int dissect_2008_1_dsp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_2008_1_dsp_value_length, tvb, 3, 1, ENC_NA);
 
     /* Append description to the parent. */
-    proto_item_append_text(parent, " (Code=%s/Data=0x%04x)", val_to_str(attribute_code, strings_2008_1_dsp_attribute_codes, "%u"), attribute_data);
+    proto_item_append_text(parent, " (Code=%s/Data=0x%04x)", val_to_str_wmem(pinfo->pool, attribute_code, strings_2008_1_dsp_attribute_codes, "%u"), attribute_data);
 
     if (option_length)
     {
@@ -6659,10 +6659,10 @@ static int dissect_dpp_v2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (!packet_data->is_command)
         opcode |= OP_2009_12_RESPONSE_FLAG;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, strings_2009_12_dpp_common_opcodes, "Unknown Opcode (%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, opcode, strings_2009_12_dpp_common_opcodes, "Unknown Opcode (%d)"));
 
     /* Opcode */
-    proto_tree_add_uint_format(dpps_tree, hf_2009_12_dpp_2_14_opcode, tvb, offset, 1, opcode & 0x3F, "Opcode: %s (%u)", val_to_str(opcode, strings_2009_12_dpp_common_opcodes, "Unknown Opcode (%d)"), opcode & 0x3F);
+    proto_tree_add_uint_format(dpps_tree, hf_2009_12_dpp_2_14_opcode, tvb, offset, 1, opcode & 0x3F, "Opcode: %s (%u)", val_to_str_wmem(pinfo->pool, opcode, strings_2009_12_dpp_common_opcodes, "Unknown Opcode (%d)"), opcode & 0x3F);
     offset += 1;
 
     switch (opcode)
@@ -7347,9 +7347,9 @@ static int dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (!packet_data->is_command)
         opcode |= OP_2008_1_RSP;
 
-    proto_tree_add_uint_format(dsp_tree, hf_2008_1_dsp_12_opcode, tvb, offset, 1, opcode, "Opcode: %s (%u)", val_to_str(opcode, strings_2008_1_dsp_opcodes, "Unknown Opcode (%d)"), opcode & 0x7F);
+    proto_tree_add_uint_format(dsp_tree, hf_2008_1_dsp_12_opcode, tvb, offset, 1, opcode, "Opcode: %s (%u)", val_to_str_wmem(pinfo->pool, opcode, strings_2008_1_dsp_opcodes, "Unknown Opcode (%d)"), opcode & 0x7F);
     offset += 1;
-    col_append_sep_str(pinfo->cinfo, COL_INFO, "/", val_to_str(opcode, strings_2008_1_dsp_opcodes, "Unknown Opcode (%d)"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, "/", val_to_str_wmem(pinfo->pool, opcode, strings_2008_1_dsp_opcodes, "Unknown Opcode (%d)"));
 
     switch (opcode)
     {
@@ -7949,7 +7949,7 @@ static int dissect_ccm_app(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* Retrieve the opcode. */
     opcode = tvb_get_uint8(tvb, offset);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, ccm_opcode_strings, "Unknown Opcode (%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, opcode, ccm_opcode_strings, "Unknown Opcode (%d)"));
 
     if (tree)
     {
@@ -8176,7 +8176,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     flags = tvb_get_uint8(tvb, offset) & 0xE0;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, oap_opcode_strings, "Unknown Opcode (%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, opcode, oap_opcode_strings, "Unknown Opcode (%d)"));
 
 
     /* Opcode */
@@ -8204,7 +8204,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             mask = mask >> 1;
         }
 
-        proto_tree_add_uint_format(oap_tree, hf_oap_1_opcode, tvb, offset, 1, opcode & 0x1F, "%s = Opcode: %s (%u)", str, val_to_str(opcode, oap_opcode_strings, "Unknown Opcode (%d)"), opcode & 0x1F);
+        proto_tree_add_uint_format(oap_tree, hf_oap_1_opcode, tvb, offset, 1, opcode & 0x1F, "%s = Opcode: %s (%u)", str, val_to_str_wmem(pinfo->pool, opcode, oap_opcode_strings, "Unknown Opcode (%d)"), opcode & 0x1F);
     }
 
 
@@ -8657,7 +8657,7 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (!packet_data->is_command)
         opcode |= SGMP_RESPONSE;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, sgmp_opcode_strings, "Unknown Opcode (%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, opcode, sgmp_opcode_strings, "Unknown Opcode (%d)"));
 
     /* Opcode */
     proto_tree_add_item(sgmp_tree, hf_opcode, tvb, offset, 1, ENC_NA);
@@ -9263,9 +9263,9 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (!packet->is_command)
         operation |= TEP_OPCODE_RSP;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(operation, tep_opcode_strings, "Unknown Opcode (%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, operation, tep_opcode_strings, "Unknown Opcode (%d)"));
 
-    ti = proto_tree_add_uint_format(tep_tree, hf_tep_operation, tvb, offset, 1, operation, "Operation: %s (%u)", val_to_str(operation, tep_opcode_strings, "Unknown Opcode (%d)"), operation);
+    ti = proto_tree_add_uint_format(tep_tree, hf_tep_operation, tvb, offset, 1, operation, "Operation: %s (%u)", val_to_str_wmem(pinfo->pool, operation, tep_opcode_strings, "Unknown Opcode (%d)"), operation);
 
     operation_tree = proto_item_add_subtree(ti, ett_tep_operation);
     ti = proto_tree_add_boolean(operation_tree, hf_tep_operation_type, tvb, offset, 0, operation);
@@ -9768,10 +9768,10 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (!packet_data->is_command)
         opcode |= TRP_RESPONSE;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, trp_opcode_strings, "Unknown Opcode (%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, opcode, trp_opcode_strings, "Unknown Opcode (%d)"));
 
     /* Opcode */
-    ti = proto_tree_add_uint_format(trp_tree, hf_trp_opcode, tvb, offset, 1, opcode & 0x7F, "Opcode: %s (%u)", val_to_str(opcode, trp_opcode_strings, "Unknown Opcode (%d)"), opcode & 0x7F);
+    ti = proto_tree_add_uint_format(trp_tree, hf_trp_opcode, tvb, offset, 1, opcode & 0x7F, "Opcode: %s (%u)", val_to_str_wmem(pinfo->pool, opcode, trp_opcode_strings, "Unknown Opcode (%d)"), opcode & 0x7F);
     offset += 1;
 
     switch (opcode)

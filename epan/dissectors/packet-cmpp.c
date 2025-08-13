@@ -547,7 +547,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		return 0;
 	}
 
-	command_str = val_to_str(command_id, vals_command_Id,
+	command_str = val_to_str_wmem(pinfo->pool, command_id, vals_command_Id,
 				 "(Unknown CMPP Operation 0x%08X)");
 
 	/* tvb has less data then the PDU Header status, return */

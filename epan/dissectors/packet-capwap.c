@@ -1323,7 +1323,7 @@ dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_cap
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tree, unsigned offset)
+dissect_capwap_ac_information(tvbuff_t *tvb, packet_info* pinfo, proto_tree *ac_information_type_tree, unsigned offset)
 {
     unsigned optlen,ac_information_type = 0;
     proto_item *ac_information_type_item;
@@ -1333,7 +1333,7 @@ dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tre
     optlen = tvb_get_ntohs(tvb, offset+6);
     ac_information_type_item = proto_tree_add_item(ac_information_type_tree, hf_capwap_msg_element_type_ac_information, tvb, offset, 4+2+2+optlen, ENC_NA );
 
-    proto_item_append_text(ac_information_type_item,": (t=%d,l=%d) %s", ac_information_type, optlen, val_to_str(ac_information_type,ac_information_type_vals,"Unknown AC Information Type (%02d)") );
+    proto_item_append_text(ac_information_type_item,": (t=%d,l=%d) %s", ac_information_type, optlen, val_to_str_wmem(pinfo->pool, ac_information_type,ac_information_type_vals,"Unknown AC Information Type (%02d)") );
 
     sub_ac_information_type_tree = proto_item_add_subtree(ac_information_type_item, ett_capwap_ac_information);
 
@@ -1363,7 +1363,7 @@ dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tre
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tree, unsigned offset)
+dissect_capwap_wtp_descriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *wtp_descriptor_type_tree, unsigned offset)
 {
     unsigned optlen,wtp_descriptor_type = 0;
     proto_item *wtp_descriptor_type_item;
@@ -1373,7 +1373,7 @@ dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tre
     optlen = tvb_get_ntohs(tvb, offset+6);
     wtp_descriptor_type_item = proto_tree_add_item(wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor, tvb, offset, 4+2+2+optlen, ENC_NA);
 
-    proto_item_append_text(wtp_descriptor_type_item, ": (t=%d,l=%d) %s", wtp_descriptor_type, optlen, val_to_str(wtp_descriptor_type,wtp_descriptor_type_vals,"Unknown WTP Descriptor Type (%02d)") );
+    proto_item_append_text(wtp_descriptor_type_item, ": (t=%d,l=%d) %s", wtp_descriptor_type, optlen, val_to_str_wmem(pinfo->pool, wtp_descriptor_type,wtp_descriptor_type_vals,"Unknown WTP Descriptor Type (%02d)") );
 
     sub_wtp_descriptor_type_tree = proto_item_add_subtree(wtp_descriptor_type_item, ett_capwap_wtp_descriptor);
 
@@ -1412,7 +1412,7 @@ dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tre
 
 /* Returns the number of bytes consumed by this option. */
 static int
-dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, unsigned offset)
+dissect_capwap_board_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *board_data_type_tree, unsigned offset)
 {
     unsigned optlen,board_data_type = 0;
     proto_item *board_data_type_item;
@@ -1422,7 +1422,7 @@ dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, unsig
     optlen = tvb_get_ntohs(tvb, offset+2);
     board_data_type_item = proto_tree_add_item(board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data, tvb, offset, 2+2+optlen, ENC_NA );
 
-    proto_item_append_text(board_data_type_item, ": (t=%d,l=%d) %s", board_data_type, optlen, val_to_str(board_data_type,board_data_type_vals,"Unknown Board Data Type (%02d)") );
+    proto_item_append_text(board_data_type_item, ": (t=%d,l=%d) %s", board_data_type, optlen, val_to_str_wmem(pinfo->pool, board_data_type,board_data_type_vals,"Unknown Board Data Type (%02d)") );
 
     sub_board_data_type_tree = proto_item_add_subtree(board_data_type_item, ett_capwap_board_data);
 
@@ -1553,7 +1553,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
 
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     element_id = tvb_get_ntohs(tvb, offset);
-    proto_item_append_text(msg_element_type_item, ": Fortinet %s", val_to_str(element_id, fortinet_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
+    proto_item_append_text(msg_element_type_item, ": Fortinet %s", val_to_str_wmem(pinfo->pool, element_id, fortinet_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
     offset += 2;
 
     /* Remove length and element id to optlen */
@@ -2061,7 +2061,7 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
 
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     element_id = tvb_get_ntohs(tvb, offset);
-    proto_item_append_text(msg_element_type_item, ": Cisco %s", val_to_str(element_id, cisco_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
+    proto_item_append_text(msg_element_type_item, ": Cisco %s", val_to_str_wmem(pinfo->pool, element_id, cisco_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
     offset += 2;
 
     /* Remove length and element id to optlen */
@@ -2172,7 +2172,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
     optlen = tvb_get_ntohs(tvb, offset+2);
     msg_element_type_item = proto_tree_add_item(msg_element_type_tree, hf_capwap_msg_element, tvb, offset, 2+2+optlen, ENC_NA );
 
-    proto_item_append_text(msg_element_type_item, ": (t=%d,l=%d) %s", msg_element_type, optlen, val_to_str(msg_element_type,message_element_type_vals,"Unknown Message Element Type (%02d)") );
+    proto_item_append_text(msg_element_type_item, ": (t=%d,l=%d) %s", msg_element_type, optlen, val_to_str_wmem(pinfo->pool, msg_element_type,message_element_type_vals,"Unknown Message Element Type (%02d)") );
 
     sub_msg_element_type_tree = proto_item_add_subtree(msg_element_type_item, ett_capwap_message_element_type);
 
@@ -2208,7 +2208,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         offset_end = offset + optlen -4;
         offset += 4 + 12;
         while (offset < offset_end) {
-            offset += dissect_capwap_ac_information(tvb, sub_msg_element_type_tree, offset);
+            offset += dissect_capwap_ac_information(tvb, pinfo, sub_msg_element_type_tree, offset);
         }
         break;
 
@@ -2499,7 +2499,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         offset += 8;
         offset_end = offset + optlen -4;
         while (offset < offset_end) {
-            offset += dissect_capwap_board_data(tvb, sub_msg_element_type_tree, offset);
+            offset += dissect_capwap_board_data(tvb, pinfo, sub_msg_element_type_tree, offset);
         }
         break;
 
@@ -2530,7 +2530,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
             offset += 6 + 2;
         }
         while (offset < offset_end) {
-            offset += dissect_capwap_wtp_descriptor(tvb, sub_msg_element_type_tree, offset);
+            offset += dissect_capwap_wtp_descriptor(tvb, pinfo, sub_msg_element_type_tree, offset);
         }
         break;
 
@@ -3014,7 +3014,7 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
                              "Dissector for CAPWAP Message Element"
                              " (%s) type not implemented, Contact"
                              " Wireshark developers if you want this supported",
-                             val_to_str(msg_element_type, message_element_type_vals, "(%d)"));
+                             val_to_str_wmem(pinfo->pool, msg_element_type, message_element_type_vals, "(%d)"));
         break;
     }
 
@@ -3088,7 +3088,7 @@ dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, un
     proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_nbr, tvb, offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_specific, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",val_to_str(tvb_get_ntohl(tvb, offset),message_type,"Unknown Message Type (0x%x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, offset),message_type,"Unknown Message Type (0x%x)"));
 
     plen += 4;
     /* Sequence 8 bits */

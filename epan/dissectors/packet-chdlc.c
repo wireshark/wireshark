@@ -301,7 +301,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   case SLARP_REPLY:
     addr = tvb_get_ipv4(tvb, 4);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
-                     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
+                     val_to_str_wmem(pinfo->pool, code, slarp_ptype_vals, "Unknown (%d)"),
                      get_hostname(addr), tvb_ip_to_str(pinfo->pool, tvb, 8));
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
@@ -315,7 +315,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     yoursequence = tvb_get_ntohl(tvb, 8);
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "%s, outgoing sequence %u, returned sequence %u",
-                     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
+                     val_to_str_wmem(pinfo->pool, code, slarp_ptype_vals, "Unknown (%d)"),
                      mysequence, yoursequence);
 
     proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);

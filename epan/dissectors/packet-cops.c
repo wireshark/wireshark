@@ -2173,17 +2173,14 @@ static void
 cops_packetcable_reason(tvbuff_t *tvb, proto_tree *st, unsigned n, uint32_t offset) {
 
      proto_tree *stt;
-     uint16_t code16;
+     uint32_t code16;
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Reason");
      offset += 4;
 
      /* Reason Code */
-     code16 = tvb_get_ntohs(tvb,offset);
-     proto_tree_add_uint_format(stt, hf_cops_pc_reason_code,tvb, offset, 2,
-       code16, "%-28s : %s (%u)","Reason Code",
-       val_to_str(code16, table_cops_reason_code, "Unknown (0x%04x)"),code16);
+     proto_tree_add_item_ret_uint(stt, hf_cops_pc_reason_code,tvb, offset, 2, ENC_BIG_ENDIAN, &code16);
      offset += 2;
 
      if ( code16 == 0 ) {
@@ -4460,7 +4457,7 @@ void proto_register_cops(void)
         },
         { &hf_cops_pc_reason_code,
           { "Reason Code", "cops.pc_reason_code",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_UINT16, BASE_HEX, VALS(table_cops_reason_code), 0x00,
             NULL, HFILL }
         },
         { &hf_cops_pc_delete_subcode,

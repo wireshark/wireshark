@@ -2725,7 +2725,7 @@ dissect_dvbci_payload_rm(uint32_t tag, int len_field,
 
     if (tag==T_PROFILE) {
         if (len_field % RES_ID_LEN) {
-            tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
+            tag_str = val_to_str_wmem(pinfo->pool, tag, dvbci_apdu_tag, "Unknown: %d");
             proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, 0, APDU_TAG_SIZE,
                    "Invalid APDU length field, %s must be a multiple of 4 bytes",
                    tag_str);
@@ -2780,7 +2780,7 @@ dissect_dvbci_payload_ap(uint32_t tag, int len_field _U_,
     else if (tag== T_DATARATE_INFO) {
         data_rate = tvb_get_uint8(tvb, offset);
         col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
-                    val_to_str(data_rate, dvbci_data_rate, "unknown (0x%x)"));
+                    val_to_str_wmem(pinfo->pool, data_rate, dvbci_data_rate, "unknown (0x%x)"));
         proto_tree_add_item(tree, hf_dvbci_data_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 }
@@ -2803,7 +2803,7 @@ dissect_dvbci_payload_ca(uint32_t tag, int len_field,
 
     if (tag==T_CA_INFO) {
         if (len_field % 2) {
-            tag_str = val_to_str(tag, dvbci_apdu_tag, "Unknown: %d");
+            tag_str = val_to_str_wmem(pinfo->pool, tag, dvbci_apdu_tag, "Unknown: %d");
             proto_tree_add_expert_format(tree, pinfo, &ei_dvbci_bad_length, tvb, 0, APDU_TAG_SIZE,
                     "Invalid APDU length field, %s must be a multiple of 2 bytes",
                     tag_str);
@@ -3820,7 +3820,7 @@ dissect_dvbci_payload_lsc(uint32_t tag, int len_field,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             id = tvb_get_uint8(tvb, offset);
             col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
-                    val_to_str(id, dvbci_comms_cmd_id, "Unknown: %d"));
+                    val_to_str_wmem(pinfo->pool, id, dvbci_comms_cmd_id, "Unknown: %d"));
             offset++;
             switch(id) {
                 case COMMS_CMD_ID_CONNECT_ON_CHANNEL:
@@ -3889,7 +3889,7 @@ dissect_dvbci_payload_lsc(uint32_t tag, int len_field,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             id = tvb_get_uint8(tvb,offset);
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                    val_to_str(id, dvbci_comms_rep_id, "Unknown: %d"));
+                    val_to_str_wmem(pinfo->pool, id, dvbci_comms_rep_id, "Unknown: %d"));
             offset++;
             ret_val = tvb_get_uint8(tvb,offset);
             pi = proto_tree_add_item(tree, hf_dvbci_lsc_ret_val,

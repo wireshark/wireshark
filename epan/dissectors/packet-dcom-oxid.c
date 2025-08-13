@@ -69,7 +69,7 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
                         &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-      val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+      val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -86,7 +86,7 @@ dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
                         &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-      val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+      val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -160,7 +160,7 @@ dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
                         &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-      val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+      val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -228,7 +228,7 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
                         &u32HResult);
 
      col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+        val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }

@@ -2240,14 +2240,13 @@ static int reply_ing_egr_tlv_port_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, in
 static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	uint8_t cfm_pdu_type;
+	uint32_t cfm_pdu_type;
+	char* str_cfm_pdu_type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFM");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	cfm_pdu_type = tvb_get_uint8(tvb, CFM_OPCODE_OFFSET);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
-		val_to_str(cfm_pdu_type, opcode_type_name_vals, "Unknown (0x%02x)"));
 
 	proto_item *ti;
 	proto_tree *cfm_tree;
@@ -2255,17 +2254,18 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	/* isolate the payload of the packet */
 	ti = proto_tree_add_item(tree, proto_cfm, tvb, 0, -1, ENC_NA);
 
-	/* report type of CFM packet to base of dissection tree */
-	proto_item_append_text(ti, ", Type %s",
-		val_to_str(cfm_pdu_type, opcode_type_name_vals, "Unknown (0x%02x)"));
-
 	/* dissecting the common CFM header */
 	cfm_tree = proto_item_add_subtree(ti, ett_cfm);
 	proto_tree_add_item(cfm_tree, hf_cfm_md_level, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(cfm_tree, hf_cfm_version, tvb, offset, 1, ENC_NA);
 	offset += 1;
-	proto_tree_add_item(cfm_tree, hf_cfm_opcode, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(cfm_tree, hf_cfm_opcode, tvb, offset, 1, ENC_NA, &cfm_pdu_type);
 	offset += 1;
+
+	/* report type of CFM packet to base of dissection tree */
+	str_cfm_pdu_type = val_to_str_wmem(pinfo->pool, cfm_pdu_type, opcode_type_name_vals, "Unknown (0x%02x)");
+	proto_item_append_text(ti, ", Type %s", str_cfm_pdu_type);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s", str_cfm_pdu_type);
 
 	switch (cfm_pdu_type) {
 	case CCM:
@@ -2404,7 +2404,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		}
 
 		cfm_tlv_tree = proto_tree_add_subtree_format(cfm_all_tlvs_tree, tvb, cfm_tlv_offset, cfm_tlv_length+3,
-				ett_cfm_tlv, NULL, "TLV: %s (t=%d,l=%d)", val_to_str(cfm_tlv_type, tlv_type_field_vals, "Unknown (0x%02x)"),
+				ett_cfm_tlv, NULL, "TLV: %s (t=%d,l=%d)", val_to_str_wmem(pinfo->pool, cfm_tlv_type, tlv_type_field_vals, "Unknown (0x%02x)"),
 				cfm_tlv_type, cfm_tlv_length);
 
 		proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_type, tvb, cfm_tlv_offset, 1, ENC_NA);

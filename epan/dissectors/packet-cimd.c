@@ -716,6 +716,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   int      offset          = 0;
   bool checksumIsValid = true;
   uint8_t  last1, last2, last3;
+  char* str_OC;
 
   etxp = tvb_find_uint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
   if (etxp == -1) return 0;
@@ -746,10 +747,11 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* Make entries in Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIMD");
 
+  str_OC = val_to_str_wmem(pinfo->pool, OC, vals_hdr_OC, "Unknown (%d)");
   if (checksumIsValid)
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(OC, vals_hdr_OC, "Unknown (%d)"));
+    col_add_str(pinfo->cinfo, COL_INFO, str_OC);
   else
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", val_to_str(OC, vals_hdr_OC, "Unknown (%d)"), "invalid checksum");
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", str_OC, "invalid checksum");
 
   dissect_cimd_operation(tvb, pinfo, tree, etxp, checksum, last1, OC, PN);
   return tvb_captured_length(tvb);

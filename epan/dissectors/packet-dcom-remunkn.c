@@ -175,12 +175,12 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
         /* update subtree */
         proto_item_append_text(sub_item, "[%u]: %s",
                                u32ItemIdx,
-                               val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+                               val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
         proto_item_set_len(sub_item, offset - u32SubStart);
 
         /* update column info now */
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]",
-                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
+                        val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
                         u32ItemIdx);
         u32ItemIdx++;
     }
@@ -191,7 +191,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
 
     /* update column info now */
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"));
+                    val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"));
 
     return offset;
 }

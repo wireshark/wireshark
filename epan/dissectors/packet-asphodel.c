@@ -291,7 +291,7 @@ dissect_asphodel_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 proto_tree_add_item(asphodel_tree, hf_asphodel_seq, tvb, 3, 1, ENC_NA);
                 proto_tree_add_item_ret_uint(asphodel_tree, hf_asphodel_cmd, tvb, 4, 1, ENC_NA, &cmd);
 
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", val_to_str(cmd, asphodel_cmd_vals, "Unknown type (0x%02x)"));
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", val_to_str_wmem(pinfo->pool, cmd, asphodel_cmd_vals, "Unknown type (0x%02x)"));
 
                 if (cmd == ASPHODEL_CMD_REPLY_ERROR)
                 {

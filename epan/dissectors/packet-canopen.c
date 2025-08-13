@@ -809,7 +809,7 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
 
     if (function_code == FC_DEFAULT_SDO_RX) {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-                ": %s", val_to_str(sdo_cs, sdo_ccs,
+                ": %s", val_to_str_wmem(pinfo->pool, sdo_cs, sdo_ccs,
                     "Unknown (0x%x)"));
 
         switch (sdo_cs) {
@@ -874,7 +874,7 @@ dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
 
     } else {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-                ": %s", val_to_str(sdo_cs, sdo_scs,
+                ": %s", val_to_str_wmem(pinfo->pool, sdo_cs, sdo_scs,
                     "Unknown (0x%x)"));
 
         switch (sdo_cs) {
@@ -1019,7 +1019,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
 
     /* LSS command specifier */
     lss_cs = tvb_get_uint8(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(lss_cs, lss_cs_code, "Unknown (0x%x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_wmem(pinfo->pool, lss_cs, lss_cs_code, "Unknown (0x%x)"));
     offset++;
 
     if (msg_type_id == MT_LSS_MASTER) {
@@ -1028,7 +1028,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
         switch (lss_cs) {
             case LSS_CS_SWITCH_GLOBAL:
                 col_append_fstr(pinfo->cinfo, COL_INFO,
-                        ": %s", val_to_str(tvb_get_uint8(tvb, offset), lss_switch_mode, "Unknown (0x%x)"));
+                        ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), lss_switch_mode, "Unknown (0x%x)"));
 
                 proto_tree_add_item(canopen_type_tree,
                         hf_canopen_lss_switch_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1074,7 +1074,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
 
                 /* XXX Note that current dissector only works for table selector 0x00 (CiA 301 Table 1) */
                 col_append_fstr(pinfo->cinfo, COL_INFO,
-                        ": %s", val_to_str(tvb_get_uint8(tvb, offset), bit_timing_tbl, "Unknown (0x%x)"));
+                        ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), bit_timing_tbl, "Unknown (0x%x)"));
                 proto_tree_add_item(canopen_type_tree,
                         hf_canopen_lss_bt_tbl_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
@@ -1273,11 +1273,11 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         if (node_id == 0 ) {
             /* broadcast */
-            function_code_str = val_to_str(function_code, CAN_open_bcast_msg_type_vals, "Unknown (%u)");
+            function_code_str = val_to_str_wmem(pinfo->pool, function_code, CAN_open_bcast_msg_type_vals, "Unknown (%u)");
             col_add_str(pinfo->cinfo, COL_INFO, function_code_str);
         } else {
             /* point-to-point */
-            function_code_str = val_to_str(function_code, CAN_open_p2p_msg_type_vals, "Unknown (%u)");
+            function_code_str = val_to_str_wmem(pinfo->pool, function_code, CAN_open_p2p_msg_type_vals, "Unknown (%u)");
             col_add_str(pinfo->cinfo, COL_INFO, function_code_str);
         }
     }
@@ -1305,7 +1305,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     switch(msg_type_id)
     {
     case MT_NMT_CTRL:
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(tvb_get_uint8(tvb, offset), nmt_ctrl_cs, "Unknown (0x%x)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), nmt_ctrl_cs, "Unknown (0x%x)"));
 
         proto_tree_add_item(canopen_type_tree,
             hf_canopen_nmt_ctrl_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);

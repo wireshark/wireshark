@@ -101,8 +101,8 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   offset++;
 
   info = wmem_strdup_printf(pinfo->pool, "%s: %s",
-                            val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
-                            val_to_str (cmd_code, cmd_code_vals, "Unknown code (%d)"));
+                            val_to_str_wmem(pinfo->pool, dev_type, dev_type_vals, "Unknown type (%d)"),
+                            val_to_str_wmem(pinfo->pool, cmd_code, cmd_code_vals, "Unknown code (%d)"));
 
   proto_item_append_text (ti, ", %s", info);
   col_add_str (pinfo->cinfo, COL_INFO, info);

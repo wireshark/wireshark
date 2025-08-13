@@ -352,7 +352,7 @@ static const value_string le_tlv_type_vals[] = {
 };
 
 static void
-dissect_le_control_tlvs(tvbuff_t *tvb, int offset, unsigned num_tlvs,
+dissect_le_control_tlvs(tvbuff_t *tvb, packet_info* pinfo, int offset, unsigned num_tlvs,
                         proto_tree *tree)
 {
   uint32_t    tlv_type;
@@ -363,7 +363,7 @@ dissect_le_control_tlvs(tvbuff_t *tvb, int offset, unsigned num_tlvs,
     tlv_type = tvb_get_ntohl(tvb, offset);
     tlv_length = tvb_get_uint8(tvb, offset+4);
     tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5+tlv_length, ett_atm_lane_lc_tlv, NULL,
-                                                "TLV type: %s", val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
+                                                "TLV type: %s", val_to_str_wmem(pinfo->pool, tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
     proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_length, tvb, offset+4, 1, ENC_BIG_ENDIAN);
     offset += 5+tlv_length;
@@ -372,7 +372,7 @@ dissect_le_control_tlvs(tvbuff_t *tvb, int offset, unsigned num_tlvs,
 }
 
 static void
-dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_le_configure_join_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
   uint8_t num_tlvs;
   uint8_t name_size;
@@ -410,11 +410,11 @@ dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   }
   offset += 32;
 
-  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+  dissect_le_control_tlvs(tvb, pinfo, offset, num_tlvs, tree);
 }
 
 static void
-dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_le_registration_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
   uint8_t num_tlvs;
 
@@ -437,11 +437,11 @@ dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 53, ENC_NA);
   offset += 53;
 
-  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+  dissect_le_control_tlvs(tvb, pinfo, offset, num_tlvs, tree);
 }
 
 static void
-dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_le_arp_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
   uint8_t num_tlvs;
 
@@ -470,11 +470,11 @@ dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 32, ENC_NA);
   offset += 32;
 
-  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+  dissect_le_control_tlvs(tvb, pinfo, offset, num_tlvs, tree);
 }
 
 static void
-dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_le_verify_frame(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
   uint8_t num_tlvs;
 
@@ -494,7 +494,7 @@ dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 32, ENC_NA);
   offset += 32;
 
-  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+  dissect_le_control_tlvs(tvb, pinfo, offset, num_tlvs, tree);
 }
 
 static int
@@ -554,7 +554,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   opcode = tvb_get_ntohs(tvb, offset);
   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                  val_to_str(opcode, le_control_opcode_vals,
+                  val_to_str_wmem(pinfo->pool, opcode, le_control_opcode_vals,
                              "Unknown opcode (0x%04X)"));
 
   if (tree) {
@@ -589,7 +589,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case LE_CONFIGURE_RESPONSE:
       proto_tree_add_item(flags_tree, hf_atm_le_control_flag_v2_capable, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      dissect_le_configure_join_frame(tvb, offset, lane_tree);
+      dissect_le_configure_join_frame(tvb, pinfo, offset, lane_tree);
       break;
 
     case LE_JOIN_REQUEST:
@@ -605,7 +605,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(flags_tree, hf_atm_le_control_flag_exclude_explorer_frames, tvb, offset, 2, ENC_BIG_ENDIAN);
 
       offset += 2;
-      dissect_le_configure_join_frame(tvb, offset, lane_tree);
+      dissect_le_configure_join_frame(tvb, pinfo, offset, lane_tree);
       break;
 
     case LE_REGISTER_REQUEST:
@@ -613,7 +613,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case LE_UNREGISTER_REQUEST:
     case LE_UNREGISTER_RESPONSE:
       offset += 2;
-      dissect_le_registration_frame(tvb, offset, lane_tree);
+      dissect_le_registration_frame(tvb, pinfo, offset, lane_tree);
       break;
 
     case LE_ARP_REQUEST:
@@ -623,7 +623,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(flags_tree, hf_atm_le_control_flag_address, tvb, offset, 2, ENC_BIG_ENDIAN);
       }
       offset += 2;
-      dissect_le_arp_frame(tvb, offset, lane_tree);
+      dissect_le_arp_frame(tvb, pinfo, offset, lane_tree);
       break;
 
     case LE_TOPOLOGY_REQUEST:
@@ -635,7 +635,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case LE_VERIFY_REQUEST:
     case LE_VERIFY_RESPONSE:
       offset += 2;
-      dissect_le_verify_frame(tvb, offset, lane_tree);
+      dissect_le_verify_frame(tvb, pinfo, offset, lane_tree);
       break;
 
     case LE_FLUSH_REQUEST:
@@ -1376,7 +1376,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
     aal3_4_hdr = tvb_get_ntohs(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, sequence number = %u",
-                 val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"),
+                 val_to_str_wmem(pinfo->pool, aal3_4_hdr >> 14, st_vals, "Unknown (%u)"),
                  (aal3_4_hdr >> 10) & 0xF);
     proto_tree_add_item(aal_tree, hf_atm_aal3_4_seg_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(aal_tree, hf_atm_aal3_4_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1406,7 +1406,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (fill_columns)
     {
       col_add_str(pinfo->cinfo, COL_INFO,
-                   val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
+                   val_to_str_wmem(pinfo->pool, octet >> 4, oam_type_vals, "Unknown (%u)"));
     }
 
     proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1620,11 +1620,11 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (atm_info->aal == AAL_5) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "AAL5 %s",
-                 val_to_str(atm_info->type, aal5_hltype_vals,
+                 val_to_str_wmem(pinfo->pool, atm_info->type, aal5_hltype_vals,
                             "Unknown traffic type (%u)"));
   } else {
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(atm_info->aal, aal_vals,
+                val_to_str_wmem(pinfo->pool, atm_info->aal, aal_vals,
                            "Unknown AAL (%u)"));
   }
 
@@ -1641,7 +1641,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint_format_value(atm_tree, hf_atm_aal, tvb, 0, 0,
                                      atm_info->aal,
                                      "%s",
-                                     val_to_str(atm_info->aal, aal_vals,
+                                     val_to_str_wmem(pinfo->pool, atm_info->aal, aal_vals,
                                                 "Unknown AAL (%u)"));
   }
   if (atm_info->flags & ATM_RAW_CELL) {

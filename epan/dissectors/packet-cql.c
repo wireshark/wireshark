@@ -1200,7 +1200,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	col_add_fstr(pinfo->cinfo, COL_INFO, "v%d %s Type %s",
 		cql_version,
 		server_to_client == 0 ? "C->S" : "S->C",
-		val_to_str(opcode, cql_opcode_names, "Unknown (0x%02x)")
+		val_to_str_wmem(pinfo->pool, opcode, cql_opcode_names, "Unknown (0x%02x)")
 	);
 
 	conversation = find_or_create_conversation(pinfo);

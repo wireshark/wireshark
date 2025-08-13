@@ -321,7 +321,7 @@ static void
 display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 {
   int pos = 0;
-  uint8_t mcode = 0;
+  uint32_t mcode = 0;
   int i;
 
   /* MAGIC
@@ -338,10 +338,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
   /* MESSAGE TYPE CODE
    */
-  mcode = tvb_get_uint8(tvb, pos);
-  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(mcode, mtype_codes, "Unknown message code %u"));
-  if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN, &mcode);
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, mcode, mtype_codes, "Unknown message code %u"));
   pos+=1;
 
   switch (mcode) {
@@ -529,7 +527,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
                     ajp13_conv_data* cd)
 {
   int pos = 0;
-  uint8_t meth;
+  uint32_t meth;
   uint8_t cod;
   const char *ver;
   uint16_t ver_len;
@@ -565,10 +563,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* HTTP METHOD (ENCODED AS INTEGER)
    */
-  meth = tvb_get_uint8(tvb, pos);
-  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(meth, http_method_codes, "Unknown method %u"));
-  if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_method, tvb, pos, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(ajp13_tree, hf_ajp13_method, tvb, pos, 1, ENC_BIG_ENDIAN, &meth);
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, meth, http_method_codes, "Unknown method %u"));
   pos+=1;
 
   /* HTTP VERSION STRING

@@ -2089,7 +2089,7 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
 		     icmp_packeth->seqno);
 	/* Set tree info */
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V6_SIZE,
@@ -2212,7 +2212,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
 		     icmp_packeth->seqno);
 
 	/* Set tree info */
@@ -2293,7 +2293,7 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
 		     icmp_packeth->seqno);
 
 	/* Set tree info */
@@ -2396,7 +2396,7 @@ static void dissect_batadv_icmp_tp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_msg_type,
 				     tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-		     val_to_str(msg_type, icmp_packettypenames,
+		     val_to_str_wmem(pinfo->pool, msg_type, icmp_packettypenames,
 				"Unknown (0x%02x)"));
 	offset += 1;
 
@@ -2499,7 +2499,7 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_msg_type,
 				     tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-		     val_to_str(msg_type, icmp_packettypenames,
+		     val_to_str_wmem(pinfo->pool, msg_type, icmp_packettypenames,
 				"Unknown (0x%02x)"));
 	offset += 1;
 
@@ -2765,7 +2765,7 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 
 	/* Set info column */
 	col_add_str(pinfo->cinfo, COL_INFO,
-		     val_to_str(unicast_4addr_packeth->subtype, unicast_4addr_typenames, "Unknown (0x%02x)"));
+		     val_to_str_wmem(pinfo->pool, unicast_4addr_packeth->subtype, unicast_4addr_typenames, "Unknown (0x%02x)"));
 
 	/* Set tree info */
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_4ADDR_PACKET_V14_SIZE,
@@ -3209,7 +3209,7 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
 		     vis_packeth->seqno);
 	/* Set tree info */
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V6_SIZE,
@@ -3325,7 +3325,7 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
 		     vis_packeth->seqno);
 
 	/* Set tree info */
@@ -3417,7 +3417,7 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
 		     vis_packeth->seqno);
 
 	/* Set tree info */
@@ -4220,7 +4220,7 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 						    proto_batadv_plugin,
 						    next_tvb, 0, length,
 						    "TVLV, %s",
-						    val_to_str(type,
+						    val_to_str_wmem(pinfo->pool, type,
 							       tvlv_v15_typenames,
 							       "Unknown (0x%02x)"));
 		batadv_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_tvlv);
@@ -4277,7 +4277,7 @@ static void dissect_batadv_tvlv_v15_header(tvbuff_t *tvb,
 	/* items */
 	proto_tree_add_uint_format_value(tree, hf_batadv_tvlv_type, tvb, offset,
 					 1, type, "%s",
-					 val_to_str(type, tvlv_v15_typenames,
+					 val_to_str_wmem(pinfo->pool, type, tvlv_v15_typenames,
 						    "Unknown (0x%02x)"));
 	offset += 1;
 

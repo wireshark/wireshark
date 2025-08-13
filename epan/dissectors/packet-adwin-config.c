@@ -464,7 +464,7 @@ dissect_adwin_config_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	default:
 		/* Heuristics above should mean we never get here */
 		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(length, length_mapping,
+			val_to_str_wmem(pinfo->pool, length, length_mapping,
 			"Unknown ADwin Configuration packet, length: %d"));
 	}
 

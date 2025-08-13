@@ -279,7 +279,7 @@ dissect_clique_rm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Clique-rm");
   col_add_str(pinfo->cinfo, COL_INFO,
-               val_to_str(type, packet_type_vals, "Unknown (0x%02x)"));
+               val_to_str_wmem(pinfo->pool, type, packet_type_vals, "Unknown (0x%02x)"));
 
   /* rewind back to just behind the prefix */
   offset = 6;

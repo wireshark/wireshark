@@ -973,7 +973,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				break;
 			}
 			tls_request = tvb_get_uint8(tvb, offset);
-			proto_item_append_text(oi, ", %s", val_to_str(tls_request, tls_request_vals, "Unknown (%u)"));
+			proto_item_append_text(oi, ", %s", val_to_str_wmem(pinfo->pool, tls_request, tls_request_vals, "Unknown (%u)"));
 			proto_tree_add_item(option_tree, hf_dhcpfo_tls_request, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 
@@ -983,7 +983,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				break;
 			}
 			tls_reply = tvb_get_uint8(tvb, offset);
-			proto_item_append_text(oi, ", %s", val_to_str(tls_reply, tls_reply_vals, "Unknown (%u)"));
+			proto_item_append_text(oi, ", %s", val_to_str_wmem(pinfo->pool, tls_reply, tls_reply_vals, "Unknown (%u)"));
 			proto_tree_add_item(option_tree, hf_dhcpfo_tls_reply, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 

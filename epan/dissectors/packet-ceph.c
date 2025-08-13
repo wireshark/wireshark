@@ -908,8 +908,8 @@ static const uint8_t *C_BANNER = (const uint8_t*)"ceph v";
 	typedef int base; \
 	VALUE_STRING_ENUM(base##_strings); \
 	VALUE_STRING_ARRAY(base##_strings); \
-	static const char *base##_string(base val) { \
-		return val_to_str(val, base##_strings, "Unknown (0x0"#chars"X)"); \
+	static const char *base##_string(base val, wmem_allocator_t* scope) { \
+		return val_to_str_wmem(scope, val, base##_strings, "Unknown (0x0"#chars"X)"); \
 	}
 
 #define C_MAKE_STRINGS_EXT(base, chars) \
@@ -1369,12 +1369,6 @@ C_MAKE_STRINGS(c_node_type, 2)
 	c_node_type_strings_LIST(V, C_EXTRACT_2)
 
 VALUE_STRING_ARRAY(c_node_type_abbr_strings);
-
-static
-const char *c_node_type_abbr_string(c_node_type val)
-{
-	return val_to_str(val, c_node_type_abbr_strings, "Unknown (0x%02x)");
-}
 
 #define C_MON_SUB_FLAG_ONETIME  0x01
 
@@ -1946,7 +1940,7 @@ unsigned c_dissect_entityaddr(proto_tree *root, int hf, c_entityaddr *out,
 	tree = proto_item_add_subtree(ti, ett_entityaddr);
 
 	d.type = (c_node_type)tvb_get_letohl(tvb, off);
-	d.type_str = c_node_type_string(d.type);
+	d.type_str = c_node_type_string(d.type, pinfo->pool);
 	proto_tree_add_item(tree, hf_node_type,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
@@ -1989,7 +1983,7 @@ unsigned c_dissect_entityname(proto_tree *root, int hf, c_entityname *out,
 	tree = proto_item_add_subtree(ti, ett_entityname);
 
 	d.type	   = (c_node_type)tvb_get_uint8(tvb, off);
-	d.type_str = c_node_type_abbr_string(d.type);
+	d.type_str = val_to_str_wmem(data->pinfo->pool, d.type, c_node_type_abbr_strings, "Unknown (0x%02x)");
 	proto_tree_add_item(tree, hf_node_type,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
@@ -2074,8 +2068,7 @@ unsigned c_dissect_EntityName(proto_tree *root,
 
 	off = c_dissect_str(tree, hf_EntityName_id, &name, tvb, data->pinfo, off);
 
-	proto_item_append_text(ti, ": %s.%s",
-			       c_node_type_abbr_string(type), name.str);
+	proto_item_append_text(ti, ": %s.%s", val_to_str_wmem(data->pinfo->pool, type, c_node_type_abbr_strings, "Unknown (0x%02x)"), name.str);
 
 	proto_item_set_end(ti, tvb, off);
 	return off;
@@ -2880,7 +2873,7 @@ unsigned c_dissect_pgpool(proto_tree *root,
 	off = enc.end;
 
 	proto_item_append_text(ti, ", Type: %s, Cache Mode: %s",
-			       c_pgpool_type_string(type),
+			       c_pgpool_type_string(type, data->pinfo->pool),
 			       c_pgpool_cachemode_string(cachemode, data->pinfo->pool));
 
 	return off;
@@ -4541,7 +4534,7 @@ unsigned c_dissect_msg_auth(proto_tree *root,
 		{
 			c_auth_proto sp;
 			sp = (c_auth_proto)tvb_get_letohl(tvb, off);
-			proto_item_append_text(ti2, i?",%s":": %s", c_auth_proto_string(sp));
+			proto_item_append_text(ti2, i?",%s":": %s", c_auth_proto_string(sp, data->pinfo->pool));
 			proto_tree_add_item(subtree, hf_msg_auth_supportedproto_proto,
 					    tvb, off, 4, ENC_LITTLE_ENDIAN);
 			off += 4;
@@ -4572,7 +4565,7 @@ unsigned c_dissect_msg_auth(proto_tree *root,
 		}
 
 		proto_item_append_text(ti2, ", Request Type: %s",
-				       c_cephx_req_type_string(type));
+				       c_cephx_req_type_string(type, data->pinfo->pool));
 		break;
 	}
 	default:
@@ -4588,7 +4581,7 @@ unsigned c_dissect_msg_auth(proto_tree *root,
 		off += 4;
 	}
 
-	c_append_text(data, ti, ", Proto: %s", c_auth_proto_string(proto));
+	c_append_text(data, ti, ", Proto: %s", c_auth_proto_string(proto, data->pinfo->pool));
 
 	return off;
 }
@@ -4637,7 +4630,7 @@ unsigned c_dissect_msg_auth_reply(proto_tree *root,
 
 	off = c_dissect_str(tree, hf_msg_auth_reply_msg, NULL, tvb, data->pinfo, off);
 
-	c_append_text(data, ti, ", Proto: %s", c_auth_proto_string(proto));
+	c_append_text(data, ti, ", Proto: %s", c_auth_proto_string(proto, data->pinfo->pool));
 
 	return off;
 }
@@ -5398,7 +5391,7 @@ unsigned c_dissect_msg_poolop(proto_tree *root,
 
 	c_append_text(data, ti,
 		      ", Type: %s, Name: %s, Pool: %"PRId32,
-		      c_poolop_type_string(type),
+		      c_poolop_type_string(type, data->pinfo->pool),
 		      name.str,
 		      pool);
 

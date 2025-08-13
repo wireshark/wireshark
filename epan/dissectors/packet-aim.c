@@ -685,10 +685,11 @@ aim_init_family(int proto, int ett, uint16_t family, const aim_subtype *subtypes
 static int
 dissect_aim_ssi_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree)
 {
-	col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str(tvb_get_ntohs(tvb, 0), aim_ssi_result_codes, "Unknown SSI result code 0x%02x"));
+	uint32_t code;
+	proto_tree_add_item_ret_uint(aim_tree, hf_aim_ssi_result_code, tvb, 0, 2, ENC_BIG_ENDIAN, &code);
 
-	proto_tree_add_item (aim_tree, hf_aim_ssi_result_code, tvb, 0, 2, ENC_BIG_ENDIAN);
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str_wmem(pinfo->pool, code, aim_ssi_result_codes, "Unknown SSI result code 0x%02x"));
 
 	return 2;
 }
@@ -1542,10 +1543,11 @@ dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset,
 static int
 dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree)
 {
-	col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str(tvb_get_ntohs(tvb, 0), aim_snac_errors, "Unknown SNAC error 0x%02x"));
+	uint32_t error;
+	proto_tree_add_item_ret_uint(aim_tree, hf_aim_snac_error, tvb, 0, 2, ENC_BIG_ENDIAN, &error);
 
-	proto_tree_add_item (aim_tree, hf_aim_snac_error, tvb, 0, 2, ENC_BIG_ENDIAN);
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str_wmem(pinfo->pool, error, aim_snac_errors, "Unknown SNAC error 0x%02x"));
 
 	return dissect_aim_tlv_sequence(tvb, pinfo, 2, aim_tree, aim_client_tlvs);
 }

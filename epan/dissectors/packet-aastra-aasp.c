@@ -124,7 +124,7 @@ static const value_string szCmdID[] =
  *     Dissect single command
  */
 static void
-dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -134,7 +134,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     /* create command subtree */
     ti = proto_tree_add_item(tree, hf_a_cmd, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_a_cmd);
-    proto_item_append_text(ti, ", %s", val_to_str(tvb_get_uint8(tvb, 0), szCmdID, "Unk %d"));
+    proto_item_append_text(ti, ", %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 0), szCmdID, "Unk %d"));
 
     /* command id */
     proto_tree_add_item(subtree, hf_a_id, tvb, 0, 1, ENC_BIG_ENDIAN);

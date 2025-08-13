@@ -1032,7 +1032,7 @@ static void dissect_drbd_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         return;
 
     /* Indicate what kind of message this is. */
-    const char *packet_name = val_to_str(command, packet_names, "Unknown (0x%02x)");
+    const char *packet_name = val_to_str_wmem(pinfo->pool, command, packet_names, "Unknown (0x%02x)");
     const char *info_text = col_get_text(pinfo->cinfo, COL_INFO);
     if (!info_text || !info_text[0])
         col_append_ports(pinfo->cinfo, COL_INFO, PT_TCP, pinfo->srcport, pinfo->destport);
@@ -1089,7 +1089,7 @@ static void dissect_drbd_ib_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         return;
 
     /* Indicate what kind of message this is. */
-    const char *packet_name = val_to_str(command, packet_names, "Unknown (0x%02x)");
+    const char *packet_name = val_to_str_wmem(pinfo->pool, command, packet_names, "Unknown (0x%02x)");
     drbd_ib_append_col_info(pinfo, packet_name);
 
     if (tree == NULL)

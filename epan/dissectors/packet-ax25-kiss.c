@@ -250,7 +250,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 		case KISS_DATA_FRAME_ACK: kiss_param_len = 2; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
 		default			: break;
 		}
-	frame_type_text = val_to_str(kiss_type, kiss_frame_types, "Unknown (%u)");
+	frame_type_text = val_to_str_wmem(pinfo->pool, kiss_type, kiss_frame_types, "Unknown (%u)");
 	snprintf( info_buffer, STRLEN, "%s, Port %u", frame_type_text, kiss_port );
 	if ( kiss_param_len > 0 )
 		snprintf( info_buffer, STRLEN, "%s %u, Port %u", frame_type_text, kiss_param, kiss_port );

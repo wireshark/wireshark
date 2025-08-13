@@ -180,7 +180,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree_add_string(cups_tree, hf_cups_uri, tvb, offset, len, str);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-            str, val_to_str(state, cups_state_values, "0x%x"));
+            str, val_to_str_wmem(pinfo->pool, state, cups_state_values, "0x%x"));
     offset = next_offset;
 
     if (!cups_tree)

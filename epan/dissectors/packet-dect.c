@@ -1451,12 +1451,12 @@ dissect_afield(bool dect_packet_type, uint8_t *ba,
 	if(dect_packet_type==DECT_PACKET_FP)
 	{
 		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5,
-			"FP-Tail: %s", val_to_str(ta, TA_vals_FP, "Error, please report: %d"));
+			"FP-Tail: %s", val_to_str_wmem(pinfo->pool, ta, TA_vals_FP, "Error, please report: %d"));
 	}
 	else
 	{
 		atailti = proto_tree_add_none_format(afieldti, hf_dect_A_Tail, tvb, offset, 5,
-			"PP-Tail: %s", val_to_str(ta, TA_vals_PP, "Error, please report: %d"));
+			"PP-Tail: %s", val_to_str_wmem(pinfo->pool, ta, TA_vals_PP, "Error, please report: %d"));
 	}
 
 	ATail = proto_item_add_subtree(atailti, ett_atail);
@@ -1759,8 +1759,8 @@ dissect_afield(bool dect_packet_type, uint8_t *ba,
 		case 5:		/* Encryption Control */
 			/* ETSI EN 300 175-3 V2.3.0  7.2.5.7 */
 			wmem_strbuf_append_printf(afield_str,"Encryption Control: %s %s",
-				val_to_str((tail_0&0x0c)>>2, MTEncrCmd1_vals, "Error, please report: %d"),
-				val_to_str(tail_0&0x03, MTEncrCmd2_vals, "Error, please report: %d"));
+				val_to_str_wmem(pinfo->pool, (tail_0&0x0c)>>2, MTEncrCmd1_vals, "Error, please report: %d"),
+				val_to_str_wmem(pinfo->pool, tail_0&0x03, MTEncrCmd2_vals, "Error, please report: %d"));
 
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, wmem_strbuf_get_str(afield_str));
 
@@ -1812,7 +1812,7 @@ dissect_afield(bool dect_packet_type, uint8_t *ba,
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		if(((tail_0&0x70)>>4)&0xfe)
-			wmem_strbuf_append_printf(afield_str,"%s, ",val_to_str((tail_0&0x70)>>4, PTSDU_vals, "Error, please report: %d"));
+			wmem_strbuf_append_printf(afield_str,"%s, ",val_to_str_wmem(pinfo->pool, (tail_0&0x70)>>4, PTSDU_vals, "Error, please report: %d"));
 
 		switch((tail_0&0x70)>>4)
 		{
@@ -1835,7 +1835,7 @@ dissect_afield(bool dect_packet_type, uint8_t *ba,
 				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 
-			wmem_strbuf_append_printf(afield_str,"%s",val_to_str(tail_3>>4, PTInfoType_vals, "Error, please report: %d"));
+			wmem_strbuf_append_printf(afield_str,"%s",val_to_str_wmem(pinfo->pool, tail_3>>4, PTInfoType_vals, "Error, please report: %d"));
 
 			switch(tail_3>>4)
 			{

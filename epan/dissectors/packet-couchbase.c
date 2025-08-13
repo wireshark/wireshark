@@ -3359,6 +3359,7 @@ static bool opcode_use_vbucket(uint8_t magic _U_, uint8_t opcode) {
  */
 static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *couchbase_tree, proto_item *couchbase_item) {
   uint8_t magic = get_magic(tvb);
+  char* str_magic;
   proto_item *ti = proto_tree_add_item(couchbase_tree, hf_magic, tvb, 0, 1, ENC_BIG_ENDIAN);
   if (try_val_to_str(magic, magic_vals) == NULL) {
     expert_add_info_format(pinfo, ti, &ei_warn_unknown_magic_byte, "Unknown magic byte: 0x%x", magic);
@@ -3379,13 +3380,14 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     expert_add_info_format(pinfo, ti, &ei_warn_unknown_opcode, "Unknown opcode: 0x%x", opcode);
     opcode_name = "Unknown opcode";
   }
+  str_magic = val_to_str_wmem(pinfo->pool, magic, magic_vals, "Unknown magic (0x%x)");
   proto_item_append_text(couchbase_item, ", %s %s, Opcode: 0x%x",
                          opcode_name,
-                         val_to_str(magic, magic_vals, "Unknown magic (0x%x)"),
+                         str_magic,
                          opcode);
   col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s, Opcode: 0x%x",
                   opcode_name,
-                  val_to_str(magic, magic_vals, "Unknown magic (0x%x)"),
+                  str_magic,
                   opcode);
 
   /* Check for flex magic, which changes the header format */

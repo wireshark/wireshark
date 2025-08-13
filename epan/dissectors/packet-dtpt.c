@@ -667,7 +667,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, names_message_type, "Unknown (%d)"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, names_message_type, "Unknown (%d)"));
 
 	if (message_type == LookupBeginRequest) {
 		conversation_t *c;

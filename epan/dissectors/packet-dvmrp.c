@@ -326,7 +326,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	proto_tree_add_uint(parent_tree, hf_code_v3, tvb, offset, 1, code);
 	offset += 1;
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-			"V%d %s",3 ,val_to_str(code, code_v3,
+			"V%d %s",3 ,val_to_str_wmem(pinfo->pool, code, code_v3,
 				"Unknown Type:0x%02x"));
 
 	/* checksum */
@@ -515,7 +515,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	proto_tree_add_uint(parent_tree, hf_code_v1, tvb, offset, 1, code);
 	offset += 1;
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-			"V%d %s",1 ,val_to_str(code, code_v1,
+			"V%d %s",1 ,val_to_str_wmem(pinfo->pool, code, code_v1,
 				"Unknown Type:0x%02x"));
 
 	/* checksum */
@@ -552,8 +552,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			offset += 1;
 			if (item) {
 				proto_item_set_text(item, "%s: %s",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"),
-					val_to_str(af, afi, "Unknown Family:0x%02x")
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"),
+					val_to_str_wmem(pinfo->pool, af, afi, "Unknown Family:0x%02x")
 				);
 			}
 			break;
@@ -567,7 +567,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				if (item) {
 					proto_item_set_text(item, "%s: %d.%d.%d.%d",
-						val_to_str(cmd, command, "Unknown Command:0x%02x"),
+						val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"),
 						tvb_get_uint8(tvb, offset),
 						tvb_get_uint8(tvb, offset+1),
 						tvb_get_uint8(tvb, offset+2),
@@ -577,7 +577,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			} else {
 				if (item) {
 					proto_item_set_text(item, "%s: <no mask supplied>",
-						val_to_str(cmd, command, "Unknown Command:0x%02x"));
+						val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"));
 				}
 			}
 			break;
@@ -586,7 +586,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				offset, 1, ENC_BIG_ENDIAN);
 			if (item) {
 				proto_item_set_text(item, "%s: %d",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"),
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"),
 					tvb_get_uint8(tvb, offset));
 			}
 			offset += 1;
@@ -597,7 +597,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			proto_tree_add_boolean(tree, hf_split_horiz, tvb, offset, 1, count);
 			if (item) {
 				proto_item_set_text(item, "%s: 0x%02x",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"), count);
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"), count);
 			}
 			offset += 1;
 			break;
@@ -606,7 +606,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				offset, 1, ENC_BIG_ENDIAN);
 			if (item) {
 				proto_item_set_text(item, "%s: %d",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"), tvb_get_uint8(tvb, offset));
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"), tvb_get_uint8(tvb, offset));
 			}
 			offset += 1;
 			break;
@@ -623,7 +623,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			}
 			if (item) {
 				proto_item_set_text(item, "%s",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"));
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"));
 			}
 			break;
 		case V1_COMMAND_NMR:
@@ -641,7 +641,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			}
 			if (item) {
 				proto_item_set_text(item, "%s",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"));
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"));
 			}
 			break;
 		case V1_COMMAND_NMR_CANCEL:
@@ -656,7 +656,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			}
 			if (item) {
 				proto_item_set_text(item, "%s",
-					val_to_str(cmd, command, "Unknown Command:0x%02x"));
+					val_to_str_wmem(pinfo->pool, cmd, command, "Unknown Command:0x%02x"));
 			}
 			break;
 		}

@@ -104,7 +104,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset += 2;
 
     packet_status = (flags >> 12) & 0x03;
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SCO - %s", val_to_str(packet_status, packet_status_vals, "%u"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "SCO - %s", val_to_str_wmem(pinfo->pool, packet_status, packet_status_vals, "%u"));
 
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;

@@ -2106,7 +2106,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			case 53:
 				*dhcp_type_p =
-				    val_to_str(tvb_get_uint8(tvb, voff+2),
+				    val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, voff+2),
 					opt53_text,
 					"Unknown Message Type (0x%02x)");
 				break;
@@ -2370,14 +2370,16 @@ dissect_dhcpopt_option_overload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static int
-dissect_dhcpopt_dhcp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	uint32_t type;
+	char* str_type;
 
 	proto_tree_add_item_ret_uint(tree, hf_dhcp_option_dhcp, tvb, 0, 1, ENC_NA, &type);
 	/* Show the message type name on the Message Type option, and in the protocol root */
-	proto_item_append_text(tree, " (%s)", val_to_str(type, opt53_text, "Unknown Message Type (0x%02x)"));
-	proto_item_append_text(proto_item_get_parent(tree), " (%s)", val_to_str(type, opt53_text, "Unknown Message Type (0x%02x)"));
+	str_type = val_to_str_wmem(pinfo->pool, type, opt53_text, "Unknown Message Type (0x%02x)");
+	proto_item_append_text(tree, " (%s)", str_type);
+	proto_item_append_text(proto_item_get_parent(tree), " (%s)", str_type);
 
 	return tvb_captured_length(tvb);
 }

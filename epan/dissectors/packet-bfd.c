@@ -328,7 +328,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         auth_tree = proto_tree_add_subtree_format(tree, tvb, offset, auth_len,
                                         ett_bfd_auth, NULL, "Authentication: %s",
-                                        val_to_str(auth_type,
+                                        val_to_str_wmem(pinfo->pool, auth_type,
                                                    bfd_control_auth_type_values,
                                                    "Unknown Authentication Type (%d)") );
 
@@ -352,7 +352,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (auth_len != get_bfd_required_auth_len(auth_type)) {
                 proto_tree_add_expert_format(auth_tree, pinfo, &ei_bfd_auth_len_invalid, tvb, offset, auth_len,
                         "Length of authentication section (%d) is invalid for Authentication Type: %s",
-                        auth_len, val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
+                        auth_len, val_to_str_wmem(pinfo->pool, auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
 
                 proto_item_append_text(auth_item, ": Invalid Authentication Section");
             }

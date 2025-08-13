@@ -114,7 +114,7 @@ dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
                                   &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+                    val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -158,7 +158,7 @@ dissect_IDispatch_GetTypeInfo_resp(tvbuff_t *tvb, int offset,
                                   &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+                    val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -239,7 +239,7 @@ dissect_IDispatch_GetIDsOfNames_resp(tvbuff_t *tvb, int offset,
                                   &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+                    val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -455,7 +455,7 @@ dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
     }
 
     proto_item_append_text(excepinfo_item, ", SCode: %s",
-                           val_to_str(u32SCode, dcom_hresult_vals, "Unknown (0x%08x)"));
+                           val_to_str_wmem(pinfo->pool, u32SCode, dcom_hresult_vals, "Unknown (0x%08x)"));
     proto_item_set_len(excepinfo_item, offset - u32SubStart);
     /* end of ExcepInfo */
 
@@ -481,9 +481,9 @@ dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
                                   &u32HResult);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " SCode=%s VarRef=%u -> %s",
-                    val_to_str(u32SCode, dcom_hresult_vals, "Unknown (0x%08x)"),
+                    val_to_str_wmem(pinfo->pool, u32SCode, dcom_hresult_vals, "Unknown (0x%08x)"),
                     u32VarRef,
-                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+                    val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }

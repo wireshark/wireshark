@@ -1025,7 +1025,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, 
         par_data = tvb_format_text(pinfo->pool, tvb,par_start_offset, par_len);
         /* Used to print all pars without any special handling */
         proto_tree_add_string_format(tree, hf_dpnss_parameter, tvb, par_start_offset, par_len, par_data, "Parameter %s: %s",
-            val_to_str(par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ), par_data);
+            val_to_str_wmem(pinfo->pool, par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ), par_data);
         break;
     }
 
@@ -1168,7 +1168,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     octet = tvb_get_uint8(tvb,offset)&0x0f;
     offset++;
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-            val_to_str(octet, dpnss_LbL_msg_short_type_vals, "Unknown (%d)" ));
+            val_to_str_wmem(pinfo->pool, octet, dpnss_LbL_msg_short_type_vals, "Unknown (%d)" ));
     if (tree) {
         switch (octet) {
         case DPNSS_LbL_MSG_LLM_C:
@@ -1252,7 +1252,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     octet = tvb_get_uint8(tvb,offset)&0x0f;
     offset++;
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-            val_to_str(octet, dpnss_e2e_msg_short_type_vals, "Unknown (%d)" ));
+            val_to_str_wmem(pinfo->pool, octet, dpnss_e2e_msg_short_type_vals, "Unknown (%d)" ));
     if (tree) {
         switch (octet) {
         case DPNSS_E2E_MSG_EEM_C:
@@ -1341,7 +1341,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     octet = tvb_get_uint8(tvb,offset)&0x0f;
     offset++;
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-            val_to_str(octet, dpnss_cc_msg_short_type_vals, "Unknown (%d)" ));
+            val_to_str_wmem(pinfo->pool, octet, dpnss_cc_msg_short_type_vals, "Unknown (%d)" ));
 
     if (tree) {
         switch (octet) {

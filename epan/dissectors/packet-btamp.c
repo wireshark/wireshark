@@ -376,6 +376,7 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *ti_command;
     proto_tree *btamp_cmd_tree;
     uint8_t     cmd_code;
+    char       *str_cmd_code;
     uint16_t    cmd_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMP");
@@ -473,8 +474,9 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         break;
     }
 
-    proto_item_append_text(ti_command, "%s", val_to_str(cmd_code, command_code_vals, "Unknown PDU (%u)"));
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(cmd_code, command_code_vals, "Unknown PDU (%u)"));
+    str_cmd_code = val_to_str_wmem(pinfo->pool, cmd_code, command_code_vals, "Unknown PDU (%u)");
+    proto_item_append_text(ti_command, "%s", str_cmd_code);
+    col_append_str(pinfo->cinfo, COL_INFO, str_cmd_code);
 
     return offset;
 }

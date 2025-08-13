@@ -171,8 +171,8 @@ dissect_atn_sl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         offset++;
         proto_tree_add_uint_format(atn_sl_tree, hf_atn_sl_tt, tvb, offset, 1,
                                    tvb_get_uint8(tvb, offset), "%s: %s",
-                                   val_to_str(OSI_OPT_SECURITY_ATN_TT, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
-                                   val_to_str(tvb_get_uint8(tvb, offset ), osi_opt_sec_atn_tt_vals, "Unknown (0x%x)"));
+                                   val_to_str_wmem(pinfo->pool, OSI_OPT_SECURITY_ATN_TT, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
+                                   val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset ), osi_opt_sec_atn_tt_vals, "Unknown (0x%x)"));
         offset += len;
         break;
 
@@ -185,8 +185,8 @@ dissect_atn_sl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         offset++;
         proto_tree_add_uint_format(atn_sl_tree, hf_atn_sl_sc, tvb, offset, 1,
                                    tvb_get_uint8(tvb, offset), "%s: %s",
-                                   val_to_str(OSI_OPT_SECURITY_ATN_SC, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
-                                   val_to_str(tvb_get_uint8(tvb, offset ), osi_opt_sec_atn_sc_vals, "Unknown (0x%x)"));
+                                   val_to_str_wmem(pinfo->pool, OSI_OPT_SECURITY_ATN_SC, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
+                                   val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset ), osi_opt_sec_atn_sc_vals, "Unknown (0x%x)"));
         offset += len;
         break;
 

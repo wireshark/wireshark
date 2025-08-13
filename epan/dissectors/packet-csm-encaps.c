@@ -132,12 +132,12 @@ static int ett_csm_encaps_control;
 
 /* returns the command name */
 static const char *
-csm_fc(uint16_t fc, uint16_t ct)
+csm_fc(wmem_allocator_t* scope, uint16_t fc, uint16_t ct)
 {
     if (fc == 0x0000) {
-        return val_to_str(ct, class_type_vals, "0x%04x");
+        return val_to_str_wmem(scope, ct, class_type_vals, "0x%04x");
     } else {
-        return val_to_str(fc, function_code_vals, "0x%04x");
+        return val_to_str_wmem(scope, fc, function_code_vals, "0x%04x");
     }
 }
 
@@ -209,7 +209,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                             "--> ACK                                 Ch: 0x%04X, Seq: %2d (From Host)",
                             channel, sequence);
     } else {
-        str_function_name= csm_fc(function_code, class_type);
+        str_function_name= csm_fc(pinfo->pool, function_code, class_type);
         if ((type == CSM_ENCAPS_TYPE_RESPONSE) || (csm_to_host(function_code, class_type)))
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             "<-- %-35s Ch: 0x%04X, Seq: %2d (To Host)",

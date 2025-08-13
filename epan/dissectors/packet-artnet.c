@@ -4990,7 +4990,7 @@ dissect_artnet_poll(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_inf
   offset += 1;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " Prio=%s",
-                  val_to_str(tvb_get_uint8(tvb, offset), artnet_talktome_diag_priority_vals, "unknown(%u)"));
+                  val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), artnet_talktome_diag_priority_vals, "unknown(%u)"));
   proto_tree_add_item(tree, hf_artnet_poll_diag_priority, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -5946,7 +5946,7 @@ dissect_artnet_tod_request(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pac
                       offset, 1, ENC_NA);
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str(tvb_get_uint8(tvb, offset), artnet_tod_request_command_vals, "unknown(%u)"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), artnet_tod_request_command_vals, "unknown(%u)"));
   proto_tree_add_item(tree, hf_artnet_tod_request_command, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -6046,7 +6046,7 @@ dissect_artnet_tod_control(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pac
   universe = (tvb_get_uint8(tvb, offset) & 0x7F) << 8;
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str(tvb_get_uint8(tvb, offset), artnet_tod_control_command_vals, "unknown(%u)"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), artnet_tod_control_command_vals, "unknown(%u)"));
   proto_tree_add_item(tree, hf_artnet_tod_control_command, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;

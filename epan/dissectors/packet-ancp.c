@@ -354,7 +354,7 @@ static const value_string ext_tlv_types[] = {
 static value_string_ext ext_tlv_types_ext = VALUE_STRING_EXT_INIT(ext_tlv_types);
 
 static int
-dissect_ancp_tlv(tvbuff_t *tvb, proto_tree *tlv_tree, int offset)
+dissect_ancp_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tlv_tree, int offset)
 {
         uint16_t    tlen, ttype;
         int16_t     num_stlvs;
@@ -403,19 +403,19 @@ dissect_ancp_tlv(tvbuff_t *tvb, proto_tree *tlv_tree, int offset)
                         switch (stlvtype) {
                             case TLV_DSL_LINE_STATE:
                                 proto_item_append_text(tti, " (%s)",
-                                        val_to_str(val, dsl_line_state_names,
+                                        val_to_str_wmem(pinfo->pool, val, dsl_line_state_names,
                                             "Unknown (0x%02x)"));
                                 break;
                             case TLV_DSL_TYPE:
                                 proto_item_append_text(tti, " (%s)",
-                                        val_to_str(val, dsl_line_type_names,
+                                        val_to_str_wmem(pinfo->pool, val, dsl_line_type_names,
                                             "Unknown (0x%02x)"));
                                 break;
 
                             default:
                                 /* Add Unit */
                                 proto_item_append_text(tti, " %s",
-                                        val_to_str(stlvtype,
+                                        val_to_str_wmem(pinfo->pool, stlvtype,
                                             dsl_line_attr_units,
                                             "Unknown (0x%02x)"));
                                 break;
@@ -455,7 +455,7 @@ dissect_ancp_tlv(tvbuff_t *tvb, proto_tree *tlv_tree, int offset)
 }
 
 static void
-dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, int offset, uint8_t mtype)
+dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *ancp_tree, int offset, uint8_t mtype)
 {
     uint8_t tech_type;
     int16_t num_tlvs;
@@ -511,7 +511,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, int offset, u
         tlv_tree = proto_item_add_subtree(sti, ett_ancp_len);
 
         for( ;num_tlvs; num_tlvs--) {
-            offset = dissect_ancp_tlv(tvb, tlv_tree, offset);
+            offset = dissect_ancp_tlv(tvb, pinfo, tlv_tree, offset);
         } /* end for {numtlvs} */
     } /* end if {DSL} */
 }
@@ -538,10 +538,10 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     adjcode = byte & ADJ_CODE_MASK;
     ancp_info->ancp_adjcode = adjcode; /* stats */
     proto_item_append_text(sti, " (%s, M Flag %s)",
-            val_to_str(adjcode, adj_code_names, "Unknown (0x%02x)"),
+            val_to_str_wmem(pinfo->pool, adjcode, adj_code_names, "Unknown (0x%02x)"),
             (byte >> 7) ? "Set" : "Unset");
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-            val_to_str(adjcode, adj_code_names, "Unknown (0x%02x)"));
+            val_to_str_wmem(pinfo->pool, adjcode, adj_code_names, "Unknown (0x%02x)"));
 
     proto_tree_add_item(ancp_tree, hf_ancp_sender_name, tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -613,11 +613,11 @@ ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
 
     tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
-            val_to_str(pi->ancp_mtype, mtype_names,
+            val_to_str_wmem(pinfo->pool, pi->ancp_mtype, mtype_names,
                 "Unknown packet type (%d)"));
     if (pi->ancp_mtype == ANCP_MTYPE_ADJ)
         stats_tree_tick_pivot(st, st_node_adj_pack_types,
-                val_to_str(pi->ancp_adjcode, adj_code_names,
+                val_to_str_wmem(pinfo->pool, pi->ancp_adjcode, adj_code_names,
                     "Unknown Adjacency packet (%d)"));
     return TAP_PACKET_REDRAW;
 }
@@ -670,7 +670,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 1;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Message",
-                 val_to_str(mtype, mtype_names, "Unknown (0x%02x)"));
+                 val_to_str_wmem(pinfo->pool, mtype, mtype_names, "Unknown (0x%02x)"));
 
     if (mtype != ANCP_MTYPE_ADJ) {
         /* Dissect common header */
@@ -710,7 +710,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     case ANCP_MTYPE_PORT_MGMT:
         /* FALL THRU */
     case ANCP_MTYPE_PORT_UP:
-        dissect_ancp_port_up_dn_mgmt(tvb, ancp_tree, offset, mtype);
+        dissect_ancp_port_up_dn_mgmt(tvb, pinfo, ancp_tree, offset, mtype);
         break;
     case ANCP_MTYPE_PROV:
         /* FALL THRU */
@@ -718,7 +718,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         tlv_tree = proto_item_add_subtree(tti, ett_ancp_len);
 
         while( offset < len + 4) {
-            offset = dissect_ancp_tlv(tvb, tlv_tree, offset);
+            offset = dissect_ancp_tlv(tvb, pinfo, tlv_tree, offset);
         }
         break;
     case ANCP_MTYPE_ADJ_UPD:

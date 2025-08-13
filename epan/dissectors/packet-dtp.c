@@ -177,7 +177,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		length = tvb_get_ntohs(tvb, offset + 2);
 
 		tlv_tree = proto_tree_add_subtree(dtp_tree, tvb, offset, length, ett_dtp_tlv, NULL,
-					 val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
+					 val_to_str_wmem(pinfo->pool, type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
 
 		proto_tree_add_uint(tlv_tree, hf_dtp_tlvtype, tvb, offset, 2, type);
 		offset+=2;

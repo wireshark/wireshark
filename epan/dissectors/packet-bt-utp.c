@@ -773,7 +773,7 @@ dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, "Connection ID:%d [%s]", connection, val_to_str(type, bt_utp_type_vals, "Unknown %d"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, "Connection ID:%d [%s]", connection, val_to_str_wmem(pinfo->pool, type, bt_utp_type_vals, "Unknown %d"));
   p_utp_info->type = type;
   p_utp_info->connection = connection;
 
@@ -824,7 +824,7 @@ dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, ENC_BIG_ENDIAN, &connection);
   offset += 2;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, "Connection ID:%d [%s]", connection, val_to_str(type, bt_utp_type_vals, "Unknown %d"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, "Connection ID:%d [%s]", connection, val_to_str_wmem(pinfo->pool, type, bt_utp_type_vals, "Unknown %d"));
   p_utp_info->type = type;
   p_utp_info->connection = connection;
 
