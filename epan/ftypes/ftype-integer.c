@@ -526,13 +526,13 @@ sinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 }
 
 static char *
-uinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display)
+uinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	size_t size = 20 + 1; /* enough for 2^64-1, in decimal or 0xXXXXXXXXXXXXXXXX */
 	char *result = wmem_alloc(scope, size);
 	char *buf = result;
 
-	if (FIELD_DISPLAY(field_display) == BASE_HEX || FIELD_DISPLAY(field_display) == BASE_HEX_DEC) {
+	if ((rtype != FTREPR_EK) && (FIELD_DISPLAY(field_display) == BASE_HEX || FIELD_DISPLAY(field_display) == BASE_HEX_DEC)) {
 		/* This format perfectly fits into 19 bytes. */
 		*buf++ = '0';
 		*buf++ = 'x';
@@ -861,6 +861,9 @@ boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int
 		case FTREPR_JSON:
 		case FTREPR_RAW:
 			str = val ? "1" : "0";
+			break;
+		case FTREPR_EK:
+			str = val ? "true" : "false";
 			break;
 	}
 

@@ -47,18 +47,23 @@ string_fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 }
 
 static char *
-string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	if (rtype == FTREPR_DISPLAY || rtype == FTREPR_JSON || rtype == FTREPR_RAW) {
+	switch (rtype) {
+	case FTREPR_DISPLAY:
+	case FTREPR_JSON:
+	case FTREPR_RAW:
+	case FTREPR_EK:
 		/* XXX: This escapes NUL with "\0", but JSON (neither RFC 8259 nor
 		 * ECMA-404) does not allow that, it must be "\u0000".
 		 */
 		return ws_escape_null(scope, fv->value.strbuf->str, fv->value.strbuf->len, false);
-	}
-	if (rtype == FTREPR_DFILTER) {
+	case FTREPR_DFILTER:
 		return ws_escape_string_len(scope, fv->value.strbuf->str, fv->value.strbuf->len, true);
+	default:
+		ws_assert_not_reached();
+		return NULL;
 	}
-	ws_assert_not_reached();
 }
 
 

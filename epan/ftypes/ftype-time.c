@@ -483,6 +483,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 			break;
 
 		case FTREPR_JSON:
+		case FTREPR_EK:
 			/*
 			 * JSON is a data serialization format used primarily
 			 * for machine input (despite the human-readable text)

@@ -177,6 +177,7 @@ enum ftrepr {
 	FTREPR_DFILTER,
 	FTREPR_JSON,
 	FTREPR_RAW,
+	FTREPR_EK, /* ElasticSearch/OpenSearch JSON */
 };
 
 typedef enum ftrepr ftrepr_t;
