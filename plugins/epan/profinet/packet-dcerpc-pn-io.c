@@ -6109,6 +6109,7 @@ dissect_Alarm_header(tvbuff_t *tvb, int offset,
     uint32_t u32Api;
     uint16_t u16SlotNr;
     uint16_t u16SubslotNr;
+    char* strAlarm;
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_alarm_type, &u16AlarmType);
@@ -6119,13 +6120,12 @@ dissect_Alarm_header(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_subslot_nr, &u16SubslotNr);
 
+    strAlarm = val_to_str_wmem(pinfo->pool, u16AlarmType, pn_io_alarm_type, "(0x%x)");
     proto_item_append_text(item, ", %s, API:%u, Slot:0x%x/0x%x",
-        val_to_str(u16AlarmType, pn_io_alarm_type, "(0x%x)"),
-        u32Api, u16SlotNr, u16SubslotNr);
+        strAlarm, u32Api, u16SlotNr, u16SubslotNr);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Slot: 0x%x/0x%x",
-        val_to_str(u16AlarmType, pn_io_alarm_type, "(0x%x)"),
-        u16SlotNr, u16SubslotNr);
+        strAlarm, u16SlotNr, u16SubslotNr);
 
     return offset;
 }
@@ -7823,7 +7823,7 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Api:0x%x, Slot:0x%x/0x%x, Index:%s",
         u32Api, u16SlotNr, u16SubslotNr,
-        val_to_str(*u16Index, pn_io_index, "(0x%x)"));
+        val_to_str_wmem(pinfo->pool, *u16Index, pn_io_index, "(0x%x)"));
 
     return offset;
 }
@@ -9072,9 +9072,9 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 
     proto_item_append_text(item, ": Slot:0x%x/0x%x, OwnPortID:%s, Peers:%u LinkState.Port:%s LinkState.Link:%s MediaType:%s",
         u16SlotNr, u16SubslotNr, pOwnPortID, u8NumberOfPeers,
-        val_to_str(u8LinkStatePort, pn_io_link_state_port, "0x%x"),
-        val_to_str(u8LinkStateLink, pn_io_link_state_link, "0x%x"),
-        val_to_str(u32MediaType, pn_io_media_type, "0x%x"));
+        val_to_str_wmem(pinfo->pool, u8LinkStatePort, pn_io_link_state_port, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u8LinkStateLink, pn_io_link_state_link, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u32MediaType, pn_io_media_type, "0x%x"));
 
     return offset;
 }
@@ -9611,7 +9611,7 @@ dissect_CheckMAUTypeDifference_block(tvbuff_t *tvb, int offset,
                     hf_pn_io_mau_type_mode, &u16MAUTypeMode);
 
     proto_item_append_text(item, ": MAUTypeMode:%s",
-        val_to_str(u16MAUTypeMode, pn_io_mau_type_mode, "0x%x"));
+        val_to_str_wmem(pinfo->pool, u16MAUTypeMode, pn_io_mau_type_mode, "0x%x"));
 
     return offset;
 }
@@ -9735,7 +9735,7 @@ dissect_AdjustMAUType_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_adjust_properties, &u16AdjustProperties);
 
     proto_item_append_text(item, ": MAUType:%s, Properties:0x%x",
-        val_to_str(u16MAUType, pn_io_mau_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16MAUType, pn_io_mau_type, "0x%x"),
         u16AdjustProperties);
 
     return offset;
@@ -9761,7 +9761,7 @@ dissect_CheckMAUType_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_mau_type, &u16MAUType);
 
     proto_item_append_text(item, ": MAUType:%s",
-        val_to_str(u16MAUType, pn_io_mau_type, "0x%x"));
+        val_to_str_wmem(pinfo->pool, u16MAUType, pn_io_mau_type, "0x%x"));
 
     return offset;
 }
@@ -9861,7 +9861,7 @@ dissect_AdjustPortState_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_adjust_properties, &u16AdjustProperties);
 
     proto_item_append_text(item, ": PortState:%s, Properties:0x%x",
-        val_to_str(u16PortState, pn_io_port_state, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16PortState, pn_io_port_state, "0x%x"),
         u16AdjustProperties);
 
     return offset;
@@ -9887,7 +9887,7 @@ dissect_CheckPortState_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_port_state, &u16PortState);
 
     proto_item_append_text(item, ": %s",
-        val_to_str(u16PortState, pn_io_port_state, "0x%x"));
+        val_to_str_wmem(pinfo->pool, u16PortState, pn_io_port_state, "0x%x"));
     return offset;
 }
 
@@ -10044,7 +10044,7 @@ dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
 
 /*
     proto_item_append_text(item, ": %s",
-        val_to_str(u16PortState, pn_io_port_state, "0x%x"));*/
+        val_to_str_wmem(pinfo->pool, u16PortState, pn_io_port_state, "0x%x"));*/
 
     return offset;
 }
@@ -10082,7 +10082,7 @@ dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
 
 /*
     proto_item_append_text(item, ": %s",
-        val_to_str(u16PortState, pn_io_port_state, "0x%x"));*/
+        val_to_str_wmem(pinfo->pool, u16PortState, pn_io_port_state, "0x%x"));*/
 
     return offset;
 }
@@ -11428,10 +11428,10 @@ dissect_OwnPort_block(tvbuff_t *tvb, int offset,
 
     proto_item_append_text(item, ": OwnPortID:%s, LinkState.Port:%s LinkState.Link:%s MediaType:%s MAUType:%s",
         pOwnPortID,
-        val_to_str(u8LinkStatePort, pn_io_link_state_port, "0x%x"),
-        val_to_str(u8LinkStateLink, pn_io_link_state_link, "0x%x"),
-        val_to_str(u32MediaType, pn_io_media_type, "0x%x"),
-        val_to_str(u16MAUType, pn_io_mau_type, "0x%x"));
+        val_to_str_wmem(pinfo->pool, u8LinkStatePort, pn_io_link_state_port, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u8LinkStateLink, pn_io_link_state_link, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u32MediaType, pn_io_media_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16MAUType, pn_io_mau_type, "0x%x"));
 
     return offset;
 }
@@ -12711,7 +12711,7 @@ dissect_FSHello_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_fs_hello_delay, &u32FSHelloDelay);
 
     proto_item_append_text(item, ": Mode:%s, Interval:%ums, Retry:%u, Delay:%ums",
-        val_to_str(u32FSHelloMode, pn_io_fs_hello_mode_vals, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u32FSHelloMode, pn_io_fs_hello_mode_vals, "0x%x"),
         u32FSHelloInterval, u32FSHelloRetry, u32FSHelloDelay);
 
     return offset;
@@ -12743,7 +12743,7 @@ dissect_FSParameter_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_fs_parameter_uuid, &FSParameterUUID);
 
     proto_item_append_text(item, ": Mode:%s",
-        val_to_str(u32FSParameterMode, pn_io_fs_parameter_mode_vals, "0x%x"));
+        val_to_str_wmem(pinfo->pool, u32FSParameterMode, pn_io_fs_parameter_mode_vals, "0x%x"));
 
     return offset;
 }
@@ -13777,7 +13777,7 @@ dissect_ARBlockRes_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
 
     proto_item_append_text(item, ": %s, Session:%u, MAC:%02x:%02x:%02x:%02x:%02x:%02x, Port:0x%x",
-        val_to_str(u16ARType, pn_io_ar_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16ARType, pn_io_ar_type, "0x%x"),
         u16SessionKey,
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5],
         u16UDPRTPort);
@@ -13905,7 +13905,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
 
     proto_item_append_text(item, ": %s, Ref:0x%x, Len:%u, FrameID:0x%x, Clock:%u, Ratio:%u, Phase:%u APIs:%u",
-        val_to_str(u16IOCRType, pn_io_iocr_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16IOCRType, pn_io_iocr_type, "0x%x"),
         u16IOCRReference, u16DataLength, u16FrameID,
         u16GatingCycle, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
 
@@ -14170,7 +14170,7 @@ dissect_AlarmCRBlockReq_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_alarmcr_tagheaderlow, &u16AlarmCRTagHeaderLow);
 
     proto_item_append_text(item, ": %s, LT:0x%x, TFactor:%u, Retries:%u, Ref:0x%x, Len:%u Tag:0x%x/0x%x",
-        val_to_str(u16AlarmCRType, pn_io_alarmcr_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16AlarmCRType, pn_io_alarmcr_type, "0x%x"),
         u16LT, u16RTATimeoutFactor, u16RTARetries, u16LocalAlarmReference, u16MaxAlarmDataLength,
         u16AlarmCRTagHeaderHigh, u16AlarmCRTagHeaderLow);
 
@@ -14212,7 +14212,7 @@ dissect_AlarmCRBlockRes_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_maxalarmdatalength, &u16MaxAlarmDataLength);
 
     proto_item_append_text(item, ": %s, Ref:0x%04x, MaxDataLen:%u",
-        val_to_str(u16AlarmCRType, pn_io_alarmcr_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16AlarmCRType, pn_io_alarmcr_type, "0x%x"),
         u16LocalAlarmReference, u16MaxAlarmDataLength);
 
     if (ar != NULL) {
@@ -14280,7 +14280,7 @@ dissect_IOCRBlockRes_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_frame_id, &u16FrameID);
 
     proto_item_append_text(item, ": %s, Ref:0x%04x, FrameID:0x%04x",
-        val_to_str(u16IOCRType, pn_io_iocr_type, "0x%x"),
+        val_to_str_wmem(pinfo->pool, u16IOCRType, pn_io_iocr_type, "0x%x"),
         u16IOCRReference, u16FrameID);
 
     if (ar != NULL) {
@@ -14832,7 +14832,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
                     hf_pn_io_length_iops, &u8LengthIOPS);
 
     proto_item_append_text(sub_item, ": %s, SubmoduleDataLength: %u, LengthIOCS: %u, u8LengthIOPS: %u",
-        val_to_str(u16DataDescription, pn_io_data_description, "(0x%x)"),
+        val_to_str_wmem(pinfo->pool, u16DataDescription, pn_io_data_description, "(0x%x)"),
         u16SubmoduleDataLength, u8LengthIOCS, u8LengthIOPS);
     proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -15312,7 +15312,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
 
             proto_item_append_text(module_item, ": Slot 0x%x, Ident: 0x%x State: %s Submodules: %u",
                 u16SlotNr, u32ModuleIdentNumber,
-                val_to_str(u16ModuleState, pn_io_module_state, "(0x%x)"),
+                val_to_str_wmem(pinfo->pool, u16ModuleState, pn_io_module_state, "(0x%x)"),
                 u16NumberOfSubmodules);
 
 
@@ -15874,11 +15874,11 @@ dissect_block(tvbuff_t *tvb, int offset,
     }
 
     proto_item_append_text(header_item, ": Type=%s, Length=%u(+4), Version=%u.%u",
-        val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
+        val_to_str_wmem(pinfo->pool, u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
         u16BlockLength, u8BlockVersionHigh, u8BlockVersionLow);
 
     proto_item_set_text(sub_item, "%s",
-        val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
+        val_to_str_wmem(pinfo->pool, u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
         val_to_str_const(u16BlockType, pn_io_block_type, "Unknown"));

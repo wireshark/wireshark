@@ -1581,7 +1581,7 @@ static void wimaxasncp_dissect_tlv_value(
         /* Add code and type to info column */
         col_append_str(pinfo->cinfo, COL_INFO, " [");
         col_append_str(pinfo->cinfo, COL_INFO,
-                        val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+                        val_to_str_wmem(pinfo->pool, eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
         if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
         {
@@ -1607,7 +1607,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             /* Also show high-level details in this root item */
             proto_item_append_text(item, " (%s",
-                                   val_to_str(eap_code, eap_code_vals,
+                                   val_to_str_wmem(pinfo->pool, eap_code, eap_code_vals,
                                               "Unknown code (0x%02X)"));
             if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
             {
