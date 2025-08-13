@@ -247,7 +247,7 @@ static int hf_oran_num_weights_per_bundle;
 
 static int hf_oran_ack_nack_req_id;
 
-static int hf_oran_off_start_prb_num_prb_pair;
+static int hf_oran_frequency_range;
 static int hf_oran_off_start_prb;
 static int hf_oran_num_prb;
 
@@ -468,7 +468,7 @@ static int ett_oran_u_prb;
 static int ett_oran_iq;
 static int ett_oran_bfw_bundle;
 static int ett_oran_bfw;
-static int ett_oran_offset_start_prb_num_prb;
+static int ett_oran_frequency_range;
 static int ett_oran_prb_cisamples;
 static int ett_oran_cisample;
 static int ett_oran_udcomphdr;
@@ -895,13 +895,13 @@ static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     { false, true,  true,  false, false, false, false},   // SE 3      (1,3)
     { false, true,  true,  true,  false, false, false},   // SE 4      (1,3,5)
     { false, true,  true,  true,  false, false, false},   // SE 5      (1,3,5)
-    { false, true,  true,  true,  false, false, false},   // SE 6      (1,3,5)
+    { false, true,  true,  true,  false, true,  true },   // SE 6      (1,3,5,10,11)
     { true,  false, false, false, false, false, false},   // SE 7      (0)
     { false, false, false, true,  false, false, false},   // SE 8      (5)
     { true,  true,  true,  true,  true,  true,  true },   // SE 9      (all)
     { false, true,  true,  true,  false, false, false},   // SE 10     (1,3,5)
     { false, true,  true,  false, false, false, false},   // SE 11     (1,3)
-    { false, true,  true,  true,  false, false, false},   // SE 12     (1,3,5)
+    { false, true,  true,  true,  false, true,  true },   // SE 12     (1,3,5,10,11)
     { false, true,  true,  true,  false, false, false},   // SE 13     (1,3,5)
     { false, false, false, true,  false, false, false},   // SE 14     (5)
     { false, false, false, true,  true,  false, false},   // SE 15     (5,6)
@@ -909,15 +909,15 @@ static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     { false, false, false, true,  false, false, false},   // SE 17     (5)
     { false, true,  true,  true,  false, false, false},   // SE 18     (1,3,5)
     { false, true,  true,  false, false, false, false},   // SE 19     (1,3)
-    { true,  true,  true,  true,  true,  false, false},   // SE 20     (0,1,3,5)
+    { true,  true,  true,  true,  true,  true,  true },   // SE 20     (0,1,3,5,10,11)
     { false, false, false, true,  true,  false, false},   // SE 21     (5,6)
     { true,  true,  true,  true,  true,  true,  true },   // SE 22     (all)
     { false, true,  true,  true,  false, false, false},   // SE 23     (1,3,5)
-    { false, false, false, true,  false, false, false },  // SE 24     (5)
-    { false, false, false, true,  false, false, false },  // SE 25     (5)
-    { false, false, false, true,  false, false, false },  // SE 26     (5)
-    { false, false, false, true,  false, false, false },  // SE 27     (5)
-    { false, false, false, true,  false, false, false },  // SE 28     (5)
+    { false, false, false, true,  false, false, false},   // SE 24     (5)
+    { false, false, false, true,  false, false, false},   // SE 25     (5)
+    { false, false, false, true,  false, false, false},   // SE 26     (5)
+    { false, false, false, true,  false, false, false},   // SE 27     (5)
+    { false, false, false, true,  false, false, false},   // SE 28     (5)
 };
 
 static bool se_allowed_in_st(unsigned se, unsigned ct)
@@ -3322,9 +3322,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
                     /* Create a subtree for each pair */
-                    proto_item *pair_ti = proto_tree_add_string(extension_tree, hf_oran_off_start_prb_num_prb_pair,
+                    proto_item *pair_ti = proto_tree_add_string(extension_tree, hf_oran_frequency_range,
                                                                 tvb, offset, 2, "");
-                    proto_tree *pair_tree = proto_item_add_subtree(pair_ti, ett_oran_offset_start_prb_num_prb);
+                    proto_tree *pair_tree = proto_item_add_subtree(pair_ti, ett_oran_frequency_range);
 
                     /* offStartPrb */
                     uint32_t off_start_prb;
@@ -3642,7 +3642,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_item(pattern_tree, hf_oran_symbolMask_ext20, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 1;
                     /* startPuncPrb (10 bits) */
-                    proto_tree_add_item(pattern_tree, hf_oran_startPuncPrb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(pattern_tree, hf_oran_startPuncPrb, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     /* numPuncPrb (8 bits) */
                     proto_tree_add_item(pattern_tree, hf_oran_numPuncPrb, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -7227,11 +7227,11 @@ proto_register_oran(void)
         },
 
         /* Subtree for next 2 items */
-        { &hf_oran_off_start_prb_num_prb_pair,
-          { "Pair", "oran_fh_cus.offStartPrb_numPrb",
+        { &hf_oran_frequency_range,
+          { "Frequency Range", "oran_fh_cus.frequencyRange",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
-            "Pair of offStartPrb and numPrb", HFILL}
+            NULL, HFILL}
         },
 
         /* 7.7.12.4 */
@@ -8697,7 +8697,7 @@ proto_register_oran(void)
         &ett_oran_iq,
         &ett_oran_bfw_bundle,
         &ett_oran_bfw,
-        &ett_oran_offset_start_prb_num_prb,
+        &ett_oran_frequency_range,
         &ett_oran_prb_cisamples,
         &ett_oran_cisample,
         &ett_oran_udcomphdr,
