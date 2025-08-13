@@ -957,7 +957,10 @@ QString ExtcapArgument::prefKey(const QString & device_name,
     /* If we are doing a sub-option: append an ID to the interface name */
     if (!option_name.isEmpty())
     {
-        QStringList option_uid = { "", option_name, option_value.toLower().replace("-", "") };
+        /* Remove all illegal characters from option value */
+        QRegularExpression regex("[^a-z0-9._]");
+        QStringList option_uid = { "", option_name, option_value.toLower().replace(regex, "") };
+
         id.append(option_uid.join("_"));
     }
 

@@ -361,7 +361,7 @@ void ExtArgTable::addChecked(QStringList checked, QStringList options)
         {
             if (options.size() > i)
             {
-                item->setData(QString(options[i]), Qt::UserRole + 1);  // Currently: no configuration
+                item->setData(QString(options[i]), Qt::UserRole + 1);  // Currently: has configuration
             }
             else
             {

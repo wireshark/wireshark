@@ -892,8 +892,7 @@ static bool cb_preference(extcap_callback_info_t cb_info)
 
         GRegex *regex_name = g_regex_new("[-]+", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
         GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", G_REGEX_RAW, (GRegexMatchFlags) 0, NULL);
-        GRegex *regex_option = g_regex_new("-", G_REGEX_RAW, (GRegexMatchFlags)0, NULL);
-        if (regex_name && regex_ifname && regex_option)
+        if (regex_name && regex_ifname)
         {
             while (walker != NULL)
             {
@@ -909,11 +908,11 @@ static bool cb_preference(extcap_callback_info_t cb_info)
                     /* If option_name/option_value is specified, this is a sub-option modal */
                     if (cb_info.option_name != NULL && cb_info.option_value != NULL)
                     {
-                        char* option_value_underscore = g_regex_replace(regex_name, cb_info.option_value, strlen(cb_info.option_value), 0, "", (GRegexMatchFlags) 0, NULL);
-                        char* option_value_lowercase = g_ascii_strdown(option_value_underscore, -1);
+                        char* option_value_stripped = g_regex_replace(regex_ifname, cb_info.option_value, strlen(cb_info.option_value), 0, "", (GRegexMatchFlags) 0, NULL);
+                        char* option_value_lowercase = g_ascii_strdown(option_value_stripped, -1);
                         pref_id = g_strconcat(ifname_lowercase, "_", cb_info.option_name, "_", option_value_lowercase, ".", pref_name, NULL);
                         g_free(option_value_lowercase);
-                        g_free(option_value_underscore);
+                        g_free(option_value_stripped);
                     }
                     else
                     {
@@ -966,10 +965,6 @@ static bool cb_preference(extcap_callback_info_t cb_info)
         if (regex_ifname)
         {
             g_regex_unref(regex_ifname);
-        }
-        if (regex_option)
-        {
-            g_regex_unref(regex_option);
         }
     }
 
