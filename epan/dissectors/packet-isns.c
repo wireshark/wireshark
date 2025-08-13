@@ -553,7 +553,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     /* Add the function name in the info col */
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_ext_wmem(pinfo->pool, function_id, &isns_function_ids_ext,
+                val_to_str_ext(pinfo->pool, function_id, &isns_function_ids_ext,
                                "Unknown function ID 0x%04x"));
 
     /* create display subtree for the protocol */

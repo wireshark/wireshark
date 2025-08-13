@@ -9290,8 +9290,8 @@ dissect_ain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         break;
     //case 2:
     //    opcode = find_saved_invokedata(&asn1_ctx, p_private_tcap);
-    //    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnResult ", val_to_str_ext_wmem(pinfo->pool, opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
-    //    proto_item_append_text(p_private_tcap->d.OperationCode_item, " %s", val_to_str_ext_wmem(pinfo->pool, opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+    //    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ReturnResult ", val_to_str_ext(pinfo->pool, opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+    //    proto_item_append_text(p_private_tcap->d.OperationCode_item, " %s", val_to_str_ext(pinfo->pool, opcode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
     //    dissect_returnData(ain_tree, tvb, 0, &asn1_ctx);
     //    break;
     case 3:

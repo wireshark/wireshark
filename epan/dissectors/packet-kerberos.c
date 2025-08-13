@@ -4860,7 +4860,7 @@ dissect_krb5_PW_SALT(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 			ENC_LITTLE_ENDIAN);
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO,
 			" NT Status: %s",
-			val_to_str_ext_wmem(actx->pinfo->pool, nt_status, &NT_errors_ext,
+			val_to_str_ext(actx->pinfo->pool, nt_status, &NT_errors_ext,
 			"Unknown error code %#x"));
 	offset += 4;
 

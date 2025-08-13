@@ -214,7 +214,7 @@ static const uint8_t *st_str;
 
 #define MACRO_ST_CLEAR(name) \
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_error_st, &st); \
-  st_str = val_to_str_ext_wmem(pinfo->pool, st, &dce_error_vals_ext, "%u");              \
+  st_str = val_to_str_ext(pinfo->pool, st, &dce_error_vals_ext, "%u");              \
   if (st) {                                                              \
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
   } else {                                                                \

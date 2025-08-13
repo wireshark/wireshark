@@ -5787,7 +5787,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
     else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "SCSI Response LUN: 0x%02x %s, %u bytes (%u blocks) (%s) ",
             itlq->lun,
-            val_to_str_ext_wmem(pinfo->pool, itlq->scsi_opcode, csdata->cdb_vals_ext, "CDB:0x%02x"),
+            val_to_str_ext(pinfo->pool, itlq->scsi_opcode, csdata->cdb_vals_ext, "CDB:0x%02x"),
             itlq->data_length,
             itlq->data_length/512,
             val_to_str_wmem(pinfo->pool, scsi_status, scsi_status_val, "Unknown (0x%08x) ")
@@ -5797,7 +5797,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
 
     ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, 0,
                                         0, "SCSI Response (%s)",
-                                        val_to_str_ext_wmem(pinfo->pool, itlq->scsi_opcode,
+                                        val_to_str_ext(pinfo->pool, itlq->scsi_opcode,
                                                         csdata->cdb_vals_ext,
                                                         "CDB:0x%02x"));
     scsi_tree = proto_item_add_subtree(ti, ett_scsi);
@@ -6192,7 +6192,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, 0,
                                             -1, "SCSI CDB %s",
-                                            val_to_str_ext_wmem(pinfo->pool, opcode,
+                                            val_to_str_ext(pinfo->pool, opcode,
                                                            csdata->cdb_vals_ext,
                                                            "0x%02x")
             );
@@ -6281,7 +6281,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_protocol_format(tree, proto_scsi, tvb, offset,
                                             payload_len,
                                             "SCSI Payload (%s %s)",
-                                            val_to_str_ext_wmem(pinfo->pool, opcode,
+                                            val_to_str_ext(pinfo->pool, opcode,
                                                            csdata->cdb_vals_ext,
                                                            "CDB:0x%02x"),
                                             isreq ? "Request Data" : "Response Data");

@@ -659,8 +659,8 @@ check_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8
     ie_type = tvb_get_uint8(tvb, *offset);
     if (ie_type != expected_ie) {
         proto_tree_add_expert_format(tree, pinfo, &ei_bssap_mandatory_ie, tvb, *offset, 1, "Mandatory IE %s expected but IE %s Found",
-                            val_to_str_ext_wmem(pinfo->pool, expected_ie, &bssap_plus_ie_id_values_ext, "Unknown %u"),
-                            val_to_str_ext_wmem(pinfo->pool, ie_type, &bssap_plus_ie_id_values_ext, "Unknown %u"));
+                            val_to_str_ext(pinfo->pool, expected_ie, &bssap_plus_ie_id_values_ext, "Unknown %u"),
+                            val_to_str_ext(pinfo->pool, ie_type, &bssap_plus_ie_id_values_ext, "Unknown %u"));
         (*offset)++;
         ie_len = tvb_get_uint8(tvb, *offset);
         *offset = *offset + ie_len;
@@ -1621,7 +1621,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(bssap_tree, hf_bssap_plus_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, message_type, &bssap_plus_message_type_values_ext, "Unknown %u"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, message_type, &bssap_plus_message_type_values_ext, "Unknown %u"));
 
     switch (message_type) {
     case BSSAP_PAGING_REQUEST:

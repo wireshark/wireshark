@@ -352,7 +352,7 @@ static unsigned dissect_one_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
     unsigned pad_len;
 
     unsigned type = tvb_get_ntohs(tvb, offset);
-    const char *name = val_to_str_ext_wmem(pinfo->pool, type, &pp_pid_vals_ext, TYPE_UNKNOWN);
+    const char *name = val_to_str_ext(pinfo->pool, type, &pp_pid_vals_ext, TYPE_UNKNOWN);
     proto_item_append_text(ti, " : %s", name);
 
     proto_tree_add_item(tlv_tree, hf_pp_pid_type, tvb, offset, 2, ENC_BIG_ENDIAN);

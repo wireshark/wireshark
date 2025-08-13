@@ -6205,12 +6205,12 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	switch(type) {
 	case PRINTER_NOTIFY_TYPE:
-		field_string = val_to_str_ext_wmem(pinfo->pool,
+		field_string = val_to_str_ext(pinfo->pool,
 			field, &printer_notify_option_data_vals_ext,
 			"Unknown (%d)");
 		break;
 	case JOB_NOTIFY_TYPE:
-		field_string = val_to_str_ext_wmem(pinfo->pool,
+		field_string = val_to_str_ext(pinfo->pool,
 			field, &job_notify_option_data_vals_ext,
 			"Unknown (%d)");
 		break;

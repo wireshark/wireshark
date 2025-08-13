@@ -4205,19 +4205,19 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
       field_name = val_to_str_wmem(scope, field_number, acn_blob_time1_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_LOAD_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_load_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_load_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMING_RACK_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_rack_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMING_RACK_STATUS_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_status_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_rack_status_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_STATUS_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_status_properties1_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_status_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_SET_LEVELS_OPERATION:
       field_name = val_to_str_wmem(scope, field_number, acn_blob_set_levels_operation_field_name, "not valid (%d)");
@@ -4238,19 +4238,19 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
       field_name = val_to_str_wmem(scope, field_number, acn_blob_error3_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_PROPERTIES2:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_LOAD_PROPERTIES2:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_load_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_load_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_RACK_PROPERTIES2:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_rack_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_RACK_STATUS_PROPERTIES2:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_rack_status_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_rack_status_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_STATUS_PROPERTIES2:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_dimmer_status_properties2_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_status_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_TIME2:
       field_name = val_to_str_wmem(scope, field_number, acn_blob_time2_field_name, "not valid (%d)");
@@ -4280,7 +4280,7 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
       }
       break;
     case ACN_BLOB_PRESET_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_preset_properties_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_preset_properties_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_TIME3:
       field_name = val_to_str_wmem(scope, field_number, acn_blob_time3_field_name, "not valid (%d)");
@@ -4292,7 +4292,7 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
       field_name = val_to_str_wmem(scope, field_number, acn_blob_sequence_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_SEQUENCE_STEP_PROPERTIES:
-      field_name = val_to_str_ext_wmem(scope, field_number, &acn_blob_sequence_step_properties_field_name_ext, "not valid (%d)");
+      field_name = val_to_str_ext(scope, field_number, &acn_blob_sequence_step_properties_field_name_ext, "not valid (%d)");
       break;
     default:
       field_name = "Unknown field";

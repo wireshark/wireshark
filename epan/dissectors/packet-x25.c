@@ -1617,7 +1617,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - %s", short_name,
                     vc, rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 3), clear_code_rvals, "Unknown (0x%02x)"),
-                    val_to_str_ext_wmem(pinfo->pool, tvb_get_uint8(tvb, 4), &x25_clear_diag_vals_ext, "Unknown (0x%02x)"));
+                    val_to_str_ext(pinfo->pool, tvb_get_uint8(tvb, 4), &x25_clear_diag_vals_ext, "Unknown (0x%02x)"));
         x25_hash_add_proto_end(vc, pinfo->num);
         if (x25_tree) {
             proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);

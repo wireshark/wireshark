@@ -500,7 +500,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         iCommand = tvb_get_letohl(tvb, offset + 62);
       }
       col_append_str(pinfo->cinfo, COL_INFO,
-                       val_to_str_ext_wmem(pinfo->pool, iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
+                       val_to_str_ext(pinfo->pool, iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
     }
 
     if(tree){
@@ -510,7 +510,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
       ti = proto_tree_add_item(tree, proto_starteam, tvb, offset, -1, ENC_NA);
       if (bRequest) proto_item_append_text(ti, " (%s)",
-                                           val_to_str_ext_wmem(pinfo->pool, iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
+                                           val_to_str_ext(pinfo->pool, iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
       starteamroot_tree = proto_item_add_subtree(ti, ett_starteam);
 
       if(bRequest){

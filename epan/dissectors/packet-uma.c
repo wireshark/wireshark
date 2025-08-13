@@ -866,7 +866,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	ie_value = tvb_get_uint8(tvb,offset);
 	urr_ie_tree = proto_tree_add_subtree(tree,tvb,offset,-1, ett_urr_ie, &urr_ie_item,
-		val_to_str_ext_wmem(pinfo->pool, ie_value, &uma_urr_IE_type_vals_ext, "Unknown IE (%u)"));
+		val_to_str_ext(pinfo->pool, ie_value, &uma_urr_IE_type_vals_ext, "Unknown IE (%u)"));
 
 	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -1638,7 +1638,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		offset++;
 		octet = tvb_get_uint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, octet, &uma_urr_msg_type_vals_ext, "Unknown URR (%u)"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, octet, &uma_urr_msg_type_vals_ext, "Unknown URR (%u)"));
 		while ((msg_len + 1) > offset ){
 			offset++;
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
@@ -1648,7 +1648,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		offset++;
 		octet = tvb_get_uint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 		col_set_fence(pinfo->cinfo,COL_INFO);
 		offset++;
 		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, ENC_NA);
@@ -1703,7 +1703,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 	octet = tvb_get_uint8(tvb,offset);
 	msg_item = proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext_wmem(pinfo->pool, octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(pinfo->pool, octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 	col_set_fence(pinfo->cinfo,COL_INFO);
 	msg_len = tvb_reported_length_remaining(tvb,offset) - 1;
 

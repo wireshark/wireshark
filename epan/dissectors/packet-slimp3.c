@@ -322,7 +322,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 /* This is the custom SLIMP3 remote. */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_infrared_slimp3, tvb, offset+8, 4, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", SLIMP3: %s",
-                                val_to_str_ext_wmem(pinfo->pool, i1, &slimp3_ir_codes_slimp3_ext, "Unknown (0x%0x)"));
+                                val_to_str_ext(pinfo->pool, i1, &slimp3_ir_codes_slimp3_ext, "Unknown (0x%0x)"));
             }
             else if (tvb_get_uint8(tvb, offset+6) == 0xff &&
                      tvb_get_uint8(tvb, offset+7) == 16) {

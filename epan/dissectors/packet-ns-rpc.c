@@ -1147,7 +1147,7 @@ dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	if ((rpc_cmd&(~0x80)) == 0x02) /* remote ioctl */
 	{
 		proto_tree_add_item_ret_uint(ns_rpc_tree, hf_ns_remoteIOCTL, tvb, offset, 4, ENC_LITTLE_ENDIAN, &remote_ioctl);
-		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_ext_wmem(pinfo->pool, remote_ioctl, &ns_rpc_rioctl_vals_ext, "0x%04X"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_ext(pinfo->pool, remote_ioctl, &ns_rpc_rioctl_vals_ext, "0x%04X"));
 	}
 
 	if (rpc_cmd & 0x80) /* Is this a command response */

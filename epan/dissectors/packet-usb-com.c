@@ -640,7 +640,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         is_request = (pinfo->srcport==NO_ENDPOINT);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-        val_to_str_ext_wmem(pinfo->pool, usb_trans_info->setup.request, &usb_com_setup_request_vals_ext, "Unknown type %x"),
+        val_to_str_ext(pinfo->pool, usb_trans_info->setup.request, &usb_com_setup_request_vals_ext, "Unknown type %x"),
             is_request ? "Request" : "Response");
 
         if (is_request) {

@@ -509,18 +509,18 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|",
 			val_to_str_const(source, actrace_cas_source_vals_short, "ukn"),
 			curr_state,
-			val_to_str_ext_wmem(pinfo->pool, event, &actrace_cas_event_vals_ext, "%d"),
+			val_to_str_ext(pinfo->pool, event, &actrace_cas_event_vals_ext, "%d"),
 			next_state,
-			val_to_str_ext_wmem(pinfo->pool, function, &actrace_cas_function_vals_ext, "%d"));
+			val_to_str_ext(pinfo->pool, function, &actrace_cas_function_vals_ext, "%d"));
 
 	par0 = tvb_get_ntohl(tvb, offset);
 	switch (function)
 	{
 		case SEND_EVENT:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
-				par0, "%s",  val_to_str_ext_wmem(pinfo->pool, par0, &actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
+				par0, "%s",  val_to_str_ext(pinfo->pool, par0, &actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str_ext_wmem(pinfo->pool, par0, &actrace_cas_pstn_event_vals_ext, "%d"));
+					val_to_str_ext(pinfo->pool, par0, &actrace_cas_pstn_event_vals_ext, "%d"));
 			break;
 		case CHANGE_COLLECT_TYPE:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
@@ -544,9 +544,9 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	par1 = tvb_get_ntohl(tvb, offset);
 	if (function == SEND_EVENT) {
 		proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4,
-			par1, "%s", val_to_str_ext_wmem(pinfo->pool, par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
+			par1, "%s", val_to_str_ext(pinfo->pool, par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-				val_to_str_ext_wmem(pinfo->pool, par1, &actrace_cas_cause_vals_ext, "%d"));
+				val_to_str_ext(pinfo->pool, par1, &actrace_cas_cause_vals_ext, "%d"));
 	} else {
 		proto_tree_add_int(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4, par1);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);

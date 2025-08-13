@@ -1834,7 +1834,7 @@ dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
 	proto_tree	*ie_ext_tree;
 
 	ie_tree = proto_tree_add_subtree(tree, tvb, offset, 1+1+2+len, ett_q2931_ie, NULL,
-	    val_to_str_ext_wmem(pinfo->pool, info_element, &q2931_info_element_vals_ext,
+	    val_to_str_ext(pinfo->pool, info_element, &q2931_info_element_vals_ext,
 	      "Unknown information element (0x%02X)"));
 	proto_tree_add_uint(ie_tree, hf_q2931_information_element, tvb, offset, 1, info_element);
 	ti = proto_tree_add_uint(ie_tree, hf_q2931_information_element_extension, tvb, offset + 1, 1, info_element_ext);
@@ -1908,7 +1908,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	}
 	message_type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str_ext_wmem(pinfo->pool, message_type, &q2931_message_type_vals_ext,
+		    val_to_str_ext(pinfo->pool, message_type, &q2931_message_type_vals_ext,
 		      "Unknown message type (0x%02X)"));
 
 	proto_tree_add_uint(q2931_tree, hf_q2931_message_type, tvb, offset, 1, message_type);

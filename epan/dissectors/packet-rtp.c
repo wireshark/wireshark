@@ -1877,7 +1877,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             hdr_new->pt);
         proto_item_append_text(ti, ": PT=%s",
                        payload_type_str ? payload_type_str :
-                                          val_to_str_ext_wmem(pinfo->pool, hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown (%u)"));
+                                          val_to_str_ext(pinfo->pool, hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown (%u)"));
         offset += 1;
 
         /* Timestamp offset and block length don't apply to last header */
@@ -2410,7 +2410,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     } else if (p_packet_data && p_packet_data->btvdp_info) {
         pt = (p_packet_data->btvdp_info->codec_dissector) ? dissector_handle_get_protocol_short_name(p_packet_data->btvdp_info->codec_dissector) : "Unknown";
     } else {
-        pt = (payload_type_str ? payload_type_str : val_to_str_ext_wmem(pinfo->pool, payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)"));
+        pt = (payload_type_str ? payload_type_str : val_to_str_ext(pinfo->pool, payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)"));
     }
 
     col_add_fstr( pinfo->cinfo, COL_INFO,
@@ -2800,7 +2800,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
         proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
             1, octet2 );
 
-        pt = val_to_str_ext_wmem(pinfo->pool, payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
+        pt = val_to_str_ext(pinfo->pool, payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
 
         proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
             offset, 1, octet2, "Payload type: %s (%u)", pt, payload_type);

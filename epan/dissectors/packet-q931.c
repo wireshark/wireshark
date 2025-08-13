@@ -1276,7 +1276,7 @@ static const char *get_message_name(wmem_allocator_t* scope, uint8_t prot_discr,
     if (prot_discr == NLPID_DMS)
         return val_to_str_wmem(scope, message_type, dms_message_type_vals, "Unknown (0x%02X)");
     else
-        return val_to_str_ext_wmem(scope, message_type, &q931_message_type_vals_ext, "Unknown (0x%02X)");
+        return val_to_str_ext(scope, message_type, &q931_message_type_vals_ext, "Unknown (0x%02X)");
 }
 
 static const true_false_string tfs_abnormal_normal = { "Abnormal", "Normal" };
@@ -2555,7 +2555,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     more_frags = (tvb_get_uint8(tvb, offset + 2) & 0x7F) != 0;
     segmented_message_type = tvb_get_uint8(tvb, offset + 3);
     col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
-            val_to_str_ext_wmem(pinfo->pool, segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
+            val_to_str_ext(pinfo->pool, segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 
     offset += 1 + 1 + info_element_len;
     /* Reassembly */
@@ -2582,7 +2582,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s [reassembled]",
-                    val_to_str_ext_wmem(pinfo->pool, segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
+                    val_to_str_ext(pinfo->pool, segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 
         } else {
             if (tree) proto_tree_add_uint(q931_tree, hf_q931_reassembled_in, tvb, offset, frag_len, fd_head->reassembled_in);
@@ -2791,7 +2791,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {
                 dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
-                        val_to_str_ext_wmem(pinfo->pool, tvb_get_uint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
+                        val_to_str_ext(pinfo->pool, tvb_get_uint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 
                 if (tvb_get_uint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
                     first_segment = true;

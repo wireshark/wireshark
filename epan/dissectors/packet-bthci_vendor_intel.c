@@ -596,7 +596,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (try_val_to_str(event_code, intel_event_code_vals))
             description = val_to_str_wmem(pinfo->pool, event_code, intel_event_code_vals, "Unknown 0x%08x");
         else
-            description = val_to_str_ext_wmem(pinfo->pool, event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
+            description = val_to_str_ext(pinfo->pool, event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
         col_append_str(pinfo->cinfo, COL_INFO, description);
         proto_tree_add_item(main_tree, hf_intel_event_code, tvb, offset, 1, ENC_NA);
         offset += 1;

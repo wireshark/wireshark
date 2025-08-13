@@ -116,11 +116,11 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* print in "INFO" column the type of UAUDP message */
     col_add_str(pinfo->cinfo,
                 COL_INFO,
-                val_to_str_ext_wmem(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
+                val_to_str_ext(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
     uaudp_item = proto_tree_add_protocol_format(tree, proto_uaudp, tvb, 0, tvb_reported_length(tvb),
                             "Universal Alcatel/UDP Encapsulation Protocol, %s",
-                            val_to_str_ext_wmem(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
+                            val_to_str_ext(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
     uaudp_tree = proto_item_add_subtree(uaudp_item, ett_uaudp);
 
@@ -135,7 +135,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         {
             type = tvb_get_uint8(tvb, offset+0);
             connect_tree = proto_tree_add_subtree(uaudp_tree, tvb, offset, 0, ett_uaudp_tlv, &tlv_item,
-                                                    val_to_str_ext_wmem(pinfo->pool, type, &uaudp_connect_vals_ext, "Unknown %d"));
+                                                    val_to_str_ext(pinfo->pool, type, &uaudp_connect_vals_ext, "Unknown %d"));
             proto_tree_add_uint(connect_tree, hf_uaudp_type, tvb, offset, 1, type);
             offset++;
             tlv_len_item = proto_tree_add_item_ret_uint(connect_tree, hf_uaudp_length, tvb, offset, 1, ENC_NA, &length);

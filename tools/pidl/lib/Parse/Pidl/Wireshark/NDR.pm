@@ -651,18 +651,18 @@ sub Function($$$)
 	} elsif ($fn->{RETURN_TYPE} eq "NTSTATUS") {
 		$self->pidl_code("offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf\_$ifname\_status, &status);\n");
 		$self->pidl_code("if (status != 0)");
-		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str_ext_wmem(pinfo->pool, status, &NT_errors_ext, \"Unknown NT status 0x%08x\"));\n");
+		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str_ext(pinfo->pool, status, &NT_errors_ext, \"Unknown NT status 0x%08x\"));\n");
 		$return_types{$ifname}->{"status"} = ["NTSTATUS", "NT Error"];
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
 		$self->pidl_code("offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf\_$ifname\_werror, &status);\n");
 		$self->pidl_code("if (status != 0)");
-		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str_ext_wmem(pinfo->pool, status, &WERR_errors_ext, \"Unknown DOS error 0x%08x\"));\n");
+		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str_ext(pinfo->pool, status, &WERR_errors_ext, \"Unknown DOS error 0x%08x\"));\n");
 
 		$return_types{$ifname}->{"werror"} = ["WERROR", "Windows Error"];
 	} elsif ($fn->{RETURN_TYPE} eq "HRESULT") {
 		$self->pidl_code("offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf\_$ifname\_hresult, &status);\n");
 		$self->pidl_code("if (status != 0)");
-		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str_ext_wmem(pinfo->pool, status, &HRES_errors_ext, \"Unknown HRES error 0x%08x\"));\n");
+		$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Error: %s\", val_to_str_ext(pinfo->pool, status, &HRES_errors_ext, \"Unknown HRES error 0x%08x\"));\n");
 		$return_types{$ifname}->{"hresult"} = ["HRESULT", "HRES Windows Error"];
 	} elsif (my $type = getType($fn->{RETURN_TYPE})) {
 		if ($type->{DATA}->{TYPE} eq "ENUM") {

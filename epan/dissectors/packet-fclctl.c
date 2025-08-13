@@ -117,7 +117,7 @@ fclctl_get_paramstr (wmem_allocator_t *pool, uint32_t linkctl_type, uint32_t par
              (linkctl_type == FC_LCTL_PRJT)) {
       return wmem_strdup_printf(pool, "%s, %s",
                  val_to_str_wmem(pool, ((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
-                 val_to_str_ext_wmem(pool, ((param & 0x00FF0000) >> 16), &fc_lctl_rjt_val_ext, "%x"));
+                 val_to_str_ext(pool, ((param & 0x00FF0000) >> 16), &fc_lctl_rjt_val_ext, "%x"));
     }
     return "";
 }

@@ -584,7 +584,7 @@ static int dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* Add the message type to the info column. */
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, mqttsn_msg_type_id, &mqttsn_msgtype_vals_ext, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, mqttsn_msg_type_id, &mqttsn_msgtype_vals_ext, "Unknown (0x%02x)"));
 
     /* Dissect a MQTT-SN packet. */
     dissect_mqttsn_packet(tvb, pinfo, tree, offset);

@@ -888,7 +888,7 @@ dissect_ntstatus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_ext_wmem(pinfo->pool, status, &NT_errors_ext,
+				val_to_str_ext(pinfo->pool, status, &NT_errors_ext,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;
@@ -910,7 +910,7 @@ dissect_doserror(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_ext_wmem(pinfo->pool, status, &DOS_errors_ext,
+				val_to_str_ext(pinfo->pool, status, &DOS_errors_ext,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;
@@ -930,7 +930,7 @@ dissect_werror(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_ext_wmem(pinfo->pool, status, &WERR_errors_ext,
+				val_to_str_ext(pinfo->pool, status, &WERR_errors_ext,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;
@@ -952,7 +952,7 @@ dissect_hresult(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (status != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_ext_wmem(pinfo->pool, status, &HRES_errors_ext,
+				val_to_str_ext(pinfo->pool, status, &HRES_errors_ext,
 					   "Unknown error 0x%08x"));
 	if (pdata)
 		*pdata = status;

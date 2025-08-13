@@ -474,7 +474,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   }
   si = &pi_arr[pi_current];
   si->messId = hdr_opcode;
-  si->messageName = val_to_str_ext_wmem(pinfo->pool, hdr_opcode, &message_id_ext, "0x%08X (Unknown)");
+  si->messageName = val_to_str_ext(pinfo->pool, hdr_opcode, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
   si->lineId = 0;
   si->passThroughPartyId = 0;

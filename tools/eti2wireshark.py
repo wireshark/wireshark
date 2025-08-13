@@ -623,7 +623,7 @@ dissect_{proto}_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "{proto.upper()}");
     col_clear(pinfo->cinfo, COL_INFO);
     uint16_t templateid = tvb_get_letohs(tvb, {template_off});
-    const char *template_str = val_to_str_ext_wmem(pinfo->pool, templateid, &template_id_vals_ext, "Unknown {proto.upper()} template: 0x%04x");
+    const char *template_str = val_to_str_ext(pinfo->pool, templateid, &template_id_vals_ext, "Unknown {proto.upper()} template: 0x%04x");
     col_add_str(pinfo->cinfo, COL_INFO, template_str);
 
     /* create display subtree for the protocol */

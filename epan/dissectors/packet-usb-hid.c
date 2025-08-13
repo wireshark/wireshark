@@ -5018,7 +5018,7 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_usb_hid_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         usb_trans_info->u.get_descriptor.type = tvb_get_uint8(tvb, offset);
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str_ext_wmem(pinfo->pool, usb_trans_info->u.get_descriptor.type,
+                val_to_str_ext(pinfo->pool, usb_trans_info->u.get_descriptor.type,
                     &hid_descriptor_type_vals_ext, "Unknown type %u"));
         offset += 1;
 
@@ -5032,7 +5032,7 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
         col_clear(pinfo->cinfo, COL_INFO);
         col_append_str(pinfo->cinfo, COL_INFO, "GET DESCRIPTOR Response");
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str_ext_wmem(pinfo->pool, usb_trans_info->u.get_descriptor.type,
+                val_to_str_ext(pinfo->pool, usb_trans_info->u.get_descriptor.type,
                     &hid_descriptor_type_vals_ext, "Unknown type %u"));
         if (usb_trans_info->u.get_descriptor.type == USB_DT_HID_REPORT)
             offset = dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, urb);

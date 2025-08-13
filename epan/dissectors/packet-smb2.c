@@ -2530,7 +2530,7 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 		if (ioctl_name == NULL) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s",
-				val_to_str_ext_wmem(pinfo->pool, (ioctl_function>>16)&0xffff, &smb2_ioctl_device_vals_ext,
+				val_to_str_ext(pinfo->pool, (ioctl_function>>16)&0xffff, &smb2_ioctl_device_vals_ext,
 				"Unknown (0x%08X)"));
 		}
 
@@ -6416,7 +6416,7 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		break;
 	default:
 		hfindex = hf_smb2_infolevel;
-		vsx = NULL;  /* allowed arg to val_to_str_ext_wmem(pinfo->pool, ) */
+		vsx = NULL;  /* allowed arg to val_to_str_ext(pinfo->pool, ) */
 	}
 
 
@@ -6439,7 +6439,7 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		 */
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s",
 				val_to_str(cl, smb2_class_vals, "(Class:0x%02x)"),
-				val_to_str_ext_wmem(pinfo->pool, il, vsx, "(Level:0x%02x)"));
+				val_to_str_ext(pinfo->pool, il, vsx, "(Level:0x%02x)"));
 	}
 
 	return offset;
@@ -12808,7 +12808,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 			proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			if (si->status) {
 				proto_item_append_text(item, ", %s",
-					val_to_str_ext_wmem(pinfo->pool, si->status, &NT_errors_ext, "Unknown (0x%08X)"));
+					val_to_str_ext(pinfo->pool, si->status, &NT_errors_ext, "Unknown (0x%08X)"));
 			}
 			offset += 4;
 		} else {
@@ -12887,7 +12887,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		if (si->status) {
 			col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
-					val_to_str_ext_wmem(pinfo->pool, si->status, &NT_errors_ext,
+					val_to_str_ext(pinfo->pool, si->status, &NT_errors_ext,
 						       "Unknown (0x%08X)"));
 		}
 

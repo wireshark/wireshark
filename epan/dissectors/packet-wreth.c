@@ -1062,7 +1062,7 @@ int WrethNackPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pinfo, proto_tr
     }
 
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, ErrorCode, &ErrorCode_vals_ext, "Unknown 0x%04x"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, ErrorCode, &ErrorCode_vals_ext, "Unknown 0x%04x"));
 
     if(Size == 6)
     {
@@ -1175,9 +1175,9 @@ int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pinfo, prot
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Mail : Codef = Ox%X (%s), Status = %02d (%s), Card = %d, Chan = %d" ,
                      Codef,
-                     val_to_str_ext_wmem(pinfo->pool, Codef, &tabCodef_ext, "Unknown 0x%04x"),
+                     val_to_str_ext(pinfo->pool, Codef, &tabCodef_ext, "Unknown 0x%04x"),
                      Status,
-                     val_to_str_ext_wmem(pinfo->pool, Status, &tabStatus_ext, "Unknown %d"),
+                     val_to_str_ext(pinfo->pool, Status, &tabStatus_ext, "Unknown %d"),
                      Card,
                      Chan);
     }

@@ -138,7 +138,7 @@ const QString val_to_qstring(const uint32_t val, const value_string *vs, const c
 const QString val_ext_to_qstring(const uint32_t val, value_string_ext *vse, const char *fmt)
 {
     QString val_qstr;
-    char* gchar_p = val_to_str_ext_wmem(NULL, val, vse, fmt);
+    char* gchar_p = val_to_str_ext(NULL, val, vse, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
 

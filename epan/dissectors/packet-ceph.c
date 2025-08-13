@@ -921,7 +921,7 @@ static const uint8_t *C_BANNER = (const uint8_t*)"ceph v";
 	base##_strings_ext = VALUE_STRING_EXT_INIT(base##_strings); \
 	\
 	static const char *base##_string(base val, wmem_allocator_t* scope) { \
-		return val_to_str_ext_wmem(scope, val, &base##_strings_ext, "Unknown (0x0"#chars"X)"); \
+		return val_to_str_ext(scope, val, &base##_strings_ext, "Unknown (0x0"#chars"X)"); \
 	}
 
 #define c_inet_strings_VALUE_STRING_LIST(V) \

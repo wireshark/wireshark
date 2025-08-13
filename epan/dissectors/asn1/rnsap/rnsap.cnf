@@ -97,7 +97,7 @@ ProtocolIE-ContainerPairList
 
 #.FN_FTR ProcedureID
   pdata->ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%s/%s",
-                                 val_to_str_ext_wmem(actx->pinfo->pool, pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
+                                 val_to_str_ext(actx->pinfo->pool, pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str_wmem(actx->pinfo->pool, pdata->ddMode, rnsap_DdMode_vals, "unknown(%u)"));
 #.END
 

@@ -3363,7 +3363,7 @@ dissect_rsvp_error_value(proto_tree *ti, packet_info* pinfo, tvbuff_t *tvb,
             DISSECTOR_ASSERT(rsvp_error_vals_ext_p != NULL);
             proto_tree_add_uint_format_value(ti, hf_rsvp_error_value, tvb, offset, 2,
                 error_val, "%s (%u)",
-                val_to_str_ext_wmem(pinfo->pool, error_val, rsvp_error_vals_ext_p, "Unknown (%d)"), error_val);
+                val_to_str_ext(pinfo->pool, error_val, rsvp_error_vals_ext_p, "Unknown (%d)"), error_val);
         }
         else if ((error_val & 0xc0) == 0x80) {
             proto_tree_add_uint_format_value(ti, hf_rsvp_error_value, tvb, offset, 2,
@@ -3390,7 +3390,7 @@ dissect_rsvp_error_value(proto_tree *ti, packet_info* pinfo, tvbuff_t *tvb,
     case RSVP_ERROR_CALL_MGMT:
         DISSECTOR_ASSERT(rsvp_error_vals_ext_p != NULL);
         proto_tree_add_uint_format_value(ti, hf_rsvp_error_value, tvb, offset, 2, error_val, "%s (%u)",
-                            val_to_str_ext_wmem(pinfo->pool, error_val, rsvp_error_vals_ext_p, "Unknown (%d)"), error_val);
+                            val_to_str_ext(pinfo->pool, error_val, rsvp_error_vals_ext_p, "Unknown (%d)"), error_val);
         break;
     default:
         proto_tree_add_uint_format_value(ti, hf_rsvp_error_value, tvb, offset, 2, error_val, "%u", error_val);
@@ -3492,12 +3492,12 @@ dissect_rsvp_error(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
         switch (type) {
         case 1:
             proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s",
-                                val_to_str_ext_wmem(pinfo->pool, error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
+                                val_to_str_ext(pinfo->pool, error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
                                 error_val, tvb_ip_to_str(pinfo->pool, tvb, offset2));
             break;
         case 3:
             proto_item_set_text(ti, "ERROR: IPv4 IF-ID, Error code: %s, Value: %d, Control Node: %s. ",
-                                val_to_str_ext_wmem(pinfo->pool, error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
+                                val_to_str_ext(pinfo->pool, error_code, &rsvp_error_codes_ext, "Unknown (%d)"),
                                 error_val, tvb_ip_to_str(pinfo->pool, tvb, offset2));
             dissect_rsvp_ifid_tlv(ti, pinfo, rsvp_object_tree, tvb, offset+12, obj_length-12,
                                   TREE(TT_ERROR_SUBOBJ));
@@ -4197,7 +4197,7 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
             offset2 += 4;
 
             proto_item_append_text(ti, "%s: ",
-                                   val_to_str_ext_wmem(pinfo->pool, service_num, &intsrv_services_str_ext,
+                                   val_to_str_ext(pinfo->pool, service_num, &intsrv_services_str_ext,
                                                   "Unknown (%d)"));
 
             /* Process all known service headers as a set of parameters */
@@ -5958,7 +5958,7 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree, packet_info* pin
                                               gmpls_lsp_enc_rvals, "Unknown (%d)"),
                                    rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,offset+tlv_off+5),
                                               gmpls_switching_type_rvals, "Unknown (%d)"),
-                                   val_to_str_ext_wmem(pinfo->pool, tvb_get_uint8(tvb,offset+tlv_off+6),
+                                   val_to_str_ext(pinfo->pool, tvb_get_uint8(tvb,offset+tlv_off+6),
                                                   &gmpls_sonet_signal_type_str_ext, "Unknown (%d)"));
             break;
 
@@ -7690,7 +7690,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (e2ei)
         proto_item_append_text(rsvp_tree, " (E2E-IGNORE)");
     proto_item_append_text(rsvp_tree, ": ");
-    proto_item_append_text(rsvp_tree, "%s", val_to_str_ext_wmem(pinfo->pool, message_type, &message_type_vals_ext,
+    proto_item_append_text(rsvp_tree, "%s", val_to_str_ext(pinfo->pool, message_type, &message_type_vals_ext,
                                                  "Unknown (%u). "));
     find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
     if (session_off)
@@ -7700,7 +7700,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     rsvp_header_tree = proto_tree_add_subtree_format(rsvp_tree, tvb, offset, 8,
                              TREE(TT_HDR), &ti, "RSVP Header. %s",
-                             val_to_str_ext_wmem(pinfo->pool, message_type, &message_type_vals_ext,
+                             val_to_str_ext(pinfo->pool, message_type, &message_type_vals_ext,
                                         "Unknown Message (%u). "));
     if (e2ei)
         proto_item_append_text(ti, " (E2E-IGNORE)");
@@ -8064,7 +8064,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool e2
     set_address(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_ext_wmem(pinfo->pool, message_type, &message_type_vals_ext, "Unknown (%u). "));
+                val_to_str_ext(pinfo->pool, message_type, &message_type_vals_ext, "Unknown (%u). "));
 
     if (message_type == RSVP_MSG_BUNDLE) {
         col_set_str(pinfo->cinfo, COL_INFO,

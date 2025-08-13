@@ -86,11 +86,11 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     ua_tap_info.expseq = 0;
     ua_tap_info.sntseq = 0;
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
     uasip_item = proto_tree_add_protocol_format(tree, proto_uasip, tvb, 0, 5,
                                                 "SIP/NOE Protocol, %s",
-                                                val_to_str_ext_wmem(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
+                                                val_to_str_ext(pinfo->pool, opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
     uasip_tree = proto_item_add_subtree(uasip_item, ett_uasip);
     proto_tree_add_uint(uasip_tree, hf_uasip_opcode, tvb, 0, 1, opcode);
 
@@ -102,7 +102,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             {
                 type = tvb_get_uint8(tvb, offset+0);
                 connect_tree = proto_tree_add_subtree(uasip_tree, tvb, offset, 0, ett_uasip_tlv, &tlv_item,
-                                                      val_to_str_ext_wmem(pinfo->pool, type, &uaudp_connect_vals_ext, "Unknown %d"));
+                                                      val_to_str_ext(pinfo->pool, type, &uaudp_connect_vals_ext, "Unknown %d"));
                 proto_tree_add_uint(connect_tree, hf_uasip_type, tvb, offset, 1, type);
                 offset++;
                 tlv_len_item = proto_tree_add_item_ret_uint(connect_tree, hf_uasip_length, tvb, offset, 1, ENC_NA, &length);

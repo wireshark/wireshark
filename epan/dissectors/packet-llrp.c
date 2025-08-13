@@ -1530,7 +1530,7 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 
     subtype = tvb_get_ntohl(tvb, suboffset);
     proto_item_append_text(param_tree, " (Impinj - %s)",
-            val_to_str_ext_wmem(pinfo->pool, subtype, &impinj_param_type_ext, "Unknown Type: %d"));
+            val_to_str_ext(pinfo->pool, subtype, &impinj_param_type_ext, "Unknown Type: %d"));
     proto_tree_add_item(param_tree, hf_llrp_impinj_param_type, tvb, suboffset, 4, ENC_BIG_ENDIAN);
     suboffset += 4;
 
@@ -1845,7 +1845,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             ti = proto_tree_add_none_format(tree, hf_llrp_param, tvb,
                     offset, real_len, "TLV Parameter: %s",
-                    val_to_str_ext_wmem(pinfo->pool, type, &tlv_type_ext, "Unknown Type: %d"));
+                    val_to_str_ext(pinfo->pool, type, &tlv_type_ext, "Unknown Type: %d"));
             param_tree = proto_item_add_subtree(ti, ett_llrp_param);
 
             proto_tree_add_item(param_tree, hf_llrp_tlv_type, tvb,
@@ -2576,7 +2576,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             ti = proto_tree_add_none_format(tree, hf_llrp_param, tvb,
                     offset, real_len + 1, "TV Parameter : %s",
-                    val_to_str_ext_wmem(pinfo->pool, type, &tv_type_ext, "Unknown Type: %d"));
+                    val_to_str_ext(pinfo->pool, type, &tv_type_ext, "Unknown Type: %d"));
             param_tree = proto_item_add_subtree(ti, ett_llrp_param);
 
             proto_tree_add_item(param_tree, hf_llrp_tv_type, tvb,
@@ -2658,7 +2658,7 @@ dissect_llrp_impinj_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     subtype = tvb_get_uint8(tvb, offset);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (Impinj - %s)",
-            val_to_str_ext_wmem(pinfo->pool, subtype, &impinj_msg_subtype_ext, "Unknown Type: %d"));
+            val_to_str_ext(pinfo->pool, subtype, &impinj_msg_subtype_ext, "Unknown Type: %d"));
     proto_tree_add_item(tree, hf_llrp_impinj_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -2888,7 +2888,7 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     type = tvb_get_ntohs(tvb, offset) & 0x03FF;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    val_to_str_ext_wmem(pinfo->pool, type, &message_types_ext, "Unknown Type: %d"));
+                    val_to_str_ext(pinfo->pool, type, &message_types_ext, "Unknown Type: %d"));
 
     ti = proto_tree_add_item(tree, proto_llrp, tvb, offset, -1, ENC_NA);
     llrp_tree = proto_item_add_subtree(ti, ett_llrp);

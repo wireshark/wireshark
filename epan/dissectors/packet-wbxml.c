@@ -5227,7 +5227,7 @@ static char *
 ext_t_0_wv_cspc_11(wmem_allocator_t* allocator, tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
 {
 	char *str = wmem_strdup_printf(allocator, "Common Value: '%s'",
-				    val_to_str_ext_wmem(allocator, value, &vals_wv_csp_11_element_value_tokens_ext,
+				    val_to_str_ext(allocator, value, &vals_wv_csp_11_element_value_tokens_ext,
 					       "<Unknown WV-CSP 1.1 Common Value token 0x%X>"));
 	return str;
 }
@@ -7244,7 +7244,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 		default:
 			proto_tree_add_none_format(tree, hf_wbxml_invalid_token, tvb, off, 1,
 					     "  %3d |  Attr | A %3d    | %-10s     (Invalid Token!) | WBXML parsing stops here.",
-					     recursion_level, *codepage_attr, val_to_str_ext_wmem(pinfo->pool, peek, &vals_wbxml1x_global_tokens_ext, "(unknown 0x%x)"));
+					     recursion_level, *codepage_attr, val_to_str_ext(pinfo->pool, peek, &vals_wbxml1x_global_tokens_ext, "(unknown 0x%x)"));
 			/* Move to end of buffer */
 			off = tvb_len;
 			break;
@@ -7789,12 +7789,12 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Compose the summary line */
 	if ( publicid ) {
 		summary = wmem_strdup_printf(pinfo->pool, "%s, Public ID: \"%s\"",
-					  val_to_str_ext_wmem(pinfo->pool, version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
-					  val_to_str_ext_wmem(pinfo->pool, publicid, &vals_wbxml_public_ids_ext, "(unknown 0x%x)"));
+					  val_to_str_ext(pinfo->pool, version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
+					  val_to_str_ext(pinfo->pool, publicid, &vals_wbxml_public_ids_ext, "(unknown 0x%x)"));
 	} else {
 		/* Read length of Public ID from string table */
 		summary = wmem_strdup_printf(pinfo->pool, "%s, Public ID: \"%s\"",
-					  val_to_str_ext_wmem(pinfo->pool, version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
+					  val_to_str_ext(pinfo->pool, version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
 					  tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl + publicid_index, &len, encoding));
 	}
 

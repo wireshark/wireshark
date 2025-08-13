@@ -4931,7 +4931,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
                                                (offset - length_ind_len), (length_indicator + 2),
                                                ett_bat_ase_element, &bat_ase_element_item,
                                                "BAT ASE Element %u, Identifier: %s", element_no,
-                                               val_to_str_ext_wmem(pinfo->pool, identifier, &bat_ase_list_of_Identifiers_vals_ext, "unknown (%u)"));
+                                               val_to_str_ext(pinfo->pool, identifier, &bat_ase_list_of_Identifiers_vals_ext, "unknown (%u)"));
 
     if (identifier != CODEC) {
       /* identifier, length indicator and compatibility info must be printed inside CODEC */
@@ -4959,7 +4959,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         content = tvb_get_uint8(parameter_tvb, offset);
         proto_tree_add_uint(bat_ase_element_tree, hf_Action_Indicator , parameter_tvb, offset, 1, content);
         proto_item_append_text(bat_ase_element_item, " - %s",
-                               val_to_str_ext_wmem(pinfo->pool, content, &bat_ase_action_indicator_field_vals_ext, "unknown (%u)"));
+                               val_to_str_ext(pinfo->pool, content, &bat_ase_action_indicator_field_vals_ext, "unknown (%u)"));
         offset = offset + 1;
         break;
       case BACKBONE_NETWORK_CONNECTION_IDENTIFIER :
@@ -5034,7 +5034,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         proto_tree_add_uint(bat_ase_element_tree, hf_characteristics , parameter_tvb,
                             offset, 1, tempdata);
         proto_item_append_text(bat_ase_element_item, " - %s",
-                               val_to_str_ext_wmem(pinfo->pool, tempdata, &bearer_network_connection_characteristics_vals_ext, "unknown (%u)"));
+                               val_to_str_ext(pinfo->pool, tempdata, &bearer_network_connection_characteristics_vals_ext, "unknown (%u)"));
 
         offset = offset + content_len;
         break;
@@ -5866,7 +5866,7 @@ dissect_isup_generic_notification_indicator_parameter(tvbuff_t *parameter_tvb, p
   proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_isup_notification_indicator, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " : %s",
-                      val_to_str_ext_wmem(pinfo->pool, (indicators&0x7f), &q763_generic_notification_indicator_vals_ext, "Reserved (0x%X)"));
+                      val_to_str_ext(pinfo->pool, (indicators&0x7f), &q763_generic_notification_indicator_vals_ext, "Reserved (0x%X)"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Call history information
@@ -6129,7 +6129,7 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
 
     proto_tree_add_uint_format(parameter_tree, hf_isup_upgraded_parameter, parameter_tvb, offset, 1, upgraded_parameter,
                               "Upgraded parameter no: %u = %s", upgraded_parameter_no,
-                              val_to_str_ext_wmem(pinfo->pool, upgraded_parameter, &isup_parameter_type_value_ext, "unknown (%u)"));
+                              val_to_str_ext(pinfo->pool, upgraded_parameter, &isup_parameter_type_value_ext, "unknown (%u)"));
     offset += 1;
     len -= 1;
     instruction_indicators = tvb_get_uint8(parameter_tvb, offset);

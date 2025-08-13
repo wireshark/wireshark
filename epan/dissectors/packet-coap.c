@@ -1402,13 +1402,13 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			     "%s, MID:%u, %s",
 			     val_to_str(ttype, vals_ttype_short, "Unknown %u"),
 			     mid,
-			     val_to_str_ext_wmem(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
+			     val_to_str_ext(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
 
 		/* append the header information */
 		proto_item_append_text(coap_root,
 				       ", %s, %s, MID:%u",
 				       val_to_str_wmem(pinfo->pool, ttype, vals_ttype, "Unknown %u"),
-				       val_to_str_ext_wmem(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"),
+				       val_to_str_ext(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"),
 				       mid);
 	} else {
 		unsigned len = coap_length;
@@ -1424,12 +1424,12 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		code = dissect_coap_code(tvb, coap_tree, &offset, &dissect_coap_hf, &code_class);
 
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-				   val_to_str_ext_wmem(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
+				   val_to_str_ext(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
 
 		/* append the header information */
 		proto_item_append_text(coap_root,
 				       ", %s",
-				       val_to_str_ext_wmem(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
+				       val_to_str_ext(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
 	}
 
 	/* initialize the external value */

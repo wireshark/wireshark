@@ -688,13 +688,13 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
     if (tap_rec->message_type == 0) /* Operation */
     {
         tick_stat_node(st, st_str_ops, st_ucp_messages, true);
-        tick_stat_node(st, val_to_str_ext_wmem(pinfo->pool, tap_rec->operation, &vals_hdr_OT_ext,
+        tick_stat_node(st, val_to_str_ext(pinfo->pool, tap_rec->operation, &vals_hdr_OT_ext,
                        "Unknown OT: %d"), st_ucp_ops, false);
     }
     else /* Result */
     {
         tick_stat_node(st, st_str_res, st_ucp_messages, true);
-        tick_stat_node(st, val_to_str_ext_wmem(pinfo->pool, tap_rec->operation, &vals_hdr_OT_ext,
+        tick_stat_node(st, val_to_str_ext(pinfo->pool, tap_rec->operation, &vals_hdr_OT_ext,
                        "Unknown OT: %d"), st_ucp_res, false);
 
         tick_stat_node(st, st_str_ucp_res, 0, true);
@@ -706,7 +706,7 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
         else /* Negative Result */
         {
             tick_stat_node(st, st_str_neg, st_ucp_results, true);
-            tick_stat_node(st, val_to_str_ext_wmem(pinfo->pool, tap_rec->result, &vals_parm_EC_ext,
+            tick_stat_node(st, val_to_str_ext(pinfo->pool, tap_rec->result, &vals_parm_EC_ext,
                            "Unknown EC: %d"), st_ucp_results_neg, false);
         }
     }

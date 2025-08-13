@@ -1213,7 +1213,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Info Type:[%s]",
 		     pinfo->srcport, pinfo->destport,
-		     val_to_str_ext_wmem(pinfo->pool, type, &messagetypenames_ext, "Unknown Type:0x%02x"));
+		     val_to_str_ext(pinfo->pool, type, &messagetypenames_ext, "Unknown Type:0x%02x"));
 
 	if (tree)
 	{
@@ -1308,18 +1308,18 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 		/* add length and value info to type */
 		switch (iftype) {
 		case SIMULCRYPT_ECMG_SCS:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext_wmem(pinfo->pool, ptype, &ecmg_parametertypenames_ext, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(pinfo->pool, ptype, &ecmg_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		case SIMULCRYPT_EMMG_MUX:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext_wmem(pinfo->pool, ptype, &emmg_parametertypenames_ext, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(pinfo->pool, ptype, &emmg_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		case SIMULCRYPT_EIS_SCS:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext_wmem(pinfo->pool, ptype, &eis_parametertypenames_ext, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(pinfo->pool, ptype, &eis_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		case SIMULCRYPT_PSIG_MUX:
 		case SIMULCRYPT_MUX_CIM:
 		case SIMULCRYPT_PSIG_CIP:
-			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext_wmem(pinfo->pool, ptype, &psig_parametertypenames_ext, "Unknown Type:0x%02x"));
+			proto_item_append_text(simulcrypt_item, ": Type=%s", val_to_str_ext(pinfo->pool, ptype, &psig_parametertypenames_ext, "Unknown Type:0x%02x"));
 			break;
 		default:
 			proto_item_append_text(simulcrypt_item, ": Type=0x%02x", ptype);

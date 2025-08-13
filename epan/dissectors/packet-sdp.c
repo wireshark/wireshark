@@ -1143,7 +1143,7 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
             media_format = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             if (g_ascii_isdigit(media_format[0])) {
                 proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
-                                      tokenlen, val_to_str_ext_wmem(pinfo->pool, (uint32_t)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
+                                      tokenlen, val_to_str_ext(pinfo->pool, (uint32_t)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
 
                 if (media_desc) {
                     idx = media_desc->media.pt_count;
@@ -2951,7 +2951,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     if (strlen(sdp_pi->summary_str))
                         (void) g_strlcat(sdp_pi->summary_str, " ", 50);
                     (void) g_strlcat(sdp_pi->summary_str,
-                              val_to_str_ext_wmem(pinfo->pool, media_desc->media.pt[j], &rtp_payload_type_short_vals_ext, "%u"),
+                              val_to_str_ext(pinfo->pool, media_desc->media.pt[j], &rtp_payload_type_short_vals_ext, "%u"),
                               50);
                 }
             }

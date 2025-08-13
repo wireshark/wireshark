@@ -2631,7 +2631,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	if (smb_info->request) { /* this is a request */
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_ext_wmem(pinfo->pool, cmd, &commands_ext, "Unknown Command (%u)"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_ext(pinfo->pool, cmd, &commands_ext, "Unknown Command (%u)"));
 
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, offset, 2,
 		    cmd);
@@ -2768,7 +2768,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		&&  ( tvb_reported_length(d_tvb)==0 ) ){
 			/* command */
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
-					     val_to_str_ext_wmem(pinfo->pool, trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
+					     val_to_str_ext(pinfo->pool, trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
 
 			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, trp->lanman_cmd);
 			return true;
@@ -2776,7 +2776,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 		/* command */
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-				     val_to_str_ext_wmem(pinfo->pool, trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
+				     val_to_str_ext(pinfo->pool, trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
 
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0,
 		    trp->lanman_cmd);

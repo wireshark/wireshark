@@ -684,7 +684,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
             }
         }
         if (!strinfo->first_payload_type_name) {
-            strinfo->first_payload_type_name = val_to_str_ext_wmem(wmem_file_scope(), strinfo->first_payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"), "%u");
+            strinfo->first_payload_type_name = val_to_str_ext(wmem_file_scope(), strinfo->first_payload_type, get_external_value_string_ext("rtp_payload_type_short_vals_ext"), "%u");
         }
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
@@ -1022,7 +1022,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
                 break;
             case 2: /* hdlc-fcs-OK */
             case 4: /* hdlc-fcs-OK-sig-end */
-                tmp_str1 = val_to_str_ext_wmem(NULL, t38_info->t30_Facsimile_Control & 0x7F,
+                tmp_str1 = val_to_str_ext(NULL, t38_info->t30_Facsimile_Control & 0x7F,
                             get_external_value_string_ext("t30_facsimile_control_field_vals_short_ext"),
                             "Ukn (0x%02X)");
                 frame_label = ws_strdup_printf("%s %s",
@@ -1030,7 +1030,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
                         t38_info->desc);
                 wmem_free(NULL, tmp_str1);
 
-                tmp_str1 = val_to_str_ext_wmem(NULL, t38_info->t30_Facsimile_Control & 0x7F,
+                tmp_str1 = val_to_str_ext(NULL, t38_info->t30_Facsimile_Control & 0x7F,
                             get_external_value_string_ext("t30_facsimile_control_field_vals_ext"),
                             "Ukn (0x%02X)");
                 tmp_str2 = val_to_str_wmem(NULL, t38_info->data_value,

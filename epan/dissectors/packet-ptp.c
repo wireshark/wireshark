@@ -2128,7 +2128,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         }
         case PTP_MANAGEMENT_MESSAGE:{
              col_add_fstr(pinfo->cinfo, COL_INFO, "Management Message (%s)",
-                             val_to_str_ext_wmem(pinfo->pool, ptp_mm_messagekey,
+                             val_to_str_ext(pinfo->pool, ptp_mm_messagekey,
                                             &ptp_managementMessageKey_infocolumn_vals_ext,
                                             "Unknown message key %u"));
             break;
@@ -4452,7 +4452,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 ptp_v2_mm_managementId = tvb_get_ntohs(tvb, PTP_V2_MM_TLV_MANAGEMENTID_OFFSET);
                 ptp_v2_management_action = 0x0F & tvb_get_uint8(tvb, PTP_V2_MM_ACTION_OFFSET);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Management (%s) %s",
-                    val_to_str_ext_wmem(pinfo->pool, ptp_v2_mm_managementId, &ptp_v2_managementID_infocolumn_vals_ext, "Unknown management Id %u"),
+                    val_to_str_ext(pinfo->pool, ptp_v2_mm_managementId, &ptp_v2_managementID_infocolumn_vals_ext, "Unknown management Id %u"),
                     val_to_str_wmem(pinfo->pool, ptp_v2_management_action, ptp_v2_mm_action_vals, "Unknown Action %u"));
                 break;
             }
@@ -4462,16 +4462,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 /* Get the managementErrorId */
                 ptp_v2_mm_managementId = tvb_get_ntohs(tvb, PTP_V2_MM_TLV_MANAGEMENTERRORID_OFFSET);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Management Error Message (%s)",
-                    val_to_str_ext_wmem(pinfo->pool, ptp_v2_mm_managementId, &ptp_v2_managementErrorId_vals_ext, "Unknown Error Id %u"));
+                    val_to_str_ext(pinfo->pool, ptp_v2_mm_managementId, &ptp_v2_managementErrorId_vals_ext, "Unknown Error Id %u"));
                 break;
             }
             default:
                 col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_ext_wmem(pinfo->pool, ptp_v2_messageid, &ptp_v2_messagetype_vals_ext, "Unknown PTP Message (%u)"));
+                    val_to_str_ext(pinfo->pool, ptp_v2_messageid, &ptp_v2_messagetype_vals_ext, "Unknown PTP Message (%u)"));
                 break;
         }
     } else {
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, ptp_v2_messageid, &ptp_v2_messagetype_vals_ext, "Unknown PTP Message (%u)"));
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, ptp_v2_messageid, &ptp_v2_messagetype_vals_ext, "Unknown PTP Message (%u)"));
     }
 
     if (tree) {

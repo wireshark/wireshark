@@ -191,13 +191,8 @@ void
 value_string_ext_free(value_string_ext *vse);
 
 WS_DLL_PUBLIC
-const char *
-val_to_str_ext(const uint32_t val, value_string_ext *vse, const char *fmt)
-G_GNUC_PRINTF(3, 0);
-
-WS_DLL_PUBLIC
 char *
-val_to_str_ext_wmem(wmem_allocator_t *scope, const uint32_t val, value_string_ext *vse, const char *fmt)
+val_to_str_ext(wmem_allocator_t *scope, const uint32_t val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC

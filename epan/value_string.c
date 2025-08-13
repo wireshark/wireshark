@@ -328,22 +328,8 @@ try_val_to_str_idx_ext(const uint32_t val, value_string_ext *vse, int *idx)
 }
 
 /* Like val_to_str for extended value strings */
-const char *
-val_to_str_ext(const uint32_t val, value_string_ext *vse, const char *fmt)
-{
-    const char *ret;
-
-    DISSECTOR_ASSERT(fmt != NULL);
-
-    ret = try_val_to_str_ext(val, vse);
-    if (ret != NULL)
-        return ret;
-
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
-}
-
 char *
-val_to_str_ext_wmem(wmem_allocator_t *scope, const uint32_t val, value_string_ext *vse, const char *fmt)
+val_to_str_ext(wmem_allocator_t *scope, const uint32_t val, value_string_ext *vse, const char *fmt)
 {
     const char *ret;
 

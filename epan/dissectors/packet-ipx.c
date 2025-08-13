@@ -325,7 +325,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
     copy_address_shallow(&ipxh->ipx_dst, &pinfo->net_dst);
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_wmem(pinfo->pool, ipxh->ipx_dsocket, &ipx_socket_vals_ext, "Unknown (0x%04x)"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, ipxh->ipx_dsocket, &ipx_socket_vals_ext, "Unknown (0x%04x)"));
 
 	if (tree) {
 

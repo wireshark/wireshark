@@ -337,7 +337,7 @@ get_char_encoding(tvbuff_t* tvb, packet_info* pinfo, char** ret_encoding_name) {
     } else {
         /* Use default encoding preference if this xml does not contains 'encoding' attribute. */
         iana_charset_id = pref_default_encoding;
-        encoding_str = val_to_str_ext_wmem(pinfo->pool, iana_charset_id,
+        encoding_str = val_to_str_ext(pinfo->pool, iana_charset_id,
             &mibenum_vals_character_sets_ext, "UNKNOWN");
     }
     g_match_info_free(match_info);

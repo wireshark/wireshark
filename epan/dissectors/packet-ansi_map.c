@@ -15207,7 +15207,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             j=0;
             break;
         default:
-            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "[%u] (%u) %s",j,octet,val_to_str_ext_wmem(pinfo->pool, octet, &ansi_map_TriggerType_vals_ext, "Unknown TriggerType (%u)"));
+            proto_tree_add_uint_format(subtree, hf_ansi_map_win_trigger_list, tvb, offset, 1, octet, "[%u] (%u) %s",j,octet,val_to_str_ext(pinfo->pool, octet, &ansi_map_TriggerType_vals_ext, "Unknown TriggerType (%u)"));
             j++;
             break;
         }
@@ -15949,22 +15949,22 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     case 1:
         OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
         ansi_map_is_invoke = true;
-        col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext_wmem(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
-        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext_wmem(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
         update_saved_invokedata(pinfo, p_private_tcap);
         break;
     case 2:
         OperationCode = find_saved_invokedata(&asn1_ctx, p_private_tcap);
-        col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext_wmem(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
-        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext_wmem(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
-        col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext_wmem(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     case 4:
-        col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str_ext_wmem(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     default:
         /* Must be Invoke ReturnResult ReturnError or Reject */

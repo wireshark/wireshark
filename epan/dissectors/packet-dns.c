@@ -1935,7 +1935,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     *is_multiple_responds = true;
   }
 
-  type_name = val_to_str_ext_wmem(pinfo->pool, type, &dns_types_vals_ext, "Unknown (%u)");
+  type_name = val_to_str_ext(pinfo->pool, type, &dns_types_vals_ext, "Unknown (%u)");
 
   /*
    * The name might contain octets that aren't printable characters,
@@ -1967,7 +1967,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     offset += used_bytes - 4;
 
     ti = proto_tree_add_item(q_tree, hf_dns_qry_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " %s", val_to_str_ext_wmem(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
+    proto_item_append_text(ti, " %s", val_to_str_ext(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
     offset += 2;
 
     if (is_mdns) {
@@ -2040,7 +2040,7 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   offset += namelen;
 
   ti = proto_tree_add_item(rr_tree, hf_dns_rr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_item_append_text(ti, " %s", val_to_str_ext_wmem(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
+  proto_item_append_text(ti, " %s", val_to_str_ext(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
   offset += 2;
   if (is_mdns) {
     proto_tree_add_item(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2084,7 +2084,7 @@ add_opt_rr_to_tree(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, int o
   proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   offset += namelen;
   ti = proto_tree_add_item_ret_uint(rr_tree, hf_dns_rr_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
-  proto_item_append_text(ti, " %s", val_to_str_ext_wmem(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
+  proto_item_append_text(ti, " %s", val_to_str_ext(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
   offset += 2;
   if (is_mdns) {
     proto_tree_add_item(rr_tree, hf_dns_rr_udp_payload_size_mdns, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2127,7 +2127,7 @@ dissect_type_bitmap(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, int 
           proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, cur_offset, 1, rr_type,
             "RR type in bit map: %s %s",
             val_to_str_ext_const(rr_type, &dns_types_vals_ext, " "),
-            val_to_str_ext_wmem(pinfo->pool, rr_type, &dns_types_description_vals_ext, "Unknown (%d)")
+            val_to_str_ext(pinfo->pool, rr_type, &dns_types_description_vals_ext, "Unknown (%d)")
             );
         }
         mask >>= 1;
@@ -2157,7 +2157,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, 
           proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, cur_offset, 1, rr_type,
             "RR type in bit map: %s %s",
             val_to_str_ext_const(rr_type, &dns_types_vals_ext, " "),
-            val_to_str_ext_wmem(pinfo->pool, rr_type, &dns_types_description_vals_ext, "Unknown (%d)"));
+            val_to_str_ext(pinfo->pool, rr_type, &dns_types_description_vals_ext, "Unknown (%d)"));
         }
       mask >>= 1;
       rr_type++;
@@ -2414,7 +2414,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   } else {
     flush = 0;
   }
-  type_name = val_to_str_ext_wmem(pinfo->pool, dns_type, &dns_types_vals_ext, "Unknown (%d)");
+  type_name = val_to_str_ext(pinfo->pool, dns_type, &dns_types_vals_ext, "Unknown (%d)");
   class_name = val_to_str_const(dns_class, dns_classes, "Unknown");
 
   data_offset += 4;
@@ -3743,7 +3743,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       uint32_t type;
 
       ti = proto_tree_add_item_ret_uint(rr_tree, hf_dns_rrsig_type_covered, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &type);
-      proto_item_append_text(ti, " %s", val_to_str_ext_wmem(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
+      proto_item_append_text(ti, " %s", val_to_str_ext(pinfo->pool, type, &dns_types_description_vals_ext, "Unknown (%d)"));
       cur_offset += 2;
       rr_len     -= 2;
 

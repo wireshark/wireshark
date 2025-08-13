@@ -1800,7 +1800,7 @@ dissect_uds_rdtci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, uint3
     uint32_t    enum_val;
 
     proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_ext_wmem(pinfo->pool, enum_val, &uds_rdtci_types_ext, "Unknown (0x%02x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_ext(pinfo->pool, enum_val, &uds_rdtci_types_ext, "Unknown (0x%02x)"));
     offset += 1;
 
     if (sid & UDS_REPLY_MASK) {
@@ -2331,7 +2331,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
         return call_dissector(obd_ii_handle, tvb_new_subset_length_caplen(tvb, offset, -1, -1), pinfo, tree);
     }
 
-    service_name = val_to_str_ext_wmem(pinfo->pool, service, &uds_services_ext, "Unknown (0x%02x)");
+    service_name = val_to_str_ext(pinfo->pool, service, &uds_services_ext, "Unknown (0x%02x)");
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%-7s   %-36s", (sid & UDS_REPLY_MASK)? "Reply": "Request", service_name);
 
@@ -3164,11 +3164,11 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
         case UDS_SERVICES_ERR:
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_sid, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_ext_wmem(pinfo->pool, enum_val, &uds_services_ext, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_ext(pinfo->pool, enum_val, &uds_services_ext, "Unknown (0x%02x)"));
             offset += 1;
 
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_err_code, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str_ext_wmem(pinfo->pool, enum_val, &uds_response_codes_ext, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (NRC: %s)", val_to_str_ext(pinfo->pool, enum_val, &uds_response_codes_ext, "Unknown (0x%02x)"));
             offset += 1;
             break;
 
