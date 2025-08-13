@@ -22,7 +22,6 @@
 #include "packet-ecatmb.h"
 
 #define BIT2BYTE(x) ((x+7)/8)
-#define ENDOF(p) ((p)+1) /* pointer to end of *p */
 
 void proto_register_ecat_mailbox(void);
 void proto_reg_handoff_ecat_mailbox(void);
@@ -690,7 +689,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
             memset(&info, 0x0, sizeof(info));
             init_sdo_info_header(&info, tvb, offset);
 
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str(info.anSdoControlUnion.v.OpCode & 0x7F, CANopenSdoInfo, "%d (Unknown)"));
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, info.anSdoControlUnion.v.OpCode & 0x7F, CANopenSdoInfo, "%d (Unknown)"));
             if ( info.anSdoControlUnion.v.InComplete )
                 col_append_str(pinfo->cinfo, COL_INFO, " - More Follows");
 
