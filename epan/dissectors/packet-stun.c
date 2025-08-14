@@ -1714,7 +1714,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
 
                 {
                     uint8_t protoCode = tvb_get_uint8(tvb, offset);
-                    const char *protoCode_str = val_to_str(protoCode, transportnames, "Unknown (0x%8x)");
+                    const char *protoCode_str = val_to_str_wmem(pinfo->pool, protoCode, transportnames, "Unknown (0x%8x)");
 
                     proto_item_append_text(att_tree, ": %s", protoCode_str);
                     col_append_fstr(
@@ -1777,7 +1777,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
 
             case MS_VERSION:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_version, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(att_tree, ": %s", val_to_str(tvb_get_ntohl(tvb, offset), ms_version_vals, "Unknown (0x%u)"));
+                proto_item_append_text(att_tree, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, offset), ms_version_vals, "Unknown (0x%u)"));
                 break;
             case MS_IMPLEMENTATION_VER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_version_ice, tvb, offset, 4, ENC_BIG_ENDIAN);

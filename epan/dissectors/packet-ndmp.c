@@ -657,12 +657,11 @@ dissect_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	uint32_t err;
 
 	/* error */
-	err=tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_ndmp_error, tvb, offset, 4, ENC_BIG_ENDIAN, &err);
 	if(err) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" NDMP Error:%s ",
-			val_to_str(err, error_vals,
+			val_to_str_wmem(pinfo->pool, err, error_vals,
 			"Unknown NDMP error code %#x"));
 	}
 
@@ -1834,7 +1833,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	type=tvb_get_ntohl(tvb, offset);
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 4, ett_ndmp_addr, NULL,
-				"Type: %s ", val_to_str(type, addr_type_vals,"Unknown addr type (0x%02x)") );
+				"Type: %s ", val_to_str_wmem(pinfo->pool, type, addr_type_vals,"Unknown addr type (0x%02x)") );
 
 	/*address type*/
 	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2900,8 +2899,8 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset=dissect_error(tvb, offset, pinfo, tree, nh->seq);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ",
-			val_to_str(nh->msg, msg_vals, "Unknown Message (0x%02x)"),
-			val_to_str(nh->type, msg_type_vals, "Unknown Type (0x%02x)")
+			val_to_str_wmem(pinfo->pool, nh->msg, msg_vals, "Unknown Message (0x%02x)"),
+			val_to_str_wmem(pinfo->pool, nh->type, msg_type_vals, "Unknown Type (0x%02x)")
 			);
 
 	return offset;

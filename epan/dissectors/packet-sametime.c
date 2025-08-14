@@ -229,12 +229,12 @@ add_text_item(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
 
 
 static uint16_t
-dissect_set_user_status(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_set_user_status(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
    uint16_t user_status;
 
    user_status = tvb_get_ntohs(tvb, offset);
-   proto_item_append_text(tree, ", %s", val_to_str(user_status, userstatusnames, "0x%04x"));
+   proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, user_status, userstatusnames, "0x%04x"));
    proto_tree_add_item(tree, hf_sametime_user_status, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
    proto_tree_add_item(tree, hf_sametime_time, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -333,13 +333,13 @@ dissect_channel_create(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 
 static uint16_t
-dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_channel_send(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
    uint16_t send_type, awareness;
    unsigned na;
 
    send_type = tvb_get_ntohs(tvb, offset);
-   proto_item_append_text(tree, ", %s", val_to_str(send_type, sendtypenames, "0x%04x"));
+   proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, send_type, sendtypenames, "0x%04x"));
    proto_tree_add_item(tree, hf_sametime_channel_send_type, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
 
@@ -347,7 +347,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
       case SAMETIME_SENDTYPE_AWARE_ADD:
          offset += 8;
          awareness = tvb_get_ntohs(tvb, offset);
-         proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
+         proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, awareness, awarenessnames, "0x%04x"));
          proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
          offset += 2;
          add_text_item(tvb, tree, offset, hf_sametime_field_text);
@@ -376,7 +376,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
       case SAMETIME_SENDTYPE_OPT_GOT_SET:
          offset += 8;
          awareness = tvb_get_ntohs(tvb, offset);
-         proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
+         proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, awareness, awarenessnames, "0x%04x"));
          proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
          offset += 2;
          while (tvb_reported_length_remaining(tvb, offset) > 2)        {
@@ -389,7 +389,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
       case SAMETIME_SENDTYPE_AWARE_SNAPSHOT:
          offset += 12;
          awareness = tvb_get_ntohs(tvb, offset);
-         proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
+         proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, awareness, awarenessnames, "0x%04x"));
          proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
          offset += 2;
          add_text_item(tvb, tree, offset, hf_sametime_field_text);
@@ -400,7 +400,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
          offset += 4;
          offset += 4;
          awareness = tvb_get_ntohs(tvb, offset);
-         proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
+         proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, awareness, awarenessnames, "0x%04x"));
          proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
          offset += 2;
          offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
@@ -408,7 +408,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
          if (tvb_get_uint8(tvb, offset))        {
             offset += 1;
             offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-            dissect_set_user_status(tvb, tree, offset);
+            dissect_set_user_status(tvb, pinfo, tree, offset);
          }
 
          break;
@@ -462,7 +462,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 
 static void
-dissect_channel_accept(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_channel_accept(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
    offset += 34;
    if (tvb_reported_length_remaining(tvb, offset + 2))        {
@@ -470,19 +470,19 @@ dissect_channel_accept(tvbuff_t *tvb, proto_tree *tree, int offset)
       if (tvb_get_uint8(tvb, offset))        {
          offset += 1;
          offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-         dissect_set_user_status(tvb, tree, offset);
+         dissect_set_user_status(tvb, pinfo, tree, offset);
       }
    }
 }
 
 
 static void
-dissect_sense_service(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_sense_service(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
    uint32_t code;
 
    code = tvb_get_ntohl(tvb, offset);
-   proto_item_append_text(tree, ", %s", val_to_str(code, codenames, "0x%04x"));
+   proto_item_append_text(tree, ", %s", val_to_str_wmem(pinfo->pool, code, codenames, "0x%04x"));
    proto_tree_add_item(tree, hf_sametime_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
@@ -512,7 +512,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    }
 
    /* add message type */
-   col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, messagetypenames, "0x%04x"));
+   col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, messagetypenames, "0x%04x"));
    col_append_str(pinfo->cinfo, COL_INFO, " ");
 
    /* message type statistic */
@@ -524,7 +524,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    /* packet detail tree */
    ti = proto_tree_add_item(tree, proto_sametime, tvb, offset, -1, ENC_NA);
    sametime_tree = proto_item_add_subtree(ti, ett_sametime);
-   proto_item_append_text(sametime_tree, ", %s", val_to_str(message_type, messagetypenames, "0x%04x"));
+   proto_item_append_text(sametime_tree, ", %s", val_to_str_wmem(pinfo->pool, message_type, messagetypenames, "0x%04x"));
 
    /* dissect message */
    if (message_type == SAMETIME_MESSAGETYPE_HEARTBEAT)        {
@@ -585,19 +585,19 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             break;
 
          case SAMETIME_MESSAGETYPE_CHANNEL_SEND:
-            sinfo->send_type = dissect_channel_send(tvb, sametime_tree, offset);
+            sinfo->send_type = dissect_channel_send(tvb, pinfo, sametime_tree, offset);
             break;
 
          case SAMETIME_MESSAGETYPE_CHANNEL_ACCEPT:
-            dissect_channel_accept(tvb, sametime_tree, offset);
+            dissect_channel_accept(tvb, pinfo, sametime_tree, offset);
             break;
 
          case SAMETIME_MESSAGETYPE_SET_USER_STATUS:
-            sinfo->user_status = dissect_set_user_status(tvb, sametime_tree, offset);
+            sinfo->user_status = dissect_set_user_status(tvb, pinfo, sametime_tree, offset);
             break;
 
          case SAMETIME_MESSAGETYPE_SENSE_SERVICE:
-            dissect_sense_service(tvb, sametime_tree, offset);
+            dissect_sense_service(tvb, pinfo ,sametime_tree, offset);
             break;
 
          default:
@@ -622,13 +622,13 @@ sametime_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
 
    tick_stat_node(st, st_str_packet, 0, false);
    if (pi->message_type != -1)
-      stats_tree_tick_pivot(st, st_node_message_type, val_to_str(pi->message_type, messagetypenames, "Unknown (0x%04x)"));
+      stats_tree_tick_pivot(st, st_node_message_type, val_to_str_wmem(pinfo->pool, pi->message_type, messagetypenames, "Unknown (0x%04x)"));
 
    if (pi->send_type != -1)
-      stats_tree_tick_pivot(st, st_node_send_type, val_to_str(pi->send_type, sendtypenames, "Unknown (0x%04x)"));
+      stats_tree_tick_pivot(st, st_node_send_type, val_to_str_wmem(pinfo->pool, pi->send_type, sendtypenames, "Unknown (0x%04x)"));
 
    if (pi->user_status != -1)
-      stats_tree_tick_pivot(st, st_node_user_status, val_to_str(pi->user_status, userstatusnames, "Unknown (0x%04x)"));
+      stats_tree_tick_pivot(st, st_node_user_status, val_to_str_wmem(pinfo->pool, pi->user_status, userstatusnames, "Unknown (0x%04x)"));
 
    return TAP_PACKET_REDRAW;
 }

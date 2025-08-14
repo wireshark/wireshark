@@ -2054,7 +2054,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Summary information */
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(th_fid, sna_th_fid_vals, "Unknown FID: %01x"));
+		    val_to_str_wmem(pinfo->pool, th_fid, sna_th_fid_vals, "Unknown FID: %01x"));
 
 	if (tree) {
 		/* --- TH --- */

@@ -3193,7 +3193,7 @@ dissect_rdpNegFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
   proto_tree_add_item_ret_uint(tree, hf_rdp_negFailure_failureCode, tvb, offset, 4, ENC_LITTLE_ENDIAN, &failureCode);
   offset += 4;
   col_append_fstr(pinfo->cinfo, COL_INFO, ", failureCode %s",
-                  val_to_str(failureCode, failure_code_vals, "Unknown (0x%08x)"));
+                  val_to_str_wmem(pinfo->pool, failureCode, failure_code_vals, "Unknown (0x%08x)"));
   return offset;
 }
 

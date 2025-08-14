@@ -813,7 +813,7 @@ init_raknet_offline_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     *offset += 1;
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(message_id, raknet_offline_message_names, "Unknown offline message: %#x"));
+                val_to_str_wmem(pinfo->pool, message_id, raknet_offline_message_names, "Unknown offline message: %#x"));
 
     /*
      * Append description to the raknet item.
@@ -1106,13 +1106,13 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
         payload_tree = proto_item_add_subtree(ti, ett_raknet_system_message);
 
         proto_item_append_text(ti, " (%s)",
-                               val_to_str(message_id, raknet_system_message_names, "Unknown ID: %#x"));
+                               val_to_str_wmem(pinfo->pool, message_id, raknet_system_message_names, "Unknown ID: %#x"));
 
         proto_item_append_text(msg_ti, "ID %#x (%s)", message_id,
                                val_to_str_const(message_id, raknet_system_message_names, "Unknown"));
 
         col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(message_id, raknet_system_message_names, "Unknown system message ID: %#x"));
+                    val_to_str_wmem(pinfo->pool, message_id, raknet_system_message_names, "Unknown system message ID: %#x"));
 
         proto_tree_add_item(payload_tree, hf_raknet_system_message_id,
                             next_tvb, 0, 1, ENC_NA);

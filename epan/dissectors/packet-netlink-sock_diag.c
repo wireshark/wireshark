@@ -330,13 +330,13 @@ static const value_string netlink_sock_diag_shutdown_flags_vals[] = {
 };
 
 static void
-sock_diag_proto_tree_add_shutdown(proto_tree *tree, tvbuff_t *tvb, int offset)
+sock_diag_proto_tree_add_shutdown(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset)
 {
-	uint8_t how = tvb_get_uint8(tvb, offset);
+	uint32_t how;
 
-	proto_tree_add_item(tree, hf_netlink_sock_diag_shutdown, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(tree, hf_netlink_sock_diag_shutdown, tvb, offset, 1, ENC_NA, &how);
 
-	proto_item_append_text(tree, ": %s", val_to_str(how, netlink_sock_diag_shutdown_flags_vals, "Invalid how value (%x)"));
+	proto_item_append_text(tree, ": %s", val_to_str_wmem(pinfo->pool, how, netlink_sock_diag_shutdown_flags_vals, "Invalid how value (%x)"));
 }
 
 /* AF_UNIX attributes */
@@ -400,7 +400,7 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 
 		case WS_UNIX_DIAG_SHUTDOWN:
 			if (len == 1)
-				sock_diag_proto_tree_add_shutdown(tree, tvb, offset);
+				sock_diag_proto_tree_add_shutdown(tree, info->pinfo, tvb, offset);
 			return 0;
 
 		case WS_UNIX_DIAG_VFS:
@@ -546,7 +546,7 @@ dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, struct packet_netli
 
 		case WS_INET_DIAG_SHUTDOWN:
 			if (len == 1)
-				sock_diag_proto_tree_add_shutdown(tree, tvb, offset);
+				sock_diag_proto_tree_add_shutdown(tree, info->pinfo, tvb, offset);
 			return 0;
 
 		case WS_INET_DIAG_INFO:

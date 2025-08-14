@@ -1567,7 +1567,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPCoRDMA");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s XID 0x%x",
-        val_to_str(msg_type, rpcordma_message_type, "Unknown (%d)"), xid);
+        val_to_str_wmem(pinfo->pool, msg_type, rpcordma_message_type, "Unknown (%d)"), xid);
 
     ti = proto_tree_add_item(tree, proto_rpcordma, tvb, 0, MIN_RPCRDMA_HDR_SZ, ENC_NA);
 

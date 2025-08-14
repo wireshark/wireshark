@@ -378,7 +378,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     ti = proto_tree_add_uint(slimp3_tree, hf_slimp3_display_command, tvb, offset + i1, 2, value);
                     if ((tvb_get_uint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) {
                         proto_item_append_text(ti, ": %s",
-                                               val_to_str(tvb_get_uint8(tvb, offset + i1 + 2),
+                                               val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset + i1 + 2),
                                                           slimp3_display_fset8,
                                                           "Unknown (0x%0x)"));
                         i1 += 2;
@@ -432,7 +432,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     case SLIMP3_CONTROL:
         proto_tree_add_item(slimp3_tree, hf_slimp3_control, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                        val_to_str(tvb_get_uint8(tvb, offset+1),
+                        val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+1),
                                    slimp3_stream_control, "Unknown (0x%0x)"));
         break;
 
@@ -507,7 +507,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             ", %s, %d bytes at %u, Sequence: %u",
-                            val_to_str(tvb_get_uint8(tvb, offset+1),
+                            val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+1),
                                        slimp3_mpg_control, "Unknown (0x%0x)"),
                             tvb_reported_length_remaining(tvb, offset+18),
                             write_pointer,

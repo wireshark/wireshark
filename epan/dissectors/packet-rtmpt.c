@@ -814,7 +814,7 @@ rtmpt_get_packet_desc(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t offse
                 if (tp->len >= 4 && remain >= 4) {
                         *deschasopcode = true;
                         return wmem_strdup_printf(allocator, "%s %d",
-                                                val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
+                                                val_to_str_wmem(allocator, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
                                                 tvb_get_ntohl(tvb, offset));
                 }
 
@@ -822,9 +822,9 @@ rtmpt_get_packet_desc(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t offse
                 if (tp->len >= 5 && remain >= 5) {
                         *deschasopcode = true;
                         return wmem_strdup_printf(allocator, "%s %d,%s",
-                                                val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
+                                                val_to_str_wmem(allocator, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"),
                                                 tvb_get_ntohl(tvb, offset),
-                                                val_to_str(tvb_get_uint8(tvb, offset+4), rtmpt_limit_vals, "Unknown (%d)"));
+                                                val_to_str_wmem(allocator, tvb_get_uint8(tvb, offset+4), rtmpt_limit_vals, "Unknown (%d)"));
                 }
 
         } else if (tp->cmd == RTMPT_TYPE_UCM) {
@@ -1981,14 +1981,14 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         if (tp->id>RTMPT_ID_MAX) {
                 col_append_sep_str(pinfo->cinfo, COL_INFO, "|",
-                                val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                                val_to_str_wmem(pinfo->pool, tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
         } else if (sDesc) {
                 col_append_sep_str(pinfo->cinfo, COL_INFO, "|", sDesc);
                 col_set_fence(pinfo->cinfo, COL_INFO);
         } else {
                 col_append_sep_str(pinfo->cinfo, COL_INFO, "|",
-                                val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
+                                val_to_str_wmem(pinfo->pool, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
         }
 
@@ -2000,12 +2000,12 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                 ti = proto_tree_add_item(tree, proto_rtmpt, tvb, offset, -1, ENC_NA);
 
                 if (tp->id > RTMPT_ID_MAX) {
+                        char* str_handshake = val_to_str_wmem(pinfo->pool, tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)");
+
                         /* Dissect handshake */
-                        proto_item_append_text(ti, " (%s)",
-                                               val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                        proto_item_append_text(ti, " (%s)", str_handshake);
                         rtmptroot_tree = proto_item_add_subtree(ti, ett_rtmpt);
-                        rtmpt_tree = proto_tree_add_subtree(rtmptroot_tree, tvb, offset, -1, ett_rtmpt_handshake, NULL,
-                                                 val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                        rtmpt_tree = proto_tree_add_subtree(rtmptroot_tree, tvb, offset, -1, ett_rtmpt_handshake, NULL, str_handshake);
 
                         if (tp->id == RTMPT_TYPE_HANDSHAKE_1)
                         {
@@ -2030,10 +2030,10 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         proto_item_append_text(ti, " (%s)", sDesc);
                 } else if (sDesc) {
                         proto_item_append_text(ti, " (%s %s)",
-                                               val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"), sDesc);
+                                               val_to_str_wmem(pinfo->pool, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"), sDesc);
                 } else {
                         proto_item_append_text(ti, " (%s)",
-                                               val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
+                                               val_to_str_wmem(pinfo->pool, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
                 }
                 rtmptroot_tree = proto_item_add_subtree(ti, ett_rtmpt);
 
@@ -2047,7 +2047,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
                 /* Dissect header fields */
                 rtmpt_tree = proto_tree_add_subtree(rtmptroot_tree, tvb, offset, tp->bhlen+tp->mhlen, ett_rtmpt_header, NULL, RTMPT_TEXT_RTMP_HEADER);
-/*                proto_item_append_text(ti, " (%s)", val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)")); */
+/*                proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)")); */
 
                 if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_format, tvb, offset + 0, 1, ENC_BIG_ENDIAN);
                 if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_csid, tvb, offset + 0, tp->bhlen, ENC_BIG_ENDIAN);

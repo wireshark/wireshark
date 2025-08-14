@@ -1009,7 +1009,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     opcode = (uint16_t) ((flags & F_OPCODE) >> OPCODE_SHIFT);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-                    val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
+                    val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown operation (%u)"),
                     (flags & F_RESPONSE) ? " response" : "");
 
     ti = proto_tree_add_item(tree, proto_nbns, tvb, offset, -1, ENC_NA);
@@ -1150,7 +1150,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                             offset, 1, ENC_NA, &msg_type);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(msg_type, nbds_msgtype_vals,
+                val_to_str_wmem(pinfo->pool, msg_type, nbds_msgtype_vals,
                            "Unknown message type (0x%02X)"));
 
     proto_tree_add_bitmask(nbdgm_tree, tvb, offset+1, hf_nbdgm_flags, ett_nbdgm_flags, flags, ENC_BIG_ENDIAN);
@@ -1349,7 +1349,7 @@ dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 error_code);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                        val_to_str(error_code, nbss_error_codes, "Unknown (%x)"));
+                        val_to_str_wmem(pinfo->pool, error_code, nbss_error_codes, "Unknown (%x)"));
 
         break;
 
@@ -1629,7 +1629,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(msg_type, message_types, "Unknown (%02x)"));
+                val_to_str_wmem(pinfo->pool, msg_type, message_types, "Unknown (%02x)"));
 
     while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
         /*

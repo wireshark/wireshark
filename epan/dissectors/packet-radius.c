@@ -725,15 +725,15 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	wmem_strbuf_append_printf(filterstr, "%s %s %s",
-		val_to_str(type, ascenddf_filtertype, "%u"),
-		val_to_str(tvb_get_uint8(tvb, 2), ascenddf_inout, "%u"),
-		val_to_str(tvb_get_uint8(tvb, 1), ascenddf_filteror, "%u"));
+		val_to_str_wmem(pinfo->pool, type, ascenddf_filtertype, "%u"),
+		val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 2), ascenddf_inout, "%u"),
+		val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 1), ascenddf_filteror, "%u"));
 
 
 	proto = tvb_get_uint8(tvb, 6+iplen*2);
 	if (proto) {
 		wmem_strbuf_append_printf(filterstr, " %s",
-				val_to_str(proto, ascenddf_proto, "%u"));
+				val_to_str_wmem(pinfo->pool, proto, ascenddf_proto, "%u"));
 	}
 
 	if (type == 3) { /* IPv6 */
@@ -749,7 +749,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", address_to_display(pinfo->pool, &srcip), srclen);
 		if (srcportq)
 			wmem_strbuf_append_printf(filterstr, " srcport %s %d",
-				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
+				val_to_str_wmem(pinfo->pool, srcportq, ascenddf_portq, "%u"), srcport);
 	}
 
 	if (type == 3) { /* IPv6-*/
@@ -765,7 +765,7 @@ dissect_ascend_data_filter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", address_to_display(pinfo->pool, &dstip), dstlen);
 		if (dstportq)
 			wmem_strbuf_append_printf(filterstr, " dstport %s %d",
-				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
+				val_to_str_wmem(pinfo->pool, dstportq, ascenddf_portq, "%u"), dstport);
 	}
 
 	return wmem_strbuf_get_str(filterstr);

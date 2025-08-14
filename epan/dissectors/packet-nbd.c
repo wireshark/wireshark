@@ -701,7 +701,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		proto_tree_add_item(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str(nbd_trans->type, nbd_type_vals, "Unknown (%d)"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_wmem(pinfo->pool, nbd_trans->type, nbd_type_vals, "Unknown (%d)"));
 		switch(nbd_trans->type){
 		case NBD_CMD_WRITE:
 		case NBD_CMD_READ:
@@ -728,7 +728,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  %s", val_to_str(nbd_trans->type, nbd_type_vals, "Unknown (%d)"), val_to_str(error, nbd_error_vals, "Unknown error (%d)"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  %s", val_to_str_wmem(pinfo->pool, nbd_trans->type, nbd_type_vals, "Unknown (%d)"), val_to_str_wmem(pinfo->pool, error, nbd_error_vals, "Unknown error (%d)"));
 
 		if(nbd_trans->type==NBD_CMD_READ){
 			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, ENC_NA);
@@ -842,7 +842,7 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	}
 
 	proto_tree_add_item_ret_uint(tree, hf_nbd_hnd_opt, tvb, offset, 4, ENC_BIG_ENDIAN, &opt);
-	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(opt, nbd_opt_vals, "Unknown (%d)"));
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_wmem(pinfo->pool, opt, nbd_opt_vals, "Unknown (%d)"));
 
 	offset += 4;
 
@@ -979,7 +979,7 @@ dissect_nbd_opt_reply_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 	nbd_opt = (nbd_option_t*)wmem_tree_lookup32_le(nbd_info->opts, pinfo->num);
 
 	proto_tree_add_item_ret_uint(tree, hf_nbd_hnd_opt, tvb, offset, 4, ENC_BIG_ENDIAN, &opt);
-	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(opt, nbd_opt_vals, "Unknown (%d)"));
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_wmem(pinfo->pool, opt, nbd_opt_vals, "Unknown (%d)"));
 	offset += 4;
 
 	if (nbd_opt && nbd_opt->opt == opt) {
@@ -998,7 +998,7 @@ dissect_nbd_opt_reply_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 	}
 
 	item = proto_tree_add_item_ret_uint(tree, hf_nbd_hnd_reply, tvb, offset, 4, ENC_BIG_ENDIAN, &reply);
-	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(reply, nbd_hnd_reply_vals, "Unknown (%d)"));
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_wmem(pinfo->pool, reply, nbd_hnd_reply_vals, "Unknown (%d)"));
 	if (reply & UINT64_C(0x80000000)) {
 		expert_add_info(pinfo, item, &ei_nbd_hnd_reply_error);
 	}

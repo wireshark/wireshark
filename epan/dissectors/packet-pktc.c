@@ -274,12 +274,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         for(i=0;i<len;i++){
             /* SNMPv3 authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_snmpAuthenticationAlgorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, " %s", val_to_str(tvb_get_uint8(tvb, offset), snmp_authentication_algorithm_vals, "%0x"));
+            proto_item_append_text(tree, " %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), snmp_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* SNMPv3 encryption transform id */
             proto_tree_add_item(tree, hf_pktc_snmpEncryptionTransformID, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_uint8(tvb, offset), snmp_transform_id_vals, "%0x"));
+            proto_item_append_text(tree, "/%s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), snmp_transform_id_vals, "%0x"));
             offset+=1;
         }
         break;
@@ -287,12 +287,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         for(i=0;i<len;i++){
             /* IPsec authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_ipsecAuthenticationAlgorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, " %s", val_to_str(tvb_get_uint8(tvb, offset), ipsec_authentication_algorithm_vals, "%0x"));
+            proto_item_append_text(tree, " %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), ipsec_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* IPsec encryption transform id */
             proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_uint8(tvb, offset), ipsec_transform_id_vals, "%0x"));
+            proto_item_append_text(tree, "/%s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), ipsec_transform_id_vals, "%0x"));
             offset+=1;
         }
         break;
@@ -487,7 +487,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     offset+=1;
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                   val_to_str(msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
+                   val_to_str_wmem(pinfo->pool, msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
 
     /* enterprise */
     proto_tree_add_item(tree, hf_pktc_mtafqdn_enterprise, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -615,9 +615,9 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* fill COL_INFO */
     col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(kmmid, kmmid_types, "Unknown KMMID %#x"));
+                    val_to_str_wmem(pinfo->pool, kmmid, kmmid_types, "Unknown KMMID %#x"));
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                        val_to_str(doi, doi_types, "Unknown DOI %#x"));
+                        val_to_str_wmem(pinfo->pool, doi, doi_types, "Unknown DOI %#x"));
 
     switch(kmmid){
     case KMMID_WAKEUP:

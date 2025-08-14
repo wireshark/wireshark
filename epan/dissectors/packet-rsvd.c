@@ -894,6 +894,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     unsigned    offset = 0;
     uint16_t len;
     uint64_t request_id = 0;
+    char* str_operation_code;
     bool request = *(bool *)data;
 
     top_tree = parent_tree;
@@ -935,21 +936,13 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     offset += 4;
 
     /* RequestId */
-    request_id = tvb_get_ntoh64(tvb, offset);
-    proto_tree_add_item(sub_tree, hf_svhdx_request_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint64(sub_tree, hf_svhdx_request_id, tvb, offset, 8, ENC_LITTLE_ENDIAN, &request_id);
+    str_operation_code = val_to_str_wmem(pinfo->pool, operation_code, rsvd_operation_code_vals, "Unknown Operation Code (0x%08X)");
     offset += 8;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                    val_to_str(operation_code,
-                               rsvd_operation_code_vals,
-                               "Unknown Operation Code (0x%08X)"),
-                    request ? "Request" : "Response");
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", str_operation_code, request ? "Request" : "Response");
+    proto_item_append_text(ti, ", %s %s", str_operation_code, request ? "Request" : "Response");
 
-    proto_item_append_text(ti, ", %s %s",
-                          val_to_str(operation_code,
-                                     rsvd_operation_code_vals,
-                                     "Unknown Operation Code (0x%08X)"),
-                          request ? "Request" : "Response");
     /*
      * Now process the individual requests ...
      */

@@ -365,7 +365,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	if (game_tree) {
 		proto_tree *seq1_tree = proto_tree_add_subtree_format(game_tree,
 			tvb, offset, 2, ett_quake3_game_seq1, NULL, "Current Sequence: %u (%s)",
-			seq1, val_to_str(rel1,names_reliable,"%u"));
+			seq1, val_to_str_wmem(pinfo->pool, rel1,names_reliable,"%u"));
 		proto_tree_add_uint(seq1_tree, hf_quake3_game_seq1,
 				    tvb, offset, 2, seq1);
 		proto_tree_add_boolean(seq1_tree, hf_quake3_game_rel1,
@@ -379,7 +379,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	if (game_tree) {
 		proto_tree *seq2_tree = proto_tree_add_subtree_format(game_tree,
 			tvb, offset, 2, ett_quake3_game_seq2, NULL, "Acknowledge Sequence: %u (%s)",
-			seq2, val_to_str(rel2,names_reliable,"%u"));
+			seq2, val_to_str_wmem(pinfo->pool, rel2,names_reliable,"%u"));
 		proto_tree_add_uint(seq2_tree, hf_quake3_game_seq2,
 				    tvb, offset, 2, seq2);
 		proto_tree_add_boolean(seq2_tree, hf_quake3_game_rel2,
@@ -440,7 +440,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			quake3_tree,
 			hf_quake3_direction, tvb, 0, 0,
 			"Direction: %s",
-			val_to_str(direction,
+			val_to_str_wmem(pinfo->pool, direction,
 				   names_direction, "%u"));
 	}
 
@@ -465,10 +465,10 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	if (direction != DIR_UNKNOWN && dir_item)
 		proto_item_set_text(dir_item,
 					"Direction: %s",
-					val_to_str(direction,
+					val_to_str_wmem(pinfo->pool, direction,
 						names_direction, "%u"));
 
-	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, direction,
 			names_direction, "%u"));
 	return tvb_captured_length(tvb);
 }

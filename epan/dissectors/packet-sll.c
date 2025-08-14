@@ -453,7 +453,7 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(pkttype, packet_type_vals, "Unknown (%u)"));
+		    val_to_str_wmem(pinfo->pool, pkttype, packet_type_vals, "Unknown (%u)"));
 
 	ti = proto_tree_add_protocol_format(tree, proto_sll, tvb, 0,
 			header_size, "Linux cooked capture v%d", version);

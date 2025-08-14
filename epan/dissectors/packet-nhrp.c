@@ -491,7 +491,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
             uint8_t code = tvb_get_uint8(tvb, offset);
             if ( codeinfo ) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Code=%s",
-                    val_to_str(code, nhrp_cie_code_vals, "Unknown (%u)"));
+                    val_to_str_wmem(pinfo->pool, code, nhrp_cie_code_vals, "Unknown (%u)"));
             }
             proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
@@ -680,7 +680,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-            val_to_str(tvb_get_ntohs(tvb, offset), nhrp_error_code_vals, "Unknown Error (%u)"));
+            val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), nhrp_error_code_vals, "Unknown Error (%u)"));
         proto_tree_add_item(nhrp_tree, hf_nhrp_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -694,7 +694,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-            val_to_str(tvb_get_ntohs(tvb, offset), nhrp_traffic_code_vals, "Unknown traffic code (%u)"));
+            val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), nhrp_traffic_code_vals, "Unknown traffic code (%u)"));
         proto_tree_add_item(nhrp_tree, hf_nhrp_traffic_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -892,7 +892,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
         else {
             nhrp_tree =  proto_tree_add_subtree(tree, tvb, offset,
                 -1, ett_nhrp_ext, &nhrp_item,
-                val_to_str(extType, ext_type_vals, "Unknown (%u)"));
+                val_to_str_wmem(pinfo->pool, extType, ext_type_vals, "Unknown (%u)"));
         }
         proto_tree_add_boolean(nhrp_tree, hf_nhrp_ext_C, tvb, offset, 2, extTypeC);
         proto_tree_add_item(nhrp_tree, hf_nhrp_ext_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1058,13 +1058,13 @@ static void _dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!nested) {
         col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(hdr.ar_op_type, nhrp_op_type_vals,
+            val_to_str_wmem(pinfo->pool, hdr.ar_op_type, nhrp_op_type_vals,
                 "0x%02X - unknown"));
     }
 
     ti = proto_tree_add_protocol_format(tree, proto_nhrp, tvb, 0, -1,
         "Next Hop Resolution Protocol (%s)",
-        val_to_str(hdr.ar_op_type, nhrp_op_type_vals, "0x%02X - unknown"));
+        val_to_str_wmem(pinfo->pool, hdr.ar_op_type, nhrp_op_type_vals, "0x%02X - unknown"));
     nhrp_tree = proto_item_add_subtree(ti, ett_nhrp);
 
     if (!dissect_nhrp_hdr(tvb, pinfo, nhrp_tree, &offset, &mandLen, &extLen,

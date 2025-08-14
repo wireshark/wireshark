@@ -5011,7 +5011,7 @@ dissect_bcp_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     mac_type = tvb_get_uint8(tvb, offset);
     if (!(flags & BCP_IS_BCONTROL)) {
         col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(mac_type, bcp_bpdu_mac_type_vals,
+                val_to_str_wmem(pinfo->pool, mac_type, bcp_bpdu_mac_type_vals,
                 "Unknown MAC type %u"));
     }
     proto_tree_add_uint(bcp_bpdu_tree, hf_bcp_bpdu_mac_type, tvb, offset, 1, mac_type);

@@ -104,7 +104,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCP");
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Class: %s",
-		     val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
+		     val_to_str_wmem(pinfo->pool, type, rmcp_type_vals, "Unknown (0x%02x)"),
 		     class_str);
 
 	if (tree) {
@@ -119,7 +119,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 		field_tree = proto_tree_add_subtree_format(rmcp_tree, tvb, 3, 1,
 			 ett_rmcp_typeclass, NULL, "Type: %s, Class: %s",
-			 val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
+			 val_to_str_wmem(pinfo->pool, type, rmcp_type_vals, "Unknown (0x%02x)"),
 			 class_str);
 
 		proto_tree_add_item(field_tree, hf_rmcp_class, tvb, 3, 1, ENC_LITTLE_ENDIAN);

@@ -908,7 +908,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
     }
 
     if (add_datatype)
-        proto_item_append_text(ti_field, " (%s)", val_to_str(field_type, protobuf_field_type, "Unknown type (%d)"));
+        proto_item_append_text(ti_field, " (%s)", val_to_str_wmem(pinfo->pool, field_type, protobuf_field_type, "Unknown type (%d)"));
 
 }
 
@@ -1437,7 +1437,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
             break;
         }
 
-        proto_item_append_text(ti_field, " (%s)", val_to_str(field_type, protobuf_field_type, "Unknown type (%d)"));
+        proto_item_append_text(ti_field, " (%s)", val_to_str_wmem(pinfo->pool, field_type, protobuf_field_type, "Unknown type (%d)"));
 
         if (ti_value) {
             proto_item_set_generated(ti_value);

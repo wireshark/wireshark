@@ -100,7 +100,7 @@ static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, uint8_t version
     proto_tree *tree);
 static void dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t version,
     proto_tree *tree);
-static int dissect_rip_authentication(tvbuff_t *tvb, int offset,
+static int dissect_rip_authentication(tvbuff_t *tvb, packet_info* pinfo, int offset,
     proto_tree *tree);
 
 static int
@@ -124,7 +124,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
                     val_to_str_const(version, version_vals, "RIP"));
     col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(command, command_vals, "Unknown command (%u)"));
+                    val_to_str_wmem(pinfo->pool, command, command_vals, "Unknown command (%u)"));
 
     ti = proto_tree_add_item(tree, proto_rip, tvb, 0, -1, ENC_NA);
     rip_tree = proto_item_add_subtree(ti, ett_rip);
@@ -154,7 +154,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
         case 0xFFFF:
             if( offset == RIP_HEADER_LENGTH ) {
-                    trailer_len=dissect_rip_authentication(tvb, offset, rip_tree);
+                    trailer_len=dissect_rip_authentication(tvb, pinfo, offset, rip_tree);
                     is_md5_auth = true;
             break;
             }
@@ -228,7 +228,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t ver
 }
 
 static int
-dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_rip_authentication(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
     proto_tree *rip_authentication_tree;
     uint16_t    authtype;
@@ -238,7 +238,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
     authtype = tvb_get_ntohs(tvb, offset + 2);
 
     rip_authentication_tree = proto_tree_add_subtree_format(tree, tvb, offset, RIP_ENTRY_LENGTH,
-                        ett_rip_vec, NULL, "Authentication: %s", val_to_str( authtype, rip_auth_type, "Unknown (%u)" ) );
+                        ett_rip_vec, NULL, "Authentication: %s", val_to_str_wmem(pinfo->pool, authtype, rip_auth_type, "Unknown (%u)" ) );
 
     proto_tree_add_uint(rip_authentication_tree, hf_rip_auth, tvb, offset+2, 2,
                 authtype);

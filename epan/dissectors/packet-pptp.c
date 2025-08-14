@@ -591,7 +591,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   control_message_type = tvb_get_ntohs(tvb, offset + 8);
 
   col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str(control_message_type, control_message_type_vals,
+              val_to_str_wmem(pinfo->pool, control_message_type, control_message_type_vals,
                          "Unknown control type (%d)"));
 
   if (tree) {

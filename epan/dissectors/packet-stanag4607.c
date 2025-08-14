@@ -1054,7 +1054,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	/* Put type of first segment in the info column */
 	first_segment = tvb_get_uint8(tvb, 32);
 	col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(first_segment, stanag4607_segment_vals, "Unknown (0x%02x)"));
+			val_to_str_wmem(pinfo->pool, first_segment, stanag4607_segment_vals, "Unknown (0x%02x)"));
 
 	/* Put the timestamp, if available in the time column */
 	if (PLATFORM_LOCATION_SEGMENT == first_segment) {

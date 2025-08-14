@@ -473,11 +473,11 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
 
     /* Fill in the PROTOCOL & INFO  columns. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", val_to_str_wmem(pinfo->pool, subfunc, sss_func_enum, "Unknown (%d)"));
 
     switch (subfunc) {
     case 1:
-        atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_sss, NULL, "Packet Type: %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
+        atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_sss, NULL, "Packet Type: %s", val_to_str_wmem(pinfo->pool, subfunc, sss_func_enum, "Unknown (%d)"));
         proto_tree_add_item(atree, hf_sss_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         proto_tree_add_item(atree, hf_sss_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -493,7 +493,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             foffset += 4;
             foffset += 12; /* Blank Context */
             subverb = tvb_get_letohl(tvb, foffset);
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_wmem(pinfo->pool, subverb, sss_verb_enum, "Unknown (%d)"));
 
             aitem = proto_tree_add_item(ncp_tree, hf_sss_verb, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             atree = proto_item_add_subtree(aitem, ett_sss);
@@ -630,7 +630,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint8
             if (str) {
                 expert_item = proto_tree_add_item(atree, hf_sss_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 expert_add_info_format(pinfo, expert_item, &ei_return_code, "SSS Error: %s", str);
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str_wmem(pinfo->pool, return_code, sss_errors_enum, "Unknown (%d)"));
                 /*foffset+=4;*/
             } else {
                 proto_tree_add_uint_format_value(atree, hf_sss_return_code, tvb, foffset, 4, 0, "Success (0x00000000)");

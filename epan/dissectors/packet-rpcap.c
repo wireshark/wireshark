@@ -1056,8 +1056,9 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   proto_item *ti;
   tvbuff_t *new_tvb;
   int len, offset = 0;
-  uint8_t msg_type;
+  uint32_t msg_type;
   uint16_t msg_value;
+  char* str_message_type;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -1069,14 +1070,13 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   proto_tree_add_item (tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  msg_type = tvb_get_uint8 (tvb, offset);
-  proto_tree_add_item (tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
   offset++;
 
-  col_append_str (pinfo->cinfo, COL_INFO,
-                     val_to_str (msg_type, message_type, "Unknown: 0x%02x"));
+  str_message_type = val_to_str_wmem(pinfo->pool, msg_type, message_type, "Unknown: 0x%02x");
+  col_append_str (pinfo->cinfo, COL_INFO, str_message_type);
 
-  proto_item_append_text (ti, ", %s", val_to_str (msg_type, message_type, "Unknown: 0x%02x"));
+  proto_item_append_text (ti, ", %s", str_message_type);
 
   msg_value = tvb_get_ntohs (tvb, offset);
   if (msg_type == RPCAP_MSG_ERROR) {

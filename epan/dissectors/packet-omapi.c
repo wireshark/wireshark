@@ -101,6 +101,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   uint32_t authlength;
   uint32_t msglength;
   uint32_t objlength;
+  char* str_opcode;
 
     /* Payload too small for OMAPI */
   if (tvb_reported_length_remaining(tvb, 0) < 8)
@@ -141,11 +142,9 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   authlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_omapi_auth_len, 4, ENC_BIG_ENDIAN);
 
-  col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-      val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
-
-  proto_item_append_text(ti, ", Opcode: %s",
-    val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
+  str_opcode = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)");
+  col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, str_opcode);
+  proto_item_append_text(ti, ", Opcode: %s", str_opcode);
 
   ptvcursor_add(cursor, hf_omapi_opcode, 4, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_omapi_handle, 4, ENC_BIG_ENDIAN);

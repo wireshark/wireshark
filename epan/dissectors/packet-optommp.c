@@ -378,13 +378,13 @@ static int dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             destination_offset = tvb_get_ntoh48(tvb, 6);
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 " type: %s, dest_off: 0x%012" PRIx64,
-                val_to_str(tcode, optommp_tcode_names, "Unknown (0x%02x)"),
+                val_to_str_wmem(pinfo->pool, tcode, optommp_tcode_names, "Unknown (0x%02x)"),
                 destination_offset);
         }
         else
         {
             col_add_fstr(pinfo->cinfo, COL_INFO, " type: %s",
-                val_to_str(tcode, optommp_tcode_names, "Unknown (0x%02x)"));
+                val_to_str_wmem(pinfo->pool, tcode, optommp_tcode_names, "Unknown (0x%02x)"));
         }
     }
 
@@ -401,7 +401,7 @@ static int dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if( tvb_reported_length(tvb) >= OPTOMMP_MIN_LENGTH)
         {
             tcode = tvb_get_uint8(tvb, 3) >> 4;
-            proto_item_append_text(root_ti, ", type: %s", val_to_str(tcode,
+            proto_item_append_text(root_ti, ", type: %s", val_to_str_wmem(pinfo->pool, tcode,
                 optommp_tcode_names, "Unknown (0x%02x)"));
             if( optommp_has_destination_offset(tcode) != 0 )
             {

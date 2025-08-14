@@ -2134,9 +2134,11 @@ dissect_rtcp_app_poc1(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     proto_tree* PoC1_tree;
     proto_item* PoC1_item;
     unsigned padding;
+    char* str_rtcp_subtype;
 
-    proto_item_append_text(subtype_item, " %s", val_to_str(rtcp_subtype, rtcp_app_poc1_floor_cnt_type_vals, "unknown (%u)"));
-    col_add_fstr(pinfo->cinfo, COL_INFO, "(PoC1) %s", val_to_str(rtcp_subtype, rtcp_app_poc1_floor_cnt_type_vals, "unknown (%u)"));
+    str_rtcp_subtype = val_to_str_wmem(pinfo->pool, rtcp_subtype, rtcp_app_poc1_floor_cnt_type_vals, "unknown (%u)");
+    proto_item_append_text(subtype_item, " %s", str_rtcp_subtype);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "(PoC1) %s", str_rtcp_subtype);
     offset += 4;
     packet_len -= 4;
     if (packet_len == 0)
@@ -2731,11 +2733,12 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
 
     proto_tree* sub_tree;
     uint32_t mcptt_fld_id, mcptt_fld_len;
+    char* str_rtcp_subtype;
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "(MCPT) %s",
-        val_to_str(rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)"));
+    str_rtcp_subtype = val_to_str_wmem(pinfo->pool, rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)");
 
-    proto_item_append_text(subtype_item, " %s", val_to_str(rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "(MCPT) %s", str_rtcp_subtype);
+    proto_item_append_text(subtype_item, " %s", str_rtcp_subtype);
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, packet_len, ett_rtcp_mcpt, NULL,
         "Mission Critical Push To Talk(MCPTT)");
@@ -3046,11 +3049,12 @@ dissect_rtcp_app_mccp(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
     proto_tree* sub_tree;
     uint32_t mccp_fld_id, mccp_fld_len;
     int total_packet_length;
+    char* str_rtcp_subtype;
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "(MCCP) %s",
-        val_to_str(rtcp_subtype, rtcp_mccp_subtype_vals, "unknown (%u)"));
+    str_rtcp_subtype = val_to_str_wmem(pinfo->pool, rtcp_subtype, rtcp_mccp_subtype_vals, "unknown (%u)");
 
-    proto_item_append_text(subtype_item, " %s", val_to_str(rtcp_subtype, rtcp_mccp_subtype_vals, "unknown (%u)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "(MCCP) %s", str_rtcp_subtype);
+    proto_item_append_text(subtype_item, " %s", str_rtcp_subtype);
 
     if (packet_len <= 0) {
         total_packet_length = tvb_reported_length_remaining(tvb, offset);
@@ -4892,10 +4896,10 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 if (srtcp_encrypted) { /* rest of the payload is encrypted - do not try to dissect hf_rtcp_encrypted*/
                     proto_tree_add_item(rtcp_tree, hf_rtcp_encrypted, tvb, offset, -1, ENC_NA);
                     if (preferences_application_specific_encoding == RTCP_APP_MCPTT) {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "(MCPT) %s",
-                            val_to_str(rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)"));
+                        char* str = val_to_str_wmem(pinfo->pool, rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)");
 
-                        proto_item_append_text(subtype_item, " %s", val_to_str(rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)"));
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "(MCPT) %s", str);
+                        proto_item_append_text(subtype_item, " %s", str);
                     }
 
                     return tvb_reported_length(tvb);

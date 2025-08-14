@@ -3880,7 +3880,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                     offset += 2;
 
                     col_append_str(pinfo->cinfo, COL_INFO, " WR ");
-                    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(wr_message_id, ptp_v2_org_cern_wrMessageID_vals, "Unknown PTP WR Message (%u)"));
+                    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, wr_message_id, ptp_v2_org_cern_wrMessageID_vals, "Unknown PTP WR Message (%u)"));
 
                     switch (wr_message_id) {
                     case PTP_V2_OE_ORG_CERN_WRMESSAGEID_ANN_SUFIX:

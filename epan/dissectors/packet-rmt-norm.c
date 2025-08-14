@@ -479,7 +479,7 @@ static void dissect_norm_cmd(proto_tree *tree, packet_info *pinfo,
     flavor = tvb_get_uint8(tvb, offset);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
-                       val_to_str(flavor, string_norm_cmd_type, "Unknown Cmd Type (0x%04x)"));
+                       val_to_str_wmem(pinfo->pool, flavor, string_norm_cmd_type, "Unknown Cmd Type (0x%04x)"));
     proto_tree_add_item(tree, hf_cmd_flavor, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     switch(flavor) {
     case NORM_CMD_CC:
@@ -513,7 +513,7 @@ static void dissect_norm_ack(proto_tree *tree, packet_info *pinfo,
     acktype = tvb_get_uint8(tvb, offset);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
-                       val_to_str(acktype, string_norm_ack_type, "Unknown Ack Type (0x%04x)"));
+                       val_to_str_wmem(pinfo->pool, acktype, string_norm_ack_type, "Unknown Ack Type (0x%04x)"));
     proto_tree_add_item(tree, hf_ack_type,      tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(tree, hf_ack_id,        tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(tree, hf_ack_grtt_sec,  tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
@@ -609,7 +609,7 @@ dissect_norm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Complete entry in Info column on summary display */
     /* ------------------------------------------------ */
     col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
-                       val_to_str(type, string_norm_type, "Unknown Type (0x%04x)"));
+                       val_to_str_wmem(pinfo->pool, type, string_norm_type, "Unknown Type (0x%04x)"));
 
 
     switch(type) {

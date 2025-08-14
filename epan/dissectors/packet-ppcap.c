@@ -148,7 +148,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	{
 		msg_type = tvb_get_ntohs(tvb, offset);
 		ppcap_tree1 = proto_tree_add_subtree(ppcap_tree, tvb, offset, 2, ett_ppcap1, NULL,
-					val_to_str(msg_type, payload_tag_values, "Unknown PPCAP message type (%u)"));
+					val_to_str_wmem(pinfo->pool, msg_type, payload_tag_values, "Unknown PPCAP message type (%u)"));
 		offset  = offset + 2;
 		switch (msg_type) {
 		case 1:

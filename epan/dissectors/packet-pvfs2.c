@@ -554,7 +554,7 @@ dissect_pvfs2_error(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	if (err != 0)
 	{
-		errmsg = val_to_str(-err, names_pvfs_error, "Unknown error: %u");
+		errmsg = val_to_str_wmem(pinfo->pool, -err, names_pvfs_error, "Unknown error: %u");
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Error: %s", errmsg);
 	}
 
@@ -3011,7 +3011,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* Update column info display */
 	col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(server_op, names_pvfs_server_op, "%u (unknown)"));
+			val_to_str_wmem(pinfo->pool, server_op, names_pvfs_server_op, "%u (unknown)"));
 
 	col_append_str(pinfo->cinfo, COL_INFO,
 			(mode == TCP_MODE_UNEXP)? " (request)": " (response)");

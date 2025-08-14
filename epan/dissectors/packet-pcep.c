@@ -1840,7 +1840,7 @@ static const value_string srv6_endpoint_behavior_vals[] = {
  * SUB-TLVS
  * ----------------------------------------------------------------*/
 static void
-dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj)
+dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, packet_info* pinfo, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj)
 {
     proto_tree *sub_tlv;
     uint16_t    sub_tlv_length, sub_tlv_type;
@@ -1857,7 +1857,7 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tv
         sub_tlv_type = tvb_get_ntohs(tvb, offset+j);
         sub_tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
         sub_tlv = proto_tree_add_subtree(pcep_tlv, tvb, offset + j, sub_tlv_length+4,
-                    ett_pcep_obj, NULL, val_to_str(sub_tlv_type, pcep_path_setup_type_capability_sub_tlv_vals, "Unknown SubTLV (%u). "));
+                    ett_pcep_obj, NULL, val_to_str_wmem(pinfo->pool, sub_tlv_type, pcep_path_setup_type_capability_sub_tlv_vals, "Unknown SubTLV (%u). "));
         proto_tree_add_item(sub_tlv, hf_pcep_path_setup_type_capability_sub_tlv_type, tvb, offset + j, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_tlv, hf_pcep_path_setup_type_capability_sub_tlv_length, tvb, offset + 2 + j, 2, ENC_BIG_ENDIAN);
         switch (sub_tlv_type)
@@ -1886,7 +1886,7 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, tvbuff_t *tv
  *  All the other TLVs do not need scope at the moment.
 */
 static void
-dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj, uint16_t association_type)
+dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj, uint16_t association_type)
 {
     proto_tree *tlv;
     uint16_t    tlv_length, tlv_type, of_code, assoc_type;
@@ -1934,7 +1934,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
         tlv_type = tvb_get_ntohs(tvb, offset+j);
         tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
         tlv = proto_tree_add_subtree(pcep_obj, tvb, offset + j, tlv_length+4,
-                    ett_pcep_obj, NULL, val_to_str(tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));
+                    ett_pcep_obj, NULL, val_to_str_wmem(pinfo->pool, tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));
         proto_tree_add_item(tlv, hf_pcep_tlv_type, tvb, offset + j, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tlv, hf_pcep_tlv_length, tvb, offset + 2 + j, 2, ENC_BIG_ENDIAN);
         switch (tlv_type)
@@ -2072,7 +2072,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
                 }
                 if (tlv_length>8+psts+padding) {
                     //There are sub-TLVs to decode
-                    dissect_pcep_path_setup_capabilities_sub_tlvs(tlv, tvb, offset+j+8+psts+padding, tlv_length -psts- padding-4, ett_pcep_obj);
+                    dissect_pcep_path_setup_capabilities_sub_tlvs(tlv, pinfo, tvb, offset+j+8+psts+padding, tlv_length -psts- padding-4, ett_pcep_obj);
                 }
                 break;
 
@@ -2169,9 +2169,9 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, in
 }
 
 static void
-dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj)
+dissect_pcep_tlvs(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t *tvb, int offset, int length, int ett_pcep_obj)
 {
-  dissect_pcep_tlvs_with_scope(pcep_obj, tvb, offset, length, ett_pcep_obj,0);
+  dissect_pcep_tlvs_with_scope(pcep_obj, pinfo, tvb, offset, length, ett_pcep_obj,0);
 }
 
 /*------------------------------------------------------------------------------
@@ -2875,7 +2875,7 @@ dissect_pcep_open_obj (proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += OPEN_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+OPEN_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_open);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_open);
 }
 
 /*------------------------------------------------------------------------------
@@ -2887,8 +2887,23 @@ static void
 dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
                     tvbuff_t *tvb, int offset2, int obj_length, int obj_class _U_, int obj_type _U_)
 {
-    proto_tree *pcep_rp_obj_flags;
-    proto_item *ti;
+    static int* const flags[] = {
+      &hf_pcep_rp_flags_reserved,
+      &hf_pcep_rp_flags_c,
+      &hf_pcep_rp_flags_f,
+      &hf_pcep_rp_flags_n,
+      &hf_pcep_rp_flags_e,
+      &hf_pcep_rp_flags_m,
+      &hf_pcep_rp_flags_d,
+      &hf_pcep_rp_flags_p,
+      &hf_pcep_rp_flags_s,
+      &hf_pcep_rp_flags_v,
+      &hf_pcep_rp_flags_o,
+      &hf_pcep_rp_flags_b,
+      &hf_pcep_rp_flags_r,
+      &hf_pcep_rp_flags_pri,
+      NULL
+    };
 
     if (obj_length < OBJ_HDR_LEN+RP_OBJ_MIN_LEN) {
         proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_subobject_bad_length,
@@ -2899,24 +2914,7 @@ dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     }
 
     proto_tree_add_item(pcep_object_tree, hf_pcep_rp_obj_reserved, tvb, offset2, 1, ENC_NA);
-
-    ti = proto_tree_add_item(pcep_object_tree, hf_pcep_rp_obj_flags, tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    pcep_rp_obj_flags = proto_item_add_subtree(ti, ett_pcep_obj_request_parameters);
-
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_reserved, tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_c,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_f,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_n,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_e,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_m,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_d,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_p,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_s,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_v,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_o,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_b,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_r,        tvb, offset2+1, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(pcep_rp_obj_flags, hf_pcep_rp_flags_pri,      tvb, offset2+1, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(pcep_object_tree, tvb, offset2+1, hf_pcep_rp_obj_flags, ett_pcep_obj_request_parameters, flags, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(pcep_object_tree, hf_pcep_rp_obj_requested_id_number, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 
@@ -2924,7 +2922,7 @@ dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     offset2 += RP_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+RP_OBJ_MIN_LEN;
     /* RFC 8408 allows PATH_SETUP_TYPE TLV in the RP object */
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_request_parameters);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_request_parameters);
 }
 
 /*------------------------------------------------------------------------------
@@ -2958,7 +2956,7 @@ dissect_pcep_no_path_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += NO_PATH_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+NO_PATH_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_no_path);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_no_path);
 }
 
 /*------------------------------------------------------------------------------
@@ -3256,7 +3254,7 @@ dissect_pcep_lspa_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += LSPA_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+LSPA_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_lspa);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_lspa);
 }
 
 /*------------------------------------------------------------------------------
@@ -3414,7 +3412,7 @@ dissect_pcep_notification_obj(proto_tree *pcep_object_tree, packet_info *pinfo, 
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += NOTIFICATION_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+NOTIFICATION_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_notification);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_notification);
 }
 
 /*------------------------------------------------------------------------------
@@ -3536,7 +3534,7 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += ERROR_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+ERROR_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_error);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_error);
 }
 
 
@@ -3585,7 +3583,7 @@ dissect_pcep_close_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += CLOSE_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+CLOSE_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_load_balancing);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_load_balancing);
 }
 
 /*------------------------------------------------------------------------------
@@ -3770,7 +3768,7 @@ dissect_pcep_obj_monitoring(proto_tree *pcep_object_tree, packet_info *pinfo, tv
     /* The object can have optional TLV(s)*/
     offset2 += OBJ_MONITORING_MIN_LEN;
     obj_length -= OBJ_HDR_LEN + OBJ_MONITORING_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_monitoring);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_monitoring);
 }
 
 /*------------------------------------------------------------------------------
@@ -3835,7 +3833,7 @@ dissect_pcep_of_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *
     /*The object can have optional TLV(s)*/
     offset2 += OPEN_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+OF_OBJ_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_open);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_open);
 }
 
 /*------------------------------------------------------------------------------
@@ -4080,7 +4078,7 @@ dissect_pcep_obj_lsp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
     /* The object can have optional TLV(s)*/
     offset2 += OBJ_LSP_MIN_LEN;
     obj_length -= OBJ_HDR_LEN + OBJ_LSP_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_lsp);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_lsp);
 }
 
 /*------------------------------------------------------------------------------
@@ -4109,7 +4107,7 @@ dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
     /*The object can have optional TLV(s)*/
     offset2 += OBJ_SRP_MIN_LEN;
     obj_length -= OBJ_HDR_LEN + OBJ_SRP_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_srp);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_srp);
 }
 
 /*------------------------------------------------------------------------------
@@ -4235,7 +4233,7 @@ dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
 
     /* The ASSOCIATION object can have optional TLV(s) */
     /* The EXTENDED_ASSOCIATION_ID TLV is scoped to the ASSOCIATION TYPE*/
-    dissect_pcep_tlvs_with_scope(pcep_object_tree, tvb,
+    dissect_pcep_tlvs_with_scope(pcep_object_tree, pinfo, tvb,
                       offset2, obj_length, ett_pcep_obj_association,association_type);
 }
 
@@ -4276,7 +4274,7 @@ dissect_pcep_obj_path_attrib(proto_tree *pcep_object_tree, packet_info *pinfo,
     /* The PATH_ATTRIB object can have optional TLV(s) */
     offset2 += OBJ_PATH_ATTRIB_MIN_LEN;
     obj_length -= OBJ_HDR_LEN + OBJ_PATH_ATTRIB_MIN_LEN;
-    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_path_attrib);
+    dissect_pcep_tlvs(pcep_object_tree, pinfo, tvb, offset2, obj_length, ett_pcep_obj_path_attrib);
 }
 
 /*------------------------------------------------------------------------------*/
@@ -4430,13 +4428,13 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, unsigned tree_mode, packe
     message_type = tvb_get_uint8(tvb, 1);
     msg_length = tvb_get_ntohs(tvb, 2);
 
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
 
     ti = proto_tree_add_item(tree, proto_pcep, tvb, offset, msg_length, ENC_NA);
     pcep_tree = proto_item_add_subtree(ti, tree_mode);
 
     pcep_header_tree = proto_tree_add_subtree_format(pcep_tree, tvb, offset, 4, ett_pcep_hdr, NULL,
-                    "%s Header", val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
+                    "%s Header", val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
 
     proto_tree_add_item(pcep_header_tree, hf_pcep_version, tvb, offset, 1, ENC_NA);
 

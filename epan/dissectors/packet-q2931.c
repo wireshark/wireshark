@@ -347,11 +347,10 @@ static const value_string q2931_codeset_vals[] = {
 	{ 0x00, NULL },
 };
 
-static const true_false_string tfs_q2931_handling_instructions = { "Follow explicit error handling instructions",
-																   "Regular error handling procedures apply" };
+static const true_false_string tfs_q2931_handling_instructions = { "Follow explicit error handling instructions", "Regular error handling procedures apply" };
 
 static void
-dissect_q2931_shift_ie(tvbuff_t *tvb, int offset, int len,
+dissect_q2931_shift_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		       proto_tree *tree, uint8_t info_element)
 {
 	bool non_locking_shift;
@@ -364,7 +363,7 @@ dissect_q2931_shift_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_uint_format(tree, hf_q2931_locking_codeset, tvb, offset, 1, codeset,
 		"%s shift to codeset %u: %s",
 		(non_locking_shift ? "Non-locking" : "Locking"),
-		codeset, val_to_str(codeset, q2931_codeset_vals, "Unknown (0x%02X)"));
+		codeset, val_to_str_wmem(pinfo->pool, codeset, q2931_codeset_vals, "Unknown (0x%02X)"));
 }
 
 /*
@@ -1727,7 +1726,7 @@ dissect_q2931_ie_contents(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
 
 	case Q2931_IE_BBAND_LOCKING_SHIFT:
 	case Q2931_IE_BBAND_NLOCKING_SHIFT:
-		dissect_q2931_shift_ie(tvb, offset, len, tree, info_element);
+		dissect_q2931_shift_ie(tvb, pinfo, offset, len, tree, info_element);
 		break;
 
 	case Q2931_IE_NBAND_BEARER_CAP:

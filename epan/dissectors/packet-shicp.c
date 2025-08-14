@@ -230,7 +230,7 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else {
             error_pi = proto_tree_add_item_ret_uint(shicp_tree, hf_shicp_error, tvb, offset, SHICP_ERROR_SIZE, ENC_LITTLE_ENDIAN, &error_value);
             expert_add_info(pinfo, error_pi, &ei_shicp_error);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Error: %s", val_to_str(error_value, error_types, "%d"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Error: %s", val_to_str_wmem(pinfo->pool, error_value, error_types, "%d"));
         }
     }
     else {
@@ -242,7 +242,7 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             COL_INFO,
             "%s, Type: %s",
             tfs_get_string(flags_value & SHICP_MSG_CLASS_FLAG, &tfs_response_request),
-            val_to_str(msgtype_value, message_types, "%d"));
+            val_to_str_wmem(pinfo->pool, msgtype_value, message_types, "%d"));
         payload_end = offset + payload_length;
         switch (msgtype_value)
         {
@@ -267,11 +267,11 @@ dissect_shicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     keyvalue_end = offset + keyvalue_length;
                     keyvalue_offset = offset;
                     supported_message_value = tvb_get_uint8(tvb, keyvalue_offset);
-                    wmem_strbuf_append(supported_messages, val_to_str(supported_message_value, message_types, "%d"));
+                    wmem_strbuf_append(supported_messages, val_to_str_wmem(pinfo->pool, supported_message_value, message_types, "%d"));
                     keyvalue_offset += 1;
                     while (keyvalue_offset < keyvalue_end) {
                         supported_message_value = tvb_get_uint8(tvb, keyvalue_offset);
-                        wmem_strbuf_append_printf(supported_messages, ", %s", val_to_str(supported_message_value, message_types, "%d"));
+                        wmem_strbuf_append_printf(supported_messages, ", %s", val_to_str_wmem(pinfo->pool, supported_message_value, message_types, "%d"));
                         keyvalue_offset += 1;
                     }
                     proto_tree_add_string(shicp_tree, hf_shicp_supported_msg, tvb, offset, keyvalue_length, wmem_strbuf_get_str(supported_messages));

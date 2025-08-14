@@ -4581,7 +4581,7 @@ execute_next_instruction:
 decompression_failure:
 
     proto_tree_add_expert_format(udvm_tree, pinfo, &ei_sigcomp_decompression_failure, bytecode_tvb, 0, -1,
-                        "DECOMPRESSION FAILURE: %s", val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+                        "DECOMPRESSION FAILURE: %s", val_to_str_wmem(pinfo->pool, result_code, result_code_vals,"Unknown (%u)"));
     return NULL;
 
 }
@@ -5003,7 +5003,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 /* end partial state-id change cco@iptel.org */
             if ( result_code != 0 ) {
                 proto_tree_add_expert_format(sigcomp_tree, pinfo, &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, tvb, 0, -1,
-                                                                                         "Failed to Access state Wireshark UDVM diagnostic: %s", val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+                                                                                         "Failed to Access state Wireshark UDVM diagnostic: %s", val_to_str_wmem(pinfo->pool, result_code, result_code_vals,"Unknown (%u)"));
                 return tvb_captured_length(tvb);
             }
 

@@ -12942,7 +12942,7 @@ static int dissect_pfcp_nokia_detailed_statistics(tvbuff_t *tvb, packet_info *pi
            if (bits == 0) continue;
 
            const value_string* names = flags_policer ? policer_names : flags_egress ? egress_queue_names : ingress_queue_names;
-           const char* counter_name = val_to_str(counter_index, names, "Counter %u");
+           const char* counter_name = val_to_str_wmem(pinfo->pool, counter_index, names, "Counter %u");
 
            const int bit_offset = 8 * (bitmap_offset + i/4 + 1) - 2 * j;
            proto_item* it = proto_tree_add_bits_item(bitmap_tree, hf_pfcp_nokia_detailed_stats_bitmap_item, tvb, bit_offset, 2, ENC_BIG_ENDIAN);

@@ -756,7 +756,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 tvb_get_uint8(tvb, 5));
     } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s, id 0x%02x, chan 0x%02x",
-                val_to_str(type & 0x7f, ncsi_type_vals, "Unknown type 0x%02x"),
+                val_to_str_wmem(pinfo->pool, type & 0x7f, ncsi_type_vals, "Unknown type 0x%02x"),
                 type & 0x80 ? "response" : "request ",
                 tvb_get_uint8(tvb, 3),
                 tvb_get_uint8(tvb, 5));
@@ -799,7 +799,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (type == NCSI_TYPE_AEN) {
         proto_item_set_text(pti, "Async Event Notification");
     } else {
-        proto_item_set_text(pti,"%s", val_to_str((type & 0x7f), ncsi_type_vals, "Unknown type 0x%02x"));
+        proto_item_set_text(pti,"%s", val_to_str_wmem(pinfo->pool, (type & 0x7f), ncsi_type_vals, "Unknown type 0x%02x"));
         proto_item_append_text(pti, type & 0x80 ? " response" : " request");
     }
 

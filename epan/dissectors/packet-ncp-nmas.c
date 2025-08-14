@@ -262,10 +262,10 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     /* Fill in the INFO column. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMAS");
     col_add_fstr(pinfo->cinfo, COL_INFO, "C NMAS - %s",
-        val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
+        val_to_str_wmem(pinfo->pool, subfunc, nmas_func_enum, "Unknown (0x%02x)"));
 
     atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_nmas, NULL, "Packet Type: %s",
-        val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
+        val_to_str_wmem(pinfo->pool, subfunc, nmas_func_enum, "Unknown (0x%02x)"));
     switch (subfunc) {
     case 1:
         proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -294,7 +294,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
         foffset += 4;
         msg_length -= 4;
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-            val_to_str(subverb, nmas_subverb_enum, "Unknown subverb (%u)"));
+            val_to_str_wmem(pinfo->pool, subverb, nmas_subverb_enum, "Unknown subverb (%u)"));
         switch (subverb) {
         case 0:             /* Fragmented Ping */
             proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -320,7 +320,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             proto_tree_add_item(atree, hf_lsm_verb, tvb, foffset, 1, ENC_LITTLE_ENDIAN);
             /*foffset += 4;*/
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                val_to_str(msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
+                val_to_str_wmem(pinfo->pool, msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
 
             switch (msgverb) {
             case 1:
@@ -360,7 +360,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             foffset += 1;
             /*msg_length -= 12;*/
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
+                val_to_str_wmem(pinfo->pool, msgverb, nmas_msgverb_enum, "Unknown (%u)"));
 
             switch(msgverb) {
             case 1:
@@ -450,7 +450,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint
     }
 
     atree = proto_tree_add_subtree_format(ncp_tree, tvb, foffset, -1, ett_nmas, NULL, "Packet Type: %s",
-        val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
+        val_to_str_wmem(pinfo->pool, subfunc, nmas_func_enum, "Unknown (0x%02x)"));
     switch (subfunc) {
     case 1:
         proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -504,7 +504,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint
                 break;
             case 8:             /* Login Store Management */
                 proto_tree_add_uint_format(atree, hf_lsm_verb, tvb, foffset, -1, msgverb,
-                    "Subverb: %s", val_to_str(msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
+                    "Subverb: %s", val_to_str_wmem(pinfo->pool, msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
                 switch(msgverb) {
                     /* The data within these structures is all encrypted. */
                 case 1:
@@ -525,7 +525,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint
                 break;
             case 1242:          /* Message Handler */
                 proto_tree_add_uint_format(atree, hf_msg_verb, tvb, foffset, 1, msgverb,
-                                "Subverb: %s", val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
+                                "Subverb: %s", val_to_str_wmem(pinfo->pool, msgverb, nmas_msgverb_enum, "Unknown (%u)"));
                 switch(msgverb) {
                 case 1:
                     msg_length = tvb_get_ntohl(tvb, foffset);

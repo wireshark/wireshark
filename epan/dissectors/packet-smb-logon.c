@@ -896,7 +896,7 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	/* get the Command field */
 	cmd = tvb_get_uint8(tvb, offset);
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown Command:%02x") );
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, cmd, commands, "Unknown Command:%02x") );
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto_smb_logon, tvb,

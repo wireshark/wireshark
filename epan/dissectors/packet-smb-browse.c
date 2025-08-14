@@ -495,7 +495,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		for (i = 0; i < 32; i++) {
 			if (flags & (1U<<i)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-					val_to_str(i, server_types,
+					val_to_str_wmem(pinfo->pool, i, server_types,
 					"Unknown server type:%d"));
 			}
 		}
@@ -531,7 +531,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	cmd = tvb_get_uint8(tvb, offset);
 
 	/* Put in something, and replace it later */
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, cmd, commands, "Unknown command:0x%02x"));
 
 
 	item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
@@ -757,7 +757,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	cmd = tvb_get_uint8(tvb, offset);
 
 	/* Put in something, and replace it later */
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, cmd, commands, "Unknown command:0x%02x"));
 
 	item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_browse);

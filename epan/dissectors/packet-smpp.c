@@ -1096,7 +1096,7 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
     if ((tap_rec->command_id & SMPP_COMMAND_ID_RESPONSE_MASK) == SMPP_COMMAND_ID_RESPONSE_MASK) /* Response */
     {
         tick_stat_node(st, "SMPP Responses", st_smpp_ops, true);
-        tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_res, false);
+        tick_stat_node(st, val_to_str_wmem(pinfo->pool, tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_res, false);
 
         tick_stat_node(st, "SMPP Response Status", 0, true);
         tick_stat_node(st, rval_to_str_wmem(pinfo->pool, tap_rec->command_status, rvals_command_status, "Unknown 0x%08x"), st_smpp_res_status, false);
@@ -1105,7 +1105,7 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
     else  /* Request */
     {
         tick_stat_node(st, "SMPP Requests", st_smpp_ops, true);
-        tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, false);
+        tick_stat_node(st, val_to_str_wmem(pinfo->pool, tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, false);
     }
 
     return TAP_PACKET_REDRAW;
@@ -1363,7 +1363,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *offset
         pi = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param, tvb,
                                         *offset, length+4,
                                         "Optional parameter: %s (0x%04x)",
-                                        val_to_str(tag, vals_tlv_tags, "0x%04x"), tag);
+                                        val_to_str_wmem(pinfo->pool, tag, vals_tlv_tags, "0x%04x"), tag);
         sub_tree = proto_item_add_subtree(pi, ett_opt_param);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_tag,tvb,*offset,2,tag);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_len,tvb,*offset+2,2,length);
@@ -2450,7 +2450,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     command_length = tvb_get_ntohl(tvb, offset);
     offset += 4;
     command_id = tvb_get_ntohl(tvb, offset);
-    command_str = val_to_str(command_id, vals_command_id,
+    command_str = val_to_str_wmem(pinfo->pool, command_id, vals_command_id,
             "(Unknown SMPP Operation 0x%08X)");
     offset += 4;
     command_status = tvb_get_ntohl(tvb, offset);

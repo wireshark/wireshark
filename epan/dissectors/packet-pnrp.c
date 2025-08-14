@@ -394,6 +394,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     int offset, start_offset;
     int padding_bytes;
     uint8_t message_type;
+    char* str_message_type;
     uint16_t field_type;
     unsigned data_length;
     proto_item *ti;
@@ -436,19 +437,18 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     offset= 0;
     /* Get the message Information beforehand */
     message_type = tvb_get_uint8(tvb,7);
+    str_message_type = val_to_str_wmem(pinfo->pool, message_type, messageType, "Unknown (0x%02x)");
 
 
     /* Simply Display the Protocol Name in the INFO column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNRP");
     /* Clear out stuff in the info column */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "PNRP %s Message ",
-                 val_to_str(message_type, messageType, "Unknown (0x%02x)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PNRP %s Message ", str_message_type);
 
 
     /* Lets add a subtree to our dissection to display the info */
     ti = proto_tree_add_item(tree, proto_pnrp, tvb, 0, -1, ENC_NA);
-    proto_item_append_text(ti, ", Message Type %s",
-                           val_to_str(message_type, messageType, "Unknown (0x%02x)"));
+    proto_item_append_text(ti, ", Message Type %s", str_message_type);
     /* Get a main tree for the whole protocol */
     pnrp_tree = proto_item_add_subtree(ti, ett_pnrp);
 
@@ -858,7 +858,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 if (tree) {
                     pnrp_message_tree = proto_tree_add_subtree_format(pnrp_tree, tvb, offset,
                                                             data_length, ett_pnrp_message, NULL, "Type: %s, length: %u",
-                                                            val_to_str(field_type, fieldID, "Unknown (0x%04x)"), data_length);
+                                                            val_to_str_wmem(pinfo->pool, field_type, fieldID, "Unknown (0x%04x)"), data_length);
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     if(data_length > 4)

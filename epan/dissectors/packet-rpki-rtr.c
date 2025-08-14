@@ -155,8 +155,9 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_item *ti = NULL, *ti_flags, *ti_type;
     proto_tree *rpkirtr_tree = NULL, *flags_tree = NULL;
     int offset = 0;
-    uint8_t pdu_type, version;
+    uint32_t pdu_type, version;
     unsigned length;
+    char* str_pdu_type;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
@@ -164,14 +165,13 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         rpkirtr_tree = proto_item_add_subtree(ti, ett_rpkirtr);
 
-        proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        version = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(rpkirtr_tree, hf_rpkirtr_version, tvb, offset, 1, ENC_BIG_ENDIAN, &version);
         offset += 1;
 
-        ti_type = proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        pdu_type = tvb_get_uint8(tvb, offset);
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown (%d)"));
-        proto_item_append_text(ti, " (%s)", val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
+        ti_type = proto_tree_add_item_ret_uint(rpkirtr_tree, hf_rpkirtr_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
+        str_pdu_type = val_to_str_wmem(pinfo->pool, pdu_type, rtr_pdu_type_vals, "Unknown (%d)");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, str_pdu_type);
+        proto_item_append_text(ti, " (%s)", str_pdu_type);
         offset += 1;
 
         length = tvb_get_ntohl(tvb, offset);
