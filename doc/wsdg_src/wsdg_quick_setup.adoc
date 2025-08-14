@@ -517,6 +517,20 @@ choco install -y cmake
 
 Chocolatey ensures cmake.exe is on your path.
 
+[#ChSetupXsltproc]
+
+===== Install Xsltproc
+
+Asciidoctor, xsltproc, and DocBook are required to build the documentation.
+CMake will download a pre-built version of Asciidoctor and DocBook on Windows, but xsltproc must be installed manually.
+You can install it using Chocolatey:
+
+----
+choco install -y xsltproc
+----
+
+// winget has no Asciidoctor, xsltproc, or DocBook packages.
+
 ===== Install winflexbison
 
 Get the winFlexBison installer from
