@@ -13,8 +13,32 @@ MDTActivation
 MDTConfigurationEUTRA
 MDTConfigurationNR
 MDTMode
-PDNPCO
 RCSServerURI
+
+#omit from IPAccessPDU
+IPCC
+IPCCContents
+IPTruncatedPacket
+IPIRI
+IPIRIContents
+AccessEventType
+InternetAccessType
+IPVersion
+EndReason
+IPIRIIDType
+NationalIPIRIParameters
+AuthenticationType
+OtherTargetIdentifiers
+FramedRoute
+IPIRIOnly
+IPInformation
+ProtocolInformation
+IPv4Information
+IPv6Information
+TCPInformation
+UDPInformation
+PDSRInformation
+PDSRSummaryTriggerIPaccess
 
 #.EXPORTS
 
@@ -96,63 +120,34 @@ SIPCellularAccessInfo/accessInfo sipaccessinfo
 #
 
 #.FN_BODY PDNProtocolConfigurationOptions/requestPCO
-  unsigned tvb_len;
-
-  tvb_len = tvb_reported_length(tvb);
 
   actx->pinfo->link_dir = P2P_DIR_UL;
-  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
-
-  offset = tvb_len;
 
 #.FN_BODY PDNProtocolConfigurationOptions/requestAPCO
-  unsigned tvb_len;
-
-  tvb_len = tvb_reported_length(tvb);
 
   actx->pinfo->link_dir = P2P_DIR_UL;
-  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
 
-  offset = tvb_len;
-
-#.FN_BODY PDNProtocolConfigurationOptions/requestEPCO
-  unsigned tvb_len;
-
-  tvb_len = tvb_reported_length(tvb);
+#.FN_HDR PDNProtocolConfigurationOptions/requestEPCO
 
   actx->pinfo->link_dir = P2P_DIR_UL;
-  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
 
-  offset = tvb_len;
+#.FN_HDR PDNProtocolConfigurationOptions/responsePCO
 
-#.FN_BODY PDNProtocolConfigurationOptions/responsePCO
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
+#.FN_HDR PDNProtocolConfigurationOptions/responseAPCO
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
+#.FN_HDR PDNProtocolConfigurationOptions/responseEPCO
+
+  actx->pinfo->link_dir = P2P_DIR_DL;
+
+#.FN_BODY PDNPCO
   unsigned tvb_len;
 
   tvb_len = tvb_reported_length(tvb);
-
-  actx->pinfo->link_dir = P2P_DIR_DL;
   de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
-
-  offset = tvb_len;
-
-#.FN_BODY PDNProtocolConfigurationOptions/responseAPCO
-  unsigned tvb_len;
-
-  tvb_len = tvb_reported_length(tvb);
-
-  actx->pinfo->link_dir = P2P_DIR_DL;
-  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
-
-  offset = tvb_len;
-
-#.FN_BODY PDNProtocolConfigurationOptions/responseEPCO
-  unsigned tvb_len;
-
-  tvb_len = tvb_reported_length(tvb);
-
-  actx->pinfo->link_dir = P2P_DIR_DL;
-  de_sm_pco(tvb, tree, actx->pinfo, 0, tvb_len, NULL, 0);
-
   offset = tvb_len;
 
 #.FN_BODY PDNConnectionIndicationFlags

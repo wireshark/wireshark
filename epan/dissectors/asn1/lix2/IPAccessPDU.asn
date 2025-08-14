@@ -1,0 +1,445 @@
+IPAccessPDU
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) iPAccess(3) version19(19)}
+
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+--IMPORTS
+--    - - from ETSI TS 102 232-1 [2]
+--    IPAddress,
+--    Location
+--        FROM LI-PS-PDU
+--        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) genHeader(1) version39(39)};
+
+-- ============================
+-- Object Identifier Definition
+-- ============================
+
+--iPAccessPDUObjId RELATIVE-OID               ::= {li-ps(5) iPAccess(3) version19(19)}
+--iPIRIObjId RELATIVE-OID                     ::= {iPAccessPDUObjId iRI(1)}
+--iPCCObjId RELATIVE-OID                      ::= {iPAccessPDUObjId cC(2)}
+--iPIRIOnlyObjId RELATIVE-OID                 ::= {iPAccessPDUObjId iRIOnly(3)}
+--iPIRIPacketReportObjId RELATIVE-OID         ::= {iPAccessPDUObjId iRIPacketReport(4)}
+
+    -- definitions are relative to
+    -- {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2)}
+
+
+-- ==========================
+-- IP Communications Contents
+-- ==========================
+
+IPCC ::= SEQUENCE
+{
+    iPCCObjId           [0] RELATIVE-OID,
+    iPCCContents        [1] IPCCContents
+}
+
+IPCCContents ::= CHOICE
+{
+    iPPackets           [0] OCTET STRING,
+    ...,
+    iPTruncatedPacket   [1] IPTruncatedPacket
+}
+
+IPTruncatedPacket ::= SEQUENCE
+{
+    truncatedPacket     [0] OCTET STRING,
+    originalLength      [1] INTEGER OPTIONAL,
+    ...
+}
+
+-- ===================================================
+-- Intercept-related information for general IP-Access
+-- ===================================================
+
+IPIRI ::= SEQUENCE
+{
+    iPIRIObjId          [0] RELATIVE-OID,
+    iPIRIContents       [1] IPIRIContents,
+    ...
+}
+
+IPIRIContents ::= SEQUENCE
+{
+    accessEventType         [0] AccessEventType,
+    targetUsername          [1] OCTET STRING,
+        -- in ASCII-characters
+    internetAccessType      [2] InternetAccessType,
+    iPVersion               [3] IPVersion,
+    targetIPAddress         [4] IPAddress OPTIONAL,
+        -- IP address may not be available in case of failed logon attempts.
+        -- If it is available, it must be sent.
+        -- This field will carry the first IPv4 or IPv6 target IP address with or without
+        -- subnet. Use of this field is fully described in section 6.2.1.
+    targetNetworkID         [5] UTF8String (SIZE (1..20)) OPTIONAL,
+        -- Target network ID (e.g. MAC address, PSTN number)
+    targetCPEID             [6] UTF8String (SIZE (1..128)) OPTIONAL,
+        -- CPEID (e.g. Relay Agent info, computer name)
+    targetLocation          [7] UTF8String (SIZE (1..64)) OPTIONAL,
+        -- When internetAccessType is Wireless LAN, this field should contain a string which
+        -- uniquely identifies the wireless accesspoint within the SvP domain
+        -- New implementations are encouraged to use the location [24] parameter where possible.
+    pOPPortNumber           [8] INTEGER (0..4294967295) OPTIONAL,
+        -- The POP port number used by the target
+    callBackNumber          [9] UTF8String (SIZE (1..20)) OPTIONAL,
+        -- The number used to call-back the target
+    startTime               [10] GeneralizedTime OPTIONAL,
+        -- The start date-time of the session or lease
+    endTime                 [11] GeneralizedTime OPTIONAL,
+        -- The actual end date-time of the session or lease
+    endReason               [12] EndReason OPTIONAL,
+        -- The reason for the session to end
+    octetsReceived          [13] INTEGER (0..18446744073709551615) OPTIONAL,
+        -- The number of octets the target received
+    octetsTransmitted       [14] INTEGER (0..18446744073709551615) OPTIONAL,
+        -- The number of octets the target transmitted
+    rawAAAData              [15] OCTET STRING OPTIONAL,
+        -- Content of the raw AAA record
+    ...,
+    expectedEndTime         [16] GeneralizedTime OPTIONAL,
+        -- The expected end date-time of the session or lease
+    pOPPhoneNumber          [17] UTF8String (SIZE (1..20)) OPTIONAL,
+        -- The phone number dialed by the target for dial-up
+    pOPIdentifier           [18] IPIRIIDType OPTIONAL,
+        -- The identifier or name of the POP
+    pOPIPAddress            [19] IPAddress OPTIONAL,
+        -- The IP address of the POP
+    nationalIPIRIParameters [20] NationalIPIRIParameters OPTIONAL,
+        -- National IP IRI Parameters
+    additionalIPAddress     [21] IPAddress OPTIONAL,
+        -- This field will carry the first IPv6 target IP address with or without prefix when the
+        -- iPVersion parameter is set to iPV4andV6.
+        -- Use of this field is fully described in section 6.2.1
+    authenticationType      [22] AuthenticationType OPTIONAL,
+        -- Field used to identify the authentication type to assist with LEMF data validation
+    otherTargetIdentifiers  [23] SEQUENCE OF OtherTargetIdentifiers OPTIONAL,
+        -- This parameter will carry the second and subsequent IPv4 or IPv6 target IP addresses
+        -- It is used when multiple subnet/prefix ranges are assigned to a target service.
+        -- Use of this field is fully described in section 6.2.1
+--    location                [24] LI-PS-PDU.Location OPTIONAL,
+        -- The location associated with the target
+    pOPPortID               [25] OCTET STRING OPTIONAL,
+        -- This field will carry the NAS-Port-ID as defined in RFC 2869 [17]:
+        -- This parameter shall be populated with the RADIUS value.
+    framedRoutes            [26] SEQUENCE OF FramedRoute OPTIONAL
+        -- It is used to list all the available Framed Route and Framed IPv6 Route information
+
+
+}
+
+AccessEventType ::= ENUMERATED
+{
+    accessAttempt(0),
+        -- A target requests access to the IAS
+    accessAccept(1),
+        -- IAS access is granted to the target, the session begins
+    accessReject(2),
+        -- IAS access is refused to the target
+    accessFailed(3),
+        -- The accessAttempt timed-out or failed otherwise
+    sessionStart(4),
+        -- A target starts using the IAS; not in use anymore from version 4(4)
+    sessionEnd(5),
+        -- A target stops using the IAS; not in use anymore from version 4(4)
+    interimUpdate(6),
+        -- Intermediate status report on service status or usage
+    ...,
+    startOfInterceptionWithSessionActive(7),
+        -- LI is started on a target who already has an active session
+    accessEnd(8),
+        -- A target stops using the IAS, the session ends
+    endOfInterceptionWithSessionActive(9),
+        -- LI is ended on a target who still has an active session
+    unknown(10)
+}
+
+InternetAccessType ::= ENUMERATED
+{
+    undefined(0),
+    dialUp(1),
+        -- IAS via DialUp access
+    xDSL(2),
+        -- IAS via DSL access
+    cableModem(3),
+        -- IAS via Cable access
+    lAN(4),
+        -- IAS via LAN access
+    ...,
+    wirelessLAN(5),
+        -- IAS via Wireless LAN access
+    fTTx(6),
+        -- IAS via Fiber access
+    wIMAX-HIPERMAN(7),
+        -- IAS via WIMAX/HIPERMAN (fixed access)
+    satellite(8),
+        -- IAS via Satellite access
+        -- (when it is not covered by any 3GPP or ETSI mobile Lawful Interception specifications)
+    wireless-other(9)
+        -- IAS via other type of Wireless access
+        -- (when it is not covered by any 3GPP or ETSI mobile Lawful Interception specifications)
+}
+
+IPVersion ::= ENUMERATED
+{
+    iPV4(1),
+        -- The IPv4 protocol is used
+    iPV6(2),
+        -- The IPv6 protocol is used
+    iPV4andV6(3),
+        -- The IPv4 and IPv6 protocols are used
+    ...
+}
+
+EndReason ::= ENUMERATED
+{
+    undefined(0),
+    regularLogoff(1),
+        -- The target logged off
+    connectionLoss(2),
+        -- The connection was lost
+    connectionTimeout(3),
+        -- The connection timed-out
+    leaseExpired(4),
+        -- The DHCP lease expired
+    ...
+}
+
+IPIRIIDType ::= CHOICE
+{
+    printableIDType         [0] UTF8String (SIZE (1..128)),
+        -- For printable userIDs, such as the Radius username, phonenumbers
+    macAddressType          [1] OCTET STRING (SIZE (6)),
+        -- For MAC address types, raw binary format as in RFC 2132 [15]
+    ipAddressType           [2] IPAddress,
+        -- For IP address types
+    ...
+}
+
+NationalIPIRIParameters ::= SEQUENCE
+{
+    countryCode     [1] PrintableString (SIZE (2)),
+        -- Country Code according to ISO 3166-1 [16],
+        -- the country to which the parameters inserted after the extension marker apply.
+    ...
+    -- In case a given country wants to use additional national parameters according to its law,
+    -- these national parameters should be defined using the ASN.1 syntax and added after the
+    -- extension marker (...).
+    -- It is recommended that "version parameter" and "vendor identification parameter" are
+    -- included in the national parameters definition. Vendor identifications can be
+    -- retrieved from the IANA web site (see Annex E Bibliography). Besides, it is recommended
+    -- to avoid using tags from 240 to 255 in a formal type definition.
+}
+
+AuthenticationType ::= ENUMERATED
+{
+    unknown(0),
+        -- AAA function for the target service is unknown
+    static(1),
+        -- The target service is assigned a static IP address & no AAA expected
+    radiusAAA(2),
+        -- AAA function for the target service is provided by RADIUS
+    dhcpAAA(3),
+        -- AAA function for the target service is provided by DHCP
+    diameterAAA(4),
+        -- AAA function for the target service is provided by DIAMETER
+    ...
+}
+
+OtherTargetIdentifiers ::= CHOICE
+{
+        -- Additional target identifiers associated with the target service
+        -- This list is extensible to accommodate other target identifiers which
+        -- may be required in future.
+    iPAddress       [0] IPAddress,
+        -- IPAddress imported from TS 102 232 [2].
+        -- This can be an IPv4 address (with or without a subnet range defined) or
+        -- an IPv6 address (with or without a prefix range defined).
+    ...
+}
+
+FramedRoute ::= CHOICE
+{
+        -- Additional Framed Route prefix information associated with the target service
+
+    framedRoute     [0] OCTET STRING,
+        -- This could contain an IPv4 as well as IPv6 FramedRoute information
+        -- including additional information such Gateway address and
+        -- one or more metrics in texual format.
+        -- This parameter shall be populated with the RADIUS value.
+    ...
+}
+
+-- =====================================================
+-- Intercept-related information for IRI-Only intercepts
+-- =====================================================
+
+-- The PDHR and PDSR mechanisms have been superseded by
+-- the IPPR mechanism which is defined in clause 6.2.5.
+-- New implementations should use the IPPR mechanism.
+
+IPIRIOnly ::= SEQUENCE
+{
+    iPIRIOnlyObjId              [0] RELATIVE-OID,
+    iPInformation               [1] IPInformation,
+    protocolInformation         [2] ProtocolInformation,
+    iPAggregatedNbrOfPackets    [3] INTEGER OPTIONAL,
+    iPAggregatedNbrOfBytes      [4] INTEGER OPTIONAL,
+    ...,
+    pDSRInformation             [5] PDSRInformation OPTIONAL
+}
+
+IPInformation ::= CHOICE
+{
+    iPv4Information     [0] IPv4Information,
+    iPv6Information     [1] IPv6Information
+}
+
+ProtocolInformation ::= CHOICE
+{
+    none                    [0] NULL,
+        -- No layer 4 protocol information is provided
+    tCPInformation          [1] TCPInformation,
+    uDPInformation          [2] UDPInformation,
+    ...
+}
+
+IPv4Information ::= SEQUENCE
+{
+    headerLength            [0] OCTET STRING OPTIONAL,
+    typeOfService           [1] OCTET STRING OPTIONAL,
+    totalLength             [2] OCTET STRING (SIZE (2))OPTIONAL,
+    identification          [3] OCTET STRING (SIZE (2))OPTIONAL,
+    fragment                [4] OCTET STRING (SIZE (2))OPTIONAL,
+    ttl                     [5] OCTET STRING OPTIONAL,
+    protocol                [6] OCTET STRING OPTIONAL,
+    headerChecksum          [7] OCTET STRING (SIZE (2))OPTIONAL,
+    source                  [8] OCTET STRING (SIZE (4)),
+    destination             [9] OCTET STRING (SIZE (4)),
+    options                 [10] OCTET STRING (SIZE (0..40))OPTIONAL
+}
+
+IPv6Information ::= SEQUENCE
+{
+    trafficClass            [0] OCTET STRING OPTIONAL,
+    flowLabel               [1] OCTET STRING (SIZE (20))OPTIONAL,
+    payloadLength           [2] OCTET STRING (SIZE (4))OPTIONAL,
+    nextHeader              [3] OCTET STRING OPTIONAL,
+    hopLimit                [4] OCTET STRING OPTIONAL,
+    source                  [5] OCTET STRING (SIZE (16)),
+    destination             [6] OCTET STRING (SIZE (16))
+}
+
+TCPInformation ::= SEQUENCE
+{
+    sourcePort          [0] OCTET STRING (SIZE (2))OPTIONAL,
+    destinationPort     [1] OCTET STRING (SIZE (2))OPTIONAL,
+    sequenceNumber      [2] OCTET STRING (SIZE (4))OPTIONAL,
+    ackNumber           [3] OCTET STRING (SIZE (4))OPTIONAL,
+    dataOffset          [4] BIT STRING (SIZE (4))OPTIONAL,
+        -- First 4 bits
+    controlBits         [5] BIT STRING (SIZE (6))OPTIONAL,
+        -- Last 6 bits
+    windowSize          [6] OCTET STRING (SIZE (2))OPTIONAL,
+    checkSum            [7] OCTET STRING (SIZE (2))OPTIONAL,
+    urgentPointer       [8] OCTET STRING (SIZE (2))OPTIONAL,
+    options             [9] OCTET STRING (SIZE (0..40))OPTIONAL
+}
+
+UDPInformation ::= SEQUENCE
+{
+    sourcePort          [0] OCTET STRING (SIZE (2))OPTIONAL,
+    destinationPort     [1] OCTET STRING (SIZE (2))OPTIONAL,
+    length              [2] OCTET STRING (SIZE (2))OPTIONAL,
+    checkSum            [3] OCTET STRING (SIZE (2))OPTIONAL
+}
+
+PDSRInformation::= SEQUENCE
+{
+    summaryTrigger          [0] PDSRSummaryTriggerIPaccess,
+    firstPacketTimestamp    [1] GeneralizedTime,
+    lastPacketTimestamp     [2] GeneralizedTime,
+    packetCount             [3] INTEGER,
+    byteCount               [4] INTEGER,
+    ...
+}
+
+PDSRSummaryTriggerIPaccess ::= ENUMERATED
+{
+    startOfFlow(0),
+    timerExpiry(1),
+    packetCount(2),
+    byteCount(3),
+    endOfFlow(4),
+    ...
+}
+
+-- ===================================================
+-- Intercept-related information for IP Packet Reports
+-- ===================================================
+
+IPIRIPacketReport ::= SEQUENCE
+{
+    iPIRIPacketReportObjId [0] RELATIVE-OID,
+    report                 [1] PacketReport,
+    ...
+}
+
+PacketReport ::= CHOICE
+{
+    header  [1] PacketReportHeader,
+    summary [2] PacketReportSummary,
+    ...
+}
+
+PacketReportHeader ::= SEQUENCE
+{
+    header [1] OCTET STRING,
+    ...
+}
+
+PacketReportSummary ::= SEQUENCE
+{
+    header         [1] OCTET STRING,
+    indications    [2] PacketReportIndications,
+    trigger        [3] PacketReportTrigger,
+    packetCount    [4] INTEGER OPTIONAL,
+    byteCount      [5] INTEGER OPTIONAL,
+    firstTimestamp [6] GeneralizedTime OPTIONAL,
+    lastTimestamp  [7] GeneralizedTime OPTIONAL,
+    ...
+}
+
+PacketReportTrigger ::= ENUMERATED
+{
+    flowStart(1),
+    flowEnd(2),
+    flowTimeout(3),
+    flowTimerExpiration(4),
+    flowPacketCount(5),
+    flowByteCount(6),
+    sessionTimerExpiration(7),
+    sessionPacketCount(8),
+    sessionByteCount(9),
+    reportEnd(10),
+    ...
+}
+
+PacketReportIndications ::= BIT STRING
+{
+    zeroedIPv4TotalLength(0),
+    zeroedIPv4Flags(1),
+    zeroedIPv4TimeToLive(2),
+    zeroedIPv4HeaderChecksum(3),
+    zeroedIPv6PayloadLength(4),
+    removedIPv6ExtensionHeaders(5),
+    zeroedTCPSequenceNumber(6),
+    zeroedTCPAcknowledgementNumber(7),
+    zeroedTCPFlags(8),
+    zeroedTCPWindowSize(9),
+    zeroedTCPChecksum(10),
+    zeroedUDPLength(11),
+    zeroedUDPChecksum(12)
+}
+
+END -- end of IPAccessPDU

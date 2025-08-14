@@ -1,17 +1,26 @@
--- This ASN.1 module was taken from 3GPP TS 33.128 V18.8.0 (2024-06) and modified to pass through asn2wrs
+-- This ASN.1 module was taken from 3GPP TS 33.128 V19.3.0 (2025-06) and modified to pass through asn2wrs
 
 TS33128Payloads
-{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) ts33128(19) r18(18) version8(8)}
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) ts33128(19) r19(19) version3(3)}
 
 DEFINITIONS IMPLICIT TAGS ::=
 
 BEGIN
 
+IMPORTS
+
+-- from ETSI TS 102 232-3 [6]
+    IPIRIPacketReport
+        FROM IPAccessPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) iPAccess(3) version18(18)};
+
+-- end of IMPORTS
+
 -- =============
 -- Relative OIDs
 -- =============
 
---tS33128PayloadsOID          RELATIVE-OID ::= {threeGPP(4) ts33128(19) r18(18) version8(8)}
+--tS33128PayloadsOID          RELATIVE-OID ::= {threeGPP(4) ts33128(19) r19(19) version3(3)}
 
 --xIRIPayloadOID              RELATIVE-OID ::= {tS33128PayloadsOID xIRI(1)}
 --xCCPayloadOID               RELATIVE-OID ::= {tS33128PayloadsOID xCC(2)}
@@ -60,7 +69,7 @@ XIRIEvent ::= CHOICE
 
     -- Tag 16 is reserved because there is no equivalent mDFCellSiteReport in XIRIEvent.
 
-    -- MMS events, see clause 7.4.3
+    -- MMS events, see clause 7.4.3 see also MMSConverted events ([162-163] below)
     mMSSend                                             [17] MMSSend,
     mMSSendByNonLocalTarget                             [18] MMSSendByNonLocalTarget,
     mMSNotification                                     [19] MMSNotification,
@@ -268,7 +277,65 @@ XIRIEvent ::= CHOICE
 
     -- UDM events, see clause 7.2.2.3, continued from tag 124
     uDMProSeTargetIdentifierDeconcealment               [159] UDMProSeTargetIdentifierDeconcealment,
-    uDMProSeTargetAuthentication                        [160] UDMProSeTargetAuthentication
+    uDMProSeTargetAuthentication                        [160] UDMProSeTargetAuthentication,
+
+    -- IP Packet Report, see clause 6.2.3.9.5
+    iPIRIPacketReport                                   [161] IPIRIPacketReport,
+
+    -- IMS events, see clause 7.12.4.2, continued from tag 107
+    iMSDataChannelSetup                                 [162] IMSDataChannelSetup,
+    iMSDataChannelModification                          [163] IMSDataChannelModification,
+    iMSDataChannelTermination                           [164] IMSDataChannelTermination,
+
+    -- MMS-related events continued from choice 35
+    mMSConvertedFromEmail                               [165] MMSConvertedFromEmail,
+    mMSConvertedToEmail                                 [166] MMSConvertedToEmail,
+
+    -- NEF events, see clause 7.7.7.1
+    nEF5GVNGroupCreation                                [167] NEF5GVNGroupCreation,
+    nEF5GVNGroupUpdate                                  [168] NEF5GVNGroupUpdate,
+    nEF5GVNGroupDeletion                                [169] NEF5GVNGroupDeletion,
+    nEF5GVNGroupQuery                                   [170] NEF5GVNGroupQuery,
+
+    -- HSS events, see clause 7.2.3.3
+    hSSSubscriberRecordChange                           [171] HSSSubscriberRecordChange,
+
+    -- IMS HSS events, see clause 7.2.4.3
+    iMSHSSServingSystemMessage                          [172] IMSHSSServingSystemMessage,
+    iMSHSSStartOfInterceptionWithRegisteredTarget       [173] IMSHSSStartOfInterceptionWithRegisteredTarget,
+    iMSHSSSubscriberRecordChange                        [174] IMSHSSSubscriberRecordChange,
+
+    -- AMF events, see clause 6.2.2.2.14, continued from tag 147
+    aMFUEContextUpdate                                  [175] AMFUEContextUpdate,
+
+    -- SGW events, see clause 6.3.3.2
+    ePSPDNConnectionEstablishment                       [176] EPSPDNConnectionEstablishment,
+    ePSPDNConnectionModification                        [177] EPSPDNConnectionModification,
+    ePSPDNConnectionRelease                             [178] EPSPDNConnectionRelease,
+    ePSStartOfInterceptionWithEstablishedPDNConnection  [179] EPSStartOfInterceptionWithEstablishedPDNConnection,
+    ePSPDNUnsuccessfulProcedure                         [180] EPSPDNUnsuccessfulProcedure,
+
+    -- IMS events, see clause 7.12.4.2, continued from tag 164
+    startOfInterceptionWithEstablishedIMSDataChannel    [181] StartOfInterceptionWithEstablishedIMSDataChannel,
+
+    -- SMF events, see clause 6.2.3.2 continued from tag 61
+    sMFProSeRemoteUEReport                              [182] SMFProSeRemoteUEReport,
+    sMFStartOfInterceptionWithConnectedProSeRemoteUE    [183] SMFStartOfInterceptionWithConnectedProSeRemoteUE,
+
+    -- 5G ProSe Direct Communication events, see clause 7.17.2
+    fiveGDDNMFProSeUNIDirectDiscovery                   [184] FiveGDDNMFProSeUNIDirectDiscovery,
+    fiveGDDNMFProSeNNIDirectDiscovery                   [185] FiveGDDNMFProSeNNIDirectDiscovery,
+
+    -- Additional Identifier Association events, see clauses 6.2.2.2.7 and 6.3.2.2.2
+    aMFIdentifierDeassociation                          [186] AMFIdentifierDeassociation,
+    mMEIdentifierDeassociation                          [187] MMEIdentifierDeassociation,
+
+    -- 5G Personal IoT events, see clause 7.18.2
+    fiveGPINAPPMessage                                  [188] FiveGPINAPPMessage,
+    fiveGStartOfInterceptionWithPINClientInPIN          [189] FiveGStartOfInterceptionWithPINClientInPIN,
+
+    -- Charging data event records, see clause 7.19
+    chargingDataEvent                                   [190] ChargingDataEvent
 }
 
 -- ==============
@@ -321,7 +388,7 @@ IRIEvent ::= CHOICE
     -- MDF events, see clause 7.3.2.2
     mDFCellSiteReport                                   [16] MDFCellSiteReport,
 
-    -- MMS events, see clause 7.4.4.1
+    -- MMS events, see clause 7.4.4.1 see also MMSConverted events ([162-163] below)
     mMSSend                                             [17] MMSSend,
     mMSSendByNonLocalTarget                             [18] MMSSendByNonLocalTarget,
     mMSNotification                                     [19] MMSNotification,
@@ -528,7 +595,64 @@ IRIEvent ::= CHOICE
 
     -- UDM events, see clause 7.2.2.3, continued from tag 124
     uDMProSeTargetIdentifierDeconcealment               [159] UDMProSeTargetIdentifierDeconcealment,
-    uDMProSeTargetAuthentication                        [160] UDMProSeTargetAuthentication
+    uDMProSeTargetAuthentication                        [160] UDMProSeTargetAuthentication,
+
+    -- Tag 161 is reserved because there is no equivalent IP Packet Report in IRIEvent.
+
+    -- IMS events, see clause 7.12.7, continued from tag 107
+    iMSDataChannelSetup                                 [162] IMSDataChannelSetup,
+    iMSDataChannelModification                          [163] IMSDataChannelModification,
+    iMSDataChannelTermination                           [164] IMSDataChannelTermination,
+
+    -- MMS-related events continued from choice 35
+    mMSConvertedFromEmail                               [165] MMSConvertedFromEmail,
+    mMSConvertedToEmail                                 [166] MMSConvertedToEmail,
+
+    -- NEF events, see clause 7.7.7.2
+    nEF5GVNGroupCreation                                [167] NEF5GVNGroupCreation,
+    nEF5GVNGroupUpdate                                  [168] NEF5GVNGroupUpdate,
+    nEF5GVNGroupDeletion                                [169] NEF5GVNGroupDeletion,
+    nEF5GVNGroupQuery                                   [170] NEF5GVNGroupQuery,
+
+    -- HSS events, see clause 7.2.3.3
+    hSSSubscriberRecordChange                           [171] HSSSubscriberRecordChange,
+
+    -- IMS HSS events, see clause 7.2.4.3
+    iMSHSSServingSystemMessage                          [172] IMSHSSServingSystemMessage,
+    iMSHSSStartOfInterceptionWithRegisteredTarget       [173] IMSHSSStartOfInterceptionWithRegisteredTarget,
+    iMSHSSSubscriberRecordChange                        [174] IMSHSSSubscriberRecordChange,
+
+    -- AMF events, see clause 6.2.2.3, continued from tag 147
+    aMFUEContextUpdate                                  [175] AMFUEContextUpdate,
+
+    -- SGW events, see clause 6.3.3.2
+    ePSPDNConnectionEstablishment                       [176] EPSPDNConnectionEstablishment,
+    ePSPDNConnectionModification                        [177] EPSPDNConnectionModification,
+    ePSPDNConnectionRelease                             [178] EPSPDNConnectionRelease,
+    ePSStartOfInterceptionWithEstablishedPDNConnection  [179] EPSStartOfInterceptionWithEstablishedPDNConnection,
+    ePSPDNUnsuccessfulProcedure                         [180] EPSPDNUnsuccessfulProcedure,
+
+    -- IMS events, see clause 7.12.4.2, continued from tag 164
+    startOfInterceptionWithEstablishedIMSDataChannel    [181] StartOfInterceptionWithEstablishedIMSDataChannel,
+
+    -- SMF events, see clause 6.2.3.7 continued from tag 61
+    sMFProSeRemoteUEReport                              [182] SMFProSeRemoteUEReport,
+    sMFStartOfInterceptionWithConnectedProSeRemoteUE    [183] SMFStartOfInterceptionWithConnectedProSeRemoteUE,
+
+    -- 5G ProSe Direct Communication events, see clause 7.17.3
+    fiveGDDNMFProSeUNIDirectDiscovery                   [184] FiveGDDNMFProSeUNIDirectDiscovery,
+    fiveGDDNMFProSeNNIDirectDiscovery                   [185] FiveGDDNMFProSeNNIDirectDiscovery,
+
+    -- Additional Identifier Association events, see clauses 6.2.2.2.7 and 6.3.2.2.2
+    aMFIdentifierDeassociation                          [186] AMFIdentifierDeassociation,
+    mMEIdentifierDeassociation                          [187] MMEIdentifierDeassociation,
+
+    -- 5G Personal IoT events, see clause 7.18.3
+    fiveGPINAPPMessage                                  [188] FiveGPINAPPMessage,
+    fiveGStartOfInterceptionWithPINClientInPIN          [189] FiveGStartOfInterceptionWithPINClientInPIN,
+
+    -- Charging data event records, see clause 7.19
+    chargingDataEvent                                   [190] ChargingDataEvent
 }
 
 IRITargetIdentifier ::= SEQUENCE
@@ -613,7 +737,6 @@ S8HRBearerInfo ::= SEQUENCE
 
 -- ================
 -- HR LI parameters
-
 -- ================
 
 N9HRMessageCause ::= ENUMERATED
@@ -805,6 +928,39 @@ NEFAFSessionWithQoSNotification ::= SEQUENCE
     aFID                                 [2] AFID,
     userPlaneNotificationData            [3] SBIType,
     aForASSessionWithQoSResponseCode     [4] AForASSessionWithQoSResponseCode
+}
+
+-- See clause 7.7.7.1.2 for details of this structure
+NEF5GVNGroupCreation ::= SEQUENCE
+{
+    aFID                        [1] AFID,
+    gPSI                        [2] GPSI,
+    fiveGLanParametersProvision [3] SBIType
+}
+
+-- See clause 7.7.7.1.3 for details of this structure
+NEF5GVNGroupUpdate ::= SEQUENCE
+{
+    aFID                             [1] AFID,
+    gPSI                             [2] GPSI,
+    fiveGLanParametersProvision      [3] SBIType OPTIONAL,
+    fiveGLanParametersProvisionPatch [4] SBIType OPTIONAL
+}
+
+-- See clause 7.7.7.1.4 for details of this structure
+NEF5GVNGroupDeletion ::= SEQUENCE
+{
+    aFID            [1] AFID,
+    gPSI            [2] GPSI,
+    externalGroupID [3] OCTET STRING
+}
+
+-- See clause 7.7.7.1.5 for details of this structure
+NEF5GVNGroupQuery ::= SEQUENCE
+{
+    aFID                        [1] AFID,
+    gPSI                        [2] GPSI,
+    fiveGLanParametersProvision [3] SBIType
 }
 
 -- ==========================
@@ -1174,12 +1330,6 @@ SCSASID ::= UTF8String
 
 SCEFID ::= UTF8String
 
-PeriodicCommunicationIndicator ::= ENUMERATED
-{
-    periodic(1),
-    nonPeriodic(2)
-}
-
 EPSBearerID ::= INTEGER (0..255)
 
 APN ::= UTF8String
@@ -1234,7 +1384,10 @@ AKMAAFID ::= SEQUENCE
 UAStarParams ::= CHOICE
 {
     tls12                 [1] TLS12UAStarParams,
-    generic               [2] GenericUAStarParams
+    generic               [2] GenericUAStarParams,
+    tls13                 [3] TLS13UAStarParams,
+    dtls12                [4] DTLS12UAStarParams,
+    dtls13                [5] DTLS13UAStarParams
 }
 
 GenericUAStarParams ::= SEQUENCE
@@ -1288,6 +1441,300 @@ TLS12UAStarParams ::= SEQUENCE
     sessionID             [17] OCTET STRING (SIZE(0..32)),
     tLSServerExtensions   [18] OCTET STRING (SIZE(0..65535)),
     tLSClientExtensions   [19] OCTET STRING (SIZE(0..65535)) OPTIONAL
+}
+
+-- ==================================================
+-- Specific UaStarParams for DTLS 1.2 (RFC6347)
+-- Inline references below are to clauses of RFC6347.
+-- ==================================================
+
+DTLS12UAStarParams ::= SEQUENCE
+{
+    tLS12CommonParams [1] TLS12UAStarParams,
+    -- RFC 6347 [144] clause 4.1
+    clientEpoch       [2] INTEGER,
+    -- RFC 6347 [144] clause 4.1
+    serverEpoch       [3] INTEGER,
+    -- RFC 9146 [145]
+    connectionID      [4] OCTET STRING (SIZE(0..255)) OPTIONAL
+}
+
+-- ==================================================
+-- Specific UaStarParams for TLS 1.3 (RFC8446)
+-- Inline references below are to clauses of RFC8446.
+-- ==================================================
+
+-- RFC8846, clause 4.2: Available handshake extension types.
+
+TLS13ExtensionType ::= ENUMERATED
+{
+        serverName(1),
+        maxFragmentLength(2),
+        statusRequest(3),
+        supportedGroups(4),
+        signatureAlgorithms(5),
+        useSRTP(6),
+        heartbeat(7),
+        applicationLayerProtocolNegotiation(8),
+        signedCertificateTimestamp(9),
+        clientCertificateType(10),
+        serverCertificateType(11),
+        padding(12),
+        presharedKey(13),
+        earlyData(14),
+        supportedVersions(15),
+        cookie(16),
+        pSKKeyExchangeModes(17),
+        certificateAuthorities(18),
+        oIDFilters(19),
+        postHandshakeAuth(20),
+        signatureAlgorithmsCert(21),
+        keyShare(22)
+}
+
+-- RFC8846, clause 4.2: Extensions.
+-- Carried as extension to the client's and server's
+-- Hello, or, in the server's EncryptedExtensions message.
+TLS13Extension ::= SEQUENCE
+{
+    extensionType [1] TLS13ExtensionType,
+    extensionData [2] OCTET STRING (SIZE(0..65535))
+}
+
+
+-- RFC8446, clauses 4.1, 4.2, 7.1, and B.4: Cryptographic transforms
+
+-- RFC8446, clauses 4.1.1 and 4.1.2: Ciphersuite
+TLS13CipherSuite ::= CHOICE
+{
+    rfc8446               [1] TLSCipherSuite
+    -- Extensible for possible future purposes
+}
+
+-- RFC8446, clause 7.1 and B.4: Key derivation function.
+TLS13KDFAlgorithm ::= ENUMERATED
+{
+    rfc5869(1)     -- HKDF
+}
+
+-- RFC8846, clause 4.2.11 and B.4: Hash algorithm.
+TLS13PSKHashAlgorithm ::= ENUMERATED
+{
+    sha256(1),
+    sha384(2),
+    sha512(3)
+}
+
+
+-- RFC8446, clause 4.4.2: Certificates.
+
+TLS13CertificateType ::= ENUMERATED
+{
+    x509(1),
+    rawPublicKey(2)
+}
+
+TLS13CerificateEntry ::= SEQUENCE
+{
+    tLSCertificateType [1] TLS13CertificateType,
+    tLSCertificateData [2] OCTET STRING (SIZE(1..16777215)),
+    extensions         [3] SEQUENCE OF TLS13Extension OPTIONAL
+}
+
+-- This will typically correspond to a certificate chain.
+TLS13Certificate ::= SEQUENCE
+{
+    tLSCertificateRequestContext [1] OCTET STRING (SIZE(0..255)),
+    tLSCertificateList           [2] SEQUENCE OF TLS13CerificateEntry
+}
+
+
+-- RFC 8446, clause 4.2.9: Preshared key exchange mode.
+TLS13PSKKeyExchangeMode ::= ENUMERATED
+{
+    pSKKE(1),
+    pSKDHEKE(2)
+}
+
+-- RFC8446, clause 4.2.11: Preshared keys (PSKs).
+-- PSKs obtained from AKMA use a specific prefix as part
+-- of the identity: 3GPP-AKMA, see TS 33.535 and 33.222.
+TLS13PSKIdentity ::= SEQUENCE
+{
+    identity            [1] OCTET STRING (SIZE(1..65535)),
+    obfuscatedTicketAge [2] INTEGER (0..4294967295)
+}
+
+TLS13OfferedPSK ::= SEQUENCE
+{
+    identity [1] TLS13PSKIdentity,
+    binder   [2] OCTET STRING (SIZE(32..255))
+}
+
+-- Actual TLS PSK, either explicitly provisioned or derived from
+-- an earlier issued TLS ticket and a resumptionMasterSecret.
+-- For AKMA, the PSK is the AKMA key K_AF.
+TLS13PSKInfo ::= SEQUENCE
+{
+    pSKIdentity        [1] TLS13PSKIdentity,
+    pSKValue           [2] OCTET STRING,
+    pSKKeyExchangeMode [3] TLS13PSKKeyExchangeMode,
+    hashAlgorithm      [4] TLS13PSKHashAlgorithm
+}
+
+
+
+-- RFC 8446, clause 4.6.1: Tickets/resumption info.
+
+TLS13NewSessionTicket ::= SEQUENCE
+{
+    ticketLifeTime [1] INTEGER (0..4294967295),
+    ticketAgeAdd   [2] INTEGER (0..4294967295),
+    ticketNonce    [3] OCTET STRING (SIZE(0..255)),
+    ticket         [4] OCTET STRING (SIZE(1..65535)),
+    extensions     [5] SEQUENCE OF TLS13Extension OPTIONAL
+}
+
+
+
+-- RFC8446, clause 7.1 and 4.2.8: TLS-internal keys
+-- These keys/secrets are never directly used to encrypt
+-- data, and are therefore optional to provide as part of
+-- TLS13UAStarParams.
+
+-- RFC8446, clause 4.2.8
+-- Shared Diffie-Hellman secret: derived from client's
+-- and server's key shares (as included in extensions).
+-- Can later be extended by adding PQC-based secrets,
+-- see e.g. draft-ietf-tls-hybrid-design-10.
+TLS13EstablishedSecrets ::= SEQUENCE
+{
+    dHE           [1] OCTET STRING (SIZE(1..65535)) OPTIONAL
+}
+
+
+-- RFC8446, clause 7.1
+-- The actual encryption keys are derived from the respective secret
+-- values below and the provided hashed handshake-message-transcript.
+TLS13EarlySecretInfo ::= SEQUENCE
+{
+    earlySecretValue [1] OCTET STRING (SIZE(1..65535)),
+    transcriptHash   [2] OCTET STRING (SIZE(1..65535))
+    -- Hash(ClientHello)
+}
+
+TLS13HandshakeSecretInfo ::= SEQUENCE
+{
+    handshakeSecretValue [1] OCTET STRING (SIZE(1..65535)),
+    transcriptHash       [2] OCTET STRING (SIZE(1..65535))
+    -- Hash(ClientHello..ServerHello)
+}
+
+TLS13MasterSecretInfo ::= SEQUENCE
+{
+    masterSecretValue [1] OCTET STRING (SIZE(1..65535)),
+    transcriptHashS   [2] OCTET STRING (SIZE(1..65535)),
+    -- Hash(ClientHello..server Finished)
+    transcriptHashC   [3] OCTET STRING (SIZE(1..65535))
+    -- Hash(ClientHello..client Finished)
+}
+
+
+-- Complete TLS 1.3 cryptographic context.
+
+TLS13UAStarParams ::= SEQUENCE
+{
+    -- Basic cryptographic information.
+    --
+    -- The offeredPSKs, offeredPSKModes and selectedPSK
+    -- parameters are also provided as part of client and
+    -- server extensions below.
+    --
+    -- PSKs and key exchange modes offered by the client, see
+    -- clause 4.2.9, 4.2.11. When AKMA (or other CSP-provided)
+    -- keys are used, at least one offered PSK and key exchange mode
+    -- will always be present in the client extensions
+    offeredPSKs                      [1] SEQUENCE OF TLS13OfferedPSK,
+    offeredPSKKeyExchangeModes       [2] SEQUENCE OF TLS13PSKKeyExchangeMode,
+    -- The server-selected PSK, clause 4.2.11
+    -- selectedPSKIdentity = j means the server selects j:th offered PSK.
+    selectedPSKIdentity              [3] INTEGER (0..65535),
+    -- The actual TLS PSK. When AKMA is used, this key will typically also
+    -- be provided as an associated AFKeyInfo IRI, see below.
+    selectedPSK                      [4] TLS13PSKInfo,
+    -- Cryptographic state: transforms and sequence numbers.
+    kDFAlgorithm                     [5] TLS13KDFAlgorithm, -- clause 7.1.
+    clientSupportedCipherSuites      [6] SEQUENCE OF TLS13CipherSuite OPTIONAL,
+    selectedCipherSuite              [7] TLS13CipherSuite, -- clause 4.2 and B.4.
+    clientSequenceNumber             [8] INTEGER, -- clause 5.3
+    serverSequenceNumber             [9] INTEGER, -- clause 5.3
+    -- Handshake parameters, clause 4.1.2 and 4.1.3.
+    clientRandom                    [10] OCTET STRING (SIZE(32)),
+    serverRandom                    [11] OCTET STRING (SIZE(32)),
+    legacySessionID                 [12] OCTET STRING (SIZE(0..32)),
+    -- Complete contents of handshake extensions, clause 4.2.
+    tLSClientHelloExtensions        [13] SEQUENCE OF TLS13Extension,
+    tLSServerHelloExtensions        [14] SEQUENCE OF TLS13Extension,
+    -- Encrypted server extensions, clause 4.3.1 (here provided in plaintext).
+    tLSPlaintextEncryptedExtensions [15] SEQUENCE OF TLS13Extension OPTIONAL,
+    -- Authentication related parameters, clause 4.4
+    -- Certificates are encrypted between client and server,
+    -- these are the unencrypted certificate(s).
+    tLSPlaintextClientCertificate   [16] TLS13Certificate OPTIONAL,
+    tLSPlaintextServerCertificate   [17] TLS13Certificate OPTIONAL,
+    -- Session key information fields, clause 7.1
+    earlySecret                     [18] TLS13EarlySecretInfo OPTIONAL,
+    binderKey                       [19] OCTET STRING (SIZE(1..65535)) OPTIONAL,
+    -- The key used by the cipher suite to encrypt early data is
+    -- derived from clientEarlyTrafficSecret as described in clause 7.3.
+    clientEarlyTrafficSecret        [20] OCTET STRING (SIZE(1..65535)),
+    earlyExporterMasterSecret       [21] OCTET STRING (SIZE(1..65535)),
+    -- Established shared key (from Diffie-Hellman or similar).
+    sharedKey                       [22] TLS13EstablishedSecrets OPTIONAL,
+    handshakeSecret                 [23] TLS13HandshakeSecretInfo OPTIONAL,
+    -- The keys used by the cipher suite to encrypt the handshake are
+    -- derived from client- and serverHandshakeTrafficSecret as
+    -- described in clause 7.3.
+    clientHandshakeTrafficSecret    [24] OCTET STRING (SIZE(1..65535)),
+    serverHandshakeTrafficSecret    [25] OCTET STRING (SIZE(1..65535)),
+    masterSecret                    [26] TLS13MasterSecretInfo OPTIONAL,
+    -- The client and server application traffic secrets
+    -- can change value during an ongoing session due to
+    -- KeyUdpateRequest messages. The values to be provided below
+    -- refer to the currently valid ones when the IRI message is
+    -- generated.
+    -- The keys used by the cipher suite to encrypt the application
+    -- traffic are derived from client- and serverApplicationTrafficSecret
+    -- as described in clause 7.3.
+    clientApplicationTrafficSecret  [27] OCTET STRING (SIZE(1..65535)),
+    serverApplicationTrafficSecret  [28] OCTET STRING (SIZE(1..65535)),
+    -- Other session-specific keys.
+    exporterMasterSecret            [29] OCTET STRING (SIZE(1..65535)),
+    resumptionMasterSecret          [30] OCTET STRING (SIZE(1..65535)),
+    -- Tickets for resumption (issued during current session), clause 4.6.2.
+    tLSResumptionTickets            [31] SEQUENCE OF TLS13NewSessionTicket OPTIONAL
+}
+
+-- =====================================================
+-- Specific UaStarParams for DTLS 1.3 (RFC9147)
+-- Inline references below are to clauses of RFC9147.
+-- The client/server SnKey can alternatively be
+-- derived from information carried in tLS13CommonParams
+-- =====================================================
+
+DTLS13UAStarParams ::= SEQUENCE
+{
+    tLS13CommonParams [1] TLS13UAStarParams,
+    -- RFC9147 [146] clause 4.2
+    clientEpoch       [2] INTEGER,
+    -- RFC9147 [146] clause 4.2
+    serverEpoch       [3] INTEGER,
+    -- RFC9147 [146] clause 4.2.3
+    clientSnKey       [4] OCTET STRING (SIZE(1..65535)) OPTIONAL,
+    -- RFC9147 [146] clause 4.2.3
+    serverSnKey       [5] OCTET STRING (SIZE(1..65535)) OPTIONAL,
+    -- RFC9146 [145]
+    connectionID      [6] OCTET STRING (SIZE(0..255)) OPTIONAL
 }
 
 KAF ::= OCTET STRING
@@ -1397,7 +1844,7 @@ AMFRegistration ::= SEQUENCE
     pagingRestrictionIndicator      [17] PagingRestrictionIndicator OPTIONAL,
     rATType                         [18] RATType OPTIONAL,
     rRCEstablishmentCause           [19] RRCEstablishmentCause OPTIONAL,
-    nGInformation                   [20] NGInformation OPTIONAL,
+    deprecatedNGInformation         [20] NGInformation OPTIONAL,
     nASTransportInitialInformation  [21] NASTransportInitialInformation OPTIONAL,
     sORTransparentContainer         [22] SORTransparentContainer OPTIONAL,
     equivalentPLMNList              [23] PLMNList OPTIONAL,
@@ -1407,7 +1854,8 @@ AMFRegistration ::= SEQUENCE
     unavailabilityPeriodDuration    [27] UnavailabilityPeriodDuration OPTIONAL,
     fiveGSUpdateType                [28] FiveGSUpdateType OPTIONAL,
     uEAreaIndication                [29] UEAreaIndication OPTIONAL,
-    establishmentCauseNon3GPPAccess [30] EstablishmentCauseNon3GPPAccess OPTIONAL
+    establishmentCauseNon3GPPAccess [30] EstablishmentCauseNon3GPPAccess OPTIONAL,
+    additionalUserIdentifiers       [31] UserIdentifiers OPTIONAL
 }
 
 -- See clause 6.2.2.2.3 for details of this structure
@@ -1424,7 +1872,8 @@ AMFDeregistration ::= SEQUENCE
     location                      [9] Location OPTIONAL,
     switchOffIndicator            [10] SwitchOffIndicator OPTIONAL,
     reRegRequiredIndicator        [11] ReRegRequiredIndicator OPTIONAL,
-    unavailabilityPeriodDuration  [12] UnavailabilityPeriodDuration OPTIONAL
+    unavailabilityPeriodDuration  [12] UnavailabilityPeriodDuration OPTIONAL,
+    additionalUserIdentifiers     [13] UserIdentifiers OPTIONAL
 }
 
 -- See clause 6.2.2.2.4 for details of this structure
@@ -1438,7 +1887,8 @@ AMFLocationUpdate ::= SEQUENCE
     location                        [6] Location,
     deprecatedSMSOverNASIndicator   [7] SMSOverNASIndicator OPTIONAL,
     deprecatedOldGUTI               [8] EPS5GGUTI OPTIONAL,
-    uEAreaIndication                [9] UEAreaIndication OPTIONAL
+    uEAreaIndication                [9] UEAreaIndication OPTIONAL,
+    additionalUserIdentifiers       [10] UserIdentifiers OPTIONAL
 }
 
 -- See clause 6.2.2.2.5 for details of this structure
@@ -1463,7 +1913,8 @@ AMFStartOfInterceptionWithRegisteredUE ::= SEQUENCE
     uEPolicy                      [17] UEPolicy OPTIONAL,
     unavailabilityPeriodDuration  [18] UnavailabilityPeriodDuration OPTIONAL,
     fiveGSUpdateType              [19] FiveGSUpdateType OPTIONAL,
-    uEAreaIndication              [20] UEAreaIndication OPTIONAL
+    uEAreaIndication              [20] UEAreaIndication OPTIONAL,
+    additionalUserIdentifiers     [21] UserIdentifiers OPTIONAL
 }
 
 -- See clause 6.2.2.2.6 for details of this structure
@@ -1477,7 +1928,8 @@ AMFUnsuccessfulProcedure ::= SEQUENCE
     pEI                         [6] PEI OPTIONAL,
     gPSI                        [7] GPSI OPTIONAL,
     gUTI                        [8] FiveGGUTI OPTIONAL,
-    location                    [9] Location OPTIONAL
+    location                    [9] Location OPTIONAL,
+    additionalUserIdentifiers   [10] UserIdentifiers OPTIONAL
 }
 
 -- See clause 6.2.2.2.8 on for details of this structure
@@ -1490,7 +1942,8 @@ AMFPositioningInfoTransfer ::= SEQUENCE
     gUTI                        [5] FiveGGUTI OPTIONAL,
     nRPPaMessage                [6] OCTET STRING OPTIONAL,
     lPPMessage                  [7] OCTET STRING OPTIONAL,
-    lcsCorrelationId            [8] UTF8String (SIZE(1..255))
+    lcsCorrelationId            [8] UTF8String (SIZE(1..255)),
+    additionalUserIdentifiers   [9] UserIdentifiers OPTIONAL
 }
 
 -- See clause 6.2.2.2.9.2 for details of this structure
@@ -1561,7 +2014,7 @@ AMFUEPolicyTransfer ::= SEQUENCE
     uEPolicy                        [6] UEPolicy
 }
 
--- See clause 6.2.2.2.12 for details of this structure
+-- See clause 6.2.2.2.13 for details of this structure
 AMFUEServiceAccept ::= SEQUENCE
 {
     userIdentifiers                [1] UserIdentifiers,
@@ -1575,6 +2028,14 @@ AMFUEServiceAccept ::= SEQUENCE
     pagingRestriction              [8] PagingRestrictionIndicator OPTIONAL,
     forbiddenTAIList               [9] TAIList OPTIONAL,
     uERequestType                  [10] MUSIMUERequestType OPTIONAL
+}
+
+-- See clause 6.2.2.2.14 for details of this structure
+AMFUEContextUpdate ::= SEQUENCE
+{
+    userIdentifiers          [1] UserIdentifiers,
+    rANUEContextModification [2] RANUEContextModification OPTIONAL,
+    rANDownlinkNASTransport  [3] RANDownlinkNASTransport OPTIONAL
 }
 
 -- =================
@@ -1742,7 +2203,8 @@ NASTransportInitialInformation ::= SEQUENCE
     eDTSession              [3] BOOLEAN OPTIONAL,
     authenticatedIndication [4] BOOLEAN OPTIONAL,
     nPNAccessInformation    [5] CellCAGList OPTIONAL,
-    rEDCAPIndication        [6] REDCAPIndication OPTIONAL
+    rEDCAPIndication        [6] REDCAPIndication OPTIONAL,
+    mobileIABNodeIndication [7] BOOLEAN OPTIONAL
 }
 
 NGInformation ::= SEQUENCE
@@ -1822,7 +2284,9 @@ InitialRANUEContextSetup ::= SEQUENCE
     rGLevelWirelineAccessCharacteristics [13] OCTET STRING OPTIONAL,
     uERadioCapabilityID                  [14] OCTET STRING OPTIONAL,
     targetNSSAIInfo                      [15] TargetNSSAIInfo OPTIONAL,
-    fiveGProSeAuthorizationIndication    [16] FiveGProSeAuthorizationIndication OPTIONAL
+    fiveGProSeAuthorizationIndication    [16] FiveGProSeAuthorizationIndication OPTIONAL,
+    uEDifferentiationInfo                [17] UEDifferentiationInfo OPTIONAL,
+    mobileIABAuthorizedIndicator         [18] MobileIABAuthorizedIndicator OPTIONAL
 }
 
 PDUSessionSetupRequestItem ::= SEQUENCE
@@ -1906,6 +2370,53 @@ FiveGSUpdateType ::= OCTET STRING (SIZE(1))
 
 UnavailabilityPeriodDuration ::= OCTET STRING (SIZE(1))
 
+RANUEContextModification ::= SEQUENCE
+{
+    aMFUENGAPID                          [1] AMFUENGAPID,
+    rANUENGAPID                          [2] RANUENGAPID,
+    rATFrequencySelectionPriority        [3] RATFrequencySelectionPriority OPTIONAL,
+    newAMFUENGAPID                       [4] AMFUENGAPID OPTIONAL,
+    newGUAMI                             [5] GUAMI OPTIONAL,
+    iABAuthorizedIndicator               [6] IABAuthorizedIndicator OPTIONAL,
+    nRV2XServicesAuthorization           [7] NRV2XServicesAuthorization OPTIONAL,
+    lTEV2XServiceAuthorization           [8] LTEV2XServiceAuthorization OPTIONAL,
+    rGLevelWirelineAccessCharacteristics [9] OCTET STRING OPTIONAL,
+    uERadioCapabilityID                  [10] OCTET STRING OPTIONAL,
+    fiveGProSeAuthorizationIndication    [11] FiveGProSeAuthorizationIndication OPTIONAL,
+    mobileIABAuthorizedIndicator         [12] MobileIABAuthorizedIndicator OPTIONAL
+}
+
+RANDownlinkNASTransport ::= SEQUENCE
+{
+    aMFUENGAPID                   [1] AMFUENGAPID,
+    rANUENGAPID                   [2] RANUENGAPID,
+    oldAMF                        [3] GUAMI OPTIONAL,
+    allowedNSSAI                  [4] AllowedNSSAI OPTIONAL,
+    mobilityRestrictionList       [5] MobilityRestrictionList OPTIONAL,
+    rATFrequencySelectionPriority [6] RATFrequencySelectionPriority OPTIONAL,
+    uEDifferentiationInfo         [7] UEDifferentiationInfo OPTIONAL,
+    uERadioCapability             [8] UERadioCapability OPTIONAL,
+    uERadioCapabilityID           [9] OCTET STRING OPTIONAL,
+    targetNSSAIInfo               [10] TargetNSSAIInfo OPTIONAL,
+    mobileIABAuthorizedIndicator  [11] MobileIABAuthorizedIndicator OPTIONAL
+}
+
+UEDifferentiationInfo ::= SEQUENCE
+{
+    periodicCommunicationIndicator [1] PeriodicCommunicationIndicator OPTIONAL,
+    periodicTime                   [2] INTEGER OPTIONAL,
+    scheduledCommunicationTime     [3] SBIType OPTIONAL,
+    stationaryIndication           [4] SBIType OPTIONAL,
+    trafficProfile                 [5] SBIType OPTIONAL,
+    batteryIndication              [6] SBIType OPTIONAL
+}
+
+MobileIABAuthorizedIndicator ::= ENUMERATED
+{
+    authorized(1),
+    notAuthorized(2)
+}
+
 -- ==================
 -- 5G SMF definitions
 -- ==================
@@ -1968,7 +2479,8 @@ SMFPDUSessionModification ::= SEQUENCE
     uPPathChange                [19] UPPathChange OPTIONAL,
     pFDDataForApp               [20] PFDDataForApp OPTIONAL,
     satelliteBackhaulCategory   [21] SBIType OPTIONAL,
-    gEOSatelliteID              [22] GEOSatelliteID OPTIONAL
+    gEOSatelliteID              [22] GEOSatelliteID OPTIONAL,
+    proSeRemoteUEsReport        [23] ProSeRemoteUEsReport OPTIONAL
 }
 
 -- See clause 6.2.3.2.4 for details of this structure
@@ -2021,7 +2533,8 @@ SMFStartOfInterceptionWithEstablishedPDUSession ::= SEQUENCE
     ePSStartOfInterceptionWithEstablishedPDNConnection [25] EPSStartOfInterceptionWithEstablishedPDNConnection OPTIONAL,
     pFDDataForApps                                     [26] PFDDataForApps OPTIONAL,
     satelliteBackhaulCategory                          [27] SBIType OPTIONAL,
-    gEOSatelliteID                                     [28] GEOSatelliteID OPTIONAL
+    gEOSatelliteID                                     [28] GEOSatelliteID OPTIONAL,
+    remoteUEsContextConnected                          [29] RemoteUEContextList OPTIONAL
 }
 
 -- See clause 6.2.3.2.6 for details of this structure
@@ -2045,7 +2558,8 @@ SMFUnsuccessfulProcedure ::= SEQUENCE
     accessType                  [16] AccessType OPTIONAL,
     rATType                     [17] RATType OPTIONAL,
     sMPDUDNRequest              [18] SMPDUDNRequest OPTIONAL,
-    location                    [19] Location OPTIONAL
+    location                    [19] Location OPTIONAL,
+    ePSPDNUnsuccessfulProcedure [20] EPSPDNUnsuccessfulProcedure OPTIONAL
 }
 
 -- See clause 6.2.3.2.8 for details of this structure
@@ -2202,6 +2716,26 @@ SMFMAUnsuccessfulProcedure ::= SEQUENCE
     sMPDUDNRequest              [17] SMPDUDNRequest OPTIONAL
 }
 
+SMFProSeRemoteUEReport ::= SEQUENCE
+{
+    sUPI                        [1] SUPI,
+    gPSI                        [2] GPSI OPTIONAL,
+    pEI                         [3] PEI OPTIONAL,
+    pDUSessionID                [4] PDUSessionID,
+    remoteUEContextConnected    [5] RemoteUEContext OPTIONAL,
+    remoteUEContextDisconnected [6] RemoteUEContext OPTIONAL,
+    location                    [7] Location OPTIONAL
+}
+
+SMFStartOfInterceptionWithConnectedProSeRemoteUE ::= SEQUENCE
+{
+    sUPI                     [1] SUPI,
+    gPSI                     [2] GPSI OPTIONAL,
+    pEI                      [3] PEI OPTIONAL,
+    pDUSessionID             [4] PDUSessionID,
+    remoteUEContextConnected [5] RemoteUEContextList OPTIONAL,
+    location                 [6] Location OPTIONAL
+}
 
 -- =================
 -- 5G SMF parameters
@@ -2511,6 +3045,98 @@ EASServerAddress ::= SEQUENCE
 -- See table 5.4.2.1 of TS 29.571 [17]
 GEOSatelliteID ::= UTF8String
 
+ProSeRemoteUEsReport ::= SEQUENCE
+{
+    remoteUEsContextConnected    [1] RemoteUEContextList OPTIONAL,
+    remoteUEsContextDisconnected [2] RemoteUEContextList OPTIONAL
+}
+
+RemoteUEContextList ::= SEQUENCE
+{
+    numberOfRemoteUEContexts [1] INTEGER,
+    remoteUEContexts         [2] SET OF RemoteUEContext
+}
+
+RemoteUEContext ::= SEQUENCE
+{
+    remoteUEIDFormat       [1] RemoteUEIDFormat,
+    remoteUEIDType         [2] RemoteUEIDType,
+    remoteUEID             [3] RemoteUEID,
+    uDPPortRangeIndicator  [4] BOOLEAN,
+    tCPPortRangeIndicator  [5] BOOLEAN,
+    protocolUsedByRemoteUE [6] ProtocolUsedByRemoteUE,
+    addressInformation     [7] AddressInformation OPTIONAL,
+    hPLMNID                [8] PLMNID OPTIONAL
+}
+
+ProtocolUsedByRemoteUE ::= ENUMERATED
+{
+    noIPInfo(1),
+    iPv4(2),
+    iPv6(3),
+    unstructured(4),
+    ethernet(5)
+}
+
+RemoteUEIDFormat ::= ENUMERATED
+{
+    nAI(1),
+    sixtyFourBitString(2)
+}
+
+RemoteUEIDType ::= ENUMERATED
+{
+    uPPRUKID(1),
+    cPPRUKID(2),
+    iMEI(3),
+    iMEISV(4)
+}
+
+RemoteUEID ::= CHOICE
+{
+    uPPRUKIDNAI         [1] NAI,
+    uPPRUKID64BitString [2] BIT STRING (SIZE(64)),
+    cPPRUKIDNAI         [3] NAI,
+    cPPRUKID64BitString [4] BIT STRING (SIZE(64)),
+    iMEI                [5] IMEI,
+    iMEISV              [6] IMEISV
+}
+
+AddressInformation ::= CHOICE
+{
+    iPv4Address                [1] IPv4Address,
+    iPv4AddressUDPPortRange    [2] IPv4AddressUDPPortRange,
+    iPv4AddressTCPPortRange    [3] IPv4AddressTCPPortRange,
+    iPv4AddressUDPTCPPortRange [4] IPv4AddressUDPTCPPortRange,
+    iPv6Address                [5] IPv6Address,
+    ethernetAddress            [6] MACAddress
+}
+
+IPv4AddressUDPPortRange ::= SEQUENCE
+{
+    iPv4Address         [1] IPv4Address,
+    uDPPortRange        [2] PortRange
+}
+
+IPv4AddressTCPPortRange ::= SEQUENCE
+{
+    iPv4Address         [1] IPv4Address,
+    tCPPortRange        [2] PortRange
+}
+
+IPv4AddressUDPTCPPortRange ::= SEQUENCE
+{
+    iPv4Address         [1] IPv4Address,
+    uDPPortRange        [2] PortRange,
+    tCPPortRange        [2] PortRange
+}
+
+PortRange ::= SEQUENCE
+{
+    portStart [1] INTEGER (0..65535),
+    portEnd   [2] INTEGER (0..65535)
+}
+
 -- ================================
 -- PGW-C + SMF PDNConnection Events
 -- ================================
@@ -2611,6 +3237,16 @@ EPSStartOfInterceptionWithEstablishedPDNConnection ::= SEQUENCE
     sMPDUDNRequest                     [16] SMPDUDNRequest OPTIONAL,
     bearerContexts                     [17] SEQUENCE OF EPSBearerContext
 }
+
+EPSPDNUnsuccessfulProcedure ::= SEQUENCE
+{
+    failureCause        [1] ESMCause,
+    initiator           [2] Initiator,
+    ePSSubscriberIDs    [3] EPSSubscriberIDs,
+    iMSIUnauthenticated [4] IMSIUnauthenticatedIndication OPTIONAL,
+    failedProcedure     [5] EPSPDNFailedProcedure
+}
+
 
 PFDDataForApps ::= SET OF PFDDataForApp
 
@@ -2801,6 +3437,13 @@ EPSPDNConnectionRequestType ::= ENUMERATED
 }
 
 EPSPDNConnectionReleaseScopeIndication ::= BOOLEAN
+
+EPSPDNFailedProcedure ::= CHOICE
+{
+    ePSPDNConnectionEstablishment [1] EPSPDNConnectionEstablishment,
+    ePSPDNConnectionModification  [2] EPSPDNConnectionModification,
+    ePSPDNConnectionRelease       [3] EPSPDNConnectionRelease
+}
 
 FiveGSInterworkingInfo ::= SEQUENCE
 {
@@ -2999,7 +3642,8 @@ UDMSubscriberRecordChangeMethod ::= ENUMERATED
     gPSIChange(3),
     uEDeprovisioning(4),
     unknown(5),
-    serviceIDChange(6)
+    serviceIDChange(6),
+    multipleIDChanges(7)
 }
 
 UDMCancelLocationMethod ::= ENUMERATED
@@ -3560,6 +4204,45 @@ MMBoxDescription ::= SEQUENCE
     previouslySentBy         [17] MMSPreviouslySentBy OPTIONAL,
     previouslySentByDateTime [18] Timestamp OPTIONAL,
     contentType              [19] UTF8String OPTIONAL
+}
+
+MMSConvertedFromEmail ::= SEQUENCE
+{
+    version             [1]  MMSVersion,
+    transactionID       [2]  UTF8String,
+    terminatingMMSParty [3]  SEQUENCE OF MMSParty,
+    contentType         [4]  MMSContentType,
+    originatingMMSParty [5]  MMSParty,
+    messageClass        [6]  MMSMessageClass OPTIONAL,
+    dateTime            [7]  Timestamp,
+    expiry              [8]  MMSExpiry OPTIONAL,
+    deliveryReport      [9]  BOOLEAN OPTIONAL,
+    priority            [10] MMSPriority OPTIONAL,
+    readReport          [11] BOOLEAN OPTIONAL,
+    subject             [12] MMSSubject OPTIONAL,
+    messageID           [13] UTF8String OPTIONAL
+}
+
+MMSConvertedToEmail ::= SEQUENCE
+{
+    version             [1]  MMSVersion,
+    transactionID       [2]  UTF8String,
+    terminatingMMSParty [3]  SEQUENCE OF MMSParty,
+    contentType         [4]  MMSContentType,
+    originatingMMSParty [5]  MMSParty,
+    messageClass        [6]  MMSMessageClass OPTIONAL,
+    dateTime            [7]  Timestamp,
+    expiry              [8]  MMSExpiry OPTIONAL,
+    desiredDeliveryTime [9]  Timestamp OPTIONAL,
+    deliveryReport      [10] BOOLEAN OPTIONAL,
+    priority            [11] MMSPriority OPTIONAL,
+    senderVisibility    [12] BOOLEAN OPTIONAL,
+    store               [13] BOOLEAN OPTIONAL,
+    state               [14] MMState OPTIONAL,
+    flags               [15] MMFlags OPTIONAL,
+    readReport          [16] BOOLEAN OPTIONAL,
+    subject             [17] MMSSubject OPTIONAL,
+    messageID           [18] UTF8String OPTIONAL
 }
 
 -- =========
@@ -4162,7 +4845,6 @@ PTCListManagementType  ::= ENUMERATED
     requestUnsuccessful(5)
 }
 
-
 PTCListManagementAction  ::= ENUMERATED
 {
     create(1),
@@ -4230,14 +4912,15 @@ PTCAccessPolicyFailure  ::= ENUMERATED
 -- See clause 7.12.4.2.1 for details of this structure
 IMSMessage ::= SEQUENCE
 {
-    payload                    [1] IMSPayload,
-    sessionDirection           [2] SessionDirection,
-    voIPRoamingIndication      [3] VoIPRoamingIndication OPTIONAL,
+    payload                      [1] IMSPayload,
+    sessionDirection             [2] SessionDirection,
+    voIPRoamingIndication        [3] VoIPRoamingIndication OPTIONAL,
     -- Tag [4] is not used.
     -- Tag [5] is not used.
-    location                   [6] Location OPTIONAL,
-    accessNetworkInformation   [7] SEQUENCE OF SIPAccessNetworkInformation OPTIONAL,
-    cellularNetworkInformation [8] SEQUENCE OF SIPCellularNetworkInformation OPTIONAL
+    location                     [6] Location OPTIONAL,
+    accessNetworkInformation     [7] SEQUENCE OF SIPAccessNetworkInformation OPTIONAL,
+    cellularNetworkInformation   [8] SEQUENCE OF SIPCellularNetworkInformation OPTIONAL,
+    numberTranslationInformation [9] SEQUENCE OF NumberTranslation OPTIONAL
 }
 
 -- See clause 7.12.4.2.2 for details of this structure
@@ -4259,6 +4942,46 @@ IMSCCUnavailable ::= SEQUENCE
 {
     cCUnavailableReason   [1] UTF8String,
     sDPState              [2] OCTET STRING OPTIONAL
+}
+
+-- See clause 7.12.4.2.4 for details of this structure
+IMSDataChannelSetup ::= SEQUENCE
+{
+    targetIdentity            [1] IMPU,
+    callingIdentity           [2] IMPU OPTIONAL,
+    calledIdentity            [3] SEQUENCE (SIZE (1..MAX)) OF IMPU OPTIONAL,
+    sessionEventNotification  [4] SBIType OPTIONAL,
+    mediaInstructionData      [5] SBIType OPTIONAL
+}
+
+-- See clause 7.12.4.2.5 for details of this structure
+IMSDataChannelModification ::= SEQUENCE
+{
+    targetIdentity            [1] IMPU,
+    callingIdentity           [2] IMPU OPTIONAL,
+    calledIdentity            [3] SEQUENCE (SIZE (1..MAX)) OF IMPU OPTIONAL,
+    sessionEventNotification  [4] SBIType OPTIONAL,
+    mediaInstructions         [5] SBIType OPTIONAL
+}
+
+-- See clause 7.12.4.2.6 for details of this structure
+IMSDataChannelTermination ::= SEQUENCE
+{
+    targetIdentity            [1] IMPU,
+    callingIdentity           [2] IMPU OPTIONAL,
+    calledIdentity            [3] SEQUENCE (SIZE (1..MAX)) OF IMPU OPTIONAL,
+    sessionEventNotification  [4] SBIType OPTIONAL,
+    mediaInstructionData      [5] SBIType OPTIONAL
+}
+
+-- See clause 7.12.4.2.7 for details of this structure
+StartOfInterceptionWithEstablishedIMSDataChannel ::= SEQUENCE
+{
+    targetIdentity            [1] IMPU,
+    callingIdentity           [2] IMPU OPTIONAL,
+    calledIdentities          [3] SEQUENCE OF IMPU OPTIONAL,
+    sessionEventNotification  [4] SBIType OPTIONAL,
+    mediaInstructions         [5] SBIType OPTIONAL
 }
 
 -- =========
@@ -4289,11 +5012,28 @@ ModifiedSIPMessage ::= SEQUENCE
     modifications      [2] PayloadModifications
 }
 
+NumberTranslation ::= SEQUENCE
+{
+    partyIndication  [1] PartyIndication,
+    translationInput [2] TranslationInput
+}
+
+PartyIndication ::= ENUMERATED
+{
+    callingParty(1),
+    calledParty(2)
+}
+
 SIPMessage ::= SEQUENCE
 {
     iPSourceAddress       [1] IPAddress,
     iPDestinationAddress  [2] IPAddress,
     sIPContent            [3] OCTET STRING
+}
+
+TranslationInput ::= CHOICE
+{
+    iMSIdentities [1] IMSSubscriberIDs
 }
 
 VoIPRoamingIndication ::= ENUMERATED
@@ -5247,6 +5987,94 @@ NWDAFEvent ::= ENUMERATED
     pDUSessionTraffic(7)
 }
 
+-- =====================
+-- 5G DDNMF definitions
+-- =====================
+
+-- See clause 7.17.2.2 for details of this structure
+FiveGDDNMFProSeUNIDirectDiscovery ::= SEQUENCE
+{
+    sUPI              [1] SUPI,
+    gPSI              [2] GPSI OPTIONAL,
+    fiveGProSeMessage [3] FiveGProSeMessage
+}
+
+-- See clause 7.17.2.3 for details of this structure
+FiveGDDNMFProSeNNIDirectDiscovery ::= SEQUENCE
+{
+    sUPI                                  [1] SUPI OPTIONAL,
+    gPSI                                  [2] GPSI OPTIONAL,
+    fiveGDDNMFProSeDirectDiscoveryMessage [3] SBIType
+}
+
+-- ====================
+-- 5G DDNMF parameters
+-- ====================
+
+FiveGProSeMessage ::= CHOICE
+{
+    fiveGProSeDirectDiscoveryMessage        [1] XMLType,
+    fiveGProSeUsageInformationReportMessage [2] XMLType
+}
+
+-- =========================
+-- 5G PIN Server definitions
+-- =========================
+
+-- See clause 7.18.2.2 for details of this structure
+FiveGPINAPPMessage ::= SEQUENCE
+{
+    pINEIdentities            [1] PINEIdentities,
+    mACAddress                [2] MACAddress OPTIONAL,
+    pINID                     [3] PINID OPTIONAL,
+    pINServerID               [4] PINServerID,
+    pINAPPMessage             [5] XMLType
+}
+
+-- See clause 7.18.2.3 for details of this structure
+FiveGStartOfInterceptionWithPINClientInPIN ::= CHOICE
+{
+    pINClientInPINS         [1] PINClientInPINS,
+    pINClientsInPIN         [2] PINClientsInPIN
+}
+
+PINClientInPINS ::= SEQUENCE
+{
+    pINEIdentities          [1] PINEIdentities,
+    mACAddress              [2] MACAddress OPTIONAL,
+    pINServerID             [3] PINServerID,
+    pINClientProfile        [4] XMLType,
+    pINProfiles             [5] SEQUENCE OF PINProfile
+}
+
+PINClientsInPIN ::= SEQUENCE
+{
+    pINID                   [1] PINID,
+    pINServerID             [2] PINServerID,
+    pINClientProfiles       [3] SEQUENCE OF PINClientProfile,
+    pINProfile              [4] XMLType
+}
+
+-- ========================
+-- 5G PIN Server parameters
+-- ========================
+
+PINEIdentities ::= SEQUENCE (SIZE(1..MAX)) OF PINEIdentity
+
+PINEIdentity ::= CHOICE
+{
+    pINClientID   [1] PINClientID,
+    gPSI          [2] GPSI,
+    identityToken [3] IdentityToken
+}
+
+PINClientID ::= UTF8String
+IdentityToken ::= UTF8String
+PINID ::= UTF8String
+PINServerID ::= UTF8String
+PINClientProfile ::=XMLType
+PINProfile ::= XMLType
+
 -- ===================
 -- 5G LALS definitions
 -- ===================
@@ -5317,13 +6145,25 @@ PDSRSummaryTrigger ::= ENUMERATED
 
 AMFIdentifierAssociation ::= SEQUENCE
 {
-    sUPI             [1] SUPI,
-    sUCI             [2] SUCI OPTIONAL,
-    pEI              [3] PEI OPTIONAL,
-    gPSI             [4] GPSI OPTIONAL,
-    gUTI             [5] FiveGGUTI,
-    location         [6] Location,
-    fiveGSTAIList    [7] TAIList OPTIONAL
+    sUPI                      [1] SUPI,
+    sUCI                      [2] SUCI OPTIONAL,
+    pEI                       [3] PEI OPTIONAL,
+    gPSI                      [4] GPSI OPTIONAL,
+    gUTI                      [5] FiveGGUTI,
+    location                  [6] Location,
+    fiveGSTAIList             [7] TAIList OPTIONAL,
+    additionalUserIdentifiers [8] UserIdentifiers OPTIONAL
+}
+
+AMFIdentifierDeassociation ::= SEQUENCE
+{
+    sUPI                       [1] SUPI,
+    sUCI                       [2] SUCI OPTIONAL,
+    pEI                        [3] PEI OPTIONAL,
+    gPSI                       [4] GPSI OPTIONAL,
+    gUTI                       [5] FiveGGUTI,
+    location                   [6] Location OPTIONAL,
+    additionalUserIdentifiers  [7] UserIdentifiers OPTIONAL
 }
 
 MMEIdentifierAssociation ::= SEQUENCE
@@ -5336,10 +6176,18 @@ MMEIdentifierAssociation ::= SEQUENCE
     tAIList     [6] TAIList OPTIONAL
 }
 
+MMEIdentifierDeassociation ::= SEQUENCE
+{
+    iMSI        [1] IMSI,
+    iMEI        [2] IMEI OPTIONAL,
+    mSISDN      [3] MSISDN OPTIONAL,
+    gUTI        [4] GUTI,
+    location    [5] Location OPTIONAL
+}
+
 -- =================================
 -- Identifier Association parameters
 -- =================================
-
 
 MMEGroupID ::= OCTET STRING (SIZE(2))
 
@@ -5390,7 +6238,7 @@ MMEAttach ::= SEQUENCE
     pagingRestrictionIndicator     [12] PagingRestrictionIndicator OPTIONAL,
     rATType                        [13] RATType OPTIONAL,
     rRCEstablishmentCause          [14] RRCEstablishmentCause OPTIONAL,
-    s1Information                  [15] S1Information OPTIONAL,
+    deprecatedS1Information        [15] S1Information OPTIONAL,
     nASTransportInitialInformation [16] EPSNASTransportInitialInformation OPTIONAL,
     equivalentPLMNList             [17] PLMNList OPTIONAL,
     ePSUENetworkCapability         [18] EPSUENetworkCapability OPTIONAL,
@@ -5453,7 +6301,7 @@ MMEStartOfInterceptionWithEPSAttachedUE ::= SEQUENCE
     pagingRestrictionIndicator     [13] PagingRestrictionIndicator OPTIONAL,
     rATType                        [14] RATType OPTIONAL,
     rRCEstablishmentCause          [15] RRCEstablishmentCause OPTIONAL,
-    s1Information                  [16] S1Information OPTIONAL,
+    deprecatedS1Information        [16] S1Information OPTIONAL,
     nASTransportInitialInformation [17] EPSNASTransportInitialInformation OPTIONAL,
     equivalentPLMNList             [18] PLMNList OPTIONAL,
     ePSUENetworkCapability         [19] EPSUENetworkCapability OPTIONAL,
@@ -5737,7 +6585,6 @@ MDFCellSiteReport ::= SEQUENCE OF CellInformation
 -- 5G EPS Interworking Parameters
 -- ==============================
 
-
 EMM5GMMStatus ::= SEQUENCE
 {
     eMMRegStatus  [1] EMMRegStatus OPTIONAL,
@@ -5800,6 +6647,12 @@ HSSStartOfInterceptionWithRegisteredTarget ::= SEQUENCE
     pSUserState                [3] SBIType
 }
 
+HSSSubscriberRecordChange ::= SEQUENCE
+{
+    hSSIdentities                    [1] SEQUENCE OF HSSIdentities,
+    subscriberRecordChangePayload    [2] SubscriberRecordChangePayload OPTIONAL
+}
+
 HSSIdentities ::= SEQUENCE
 {
     ePSSubscriberIDs          [1] EPSSubscriberIDs OPTIONAL,
@@ -5810,6 +6663,206 @@ SubscriptionDataSets ::= CHOICE
 {
     iMSSubscriptionData [1] SBIType
 }
+
+-- =======================
+-- IMS HSS definitions
+-- =======================
+
+IMSHSSServingSystemMessage ::= SEQUENCE
+{
+    iMSI                     [1] IMSI,
+    oldPLMNID                [2] PLMNID,
+    authorizationRequest     [3] AuthorizationRequest,
+    roamingIndicator         [4] RoamingIndicator,
+    deregistrationData       [5] SBIType OPTIONAL
+}
+
+IMSHSSStartOfInterceptionWithRegisteredTarget ::= SEQUENCE
+{
+    hSSIdentities          [1] SEQUENCE OF HSSIdentities,
+    iMSProfileData         [2] SBIType OPTIONAL,
+    iMSRegistrationStatus  [3] IMSRegistrationStatus
+}
+
+IMSHSSSubscriberRecordChange ::= SEQUENCE
+{
+    hSSIdentities            [1] SEQUENCE OF HSSIdentities,
+    iMSProfileData           [2] SBIType OPTIONAL,
+    mSISDNs                  [3] SEQUENCE (SIZE(1..MAX)) OF MSISDN OPTIONAL,
+    iMEI                     [4] IMEI OPTIONAL,
+    previousIMEI             [5] IMEI OPTIONAL
+}
+
+IMSRegistrationStatus ::= ENUMERATED
+{
+    initialRegistration(1),
+    reregistration(2),
+    timeoutDeregistration(3),
+    userDeregistration(4),
+    administrativeDeregistration(5),
+    authenticationFailure(6),
+    authenticationTimeout(7),
+    unregisteredUser(8)
+}
+
+AuthorizationRequest ::= SEQUENCE
+{
+    authorizationType            [1] AuthorizationType,
+    iMPI                         [2] IMPI,
+    visitedNetworkIdentifier     [3] UTF8String
+}
+
+AuthorizationType ::= ENUMERATED
+{
+    registration(1),
+    deregistration(2)
+}
+
+SubscriberRecordChangePayload ::= CHOICE
+{
+    iMEIUpdateInfo          [1] IMEIUpdateInfo,
+    iMEIUpdateResponse      [2] IMEIUpdateResponse,
+    roamingStatusUpdateInfo [3] RoamingStatusUpdateInfo
+}
+
+IMEIUpdateInfo ::= SEQUENCE
+{
+    iMSI       [1] IMSI OPTIONAL,
+    iMEI       [2] IMEI OPTIONAL,
+    iMEISV     [3] IMEISV OPTIONAL
+}
+
+IMEIUpdateResponse ::= SEQUENCE
+{
+    previousIMEI    [1] IMEI OPTIONAL,
+    previousIMEISV  [2] IMEISV OPTIONAL
+}
+
+RoamingStatusUpdateInfo ::= SEQUENCE
+{
+    iMSI           [1] IMSI OPTIONAL,
+    pLMNID         [2] PLMNID OPTIONAL
+}
+
+-- =========================
+-- Charging Data Definitions
+-- =========================
+
+ChargingDataEvent ::= SEQUENCE
+{
+    location                [1] Location OPTIONAL,
+    chargingDataInformation [2] ChargingDataInformation
+}
+
+-- ========================
+-- Charging Data Parameters
+-- ========================
+
+ChargingDataInformation ::= CHOICE
+{
+    nchfChargingDataRequest    [1] NchfChargingDataRequest,
+    rfChargingDataRequest      [2] RfChargingDataRequest,
+    translatedChargingDataInfo [3] TranslatedChargingDataInfo
+}
+
+NchfChargingDataRequest ::= SEQUENCE
+{
+    sBIchargingData   [1] SBIChargingData,
+    nchfChargingEvent [2] NchfChargingEvent OPTIONAL,
+    roamerInOut       [3] RoamerInOut
+}
+
+SBIChargingData ::= CHOICE
+{
+    fullSBIChargingData    [1] EncapsulatedSBIChargingData
+}
+
+EncapsulatedSBIChargingData ::= CHOICE
+{
+    encapsulatedSBIConvergedChargingData [1] SBIType,
+    encapsulatedSBIOfflineChargingData   [2] SBIType
+}
+
+NchfChargingEvent ::= ENUMERATED
+{
+    pDUSessionChargingInformation(1),
+    sMSChargingInformation(2),
+    nEFChargingInformation(3),
+    registrationChargingInformation(4),
+    n2ConnectionChargingInformation(5),
+    locationReportingChargingInformation(6),
+    nSPAChargingInformation(7),
+    nSMChargingInformation(8),
+    mMTelChargingInformation(9),
+    iMSChargingInformation(10),
+    edgeInfrastructureUsageChargingInformation(11),
+    eASDeploymentChargingInformation(12),
+    directEdgeEnablingServiceChargingInformation(13),
+    exposedEdgeEnablingServiceChargingInformation(14),
+    proSeChargingInformation(15),
+    mMSChargingInformation(16),
+    mBSSessionChargingInformation(17),
+    tSNChargingInformation(18),
+    nSACFChargingInformation(19),
+    nSSAAChargingInformation(20),
+    rangingSLChargingInformation(21)
+}
+
+RoamerInOut ::= ENUMERATED
+{
+    in-bound(1),
+    out-bound(2)
+}
+
+RfChargingDataRequest ::= SEQUENCE
+{
+    rfChargingData  [1] DiameterChargingData,
+    rfChargingEvent [2] RfChargingEvent OPTIONAL
+}
+
+DiameterChargingData ::= CHOICE
+{
+    fullDiameterChargingData    [1] EncapsulatedRfChargingData
+}
+
+EncapsulatedRfChargingData ::= OCTET STRING
+
+RfChargingEvent ::= ENUMERATED
+{
+    aoC-Information(1),
+    pS-Information(2),
+    iMS-Information(3),
+    mMS-Information(4),
+    lCS-Information(5),
+    poC-Information(6),
+    mBMS-Inform(7),
+    sMS-Information(8),
+    vCS-Information(9),
+    mMTel-Information(10),
+    proSe-Information(11),
+    service-Generic-Information(12),
+    iM-Information(13),
+    dCD-Information(14),
+    m2M-Information(15),
+    cPDT-Information(16)
+}
+
+TranslatedChargingDataInfo ::= SEQUENCE
+
+{
+    translatedChargingData  [1] TranslatedChargingData
+}
+
+TranslatedChargingData ::= SEQUENCE
+{
+    releaseID           [1] INTEGER (0..7),
+    versonID            [2] INTEGER (0..31),
+    specificationNumber [3] INTEGER (0..31),
+    releaseIDExtension  [4] INTEGER (0..255) OPTIONAL,
+    recordData          [5] ExternalChargingASN
+}
+
+ExternalChargingASN ::= ExternalASNType
 
 -- =================
 -- Common Parameters
@@ -6216,6 +7269,12 @@ NSSAI ::= SEQUENCE OF SNSSAI
 
 PagingRestrictionIndicator ::= OCTET STRING (SIZE(1..33))
 
+PeriodicCommunicationIndicator ::= ENUMERATED
+{
+    periodic(1),
+    nonPeriodic(2)
+}
+
 PLMNID ::= SEQUENCE
 {
     mCC [1] MCC,
@@ -6306,7 +7365,6 @@ RATRestrictionItem ::= SEQUENCE
 {
     pLMNIdentity               [1] PLMNID,
     rATRestrictionInformation  [2] RATRestrictionInformation
-
 }
 
 RATType ::= ENUMERATED
@@ -6330,7 +7388,20 @@ RATType ::= ENUMERATED
     nRMEO(17),
     nRGEO(18),
     nROTHERSAT(19),
-    nRREDCAP(20)
+    nRREDCAP(20),
+    wBEUTRANLEO(21),
+    wBEUTRANMEO(22),
+    wBEUTRANGEO(23),
+    wBEUTRANOTHERSAT(24),
+    nBIOTLEO(25),
+    nBIOTMEO(26),
+    nBIOTGEO(27),
+    nBIOTOTHERSAT(28),
+    lTEMLEO(29),
+    lTEMMEO(30),
+    lTEMGEO(31),
+    lTEMOTHERSAT(32),
+    nREREDCAP(33)
 }
 
 RejectedNSSAI ::= SEQUENCE OF RejectedSNSSAI
@@ -6402,7 +7473,6 @@ SUCI ::= SEQUENCE
     protectionSchemeID          [4] ProtectionSchemeID,
     homeNetworkPublicKeyID      [5] HomeNetworkPublicKeyID,
     schemeOutput                [6] SchemeOutput,
-														   
     -- routingIndicatorLength shall be included if different from the number
     -- of meaningful digits given in routingIndicator.
     routingIndicatorLength      [7] INTEGER (1..4) OPTIONAL,
@@ -6505,7 +7575,8 @@ Location ::= SEQUENCE
     locationPresenceReport      [3] LocationPresenceReport OPTIONAL,
     fourGPositioningInfo        [4] FourGPositioningInfo OPTIONAL,
     fourGLocationInfo           [5] FourGLocationInfo OPTIONAL,
-    iMSLocation                 [6] IMSLocation OPTIONAL
+    iMSLocation                 [6] IMSLocation OPTIONAL,
+    coarseLocation              [7] CoarseLocation OPTIONAL
 }
 
 CellSiteInformation ::= SEQUENCE
@@ -6549,7 +7620,8 @@ EUTRALocation ::= SEQUENCE
     cellSiteInformation         [8] CellSiteInformation OPTIONAL,
     globalENbID                 [9] GlobalRANNodeID OPTIONAL,
     ignoreTAI                   [10] BOOLEAN OPTIONAL,
-    ignoreECGI                  [11] BOOLEAN OPTIONAL
+    ignoreECGI                  [11] BOOLEAN OPTIONAL,
+    cellRadioRelatedInformation [12] SEQUENCE OF CellRadioRelatedInformation OPTIONAL
 }
 
 -- TS 29.571 [17], clause 5.4.4.9
@@ -6565,7 +7637,8 @@ NRLocation ::= SEQUENCE
     cellSiteInformation         [8] CellSiteInformation OPTIONAL,
     ignoreNCGI                  [9] BOOLEAN OPTIONAL,
     nRNTNTAIInfo                [10] NRNTNTAIInfo OPTIONAL,
-    iABMTUserLocation           [11] IABMTUserLocation OPTIONAL
+    iABMTUserLocation           [11] IABMTUserLocation OPTIONAL,
+    cellRadioRelatedInformation [12] SEQUENCE OF CellRadioRelatedInformation OPTIONAL
 }
 
 -- TS 29.571 [17], clause 5.4.4.10
@@ -6733,7 +7806,8 @@ CellInformation ::= SEQUENCE
 CellRadioRelatedInformation ::= CHOICE
 {
     nGInformation [1] NGInformation,
-    f1Information [2] F1Information
+    f1Information [2] F1Information,
+    s1Information [3] S1Information
 }
 
 RFBand ::= UTF8String
@@ -7299,7 +8373,6 @@ HorizontalSpeed ::= UTF8String
 VerticalSpeed ::= UTF8String
 SpeedUncertainty ::= UTF8String
 BarometricPressure ::= INTEGER (30000..115000)
-
 Uncertainty ::= INTEGER (0..127)
 
 -- TS 29.572 [24], clause 6.1.6.3.13
@@ -7431,6 +8504,14 @@ IABMTUserLocation ::= SEQUENCE
     nRCGI             [1] NCGI,
     tAI               [2] TAI OPTIONAL
 }
+
+CoarseLocation ::= CHOICE
+{
+    tS36413CoarseUELocation [1] TS36413CoarseUELocation
+}
+
+-- TS 36.413 [38], clause 9.2.1.167
+TS36413CoarseUELocation ::= OCTET STRING
 
 -- ==================================================
 -- Structures to allow reuse of encapsulated payloads

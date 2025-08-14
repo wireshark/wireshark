@@ -16,6 +16,7 @@ set( EXT_ASN_FILE_LIST
 
 set( ASN_FILE_LIST
 	lix2.asn
+	IPAccessPDU.asn
 )
 
 set( EXTRA_DIST
