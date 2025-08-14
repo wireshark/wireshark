@@ -18,7 +18,7 @@
 WS_DLL_PUBLIC void dissect_q931_bearer_capability_ie(tvbuff_t *, int, int,
     proto_tree *);
 
-extern void dissect_q931_cause_ie(tvbuff_t *, int, int,
+extern void dissect_q931_cause_ie(tvbuff_t *, packet_info*, int, int,
     proto_tree *, int, uint8_t *,const value_string *);
 
 extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,

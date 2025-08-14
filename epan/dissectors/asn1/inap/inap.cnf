@@ -343,7 +343,7 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
 
-  dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
+  dissect_q931_cause_ie(parameter_tvb, actx->pinfo, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
 
 #.FN_BODY Digits VAL_PTR = &parameter_tvb
   /*

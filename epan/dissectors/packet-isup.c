@@ -3988,10 +3988,10 @@ static const value_string ansi_isup_coding_standard_vals[] = {
   { 0,  NULL }
 };
 void
-dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, packet_info* pinfo, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 { unsigned length = tvb_reported_length(parameter_tvb);
   proto_tree_add_item(parameter_tree, hf_isup_cause_indicators, parameter_tvb, 0, -1, ENC_NA);
-  dissect_q931_cause_ie(parameter_tvb, 0, length,
+  dissect_q931_cause_ie(parameter_tvb, pinfo, 0, length,
                         parameter_tree,
                         hf_isup_cause_indicator, &tap_cause_value, isup_parameter_type_value);
 }
@@ -8134,7 +8134,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
             dissect_isup_backward_call_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_CAUSE_INDICATORS:
-            dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_cause_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_REDIRECTION_INFO:
             dissect_isup_redirection_information_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -9092,7 +9092,7 @@ dissect_isup_connect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tr
   Dissector Message Type release message
  */
 static int
-dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_isup_release_message(tvbuff_t *message_tvb, packet_info* pinfo, proto_tree *isup_tree)
 { proto_item *parameter_item;
   proto_tree *parameter_tree;
   tvbuff_t   *parameter_tvb;
@@ -9122,7 +9122,7 @@ dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
                                  parameter_length);
   switch (isup_standard) {
     case ITU_STANDARD:
-      dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+      dissect_isup_cause_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
       break;
     case ANSI_STANDARD:
       dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -9275,7 +9275,7 @@ dissect_isup_facility_request_accepted_message(tvbuff_t *message_tvb, proto_tree
   Dissector Message Type Facility reject
  */
 static int
-dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_isup_facility_reject_message(tvbuff_t *message_tvb, packet_info* pinfo, proto_tree *isup_tree)
 { proto_item *parameter_item;
   proto_tree *parameter_tree;
   tvbuff_t   *parameter_tvb;
@@ -9317,7 +9317,7 @@ dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tre
                                  parameter_length);
   switch (isup_standard) {
     case ITU_STANDARD:
-      dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+      dissect_isup_cause_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
       break;
     case ANSI_STANDARD:
       dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -9494,7 +9494,7 @@ dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, packet_info
   Dissector Message Type Confusion
  */
 static int
-dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_isup_confusion_message(tvbuff_t *message_tvb, packet_info* pinfo, proto_tree *isup_tree)
 { proto_item *parameter_item;
   proto_tree *parameter_tree;
   tvbuff_t   *parameter_tvb;
@@ -9526,7 +9526,7 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 
   switch (isup_standard) {
     case ITU_STANDARD:
-      dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+      dissect_isup_cause_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
       break;
     case ANSI_STANDARD:
       dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -9799,7 +9799,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_RELEASE:
-      offset += dissect_isup_release_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_release_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_SUSPEND:
@@ -9855,7 +9855,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_FACILITY_REJ:
-      offset += dissect_isup_facility_reject_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_facility_reject_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_LOOP_BACK_ACK:
@@ -9894,7 +9894,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
       /* no dissector necessary since no mandatory parameters included */
       break;
     case MESSAGE_TYPE_CONFUSION:
-      offset += dissect_isup_confusion_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_confusion_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_OVERLOAD:
@@ -10108,7 +10108,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_RELEASE:
-      offset += dissect_isup_release_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_release_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_SUSPEND:
@@ -10165,7 +10165,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_FACILITY_REJ:
-      offset += dissect_isup_facility_reject_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_facility_reject_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_LOOP_BACK_ACK:
@@ -10205,7 +10205,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       /* no dissector necessary since no mandatory parameters included */
       break;
     case MESSAGE_TYPE_CONFUSION:
-      offset += dissect_isup_confusion_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_confusion_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = true;
       break;
     case MESSAGE_TYPE_OVERLOAD:
