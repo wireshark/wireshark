@@ -71,7 +71,7 @@ instead writes a view of the details of the packet, showing all the
 fields of all protocols in the packet.  If the *-O* option is
 specified, it will only show the full details for the protocols
 specified, and show only the top-level detail line for all other
-protocols.  Use the output of "*tshark -G protocols*" to find the
+protocols.  Use the output of "*strato -G protocols*" to find the
 abbreviations of the protocols you can specify.  If the *-P* option is
 specified with either the *-V* or *-O* options, both the summary line
 for the entire packet and the details will be displayed.
@@ -270,7 +270,7 @@ __value__ is greater than 1, make start time part before running number part
 order equal to creation time order, and keeps related multiple file sets in
 same directory close to each other.
 
-Example: *tshark -b filesize:1000 -b files:5* results in a ring buffer of five
+Example: *strato -b filesize:1000 -b files:5* results in a ring buffer of five
 files of size one megabyte each.
 --
 
@@ -337,7 +337,7 @@ At least one field must be provided if the *-T fields* option is
 selected. Column types may be used prefixed with "_ws.col."
 Prefixing the field name with an at sign (@) will display the data as hex bytes.
 
-Example: *tshark -T fields -e frame.number -e ip.addr -e udp -e _ws.col.info*
+Example: *strato -T fields -e frame.number -e ip.addr -e udp -e _ws.col.info*
 
 Fields are separated by tab characters by default.  *-E* controls the
 format of the printed fields.
@@ -405,7 +405,7 @@ the default capture filter expression is used if provided.
 
 Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture
 Filters, can be used by prefixing the argument with "predef:".
-Example: *tshark -f "predef:MyPredefinedHostOnlyFilter"*
+Example: *strato -f "predef:MyPredefinedHostOnlyFilter"*
 --
 
 -F  <file format>::
@@ -482,7 +482,7 @@ __filter__ is an optional list of comma separated protocol filter names
 that limits the generated mapping file to the specified protocols,
 to avoid a huge mapping file that can choke some software (such as Kibana). E.g.,
 
-  tshark -G elastic-mapping,ip,udp,dns
+  strago -G elastic-mapping,ip,udp,dns
 
 *enterprises* Dumps the IANA Private Enterprise Number (PEN) table.
 
@@ -621,8 +621,8 @@ https://en.wikipedia.org/wiki/Hosts_(file)[].
 Set the name of the network interface or pipe to use for live packet
 capture.
 
-Network interface names should match one of the names listed in "*tshark
--D*" (described above); a number, as reported by "*tshark -D*", can also
+Network interface names should match one of the names listed in "*strato
+-D*" (described above); a number, as reported by "*strato -D*", can also
 be used.
 
 If no interface is specified, *strato* searches the list of
@@ -651,7 +651,7 @@ Protocol match filter used for ek|json|jsonraw|pdml output file types.
 Only the protocol's parent node is included. Child nodes are only
 included if explicitly specified in the filter.
 
-Example: *tshark -T json -j "ip ip.flags http"*
+Example: *strato -T json -j "ip ip.flags http"*
 --
 
 -J  <protocol match filter>::
@@ -661,7 +661,7 @@ Protocol top level filter used for ek|json|jsonraw|pdml output file types.
 The protocol's parent node and all child nodes are included.
 Lower-level protocols must be explicitly specified in the filter.
 
-Example: *tshark -T pdml -J "tcp http"*
+Example: *strato -T pdml -J "tcp http"*
 --
 
 -l::
@@ -710,7 +710,7 @@ occasions.
 Similar to the *-V* option, but causes *strato* to only show a
 detailed view of the comma-separated list of __protocols__ specified, and
 show only the top-level detail line for all other protocols, rather than
-a detailed view of all protocols.  Use the output of "*tshark -G
+a detailed view of all protocols.  Use the output of "*strato -G
  protocols*" to find the abbreviations of the protocols you can specify.
 --
 
@@ -819,25 +819,25 @@ If *-P* is specified it will print the packet summary only, with both
 If neither *-P* or *-V* are used it will print the packet details only.
 Example of usage to import data into Elasticsearch:
 
-  tshark -T ek -j "http tcp ip" -P -V -x -r file.pcap > file.json
+  strato -T ek -j "http tcp ip" -P -V -x -r file.pcap > file.json
   curl -H "Content-Type: application/x-ndjson" -XPOST http://elasticsearch:9200/_bulk --data-binary "@file.json"
 
 Elastic requires a mapping file to be loaded as template for packets-*
 index in order to convert Wireshark types to elastic types. This file
-can be auto-generated with the command "tshark -G elastic-mapping". Since
+can be auto-generated with the command "strato -G elastic-mapping". Since
 the mapping file can be huge, protocols can be selected by using the option
 --elastic-mapping-filter:
 
-  tshark -G elastic-mapping --elastic-mapping-filter ip,udp,dns
+  strato -G elastic-mapping --elastic-mapping-filter ip,udp,dns
 
 or adding the filter directly to the *-G elastic-mapping* option:
 
-  tshark -G elastic-mapping,ip,udp,dns
+  strato -G elastic-mapping,ip,udp,dns
 
 *fields* The values of fields specified with the *-e* option, in a
 form specified by the *-E* option.  For example,
 
-  tshark -T fields -E separator=, -E quote=d
+  strato -T fields -E separator=, -E quote=d
 
 would generate comma-separated values (CSV) output suitable for importing
 into your favorite spreadsheet program.
@@ -846,15 +846,15 @@ into your favorite spreadsheet program.
 which protocols to include or with *-x* option to include
 raw hex-encoded packet data.  Example of usage:
 
-  tshark -T json -r file.pcap
-  tshark -T json -j "http tcp ip" -x -r file.pcap
+  strato -T json -r file.pcap
+  strato -T json -j "http tcp ip" -x -r file.pcap
 
 *jsonraw* JSON file format including only raw hex-encoded packet data.
 It can be used with *-j* or *-J* to specify which protocols to include.
 Example of usage:
 
-  tshark -T jsonraw -r file.pcap
-  tshark -T jsonraw -j "http tcp ip" -x -r file.pcap
+  strato -T jsonraw -r file.pcap
+  strato -T jsonraw -j "http tcp ip" -x -r file.pcap
 
 *pdml* Packet Details Markup Language, an XML-based format for the
 details of a decoded packet.  This information is equivalent to the
@@ -928,7 +928,7 @@ option for this.
 Save extra information in the file if the format supports it.  For
 example,
 
-  tshark -F pcapng -W n
+  strato -F pcapng -W n
 
 will save host name resolution records along with captured packets.
 
@@ -1010,7 +1010,7 @@ Generate hexdump output, with only the frame data source, with delimited ASCII
 dump text, and with each frame hex block preceded by a human readable timestamp
 in the local time zone that is directly usable by the *text2pcap* utility:
 
-  tshark ... --hexdump frames --hexdump delimit --hexdump time -t ad \
+  strato ... --hexdump frames --hexdump delimit --hexdump time -t ad \
       | text2pcap -t 'ISO' - MYNEWPCAPNG
 
 Generate hexdump output, with only the frame data source, with the default
@@ -1018,14 +1018,14 @@ ASCII dump text with no delimiter, and with each frame hex block preceded by a
 human readable timestamp in UTC that is directly usable by the *text2pcap*
 utility with the *-a* option:
 
-  tshark ... --hexdump frames --hexdump time -t ud \
+  strato ... --hexdump frames --hexdump time -t ud \
       | text2pcap -a -t 'ISO' - MYNEWPCAPNG
 
 Generate hexdump output, with only the frame data source, with no ASCII dump
 text, and with each frame hex block preceded by an epoch timestamp that is
 directly usable by the *text2pcap* utility:
 
-  tshark ... --hexdump frames --hexdump noascii --hexdump time -t e \
+  strato ... --hexdump frames --hexdump noascii --hexdump time -t e \
       | text2pcap -t %s.%f - MYNEWPCAPNG
 --
 
@@ -1051,7 +1051,7 @@ read in the file (the file given in the *-r* command option). Providing no
 __file_format__ argument, or an invalid one, will produce a list of available
 file formats to use. For example,
 
-  tshark -r rtcp_broken.pcapng -X read_format:"MIME Files Format" -V
+  strato -r rtcp_broken.pcapng -X read_format:"MIME Files Format" -V
 
 will display the internal file structure  and allow access to the
 `file-pcapng` fields.
@@ -1095,7 +1095,7 @@ is one) will be checked against this filter.
 Automatically reset internal session when reached to specified number of packets.
 For example,
 
-    tshark -M 100000
+    strato -M 100000
 
 will reset session every 100000 packets.
 
@@ -1131,7 +1131,7 @@ Some of the currently implemented statistics are:
 Display all possible values for *-z*.
 
 *-z* container_io,tree[,__filter__]::
-Calculate I/O statistics for containers and individual processes.
+Calculate file I/O statistics for containers.
 
 ////
 *-z* conv,__type__[,__filter__]::
@@ -1404,7 +1404,7 @@ This will count the total number of SIDs seen in each 10ms interval.
 specified field are summed per time interval.
 ''__field__'' can only be a named integer, float, double or relative time field.
 
-Example: *tshark -z io,stat,0.010,"SUM(frame.len)frame.len"*
+Example: *strato -z io,stat,0.010,"SUM(frame.len)frame.len"*
 
 Reports the total number of bytes that were transmitted bidirectionally in
 all the packets within a 10 millisecond interval.
@@ -1421,7 +1421,7 @@ response values are displayed and the minimum, maximum, and average Read respons
 is used, each line cannot end in a comma so it is placed at the beginning of each
 continuation line:
 
-  tshark -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,
+  strato -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,
   "MIN(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==0",
   "MAX(frame.time_relative)frame.time_relative and smb.cmd==0x2e and smb.flags.response==1",
   "MIN(smb.time)smb.time and smb.cmd==0x2e",
@@ -1444,7 +1444,7 @@ The following command displays the average SMB Read response PDU size, the
 total number of read PDU bytes, the average SMB Write request PDU size, and
 the total number of bytes transferred in SMB Write PDUs:
 
-  tshark -n -q -r smb_reads_writes.cap -z io,stat,0,
+  strato -n -q -r smb_reads_writes.cap -z io,stat,0,
   "AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to",
   "SUM(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2e and smb.response_to",
   "AVG(smb.file.rw.length)smb.file.rw.length and smb.cmd==0x2f and not smb.response_to",
@@ -1468,7 +1468,7 @@ For each interval the Queue-Depth for the specified protocol is calculated.
 The following command displays the average SMB LOAD.
 A value of 1.0 represents one I/O in flight.
 
-  tshark -n -q -r smb_reads_writes.cap
+  strato -n -q -r smb_reads_writes.cap
   -z "io,stat,0.001,LOAD(smb.time)smb.time"
 
   ============================================================================
@@ -1490,7 +1490,7 @@ The following command displays five columns: the total number of frames and byte
 subcommands, the total number of frames containing at least one SMB Read response, and
 the total number of bytes transmitted to the client (unidirectionally) at IP address 10.1.0.64.
 
-  tshark -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,,FRAMES,BYTES,
+  strato -o tcp.desegment_tcp_streams:FALSE -n -q -r smb_reads.cap -z io,stat,0,,FRAMES,BYTES,
   "FRAMES()smb.cmd==0x2e and smb.response_to","BYTES()ip.dst==10.1.0.64"
 
   =======================================================================================================================
@@ -1505,6 +1505,7 @@ the total number of bytes transmitted to the client (unidirectionally) at IP add
   000.000-                    33576         29721685            33576         29721685              870         29004801
   =======================================================================================================================
 --
+////
 
 --capture-comment <comment>::
 +
@@ -1566,7 +1567,7 @@ This interface is subject to change, adding the possibility to filter on files.
 --
 
 --print-timers::
-Output JSON containing elapsed times for each pass tshark does to process a capture
+Output JSON containing elapsed times for each pass strato does to process a capture
 file and the sum elapsed time for all passes. The per-pass output contains the total
 elapsed time and aggregate counters for per-packet operations (dissection and filtering).
 
