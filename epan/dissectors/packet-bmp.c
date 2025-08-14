@@ -538,6 +538,7 @@ static int ett_bmpv4_tlv_path_status;
 
 
 static expert_field ei_stat_data_unknown;
+static expert_field ei_bmpv4_tlv_unknown_tlv;
 static expert_field ei_bmpv4_tlv_wrong_cap_size;
 static expert_field ei_bmpv4_tlv_wrong_cap_value;
 static expert_field ei_bmpv4_tlv_string_bad_length;
@@ -693,7 +694,12 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
                 break;
             }
             default:
-                break;
+                // Unknown TLV
+                proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_bytes, tvb, offset, tlv.length, ENC_NA);
+                expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_unknown_tlv);
+                offset += tlv.length;
+
+            break;
         }
     }
 }
@@ -2124,6 +2130,10 @@ proto_register_bmp(void)
         { &ei_bmpv4_tlv_wrong_cap_size,
           { "bmp.tlv.capability.bad_size", PI_MALFORMED, PI_ERROR,
             "Wrong capability size (should be 1)", EXPFILL }
+        },
+        { &ei_bmpv4_tlv_unknown_tlv,
+          { "bmp.tlv.unknown", PI_UNDECODED, PI_WARN,
+            "TLV Type is unknown", EXPFILL }
         },
         { &ei_bmpv4_tlv_wrong_cap_value,
           { "bmp.tlv.capability.bad_value", PI_MALFORMED, PI_ERROR,
