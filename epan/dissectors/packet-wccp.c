@@ -1865,7 +1865,7 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, int length,
   capability_type = tvb_get_ntohs(tvb, offset);
   element_tree = proto_tree_add_subtree_format(info_tree, tvb, offset, -1, ett_capability_element, &te,
                                                "Type: %s",
-                                               val_to_str(capability_type,
+                                               val_to_str_wmem(pinfo->pool, capability_type,
                                                           capability_type_vals,
                                                           "Unknown (0x%08X)"));
   header = te;
@@ -2518,7 +2518,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset,
     }
 
     info_tree = proto_tree_add_subtree(wccp_tree, tvb, offset, -1, ett, &tf,
-                             val_to_str(type, info_type_vals, "Unknown info type (%u)"));
+                             val_to_str_wmem(pinfo->pool, type, info_type_vals, "Unknown info type (%u)"));
 
     proto_tree_add_item(info_tree, hf_item_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
@@ -2677,7 +2677,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCCP");
 
-  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(wccp_message_type,
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, wccp_message_type,
                                                    wccp_type_vals, "Unknown WCCP message (%u)"));
 
   wccp_tree_item = proto_tree_add_item(tree, proto_wccp, tvb, offset, -1, ENC_NA);

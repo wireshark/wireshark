@@ -217,7 +217,7 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   offset += 2;
 
   col_add_str(pinfo->cinfo, COL_INFO,
-                 val_to_str(opcode, opcode_vals, "Unknown (0x%04x)"));
+                 val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown (0x%04x)"));
 
   proto_tree_add_item(xdmcp_tree, hf_xdmcp_length, tvb,
                         offset, 2, ENC_BIG_ENDIAN);

@@ -1402,7 +1402,7 @@ dissect_usb_video_streaming_interface_descriptor(proto_tree *parent_tree, packet
  * @return   offset within tvb at which dissection should continue
  */
 static int
-dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
+dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, packet_info* pinfo, tvbuff_t *tvb,
                                       uint8_t descriptor_len)
 {
     proto_tree *tree   = NULL;
@@ -1415,7 +1415,7 @@ dissect_usb_video_endpoint_descriptor(proto_tree *parent_tree, tvbuff_t *tvb,
     {
         const char* subtype_str;
 
-        subtype_str = val_to_str(subtype, vc_ep_descriptor_subtypes, "Unknown (0x%x)");
+        subtype_str = val_to_str_wmem(pinfo->pool, subtype, vc_ep_descriptor_subtypes, "Unknown (0x%x)");
         tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, descriptor_len,
                 ett_descriptor_video_endpoint, NULL, "VIDEO CONTROL ENDPOINT DESCRIPTOR [%s]",
                 subtype_str);
@@ -1470,8 +1470,7 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     if (descriptor_type == CS_ENDPOINT)
     {
-        offset = dissect_usb_video_endpoint_descriptor(tree, desc_tvb,
-                                                       descriptor_len);
+        offset = dissect_usb_video_endpoint_descriptor(tree, pinfo, desc_tvb, descriptor_len);
     }
     else if (descriptor_type == CS_INTERFACE)
     {
@@ -2001,7 +2000,7 @@ dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBVIDEO");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
+                val_to_str_wmem(pinfo->pool, usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
                 is_request?"Request ":"Response");
 
     if (is_request)

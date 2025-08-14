@@ -319,34 +319,24 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item         *ti            = NULL;
     int                 pos           = 0;
     tvbuff_t           *next_tvb;
-    uint16_t            encapsulation = 0;
+    uint32_t            encapsulation = 0;
     const char         *info;
-    uint8_t             type;
+    uint32_t             type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TZSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    type = tvb_get_uint8(tvb, 1);
+    /* Adding TZSP item and subtree */
+    ti = proto_tree_add_item(tree, proto_tzsp, tvb, 0, -1, ENC_NA);
+    tzsp_tree = proto_item_add_subtree(ti, ett_tzsp);
 
-    /* Find the encapsulation. */
-    encapsulation = tvb_get_ntohs(tvb, 2);
-    info = val_to_str(encapsulation, tzsp_encapsulation, "Unknown (%u)");
+    proto_tree_add_item (tzsp_tree, hf_tzsp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tzsp_tree, hf_tzsp_type, tvb, 1, 1, ENC_BIG_ENDIAN, &type);
+    proto_tree_add_item_ret_uint(tzsp_tree, hf_tzsp_encap, tvb, 2, 2, ENC_BIG_ENDIAN, &encapsulation);
+    info = val_to_str_wmem(pinfo->pool, encapsulation, tzsp_encapsulation, "Unknown (%u)");
+    proto_item_append_text(ti, ": %s", info);
 
     col_add_str(pinfo->cinfo, COL_INFO, info);
-
-    if (tree) {
-        /* Adding TZSP item and subtree */
-        ti = proto_tree_add_protocol_format(tree, proto_tzsp, tvb, 0,
-            -1, "TZSP: %s ", info);
-        tzsp_tree = proto_item_add_subtree(ti, ett_tzsp);
-
-        proto_tree_add_item (tzsp_tree, hf_tzsp_version, tvb, 0, 1,
-                    ENC_BIG_ENDIAN);
-        proto_tree_add_uint (tzsp_tree, hf_tzsp_type, tvb, 1, 1,
-                    type);
-        proto_tree_add_uint (tzsp_tree, hf_tzsp_encap, tvb, 2, 2,
-                    encapsulation);
-    }
 
     /*
      * XXX - what about TZSP_CONFIG frames?

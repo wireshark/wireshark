@@ -370,7 +370,7 @@ dissect_wifi_display_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     len = tvb_get_ntohs(tvb, offset + 1);
     wfd_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + len,
                                   ett_wfd_subelem, &subelem,
-                                  val_to_str(id, wfd_subelem_ids,
+                                  val_to_str_wmem(pinfo->pool, id, wfd_subelem_ids,
                                              "Unknown subelement ID (%u)"));
     if (offset + 3 + len > end) {
       expert_add_info_format(pinfo, subelem, &ei_wfd_subelem_len_invalid, "Packet too short for Wi-Fi Display subelement payload");

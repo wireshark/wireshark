@@ -421,7 +421,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
 
     uint32_t cmd;
     proto_tree_add_item_ret_uint(tree, hf_vsomeip_command, tvb, offset, 1, ENC_NA, &cmd);
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, vsomeip_command_type, "VSOMEIP CMD 0x%02x"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, cmd, vsomeip_command_type, "VSOMEIP CMD 0x%02x"));
     offset += 1;
 
     proto_tree_add_item(tree, hf_vsomeip_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -438,7 +438,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
     proto_tree_add_item_ret_uint(tree, hf_vsomeip_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &size);
     offset += 4;
 
-    proto_item_append_text(ti_root, ": %s", val_to_str(cmd, vsomeip_command_type, "VSOMEIP CMD 0x%02x"));
+    proto_item_append_text(ti_root, ": %s", val_to_str_wmem(pinfo->pool, cmd, vsomeip_command_type, "VSOMEIP CMD 0x%02x"));
 
     int offset_end = offset + size;
 
@@ -480,7 +480,7 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
             uint32_t subcmd_size = tvb_get_uint32(tvb, offset + 1, ENC_LITTLE_ENDIAN);
 
             uint32_t subcmd = tvb_get_uint8(tvb, offset);
-            const char *subcmd_text = val_to_str(subcmd, vsomeip_rie_subcmd_type, " Unknown Subcommand: %02x");
+            const char *subcmd_text = val_to_str_wmem(pinfo->pool, subcmd, vsomeip_rie_subcmd_type, " Unknown Subcommand: %02x");
 
             proto_item *ti_subcmd;
             proto_tree *tree_subcmd = proto_tree_add_subtree_format(tree_ri, tvb, offset, 5 + subcmd_size, ett_vsomeip_ri_subcmd, &ti_subcmd, "%s", subcmd_text);

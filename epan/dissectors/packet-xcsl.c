@@ -175,7 +175,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     if ( result >= XCSL_NONE ) {
                         result = XCSL_UNDEFINED;
                     }
-                    code = val_to_str(result, xcsl_action_vals, "Unknown: %d");
+                    code = val_to_str_wmem(pinfo->pool, result, xcsl_action_vals, "Unknown: %d");
 
                     /* Print result code and description */
                     xcsl_item = proto_tree_add_item(xcsl_tree, hf_xcsl_result, tvb, offset, len, ENC_ASCII);

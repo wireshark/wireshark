@@ -153,7 +153,7 @@ dissect_usbms_bot_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
     tree = proto_item_add_subtree(ti, ett_usbms_bot);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-        val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
+        val_to_str_wmem(pinfo->pool, usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
         is_request?"Request":"Response");
 
     if(is_request){

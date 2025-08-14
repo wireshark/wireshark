@@ -409,7 +409,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   opcode = tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb, offset, 2, opcode);
   col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
+              val_to_str_wmem(pinfo->pool, opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
   offset += 2;
 
   /* read and write requests contain file names
@@ -697,7 +697,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         error);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Code: %s",
-                    val_to_str(error, tftp_error_code_vals, "Unknown (%u)"));
+                    val_to_str_wmem(pinfo->pool, error, tftp_error_code_vals, "Unknown (%u)"));
 
     offset += 2;
 

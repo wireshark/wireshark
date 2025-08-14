@@ -3705,7 +3705,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (item)
 			proto_item_append_text(
 				item, "%s, flags 0x%02x, %s, mask 0x%08x", sid_str, flags,
-				val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"),
+				val_to_str_wmem(pinfo->pool, type, ace_type_vals, "Unknown ACE type (0x%02x)"),
 				perms);
 
 		data_size = size - (offset - old_offset);

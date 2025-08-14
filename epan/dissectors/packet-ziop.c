@@ -156,7 +156,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
                 giop_version_major,
                 giop_version_minor,
-                val_to_str(message_type, giop_message_types,
+                val_to_str_wmem(pinfo->pool, message_type, giop_message_types,
                            "Unknown message type (0x%02x)")
                 );
 

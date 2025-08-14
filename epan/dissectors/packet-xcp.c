@@ -1751,7 +1751,7 @@ dissect_sw_debug_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
         uint32_t cmd;
         proto_tree_add_item_ret_uint(tree, hf_xcp_debug_command, tvb, offset, 1, ENC_NA, &cmd);
         message->cmd_sw_debug = cmd;
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(cmd, cmd_sw_dbg_mnemonics, "Unknown Software Debug Command (0x%02x)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(pinfo->pool, cmd, cmd_sw_dbg_mnemonics, "Unknown Software Debug Command (0x%02x)"));
         offset += 1;
 
         /* TODO */
@@ -1784,7 +1784,7 @@ dissect_pod_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
         uint32_t cmd;
         proto_tree_add_item_ret_uint(tree, hf_xcp_pod_command, tvb, offset, 2, stream->endianess, &cmd);
         message->cmd_pod = cmd;
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(cmd, cmd_pod_mnemonics, "Unknown POD Command (0x%04x)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(pinfo->pool, cmd, cmd_pod_mnemonics, "Unknown POD Command (0x%04x)"));
         offset += 1;
 
         switch (message->cmd_pod) {
@@ -1876,7 +1876,7 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
     offset += 1;
 
     if (cmd != XCP_CMD_2BYTE_FIRST_BYTE) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "XCP M->S: %s", val_to_str(cmd, cmd_code_mnemonics, "Unknown Command Code (0x%02x)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "XCP M->S: %s", val_to_str_wmem(pinfo->pool, cmd, cmd_code_mnemonics, "Unknown Command Code (0x%02x)"));
     } else {
         proto_tree_add_item_ret_uint(xcp_tree, hf_xcp_cmd_code_level1, tvb, offset, 1, ENC_NA, &cmd_lvl1);
         offset += 1;
@@ -1884,7 +1884,7 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
         if (cmd_lvl1 == XCP_CMD_2BYTE_XCP_POD_COMMANDS || cmd_lvl1 == XCP_CMD_2BYTE_XCP_SW_DEBUG) {
             col_set_str(pinfo->cinfo, COL_INFO, "XCP M->S:");
         } else {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "XCP M->S: %s", val_to_str(cmd_lvl1, cmd_code_mnemonics_2bytes, "Unknown Command Code (0xC0 0x%02x)"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "XCP M->S: %s", val_to_str_wmem(pinfo->pool, cmd_lvl1, cmd_code_mnemonics_2bytes, "Unknown Command Code (0xC0 0x%02x)"));
         }
     }
 
@@ -2793,19 +2793,19 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             message->transport_layer_sub_cmd = message->peer_message->transport_layer_sub_cmd;
 
             if (message->cmd != XCP_CMD_2BYTE_FIRST_BYTE) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str(message->cmd, cmd_code_mnemonics, "Unknown Command Code 0x%02x"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str_wmem(pinfo->pool, message->cmd, cmd_code_mnemonics, "Unknown Command Code 0x%02x"));
             } else {
                 switch (message->cmd_lvl1) {
                 case XCP_CMD_2BYTE_XCP_SW_DEBUG:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str(message->cmd_sw_debug, cmd_sw_dbg_mnemonics, "Unknown Command Code 0xC0 0xFC 0x%02x"));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str_wmem(pinfo->pool, message->cmd_sw_debug, cmd_sw_dbg_mnemonics, "Unknown Command Code 0xC0 0xFC 0x%02x"));
                     break;
 
                 case XCP_CMD_2BYTE_XCP_POD_COMMANDS:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str(message->cmd_pod, cmd_pod_mnemonics, "Unknown Command Code 0xC0 0xFD 0x%04x"));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str_wmem(pinfo->pool, message->cmd_pod, cmd_pod_mnemonics, "Unknown Command Code 0xC0 0xFD 0x%04x"));
                     break;
 
                 default:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str(message->cmd_lvl1, cmd_code_mnemonics_2bytes, "Unknown Command Code 0xC0 0x%02x"));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: %s RES", val_to_str_wmem(pinfo->pool, message->cmd_lvl1, cmd_code_mnemonics_2bytes, "Unknown Command Code 0xC0 0x%02x"));
                     break;
                 }
             }
@@ -3577,7 +3577,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             }
         }
     } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: PID: %s", val_to_str(pid, pid_type_names_s2m, "Unknown PID 0x%02x"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "XCP S->M: PID: %s", val_to_str_wmem(pinfo->pool, pid, pid_type_names_s2m, "Unknown PID 0x%02x"));
     }
 
     int unparsed_length = tvb_captured_length_remaining(tvb, offset);

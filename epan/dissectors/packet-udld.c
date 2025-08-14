@@ -197,7 +197,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         default:
         tlv_tree = proto_tree_add_subtree_format(udld_tree, tvb, offset,
             length, ett_udld_tlv, NULL, "Type: %s, length: %u",
-            val_to_str(type, type_vals, "Unknown (0x%04x)"),
+            val_to_str_wmem(pinfo->pool, type, type_vals, "Unknown (0x%04x)"),
             length);
         proto_tree_add_uint(tlv_tree, hf_udld_tlvtype, tvb,
             offset + TLV_TYPE, 2, type);

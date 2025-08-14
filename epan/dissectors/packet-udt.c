@@ -142,7 +142,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	type = (tvb_get_ntohl(tvb, 0) >> 16) & 0x7fff;
 
 	if (is_control) {
-		const char *typestr = val_to_str(type, udt_packet_types,
+		const char *typestr = val_to_str_wmem(pinfo->pool, type, udt_packet_types,
 					   "Unknown Control Type (%x)");
 		switch (type) {
 		case UDT_PACKET_TYPE_ACK:

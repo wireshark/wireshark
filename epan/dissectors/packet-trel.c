@@ -58,6 +58,7 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
 {
     proto_tree* volatile trel_tree = NULL, * volatile trel_hdr_tree;
     proto_item* volatile proto_root = NULL;
+    uint32_t type;
 
     unsigned                offset = 0;
 
@@ -73,10 +74,9 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     proto_tree_add_item(trel_hdr_tree, hf_trel_version, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(trel_hdr_tree, hf_trel_rsv, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(trel_hdr_tree, hf_trel_ack, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(trel_hdr_tree, hf_trel_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(trel_hdr_tree, hf_trel_type, tvb, offset, 1, ENC_NA, &type);
 
-    uint8_t type = tvb_get_uint8(tvb, offset);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, trel_command_vals, "Unknown (%x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, trel_command_vals, "Unknown (%x)"));
     ++offset;
     proto_tree_add_item(trel_hdr_tree, hf_trel_channel, tvb, offset, 1, ENC_NA);
     ++offset;

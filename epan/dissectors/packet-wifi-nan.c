@@ -1697,7 +1697,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uint
         uint8_t hdr_len = 2;
         uint32_t time_bitmap_len = 0;
         uint64_t avail_entry;
-        const char* entry_type_msg = val_to_str(entry_type, availability_entry_type,
+        const char* entry_type_msg = val_to_str_wmem(pinfo->pool, entry_type, availability_entry_type,
             "Unknown type (%u)");
         char* info_msg = wmem_strconcat(pinfo->pool, "Availability Type : ", entry_type_msg, NULL);
         proto_tree* entry_tree = proto_tree_add_subtree(attr_tree, tvb, offset, entry_len + 2,
@@ -2214,7 +2214,7 @@ dissect_attr_element_container(proto_tree* attr_tree, tvbuff_t* tvb, int offset,
     {
         unsigned element_id = tvb_get_uint8(tvb, sub_offset);
         unsigned element_len = tvb_get_uint8(tvb, sub_offset + 1);
-        const char* msg = val_to_str(element_id, ie_tag_num_vals, "Unknown element ID (%u)");
+        const char* msg = val_to_str_wmem(pinfo->pool, element_id, ie_tag_num_vals, "Unknown element ID (%u)");
 
         sub_tree = proto_tree_add_subtree(attr_tree, tvb, sub_offset, element_len + 2, ett_ie_tree, NULL, msg);
         proto_tree_add_item(sub_tree, hf_nan_attr_container_element_id, tvb, sub_offset, 1, ENC_BIG_ENDIAN);
@@ -2673,7 +2673,7 @@ find_attribute_field(proto_tree* nan_tree, tvbuff_t* tvb, unsigned tvb_len, unsi
     }
 
     proto_tree* attr_tree = proto_tree_add_subtree(nan_tree, tvb, *offset, attr_len + 3,
-        ett_attributes, NULL, val_to_str(attr_id, attribute_types, "Unknown attribute ID (%u)"));
+        ett_attributes, NULL, val_to_str_wmem(pinfo->pool, attr_id, attribute_types, "Unknown attribute ID (%u)"));
 
     proto_tree_add_item(attr_tree, hf_nan_attribute_type, tvb, *offset, 1, ENC_NA);
     proto_tree_add_item(attr_tree, hf_nan_attribute_len, tvb, *offset + 1, 2, ENC_LITTLE_ENDIAN);

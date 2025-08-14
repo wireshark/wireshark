@@ -207,7 +207,7 @@ dissect_error(tvbuff_t *tvb,
     const char *errstr;
 
     *error = tvb_get_ntohl(tvb, offset);
-    errstr = val_to_str(*error, vxi11_core_error_vals, "Error %d");
+    errstr = val_to_str_wmem(pinfo->pool, *error, vxi11_core_error_vals, "Error %d");
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_error, offset);
 
@@ -382,7 +382,7 @@ dissect_device_docmd_parms(tvbuff_t *tvb,
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_lock_timeout, offset);
 
     cmd    = tvb_get_ntohl(tvb, offset);
-    cmdstr = val_to_str(cmd, vxi11_core_cmd_vals, "Unknown(0x%x)");
+    cmdstr = val_to_str_wmem(pinfo->pool, cmd, vxi11_core_cmd_vals, "Unknown(0x%x)");
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_cmd, offset);
 
     offset = dissect_rpc_bool(tvb, tree, hf_vxi11_core_network_order, offset);

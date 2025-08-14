@@ -95,7 +95,7 @@ dissect_ypserv_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset = dissect_rpc_uint32(tvb, tree, hf_ypserv_status, offset);
 
 	if(status<0){
-		err=val_to_str(status, ypstat, "Unknown error:%u");
+		err=val_to_str_wmem(pinfo->pool, status, ypstat, "Unknown error:%u");
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s", err);
 
 		proto_item_append_text(tree, " Error:%s", err);

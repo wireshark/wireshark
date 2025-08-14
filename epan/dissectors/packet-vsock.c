@@ -126,6 +126,7 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint32_t t_len, payload_len, virtio_buf_alloc, op, type,
             virtio_fwd_cnt, virtio_op, virtio_type;
     uint16_t payload_offset = 0, offset = 0;
+    char *op_name, *t_name;
 
     if (tvb_reported_length(tvb) < VSOCK_MIN_LENGTH)
         return 0;
@@ -166,15 +167,13 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     payload_offset = offset + t_len;
 
+    op_name = val_to_str_wmem(pinfo->pool, op, af_vsockmon_op_names, "Unknown (%d)");
+    t_name = val_to_str_wmem(pinfo->pool, type, af_vsockmon_t_names, "Unknown (%d)");
     /* Append summary information to top tree */
-    proto_item_append_text(ti, ", Op: %s, Transport: %s",
-            val_to_str(op, af_vsockmon_op_names, "Unknown (%d)"),
-            val_to_str(type, af_vsockmon_t_names, "Unknown (%d)"));
+    proto_item_append_text(ti, ", Op: %s, Transport: %s", op_name, t_name);
 
     /* Fill columns */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] %s",
-            val_to_str(op, af_vsockmon_op_names, "Unknown (%d)"),
-            val_to_str(type, af_vsockmon_t_names, "Unknown (%d)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] %s", op_name, t_name);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "vSocket");
 
     /* Create subtree if there is transport information */
@@ -213,8 +212,8 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* Append virtio information */
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s, Op: %s, Buf alloc: %u, Fwd cnt: %u",
-                    val_to_str(virtio_type, virtio_vsock_type_names, "Unknown (%d)"),
-                    val_to_str(virtio_op, virtio_vsock_op_names, "Unknown (%d)"),
+                    val_to_str_wmem(pinfo->pool, virtio_type, virtio_vsock_type_names, "Unknown (%d)"),
+                    val_to_str_wmem(pinfo->pool, virtio_op, virtio_vsock_op_names, "Unknown (%d)"),
                     virtio_buf_alloc, virtio_fwd_cnt);
             break;
     }

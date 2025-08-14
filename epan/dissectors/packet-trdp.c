@@ -131,6 +131,7 @@ static int dissect_trdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     uint16_t ver;
     uint32_t remaining, datalen, seq, comid, etb_topo, opr_topo, msgtype, header_len;
     tvbuff_t *next_tvb;
+    char* str_msgtype;
 
     if (tvb_reported_length(tvb) < TRDP_PD_HEADER_LEN)
         return 0;
@@ -169,8 +170,9 @@ static int dissect_trdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item(trdp_tree, hf_trdp_header_fcs, tvb, 112, 4, ENC_BIG_ENDIAN);
     }
     /* Append descriptions */
-    proto_item_append_text(ti, ", Type: %s, Comid: %d, Seq: %d, ETB Topo: 0x%08x, Opr Topo: 0x%08x", val_to_str(msgtype, msgtype_names_short, "0x%x"), comid, seq, etb_topo, opr_topo);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s Comid=%d Seq=%d", val_to_str(msgtype, msgtype_names_short, "0x%x"), comid, seq);
+    str_msgtype = val_to_str_wmem(pinfo->pool, msgtype, msgtype_names_short, "0x%x");
+    proto_item_append_text(ti, ", Type: %s, Comid: %d, Seq: %d, ETB Topo: 0x%08x, Opr Topo: 0x%08x", str_msgtype, comid, seq, etb_topo, opr_topo);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s Comid=%d Seq=%d", str_msgtype, comid, seq);
 
     /* Extract possible padding */
     remaining = tvb_captured_length_remaining(tvb, header_len);

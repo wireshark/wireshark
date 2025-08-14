@@ -7907,7 +7907,7 @@ ssl_dissect_hnd_hello_ext_key_share_entry(ssl_common_dissect_t *hf, tvbuff_t *tv
 
     proto_tree_add_item_ret_uint(ks_tree, hf->hf.hs_ext_key_share_group, tvb, offset, 2, ENC_BIG_ENDIAN, &group);
     offset += 2;
-    const char *group_name = val_to_str(group, ssl_extension_curves, "Unknown (%u)");
+    const char *group_name = val_to_str_wmem(pinfo->pool, group, ssl_extension_curves, "Unknown (%u)");
     proto_item_append_text(ks_tree, ": Group: %s", group_name);
     if (group_name_out) {
         *group_name_out = !IS_GREASE_TLS(group) ? group_name : NULL;
@@ -7975,7 +7975,7 @@ ssl_dissect_hnd_hello_ext_key_share(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
         case SSL_HND_HELLO_RETRY_REQUEST:
             proto_tree_add_item_ret_uint(key_share_tree, hf->hf.hs_ext_key_share_selected_group, tvb, offset, 2, ENC_BIG_ENDIAN, &group);
             offset += 2;
-            group_name = val_to_str(group, ssl_extension_curves, "Unknown (%u)");
+            group_name = val_to_str_wmem(pinfo->pool, group, ssl_extension_curves, "Unknown (%u)");
             proto_item_append_text(tree, " %s", group_name);
         break;
         default: /* no default */
@@ -8210,7 +8210,7 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
         offset += 2;
 
         if (!IS_GREASE_TLS(version)) {
-            proto_item_append_text(tree, "%s%s", sep, val_to_str(version, ssl_versions, "Unknown (0x%04x)"));
+            proto_item_append_text(tree, "%s%s", sep, val_to_str_wmem(pinfo->pool, version, ssl_versions, "Unknown (0x%04x)"));
             sep = ", ";
         }
 
@@ -11702,7 +11702,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         }
 
         ext_item = proto_tree_add_none_format(tree, hf->hf.hs_ext, tvb, offset, 4 + ext_len,
-                                  "Extension: %s (len=%u)", val_to_str(ext_type,
+                                  "Extension: %s (len=%u)", val_to_str_wmem(pinfo->pool, ext_type,
                                             tls_hello_extension_types,
                                             "Unknown type %u"), ext_len);
         ext_tree = proto_item_add_subtree(ext_item, hf->ett.hs_ext);
@@ -11881,7 +11881,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             case SSL_HND_HELLO_RETRY_REQUEST:
                 proto_tree_add_item_ret_uint(ext_tree, hf->hf.hs_ext_supported_version, tvb, offset, 2, ENC_BIG_ENDIAN, &supported_version);
                 offset += 2;
-                proto_item_append_text(ext_tree, " %s", val_to_str(supported_version, ssl_versions, "Unknown (0x%04x)"));
+                proto_item_append_text(ext_tree, " %s", val_to_str_wmem(pinfo->pool, supported_version, ssl_versions, "Unknown (0x%04x)"));
                 break;
             }
             break;

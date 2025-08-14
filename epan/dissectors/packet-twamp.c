@@ -377,7 +377,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         accept = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(twamp_tree, hf_twamp_control_accept, tvb, offset, 1, accept);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", (%s%s)",
-                (accept == 0) ? "" : "Error: ", val_to_str(accept, twamp_control_accept_vals, "%u"));
+                (accept == 0) ? "" : "Error: ", val_to_str_wmem(pinfo->pool, accept, twamp_control_accept_vals, "%u"));
         offset += 1;
         proto_tree_add_item(twamp_tree, hf_twamp_control_iv, tvb, offset, 16, ENC_NA);
         offset += 16;
@@ -448,7 +448,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         accept = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(twamp_tree, hf_twamp_control_accept, tvb, offset, 1, accept);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", (%s%s)",
-                (accept == 0) ? "" : "Error: ", val_to_str(accept, twamp_control_accept_vals, "%u"));
+                (accept == 0) ? "" : "Error: ", val_to_str_wmem(pinfo->pool, accept, twamp_control_accept_vals, "%u"));
         offset = 2;
         proto_tree_add_item(twamp_tree, hf_twamp_control_receiver_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -470,7 +470,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         accept = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(twamp_tree, hf_twamp_control_accept, tvb, offset, 1, accept);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", (%s%s)",
-                (accept == 0) ? "" : "Error: ", val_to_str(accept, twamp_control_accept_vals, "%u"));
+                (accept == 0) ? "" : "Error: ", val_to_str_wmem(pinfo->pool, accept, twamp_control_accept_vals, "%u"));
         offset += 1;
         proto_tree_add_item(twamp_tree, hf_twamp_control_mbz1, tvb, offset, 15, ENC_NA);
         offset += 15;

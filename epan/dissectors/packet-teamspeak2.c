@@ -716,9 +716,9 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TS2");
 
     if(klass==TS2C_ACK)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Class: %s", val_to_str(klass, classnames, "Unknown (0x%02x)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Class: %s", val_to_str_wmem(pinfo->pool, klass, classnames, "Unknown (0x%02x)"));
     else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s, Class: %s", val_to_str(type, typenames, "Unknown (0x%02x)"), val_to_str(klass, classnames, "Unknown (0x%02x)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s, Class: %s", val_to_str_wmem(pinfo->pool, type, typenames, "Unknown (0x%02x)"), val_to_str_wmem(pinfo->pool, klass, classnames, "Unknown (0x%02x)"));
 
     /* XXX: We need to do all the non GUI stuff whether or not if(tree) */
     /*      Do only once by checking visited ?                          */

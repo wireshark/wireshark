@@ -497,13 +497,14 @@ static void dissect_group_owner_intent(proto_item *tlv_root,
 }
 
 static void dissect_status(proto_item *tlv_root, proto_item *tlv_item,
-                           tvbuff_t *tvb, int offset)
+                           tvbuff_t *tvb, packet_info* pinfo, int offset)
 {
-  proto_tree_add_item(tlv_root, hf_p2p_attr_status, tvb,
-                      offset + 3, 1, ENC_BIG_ENDIAN);
+  uint32_t status;
+  proto_tree_add_item_ret_uint(tlv_root, hf_p2p_attr_status, tvb,
+                      offset + 3, 1, ENC_BIG_ENDIAN, &status);
   proto_item_append_text(tlv_item, ": %u (%s)",
-                         tvb_get_uint8(tvb, offset + 3),
-                         val_to_str(tvb_get_uint8(tvb, offset + 3),
+                         status,
+                         val_to_str_wmem(pinfo->pool, status,
                                     p2p_status_codes,
                                     "Unknown Status Code (%u)"));
 }
@@ -916,13 +917,14 @@ static void dissect_manageability(proto_item *tlv_root,
 
 static void dissect_minor_reason_code(proto_item *tlv_root,
                                       proto_item *tlv_item,
-                                      tvbuff_t *tvb, int offset)
+                                      tvbuff_t *tvb, packet_info* pinfo, int offset)
 {
-  proto_tree_add_item(tlv_root, hf_p2p_attr_minor_reason_code, tvb,
-                      offset + 3, 1, ENC_BIG_ENDIAN);
+  uint32_t code;
+  proto_tree_add_item_ret_uint(tlv_root, hf_p2p_attr_minor_reason_code, tvb,
+                      offset + 3, 1, ENC_BIG_ENDIAN, &code);
   proto_item_append_text(tlv_item, ": %u (%s)",
-                         tvb_get_uint8(tvb, offset + 3),
-                         val_to_str(tvb_get_uint8(tvb, offset + 3),
+                         code,
+                         val_to_str_wmem(pinfo->pool, code,
                                     p2p_minor_reason_codes,
                                     "Unknown Minor Reason Code (%u)"));
 }
@@ -1057,7 +1059,7 @@ static void dissect_persistent_group(proto_item *tlv_root,
 }
 
 static int
-dissect_wifi_p2p_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_wifi_p2p_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   uint16_t slen = 0;
   uint8_t stype = 0;
@@ -1075,12 +1077,11 @@ dissect_wifi_p2p_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     slen = tvb_get_letohs(tvb, offset + 1);
 
     tlv_root = proto_tree_add_subtree(tree, tvb, offset, 3 + slen, ett_p2p_tlv, &tlv_item,
-                                   val_to_str(stype, p2p_attr_types,
+                                   val_to_str_wmem(pinfo->pool, stype, p2p_attr_types,
                                               "Unknown attribute type (%u)"));
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_uint(tlv_root, hf_p2p_attr_len, tvb, offset + 1, 2,
-                        slen);
+    proto_tree_add_uint(tlv_root, hf_p2p_attr_len, tvb, offset + 1, 2, slen);
 
     switch(stype) {
     case P2P_ATTR_P2P_CAPABILITY:
@@ -1093,7 +1094,7 @@ dissect_wifi_p2p_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
       dissect_group_owner_intent(tlv_root, tlv_item, tvb, offset);
       break;
     case P2P_ATTR_STATUS:
-      dissect_status(tlv_root, tlv_item, tvb, offset);
+      dissect_status(tlv_root, tlv_item, tvb, pinfo, offset);
       break;
     case P2P_ATTR_LISTEN_CHANNEL:
       dissect_listen_channel(tlv_root, tlv_item, tvb, offset);
@@ -1136,7 +1137,7 @@ dissect_wifi_p2p_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
       dissect_manageability(tlv_root, tlv_item, tvb, offset);
       break;
     case P2P_ATTR_MINOR_REASON_CODE:
-      dissect_minor_reason_code(tlv_root, tlv_item, tvb, offset);
+      dissect_minor_reason_code(tlv_root, tlv_item, tvb, pinfo, offset);
       break;
     case P2P_ATTR_OOB_GROUP_OWNER_NEGOTIATION_CHANNEL:
       dissect_oob_group_owner_negotiation_channel(tlv_root, tlv_item, tvb, offset);
@@ -1183,7 +1184,7 @@ dissect_wifi_p2p_public_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                       ENC_BIG_ENDIAN);
   subtype = tvb_get_uint8(tvb, offset);
   col_append_fstr(pinfo->cinfo, COL_INFO, ", P2P - %s",
-                  val_to_str(subtype, p2p_public_action_subtypes,
+                  val_to_str_wmem(pinfo->pool, subtype, p2p_public_action_subtypes,
                              "Unknown (%u)"));
   offset++;
   proto_tree_add_item(tree, hf_p2p_public_action_dialog_token, tvb, offset, 1,
@@ -1240,7 +1241,7 @@ dissect_wifi_p2p_anqp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     id = tvb_get_uint8(tvb, offset + 3);
     tlv = proto_tree_add_subtree_format(tree, tvb, offset, 2 + len,
                                ett_p2p_service_tlv, &item, "Service TLV (Transaction ID: %u  Type: %s)",
-                               id, val_to_str(type, p2p_service_protocol_types,
+                               id, val_to_str_wmem(pinfo->pool, type, p2p_service_protocol_types,
                                               "Unknown (%u)"));
 
     proto_tree_add_item(tlv, hf_p2p_anqp_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);

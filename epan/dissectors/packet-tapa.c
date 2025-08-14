@@ -181,7 +181,7 @@ dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_di
 
 	while (remaining > 0) {
 		item_type = tvb_get_uint8(tvb, offset);
-		item_type_text = val_to_str(item_type, tapa_discover_request_vals, "%d");
+		item_type_text = val_to_str_wmem(pinfo->pool, item_type, tapa_discover_request_vals, "%d");
 		item_length = tvb_get_ntohs(tvb, offset + 2);
 		item_text = tvb_format_text(pinfo->pool, tvb, offset + 4, item_length);
 
@@ -225,7 +225,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	while (remaining > 3) {  /* type(1) + flags(1) + length(2) */
 		item_type = tvb_get_uint8(tvb, offset);
-		/*item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");*/
+		/*item_type_text = val_to_str_wmem(pinfo->pool, item_type, tapa_discover_unknown_vals, "%d");*/
 		item_length = tvb_get_ntohs(tvb, offset + 2) - 4;
 
 		tapa_discover_item_tree = proto_tree_add_subtree_format(tapa_discover_tree, tvb, offset, 4 + item_length,
@@ -285,7 +285,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Discover - %s",
-			val_to_str(packet_type, tapa_discover_type_vals, "Unknown (%d)"));
+			val_to_str_wmem(pinfo->pool, packet_type, tapa_discover_type_vals, "Unknown (%d)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
@@ -348,7 +348,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel - V=%d, T=%s", version >> 4,
-			val_to_str(type, tapa_tunnel_type_vals, "Unknown (%d)"));
+			val_to_str_wmem(pinfo->pool, type, tapa_tunnel_type_vals, "Unknown (%d)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,

@@ -981,8 +981,8 @@ dissect_thrift_t_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (generic_type != expected) {
         proto_tree_add_expert_format(tree, pinfo, &ei_thrift_wrong_type, tvb, offset, TBP_THRIFT_TYPE_LEN,
                 "Sub-dissector expects type = %s, found %s.",
-                val_to_str(expected, thrift_type_vals, "%02x"),
-                val_to_str(generic_type, thrift_type_vals, "%02x"));
+                val_to_str_wmem(pinfo->pool, expected, thrift_type_vals, "%02x"),
+                val_to_str_wmem(pinfo->pool, generic_type, thrift_type_vals, "%02x"));
         return THRIFT_SUBDISSECTOR_ERROR;
     }
 
@@ -3095,7 +3095,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     /*****************************************************/
     /* Create the header tree with the extracted fields. */
     /*****************************************************/
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s %s", val_to_str(mtype, thrift_mtype_vals, "%d"), method_str);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s %s", val_to_str_wmem(pinfo->pool, mtype, thrift_mtype_vals, "%d"), method_str);
 
     if (thrift_tree) {
         offset = start_offset; /* Reset parsing position. */
@@ -3105,7 +3105,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         sub_tree = proto_tree_add_subtree_format(thrift_tree, tvb, header_offset, data_offset - header_offset, ett_thrift_header, &data_pi,
                 "%s [version: %d, seqid: %d, method: %s]",
-                val_to_str(mtype, thrift_mtype_vals, "%d"),
+                val_to_str_wmem(pinfo->pool, mtype, thrift_mtype_vals, "%d"),
                 version, seq_id, method_str);
         /* Decode the header depending on compact, strict (new) or old. */
         if (is_compact) {

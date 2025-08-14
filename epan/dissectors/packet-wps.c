@@ -815,7 +815,7 @@ static const value_string eapwps_tlv_audio_devices_subcategory[] = {
 
 
 static void
-add_wps_wfa_ext(uint8_t id, proto_tree *tree, tvbuff_t *tvb,
+add_wps_wfa_ext(uint8_t id, proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
                 int offset, int size)
 {
   proto_item *item;
@@ -833,7 +833,7 @@ add_wps_wfa_ext(uint8_t id, proto_tree *tree, tvbuff_t *tvb,
   };
 
   elem = proto_tree_add_subtree(tree, tvb, offset - 2, 2 + size, ett_wps_wfa_ext, &item,
-                             val_to_str(id, eapwps_wfa_ext_types, "Unknown (%u)"));
+                             val_to_str_wmem(pinfo->pool, id, eapwps_wfa_ext_types, "Unknown (%u)"));
   proto_tree_add_item(elem, hf_eapwps_wfa_ext_id,  tvb, offset - 2, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(elem, hf_eapwps_wfa_ext_len, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
 
@@ -885,7 +885,7 @@ add_wps_wfa_ext(uint8_t id, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static void
-dissect_wps_wfa_ext(proto_tree *tree, tvbuff_t *tvb,
+dissect_wps_wfa_ext(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
                     int offset, int size)
 {
   int    pos = offset;
@@ -898,24 +898,24 @@ dissect_wps_wfa_ext(proto_tree *tree, tvbuff_t *tvb,
     if ((pos + 2 + len) > end)
       break;
     pos += 2;
-    add_wps_wfa_ext(id, tree, tvb, pos, len);
+    add_wps_wfa_ext(id, tree, pinfo, tvb, pos, len);
     pos += len;
   }
 }
 
 static int
-dissect_wps_wfa_ext_via_dt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_wps_wfa_ext_via_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
   int size = tvb_reported_length(tvb);
 
-  dissect_wps_wfa_ext(tree, tvb, 0, size);
+  dissect_wps_wfa_ext(tree, pinfo, tvb, 0, size);
 
   return size;
 }
 
 static void
-dissect_wps_vendor_ext(proto_tree *tree, tvbuff_t *tvb,
+dissect_wps_vendor_ext(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
                        int offset, int size)
 {
   uint32_t vendor_id;
@@ -925,7 +925,7 @@ dissect_wps_vendor_ext(proto_tree *tree, tvbuff_t *tvb,
   vendor_id = tvb_get_ntoh24(tvb, offset);
   proto_tree_add_item(tree, hf_eapwps_vendor_id, tvb, offset, 3, ENC_BIG_ENDIAN);
   if (vendor_id == VENDOR_WIFI_ALLIANCE)
-    dissect_wps_wfa_ext(tree, tvb, offset + 3, size - 3);
+    dissect_wps_wfa_ext(tree, pinfo, tvb, offset + 3, size - 3);
 }
 
 void
@@ -1201,7 +1201,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_message_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
       hfindex = hf_eapwps_tlv_message_type;
       if (add_details)
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(tvb_get_uint8(tvb, offset+4),
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+4),
                                                                    eapwps_tlv_message_type_vals,
                                                                    "Unknown (0x%02x)"));
       break;
@@ -1652,7 +1652,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       const char        *fmt     = NULL;
 
       proto_item_set_text(tlv_item, "%s",
-                          val_to_str(tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
+                          val_to_str_wmem(pinfo->pool, tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
 
       /* Rendered strings for value. Thanks to Stig Bjorlykke */
       hf_info = proto_registrar_get_nth(hfindex);
@@ -1682,7 +1682,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
       if ((hf_info != NULL) && hf_info->strings) {
         /* item has value_string */
-        proto_item_append_text(tlv_item, fmt, val_to_str(value,
+        proto_item_append_text(tlv_item, fmt, val_to_str_wmem(pinfo->pool, value,
                                                          (const value_string *)hf_info->strings,
                                                          "Unknown: %d"), value);
       } else if (valuep != NULL) {
@@ -1698,7 +1698,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     }
 
     if (tlv_type == WPS_TLV_TYPE_VENDOR_EXTENSION)
-      dissect_wps_vendor_ext(tlv_root, tvb, offset + 4, tlv_len);
+      dissect_wps_vendor_ext(tlv_root, pinfo, tvb, offset + 4, tlv_len);
 
     offset += tlv_len + 2 + 2;
     size   -= tlv_len + 2 + 2;
