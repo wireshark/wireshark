@@ -5906,8 +5906,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
     flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
     /* Also look up C-PLANE state so may check current compression settings */
-    key = make_flow_key(eAxC, ORAN_C_PLANE);
-    flow_state_t* cplane_state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+    uint32_t cplane_key = make_flow_key(eAxC, ORAN_C_PLANE);
+    flow_state_t* cplane_state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, cplane_key);
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* Create conversation if doesn't exist yet */
