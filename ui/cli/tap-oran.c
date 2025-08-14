@@ -277,7 +277,7 @@ oran_stat_draw(void *phs)
         }
 
         /* Print this row */
-        printf("%6s %8u %11s %9u %13u %17s %20s %18s %13u %12u %8u %10u %10u %10u\n",
+        printf("%6s %8u %11s %9u %13u %17s %20s %18s %13u %12u",
                (row->base_info.userplane) ? "U" : "C",
                row->base_info.eaxc,
                (row->base_info.uplink) ? "UL" : "DL",
@@ -287,11 +287,19 @@ oran_stat_draw(void *phs)
                section_ids,
                extensions,
                row->highest_slot,
-               row->missing_sns,
-               row->num_prbs,
-               row->num_prbs_zero,
-               row->num_res,
-               row->num_res_zero);
+               row->missing_sns);
+
+        if (row->base_info.userplane) {
+            /* U-Plane only */
+            printf(" %8u %10u %10u %10u\n",
+                   row->num_prbs,
+                   row->num_prbs_zero,
+                   row->num_res,
+                   row->num_res_zero);
+        }
+        else {
+            printf("\n");
+        }
     }
 }
 
