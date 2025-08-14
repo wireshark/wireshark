@@ -244,7 +244,7 @@ static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_in
     }
 
     stats_tree_tick_pivot(st, st_node_opcodes,
-            val_to_str(pi->opcode, opcode_vals, "Unknown opcode (%d)"));
+            val_to_str_wmem(pinfo->pool, pi->opcode, opcode_vals, "Unknown opcode (%d)"));
     return TAP_PACKET_REDRAW;
 }
 
@@ -302,7 +302,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     /* Clear out stuff in the info column */
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
-        val_to_str(opcode, opcode_vals, "Unknown (0x%02x)"));
+        val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown (0x%02x)"));
 
     ti = proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_opcode, tvb, offset,
             1, ENC_BIG_ENDIAN);

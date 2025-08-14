@@ -4027,7 +4027,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 		proto_tree_add_item(tree, hf_profinet_class3_port_status_Fragmentation, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "RTClass3 Port Status = %s", val_to_str_wmem(pinfo->pool, class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
 		/*offset+=2;*/
 		break;
 	}
@@ -4766,7 +4766,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	switch(oui)
 	{
 	case OUI_DCBX:
-		subTypeStr = val_to_str(subType, dcbx_protocol_types, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, dcbx_protocol_types, "Unknown subtype (0x%x)");
 		switch(subType)
 		{
 		case 1: tempTree = ett_org_spc_dcbx_cin;
@@ -4776,7 +4776,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_IEEE_802_1:
-		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, ieee_802_1_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
 		case 0x1:	tempTree = ett_org_spc_ieee_802_1_1;
@@ -4800,7 +4800,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_IEEE_802_3:
-		subTypeStr = val_to_str(subType, ieee_802_3_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, ieee_802_3_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
 		case 1:	tempTree = ett_org_spc_ieee_802_3_1;
@@ -4818,7 +4818,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_MEDIA_ENDPOINT:
-		subTypeStr = val_to_str(subType, media_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, media_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
 		case 1:	tempTree = ett_org_spc_media_1;
@@ -4846,7 +4846,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_PROFINET:
-		subTypeStr = val_to_str(subType, profinet_subtypes, "Reserved (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, profinet_subtypes, "Reserved (0x%x)");
 		switch(subType)
 		{
 		case 1:	tempTree = ett_org_spc_ProfinetSubTypes_1;
@@ -4864,13 +4864,13 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_CISCO_2:
-		subTypeStr = val_to_str(subType, cisco_subtypes, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, cisco_subtypes, "Unknown subtype (0x%x)");
 		break;
 	case OUI_IEEE_802_1QBG:
-		subTypeStr = val_to_str(subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
 		break;
 	case OUI_AVAYA_EXTREME:
-		subTypeStr = val_to_str(subType, ex_avaya_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, ex_avaya_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
 		case EX_AVAYA_SUBTYPE_ELEMENT_TLV: tempTree = ett_ex_avayaSubTypes_11;
@@ -4880,7 +4880,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_AVAYA_EXTREME2:
-		subTypeStr = val_to_str(subType, ex_avaya2_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, ex_avaya2_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
 		case EX_AVAYA2_SUBTYPE_ZTFv2_FC_TLV: tempTree = ett_ex_avaya2SubTypes_4;
@@ -4888,7 +4888,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_HYTEC_GER:
-		subTypeStr = val_to_str(subType, hytec_subtypes, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, hytec_subtypes, "Unknown subtype (0x%x)");
 		switch(subType)
 		{
 			case HYTEC_SUBTYPE__TRANSCEIVER: tempTree = ett_org_spc_hytec_subtype_transceiver;
@@ -4898,16 +4898,16 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		break;
 	case OUI_AVAYA:
-		subTypeStr = val_to_str(subType, avaya_subtypes, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, avaya_subtypes, "Unknown subtype (0x%x)");
 		break;
 	case OUI_IANA:
-		subTypeStr = val_to_str(subType, iana_subtypes, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, iana_subtypes, "Unknown subtype (0x%x)");
 		break;
 	case OUI_ONOS:
-		subTypeStr = val_to_str(subType, onos_subtypes, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, onos_subtypes, "Unknown subtype (0x%x)");
 		break;
 	case OUI_ODVA:
-		subTypeStr = val_to_str(subType, lldp_cip_subtypes, "Unknown subtype (0x%x)");
+		subTypeStr = val_to_str_wmem(pinfo->pool, subType, lldp_cip_subtypes, "Unknown subtype (0x%x)");
 		break;
 	default:
 		subTypeStr = wmem_strdup_printf(pinfo->pool, "Unknown (%d)",subType);

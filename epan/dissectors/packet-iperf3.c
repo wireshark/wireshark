@@ -186,7 +186,7 @@ dissect_iperf3_control_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         case GENERIC_STATE:
         {
             int8_t state_code = tvb_get_int8(tvb, 0);
-            const char *msg = val_to_str(state_code, iperf3_state_vals, "Unknown %d");
+            const char *msg = val_to_str_wmem(pinfo->pool, state_code, iperf3_state_vals, "Unknown %d");
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%" PRIi8 ")", msg, state_code);
             col_set_fence(pinfo->cinfo, COL_INFO);
             proto_tree_add_item(iperf3_tree, hf_iperf3_state, tvb, 0, 1, ENC_BIG_ENDIAN);

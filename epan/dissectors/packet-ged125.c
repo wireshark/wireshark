@@ -625,7 +625,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 	{
 		floating_type = tvb_get_uint8(tvb, offset);
 		ti = proto_tree_add_uint_format(ged125_tree, hf_ged125_floating, tvb, offset, 1,
-											floating_type, "%s", val_to_str(floating_type,
+											floating_type, "%s", val_to_str_wmem(pinfo->pool, floating_type,
 											vals_floating_point_types, "Unknown %d"));
 		float_tree = proto_item_add_subtree(ti, ett_ged125_float_field);
 		offset += 1;
@@ -726,7 +726,7 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 	*offset += 4;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Service_Control->%s DIALOGUE_ID=%u LEN=%u",
-			val_to_str(mess_type, vals_service_control_message_subvalues, "Unknown %d"), DialogueID, size);
+			val_to_str_wmem(pinfo->pool, mess_type, vals_service_control_message_subvalues, "Unknown %d"), DialogueID, size);
 
 	SendSeqNo = tvb_get_ntohl(tvb, *offset);
 	ti = proto_tree_add_item(service_tree, hf_ged125_SendSeqNo_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
@@ -986,7 +986,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GED125");
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %u bytes",
-			val_to_str(message_type, base_message_values, "Unknown %d"), size);
+			val_to_str_wmem(pinfo->pool, message_type, base_message_values, "Unknown %d"), size);
 
 	ti = proto_tree_add_item(tree, proto_ged125, tvb, 0, -1, ENC_NA);
 	ged125_tree = proto_item_add_subtree( ti, ett_ged125);

@@ -998,12 +998,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             (opcode == ISCSI_OPCODE_SCSI_DATA_IN &&
                 (tvb_get_uint8(tvb, offset + 1) & ISCSI_SCSI_DATA_FLAG_S))) {
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (scsi_status, scsi_status_val, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, scsi_status, scsi_status_val, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
             uint16_t login_status = tvb_get_ntohs(tvb, offset+36);
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (login_status, iscsi_login_status, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, login_status, iscsi_login_status, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
             uint8_t logoutReason;
@@ -1016,27 +1016,27 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
                 logoutReason = tvb_get_uint8(tvb, offset+23);
             }
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, logoutReason, iscsi_logout_reasons, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
             uint8_t tmf = tvb_get_uint8(tvb, offset + 1) & 0x7f;
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (tmf, iscsi_task_management_functions, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, tmf, iscsi_task_management_functions, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
             uint8_t resp = tvb_get_uint8(tvb, offset + 2);
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (resp, iscsi_task_management_responses, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, resp, iscsi_task_management_responses, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_REJECT) {
             uint8_t reason = tvb_get_uint8(tvb, offset + 2);
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (reason, iscsi_reject_reasons, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, reason, iscsi_reject_reasons, "0x%x"));
         }
         else if (opcode == ISCSI_OPCODE_ASYNC_MESSAGE) {
             uint8_t asyncEvent = tvb_get_uint8(tvb, offset + 36);
             col_append_fstr (pinfo->cinfo, COL_INFO, " (%s) ",
-                                val_to_str (asyncEvent, iscsi_asyncevents, "0x%x"));
+                                val_to_str_wmem(pinfo->pool, asyncEvent, iscsi_asyncevents, "0x%x"));
         }
     }
 

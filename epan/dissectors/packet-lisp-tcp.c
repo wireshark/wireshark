@@ -237,7 +237,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         offset += 2;
         data_len -= 2;
         proto_item_append_text(tim, ", Offending message type: %s",
-                val_to_str(offending_msg_type, lisp_tcp_typevals, "Unknown type (%u)"));
+                val_to_str_wmem(pinfo->pool, offending_msg_type, lisp_tcp_typevals, "Unknown type (%u)"));
 
         /* Offending message length (2 bytes) */
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_err_offending_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -279,7 +279,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_reject_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_item_append_text(tim, ", Reason: %s",
-                val_to_str(reject_reason, lisp_tcp_registration_reject_reason, "Unknown reason code (%u)"));
+                val_to_str_wmem(pinfo->pool, reject_reason, lisp_tcp_registration_reject_reason, "Unknown reason code (%u)"));
 
         /* Reserved (2 bytes) */
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_reject_res, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -297,7 +297,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_refresh_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_item_append_text(tim, ", Scope: %s",
-                val_to_str(scope, lisp_tcp_registration_refresh_scope, "Unknown scope code (%u)"));
+                val_to_str_wmem(pinfo->pool, scope, lisp_tcp_registration_refresh_scope, "Unknown scope code (%u)"));
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Scope: %d", scope);
 
         /* Rejected only flag (1 bit) */
@@ -391,7 +391,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             offset += 1;
             data_len -= 1;
             proto_item_append_text(tim, ", Error code: %s",
-                    val_to_str(err, lisp_tcp_membership_subscribe_errors, "Unknown error code (%u)"));
+                    val_to_str_wmem(pinfo->pool, err, lisp_tcp_membership_subscribe_errors, "Unknown error code (%u)"));
         }
 
         break;
@@ -485,9 +485,9 @@ dissect_lisp_tcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         id = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ", "Msg: %u, %s", id, val_to_str(type, lisp_tcp_typevals,
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "; ", "Msg: %u, %s", id, val_to_str_wmem(pinfo->pool, type, lisp_tcp_typevals,
                     "Unknown type (%u)"));
-        proto_item_append_text(tim, ", Msg: %u, %s", id, val_to_str(type, lisp_tcp_typevals,
+        proto_item_append_text(tim, ", Msg: %u, %s", id, val_to_str_wmem(pinfo->pool, type, lisp_tcp_typevals,
                     "Unknown type (%u)"));
         proto_item_set_len(tim, len);
 

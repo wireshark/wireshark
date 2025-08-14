@@ -691,7 +691,7 @@ static int dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, int offset, p
 
   if ((tvb_get_uint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_uint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
     ctl_op = tvb_get_uint8(tvb, offset + 3);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
   }
   offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, tree);
   if (tvb_reported_length_remaining(tvb, offset) > 0)
@@ -721,7 +721,7 @@ static int dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   offset++;
 
   if (!label)
-    proto_item_set_text(ti, "%s", val_to_str(tag, VALS(etf_header_tag_vals), "unknown tag (%d)"));
+    proto_item_set_text(ti, "%s", val_to_str_wmem(pinfo->pool, tag, VALS(etf_header_tag_vals), "unknown tag (%d)"));
 
   switch (tag) {
     case DIST_HEADER:
@@ -811,7 +811,7 @@ static int dissect_etf_type(const char *label, packet_info *pinfo, tvbuff_t *tvb
   offset++;
 
   if (!label)
-    proto_item_set_text(ti, "%s", val_to_str(tag, VALS(etf_tag_vals), "unknown tag (%d)"));
+    proto_item_set_text(ti, "%s", val_to_str_wmem(pinfo->pool, tag, VALS(etf_tag_vals), "unknown tag (%d)"));
 
   offset = dissect_etf_type_content(tag, pinfo, tvb, offset, etf_tree, &value_str);
   if (value_str)

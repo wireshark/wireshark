@@ -128,7 +128,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree    *lmi_tree, *lmi_subtree;
     proto_item    *ti;
     int           offset = 2, len;
-    uint8_t       msg_type;
+    uint32_t       msg_type;
     uint8_t       ele_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
@@ -139,11 +139,9 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-    msg_type = tvb_get_uint8( tvb, 1);
+    proto_tree_add_item_ret_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, ENC_BIG_ENDIAN, &msg_type);
     col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(msg_type, msg_type_str, "Unknown message type (0x%02x)"));
-
-    proto_tree_add_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, msg_type);
+        val_to_str_wmem(pinfo->pool, msg_type, msg_type_str, "Unknown message type (0x%02x)"));
 
     /* Display the LMI elements */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -152,19 +150,27 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         lmi_subtree = proto_tree_add_subtree_format(lmi_tree, tvb, offset, len + 2,
                 ett_lmi_ele, NULL, "Information Element: %s",
-                val_to_str(ele_id, element_type_str, "Unknown (%u)"));
+                val_to_str_wmem(pinfo->pool, ele_id, element_type_str, "Unknown (%u)"));
 
-        proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1,
-                ele_id);
+        proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1, ele_id);
         ++offset;
         proto_tree_add_uint(lmi_subtree, hf_lmi_inf_len, tvb, offset, 1, len);
         ++offset;
-        if (( ele_id == 1) || (ele_id == 51))
+        switch(ele_id)
+        {
+        case 1:
+        case 51:
             dissect_lmi_report_type( tvb, offset, lmi_subtree);
-        else if (( ele_id == 3) || (ele_id == 53))
+            break;
+        case 3:
+        case 53:
             dissect_lmi_link_int( tvb, offset, lmi_subtree);
-        else if (( ele_id == 7) || (ele_id == 57))
+            break;
+        case 7:
+        case 57:
             dissect_lmi_pvc_status( tvb, offset, lmi_subtree);
+            break;
+        }
         offset += len;
     }
     return tvb_captured_length(tvb);

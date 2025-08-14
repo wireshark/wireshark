@@ -1350,7 +1350,7 @@ static int dissect_idn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDN");
 	col_clear(pinfo->cinfo, COL_INFO);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, command_code, "Unknown (0x%02x)"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, packet_type, command_code, "Unknown (0x%02x)"));
 
 	offset = dissect_idn_header(tvb, offset, idn_tree, packet_type);
 

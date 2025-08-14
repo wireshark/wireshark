@@ -161,7 +161,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         eof_str = "none";
         if (tvb_bytes_exist(tvb, eof_offset, 1)) {
             eof = tvb_get_uint8(tvb, eof_offset);
-            eof_str = val_to_str(eof, fcoe_eof_vals, "0x%x");
+            eof_str = val_to_str_wmem(pinfo->pool, eof, fcoe_eof_vals, "0x%x");
         }
         /* Old format has a length field, so we can help the Ethernet dissector
          * guess about the FCS; note this format does not pad after the EOF */
@@ -230,7 +230,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ti = proto_tree_add_protocol_format(tree, proto_fcoe, tvb, 0,
                                         header_len,
                                         "FCoE %s(%s/%s) %d bytes%s%s", ver,
-                                        val_to_str(sof, fcoe_sof_vals,
+                                        val_to_str_wmem(pinfo->pool, sof, fcoe_sof_vals,
                                                    "0x%x"),
                                         eof_str, frame_len, crc_msg,
                                         len_msg);

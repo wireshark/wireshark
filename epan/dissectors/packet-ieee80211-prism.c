@@ -716,7 +716,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_type, tvb, offset, 4, byte_order);
             did = tvb_get_uint32(tvb, offset, byte_order);
-            proto_item_append_text(ti_did, " %s", val_to_str(did, prism_did_vals, "Unknown %x") );
+            proto_item_append_text(ti_did, " %s", val_to_str_wmem(pinfo->pool, did, prism_did_vals, "Unknown %x") );
         }
         offset += 4;
 

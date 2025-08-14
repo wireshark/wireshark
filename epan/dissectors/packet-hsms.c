@@ -225,10 +225,10 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     }
 
     /* add the item tree to the parent tree */
-    hsms_data_item_tree = proto_tree_add_subtree_format(tree, tvb, *offset, -1, ett_hsms_data_item, &hdr_item, "%s (%d items)", val_to_str(item_format_code, item_format_names, "Unknown (%02o)"), length);
+    hsms_data_item_tree = proto_tree_add_subtree_format(tree, tvb, *offset, -1, ett_hsms_data_item, &hdr_item, "%s (%d items)", val_to_str_wmem(pinfo->pool, item_format_code, item_format_names, "Unknown (%02o)"), length);
 
     /* add the formatcode/length bytes to the item tree */
-    hsms_data_item_header_tree = proto_tree_add_subtree_format(hsms_data_item_tree, tvb, *offset, 1, ett_hsms_header, &hdr_stream_item, "Data format: %s, Length bytes: %d", val_to_str(item_format_code, item_format_names, "Unknown (%02o)"), length_bytes);
+    hsms_data_item_header_tree = proto_tree_add_subtree_format(hsms_data_item_tree, tvb, *offset, 1, ett_hsms_header, &hdr_stream_item, "Data format: %s, Length bytes: %d", val_to_str_wmem(pinfo->pool, item_format_code, item_format_names, "Unknown (%02o)"), length_bytes);
     proto_tree_add_item(hsms_data_item_header_tree, hf_hsms_data_item_format, tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(hsms_data_item_header_tree, hf_hsms_data_item_length_bytes, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset += 1;
@@ -433,7 +433,7 @@ dissect_hsms_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     else
     {
         col_add_fstr(pinfo->cinfo, COL_INFO, "HSMS Message %s",
-                val_to_str(sType, stype_names, "Unknown (%02d)"));
+                val_to_str_wmem(pinfo->pool, sType, stype_names, "Unknown (%02d)"));
     }
 
 
@@ -457,7 +457,7 @@ dissect_hsms_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         hsms_header_tree = proto_tree_add_subtree_format(hsms_tree, tvb, offset, 10, ett_hsms_header, &hdr_item, "Header (S%02dF%02d)", byte2 & 0x7F, byte3);
         break;
     default:
-        hsms_header_tree = proto_tree_add_subtree_format(hsms_tree, tvb, offset, 10, ett_hsms_header, &hdr_item, "Header (%s)", val_to_str(sType, stype_names, "Unknown (%02d)"));
+        hsms_header_tree = proto_tree_add_subtree_format(hsms_tree, tvb, offset, 10, ett_hsms_header, &hdr_item, "Header (%s)", val_to_str_wmem(pinfo->pool, sType, stype_names, "Unknown (%02d)"));
         break;
     }
 

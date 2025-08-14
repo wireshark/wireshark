@@ -214,7 +214,7 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	msg_type = tvb_get_uint8(tvb, 0);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-	                val_to_str(msg_type, ipaccess_msgtype_vals,
+	                val_to_str_wmem(pinfo->pool, msg_type, ipaccess_msgtype_vals,
 	                           "unknown 0x%02x"));
 	ti = proto_tree_add_item(tree, proto_ipaccess, tvb, 0, -1, ENC_NA);
 	ipaccess_tree = proto_item_add_subtree(ti, ett_ipaccess);
@@ -239,7 +239,7 @@ dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree 
 	const char *name;
 
 	osmo_proto = tvb_get_uint8(tvb, 0);
-	name = val_to_str(osmo_proto, ipa_osmo_proto_vals, "unknown 0x%02x");
+	name = val_to_str_wmem(pinfo->pool, osmo_proto, ipa_osmo_proto_vals, "unknown 0x%02x");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", name);
 	if (ipatree) {
 		proto_item_append_text(ipa_ti, " %s", name);
@@ -300,7 +300,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp)
 		msg_type = tvb_get_uint8(tvb, offset+2);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		                val_to_str(msg_type, ipa_protocol_vals,
+		                val_to_str_wmem(pinfo->pool, msg_type, ipa_protocol_vals,
 		                           "unknown 0x%02x"));
 
 		/*
@@ -316,7 +316,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp)
 		ti = proto_tree_add_protocol_format(tree, proto_ipa,
 				tvb, offset, len+header_length,
 				"IPA protocol ip.access, type: %s",
-				val_to_str(msg_type, ipa_protocol_vals,
+				val_to_str_wmem(pinfo->pool, msg_type, ipa_protocol_vals,
 					"unknown 0x%02x"));
 		ipa_tree = proto_item_add_subtree(ti, ett_ipa);
 		proto_tree_add_item(ipa_tree, hf_ipa_data_len,

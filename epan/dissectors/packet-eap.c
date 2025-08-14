@@ -1350,7 +1350,7 @@ dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
   offset++;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                  val_to_str(opcode, eap_pax_opcode_vals, "Unknown opcode (0x%02X)"));
+                  val_to_str_wmem(pinfo->pool, opcode, eap_pax_opcode_vals, "Unknown opcode (0x%02X)"));
 
   proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset, hf_eap_pax_flags, ett_eap_pax_flags,
                                     pax_flags, ENC_BIG_ENDIAN, &flags);
@@ -1539,7 +1539,7 @@ dissect_eap_gpsk_csuite_list(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int size)
+dissect_eap_sake_attribute(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int size)
 {
   int start_offset = offset;
   uint8_t type;
@@ -1554,7 +1554,7 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int 
   }
   attr_tree = proto_tree_add_subtree_format(eap_tree, tvb, offset, len, ett_eap_sake_attr, NULL,
                                             "EAP-SAKE Attribute: %s",
-                                            val_to_str(type, eap_sake_attr_type_vals,
+                                            val_to_str_wmem(pinfo->pool, type, eap_sake_attr_type_vals,
                                                        "Unknown (%d)"));
 
   proto_tree_add_item(attr_tree, hf_eap_sake_attr_type, tvb, offset, 1, ENC_NA);
@@ -1595,11 +1595,11 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int 
 }
 
 static void
-dissect_eap_sake_attributes(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int size)
+dissect_eap_sake_attributes(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *tvb, int offset, int size)
 {
   int attr_size;
   while (offset < size) {
-    attr_size = dissect_eap_sake_attribute(eap_tree, tvb, offset, size);
+    attr_size = dissect_eap_sake_attribute(eap_tree, pinfo, tvb, offset, size);
     if (attr_size == -1) {
       break;
     }
@@ -1629,7 +1629,7 @@ dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
     case SAKE_CONFIRM:
     case SAKE_AUTH_REJECT:
     case SAKE_IDENTITY:
-      dissect_eap_sake_attributes(eap_tree, tvb, offset, size + 5 - offset);
+      dissect_eap_sake_attributes(eap_tree, pinfo, tvb, offset, size + 5 - offset);
       break;
     default:
       break;
@@ -1645,7 +1645,7 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_opcode, tvb, offset, 1, ENC_NA, &opcode);
   offset++;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                  val_to_str(opcode, eap_gpsk_opcode_vals, "Unknown opcode (0x%02X)"));
+                  val_to_str_wmem(pinfo->pool, opcode, eap_gpsk_opcode_vals, "Unknown opcode (0x%02X)"));
 
   switch (opcode) {
     case GPSK_GPSK_1:
@@ -1821,7 +1821,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   eap_identifier = tvb_get_uint8(tvb, 1);
 
   col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+                val_to_str_wmem(pinfo->pool, eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
   /*
    * Find a conversation to which we belong; create one if we don't find it.

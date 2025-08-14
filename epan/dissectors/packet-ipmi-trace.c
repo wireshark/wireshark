@@ -291,7 +291,7 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "Channel %d", chn_num);
 	col_add_str(pinfo->cinfo, COL_PROTOCOL,
-			val_to_str(data_type, str_protocol_types,
+			val_to_str_wmem(pinfo->pool, data_type, str_protocol_types,
 					"Reserved (0x%02x)"));
 
 	col_clear(pinfo->cinfo, COL_INFO);

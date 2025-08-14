@@ -3177,7 +3177,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	if (used) {
 		col->aggregatetype = tvb_get_uint8(tvb, offset);
-		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_aggtype, tvb, offset, 1, val_to_str(col->aggregatetype, DBAGGTTYPE, "(Unknown: 0x%x)"));
+		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_aggtype, tvb, offset, 1, val_to_str_wmem(pinfo->pool, col->aggregatetype, DBAGGTTYPE, "(Unknown: 0x%x)"));
 		offset += 1;
 	}
 	col->valueused = tvb_get_uint8(tvb, offset);
@@ -3342,7 +3342,7 @@ static int parse_relop(tvbuff_t *tvb, packet_info* pinfo, int offset,  proto_tre
 			break;
 	}
 
-	str2 = val_to_str(*relop, PR_VALS, "0x%04x");
+	str2 = val_to_str_wmem(pinfo->pool, *relop, PR_VALS, "0x%04x");
 
 	if (modifier) {
 		switch (modifier) {
@@ -4196,7 +4196,7 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbProp, &item, txt);
 
 	id = tvb_get_letohl(tvb, offset);
-	str = val_to_str(id, vs, "0x%08x");
+	str = val_to_str_wmem(pinfo->pool, id, vs, "0x%08x");
 	proto_tree_add_string_format_value(tree, hf_mswsp_cdbprop_id, tvb, offset, 4, str, "%s (0x%08x)", (str[0] == '0' ? "" : str), id);
 	offset += 4;
 	proto_item_append_text(item, " Id: %s", str);
@@ -5006,6 +5006,13 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	return offset;
 }
 
+static const value_string STATUS[] = {
+	{0, "StoreStatusOk"},
+	{1, "StoreStatusDeferred"},
+	{2, "StoreStatusNull"},
+	{0, NULL}
+};
+
 static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t row, uint32_t col, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool b_is_64bit, proto_tree *parent_tree, const char *txt)
 {
 	proto_tree *tree;
@@ -5014,18 +5021,11 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
 	uint32_t buf_offset = buf_start + (row * bindingsin->brow);
 	struct CTableColumn *pcol = &bindingsin->acolumns[col];
 
-	static const value_string STATUS[] = {
-		{0, "StoreStatusOk"},
-		{1, "StoreStatusDeferred"},
-		{2, "StoreStatusNull"},
-		{0, NULL}
-	};
-
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_GetRowsColumn, &item, txt);
 	proto_item_append_text(item, " (%s)", pcol->name);
 	if (pcol->statusused) {
 		int tmp_offset = buf_offset + pcol->statusoffset;
-		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_status, tvb, tmp_offset, 1, val_to_str(tvb_get_uint8(tvb, tmp_offset), STATUS, "(Invalid: 0x%x)"));
+		proto_tree_add_item(tree, hf_mswsp_ctablecolumn_status, tvb, tmp_offset, 1, ENC_NA);
 	}
 	if (pcol->lengthused) {
 		int tmp_offset = buf_offset + pcol->lengthoffset;
@@ -5901,14 +5901,14 @@ dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool in, void
 
 	proto_tree_add_item_ret_uint(hdr_tree, hf_mswsp_hdr_msg, tvb,
 						0, 4, ENC_LITTLE_ENDIAN, &msg);
-	proto_item_append_text(hti, " %s", val_to_str(msg, VALS(msg_ids),
+	proto_item_append_text(hti, " %s", val_to_str_wmem(pinfo->pool, msg, VALS(msg_ids),
 						   "(Unknown: 0x%x)"));
 
 	proto_tree_add_item_ret_uint(hdr_tree, hf_mswsp_hdr_status, tvb,
 						4, 4, ENC_LITTLE_ENDIAN, &status);
 	if (!in || status != 0) {
 		proto_item_append_text(hti, " %s",
-							   val_to_str(status, VALS(dcom_hresult_vals),
+							   val_to_str_wmem(pinfo->pool, status, VALS(dcom_hresult_vals),
 										  "(Unknown: 0x%x)"));
 	}
 
@@ -6876,7 +6876,7 @@ proto_register_mswsp(void)
 			&hf_mswsp_ctablecolumn_status,
 			{
 				"status", "mswsp.ctablecolumn.name",
-				FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+				FT_UINT8, BASE_HEX, VALS(STATUS), 0, NULL, HFILL
 			}
 		},
 		{

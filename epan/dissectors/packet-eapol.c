@@ -107,7 +107,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   eapol_type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(eapol_tree, hf_eapol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(eapol_type, eapol_type_vals, "Unknown Type (0x%02X)"));
+                val_to_str_wmem(pinfo->pool, eapol_type, eapol_type_vals, "Unknown Type (0x%02X)"));
   offset++;
 
   eapol_len = tvb_get_ntohs(tvb, offset);

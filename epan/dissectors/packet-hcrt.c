@@ -314,7 +314,7 @@ static int dissect_hcrt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     adl  = tvb_get_letohs(tvb, 2) & 0x0FFF;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s, Tag: 0x%X, ADL: %u",
-        val_to_str(type, hcrt_message_types, "Unknown (0x%02x)"), tag, adl);
+        val_to_str_wmem(pinfo->pool, type, hcrt_message_types, "Unknown (0x%02x)"), tag, adl);
 
     if (adl == 1) {
         if (type == HCRT_READ || type == HCRT_WRITE) {

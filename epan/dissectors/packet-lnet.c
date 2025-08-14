@@ -351,7 +351,7 @@ dissect_struct_rdma_desc(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 // EXPORTED
 int
-lnet_dissect_struct_nid(tvbuff_t * tvb, proto_tree *parent_tree, int offset, int hf_index)
+lnet_dissect_struct_nid(tvbuff_t * tvb, packet_info* pinfo, proto_tree *parent_tree, int offset, int hf_index)
 {
     proto_tree *tree;
     proto_item *item;
@@ -371,7 +371,7 @@ lnet_dissect_struct_nid(tvbuff_t * tvb, proto_tree *parent_tree, int offset, int
     if (ip != 0) {
         address addr;
         set_address(&addr, AT_IPv4, 4, &ip);
-        proto_item_append_text(item, ": %s@%s%d", address_to_name(&addr), val_to_str(proto, lndprotos, "E(%d)"), interface);
+        proto_item_append_text(item, ": %s@%s%d", address_to_name(&addr), val_to_str_wmem(pinfo->pool, proto, lndprotos, "E(%d)"), interface);
     }
 
     return offset;
@@ -403,7 +403,7 @@ dissect_csum(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int offset, u
     default:
         ti = proto_tree_add_expert_format(tree, pinfo, &ei_lnet_type, tvb, offset, 4,
                                           "Checksum for unprocessed type: %s",
-                                          val_to_str(lnd_type, lndnames, "Unknown(%d)"));
+                                          val_to_str_wmem(pinfo->pool, lnd_type, lndnames, "Unknown(%d)"));
         break;
     }
 
@@ -446,7 +446,7 @@ dissect_lnet_put(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     proto_tree_add_item_ret_uint(tree, hf_ptl_index, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ptl_index);
     offset += 4;
 
-    port = val_to_str(ptl_index, portal_index, "Unknown(%d)");
+    port = val_to_str_wmem(pinfo->pool, ptl_index, portal_index, "Unknown(%d)");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", port);
     proto_item_append_text(tree, ", %s" , port);
 
@@ -479,7 +479,7 @@ dissect_lnet_get(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int offse
     proto_tree_add_item_ret_uint(tree, hf_ptl_index, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ptl_index);
     offset += 4;
 
-    port = val_to_str(ptl_index, portal_index, "Unknown (%d)");
+    port = val_to_str_wmem(pinfo->pool, ptl_index, portal_index, "Unknown (%d)");
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", port);
     proto_item_append_text(tree, ", %s", port);
 
@@ -613,12 +613,12 @@ dissect_ib_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, 
     offset += 4;
     offset = dissect_csum(tvb, pinfo, tree, offset, O2IBLND);
 
-    offset = lnet_dissect_struct_nid(tvb, tree, offset, hf_lnet_src_nid);
+    offset = lnet_dissect_struct_nid(tvb, pinfo, tree, offset, hf_lnet_src_nid);
 
     proto_tree_add_item(tree, hf_lnet_ib_srcstamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
-    offset = lnet_dissect_struct_nid(tvb, tree, offset, hf_lnet_dest_nid);
+    offset = lnet_dissect_struct_nid(tvb, pinfo, tree, offset, hf_lnet_dest_nid);
 
     proto_tree_add_item(tree, hf_lnet_ib_dststamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -665,7 +665,7 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         case IBLND_MSG_CONNACK:
             // kib_connparams_t;
             col_add_fstr(pinfo->cinfo, COL_INFO, "LNET %s",
-                        val_to_str(ib_msg_type, lnet_ib_type, "Unknown(%d)"));
+                        val_to_str_wmem(pinfo->pool, ib_msg_type, lnet_ib_type, "Unknown(%d)"));
             offset = dissect_struct_o2ib_connparam(tvb, lnet_tree, offset);
             msg_filler_length = tvb_reported_length_remaining(tvb, offset);
             ib_msg_payload = true;
@@ -674,7 +674,7 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         case IBLND_MSG_NOOP:
             // No further data
             col_add_fstr(pinfo->cinfo, COL_INFO, "LNET %s",
-                        val_to_str(ib_msg_type, lnet_ib_type, "Unknown(%d)"));
+                        val_to_str_wmem(pinfo->pool, ib_msg_type, lnet_ib_type, "Unknown(%d)"));
             ib_msg_payload = true;
             break;
 
@@ -691,7 +691,7 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             // kib_putack_msg_t;
             // src cookie + dest cookie + rdma_desc_t
             col_add_fstr(pinfo->cinfo, COL_INFO, "LNET %s",
-                        val_to_str(ib_msg_type, lnet_ib_type, "Unknown(%d)"));
+                        val_to_str_wmem(pinfo->pool, ib_msg_type, lnet_ib_type, "Unknown(%d)"));
             proto_tree_add_item(lnet_tree, hf_lnet_o2ib_src_cookie, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset+=8;
             proto_tree_add_item(lnet_tree, hf_lnet_o2ib_dest_cookie, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -710,7 +710,7 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         case IBLND_MSG_GET_DONE:
             // kib_completion_msg_t;
             col_add_fstr(pinfo->cinfo, COL_INFO, "LNET %s",
-                        val_to_str(ib_msg_type, lnet_ib_type, "Unknown(%d)"));
+                        val_to_str_wmem(pinfo->pool, ib_msg_type, lnet_ib_type, "Unknown(%d)"));
 
             proto_tree_add_item(lnet_tree, hf_lnet_o2ib_cookie, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset+=8;
@@ -729,8 +729,8 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     if (!ib_msg_payload) {
         /* LNET HEADER */
-        offset = lnet_dissect_struct_nid(tvb, lnet_tree, offset, hf_lnet_dest_nid);
-        offset = lnet_dissect_struct_nid(tvb, lnet_tree, offset, hf_lnet_src_nid);
+        offset = lnet_dissect_struct_nid(tvb, pinfo, lnet_tree, offset, hf_lnet_dest_nid);
+        offset = lnet_dissect_struct_nid(tvb, pinfo, lnet_tree, offset, hf_lnet_src_nid);
 
         /* pid */
         proto_tree_add_item(lnet_tree, hf_lnet_src_pid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -740,8 +740,8 @@ dissect_lnet_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
         /* put some nice info on lnet line */
         proto_tree_add_item_ret_uint(lnet_tree, hf_lnet_msg_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &msg_type);
-        proto_item_append_text(ti, " %s", val_to_str(msg_type, lnet_msg_type, "Unknown(%d)"));
-        col_add_fstr(pinfo->cinfo, COL_INFO, "LNET_%s", val_to_str(msg_type, lnet_msg_type, "Unknown(%d)"));
+        proto_item_append_text(ti, " %s", val_to_str_wmem(pinfo->pool, msg_type, lnet_msg_type, "Unknown(%d)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "LNET_%s", val_to_str_wmem(pinfo->pool, msg_type, lnet_msg_type, "Unknown(%d)"));
         offset += 4;
 
         /* payload data (to follow) length :*/

@@ -2049,7 +2049,7 @@ dissect_struct_llog_gen(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int 
 }
 
 static int
-dissect_struct_llog_rec_hdr(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int hf_index)
+dissect_struct_llog_rec_hdr(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree, int hf_index)
 {
     proto_tree *tree;
     proto_item *item;
@@ -2074,7 +2074,7 @@ dissect_struct_llog_rec_hdr(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
     proto_tree_add_item(tree, hf_lustre_llog_rec_hdr_lrh_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_item_append_text(parent_tree, " [%02d]: %s", ind, val_to_str(type, llog_op_types, "Unknown(%x)"));
+    proto_item_append_text(parent_tree, " [%02d]: %s", ind, val_to_str_wmem(pinfo->pool, type, llog_op_types, "Unknown(%x)"));
 
     return offset;
 }
@@ -2380,7 +2380,7 @@ dissect_struct_cfg_marker(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 static int
-dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_struct_lustre_cfg(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
     proto_item *item;
@@ -2412,7 +2412,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     offset += 4;
     proto_tree_add_item(tree, hf_lustre_lustre_cfg_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    offset = lnet_dissect_struct_nid(tvb, tree, offset, hf_lustre_lustre_cfg_nid);
+    offset = lnet_dissect_struct_nid(tvb, pinfo, tree, offset, hf_lustre_lustre_cfg_nid);
     proto_tree_add_item(tree, hf_lustre_lustre_cfg_padding, tvb, offset, 4, ENC_NA);
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_lustre_lustre_cfg_bufcount, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
@@ -2424,7 +2424,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
         offset += 4;
     }
     offset = add_extra_padding(tvb, offset, NULL, tree);
-    proto_item_append_text(item, ": %s", val_to_str(cmd, lcfg_command_type_vals, "Unknown(%x)"));
+    proto_item_append_text(item, ": %s", val_to_str_wmem(pinfo->pool, cmd, lcfg_command_type_vals, "Unknown(%x)"));
     switch (cmd) {
     case LCFG_MARKER:
         offset = dissect_struct_cfg_marker(tvb, offset, tree);
@@ -2883,7 +2883,7 @@ dissect_struct_mgs_config_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, uint32_t buf_num)
+dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -2934,7 +2934,7 @@ dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
     proto_tree_add_item(tree, hf_lustre_mgs_target_info_mti_uuid, tvb, offset, 40, ENC_ASCII);
     offset += 40;
     for (i = 0; i < count; ++i)
-        offset = lnet_dissect_struct_nid(tvb, tree, offset, hf_lustre_mgs_target_info_mti_nids);
+        offset = lnet_dissect_struct_nid(tvb, pinfo, tree, offset, hf_lustre_mgs_target_info_mti_nids);
     i = (32-count) * 8;
     proto_tree_add_item(tree, hf_lustre_mgs_target_info_padding, tvb, offset, i, ENC_NA);
     offset += i;
@@ -3086,7 +3086,7 @@ dissect_struct_mdt_rec_reint(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
                                "Buffer Length mismatch: expected:136 !== length:%u", data_len);
 
     proto_tree_add_item_ret_uint(tree, hf_lustre_mdt_rec_reint_opcode, tvb, offset, 4, ENC_LITTLE_ENDIAN, &opcode);
-    proto_item_append_text(tree, " %s", val_to_str(opcode, mds_reint_vals, "BAD(%d)"));
+    proto_item_append_text(tree, " %s", val_to_str_wmem(pinfo->pool, opcode, mds_reint_vals, "BAD(%d)"));
     offset += 4;
     proto_tree_add_item(tree, hf_lustre_mdt_rec_reint_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -4376,8 +4376,8 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
         trans->opcode = opcode;
     else if (trans->opcode != opcode) {
         expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "Mismatched: PTLRPC:%s != Conversation:%s (match_bits:%" PRIx64 ")",
-                               val_to_str(opcode, lustre_op_codes, "Unknown(%d)"),
-                               val_to_str(trans->opcode, lustre_op_codes, "Unknown(%d)"), trans->match_bits);
+                               val_to_str_wmem(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
+                               val_to_str_wmem(pinfo->pool, trans->opcode, lustre_op_codes, "Unknown(%d)"), trans->match_bits);
         trans->opcode = opcode;
     }
 
@@ -4439,10 +4439,10 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     proto_item_set_len(item, offset-old_offset);
 
     /* Add Opcode and PB Type to info lines */
-    proto_item_append_text(parent_tree, "%s %s ", val_to_str(opcode, lustre_op_codes, "Unknown(%d)"),
-                      val_to_str(*pb_type, lustre_LMTypes, "Unknown(%d)"));
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ", val_to_str(opcode, lustre_op_codes, "Unknown(%d)"),
-                      val_to_str(*pb_type, lustre_LMTypes, "Unknown(%d)"));
+    proto_item_append_text(parent_tree, "%s %s ", val_to_str_wmem(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
+                      val_to_str_wmem(pinfo->pool, *pb_type, lustre_LMTypes, "Unknown(%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ", val_to_str_wmem(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
+                      val_to_str_wmem(pinfo->pool, *pb_type, lustre_LMTypes, "Unknown(%d)"));
 
     //sanity_check(tvb, pinfo, offset-old_offset);
     return offset;
@@ -4681,7 +4681,7 @@ dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
         expert_add_info_format(pinfo, tree, &ei_lustre_buflen,
                                "Buffer Length mismatch: buffer:%u !== internal length:%u", data_len, len);
 
-    offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_log_hdr_hdr);
+    offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_log_hdr_hdr);
     proto_tree_add_item(tree, hf_lustre_llog_log_hdr_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
     proto_tree_add_item(tree, hf_lustre_llog_log_hdr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -5493,7 +5493,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             len = tvb_get_letohl(tvb, offset);
             item = proto_tree_add_item(parent_tree, hf_lustre_llog_rec, tvb, offset, len, ENC_NA);
             tree = proto_item_add_subtree(item, ett_lustre_llog_rec);
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_rec_hdr);
             offset = add_extra_padding(tvb, offset, pinfo, tree);
             /* no internal data */
             offset = dissect_struct_llog_rec_tail(tvb, offset, tree, hf_lustre_llog_rec_tail);
@@ -5510,7 +5510,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     __u64            lsc_padding3; */
             /*     struct llog_rec_tail    lsc_tail; */
             /* } SIZE = 16+16+24+8 */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_size_change_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_size_change_rec_hdr);
             offset = dissect_struct_lu_fid(tvb, offset, tree, hf_lustre_llog_size_change_rec_fid);
             proto_tree_add_item(tree, hf_lustre_llog_size_change_rec_io_epoch, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -5520,7 +5520,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             break;
         case OST_RAID1_REC:
             /* Obsolete, never used */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_rec_hdr);
             expert_add_info(pinfo, parent_tree, &ei_lustre_badopc);
             expert_add_info(pinfo, parent_tree, &ei_lustre_obsopc);
             break;
@@ -5536,7 +5536,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /* } SIZE = 16+16+8 */
             /* Obsolete after 2.5.0 */
             expert_add_info(pinfo, tree, &ei_lustre_obsopc);
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_unlink_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_unlink_rec_hdr);
             proto_tree_add_item(tree, hf_lustre_llog_unlink_rec_oid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             proto_tree_add_item(tree, hf_lustre_llog_unlink_rec_oseq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -5557,7 +5557,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     __u64            lur_padding3; */
             /*     struct llog_rec_tail    lur_tail; */
             /* } SIZE = 16+16+20+8 */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_unlink64_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_unlink64_rec_hdr);
             offset = dissect_struct_lu_fid(tvb, offset, tree, hf_lustre_llog_unlink64_rec_fid);
             proto_tree_add_item(tree, hf_lustre_llog_unlink64_rec_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -5579,7 +5579,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     __u32                   lsr_padding; */
             /*     struct llog_rec_tail    lsr_tail; */
             /* } SIZE = 16+16+8 */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_setattr_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_setattr_rec_hdr);
             proto_tree_add_item(tree, hf_lustre_llog_setattr_rec_oid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             proto_tree_add_item(tree, hf_lustre_llog_setattr_rec_oseq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -5605,7 +5605,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     __u64            lsr_valid; */
             /*     struct llog_rec_tail     lsr_tail; */
             /* } */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_setattr64_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_setattr64_rec_hdr);
             offset = dissect_struct_ost_id(tvb, offset, tree);
             proto_tree_add_item(tree, hf_lustre_llog_setattr64_rec_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -5627,13 +5627,13 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             len = tvb_get_letohl(tvb, offset);
             item = proto_tree_add_item(parent_tree, hf_lustre_llog_rec, tvb, offset, len, ENC_NA);
             tree = proto_item_add_subtree(item, ett_lustre_llog_rec);
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_rec_hdr);
-            offset = dissect_struct_lustre_cfg(tvb, offset, tree);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_rec_hdr);
+            offset = dissect_struct_lustre_cfg(tvb, pinfo, offset, tree);
             offset = dissect_struct_llog_rec_tail(tvb, offset, tree, hf_lustre_llog_rec_tail);
             break;
         case PTL_CFG_REC:
             /* Obsolete in 1.4.0 */
-            dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_rec_hdr);
+            dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_rec_hdr);
             expert_add_info(pinfo, parent_tree, &ei_lustre_obsopc);
             offset = dissect_struct_eadata(tvb, offset, pinfo, parent_tree, buf_num);
             break;
@@ -5648,7 +5648,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /* }; 16+16+24+8 */
             item = proto_tree_add_item(parent_tree, hf_lustre_llog_gen_rec, tvb, offset, 64, ENC_NA);
             tree = proto_item_add_subtree(item, ett_lustre_llog_gen_rec);
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_gen_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_gen_rec_hdr);
             offset = dissect_struct_llog_gen(tvb, offset, tree, hf_lustre_llog_gen_rec_gen);
             proto_tree_add_item(tree, hf_lustre_llog_gen_rec_padding, tvb, offset, 24, ENC_NA);
             offset += 24;
@@ -5656,7 +5656,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             break;
         case LLOG_JOIN_REC:
             /* Obsolete in 1.8.0 */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_rec_hdr);
             expert_add_info(pinfo, parent_tree, &ei_lustre_obsopc);
             offset = dissect_struct_eadata(tvb, offset, pinfo, parent_tree, buf_num);
             break;
@@ -5669,7 +5669,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     struct changelog_rec cr; /\**< Variable length field *\/ */
             /*     struct llog_rec_tail cr_do_not_use; /\**< for_sizeof_only *\/ */
             /* } 16+cr+8 */
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, tree, hf_lustre_llog_changelog_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, tree, hf_lustre_llog_changelog_rec_hdr);
             offset = dissect_struct_changelog_rec(tvb, offset, tree);
             offset = dissect_struct_llog_rec_tail(tvb, offset, tree, hf_lustre_llog_changelog_rec_tail);
             break;
@@ -5682,7 +5682,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     struct llog_rec_tail  cur_tail; */
             /* } */
             //@@ HERE
-            dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_rec_hdr);
+            dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_rec_hdr);
             offset = dissect_struct_eadata(tvb, offset, pinfo, parent_tree, buf_num);
             break;
         case HSM_AGENT_REC:
@@ -5699,7 +5699,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*     struct hsm_action_item    arr_hai;    /\**< req. to the agent *\/ */
             /*     struct llog_rec_tail    arr_tail; /\**< record tail for_sizezof_only *\/ */
             /* } */
-            dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_rec_hdr);
+            dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_rec_hdr);
             offset = dissect_struct_eadata(tvb, offset, pinfo, parent_tree, buf_num);
             //@@ HERE
             break;
@@ -5713,7 +5713,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /*      * struct llog_rec_tail lur_tail; */
             /*      *\/ */
             /* }; */
-            dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_rec_hdr);
+            dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_rec_hdr);
             offset = dissect_struct_eadata(tvb, offset, pinfo, parent_tree, buf_num);
             //@@ HERE
             break;
@@ -5731,7 +5731,7 @@ dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
             /* } */
             item = proto_tree_add_item(parent_tree, hf_lustre_llog_logid_rec, tvb, offset, len, ENC_NA);
             tree = proto_item_add_subtree(item, ett_lustre_llog_logid_rec);
-            offset = dissect_struct_llog_rec_hdr(tvb, offset, parent_tree, hf_lustre_llog_logid_rec_hdr);
+            offset = dissect_struct_llog_rec_hdr(tvb, pinfo, offset, parent_tree, hf_lustre_llog_logid_rec_hdr);
             offset = dissect_struct_llog_logid(tvb, offset, tree, hf_lustre_llog_logid_rec_id);
             proto_tree_add_item(tree, hf_lustre_llog_logid_rec_padding, tvb, offset, 12, ENC_NA);
             offset += 12;

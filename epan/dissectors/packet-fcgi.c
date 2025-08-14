@@ -227,7 +227,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCGI");
    col_clear(pinfo->cinfo, COL_INFO);
    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                      val_to_str(type, record_types, "Unknown (%u)"));
+                      val_to_str_wmem(pinfo->pool, type, record_types, "Unknown (%u)"));
    col_set_fence(pinfo->cinfo, COL_INFO);
 
    if (tree) { /* we are being asked for details */
@@ -238,7 +238,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
       ti = proto_tree_add_item(tree, proto_fcgi, tvb, 0, -1, ENC_NA);
       proto_item_append_text(ti, " (%s)",
-                             val_to_str(type, record_types, "Unknown (%u)"));
+                             val_to_str_wmem(pinfo->pool, type, record_types, "Unknown (%u)"));
       fcgi_tree = proto_item_add_subtree(ti, ett_fcgi);
 
       proto_tree_add_item(fcgi_tree, hf_fcgi_version, tvb, offset, 1, ENC_BIG_ENDIAN);

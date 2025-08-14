@@ -505,7 +505,7 @@ static conversation_t *_find_or_create_conversation(packet_info * pinfo)
  * Dissect the mobile ip advertisement extensions.
  */
 static void
-dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
+dissect_mip_extensions(tvbuff_t * tvb, packet_info* pinfo, int offset, proto_tree * tree)
 {
 	uint8_t type;
 	uint8_t length;
@@ -542,7 +542,7 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 
 		mip_tree = proto_tree_add_subtree_format(tree, tvb, offset,
 								1, ett_icmp_mip, &ti,
-								"Ext: %s", val_to_str(type,
+								"Ext: %s", val_to_str_wmem(pinfo->pool, type,
 								mip_extensions,
 								"Unknown ext %u"));
 		proto_tree_add_item(mip_tree, hf_icmp_mip_type,
@@ -895,7 +895,7 @@ dissect_interface_information_object(tvbuff_t * tvb, int offset,
 
 /* Dissect Interface Identification Object RFC 8335*/
 static bool
-dissect_interface_identification_object(tvbuff_t * tvb, int offset,
+dissect_interface_identification_object(tvbuff_t * tvb, packet_info* pinfo, int offset,
 				     proto_tree * ext_object_tree,
 				     proto_item * tf_object)
 {
@@ -920,7 +920,7 @@ dissect_interface_identification_object(tvbuff_t * tvb, int offset,
 	}
 
 	ti = proto_tree_add_uint(ext_object_tree, hf_icmp_ext_c_type, tvb, offset + 3, 1, c_type);
-	proto_item_append_text(ti, " (%s)", val_to_str(c_type, ext_echo_ident_str, "Unknown C-Type %u"));
+	proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, c_type, ext_echo_ident_str, "Unknown C-Type %u"));
 	offset += 4;
 
 	switch(c_type) {
@@ -1084,7 +1084,7 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 			break;
 		case INTERFACE_IDENTIFICATION_OBJECT_CLASS:
 			unknown_object =
-			    dissect_interface_identification_object(tvb,
+			    dissect_interface_identification_object(tvb, pinfo,
 								 offset,
 								 ext_object_tree,
 								 tf_object);
@@ -1522,17 +1522,17 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	switch (icmp_type) {
 	case ICMP_UNREACH:
 		code_str =
-		    val_to_str(icmp_code, unreach_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, unreach_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_REDIRECT:
 		code_str =
-		    val_to_str(icmp_code, redir_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, redir_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_ALTHOST:
 		code_str =
-		    val_to_str(icmp_code, alt_host_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, alt_host_code_str,
 			       "Unknown code: %u");
 		icmp_original_dgram_length = 0;
 		break;
@@ -1544,32 +1544,32 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			break;
 		}		/* switch icmp_code */
 		code_str =
-		    val_to_str(icmp_code, rtradvert_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, rtradvert_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_TIMXCEED:
 		code_str =
-		    val_to_str(icmp_code, ttl_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, ttl_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_PARAMPROB:
 		code_str =
-		    val_to_str(icmp_code, par_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, par_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_PHOTURIS:
 		code_str =
-		    val_to_str(icmp_code, photuris_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, photuris_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_EXTECHO:
 		code_str =
-		    val_to_str(icmp_code, ext_echo_req_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, ext_echo_req_code_str,
 			       "Unknown code: %u");
 		break;
 	case ICMP_EXTECHOREPLY:
 		code_str =
-		    val_to_str(icmp_code, ext_echo_reply_code_str,
+		    val_to_str_wmem(pinfo->pool, icmp_code, ext_echo_reply_code_str,
 			       "Unknown code: %u");
 		break;
 	default:
@@ -1914,7 +1914,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			}
 			if ((icmp_code == 0) || (icmp_code == 16)) {
 				/* Mobile-Ip */
-				dissect_mip_extensions(tvb, 8 + i * 8,
+				dissect_mip_extensions(tvb, pinfo, 8 + i * 8,
 						       icmp_tree);
 			}
 		} else {

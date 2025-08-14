@@ -62,8 +62,8 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; HPEXT; DXSAP %s, SXSAP %s",
-		    val_to_str(dxsap, xsap_vals, "%04x"),
-		    val_to_str(sxsap, xsap_vals, "%04x"));
+		    val_to_str_wmem(pinfo->pool, dxsap, xsap_vals, "%04x"),
+		    val_to_str_wmem(pinfo->pool, sxsap, xsap_vals, "%04x"));
 
 	if (tvb_reported_length_remaining(tvb, 7) > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, 7);

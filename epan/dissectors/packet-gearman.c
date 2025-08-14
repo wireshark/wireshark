@@ -205,7 +205,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   col_append_sep_fstr(pinfo->cinfo, COL_INFO, " , ", "[%s] ", magic_code);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%d) LEN=%d",
-      val_to_str(type, gearman_command_names, "Unknown (0x%08x)"), type, size);
+      val_to_str_wmem(pinfo->pool, type, gearman_command_names, "Unknown (0x%08x)"), type, size);
 
   if (tree) {
     proto_item *ti;
@@ -214,7 +214,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     gearman_tree = proto_item_add_subtree(ti, ett_gearman);
 
     command_tree = proto_tree_add_subtree_format(gearman_tree, tvb, 0, GEARMAN_COMMAND_HEADER_SIZE+size, ett_gearman_command, NULL,
-                             "[%s] %s(%d) LEN=%d", magic_code, val_to_str(type, gearman_command_names, "Unknown (0x%08x)"), type, size);
+                             "[%s] %s(%d) LEN=%d", magic_code, val_to_str_wmem(pinfo->pool, type, gearman_command_names, "Unknown (0x%08x)"), type, size);
 
     proto_tree_add_string(command_tree, hf_gearman_magic_code, tvb, 0, 4, magic_code);
     proto_tree_add_item(command_tree, hf_gearman_pkt_type, tvb, 4, 4, ENC_BIG_ENDIAN);

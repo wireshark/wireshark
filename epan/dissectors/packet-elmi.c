@@ -357,7 +357,7 @@ dissect_elmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item(elmi_tree, hf_elmi_msg_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str(msg_type, elmi_msg_type, "unknown (0x%x)"));
+            val_to_str_wmem(pinfo->pool, msg_type, elmi_msg_type, "unknown (0x%x)"));
     offset++;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {

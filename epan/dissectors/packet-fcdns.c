@@ -1500,7 +1500,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             wmem_map_insert (fcdns_req_hash, req_key, cdata);
         }
-        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, fc_dns_opcode_val,
+        col_add_str (pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, opcode, fc_dns_opcode_val,
                                                           "0x%x"));
     }
     else {
@@ -1512,7 +1512,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!conversation) {
             if (opcode == FCCT_MSG_ACC) {
                 col_add_str (pinfo->cinfo, COL_INFO,
-                                 val_to_str (opcode, fc_dns_opcode_val,
+                                 val_to_str_wmem(pinfo->pool, opcode, fc_dns_opcode_val,
                                              "0x%x"));
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_expert(fcdns_tree, pinfo, &ei_fcdns_no_record_of_exchange, tvb, 0, -1);
@@ -1534,12 +1534,12 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if (opcode != FCCT_MSG_RJT) {
                 col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
-                                val_to_str (opcode, fc_dns_opcode_val,
+                                val_to_str_wmem(pinfo->pool, opcode, fc_dns_opcode_val,
                                             "0x%x"));
             }
             else {
                 col_add_fstr (pinfo->cinfo, COL_INFO, "RJT (%s)",
-                                val_to_str (failed_opcode,
+                                val_to_str_wmem(pinfo->pool, failed_opcode,
                                             fc_dns_opcode_val,
                                             "0x%x"));
             }

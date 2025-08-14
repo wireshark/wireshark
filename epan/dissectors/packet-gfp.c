@@ -232,7 +232,7 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     upi = tvb_get_uint8(tvb, *offset+1);
     p_add_proto_data(pinfo->pool, pinfo, proto_gfp, 0, GUINT_TO_POINTER(upi));
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pti, gfp_pti_vals, "Reserved PTI (%d)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, pti, gfp_pti_vals, "Reserved PTI (%d)"));
     if (pti == GFP_USER_DATA ||
         pti == GFP_MANAGEMENT_COMMUNICATIONS) {
         /* G.7041 Table 6-3 - GFP_MANAGEMENT_COMMUNICATIONS

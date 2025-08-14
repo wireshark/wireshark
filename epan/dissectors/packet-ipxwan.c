@@ -139,7 +139,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	offset += 4;
 	packet_type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(packet_type, ipxwan_packet_type_vals,
+		    val_to_str_wmem(pinfo->pool, packet_type, ipxwan_packet_type_vals,
 		        "Unknown packet type %u"));
 
 	proto_tree_add_uint(ipxwan_tree, hf_ipxwan_packet_type, tvb,
@@ -160,7 +160,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		option_number = tvb_get_uint8(tvb, offset);
 		option_tree = proto_tree_add_subtree_format(ipxwan_tree, tvb, offset, -1,
 			ett_ipxwan_option, &ti, "Option: %s",
-			val_to_str(option_number, ipxwan_option_num_vals,
+			val_to_str_wmem(pinfo->pool, option_number, ipxwan_option_num_vals,
 			    "Unknown (%u)"));
 
 		proto_tree_add_uint(option_tree, hf_ipxwan_option_num,

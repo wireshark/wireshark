@@ -233,24 +233,24 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 {
 	proto_tree *tree;
 	proto_item *item;
-	uint8_t     auth_msg_type;
+	uint32_t     auth_msg_type;
+	char       *str_type;
 
-	auth_msg_type=tvb_get_uint8(tvb, offset);
-	item = proto_tree_add_item(parent_tree, hf_krb4_auth_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item_ret_uint(parent_tree, hf_krb4_auth_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_msg_type);
 	tree = proto_item_add_subtree(item, ett_krb4_auth_msg_type);
+
+	str_type = val_to_str_wmem(pinfo->pool, auth_msg_type >> 1, m_type_vals, "Unknown (0x%04x)");
 
 	/* m_type */
 	proto_tree_add_item(tree, hf_krb4_m_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"",
-	    val_to_str(auth_msg_type>>1, m_type_vals, "Unknown (0x%04x)"));
+	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"", str_type);
 	proto_item_append_text(item, " %s%s",
-	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"",
-	   val_to_str(auth_msg_type>>1, m_type_vals, "Unknown (0x%04x)"));
+	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"", str_type);
 
 	/* byte order */
 	proto_tree_add_item(tree, hf_krb4_byte_order, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(item, " (%s)", val_to_str(auth_msg_type&0x01, byte_order_vals, "Unknown (0x%04x)"));
+	proto_item_append_text(item, " (%s)", val_to_str_wmem(pinfo->pool, auth_msg_type&0x01, byte_order_vals, "Unknown (0x%04x)"));
 
 	offset++;
 	return offset;

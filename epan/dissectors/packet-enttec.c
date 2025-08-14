@@ -349,7 +349,7 @@ dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 	/* Clear out stuff in the info column */
 	col_add_str(pinfo->cinfo, COL_INFO,
-				val_to_str(head, enttec_head_vals, "Unknown (0x%08x)"));
+				val_to_str_wmem(pinfo->pool, head, enttec_head_vals, "Unknown (0x%08x)"));
 
 	ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
 	enttec_tree = proto_item_add_subtree(ti, ett_enttec);
@@ -413,7 +413,7 @@ dissect_enttec_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 	/* Clear out stuff in the info column */
 	col_add_str(pinfo->cinfo, COL_INFO,
-				val_to_str(head, enttec_head_vals, "Unknown (0x%08x)"));
+				val_to_str_wmem(pinfo->pool, head, enttec_head_vals, "Unknown (0x%08x)"));
 
 	ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
 	enttec_tree = proto_item_add_subtree(ti, ett_enttec);

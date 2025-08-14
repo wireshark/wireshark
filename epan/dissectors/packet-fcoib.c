@@ -141,13 +141,13 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     eof_str = "none";
     if (tvb_bytes_exist(tvb, eof_offset, 1)) {
         eof = tvb_get_uint8(tvb, eof_offset);
-        eof_str = val_to_str(eof, fcoib_eof_vals, "0x%x");
+        eof_str = val_to_str_wmem(pinfo->pool, eof, fcoib_eof_vals, "0x%x");
     }
 
     sof_str = "none";
     if (tvb_bytes_exist(tvb, sof_offset, 1)) {
         sof = tvb_get_uint8(tvb, sof_offset);
-        sof_str = val_to_str(sof, fcoib_sof_vals, "0x%x");
+        sof_str = val_to_str_wmem(pinfo->pool, sof, fcoib_sof_vals, "0x%x");
     }
 
     /*

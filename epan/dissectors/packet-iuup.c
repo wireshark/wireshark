@@ -632,11 +632,11 @@ static int dissect_iuup_control(tvbuff_t* tvb, packet_info* pinfo,
     }
 
     col_append_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(first_octet & ACKNACK_MASK,
+                    val_to_str_wmem(pinfo->pool, first_octet & ACKNACK_MASK,
                                 iuup_colinfo_acknack_vals, "[action:%u] "));
 
     col_append_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(second_octet & PROCEDURE_MASK,
+                    val_to_str_wmem(pinfo->pool, second_octet & PROCEDURE_MASK,
                                 iuup_colinfo_procedures, "[proc:%u] "));
 
     switch ( first_octet & ACKNACK_MASK ) {
@@ -705,7 +705,7 @@ static int dissect_iuup_control(tvbuff_t* tvb, packet_info* pinfo,
             return tvb_captured_length(tvb);
         }
         case PROC_ERROR:
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_uint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
 
             proto_tree_add_item(iuup_tree,hf_iuup_error_distance,tvb,4,1,ENC_BIG_ENDIAN);
             pi = proto_tree_add_item(iuup_tree,hf_iuup_errorevt_cause_val,tvb,4,1,ENC_BIG_ENDIAN);
@@ -760,7 +760,7 @@ static int dissect_iuup(tvbuff_t *tvb_in, packet_info *pinfo, proto_tree *tree, 
         pdutype_item = proto_tree_add_item(iuup_tree,hf_iuup_pdu_type,tvb,0,1,ENC_BIG_ENDIAN);
     }
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdutype, iuup_colinfo_pdu_types, "Unknown PDU Type(%u) "));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, pdutype, iuup_colinfo_pdu_types, "Unknown PDU Type(%u) "));
 
     switch(pdutype) {
         case PDUTYPE_DATA_WITH_CRC:

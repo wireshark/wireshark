@@ -511,7 +511,7 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
         expert_add_info_format(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is less than 24bytes)", length_count);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s, Total Length:  %u Bytes",
-            val_to_str(message_type, message_type_vals, "Unknown messagetype 0x%x"), length_count);
+            val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown messagetype 0x%x"), length_count);
 
     proto_tree_add_item( forces_main_header_tree, hf_forces_sid,        tvb, offset+4,  4, ENC_BIG_ENDIAN);
     proto_tree_add_item( forces_main_header_tree, hf_forces_did,        tvb, offset+8,  4, ENC_BIG_ENDIAN);

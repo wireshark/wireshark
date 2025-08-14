@@ -596,7 +596,7 @@ dissect_irdmaqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDMA-QP");
 
     uint16_t msg_type = tvb_get_ntohs(tvb, IRDMA_QP_TYPE);
-    const char *msg_type_str = val_to_str(msg_type, irdmaqp_type_str,
+    const char *msg_type_str = val_to_str_wmem(pinfo->pool, msg_type, irdmaqp_type_str,
                                           "Unknown message (0x%04X)");
 
     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -656,7 +656,7 @@ dissect_irdmalink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDMA-Link");
 
     uint16_t msg_type = tvb_get_ntohs(tvb, IRDMA_LINK_TYPE);
-    const char *msg_type_str = val_to_str(msg_type, irdmalink_type_str,
+    const char *msg_type_str = val_to_str_wmem(pinfo->pool, msg_type, irdmalink_type_str,
                                           "Unknown message (0x%04X)");
 
     col_add_str(pinfo->cinfo, COL_INFO, msg_type_str);
@@ -820,7 +820,7 @@ dissect_irdmaep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     uint8_t msg_type = tvb_get_uint8(tvb, IRDMA_EP_TYPE);
     uint8_t msg_length = tvb_get_uint8(tvb, IRDMA_EP_LEN);
-    const char *msg_type_str = val_to_str(msg_type, irdmaep_type_str,
+    const char *msg_type_str = val_to_str_wmem(pinfo->pool, msg_type, irdmaep_type_str,
                                           "UNKNOWN (0x%02X)");
     col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg_type_str);
 

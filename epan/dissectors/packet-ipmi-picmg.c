@@ -803,7 +803,7 @@ rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-parse_led_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, const char *desc)
+parse_led_state(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned offs, const char *desc)
 {
 	static int * const color[] = { &hf_ipmi_picmg_led_color, NULL };
 	static const value_string funcs[] = {
@@ -821,7 +821,7 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, const char *desc
 	v = tvb_get_uint8(tvb, offs);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_led_function, tvb, offs, 1,
 			v, "%sFunction: %s (0x%02x)", desc,
-			val_to_str(v, funcs, "LED Blinking override, off-duration %d0ms"),
+			val_to_str_wmem(pinfo->pool, v, funcs, "LED Blinking override, off-duration %d0ms"),
 			v);
 	v = tvb_get_uint8(tvb, offs + 1);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_led_on_duration, tvb, offs + 1, 1,
@@ -835,11 +835,11 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, const char *desc
 /* Set FRU LED State
  */
 static void
-rq07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rq07(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_07_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_07_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	parse_led_state(tree, tvb, 2, "");
+	parse_led_state(tree, pinfo, tvb, 2, "");
 }
 
 /* Get FRU LED State
@@ -852,16 +852,16 @@ rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+rs08(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_picmg_08_state_lamptest, &hf_ipmi_picmg_08_state_override,
 		&hf_ipmi_picmg_08_state_local, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "LED States: ", "None",
 			ett_ipmi_picmg_08_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
-	parse_led_state(tree, tvb, 1, "Local Control ");
+	parse_led_state(tree, pinfo, tvb, 1, "Local Control ");
 	if (tvb_captured_length(tvb) > 4) {
-		parse_led_state(tree, tvb, 4, "Override ");
+		parse_led_state(tree, pinfo, tvb, 4, "Override ");
 	}
 	if (tvb_captured_length(tvb) > 7) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_08_lamptest_duration, tvb, 7, 1, ENC_LITTLE_ENDIAN);
@@ -1067,7 +1067,7 @@ rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_11_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_11_power_level, tvb, 1, 1,
-			v, "%s", val_to_str(v, plvl_vals, "Power Level %d"));
+			v, "%s", val_to_str_wmem(pinfo->pool, v, plvl_vals, "Power Level %d"));
 	proto_tree_add_item(tree, hf_ipmi_picmg_11_set_to_desired, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -1147,7 +1147,7 @@ rq15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_15_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_15_fan_level, tvb, 1, 1,
-			v, "%s", val_to_str(v, fan_level_vals, "%d"));
+			v, "%s", val_to_str_wmem(pinfo->pool, v, fan_level_vals, "%d"));
 	if (tvb_captured_length(tvb) > 2) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_15_local_enable, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
@@ -1168,7 +1168,7 @@ rs16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	v = tvb_get_uint8(tvb, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_16_override_level, tvb, 0, 1,
-			v, "%s", val_to_str(v, fan_level_vals, "%d"));
+			v, "%s", val_to_str_wmem(pinfo->pool, v, fan_level_vals, "%d"));
 	if (tvb_captured_length(tvb) > 1) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_level, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}

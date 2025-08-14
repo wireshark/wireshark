@@ -334,33 +334,20 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
 	proto_tree	*xid_tree = NULL;
 	proto_item	*ti = NULL;
-	uint8_t		format, types, wsize;
+	uint32_t	types, wsize;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XID");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	format = tvb_get_uint8(tvb, 0);
-
 	ti = proto_tree_add_item(tree, proto_basicxid, tvb, 0, -1, ENC_NA);
 	xid_tree = proto_item_add_subtree(ti, ett_llc_basicxid);
-	proto_tree_add_uint(xid_tree, hf_llc_xid_format, tvb, 0, 1, format);
+	proto_tree_add_item(xid_tree, hf_llc_xid_format, tvb, 0, 1, ENC_NA);
 
-	col_append_str(pinfo->cinfo, COL_INFO, "Basic Format");
+	proto_tree_add_item_ret_uint(xid_tree, hf_llc_xid_types, tvb, 1, 1, ENC_NA, &types);
+	proto_tree_add_item_ret_uint(xid_tree, hf_llc_xid_wsize, tvb, 2, 1, ENC_NA, &wsize);
 
-	types = tvb_get_uint8(tvb, 1);
-	proto_tree_add_uint(xid_tree, hf_llc_xid_types, tvb, 1,
-			1, types & TYPES_MASK);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO,
-		    "; %s", val_to_str(types & TYPES_MASK, type_vals, "0x%02x")
-		);
-
-	wsize = tvb_get_uint8(tvb, 2);
-	proto_tree_add_uint(xid_tree, hf_llc_xid_wsize, tvb, 2,
-			1, (wsize & 0xFE) >> 1);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO,
-		    "; Window Size %d", (wsize & 0xFE) >> 1);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Basic Format; %s; Window Size %d",
+		val_to_str_wmem(pinfo->pool, types, type_vals, "0x%02x"), wsize);
 	return tvb_captured_length(tvb);
 }
 
@@ -379,24 +366,21 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	int		is_snap;
 	uint16_t		control;
 	int		llc_header_len;
-	uint8_t		dsap, ssap, format;
+	uint32_t	dsap, ssap, format;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	dsap = tvb_get_uint8(tvb, 0);
-
 	ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
 	llc_tree = proto_item_add_subtree(ti, ett_llc);
 
-	sap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_BIG_ENDIAN);
+	sap_item = proto_tree_add_item_ret_uint(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_BIG_ENDIAN, &dsap);
 	field_tree = proto_item_add_subtree(sap_item, ett_llc_dsap);
 	proto_tree_add_item(field_tree, hf_llc_dsap_sap, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(field_tree, hf_llc_dsap_ig, tvb, 0, 1, ENC_NA);
 
-	ssap = tvb_get_uint8(tvb, 1);
-	sap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_BIG_ENDIAN);
+	sap_item = proto_tree_add_item_ret_uint(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_BIG_ENDIAN, &ssap);
 	field_tree = proto_item_add_subtree(sap_item, ett_llc_ssap);
 	proto_tree_add_item(field_tree, hf_llc_ssap_sap, tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(field_tree, hf_llc_ssap_cr, tvb, 1, 1, ENC_NA);
@@ -418,8 +402,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
 
-	if (tree)
-		proto_item_set_len(ti, llc_header_len);
+	proto_item_set_len(ti, llc_header_len);
 
 	if (is_snap) {
 		dissect_snap(tvb, 2+XDLC_CONTROL_LEN(control, true), pinfo, tree, llc_tree, control,
@@ -428,10 +411,10 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	else {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "; DSAP %s %s, SSAP %s %s",
-			    val_to_str(dsap & SAP_MASK, sap_vals, "0x%02x"),
+			    val_to_str_wmem(pinfo->pool, dsap & SAP_MASK, sap_vals, "0x%02x"),
 			    dsap & DSAP_GI_BIT ?
 			      "Group" : "Individual",
-			    val_to_str(ssap & SAP_MASK, sap_vals, "0x%02x"),
+			    val_to_str_wmem(pinfo->pool, ssap & SAP_MASK, sap_vals, "0x%02x"),
 			    ssap & SSAP_CR_BIT ?
 			      "Response" : "Command"
 			);
@@ -859,11 +842,11 @@ proto_register_basicxid(void)
 
 		{ &hf_llc_xid_types,
 		{ "LLC Types/Classes", "basicxid.llc.xid.types", FT_UINT8, BASE_HEX,
-			VALS(type_vals), 0x0, NULL, HFILL }},
+			VALS(type_vals), TYPES_MASK, NULL, HFILL }},
 
 		{ &hf_llc_xid_wsize,
 		{ "Receive Window Size", "basicxid.llc.xid.wsize", FT_UINT8, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }}
+			NULL, 0xFE, NULL, HFILL }}
 	};
 	static int *ett[] = {
 		&ett_llc_basicxid

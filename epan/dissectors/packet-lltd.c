@@ -330,7 +330,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t o
     {
         length = tvb_get_uint8(tvb, offset+1);
         tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length+2, ett_tlv_item, &tlv_item,
-                    "TLV Item (%s)", val_to_str(type, lltd_tlv_type_vals, "Unknown (0x%02x)"));
+                    "TLV Item (%s)", val_to_str_wmem(pinfo->pool, type, lltd_tlv_type_vals, "Unknown (0x%02x)"));
         *end = false;
     }
 
@@ -558,7 +558,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     func = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_lltd_discovery_func, tvb, offset, 1, ENC_NA);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(func, lltd_discovery_vals, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, func, lltd_discovery_vals, "Unknown (0x%02x)"));
     offset++;
 
     /* Demultiplex header */
@@ -675,7 +675,7 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     func = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_lltd_qos_diag_func, tvb, offset, 1, ENC_NA);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(func, lltd_qos_diag_vals, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, func, lltd_qos_diag_vals, "Unknown (0x%02x)"));
     offset++;
 
     header_tree = proto_tree_add_subtree(tree, tvb, offset, 14, ett_base_header, &header_item, "Base header");

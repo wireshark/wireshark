@@ -1408,7 +1408,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 			return 0;
 
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-				val_to_str(opcode, gdsdb_opcode, "Unknown opcode %u"));
+				val_to_str_wmem(pinfo->pool, opcode, gdsdb_opcode, "Unknown opcode %u"));
 
 		ti = proto_tree_add_item(tree, proto_gdsdb, tvb, offset, -1, ENC_NA);
 		gdsdb_tree = proto_item_add_subtree(ti, ett_gdsdb);

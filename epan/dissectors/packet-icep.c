@@ -918,7 +918,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICEP");
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                 val_to_str(tvb_get_uint8(tvb, 8),
+                 val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 8),
                     icep_msgtype_vals,
                     "Unknown Message Type: 0x%02x"));
 

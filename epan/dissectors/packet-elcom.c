@@ -482,7 +482,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         elcom_msg_type = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(elcom_tree, hf_elcom_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(elcom_tree, " ( %s)", val_to_str(elcom_msg_type, type_vals, "Unknown %d"));
+        proto_item_append_text(elcom_tree, " ( %s)", val_to_str_wmem(pinfo->pool, elcom_msg_type, type_vals, "Unknown %d"));
 
         offset++;
         if (tvb_reported_length_remaining(tvb, offset) <= 0)

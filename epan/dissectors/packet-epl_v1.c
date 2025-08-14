@@ -375,14 +375,14 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		/* get AInv channel */
 		epl_v1_ainv_ch = tvb_get_uint8(tvb, EPL_V1_AINV_CHANNEL_OFFSET);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "AInv   dest = %3d   src = %3d   channel = %s   ",
-			epl_v1_dest, epl_v1_src, val_to_str(epl_v1_ainv_ch, ainv_channel_number_vals, "unknown Channel (%d)"));
+			epl_v1_dest, epl_v1_src, val_to_str_wmem(pinfo->pool, epl_v1_ainv_ch, ainv_channel_number_vals, "unknown Channel (%d)"));
 		break;
 
 	case EPL_V1_ASND:
 		/* get ASnd channel */
 		epl_v1_asnd_ch = tvb_get_uint8(tvb, EPL_V1_ASND_CHANNEL_OFFSET);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "ASnd   dest = %3d   src = %3d   channel = %s   ",
-			epl_v1_dest, epl_v1_src, val_to_str(epl_v1_asnd_ch, asnd_channel_number_vals, "unknown Channel (%d)"));
+			epl_v1_dest, epl_v1_src, val_to_str_wmem(pinfo->pool, epl_v1_asnd_ch, asnd_channel_number_vals, "unknown Channel (%d)"));
 		break;
 
 	default:     /* no valid EPL packet */

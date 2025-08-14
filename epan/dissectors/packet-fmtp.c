@@ -75,7 +75,7 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     ti = proto_tree_add_item(tree, proto_fmtp, tvb, 0, -1, ENC_NA);
     proto_item_append_text(ti, ", %s",
-        val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"));
+        val_to_str_wmem(pinfo->pool, packet_type, packet_type_names, "Unknown (0x%02x)"));
 
     switch (packet_type) {
 
@@ -83,7 +83,7 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             proto_item_append_text(ti, " (%s)",
                 tvb_get_string_enc(pinfo->pool, tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN, ENC_ASCII));
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-                val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
+                val_to_str_wmem(pinfo->pool, packet_type, packet_type_names, "Unknown (0x%02x)"),
                 tvb_get_string_enc(pinfo->pool, tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN, ENC_ASCII));
             break;
 
@@ -91,13 +91,13 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             proto_item_append_text(ti, " (%s)",
                 tvb_get_string_enc(pinfo->pool, tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN, ENC_ASCII));
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-                val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
-                val_to_str(tvb_get_ntohs(tvb, FMTP_HEADER_LEN), system_message_names, "Unknown (0x%02x)"));
+                val_to_str_wmem(pinfo->pool, packet_type, packet_type_names, "Unknown (0x%02x)"),
+                val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, FMTP_HEADER_LEN), system_message_names, "Unknown (0x%02x)"));
             break;
 
         default:
             col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"));
+                val_to_str_wmem(pinfo->pool, packet_type, packet_type_names, "Unknown (0x%02x)"));
             break;
     }
     if (tree) { /* we are being asked for details */

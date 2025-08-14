@@ -513,6 +513,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_tree *lwm_cmd_tree;
         uint8_t     lwm_cmd;
         unsigned    len;
+        char       *str_cmd;
 
         /*----------------------------------------------------------------------*/
         /*                                                                      */
@@ -520,13 +521,12 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*                                                                      */
         /*----------------------------------------------------------------------*/
         lwm_cmd = tvb_get_uint8(new_tvb, 0);
+        str_cmd = val_to_str_wmem(pinfo->pool, lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING);
 
         col_clear(pinfo->cinfo, COL_INFO);  /*XXX: why ?*/
-        col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING));
+        col_add_str(pinfo->cinfo, COL_INFO, str_cmd);
 
-        lwm_cmd_tree = proto_tree_add_subtree(lwm_tree, new_tvb, 0, -1, ett_lwm_cmd_tree, &ti,
-            val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING));
+        lwm_cmd_tree = proto_tree_add_subtree(lwm_tree, new_tvb, 0, -1, ett_lwm_cmd_tree, &ti, str_cmd);
 
         proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd, new_tvb, 0, 1, lwm_cmd);
 

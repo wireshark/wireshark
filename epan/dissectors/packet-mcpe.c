@@ -341,9 +341,9 @@ mcpe_dissect_batch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                                              record_tvb, 0, 1, ENC_NA, &packet_id);
 
                 proto_item_append_text(ti, " (%s)",
-                                       val_to_str(packet_id, mcpe_packet_names, "Unknown ID: %#x"));
+                                       val_to_str_wmem(pinfo->pool, packet_id, mcpe_packet_names, "Unknown ID: %#x"));
                 col_append_str(pinfo->cinfo, COL_INFO,
-                               val_to_str(packet_id, mcpe_packet_names, "Unknown packet ID: %#x"));
+                               val_to_str_wmem(pinfo->pool, packet_id, mcpe_packet_names, "Unknown packet ID: %#x"));
 
                 dissected =
                     dissector_try_uint_with_data(mcpe_packet_dissectors, packet_id,
@@ -450,9 +450,9 @@ dissect_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                      tvb, 1, 1, ENC_NA, &packet_id);
 
         proto_item_append_text(ti, " (%s)",
-                               val_to_str(packet_id, mcpe_packet_names, "Unknown ID: %#x"));
+                               val_to_str_wmem(pinfo->pool, packet_id, mcpe_packet_names, "Unknown ID: %#x"));
         col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(packet_id, mcpe_packet_names, "Unknown packet ID: %#x"));
+                    val_to_str_wmem(pinfo->pool, packet_id, mcpe_packet_names, "Unknown packet ID: %#x"));
 
         packet_tvb = tvb_new_subset_remaining(tvb, 1);
         return call_dissector_only(handle, packet_tvb, pinfo, mcpe_tree, data) > 0;

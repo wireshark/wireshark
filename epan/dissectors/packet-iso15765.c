@@ -670,7 +670,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t b
     offset = pci_offset;
     pci = tvb_get_uint8(tvb, offset);
     message_type_item = proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_message_type, tvb, offset, 1, ENC_NA, &message_type);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, iso15765_message_types, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, iso15765_message_types, "Unknown (0x%02x)"));
 
     switch(message_type) {
         case ISO15765_MESSAGE_TYPES_SINGLE_FRAME: {

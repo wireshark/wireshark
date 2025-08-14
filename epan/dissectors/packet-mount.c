@@ -129,7 +129,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 			/* void */
 			col_append_fstr(
 					pinfo->cinfo, COL_INFO, " Error:%s",
-					val_to_str(status, mount3_mountstat3,
+					val_to_str_wmem(pinfo->pool, status, mount3_mountstat3,
 					    "Unknown (0x%08X)"));
 		break;
 	}
@@ -471,7 +471,7 @@ dissect_mountstat3(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offs
 	if(mountstat3){
 		col_append_fstr(
 				pinfo->cinfo, COL_INFO, " Error:%s",
-				val_to_str(mountstat3, mount3_mountstat3,
+				val_to_str_wmem(pinfo->pool, mountstat3, mount3_mountstat3,
 				    "Unknown (0x%08X)"));
 	}
 

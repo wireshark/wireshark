@@ -170,21 +170,21 @@ static void parse_APPLICATION_MANAGEMENT(proto_tree *, tvbuff_t *, int *offset);
 static void parse_RESERVED_MANAGEMENT(proto_tree *, tvbuff_t *, int *offset);
 
 static bool parse_MAD_Common(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
-static bool parse_RMPP(proto_tree* , tvbuff_t* , int *offset);
+static bool parse_RMPP(proto_tree* , packet_info* , tvbuff_t* , int *offset);
 static void label_SUBM_Method(proto_item*, MAD_Data*, packet_info*);
 static void label_SUBM_Attribute(proto_item*, MAD_Data*, packet_info*);
 static void label_SUBA_Method(proto_item*, MAD_Data*, packet_info*);
 static void label_SUBA_Attribute(proto_item*, MAD_Data*, packet_info*);
 
 /* Class Attribute Parsing Routines */
-static bool parse_SUBM_Attribute(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
-static bool parse_SUBA_Attribute(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
+static bool parse_SUBM_Attribute(proto_tree*, packet_info*, tvbuff_t*, int *offset, MAD_Data*);
+static bool parse_SUBA_Attribute(proto_tree*, packet_info*, tvbuff_t*, int *offset, MAD_Data*);
 
 /* These methods parse individual attributes
 * Naming convention FunctionHandle = "parse_" + [Attribute Name];
 * Where [Attribute Name] is the attribute identifier from chapter 14 of the IB Specification
 * Subnet Management */
-static void parse_NoticesAndTraps(proto_tree*, tvbuff_t*, int *offset);
+static void parse_NoticesAndTraps(proto_tree*, packet_info*, tvbuff_t*, int *offset);
 static void parse_NodeDescription(proto_tree*, tvbuff_t*, int *offset);
 static int parse_NodeInfo(proto_tree*, tvbuff_t*, int *offset);
 static int parse_SwitchInfo(proto_tree*, tvbuff_t*, int *offset);
@@ -2318,7 +2318,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Clear other columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
     col_add_str(pinfo->cinfo, COL_INFO,
-             val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
+             val_to_str_wmem(pinfo->pool, operand, Operand_Description, "Unknown (0x%1x)"));
 
     /* Assigns column values */
     dissect_general_info(tvb, offset, pinfo, IB_PACKET_STARTS_WITH_LRH);
@@ -2620,7 +2620,7 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset, packet_info *pin
             break;
         case AETH_SYNDROME_OPCODE_NAK:
             proto_tree_add_item_ret_uint(AETH_syndrome_tree, hf_infiniband_syndrome_error_code, tvb, local_offset, 1, ENC_BIG_ENDIAN, &nak_error);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str(nak_error, aeth_syndrome_nak_error_code_vals, "Unknown (%d)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str_wmem(pinfo->pool, nak_error, aeth_syndrome_nak_error_code_vals, "Unknown (%d)"));
             break;
     }
 
@@ -3291,7 +3291,7 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tv
     label_SUBM_Attribute(SUBN_LID_ROUTED_header_item, &MadData, pinfo);
 
     /* Try to do the detail parse of the attribute.  If there is an error, or the attribute is unknown, we'll just highlight the generic data. */
-    if (!parse_SUBM_Attribute(SUBN_LID_ROUTED_header_tree, tvb, &local_offset, &MadData))
+    if (!parse_SUBM_Attribute(SUBN_LID_ROUTED_header_tree, pinfo, tvb, &local_offset, &MadData))
     {
         proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
     local_offset += 64;
@@ -3351,7 +3351,7 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo
     local_offset += 28;
 
     /* Try to do the detail parse of the attribute.  If there is an error, or the attribute is unknown, we'll just highlight the generic data. */
-    if (!parse_SUBM_Attribute(SUBN_DIRECTED_ROUTE_header_tree, tvb, &local_offset, &MadData))
+    if (!parse_SUBM_Attribute(SUBN_DIRECTED_ROUTE_header_tree, pinfo, tvb, &local_offset, &MadData))
     {
         proto_tree_add_item(SUBN_DIRECTED_ROUTE_header_tree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
     local_offset += 64;
@@ -3382,7 +3382,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         /* TODO: Mark Corrupt Packet - Not enough bytes exist for at least the Common MAD header which is present in all MAD packets */
         return;
     }
-    if (!parse_RMPP(parentTree, tvb, offset))
+    if (!parse_RMPP(parentTree, pinfo, tvb, offset))
     {
         /* TODO: Mark Corrupt Packet */
         return;
@@ -3405,7 +3405,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     label_SUBA_Method(SUBNADMN_header_item, &MadData, pinfo);
     label_SUBA_Attribute(SUBNADMN_header_item, &MadData, pinfo);
 
-    if (!parse_SUBA_Attribute(SUBNADMN_header_tree, tvb, &local_offset, &MadData))
+    if (!parse_SUBA_Attribute(SUBNADMN_header_tree, pinfo, tvb, &local_offset, &MadData))
     {
         proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_subnet_admin_data, tvb, local_offset, 200, ENC_NA);
     local_offset += 200;
@@ -4314,7 +4314,7 @@ static bool parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, int *offset,
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static bool parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
+static bool parse_RMPP(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset)
 {
     int         local_offset = *offset;
     uint8_t     RMPP_Type    = tvb_get_uint8(tvb, local_offset + 1);
@@ -4322,7 +4322,7 @@ static bool parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
     proto_tree *RMPP_header_tree;
 
     RMPP_header_item = proto_tree_add_item(parentTree, hf_infiniband_RMPP, tvb, local_offset, 12, ENC_NA);
-    proto_item_set_text(RMPP_header_item, "%s", val_to_str(RMPP_Type, RMPP_Packet_Types, "Reserved RMPP Type! (0x%02x)"));
+    proto_item_set_text(RMPP_header_item, "%s", val_to_str_wmem(pinfo->pool, RMPP_Type, RMPP_Packet_Types, "Reserved RMPP Type! (0x%02x)"));
     RMPP_header_tree = proto_item_add_subtree(RMPP_header_item, ett_rmpp);
 
     proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_version, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -4427,21 +4427,21 @@ static void label_SUBA_Attribute(proto_item *SubAItem, MAD_Data *MadHeader, pack
 * IN: Parent Tree to add the item to in the dissection tree
 * IN: tvbuff, offset - the data and where it is.
 * IN: MAD_Data the data from the Common MAD Header that provides the information we need */
-static bool parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_Data *MadHeader)
+static bool parse_SUBM_Attribute(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_Data *MadHeader)
 {
     uint16_t    attributeID = MadHeader->attributeID;
     proto_item *SUBM_Attribute_header_item;
     proto_tree *SUBM_Attribute_header_tree;
 
     SUBM_Attribute_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, *offset, 64, ENC_NA);
-    proto_item_set_text(SUBM_Attribute_header_item, "%s", val_to_str(attributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
+    proto_item_set_text(SUBM_Attribute_header_item, "%s", val_to_str_wmem(pinfo->pool, attributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
     SUBM_Attribute_header_tree = proto_item_add_subtree(SUBM_Attribute_header_item, ett_subm_attribute);
 
 
     switch (attributeID)
     {
         case 0x0002:
-            parse_NoticesAndTraps(SUBM_Attribute_header_tree , tvb, offset);
+            parse_NoticesAndTraps(SUBM_Attribute_header_tree , pinfo, tvb, offset);
             break;
         case 0x0010:
              parse_NodeDescription(SUBM_Attribute_header_tree , tvb, offset);
@@ -4501,14 +4501,14 @@ static bool parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *off
 * IN: Parent Tree to add the item to in the dissection tree
 * IN: tvbuff, offset - the data and where it is.
 * IN: MAD_Data the data from the Common MAD Header that provides the information we need */
-static bool parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_Data *MadHeader)
+static bool parse_SUBA_Attribute(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb, int *offset, MAD_Data *MadHeader)
 {
     uint16_t    attributeID = MadHeader->attributeID;
     proto_item *SUBA_Attribute_header_item;
     proto_tree *SUBA_Attribute_header_tree;
 
     SUBA_Attribute_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, *offset, 200, ENC_NA);
-    proto_item_set_text(SUBA_Attribute_header_item, "%s", val_to_str(attributeID, SUBA_Attributes, "Unknown Attribute Type! (0x%02x)"));
+    proto_item_set_text(SUBA_Attribute_header_item, "%s", val_to_str_wmem(pinfo->pool, attributeID, SUBA_Attributes, "Unknown Attribute Type! (0x%02x)"));
     SUBA_Attribute_header_tree = proto_item_add_subtree(SUBA_Attribute_header_item, ett_suba_attribute);
 
     /* Skim off the RID fields should they be present */
@@ -4521,7 +4521,7 @@ static bool parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *off
             parse_ClassPortInfo(SUBA_Attribute_header_tree, tvb, offset);
             break;
         case 0x0002: /* (Notice) */
-            parse_NoticesAndTraps(SUBA_Attribute_header_tree, tvb, offset);
+            parse_NoticesAndTraps(SUBA_Attribute_header_tree, pinfo, tvb, offset);
             break;
         case 0x0003: /* (InformInfo) */
             parse_InformInfo(SUBA_Attribute_header_tree, tvb, offset);
@@ -4881,7 +4881,7 @@ static int parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, int *o
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
+static void parse_NoticesAndTraps(proto_tree* parentTree, packet_info* pinfo, tvbuff_t* tvb, int *offset)
 {
     int         local_offset = *offset;
     proto_item *NoticesAndTraps_header_item;
@@ -4892,7 +4892,7 @@ static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, int *of
         return;
 
     NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
-    proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str(trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
+    proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str_wmem(pinfo->pool, trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
     NoticesAndTraps_header_tree = proto_item_add_subtree(NoticesAndTraps_header_item, ett_noticestraps);
 
     proto_tree_add_item(NoticesAndTraps_header_tree, hf_infiniband_Notice_IsGeneric, tvb, local_offset, 1, ENC_BIG_ENDIAN);

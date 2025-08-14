@@ -174,8 +174,8 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         ti_main = proto_tree_add_protocol_format(tree, proto_mdshdr, tvb, 0,
                                                  MDSHDR_HEADER_SIZE+pktlen,
                                                  "MDS Header(%s/%s)",
-                                                 val_to_str(sof, sof_vals, "Unknown(%u)"),
-                                                 val_to_str(eof, eof_vals, "Unknown(%u)"));
+                                                 val_to_str_wmem(pinfo->pool, sof, sof_vals, "Unknown(%u)"),
+                                                 val_to_str_wmem(pinfo->pool, eof, eof_vals, "Unknown(%u)"));
 
         mdshdr_tree_main = proto_item_add_subtree(ti_main, ett_mdshdr);
 

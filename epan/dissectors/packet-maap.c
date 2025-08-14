@@ -87,7 +87,7 @@ dissect_maap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Display the name of the packet type in the info column. */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s:",
-                val_to_str(maap_msg_type, maap_msg_type_vals,
+                val_to_str_wmem(pinfo->pool, maap_msg_type, maap_msg_type_vals,
                             "Unknown Type(0x%02x)"));
 
     /* Now, we'll add the start and conflict addresses and counts to the info column as appropriate */

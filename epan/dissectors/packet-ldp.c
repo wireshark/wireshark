@@ -2635,7 +2635,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree
         } else {
             typebak=0;
             tlv_tree = proto_tree_add_subtree(tree, tvb, offset, length + 4, ett_ldp_tlv, NULL,
-                                     val_to_str(type, tlv_type_names, "Unknown TLV type (0x%04X)"));
+                                     val_to_str_wmem(pinfo->pool, type, tlv_type_names, "Unknown TLV type (0x%04X)"));
         }
 
         proto_tree_add_item(tlv_tree, hf_ldp_tlv_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3063,7 +3063,7 @@ dissect_msg(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree
         col_append_fstr(pinfo->cinfo, COL_INFO, "Experimental Message (0x%04X) ", typebak);
         break;
     default:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, ldp_message_types, "Unknown Message (0x%04X)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, type, ldp_message_types, "Unknown Message (0x%04X)"));
     }
 
     if (tree) {
@@ -3077,7 +3077,7 @@ dissect_msg(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree
             break;
         default:
             msg_tree = proto_tree_add_subtree(tree, tvb, offset, length + 4, ett_ldp_message, NULL,
-                                     val_to_str(type, ldp_message_types, "Unknown Message type (0x%04X)"));
+                                     val_to_str_wmem(pinfo->pool, type, ldp_message_types, "Unknown Message type (0x%04X)"));
         }
 
         proto_tree_add_item(msg_tree, hf_ldp_msg_ubit, tvb, offset, 1, ENC_BIG_ENDIAN);

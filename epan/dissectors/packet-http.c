@@ -719,13 +719,13 @@ http_stats_tree_init(stats_tree* st)
 
 /* HTTP/Packet Counter stats packet function */
 static tap_packet_status
-http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
+http_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p, tap_flags_t flags _U_)
 {
 	const http_info_value_t* v = (const http_info_value_t*)p;
 	unsigned i = v->response_code;
 	int resp_grp;
 	const char *resp_str;
-	char str[64];
+	char* str;
 
 	tick_stat_node(st, st_str_packets, 0, false);
 
@@ -754,8 +754,8 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 
 		tick_stat_node(st, resp_str, st_node_responses, false);
 
-		snprintf(str, sizeof(str), "%u %s", i,
-			   val_to_str(i, vals_http_status_code, "Unknown (%d)"));
+		str = wmem_strdup_printf(pinfo->pool, "%u %s", i,
+			   val_to_str_wmem(pinfo->pool, i, vals_http_status_code, "Unknown (%d)"));
 		tick_stat_node(st, str, resp_grp, false);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
@@ -2695,7 +2695,7 @@ basic_response_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 			    stat_info->response_code);
 
 	r_ti = proto_tree_add_string(tree, hf_http_response_code_desc,
-		tvb, offset, 3, val_to_str(stat_info->response_code,
+		tvb, offset, 3, val_to_str_wmem(pinfo->pool, stat_info->response_code,
 		vals_http_status_code, "Unknown (%d)"));
 
 	proto_item_set_generated(r_ti);

@@ -434,7 +434,7 @@ ddp_rdma_packetlist(packet_info *pinfo, bool ddp_last_flag,
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d %s %s", pinfo->srcport,
-				pinfo->destport, val_to_str(rdma_msg_opcode, rdmap_messages,
+				pinfo->destport, val_to_str_wmem(pinfo->pool, rdma_msg_opcode, rdmap_messages,
 						"Unknown %d"), ddp_fragment_state);
 }
 

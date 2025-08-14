@@ -127,7 +127,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     ti = proto_tree_add_protocol_format(tree, proto_enc, tvb, 0,
                                         BSD_ENC_HDRLEN,
                                         "Enc %s, SPI 0x%8.8x",
-                                        val_to_str(ench.af, af_vals, "unknown (%u)"),
+                                        val_to_str_wmem(pinfo->pool, ench.af, af_vals, "unknown (%u)"),
                                         ench.spi);
     enc_tree = proto_item_add_subtree(ti, ett_enc);
 

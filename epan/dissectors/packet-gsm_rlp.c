@@ -227,14 +227,14 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		proto_tree_add_item_ret_uint(rlp_tree, hf_gsmrlp_u_ftype, tvb, 1, 1, ENC_BIG_ENDIAN, &u_ftype);
 		if ((n_r & 0x1f) == RLP_U_FT_XID)
 			dissect_gsmrlp_xid(tvb, 2, pinfo, rlp_tree);
-		proto_item_append_text(ti, " U-Frame: %s", val_to_str(u_ftype, rlp_ftype_u_vals, "Unknown 0x%02x"));
+		proto_item_append_text(ti, " U-Frame: %s", val_to_str_wmem(pinfo->pool, u_ftype, rlp_ftype_u_vals, "Unknown 0x%02x"));
 	} else if (n_s == 0x3e) { /* S Frame */
 		unsigned s_ftype;
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_ftype, tvb, 0, 1, RLP_FT_S);
 		proto_tree_add_item_ret_uint(rlp_tree, hf_gsmrlp_s_ftype, tvb, 0, 1, ENC_BIG_ENDIAN, &s_ftype);
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_n_r, tvb, 1, 1, n_r);
 		proto_item_append_text(ti, " S-Frame: %s, N(S): %u, N(R): %u",
-				       val_to_str(s_ftype, rlp_ftype_s_vals, "Unknown 0x%02x"), n_s, n_r);
+				       val_to_str_wmem(pinfo->pool, s_ftype, rlp_ftype_s_vals, "Unknown 0x%02x"), n_s, n_r);
 	} else { /* IS Frame */
 		tvbuff_t *next_tvb;
 		unsigned s_ftype;
@@ -245,7 +245,7 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_n_s, tvb, 0, 2, n_s);
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_n_r, tvb, 1, 1, n_r);
 		proto_item_append_text(ti, " IS-Frame: %s, N(S): %u, N(R): %u",
-				       val_to_str(s_ftype, rlp_ftype_s_vals, "Unknown 0x%02x"), n_s, n_r);
+				       val_to_str_wmem(pinfo->pool, s_ftype, rlp_ftype_s_vals, "Unknown 0x%02x"), n_s, n_r);
 
 		/* dispatch user data */
 		data_len = reported_len - 2 /* header */ - 3 /* FCS */;

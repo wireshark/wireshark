@@ -408,7 +408,7 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
 		ett_edp_tlv_header, NULL, "Marker 0x%02x, length %d, type %d = %s",
 		tlv_marker, tlv_length, tlv_type,
-		val_to_str(tlv_type, edp_type_vals, "Unknown (0x%02x)"));
+		val_to_str_wmem(pinfo->pool, tlv_type, edp_type_vals, "Unknown (0x%02x)"));
 
 	proto_tree_add_item(tlv_tree, hf_edp_tlv_marker, tvb, offset, 1,
 		ENC_BIG_ENDIAN);
@@ -886,14 +886,14 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 	subtype = tvb_get_uint8(tvb, offset + 4 + 1);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s%s (#%d)",
-			val_to_str(type, elsm_type_vals, "Unknown (0x%02x)"),
-			val_to_str(subtype, elsm_subtype_vals, " Unknown (0x%02x)"),
+			val_to_str_wmem(pinfo->pool, type, elsm_type_vals, "Unknown (0x%02x)"),
+			val_to_str_wmem(pinfo->pool, subtype, elsm_subtype_vals, " Unknown (0x%02x)"),
 			seqno);
 
 	elsm_item = proto_tree_add_protocol_format(tree, hf_edp_elsm,
 		tvb, offset, length, "ELSM %s%s(#%d)",
-			val_to_str(type, elsm_type_vals, "Unknown (0x%02x)"),
-			val_to_str(subtype, elsm_subtype_vals, " Unknown (0x%02x)"),
+			val_to_str_wmem(pinfo->pool, type, elsm_type_vals, "Unknown (0x%02x)"),
+			val_to_str_wmem(pinfo->pool, subtype, elsm_subtype_vals, " Unknown (0x%02x)"),
 			seqno);
 
 	elsm_tree = proto_item_add_subtree(elsm_item, ett_edp_elsm);
@@ -1076,7 +1076,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		}
 		if (tlv_type != EDP_TYPE_NULL)
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
+					val_to_str_wmem(pinfo->pool, tlv_type, edp_type_vals, "[0x%02x]"));
 
 		switch (tlv_type) {
 		case EDP_TYPE_NULL: /* Last TLV */

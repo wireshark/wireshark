@@ -68,7 +68,7 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	} else {
 		message_type = tvb_get_uint8(tvb, 3);
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str_wmem(pinfo->pool, message_type, message_type_vs, "Unknown (0x%02x)"));
 
 		ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
 		llt_tree = proto_item_add_subtree(ti, ett_llt);

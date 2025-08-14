@@ -217,7 +217,7 @@ dissect_gmr1_rach_kls1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 		                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		col_append_str(pinfo->cinfo, COL_INFO,
-		                val_to_str(ec, rach_est_cause_vals, "Unknown (%u)"));
+		                val_to_str_wmem(pinfo->pool, ec, rach_est_cause_vals, "Unknown (%u)"));
 	}
 
 	/* Retry counter */
@@ -823,7 +823,7 @@ dissect_gmprs_rach_type2_kls2(tvbuff_t *tvb, int offset,
 				    tvb, offset + 8, 1, ENC_BIG_ENDIAN);
 
 		col_append_str(pinfo->cinfo, COL_INFO,
-		                val_to_str(req_type, rach_gmprs_req_type_vals, "Unknown (%u)"));
+		                val_to_str_wmem(pinfo->pool, req_type, rach_gmprs_req_type_vals, "Unknown (%u)"));
 	}
 
 	/* Software version number */

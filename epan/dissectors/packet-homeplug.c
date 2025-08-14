@@ -1204,7 +1204,7 @@ static void dissect_homeplug_unknown(ptvcursor_t * cursor)
 static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
 {
   col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-        val_to_str(homeplug_metype, homeplug_metype_vals, "Unknown 0x%x"));
+        val_to_str_wmem(pinfo->pool, homeplug_metype, homeplug_metype_vals, "Unknown 0x%x"));
 
   switch(homeplug_metype) {
     case HOMEPLUG_MME_RCE:

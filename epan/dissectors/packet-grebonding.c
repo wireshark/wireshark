@@ -383,8 +383,8 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GREbond");
     ti = proto_tree_add_protocol_format(tree, proto_greb, tvb, offset, -1, "Huawei GRE bonding control message (%s)",
-        val_to_str(message_type, greb_message_types, "0x%01X (unknown)"));
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, greb_message_types, "0x%02X (unknown)"));
+        val_to_str_wmem(pinfo->pool, message_type, greb_message_types, "0x%01X (unknown)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, greb_message_types, "0x%02X (unknown)"));
 
     greb_tree = proto_item_add_subtree(ti, ett_grebonding);
     proto_tree_add_item(greb_tree, hf_greb_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -397,7 +397,7 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         unsigned attrb_length = tvb_get_uint16(tvb, offset + 1, ENC_BIG_ENDIAN);
 
         it_attrb = proto_tree_add_none_format(greb_tree, hf_greb_attr, tvb, offset, attrb_length + 3, "Attribute - %s",
-            val_to_str(attrb_type, greb_attribute_types, "unknown (%d)"));
+            val_to_str_wmem(pinfo->pool, attrb_type, greb_attribute_types, "unknown (%d)"));
 
         attrb_tree = proto_item_add_subtree(it_attrb, ett_grebonding_attrb);
         proto_tree_add_item(attrb_tree, hf_greb_attr_type, tvb, offset, 1, ENC_BIG_ENDIAN);

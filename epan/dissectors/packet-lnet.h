@@ -54,6 +54,6 @@ struct lnet_trans_info {
     uint64_t match_bits;
 };
 
-int lnet_dissect_struct_nid(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int hf_index);
+int lnet_dissect_struct_nid(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree, int offset, int hf_index);
 
 #endif

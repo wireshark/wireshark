@@ -1656,7 +1656,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    offset, len, ENC_BIG_ENDIAN);
 			val8 = tvb_get_uint8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str(val8, oml_adm_state_vals,
+					val_to_str_wmem(pinfo->pool, val8, oml_adm_state_vals,
 						   "%02x"));
 			break;
 		case NM_ATT_ARFCN_LIST:
@@ -1681,7 +1681,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			} else
 				val8 = 0xff;
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str(val8, oml_avail_state_vals,
+					val_to_str_wmem(pinfo->pool, val8, oml_avail_state_vals,
 						   "%02x"));
 			break;
 		case NM_ATT_BCCH_ARFCN:
@@ -1709,7 +1709,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    offset, len, ENC_BIG_ENDIAN);
 			val8 = tvb_get_uint8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str(val8, oml_oper_state_vals,
+					val_to_str_wmem(pinfo->pool, val8, oml_oper_state_vals,
 						   "%02x"));
 			break;
 		case NM_ATT_TEI:
@@ -1736,7 +1736,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    offset, len, ENC_LITTLE_ENDIAN);
 			val8 = tvb_get_uint8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str(val8, oml_test_no_vals,
+					val_to_str_wmem(pinfo->pool, val8, oml_test_no_vals,
 						   "%02x"));
 			break;
 		case NM_ATT_HSN:
@@ -1954,10 +1954,10 @@ dissect_oml_fom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	ts_nr = tvb_get_uint8(tvb, offset+4);
 	format_custom_msgtype(formatted, msg_type);
 	proto_item_append_text(top_ti, ", %s(%02x,%02x,%02x) %s ",
-			val_to_str(obj_class, oml_fom_objclass_vals, "%02x"),
+			val_to_str_wmem(pinfo->pool, obj_class, oml_fom_objclass_vals, "%02x"),
 			bts_nr, trx_nr, ts_nr, formatted);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%02x,%02x,%02x) %s ",
-			val_to_str(obj_class, oml_fom_objclass_vals, "%02x"),
+			val_to_str_wmem(pinfo->pool, obj_class, oml_fom_objclass_vals, "%02x"),
 			bts_nr, trx_nr, ts_nr, formatted);
 	ti = proto_tree_add_item(tree, hf_oml_fom_msgtype, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	fom_tree = proto_item_add_subtree(ti, ett_oml_fom);

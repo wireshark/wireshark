@@ -10185,7 +10185,7 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
       proto_item_append_text(adv_item, ": ANQP");
     adv_tuple_tree = proto_tree_add_subtree_format(adv_tree, tvb, offset, 2, ett_adv_proto_tuple, &item,
                                "Advertisement Protocol Tuple: %s",
-                               val_to_str(id, adv_proto_id_vals,
+                               val_to_str_wmem(pinfo->pool, id, adv_proto_id_vals,
                                           "Unknown (%d)"));
 
     proto_tree_add_item(adv_tuple_tree,
@@ -10311,7 +10311,7 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
           break;
         subtype = tvb_get_uint8(tvb, offset);
         proto_item_append_text(vtree, " - WFA - %s",
-                               val_to_str(subtype, wfa_anqp_subtype_vals,
+                               val_to_str_wmem(pinfo->pool, subtype, wfa_anqp_subtype_vals,
                                           "Unknown (%u)"));
         proto_tree_add_item(vtree, hf_ieee80211_anqp_wfa_subtype,
                             tvb, offset, 1, ENC_NA);
@@ -11005,7 +11005,7 @@ static const value_string hs20_cc_status_vals[] = {
 };
 
 static void
-dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
+dissect_hs20_anqp_connection_capability(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
                                         int offset, int end)
 {
   proto_tree *tuple;
@@ -11019,9 +11019,9 @@ dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
 
     tuple = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_hs20_cc_proto_port_tuple, NULL,
                                "ProtoPort Tuple - ip_proto=%s port_num=%s status=%s",
-                               val_to_str(ip_proto, hs20_cc_proto_vals, "Unknown (%u)"),
-                               val_to_str(port_num, hs20_cc_port_vals, "Unknown (%u)"),
-                               val_to_str(status, hs20_cc_status_vals, "Reserved (%u)"));
+                               val_to_str_wmem(pinfo->pool, ip_proto, hs20_cc_proto_vals, "Unknown (%u)"),
+                               val_to_str_wmem(pinfo->pool, port_num, hs20_cc_port_vals, "Unknown (%u)"),
+                               val_to_str_wmem(pinfo->pool, status, hs20_cc_status_vals, "Reserved (%u)"));
     proto_tree_add_item(tuple, hf_ieee80211_hs20_anqp_cc_proto_ip_proto,
                         tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -11348,7 +11348,7 @@ static const value_string hs20_icon_download_status_vals[] = {
 };
 
 static void
-dissect_hs20_anqp_icon_binary_file(proto_tree *tree, tvbuff_t *tvb, int offset,
+dissect_hs20_anqp_icon_binary_file(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset,
   int end _U_)
 {
   uint8_t icon_download_status = tvb_get_uint8(tvb, offset);
@@ -11360,7 +11360,7 @@ dissect_hs20_anqp_icon_binary_file(proto_tree *tree, tvbuff_t *tvb, int offset,
                         ENC_NA);
   offset++;
   proto_item_append_text(pi, ": %s",
-                         val_to_str(icon_download_status,
+                         val_to_str_wmem(pinfo->pool, icon_download_status,
                                     hs20_icon_download_status_vals,
                                     "Reserved (%u)"));
 
@@ -11463,7 +11463,7 @@ static const value_string advice_of_charge_type_vals[] = {
 };
 
 static void
-dissect_hs20_anqp_advice_of_charge(proto_tree *tree, tvbuff_t *tvb, int offset,
+dissect_hs20_anqp_advice_of_charge(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset,
   int end _U_)
 {
   uint16_t toc_index = 0;
@@ -11491,7 +11491,7 @@ dissect_hs20_anqp_advice_of_charge(proto_tree *tree, tvbuff_t *tvb, int offset,
                         offset, 1, ENC_NA);
     offset++;
     proto_item_append_text(tpi, ": %s",
-                                val_to_str(aoc_type,
+                                val_to_str_wmem(pinfo->pool, aoc_type,
                                         advice_of_charge_type_vals,
                                         "Reserved (%u)"));
 
@@ -11559,11 +11559,11 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   subtype = tvb_get_uint8(tvb, offset);
   proto_item_append_text(tree, " - HS 2.0 %s",
-                         val_to_str(subtype, hs20_anqp_subtype_vals,
+                         val_to_str_wmem(pinfo->pool, subtype, hs20_anqp_subtype_vals,
                                     "Reserved (%u)"));
   if (anqp_data->idx == 0) {
     col_append_fstr(pinfo->cinfo, COL_INFO, " HS 2.0 %s",
-                    val_to_str(subtype, hs20_anqp_subtype_vals,
+                    val_to_str_wmem(pinfo->pool, subtype, hs20_anqp_subtype_vals,
                                "Reserved (%u)"));
   } else if (anqp_data->idx == 1) {
     col_append_str(pinfo->cinfo, COL_INFO, ", ..");
@@ -11591,7 +11591,7 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     dissect_hs20_anqp_wan_metrics(tree, tvb, offset, anqp_data->request);
     break;
   case HS20_ANQP_CONNECTION_CAPABILITY:
-    dissect_hs20_anqp_connection_capability(tree, tvb, offset, end);
+    dissect_hs20_anqp_connection_capability(tree, pinfo, tvb, offset, end);
     break;
   case HS20_ANQP_NAI_HOME_REALM_QUERY:
     dissect_hs20_anqp_nai_home_realm_query(tree, tvb, pinfo, offset, end);
@@ -11606,13 +11606,13 @@ dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     dissect_hs20_anqp_icon_request(tree, tvb, offset, end);
     break;
   case HS20_ANQP_ICON_BINARY_FILE:
-    dissect_hs20_anqp_icon_binary_file(tree, tvb, offset, end);
+    dissect_hs20_anqp_icon_binary_file(tree, pinfo, tvb, offset, end);
     break;
   case HS20_ANQP_OPERATOR_ICON_METADATA:
     dissect_hs20_anqp_operator_icon_metadata(tree, tvb, offset, end);
     break;
   case HS20_ANQP_ADVICE_OF_CHARGE:
-    dissect_hs20_anqp_advice_of_charge(tree, tvb, offset, end);
+    dissect_hs20_anqp_advice_of_charge(tree, pinfo, tvb, offset, end);
     break;
   default:
     if (offset == end)
@@ -11798,7 +11798,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     dissect_anqp_venue_url(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_ADVICE_OF_CHARGE:
-    dissect_hs20_anqp_advice_of_charge(tree, tvb, offset, offset + len);
+    dissect_hs20_anqp_advice_of_charge(tree, pinfo, tvb, offset, offset + len);
     break;
   case ANQP_INFO_NETWORK_AUTH_TYPE_TIMESTAMP:
     dissect_anqp_network_auth_type_timestamp(tree, tvb, offset, offset + len);
@@ -11864,7 +11864,7 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   case ADV_PROTO_ID_VS:
     if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) | WFA_SUBTYPE_DPP)) {
        col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
-                       val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
+                       val_to_str_wmem(pinfo->pool, subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
       dissect_wifi_dpp_config_proto(pinfo, query, tvb, offset);
     }
     break;
@@ -11908,7 +11908,7 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     case ADV_PROTO_ID_VS:
       if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) | WFA_SUBTYPE_DPP)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
-                         val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
+                         val_to_str_wmem(pinfo->pool, subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
         dissect_wifi_dpp_config_proto(pinfo, query, tvb, offset);
       }
       break;
@@ -12006,7 +12006,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
           if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) |
                            WFA_SUBTYPE_DPP)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
-                            val_to_str(subtype >> 8, dpp_subtype_vals,
+                            val_to_str_wmem(pinfo->pool, subtype >> 8, dpp_subtype_vals,
                                        "Unknown (%u)"));
             dissect_wifi_dpp_config_proto(pinfo, query, new_tvb, 0);
           } else {
@@ -19706,7 +19706,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 
   proto_tree_add_item(tree, hf_ieee80211_wfa_ie_type, tvb, offset, 1, ENC_NA);
   type = tvb_get_uint8(tvb, offset);
-  proto_item_append_text(tree, ": %s", val_to_str(type, ieee802111_wfa_ie_type_vals, "Unknown %d"));
+  proto_item_append_text(tree, ": %s", val_to_str_wmem(pinfo->pool, type, ieee802111_wfa_ie_type_vals, "Unknown %d"));
   offset += 1;
 
   switch (type) {
@@ -19794,7 +19794,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 
       proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_subtype, tvb, offset, 1, ENC_NA);
       subtype = tvb_get_uint8(tvb, offset);
-      proto_item_append_text(tree, ": %s", val_to_str(subtype, ieee802111_wfa_ie_wme_type, "Unknown %d"));
+      proto_item_append_text(tree, ": %s", val_to_str_wmem(pinfo->pool, subtype, ieee802111_wfa_ie_wme_type, "Unknown %d"));
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
       offset += 1;
@@ -20335,7 +20335,7 @@ dissect_wfa_60g_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     id = tvb_get_uint8(tvb, offset);
     len = tvb_get_ntohs(tvb, offset + 1);
     attrs = proto_tree_add_item(tree, hf_ieee80211_wfa_60g_attr, tvb, offset, 0, ENC_NA);
-    proto_item_append_text(attrs, ": %s", val_to_str(id, ieee80211_wfa_60g_attr_ids,
+    proto_item_append_text(attrs, ": %s", val_to_str_wmem(pinfo->pool, id, ieee80211_wfa_60g_attr_ids,
                                              "Unknown attribute ID (%u)"));
     wf60g_tree = proto_item_add_subtree(attrs, ett_ieee80211_wfa_60g_attr);
     proto_tree_add_item(wf60g_tree, hf_ieee80211_wfa_60g_attr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -21290,7 +21290,7 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
       txop = tvb_get_letohs(tvb, offset + 2);
       proto_tree_add_bytes_format(ietree, hf_ieee80211_aironet_ie_qos_val, tvb, offset, 4, NULL,
           "CCX QoS Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
-        (byte1 & 0x60) >> 5, val_to_str((byte1 & 0x60) >> 5, wme_acs, "(Unknown: %d)"),
+        (byte1 & 0x60) >> 5, val_to_str_wmem(pinfo->pool, (byte1 & 0x60) >> 5, wme_acs, "(Unknown: %d)"),
         (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
         byte2 & 0x0f, (byte2 & 0xf0) >> 4,
         txop);
@@ -25656,12 +25656,12 @@ dissect_s1g_operation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   if (chan_width & 0x01) {
         proto_item_append_text(cw_item, ": %s",
-                               val_to_str((chan_width >> 1) & 0x0F,
+                               val_to_str_wmem(pinfo->pool, (chan_width >> 1) & 0x0F,
                                           one_mhz_primary_channel_vals,
                                           "Invalid BSS Channel Width value"));
   } else {
         proto_item_append_text(cw_item, ": %s",
-                               val_to_str((chan_width >> 1) & 0x0F,
+                               val_to_str_wmem(pinfo->pool, (chan_width >> 1) & 0x0F,
                                           two_mhz_primary_channel_vals,
                                           "Invalid BSS Channel Width value"));
   }
@@ -25774,7 +25774,7 @@ dissect_max_away_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 static int
-dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, bool basic, bool vendorspecific)
+dissect_mcs_set(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset, bool basic, bool vendorspecific)
 {
   proto_item *ti;
   proto_tree *mcs_tree, *bit_tree;
@@ -25901,7 +25901,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, bool basic, bool ve
      */
      tx_nss = rx_nss;
   }
-  proto_item_append_text(ti, ": %s", val_to_str(rx_nss, mcsset_tx_max_spatial_streams_flags, "Reserved:%d" ) );
+  proto_item_append_text(ti, ": %s", val_to_str_wmem(pinfo->pool, rx_nss, mcsset_tx_max_spatial_streams_flags, "Reserved:%d" ) );
 
   proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_mcs_set_defined, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
@@ -25909,7 +25909,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, bool basic, bool ve
       ENC_LITTLE_ENDIAN);
   ti = proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_max_spatial_streams, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
-  proto_item_append_text(ti, ", %s", val_to_str(tx_nss, mcsset_tx_max_spatial_streams_flags, "Reserved:%d" ) );
+  proto_item_append_text(ti, ", %s", val_to_str_wmem(pinfo->pool, tx_nss, mcsset_tx_max_spatial_streams_flags, "Reserved:%d" ) );
   proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_unequal_modulation, tvb, offset, 1,
       ENC_LITTLE_ENDIAN);
   offset += 1;
@@ -25984,7 +25984,7 @@ dissect_ht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       (field_data->sanity_check && field_data->sanity_check->ampe_frame &&
        (field_data->sanity_check->ampe_frame == SELFPROT_ACTION_MESH_PEERING_OPEN ||
         field_data->sanity_check->ampe_frame == SELFPROT_ACTION_MESH_PEERING_CONFIRM))) {
-    offset = dissect_mcs_set(tree, tvb, offset, true, false);
+    offset = dissect_mcs_set(tree, pinfo, tvb, offset, true, false);
   } else {
     proto_tree_add_item(tree, hf_ieee80211_ht_operation_mcsset_reserved,
                         tvb, offset, 16, ENC_NA);
@@ -26040,7 +26040,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
       akm_suite_type = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str(akm_suite_type,
+      proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str_wmem(pinfo->pool, akm_suite_type,
       ieee80211_wapi_suite_type_short, "Reserved: %d"));
     }
     proto_item_append_text(ti, " /");
@@ -26063,7 +26063,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
       ucast_cipher_type = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
-      proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str(ucast_cipher_type, ieee80211_wapi_cipher_type, "Reserved: %d"));
+      proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str_wmem(pinfo->pool, ucast_cipher_type, ieee80211_wapi_cipher_type, "Reserved: %d"));
     }
   proto_item_append_text(ti, " /");
   } else {
@@ -26078,7 +26078,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   mcast_cipher_type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
-  proto_item_append_text(ti, " Multicast Cipher: %s", val_to_str(mcast_cipher_type, ieee80211_wapi_cipher_type, "Reserved: %d"));
+  proto_item_append_text(ti, " Multicast Cipher: %s", val_to_str_wmem(pinfo->pool, mcast_cipher_type, ieee80211_wapi_cipher_type, "Reserved: %d"));
 
   /* WAPI capability */
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_wapi_param_set_capab,
@@ -27098,7 +27098,7 @@ dissect_ht_capability_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   offset += 1;
 
   /* 16 byte MCS set */
-  offset = dissect_mcs_set(tree, tvb, offset, false, vendorspecific);
+  offset = dissect_mcs_set(tree, pinfo, tvb, offset, false, vendorspecific);
 
 
   /* 2 byte HT Extended Capabilities */
@@ -27216,7 +27216,7 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   offset += 2;
 
   /* 16 byte Supported MCS set */
-  offset = dissect_mcs_set(tree, tvb, offset, false, true);
+  offset = dissect_mcs_set(tree, pinfo, tvb, offset, false, true);
 
   return offset;
 }
@@ -27612,7 +27612,7 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
           pi = proto_tree_add_uint(a_control_tree, hf_ieee80211_htc_he_ctrl_id,
                         tvb, offset, 4, control_id);
           proto_item_append_text(pi, ": %s",
-                        val_to_str(control_id, a_control_control_id_vals,
+                        val_to_str_wmem(pinfo->pool, control_id, a_control_control_id_vals,
                                         "Reserved (%u)"));
         }
         if (start_bit_offset > 31) {
@@ -31262,7 +31262,7 @@ ieee80211_tag_country_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_tree_add_item(tree, hf_ieee80211_tag_country_info_env,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_item_append_text(field_data->item_tag, ", Environment %s",
-                         val_to_str(tvb_get_uint8(tvb, offset),
+                         val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset),
                                     environment_vals, "0x%02x"));
   offset += 1;
 
@@ -33727,7 +33727,7 @@ ieee80211_tag_tclas_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tclas_process, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(field_data->item_tag, " : %s", val_to_str(tvb_get_uint8(tvb, offset), ieee80211_tclas_process_flag, "Unknown %d"));
+  proto_item_append_text(field_data->item_tag, " : %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), ieee80211_tclas_process_flag, "Unknown %d"));
   return tvb_captured_length(tvb);
 }
 
@@ -37779,7 +37779,7 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
   block_ack_type = (ba_control & 0x001E) >> 1;
   ba_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_block_ack,
                         &pi, is_req ? "%s Request" : "%s Response",
-                        val_to_str(block_ack_type, block_ack_type_vals,
+                        val_to_str_wmem(pinfo->pool, block_ack_type, block_ack_type_vals,
                                 "Reserved (%d)"));
   proto_tree_add_bitmask_with_flags(ba_tree, tvb, offset,
                         hf_ieee80211_block_ack_control,
@@ -39568,7 +39568,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   type = FCF_PV1_TYPE(fcf);
   subtype = FCF_PV1_SUBTYPE(fcf);
 
-  fts_str = val_to_str(type, pv1_frame_type_vals, "Unrecognized frame type (%d)");
+  fts_str = val_to_str_wmem(pinfo->pool, type, pv1_frame_type_vals, "Unrecognized frame type (%d)");
   col_set_str(pinfo->cinfo, COL_INFO, fts_str);
 
   /* Create the protocol tree */

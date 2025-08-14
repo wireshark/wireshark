@@ -133,7 +133,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     tvb_ether_to_str(pinfo->pool, tvb, 2),
                     tvb_ether_to_str(pinfo->pool, tvb, 8),
                     ((foundclient >= 0) || (type == 4) ? "Client->Server" : "Server->Client" ),
-                    val_to_str(type, packettypenames, "Unknown Type:0x%02x")
+                    val_to_str_wmem(pinfo->pool, type, packettypenames, "Unknown Type:0x%02x")
         );
 
     if (tree) {

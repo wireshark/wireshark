@@ -1019,9 +1019,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	str = try_val_to_str_idx((uint32_t) oct, gsm_bssmap_le_msg_strings, &idx);
 
 	if (sccp_msg_p && !sccp_msg_p->data.co.label) {
-		sccp_msg_p->data.co.label = wmem_strdup(wmem_file_scope(),
-												val_to_str((uint32_t) oct,
-												gsm_bssmap_le_msg_strings, "BSSMAP LE(0x%02x)"));
+		sccp_msg_p->data.co.label = val_to_str_wmem(wmem_file_scope(), (uint32_t) oct, gsm_bssmap_le_msg_strings, "BSSMAP LE(0x%02x)");
 	}
 
 	/*

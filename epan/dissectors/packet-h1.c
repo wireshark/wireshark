@@ -12,7 +12,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 
 void proto_register_h1(void);
 void proto_reg_handoff_h1(void);
@@ -147,7 +146,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(block_tree, hf_h1_opcode,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_str (pinfo->cinfo, COL_INFO,
-                        val_to_str (tvb_get_uint8(tvb,  offset),
+                        val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,  offset),
                         opcode_vals, "Unknown Opcode (0x%2.2x)"));
                 break;
 
@@ -155,7 +154,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(block_tree, hf_h1_org, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                        val_to_str (tvb_get_uint8(tvb,  offset),
+                        val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,  offset),
                             org_vals,"Unknown Type (0x%2.2x)"));
                 offset++;
 
@@ -181,7 +180,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(block_tree, hf_h1_response_value,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
-                        val_to_str (tvb_get_uint8(tvb,  offset),
+                        val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,  offset),
                             returncode_vals,"Unknown Returncode (0x%2.2x"));
                 break;
         }

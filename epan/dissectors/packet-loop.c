@@ -76,7 +76,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     function = tvb_get_letohs(tvb, offset);
     if (offset == skip_offset) {
       col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str(function, function_vals, "Unknown function (%u)"));
+                    val_to_str_wmem(pinfo->pool, function, function_vals, "Unknown function (%u)"));
 
       ti = proto_tree_add_uint(loop_tree, hf_loop_relevant_function, tvb, offset, 2, function);
       proto_item_set_generated(ti);

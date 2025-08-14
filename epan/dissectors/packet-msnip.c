@@ -110,7 +110,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		if (item) {
 			proto_item_set_text(item,"Group: %s %s",
 				tvb_ip_to_str(pinfo->pool, tvb, offset-4),
-				val_to_str(rec_type, msnip_rec_types,
+				val_to_str_wmem(pinfo->pool, rec_type, msnip_rec_types,
 					"Unknown Type:0x%02x"));
 
 			proto_item_set_len(item, offset-old_offset);
@@ -218,7 +218,7 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(type, msnip_types,
+			val_to_str_wmem(pinfo->pool, type, msnip_types,
 				"Unknown Type:0x%02x"));
 
 	/* type of command */

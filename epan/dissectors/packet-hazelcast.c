@@ -308,7 +308,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
     proto_tree_add_item(hcast_tree, hf_hazelcast_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
     operation = tvb_get_uint8(tvb, offset);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(operation, operationTypes, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, operation, operationTypes, "Unknown (0x%02x)"));
     offset += 1;
 
     proto_tree_add_item(hcast_tree, hf_hazelcast_blockID, tvb, offset, 4, ENC_BIG_ENDIAN);

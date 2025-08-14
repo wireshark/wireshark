@@ -732,7 +732,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             wmem_map_insert (fcfcs_req_hash, req_key, cdata);
         }
         col_add_str (pinfo->cinfo, COL_INFO,
-                         val_to_str (opcode, fc_fcs_opcode_abbrev_val, "0x%x"));
+                         val_to_str_wmem(pinfo->pool, opcode, fc_fcs_opcode_abbrev_val, "0x%x"));
     }
     else {
         /* Opcode is ACC or RJT */
@@ -743,7 +743,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!conversation) {
             if (opcode == FCCT_MSG_ACC) {
                 col_add_str (pinfo->cinfo, COL_INFO,
-                                 val_to_str (opcode, fc_fcs_opcode_abbrev_val,
+                                 val_to_str_wmem(pinfo->pool, opcode, fc_fcs_opcode_abbrev_val,
                                              "0x%x"));
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_expert(fcfcs_tree, pinfo, &ei_fcfcs_no_record_of_exchange, tvb, 0, -1);
@@ -765,12 +765,12 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if (opcode != FCCT_MSG_RJT) {
                 col_add_fstr (pinfo->cinfo, COL_INFO, "MSG_ACC (%s)",
-                                val_to_str (opcode, fc_fcs_opcode_abbrev_val,
+                                val_to_str_wmem(pinfo->pool, opcode, fc_fcs_opcode_abbrev_val,
                                             "0x%x"));
             }
             else {
                 col_add_fstr (pinfo->cinfo, COL_INFO, "MSG_RJT (%s)",
-                                val_to_str (failed_opcode,
+                                val_to_str_wmem(pinfo->pool, failed_opcode,
                                             fc_fcs_opcode_abbrev_val,
                                             "0x%x"));
             }

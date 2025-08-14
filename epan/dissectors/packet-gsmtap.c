@@ -627,7 +627,7 @@ dissect_um_voice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	uint8_t vtype = tvb_get_uint8(tvb, 0);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "GSM CS User Plane (Voice/CSD): %s",
-			val_to_str(vtype, gsmtap_um_voice_types, "Unknown %d"));
+			val_to_str_wmem(pinfo->pool, vtype, gsmtap_um_voice_types, "Unknown %d"));
 
 	proto_tree_add_item(tree, hf_um_voice_type, tvb, 0, 1, ENC_NA);
 
@@ -950,13 +950,13 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			const char *channel_str;
 			channel = tvb_get_uint8(tvb, offset+12);
 			if (type == GSMTAP_TYPE_TETRA_I1)
-				channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
+				channel_str = val_to_str_wmem(pinfo->pool, channel, gsmtap_tetra_channels, "Unknown: %d");
 			else if (type == GSMTAP_TYPE_GMR1_UM)
-				channel_str = val_to_str(channel, gsmtap_gmr1_channels, "Unknown: %d");
+				channel_str = val_to_str_wmem(pinfo->pool, channel, gsmtap_gmr1_channels, "Unknown: %d");
 			else if (type == GSMTAP_TYPE_LTE_RRC)
-				channel_str = val_to_str(channel, gsmtap_lte_rrc_channels, "Unknown: %d");
+				channel_str = val_to_str_wmem(pinfo->pool, channel, gsmtap_lte_rrc_channels, "Unknown: %d");
 			else
-				channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
+				channel_str = val_to_str_wmem(pinfo->pool, channel, gsmtap_channels, "Unknown: %d");
 
 			proto_item_append_text(ti, ", ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
 				arfcn & GSMTAP_ARFCN_MASK,

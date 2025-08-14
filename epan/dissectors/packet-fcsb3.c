@@ -424,7 +424,7 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Decode the basic SB3 and IU header and determine type of frame */
     type = get_fc_sbccs_iu_type (tvb, offset);
 
-    col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, fc_sbccs_iu_val,
                                                          "0x%x"));
 
     if (tree) {
@@ -469,7 +469,7 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
     uint8_t flags;
 
     col_append_fstr (pinfo->cinfo, COL_INFO,
-                         ": %s", val_to_str (tvb_get_uint8 (tvb, offset),
+                         ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8 (tvb, offset),
                                              fc_sbccs_dib_cmd_val,
                                              "0x%x"));
 
@@ -547,7 +547,7 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
     ctlfn = tvb_get_uint8 (tvb, offset);
     col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
-                         val_to_str (ctlfn,
+                         val_to_str_wmem(pinfo->pool, ctlfn,
                                      fc_sbccs_dib_ctl_fn_val,
                                      "0x%x"));
 
@@ -594,7 +594,7 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
 
     col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
-                         val_to_str (tvb_get_uint8 (tvb, offset+1),
+                         val_to_str_wmem(pinfo->pool, tvb_get_uint8 (tvb, offset+1),
                                      fc_sbccs_dib_link_ctl_fn_val,
                                      "0x%x"));
 
@@ -673,7 +673,7 @@ static int dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     type = get_fc_sbccs_iu_type (tvb, offset);
     get_fc_sbccs_conv_data (tvb, offset, &ch_cu_id, &dev_addr, &ccw);
 
-    col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, fc_sbccs_iu_val,
                                                          "0x%x"));
 
     /* Retrieve conversation state to determine expected payload */

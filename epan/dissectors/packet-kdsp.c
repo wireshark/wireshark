@@ -254,23 +254,21 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   proto_item *kdsp_item, *sub_item, *subsub_item, *data_len_item, *command_item;
   proto_tree *kdsp_tree, *sub_tree, *subsub_tree;
   tvbuff_t   *payload_tvb;
+  char* str_command;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
   col_clear(pinfo->cinfo, COL_INFO);
-
-  command = tvb_get_ntohl(tvb, 4);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "Command %s; ",
-               val_to_str(command, packettypenames, "Unknown (0x%02x)"));
-  col_set_fence(pinfo->cinfo, COL_INFO);
 
   kdsp_item = proto_tree_add_item(tree, proto_kdsp, tvb, 0, -1, ENC_NA);
   kdsp_tree = proto_item_add_subtree(kdsp_item, ett_kdsp_pdu);
   proto_tree_add_item(kdsp_tree, hf_kdsp_sentinel, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  command_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cmdnum, tvb, offset, 4, ENC_BIG_ENDIAN);
+  command_item = proto_tree_add_item_ret_uint(kdsp_tree, hf_kdsp_cmdnum, tvb, offset, 4, ENC_BIG_ENDIAN, &command);
   offset += 4;
-  proto_item_append_text(kdsp_item, ", Command %s",
-                         val_to_str(command, packettypenames, "Unknown (0x%02x)"));
+  str_command = val_to_str_wmem(pinfo->pool, command, packettypenames, "Unknown (0x%02x)");
+  proto_item_append_text(kdsp_item, ", Command %s", str_command);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Command %s; ", str_command);
+  col_set_fence(pinfo->cinfo, COL_INFO);
 
   proto_tree_add_item(kdsp_tree, hf_kdsp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
   length = tvb_get_ntohl(tvb, offset);
