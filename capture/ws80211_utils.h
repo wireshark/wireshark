@@ -38,10 +38,25 @@ enum ws80211_channel_type {
 #define CHAN_VHT160	"VHT160"
 #define CHAN_EHT320	"EHT320"
 
+/* These are *not* the same values as the Linux NL80211_BAND_* enum,
+ * because we don't support the 60 GHz or 900 MHz (S1G, HaLow) bands,
+ * which have different channel widths. */
+enum ws80211_band_type {
+	WS80211_BAND_2GHZ,
+	WS80211_BAND_5GHZ,
+	WS80211_BAND_6GHZ
+};
+
 enum ws80211_fcs_validation {
 	WS80211_FCS_ALL,
 	WS80211_FCS_VALID,
 	WS80211_FCS_INVALID
+};
+
+struct ws80211_band
+{
+	GArray *frequencies; /* Array of uint32_t (MHz) (lazily created, can be NULL) */
+	int channel_types;
 };
 
 struct ws80211_interface
@@ -49,8 +64,9 @@ struct ws80211_interface
 	char *ifname;
 	bool can_set_freq;
 	bool can_check_fcs;
-	GArray *frequencies; /* Array of uint32_t? */
-	int channel_types; /* Union for all bands */
+	GArray *bands; /* Array of struct ws80211_band, indexed by
+			  ws80211_band_type. (array always exists but might
+			  be shorter than the number of possible bands.) */
 	int cap_monitor;
 };
 
@@ -90,6 +106,8 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
  */
 void ws80211_free_interfaces(GArray *interfaces);
 
+void ws80211_clear_band(struct ws80211_band *band);
+
 /** Set the frequency and channel width for an interface.
  *
  * @param name The interface name.
@@ -103,6 +121,8 @@ int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U
 
 int ws80211_str_to_chan_type(const char *s);
 const char *ws80211_chan_type_to_str(enum ws80211_channel_type type);
+
+const char *ws80211_band_type_to_str(enum ws80211_band_type type);
 
 /** Check to see if we have FCS filtering.
  *

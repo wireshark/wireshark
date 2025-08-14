@@ -52,6 +52,7 @@ private slots:
     void on_channelComboBox_activated(int);
     void on_channelTypeComboBox_activated(int);
     void on_fcsComboBox_activated(int);
+    void bandComboBoxIndexChanged(int);
 
 private:
     Ui::WirelessFrame *ui;

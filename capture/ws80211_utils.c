@@ -234,24 +234,24 @@ static int ws80211_get_protocol_features(int* features)
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
 #ifdef NL80211_BAND_ATTR_HT_CAPA
-static void parse_band_ht_capa(struct ws80211_interface *iface,
+static void parse_band_ht_capa(struct ws80211_band *band,
 			       struct nlattr *tb)
 {
 	bool ht40;
 
 	if (!tb) return;
 
-	iface->channel_types |= 1 << WS80211_CHAN_HT20;
+	band->channel_types |= 1 << WS80211_CHAN_HT20;
 	ht40 = !!(nla_get_u16(tb) & 0x02);
 	if (ht40) {
-		iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
-		iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+		band->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+		band->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
 	}
 }
 #endif /* NL80211_BAND_ATTR_HT_CAPA */
 
 #ifdef HAVE_NL80211_VHT_CAPABILITY
-static void parse_band_vht_capa(struct ws80211_interface *iface,
+static void parse_band_vht_capa(struct ws80211_band *band,
 				struct nlattr *tb)
 {
 	uint32_t chan_capa;
@@ -259,18 +259,18 @@ static void parse_band_vht_capa(struct ws80211_interface *iface,
 
 	chan_capa = (nla_get_u32(tb) >> 2) & 3;
 	if (chan_capa == 1) {
-		iface->channel_types |= 1 << WS80211_CHAN_VHT160;
+		band->channel_types |= 1 << WS80211_CHAN_VHT160;
 	}
 	if (chan_capa == 2) {
-		iface->channel_types |= 1 << WS80211_CHAN_VHT160;
-		iface->channel_types |= 1 << WS80211_CHAN_VHT80P80;
+		band->channel_types |= 1 << WS80211_CHAN_VHT160;
+		band->channel_types |= 1 << WS80211_CHAN_VHT80P80;
 	}
-	iface->channel_types |= 1 << WS80211_CHAN_VHT80;
+	band->channel_types |= 1 << WS80211_CHAN_VHT80;
 }
 #endif /* HAVE_NL80211_VHT_CAPABILITY */
 
 #ifdef HAVE_NL80211_EHT_CAPABILITY
-static void parse_band_he_cap_phy(struct ws80211_interface *iface,
+static void parse_band_he_cap_phy(struct ws80211_band *band,
 				  struct nlattr *tb)
 {
 	/* For our purposes, this should be redundant with the HT and VHT caps
@@ -281,31 +281,31 @@ static void parse_band_he_cap_phy(struct ws80211_interface *iface,
 	if (!tb) return;
 
 	chan_cap_phy = (nla_get_u32(tb) >> 1) & 0xf;
-	iface->channel_types |= 1 << WS80211_CHAN_HT20;
+	band->channel_types |= 1 << WS80211_CHAN_HT20;
 	if (chan_cap_phy & 1) {
 		/* 40 MHz in 2.4 GHz band */
-		iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
-		iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+		band->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+		band->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
 	}
 	if (chan_cap_phy & 2) {
 		/* 40 & 80 MHz in the 5 GHz and 6 GHz bands */
-		iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
-		iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
-		iface->channel_types |= 1 << WS80211_CHAN_VHT80;
+		band->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+		band->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
+		band->channel_types |= 1 << WS80211_CHAN_VHT80;
 	}
 	if (chan_cap_phy & 4) {
 		/* 160 MHz in the 5 GHz and 6 GHz bands */
 		/* If set, above bit must also be set. */
-		iface->channel_types |= 1 << WS80211_CHAN_VHT160;
+		band->channel_types |= 1 << WS80211_CHAN_VHT160;
 	}
 	if (chan_cap_phy & 8) {
 		/* 160/80+80 MHz in the 5 GHz and 6 GHz bands */
 		/* If set, above bit must also be set. */
-		iface->channel_types |= 1 << WS80211_CHAN_VHT80P80;
+		band->channel_types |= 1 << WS80211_CHAN_VHT80P80;
 	}
 }
 
-static void parse_band_eht_cap_phy(struct ws80211_interface *iface,
+static void parse_band_eht_cap_phy(struct ws80211_band *band,
 				   struct nlattr *tb)
 {
 	uint32_t chan_cap_phy;
@@ -313,11 +313,11 @@ static void parse_band_eht_cap_phy(struct ws80211_interface *iface,
 
 	chan_cap_phy = (nla_get_u32(tb) >> 1) & 1;
 	if (chan_cap_phy == 1) {
-		iface->channel_types |= 1 << WS80211_CHAN_EHT320;
+		band->channel_types |= 1 << WS80211_CHAN_EHT320;
 	}
 }
 
-static void parse_band_iftype_data(struct ws80211_interface *iface _U_,
+static void parse_band_iftype_data(struct ws80211_band *band,
 			     struct nlattr *tb)
 {
 	struct nlattr *nl_iftype;
@@ -332,8 +332,11 @@ static void parse_band_iftype_data(struct ws80211_interface *iface _U_,
 			  (struct nlattr *)nla_data(nl_iftype),
 			  nla_len(nl_iftype), NULL);
 
-		parse_band_he_cap_phy(iface, tb_iftype[NL80211_BAND_IFTYPE_ATTR_HE_CAP_PHY]);
-		parse_band_eht_cap_phy(iface, tb_iftype[NL80211_BAND_IFTYPE_ATTR_EHT_CAP_PHY]);
+		/* XXX - Read NL80211_BAND_IFTYPE_ATTR_IFTYPES and only use
+		 * if the data applies to NL80211_IFTYPE_MONITOR (assuming
+		 * drivers set that correctly?) */
+		parse_band_he_cap_phy(band, tb_iftype[NL80211_BAND_IFTYPE_ATTR_HE_CAP_PHY]);
+		parse_band_eht_cap_phy(band, tb_iftype[NL80211_BAND_IFTYPE_ATTR_EHT_CAP_PHY]);
 	}
 }
 #endif /* HAVE_NL80211_EHT_CAPABILITY */
@@ -352,7 +355,7 @@ static void parse_supported_iftypes(struct ws80211_interface *iface,
 	}
 }
 
-static void parse_band_freqs(struct ws80211_interface *iface,
+static void parse_band_freqs(struct ws80211_band *band,
 			     struct nlattr *tb)
 {
 	struct nlattr *nl_freq;
@@ -379,9 +382,24 @@ static void parse_band_freqs(struct ws80211_interface *iface,
 			continue;
 		if (tb_freq[NL80211_FREQUENCY_ATTR_DISABLED])
 			continue;
+		/* TODO - Look at other attributes like
+		 * NL80211_FREQUENCY_ATTR_NO_HT40_MINUS, etc. for frequencies
+		 * that can't be used with a particular channel type/bw even
+		 * if the PHY supports it in the band. (Note that this is about
+		 * the regulatory domain; e.g. NL80211_FREQUENCY_ATTR_NO_160MHZ
+		 * will be set for 2.4 GHz channels but not for 5/6 GHz channels
+		 * regardless of gear, so we have to look both here and the
+		 * band attribute PHY capabilities.)
+		 * Recent nl80211.h has NL80211_FREQUENCY_ATTR_CAN_MONITOR
+		 * "This channel can be used in monitor mode despite other
+		 * (regulatory) restrictions, even if the channel is otherwise
+		 * completely disabled."
+		 * Add a compile check to see if that exists so we can enable
+		 * the frequency anyway even if disabled.
+		 */
 
 		freq = nla_get_u32(tb_freq[NL80211_FREQUENCY_ATTR_FREQ]);
-		g_array_append_val(iface->frequencies, freq);
+		g_array_append_val(band->frequencies, freq);
 	}
 }
 
@@ -399,16 +417,44 @@ static void parse_wiphy_bands(struct ws80211_interface *iface,
 			  (struct nlattr *)nla_data(nl_band),
 			  nla_len(nl_band), NULL);
 
+		// nl_band->nla_type indicates the actual frequency band
+		// NL80211_BAND_2GHZ, NL80211_BAND_5GHZ, etc.
+
+		enum ws80211_band_type band_type;
+		switch (nl_band->nla_type) {
+		case NL80211_BAND_2GHZ:
+			band_type = WS80211_BAND_2GHZ;
+			break;
+		case NL80211_BAND_5GHZ:
+			band_type = WS80211_BAND_5GHZ;
+			break;
+		case NL80211_BAND_6GHZ:
+			band_type = WS80211_BAND_6GHZ;
+			break;
+		default:
+			// Unsupported (NL80211_BAND_60GHZ, NL80211_BAND_S1GHZ,
+			// etc. require different channel widths and caps.)
+			continue;
+		}
+
+		struct ws80211_band *band;
+		if (iface->bands->len < (unsigned)(band_type + 1)) {
+			g_array_set_size(iface->bands, (unsigned)(band_type + 1));
+		}
+		band = &g_array_index(iface->bands, struct ws80211_band, band_type);
+		if (band->frequencies == NULL) {
+			band->frequencies = g_array_new(false, false, sizeof(uint32_t));
+		}
 #ifdef NL80211_BAND_ATTR_HT_CAPA
-		parse_band_ht_capa(iface, tb_band[NL80211_BAND_ATTR_HT_CAPA]);
+		parse_band_ht_capa(band, tb_band[NL80211_BAND_ATTR_HT_CAPA]);
 #endif /* NL80211_BAND_ATTR_HT_CAPA */
 #ifdef HAVE_NL80211_VHT_CAPABILITY
-		parse_band_vht_capa(iface, tb_band[NL80211_BAND_ATTR_VHT_CAPA]);
+		parse_band_vht_capa(band, tb_band[NL80211_BAND_ATTR_VHT_CAPA]);
 #endif /* HAVE_NL80211_VHT_CAPABILITY */
 #ifdef HAVE_NL80211_EHT_CAPABILITY
-		parse_band_iftype_data(iface, tb_band[NL80211_BAND_ATTR_IFTYPE_DATA]);
+		parse_band_iftype_data(band, tb_band[NL80211_BAND_ATTR_IFTYPE_DATA]);
 #endif /* HAVE_NL80211_EHT_CAPABILITY */
-		parse_band_freqs(iface, tb_band[NL80211_BAND_ATTR_FREQS]);
+		parse_band_freqs(band, tb_band[NL80211_BAND_ATTR_FREQS]);
 	}
 }
 
@@ -459,8 +505,8 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		}
 		added = 1;
 		iface->ifname = ifname;
-		iface->frequencies = g_array_new(false, false, sizeof(uint32_t));
-		iface->channel_types = 1 << WS80211_CHAN_NO_HT;
+		iface->bands = g_array_new(false, true, sizeof(struct ws80211_band));
+		g_array_set_clear_func(iface->bands, (GDestroyNotify)ws80211_clear_band);
 	} else {
 		g_free(ifname);
 	}
@@ -686,7 +732,7 @@ restart:
 		iface = g_array_index(interfaces, struct ws80211_interface *, j);
 		if (!iface->cap_monitor) {
 			g_array_remove_index(interfaces, j);
-			g_array_free(iface->frequencies, true);
+			g_array_free(iface->bands, true);
 			g_free(iface->ifname);
 			g_free(iface);
 			goto restart;
@@ -985,6 +1031,25 @@ const char
 	return NULL;
 }
 
+#define BAND_2GHZ       "2.4 GHz"
+#define BAND_5GHZ       "5 GHz"
+#define BAND_6GHZ       "6 GHz"
+
+const char
+*ws80211_band_type_to_str(enum ws80211_band_type type)
+{
+	switch (type) {
+	case WS80211_BAND_2GHZ:
+		return BAND_2GHZ;
+	case WS80211_BAND_5GHZ:
+		return BAND_5GHZ;
+	case WS80211_BAND_6GHZ:
+		return BAND_6GHZ;
+	default:
+		return NULL;
+	}
+}
+
 bool ws80211_has_fcs_filter(void)
 {
 	return false;
@@ -1034,6 +1099,11 @@ const char *ws80211_chan_type_to_str(enum ws80211_channel_type type _U_)
 	return NULL;
 }
 
+const char *ws80211_band_type_to_str(enum ws80211_band_type type _U_)
+{
+	return NULL;
+}
+
 bool ws80211_has_fcs_filter(void)
 {
 	return false;
@@ -1061,12 +1131,19 @@ void ws80211_free_interfaces(GArray *interfaces)
 
 	while (interfaces->len) {
 		iface = g_array_index(interfaces, struct ws80211_interface *, 0);
-		g_array_remove_index(interfaces, 0);
-		g_array_free(iface->frequencies, true);
+		g_array_remove_index(interfaces, interfaces->len - 1);
+		g_array_free(iface->bands, true);
 		g_free(iface->ifname);
 		g_free(iface);
 	}
 	g_array_free(interfaces, true);
+}
+
+void ws80211_clear_band(struct ws80211_band *band)
+{
+	if (band->frequencies)
+		g_array_free(band->frequencies, true);
+	band->frequencies = NULL;
 }
 
 int ws80211_get_center_frequency(int control_frequency, enum ws80211_channel_type chan_type)
