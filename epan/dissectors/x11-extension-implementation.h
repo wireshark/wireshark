@@ -4908,7 +4908,7 @@ static void dispatch_bigreq(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, bigreq_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, bigreq_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -5448,7 +5448,7 @@ static void dispatch_composite(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, composite_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, composite_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -5573,7 +5573,7 @@ static void dispatch_damage(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, damage_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, damage_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -5831,7 +5831,7 @@ static void dispatch_dbe(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, dbe_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, dbe_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -6037,7 +6037,7 @@ static void dispatch_dpms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, dpms_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, dpms_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -6559,7 +6559,7 @@ static void dispatch_dri2(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, dri2_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, dri2_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -6943,7 +6943,7 @@ static void dispatch_dri3(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, dri3_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, dri3_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -7040,7 +7040,7 @@ static void dispatch_ge(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_t
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, ge_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, ge_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -9964,7 +9964,7 @@ static void dispatch_glx(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, glx_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, glx_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 1:
@@ -10988,7 +10988,7 @@ static void dispatch_present(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, present_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, present_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -12484,7 +12484,7 @@ static void dispatch_randr(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, randr_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, randr_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -12924,7 +12924,7 @@ static void dispatch_record(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, record_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, record_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -13648,7 +13648,7 @@ static void dispatch_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, render_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, render_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -14104,7 +14104,7 @@ static void dispatch_res(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, res_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, res_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -14409,7 +14409,7 @@ static void dispatch_screensaver(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, screensaver_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, screensaver_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -14661,7 +14661,7 @@ static void dispatch_shape(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, shape_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, shape_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -14918,7 +14918,7 @@ static void dispatch_shm(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, shm_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, shm_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -15335,7 +15335,7 @@ static void dispatch_sync(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, sync_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, sync_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -15511,7 +15511,7 @@ static void dispatch_xc_misc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xc_misc_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xc_misc_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -15702,7 +15702,7 @@ static void dispatch_xevie(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xevie_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xevie_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -16094,7 +16094,7 @@ static void dispatch_xf86dri(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xf86dri_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xf86dri_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -17035,7 +17035,7 @@ static void dispatch_xf86vidmode(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xf86vidmode_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xf86vidmode_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -17707,7 +17707,7 @@ static void dispatch_xfixes(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xfixes_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xfixes_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -18030,7 +18030,7 @@ static void dispatch_xinerama(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xinerama_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xinerama_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -21366,7 +21366,7 @@ static void dispatch_xinput(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xinput_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xinput_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 1:
@@ -27335,7 +27335,7 @@ static void dispatch_xkb(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xkb_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xkb_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -28000,7 +28000,7 @@ static void dispatch_xprint(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xprint_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xprint_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -28708,7 +28708,7 @@ static void dispatch_xselinux(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xselinux_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xselinux_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -28896,7 +28896,7 @@ static void dispatch_xtest(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xtest_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xtest_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -29701,7 +29701,7 @@ static void dispatch_xv(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_t
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xv_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xv_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
@@ -30053,7 +30053,7 @@ static void dispatch_xvmc(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str(minor, xvmc_extension_minor,
+                          val_to_str_wmem(pinfo->pool, minor, xvmc_extension_minor,
                                      "<Unknown opcode %d>"));
     switch (minor) {
     case 0:
