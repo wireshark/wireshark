@@ -26,7 +26,11 @@ extern "C" {
 #endif
 
 /**
- * Check if a buffer is JSON and returns true if it is.
+ * Check if a buffer is valid JSON.
+ *
+ * @param buf - A buffer containing JSON.
+ * @param len - The length of the JSON data in the buffer.
+ * @return true if the JSON is valid.
  *
  * @note This requires that the buffer be complete valid JSON that requires
  * no more than 1024 tokens. For larger objects, or to parse what may be an
@@ -35,11 +39,11 @@ extern "C" {
 WS_DLL_PUBLIC bool json_validate(const uint8_t *buf, const size_t len);
 
 /**
- * Parse a JSON string and put the location of tokens into the tokens array.
+ * Parse a JSON string and write the token's addresses into the tokens array.
  *
  * @param buf - A null-terminated string containing JSON.
- * @param tokens - An array of tokens. Can be NULL, to validate only.
- * @param max_tokens - The length of tokens. Ignored if tokens is NULL.
+ * @param tokens - An array for storing the parsed tokens. Can be NULL, to validate only.
+ * @param max_tokens - The length of `tokens`. Ignored if `tokens` is NULL.
  * @return The number of tokens needed, or a jsmnerr (which are negative).
  *
  * @note This calls strlen() and requires that buf be a null-terminated string.
@@ -49,12 +53,12 @@ WS_DLL_PUBLIC bool json_validate(const uint8_t *buf, const size_t len);
 WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
 
 /**
- * Parse a JSON buffer and put the location of tokens into the tokens array.
+ * Parse a JSON buffer and write the token's addresses into the tokens array.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param len - The length of the JSON data in the buffer.
- * @param tokens - An array of tokens. Can be NULL, to validate only.
- * @param max_tokens - The length of tokens. Ignored if tokens is NULL.
+ * @param tokens - An array for storing the parsed tokens. Can be NULL, to validate only.
+ * @param max_tokens - The length of `tokens`. Ignored if tokens is NULL.
  * @return The number of tokens needed, or a jsmnerr (which are negative).
  *
  * @note This still stops parsing after the first '\0' byte, if any. It's
@@ -65,51 +69,98 @@ WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int ma
 WS_DLL_PUBLIC int json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_tokens);
 
 /**
- * Get the pointer to an object belonging to parent object and named as the name variable.
- * Returns NULL if not found.
+ * Get the pointer to an object belonging to the parent object and named as the name variable.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param parent - JSON object to search within for the `name`.
+ * @param name - The name to search the parent object for.
+ * @return Pointer to the object named `name` within the parent object, or NULL if not found.
  */
 WS_DLL_PUBLIC jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const char *name);
 
 /**
- * Get the pointer to an array belonging to parent object and named as the name variable.
- * Returns NULL if not found.
+ * Get the pointer to an array belonging to the parent object and named as the name variable.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param parent - JSON object to search within for the `name`.
+ * @param name - The name to search the parent object for.
+ * @return Pointer to the array named `name` within the parent object, or NULL if not found.
  */
 WS_DLL_PUBLIC jsmntok_t *json_get_array(const char *buf, jsmntok_t *parent, const char *name);
 
 /**
  * Get the number of elements of an array.
- * Returns -1 if the JSON objecct is not an array.
+ *
+ * @param array - JSON array.
+ * @return The number of elements in an array or -1 if the JSON object is not an array.
  */
 WS_DLL_PUBLIC int json_get_array_len(jsmntok_t *array);
 
 /**
  * Get the pointer to idx element of an array.
- * Returns NULL if not found.
+ *
+ * @param parent - JSON array.
+ * @param idx - index of element.
+ * @return Pointer to idx element of an array or NULL if not found.
  */
 WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
 
 /**
- * Get the unescaped value of a string object belonging to parent object and named as the name variable.
- * Returns NULL if not found. Caution: it modifies input buffer.
+ * Get the unescaped value of a string object belonging to the parent object and named as the name variable.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param parent - JSON object to search within for the `name`.
+ * @param name - The name to search the parent object for.
+ * @return Pointer to a string belonging to the parent object and named as the 'name' variable or NULL if not found.
+ *
+ * @note This modifies the input buffer.
  */
 WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const char *name);
 
 /**
- * Get the value of a number object belonging to parent object and named as the name variable.
- * Returns false if not found. Caution: it modifies input buffer.
- * Scientific notation not supported yet.
+ * Get the value of a number object belonging to the parent object and named as the name variable.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param parent - JSON object to search within for the `name`.
+ * @param name - The name to search the parent object for.
+ * @param val - Location to store the retrieved value.
+ * @return false if not found.
+ *
+ * @note This modifies the input buffer. Scientific notation not supported yet.
  */
 WS_DLL_PUBLIC bool json_get_double(char *buf, jsmntok_t *parent, const char *name, double *val);
 
 /**
- * Get the value of a boolean belonging to parent object and named as the name variable.
- * Returns false if not found. (Not the same as the boolean present but false.)
+ * Get the value of a number object belonging to the parent object and named as the name variable.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param parent - JSON object to search within for the `name`.
+ * @param name - The name to search the parent object for.
+ * @param val - Location to store the retrieved value.
+ * @return false if not found.
+ *
+ * @note This modifies the input buffer.
+ */
+WS_DLL_PUBLIC bool json_get_int(char *buf, jsmntok_t *parent, const char *name, int64_t *val);
+
+/**
+ * Get the value of a boolean belonging to the parent object and named as the name variable.
+ *
+ * @param buf - A buffer containing JSON, not necessarily null-terminated.
+ * @param parent - JSON object to search within for the `name`.
+ * @param name - The name to search the parent object for.
+ * @param val - Location to store the retrieved value.
+ * @return false if not found.
+ *
+ * @note This modifies the input buffer.
  */
 WS_DLL_PUBLIC bool json_get_boolean(char *buf, jsmntok_t *parent, const char *name, bool *val);
 
 /**
  * Decode the contents of a JSON string value by overwriting the input data.
- * Returns true on success and false if invalid characters were encountered.
+
+ * @param text - JSON string to decode.
+ * @return true on success and false if invalid characters were encountered.
  */
 WS_DLL_PUBLIC bool json_decode_string_inplace(char *text);
 

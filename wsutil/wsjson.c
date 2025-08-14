@@ -208,6 +208,27 @@ bool json_get_double(char *buf, jsmntok_t *parent, const char *name, double *val
     return false;
 }
 
+bool json_get_int(char *buf, jsmntok_t *parent, const char *name, int64_t *val)
+{
+    int i;
+    jsmntok_t *cur = parent+1;
+
+    for (i = 0; i < parent->size; i++) {
+        if (cur->type == JSMN_STRING &&
+            !strncmp(&buf[cur->start], name, cur->end - cur->start)
+            && strlen(name) == (size_t)(cur->end - cur->start) &&
+            cur->size == 1 && (cur+1)->type == JSMN_PRIMITIVE) {
+            buf[(cur+1)->end] = '\0';
+            *val = g_ascii_strtoll(&buf[(cur+1)->start], NULL, 10);
+            if (errno != 0)
+                return false;
+            return true;
+        }
+        cur = json_get_next_object(cur);
+    }
+    return false;
+}
+
 bool json_get_boolean(char *buf, jsmntok_t *parent, const char *name, bool *val)
 {
     int i;
