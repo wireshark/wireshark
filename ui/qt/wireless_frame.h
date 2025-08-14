@@ -41,8 +41,6 @@ private:
     int startTimer(int interval);
     void getInterfaceInfo();
     void setInterfaceInfo();
-    int getCenterFrequency(int control_frequency, int bandwidth);
-    int getBandwidthFromChanType(int chan_type);
     void updateInterfaceList();
 
 private slots:

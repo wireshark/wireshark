@@ -38,6 +38,8 @@
 
 const int update_interval_ = 1500; // ms
 
+Q_DECLARE_METATYPE(enum ws80211_channel_type)
+
 WirelessFrame::WirelessFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::WirelessFrame),
@@ -291,9 +293,8 @@ void WirelessFrame::setInterfaceInfo()
 
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211) && defined(HAVE_LIBPCAP)
     int frequency = ui->channelComboBox->itemData(cur_chan_idx).toInt();
-    int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
-    int bandwidth = getBandwidthFromChanType(chan_type);
-    int center_freq = getCenterFrequency(frequency, bandwidth);
+    enum ws80211_channel_type chan_type = qvariant_cast<enum ws80211_channel_type>(ui->channelTypeComboBox->itemData(cur_type_idx));
+    int center_freq = ws80211_get_center_frequency(frequency, chan_type);
     const char *chan_type_s = ws80211_chan_type_to_str(chan_type);
     char *center_freq_s = NULL;
     char *data, *primary_msg, *secondary_msg;
@@ -332,23 +333,6 @@ void WirelessFrame::setInterfaceInfo()
     }
 
     getInterfaceInfo();
-}
-
-int WirelessFrame::getCenterFrequency(int control_frequency, int bandwidth)
-{
-    return ws80211_get_center_frequency(control_frequency, bandwidth);
-}
-
-int WirelessFrame::getBandwidthFromChanType(int chan_type)
-{
-    switch (chan_type) {
-    case WS80211_CHAN_VHT80:
-        return 80;
-    case WS80211_CHAN_VHT160:
-        return 160;
-    default:
-        return -1;
-    }
 }
 
 void WirelessFrame::on_interfaceComboBox_activated(int)
