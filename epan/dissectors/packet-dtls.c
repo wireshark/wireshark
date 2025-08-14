@@ -816,9 +816,13 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
     }
     pinfo->match_uint = saved_match_port;
     /* fallback to data dissector */
-    if (!dissected)
+    if (!dissected) {
       call_data_dissector(decrypted, pinfo, top_tree);
+      if (have_tap_listener(exported_pdu_tap)) {
+        export_pdu_packet(decrypted, pinfo, EXP_PDU_TAG_DISSECTOR_NAME, "data");
+      }
     }
+  }
 }
 /* Dissect a DTLS record from version 1.2 and below */
 static int

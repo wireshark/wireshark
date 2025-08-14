@@ -1932,6 +1932,10 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
             /* No heuristics, no port-based proto, unknown protocol. */
             ssl_debug_printf("%s: no appdata dissector found\n", G_STRFUNC);
             call_data_dissector(next_tvb, pinfo, proto_tree_get_root(tree));
+            if (have_tap_listener(exported_pdu_tap)) {
+                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_DISSECTOR_NAME,
+                                  "data");
+            }
             return;
         }
     }
