@@ -3980,14 +3980,20 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     return true;
 }
 
-static bool blf_dump_write_logcontainer(wtap_dumper *wdh, int *err, char **err_info _U_) {
+static bool blf_dump_write_logcontainer(wtap_dumper *wdh, int *err, char **err_info) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     if (!wtap_dump_file_write(wdh, &(writer_data->logcontainer_block_header), sizeof(blf_blockheader_t), err)) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup_printf("blf: cannot write Log Container Block Header");
+        ws_warning("Cannot write Log Container Block Header");
         return false;
     }
 
     if (!wtap_dump_file_write(wdh, &(writer_data->logcontainer_header), sizeof(blf_logcontainerheader_t), err)) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup_printf("blf: cannot write Log Container");
+        ws_warning("Cannot write Log Container");
         return false;
     }
 
@@ -4192,7 +4198,7 @@ static const uint8_t canfd_length_to_dlc[] = { 0, 1, 2, 3,   4, 5, 6, 7,   8, 0,
                                               14, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,
                                               15 };
 
-static bool blf_dump_socketcan(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err _U_, char **err_info _U_, uint64_t obj_timestamp,
+static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info, uint64_t obj_timestamp,
                                const uint8_t *pd, size_t length, bool is_can, bool is_canfd, bool is_rx, bool is_tx) {
     /* LINKTYPE_CAN_SOCKETCAN */
     /* https://www.tcpdump.org/linktypes/LINKTYPE_CAN_SOCKETCAN.html */
@@ -4352,7 +4358,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh _U_, const wtap_rec *rec, int *e
     return true;
 }
 
-static bool blf_dump_sll(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err _U_, char **err_info _U_, uint64_t obj_timestamp) {
+static bool blf_dump_sll(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info, uint64_t obj_timestamp) {
     /* Linux Cooked CAN / CAN-FD */
     /* https://www.tcpdump.org/linktypes/LINKTYPE_LINUX_SLL.html */
 
@@ -4388,7 +4394,7 @@ static bool blf_dump_sll(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err _U_
     return true;
 }
 
-static bool blf_dump_flexray(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err _U_, char **err_info _U_, uint64_t obj_timestamp) {
+static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info, uint64_t obj_timestamp) {
     /* FlexRay */
     /* https://www.tcpdump.org/linktypes/LINKTYPE_FLEXRAY.html */
 
@@ -4543,7 +4549,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err
     return true;
 }
 
-static bool blf_dump_lin(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err, char **err_info _U_, uint64_t obj_timestamp) {
+static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info, uint64_t obj_timestamp) {
     /* LIN */
     /* https://www.tcpdump.org/linktypes/LINKTYPE_LIN.html */
 
@@ -4623,7 +4629,7 @@ static bool blf_dump_lin(wtap_dumper *wdh _U_, const wtap_rec *rec, int *err, ch
     return true;
 }
 
-static bool blf_dump_upper_pdu(wtap_dumper *wdh _U_, const wtap_rec *rec _U_, int *err _U_, char **err_info _U_, uint64_t obj_timestamp _U_) {
+static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err_info, uint64_t obj_timestamp) {
     const blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     const uint8_t *pd = ws_buffer_start_ptr(&rec->data);
@@ -5005,7 +5011,7 @@ static bool blf_add_idb(wtap_dumper *wdh _U_, wtap_block_t idb _U_, int *err _U_
 
 /* Finish writing to a dump file.
    Returns true on success, false on failure. */
-static bool blf_dump_finish(wtap_dumper *wdh, int *err, char **err_info _U_) {
+static bool blf_dump_finish(wtap_dumper *wdh, int *err, char **err_info) {
     if (!blf_dump_close_logcontainer(wdh, err, err_info)) {
         return false;
     }
@@ -5023,7 +5029,7 @@ static bool blf_dump_finish(wtap_dumper *wdh, int *err, char **err_info _U_) {
 /* Returns true on success, false on failure; sets "*err" to an error code on
    failure */
 static bool
-blf_dump_open(wtap_dumper *wdh, int *err, char **err_info _U_) {
+blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
     ws_debug("entering function");
 
     if (wdh == NULL || wdh->priv != NULL) {
